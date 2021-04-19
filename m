@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FBFC3643CB
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A4C36440E
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240934AbhDSNVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56310 "EHLO mail.kernel.org"
+        id S242111AbhDSNZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241024AbhDSNTq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:19:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EBDD613BF;
-        Mon, 19 Apr 2021 13:15:21 +0000 (UTC)
+        id S233858AbhDSNW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:22:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EA8B613AB;
+        Mon, 19 Apr 2021 13:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838122;
-        bh=IgI4zozI+D92Ifo00TD20wheW8iwvsLj3PA/KWEXrn4=;
+        s=korg; t=1618838299;
+        bh=xuEDcflAVxcg4Sc6BZIcLZsTGGyY1kEST9Rau7svftI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AS9a5G3eDorb9k4qjiGmzdbZgXG3OkRh7PZ6UGbpnxI2ywp7ZH6rFjJJJKnAIMDDb
-         VZaG808rMk4Z3pekXvu9WwXOSXZd0VCXw3AzVJkgUIcytcaZbWMl8Af1aaf4DGS7Eo
-         4aXuZ2MoeSDw04RHh9+fJGl/GwECUam5ftHkTm6M=
+        b=1KnGANCaOTKI9w9UqxiVwnuc22u7jfXYID/aV1pzRKufUd8lekdoaolgyIkzIa8DD
+         OaqYW6CNUlrVn4wX7B1fDlWY1Eb6+7a2UquFjhXfUOerE2//MWuvSFj0g3CMd7PQCH
+         PL4G8wAozH4MnXDpN6/M3+XvRJy8H2OMgKETawh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 051/103] readdir: make sure to verify directory entry for legacy interfaces too
+        stable@vger.kernel.org,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 11/73] gpio: sysfs: Obey valid_mask
 Date:   Mon, 19 Apr 2021 15:06:02 +0200
-Message-Id: <20210419130529.569975633@linuxfoundation.org>
+Message-Id: <20210419130524.184955487@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
+References: <20210419130523.802169214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,73 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 
-commit 0c93ac69407d63a85be0129aa55ffaec27ffebd3 upstream.
+[ Upstream commit 23cf00ddd2e1aacf1873e43f5e0c519c120daf7a ]
 
-This does the directory entry name verification for the legacy
-"fillonedir" (and compat) interface that goes all the way back to the
-dark ages before we had a proper dirent, and the readdir() system call
-returned just a single entry at a time.
+Do not allow exporting GPIOs which are set invalid
+by the driver's valid mask.
 
-Nobody should use this interface unless you still have binaries from
-1991, but let's do it right.
-
-This came up during discussions about unsafe_copy_to_user() and proper
-checking of all the inputs to it, as the networking layer is looking to
-use it in a few new places.  So let's make sure the _old_ users do it
-all right and proper, before we add new ones.
-
-See also commit 8a23eb804ca4 ("Make filldir[64]() verify the directory
-entry filename is valid") which did the proper modern interfaces that
-people actually use. It had a note:
-
-    Note that I didn't bother adding the checks to any legacy interfaces
-    that nobody uses.
-
-which this now corrects.  Note that we really don't care about POSIX and
-the presense of '/' in a directory entry, but verify_dirent_name() also
-ends up doing the proper name length verification which is what the
-input checking discussion was about.
-
-[ Another option would be to remove the support for this particular very
-  old interface: any binaries that use it are likely a.out binaries, and
-  they will no longer run anyway since we removed a.out binftm support
-  in commit eac616557050 ("x86: Deprecate a.out support").
-
-  But I'm not sure which came first: getdents() or ELF support, so let's
-  pretend somebody might still have a working binary that uses the
-  legacy readdir() case.. ]
-
-Link: https://lore.kernel.org/lkml/CAHk-=wjbvzCAhAtvG0d81W5o0-KT5PPTHhfJ5ieDFq+bGtgOYg@mail.gmail.com/
-Acked-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 726cb3ba4969 ("gpiolib: Support 'gpio-reserved-ranges' property")
+Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/readdir.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpio/gpiolib-sysfs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -150,6 +150,9 @@ static int fillonedir(struct dir_context
+diff --git a/drivers/gpio/gpiolib-sysfs.c b/drivers/gpio/gpiolib-sysfs.c
+index fbf6b1a0a4fa..558cd900d399 100644
+--- a/drivers/gpio/gpiolib-sysfs.c
++++ b/drivers/gpio/gpiolib-sysfs.c
+@@ -457,6 +457,8 @@ static ssize_t export_store(struct class *class,
+ 	long			gpio;
+ 	struct gpio_desc	*desc;
+ 	int			status;
++	struct gpio_chip	*gc;
++	int			offset;
  
- 	if (buf->result)
+ 	status = kstrtol(buf, 0, &gpio);
+ 	if (status < 0)
+@@ -468,6 +470,12 @@ static ssize_t export_store(struct class *class,
+ 		pr_warn("%s: invalid GPIO %ld\n", __func__, gpio);
  		return -EINVAL;
-+	buf->result = verify_dirent_name(name, namlen);
-+	if (buf->result < 0)
-+		return buf->result;
- 	d_ino = ino;
- 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
- 		buf->result = -EOVERFLOW;
-@@ -405,6 +408,9 @@ static int compat_fillonedir(struct dir_
+ 	}
++	gc = desc->gdev->chip;
++	offset = gpio_chip_hwgpio(desc);
++	if (!gpiochip_line_is_valid(gc, offset)) {
++		pr_warn("%s: GPIO %ld masked\n", __func__, gpio);
++		return -EINVAL;
++	}
  
- 	if (buf->result)
- 		return -EINVAL;
-+	buf->result = verify_dirent_name(name, namlen);
-+	if (buf->result < 0)
-+		return buf->result;
- 	d_ino = ino;
- 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
- 		buf->result = -EOVERFLOW;
+ 	/* No extra locking here; FLAG_SYSFS just signifies that the
+ 	 * request and export were done by on behalf of userspace, so
+-- 
+2.30.2
+
 
 
