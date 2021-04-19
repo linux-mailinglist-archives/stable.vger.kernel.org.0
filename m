@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7F32364376
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F37BE3642A4
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240815AbhDSNSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:18:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47728 "EHLO mail.kernel.org"
+        id S239787AbhDSNKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240531AbhDSNQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:16:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A801561354;
-        Mon, 19 Apr 2021 13:13:57 +0000 (UTC)
+        id S239737AbhDSNKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:10:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1ADA61279;
+        Mon, 19 Apr 2021 13:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838038;
-        bh=BoVdH6KrJri0ZVRqOkfW+M41yFN1y391Hopf2LtxxdQ=;
+        s=korg; t=1618837783;
+        bh=sTg96g2e+pk9z90fEyiITGgUeD3JA/SrgvhLU3ojrSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/We9hmS0iwdsBoKifT3xRKHx5m8AuaZgDYEOIXlcjCjkB6t6pdSzGWjh9MEm3i6m
-         m5K/YizFA94DKnpxnPKtUZ91X3ZGTQModQQ7+VA62ZCSHSn31imcA99DafvmdX2240
-         JFo3SHHGGhyzjhhg0suZbQrrWYiTymwmkiQ5LdM0=
+        b=T+rJH8seQcvEQHoT+Q5zN+3yFa7sjBMZNDg80eA0tAvyCNsb2J9Hh8o8W/lv1vkDw
+         fVfb9K7aIQcRGcMWLTy4Vqo8mbeclpuLfFBzysD5Gkq8JCvXlRpOsb5Ize3NIHCfik
+         e6iS5rXtP6NUhZaq0J4WC8BFUjH5AKqzG0ISJ8Yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryan Lee <ryans.lee@maximintegrated.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Seevalamuthu Mariappan <seevalam@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 020/103] ASoC: max98373: Changed amp shutdown register as volatile
-Date:   Mon, 19 Apr 2021 15:05:31 +0200
-Message-Id: <20210419130528.486019705@linuxfoundation.org>
+Subject: [PATCH 5.11 052/122] mac80211: clear sta->fast_rx when STA removed from 4-addr VLAN
+Date:   Mon, 19 Apr 2021 15:05:32 +0200
+Message-Id: <20210419130531.953085159@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
+References: <20210419130530.166331793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryan Lee <ryans.lee@maximintegrated.com>
+From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
 
-[ Upstream commit a23f9099ff1541f15704e96b784d3846d2a4483d ]
+[ Upstream commit dd0b45538146cb6a54d6da7663b8c3afd16ebcfd ]
 
-0x20FF(amp global enable) register was defined as non-volatile,
-but it is not. Overheating, overcurrent can cause amp shutdown
-in hardware.
-'regmap_write' compare register readback value before writing
-to avoid same value writing. 'regmap_read' just read cache
-not actual hardware value for the non-volatile register.
-When amp is internally shutdown by some reason, next 'AMP ON'
-command can be ignored because regmap think amp is already ON.
+In some race conditions, with more clients and traffic configuration,
+below crash is seen when making the interface down. sta->fast_rx wasn't
+cleared when STA gets removed from 4-addr AP_VLAN interface. The crash is
+due to try accessing 4-addr AP_VLAN interface's net_device (fast_rx->dev)
+which has been deleted already.
 
-Signed-off-by: Ryan Lee <ryans.lee@maximintegrated.com>
-Link: https://lore.kernel.org/r/20210325033555.29377-1-ryans.lee@maximintegrated.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Resolve this by clearing sta->fast_rx pointer when STA removes
+from a 4-addr VLAN.
+
+[  239.449529] Unable to handle kernel NULL pointer dereference at virtual address 00000004
+[  239.449531] pgd = 80204000
+...
+[  239.481496] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.4.60 #227
+[  239.481591] Hardware name: Generic DT based system
+[  239.487665] task: be05b700 ti: be08e000 task.ti: be08e000
+[  239.492360] PC is at get_rps_cpu+0x2d4/0x31c
+[  239.497823] LR is at 0xbe08fc54
+...
+[  239.778574] [<80739740>] (get_rps_cpu) from [<8073cb10>] (netif_receive_skb_internal+0x8c/0xac)
+[  239.786722] [<8073cb10>] (netif_receive_skb_internal) from [<8073d578>] (napi_gro_receive+0x48/0xc4)
+[  239.795267] [<8073d578>] (napi_gro_receive) from [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames+0xbcc/0x12d4 [mac80211])
+[  239.804776] [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames [mac80211]) from [<c7b84d4c>] (ieee80211_rx_napi+0x7b8/0x8c8 [mac8
+            0211])
+[  239.815857] [<c7b84d4c>] (ieee80211_rx_napi [mac80211]) from [<c7f63d7c>] (ath11k_dp_process_rx+0x7bc/0x8c8 [ath11k])
+[  239.827757] [<c7f63d7c>] (ath11k_dp_process_rx [ath11k]) from [<c7f5b6c4>] (ath11k_dp_service_srng+0x2c0/0x2e0 [ath11k])
+[  239.838484] [<c7f5b6c4>] (ath11k_dp_service_srng [ath11k]) from [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll+0x20/0x84 [ath11k_ahb]
+            )
+[  239.849419] [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll [ath11k_ahb]) from [<8073ce1c>] (net_rx_action+0xe0/0x28c)
+[  239.860945] [<8073ce1c>] (net_rx_action) from [<80324868>] (__do_softirq+0xe4/0x228)
+[  239.871269] [<80324868>] (__do_softirq) from [<80324c48>] (irq_exit+0x98/0x108)
+[  239.879080] [<80324c48>] (irq_exit) from [<8035c59c>] (__handle_domain_irq+0x90/0xb4)
+[  239.886114] [<8035c59c>] (__handle_domain_irq) from [<8030137c>] (gic_handle_irq+0x50/0x94)
+[  239.894100] [<8030137c>] (gic_handle_irq) from [<803024c0>] (__irq_svc+0x40/0x74)
+
+Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+Link: https://lore.kernel.org/r/1616163532-3881-1-git-send-email-seevalam@codeaurora.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98373-i2c.c | 1 +
- sound/soc/codecs/max98373-sdw.c | 1 +
- 2 files changed, 2 insertions(+)
+ net/mac80211/cfg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/max98373-i2c.c b/sound/soc/codecs/max98373-i2c.c
-index 92921e34f948..32b0c1d98365 100644
---- a/sound/soc/codecs/max98373-i2c.c
-+++ b/sound/soc/codecs/max98373-i2c.c
-@@ -440,6 +440,7 @@ static bool max98373_volatile_reg(struct device *dev, unsigned int reg)
- 	case MAX98373_R2054_MEAS_ADC_PVDD_CH_READBACK:
- 	case MAX98373_R2055_MEAS_ADC_THERM_CH_READBACK:
- 	case MAX98373_R20B6_BDE_CUR_STATE_READBACK:
-+	case MAX98373_R20FF_GLOBAL_SHDN:
- 	case MAX98373_R21FF_REV_ID:
- 		return true;
- 	default:
-diff --git a/sound/soc/codecs/max98373-sdw.c b/sound/soc/codecs/max98373-sdw.c
-index fa589d834f9a..14fd2f9a0bf3 100644
---- a/sound/soc/codecs/max98373-sdw.c
-+++ b/sound/soc/codecs/max98373-sdw.c
-@@ -214,6 +214,7 @@ static bool max98373_volatile_reg(struct device *dev, unsigned int reg)
- 	case MAX98373_R2054_MEAS_ADC_PVDD_CH_READBACK:
- 	case MAX98373_R2055_MEAS_ADC_THERM_CH_READBACK:
- 	case MAX98373_R20B6_BDE_CUR_STATE_READBACK:
-+	case MAX98373_R20FF_GLOBAL_SHDN:
- 	case MAX98373_R21FF_REV_ID:
- 	/* SoundWire Control Port Registers */
- 	case MAX98373_R0040_SCP_INIT_STAT_1 ... MAX98373_R0070_SCP_FRAME_CTLR:
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 68a0de02b561..860bc35383d5 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -1788,8 +1788,10 @@ static int ieee80211_change_station(struct wiphy *wiphy,
+ 		}
+ 
+ 		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
+-		    sta->sdata->u.vlan.sta)
++		    sta->sdata->u.vlan.sta) {
++			ieee80211_clear_fast_rx(sta);
+ 			RCU_INIT_POINTER(sta->sdata->u.vlan.sta, NULL);
++		}
+ 
+ 		if (test_sta_flag(sta, WLAN_STA_AUTHORIZED))
+ 			ieee80211_vif_dec_num_mcast(sta->sdata);
 -- 
 2.30.2
 
