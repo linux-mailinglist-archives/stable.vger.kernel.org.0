@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E398C364379
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 612D636437A
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240603AbhDSNSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:18:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
+        id S238832AbhDSNSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:18:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240715AbhDSNQn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:16:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35575613AB;
-        Mon, 19 Apr 2021 13:14:03 +0000 (UTC)
+        id S239640AbhDSNQq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:16:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFFD761246;
+        Mon, 19 Apr 2021 13:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838043;
-        bh=/9IyQacGTGb/SudmTn/8o4W+MLVXiEg2d8hWfT5mr3Q=;
+        s=korg; t=1618838046;
+        bh=QXEEnIMFb1usIywqSO4YVq+/fmvHo02LzcJsp6j+few=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sfRlCA58WddmPWGNiFfXKD1POoBQEbmkja1yRkRbi9PeyJDA/VQhDRdMAlm2XmftV
-         rrwrDehYmhOda6F8yfTjDQgHY9/FYl+FK+Kz3NGEyEuHbu5ktrW/lyauQyLDuOG3ud
-         8rAM3/tYbYhBwPVD6U9pncPh6ZJnVq7AM4khgwJ0=
+        b=C+DN3Yt8V7jBph6bo7CkicusnfZ8M2IM7SReSxA4uj6qlDqAlCoz9dsYZGYzmsPtL
+         62D5gU7SdtPwhq1yU3B8o0CjgoBRiTGIelPXPXsL/gCPjUs9xJ1rxBb9HtWwaldqH6
+         cnU/xibjlbUB35ipc6BQpbZ6prtIwLHqCiYz7eCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+        stable@vger.kernel.org, Tong Zhu <zhutong@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 022/103] gpu/xen: Fix a use after free in xen_drm_drv_init
-Date:   Mon, 19 Apr 2021 15:05:33 +0200
-Message-Id: <20210419130528.554526710@linuxfoundation.org>
+Subject: [PATCH 5.10 023/103] neighbour: Disregard DEAD dst in neigh_update
+Date:   Mon, 19 Apr 2021 15:05:34 +0200
+Message-Id: <20210419130528.590661430@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -40,57 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Tong Zhu <zhutong@amazon.com>
 
-[ Upstream commit 52762efa2b256ed1c5274e5177cbd52ee11a2f6a ]
+[ Upstream commit d47ec7a0a7271dda08932d6208e4ab65ab0c987c ]
 
-In function displback_changed, has the call chain
-displback_connect(front_info)->xen_drm_drv_init(front_info).
-We can see that drm_info is assigned to front_info->drm_info
-and drm_info is freed in fail branch in xen_drm_drv_init().
+After a short network outage, the dst_entry is timed out and put
+in DST_OBSOLETE_DEAD. We are in this code because arp reply comes
+from this neighbour after network recovers. There is a potential
+race condition that dst_entry is still in DST_OBSOLETE_DEAD.
+With that, another neighbour lookup causes more harm than good.
 
-Later displback_disconnect(front_info) is called and it calls
-xen_drm_drv_fini(front_info) cause a use after free by
-drm_info = front_info->drm_info statement.
+In best case all packets in arp_queue are lost. This is
+counterproductive to the original goal of finding a better path
+for those packets.
 
-My patch has done two things. First fixes the fail label which
-drm_info = kzalloc() failed and still free the drm_info.
-Second sets front_info->drm_info to NULL to avoid uaf.
+I observed a worst case with 4.x kernel where a dst_entry in
+DST_OBSOLETE_DEAD state is associated with loopback net_device.
+It leads to an ethernet header with all zero addresses.
+A packet with all zero source MAC address is quite deadly with
+mac80211, ath9k and 802.11 block ack.  It fails
+ieee80211_find_sta_by_ifaddr in ath9k (xmit.c). Ath9k flushes tx
+queue (ath_tx_complete_aggr). BAW (block ack window) is not
+updated. BAW logic is damaged and ath9k transmission is disabled.
 
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210323014656.10068-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Tong Zhu <zhutong@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/xen/xen_drm_front.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/core/neighbour.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/xen/xen_drm_front.c b/drivers/gpu/drm/xen/xen_drm_front.c
-index cc93a8c9547b..8ea91542b567 100644
---- a/drivers/gpu/drm/xen/xen_drm_front.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front.c
-@@ -531,7 +531,7 @@ static int xen_drm_drv_init(struct xen_drm_front_info *front_info)
- 	drm_dev = drm_dev_alloc(&xen_drm_driver, dev);
- 	if (IS_ERR(drm_dev)) {
- 		ret = PTR_ERR(drm_dev);
--		goto fail;
-+		goto fail_dev;
- 	}
- 
- 	drm_info->drm_dev = drm_dev;
-@@ -561,8 +561,10 @@ fail_modeset:
- 	drm_kms_helper_poll_fini(drm_dev);
- 	drm_mode_config_cleanup(drm_dev);
- 	drm_dev_put(drm_dev);
--fail:
-+fail_dev:
- 	kfree(drm_info);
-+	front_info->drm_info = NULL;
-+fail:
- 	return ret;
- }
- 
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 2fe4bbb6b80c..8339978d46ff 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -1380,7 +1380,7 @@ static int __neigh_update(struct neighbour *neigh, const u8 *lladdr,
+ 			 * we can reinject the packet there.
+ 			 */
+ 			n2 = NULL;
+-			if (dst) {
++			if (dst && dst->obsolete != DST_OBSOLETE_DEAD) {
+ 				n2 = dst_neigh_lookup_skb(dst, skb);
+ 				if (n2)
+ 					n1 = n2;
 -- 
 2.30.2
 
