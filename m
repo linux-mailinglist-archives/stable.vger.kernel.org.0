@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A0D3642E9
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2EE3642EB
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240091AbhDSNMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47170 "EHLO mail.kernel.org"
+        id S240109AbhDSNMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:12:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239844AbhDSNLU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:11:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E05C261246;
-        Mon, 19 Apr 2021 13:10:48 +0000 (UTC)
+        id S232708AbhDSNLX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:11:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B245361369;
+        Mon, 19 Apr 2021 13:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837849;
-        bh=qWNd7Sy3XiCXmtTcRBCpnKokIX9emHoWsK6lp2dXgus=;
+        s=korg; t=1618837852;
+        bh=cTv/+ObGpid6q5PCgrkMLnY1hD7lfOHQmZ+Pxd2mqtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHXRTARf9O20sny4dWP5/sbI3V14NbLEXtIKWxQ8G5o03upEjMgyYHfRZijw7m++8
-         Kv/ibmMRNvZGnzNd5QANHCYI4qLC8wnrvRByMiaEK96xqp2KGqp3+6U3Ealujocigg
-         e9FSkHyZsHqQPzEe86iuJ/CjaggdSmQ6S22LXaJY=
+        b=bD9G3r0gxXyaj0x6eBtqVdCCy1bHYjm7UhlUC0l17kRytCfURtgcyWmQt0GndfFOI
+         eu9F+PrPt12IcdbuYWWXyOtsR527Du2jS6d82rT2a2wXWaXKXyfG/xoTQPKX4SyLfL
+         qfiby+qCTTlxESGOjSTMjjg6H6jK9KU+zRQzKl3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.11 077/122] libbpf: Fix potential NULL pointer dereference
-Date:   Mon, 19 Apr 2021 15:05:57 +0200
-Message-Id: <20210419130532.786389947@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.11 078/122] drm/i915/display/vlv_dsi: Do not skip panel_pwr_cycle_delay when disabling the panel
+Date:   Mon, 19 Apr 2021 15:05:58 +0200
+Message-Id: <20210419130532.821962952@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -39,44 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ciara Loftus <ciara.loftus@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit afd0be7299533bb2e2b09104399d8a467ecbd2c5 upstream.
+commit aee6f25e9c911323aa89a200e1bb160c1613ed3d upstream.
 
-Wait until after the UMEM is checked for null to dereference it.
+After the recently added commit fe0f1e3bfdfe ("drm/i915: Shut down
+displays gracefully on reboot"), the DSI panel on a Cherry Trail based
+Predia Basic tablet would no longer properly light up after reboot.
 
-Fixes: 43f1bc1efff1 ("libbpf: Restore umem state after socket create failure")
-Signed-off-by: Ciara Loftus <ciara.loftus@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210408052009.7844-1-ciara.loftus@intel.com
+I've managed to reproduce this without rebooting by doing:
+chvt 3; echo 1 > /sys/class/graphics/fb0/blank;\
+echo 0 > /sys/class/graphics/fb0/blank
+
+Which rapidly turns the panel off and back on again.
+
+The vlv_dsi.c code uses an intel_dsi_msleep() helper for the various delays
+used for panel on/off, since starting with MIPI-sequences version >= 3 the
+delays are already included inside the MIPI-sequences.
+
+The problems exposed by the "Shut down displays gracefully on reboot"
+change, show that using this helper for the panel_pwr_cycle_delay is
+not the right thing to do. This has not been noticed until now because
+normally the panel never is cycled off and directly on again in quick
+succession.
+
+Change the msleep for the panel_pwr_cycle_delay to a normal msleep()
+call to avoid the panel staying black after a quick off + on cycle.
+
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Fixes: fe0f1e3bfdfe ("drm/i915: Shut down displays gracefully on reboot")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210325114823.44922-1-hdegoede@redhat.com
+(cherry picked from commit 2878b29fc25a0dac0e1c6c94177f07c7f94240f0)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/xsk.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/vlv_dsi.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -777,18 +777,19 @@ int xsk_socket__create_shared(struct xsk
- 			      struct xsk_ring_cons *comp,
- 			      const struct xsk_socket_config *usr_config)
+--- a/drivers/gpu/drm/i915/display/vlv_dsi.c
++++ b/drivers/gpu/drm/i915/display/vlv_dsi.c
+@@ -992,14 +992,14 @@ static void intel_dsi_post_disable(struc
+ 	 * FIXME As we do with eDP, just make a note of the time here
+ 	 * and perform the wait before the next panel power on.
+ 	 */
+-	intel_dsi_msleep(intel_dsi, intel_dsi->panel_pwr_cycle_delay);
++	msleep(intel_dsi->panel_pwr_cycle_delay);
+ }
+ 
+ static void intel_dsi_shutdown(struct intel_encoder *encoder)
  {
-+	bool unmap, rx_setup_done = false, tx_setup_done = false;
- 	void *rx_map = NULL, *tx_map = NULL;
- 	struct sockaddr_xdp sxdp = {};
- 	struct xdp_mmap_offsets off;
- 	struct xsk_socket *xsk;
- 	struct xsk_ctx *ctx;
- 	int err, ifindex;
--	bool unmap = umem->fill_save != fill;
--	bool rx_setup_done = false, tx_setup_done = false;
+ 	struct intel_dsi *intel_dsi = enc_to_intel_dsi(encoder);
  
- 	if (!umem || !xsk_ptr || !(rx || tx))
- 		return -EFAULT;
+-	intel_dsi_msleep(intel_dsi, intel_dsi->panel_pwr_cycle_delay);
++	msleep(intel_dsi->panel_pwr_cycle_delay);
+ }
  
-+	unmap = umem->fill_save != fill;
-+
- 	xsk = calloc(1, sizeof(*xsk));
- 	if (!xsk)
- 		return -ENOMEM;
+ static bool intel_dsi_get_hw_state(struct intel_encoder *encoder,
 
 
