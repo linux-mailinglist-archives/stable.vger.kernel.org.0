@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 617AF364408
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C4C364462
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240319AbhDSNZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:25:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
+        id S241857AbhDSN1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:27:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241363AbhDSNWl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:22:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC41261285;
-        Mon, 19 Apr 2021 13:18:05 +0000 (UTC)
+        id S241982AbhDSNY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:24:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0862613E5;
+        Mon, 19 Apr 2021 13:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838286;
-        bh=J9UUaUQJXpc+Wtidh7Auovyz9JrG1MkqCjWCk6hUegc=;
+        s=korg; t=1618838394;
+        bh=NMmXSPmmVhc0N8aSOLMKzq76reUOLB59YEtKF5dGKR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCWNxKSkGbcZqU2VBnTYzb0uLyS/Q/8NqSzA8/qYl+UFKQJm42ZXfGGN79g2UKxOz
-         vDAWRLFg/qAAYZHQLbCf2S7YEgCqCal6RljNxO8XtP756YAIErvKFaBISXbSPGar/Z
-         nEmyPdaX0li2Wrfszo9iHSkLWtYm5tsUpIBU4qFw=
+        b=X6WicbcN6PUkIdCymBeCym5vv7J0Z41jvfxGPCT/airI5bpMJQti81cvguih8N5mQ
+         EOXwxj2Kk3dtDlhqaBJ2t2Soka/wjgjbAmi5TDJwlMD5jVv82wfvJSkDlU2wr2HL/Z
+         Wv7S5KqgIaG/q6Tdy8/3kQQb35GBIxpap+ZYvkZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
-        Rohit Maheshwari <rohitm@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 083/103] ch_ktls: tcb close causes tls connection failure
-Date:   Mon, 19 Apr 2021 15:06:34 +0200
-Message-Id: <20210419130530.651342324@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 44/73] readdir: make sure to verify directory entry for legacy interfaces too
+Date:   Mon, 19 Apr 2021 15:06:35 +0200
+Message-Id: <20210419130525.250472560@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
+References: <20210419130523.802169214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 21d8c25e3f4b9052a471ced8f47b531956eb9963 upstream.
+commit 0c93ac69407d63a85be0129aa55ffaec27ffebd3 upstream.
 
-HW doesn't need marking TCB closed. This TCB state change
-sometimes causes problem to the new connection which gets
-the same tid.
+This does the directory entry name verification for the legacy
+"fillonedir" (and compat) interface that goes all the way back to the
+dark ages before we had a proper dirent, and the readdir() system call
+returned just a single entry at a time.
 
-Fixes: 34aba2c45024 ("cxgb4/chcr : Register to tls add and del callback")
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Nobody should use this interface unless you still have binaries from
+1991, but let's do it right.
+
+This came up during discussions about unsafe_copy_to_user() and proper
+checking of all the inputs to it, as the networking layer is looking to
+use it in a few new places.  So let's make sure the _old_ users do it
+all right and proper, before we add new ones.
+
+See also commit 8a23eb804ca4 ("Make filldir[64]() verify the directory
+entry filename is valid") which did the proper modern interfaces that
+people actually use. It had a note:
+
+    Note that I didn't bother adding the checks to any legacy interfaces
+    that nobody uses.
+
+which this now corrects.  Note that we really don't care about POSIX and
+the presense of '/' in a directory entry, but verify_dirent_name() also
+ends up doing the proper name length verification which is what the
+input checking discussion was about.
+
+[ Another option would be to remove the support for this particular very
+  old interface: any binaries that use it are likely a.out binaries, and
+  they will no longer run anyway since we removed a.out binftm support
+  in commit eac616557050 ("x86: Deprecate a.out support").
+
+  But I'm not sure which came first: getdents() or ELF support, so let's
+  pretend somebody might still have a working binary that uses the
+  legacy readdir() case.. ]
+
+Link: https://lore.kernel.org/lkml/CAHk-=wjbvzCAhAtvG0d81W5o0-KT5PPTHhfJ5ieDFq+bGtgOYg@mail.gmail.com/
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/inline_crypto/ch_ktls/chcr_ktls.c |   19 ----------
- 1 file changed, 19 deletions(-)
+ fs/readdir.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/ethernet/chelsio/inline_crypto/ch_ktls/chcr_ktls.c
-+++ b/drivers/net/ethernet/chelsio/inline_crypto/ch_ktls/chcr_ktls.c
-@@ -355,18 +355,6 @@ static int chcr_set_tcb_field(struct chc
- }
+--- a/fs/readdir.c
++++ b/fs/readdir.c
+@@ -150,6 +150,9 @@ static int fillonedir(struct dir_context
  
- /*
-- * chcr_ktls_mark_tcb_close: mark tcb state to CLOSE
-- * @tx_info - driver specific tls info.
-- * return: NET_TX_OK/NET_XMIT_DROP.
-- */
--static int chcr_ktls_mark_tcb_close(struct chcr_ktls_info *tx_info)
--{
--	return chcr_set_tcb_field(tx_info, TCB_T_STATE_W,
--				  TCB_T_STATE_V(TCB_T_STATE_M),
--				  CHCR_TCB_STATE_CLOSED, 1);
--}
--
--/*
-  * chcr_ktls_dev_del:  call back for tls_dev_del.
-  * Remove the tid and l2t entry and close the connection.
-  * it per connection basis.
-@@ -400,8 +388,6 @@ static void chcr_ktls_dev_del(struct net
+ 	if (buf->result)
+ 		return -EINVAL;
++	buf->result = verify_dirent_name(name, namlen);
++	if (buf->result < 0)
++		return buf->result;
+ 	d_ino = ino;
+ 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
+ 		buf->result = -EOVERFLOW;
+@@ -417,6 +420,9 @@ static int compat_fillonedir(struct dir_
  
- 	/* clear tid */
- 	if (tx_info->tid != -1) {
--		/* clear tcb state and then release tid */
--		chcr_ktls_mark_tcb_close(tx_info);
- 		cxgb4_remove_tid(&tx_info->adap->tids, tx_info->tx_chan,
- 				 tx_info->tid, tx_info->ip_family);
- 	}
-@@ -579,7 +565,6 @@ static int chcr_ktls_dev_add(struct net_
- 	return 0;
- 
- free_tid:
--	chcr_ktls_mark_tcb_close(tx_info);
- #if IS_ENABLED(CONFIG_IPV6)
- 	/* clear clip entry */
- 	if (tx_info->ip_family == AF_INET6)
-@@ -677,10 +662,6 @@ static int chcr_ktls_cpl_act_open_rpl(st
- 	if (tx_info->pending_close) {
- 		spin_unlock(&tx_info->lock);
- 		if (!status) {
--			/* it's a late success, tcb status is establised,
--			 * mark it close.
--			 */
--			chcr_ktls_mark_tcb_close(tx_info);
- 			cxgb4_remove_tid(&tx_info->adap->tids, tx_info->tx_chan,
- 					 tid, tx_info->ip_family);
- 		}
+ 	if (buf->result)
+ 		return -EINVAL;
++	buf->result = verify_dirent_name(name, namlen);
++	if (buf->result < 0)
++		return buf->result;
+ 	d_ino = ino;
+ 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
+ 		buf->result = -EOVERFLOW;
 
 
