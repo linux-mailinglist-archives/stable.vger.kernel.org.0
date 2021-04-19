@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86E07364453
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64ADA3643ED
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242089AbhDSN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34382 "EHLO mail.kernel.org"
+        id S241103AbhDSNXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:23:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242140AbhDSNZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:25:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96D5261027;
-        Mon, 19 Apr 2021 13:20:35 +0000 (UTC)
+        id S238936AbhDSNVF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:21:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D00AF613FD;
+        Mon, 19 Apr 2021 13:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838436;
-        bh=IYOK17ITSDAPu/km3oXXYCpxT2U4rijXptNM3uQNDrU=;
+        s=korg; t=1618838258;
+        bh=Byr+fhg5Lf5vgurkOuCBRAGK4/82Kv6/CDnJUn53+ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lr4+CYZPOctPorPIGjCtRzMb/Y6DalmFB6mhC5ijDgsE0fUmbQrj6bUlLiIxiGPBs
-         uyMJk6p2fAtMDkkgCy88suDQcf6Zie+5SF4tFfDtuQO6kis3na6UEGKqfL7ZOUsm/v
-         C0rRH2YSU88v6cWcPrWHKNOnHnhjvL2GBXsBCxLU=
+        b=IlQfXqCQoBmo5SZcb8ZN8jxChVB8UsxGVuNCtXumS52gYItgJrDl5lXEYZEvzmAkI
+         FF6iUDlEoAhYkMU12hmmYJvqFsATi4kV64wTjprTy834U0cVkkfnFEIcvWWJ6f4aRU
+         cot7TAq3PS33jH3iOu1hfdGlhOHAivn4+8wpuz5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 58/73] net: ip6_tunnel: Unregister catch-all devices
-Date:   Mon, 19 Apr 2021 15:06:49 +0200
-Message-Id: <20210419130525.712288199@linuxfoundation.org>
+        stable@vger.kernel.org, Fredrik Strupe <fredrik@strupe.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.10 099/103] ARM: 9071/1: uprobes: Dont hook on thumb instructions
+Date:   Mon, 19 Apr 2021 15:06:50 +0200
+Message-Id: <20210419130531.183656528@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
-References: <20210419130523.802169214@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hristo Venev <hristo@venev.name>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-commit 941ea91e87a6e879ed82dad4949f6234f2702bec upstream.
+commit d2f7eca60b29006285d57c7035539e33300e89e5 upstream.
 
-Similarly to the sit case, we need to remove the tunnels with no
-addresses that have been moved to another network namespace.
+Since uprobes is not supported for thumb, check that the thumb bit is
+not set when matching the uprobes instruction hooks.
 
-Fixes: 0bd8762824e73 ("ip6tnl: add x-netns support")
-Signed-off-by: Hristo Venev <hristo@venev.name>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The Arm UDF instructions used for uprobes triggering
+(UPROBE_SWBP_ARM_INSN and UPROBE_SS_ARM_INSN) coincidentally share the
+same encoding as a pair of unallocated 32-bit thumb instructions (not
+UDF) when the condition code is 0b1111 (0xf). This in effect makes it
+possible to trigger the uprobes functionality from thumb, and at that
+using two unallocated instructions which are not permanently undefined.
+
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Cc: stable@vger.kernel.org
+Fixes: c7edc9e326d5 ("ARM: add uprobes support")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_tunnel.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm/probes/uprobes/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -2217,6 +2217,16 @@ static void __net_exit ip6_tnl_destroy_t
- 			t = rtnl_dereference(t->next);
- 		}
- 	}
-+
-+	t = rtnl_dereference(ip6n->tnls_wc[0]);
-+	while (t) {
-+		/* If dev is in the same netns, it has already
-+		 * been added to the list by the previous loop.
-+		 */
-+		if (!net_eq(dev_net(t->dev), net))
-+			unregister_netdevice_queue(t->dev, list);
-+		t = rtnl_dereference(t->next);
-+	}
- }
- 
- static int __net_init ip6_tnl_init_net(struct net *net)
+--- a/arch/arm/probes/uprobes/core.c
++++ b/arch/arm/probes/uprobes/core.c
+@@ -204,7 +204,7 @@ unsigned long uprobe_get_swbp_addr(struc
+ static struct undef_hook uprobes_arm_break_hook = {
+ 	.instr_mask	= 0x0fffffff,
+ 	.instr_val	= (UPROBE_SWBP_ARM_INSN & 0x0fffffff),
+-	.cpsr_mask	= MODE_MASK,
++	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
+ 	.cpsr_val	= USR_MODE,
+ 	.fn		= uprobe_trap_handler,
+ };
+@@ -212,7 +212,7 @@ static struct undef_hook uprobes_arm_bre
+ static struct undef_hook uprobes_arm_ss_hook = {
+ 	.instr_mask	= 0x0fffffff,
+ 	.instr_val	= (UPROBE_SS_ARM_INSN & 0x0fffffff),
+-	.cpsr_mask	= MODE_MASK,
++	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
+ 	.cpsr_val	= USR_MODE,
+ 	.fn		= uprobe_trap_handler,
+ };
 
 
