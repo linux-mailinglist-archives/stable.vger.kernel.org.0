@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A34C364448
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95E5736444C
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241593AbhDSN0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:26:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34814 "EHLO mail.kernel.org"
+        id S241644AbhDSN0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:26:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242064AbhDSNZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242069AbhDSNZQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Apr 2021 09:25:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5624C613C2;
-        Mon, 19 Apr 2021 13:20:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 046E3613C6;
+        Mon, 19 Apr 2021 13:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838424;
-        bh=a5wCfOGJQWW5KdkqJShWnNNebQHSGOal7vr47/aMm/8=;
+        s=korg; t=1618838427;
+        bh=SPzFrNWbP0myf455MsY7S9A/Ct5XzJP/B1iAyiQPiEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sa31m7vuKekbmTr0brXtKBfGzyQOUJI7irp3wsKheFx38HBpmFCwLMGLdMQIacMqu
-         Ej1KmOCzSP06sUtCLdTwqgWrDnQhXq5LmSoTl1slCXeHJjBHnT1aIzlz+hVBKtAZLM
-         XooWTMEiECukh3P3t8MrytGA/Lqov0ZRrASDmQPE=
+        b=ZJNWEo31scg+WqnR4+sI3xykJ+Aq87Hfy+gRXa18if7WTI5Wddwq4JEhoKiZfF1s/
+         boaaRSx0E0dIjsX6dQiZ/os8Qsx9uZpdUQbNFqd9j7yuo4gYdQhQUqMKucntPQusGK
+         KbDVHu/cVKPF8samLud5LVWtPS3OyB0OplqRJxiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 54/73] net: macb: fix the restore of cmp registers
-Date:   Mon, 19 Apr 2021 15:06:45 +0200
-Message-Id: <20210419130525.570992940@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Luigi Rizzo <lrizzo@google.com>
+Subject: [PATCH 5.4 55/73] netfilter: nft_limit: avoid possible divide error in nft_limit_init
+Date:   Mon, 19 Apr 2021 15:06:46 +0200
+Message-Id: <20210419130525.602091577@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
 References: <20210419130523.802169214@linuxfoundation.org>
@@ -40,45 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit a714e27ea8bdee2b238748029d31472d0a65b611 upstream.
+commit b895bdf5d643b6feb7c60856326dd4feb6981560 upstream.
 
-Commit a14d273ba159 ("net: macb: restore cmp registers on resume path")
-introduces the restore of CMP registers on resume path. In case the IP
-doesn't support type 2 screeners (zero on DCFG8 register) the
-struct macb::rx_fs_list::list is not initialized and thus the
-list_for_each_entry(item, &bp->rx_fs_list.list, list) loop introduced in
-commit a14d273ba159 ("net: macb: restore cmp registers on resume path")
-will access an uninitialized list leading to crash. Thus, initialize
-the struct macb::rx_fs_list::list without taking into account if the
-IP supports type 2 screeners or not.
+div_u64() divides u64 by u32.
 
-Fixes: a14d273ba159 ("net: macb: restore cmp registers on resume path")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+nft_limit_init() wants to divide u64 by u64, use the appropriate
+math function (div64_u64)
+
+divide error: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 8390 Comm: syz-executor188 Not tainted 5.12.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:div_u64_rem include/linux/math64.h:28 [inline]
+RIP: 0010:div_u64 include/linux/math64.h:127 [inline]
+RIP: 0010:nft_limit_init+0x2a2/0x5e0 net/netfilter/nft_limit.c:85
+Code: ef 4c 01 eb 41 0f 92 c7 48 89 de e8 38 a5 22 fa 4d 85 ff 0f 85 97 02 00 00 e8 ea 9e 22 fa 4c 0f af f3 45 89 ed 31 d2 4c 89 f0 <49> f7 f5 49 89 c6 e8 d3 9e 22 fa 48 8d 7d 48 48 b8 00 00 00 00 00
+RSP: 0018:ffffc90009447198 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000200000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff875152e6 RDI: 0000000000000003
+RBP: ffff888020f80908 R08: 0000200000000000 R09: 0000000000000000
+R10: ffffffff875152d8 R11: 0000000000000000 R12: ffffc90009447270
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  000000000097a300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000200001c4 CR3: 0000000026a52000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ nf_tables_newexpr net/netfilter/nf_tables_api.c:2675 [inline]
+ nft_expr_init+0x145/0x2d0 net/netfilter/nf_tables_api.c:2713
+ nft_set_elem_expr_alloc+0x27/0x280 net/netfilter/nf_tables_api.c:5160
+ nf_tables_newset+0x1997/0x3150 net/netfilter/nf_tables_api.c:4321
+ nfnetlink_rcv_batch+0x85a/0x21b0 net/netfilter/nfnetlink.c:456
+ nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:580 [inline]
+ nfnetlink_rcv+0x3af/0x420 net/netfilter/nfnetlink.c:598
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:674
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: c26844eda9d4 ("netfilter: nf_tables: Fix nft limit burst handling")
+Fixes: 3e0f64b7dd31 ("netfilter: nft_limit: fix packet ratelimiting")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Diagnosed-by: Luigi Rizzo <lrizzo@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nft_limit.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -3590,6 +3590,7 @@ static int macb_init(struct platform_dev
- 	reg = gem_readl(bp, DCFG8);
- 	bp->max_tuples = min((GEM_BFEXT(SCR2CMP, reg) / 3),
- 			GEM_BFEXT(T2SCR, reg));
-+	INIT_LIST_HEAD(&bp->rx_fs_list.list);
- 	if (bp->max_tuples > 0) {
- 		/* also needs one ethtype match to check IPv4 */
- 		if (GEM_BFEXT(SCR2ETH, reg) > 0) {
-@@ -3600,7 +3601,6 @@ static int macb_init(struct platform_dev
- 			/* Filtering is supported in hw but don't enable it in kernel now */
- 			dev->hw_features |= NETIF_F_NTUPLE;
- 			/* init Rx flow definitions */
--			INIT_LIST_HEAD(&bp->rx_fs_list.list);
- 			bp->rx_fs_list.count = 0;
- 			spin_lock_init(&bp->rx_fs_lock);
- 		} else
+--- a/net/netfilter/nft_limit.c
++++ b/net/netfilter/nft_limit.c
+@@ -76,13 +76,13 @@ static int nft_limit_init(struct nft_lim
+ 		return -EOVERFLOW;
+ 
+ 	if (pkts) {
+-		tokens = div_u64(limit->nsecs, limit->rate) * limit->burst;
++		tokens = div64_u64(limit->nsecs, limit->rate) * limit->burst;
+ 	} else {
+ 		/* The token bucket size limits the number of tokens can be
+ 		 * accumulated. tokens_max specifies the bucket size.
+ 		 * tokens_max = unit * (rate + burst) / rate.
+ 		 */
+-		tokens = div_u64(limit->nsecs * (limit->rate + limit->burst),
++		tokens = div64_u64(limit->nsecs * (limit->rate + limit->burst),
+ 				 limit->rate);
+ 	}
+ 
 
 
