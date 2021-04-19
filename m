@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0194A364435
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C47373643DD
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240407AbhDSNZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:25:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34670 "EHLO mail.kernel.org"
+        id S241308AbhDSNWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:22:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241992AbhDSNZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:25:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC426613E6;
-        Mon, 19 Apr 2021 13:19:56 +0000 (UTC)
+        id S241482AbhDSNUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:20:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BA92613F9;
+        Mon, 19 Apr 2021 13:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838397;
-        bh=46JedHWo30ypvYrPVxpZd3sFM7/UwPdy0xbk1KlwYCo=;
+        s=korg; t=1618838215;
+        bh=atu+37rMZinbAqAV0oBEAba3ZAW/aB0sx1YtWbxXwvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqobXc17AHnf3oH+ATkTRTHti46viVi53DkjHOOEsrmuuqXYYFs2FJP35rOqDmTDZ
-         QB+H8/pRSjv558ZCoPYVIRrEj6gIQAYIYvNzWzOXI20Lqe8IKPoV4TJppQT23l2S46
-         FUh7bZUd+fWDK7f1K/8xClIaX/kr8Wxi4KBDqTRs=
+        b=df4esQZrd370VZCKzgblKtB25YvKsQvehB8BiPWF1w6QtjHcDF/cJA3EhzrPnIvW/
+         wCw2Er+NRwf2bSt7wmdHTydNQ2JW3nmVsKXm2WBCM+2Xh+SBB1Y7SddD/zRBat3P4k
+         FOYQWIthHFXxMdW83sbimuLS9wu8k6VsaxQ+uJ/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 45/73] arm64: fix inline asm in load_unaligned_zeropad()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 085/103] gro: ensure frag0 meets IP header alignment
 Date:   Mon, 19 Apr 2021 15:06:36 +0200
-Message-Id: <20210419130525.284906315@linuxfoundation.org>
+Message-Id: <20210419130530.717244714@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
-References: <20210419130523.802169214@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 185f2e5f51c2029efd9dd26cceb968a44fe053c6 upstream.
+commit 38ec4944b593fd90c5ef42aaaa53e66ae5769d04 upstream.
 
-The inline asm's addr operand is marked as input-only, however in
-the case where an exception is taken it may be modified by the BIC
-instruction on the exception path. Fix the problem by using a temporary
-register as the destination register for the BIC instruction.
+After commit 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Guenter Roeck reported one failure in his tests using sh architecture.
 
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Cc: stable@vger.kernel.org
-Link: https://linux-review.googlesource.com/id/I84538c8a2307d567b4f45bb20b715451005f9617
-Link: https://lore.kernel.org/r/20210401165110.3952103-1-pcc@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+After much debugging, we have been able to spot silent unaligned accesses
+in inet_gro_receive()
+
+The issue at hand is that upper networking stacks assume their header
+is word-aligned. Low level drivers are supposed to reserve NET_IP_ALIGN
+bytes before the Ethernet header to make that happen.
+
+This patch hardens skb_gro_reset_offset() to not allow frag0 fast-path
+if the fragment is not properly aligned.
+
+Some arches like x86, arm64 and powerpc do not care and define NET_IP_ALIGN
+as 0, this extra check will be a NOP for them.
+
+Note that if frag0 is not used, GRO will call pskb_may_pull()
+as many times as needed to pull network and transport headers.
+
+Fixes: 0f6925b3e8da ("virtio_net: Do not pull payload in skb->head")
+Fixes: 78a478d0efd9 ("gro: Inline skb_gro_header and cache frag0 virtual address")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/word-at-a-time.h |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/core/dev.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/word-at-a-time.h
-+++ b/arch/arm64/include/asm/word-at-a-time.h
-@@ -53,7 +53,7 @@ static inline unsigned long find_zero(un
-  */
- static inline unsigned long load_unaligned_zeropad(const void *addr)
- {
--	unsigned long ret, offset;
-+	unsigned long ret, tmp;
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5867,7 +5867,8 @@ static void skb_gro_reset_offset(struct
+ 	NAPI_GRO_CB(skb)->frag0_len = 0;
  
- 	/* Load word from unaligned pointer addr */
- 	asm(
-@@ -61,9 +61,9 @@ static inline unsigned long load_unalign
- 	"2:\n"
- 	"	.pushsection .fixup,\"ax\"\n"
- 	"	.align 2\n"
--	"3:	and	%1, %2, #0x7\n"
--	"	bic	%2, %2, #0x7\n"
--	"	ldr	%0, [%2]\n"
-+	"3:	bic	%1, %2, #0x7\n"
-+	"	ldr	%0, [%1]\n"
-+	"	and	%1, %2, #0x7\n"
- 	"	lsl	%1, %1, #0x3\n"
- #ifndef __AARCH64EB__
- 	"	lsr	%0, %0, %1\n"
-@@ -73,7 +73,7 @@ static inline unsigned long load_unalign
- 	"	b	2b\n"
- 	"	.popsection\n"
- 	_ASM_EXTABLE(1b, 3b)
--	: "=&r" (ret), "=&r" (offset)
-+	: "=&r" (ret), "=&r" (tmp)
- 	: "r" (addr), "Q" (*(unsigned long *)addr));
- 
- 	return ret;
+ 	if (!skb_headlen(skb) && pinfo->nr_frags &&
+-	    !PageHighMem(skb_frag_page(frag0))) {
++	    !PageHighMem(skb_frag_page(frag0)) &&
++	    (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))) {
+ 		NAPI_GRO_CB(skb)->frag0 = skb_frag_address(frag0);
+ 		NAPI_GRO_CB(skb)->frag0_len = min_t(unsigned int,
+ 						    skb_frag_size(frag0),
 
 
