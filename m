@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7B9364316
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E6A0364323
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239841AbhDSNOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:14:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
+        id S240032AbhDSNOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:14:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232579AbhDSNMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240133AbhDSNMk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Apr 2021 09:12:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00F6F6128C;
-        Mon, 19 Apr 2021 13:11:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C196161354;
+        Mon, 19 Apr 2021 13:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837911;
-        bh=iQo7sFgSBzWdVt6aoRkL+hrrjNASJ6jdYhr5vqo1B1g=;
+        s=korg; t=1618837914;
+        bh=/Z6OCQUFL7u5EhYaxMUNJuVhH7l50zWkWy04jj07uMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTxl+d0BBV8iIefA15aUO6sNfp0sVoEf/swmVdLiPJI9heDBBGuRs88wnzR9AkoM3
-         FToUVXARYTox4YL51OTyqOHI3727GU8vyMMizDcGDZ4RjOkc97Dudg7ugKZSk9OXS4
-         ZwezygQASLTQimydihjXZZO2b8oqlR6AZBYVuQTA=
+        b=FdnZCAl/vdeRruJGrTU1EMTdhHwEaSZEaMw4LNNVC076lqSyNt5LsU4vrwTnqK02s
+         cHMQGiEsAZLL39tM4muJe3M7MoIKuG15NkYYDmQr/Qboii+PbzZfDt9owgwD3PhlP3
+         t79M0a26tv9VeYReKQaGQNe6mKwANIW7HNtTroyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <lijunp213@gmail.com>,
+        stable@vger.kernel.org,
+        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
+        Rohit Maheshwari <rohitm@chelsio.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 097/122] ibmvnic: remove duplicate napi_schedule call in open function
-Date:   Mon, 19 Apr 2021 15:06:17 +0200
-Message-Id: <20210419130533.449219002@linuxfoundation.org>
+Subject: [PATCH 5.11 098/122] ch_ktls: Fix kernel panic
+Date:   Mon, 19 Apr 2021 15:06:18 +0200
+Message-Id: <20210419130533.485557320@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -39,35 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <lijunp213@gmail.com>
+From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 
-commit 7c451f3ef676c805a4b77a743a01a5c21a250a73 upstream.
+commit 1a73e427b824133940c2dd95ebe26b6dce1cbf10 upstream.
 
-Remove the unnecessary napi_schedule() call in __ibmvnic_open() since
-interrupt_rx() calls napi_schedule_prep/__napi_schedule during every
-receive interrupt.
+Taking page refcount is not ideal and causes kernel panic
+sometimes. It's better to take tx_ctx lock for the complete
+skb transmit, to avoid page cleanup if ACK received in middle.
 
-Fixes: ed651a10875f ("ibmvnic: Updated reset handling")
-Signed-off-by: Lijun Pan <lijunp213@gmail.com>
+Fixes: 5a4b9fe7fece ("cxgb4/chcr: complete record tx handling")
+Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/net/ethernet/chelsio/inline_crypto/ch_ktls/chcr_ktls.c |   24 ++--------
+ 1 file changed, 5 insertions(+), 19 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1187,11 +1187,6 @@ static int __ibmvnic_open(struct net_dev
+--- a/drivers/net/ethernet/chelsio/inline_crypto/ch_ktls/chcr_ktls.c
++++ b/drivers/net/ethernet/chelsio/inline_crypto/ch_ktls/chcr_ktls.c
+@@ -2015,12 +2015,11 @@ static int chcr_ktls_xmit(struct sk_buff
+ 	 * we will send the complete record again.
+ 	 */
  
- 	netif_tx_start_all_queues(netdev);
++	spin_lock_irqsave(&tx_ctx->base.lock, flags);
++
+ 	do {
+-		int i;
  
--	if (prev_state == VNIC_CLOSED) {
--		for (i = 0; i < adapter->req_rx_queues; i++)
--			napi_schedule(&adapter->napi[i]);
--	}
+ 		cxgb4_reclaim_completed_tx(adap, &q->q, true);
+-		/* lock taken */
+-		spin_lock_irqsave(&tx_ctx->base.lock, flags);
+ 		/* fetch the tls record */
+ 		record = tls_get_record(&tx_ctx->base, tcp_seq,
+ 					&tx_info->record_no);
+@@ -2079,11 +2078,11 @@ static int chcr_ktls_xmit(struct sk_buff
+ 						    tls_end_offset, skb_offset,
+ 						    0);
+ 
+-			spin_unlock_irqrestore(&tx_ctx->base.lock, flags);
+ 			if (ret) {
+ 				/* free the refcount taken earlier */
+ 				if (tls_end_offset < data_len)
+ 					dev_kfree_skb_any(skb);
++				spin_unlock_irqrestore(&tx_ctx->base.lock, flags);
+ 				goto out;
+ 			}
+ 
+@@ -2093,16 +2092,6 @@ static int chcr_ktls_xmit(struct sk_buff
+ 			continue;
+ 		}
+ 
+-		/* increase page reference count of the record, so that there
+-		 * won't be any chance of page free in middle if in case stack
+-		 * receives ACK and try to delete the record.
+-		 */
+-		for (i = 0; i < record->num_frags; i++)
+-			__skb_frag_ref(&record->frags[i]);
+-		/* lock cleared */
+-		spin_unlock_irqrestore(&tx_ctx->base.lock, flags);
 -
- 	adapter->state = VNIC_OPEN;
- 	return rc;
- }
+-
+ 		/* if a tls record is finishing in this SKB */
+ 		if (tls_end_offset <= data_len) {
+ 			ret = chcr_end_part_handler(tx_info, skb, record,
+@@ -2127,13 +2116,9 @@ static int chcr_ktls_xmit(struct sk_buff
+ 			data_len = 0;
+ 		}
+ 
+-		/* clear the frag ref count which increased locally before */
+-		for (i = 0; i < record->num_frags; i++) {
+-			/* clear the frag ref count */
+-			__skb_frag_unref(&record->frags[i]);
+-		}
+ 		/* if any failure, come out from the loop. */
+ 		if (ret) {
++			spin_unlock_irqrestore(&tx_ctx->base.lock, flags);
+ 			if (th->fin)
+ 				dev_kfree_skb_any(skb);
+ 
+@@ -2148,6 +2133,7 @@ static int chcr_ktls_xmit(struct sk_buff
+ 
+ 	} while (data_len > 0);
+ 
++	spin_unlock_irqrestore(&tx_ctx->base.lock, flags);
+ 	atomic64_inc(&port_stats->ktls_tx_encrypted_packets);
+ 	atomic64_add(skb_data_len, &port_stats->ktls_tx_encrypted_bytes);
+ 
 
 
