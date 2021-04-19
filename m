@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DEE13642A2
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7F32364376
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232217AbhDSNKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:10:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
+        id S240815AbhDSNSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:18:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239691AbhDSNKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE1446128C;
-        Mon, 19 Apr 2021 13:09:39 +0000 (UTC)
+        id S240531AbhDSNQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:16:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A801561354;
+        Mon, 19 Apr 2021 13:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837780;
-        bh=FNUg1XRVrOeOXuEXVMppXQbDhVGuqH6mQqna3Sckp14=;
+        s=korg; t=1618838038;
+        bh=BoVdH6KrJri0ZVRqOkfW+M41yFN1y391Hopf2LtxxdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ASBtOp9V0MwBfByjzNhIOw7GX6vBIDsJHNgZe5JPklx8W9sNiYSbFqX1HD/FQu78G
-         4oCvvX5cXE2z2Si9gDC4gFIX5iqvr4lHhIc9GCx7SBaPUz2I8k8Wp2Ltv2UFm49wG/
-         rMeapWJ1+J1ihf8qK941sapRHrPXiuJFcu0jyKXQ=
+        b=O/We9hmS0iwdsBoKifT3xRKHx5m8AuaZgDYEOIXlcjCjkB6t6pdSzGWjh9MEm3i6m
+         m5K/YizFA94DKnpxnPKtUZ91X3ZGTQModQQ7+VA62ZCSHSn31imcA99DafvmdX2240
+         JFo3SHHGGhyzjhhg0suZbQrrWYiTymwmkiQ5LdM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Ryan Lee <ryans.lee@maximintegrated.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 051/122] drm/amd/display: Add missing mask for DCN3
+Subject: [PATCH 5.10 020/103] ASoC: max98373: Changed amp shutdown register as volatile
 Date:   Mon, 19 Apr 2021 15:05:31 +0200
-Message-Id: <20210419130531.916920290@linuxfoundation.org>
+Message-Id: <20210419130528.486019705@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
-References: <20210419130530.166331793@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qingqing Zhuo <qingqing.zhuo@amd.com>
+From: Ryan Lee <ryans.lee@maximintegrated.com>
 
-[ Upstream commit df7232c4c676be29f1cf45058ec156c1183539ff ]
+[ Upstream commit a23f9099ff1541f15704e96b784d3846d2a4483d ]
 
-[Why]
-DCN3 is not reusing DCN1 mask_sh_list, causing
-SURFACE_FLIP_INT_MASK missing in the mapping.
+0x20FF(amp global enable) register was defined as non-volatile,
+but it is not. Overheating, overcurrent can cause amp shutdown
+in hardware.
+'regmap_write' compare register readback value before writing
+to avoid same value writing. 'regmap_read' just read cache
+not actual hardware value for the non-volatile register.
+When amp is internally shutdown by some reason, next 'AMP ON'
+command can be ignored because regmap think amp is already ON.
 
-[How]
-Add the corresponding entry to DCN3 list.
-
-Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Ryan Lee <ryans.lee@maximintegrated.com>
+Link: https://lore.kernel.org/r/20210325033555.29377-1-ryans.lee@maximintegrated.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/max98373-i2c.c | 1 +
+ sound/soc/codecs/max98373-sdw.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
-index 5fa150f34c60..2e89acf46e54 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubp.h
-@@ -133,6 +133,7 @@
- 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_EN, mask_sh),\
- 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_IND_BLK, mask_sh),\
- 	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_CONTROL, SECONDARY_SURFACE_DCC_IND_BLK_C, mask_sh),\
-+	HUBP_SF(HUBPREQ0_DCSURF_SURFACE_FLIP_INTERRUPT, SURFACE_FLIP_INT_MASK, mask_sh),\
- 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, DET_BUF_PLANE1_BASE_ADDRESS, mask_sh),\
- 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, CROSSBAR_SRC_CB_B, mask_sh),\
- 	HUBP_SF(HUBPRET0_HUBPRET_CONTROL, CROSSBAR_SRC_CR_R, mask_sh),\
+diff --git a/sound/soc/codecs/max98373-i2c.c b/sound/soc/codecs/max98373-i2c.c
+index 92921e34f948..32b0c1d98365 100644
+--- a/sound/soc/codecs/max98373-i2c.c
++++ b/sound/soc/codecs/max98373-i2c.c
+@@ -440,6 +440,7 @@ static bool max98373_volatile_reg(struct device *dev, unsigned int reg)
+ 	case MAX98373_R2054_MEAS_ADC_PVDD_CH_READBACK:
+ 	case MAX98373_R2055_MEAS_ADC_THERM_CH_READBACK:
+ 	case MAX98373_R20B6_BDE_CUR_STATE_READBACK:
++	case MAX98373_R20FF_GLOBAL_SHDN:
+ 	case MAX98373_R21FF_REV_ID:
+ 		return true;
+ 	default:
+diff --git a/sound/soc/codecs/max98373-sdw.c b/sound/soc/codecs/max98373-sdw.c
+index fa589d834f9a..14fd2f9a0bf3 100644
+--- a/sound/soc/codecs/max98373-sdw.c
++++ b/sound/soc/codecs/max98373-sdw.c
+@@ -214,6 +214,7 @@ static bool max98373_volatile_reg(struct device *dev, unsigned int reg)
+ 	case MAX98373_R2054_MEAS_ADC_PVDD_CH_READBACK:
+ 	case MAX98373_R2055_MEAS_ADC_THERM_CH_READBACK:
+ 	case MAX98373_R20B6_BDE_CUR_STATE_READBACK:
++	case MAX98373_R20FF_GLOBAL_SHDN:
+ 	case MAX98373_R21FF_REV_ID:
+ 	/* SoundWire Control Port Registers */
+ 	case MAX98373_R0040_SCP_INIT_STAT_1 ... MAX98373_R0070_SCP_FRAME_CTLR:
 -- 
 2.30.2
 
