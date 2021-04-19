@@ -2,121 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A32F6364D3B
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 23:42:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82457364D5B
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 23:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230033AbhDSVmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 17:42:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57164 "EHLO
+        id S231588AbhDSVyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 17:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229730AbhDSVmj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 17:42:39 -0400
-Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9783BC06174A
-        for <stable@vger.kernel.org>; Mon, 19 Apr 2021 14:42:08 -0700 (PDT)
-Received: by mail-oo1-xc2b.google.com with SMTP id g9-20020a4ad3090000b02901ec6daba49aso1255360oos.6
-        for <stable@vger.kernel.org>; Mon, 19 Apr 2021 14:42:08 -0700 (PDT)
+        with ESMTP id S240508AbhDSVyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 17:54:53 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D69DBC06174A
+        for <stable@vger.kernel.org>; Mon, 19 Apr 2021 14:54:23 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id y1so2871737plg.11
+        for <stable@vger.kernel.org>; Mon, 19 Apr 2021 14:54:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=m0OqRlvNiEY/zXZRAt+l2/ZGIP7YrBXvHqjuguqGmio=;
-        b=MB/udQoiWkac4AbkzgnDICtv/NNgru/bX4cp7JWMX/fBYEbfHnz/05CeCN7tWvsP/4
-         Jo37q28JxhmI+6sr9qBeBRD8s7kx9+KjS9tKBDV+dXBMIFERlY+nPF5aT/GYdDvlwZ07
-         p3Y3ta3Q66zMklr5cZYOVL+Si9uRqnYJjDty0=
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=1i3gRklEVn4rcGvJfanGgRgq9YRpuGxfecqav8SO1PQ=;
+        b=aUAFydFnKA6/DNucCjbel4rBIl5NrZp4Fwz35yQFGfFxeyfXtmcnuyQZ7JDoKqZRJm
+         wvCm9+aDbVhvxRFpq8D92Ry3gxBJnrVXYrNjTWxni4Kqy1U/WUKWj6x5Q8OTfUnLV/FQ
+         mQ5ulMPsRyh2Dg08V/Lj3Orfcm+G2nNPSBK9rBpLmFgyMSeq/7LrwGzarQ7mZGt+zcVF
+         KGZleBpbEYLFp1jWUKVRE+4cfGP46DrlAhXBr8xCDAmqUygVHtVFC+PzUbZznfH3xtag
+         U13coduseqxJrwnb/MSj3cvIeonNNZEgdZvc8VOvbNJSQgZwo3wTudSOwmnfNj8+jtJ+
+         n4KA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=m0OqRlvNiEY/zXZRAt+l2/ZGIP7YrBXvHqjuguqGmio=;
-        b=W9d5E4HJuKqKVBY80bDFuSo2wFT+hvkSDygGNHr4/KPplb7m/hoAk67C5IcQBwYAHO
-         w+L1YGp79SbQFMHg9oA4r4+Snsdvha/rHaRsneICoV7O9HKiKRpRJ1GUwlSXtTezVK48
-         PdijwLh5XbnmqBx0/g5OpUP7R/2vMI/Nb+sdS3+l2oYszo6l0q3OnvOFIReBhrmGGDAi
-         8JOaPUdUsbxOcwTAB/qe7/NiY6KUP42vOh6Xxs31WOO7zlSd3UdGGjewzg8wbOr7qA0t
-         uqbo2pnxpT8803rb5BILjXBC6Wuf9rIgphRj6qTMwJ5EoWi5KnGQBmwVij4j8N8vFoZh
-         vPUw==
-X-Gm-Message-State: AOAM532wGIEPD9tTlQQG4H9NcxDgBZVOiNttCij87qu0lqx9pSfHuJJe
-        qlqhioCVPB4ky7YURWp8rsHwTA==
-X-Google-Smtp-Source: ABdhPJyE7p5GOKoTREVaXsQoQ8F/ja64ZRGpxYd0T5frUG/QzkfRiTfTDkzv1e65ty2f0VDy6fmtIw==
-X-Received: by 2002:a4a:e386:: with SMTP id l6mr589714oov.81.1618868527958;
-        Mon, 19 Apr 2021 14:42:07 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id w84sm3532890oig.20.2021.04.19.14.42.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Apr 2021 14:42:07 -0700 (PDT)
-Subject: Re: [PATCH 1/4] usbip: add sysfs_lock to synchronize sysfs code paths
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Tom Seewald <tseewald@gmail.com>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20210416205319.14075-1-tseewald@gmail.com>
- <ea81015d-79f3-f22e-0b96-e0ae58acfc14@linuxfoundation.org>
- <YH12XjHqkH66HgdC@kroah.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <9b401378-1acd-fd5b-a7b9-4ec6a1ee777f@linuxfoundation.org>
-Date:   Mon, 19 Apr 2021 15:42:06 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=1i3gRklEVn4rcGvJfanGgRgq9YRpuGxfecqav8SO1PQ=;
+        b=FSB2PlNgfgyIFaIxPHccbuMfEhhPMGhC07sHed4yyzgjT/jUOO/W7EzGm9Kn9KoAci
+         kkgyzo3fZ7eA24cbbfMhzCNDCsqY5FD4XECz7uAkYNx6M5EgdDM0auRdr5PrgIBt3WS5
+         RjAt4/0/+tb1LRPBpEHPs4gHNAJRnbaA+sIyWUrLM8ztcK2n67s0bU7Nl0SimDxbJMt/
+         wNgYYpyMQqq/SmY+MmNJoNaAzSX8upfpGqdbQF/5/KxuSlk0AC5PY1ylF47QjV3lAlsL
+         AW7s3I40H1K4tUV0KiLaf/pbDMClrbImQuqAanlW/Tg+AiMInWbiClrkuIl8MpucTiKZ
+         YbUQ==
+X-Gm-Message-State: AOAM530eL4eIEp7tNTIT+s1UOT2oN6VSbioLUPQa+e6Dpuhb7l3k8VVY
+        aJcUT+Mtqt3Rqp1V6U+mU/5EZN+Vb4bYVQ==
+X-Google-Smtp-Source: ABdhPJwRKHcHUUB75RJ8UksC6cCcuOtivKcwdvQTiCRHMAGo4WJYZrc7oY+xQK+RKi9lpCp9nS7JAg==
+X-Received: by 2002:a17:90a:7147:: with SMTP id g7mr1214240pjs.225.1618869263264;
+        Mon, 19 Apr 2021 14:54:23 -0700 (PDT)
+Received: from google.com (240.111.247.35.bc.googleusercontent.com. [35.247.111.240])
+        by smtp.gmail.com with ESMTPSA id d21sm368051pjx.24.2021.04.19.14.54.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Apr 2021 14:54:22 -0700 (PDT)
+Date:   Mon, 19 Apr 2021 21:54:18 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: Patch "KVM: VMX: Convert vcpu_vmx.exit_reason to a union" has
+ been added to the 5.10-stable tree
+Message-ID: <YH38CpPjGSsSRUgt@google.com>
+References: <20210419002733.D5675610CB@mail.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <YH12XjHqkH66HgdC@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210419002733.D5675610CB@mail.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/19/21 6:23 AM, Greg Kroah-Hartman wrote:
-> On Fri, Apr 16, 2021 at 03:43:45PM -0600, Shuah Khan wrote:
->> On 4/16/21 2:53 PM, Tom Seewald wrote:
->>> From: Shuah Khan <skhan@linuxfoundation.org>
->>>
->>> commit 4e9c93af7279b059faf5bb1897ee90512b258a12 upstream.
->>>
->>> Fuzzing uncovered race condition between sysfs code paths in usbip
->>> drivers. Device connect/disconnect code paths initiated through
->>> sysfs interface are prone to races if disconnect happens during
->>> connect and vice versa.
->>>
->>> This problem is common to all drivers while it can be reproduced easily
->>> in vhci_hcd. Add a sysfs_lock to usbip_device struct to protect the paths.
->>>
->>> Use this in vhci_hcd to protect sysfs paths. For a complete fix, usip_host
->>> and usip-vudc drivers and the event handler will have to use this lock to
->>> protect the paths. These changes will be done in subsequent patches.
->>>
->>> Cc: stable@vger.kernel.org # 4.9.x
->>> Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
->>> Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
->>> Link: https://lore.kernel.org/r/b6568f7beae702bbc236a545d3c020106ca75eac.1616807117.git.skhan@linuxfoundation.org
->>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>> Signed-off-by: Tom Seewald <tseewald@gmail.com>
->>> ---
->>>    drivers/usb/usbip/usbip_common.h |  3 +++
->>>    drivers/usb/usbip/vhci_hcd.c     |  1 +
->>>    drivers/usb/usbip/vhci_sysfs.c   | 30 +++++++++++++++++++++++++-----
->>>    3 files changed, 29 insertions(+), 5 deletions(-)
->>>
->>
->> Thank you for the backport.
->>
->> Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
->>
->> Greg, please pick this up for 4.9.x
++Paolo
+
+On Sun, Apr 18, 2021, Sasha Levin wrote:
+> This is a note to let you know that I've just added the patch titled
 > 
-> Also for 4.14.y, right?
+>     KVM: VMX: Convert vcpu_vmx.exit_reason to a union
 > 
+> to the 5.10-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      kvm-vmx-convert-vcpu_vmx.exit_reason-to-a-union.patch
+> and it can be found in the queue-5.10 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
 
-It made it into 4.14 already. We are good with 4.14.y
+I'm not sure we want this going into stable kernels, even for 5.10 and 5.11.
+I assume it got pulled in to resolve a conflict with commit 04c4f2ee3f68 ("KVM:
+VMX: Don't use vcpu->run->internal.ndata as an array index"), but that's should
+be trivial to resolve since it's just a collision with surrounding code.
 
-5f2a149564ee2b41ab09e90add21153bd5be64d3
-
-thanks,
--- Shuah
+Maybe we'll end up with a more painful conflict in the future that would be best
+solved by grabbing this refactoring, but I don't think we're there yet.
 
 
-
-
+> commit 1499b54db7d9e7e5f5014307e8391e3ad7986f1f
+> Author: Sean Christopherson <seanjc@google.com>
+> Date:   Fri Nov 6 17:03:12 2020 +0800
+> 
+>     KVM: VMX: Convert vcpu_vmx.exit_reason to a union
+>     
+>     [ Upstream commit 8e53324021645f820a01bf8aa745711c802c8542 ]
+>     
+>     Convert vcpu_vmx.exit_reason from a u32 to a union (of size u32).  The
+>     full VM_EXIT_REASON field is comprised of a 16-bit basic exit reason in
+>     bits 15:0, and single-bit modifiers in bits 31:16.
+>     
+>     Historically, KVM has only had to worry about handling the "failed
+>     VM-Entry" modifier, which could only be set in very specific flows and
+>     required dedicated handling.  I.e. manually stripping the FAILED_VMENTRY
+>     bit was a somewhat viable approach.  But even with only a single bit to
+>     worry about, KVM has had several bugs related to comparing a basic exit
+>     reason against the full exit reason store in vcpu_vmx.
+>     
+>     Upcoming Intel features, e.g. SGX, will add new modifier bits that can
+>     be set on more or less any VM-Exit, as opposed to the significantly more
+>     restricted FAILED_VMENTRY, i.e. correctly handling everything in one-off
+>     flows isn't scalable.  Tracking exit reason in a union forces code to
+>     explicitly choose between consuming the full exit reason and the basic
+>     exit, and is a convenient way to document and access the modifiers.
+>     
+>     No functional change intended.
+>     
+>     Cc: Xiaoyao Li <xiaoyao.li@intel.com>
+>     Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+>     Signed-off-by: Chenyi Qiang <chenyi.qiang@intel.com>
+>     Message-Id: <20201106090315.18606-2-chenyi.qiang@intel.com>
+>     Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
