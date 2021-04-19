@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F76F3643AE
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A722436440C
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240547AbhDSNVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56216 "EHLO mail.kernel.org"
+        id S242107AbhDSNZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240966AbhDSNTi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:19:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05CA1613F0;
-        Mon, 19 Apr 2021 13:15:15 +0000 (UTC)
+        id S241588AbhDSNW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:22:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A183861288;
+        Mon, 19 Apr 2021 13:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838116;
-        bh=5x1SmBefa/kSnntTEvpcxavC7fKBCuwyfcpGWdvwOgU=;
+        s=korg; t=1618838297;
+        bh=JoSR1JmAXLHjSDwAvnHt+5pIu1kPY4eYIQXc4w8Eo1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zDopIpR5NE/pFUpCGu09FKch3DWDWupQT9FKlnyxIfqqQD845uDIPXjmh/0k6GfYn
-         99/aZ0cg+1U6mf5uEpv2L2wykfkKJQ+huSBKpG07cPJB4xOBAD5MQCeweCYhSnHtNf
-         8KoTnMBYSRVurqaPabXtfj/1D+HcXltH5XlrLuks=
+        b=nmVEi/74B9HUxv9nwD1B/sFkkUxZzFpVS96HWkM61CwoGvcfJkoJf2BXUyuTPX65+
+         uDMnGBbjwAqv3EYt+6Rb+eT9N0io9NnZWQ4jSmAdb8xLcnkLL+3csbJg3CgHowcjJ+
+         rRSWJUmkildiT9Mk2kn1vErWjjndDT4/AUN6P0l8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
-        Jason Gerecke <Jason.Gerecke@wacom.com>,
-        Juan Garrido <Juan.Garrido@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.10 049/103] HID: wacom: set EV_KEY and EV_ABS only for non-HID_GENERIC type of devices
-Date:   Mon, 19 Apr 2021 15:06:00 +0200
-Message-Id: <20210419130529.501905584@linuxfoundation.org>
+        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/73] Input: nspire-keypad - enable interrupts only when opened
+Date:   Mon, 19 Apr 2021 15:06:01 +0200
+Message-Id: <20210419130524.156086799@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
+References: <20210419130523.802169214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +40,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping Cheng <pinglinux@gmail.com>
+From: Fabian Vogt <fabian@ritter-vogt.de>
 
-commit 276559d8d02c2709281578976ca2f53bc62063d4 upstream.
+[ Upstream commit 69d5ff3e9e51e23d5d81bf48480aa5671be67a71 ]
 
-Valid HID_GENERIC type of devices set EV_KEY and EV_ABS by wacom_map_usage.
-When *_input_capabilities are reached, those devices should already have
-their proper EV_* set. EV_KEY and EV_ABS only need to be set for
-non-HID_GENERIC type of devices in *_input_capabilities.
+The driver registers an interrupt handler in _probe, but didn't configure
+them until later when the _open function is called. In between, the keypad
+can fire an IRQ due to touchpad activity, which the handler ignores. This
+causes the kernel to disable the interrupt, blocking the keypad from
+working.
 
-Devices that don't support HID descitoprs will pass back to hid-input for
-registration without being accidentally rejected by the introduction of
-patch: "Input: refuse to register absolute devices without absinfo"
+Fix this by disabling interrupts before registering the handler.
+Additionally, disable them in _close, so that they're only enabled while
+open.
 
-Fixes: 6ecfe51b4082 ("Input: refuse to register absolute devices without absinfo")
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <Jason.Gerecke@wacom.com>
-Tested-by: Juan Garrido <Juan.Garrido@wacom.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fc4f31461892 ("Input: add TI-Nspire keypad support")
+Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
+Link: https://lore.kernel.org/r/3383725.iizBOSrK1V@linux-e202.suse.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/nspire-keypad.c | 56 ++++++++++++++------------
+ 1 file changed, 31 insertions(+), 25 deletions(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3574,8 +3574,6 @@ int wacom_setup_pen_input_capabilities(s
+diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
+index 63d5e488137d..e9fa1423f136 100644
+--- a/drivers/input/keyboard/nspire-keypad.c
++++ b/drivers/input/keyboard/nspire-keypad.c
+@@ -93,9 +93,15 @@ static irqreturn_t nspire_keypad_irq(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
++static int nspire_keypad_open(struct input_dev *input)
  {
- 	struct wacom_features *features = &wacom_wac->features;
++	struct nspire_keypad *keypad = input_get_drvdata(input);
+ 	unsigned long val = 0, cycles_per_us, delay_cycles, row_delay_cycles;
++	int error;
++
++	error = clk_prepare_enable(keypad->clk);
++	if (error)
++		return error;
  
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+ 	cycles_per_us = (clk_get_rate(keypad->clk) / 1000000);
+ 	if (cycles_per_us == 0)
+@@ -121,30 +127,6 @@ static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
+ 	keypad->int_mask = 1 << 1;
+ 	writel(keypad->int_mask, keypad->reg_base + KEYPAD_INTMSK);
+ 
+-	/* Disable GPIO interrupts to prevent hanging on touchpad */
+-	/* Possibly used to detect touchpad events */
+-	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
+-	/* Acknowledge existing interrupts */
+-	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
 -
- 	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
- 		return -ENODEV;
+-	return 0;
+-}
+-
+-static int nspire_keypad_open(struct input_dev *input)
+-{
+-	struct nspire_keypad *keypad = input_get_drvdata(input);
+-	int error;
+-
+-	error = clk_prepare_enable(keypad->clk);
+-	if (error)
+-		return error;
+-
+-	error = nspire_keypad_chip_init(keypad);
+-	if (error) {
+-		clk_disable_unprepare(keypad->clk);
+-		return error;
+-	}
+-
+ 	return 0;
+ }
  
-@@ -3590,6 +3588,7 @@ int wacom_setup_pen_input_capabilities(s
- 		return 0;
+@@ -152,6 +134,11 @@ static void nspire_keypad_close(struct input_dev *input)
+ {
+ 	struct nspire_keypad *keypad = input_get_drvdata(input);
+ 
++	/* Disable interrupts */
++	writel(0, keypad->reg_base + KEYPAD_INTMSK);
++	/* Acknowledge existing interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_INT);
++
+ 	clk_disable_unprepare(keypad->clk);
+ }
+ 
+@@ -210,6 +197,25 @@ static int nspire_keypad_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  	}
  
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	__set_bit(ABS_MISC, input_dev->absbit);
++	error = clk_prepare_enable(keypad->clk);
++	if (error) {
++		dev_err(&pdev->dev, "failed to enable clock\n");
++		return error;
++	}
++
++	/* Disable interrupts */
++	writel(0, keypad->reg_base + KEYPAD_INTMSK);
++	/* Acknowledge existing interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_INT);
++
++	/* Disable GPIO interrupts to prevent hanging on touchpad */
++	/* Possibly used to detect touchpad events */
++	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
++	/* Acknowledge existing GPIO interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
++
++	clk_disable_unprepare(keypad->clk);
++
+ 	input_set_drvdata(input, keypad);
  
-@@ -3742,8 +3741,6 @@ int wacom_setup_touch_input_capabilities
- {
- 	struct wacom_features *features = &wacom_wac->features;
- 
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
- 		return -ENODEV;
- 
-@@ -3756,6 +3753,7 @@ int wacom_setup_touch_input_capabilities
- 		/* setup has already been done */
- 		return 0;
- 
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 
- 	if (features->touch_max == 1) {
+ 	input->id.bustype = BUS_HOST;
+-- 
+2.30.2
+
 
 
