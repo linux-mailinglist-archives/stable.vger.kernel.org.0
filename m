@@ -2,102 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C85A8364136
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 14:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5679364138
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 14:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238769AbhDSMEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 08:04:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54694 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233519AbhDSMEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 08:04:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EEDB60FE8;
-        Mon, 19 Apr 2021 12:04:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618833862;
-        bh=JJzqqHbZqVlkT2kBS3P/HTmuc2pd9C539v+ZpQI79Y8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oDCJP+v0ddQyW2ievNMk+Q1B4hR6tbH6D1E1uxeCJehXcOHL6MB6p3E19F3xhfYOg
-         Vwm0R5G8TZzHMaiyum9HtrbwPz/V/JF+uWrfgfEI/XarIGaYHA1FT07jz3rp3nZDtK
-         kHXUhBGFW80nO/JjF43uB0JGBcle9avYEPKOaawU=
-Date:   Mon, 19 Apr 2021 14:04:19 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jonathon Reinhart <jonathon.reinhart@gmail.com>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        stable-commits@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Patch "net: Make tcp_allowed_congestion_control readonly in
- non-init netns" has been added to the 5.10-stable tree
-Message-ID: <YH1xw5s0Uu5i/cRT@kroah.com>
-References: <1618749928154136@kroah.com>
- <CAPFHKzdKcVDDERr8pmd=65Tf=tWNh_bKar9OLQd0oS2YBVu80Q@mail.gmail.com>
+        id S239017AbhDSMFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 08:05:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42046 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238882AbhDSMFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 08:05:13 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A752C06174A;
+        Mon, 19 Apr 2021 05:04:42 -0700 (PDT)
+Date:   Mon, 19 Apr 2021 12:04:39 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1618833881;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=vAsHv+kFEP05Q70rujNWIfj6DnEc9X02Qcf8rAYrwO0=;
+        b=cDSr59HazjEWaSHoo/U+mXI/VO8ErhBQrTRSyYPTYwrQOmKc2RbQGdB8wvtbUZQBFYBI7u
+        e/tQhAuBeio0VmAAmbDk0zJM52yB5TvqeWZyvslhwKquZ6D3ff4/cye2tMZDVACnxa6Ama
+        o13LQq3R6lP+E0R/KrDoQ83aR7tbt2LLVed96EzTr+WmP40Qo+VA1M7oPJhzKMwZ8HokDi
+        pQpwzaQGBcEcCLz2KqwjMzHZDgLrTz0X5amePQ7VQIiZ2r2NlCgXUXvmRXGSZQN4KEZ5Oy
+        LA8cc/hU0Pd5EHnjnbbYJnTbXRyddtq3P41SSa/odOqiaLS+tTiqwlUZPDgGrg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1618833881;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=vAsHv+kFEP05Q70rujNWIfj6DnEc9X02Qcf8rAYrwO0=;
+        b=x+fOTpDEowqUkEkn7XHutr7ZRIRF7gJdzSFh+HPRvK2d8hXuaLPi+Lw50Uf6Rj7PobnPC2
+        NCLjciqfv0FtACBg==
+From:   "tip-bot2 for Maciej W. Rozycki" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/build] x86/build: Disable HIGHMEM64G selection for M486SX
+Cc:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
+        #@tip-bot2.tec.linutronix.de, v5.5+@tip-bot2.tec.linutronix.de,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <alpine.DEB.2.21.2104141221340.44318@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2104141221340.44318@angie.orcam.me.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPFHKzdKcVDDERr8pmd=65Tf=tWNh_bKar9OLQd0oS2YBVu80Q@mail.gmail.com>
+Message-ID: <161883388012.29796.15651608262748993332.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 18, 2021 at 10:47:04AM -0400, Jonathon Reinhart wrote:
-> On Sun, Apr 18, 2021 at 8:46 AM <gregkh@linuxfoundation.org> wrote:
-> >
-> >
-> > This is a note to let you know that I've just added the patch titled
-> >
-> >     net: Make tcp_allowed_congestion_control readonly in non-init netns
-> >
-> > to the 5.10-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> >
-> > The filename of the patch is:
-> >      net-make-tcp_allowed_congestion_control-readonly-in-non-init-netns.patch
-> > and it can be found in the queue-5.10 subdirectory.
-> >
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
-> >
-> >
-> > From 97684f0970f6e112926de631fdd98d9693c7e5c1 Mon Sep 17 00:00:00 2001
-> > From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
-> > Date: Tue, 13 Apr 2021 03:08:48 -0400
-> > Subject: net: Make tcp_allowed_congestion_control readonly in non-init netns
-> >
-> > From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
-> >
-> > commit 97684f0970f6e112926de631fdd98d9693c7e5c1 upstream.
-> 
-> Hi Greg,
-> 
-> Thanks for picking this into the stable trees.
-> 
-> There's an earlier, somewhat related fix, which is only on net-next:
-> 
-> 2671fa4dc010 ("netfilter: conntrack: Make global sysctls readonly in
-> non-init netns")
-> 
-> That probably could have been on "net", but it followed this other
-> commit which was not strictly a bug-fix. It's additional logic to
-> detect bugs like the former:
-> 
-> 31c4d2f160eb ("net: Ensure net namespace isolation of sysctls")
-> 
-> Here's the series on Patchwork:
-> https://patchwork.kernel.org/project/netdevbpf/cover/20210412042453.32168-1-Jonathon.Reinhart@gmail.com/
-> 
-> I'm not yet sure where the threshold is for inclusion into "net" or
-> "stable". Could you please take a look and see if the first (or both)
-> of these should be included into the stable trees? If so, please feel
-> free to pick them yourself, or let me know which patches I should send
-> to "stable".
+The following commit has been merged into the x86/build branch of tip:
 
-I have to wait until a patch is in Linus's tree before we can add it to
-the stable queue, unless there is some big reason why this is not the
-case.
+Commit-ID:     0ef3439cd80ba7770723edb0470d15815914bb62
+Gitweb:        https://git.kernel.org/tip/0ef3439cd80ba7770723edb0470d15815914bb62
+Author:        Maciej W. Rozycki <macro@orcam.me.uk>
+AuthorDate:    Wed, 14 Apr 2021 12:38:28 +02:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 19 Apr 2021 14:02:12 +02:00
 
-For something like this, how about just waiting until it hits Linus's
-tree and then email stable@vger.kernel.org saying, "please apply git
-commit <SHA1> to the stable trees." and we can do so then.
+x86/build: Disable HIGHMEM64G selection for M486SX
 
-thanks,
+Fix a regression caused by making the 486SX separately selectable in
+Kconfig, for which the HIGHMEM64G setting has not been updated and
+therefore has become exposed as a user-selectable option for the M486SX
+configuration setting unlike with original M486 and all the other
+settings that choose non-PAE-enabled processors:
 
-greg k-h
+  High Memory Support
+  > 1. off (NOHIGHMEM)
+    2. 4GB (HIGHMEM4G)
+    3. 64GB (HIGHMEM64G)
+  choice[1-3?]:
+
+With the fix in place the setting is now correctly removed:
+
+  High Memory Support
+  > 1. off (NOHIGHMEM)
+    2. 4GB (HIGHMEM4G)
+  choice[1-2?]:
+
+ [ bp: Massage commit message. ]
+
+Fixes: 87d6021b8143 ("x86/math-emu: Limit MATH_EMULATION to 486SX compatibles")
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org # v5.5+
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.2104141221340.44318@angie.orcam.me.uk
+---
+ arch/x86/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 2792879..268b7d5 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1406,7 +1406,7 @@ config HIGHMEM4G
+ 
+ config HIGHMEM64G
+ 	bool "64GB"
+-	depends on !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !WINCHIP3D && !MK6
++	depends on !M486SX && !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !WINCHIP3D && !MK6
+ 	select X86_PAE
+ 	help
+ 	  Select this if you have a 32-bit processor and more than 4
