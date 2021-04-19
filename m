@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 784663642F6
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFB723642FA
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240165AbhDSNMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:12:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
+        id S239888AbhDSNNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:13:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239884AbhDSNLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:11:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D193A613B2;
-        Mon, 19 Apr 2021 13:11:05 +0000 (UTC)
+        id S239896AbhDSNLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:11:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 756FB61360;
+        Mon, 19 Apr 2021 13:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837866;
-        bh=Dlh+fJpvCB2lETx8QRoUQ0dTPzKtRMO242X/k+964kc=;
+        s=korg; t=1618837869;
+        bh=sqV40KsaWSBrmBX/siej+IC7DA/O1R8B/GxGLbUiZDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESFfDEjj8qbEIcKZOM/uFfzTAZJCbmT9ewbdK1HvpUnIEPZ2YTII3c4KkqLOXNgRg
-         c32VaHzcgyGfH2NYaoMG0UwcDxk41Pkistl0CHbfLXemJAocy5Qek2v50vbmEN/DQr
-         QEuf/z6xpH7qDyrcYaCFJt71vIZRiweZXUknoGKk=
+        b=lNZCLYeV9HyTpS/YP26phDLkcZ1f0J3OOSCcr2K+TsDajvg6VjH6DVTXKy/+Cc0vI
+         aYC1fnTDdKdUK5DmCcVq9HUvHR11SRlXMnfZFvhyUeTquwXD9Nl0b+yrVI8vOGyaC7
+         A3pjDiM/l0OA2/uwB+g+Gf/WdN5mv1LBezq32Qhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Garcia Liebana <nevola@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.11 082/122] netfilter: nftables: clone set element expression template
-Date:   Mon, 19 Apr 2021 15:06:02 +0200
-Message-Id: <20210419130532.947852656@linuxfoundation.org>
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.11 083/122] net/mlx5e: Fix setting of RS FEC mode
+Date:   Mon, 19 Apr 2021 15:06:03 +0200
+Message-Id: <20210419130532.978230519@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -39,111 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Aya Levin <ayal@nvidia.com>
 
-commit 4d8f9065830e526c83199186c5f56a6514f457d2 upstream.
+commit 7a320c9db3e73fb6c4f9a331087df9df18767221 upstream.
 
-memcpy() breaks when using connlimit in set elements. Use
-nft_expr_clone() to initialize the connlimit expression list, otherwise
-connlimit garbage collector crashes when walking on the list head copy.
+Change register setting from bit number to bit mask.
 
-[  493.064656] Workqueue: events_power_efficient nft_rhash_gc [nf_tables]
-[  493.064685] RIP: 0010:find_or_evict+0x5a/0x90 [nf_conncount]
-[  493.064694] Code: 2b 43 40 83 f8 01 77 0d 48 c7 c0 f5 ff ff ff 44 39 63 3c 75 df 83 6d 18 01 48 8b 43 08 48 89 de 48 8b 13 48 8b 3d ee 2f 00 00 <48> 89 42 08 48 89 10 48 b8 00 01 00 00 00 00 ad de 48 89 03 48 83
-[  493.064699] RSP: 0018:ffffc90000417dc0 EFLAGS: 00010297
-[  493.064704] RAX: 0000000000000000 RBX: ffff888134f38410 RCX: 0000000000000000
-[  493.064708] RDX: 0000000000000000 RSI: ffff888134f38410 RDI: ffff888100060cc0
-[  493.064711] RBP: ffff88812ce594a8 R08: ffff888134f38438 R09: 00000000ebb9025c
-[  493.064714] R10: ffffffff8219f838 R11: 0000000000000017 R12: 0000000000000001
-[  493.064718] R13: ffffffff82146740 R14: ffff888134f38410 R15: 0000000000000000
-[  493.064721] FS:  0000000000000000(0000) GS:ffff88840e440000(0000) knlGS:0000000000000000
-[  493.064725] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  493.064729] CR2: 0000000000000008 CR3: 00000001330aa002 CR4: 00000000001706e0
-[  493.064733] Call Trace:
-[  493.064737]  nf_conncount_gc_list+0x8f/0x150 [nf_conncount]
-[  493.064746]  nft_rhash_gc+0x106/0x390 [nf_tables]
-
-Reported-by: Laura Garcia Liebana <nevola@gmail.com>
-Fixes: 409444522976 ("netfilter: nf_tables: add elements with stateful expressions")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: b5ede32d3329 ("net/mlx5e: Add support for FEC modes based on 50G per lane links")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |   46 +++++++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/port.c |   23 +++-------------------
+ 1 file changed, 4 insertions(+), 19 deletions(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -5263,16 +5263,35 @@ err_expr:
- 	return -ENOMEM;
- }
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
+@@ -387,21 +387,6 @@ enum mlx5e_fec_supported_link_mode {
+ 			*_policy = MLX5_GET(pplm_reg, _buf, fec_override_admin_##link);	\
+ 	} while (0)
  
--static void nft_set_elem_expr_setup(const struct nft_set_ext *ext, int i,
--				    struct nft_expr *expr_array[])
-+static int nft_set_elem_expr_setup(struct nft_ctx *ctx,
-+				   const struct nft_set_ext *ext,
-+				   struct nft_expr *expr_array[],
-+				   u32 num_exprs)
- {
- 	struct nft_set_elem_expr *elem_expr = nft_set_ext_expr(ext);
--	struct nft_expr *expr = nft_setelem_expr_at(elem_expr, elem_expr->size);
-+	struct nft_expr *expr;
-+	int i, err;
- 
--	memcpy(expr, expr_array[i], expr_array[i]->ops->size);
--	elem_expr->size += expr_array[i]->ops->size;
--	kfree(expr_array[i]);
--	expr_array[i] = NULL;
-+	for (i = 0; i < num_exprs; i++) {
-+		expr = nft_setelem_expr_at(elem_expr, elem_expr->size);
-+		err = nft_expr_clone(expr, expr_array[i]);
-+		if (err < 0)
-+			goto err_elem_expr_setup;
-+
-+		elem_expr->size += expr_array[i]->ops->size;
-+		nft_expr_destroy(ctx, expr_array[i]);
-+		expr_array[i] = NULL;
-+	}
-+
-+	return 0;
-+
-+err_elem_expr_setup:
-+	for (; i < num_exprs; i++) {
-+		nft_expr_destroy(ctx, expr_array[i]);
-+		expr_array[i] = NULL;
-+	}
-+
-+	return -ENOMEM;
- }
- 
- static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
-@@ -5524,12 +5543,15 @@ static int nft_add_set_elem(struct nft_c
- 		*nft_set_ext_obj(ext) = obj;
- 		obj->use++;
- 	}
--	for (i = 0; i < num_exprs; i++)
--		nft_set_elem_expr_setup(ext, i, expr_array);
-+	err = nft_set_elem_expr_setup(ctx, ext, expr_array, num_exprs);
-+	if (err < 0)
-+		goto err_elem_expr;
- 
- 	trans = nft_trans_elem_alloc(ctx, NFT_MSG_NEWSETELEM, set);
--	if (trans == NULL)
--		goto err_trans;
-+	if (trans == NULL) {
-+		err = -ENOMEM;
-+		goto err_elem_expr;
-+	}
- 
- 	ext->genmask = nft_genmask_cur(ctx->net) | NFT_SET_ELEM_BUSY_MASK;
- 	err = set->ops->insert(ctx->net, set, &elem, &ext2);
-@@ -5573,7 +5595,7 @@ err_set_full:
- 	set->ops->remove(ctx->net, set, &elem);
- err_element_clash:
- 	kfree(trans);
--err_trans:
-+err_elem_expr:
- 	if (obj)
- 		obj->use--;
- 
+-#define MLX5E_FEC_OVERRIDE_ADMIN_50G_POLICY(buf, policy, write, link)			\
+-	do {										\
+-		unsigned long policy_long;						\
+-		u16 *__policy = &(policy);						\
+-		bool _write = (write);							\
+-											\
+-		policy_long = *__policy;						\
+-		if (_write && *__policy)						\
+-			*__policy = find_first_bit(&policy_long,			\
+-						   sizeof(policy_long) * BITS_PER_BYTE);\
+-		MLX5E_FEC_OVERRIDE_ADMIN_POLICY(buf, *__policy, _write, link);		\
+-		if (!_write && *__policy)						\
+-			*__policy = 1 << *__policy;					\
+-	} while (0)
+-
+ /* get/set FEC admin field for a given speed */
+ static int mlx5e_fec_admin_field(u32 *pplm, u16 *fec_policy, bool write,
+ 				 enum mlx5e_fec_supported_link_mode link_mode)
+@@ -423,16 +408,16 @@ static int mlx5e_fec_admin_field(u32 *pp
+ 		MLX5E_FEC_OVERRIDE_ADMIN_POLICY(pplm, *fec_policy, write, 100g);
+ 		break;
+ 	case MLX5E_FEC_SUPPORTED_LINK_MODE_50G_1X:
+-		MLX5E_FEC_OVERRIDE_ADMIN_50G_POLICY(pplm, *fec_policy, write, 50g_1x);
++		MLX5E_FEC_OVERRIDE_ADMIN_POLICY(pplm, *fec_policy, write, 50g_1x);
+ 		break;
+ 	case MLX5E_FEC_SUPPORTED_LINK_MODE_100G_2X:
+-		MLX5E_FEC_OVERRIDE_ADMIN_50G_POLICY(pplm, *fec_policy, write, 100g_2x);
++		MLX5E_FEC_OVERRIDE_ADMIN_POLICY(pplm, *fec_policy, write, 100g_2x);
+ 		break;
+ 	case MLX5E_FEC_SUPPORTED_LINK_MODE_200G_4X:
+-		MLX5E_FEC_OVERRIDE_ADMIN_50G_POLICY(pplm, *fec_policy, write, 200g_4x);
++		MLX5E_FEC_OVERRIDE_ADMIN_POLICY(pplm, *fec_policy, write, 200g_4x);
+ 		break;
+ 	case MLX5E_FEC_SUPPORTED_LINK_MODE_400G_8X:
+-		MLX5E_FEC_OVERRIDE_ADMIN_50G_POLICY(pplm, *fec_policy, write, 400g_8x);
++		MLX5E_FEC_OVERRIDE_ADMIN_POLICY(pplm, *fec_policy, write, 400g_8x);
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
 
