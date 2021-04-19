@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ECEA364C7F
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7219364C7E
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243440AbhDSUvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243301AbhDSUvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Apr 2021 16:51:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54408 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234275AbhDSUt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239746AbhDSUt1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Apr 2021 16:49:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86E90613DC;
-        Mon, 19 Apr 2021 20:46:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 129C6613C7;
+        Mon, 19 Apr 2021 20:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865171;
-        bh=h7XoYrVfkHNqKpUvm46qFUEtioICcPkbOOgIkdyI6W0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=jPmjAX3U/Q6cdUZqtwTyEK1AqgvzXO451h1uM/xOqTuSOSYEOi4Fm8lJG4EIHPRkH
-         9eSDcrSxBCZiKsivsen3mLupXs4CcSBbGFzwaBnrhxoWvmRLAMfuJRCSbfbDisZ0CC
-         eFkV7T/yD2A85MoFmX+fb4Steb530bHx1SxRnP3MUS4v82u8wBIBFvEQkqT6dhK7zh
-         /PFyG2B0nZZ5n9EBh5mt57Gfgz2qCM7GHGQZvyG01dQx1HxL8K7Go5BYWIevax7baN
-         hL7OHG0JTaJ/pSYDYSd5x3AJbs7kIIfQg/1/TA4zb9oXCV9zVjyJmk6wsij6O3f5ti
-         bfiV3ce2Pm3Hw==
+        s=k20201202; t=1618865172;
+        bh=/n9hWrh5Ns6ElDZbq9sAMEb3XVD75y66iAlBuG07Ufc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Asp6IeT5CM6E1LYt73XTfO61oF8OuEnQ3D7cz5bV1J0w7iv6eBT1HdV9bqhrB6y/J
+         bxwwEbUQJ18zVpf3NKNi7oFsMJseIzcXVp+IoRF66wIdYuFxZYpMmhtiZbgE+C97RC
+         gCEk+NZLX4erLvwtrHLmnOrwq2hvEv/uVj27+apZgX+qr73+zP6ethS1IWPAjT3D4/
+         7dgmOQ4wK1aDBuDbkz4zd7yd+YPbbbG5yOiQRH3cQ1SUv6iW/OykEe5QbrkmUVEs4q
+         Dm2o97e54vYh0FQkZToJiuXy8qhH1Xe+pObN77dgfF+8gdCqabK2fdQrA0bMYSM7VO
+         Bpt70x1vT5sqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 1/7] ARM: dts: Fix swapped mmc order for omap3
-Date:   Mon, 19 Apr 2021 16:46:02 -0400
-Message-Id: <20210419204608.7191-1-sashal@kernel.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 2/7] s390/entry: save the caller of psw_idle
+Date:   Mon, 19 Apr 2021 16:46:03 -0400
+Message-Id: <20210419204608.7191-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210419204608.7191-1-sashal@kernel.org>
+References: <20210419204608.7191-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,40 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit a1ebdb3741993f853865d1bd8f77881916ad53a7 ]
+[ Upstream commit a994eddb947ea9ebb7b14d9a1267001699f0a136 ]
 
-Also some omap3 devices like n900 seem to have eMMC and micro-sd swapped
-around with commit 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for
-drivers that existed in v4.4").
+Currently psw_idle does not allocate a stack frame and does not
+save its r14 and r15 into the save area. Even though this is valid from
+call ABI point of view, because psw_idle does not make any calls
+explicitly, in reality psw_idle is an entry point for controlled
+transition into serving interrupts. So, in practice, psw_idle stack
+frame is analyzed during stack unwinding. Depending on build options
+that r14 slot in the save area of psw_idle might either contain a value
+saved by previous sibling call or complete garbage.
 
-Let's fix the issue with aliases as discussed on the mailing lists. While
-the mmc aliases should be board specific, let's first fix the issue with
-minimal changes.
+  [task    0000038000003c28] do_ext_irq+0xd6/0x160
+  [task    0000038000003c78] ext_int_handler+0xba/0xe8
+  [task   *0000038000003dd8] psw_idle_exit+0x0/0x8 <-- pt_regs
+ ([task    0000038000003dd8] 0x0)
+  [task    0000038000003e10] default_idle_call+0x42/0x148
+  [task    0000038000003e30] do_idle+0xce/0x160
+  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
+  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
 
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+So, to make a stacktrace nicer and actually point for the real caller of
+psw_idle in this frequently occurring case, make psw_idle save its r14.
+
+  [task    0000038000003c28] do_ext_irq+0xd6/0x160
+  [task    0000038000003c78] ext_int_handler+0xba/0xe8
+  [task   *0000038000003dd8] psw_idle_exit+0x0/0x6 <-- pt_regs
+ ([task    0000038000003dd8] arch_cpu_idle+0x3c/0xd0)
+  [task    0000038000003e10] default_idle_call+0x42/0x148
+  [task    0000038000003e30] do_idle+0xce/0x160
+  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
+  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
+
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/kernel/entry.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
-index 8a2b25332b8c..a2e41d79e829 100644
---- a/arch/arm/boot/dts/omap3.dtsi
-+++ b/arch/arm/boot/dts/omap3.dtsi
-@@ -22,6 +22,9 @@ aliases {
- 		i2c0 = &i2c1;
- 		i2c1 = &i2c2;
- 		i2c2 = &i2c3;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index 4cad1adff16b..d43f18b3d42c 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -889,6 +889,7 @@ ENTRY(ext_int_handler)
+  * Load idle PSW. The second "half" of this function is in .Lcleanup_idle.
+  */
+ ENTRY(psw_idle)
++	stg	%r14,(__SF_GPRS+8*8)(%r15)
+ 	stg	%r3,__SF_EMPTY(%r15)
+ 	larl	%r1,.Lpsw_idle_lpsw+4
+ 	stg	%r1,__SF_EMPTY+8(%r15)
 -- 
 2.30.2
 
