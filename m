@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4263642F2
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 784663642F6
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239872AbhDSNMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:12:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47422 "EHLO mail.kernel.org"
+        id S240165AbhDSNMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:12:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239875AbhDSNLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:11:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 506E561362;
-        Mon, 19 Apr 2021 13:11:00 +0000 (UTC)
+        id S239884AbhDSNLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:11:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D193A613B2;
+        Mon, 19 Apr 2021 13:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837860;
-        bh=SPzFrNWbP0myf455MsY7S9A/Ct5XzJP/B1iAyiQPiEY=;
+        s=korg; t=1618837866;
+        bh=Dlh+fJpvCB2lETx8QRoUQ0dTPzKtRMO242X/k+964kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNbHNQl8Zgye1PfCfqBkR2Efy3wNam8vRl0SgCmyqXCFQD87kNHweeeiUrM8hFlJZ
-         HfHDRNqvMAZvi699yxpNQ3I8OWaBrYIj9GFEPKocBoURzbywclsGK0sSj2xZYZanCQ
-         GhNqw/f5LGnMfComR4mSfYLy8mKFsTVwWzvc5ycE=
+        b=ESFfDEjj8qbEIcKZOM/uFfzTAZJCbmT9ewbdK1HvpUnIEPZ2YTII3c4KkqLOXNgRg
+         c32VaHzcgyGfH2NYaoMG0UwcDxk41Pkistl0CHbfLXemJAocy5Qek2v50vbmEN/DQr
+         QEuf/z6xpH7qDyrcYaCFJt71vIZRiweZXUknoGKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Luigi Rizzo <lrizzo@google.com>
-Subject: [PATCH 5.11 081/122] netfilter: nft_limit: avoid possible divide error in nft_limit_init
-Date:   Mon, 19 Apr 2021 15:06:01 +0200
-Message-Id: <20210419130532.917804539@linuxfoundation.org>
+        stable@vger.kernel.org, Laura Garcia Liebana <nevola@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.11 082/122] netfilter: nftables: clone set element expression template
+Date:   Mon, 19 Apr 2021 15:06:02 +0200
+Message-Id: <20210419130532.947852656@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -41,80 +39,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit b895bdf5d643b6feb7c60856326dd4feb6981560 upstream.
+commit 4d8f9065830e526c83199186c5f56a6514f457d2 upstream.
 
-div_u64() divides u64 by u32.
+memcpy() breaks when using connlimit in set elements. Use
+nft_expr_clone() to initialize the connlimit expression list, otherwise
+connlimit garbage collector crashes when walking on the list head copy.
 
-nft_limit_init() wants to divide u64 by u64, use the appropriate
-math function (div64_u64)
+[  493.064656] Workqueue: events_power_efficient nft_rhash_gc [nf_tables]
+[  493.064685] RIP: 0010:find_or_evict+0x5a/0x90 [nf_conncount]
+[  493.064694] Code: 2b 43 40 83 f8 01 77 0d 48 c7 c0 f5 ff ff ff 44 39 63 3c 75 df 83 6d 18 01 48 8b 43 08 48 89 de 48 8b 13 48 8b 3d ee 2f 00 00 <48> 89 42 08 48 89 10 48 b8 00 01 00 00 00 00 ad de 48 89 03 48 83
+[  493.064699] RSP: 0018:ffffc90000417dc0 EFLAGS: 00010297
+[  493.064704] RAX: 0000000000000000 RBX: ffff888134f38410 RCX: 0000000000000000
+[  493.064708] RDX: 0000000000000000 RSI: ffff888134f38410 RDI: ffff888100060cc0
+[  493.064711] RBP: ffff88812ce594a8 R08: ffff888134f38438 R09: 00000000ebb9025c
+[  493.064714] R10: ffffffff8219f838 R11: 0000000000000017 R12: 0000000000000001
+[  493.064718] R13: ffffffff82146740 R14: ffff888134f38410 R15: 0000000000000000
+[  493.064721] FS:  0000000000000000(0000) GS:ffff88840e440000(0000) knlGS:0000000000000000
+[  493.064725] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  493.064729] CR2: 0000000000000008 CR3: 00000001330aa002 CR4: 00000000001706e0
+[  493.064733] Call Trace:
+[  493.064737]  nf_conncount_gc_list+0x8f/0x150 [nf_conncount]
+[  493.064746]  nft_rhash_gc+0x106/0x390 [nf_tables]
 
-divide error: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 8390 Comm: syz-executor188 Not tainted 5.12.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:div_u64_rem include/linux/math64.h:28 [inline]
-RIP: 0010:div_u64 include/linux/math64.h:127 [inline]
-RIP: 0010:nft_limit_init+0x2a2/0x5e0 net/netfilter/nft_limit.c:85
-Code: ef 4c 01 eb 41 0f 92 c7 48 89 de e8 38 a5 22 fa 4d 85 ff 0f 85 97 02 00 00 e8 ea 9e 22 fa 4c 0f af f3 45 89 ed 31 d2 4c 89 f0 <49> f7 f5 49 89 c6 e8 d3 9e 22 fa 48 8d 7d 48 48 b8 00 00 00 00 00
-RSP: 0018:ffffc90009447198 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 0000200000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff875152e6 RDI: 0000000000000003
-RBP: ffff888020f80908 R08: 0000200000000000 R09: 0000000000000000
-R10: ffffffff875152d8 R11: 0000000000000000 R12: ffffc90009447270
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-FS:  000000000097a300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000200001c4 CR3: 0000000026a52000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- nf_tables_newexpr net/netfilter/nf_tables_api.c:2675 [inline]
- nft_expr_init+0x145/0x2d0 net/netfilter/nf_tables_api.c:2713
- nft_set_elem_expr_alloc+0x27/0x280 net/netfilter/nf_tables_api.c:5160
- nf_tables_newset+0x1997/0x3150 net/netfilter/nf_tables_api.c:4321
- nfnetlink_rcv_batch+0x85a/0x21b0 net/netfilter/nfnetlink.c:456
- nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:580 [inline]
- nfnetlink_rcv+0x3af/0x420 net/netfilter/nfnetlink.c:598
- netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
- sock_sendmsg_nosec net/socket.c:654 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:674
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: c26844eda9d4 ("netfilter: nf_tables: Fix nft limit burst handling")
-Fixes: 3e0f64b7dd31 ("netfilter: nft_limit: fix packet ratelimiting")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Diagnosed-by: Luigi Rizzo <lrizzo@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Laura Garcia Liebana <nevola@gmail.com>
+Fixes: 409444522976 ("netfilter: nf_tables: add elements with stateful expressions")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_limit.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c |   46 +++++++++++++++++++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 12 deletions(-)
 
---- a/net/netfilter/nft_limit.c
-+++ b/net/netfilter/nft_limit.c
-@@ -76,13 +76,13 @@ static int nft_limit_init(struct nft_lim
- 		return -EOVERFLOW;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -5263,16 +5263,35 @@ err_expr:
+ 	return -ENOMEM;
+ }
  
- 	if (pkts) {
--		tokens = div_u64(limit->nsecs, limit->rate) * limit->burst;
-+		tokens = div64_u64(limit->nsecs, limit->rate) * limit->burst;
- 	} else {
- 		/* The token bucket size limits the number of tokens can be
- 		 * accumulated. tokens_max specifies the bucket size.
- 		 * tokens_max = unit * (rate + burst) / rate.
- 		 */
--		tokens = div_u64(limit->nsecs * (limit->rate + limit->burst),
-+		tokens = div64_u64(limit->nsecs * (limit->rate + limit->burst),
- 				 limit->rate);
+-static void nft_set_elem_expr_setup(const struct nft_set_ext *ext, int i,
+-				    struct nft_expr *expr_array[])
++static int nft_set_elem_expr_setup(struct nft_ctx *ctx,
++				   const struct nft_set_ext *ext,
++				   struct nft_expr *expr_array[],
++				   u32 num_exprs)
+ {
+ 	struct nft_set_elem_expr *elem_expr = nft_set_ext_expr(ext);
+-	struct nft_expr *expr = nft_setelem_expr_at(elem_expr, elem_expr->size);
++	struct nft_expr *expr;
++	int i, err;
+ 
+-	memcpy(expr, expr_array[i], expr_array[i]->ops->size);
+-	elem_expr->size += expr_array[i]->ops->size;
+-	kfree(expr_array[i]);
+-	expr_array[i] = NULL;
++	for (i = 0; i < num_exprs; i++) {
++		expr = nft_setelem_expr_at(elem_expr, elem_expr->size);
++		err = nft_expr_clone(expr, expr_array[i]);
++		if (err < 0)
++			goto err_elem_expr_setup;
++
++		elem_expr->size += expr_array[i]->ops->size;
++		nft_expr_destroy(ctx, expr_array[i]);
++		expr_array[i] = NULL;
++	}
++
++	return 0;
++
++err_elem_expr_setup:
++	for (; i < num_exprs; i++) {
++		nft_expr_destroy(ctx, expr_array[i]);
++		expr_array[i] = NULL;
++	}
++
++	return -ENOMEM;
+ }
+ 
+ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+@@ -5524,12 +5543,15 @@ static int nft_add_set_elem(struct nft_c
+ 		*nft_set_ext_obj(ext) = obj;
+ 		obj->use++;
  	}
+-	for (i = 0; i < num_exprs; i++)
+-		nft_set_elem_expr_setup(ext, i, expr_array);
++	err = nft_set_elem_expr_setup(ctx, ext, expr_array, num_exprs);
++	if (err < 0)
++		goto err_elem_expr;
+ 
+ 	trans = nft_trans_elem_alloc(ctx, NFT_MSG_NEWSETELEM, set);
+-	if (trans == NULL)
+-		goto err_trans;
++	if (trans == NULL) {
++		err = -ENOMEM;
++		goto err_elem_expr;
++	}
+ 
+ 	ext->genmask = nft_genmask_cur(ctx->net) | NFT_SET_ELEM_BUSY_MASK;
+ 	err = set->ops->insert(ctx->net, set, &elem, &ext2);
+@@ -5573,7 +5595,7 @@ err_set_full:
+ 	set->ops->remove(ctx->net, set, &elem);
+ err_element_clash:
+ 	kfree(trans);
+-err_trans:
++err_elem_expr:
+ 	if (obj)
+ 		obj->use--;
  
 
 
