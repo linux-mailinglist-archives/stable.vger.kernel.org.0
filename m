@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7219364C7E
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B802364C87
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243301AbhDSUvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:51:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54790 "EHLO mail.kernel.org"
+        id S240257AbhDSUwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239746AbhDSUt1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:49:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 129C6613C7;
-        Mon, 19 Apr 2021 20:46:11 +0000 (UTC)
+        id S242673AbhDSUuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:50:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73F13613F9;
+        Mon, 19 Apr 2021 20:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865172;
-        bh=/n9hWrh5Ns6ElDZbq9sAMEb3XVD75y66iAlBuG07Ufc=;
+        s=k20201202; t=1618865174;
+        bh=LNmDORbHzwjYQgKNtkXmiz0lTOoSO02E+FDmaI6F82M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Asp6IeT5CM6E1LYt73XTfO61oF8OuEnQ3D7cz5bV1J0w7iv6eBT1HdV9bqhrB6y/J
-         bxwwEbUQJ18zVpf3NKNi7oFsMJseIzcXVp+IoRF66wIdYuFxZYpMmhtiZbgE+C97RC
-         gCEk+NZLX4erLvwtrHLmnOrwq2hvEv/uVj27+apZgX+qr73+zP6ethS1IWPAjT3D4/
-         7dgmOQ4wK1aDBuDbkz4zd7yd+YPbbbG5yOiQRH3cQ1SUv6iW/OykEe5QbrkmUVEs4q
-         Dm2o97e54vYh0FQkZToJiuXy8qhH1Xe+pObN77dgfF+8gdCqabK2fdQrA0bMYSM7VO
-         Bpt70x1vT5sqg==
+        b=Wb6AqxaCi4a8rPeH6RaL8l0Q1iSlsGQVUYMsbsdtkoF1mdPVzBXldMgxrMFN5+RAO
+         /y2gY3dm4LicU3kpTVwEWBn6gzX1aye6brxacDp8mmdVistyzW67ez7lo27kMfyfNw
+         3LS/gicY7NAB8VxmL9F/qyyLZ3P5JnJNzDK1j0s2ezJK4SjkDkpfp719xHp5wVnKBb
+         4kpWlnFcVFx0hl+1Y6KybMT1QKVRCKDWQRE4Q1rjVwG8bzNXRohCmF6JBzv1+mB8MX
+         deI4Yh3+qmaCeS/bRgNtvvGagK6NKS5K2/jI3kb7XMYj5USZ1uy4p1qXqdTDG0Ql6q
+         szIPIPRAtItbw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 2/7] s390/entry: save the caller of psw_idle
-Date:   Mon, 19 Apr 2021 16:46:03 -0400
-Message-Id: <20210419204608.7191-2-sashal@kernel.org>
+Cc:     Michael Brown <mbrown@fensystems.co.uk>,
+        Paul Durrant <paul@xen.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        xen-devel@lists.xenproject.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 3/7] xen-netback: Check for hotplug-status existence before watching
+Date:   Mon, 19 Apr 2021 16:46:04 -0400
+Message-Id: <20210419204608.7191-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204608.7191-1-sashal@kernel.org>
 References: <20210419204608.7191-1-sashal@kernel.org>
@@ -43,60 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Michael Brown <mbrown@fensystems.co.uk>
 
-[ Upstream commit a994eddb947ea9ebb7b14d9a1267001699f0a136 ]
+[ Upstream commit 2afeec08ab5c86ae21952151f726bfe184f6b23d ]
 
-Currently psw_idle does not allocate a stack frame and does not
-save its r14 and r15 into the save area. Even though this is valid from
-call ABI point of view, because psw_idle does not make any calls
-explicitly, in reality psw_idle is an entry point for controlled
-transition into serving interrupts. So, in practice, psw_idle stack
-frame is analyzed during stack unwinding. Depending on build options
-that r14 slot in the save area of psw_idle might either contain a value
-saved by previous sibling call or complete garbage.
+The logic in connect() is currently written with the assumption that
+xenbus_watch_pathfmt() will return an error for a node that does not
+exist.  This assumption is incorrect: xenstore does allow a watch to
+be registered for a nonexistent node (and will send notifications
+should the node be subsequently created).
 
-  [task    0000038000003c28] do_ext_irq+0xd6/0x160
-  [task    0000038000003c78] ext_int_handler+0xba/0xe8
-  [task   *0000038000003dd8] psw_idle_exit+0x0/0x8 <-- pt_regs
- ([task    0000038000003dd8] 0x0)
-  [task    0000038000003e10] default_idle_call+0x42/0x148
-  [task    0000038000003e30] do_idle+0xce/0x160
-  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
-  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
+As of commit 1f2565780 ("xen-netback: remove 'hotplug-status' once it
+has served its purpose"), this leads to a failure when a domU
+transitions into XenbusStateConnected more than once.  On the first
+domU transition into Connected state, the "hotplug-status" node will
+be deleted by the hotplug_status_changed() callback in dom0.  On the
+second or subsequent domU transition into Connected state, the
+hotplug_status_changed() callback will therefore never be invoked, and
+so the backend will remain stuck in InitWait.
 
-So, to make a stacktrace nicer and actually point for the real caller of
-psw_idle in this frequently occurring case, make psw_idle save its r14.
+This failure prevents scenarios such as reloading the xen-netfront
+module within a domU, or booting a domU via iPXE.  There is
+unfortunately no way for the domU to work around this dom0 bug.
 
-  [task    0000038000003c28] do_ext_irq+0xd6/0x160
-  [task    0000038000003c78] ext_int_handler+0xba/0xe8
-  [task   *0000038000003dd8] psw_idle_exit+0x0/0x6 <-- pt_regs
- ([task    0000038000003dd8] arch_cpu_idle+0x3c/0xd0)
-  [task    0000038000003e10] default_idle_call+0x42/0x148
-  [task    0000038000003e30] do_idle+0xce/0x160
-  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
-  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
+Fix by explicitly checking for existence of the "hotplug-status" node,
+thereby creating the behaviour that was previously assumed to exist.
 
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Michael Brown <mbrown@fensystems.co.uk>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/entry.S | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/xen-netback/xenbus.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 4cad1adff16b..d43f18b3d42c 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -889,6 +889,7 @@ ENTRY(ext_int_handler)
-  * Load idle PSW. The second "half" of this function is in .Lcleanup_idle.
-  */
- ENTRY(psw_idle)
-+	stg	%r14,(__SF_GPRS+8*8)(%r15)
- 	stg	%r3,__SF_EMPTY(%r15)
- 	larl	%r1,.Lpsw_idle_lpsw+4
- 	stg	%r1,__SF_EMPTY+8(%r15)
+diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
+index 21c8e2720b40..683fd8560f2b 100644
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -849,11 +849,15 @@ static void connect(struct backend_info *be)
+ 	xenvif_carrier_on(be->vif);
+ 
+ 	unregister_hotplug_status_watch(be);
+-	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
+-				   hotplug_status_changed,
+-				   "%s/%s", dev->nodename, "hotplug-status");
+-	if (!err)
++	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
++		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
++					   NULL, hotplug_status_changed,
++					   "%s/%s", dev->nodename,
++					   "hotplug-status");
++		if (err)
++			goto err;
+ 		be->have_hotplug_status_watch = 1;
++	}
+ 
+ 	netif_tx_wake_all_queues(be->vif->dev);
+ 
 -- 
 2.30.2
 
