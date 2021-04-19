@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1731236431A
+	by mail.lfdr.de (Postfix) with ESMTP id D8B2436431C
 	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240043AbhDSNOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:14:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
+        id S240058AbhDSNOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:14:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239880AbhDSNMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:12:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44DCD61288;
-        Mon, 19 Apr 2021 13:12:02 +0000 (UTC)
+        id S240218AbhDSNNL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:13:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D5C461246;
+        Mon, 19 Apr 2021 13:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837922;
-        bh=zbjn5UPooVYKlFNSLt2xYhyOKP05ZtgEEC6Y+7Iul5s=;
+        s=korg; t=1618837925;
+        bh=uGEXhgoiB83cl9XIBBwWbh5Xu/ZBnSdjsQ3ORwcGSgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFNVH+Qo2nIAV83QOWOkjQTfoEjfyfdokaQmDLGHGRMoWXQbTPpJzXTC6+NGpAd9J
-         AQNJippamoCo9r2OK1P+PoJyuf2gEGbDrdNvyYPfyJB+udKwvdD2z4aXdTTiXSquyC
-         f9N/zhE0RcZIvPvUMJSqYB49+nBuHuhZgab5guIg=
+        b=h5gpfl3tqTtL00EaSTuAUP2ux1ZQL7xkQ9MsOkRKwxBob8/fzFL7HxxlBKgopMMkW
+         hrPW2h21YccvNugU2meAJBT44iZoNem3OmWtyTRSEeYbfu/ckNxyG9btxIGnPh4Gkr
+         pVjt/yVhHRIX60/9uNE6QgLDGTF1cRgbKTKvyoms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luo Jiaxing <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Jolly Shah <jollys@google.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.11 067/122] scsi: libsas: Reset num_scatter if libata marks qc as NODATA
-Date:   Mon, 19 Apr 2021 15:05:47 +0200
-Message-Id: <20210419130532.464071114@linuxfoundation.org>
+        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>,
+        Roland Scheidegger <sroland@vmware.com>,
+        Huang Rui <ray.huang@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 5.11 068/122] drm/vmwgfx: Make sure we unpin no longer needed buffers
+Date:   Mon, 19 Apr 2021 15:05:48 +0200
+Message-Id: <20210419130532.496009143@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -41,70 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jolly Shah <jollys@google.com>
+From: Zack Rusin <zackr@vmware.com>
 
-commit 176ddd89171ddcf661862d90c5d257877f7326d6 upstream.
+commit ab4d9913632b1e5ffcf3365783e98718b3c83c7f upstream.
 
-When the cache_type for the SCSI device is changed, the SCSI layer issues a
-MODE_SELECT command. The caching mode details are communicated via a
-request buffer associated with the SCSI command with data direction set as
-DMA_TO_DEVICE (scsi_mode_select()). When this command reaches the libata
-layer, as a part of generic initial setup, libata layer sets up the
-scatterlist for the command using the SCSI command (ata_scsi_qc_new()).
-This command is then translated by the libata layer into
-ATA_CMD_SET_FEATURES (ata_scsi_mode_select_xlat()). The libata layer treats
-this as a non-data command (ata_mselect_caching()), since it only needs an
-ATA taskfile to pass the caching on/off information to the device. It does
-not need the scatterlist that has been setup, so it does not perform
-dma_map_sg() on the scatterlist (ata_qc_issue()). Unfortunately, when this
-command reaches the libsas layer (sas_ata_qc_issue()), libsas layer sees it
-as a non-data command with a scatterlist. It cannot extract the correct DMA
-length since the scatterlist has not been mapped with dma_map_sg() for a
-DMA operation. When this partially constructed SAS task reaches pm80xx
-LLDD, it results in the following warning:
+We were not correctly unpinning no longer needed buffers. In particular
+vmw_buffer_object, which is internally often pinned on creation wasn't
+unpinned on destruction and none of the internal MOB buffers were
+unpinned before being put back. Technically this existed for a
+long time but commit 57fcd550eb15 ("drm/ttm: Warn on pinning without
+holding a reference") introduced a WARN_ON which was filling up the
+kernel logs rather quickly.
 
-"pm80xx_chip_sata_req 6058: The sg list address
-start_addr=0x0000000000000000 data_len=0x0end_addr_high=0xffffffff
-end_addr_low=0xffffffff has crossed 4G boundary"
+Quite frankly internal usage of vmw_buffer_object and in general
+pinning needs to be refactored in vmwgfx but for now this makes
+it work.
 
-Update libsas to handle ATA non-data commands separately so num_scatter and
-total_xfer_len remain 0.
-
-Link: https://lore.kernel.org/r/20210318225632.2481291-1-jollys@google.com
-Fixes: 53de092f47ff ("scsi: libsas: Set data_dir as DMA_NONE if libata marks qc as NODATA")
-Tested-by: Luo Jiaxing <luojiaxing@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Jolly Shah <jollys@google.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Reviewed-by: Roland Scheidegger <sroland@vmware.com>
+Fixes: 57fcd550eb15 ("drm/ttm: Warn on pinning without holding a reference")
+Link: https://patchwork.freedesktop.org/patch/414984/?series=86052&rev=1
+Cc: Huang Rui <ray.huang@amd.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Christian Koenig <christian.koenig@amd.com>
+Cc: dri-devel@lists.freedesktop.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/libsas/sas_ata.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.h |    2 ++
+ drivers/gpu/drm/vmwgfx/vmwgfx_mob.c |    4 ++++
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/scsi/libsas/sas_ata.c
-+++ b/drivers/scsi/libsas/sas_ata.c
-@@ -201,18 +201,17 @@ static unsigned int sas_ata_qc_issue(str
- 		memcpy(task->ata_task.atapi_packet, qc->cdb, qc->dev->cdb_len);
- 		task->total_xfer_len = qc->nbytes;
- 		task->num_scatter = qc->n_elem;
-+		task->data_dir = qc->dma_dir;
-+	} else if (qc->tf.protocol == ATA_PROT_NODATA) {
-+		task->data_dir = DMA_NONE;
- 	} else {
- 		for_each_sg(qc->sg, sg, qc->n_elem, si)
- 			xfer += sg_dma_len(sg);
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+@@ -1554,6 +1554,8 @@ static inline void vmw_bo_unreference(st
  
- 		task->total_xfer_len = xfer;
- 		task->num_scatter = si;
--	}
--
--	if (qc->tf.protocol == ATA_PROT_NODATA)
--		task->data_dir = DMA_NONE;
--	else
- 		task->data_dir = qc->dma_dir;
-+	}
- 	task->scatter = qc->sg;
- 	task->ata_task.retry_count = 1;
- 	task->task_state_flags = SAS_TASK_STATE_PENDING;
+ 	*buf = NULL;
+ 	if (tmp_buf != NULL) {
++		if (tmp_buf->base.pin_count > 0)
++			ttm_bo_unpin(&tmp_buf->base);
+ 		ttm_bo_put(&tmp_buf->base);
+ 	}
+ }
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_mob.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_mob.c
+@@ -277,6 +277,7 @@ out_no_setup:
+ 						 &batch->otables[i]);
+ 	}
+ 
++	ttm_bo_unpin(batch->otable_bo);
+ 	ttm_bo_put(batch->otable_bo);
+ 	batch->otable_bo = NULL;
+ 	return ret;
+@@ -342,6 +343,7 @@ static void vmw_otable_batch_takedown(st
+ 	vmw_bo_fence_single(bo, NULL);
+ 	ttm_bo_unreserve(bo);
+ 
++	ttm_bo_unpin(batch->otable_bo);
+ 	ttm_bo_put(batch->otable_bo);
+ 	batch->otable_bo = NULL;
+ }
+@@ -528,6 +530,7 @@ static void vmw_mob_pt_setup(struct vmw_
+ void vmw_mob_destroy(struct vmw_mob *mob)
+ {
+ 	if (mob->pt_bo) {
++		ttm_bo_unpin(mob->pt_bo);
+ 		ttm_bo_put(mob->pt_bo);
+ 		mob->pt_bo = NULL;
+ 	}
+@@ -643,6 +646,7 @@ int vmw_mob_bind(struct vmw_private *dev
+ out_no_cmd_space:
+ 	vmw_fifo_resource_dec(dev_priv);
+ 	if (pt_set_up) {
++		ttm_bo_unpin(mob->pt_bo);
+ 		ttm_bo_put(mob->pt_bo);
+ 		mob->pt_bo = NULL;
+ 	}
 
 
