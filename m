@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ECB53643C9
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17F2B3643C7
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240899AbhDSNVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240867AbhDSNVb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Apr 2021 09:21:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241384AbhDSNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241386AbhDSNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Apr 2021 09:20:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E9DB613EF;
-        Mon, 19 Apr 2021 13:16:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A5B1613CA;
+        Mon, 19 Apr 2021 13:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838187;
-        bh=HNSAbn1dJChIE2tqJjtRXwhmvHD7qjazVNsMwlUNazM=;
+        s=korg; t=1618838190;
+        bh=syfhT2SejV+kM/0naxWC2Ki9Yo97UBA/cYRwMDp5r2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abPj3s6Ck7KfA86rp97WFthz7zS84qKx11qZvzDHCqtZ1/XIyooWY96gf/GYav+QT
-         ekGFsj+SOYBv5Bmx7hs0l7h0ONGP3kiPHRJLfnVHNJp4HQk/qUIRPDtT6AvrlOy512
-         W5CphUd1pmcd0U+aa6Dw4k3mf4D0BQAc08Vw44Fs=
+        b=IttyBnCBYZLweC6JYmWLo3+4jw7WaY7KuFoTFnhwBEYZTgVjnxegIgS5qE+vjS4mL
+         Lk5uSkSpUbBIM2wuWUVYgIE/V6PI2i5nGWy63u1hhnmJJy9jPkjO+zlxPDC7S91pm6
+         9rdo7Q1X43ItBLODhuk2toxr+Lf4Wf8Gmqn/EkO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathon Reinhart <jonathon.reinhart@gmail.com>,
+        stable@vger.kernel.org, Shujin Li <lishujin@kuaishou.com>,
+        Jason Xing <xingwanli@kuaishou.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 073/103] net: Make tcp_allowed_congestion_control readonly in non-init netns
-Date:   Mon, 19 Apr 2021 15:06:24 +0200
-Message-Id: <20210419130530.324159057@linuxfoundation.org>
+Subject: [PATCH 5.10 074/103] i40e: fix the panic when running bpf in xdpdrv mode
+Date:   Mon, 19 Apr 2021 15:06:25 +0200
+Message-Id: <20210419130530.356325524@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -40,71 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+From: Jason Xing <xingwanli@kuaishou.com>
 
-commit 97684f0970f6e112926de631fdd98d9693c7e5c1 upstream.
+commit 4e39a072a6a0fc422ba7da5e4336bdc295d70211 upstream.
 
-Currently, tcp_allowed_congestion_control is global and writable;
-writing to it in any net namespace will leak into all other net
-namespaces.
+Fix this panic by adding more rules to calculate the value of @rss_size_max
+which could be used in allocating the queues when bpf is loaded, which,
+however, could cause the failure and then trigger the NULL pointer of
+vsi->rx_rings. Prio to this fix, the machine doesn't care about how many
+cpus are online and then allocates 256 queues on the machine with 32 cpus
+online actually.
 
-tcp_available_congestion_control and tcp_allowed_congestion_control are
-the only sysctls in ipv4_net_table (the per-netns sysctl table) with a
-NULL data pointer; their handlers (proc_tcp_available_congestion_control
-and proc_allowed_congestion_control) have no other way of referencing a
-struct net. Thus, they operate globally.
+Once the load of bpf begins, the log will go like this "failed to get
+tracking for 256 queues for VSI 0 err -12" and this "setup of MAIN VSI
+failed".
 
-Because ipv4_net_table does not use designated initializers, there is no
-easy way to fix up this one "bad" table entry. However, the data pointer
-updating logic shouldn't be applied to NULL pointers anyway, so we
-instead force these entries to be read-only.
+Thus, I attach the key information of the crash-log here.
 
-These sysctls used to exist in ipv4_table (init-net only), but they were
-moved to the per-net ipv4_net_table, presumably without realizing that
-tcp_allowed_congestion_control was writable and thus introduced a leak.
+BUG: unable to handle kernel NULL pointer dereference at
+0000000000000000
+RIP: 0010:i40e_xdp+0xdd/0x1b0 [i40e]
+Call Trace:
+[2160294.717292]  ? i40e_reconfig_rss_queues+0x170/0x170 [i40e]
+[2160294.717666]  dev_xdp_install+0x4f/0x70
+[2160294.718036]  dev_change_xdp_fd+0x11f/0x230
+[2160294.718380]  ? dev_disable_lro+0xe0/0xe0
+[2160294.718705]  do_setlink+0xac7/0xe70
+[2160294.719035]  ? __nla_parse+0xed/0x120
+[2160294.719365]  rtnl_newlink+0x73b/0x860
 
-Because the intent of that commit was only to know (i.e. read) "which
-congestion algorithms are available or allowed", this read-only solution
-should be sufficient.
-
-The logic added in recent commit
-31c4d2f160eb: ("net: Ensure net namespace isolation of sysctls")
-does not and cannot check for NULL data pointers, because
-other table entries (e.g. /proc/sys/net/netfilter/nf_log/) have
-.data=NULL but use other methods (.extra2) to access the struct net.
-
-Fixes: 9cb8e048e5d9 ("net/ipv4/sysctl: show tcp_{allowed, available}_congestion_control in non-initial netns")
-Signed-off-by: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Co-developed-by: Shujin Li <lishujin@kuaishou.com>
+Signed-off-by: Shujin Li <lishujin@kuaishou.com>
+Signed-off-by: Jason Xing <xingwanli@kuaishou.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/sysctl_net_ipv4.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/ipv4/sysctl_net_ipv4.c
-+++ b/net/ipv4/sysctl_net_ipv4.c
-@@ -1369,9 +1369,19 @@ static __net_init int ipv4_sysctl_init_n
- 		if (!table)
- 			goto err_alloc;
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -11863,6 +11863,7 @@ static int i40e_sw_init(struct i40e_pf *
+ {
+ 	int err = 0;
+ 	int size;
++	u16 pow;
  
--		/* Update the variables to point into the current struct net */
--		for (i = 0; i < ARRAY_SIZE(ipv4_net_table) - 1; i++)
--			table[i].data += (void *)net - (void *)&init_net;
-+		for (i = 0; i < ARRAY_SIZE(ipv4_net_table) - 1; i++) {
-+			if (table[i].data) {
-+				/* Update the variables to point into
-+				 * the current struct net
-+				 */
-+				table[i].data += (void *)net - (void *)&init_net;
-+			} else {
-+				/* Entries without data pointer are global;
-+				 * Make them read-only in non-init_net ns
-+				 */
-+				table[i].mode &= ~0222;
-+			}
-+		}
- 	}
- 
- 	net->ipv4.ipv4_hdr = register_net_sysctl(net, "net/ipv4", table);
+ 	/* Set default capability flags */
+ 	pf->flags = I40E_FLAG_RX_CSUM_ENABLED |
+@@ -11881,6 +11882,11 @@ static int i40e_sw_init(struct i40e_pf *
+ 	pf->rss_table_size = pf->hw.func_caps.rss_table_size;
+ 	pf->rss_size_max = min_t(int, pf->rss_size_max,
+ 				 pf->hw.func_caps.num_tx_qp);
++
++	/* find the next higher power-of-2 of num cpus */
++	pow = roundup_pow_of_two(num_online_cpus());
++	pf->rss_size_max = min_t(int, pf->rss_size_max, pow);
++
+ 	if (pf->hw.func_caps.rss) {
+ 		pf->flags |= I40E_FLAG_RSS_ENABLED;
+ 		pf->alloc_rss_size = min_t(int, pf->rss_size_max,
 
 
