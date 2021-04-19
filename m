@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A73336425F
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0116D364261
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238369AbhDSNIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:08:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42844 "EHLO mail.kernel.org"
+        id S238512AbhDSNIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:08:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238512AbhDSNIS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:08:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A77361245;
-        Mon, 19 Apr 2021 13:07:47 +0000 (UTC)
+        id S238135AbhDSNIU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:08:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1084661284;
+        Mon, 19 Apr 2021 13:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837667;
-        bh=5UGggfXQEozhhPBFqntgmeLebew8m3ioZg8MfzcGirA=;
+        s=korg; t=1618837670;
+        bh=zxkNcddKMUsHiXp2yYbnePjYjDTXeYUPh6UwRyVjd1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oALnYd8FeoT1c48IivsqLLBzfSlUAtl2N/zTGrVo7oeVqFUUQ2cR1OSoVwPjB9CdM
-         6fPzpTTt0khafUOwch4BZaaDW0l+gir3dnVRz8YXCtocSk9ZzomwhEvVtDvgl1dCmk
-         utXVr8AH+C7rkIIu7trEHsV8PC3T2ueJAyVNh2IE=
+        b=ui7rYHM+FBURn8RqCPfKesrg0K1xafSc7/573FeDLJBYEAI1WbIiYR4EPeFIbq4EW
+         qkIQ4gjmE9dRX2cy3GjhiUe4e1dpBtT6ZsymR8UruzSxNpAOZKgWiN9w/y19hSLQis
+         oCrAu7k5ypGtlmyY9ILdHccmkO30pZNV2YehRno0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Dave Jiang <dave.jiang@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 012/122] dmaengine: Fix a double free in dma_async_device_register
-Date:   Mon, 19 Apr 2021 15:04:52 +0200
-Message-Id: <20210419130530.583490663@linuxfoundation.org>
+Subject: [PATCH 5.11 013/122] dmaengine: plx_dma: add a missing put_device() on error path
+Date:   Mon, 19 Apr 2021 15:04:53 +0200
+Message-Id: <20210419130530.617046847@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -40,45 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ea45b6008f8095db0cc09ad6e03c7785c2986197 ]
+[ Upstream commit 07503e6aefe4a6efd777062191944a14f03b3a18 ]
 
-In the first list_for_each_entry() macro of dma_async_device_register,
-it gets the chan from list and calls __dma_async_device_channel_register
-(..,chan). We can see that chan->local is allocated by alloc_percpu() and
-it is freed chan->local by free_percpu(chan->local) when
-__dma_async_device_channel_register() failed.
+Add a missing put_device(&pdev->dev) if the call to
+dma_async_device_register(dma); fails.
 
-But after __dma_async_device_channel_register() failed, the caller will
-goto err_out and freed the chan->local in the second time by free_percpu().
-
-The cause of this problem is forget to set chan->local to NULL when
-chan->local was freed in __dma_async_device_channel_register(). My
-patch sets chan->local to NULL when the callee failed to avoid double free.
-
-Fixes: d2fb0a0438384 ("dmaengine: break out channel registration")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20210331014458.3944-1-lyl2019@mail.ustc.edu.cn
+Fixes: 905ca51e63be ("dmaengine: plx-dma: Introduce PLX DMA engine PCI driver skeleton")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Link: https://lore.kernel.org/r/YFnq/0IQzixtAbC1@mwanda
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dmaengine.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/plx_dma.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/dma/dmaengine.c b/drivers/dma/dmaengine.c
-index fe6a460c4373..af3ee288bc11 100644
---- a/drivers/dma/dmaengine.c
-+++ b/drivers/dma/dmaengine.c
-@@ -1086,6 +1086,7 @@ static int __dma_async_device_channel_register(struct dma_device *device,
- 	kfree(chan->dev);
-  err_free_local:
- 	free_percpu(chan->local);
-+	chan->local = NULL;
- 	return rc;
+diff --git a/drivers/dma/plx_dma.c b/drivers/dma/plx_dma.c
+index f387c5bbc170..166934544161 100644
+--- a/drivers/dma/plx_dma.c
++++ b/drivers/dma/plx_dma.c
+@@ -507,10 +507,8 @@ static int plx_dma_create(struct pci_dev *pdev)
+ 
+ 	rc = request_irq(pci_irq_vector(pdev, 0), plx_dma_isr, 0,
+ 			 KBUILD_MODNAME, plxdev);
+-	if (rc) {
+-		kfree(plxdev);
+-		return rc;
+-	}
++	if (rc)
++		goto free_plx;
+ 
+ 	spin_lock_init(&plxdev->ring_lock);
+ 	tasklet_setup(&plxdev->desc_task, plx_dma_desc_task);
+@@ -540,14 +538,20 @@ static int plx_dma_create(struct pci_dev *pdev)
+ 	rc = dma_async_device_register(dma);
+ 	if (rc) {
+ 		pci_err(pdev, "Failed to register dma device: %d\n", rc);
+-		free_irq(pci_irq_vector(pdev, 0),  plxdev);
+-		kfree(plxdev);
+-		return rc;
++		goto put_device;
+ 	}
+ 
+ 	pci_set_drvdata(pdev, plxdev);
+ 
+ 	return 0;
++
++put_device:
++	put_device(&pdev->dev);
++	free_irq(pci_irq_vector(pdev, 0),  plxdev);
++free_plx:
++	kfree(plxdev);
++
++	return rc;
  }
  
+ static int plx_dma_probe(struct pci_dev *pdev,
 -- 
 2.30.2
 
