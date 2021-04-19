@@ -2,151 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED0C36414B
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 14:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EE6364154
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 14:16:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238882AbhDSMNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 08:13:25 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:37783 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238158AbhDSMNY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 08:13:24 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id D7A941940953;
-        Mon, 19 Apr 2021 08:12:54 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 19 Apr 2021 08:12:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=5eD5rG
-        L+SdzCg/6CJdDYsKKFKIoJRPrY0vDyyezfL1E=; b=VYNbjtzdCFmLy/CrGhxpKo
-        8HtH1rbajK2Qxyuo5dbyL8RpckMmPeKtS7mmY2SA1TDE43mSDHQNq+u4KO/DLsCs
-        600QcmvyHfk2NqhoaW5LqEX/bBhu0+Uxg6tcybfWz4hE8mP/4fSzeZAG88q+7Iqi
-        i1/t09rE/K1IovWtLoakAxD/zS0qL7TmlRoEjLX6REWML2j5vy8kU/+dmPKiENyk
-        4XEyyA395O/Ezp8u9uS6r4yf8+njod9KZCdRgmr57QCv5xSsOCFIcAt1oDoyWWf9
-        ia283hEJouKmpY0qo/rWeryoas6jG/9OkNVXIeZ7LdNUSZP625zAulu16s49rkQg
-        ==
-X-ME-Sender: <xms:xnN9YG2Nt3q4dSyIWJHhlNOXai-3cf2CFcdyT2HDNTEOKGiAR6tq_A>
-    <xme:xnN9YNUa2LAmArKh_h3QXZyfBHLnxMItWQFLFkE8kNBGJej5oz-oroJ931XxY-5oT
-    6-f4ZisTzfyHA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddtgedghedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:xnN9YJ63JagTjktN5khb4pCSCA4lxqWKc-oGNiUWh2SCaMLlpsLg2g>
-    <xmx:xnN9YMIrrtOhKrFjoC-HtqAap_GPl90QE6-uccMvW8CQhptnxiK-0A>
-    <xmx:xnN9YCKN5AdyDk9Paw4dZv0E9-3geK7tb-0GaddHgmV8Ej5DeFvV8A>
-    <xmx:xnN9YAEcKKWcAsvG8p6R9LgvpPOlTOXHD5WiH69ZfNtDkF009HJGkA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1886924005C;
-        Mon, 19 Apr 2021 08:12:54 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bpf: Refactor and streamline bounds check into helper" failed to apply to 5.10-stable tree
-To:     daniel@iogearbox.net, ast@kernel.org, john.fastabend@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Apr 2021 14:12:44 +0200
-Message-ID: <1618834364132198@kroah.com>
+        id S239045AbhDSMQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 08:16:29 -0400
+Received: from mx07-00178001.pphosted.com ([185.132.182.106]:43410 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239041AbhDSMQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 08:16:29 -0400
+Received: from pps.filterd (m0241204.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13JCBMi6028003;
+        Mon, 19 Apr 2021 14:15:44 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=selector1;
+ bh=oP6bwnD9fv0xHxu6w27iRBSjRpt2R2DDkqvUICCFy/4=;
+ b=bVKVh8BeTuYDAxy5Xq+u3JtMEofaEcOoQulghesa8YNcIGBvjjvxXB1e6aFLeaCXRCL0
+ s6+/ARF7zJNuJ8AJJUGA9HbNImOfstcfwgrgmAXQc3Dxa0W/efQvaX8a7WQ2z2G738M6
+ CgLgRfl/pfolhevKctYmrB5ctnVATwqq0946vLEoIul8GgCHQbabRmabmGcqt0jpDJTp
+ pxNs4oCt4EHFwevT43AbefFfXCc3gQJVWGBCdvuz/lyY8bTwXC/Bs29XJ/XFyNYLJQy4
+ +sDR881ZsfGPVzkB942cx8rFmKw3mUhI23yjz7JCUoUXHBulUpXMw4aU5o9C6cP35grn qQ== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 380wj63h0g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Apr 2021 14:15:44 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id BC2B6100034;
+        Mon, 19 Apr 2021 14:15:43 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag2node3.st.com [10.75.127.6])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id B10192139BE;
+        Mon, 19 Apr 2021 14:15:43 +0200 (CEST)
+Received: from localhost (10.75.127.44) by SFHDAG2NODE3.st.com (10.75.127.6)
+ with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 19 Apr 2021 14:15:43
+ +0200
+From:   <patrice.chotard@foss.st.com>
+To:     Mark Brown <broonie@kernel.org>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+CC:     <linux-spi@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <christophe.kerello@foss.st.com>,
+        <patrice.chotard@foss.st.com>, <stable@vger.kernel.org>
+Subject: [PATCH 1/3] spi: stm32-qspi: fix pm_runtime usage_count counter
+Date:   Mon, 19 Apr 2021 14:15:39 +0200
+Message-ID: <20210419121541.11617-2-patrice.chotard@foss.st.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20210419121541.11617-1-patrice.chotard@foss.st.com>
+References: <20210419121541.11617-1-patrice.chotard@foss.st.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.44]
+X-ClientProxiedBy: SFHDAG1NODE3.st.com (10.75.127.3) To SFHDAG2NODE3.st.com
+ (10.75.127.6)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-19_07:2021-04-16,2021-04-19 signatures=0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Christophe Kerello <christophe.kerello@foss.st.com>
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+pm_runtime usage_count counter is not well managed.
+pm_runtime_put_autosuspend callback drops the usage_counter but this
+one has never been increased. Add pm_runtime_get_sync callback to bump up
+the usage counter. It is also needed to use pm_runtime_force_suspend and
+pm_runtime_force_resume APIs to handle properly the clock.
 
-thanks,
+Fixes: 9d282c17b023 ("spi: stm32-qspi: Add pm_runtime support")
+Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/spi/spi-stm32-qspi.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 073815b756c51ba9d8384d924c5d1c03ca3d1ae4 Mon Sep 17 00:00:00 2001
-From: Daniel Borkmann <daniel@iogearbox.net>
-Date: Tue, 23 Mar 2021 15:05:48 +0100
-Subject: [PATCH] bpf: Refactor and streamline bounds check into helper
-
-Move the bounds check in adjust_ptr_min_max_vals() into a small helper named
-sanitize_check_bounds() in order to simplify the former a bit.
-
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index f378d4ae405f..db77e2c670b9 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6075,6 +6075,37 @@ static int check_stack_access_for_ptr_arithmetic(
- 	return 0;
+diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
+index 947e6b9dc9f4..2786470a5201 100644
+--- a/drivers/spi/spi-stm32-qspi.c
++++ b/drivers/spi/spi-stm32-qspi.c
+@@ -727,21 +727,31 @@ static int __maybe_unused stm32_qspi_suspend(struct device *dev)
+ {
+ 	pinctrl_pm_select_sleep_state(dev);
+ 
+-	return 0;
++	return pm_runtime_force_suspend(dev);
  }
  
-+static int sanitize_check_bounds(struct bpf_verifier_env *env,
-+				 const struct bpf_insn *insn,
-+				 const struct bpf_reg_state *dst_reg)
-+{
-+	u32 dst = insn->dst_reg;
+ static int __maybe_unused stm32_qspi_resume(struct device *dev)
+ {
+ 	struct stm32_qspi *qspi = dev_get_drvdata(dev);
++	int ret;
 +
-+	/* For unprivileged we require that resulting offset must be in bounds
-+	 * in order to be able to sanitize access later on.
-+	 */
-+	if (env->bypass_spec_v1)
-+		return 0;
++	ret = pm_runtime_force_resume(dev);
++	if (ret < 0)
++		return ret;
+ 
+ 	pinctrl_pm_select_default_state(dev);
+-	clk_prepare_enable(qspi->clk);
 +
-+	switch (dst_reg->type) {
-+	case PTR_TO_STACK:
-+		if (check_stack_access_for_ptr_arithmetic(env, dst, dst_reg,
-+					dst_reg->off + dst_reg->var_off.value))
-+			return -EACCES;
-+		break;
-+	case PTR_TO_MAP_VALUE:
-+		if (check_map_access(env, dst, dst_reg->off, 1, false)) {
-+			verbose(env, "R%d pointer arithmetic of map value goes out of range, "
-+				"prohibited for !root\n", dst);
-+			return -EACCES;
-+		}
-+		break;
-+	default:
-+		break;
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
++		return ret;
 +	}
-+
-+	return 0;
-+}
  
- /* Handles arithmetic on a pointer and a scalar: computes new min/max and var_off.
-  * Caller should also handle BPF_MOV case separately.
-@@ -6300,22 +6331,8 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	__reg_deduce_bounds(dst_reg);
- 	__reg_bound_offset(dst_reg);
+ 	writel_relaxed(qspi->cr_reg, qspi->io_base + QSPI_CR);
+ 	writel_relaxed(qspi->dcr_reg, qspi->io_base + QSPI_DCR);
  
--	/* For unprivileged we require that resulting offset must be in bounds
--	 * in order to be able to sanitize access later on.
--	 */
--	if (!env->bypass_spec_v1) {
--		if (dst_reg->type == PTR_TO_MAP_VALUE &&
--		    check_map_access(env, dst, dst_reg->off, 1, false)) {
--			verbose(env, "R%d pointer arithmetic of map value goes out of range, "
--				"prohibited for !root\n", dst);
--			return -EACCES;
--		} else if (dst_reg->type == PTR_TO_STACK &&
--			   check_stack_access_for_ptr_arithmetic(
--				   env, dst, dst_reg, dst_reg->off +
--				   dst_reg->var_off.value)) {
--			return -EACCES;
--		}
--	}
-+	if (sanitize_check_bounds(env, insn, dst_reg) < 0)
-+		return -EACCES;
+-	pm_runtime_mark_last_busy(qspi->dev);
+-	pm_runtime_put_autosuspend(qspi->dev);
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
  
  	return 0;
  }
+-- 
+2.17.1
 
