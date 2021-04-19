@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B8973643D3
+	by mail.lfdr.de (Postfix) with ESMTP id B7AD83643D4
 	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241203AbhDSNVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56988 "EHLO mail.kernel.org"
+        id S240746AbhDSNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241406AbhDSNUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:20:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED3D361245;
-        Mon, 19 Apr 2021 13:16:34 +0000 (UTC)
+        id S241411AbhDSNUb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:20:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5B68613D0;
+        Mon, 19 Apr 2021 13:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838195;
-        bh=3DEf9FvFC0yEEZg0sArX0RHVUL5oMPCmLMSPu6mlZM4=;
+        s=korg; t=1618838198;
+        bh=ApGNo6D8yr0HZwEQcva912dzC25IbHBL+pwMRahzdCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IkQUU7740ucn5sHJ5ApOs3WZ+kbrRuo+27EX85fSIDQuQNDI5ddLKoiBmz1A7BPUQ
-         twyXFBbueZHKVbSDF1zLwrimt0+0IBP1yfmTM2jeaIGpJ112cYgPfokxWIOX/ggoc4
-         SpfXocB4WUz+BFr/blbwvKmcg2Z7HS9E6OYck9/s=
+        b=ikvARjaDFo3s3VtshOLKq8MBx/UpcgyOnHYesauDxwF8Wu06SjP0yXiwByE2jPvie
+         YQ/HEsDUhnty3SDYONvm7aIprFPGj1Qxg0wq+xxchbs8uTTUR1n/1AmUPCIrAmvffI
+         kb6h9TokupTUdGfYzauYkru/ep72ow6UTRRo979o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zheng Yongjun <zhengyongjun3@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Seevalamuthu Mariappan <seevalam@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/103] net: tipc: Fix spelling errors in net/tipc module
-Date:   Mon, 19 Apr 2021 15:05:54 +0200
-Message-Id: <20210419130529.293126321@linuxfoundation.org>
+Subject: [PATCH 5.10 044/103] mac80211: clear sta->fast_rx when STA removed from 4-addr VLAN
+Date:   Mon, 19 Apr 2021 15:05:55 +0200
+Message-Id: <20210419130529.333045805@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -41,65 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
 
-[ Upstream commit a79ace4b312953c5835fafb12adc3cb6878b26bd ]
+[ Upstream commit dd0b45538146cb6a54d6da7663b8c3afd16ebcfd ]
 
-These patches fix a series of spelling errors in net/tipc module.
+In some race conditions, with more clients and traffic configuration,
+below crash is seen when making the interface down. sta->fast_rx wasn't
+cleared when STA gets removed from 4-addr AP_VLAN interface. The crash is
+due to try accessing 4-addr AP_VLAN interface's net_device (fast_rx->dev)
+which has been deleted already.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Resolve this by clearing sta->fast_rx pointer when STA removes
+from a 4-addr VLAN.
+
+[  239.449529] Unable to handle kernel NULL pointer dereference at virtual address 00000004
+[  239.449531] pgd = 80204000
+...
+[  239.481496] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.4.60 #227
+[  239.481591] Hardware name: Generic DT based system
+[  239.487665] task: be05b700 ti: be08e000 task.ti: be08e000
+[  239.492360] PC is at get_rps_cpu+0x2d4/0x31c
+[  239.497823] LR is at 0xbe08fc54
+...
+[  239.778574] [<80739740>] (get_rps_cpu) from [<8073cb10>] (netif_receive_skb_internal+0x8c/0xac)
+[  239.786722] [<8073cb10>] (netif_receive_skb_internal) from [<8073d578>] (napi_gro_receive+0x48/0xc4)
+[  239.795267] [<8073d578>] (napi_gro_receive) from [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames+0xbcc/0x12d4 [mac80211])
+[  239.804776] [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames [mac80211]) from [<c7b84d4c>] (ieee80211_rx_napi+0x7b8/0x8c8 [mac8
+            0211])
+[  239.815857] [<c7b84d4c>] (ieee80211_rx_napi [mac80211]) from [<c7f63d7c>] (ath11k_dp_process_rx+0x7bc/0x8c8 [ath11k])
+[  239.827757] [<c7f63d7c>] (ath11k_dp_process_rx [ath11k]) from [<c7f5b6c4>] (ath11k_dp_service_srng+0x2c0/0x2e0 [ath11k])
+[  239.838484] [<c7f5b6c4>] (ath11k_dp_service_srng [ath11k]) from [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll+0x20/0x84 [ath11k_ahb]
+            )
+[  239.849419] [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll [ath11k_ahb]) from [<8073ce1c>] (net_rx_action+0xe0/0x28c)
+[  239.860945] [<8073ce1c>] (net_rx_action) from [<80324868>] (__do_softirq+0xe4/0x228)
+[  239.871269] [<80324868>] (__do_softirq) from [<80324c48>] (irq_exit+0x98/0x108)
+[  239.879080] [<80324c48>] (irq_exit) from [<8035c59c>] (__handle_domain_irq+0x90/0xb4)
+[  239.886114] [<8035c59c>] (__handle_domain_irq) from [<8030137c>] (gic_handle_irq+0x50/0x94)
+[  239.894100] [<8030137c>] (gic_handle_irq) from [<803024c0>] (__irq_svc+0x40/0x74)
+
+Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+Link: https://lore.kernel.org/r/1616163532-3881-1-git-send-email-seevalam@codeaurora.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bearer.h | 6 +++---
- net/tipc/net.c    | 2 +-
- net/tipc/node.c   | 2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ net/mac80211/cfg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/tipc/bearer.h b/net/tipc/bearer.h
-index bc0023119da2..9700c7df1b7f 100644
---- a/net/tipc/bearer.h
-+++ b/net/tipc/bearer.h
-@@ -150,9 +150,9 @@ struct tipc_media {
-  * care of initializing all other fields.
-  */
- struct tipc_bearer {
--	void __rcu *media_ptr;			/* initalized by media */
--	u32 mtu;				/* initalized by media */
--	struct tipc_media_addr addr;		/* initalized by media */
-+	void __rcu *media_ptr;			/* initialized by media */
-+	u32 mtu;				/* initialized by media */
-+	struct tipc_media_addr addr;		/* initialized by media */
- 	char name[TIPC_MAX_BEARER_NAME];
- 	struct tipc_media *media;
- 	struct tipc_media_addr bcast_addr;
-diff --git a/net/tipc/net.c b/net/tipc/net.c
-index 0bb2323201da..04ba69a0768b 100644
---- a/net/tipc/net.c
-+++ b/net/tipc/net.c
-@@ -89,7 +89,7 @@
-  *     - A spin lock to protect the registry of kernel/driver users (reg.c)
-  *     - A global spin_lock (tipc_port_lock), which only task is to ensure
-  *       consistency where more than one port is involved in an operation,
-- *       i.e., whe a port is part of a linked list of ports.
-+ *       i.e., when a port is part of a linked list of ports.
-  *       There are two such lists; 'port_list', which is used for management,
-  *       and 'wait_list', which is used to queue ports during congestion.
-  *
-diff --git a/net/tipc/node.c b/net/tipc/node.c
-index e4452d55851f..10b6fa7e558e 100644
---- a/net/tipc/node.c
-+++ b/net/tipc/node.c
-@@ -1711,7 +1711,7 @@ int tipc_node_xmit(struct net *net, struct sk_buff_head *list,
- }
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 2bf6271d9e3f..6a96deded763 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -1789,8 +1789,10 @@ static int ieee80211_change_station(struct wiphy *wiphy,
+ 		}
  
- /* tipc_node_xmit_skb(): send single buffer to destination
-- * Buffers sent via this functon are generally TIPC_SYSTEM_IMPORTANCE
-+ * Buffers sent via this function are generally TIPC_SYSTEM_IMPORTANCE
-  * messages, which will not be rejected
-  * The only exception is datagram messages rerouted after secondary
-  * lookup, which are rare and safe to dispose of anyway.
+ 		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
+-		    sta->sdata->u.vlan.sta)
++		    sta->sdata->u.vlan.sta) {
++			ieee80211_clear_fast_rx(sta);
+ 			RCU_INIT_POINTER(sta->sdata->u.vlan.sta, NULL);
++		}
+ 
+ 		if (test_sta_flag(sta, WLAN_STA_AUTHORIZED))
+ 			ieee80211_vif_dec_num_mcast(sta->sdata);
 -- 
 2.30.2
 
