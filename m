@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 850B8364B89
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DE1364B8D
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242458AbhDSUov (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:44:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54340 "EHLO mail.kernel.org"
+        id S242474AbhDSUpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:45:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242460AbhDSUol (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:44:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61DE161369;
-        Mon, 19 Apr 2021 20:44:09 +0000 (UTC)
+        id S242472AbhDSUon (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:44:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0EC2613C0;
+        Mon, 19 Apr 2021 20:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865051;
-        bh=jqlxbD4jWz55BNOzhYL6VinJOSoZoV0z2NCOXkKdtbA=;
+        s=k20201202; t=1618865053;
+        bh=z5k/Yw3mIMmrDwp95XRcKjZzM8UMyfFp0EcQmjpQa1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sm/u6upV7HRUoTywn5TR61478q5WtmBO79io+hUwpQUE0kdaFymSRYn0o1+bUUr1U
-         XsdkbEagLTkKKmdUyCnJ3LteBT3stJOgbVoc28vVTavUYd1ZcHnQ9E/fQ23/7m61g1
-         diuPe/T3M2r4NdvqtpppGoUCEKS2tZEqdZfCbiTcQHjwLO06b0Vm1hyUk8tTFCVkZ3
-         gdHb6f+Kz1pXstlg/lqVD34PSwH+k7Q7XdTdPLrRD766915ACHAS494lv7MB6b14i0
-         V5pvp4Zz8xyPa3vfZpTPqADLefRLYEm/0sJ5zzDA7COUAjirJWuIiWNXSXcgZCotVu
-         eaSAjOcw3WqQA==
+        b=b9pxoWd+T3UBBjZvXlfOrmYlMR2xy/Vf74rCbQ+NEblOGedKEK1pg+Vl3FPyahTFH
+         eIJJKUWsooV9dpqwRd1vQlGOWR5KFmK5ThwAjQ16h6tDlmYTiyshhveTgMYLIS8FCh
+         xpc+KRgp1us5p/kKLo1+7flh8c9m2zxxlBdzFpKAsMmRhwItTirbfZoL72P5H818WQ
+         V7Qv1Oe+AQu5219rfpah16dSEyJLRFVtO3fwuSGOhYLj7/mFYAFEt4V9fAAS44dwFA
+         X7UFhKcx9O1m9ltIvbNCtG6OAtGhLZdBnWwGIinuI8E1HOoV1GxO9zzrUi2QHIWFcv
+         7Lv6sUd07Laxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Marco Elver <elver@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Guo Ren <guoren@kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org,
-        kasan-dev@googlegroups.com, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.11 18/23] kasan: fix hwasan build for gcc
-Date:   Mon, 19 Apr 2021 16:43:37 -0400
-Message-Id: <20210419204343.6134-18-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-csky@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 19/23] csky: change a Kconfig symbol name to fix e1000 build error
+Date:   Mon, 19 Apr 2021 16:43:38 -0400
+Message-Id: <20210419204343.6134-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204343.6134-1-sashal@kernel.org>
 References: <20210419204343.6134-1-sashal@kernel.org>
@@ -52,82 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 5c595ac4c776c44b5c59de22ab43b3fe256d9fbb ]
+[ Upstream commit d199161653d612b8fb96ac51bfd5b2d2782ecef3 ]
 
-gcc-11 adds support for -fsanitize=kernel-hwaddress, so it becomes
-possible to enable CONFIG_KASAN_SW_TAGS.
+e1000's #define of CONFIG_RAM_BASE conflicts with a Kconfig symbol in
+arch/csky/Kconfig.
 
-Unfortunately this fails to build at the moment, because the
-corresponding command line arguments use llvm specific syntax.
+The symbol in e1000 has been around longer, so change arch/csky/ to use
+DRAM_BASE instead of RAM_BASE to remove the conflict.  (although e1000
+is also a 2-line change)
 
-Change it to use the cc-param macro instead, which works on both clang
-and gcc.
-
-[elver@google.com: fixup for "kasan: fix hwasan build for gcc"]
-  Link: https://lkml.kernel.org/r/YHQZVfVVLE/LDK2v@elver.google.com
-
-Link: https://lkml.kernel.org/r/20210323124112.1229772-1-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Marco Elver <elver@google.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Acked-by: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Michal Marek <michal.lkml@markovi.net>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
+Link: https://lkml.kernel.org/r/20210411055335.7111-1-rdunlap@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Acked-by: Guo Ren <guoren@kernel.org>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.kasan | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/csky/Kconfig            | 2 +-
+ arch/csky/include/asm/page.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/Makefile.kasan b/scripts/Makefile.kasan
-index 1e000cc2e7b4..127012f45166 100644
---- a/scripts/Makefile.kasan
-+++ b/scripts/Makefile.kasan
-@@ -2,6 +2,8 @@
- CFLAGS_KASAN_NOSANITIZE := -fno-builtin
- KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SHADOW_OFFSET)
+diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
+index 89dd2fcf38fa..3b16d081b4d7 100644
+--- a/arch/csky/Kconfig
++++ b/arch/csky/Kconfig
+@@ -292,7 +292,7 @@ config FORCE_MAX_ZONEORDER
+ 	int "Maximum zone order"
+ 	default "11"
  
-+cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
-+
- ifdef CONFIG_KASAN_GENERIC
+-config RAM_BASE
++config DRAM_BASE
+ 	hex "DRAM start addr (the same with memory-section in dts)"
+ 	default 0x0
  
- ifdef CONFIG_KASAN_INLINE
-@@ -12,8 +14,6 @@ endif
+diff --git a/arch/csky/include/asm/page.h b/arch/csky/include/asm/page.h
+index 9b98bf31d57c..16878240ef9a 100644
+--- a/arch/csky/include/asm/page.h
++++ b/arch/csky/include/asm/page.h
+@@ -28,7 +28,7 @@
+ #define SSEG_SIZE	0x20000000
+ #define LOWMEM_LIMIT	(SSEG_SIZE * 2)
  
- CFLAGS_KASAN_MINIMAL := -fsanitize=kernel-address
+-#define PHYS_OFFSET_OFFSET (CONFIG_RAM_BASE & (SSEG_SIZE - 1))
++#define PHYS_OFFSET_OFFSET (CONFIG_DRAM_BASE & (SSEG_SIZE - 1))
  
--cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
--
- # -fasan-shadow-offset fails without -fsanitize
- CFLAGS_KASAN_SHADOW := $(call cc-option, -fsanitize=kernel-address \
- 			-fasan-shadow-offset=$(KASAN_SHADOW_OFFSET), \
-@@ -36,14 +36,14 @@ endif # CONFIG_KASAN_GENERIC
- ifdef CONFIG_KASAN_SW_TAGS
+ #ifndef __ASSEMBLY__
  
- ifdef CONFIG_KASAN_INLINE
--    instrumentation_flags := -mllvm -hwasan-mapping-offset=$(KASAN_SHADOW_OFFSET)
-+    instrumentation_flags := $(call cc-param,hwasan-mapping-offset=$(KASAN_SHADOW_OFFSET))
- else
--    instrumentation_flags := -mllvm -hwasan-instrument-with-calls=1
-+    instrumentation_flags := $(call cc-param,hwasan-instrument-with-calls=1)
- endif
- 
- CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
--		-mllvm -hwasan-instrument-stack=$(CONFIG_KASAN_STACK) \
--		-mllvm -hwasan-use-short-granules=0 \
-+		$(call cc-param,hwasan-instrument-stack=$(CONFIG_KASAN_STACK)) \
-+		$(call cc-param,hwasan-use-short-granules=0) \
- 		$(instrumentation_flags)
- 
- endif # CONFIG_KASAN_SW_TAGS
 -- 
 2.30.2
 
