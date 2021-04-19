@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EC3364414
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F57E3643B3
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242152AbhDSNZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34012 "EHLO mail.kernel.org"
+        id S240741AbhDSNVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241600AbhDSNXG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:23:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD69761404;
-        Mon, 19 Apr 2021 13:18:35 +0000 (UTC)
+        id S241138AbhDSNUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:20:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E524B613C8;
+        Mon, 19 Apr 2021 13:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838316;
-        bh=e154lqVO9oElPdjoFdpawQRn0llCujhO1nnsLp8zZZI=;
+        s=korg; t=1618838138;
+        bh=PALgB/1MrAnn6euMR3cmtML76YPFfxyh+J25fa1rfVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vE37eBjw4zYKGDGrDGRuZV3fYHCPKvspkoC+uKuXU850Zgi+JcnZebRZ/efaUYoMv
-         gW0HalZ27YS0oawzLB9JuTDyneb38+m1VqqZPzk+DopPwNngXuIfa6JnF8UsOe0140
-         44trwmD8P/+7dLVHnwEYHw6aHscImOLH0YPjJf28=
+        b=I9LQn9ymVD7T467Y1240bHMa0yPRw1QsItKXrF+eaf3Rma1y7RQVMe8wk6LZDCLz2
+         bpN1U946pxqFAcZ64HtAAFI3oUwvXY9bJ0mbYK+7gJcG40ULxl/0EKtEsexIUupeDO
+         Su+wVwxZ7k/iuEZTqcbgy5rn7QDE7p0TX6v9SslE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryan Lee <ryans.lee@maximintegrated.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/73] ASoC: max98373: Added 30ms turn on/off time delay
+        stable@vger.kernel.org, Yongxin Liu <yongxin.liu@windriver.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.10 057/103] ixgbe: fix unbalanced device enable/disable in suspend/resume
 Date:   Mon, 19 Apr 2021 15:06:08 +0200
-Message-Id: <20210419130524.383331979@linuxfoundation.org>
+Message-Id: <20210419130529.769492964@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
-References: <20210419130523.802169214@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryan Lee <ryans.lee@maximintegrated.com>
+From: Yongxin Liu <yongxin.liu@windriver.com>
 
-[ Upstream commit 3a27875e91fb9c29de436199d20b33f9413aea77 ]
+commit debb9df311582c83fe369baa35fa4b92e8a9c58a upstream.
 
-Amp requires 10 ~ 30ms for the power ON and OFF.
-Added 30ms delay for stability.
+pci_disable_device() called in __ixgbe_shutdown() decreases
+dev->enable_cnt by 1. pci_enable_device_mem() which increases
+dev->enable_cnt by 1, was removed from ixgbe_resume() in commit
+6f82b2558735 ("ixgbe: use generic power management"). This caused
+unbalanced increase/decrease. So add pci_enable_device_mem() back.
 
-Signed-off-by: Ryan Lee <ryans.lee@maximintegrated.com>
-Link: https://lore.kernel.org/r/20210325033555.29377-2-ryans.lee@maximintegrated.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix the following call trace.
+
+  ixgbe 0000:17:00.1: disabling already-disabled device
+  Call Trace:
+   __ixgbe_shutdown+0x10a/0x1e0 [ixgbe]
+   ixgbe_suspend+0x32/0x70 [ixgbe]
+   pci_pm_suspend+0x87/0x160
+   ? pci_pm_freeze+0xd0/0xd0
+   dpm_run_callback+0x42/0x170
+   __device_suspend+0x114/0x460
+   async_suspend+0x1f/0xa0
+   async_run_entry_fn+0x3c/0xf0
+   process_one_work+0x1dd/0x410
+   worker_thread+0x34/0x3f0
+   ? cancel_delayed_work+0x90/0x90
+   kthread+0x14c/0x170
+   ? kthread_park+0x90/0x90
+   ret_from_fork+0x1f/0x30
+
+Fixes: 6f82b2558735 ("ixgbe: use generic power management")
+Signed-off-by: Yongxin Liu <yongxin.liu@windriver.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/max98373.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/codecs/max98373.c b/sound/soc/codecs/max98373.c
-index 96718e3a1ad0..16fbc9faed90 100644
---- a/sound/soc/codecs/max98373.c
-+++ b/sound/soc/codecs/max98373.c
-@@ -410,11 +410,13 @@ static int max98373_dac_event(struct snd_soc_dapm_widget *w,
- 		regmap_update_bits(max98373->regmap,
- 			MAX98373_R20FF_GLOBAL_SHDN,
- 			MAX98373_GLOBAL_EN_MASK, 1);
-+		usleep_range(30000, 31000);
- 		break;
- 	case SND_SOC_DAPM_POST_PMD:
- 		regmap_update_bits(max98373->regmap,
- 			MAX98373_R20FF_GLOBAL_SHDN,
- 			MAX98373_GLOBAL_EN_MASK, 0);
-+		usleep_range(30000, 31000);
- 		max98373->tdm_mode = false;
- 		break;
- 	default:
--- 
-2.30.2
-
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -6896,6 +6896,11 @@ static int __maybe_unused ixgbe_resume(s
+ 
+ 	adapter->hw.hw_addr = adapter->io_addr;
+ 
++	err = pci_enable_device_mem(pdev);
++	if (err) {
++		e_dev_err("Cannot enable PCI device from suspend\n");
++		return err;
++	}
+ 	smp_mb__before_atomic();
+ 	clear_bit(__IXGBE_DISABLED, &adapter->state);
+ 	pci_set_master(pdev);
 
 
