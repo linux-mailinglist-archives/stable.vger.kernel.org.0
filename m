@@ -2,151 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FAE5364538
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3527436453A
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241658AbhDSNo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:44:57 -0400
-Received: from mail-eopbgr1310090.outbound.protection.outlook.com ([40.107.131.90]:6334
-        "EHLO APC01-SG2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S241542AbhDSNoP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:44:15 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=C861wjvSreBd6Vbt8gtPrkl0pD4vqz/MuToaUrKNYRi2pONP9/9kPR0AglFXWCOdPSAwxSZ1q2GWgbbTz2pg5OobIx8c33UQN5ZpwJ4UIzlOQQnuUF0wovjgh7qNu2m2eX0Y9R2otV5y7qczCccUOYugdh6+OK6SFxVQHOgVqOYD4VBhBpXrKXQwZgB4tIm3TMl0Er158S9YjAswaVUNE9kXo0vscAVnpP3OODbng9QgN6Y7DTcxLk9XzI3V2vNnxlLenJjSstgVGiVRPJrtqJg4K//UyAjdoU8v2Vvex8wFWNDin0awezk7JQhX+rIZnNLpiA0zEswQ1NCzVuFDSQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+8xcmvTKtjW25KjhvyCRyZP/mfag51RufBnt90cn2HA=;
- b=LwoItBRqCvI6tmUgEt1EhsV/uwhGOb9ozbV1y7RNZS/I2ed2vOjjOxufCzYHwm6Di5OlAGSXqp/wbK1IV72EwpTsogAgiae4ftqW7WDPDnOSLwOt7S6jAW4FwFy5PDGseRtS96SI2TwSrr52RIqh/7SNXUd0VyfGbsd/nfg2v7eBxdui7oxGME0PKFqNAgxkI3tHrOqpj5Hs17fViYESVzwVNOarGuPPx7TKqBZzktx20jLexwQEchBggvsjzjZC9LN9DSpKjBbLxfkwW6+xcJbBbruvRGURxBfjBwg1tkANSCsSO/iUX5sFy0ZPCoe6VJxwR+At4KorMpWqkBD/DQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+8xcmvTKtjW25KjhvyCRyZP/mfag51RufBnt90cn2HA=;
- b=h/z246E4hTeBD9mnNtt6utgDcDCuj4Id+aAGk2/vUY/oobcHEkJY5WFLz2WgI2HhzJmnRVVKwxKYxZdC+NPOEvqPgfMIjVNvMTFrrHMz2AwjVRHhCElx0ZL11dzZTDXMqYtXO5OwEpWsaYrKYQHK5w2lAJstm5J95s/LcoJBWyc=
-Received: from PSAP153MB0422.APCP153.PROD.OUTLOOK.COM (2603:1096:301:38::12)
- by PSAP153MB0407.APCP153.PROD.OUTLOOK.COM (2603:1096:301:3f::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.11; Mon, 19 Apr
- 2021 13:43:37 +0000
-Received: from PSAP153MB0422.APCP153.PROD.OUTLOOK.COM
- ([fe80::9921:b743:c0db:6f50]) by PSAP153MB0422.APCP153.PROD.OUTLOOK.COM
- ([fe80::9921:b743:c0db:6f50%7]) with mapi id 15.20.4087.013; Mon, 19 Apr 2021
- 13:43:37 +0000
-From:   Shyam Prasad <Shyam.Prasad@microsoft.com>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, pc <pc@cjr.nz>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steven French <Steven.French@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: RE: [EXTERNAL] Re: [PATCH 4.19 013/247] cifs: Set
- CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.
-Thread-Topic: [EXTERNAL] Re: [PATCH 4.19 013/247] cifs: Set
- CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.
-Thread-Index: AQHXKtl3oEpPTTCadkuXKYVCCMdGI6qnf4aAgAACKFCAABQAgIAC7L2AgAYL/YCACbwcAIABHItwgACBRYCAAAUg4A==
-Date:   Mon, 19 Apr 2021 13:43:37 +0000
-Message-ID: <PSAP153MB04225D4C5A61E003B196570994499@PSAP153MB0422.APCP153.PROD.OUTLOOK.COM>
-References: <20210301161031.684018251@linuxfoundation.org>
- <20210301161032.337414143@linuxfoundation.org> <YGxIMCsclG4E1/ck@eldamar.lan>
- <YGxlJXv/+IPaErUr@kroah.com>
- <PSAP153MB04220682838AC9D025414B6094769@PSAP153MB0422.APCP153.PROD.OUTLOOK.COM>
- <YGx3u01Wa/DDnjlV@eldamar.lan> <YG7r0UaivWZL762N@eldamar.lan>
- <YHP+XbVWfGv21EL1@kroah.com> <YHwo5prs4MbXEzER@eldamar.lan>
- <PSAP153MB04224202F4A2BE668533F94794499@PSAP153MB0422.APCP153.PROD.OUTLOOK.COM>
- <YH2EBzOKkg4kGoQn@eldamar.lan>
-In-Reply-To: <YH2EBzOKkg4kGoQn@eldamar.lan>
-Accept-Language: en-IN, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=20cfd1ea-0d45-4c94-b5a5-98f19dca236e;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-04-19T13:40:35Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
-authentication-results: debian.org; dkim=none (message not signed)
- header.d=none;debian.org; dmarc=none action=none header.from=microsoft.com;
-x-originating-ip: [2404:f801:8028:1:60f6:ca47:5dfc:b1d0]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ce5039ac-ab5e-4a4a-e6d9-08d903392285
-x-ms-traffictypediagnostic: PSAP153MB0407:
-x-ms-exchange-transport-forked: True
-x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
-x-microsoft-antispam-prvs: <PSAP153MB0407B4E12FA10312E06F8FBD94499@PSAP153MB0407.APCP153.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:5236;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: vf5qlAgQjL/q+xj52vVa7z4iQFEXqbezFfa7JMqFKBDdZIahHzag+YAODEKW6hwHlu2cUPM02szdBOhOOSYsyDKvXFGrMmKiY/Dbf9oyWbq0drEMIHFkKeJLlBAWgy0KiL0Fr4Va+ay7+y6PpAPSgtrY86tMlUUVRIq9TUytVljkP+Iys5ozYlRkIocRdEJ6Qn78WiHD8mRf0IYRD/Wn0ey9ZSt/RBfVM+Gbf/xnqNE3NCuMyc6BZtVAIlFjySDBrR0O1esJURDch0uxBt5NP0W2pSgoEXdKqA5vJiFu89ynpRK9R1EaB8oV7MoiAFBDPX6CzbrZZOptsNgbQnn3MvQSrHubaWt0s04c98RXvpioREevc0D9ieeYJsYOECzT4SjBwSjY7fLSpShExk3XG4A8X9OAtLCtOLON/Ycyhgn0QwVTasf4RZrKfCy2XEJCpwsZ5555ilmt8PhV4XZr2gjzT5xNPqotoQVW03oFAe+4CarpC7NImgtSsyvyuhxj03nygRDRha1+eCwEut8vOgXPFlEyXOeXsd+6kldaWbymikjZ7UWDmWtsSllRV19crO8spka2wanhN+0fFuyjo7L4H8Ezbl/7Se3xonb781I=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PSAP153MB0422.APCP153.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(4636009)(366004)(8936002)(2906002)(316002)(10290500003)(52536014)(4744005)(8676002)(478600001)(4326008)(55016002)(5660300002)(54906003)(8990500004)(7696005)(82950400001)(9686003)(53546011)(82960400001)(83380400001)(38100700002)(186003)(122000001)(6506007)(71200400001)(6916009)(76116006)(66946007)(64756008)(66446008)(66556008)(66476007)(33656002)(86362001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?YZ06ZyR4F+43aRWxnVl/nGdkdSEbHsn8Sw52AH8mbmfCh4vVpOVs78t0JtEf?=
- =?us-ascii?Q?jmL6wkric/iSovvHq44namnwgRbVq+hs+Axae0qEJXXDSs+NF04u0+4Ot/w6?=
- =?us-ascii?Q?sVXrL5p2jgEmuDl99/J/etbW2gNCDVbI738iJPi4y5XNvi8HlX7XxNFEqBfC?=
- =?us-ascii?Q?xsOsSKLy/1bxz4SatZWvlDFP1ngQ5DbVEzBuJprIOPgxDHZuVQQ5JI01Rb2E?=
- =?us-ascii?Q?rc9KzIqrUFIE89aMNfmisZgaIfAfMlIzM26UPnZDzzzINPwWZX4mZB5wz7Zu?=
- =?us-ascii?Q?t6G3omOcmmZJMyTKX8uKugnQZNGnMEnTjomR9Nc5d+7/RgiugIu1zMtylBwf?=
- =?us-ascii?Q?FGzGfofWbD1uawTkillfmT7GiVru1Jzqqku8Qg49OsDPIrtoB4mnAGrMduyg?=
- =?us-ascii?Q?raBRhCrFdrgjPcDdXBCBZZqjNe2XlFuaffOsTFzHabLbERrOZXkoqIT4CU76?=
- =?us-ascii?Q?1PrthyzUbVHppIUotTP6pPRYgIEgz1MxQPCl23G1JYPoBqCoSzCaPN2dAVyS?=
- =?us-ascii?Q?rTMRJ+ebI3K/du5iVX7QGTqe/tmQWsjU5F36I9+1Z90Baq1k1fGa9foA8QfG?=
- =?us-ascii?Q?+y8l7nrvK9n8XfHq8B2ZhRaBRIkb6nVCQxwPOJpY699q4q70yng7wFlh3yQp?=
- =?us-ascii?Q?Co4XV6ubUXRfo+Rq2vo3yjYE1QcGLz2gHNC3lY9uqvwjST0yvw1PIG+E+v1v?=
- =?us-ascii?Q?69tiMCla2fbgUD5dVxwBw+gL0exbE0HeBl9xgbTh3ouG6MQTmVRDAK1Mvs/l?=
- =?us-ascii?Q?CbEeB7LsIBmMqTC4XnTrZzLXlSpNKCIeGtFfYplfaGwMZ/2xwatEefbfvfMC?=
- =?us-ascii?Q?lXQ2d7xpvn5Kyd8dJcoLSwxOwbsIU/udHzNJ4N3bATkwJGmshM6v1IIQA8z0?=
- =?us-ascii?Q?LnStBxsMR201T9yo+0HFcxjvTcG0OhGVIU6k7w+ELdKLbjwo+iHD7HgAT0Wa?=
- =?us-ascii?Q?SWMxJ+f6au/CrsiB6Abjixy/N+vWv7R2wdOnoIu7QHCll5VUufhHzQmFdroz?=
- =?us-ascii?Q?FDkvxMtbwI6Q1qJ8Mn73qFnMvVzUpvXpGKOpXoGEOKEEtevBWZlAW+LzC2Cx?=
- =?us-ascii?Q?qm6tSmVpmaEAmoHKGV0XpYomnkrFgmXlqjd2MPIrKg/sB5u/MgOkzbFhCJHh?=
- =?us-ascii?Q?1YaJDIp9cFdsKCAn3K9HhwHaKwI6+sWURP4b83wAKRAfbazCaQc923vtcV/v?=
- =?us-ascii?Q?fvazl+UiT3M3gxDzNeVgSwb/ivDh7Jrf7FXcq6AOClN26xr6Y2ArGgAou3im?=
- =?us-ascii?Q?7U+3Ks32yuH0+D2DnMkXsRVveccD3imxQLYS7b81EijooaUdQ6pMoywuwy1E?=
- =?us-ascii?Q?gc4mbHKfJuFo8VOL+eY0A5AM2DcjoN5zLmiOF5TlgAXdfBxdwOGkF5y74Co7?=
- =?us-ascii?Q?bUv8QAs=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S240184AbhDSNsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:48:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45686 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239595AbhDSNr4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:47:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE4EE6101E;
+        Mon, 19 Apr 2021 13:47:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1618840047;
+        bh=mZ2Xu7CerLxG5GraAQ8cNIptP/N4fWqnWBndy8FFZVU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eJznLX5Y8jf7i0mKdK8jVYP1anp6am1VsvHxacN5ww36aCIk8Lmslnz5pcqxBGBB9
+         FscLNTM0RWqDoMHiplFLx4qZBJlCXaxLSHSE0Tqv6Km5G1G2v/LsTVr4TINszgHkXV
+         0wEymW5cCjWKojR4YZNH2TEvxmZoC2Tu8L7pNxCkGaLoOKNLQj7TqMgfOwdj0s6/D2
+         ojIPeCW6/0WeDo9CKblNb7Ra2dIIXYcrLy7u36ugwBg6EVLkQ7KJsVYJR1i8TXSBGI
+         Hfx3Jvf2FqED4ZeS5Xj572w2jpRftKB+7O8rba35vuBozWJcxCuPyv0uPwxiqLsHEB
+         vxNg2SJoOtWIQ==
+Received: by pali.im (Postfix)
+        id 226D476B; Mon, 19 Apr 2021 15:47:24 +0200 (CEST)
+From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     andrew@lunn.ch, davem@davemloft.net, kabel@kernel.org,
+        gregkh@linuxfoundation.org
+Subject: [PATCH] net: phy: marvell: fix detection of PHY on Topaz switches
+Date:   Mon, 19 Apr 2021 15:47:09 +0200
+Message-Id: <20210419134709.12859-1-pali@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PSAP153MB0422.APCP153.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: ce5039ac-ab5e-4a4a-e6d9-08d903392285
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Apr 2021 13:43:37.5143
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 6+cbPC8kLr+RZnnUI4qGFehhb4OfG1X7JE4e4q5MLJPbe0yciw/NUlCFZcBAGBYPTRm2BOpWvd0HvkelsT979A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PSAP153MB0407
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I think so; Paulo can confirm.
+commit 1fe976d308acb6374c899a4ee8025a0a016e453e upstream.
 
------Original Message-----
-From: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com> On Behalf Of Sa=
-lvatore Bonaccorso
-Sent: Monday, April 19, 2021 6:52 PM
-To: Shyam Prasad <Shyam.Prasad@microsoft.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>; pc <pc@cjr.nz>; linux-=
-kernel@vger.kernel.org; stable@vger.kernel.org; Aurelien Aptel <aaptel@suse=
-.com>; Steven French <Steven.French@microsoft.com>; Sasha Levin <sashal@ker=
-nel.org>
-Subject: Re: [EXTERNAL] Re: [PATCH 4.19 013/247] cifs: Set CIFS_MOUNT_USE_P=
-REFIX_PATH flag on setting cifs_sb->prepath.
+Since commit fee2d546414d ("net: phy: marvell: mv88e6390 temperature
+sensor reading"), Linux reports the temperature of Topaz hwmon as
+constant -75°C.
 
-Hi Shyam,
+This is because switches from the Topaz family (88E6141 / 88E6341) have
+the address of the temperature sensor register different from Peridot.
 
-On Mon, Apr 19, 2021 at 05:48:24AM +0000, Shyam Prasad wrote:
-> <Including Paulo in this email thread>
->=20
-> Hi Salvatore,
->=20
-> Attached is a proposed fix from Paulo for older kernels.=20
-> Can you please confirm that this works for you too?=20
+This address is instead compatible with 88E1510 PHYs, as was used for
+Topaz before the above mentioned commit.
 
-So just to be clear, first apply again a738c93fb1c1 and then your additiona=
-l patch on top?
+Create a new mapping table between switch family and PHY ID for families
+which don't have a model number. And define PHY IDs for Topaz and Peridot
+families.
 
-Regards,
-Salvatore
+Create a new PHY ID and a new PHY driver for Topaz's internal PHY.
+The only difference from Peridot's PHY driver is the HWMON probing
+method.
+
+Prior this change Topaz's internal PHY is detected by kernel as:
+
+  PHY [...] driver [Marvell 88E6390] (irq=63)
+
+And afterwards as:
+
+  PHY [...] driver [Marvell 88E6341 Family] (irq=63)
+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+BugLink: https://github.com/globalscaletechnologies/linux/issues/1
+Fixes: fee2d546414d ("net: phy: marvell: mv88e6390 temperature sensor reading")
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[pali: Backported to 5.10 version]
+---
+This patch is backported to 5.10 version. Tested on Turris Mox with Topaz switch.
+---
+ drivers/net/dsa/mv88e6xxx/chip.c | 30 +++++++++++++----------------
+ drivers/net/phy/marvell.c        | 33 +++++++++++++++++++++++++++++---
+ include/linux/marvell_phy.h      |  5 +++--
+ 3 files changed, 46 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 87160e723dfc..70ec17f3c300 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -2994,10 +2994,17 @@ static int mv88e6xxx_setup(struct dsa_switch *ds)
+ 	return err;
+ }
+ 
++/* prod_id for switch families which do not have a PHY model number */
++static const u16 family_prod_id_table[] = {
++	[MV88E6XXX_FAMILY_6341] = MV88E6XXX_PORT_SWITCH_ID_PROD_6341,
++	[MV88E6XXX_FAMILY_6390] = MV88E6XXX_PORT_SWITCH_ID_PROD_6390,
++};
++
+ static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
+ {
+ 	struct mv88e6xxx_mdio_bus *mdio_bus = bus->priv;
+ 	struct mv88e6xxx_chip *chip = mdio_bus->chip;
++	u16 prod_id;
+ 	u16 val;
+ 	int err;
+ 
+@@ -3008,23 +3015,12 @@ static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
+ 	err = chip->info->ops->phy_read(chip, bus, phy, reg, &val);
+ 	mv88e6xxx_reg_unlock(chip);
+ 
+-	if (reg == MII_PHYSID2) {
+-		/* Some internal PHYs don't have a model number. */
+-		if (chip->info->family != MV88E6XXX_FAMILY_6165)
+-			/* Then there is the 6165 family. It gets is
+-			 * PHYs correct. But it can also have two
+-			 * SERDES interfaces in the PHY address
+-			 * space. And these don't have a model
+-			 * number. But they are not PHYs, so we don't
+-			 * want to give them something a PHY driver
+-			 * will recognise.
+-			 *
+-			 * Use the mv88e6390 family model number
+-			 * instead, for anything which really could be
+-			 * a PHY,
+-			 */
+-			if (!(val & 0x3f0))
+-				val |= MV88E6XXX_PORT_SWITCH_ID_PROD_6390 >> 4;
++	/* Some internal PHYs don't have a model number. */
++	if (reg == MII_PHYSID2 && !(val & 0x3f0) &&
++	    chip->info->family < ARRAY_SIZE(family_prod_id_table)) {
++		prod_id = family_prod_id_table[chip->info->family];
++		if (prod_id)
++			val |= prod_id >> 4;
+ 	}
+ 
+ 	return err ? err : val;
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index 5dbdaf0f5f09..823a89354466 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -2913,9 +2913,35 @@ static struct phy_driver marvell_drivers[] = {
+ 		.get_stats = marvell_get_stats,
+ 	},
+ 	{
+-		.phy_id = MARVELL_PHY_ID_88E6390,
++		.phy_id = MARVELL_PHY_ID_88E6341_FAMILY,
+ 		.phy_id_mask = MARVELL_PHY_ID_MASK,
+-		.name = "Marvell 88E6390",
++		.name = "Marvell 88E6341 Family",
++		/* PHY_GBIT_FEATURES */
++		.flags = PHY_POLL_CABLE_TEST,
++		.probe = m88e1510_probe,
++		.config_init = marvell_config_init,
++		.config_aneg = m88e6390_config_aneg,
++		.read_status = marvell_read_status,
++		.ack_interrupt = marvell_ack_interrupt,
++		.config_intr = marvell_config_intr,
++		.did_interrupt = m88e1121_did_interrupt,
++		.resume = genphy_resume,
++		.suspend = genphy_suspend,
++		.read_page = marvell_read_page,
++		.write_page = marvell_write_page,
++		.get_sset_count = marvell_get_sset_count,
++		.get_strings = marvell_get_strings,
++		.get_stats = marvell_get_stats,
++		.get_tunable = m88e1540_get_tunable,
++		.set_tunable = m88e1540_set_tunable,
++		.cable_test_start = marvell_vct7_cable_test_start,
++		.cable_test_tdr_start = marvell_vct5_cable_test_tdr_start,
++		.cable_test_get_status = marvell_vct7_cable_test_get_status,
++	},
++	{
++		.phy_id = MARVELL_PHY_ID_88E6390_FAMILY,
++		.phy_id_mask = MARVELL_PHY_ID_MASK,
++		.name = "Marvell 88E6390 Family",
+ 		/* PHY_GBIT_FEATURES */
+ 		.flags = PHY_POLL_CABLE_TEST,
+ 		.probe = m88e6390_probe,
+@@ -3001,7 +3027,8 @@ static struct mdio_device_id __maybe_unused marvell_tbl[] = {
+ 	{ MARVELL_PHY_ID_88E1540, MARVELL_PHY_ID_MASK },
+ 	{ MARVELL_PHY_ID_88E1545, MARVELL_PHY_ID_MASK },
+ 	{ MARVELL_PHY_ID_88E3016, MARVELL_PHY_ID_MASK },
+-	{ MARVELL_PHY_ID_88E6390, MARVELL_PHY_ID_MASK },
++	{ MARVELL_PHY_ID_88E6341_FAMILY, MARVELL_PHY_ID_MASK },
++	{ MARVELL_PHY_ID_88E6390_FAMILY, MARVELL_PHY_ID_MASK },
+ 	{ MARVELL_PHY_ID_88E1340S, MARVELL_PHY_ID_MASK },
+ 	{ MARVELL_PHY_ID_88E1548P, MARVELL_PHY_ID_MASK },
+ 	{ }
+diff --git a/include/linux/marvell_phy.h b/include/linux/marvell_phy.h
+index ff7b7607c8cf..f5cf19d19776 100644
+--- a/include/linux/marvell_phy.h
++++ b/include/linux/marvell_phy.h
+@@ -25,11 +25,12 @@
+ #define MARVELL_PHY_ID_88X3310		0x002b09a0
+ #define MARVELL_PHY_ID_88E2110		0x002b09b0
+ 
+-/* The MV88e6390 Ethernet switch contains embedded PHYs. These PHYs do
++/* These Ethernet switch families contain embedded PHYs, but they do
+  * not have a model ID. So the switch driver traps reads to the ID2
+  * register and returns the switch family ID
+  */
+-#define MARVELL_PHY_ID_88E6390		0x01410f90
++#define MARVELL_PHY_ID_88E6341_FAMILY	0x01410f41
++#define MARVELL_PHY_ID_88E6390_FAMILY	0x01410f90
+ 
+ #define MARVELL_PHY_FAMILY_ID(id)	((id) >> 4)
+ 
+-- 
+2.20.1
+
