@@ -2,124 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82457364D5B
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 23:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF7D7364D7E
+	for <lists+stable@lfdr.de>; Tue, 20 Apr 2021 00:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231588AbhDSVyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 17:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59840 "EHLO
+        id S230251AbhDSWHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 18:07:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240508AbhDSVyx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 17:54:53 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D69DBC06174A
-        for <stable@vger.kernel.org>; Mon, 19 Apr 2021 14:54:23 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id y1so2871737plg.11
-        for <stable@vger.kernel.org>; Mon, 19 Apr 2021 14:54:23 -0700 (PDT)
+        with ESMTP id S229806AbhDSWHV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Apr 2021 18:07:21 -0400
+Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8B90C06174A
+        for <stable@vger.kernel.org>; Mon, 19 Apr 2021 15:06:51 -0700 (PDT)
+Received: by mail-oi1-x234.google.com with SMTP id u16so19699211oiu.7
+        for <stable@vger.kernel.org>; Mon, 19 Apr 2021 15:06:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=1i3gRklEVn4rcGvJfanGgRgq9YRpuGxfecqav8SO1PQ=;
-        b=aUAFydFnKA6/DNucCjbel4rBIl5NrZp4Fwz35yQFGfFxeyfXtmcnuyQZ7JDoKqZRJm
-         wvCm9+aDbVhvxRFpq8D92Ry3gxBJnrVXYrNjTWxni4Kqy1U/WUKWj6x5Q8OTfUnLV/FQ
-         mQ5ulMPsRyh2Dg08V/Lj3Orfcm+G2nNPSBK9rBpLmFgyMSeq/7LrwGzarQ7mZGt+zcVF
-         KGZleBpbEYLFp1jWUKVRE+4cfGP46DrlAhXBr8xCDAmqUygVHtVFC+PzUbZznfH3xtag
-         U13coduseqxJrwnb/MSj3cvIeonNNZEgdZvc8VOvbNJSQgZwo3wTudSOwmnfNj8+jtJ+
-         n4KA==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=hvkdFKwxBitYVV/su1cCNWAnDNUCJkj8yx9FW2pWWVw=;
+        b=W3o8oHMGscEs2UH//4tfAPnlj4iZ8q+MRhH/a6ceCwPErxw4I5IbEagdkqO3QhrMFI
+         gMWRsTGHemy8V9MMlhXnKvNqNtvx72lkMhEHTnBvx2JiowirZ0Dzif5vy7HfZkks3DFU
+         56FXs0iA/Z+gSyJoymJAZEOLpMV4A9/mMlMbU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=1i3gRklEVn4rcGvJfanGgRgq9YRpuGxfecqav8SO1PQ=;
-        b=FSB2PlNgfgyIFaIxPHccbuMfEhhPMGhC07sHed4yyzgjT/jUOO/W7EzGm9Kn9KoAci
-         kkgyzo3fZ7eA24cbbfMhzCNDCsqY5FD4XECz7uAkYNx6M5EgdDM0auRdr5PrgIBt3WS5
-         RjAt4/0/+tb1LRPBpEHPs4gHNAJRnbaA+sIyWUrLM8ztcK2n67s0bU7Nl0SimDxbJMt/
-         wNgYYpyMQqq/SmY+MmNJoNaAzSX8upfpGqdbQF/5/KxuSlk0AC5PY1ylF47QjV3lAlsL
-         AW7s3I40H1K4tUV0KiLaf/pbDMClrbImQuqAanlW/Tg+AiMInWbiClrkuIl8MpucTiKZ
-         YbUQ==
-X-Gm-Message-State: AOAM530eL4eIEp7tNTIT+s1UOT2oN6VSbioLUPQa+e6Dpuhb7l3k8VVY
-        aJcUT+Mtqt3Rqp1V6U+mU/5EZN+Vb4bYVQ==
-X-Google-Smtp-Source: ABdhPJwRKHcHUUB75RJ8UksC6cCcuOtivKcwdvQTiCRHMAGo4WJYZrc7oY+xQK+RKi9lpCp9nS7JAg==
-X-Received: by 2002:a17:90a:7147:: with SMTP id g7mr1214240pjs.225.1618869263264;
-        Mon, 19 Apr 2021 14:54:23 -0700 (PDT)
-Received: from google.com (240.111.247.35.bc.googleusercontent.com. [35.247.111.240])
-        by smtp.gmail.com with ESMTPSA id d21sm368051pjx.24.2021.04.19.14.54.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Apr 2021 14:54:22 -0700 (PDT)
-Date:   Mon, 19 Apr 2021 21:54:18 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: Patch "KVM: VMX: Convert vcpu_vmx.exit_reason to a union" has
- been added to the 5.10-stable tree
-Message-ID: <YH38CpPjGSsSRUgt@google.com>
-References: <20210419002733.D5675610CB@mail.kernel.org>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=hvkdFKwxBitYVV/su1cCNWAnDNUCJkj8yx9FW2pWWVw=;
+        b=oaZL6N9Hzp9P3QONU8fBafogmntk7pLzYXnzAZfT6NS+NAVulyJzPRLaCDTQI31Aof
+         s4qSE6vswaWDW9jpsPysiWwy22cxM5TJZB7NwjH/QvPlUpVUaFrrzl3QK5XqRUeFZG/L
+         qfys0OHO1F2GOTOFS64owPlBvAvzc7ffCY6Pq6peg9rspb7tShzMEy8h7sQfXc7itse9
+         GwAQv7Fmbv0hYfhO0Q75C7eKX8e33o8/xezLG+VQ3C8Gyl77bzrPhIYhNaHl9Bb7RDpl
+         AJfCeUqYRlJHl5OMqII93a+HNFir4G5j7SIa/9Rk0KZMGQqkhnwZTJ+EPNnfh1isqy3P
+         qnYw==
+X-Gm-Message-State: AOAM532Ey1Kf5o82yRfvk0MIblLGlklpk692hUnsp+/jgnFfd6GnbRCN
+        dxIla+qvjzoSC87KpQ0BuNz5Gg==
+X-Google-Smtp-Source: ABdhPJz4LARCuwJDr2q66eT+KmlcZlH2OT/7XHZeWnAUq02qRyhTVJqkcz8P05Nbhe37we1Vhqwilg==
+X-Received: by 2002:a05:6808:13d0:: with SMTP id d16mr851849oiw.169.1618870011032;
+        Mon, 19 Apr 2021 15:06:51 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id x24sm1701356otk.16.2021.04.19.15.06.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Apr 2021 15:06:50 -0700 (PDT)
+Subject: Re: [PATCH] usbip: Fix incorrect double assignment to udc->ud.tcp_rx
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Tom Seewald <tseewald@gmail.com>, stable@vger.kernel.org,
+        Colin Ian King <colin.king@canonical.com>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210412185902.27755-1-tseewald@gmail.com>
+ <f3e734e4-afc2-4d7c-8d02-714935b45764@linuxfoundation.org>
+ <YH121CyWCD18M3hA@kroah.com>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <8726436e-49ab-df18-724f-d87625949773@linuxfoundation.org>
+Date:   Mon, 19 Apr 2021 16:06:49 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210419002733.D5675610CB@mail.kernel.org>
+In-Reply-To: <YH121CyWCD18M3hA@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+Paolo
-
-On Sun, Apr 18, 2021, Sasha Levin wrote:
-> This is a note to let you know that I've just added the patch titled
+On 4/19/21 6:25 AM, Greg Kroah-Hartman wrote:
+> On Fri, Apr 16, 2021 at 09:32:35AM -0600, Shuah Khan wrote:
+>> On 4/12/21 12:59 PM, Tom Seewald wrote:
+>>> commit 9858af27e69247c5d04c3b093190a93ca365f33d upstream.
+>>>
+>>> Currently udc->ud.tcp_rx is being assigned twice, the second assignment
+>>> is incorrect, it should be to udc->ud.tcp_tx instead of rx. Fix this.
+>>>
+>>> Fixes: 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races leading to gpf")
+>>> Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+>>> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+>>> Cc: stable <stable@vger.kernel.org>
+>>> Addresses-Coverity: ("Unused value")
+>>> Link: https://lore.kernel.org/r/20210311104445.7811-1-colin.king@canonical.com
+>>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>> Signed-off-by: Tom Seewald <tseewald@gmail.com>
+>>> ---
+>>>    drivers/usb/usbip/vudc_sysfs.c | 2 +-
+>>>    1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
+>>> index f44d98eeb36a..51cc5258b63e 100644
+>>> --- a/drivers/usb/usbip/vudc_sysfs.c
+>>> +++ b/drivers/usb/usbip/vudc_sysfs.c
+>>> @@ -187,7 +187,7 @@ static ssize_t store_sockfd(struct device *dev,
+>>>    		udc->ud.tcp_socket = socket;
+>>>    		udc->ud.tcp_rx = tcp_rx;
+>>> -		udc->ud.tcp_rx = tcp_tx;
+>>> +		udc->ud.tcp_tx = tcp_tx;
+>>>    		udc->ud.status = SDEV_ST_USED;
+>>>    		spin_unlock_irq(&udc->ud.lock);
+>>>
+>>
+>> Greg,
+>>
+>> Please pick this up for 4.9 and 4.14
 > 
->     KVM: VMX: Convert vcpu_vmx.exit_reason to a union
+> Why?  The commit it says it fixes, 46613c9dfa96 ("usbip: fix vudc
+> usbip_sockfd_store races leading to gpf"), is not in any kernel older
+> than 4.19.y at the moment.
 > 
-> to the 5.10-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      kvm-vmx-convert-vcpu_vmx.exit_reason-to-a-union.patch
-> and it can be found in the queue-5.10 subdirectory.
-> 
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
 
-I'm not sure we want this going into stable kernels, even for 5.10 and 5.11.
-I assume it got pulled in to resolve a conflict with commit 04c4f2ee3f68 ("KVM:
-VMX: Don't use vcpu->run->internal.ndata as an array index"), but that's should
-be trivial to resolve since it's just a collision with surrounding code.
+Tom back ported this one a couple of weeks ago to 4.14.y and 4.9.y
 
-Maybe we'll end up with a more painful conflict in the future that would be best
-solved by grabbing this refactoring, but I don't think we're there yet.
+I see this commit in 4.14 (checked on 4.14.231)
+e9c1341b4c948c20f030b6b146fa82575e2fc37b
 
 
-> commit 1499b54db7d9e7e5f5014307e8391e3ad7986f1f
-> Author: Sean Christopherson <seanjc@google.com>
-> Date:   Fri Nov 6 17:03:12 2020 +0800
-> 
->     KVM: VMX: Convert vcpu_vmx.exit_reason to a union
->     
->     [ Upstream commit 8e53324021645f820a01bf8aa745711c802c8542 ]
->     
->     Convert vcpu_vmx.exit_reason from a u32 to a union (of size u32).  The
->     full VM_EXIT_REASON field is comprised of a 16-bit basic exit reason in
->     bits 15:0, and single-bit modifiers in bits 31:16.
->     
->     Historically, KVM has only had to worry about handling the "failed
->     VM-Entry" modifier, which could only be set in very specific flows and
->     required dedicated handling.  I.e. manually stripping the FAILED_VMENTRY
->     bit was a somewhat viable approach.  But even with only a single bit to
->     worry about, KVM has had several bugs related to comparing a basic exit
->     reason against the full exit reason store in vcpu_vmx.
->     
->     Upcoming Intel features, e.g. SGX, will add new modifier bits that can
->     be set on more or less any VM-Exit, as opposed to the significantly more
->     restricted FAILED_VMENTRY, i.e. correctly handling everything in one-off
->     flows isn't scalable.  Tracking exit reason in a union forces code to
->     explicitly choose between consuming the full exit reason and the basic
->     exit, and is a convenient way to document and access the modifiers.
->     
->     No functional change intended.
->     
->     Cc: Xiaoyao Li <xiaoyao.li@intel.com>
->     Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
->     Signed-off-by: Chenyi Qiang <chenyi.qiang@intel.com>
->     Message-Id: <20201106090315.18606-2-chenyi.qiang@intel.com>
->     Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
->     Signed-off-by: Sasha Levin <sashal@kernel.org>
+I see this commit in 4.9.267 as well.
+
+fe9e15a30be666ec8071f325a39fe13e2251b51d
+
+This fix can go on top of these commits.
+
+thanks,
+-- Shuah
+
