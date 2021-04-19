@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 831123643A0
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B5E36439E
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240611AbhDSNVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56988 "EHLO mail.kernel.org"
+        id S240133AbhDSNVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240800AbhDSNS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:18:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1800613AA;
-        Mon, 19 Apr 2021 13:14:44 +0000 (UTC)
+        id S240245AbhDSNS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:18:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA5D3613DC;
+        Mon, 19 Apr 2021 13:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838085;
-        bh=b/2QZfvL4fZUIjweLWpPW+d1dsFyCUFnOVRAn2U3IrQ=;
+        s=korg; t=1618838088;
+        bh=AYe1vRA/3xrhayUROFHqRWwkSUOeUyaXEZkRF7t7Y4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFsHZ69GcS+jYZktyX4bOqTNuYkhG/0UlLGn4ZjSmMjj3hIpsOkVEJeVBR0XH2c8G
-         mvreZl4YHE43tSriuUyK4355mjkzHaQ1APp1i5D2yRZPnJnGCdTXdfa5gTV3SPuqDg
-         FLFGSGavTuJwW6BLQkWLokwzzuU4MHV6zZeipjmU=
+        b=hbafDpxXGua9ibLDf9VmtcYC2/8MdgD7m9nDRnzcro/5CMrRarnZ4gq5p4MCXqZuT
+         xZJ+unWVRk6JHcqCVPuJvYA/xbFfN/DdyH0+k5iCeB83KBCwVtt+aRbPqeCjHY4+/f
+         8rHx+l4oGbRAOLGOM1UPn/OUGqxLbIBMrlZrpJLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/103] net: ieee802154: stop dump llsec devkeys for monitors
-Date:   Mon, 19 Apr 2021 15:05:47 +0200
-Message-Id: <20210419130529.039388002@linuxfoundation.org>
+Subject: [PATCH 5.10 037/103] net: ieee802154: forbid monitor for add llsec devkey
+Date:   Mon, 19 Apr 2021 15:05:48 +0200
+Message-Id: <20210419130529.076511143@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -42,36 +42,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 080d1a57a94d93e70f84b7a360baa351388c574f ]
+[ Upstream commit a347b3b394868fef15b16f143719df56184be81d ]
 
-This patch stops dumping llsec devkeys for monitors which we don't support
-yet. Otherwise we will access llsec mib which isn't initialized for
-monitors.
+This patch forbids to add llsec devkey for monitor interfaces which we
+don't support yet. Otherwise we will access llsec mib which isn't
+initialized for monitors.
 
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-10-aahringo@redhat.com
+Link: https://lore.kernel.org/r/20210405003054.256017-11-aahringo@redhat.com
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl802154.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/ieee802154/nl802154.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index da4bd6bc4567..40022e137094 100644
+index 40022e137094..023c1e75daf9 100644
 --- a/net/ieee802154/nl802154.c
 +++ b/net/ieee802154/nl802154.c
-@@ -1858,6 +1858,11 @@ nl802154_dump_llsec_devkey(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (err)
- 		return err;
+@@ -1920,6 +1920,9 @@ static int nl802154_add_llsec_devkey(struct sk_buff *skb, struct genl_info *info
+ 	struct ieee802154_llsec_device_key key;
+ 	__le64 extended_addr;
  
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
-+		err = skb->len;
-+		goto out_err;
-+	}
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
 +
- 	if (!wpan_dev->netdev) {
- 		err = -EINVAL;
- 		goto out_err;
+ 	if (!info->attrs[NL802154_ATTR_SEC_DEVKEY] ||
+ 	    nla_parse_nested_deprecated(attrs, NL802154_DEVKEY_ATTR_MAX, info->attrs[NL802154_ATTR_SEC_DEVKEY], nl802154_devkey_policy, info->extack) < 0)
+ 		return -EINVAL;
 -- 
 2.30.2
 
