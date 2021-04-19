@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46CC7364BC0
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588F2364BC3
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240321AbhDSUqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55020 "EHLO mail.kernel.org"
+        id S242844AbhDSUqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:46:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240352AbhDSUpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:45:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 735CF613B8;
-        Mon, 19 Apr 2021 20:44:37 +0000 (UTC)
+        id S242564AbhDSUpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:45:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1426E613CD;
+        Mon, 19 Apr 2021 20:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865078;
-        bh=6kyVlTTcQvm60muHEDHx+81IPWmlevGExB5GYk3nMuk=;
+        s=k20201202; t=1618865080;
+        bh=3m3lFg+7CrTJgU9IHDfJ4YqA/Dn5bG9FWVMD5FrUKY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CaG85hAuYw6bdrY5vk7P1+SPuRiqNksH7qJRxioSYvKEangx86aZA/Wwyaeiq2d/3
-         88TcUDIBmCml1QIp+G5Ajn1RlC6nGHH+TBHsY/QsJkRiVKLHMtIWlgbprqM931g0vH
-         74/la0sFtXlXmUmIvrRdQrRtFkInUv39UuwX+CQyzMa1uGMqecn22EgWgC9K/bO53p
-         kVpPhe1i6WMwk2VIczl1jGWwUIjVz+74wCJmH27PZb+fwLG1PxGnd+yNki8abCoijA
-         CjbivXfd6zly6kNEUO0xwnIQ53l46Syzz+SXoic2mGyDNdZsrfg/mMGEj6ednpfr0w
-         wDjGU3ObTGu9w==
+        b=m102HFEubWW3ryNRgpffLrYoAwE94wVbM6k1dd5RUnYRsXz1GEBW4OAdbJTAOrVdS
+         nR9MW8zabxqkCJbpc2MBQ9kwFlNj2zNoTqy+l3wsYMhgFWJdpOkt/b5llTEIMuSXw/
+         /YFSrBHR+dQ5RCsFEoY+/+CTGiEc8QMLV8ASwCSDNyOf1/EjVRGq3ot7bO2wlb2WFW
+         GOgCvTTuaWfcMCUghJ6tWI8i8hoIlOraT00uhWMHHeBGP9o4LJZu9cI2Ju7IBfYSZH
+         bK+1TqE0jvvGrkyoeXaK0rWzeioNRDlDBEBy2uklDjEg9KKYnUv1sjVTd/4Gt0nEDx
+         u9fcSzEnP9aCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 12/21] arm64: kprobes: Restore local irqflag if kprobes is cancelled
-Date:   Mon, 19 Apr 2021 16:44:10 -0400
-Message-Id: <20210419204420.6375-12-sashal@kernel.org>
+Cc:     Michael Brown <mbrown@fensystems.co.uk>,
+        Paul Durrant <paul@xen.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        xen-devel@lists.xenproject.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 13/21] xen-netback: Check for hotplug-status existence before watching
+Date:   Mon, 19 Apr 2021 16:44:11 -0400
+Message-Id: <20210419204420.6375-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204420.6375-1-sashal@kernel.org>
 References: <20210419204420.6375-1-sashal@kernel.org>
@@ -44,49 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+From: Michael Brown <mbrown@fensystems.co.uk>
 
-[ Upstream commit 738fa58ee1328481d1d7889e7c430b3401c571b9 ]
+[ Upstream commit 2afeec08ab5c86ae21952151f726bfe184f6b23d ]
 
-If instruction being single stepped caused a page fault, the kprobes
-is cancelled to let the page fault handler continue as a normal page
-fault. But the local irqflags are disabled so cpu will restore pstate
-with DAIF masked. After pagefault is serviced, the kprobes is
-triggerred again, we overwrite the saved_irqflag by calling
-kprobes_save_local_irqflag(). NOTE, DAIF is masked in this new saved
-irqflag. After kprobes is serviced, the cpu pstate is retored with
-DAIF masked.
+The logic in connect() is currently written with the assumption that
+xenbus_watch_pathfmt() will return an error for a node that does not
+exist.  This assumption is incorrect: xenstore does allow a watch to
+be registered for a nonexistent node (and will send notifications
+should the node be subsequently created).
 
-This patch is inspired by one patch for riscv from Liao Chang.
+As of commit 1f2565780 ("xen-netback: remove 'hotplug-status' once it
+has served its purpose"), this leads to a failure when a domU
+transitions into XenbusStateConnected more than once.  On the first
+domU transition into Connected state, the "hotplug-status" node will
+be deleted by the hotplug_status_changed() callback in dom0.  On the
+second or subsequent domU transition into Connected state, the
+hotplug_status_changed() callback will therefore never be invoked, and
+so the backend will remain stuck in InitWait.
 
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20210412174101.6bfb0594@xhacker.debian
-Signed-off-by: Will Deacon <will@kernel.org>
+This failure prevents scenarios such as reloading the xen-netfront
+module within a domU, or booting a domU via iPXE.  There is
+unfortunately no way for the domU to work around this dom0 bug.
+
+Fix by explicitly checking for existence of the "hotplug-status" node,
+thereby creating the behaviour that was previously assumed to exist.
+
+Signed-off-by: Michael Brown <mbrown@fensystems.co.uk>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/probes/kprobes.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/xen-netback/xenbus.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/probes/kprobes.c b/arch/arm64/kernel/probes/kprobes.c
-index f11a1a1f7026..798c3e78b84b 100644
---- a/arch/arm64/kernel/probes/kprobes.c
-+++ b/arch/arm64/kernel/probes/kprobes.c
-@@ -286,10 +286,12 @@ int __kprobes kprobe_fault_handler(struct pt_regs *regs, unsigned int fsr)
- 		if (!instruction_pointer(regs))
- 			BUG();
+diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
+index 6f10e0998f1c..94d19158efc1 100644
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -824,11 +824,15 @@ static void connect(struct backend_info *be)
+ 	xenvif_carrier_on(be->vif);
  
--		if (kcb->kprobe_status == KPROBE_REENTER)
-+		if (kcb->kprobe_status == KPROBE_REENTER) {
- 			restore_previous_kprobe(kcb);
--		else
-+		} else {
-+			kprobes_restore_local_irqflag(kcb, regs);
- 			reset_current_kprobe();
-+		}
+ 	unregister_hotplug_status_watch(be);
+-	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
+-				   hotplug_status_changed,
+-				   "%s/%s", dev->nodename, "hotplug-status");
+-	if (!err)
++	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
++		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
++					   NULL, hotplug_status_changed,
++					   "%s/%s", dev->nodename,
++					   "hotplug-status");
++		if (err)
++			goto err;
+ 		be->have_hotplug_status_watch = 1;
++	}
  
- 		break;
- 	case KPROBE_HIT_ACTIVE:
+ 	netif_tx_wake_all_queues(be->vif->dev);
+ 
 -- 
 2.30.2
 
