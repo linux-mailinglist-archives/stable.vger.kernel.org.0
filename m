@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E57E9364350
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D268364353
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240153AbhDSNQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47986 "EHLO mail.kernel.org"
+        id S240029AbhDSNRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:17:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240176AbhDSNO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:14:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82199613CA;
-        Mon, 19 Apr 2021 13:13:12 +0000 (UTC)
+        id S239963AbhDSNPG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:15:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47C28613D0;
+        Mon, 19 Apr 2021 13:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837993;
-        bh=frpy9pFFENVuKCQSjd1F9mWUJ897Srefs5XZCwo3ZBk=;
+        s=korg; t=1618837995;
+        bh=4Or+Yz6kO6pQb6f3i72UkcxlXMLm4CCQkvwij02cVAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTSkX/RXkBvwzkUUTh19Hpbqc31s/e3U/N5i3ZBaSA2/n/pl2XXqjZj8ZN72J4L16
-         YsqlfSYscgABcyI2kd5XyuKOgKHrhtGnfH4XV3IVw//sMk5wnFzIj8HFilnVGGXOKi
-         1enmYrg0dCu87Ax7WuXwzT1yCs4TsYTCN9rAjVz4=
+        b=x5hLYp0MR8CdjVb6Dn0WaYD0yTPzrky9qXxLeU3mSHv7lLFWEX/KmFCaqnOdcS5Me
+         bkNwebAhq44QYO4E8wZZE2bofLxRuLRmAVvbfKGR1RYTbMnGsGNao1rHF/VoHSWJy+
+         rlaZfp3ntBLPV5pzMNzTdy6JagUp+yGJKdtGj1LM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Ashley <contact@victorianfox.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 107/122] ARM: OMAP2+: Fix uninitialized sr_inst
-Date:   Mon, 19 Apr 2021 15:06:27 +0200
-Message-Id: <20210419130533.789001650@linuxfoundation.org>
+Subject: [PATCH 5.11 108/122] arm64: dts: allwinner: Fix SD card CD GPIO for SOPine systems
+Date:   Mon, 19 Apr 2021 15:06:28 +0200
+Message-Id: <20210419130533.828249431@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -40,33 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit fc85dc42a38405099f97aa2af709fe9504a82508 ]
+[ Upstream commit 3dd4ce4185df6798dcdcc3669bddb35899d7d5e1 ]
 
-Fix uninitialized sr_inst.
+Commit 941432d00768 ("arm64: dts: allwinner: Drop non-removable from
+SoPine/LTS SD card") enabled the card detect GPIO for the SOPine module,
+along the way with the Pine64-LTS, which share the same base .dtsi.
 
-Fixes: fbfa463be8dc ("ARM: OMAP2+: Fix smartreflex init regression after dropping legacy data")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+However while both boards indeed have a working CD GPIO on PF6, the
+polarity is different: the SOPine modules uses a "push-pull" socket,
+which has an active-high switch, while the Pine64-LTS use the more
+traditional push-push socket and the common active-low switch.
+
+Fix the polarity in the sopine.dtsi, and overwrite it in the LTS
+board .dts, to make the SD card work again on systems using SOPine
+modules.
+
+Fixes: 941432d00768 ("arm64: dts: allwinner: Drop non-removable from SoPine/LTS SD card")
+Reported-by: Ashley <contact@victorianfox.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20210316144219.5973-1-andre.przywara@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/sr_device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts | 4 ++++
+ arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi    | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/sr_device.c b/arch/arm/mach-omap2/sr_device.c
-index 17b66f0d0dee..605925684b0a 100644
---- a/arch/arm/mach-omap2/sr_device.c
-+++ b/arch/arm/mach-omap2/sr_device.c
-@@ -188,7 +188,7 @@ static const char * const dra7_sr_instances[] = {
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts
+index 302e24be0a31..a1f621b388fe 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pine64-lts.dts
+@@ -8,3 +8,7 @@
+ 	compatible = "pine64,pine64-lts", "allwinner,sun50i-r18",
+ 		     "allwinner,sun50i-a64";
+ };
++
++&mmc0 {
++	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 push-push switch */
++};
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
+index 3402cec87035..df62044ff7a7 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
+@@ -34,7 +34,7 @@
+ 	vmmc-supply = <&reg_dcdc1>;
+ 	disable-wp;
+ 	bus-width = <4>;
+-	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
++	cd-gpios = <&pio 5 6 GPIO_ACTIVE_HIGH>; /* PF6 push-pull switch */
+ 	status = "okay";
+ };
  
- int __init omap_devinit_smartreflex(void)
- {
--	const char * const *sr_inst;
-+	const char * const *sr_inst = NULL;
- 	int i, nr_sr = 0;
- 
- 	if (soc_is_omap44xx()) {
 -- 
 2.30.2
 
