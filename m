@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F0D6364312
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2C7364313
 	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239926AbhDSNO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:14:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47010 "EHLO mail.kernel.org"
+        id S239749AbhDSNOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:14:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240023AbhDSNMP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:12:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C03696101C;
-        Mon, 19 Apr 2021 13:11:36 +0000 (UTC)
+        id S239342AbhDSNMX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:12:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86AF2610CC;
+        Mon, 19 Apr 2021 13:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837897;
-        bh=pgZ4aU/RyMSL0vPVZs1aMPL8OWO/M/xhCwtE0D5ydmg=;
+        s=korg; t=1618837900;
+        bh=zo2VGUA4vjyaBsM1mgdZmdaQSOR5md7ENQk7yO5LMLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/FMRIXK5pEdh4xYRBVF6Qcp/pOprdosA6YRhhR2TaA9GaAuTv1R7TzsM7WXUMPkz
-         d+InvF48WKr0f0VWYREEIymyjpCKfHCNFXo2VlzOUFBqVmDrxpqxveHiJ+PJ09+Q3h
-         qVtpUaeR+q5Hq5bKdVW6e2PEgg5vhk0ZyIXpC1u4=
+        b=RtoDt16w7m4svaQPTWphMRtBuAiYBVVxiyD/Yi9T9sjv4Dt5lDHJ96oejRH+EKlMJ
+         FHOt/o2YJZQJS0DYYzz9MNEqutg7oqzdjl6vE6x27Y0hpw1Xj+ehA0I9ZVtHrmIhHl
+         FwtyZgB5LYgievaVvYZZIBTZMs3fWdVnRVtzvuBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 092/122] ethtool: pause: make sure we init driver stats
-Date:   Mon, 19 Apr 2021 15:06:12 +0200
-Message-Id: <20210419130533.275420779@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 093/122] ia64: remove duplicate entries in generic_defconfig
+Date:   Mon, 19 Apr 2021 15:06:13 +0200
+Message-Id: <20210419130533.313495650@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -39,47 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 16756d3e77ad58cd07e36cbed724aa13ae5a0278 upstream.
+commit 19d000d93303e05bd7b1326e3de9df05a41b25b5 upstream.
 
-The intention was for pause statistics to not be reported
-when driver does not have the relevant callback (only
-report an empty netlink nest). What happens currently
-we report all 0s instead. Make sure statistics are
-initialized to "not set" (which is -1) so the dumping
-code skips them.
+Fix ia64 generic_defconfig duplicate entries, as warned by:
 
-Fixes: 9a27a33027f2 ("ethtool: add standard pause stats")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  arch/ia64/configs/generic_defconfig: warning: override: reassigning to symbol ATA:  => 58
+  arch/ia64/configs/generic_defconfig: warning: override: reassigning to symbol ATA_PIIX:  => 59
+
+These 2 symbols still have the same value as in the removed lines.
+
+Link: https://lkml.kernel.org/r/20210411020255.18052-1-rdunlap@infradead.org
+Fixes: c331649e6371 ("ia64: Use libata instead of the legacy ide driver in defconfigs")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ethtool/pause.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/ia64/configs/generic_defconfig |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/net/ethtool/pause.c
-+++ b/net/ethtool/pause.c
-@@ -38,16 +38,16 @@ static int pause_prepare_data(const stru
- 	if (!dev->ethtool_ops->get_pauseparam)
- 		return -EOPNOTSUPP;
- 
-+	ethtool_stats_init((u64 *)&data->pausestat,
-+			   sizeof(data->pausestat) / 8);
-+
- 	ret = ethnl_ops_begin(dev);
- 	if (ret < 0)
- 		return ret;
- 	dev->ethtool_ops->get_pauseparam(dev, &data->pauseparam);
- 	if (req_base->flags & ETHTOOL_FLAG_STATS &&
--	    dev->ethtool_ops->get_pause_stats) {
--		ethtool_stats_init((u64 *)&data->pausestat,
--				   sizeof(data->pausestat) / 8);
-+	    dev->ethtool_ops->get_pause_stats)
- 		dev->ethtool_ops->get_pause_stats(dev, &data->pausestat);
--	}
- 	ethnl_ops_complete(dev);
- 
- 	return 0;
+--- a/arch/ia64/configs/generic_defconfig
++++ b/arch/ia64/configs/generic_defconfig
+@@ -55,8 +55,6 @@ CONFIG_CHR_DEV_SG=m
+ CONFIG_SCSI_FC_ATTRS=y
+ CONFIG_SCSI_SYM53C8XX_2=y
+ CONFIG_SCSI_QLOGIC_1280=y
+-CONFIG_ATA=y
+-CONFIG_ATA_PIIX=y
+ CONFIG_SATA_VITESSE=y
+ CONFIG_MD=y
+ CONFIG_BLK_DEV_MD=m
 
 
