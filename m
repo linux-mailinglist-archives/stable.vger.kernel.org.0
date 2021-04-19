@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D813642E6
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A0D3642E9
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240059AbhDSNMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:12:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47128 "EHLO mail.kernel.org"
+        id S240091AbhDSNMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:12:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239710AbhDSNLQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:11:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A44F61288;
-        Mon, 19 Apr 2021 13:10:45 +0000 (UTC)
+        id S239844AbhDSNLU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:11:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E05C261246;
+        Mon, 19 Apr 2021 13:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837846;
-        bh=Lbk80MNig+UIuRJUxCC3+Dw+4iJ7T+KUui0Vdx35Osg=;
+        s=korg; t=1618837849;
+        bh=qWNd7Sy3XiCXmtTcRBCpnKokIX9emHoWsK6lp2dXgus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDjIfat7Y/BWc3QaCLBF+lVzfSmsKCEX8E7Qn4ko2ldYQ62CtQ9diIrYBjTXjLbv/
-         5p//nJi8NLS+YOaiTFgI8a9ozCDhlDfz0aQYP7RLVY8rFpYzQdBjlB49OozPRswPch
-         0oNAcD045vjM/45QjjLVyCkgOq3moiyfu+JOm8Ak=
+        b=cHXRTARf9O20sny4dWP5/sbI3V14NbLEXtIKWxQ8G5o03upEjMgyYHfRZijw7m++8
+         Kv/ibmMRNvZGnzNd5QANHCYI4qLC8wnrvRByMiaEK96xqp2KGqp3+6U3Ealujocigg
+         e9FSkHyZsHqQPzEe86iuJ/CjaggdSmQ6S22LXaJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.11 076/122] netfilter: arp_tables: add pre_exit hook for table unregister
-Date:   Mon, 19 Apr 2021 15:05:56 +0200
-Message-Id: <20210419130532.757166072@linuxfoundation.org>
+        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.11 077/122] libbpf: Fix potential NULL pointer dereference
+Date:   Mon, 19 Apr 2021 15:05:57 +0200
+Message-Id: <20210419130532.786389947@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -39,92 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Ciara Loftus <ciara.loftus@intel.com>
 
-commit d163a925ebbc6eb5b562b0f1d72c7e817aa75c40 upstream.
+commit afd0be7299533bb2e2b09104399d8a467ecbd2c5 upstream.
 
-Same problem that also existed in iptables/ip(6)tables, when
-arptable_filter is removed there is no longer a wait period before the
-table/ruleset is free'd.
+Wait until after the UMEM is checked for null to dereference it.
 
-Unregister the hook in pre_exit, then remove the table in the exit
-function.
-This used to work correctly because the old nf_hook_unregister API
-did unconditional synchronize_net.
-
-The per-net hook unregister function uses call_rcu instead.
-
-Fixes: b9e69e127397 ("netfilter: xtables: don't hook tables by default")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 43f1bc1efff1 ("libbpf: Restore umem state after socket create failure")
+Signed-off-by: Ciara Loftus <ciara.loftus@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210408052009.7844-1-ciara.loftus@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netfilter_arp/arp_tables.h |    5 +++--
- net/ipv4/netfilter/arp_tables.c          |    9 +++++++--
- net/ipv4/netfilter/arptable_filter.c     |   10 +++++++++-
- 3 files changed, 19 insertions(+), 5 deletions(-)
+ tools/lib/bpf/xsk.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/include/linux/netfilter_arp/arp_tables.h
-+++ b/include/linux/netfilter_arp/arp_tables.h
-@@ -52,8 +52,9 @@ extern void *arpt_alloc_initial_table(co
- int arpt_register_table(struct net *net, const struct xt_table *table,
- 			const struct arpt_replace *repl,
- 			const struct nf_hook_ops *ops, struct xt_table **res);
--void arpt_unregister_table(struct net *net, struct xt_table *table,
--			   const struct nf_hook_ops *ops);
-+void arpt_unregister_table(struct net *net, struct xt_table *table);
-+void arpt_unregister_table_pre_exit(struct net *net, struct xt_table *table,
-+				    const struct nf_hook_ops *ops);
- extern unsigned int arpt_do_table(struct sk_buff *skb,
- 				  const struct nf_hook_state *state,
- 				  struct xt_table *table);
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -1541,10 +1541,15 @@ out_free:
- 	return ret;
- }
- 
--void arpt_unregister_table(struct net *net, struct xt_table *table,
--			   const struct nf_hook_ops *ops)
-+void arpt_unregister_table_pre_exit(struct net *net, struct xt_table *table,
-+				    const struct nf_hook_ops *ops)
+--- a/tools/lib/bpf/xsk.c
++++ b/tools/lib/bpf/xsk.c
+@@ -777,18 +777,19 @@ int xsk_socket__create_shared(struct xsk
+ 			      struct xsk_ring_cons *comp,
+ 			      const struct xsk_socket_config *usr_config)
  {
- 	nf_unregister_net_hooks(net, ops, hweight32(table->valid_hooks));
-+}
-+EXPORT_SYMBOL(arpt_unregister_table_pre_exit);
++	bool unmap, rx_setup_done = false, tx_setup_done = false;
+ 	void *rx_map = NULL, *tx_map = NULL;
+ 	struct sockaddr_xdp sxdp = {};
+ 	struct xdp_mmap_offsets off;
+ 	struct xsk_socket *xsk;
+ 	struct xsk_ctx *ctx;
+ 	int err, ifindex;
+-	bool unmap = umem->fill_save != fill;
+-	bool rx_setup_done = false, tx_setup_done = false;
+ 
+ 	if (!umem || !xsk_ptr || !(rx || tx))
+ 		return -EFAULT;
+ 
++	unmap = umem->fill_save != fill;
 +
-+void arpt_unregister_table(struct net *net, struct xt_table *table)
-+{
- 	__arpt_unregister_table(net, table);
- }
- 
---- a/net/ipv4/netfilter/arptable_filter.c
-+++ b/net/ipv4/netfilter/arptable_filter.c
-@@ -56,16 +56,24 @@ static int __net_init arptable_filter_ta
- 	return err;
- }
- 
-+static void __net_exit arptable_filter_net_pre_exit(struct net *net)
-+{
-+	if (net->ipv4.arptable_filter)
-+		arpt_unregister_table_pre_exit(net, net->ipv4.arptable_filter,
-+					       arpfilter_ops);
-+}
-+
- static void __net_exit arptable_filter_net_exit(struct net *net)
- {
- 	if (!net->ipv4.arptable_filter)
- 		return;
--	arpt_unregister_table(net, net->ipv4.arptable_filter, arpfilter_ops);
-+	arpt_unregister_table(net, net->ipv4.arptable_filter);
- 	net->ipv4.arptable_filter = NULL;
- }
- 
- static struct pernet_operations arptable_filter_net_ops = {
- 	.exit = arptable_filter_net_exit,
-+	.pre_exit = arptable_filter_net_pre_exit,
- };
- 
- static int __init arptable_filter_init(void)
+ 	xsk = calloc(1, sizeof(*xsk));
+ 	if (!xsk)
+ 		return -ENOMEM;
 
 
