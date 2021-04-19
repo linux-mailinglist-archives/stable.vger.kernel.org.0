@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8FED36436F
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956F036429E
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240792AbhDSNS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:18:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
+        id S239664AbhDSNKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:10:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239808AbhDSNQZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:16:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D9E46128C;
-        Mon, 19 Apr 2021 13:13:51 +0000 (UTC)
+        id S239523AbhDSNKI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:10:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEF8961288;
+        Mon, 19 Apr 2021 13:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838032;
-        bh=LI9j5sJGSRyy67Dz4+2pisjvgfpL1uEl7OCjomsKw/M=;
+        s=korg; t=1618837777;
+        bh=oObnfVcrrOuvmowWFddpwKRb/CnoYWfUEUohX8mOOjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lUsJQiKxKe+wA+Iotrkhl9/3ZMgdq+ndmZkI6ht6t5a2ZgvLSV7nyekYdl6YSA3Mf
-         Bi0fbib/dtri60kvnlvG/GRIfbJLLF3zGOM/RXzIiiaC+IJuyeGh4SZP+oNQxkb+QR
-         un7sSW/Zy1Wt8AigirOvOW/1bRqYHunby+GnvLC4=
+        b=K571faFgfmT8WsF1cY1P2/UkGTYudNyfLyq4ID2av8QBKA+lpXXP6VNeeFr7kMAM3
+         1jXHWRTuqjQp2MnkPJYgwOZvgNxXnmgGXCBs5uh0aZzMfltx3bp5IP+n56x0Zbom6u
+         mm8/VcQ/BqWvWGI52SH0/uue7jjyryThdsPe2SAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zheng Yongjun <zhengyongjun3@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 019/103] xfrm: BEET mode doesnt support fragments for inner packets
+Subject: [PATCH 5.11 050/122] net: tipc: Fix spelling errors in net/tipc module
 Date:   Mon, 19 Apr 2021 15:05:30 +0200
-Message-Id: <20210419130528.451528720@linuxfoundation.org>
+Message-Id: <20210419130531.886812663@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
+References: <20210419130530.166331793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 68dc022d04eb0fd60a540e242dcb11ec1bee07e2 ]
+[ Upstream commit a79ace4b312953c5835fafb12adc3cb6878b26bd ]
 
-BEET mode replaces the IP(6) Headers with new IP(6) Headers when sending
-packets. However, when it's a fragment before the replacement, currently
-kernel keeps the fragment flag and replace the address field then encaps
-it with ESP. It would cause in RX side the fragments to get reassembled
-before decapping with ESP, which is incorrect.
+These patches fix a series of spelling errors in net/tipc module.
 
-In Xiumei's testing, these fragments went over an xfrm interface and got
-encapped with ESP in the device driver, and the traffic was broken.
-
-I don't have a good way to fix it, but only to warn this out in dmesg.
-
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_output.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ net/tipc/bearer.h | 6 +++---
+ net/tipc/net.c    | 2 +-
+ net/tipc/node.c   | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-index b81ca117dac7..e4cb0ff4dcf4 100644
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -660,6 +660,12 @@ static int xfrm4_extract_output(struct xfrm_state *x, struct sk_buff *skb)
- {
- 	int err;
+diff --git a/net/tipc/bearer.h b/net/tipc/bearer.h
+index 6bf4550aa1ac..57c6a1a719e2 100644
+--- a/net/tipc/bearer.h
++++ b/net/tipc/bearer.h
+@@ -154,9 +154,9 @@ struct tipc_media {
+  * care of initializing all other fields.
+  */
+ struct tipc_bearer {
+-	void __rcu *media_ptr;			/* initalized by media */
+-	u32 mtu;				/* initalized by media */
+-	struct tipc_media_addr addr;		/* initalized by media */
++	void __rcu *media_ptr;			/* initialized by media */
++	u32 mtu;				/* initialized by media */
++	struct tipc_media_addr addr;		/* initialized by media */
+ 	char name[TIPC_MAX_BEARER_NAME];
+ 	struct tipc_media *media;
+ 	struct tipc_media_addr bcast_addr;
+diff --git a/net/tipc/net.c b/net/tipc/net.c
+index a129f661bee3..faf6bf554514 100644
+--- a/net/tipc/net.c
++++ b/net/tipc/net.c
+@@ -89,7 +89,7 @@
+  *     - A spin lock to protect the registry of kernel/driver users (reg.c)
+  *     - A global spin_lock (tipc_port_lock), which only task is to ensure
+  *       consistency where more than one port is involved in an operation,
+- *       i.e., whe a port is part of a linked list of ports.
++ *       i.e., when a port is part of a linked list of ports.
+  *       There are two such lists; 'port_list', which is used for management,
+  *       and 'wait_list', which is used to queue ports during congestion.
+  *
+diff --git a/net/tipc/node.c b/net/tipc/node.c
+index 136338b85504..e0ee83263a39 100644
+--- a/net/tipc/node.c
++++ b/net/tipc/node.c
+@@ -1734,7 +1734,7 @@ int tipc_node_xmit(struct net *net, struct sk_buff_head *list,
+ }
  
-+	if (x->outer_mode.encap == XFRM_MODE_BEET &&
-+	    ip_is_fragment(ip_hdr(skb))) {
-+		net_warn_ratelimited("BEET mode doesn't support inner IPv4 fragments\n");
-+		return -EAFNOSUPPORT;
-+	}
-+
- 	err = xfrm4_tunnel_check_size(skb);
- 	if (err)
- 		return err;
-@@ -705,8 +711,15 @@ out:
- static int xfrm6_extract_output(struct xfrm_state *x, struct sk_buff *skb)
- {
- #if IS_ENABLED(CONFIG_IPV6)
-+	unsigned int ptr = 0;
- 	int err;
- 
-+	if (x->outer_mode.encap == XFRM_MODE_BEET &&
-+	    ipv6_find_hdr(skb, &ptr, NEXTHDR_FRAGMENT, NULL, NULL) >= 0) {
-+		net_warn_ratelimited("BEET mode doesn't support inner IPv6 fragments\n");
-+		return -EAFNOSUPPORT;
-+	}
-+
- 	err = xfrm6_tunnel_check_size(skb);
- 	if (err)
- 		return err;
+ /* tipc_node_xmit_skb(): send single buffer to destination
+- * Buffers sent via this functon are generally TIPC_SYSTEM_IMPORTANCE
++ * Buffers sent via this function are generally TIPC_SYSTEM_IMPORTANCE
+  * messages, which will not be rejected
+  * The only exception is datagram messages rerouted after secondary
+  * lookup, which are rare and safe to dispose of anyway.
 -- 
 2.30.2
 
