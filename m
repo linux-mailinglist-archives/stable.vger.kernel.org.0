@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5092936436D
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB02364298
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240788AbhDSNSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:18:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
+        id S239546AbhDSNKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240693AbhDSNQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:16:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81F1E6135F;
-        Mon, 19 Apr 2021 13:13:42 +0000 (UTC)
+        id S232546AbhDSNJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:09:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84F3961363;
+        Mon, 19 Apr 2021 13:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838023;
-        bh=qPYLknd+kXYh+eW44LorYfln0nQUTPh5qMdOT3Ei1U8=;
+        s=korg; t=1618837769;
+        bh=n/psE5//e7MVSbrLnfMHWjNT60Q7bSFQ4VTxo3FOOvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ql44vmGGqyyLphOQBMEZuFoJEu6MU9eTcLvXSOlB/nUMnk0yB07GxvZSlbtXSyLQq
-         htYp3NGXGMbr/y7E6RpLVK8TMheFIQ45x+jtNg6xEOCLVf/cHtK58pn4h9rd3ub4W/
-         6Om3TvkGpja2oFzzDf3A5DfGqniT+xbCGUS1M6aU=
+        b=OoMU7qcGiz8igHVzBfUut1YbzUCIoDdh/g0Xd4SIr+lyL+OFmeK/ecCmonlaC42tt
+         aHeilzdS2aYjw/edbHJ1w60ksLFzuLvqr3N52BPgrZ+rrkGp1/daBGEbHY6fWjp2zI
+         TxegBW6IAv+AjIvXAdLsWkY9qurXX0QV0zkPeE/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 016/103] lockdep: Add a missing initialization hint to the "INFO: Trying to register non-static key" message
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 047/122] net: ieee802154: forbid monitor for add llsec seclevel
 Date:   Mon, 19 Apr 2021 15:05:27 +0200
-Message-Id: <20210419130528.351302346@linuxfoundation.org>
+Message-Id: <20210419130531.778492233@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
+References: <20210419130530.166331793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 3a85969e9d912d5dd85362ee37b5f81266e00e77 ]
+[ Upstream commit 9ec87e322428d4734ac647d1a8e507434086993d ]
 
-Since this message is printed when dynamically allocated spinlocks (e.g.
-kzalloc()) are used without initialization (e.g. spin_lock_init()),
-suggest to developers to check whether initialization functions for objects
-were called, before making developers wonder what annotation is missing.
+This patch forbids to add llsec seclevel for monitor interfaces which we
+don't support yet. Otherwise we will access llsec mib which isn't
+initialized for monitors.
 
-[ mingo: Minor tweaks to the message. ]
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210321064913.4619-1-penguin-kernel@I-love.SAKURA.ne.jp
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210405003054.256017-14-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ieee802154/nl802154.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index eead7efbe7e5..38d7c03e694c 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -930,7 +930,8 @@ static bool assign_lock_key(struct lockdep_map *lock)
- 		/* Debug-check: all keys must be persistent! */
- 		debug_locks_off();
- 		pr_err("INFO: trying to register non-static key.\n");
--		pr_err("the code is fine but needs lockdep annotation.\n");
-+		pr_err("The code is fine but needs lockdep annotation, or maybe\n");
-+		pr_err("you didn't initialize this object before use?\n");
- 		pr_err("turning off the locking correctness validator.\n");
- 		dump_stack();
- 		return false;
+diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
+index 10fc37e45e2b..f0b47d43c9f6 100644
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -2120,6 +2120,9 @@ static int nl802154_add_llsec_seclevel(struct sk_buff *skb,
+ 	struct wpan_dev *wpan_dev = dev->ieee802154_ptr;
+ 	struct ieee802154_llsec_seclevel sl;
+ 
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
++
+ 	if (llsec_parse_seclevel(info->attrs[NL802154_ATTR_SEC_LEVEL],
+ 				 &sl) < 0)
+ 		return -EINVAL;
 -- 
 2.30.2
 
