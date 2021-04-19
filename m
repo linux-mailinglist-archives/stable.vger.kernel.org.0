@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF5E1364292
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F643642A6
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239529AbhDSNKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:10:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
+        id S239799AbhDSNKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:10:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239698AbhDSNJr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:09:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6666961245;
-        Mon, 19 Apr 2021 13:09:17 +0000 (UTC)
+        id S239543AbhDSNKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:10:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F30561364;
+        Mon, 19 Apr 2021 13:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837757;
-        bh=jEukYEUhaFyVfZevnjU1DgH7B2qU4S3Hom0+Adu5m4w=;
+        s=korg; t=1618837789;
+        bh=W3iOE/Wa3LsOIi6d8vM+vpVkXrlNqypmWBEd7yr3rhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KM143fiQsf02Svz69i9XoXbTnOlDbITdd85F/871+C8UiASJripp5GQzBhjNrn6H7
-         cLAiWkscOOjOBdDpnsEn7SYO5BWV+DsnaJr0JyoE3QAoU4ccdhZ8kAhG/U2QBR5W0m
-         g8Y32pq9I3nxf56OA8xim6IxPXsqhy/n/ouffsfc=
+        b=tR/SF3Ql15DQFS66TieHetkpCBpOe5HHHQoeHSPpgw+zK7VP49EKBKXPoyR4LFW5M
+         1/LJuw1HK1mXmhpmdFXqhmkudjEHqy9YDejgzr3ZvkC3dI1WB+N8f5+XbVUM3zpKOl
+         kIkoCT2bkN6LWd828k/U1gpMj1Upvji0eTkx0NxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 026/122] net: axienet: allow setups without MDIO
-Date:   Mon, 19 Apr 2021 15:05:06 +0200
-Message-Id: <20210419130531.056140591@linuxfoundation.org>
+Subject: [PATCH 5.11 027/122] gpu/xen: Fix a use after free in xen_drm_drv_init
+Date:   Mon, 19 Apr 2021 15:05:07 +0200
+Message-Id: <20210419130531.088507115@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -41,89 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Mack <daniel@zonque.org>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit de9c7854e6e1589f639c6352112956d08243b659 ]
+[ Upstream commit 52762efa2b256ed1c5274e5177cbd52ee11a2f6a ]
 
-In setups with fixed-link settings there is no mdio node in DTS.
-axienet_probe() already handles that gracefully but lp->mii_bus is
-then NULL.
+In function displback_changed, has the call chain
+displback_connect(front_info)->xen_drm_drv_init(front_info).
+We can see that drm_info is assigned to front_info->drm_info
+and drm_info is freed in fail branch in xen_drm_drv_init().
 
-Fix code that tries to blindly grab the MDIO lock by introducing two helper
-functions that make the locking conditional.
+Later displback_disconnect(front_info) is called and it calls
+xen_drm_drv_fini(front_info) cause a use after free by
+drm_info = front_info->drm_info statement.
 
-Signed-off-by: Daniel Mack <daniel@zonque.org>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+My patch has done two things. First fixes the fail label which
+drm_info = kzalloc() failed and still free the drm_info.
+Second sets front_info->drm_info to NULL to avoid uaf.
+
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210323014656.10068-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet.h      | 12 ++++++++++++
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 12 ++++++------
- 2 files changed, 18 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/xen/xen_drm_front.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet.h b/drivers/net/ethernet/xilinx/xilinx_axienet.h
-index a03c3ca1b28d..9e2cddba3b5b 100644
---- a/drivers/net/ethernet/xilinx/xilinx_axienet.h
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet.h
-@@ -497,6 +497,18 @@ static inline u32 axinet_ior_read_mcr(struct axienet_local *lp)
- 	return axienet_ior(lp, XAE_MDIO_MCR_OFFSET);
- }
- 
-+static inline void axienet_lock_mii(struct axienet_local *lp)
-+{
-+	if (lp->mii_bus)
-+		mutex_lock(&lp->mii_bus->mdio_lock);
-+}
-+
-+static inline void axienet_unlock_mii(struct axienet_local *lp)
-+{
-+	if (lp->mii_bus)
-+		mutex_unlock(&lp->mii_bus->mdio_lock);
-+}
-+
- /**
-  * axienet_iow - Memory mapped Axi Ethernet register write
-  * @lp:         Pointer to axienet local structure
-diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index 4cd701a9277d..82176dd2cdf3 100644
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -1053,9 +1053,9 @@ static int axienet_open(struct net_device *ndev)
- 	 * including the MDIO. MDIO must be disabled before resetting.
- 	 * Hold MDIO bus lock to avoid MDIO accesses during the reset.
- 	 */
--	mutex_lock(&lp->mii_bus->mdio_lock);
-+	axienet_lock_mii(lp);
- 	ret = axienet_device_reset(ndev);
--	mutex_unlock(&lp->mii_bus->mdio_lock);
-+	axienet_unlock_mii(lp);
- 
- 	ret = phylink_of_phy_connect(lp->phylink, lp->dev->of_node, 0);
- 	if (ret) {
-@@ -1148,9 +1148,9 @@ static int axienet_stop(struct net_device *ndev)
+diff --git a/drivers/gpu/drm/xen/xen_drm_front.c b/drivers/gpu/drm/xen/xen_drm_front.c
+index 30d9adf31c84..9f14d99c763c 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front.c
++++ b/drivers/gpu/drm/xen/xen_drm_front.c
+@@ -521,7 +521,7 @@ static int xen_drm_drv_init(struct xen_drm_front_info *front_info)
+ 	drm_dev = drm_dev_alloc(&xen_drm_driver, dev);
+ 	if (IS_ERR(drm_dev)) {
+ 		ret = PTR_ERR(drm_dev);
+-		goto fail;
++		goto fail_dev;
  	}
  
- 	/* Do a reset to ensure DMA is really stopped */
--	mutex_lock(&lp->mii_bus->mdio_lock);
-+	axienet_lock_mii(lp);
- 	__axienet_device_reset(lp);
--	mutex_unlock(&lp->mii_bus->mdio_lock);
-+	axienet_unlock_mii(lp);
+ 	drm_info->drm_dev = drm_dev;
+@@ -551,8 +551,10 @@ fail_modeset:
+ 	drm_kms_helper_poll_fini(drm_dev);
+ 	drm_mode_config_cleanup(drm_dev);
+ 	drm_dev_put(drm_dev);
+-fail:
++fail_dev:
+ 	kfree(drm_info);
++	front_info->drm_info = NULL;
++fail:
+ 	return ret;
+ }
  
- 	cancel_work_sync(&lp->dma_err_task);
- 
-@@ -1664,9 +1664,9 @@ static void axienet_dma_err_handler(struct work_struct *work)
- 	 * including the MDIO. MDIO must be disabled before resetting.
- 	 * Hold MDIO bus lock to avoid MDIO accesses during the reset.
- 	 */
--	mutex_lock(&lp->mii_bus->mdio_lock);
-+	axienet_lock_mii(lp);
- 	__axienet_device_reset(lp);
--	mutex_unlock(&lp->mii_bus->mdio_lock);
-+	axienet_unlock_mii(lp);
- 
- 	for (i = 0; i < lp->tx_bd_num; i++) {
- 		cur_p = &lp->tx_bd_v[i];
 -- 
 2.30.2
 
