@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18101364268
+	by mail.lfdr.de (Postfix) with ESMTP id C370D36426A
 	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239306AbhDSNId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43246 "EHLO mail.kernel.org"
+        id S239332AbhDSNIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:08:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239319AbhDSNIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:08:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DCD961245;
-        Mon, 19 Apr 2021 13:08:01 +0000 (UTC)
+        id S238934AbhDSNIf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:08:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3C6761279;
+        Mon, 19 Apr 2021 13:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837681;
-        bh=Q1nioC4D9b4Nh+kw7GJpMyO5BTuJHym0cMlMnvzbTGQ=;
+        s=korg; t=1618837684;
+        bh=4ou1DE0wgO+dVJ2X6B+6tPnMO9h8mhxAiz80LSyPMGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIiTo/YcZjYfE79YqOTbOLCTzAi7rnM7d9fuTWUmJ4v2/NSNZ2zlmx3UjcVs0i1JR
-         hfCkOeh10qD9KFQ6K3JszSpCkE+S2dIa0ixs6uJngb1xVxjcUlRrmmGOeBuJ6zNk7r
-         lPa707bbRQkOJAckquT8e3g1kOCYfflzNfAMdTzs=
+        b=WcEGt5K4iksGUhJYeopIxf+uOUE/racFOj04vQ8G2y990cE1pu90HRgwWfO6oNLRN
+         FU3pdowxe3nDzDEQMQrSljD1DKdhsqoc8eiDZLMUfMT8lbeiON8m5FXYn8KKX49rGy
+         6GN7hDDrco2mThkbKLS3o1b3ywhBLGoV5Y2eIZZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 017/122] ARM: dts: Drop duplicate sha2md5_fck to fix clk_disable race
-Date:   Mon, 19 Apr 2021 15:04:57 +0200
-Message-Id: <20210419130530.742565045@linuxfoundation.org>
+Subject: [PATCH 5.11 018/122] ARM: dts: Fix moving mmc devices with aliases for omap4 & 5
+Date:   Mon, 19 Apr 2021 15:04:58 +0200
+Message-Id: <20210419130530.782469798@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -41,38 +41,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 140a776833957539c84301dbdb4c3013876de118 ]
+[ Upstream commit 77335a040178a0456d4eabc8bf17a7ca3ee4a327 ]
 
-We have a duplicate legacy clock defined for sha2md5_fck that can
-sometimes race with clk_disable() with the dts configured clock
-for OMAP4_SHA2MD5_CLKCTRL when unused clocks are disabled during
-boot causing an "Unhandled fault: imprecise external abort".
+Fix moving mmc devices with dts aliases as discussed on the lists.
+Without this we now have internal eMMC mmc1 show up as mmc2 compared
+to the earlier order of devices.
 
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap44xx-clocks.dtsi | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/arm/boot/dts/omap4.dtsi | 5 +++++
+ arch/arm/boot/dts/omap5.dtsi | 5 +++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/arch/arm/boot/dts/omap44xx-clocks.dtsi b/arch/arm/boot/dts/omap44xx-clocks.dtsi
-index 532868591107..1f1c04d8f472 100644
---- a/arch/arm/boot/dts/omap44xx-clocks.dtsi
-+++ b/arch/arm/boot/dts/omap44xx-clocks.dtsi
-@@ -770,14 +770,6 @@
- 		ti,max-div = <2>;
- 	};
- 
--	sha2md5_fck: sha2md5_fck@15c8 {
--		#clock-cells = <0>;
--		compatible = "ti,gate-clock";
--		clocks = <&l3_div_ck>;
--		ti,bit-shift = <1>;
--		reg = <0x15c8>;
--	};
--
- 	usb_phy_cm_clk32k: usb_phy_cm_clk32k@640 {
- 		#clock-cells = <0>;
- 		compatible = "ti,gate-clock";
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 72e4f6481776..4a9f9496a867 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -22,6 +22,11 @@
+ 		i2c1 = &i2c2;
+ 		i2c2 = &i2c3;
+ 		i2c3 = &i2c4;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
++		mmc3 = &mmc4;
++		mmc4 = &mmc5;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 5f1a8bd13880..c303510dfa97 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -25,6 +25,11 @@
+ 		i2c2 = &i2c3;
+ 		i2c3 = &i2c4;
+ 		i2c4 = &i2c5;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
++		mmc3 = &mmc4;
++		mmc4 = &mmc5;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
 -- 
 2.30.2
 
