@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B55364BD0
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A2C0364BDA
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240782AbhDSUqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:46:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55198 "EHLO mail.kernel.org"
+        id S242965AbhDSUqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242588AbhDSUpZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:45:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0E65613C9;
-        Mon, 19 Apr 2021 20:44:50 +0000 (UTC)
+        id S242752AbhDSUp2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:45:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 794E0613EE;
+        Mon, 19 Apr 2021 20:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865092;
-        bh=AwWX+CIzR0IFXAElx5wFS9CUiBr0mwtGqFIb5LHiv0k=;
+        s=k20201202; t=1618865093;
+        bh=8ebH80wLSzpKsXllnqDHsURT7pA6qJAmK3LBb8kMWVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmJ8rniHJ1t2arHx+IGED2MjnW3Ra62DhGrs9imvlEHSuvP9Cstk5promztNdtHs0
-         +USzxgfFzifz2Gz99VTeYZHVxYuB3xA7fezN+3LARtboUzQmpl/OA2cEmEqISXlDOl
-         aI5SjvpVJfFRBBk43CKxh5rQdSP0BnfT6pXk0ZqpxdCWqHR2vlLg2S+YVFRnQe6YUo
-         J5EtYIfSqEk5pknA+ty+kfbsMaJ34dsD76BnYLoF1MWGyuIp7Vedgt52FpTldJxkEr
-         wiLSFwbCVaItoDt+d7rYD7cpk3l8gr6NdWeQXv2QFs790PhDv8w08uUpOHPJYLUJtI
-         QXVYBCGXlk2uA==
+        b=mCs6xrThBDCP+eIB6Ah4hlbVQCTWQK7o31mo6WZxkV/5OaV6TEGbA4Z6k6GxCm/Zn
+         eh+63TaF6ex0Vh9DM5d4XWOFc5s5QU+cGlPoMT+MM1fshsjVmD6GkbVmCf+KVIBj0d
+         naWnQw0T3jhRagC0HxIagryq4UTn5X2ioGz6/FGIR/haVazXpy8X2hwhsgabsXi3Jc
+         30z7i+7zMI732ykiubp3xtiNsi9zjc4CJwI3lCn150/CBTWBJsjq4i2BH8I7H3WwEb
+         UXTAbGn/2oUNsSNSMOfUqRF70O8Jp+vff8S6OynpaeSgb1xvGrdHUGSX7njtN5+umu
+         3ISNp2ijtBBng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.10 20/21] gcov: clang: fix clang-11+ build
-Date:   Mon, 19 Apr 2021 16:44:18 -0400
-Message-Id: <20210419204420.6375-20-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 21/21] readdir: make sure to verify directory entry for legacy interfaces too
+Date:   Mon, 19 Apr 2021 16:44:19 -0400
+Message-Id: <20210419204420.6375-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204420.6375-1-sashal@kernel.org>
 References: <20210419204420.6375-1-sashal@kernel.org>
@@ -45,38 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 04c53de57cb6435738961dace8b1b71d3ecd3c39 ]
+[ Upstream commit 0c93ac69407d63a85be0129aa55ffaec27ffebd3 ]
 
-With clang-11+, the code is broken due to my kvmalloc() conversion
-(which predated the clang-11 support code) leaving one vmalloc() in
-place.  Fix that.
+This does the directory entry name verification for the legacy
+"fillonedir" (and compat) interface that goes all the way back to the
+dark ages before we had a proper dirent, and the readdir() system call
+returned just a single entry at a time.
 
-Link: https://lkml.kernel.org/r/20210412214210.6e1ecca9cdc5.I24459763acf0591d5e6b31c7e3a59890d802f79c@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Nobody should use this interface unless you still have binaries from
+1991, but let's do it right.
+
+This came up during discussions about unsafe_copy_to_user() and proper
+checking of all the inputs to it, as the networking layer is looking to
+use it in a few new places.  So let's make sure the _old_ users do it
+all right and proper, before we add new ones.
+
+See also commit 8a23eb804ca4 ("Make filldir[64]() verify the directory
+entry filename is valid") which did the proper modern interfaces that
+people actually use. It had a note:
+
+    Note that I didn't bother adding the checks to any legacy interfaces
+    that nobody uses.
+
+which this now corrects.  Note that we really don't care about POSIX and
+the presense of '/' in a directory entry, but verify_dirent_name() also
+ends up doing the proper name length verification which is what the
+input checking discussion was about.
+
+[ Another option would be to remove the support for this particular very
+  old interface: any binaries that use it are likely a.out binaries, and
+  they will no longer run anyway since we removed a.out binftm support
+  in commit eac616557050 ("x86: Deprecate a.out support").
+
+  But I'm not sure which came first: getdents() or ELF support, so let's
+  pretend somebody might still have a working binary that uses the
+  legacy readdir() case.. ]
+
+Link: https://lore.kernel.org/lkml/CAHk-=wjbvzCAhAtvG0d81W5o0-KT5PPTHhfJ5ieDFq+bGtgOYg@mail.gmail.com/
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/clang.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/readdir.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/kernel/gcov/clang.c b/kernel/gcov/clang.c
-index c466c7fbdece..b81f2823630d 100644
---- a/kernel/gcov/clang.c
-+++ b/kernel/gcov/clang.c
-@@ -369,7 +369,7 @@ static struct gcov_fn_info *gcov_fn_info_dup(struct gcov_fn_info *fn)
- 	INIT_LIST_HEAD(&fn_dup->head);
+diff --git a/fs/readdir.c b/fs/readdir.c
+index 19434b3c982c..09e8ed7d4161 100644
+--- a/fs/readdir.c
++++ b/fs/readdir.c
+@@ -150,6 +150,9 @@ static int fillonedir(struct dir_context *ctx, const char *name, int namlen,
  
- 	cv_size = fn->num_counters * sizeof(fn->counters[0]);
--	fn_dup->counters = vmalloc(cv_size);
-+	fn_dup->counters = kvmalloc(cv_size, GFP_KERNEL);
- 	if (!fn_dup->counters) {
- 		kfree(fn_dup);
- 		return NULL;
+ 	if (buf->result)
+ 		return -EINVAL;
++	buf->result = verify_dirent_name(name, namlen);
++	if (buf->result < 0)
++		return buf->result;
+ 	d_ino = ino;
+ 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
+ 		buf->result = -EOVERFLOW;
+@@ -405,6 +408,9 @@ static int compat_fillonedir(struct dir_context *ctx, const char *name,
+ 
+ 	if (buf->result)
+ 		return -EINVAL;
++	buf->result = verify_dirent_name(name, namlen);
++	if (buf->result < 0)
++		return buf->result;
+ 	d_ino = ino;
+ 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
+ 		buf->result = -EOVERFLOW;
 -- 
 2.30.2
 
