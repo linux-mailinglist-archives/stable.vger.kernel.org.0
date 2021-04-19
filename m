@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B32336447A
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE427364465
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242068AbhDSN2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34380 "EHLO mail.kernel.org"
+        id S242307AbhDSN1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:27:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242080AbhDSN0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:26:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2110960233;
-        Mon, 19 Apr 2021 13:21:33 +0000 (UTC)
+        id S241398AbhDSN0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:26:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB297613DF;
+        Mon, 19 Apr 2021 13:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838494;
-        bh=reYunfgr1fduJ6XCrG1g5WQGLA5Q9lQxV1xC6aQvpio=;
+        s=korg; t=1618838464;
+        bh=WnwJlpTPvQ4AGW02zmaBdxzt6+vlUYAFhBdxZNAS1C0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRR5vIWBX7Uj0So9nB/+KNFYb3XpHXoIkZx+Hr6191mBDL6QbVuUl0/oDEIr4Ft2e
-         4ZG3D0YJuwbEUPlUImOtQpA3IkCGJrB7WIob/qqmvEsrsQOPdPN2XjCcKeXdYx9IBn
-         1uQZUnlyyNRq/UzQiqQhgD5O26q7MQkhIfKF/hZk=
+        b=CLWH8kbLNxXnYyatwZ8kOZPRXSD6yDDQTz+pa4GyfGYycL2RaKHKGh+J3UPkeXs74
+         UGMvviG3SrCRA++95k4giiECX/o0md+FofWXqZG5do0yb9gaoH7bUK7BGTIgSVaetZ
+         NL+6vkR3A4ZUynnSuNl2YB40e98y0V1li2wPAU10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 69/73] r8169: improve rtl_jumbo_config
-Date:   Mon, 19 Apr 2021 15:07:00 +0200
-Message-Id: <20210419130526.068041797@linuxfoundation.org>
+Subject: [PATCH 5.4 70/73] r8169: tweak max read request size for newer chips also in jumbo mtu mode
+Date:   Mon, 19 Apr 2021 15:07:01 +0200
+Message-Id: <20210419130526.097293952@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
 References: <20210419130523.802169214@linuxfoundation.org>
@@ -42,135 +42,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 9db0ac57bd3286fedcf43a86b29b847cea281cc7 ]
+[ Upstream commit 5e00e16cb98935bcf06f51931876d898c226f65c ]
 
-Merge enabling and disabling jumbo packets to one function to make
-the code a little simpler.
+So far we don't increase the max read request size if we switch to
+jumbo mode before bringing up the interface for the first time.
+Let's change this.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 69 +++++++++--------------
- 1 file changed, 27 insertions(+), 42 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 19ebde91555d..1352dd0b69e9 100644
+index 1352dd0b69e9..4e4953b1433a 100644
 --- a/drivers/net/ethernet/realtek/r8169_main.c
 +++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4093,66 +4093,52 @@ static void r8168b_1_hw_jumbo_disable(struct rtl8169_private *tp)
- 	RTL_W8(tp, Config4, RTL_R8(tp, Config4) & ~(1 << 0));
- }
- 
--static void rtl_hw_jumbo_enable(struct rtl8169_private *tp)
-+static void rtl_jumbo_config(struct rtl8169_private *tp)
+@@ -4096,13 +4096,14 @@ static void r8168b_1_hw_jumbo_disable(struct rtl8169_private *tp)
+ static void rtl_jumbo_config(struct rtl8169_private *tp)
  {
--	rtl_unlock_config_regs(tp);
--	switch (tp->mac_version) {
--	case RTL_GIGA_MAC_VER_12:
--	case RTL_GIGA_MAC_VER_17:
--		pcie_set_readrq(tp->pci_dev, 512);
--		r8168b_1_hw_jumbo_enable(tp);
--		break;
--	case RTL_GIGA_MAC_VER_18 ... RTL_GIGA_MAC_VER_26:
--		pcie_set_readrq(tp->pci_dev, 512);
--		r8168c_hw_jumbo_enable(tp);
--		break;
--	case RTL_GIGA_MAC_VER_27 ... RTL_GIGA_MAC_VER_28:
--		r8168dp_hw_jumbo_enable(tp);
--		break;
--	case RTL_GIGA_MAC_VER_31 ... RTL_GIGA_MAC_VER_33:
--		pcie_set_readrq(tp->pci_dev, 512);
--		r8168e_hw_jumbo_enable(tp);
--		break;
--	default:
--		break;
--	}
--	rtl_lock_config_regs(tp);
--}
-+	bool jumbo = tp->dev->mtu > ETH_DATA_LEN;
+ 	bool jumbo = tp->dev->mtu > ETH_DATA_LEN;
++	int readrq = 4096;
  
--static void rtl_hw_jumbo_disable(struct rtl8169_private *tp)
--{
  	rtl_unlock_config_regs(tp);
  	switch (tp->mac_version) {
  	case RTL_GIGA_MAC_VER_12:
  	case RTL_GIGA_MAC_VER_17:
--		r8168b_1_hw_jumbo_disable(tp);
-+		if (jumbo) {
-+			pcie_set_readrq(tp->pci_dev, 512);
-+			r8168b_1_hw_jumbo_enable(tp);
-+		} else {
-+			r8168b_1_hw_jumbo_disable(tp);
-+		}
+ 		if (jumbo) {
+-			pcie_set_readrq(tp->pci_dev, 512);
++			readrq = 512;
+ 			r8168b_1_hw_jumbo_enable(tp);
+ 		} else {
+ 			r8168b_1_hw_jumbo_disable(tp);
+@@ -4110,7 +4111,7 @@ static void rtl_jumbo_config(struct rtl8169_private *tp)
  		break;
  	case RTL_GIGA_MAC_VER_18 ... RTL_GIGA_MAC_VER_26:
--		r8168c_hw_jumbo_disable(tp);
-+		if (jumbo) {
-+			pcie_set_readrq(tp->pci_dev, 512);
-+			r8168c_hw_jumbo_enable(tp);
-+		} else {
-+			r8168c_hw_jumbo_disable(tp);
-+		}
- 		break;
- 	case RTL_GIGA_MAC_VER_27 ... RTL_GIGA_MAC_VER_28:
--		r8168dp_hw_jumbo_disable(tp);
-+		if (jumbo)
-+			r8168dp_hw_jumbo_enable(tp);
-+		else
-+			r8168dp_hw_jumbo_disable(tp);
- 		break;
- 	case RTL_GIGA_MAC_VER_31 ... RTL_GIGA_MAC_VER_33:
--		r8168e_hw_jumbo_disable(tp);
-+		if (jumbo) {
-+			pcie_set_readrq(tp->pci_dev, 512);
-+			r8168e_hw_jumbo_enable(tp);
-+		} else {
-+			r8168e_hw_jumbo_disable(tp);
-+		}
- 		break;
- 	default:
- 		break;
+ 		if (jumbo) {
+-			pcie_set_readrq(tp->pci_dev, 512);
++			readrq = 512;
+ 			r8168c_hw_jumbo_enable(tp);
+ 		} else {
+ 			r8168c_hw_jumbo_disable(tp);
+@@ -4135,8 +4136,8 @@ static void rtl_jumbo_config(struct rtl8169_private *tp)
  	}
  	rtl_lock_config_regs(tp);
  
--	if (pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
-+	if (!jumbo && pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
- 		pcie_set_readrq(tp->pci_dev, 4096);
+-	if (!jumbo && pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
+-		pcie_set_readrq(tp->pci_dev, 4096);
++	if (pci_is_pcie(tp->pci_dev) && tp->supports_gmii)
++		pcie_set_readrq(tp->pci_dev, readrq);
  }
  
--static void rtl_jumbo_config(struct rtl8169_private *tp, int mtu)
--{
--	if (mtu > ETH_DATA_LEN)
--		rtl_hw_jumbo_enable(tp);
--	else
--		rtl_hw_jumbo_disable(tp);
--}
--
  DECLARE_RTL_COND(rtl_chipcmd_cond)
- {
- 	return RTL_R8(tp, ChipCmd) & CmdReset;
-@@ -5458,7 +5444,7 @@ static void rtl_hw_start(struct  rtl8169_private *tp)
- 	rtl_set_rx_tx_desc_registers(tp);
- 	rtl_lock_config_regs(tp);
- 
--	rtl_jumbo_config(tp, tp->dev->mtu);
-+	rtl_jumbo_config(tp);
- 
- 	/* Initially a 10 us delay. Turned it into a PCI commit. - FR */
- 	RTL_R16(tp, CPlusCmd);
-@@ -5473,10 +5459,9 @@ static int rtl8169_change_mtu(struct net_device *dev, int new_mtu)
- {
- 	struct rtl8169_private *tp = netdev_priv(dev);
- 
--	rtl_jumbo_config(tp, new_mtu);
--
- 	dev->mtu = new_mtu;
- 	netdev_update_features(dev);
-+	rtl_jumbo_config(tp);
- 
- 	/* Reportedly at least Asus X453MA truncates packets otherwise */
- 	if (tp->mac_version == RTL_GIGA_MAC_VER_37)
 -- 
 2.30.2
 
