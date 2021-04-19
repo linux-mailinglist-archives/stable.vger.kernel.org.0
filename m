@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B6B6364342
+	by mail.lfdr.de (Postfix) with ESMTP id 2BF7F364341
 	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240703AbhDSNQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:16:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
+        id S240500AbhDSNQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240487AbhDSNOR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:14:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C1CA61364;
-        Mon, 19 Apr 2021 13:12:44 +0000 (UTC)
+        id S240484AbhDSNOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:14:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65DCB613C9;
+        Mon, 19 Apr 2021 13:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837965;
-        bh=xZPoHPpI+M0R8OUB6D/daJdyLAdzH3D+geAT9gSBvF8=;
+        s=korg; t=1618837967;
+        bh=Byr+fhg5Lf5vgurkOuCBRAGK4/82Kv6/CDnJUn53+ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEw1KQE4rlo7ddHfTUZ/aP3rIeEYyg+G3QiRPrFlVFXI5si3uwMeX8oCQY+dTWo5/
-         nOzMBXxSRm2wUeAs0021ZF4aNY3SZH4eWQuL/McsSwDX8ISahK+aSRwROahz6ZGmHj
-         V2hu5dibVlA3xR3dhPjFlep+ZMOqE4G5LXP1kV+s=
+        b=Ejth4XGbNE8dw0/l6YeKBoQewJAbJPjRm16zyY1THDq/MnMdgO94qKnwb0KTZbcwo
+         LKkJM5O8Y89AaQzwhQsHZHPlLXRe6WssFIb0jjwbkPHs7ltT7BHapaSxGCqQyrKfJs
+         mOs0Wx+xsjO8ZrTFWgkiVuKPZr01NRb95RrzFH0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 118/122] bpf: Move off_reg into sanitize_ptr_alu
-Date:   Mon, 19 Apr 2021 15:06:38 +0200
-Message-Id: <20210419130534.177288531@linuxfoundation.org>
+        stable@vger.kernel.org, Fredrik Strupe <fredrik@strupe.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.11 119/122] ARM: 9071/1: uprobes: Dont hook on thumb instructions
+Date:   Mon, 19 Apr 2021 15:06:39 +0200
+Message-Id: <20210419130534.209813854@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -41,60 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-[ Upstream commit 6f55b2f2a1178856c19bbce2f71449926e731914 ]
+commit d2f7eca60b29006285d57c7035539e33300e89e5 upstream.
 
-Small refactor to drag off_reg into sanitize_ptr_alu(), so we later on can
-use off_reg for generalizing some of the checks for all pointer types.
+Since uprobes is not supported for thumb, check that the thumb bit is
+not set when matching the uprobes instruction hooks.
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The Arm UDF instructions used for uprobes triggering
+(UPROBE_SWBP_ARM_INSN and UPROBE_SS_ARM_INSN) coincidentally share the
+same encoding as a pair of unallocated 32-bit thumb instructions (not
+UDF) when the condition code is 0b1111 (0xf). This in effect makes it
+possible to trigger the uprobes functionality from thumb, and at that
+using two unallocated instructions which are not permanently undefined.
+
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Cc: stable@vger.kernel.org
+Fixes: c7edc9e326d5 ("ARM: add uprobes support")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm/probes/uprobes/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index fe473e565092..afb2ae55c9a7 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5463,11 +5463,12 @@ static int sanitize_val_alu(struct bpf_verifier_env *env,
- static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 			    struct bpf_insn *insn,
- 			    const struct bpf_reg_state *ptr_reg,
--			    struct bpf_reg_state *dst_reg,
--			    bool off_is_neg)
-+			    const struct bpf_reg_state *off_reg,
-+			    struct bpf_reg_state *dst_reg)
- {
- 	struct bpf_verifier_state *vstate = env->cur_state;
- 	struct bpf_insn_aux_data *aux = cur_aux(env);
-+	bool off_is_neg = off_reg->smin_value < 0;
- 	bool ptr_is_dst_reg = ptr_reg == dst_reg;
- 	u8 opcode = BPF_OP(insn->code);
- 	u32 alu_state, alu_limit;
-@@ -5602,7 +5603,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 
- 	switch (opcode) {
- 	case BPF_ADD:
--		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
-+		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg);
- 		if (ret < 0) {
- 			verbose(env, "R%d tried to add from different maps, paths, or prohibited types\n", dst);
- 			return ret;
-@@ -5657,7 +5658,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 		}
- 		break;
- 	case BPF_SUB:
--		ret = sanitize_ptr_alu(env, insn, ptr_reg, dst_reg, smin_val < 0);
-+		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg);
- 		if (ret < 0) {
- 			verbose(env, "R%d tried to sub from different maps, paths, or prohibited types\n", dst);
- 			return ret;
--- 
-2.30.2
-
+--- a/arch/arm/probes/uprobes/core.c
++++ b/arch/arm/probes/uprobes/core.c
+@@ -204,7 +204,7 @@ unsigned long uprobe_get_swbp_addr(struc
+ static struct undef_hook uprobes_arm_break_hook = {
+ 	.instr_mask	= 0x0fffffff,
+ 	.instr_val	= (UPROBE_SWBP_ARM_INSN & 0x0fffffff),
+-	.cpsr_mask	= MODE_MASK,
++	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
+ 	.cpsr_val	= USR_MODE,
+ 	.fn		= uprobe_trap_handler,
+ };
+@@ -212,7 +212,7 @@ static struct undef_hook uprobes_arm_bre
+ static struct undef_hook uprobes_arm_ss_hook = {
+ 	.instr_mask	= 0x0fffffff,
+ 	.instr_val	= (UPROBE_SS_ARM_INSN & 0x0fffffff),
+-	.cpsr_mask	= MODE_MASK,
++	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
+ 	.cpsr_val	= USR_MODE,
+ 	.fn		= uprobe_trap_handler,
+ };
 
 
