@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FFFF3642F0
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4263642F2
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240139AbhDSNMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:12:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47332 "EHLO mail.kernel.org"
+        id S239872AbhDSNMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:12:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239861AbhDSNL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:11:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 260C7613AC;
-        Mon, 19 Apr 2021 13:10:56 +0000 (UTC)
+        id S239875AbhDSNLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:11:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 506E561362;
+        Mon, 19 Apr 2021 13:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618837857;
-        bh=+pUJBqWITYbTteiuYbpBDNZTAfS7rTN6O7flEe2GnRI=;
+        s=korg; t=1618837860;
+        bh=SPzFrNWbP0myf455MsY7S9A/Ct5XzJP/B1iAyiQPiEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iC92Jh/RZmT2xtnZDhPaXiZYDtMPZKjZktDHS143CefbnABNA+OZ7UAEnRjzmkYbA
-         Cs1Sc6QLMlv/HzkT7Ijy6BGPrVUgi40c6P4HJdAh2B4N+Gbgh4WRGqCKRdCJSqIGAB
-         f2Bu3VDQHAHAvHLfLBe3f9ShDUPW4DZxl8A/9vHU=
+        b=tNbHNQl8Zgye1PfCfqBkR2Efy3wNam8vRl0SgCmyqXCFQD87kNHweeeiUrM8hFlJZ
+         HfHDRNqvMAZvi699yxpNQ3I8OWaBrYIj9GFEPKocBoURzbywclsGK0sSj2xZYZanCQ
+         GhNqw/f5LGnMfComR4mSfYLy8mKFsTVwWzvc5ycE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, wenxu <wenxu@ucloud.cn>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.11 080/122] net/mlx5e: fix ingress_ifindex check in mlx5e_flower_parse_meta
-Date:   Mon, 19 Apr 2021 15:06:00 +0200
-Message-Id: <20210419130532.886968440@linuxfoundation.org>
+        Luigi Rizzo <lrizzo@google.com>
+Subject: [PATCH 5.11 081/122] netfilter: nft_limit: avoid possible divide error in nft_limit_init
+Date:   Mon, 19 Apr 2021 15:06:01 +0200
+Message-Id: <20210419130532.917804539@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
 References: <20210419130530.166331793@linuxfoundation.org>
@@ -40,35 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wenxu <wenxu@ucloud.cn>
+From: Eric Dumazet <edumazet@google.com>
 
-commit e3e0f9b279705154b951d579dc3d8b7041710e24 upstream.
+commit b895bdf5d643b6feb7c60856326dd4feb6981560 upstream.
 
-In the nft_offload there is the mate flow_dissector with no
-ingress_ifindex but with ingress_iftype that only be used
-in the software. So if the mask of ingress_ifindex in meta is
-0, this meta check should be bypass.
+div_u64() divides u64 by u32.
 
-Fixes: 6d65bc64e232 ("net/mlx5e: Add mlx5e_flower_parse_meta support")
-Signed-off-by: wenxu <wenxu@ucloud.cn>
-Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+nft_limit_init() wants to divide u64 by u64, use the appropriate
+math function (div64_u64)
+
+divide error: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 8390 Comm: syz-executor188 Not tainted 5.12.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:div_u64_rem include/linux/math64.h:28 [inline]
+RIP: 0010:div_u64 include/linux/math64.h:127 [inline]
+RIP: 0010:nft_limit_init+0x2a2/0x5e0 net/netfilter/nft_limit.c:85
+Code: ef 4c 01 eb 41 0f 92 c7 48 89 de e8 38 a5 22 fa 4d 85 ff 0f 85 97 02 00 00 e8 ea 9e 22 fa 4c 0f af f3 45 89 ed 31 d2 4c 89 f0 <49> f7 f5 49 89 c6 e8 d3 9e 22 fa 48 8d 7d 48 48 b8 00 00 00 00 00
+RSP: 0018:ffffc90009447198 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000200000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff875152e6 RDI: 0000000000000003
+RBP: ffff888020f80908 R08: 0000200000000000 R09: 0000000000000000
+R10: ffffffff875152d8 R11: 0000000000000000 R12: ffffc90009447270
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  000000000097a300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000200001c4 CR3: 0000000026a52000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ nf_tables_newexpr net/netfilter/nf_tables_api.c:2675 [inline]
+ nft_expr_init+0x145/0x2d0 net/netfilter/nf_tables_api.c:2713
+ nft_set_elem_expr_alloc+0x27/0x280 net/netfilter/nf_tables_api.c:5160
+ nf_tables_newset+0x1997/0x3150 net/netfilter/nf_tables_api.c:4321
+ nfnetlink_rcv_batch+0x85a/0x21b0 net/netfilter/nfnetlink.c:456
+ nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:580 [inline]
+ nfnetlink_rcv+0x3af/0x420 net/netfilter/nfnetlink.c:598
+ netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
+ netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:674
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: c26844eda9d4 ("netfilter: nf_tables: Fix nft limit burst handling")
+Fixes: 3e0f64b7dd31 ("netfilter: nft_limit: fix packet ratelimiting")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Diagnosed-by: Luigi Rizzo <lrizzo@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/netfilter/nft_limit.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -2194,6 +2194,9 @@ static int mlx5e_flower_parse_meta(struc
- 		return 0;
+--- a/net/netfilter/nft_limit.c
++++ b/net/netfilter/nft_limit.c
+@@ -76,13 +76,13 @@ static int nft_limit_init(struct nft_lim
+ 		return -EOVERFLOW;
  
- 	flow_rule_match_meta(rule, &match);
-+	if (!match.mask->ingress_ifindex)
-+		return 0;
-+
- 	if (match.mask->ingress_ifindex != 0xFFFFFFFF) {
- 		NL_SET_ERR_MSG_MOD(extack, "Unsupported ingress ifindex mask");
- 		return -EOPNOTSUPP;
+ 	if (pkts) {
+-		tokens = div_u64(limit->nsecs, limit->rate) * limit->burst;
++		tokens = div64_u64(limit->nsecs, limit->rate) * limit->burst;
+ 	} else {
+ 		/* The token bucket size limits the number of tokens can be
+ 		 * accumulated. tokens_max specifies the bucket size.
+ 		 * tokens_max = unit * (rate + burst) / rate.
+ 		 */
+-		tokens = div_u64(limit->nsecs * (limit->rate + limit->burst),
++		tokens = div64_u64(limit->nsecs * (limit->rate + limit->burst),
+ 				 limit->rate);
+ 	}
+ 
 
 
