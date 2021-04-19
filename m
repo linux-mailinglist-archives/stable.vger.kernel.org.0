@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CDE3643A6
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCAEB3643AA
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240712AbhDSNVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:21:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54806 "EHLO mail.kernel.org"
+        id S240532AbhDSNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240702AbhDSNSm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:18:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06845613FB;
-        Mon, 19 Apr 2021 13:14:58 +0000 (UTC)
+        id S240064AbhDSNSw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:18:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB306613DA;
+        Mon, 19 Apr 2021 13:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838099;
-        bh=N0Ugq0o3pQAuduongTIeizdD/oz1VyPo6r7AfmJ3Uho=;
+        s=korg; t=1618838102;
+        bh=sSGAmc6Zvs7js8q5Cf3tMvFCnq1syBouk8yfFuKKSpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfphp8EdUKHoprpxA0MRrZDf+jfLSo7F8jabq/3NrIS8drZKRv3ev8kL7yw+aAq8P
-         mMupmGyCnKj5iEJlJdPevAuQpajuVvTz/jBf7vKPP33yhLS4rLw8QFKfEiULu32ZsT
-         eKjO4GCzk9X6iku/6EUBenGQZjPkEFpX2HSpZN/E=
+        b=CHqlqsagogYNX0gn1LjbI+sbtagF6MZOV3xaoUooSmKj7MyGe9aJnWf9KKZeE9H+O
+         fQZL1qKsLKWKFa9wNfgMTs2+aHYwYqAsX0Mx3UvuaomZXEI8DTxBKTvYP2cAXSkHf3
+         /nKr6cH94SGasuxqS7ooZdHBi+TkU4/qKyFmVZgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Van <lucas.van@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
+        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 007/103] dmaengine: idxd: fix opcap sysfs attribute output
-Date:   Mon, 19 Apr 2021 15:05:18 +0200
-Message-Id: <20210419130528.041395384@linuxfoundation.org>
+Subject: [PATCH 5.10 008/103] dmaengine: idxd: fix wq size store permission state
+Date:   Mon, 19 Apr 2021 15:05:19 +0200
+Message-Id: <20210419130528.081098620@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -42,42 +41,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit ea6a5735d2a61b938a302eb3629272342a9e7c46 ]
+[ Upstream commit 0fff71c5a311e1264988179f7dcc217fda15fadd ]
 
-The operation capability register is 256bits. The current output only
-prints out the first 64bits. Fix to output the entire 256bits. The current
-code omits operation caps from IAX devices.
+WQ size can only be changed when the device is disabled. Current code
+allows change when device is enabled but wq is disabled. Change the check
+to detect device state.
 
 Fixes: c52ca478233c ("dmaengine: idxd: add configuration component of driver")
-Reported-by: Lucas Van <lucas.van@intel.com>
 Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/161645624963.2003736.829798666998490151.stgit@djiang5-desk3.ch.intel.com
+Link: https://lore.kernel.org/r/161782558755.107710.18138252584838406025.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/sysfs.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/dma/idxd/sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
-index fb97c9f319a5..b3ab86ced355 100644
+index b3ab86ced355..ad46b3c648af 100644
 --- a/drivers/dma/idxd/sysfs.c
 +++ b/drivers/dma/idxd/sysfs.c
-@@ -1259,8 +1259,14 @@ static ssize_t op_cap_show(struct device *dev,
- {
- 	struct idxd_device *idxd =
- 		container_of(dev, struct idxd_device, conf_dev);
-+	int i, rc = 0;
-+
-+	for (i = 0; i < 4; i++)
-+		rc += sysfs_emit_at(buf, rc, "%#llx ", idxd->hw.opcap.bits[i]);
+@@ -923,7 +923,7 @@ static ssize_t wq_size_store(struct device *dev,
+ 	if (!test_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags))
+ 		return -EPERM;
  
--	return sprintf(buf, "%#llx\n", idxd->hw.opcap.bits[0]);
-+	rc--;
-+	rc += sysfs_emit_at(buf, rc, "\n");
-+	return rc;
- }
- static DEVICE_ATTR_RO(op_cap);
+-	if (wq->state != IDXD_WQ_DISABLED)
++	if (idxd->state == IDXD_DEV_ENABLED)
+ 		return -EPERM;
  
+ 	if (size + total_claimed_wq_size(idxd) - wq->size > idxd->max_wq_size)
 -- 
 2.30.2
 
