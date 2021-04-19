@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B986F364371
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:18:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F0B436429A
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:10:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240144AbhDSNS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:18:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47332 "EHLO mail.kernel.org"
+        id S239424AbhDSNKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240474AbhDSNQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:16:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8126A610CC;
-        Mon, 19 Apr 2021 13:13:46 +0000 (UTC)
+        id S238885AbhDSNKC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:10:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D57761285;
+        Mon, 19 Apr 2021 13:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838027;
-        bh=dacTTHiBg9ZOIvv+f+gvb9A+CQQYT6YWtqr5Sk2uCD4=;
+        s=korg; t=1618837772;
+        bh=h/oMOtZ4b3Lu1QUgWmshCmfFJ+JNBlKbRPav86MrSsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/bD3NXXTtIN1pZsAqzNtfcj21wLBH/f1GdrgK9RU3s6qJkAbUdny3dQ5X5PAfoYg
-         3ueNBVDf+DZz7f5F/VXNinEoezTXjJiurDh5n51vIXu1yXbmifNOgjvsrFdlnFh5TS
-         NhCWvAUZI56m30vLc4qq6CJyPMv7M6vLuZbvPYc8=
+        b=ODf2WEUwmi009dncjlHN91yj2Rpy2JH3DZW2ltfXot7IldkIQ1NFNzdrTOV93BHHk
+         Iz43dc5GO5wJuZRTM1MQAlc4MpOXfLGWaPHKqpBhLQpmH52cMvVF+lPFMfWL76tHmj
+         0cJB8zPEMNytP1ILhDU16nKKCKO5t57scohtijA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 017/103] arc: kernel: Return -EFAULT if copy_to_user() fails
+Subject: [PATCH 5.11 048/122] pcnet32: Use pci_resource_len to validate PCI resource
 Date:   Mon, 19 Apr 2021 15:05:28 +0200
-Message-Id: <20210419130528.390375556@linuxfoundation.org>
+Message-Id: <20210419130531.817934082@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
-References: <20210419130527.791982064@linuxfoundation.org>
+In-Reply-To: <20210419130530.166331793@linuxfoundation.org>
+References: <20210419130530.166331793@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 46e152186cd89d940b26726fff11eb3f4935b45a ]
+[ Upstream commit 66c3f05ddc538ee796321210c906b6ae6fc0792a ]
 
-The copy_to_user() function returns the number of bytes remaining to be
-copied, but we want to return -EFAULT if the copy doesn't complete.
+pci_resource_start() is not a good indicator to determine if a PCI
+resource exists or not, since the resource may start at address 0.
+This is seen when trying to instantiate the driver in qemu for riscv32
+or riscv64.
 
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+pci 0000:00:01.0: reg 0x10: [io  0x0000-0x001f]
+pci 0000:00:01.0: reg 0x14: [mem 0x00000000-0x0000001f]
+...
+pcnet32: card has no PCI IO resources, aborting
+
+Use pci_resouce_len() instead.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/signal.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/pcnet32.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arc/kernel/signal.c b/arch/arc/kernel/signal.c
-index 2be55fb96d87..98e575dbcce5 100644
---- a/arch/arc/kernel/signal.c
-+++ b/arch/arc/kernel/signal.c
-@@ -96,7 +96,7 @@ stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
- 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
- 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
+diff --git a/drivers/net/ethernet/amd/pcnet32.c b/drivers/net/ethernet/amd/pcnet32.c
+index 187b0b9a6e1d..f78daba60b35 100644
+--- a/drivers/net/ethernet/amd/pcnet32.c
++++ b/drivers/net/ethernet/amd/pcnet32.c
+@@ -1534,8 +1534,7 @@ pcnet32_probe_pci(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	}
+ 	pci_set_master(pdev);
  
--	return err;
-+	return err ? -EFAULT : 0;
- }
- 
- static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
-@@ -110,7 +110,7 @@ static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
- 				&(sf->uc.uc_mcontext.regs.scratch),
- 				sizeof(sf->uc.uc_mcontext.regs.scratch));
- 	if (err)
--		return err;
-+		return -EFAULT;
- 
- 	set_current_blocked(&set);
- 	regs->bta	= uregs.scratch.bta;
+-	ioaddr = pci_resource_start(pdev, 0);
+-	if (!ioaddr) {
++	if (!pci_resource_len(pdev, 0)) {
+ 		if (pcnet32_debug & NETIF_MSG_PROBE)
+ 			pr_err("card has no PCI IO resources, aborting\n");
+ 		err = -ENODEV;
+@@ -1548,6 +1547,8 @@ pcnet32_probe_pci(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			pr_err("architecture does not support 32bit PCI busmaster DMA\n");
+ 		goto err_disable_dev;
+ 	}
++
++	ioaddr = pci_resource_start(pdev, 0);
+ 	if (!request_region(ioaddr, PCNET32_TOTAL_SIZE, "pcnet32_probe_pci")) {
+ 		if (pcnet32_debug & NETIF_MSG_PROBE)
+ 			pr_err("io address range already allocated\n");
 -- 
 2.30.2
 
