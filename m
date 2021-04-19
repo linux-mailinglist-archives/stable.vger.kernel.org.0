@@ -2,78 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7265936419E
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 14:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 526FB3641C5
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 14:35:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239183AbhDSMYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 08:24:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59270 "EHLO mail.kernel.org"
+        id S239080AbhDSMfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 08:35:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233749AbhDSMYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 08:24:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8EE61284;
-        Mon, 19 Apr 2021 12:24:08 +0000 (UTC)
+        id S233651AbhDSMfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 08:35:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFB1561029;
+        Mon, 19 Apr 2021 12:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618835048;
-        bh=PnLkcUvmeLpTmVtCYg4PVDQByf5ZTCOEknbtDZL9yUA=;
+        s=korg; t=1618835724;
+        bh=7xhdBvdsKZ2H5pkHnxQwbAnS451BCUO4/8gvKj56xG4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MU0ol+iOdZQlMMpEL8sEslV/hWUMi0K5KY3ZDZqrttRKrpzmEXpkt9cHVF2MjeStM
-         nUwevVAdLXNNhq3gAG3r/rNYo8hbQtypZf9ba/o+aZfm82jpzHLFd4b4HXVR3TD0Oj
-         2nnIqgxKplPoISiJhqz0xP6XO50zTXIx1v98ZyHQ=
-Date:   Mon, 19 Apr 2021 14:23:58 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Shuah Khan <skhan@linuxfoundation.org>
-Cc:     Tom Seewald <tseewald@gmail.com>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/4] usbip: add sysfs_lock to synchronize sysfs code paths
-Message-ID: <YH12XjHqkH66HgdC@kroah.com>
-References: <20210416205319.14075-1-tseewald@gmail.com>
- <ea81015d-79f3-f22e-0b96-e0ae58acfc14@linuxfoundation.org>
+        b=Yzk5hPEgVPFdojTw+xDCr1iHcmrryozVXosYUelI3+Co+452L/ccOfjoZOKUkQhEX
+         nZrsaVtoQgaltzm8BzBPQjsXsCmhGgt+WEM2owcsBSI9dUnZWC5OLtvwQNjwdNOtft
+         RNV8ynNljkyyh+65hNUXcoqegisIuv+1k1cF+vJg=
+Date:   Mon, 19 Apr 2021 14:35:19 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
+Cc:     stable@vger.kernel.org, andrew@lunn.ch, davem@davemloft.net,
+        kabel@kernel.org
+Subject: Re: [PATCH] net: phy: marvell: fix detection of PHY on Topaz switches
+Message-ID: <YH15B/ZwuXg4R9lw@kroah.com>
+References: <16187482432842@kroah.com>
+ <161874858144103@kroah.com>
+ <20210418131344.21024-1-pali@kernel.org>
+ <YH1x/qt8wpOh0bvj@kroah.com>
+ <20210419120856.xtym4nhplgwrtoot@pali>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <ea81015d-79f3-f22e-0b96-e0ae58acfc14@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210419120856.xtym4nhplgwrtoot@pali>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 16, 2021 at 03:43:45PM -0600, Shuah Khan wrote:
-> On 4/16/21 2:53 PM, Tom Seewald wrote:
-> > From: Shuah Khan <skhan@linuxfoundation.org>
+On Mon, Apr 19, 2021 at 02:08:56PM +0200, Pali Rohár wrote:
+> On Monday 19 April 2021 14:05:18 Greg KH wrote:
+> > On Sun, Apr 18, 2021 at 03:13:44PM +0200, Pali Rohár wrote:
+> > > commit 1fe976d308acb6374c899a4ee8025a0a016e453e upstream.
+> > > 
+> > > Since commit fee2d546414d ("net: phy: marvell: mv88e6390 temperature
+> > > sensor reading"), Linux reports the temperature of Topaz hwmon as
+> > > constant -75°C.
+> > > 
+> > > This is because switches from the Topaz family (88E6141 / 88E6341) have
+> > > the address of the temperature sensor register different from Peridot.
+> > > 
+> > > This address is instead compatible with 88E1510 PHYs, as was used for
+> > > Topaz before the above mentioned commit.
+> > > 
+> > > Create a new mapping table between switch family and PHY ID for families
+> > > which don't have a model number. And define PHY IDs for Topaz and Peridot
+> > > families.
+> > > 
+> > > Create a new PHY ID and a new PHY driver for Topaz's internal PHY.
+> > > The only difference from Peridot's PHY driver is the HWMON probing
+> > > method.
+> > > 
+> > > Prior this change Topaz's internal PHY is detected by kernel as:
+> > > 
+> > >   PHY [...] driver [Marvell 88E6390] (irq=63)
+> > > 
+> > > And afterwards as:
+> > > 
+> > >   PHY [...] driver [Marvell 88E6341 Family] (irq=63)
+> > > 
+> > > Signed-off-by: Pali Rohár <pali@kernel.org>
+> > > BugLink: https://github.com/globalscaletechnologies/linux/issues/1
+> > > Fixes: fee2d546414d ("net: phy: marvell: mv88e6390 temperature sensor reading")
+> > > Reviewed-by: Marek Behún <kabel@kernel.org>
+> > > Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+> > > Signed-off-by: David S. Miller <davem@davemloft.net>
+> > > [pali: Backported to 5.4 version]
+> > > ---
+> > > This patch is backported to 5.4 version. Tested on Turris Mox with Topaz switch.
 > > 
-> > commit 4e9c93af7279b059faf5bb1897ee90512b258a12 upstream.
-> > 
-> > Fuzzing uncovered race condition between sysfs code paths in usbip
-> > drivers. Device connect/disconnect code paths initiated through
-> > sysfs interface are prone to races if disconnect happens during
-> > connect and vice versa.
-> > 
-> > This problem is common to all drivers while it can be reproduced easily
-> > in vhci_hcd. Add a sysfs_lock to usbip_device struct to protect the paths.
-> > 
-> > Use this in vhci_hcd to protect sysfs paths. For a complete fix, usip_host
-> > and usip-vudc drivers and the event handler will have to use this lock to
-> > protect the paths. These changes will be done in subsequent patches.
-> > 
-> > Cc: stable@vger.kernel.org # 4.9.x
-> > Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-> > Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-> > Link: https://lore.kernel.org/r/b6568f7beae702bbc236a545d3c020106ca75eac.1616807117.git.skhan@linuxfoundation.org
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Signed-off-by: Tom Seewald <tseewald@gmail.com>
-> > ---
-> >   drivers/usb/usbip/usbip_common.h |  3 +++
-> >   drivers/usb/usbip/vhci_hcd.c     |  1 +
-> >   drivers/usb/usbip/vhci_sysfs.c   | 30 +++++++++++++++++++++++++-----
-> >   3 files changed, 29 insertions(+), 5 deletions(-)
-> > 
+> > What about a 5.10 version?
 > 
-> Thank you for the backport.
-> 
-> Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-> 
-> Greg, please pick this up for 4.9.x
+> Is manual backport required also for 5.10? I got email that automatic
+> backporting failed only for 4.19 and 5.4 versions.
 
-Also for 4.14.y, right?
+It also failed for 5.10.y, so yes, if you could provide a version for
+that tree it would be most appreciated.
+
+thanks,
+
+greg k-h
