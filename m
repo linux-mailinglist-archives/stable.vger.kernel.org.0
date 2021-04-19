@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC93D3643F6
+	by mail.lfdr.de (Postfix) with ESMTP id 9F84C3643F5
 	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241462AbhDSNXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241444AbhDSNXf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Apr 2021 09:23:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55434 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240842AbhDSNVa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:21:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E50766101C;
-        Mon, 19 Apr 2021 13:17:51 +0000 (UTC)
+        id S240895AbhDSNVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:21:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8478D611CE;
+        Mon, 19 Apr 2021 13:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838272;
-        bh=SUDhzk7ZeHooTxtWc+9vKxnQjlgp7BIYqkRcSI1koOk=;
+        s=korg; t=1618838275;
+        bh=DA8FpMrayz3kOZYBMN+aJpgiWi+vbCdWRFsLqkh4GUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LlgIioGVzFlqYPMK6NN5Jurtjj/4SvgSriFJLcfMzLHyMh4JsmQDauZmaIuMq0HYe
-         RWmZFGINCoGQhufuFXwGqSJP85mkmJPb+hLZVC+9Svtk4zPYwjoZffU5075TGRvwD3
-         gkiQqHLMwurnmeC4xjLdCMVrVuAVewGLnwjhcXGU=
+        b=uTK6lC/f9aZfU5XWJxEnK/kFCO27V3ZCvQmwdzF41jTGnuz8OBQu0X2jYbvTzK2n9
+         vfz1/JMaLMhHaPDgyDc79rBYiYexszVdequLGaddMXtwma/o/chxeuWfVeM7+GDPj7
+         IAZ297VJtZNtpxqUzZ1zuKnwf9Go5hFOr7Msjn5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Lijun Pan <lijunp213@gmail.com>,
+        stable@vger.kernel.org, Lijun Pan <lijunp213@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 078/103] ibmvnic: avoid calling napi_disable() twice
-Date:   Mon, 19 Apr 2021 15:06:29 +0200
-Message-Id: <20210419130530.488965404@linuxfoundation.org>
+Subject: [PATCH 5.10 079/103] ibmvnic: remove duplicate napi_schedule call in do_reset function
+Date:   Mon, 19 Apr 2021 15:06:30 +0200
+Message-Id: <20210419130530.520374888@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -42,39 +41,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lijun Pan <lijunp213@gmail.com>
 
-commit 0775ebc4cf8554bdcd2c212669a0868ab68df5c0 upstream.
+commit d3a6abccbd272aea7dc2c6f984bb5a2c11278e44 upstream.
 
-__ibmvnic_open calls napi_disable without checking whether NAPI polling
-has already been disabled or not. This could cause napi_disable
-being called twice, which could generate deadlock. For example,
-the first napi_disable will spin until NAPI_STATE_SCHED is cleared
-by napi_complete_done, then set it again.
-When napi_disable is called the second time, it will loop infinitely
-because no dev->poll will be running to clear NAPI_STATE_SCHED.
+During adapter reset, do_reset/do_hard_reset calls ibmvnic_open(),
+which will calls napi_schedule if previous state is VNIC_CLOSED
+(i.e, the reset case, and "ifconfig down" case). So there is no need
+for do_reset to call napi_schedule again at the end of the function
+though napi_schedule will neglect the request if napi is already
+scheduled.
 
-To prevent above scenario from happening, call ibmvnic_napi_disable()
-which checks if napi is disabled or not before calling napi_disable.
-
-Fixes: bfc32f297337 ("ibmvnic: Move resource initialization to its own routine")
-Suggested-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Fixes: ed651a10875f ("ibmvnic: Updated reset handling")
 Signed-off-by: Lijun Pan <lijunp213@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 --- a/drivers/net/ethernet/ibm/ibmvnic.c
 +++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1159,8 +1159,7 @@ static int __ibmvnic_open(struct net_dev
+@@ -1941,7 +1941,7 @@ static int do_reset(struct ibmvnic_adapt
+ 	u64 old_num_rx_queues, old_num_tx_queues;
+ 	u64 old_num_rx_slots, old_num_tx_slots;
+ 	struct net_device *netdev = adapter->netdev;
+-	int i, rc;
++	int rc;
  
- 	rc = set_link_state(adapter, IBMVNIC_LOGICAL_LNK_UP);
- 	if (rc) {
--		for (i = 0; i < adapter->req_rx_queues; i++)
--			napi_disable(&adapter->napi[i]);
-+		ibmvnic_napi_disable(adapter);
- 		release_resources(adapter);
- 		return rc;
- 	}
+ 	netdev_dbg(adapter->netdev,
+ 		   "[S:%d FOP:%d] Reset reason %d, reset_state %d\n",
+@@ -2087,10 +2087,6 @@ static int do_reset(struct ibmvnic_adapt
+ 	/* refresh device's multicast list */
+ 	ibmvnic_set_multi(netdev);
+ 
+-	/* kick napi */
+-	for (i = 0; i < adapter->req_rx_queues; i++)
+-		napi_schedule(&adapter->napi[i]);
+-
+ 	if (adapter->reset_reason == VNIC_RESET_FAILOVER ||
+ 	    adapter->reset_reason == VNIC_RESET_MOBILITY) {
+ 		call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, netdev);
 
 
