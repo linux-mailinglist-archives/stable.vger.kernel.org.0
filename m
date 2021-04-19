@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D044736438F
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:20:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51127364390
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240180AbhDSNU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:20:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56216 "EHLO mail.kernel.org"
+        id S240479AbhDSNU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:20:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239463AbhDSNRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:17:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C533F613E1;
-        Mon, 19 Apr 2021 13:14:19 +0000 (UTC)
+        id S240623AbhDSNRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:17:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B78761369;
+        Mon, 19 Apr 2021 13:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838060;
-        bh=66NdWp2CtQXh24sKJMkxOfxG01+moLWkPVs3IXI9yzM=;
+        s=korg; t=1618838063;
+        bh=OBNez7pe5st2L7+wrpz8FhsHh9EY6cWit9Q/8CozrB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIf7Vj/lJv2CNbaxnYAcbTC39YfpZpYuReKDGhEiN8vn+GMDClVGqnJ9RaIdH/oGx
-         1K5X4gRnaDTGLwiAeA/3kBaq9RHvco37E1I3Nh3RBW9jpScnZLLfW8+iohDTy84AiJ
-         mdDtY4MuH7jay3U/bOdsy/6y3m+gFpaQxAFtdP0I=
+        b=yJcAJUPXeJlK2bLAgggVuIz+WEPrgKQddLTly9RMWAj1cF34EOjuZlnM1ZYBZZUaH
+         pjBUVjRf7Wxw3PjH0yyoem5PTcpz+JZyi0fvp7BupPbJwTJWna4RnXcFJuFzwfHjUb
+         1U5ih8XMgd43mECMSWImSnI7Cb4KTLoD63j0OZW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Matt Chen <matt.chen@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/103] scsi: scsi_transport_srp: Dont block target in SRP_PORT_LOST state
-Date:   Mon, 19 Apr 2021 15:05:39 +0200
-Message-Id: <20210419130528.774177900@linuxfoundation.org>
+Subject: [PATCH 5.10 029/103] iwlwifi: add support for Qu with AX201 device
+Date:   Mon, 19 Apr 2021 15:05:40 +0200
+Message-Id: <20210419130528.805651584@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 References: <20210419130527.791982064@linuxfoundation.org>
@@ -41,50 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Matt Chen <matt.chen@intel.com>
 
-[ Upstream commit 5cd0f6f57639c5afbb36100c69281fee82c95ee7 ]
+[ Upstream commit 97195d3cad852063208a1cd4f4d073459547a415 ]
 
-rport_dev_loss_timedout() sets the rport state to SRP_PORT_LOST and the
-SCSI target state to SDEV_TRANSPORT_OFFLINE. If this races with
-srp_reconnect_work(), a warning is printed:
+Add this specific Samsung AX201 sku to driver so it can be
+detected and initialized successfully.
 
-Mar 27 18:48:07 ictm1604s01h4 kernel: dev_loss_tmo expired for SRP port-18:1 / host18.
-Mar 27 18:48:07 ictm1604s01h4 kernel: ------------[ cut here ]------------
-Mar 27 18:48:07 ictm1604s01h4 kernel: scsi_internal_device_block(18:0:0:100) failed: ret = -22
-Mar 27 18:48:07 ictm1604s01h4 kernel: Call Trace:
-Mar 27 18:48:07 ictm1604s01h4 kernel:  ? scsi_target_unblock+0x50/0x50 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  starget_for_each_device+0x80/0xb0 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  target_block+0x24/0x30 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  device_for_each_child+0x57/0x90
-Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_rport+0xe4/0x230 [scsi_transport_srp]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_work+0x40/0xc0 [scsi_transport_srp]
-
-Avoid this by not trying to block targets for rports in SRP_PORT_LOST
-state.
-
-Link: https://lore.kernel.org/r/20210401091105.8046-1-mwilck@suse.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Matt Chen <matt.chen@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20210326125611.30b622037714.Id9fd709cf1c8261c097bbfd7453f6476077dcafc@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_srp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
-index 1e939a2a387f..98a34ed10f1a 100644
---- a/drivers/scsi/scsi_transport_srp.c
-+++ b/drivers/scsi/scsi_transport_srp.c
-@@ -541,7 +541,7 @@ int srp_reconnect_rport(struct srp_rport *rport)
- 	res = mutex_lock_interruptible(&rport->mutex);
- 	if (res)
- 		goto out;
--	if (rport->state != SRP_RPORT_FAIL_FAST)
-+	if (rport->state != SRP_RPORT_FAIL_FAST && rport->state != SRP_RPORT_LOST)
- 		/*
- 		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
- 		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+index fa32f9045c0c..500fdb0b6c42 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+@@ -684,6 +684,7 @@ static const struct iwl_dev_info iwl_dev_info_table[] = {
+ 	IWL_DEV_INFO(0x4DF0, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0, NULL),
+ 	IWL_DEV_INFO(0x4DF0, 0x2074, iwl_ax201_cfg_qu_hr, NULL),
+ 	IWL_DEV_INFO(0x4DF0, 0x4070, iwl_ax201_cfg_qu_hr, NULL),
++	IWL_DEV_INFO(0x4DF0, 0x6074, iwl_ax201_cfg_qu_hr, NULL),
+ 
+ 	_IWL_DEV_INFO(IWL_CFG_ANY, IWL_CFG_ANY,
+ 		      IWL_CFG_MAC_TYPE_PU, IWL_CFG_ANY,
 -- 
 2.30.2
 
