@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D54D364C57
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF72364C59
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243117AbhDSUuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:50:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54566 "EHLO mail.kernel.org"
+        id S243304AbhDSUud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:50:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243115AbhDSUsb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243119AbhDSUsb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Apr 2021 16:48:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F8D8613F5;
-        Mon, 19 Apr 2021 20:45:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D6B6613C5;
+        Mon, 19 Apr 2021 20:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865152;
-        bh=uJpH5YPPJmhUxv7AM91hsYVccL/15UaUQyMRo4BWexo=;
+        s=k20201202; t=1618865153;
+        bh=5ZcHCJZs08nASXkYcwsWOrqtzik80cVFmrMQvm/bBOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKddU61/F1KDaUP8AauVKbS8baHZAwkY6tHcNt2/1VsNYDS+mW0eBjYs0+N3farwa
-         +kFVWpW+L/dBAhKPhTsw+Vb4SpwgFWXsWpOyAPIPgqQ8LCfSQvkehkP7hNyH35tOHM
-         Zlv9vU+Cv+t+BxnkZty3rwYksmtUIY6qG2eLGpoxOaJTa5tVM1jYYfCaX2kpnbAwUf
-         b3ro3fJSeVutf600NYMym6Z8LUJarrN9zFj2+aQfWaYmAr/QyS9rtIe2yPFO3plF89
-         BLPxZ99iK01Z2nf7rBNOBeq7xShE0z0ocq7wI2pbjJB2zdqGcPtqgvPIxncf6lsYta
-         azqW9TPoKlAtw==
+        b=YVQUubggCXv6ZB6pjVf3Sx8/A3LB2mZY/X0XXbPTFQ7Dq1TKXCqa4UtciYlKJquXm
+         bjBoMtpaSJR29ug7XS4XoRB2LuXtnvF6HN/dO9Y23RVjfbwhTiOYzazj9gaYy11Q52
+         dEk32AdgQSlrYmwGULZWQij7Lwg9VBKJhzcgpm1IDu1gnT2zQD6SVXbVFEq+KqSXVZ
+         PvGeqxAmCjFIQ88Wy47y2huv8F2V5CJZ+5mqVaRlzM97aeNPkngp9D8qoxueeqQrcV
+         gOEr7rtd38psuqGeRoRvnUVLBaYejZl2xuzI9uyZrRDw47wbBZLP2wZhQ8gzxA+4q/
+         E+4tCKk0Qyaog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 10/11] ia64: tools: remove duplicate definition of ia64_mf() on ia64
-Date:   Mon, 19 Apr 2021 16:45:35 -0400
-Message-Id: <20210419204536.6924-10-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 11/11] readdir: make sure to verify directory entry for legacy interfaces too
+Date:   Mon, 19 Apr 2021 16:45:36 -0400
+Message-Id: <20210419204536.6924-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204536.6924-1-sashal@kernel.org>
 References: <20210419204536.6924-1-sashal@kernel.org>
@@ -44,57 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
+[ Upstream commit 0c93ac69407d63a85be0129aa55ffaec27ffebd3 ]
 
-The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
-already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
-failing to build:
+This does the directory entry name verification for the legacy
+"fillonedir" (and compat) interface that goes all the way back to the
+dark ages before we had a proper dirent, and the readdir() system call
+returned just a single entry at a time.
 
-    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
-  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
-                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
-                   from libbpf.c:37:
-  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
-     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
-        |
-  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
-                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
-                   from /usr/include/linux/swab.h:8,
-                   from /usr/include/linux/byteorder/little_endian.h:13,
-                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
-                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
-                   from libbpf.c:36:
-  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
-    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
-        |
-  cc1: all warnings being treated as errors
+Nobody should use this interface unless you still have binaries from
+1991, but let's do it right.
 
-Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
+This came up during discussions about unsafe_copy_to_user() and proper
+checking of all the inputs to it, as the networking layer is looking to
+use it in a few new places.  So let's make sure the _old_ users do it
+all right and proper, before we add new ones.
 
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+See also commit 8a23eb804ca4 ("Make filldir[64]() verify the directory
+entry filename is valid") which did the proper modern interfaces that
+people actually use. It had a note:
+
+    Note that I didn't bother adding the checks to any legacy interfaces
+    that nobody uses.
+
+which this now corrects.  Note that we really don't care about POSIX and
+the presense of '/' in a directory entry, but verify_dirent_name() also
+ends up doing the proper name length verification which is what the
+input checking discussion was about.
+
+[ Another option would be to remove the support for this particular very
+  old interface: any binaries that use it are likely a.out binaries, and
+  they will no longer run anyway since we removed a.out binftm support
+  in commit eac616557050 ("x86: Deprecate a.out support").
+
+  But I'm not sure which came first: getdents() or ELF support, so let's
+  pretend somebody might still have a working binary that uses the
+  legacy readdir() case.. ]
+
+Link: https://lore.kernel.org/lkml/CAHk-=wjbvzCAhAtvG0d81W5o0-KT5PPTHhfJ5ieDFq+bGtgOYg@mail.gmail.com/
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/arch/ia64/include/asm/barrier.h | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/readdir.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
-index d808ee0e77b5..90f8bbd9aede 100644
---- a/tools/arch/ia64/include/asm/barrier.h
-+++ b/tools/arch/ia64/include/asm/barrier.h
-@@ -39,9 +39,6 @@
-  * sequential memory pages only.
-  */
+diff --git a/fs/readdir.c b/fs/readdir.c
+index 0c357663e33a..e6f4c7b8884b 100644
+--- a/fs/readdir.c
++++ b/fs/readdir.c
+@@ -133,6 +133,9 @@ static int fillonedir(struct dir_context *ctx, const char *name, int namlen,
  
--/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
--#define ia64_mf()       asm volatile ("mf" ::: "memory")
--
- #define mb()		ia64_mf()
- #define rmb()		mb()
- #define wmb()		mb()
+ 	if (buf->result)
+ 		return -EINVAL;
++	buf->result = verify_dirent_name(name, namlen);
++	if (buf->result < 0)
++		return buf->result;
+ 	d_ino = ino;
+ 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
+ 		buf->result = -EOVERFLOW;
+@@ -392,6 +395,9 @@ static int compat_fillonedir(struct dir_context *ctx, const char *name,
+ 
+ 	if (buf->result)
+ 		return -EINVAL;
++	buf->result = verify_dirent_name(name, namlen);
++	if (buf->result < 0)
++		return buf->result;
+ 	d_ino = ino;
+ 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
+ 		buf->result = -EOVERFLOW;
 -- 
 2.30.2
 
