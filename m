@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5DE1364B8D
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 240E3364B90
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 22:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242474AbhDSUpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 16:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54402 "EHLO mail.kernel.org"
+        id S242658AbhDSUpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 16:45:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242472AbhDSUon (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 16:44:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0EC2613C0;
-        Mon, 19 Apr 2021 20:44:11 +0000 (UTC)
+        id S242494AbhDSUop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 16:44:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6471613BC;
+        Mon, 19 Apr 2021 20:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618865053;
-        bh=z5k/Yw3mIMmrDwp95XRcKjZzM8UMyfFp0EcQmjpQa1E=;
+        s=k20201202; t=1618865054;
+        bh=IyKqONnImUAeSz7aWX3Pqd1vd62ZQLva34AJ5eh4Hx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9pxoWd+T3UBBjZvXlfOrmYlMR2xy/Vf74rCbQ+NEblOGedKEK1pg+Vl3FPyahTFH
-         eIJJKUWsooV9dpqwRd1vQlGOWR5KFmK5ThwAjQ16h6tDlmYTiyshhveTgMYLIS8FCh
-         xpc+KRgp1us5p/kKLo1+7flh8c9m2zxxlBdzFpKAsMmRhwItTirbfZoL72P5H818WQ
-         V7Qv1Oe+AQu5219rfpah16dSEyJLRFVtO3fwuSGOhYLj7/mFYAFEt4V9fAAS44dwFA
-         X7UFhKcx9O1m9ltIvbNCtG6OAtGhLZdBnWwGIinuI8E1HOoV1GxO9zzrUi2QHIWFcv
-         7Lv6sUd07Laxg==
+        b=YuytxyVW/olFi4hNH6mcHqkstqwQA+gK8s3fUHPQRTTc+LJX6b83s44AHCaJOpqPa
+         qu9iuEh+TvEI07xP2j5OUFzTYopXIAlmyvCQXWpAASkmO/fi3P45vIfJ0C+Vsc7+bw
+         oe0FDlWPuruA9dH5jLzeJA1atFhruTJsYYKhO9m9p6Yv7tk/GWjCWOLyeoiaF4SfFb
+         rglZxT8PMapIFTOJA8zeyF/9rtcIJoPLFVFO/Cgd4Q4VlshHZSpeLZXecjLLVjBza0
+         jQLvhceaNfLl1v6w1d5+9lqY6wrf8m6+UnNcGo7jgIkz//cRRf8JGYu6c2894VcAsc
+         dYDXlU2kZj1tQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Guo Ren <guoren@kernel.org>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Mike Rapoport <rppt@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-csky@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 19/23] csky: change a Kconfig symbol name to fix e1000 build error
-Date:   Mon, 19 Apr 2021 16:43:38 -0400
-Message-Id: <20210419204343.6134-19-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 20/23] ia64: fix discontig.c section mismatches
+Date:   Mon, 19 Apr 2021 16:43:39 -0400
+Message-Id: <20210419204343.6134-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210419204343.6134-1-sashal@kernel.org>
 References: <20210419204343.6134-1-sashal@kernel.org>
@@ -48,54 +46,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit d199161653d612b8fb96ac51bfd5b2d2782ecef3 ]
+[ Upstream commit e2af9da4f867a1a54f1252bf3abc1a5c63951778 ]
 
-e1000's #define of CONFIG_RAM_BASE conflicts with a Kconfig symbol in
-arch/csky/Kconfig.
+Fix IA64 discontig.c Section mismatch warnings.
 
-The symbol in e1000 has been around longer, so change arch/csky/ to use
-DRAM_BASE instead of RAM_BASE to remove the conflict.  (although e1000
-is also a 2-line change)
+When CONFIG_SPARSEMEM=y and CONFIG_MEMORY_HOTPLUG=y, the functions
+computer_pernodesize() and scatter_node_data() should not be marked as
+__meminit because they are needed after init, on any memory hotplug
+event.  Also, early_nr_cpus_node() is called by compute_pernodesize(),
+so early_nr_cpus_node() cannot be __meminit either.
 
-Link: https://lkml.kernel.org/r/20210411055335.7111-1-rdunlap@infradead.org
+  WARNING: modpost: vmlinux.o(.text.unlikely+0x1612): Section mismatch in reference from the function arch_alloc_nodedata() to the function .meminit.text:compute_pernodesize()
+  The function arch_alloc_nodedata() references the function __meminit compute_pernodesize().
+  This is often because arch_alloc_nodedata lacks a __meminit annotation or the annotation of compute_pernodesize is wrong.
+
+  WARNING: modpost: vmlinux.o(.text.unlikely+0x1692): Section mismatch in reference from the function arch_refresh_nodedata() to the function .meminit.text:scatter_node_data()
+  The function arch_refresh_nodedata() references the function __meminit scatter_node_data().
+  This is often because arch_refresh_nodedata lacks a __meminit annotation or the annotation of scatter_node_data is wrong.
+
+  WARNING: modpost: vmlinux.o(.text.unlikely+0x1502): Section mismatch in reference from the function compute_pernodesize() to the function .meminit.text:early_nr_cpus_node()
+  The function compute_pernodesize() references the function __meminit early_nr_cpus_node().
+  This is often because compute_pernodesize lacks a __meminit annotation or the annotation of early_nr_cpus_node is wrong.
+
+Link: https://lkml.kernel.org/r/20210411001201.3069-1-rdunlap@infradead.org
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Guo Ren <guoren@kernel.org>
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc: Mike Rapoport <rppt@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/Kconfig            | 2 +-
- arch/csky/include/asm/page.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/ia64/mm/discontig.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-index 89dd2fcf38fa..3b16d081b4d7 100644
---- a/arch/csky/Kconfig
-+++ b/arch/csky/Kconfig
-@@ -292,7 +292,7 @@ config FORCE_MAX_ZONEORDER
- 	int "Maximum zone order"
- 	default "11"
+diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
+index c7311131156e..ba3edb8a04b1 100644
+--- a/arch/ia64/mm/discontig.c
++++ b/arch/ia64/mm/discontig.c
+@@ -94,7 +94,7 @@ static int __init build_node_maps(unsigned long start, unsigned long len,
+  * acpi_boot_init() (which builds the node_to_cpu_mask array) hasn't been
+  * called yet.  Note that node 0 will also count all non-existent cpus.
+  */
+-static int __meminit early_nr_cpus_node(int node)
++static int early_nr_cpus_node(int node)
+ {
+ 	int cpu, n = 0;
  
--config RAM_BASE
-+config DRAM_BASE
- 	hex "DRAM start addr (the same with memory-section in dts)"
- 	default 0x0
+@@ -109,7 +109,7 @@ static int __meminit early_nr_cpus_node(int node)
+  * compute_pernodesize - compute size of pernode data
+  * @node: the node id.
+  */
+-static unsigned long __meminit compute_pernodesize(int node)
++static unsigned long compute_pernodesize(int node)
+ {
+ 	unsigned long pernodesize = 0, cpus;
  
-diff --git a/arch/csky/include/asm/page.h b/arch/csky/include/asm/page.h
-index 9b98bf31d57c..16878240ef9a 100644
---- a/arch/csky/include/asm/page.h
-+++ b/arch/csky/include/asm/page.h
-@@ -28,7 +28,7 @@
- #define SSEG_SIZE	0x20000000
- #define LOWMEM_LIMIT	(SSEG_SIZE * 2)
+@@ -366,7 +366,7 @@ static void __init reserve_pernode_space(void)
+ 	}
+ }
  
--#define PHYS_OFFSET_OFFSET (CONFIG_RAM_BASE & (SSEG_SIZE - 1))
-+#define PHYS_OFFSET_OFFSET (CONFIG_DRAM_BASE & (SSEG_SIZE - 1))
- 
- #ifndef __ASSEMBLY__
- 
+-static void __meminit scatter_node_data(void)
++static void scatter_node_data(void)
+ {
+ 	pg_data_t **dst;
+ 	int node;
 -- 
 2.30.2
 
