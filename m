@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E90AD364486
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AEAF3643D0
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242253AbhDSN2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:28:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34744 "EHLO mail.kernel.org"
+        id S241158AbhDSNVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240651AbhDSNZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:25:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D8DD613D7;
-        Mon, 19 Apr 2021 13:20:52 +0000 (UTC)
+        id S241330AbhDSNU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:20:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3072613CE;
+        Mon, 19 Apr 2021 13:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838453;
-        bh=XplN4pwgl41M2rluMY9pzsynNE5DkThW93ZKGlh9nqo=;
+        s=korg; t=1618838179;
+        bh=uTn/P7ShC6ybQpeMSlQSWl7Llh9H4+W/oEmmZDnLqy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mu302PeUMzIu8LgCIXm2y2QlsfygHjevkTur7xTKF74S/hCVLMlFIa7ZtZUIO/NyJ
-         SlPtpDK8aItBb3a0IH3m2gHl+Bv46iWl7HxWq1aHEcwBl0LoX2J71tDro/MgAbRXfw
-         SpYHFPk9ujFdKOjF80+ooMdtqJVPQIrVyY97/QBg=
+        b=Qg/EOPOIDgJjEjXs6WEKn3USFxJKLXLEpQCrbo+zxQ7Nv0pfKLFO/dwUWIQhvtJHA
+         0VzMqg+NnphQYlRVG7mNfeSqkuNIv7ZFDlHuq3jDWvjZOrEDW68rsXcMWUxX4B0Q/t
+         JoAtFxpXJHPlPNm/EDjwwLAOxp4TmzAQR+wUgkrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 30/73] net: ieee802154: stop dump llsec devkeys for monitors
+        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 070/103] net: sit: Unregister catch-all devices
 Date:   Mon, 19 Apr 2021 15:06:21 +0200
-Message-Id: <20210419130524.812786433@linuxfoundation.org>
+Message-Id: <20210419130530.225054740@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
-References: <20210419130523.802169214@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Hristo Venev <hristo@venev.name>
 
-[ Upstream commit 080d1a57a94d93e70f84b7a360baa351388c574f ]
+commit 610f8c0fc8d46e0933955ce13af3d64484a4630a upstream.
 
-This patch stops dumping llsec devkeys for monitors which we don't support
-yet. Otherwise we will access llsec mib which isn't initialized for
-monitors.
+A sit interface created without a local or a remote address is linked
+into the `sit_net::tunnels_wc` list of its original namespace. When
+deleting a network namespace, delete the devices that have been moved.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-10-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The following script triggers a null pointer dereference if devices
+linked in a deleted `sit_net` remain:
+
+    for i in `seq 1 30`; do
+        ip netns add ns-test
+        ip netns exec ns-test ip link add dev veth0 type veth peer veth1
+        ip netns exec ns-test ip link add dev sit$i type sit dev veth0
+        ip netns exec ns-test ip link set dev sit$i netns $$
+        ip netns del ns-test
+    done
+    for i in `seq 1 30`; do
+        ip link del dev sit$i
+    done
+
+Fixes: 5e6700b3bf98f ("sit: add support of x-netns")
+Signed-off-by: Hristo Venev <hristo@venev.name>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ieee802154/nl802154.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/ipv6/sit.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index 4f6777193029..66785e1eb559 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1874,6 +1874,11 @@ nl802154_dump_llsec_devkey(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (err)
- 		return err;
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1867,9 +1867,9 @@ static void __net_exit sit_destroy_tunne
+ 		if (dev->rtnl_link_ops == &sit_link_ops)
+ 			unregister_netdevice_queue(dev, head);
  
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
-+		err = skb->len;
-+		goto out_err;
-+	}
-+
- 	if (!wpan_dev->netdev) {
- 		err = -EINVAL;
- 		goto out_err;
--- 
-2.30.2
-
+-	for (prio = 1; prio < 4; prio++) {
++	for (prio = 0; prio < 4; prio++) {
+ 		int h;
+-		for (h = 0; h < IP6_SIT_HASH_SIZE; h++) {
++		for (h = 0; h < (prio ? IP6_SIT_HASH_SIZE : 1); h++) {
+ 			struct ip_tunnel *t;
+ 
+ 			t = rtnl_dereference(sitn->tunnels[prio][h]);
 
 
