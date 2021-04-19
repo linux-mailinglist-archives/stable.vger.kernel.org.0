@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C9F364488
-	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 717B33643BD
+	for <lists+stable@lfdr.de>; Mon, 19 Apr 2021 15:32:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241027AbhDSN2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Apr 2021 09:28:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34756 "EHLO mail.kernel.org"
+        id S240777AbhDSNVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Apr 2021 09:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240560AbhDSNZw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Apr 2021 09:25:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54ADD613DB;
-        Mon, 19 Apr 2021 13:20:58 +0000 (UTC)
+        id S241221AbhDSNUO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Apr 2021 09:20:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 794F061279;
+        Mon, 19 Apr 2021 13:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618838458;
-        bh=M8fbSehNGqt/LQzch9K75dWLf5XKFDbFtPsW/hYP+gg=;
+        s=korg; t=1618838158;
+        bh=Lbk80MNig+UIuRJUxCC3+Dw+4iJ7T+KUui0Vdx35Osg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7eYc5y98V5KG/XLdtXYiDMi5CRri0zUELOSeZnEfZYVgJYxxjF/qq8LAmO3GYDJE
-         OEesR3Gy2Oyusi67Y3drAvE4lQqiGDE7dvJUVA0UlEbO6sSyNo1jKQ66spbGCykar2
-         TZDCDUJv6aLHbPStg6GvMr81SZOr0zlRjXYcufAM=
+        b=zVjk7rHeeMOlgTFMn/Z2hB6fecWyy6WoXXRCiJvRF2VDDBhzTxZP5mGoKtt3PV1mH
+         RjQsA3c3Q5mGmxl6jotPdpO+UafT4VMSLAgxiEdZ1ryWoTrdya+QjXCeTW/ufZ2/Er
+         36L5u+3Sfx7Tod5HqDrbav9FU0gUby/CKxs0qUeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/73] ASoC: fsl_esai: Fix TDM slot setup for I2S mode
-Date:   Mon, 19 Apr 2021 15:06:13 +0200
-Message-Id: <20210419130524.544689679@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 063/103] netfilter: arp_tables: add pre_exit hook for table unregister
+Date:   Mon, 19 Apr 2021 15:06:14 +0200
+Message-Id: <20210419130529.975113676@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
-References: <20210419130523.802169214@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
+References: <20210419130527.791982064@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shiyan <shc_work@mail.ru>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit e7a48c710defa0e0fef54d42b7d9e4ab596e2761 ]
+commit d163a925ebbc6eb5b562b0f1d72c7e817aa75c40 upstream.
 
-When using the driver in I2S TDM mode, the fsl_esai_startup()
-function rewrites the number of slots previously set by the
-fsl_esai_set_dai_tdm_slot() function to 2.
-To fix this, let's use the saved slot count value or, if TDM
-is not used and the number of slots is not set, the driver will use
-the default value (2), which is set by fsl_esai_probe().
+Same problem that also existed in iptables/ip(6)tables, when
+arptable_filter is removed there is no longer a wait period before the
+table/ruleset is free'd.
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Link: https://lore.kernel.org/r/20210402081405.9892-1-shc_work@mail.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unregister the hook in pre_exit, then remove the table in the exit
+function.
+This used to work correctly because the old nf_hook_unregister API
+did unconditional synchronize_net.
+
+The per-net hook unregister function uses call_rcu instead.
+
+Fixes: b9e69e127397 ("netfilter: xtables: don't hook tables by default")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/fsl_esai.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ include/linux/netfilter_arp/arp_tables.h |    5 +++--
+ net/ipv4/netfilter/arp_tables.c          |    9 +++++++--
+ net/ipv4/netfilter/arptable_filter.c     |   10 +++++++++-
+ 3 files changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
-index 84290be778f0..33ade79fa032 100644
---- a/sound/soc/fsl/fsl_esai.c
-+++ b/sound/soc/fsl/fsl_esai.c
-@@ -494,11 +494,13 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
- 				   ESAI_SAICR_SYNC, esai_priv->synchronous ?
- 				   ESAI_SAICR_SYNC : 0);
+--- a/include/linux/netfilter_arp/arp_tables.h
++++ b/include/linux/netfilter_arp/arp_tables.h
+@@ -52,8 +52,9 @@ extern void *arpt_alloc_initial_table(co
+ int arpt_register_table(struct net *net, const struct xt_table *table,
+ 			const struct arpt_replace *repl,
+ 			const struct nf_hook_ops *ops, struct xt_table **res);
+-void arpt_unregister_table(struct net *net, struct xt_table *table,
+-			   const struct nf_hook_ops *ops);
++void arpt_unregister_table(struct net *net, struct xt_table *table);
++void arpt_unregister_table_pre_exit(struct net *net, struct xt_table *table,
++				    const struct nf_hook_ops *ops);
+ extern unsigned int arpt_do_table(struct sk_buff *skb,
+ 				  const struct nf_hook_state *state,
+ 				  struct xt_table *table);
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -1541,10 +1541,15 @@ out_free:
+ 	return ret;
+ }
  
--		/* Set a default slot number -- 2 */
-+		/* Set slots count */
- 		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCCR,
--				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
-+				   ESAI_xCCR_xDC_MASK,
-+				   ESAI_xCCR_xDC(esai_priv->slots));
- 		regmap_update_bits(esai_priv->regmap, REG_ESAI_RCCR,
--				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
-+				   ESAI_xCCR_xDC_MASK,
-+				   ESAI_xCCR_xDC(esai_priv->slots));
- 	}
+-void arpt_unregister_table(struct net *net, struct xt_table *table,
+-			   const struct nf_hook_ops *ops)
++void arpt_unregister_table_pre_exit(struct net *net, struct xt_table *table,
++				    const struct nf_hook_ops *ops)
+ {
+ 	nf_unregister_net_hooks(net, ops, hweight32(table->valid_hooks));
++}
++EXPORT_SYMBOL(arpt_unregister_table_pre_exit);
++
++void arpt_unregister_table(struct net *net, struct xt_table *table)
++{
+ 	__arpt_unregister_table(net, table);
+ }
  
- 	return 0;
--- 
-2.30.2
-
+--- a/net/ipv4/netfilter/arptable_filter.c
++++ b/net/ipv4/netfilter/arptable_filter.c
+@@ -56,16 +56,24 @@ static int __net_init arptable_filter_ta
+ 	return err;
+ }
+ 
++static void __net_exit arptable_filter_net_pre_exit(struct net *net)
++{
++	if (net->ipv4.arptable_filter)
++		arpt_unregister_table_pre_exit(net, net->ipv4.arptable_filter,
++					       arpfilter_ops);
++}
++
+ static void __net_exit arptable_filter_net_exit(struct net *net)
+ {
+ 	if (!net->ipv4.arptable_filter)
+ 		return;
+-	arpt_unregister_table(net, net->ipv4.arptable_filter, arpfilter_ops);
++	arpt_unregister_table(net, net->ipv4.arptable_filter);
+ 	net->ipv4.arptable_filter = NULL;
+ }
+ 
+ static struct pernet_operations arptable_filter_net_ops = {
+ 	.exit = arptable_filter_net_exit,
++	.pre_exit = arptable_filter_net_pre_exit,
+ };
+ 
+ static int __init arptable_filter_init(void)
 
 
