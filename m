@@ -2,126 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BFCE36615E
-	for <lists+stable@lfdr.de>; Tue, 20 Apr 2021 23:06:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C61836624E
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 00:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233769AbhDTVGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Apr 2021 17:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44398 "EHLO mail.kernel.org"
+        id S234158AbhDTW4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Apr 2021 18:56:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233682AbhDTVGn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Apr 2021 17:06:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8625613F6;
-        Tue, 20 Apr 2021 21:06:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1618952771;
-        bh=vOBjMXDIMy+zl5MUYC7gubauHlSjbGUB4gjxD3PRR4w=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=WCbA9z/sUtYyNFYkHNIbegCci/4MG80OK4i2ZdilHi2K7d/7rNRAm8jmCFHyJWKGm
-         U72l3htjsoHbW3hNDgZ9/f2GIO4Xcwg+Y1L/3yhBwJotu40fXkgH3qoqTKN+elXDK8
-         U0PFVhvNHE+5tzABJ13x/XZYq7DYm7SE0gQVaYMxUYderYXFS0S/kLUty5TBQq6+Y6
-         uaHFCB5tFkeJiWpmu0o/7QRltSIqmPkGwE1SCMIWyY82Kspt6EcoeSkxDRvWrhh3pM
-         j0i0ofaG6SH03WbxxoZ5qiO2oQ+vy+ADpqVHlkMhM3npUqMCATOz9ar3aA1kU8HDVN
-         OYywxOveuLrNw==
-Received: by mail-qt1-f174.google.com with SMTP id o21so1672150qtp.7;
-        Tue, 20 Apr 2021 14:06:11 -0700 (PDT)
-X-Gm-Message-State: AOAM5338ckF7RAmuCQDakMyscwdbQLJKLhX+bXZToHIzCfut2aLa20R4
-        hPoZzgydR9YsdH3AvHMZeLdW3rUBrNhgae6X5g==
-X-Google-Smtp-Source: ABdhPJxR9Cm98ABiNFPyOMwL9/iq5rv9dvatoXQvyvDC+TMZuJah1HmSklQQc0ojSXRVxRBRPB7UTYPe9/P0MUR0Jvs=
-X-Received: by 2002:ac8:5d52:: with SMTP id g18mr19266258qtx.380.1618952770704;
- Tue, 20 Apr 2021 14:06:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <4a4734d6-49df-677b-71d3-b926c44d89a9@foss.st.com>
- <CAL_JsqKGG8E9Y53+az+5qAOOGiZRAA-aD-1tKB-hcOp+m3CJYw@mail.gmail.com>
- <001f8550-b625-17d2-85a6-98a483557c70@foss.st.com> <CAL_Jsq+LUPZFhXd+j-xM67rZB=pvEvZM+1sfckip0Lqq02PkZQ@mail.gmail.com>
- <CAMj1kXE2Mgr9CsAMnKXff+96xhDaE5OLeNhypHvpN815vZGZhQ@mail.gmail.com>
-In-Reply-To: <CAMj1kXE2Mgr9CsAMnKXff+96xhDaE5OLeNhypHvpN815vZGZhQ@mail.gmail.com>
-From:   Rob Herring <robh+dt@kernel.org>
-Date:   Tue, 20 Apr 2021 16:05:59 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqJVUq2D9B5SwNc6VFOQFS_Qkry4ATwTYGRJE6qkpaFM+A@mail.gmail.com>
-Message-ID: <CAL_JsqJVUq2D9B5SwNc6VFOQFS_Qkry4ATwTYGRJE6qkpaFM+A@mail.gmail.com>
-Subject: Re: [v5.4 stable] arm: stm32: Regression observed on "no-map"
- reserved memory region
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Alexandre TORGUE <alexandre.torgue@foss.st.com>,
-        Quentin Perret <qperret@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        KarimAllah Ahmed <karahmed@amazon.de>,
-        Android Kernel Team <kernel-team@android.com>,
-        Architecture Mailman List <boot-architecture@lists.linaro.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S233964AbhDTW4J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Apr 2021 18:56:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB7F0613E7;
+        Tue, 20 Apr 2021 22:55:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1618959336;
+        bh=0fi6O9L7c5mTxLH1J1CqMDhNgzVCaIeffDm0jpcAMII=;
+        h=Date:From:To:Subject:From;
+        b=TKBc7kmV9xCE0HHzbKl/YKw5+4lDGZTVF+gxFromQG3I3s6kQMzk7zUw4dyZ6gx22
+         EPTp9MGN2HTRFRVCVvxEhcLl31CoWS/1S2YhRel4eqHyiEkq8gUto66PWyKWcRos4T
+         57ZbZ/0REulfOWFfAzPqSxV3mgUEjY/6PxniO/IU=
+Date:   Tue, 20 Apr 2021 15:55:35 -0700
+From:   akpm@linux-foundation.org
+To:     andreyknvl@google.com, arnd@arndb.de, dvyukov@google.com,
+        glider@google.com, mm-commits@vger.kernel.org,
+        natechancellor@gmail.com, ryabinin.a.a@gmail.com,
+        stable@vger.kernel.org, walter-zh.wu@mediatek.com
+Subject:  [merged] kasan-remove-redundant-config-option.patch
+ removed from -mm tree
+Message-ID: <20210420225535.IB4MGZnx8%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 20, 2021 at 11:10 AM Ard Biesheuvel <ardb@kernel.org> wrote:
->
-> On Tue, 20 Apr 2021 at 17:54, Rob Herring <robh+dt@kernel.org> wrote:
-> >
-> > On Tue, Apr 20, 2021 at 10:12 AM Alexandre TORGUE
-> > <alexandre.torgue@foss.st.com> wrote:
-> > >
-> > >
-> > >
-> > > On 4/20/21 4:45 PM, Rob Herring wrote:
-> > > > On Tue, Apr 20, 2021 at 9:03 AM Alexandre TORGUE
-> > > > <alexandre.torgue@foss.st.com> wrote:
-> > > >>
-> > > >> Hi,
-> > > >
-> > > > Greg or Sasha won't know what to do with this. Not sure who follows
-> > > > the stable list either. Quentin sent the patch, but is not the author.
-> > > > Given the patch in question is about consistency between EFI memory
-> > > > map boot and DT memory map boot, copying EFI knowledgeable folks would
-> > > > help (Ard B for starters).
-> > >
-> > > Ok thanks for the tips. I add Ard in the loop.
-> >
-> > Sigh. If it was only Ard I was suggesting I would have done that
-> > myself. Now everyone on the patch in question and relevant lists are
-> > Cc'ed.
-> >
->
-> Thanks for the cc.
->
-> > >
-> > > Ard, let me know if other people have to be directly added or if I have
-> > > to resend to another mailing list.
-> > >
-> > > thanks
-> > > alex
-> > >
-> > > >
-> > > >>
-> > > >> Since v5.4.102 I observe a regression on stm32mp1 platform: "no-map"
-> > > >> reserved-memory regions are no more "reserved" and make part of the
-> > > >> kernel System RAM. This causes allocation failure for devices which try
-> > > >> to take a reserved-memory region.
-> > > >>
-> > > >> It has been introduced by the following path:
-> > > >>
-> > > >> "fdt: Properly handle "no-map" field in the memory region
-> > > >> [ Upstream commit 86588296acbfb1591e92ba60221e95677ecadb43 ]"
-> > > >> which replace memblock_remove by memblock_mark_nomap in no-map case.
-> > > >>
->
-> Why was this backported? It doesn't look like a bugfix to me.
 
-Probably because of commit 8a5a75e5e9e5 ("of/fdt: Make sure no-map
-does not remove already reserved regions") which was in the same
-series.
+The patch titled
+     Subject: kasan: remove redundant config option
+has been removed from the -mm tree.  Its filename was
+     kasan-remove-redundant-config-option.patch
 
-'Properly handle' implies before it was 'improperly handled', so
-sounds like a fix.
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-Rob
+------------------------------------------------------
+From: Walter Wu <walter-zh.wu@mediatek.com>
+Subject: kasan: remove redundant config option
+
+CONFIG_KASAN_STACK and CONFIG_KASAN_STACK_ENABLE both enable KASAN stack
+instrumentation, but we should only need one config, so that we remove
+CONFIG_KASAN_STACK_ENABLE and make CONFIG_KASAN_STACK workable.  see [1].
+
+When enable KASAN stack instrumentation, then for gcc we could do no
+prompt and default value y, and for clang prompt and default value n.
+
+This patch fixes the following compilation warning:
+
+include/linux/kasan.h:333:30: warning: 'CONFIG_KASAN_STACK' is not defined, evaluates to 0 [-Wundef]
+
+[1]: https://bugzilla.kernel.org/show_bug.cgi?id=210221
+
+[akpm@linux-foundation.org: fix merge snafu]
+Link: https://lkml.kernel.org/r/20210226012531.29231-1-walter-zh.wu@mediatek.com
+Fixes: d9b571c885a8 ("kasan: fix KASAN_STACK dependency for HW_TAGS")
+Signed-off-by: Walter Wu <walter-zh.wu@mediatek.com>
+Suggested-by: Dmitry Vyukov <dvyukov@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ arch/arm64/kernel/sleep.S        |    2 +-
+ arch/x86/kernel/acpi/wakeup_64.S |    2 +-
+ include/linux/kasan.h            |    2 +-
+ lib/Kconfig.kasan                |    9 ++-------
+ mm/kasan/common.c                |    2 +-
+ mm/kasan/kasan.h                 |    2 +-
+ mm/kasan/report_generic.c        |    2 +-
+ scripts/Makefile.kasan           |   10 ++++++++--
+ security/Kconfig.hardening       |    4 ++--
+ 9 files changed, 18 insertions(+), 17 deletions(-)
+
+--- a/arch/arm64/kernel/sleep.S~kasan-remove-redundant-config-option
++++ a/arch/arm64/kernel/sleep.S
+@@ -134,7 +134,7 @@ SYM_FUNC_START(_cpu_resume)
+ 	 */
+ 	bl	cpu_do_resume
+ 
+-#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
++#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
+ 	mov	x0, sp
+ 	bl	kasan_unpoison_task_stack_below
+ #endif
+--- a/arch/x86/kernel/acpi/wakeup_64.S~kasan-remove-redundant-config-option
++++ a/arch/x86/kernel/acpi/wakeup_64.S
+@@ -115,7 +115,7 @@ SYM_FUNC_START(do_suspend_lowlevel)
+ 	movq	pt_regs_r14(%rax), %r14
+ 	movq	pt_regs_r15(%rax), %r15
+ 
+-#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
++#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
+ 	/*
+ 	 * The suspend path may have poisoned some areas deeper in the stack,
+ 	 * which we now need to unpoison.
+--- a/include/linux/kasan.h~kasan-remove-redundant-config-option
++++ a/include/linux/kasan.h
+@@ -330,7 +330,7 @@ static inline bool kasan_check_byte(cons
+ 
+ #endif /* CONFIG_KASAN */
+ 
+-#if defined(CONFIG_KASAN) && CONFIG_KASAN_STACK
++#if defined(CONFIG_KASAN) && defined(CONFIG_KASAN_STACK)
+ void kasan_unpoison_task_stack(struct task_struct *task);
+ #else
+ static inline void kasan_unpoison_task_stack(struct task_struct *task) {}
+--- a/lib/Kconfig.kasan~kasan-remove-redundant-config-option
++++ a/lib/Kconfig.kasan
+@@ -138,9 +138,10 @@ config KASAN_INLINE
+ 
+ endchoice
+ 
+-config KASAN_STACK_ENABLE
++config KASAN_STACK
+ 	bool "Enable stack instrumentation (unsafe)" if CC_IS_CLANG && !COMPILE_TEST
+ 	depends on KASAN_GENERIC || KASAN_SW_TAGS
++	default y if CC_IS_GCC
+ 	help
+ 	  The LLVM stack address sanitizer has a know problem that
+ 	  causes excessive stack usage in a lot of functions, see
+@@ -154,12 +155,6 @@ config KASAN_STACK_ENABLE
+ 	  CONFIG_COMPILE_TEST.	On gcc it is assumed to always be safe
+ 	  to use and enabled by default.
+ 
+-config KASAN_STACK
+-	int
+-	depends on KASAN_GENERIC || KASAN_SW_TAGS
+-	default 1 if KASAN_STACK_ENABLE || CC_IS_GCC
+-	default 0
+-
+ config KASAN_SW_TAGS_IDENTIFY
+ 	bool "Enable memory corruption identification"
+ 	depends on KASAN_SW_TAGS
+--- a/mm/kasan/common.c~kasan-remove-redundant-config-option
++++ a/mm/kasan/common.c
+@@ -63,7 +63,7 @@ void __kasan_unpoison_range(const void *
+ 	kasan_unpoison(address, size);
+ }
+ 
+-#if CONFIG_KASAN_STACK
++#ifdef CONFIG_KASAN_STACK
+ /* Unpoison the entire stack for a task. */
+ void kasan_unpoison_task_stack(struct task_struct *task)
+ {
+--- a/mm/kasan/kasan.h~kasan-remove-redundant-config-option
++++ a/mm/kasan/kasan.h
+@@ -231,7 +231,7 @@ void *kasan_find_first_bad_addr(void *ad
+ const char *kasan_get_bug_type(struct kasan_access_info *info);
+ void kasan_metadata_fetch_row(char *buffer, void *row);
+ 
+-#if defined(CONFIG_KASAN_GENERIC) && CONFIG_KASAN_STACK
++#if defined(CONFIG_KASAN_GENERIC) && defined(CONFIG_KASAN_STACK)
+ void kasan_print_address_stack_frame(const void *addr);
+ #else
+ static inline void kasan_print_address_stack_frame(const void *addr) { }
+--- a/mm/kasan/report_generic.c~kasan-remove-redundant-config-option
++++ a/mm/kasan/report_generic.c
+@@ -128,7 +128,7 @@ void kasan_metadata_fetch_row(char *buff
+ 	memcpy(buffer, kasan_mem_to_shadow(row), META_BYTES_PER_ROW);
+ }
+ 
+-#if CONFIG_KASAN_STACK
++#ifdef CONFIG_KASAN_STACK
+ static bool __must_check tokenize_frame_descr(const char **frame_descr,
+ 					      char *token, size_t max_tok_len,
+ 					      unsigned long *value)
+--- a/scripts/Makefile.kasan~kasan-remove-redundant-config-option
++++ a/scripts/Makefile.kasan
+@@ -4,6 +4,12 @@ KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SH
+ 
+ cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
+ 
++ifdef CONFIG_KASAN_STACK
++	stack_enable := 1
++else
++	stack_enable := 0
++endif
++
+ ifdef CONFIG_KASAN_GENERIC
+ 
+ ifdef CONFIG_KASAN_INLINE
+@@ -27,7 +33,7 @@ else
+ 	CFLAGS_KASAN := $(CFLAGS_KASAN_SHADOW) \
+ 	 $(call cc-param,asan-globals=1) \
+ 	 $(call cc-param,asan-instrumentation-with-call-threshold=$(call_threshold)) \
+-	 $(call cc-param,asan-stack=$(CONFIG_KASAN_STACK)) \
++	 $(call cc-param,asan-stack=$(stack_enable)) \
+ 	 $(call cc-param,asan-instrument-allocas=1)
+ endif
+ 
+@@ -42,7 +48,7 @@ else
+ endif
+ 
+ CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
+-		$(call cc-param,hwasan-instrument-stack=$(CONFIG_KASAN_STACK)) \
++		$(call cc-param,hwasan-instrument-stack=$(stack_enable)) \
+ 		$(call cc-param,hwasan-use-short-granules=0) \
+ 		$(instrumentation_flags)
+ 
+--- a/security/Kconfig.hardening~kasan-remove-redundant-config-option
++++ a/security/Kconfig.hardening
+@@ -64,7 +64,7 @@ choice
+ 	config GCC_PLUGIN_STRUCTLEAK_BYREF
+ 		bool "zero-init structs passed by reference (strong)"
+ 		depends on GCC_PLUGINS
+-		depends on !(KASAN && KASAN_STACK=1)
++		depends on !(KASAN && KASAN_STACK)
+ 		select GCC_PLUGIN_STRUCTLEAK
+ 		help
+ 		  Zero-initialize any structures on the stack that may
+@@ -82,7 +82,7 @@ choice
+ 	config GCC_PLUGIN_STRUCTLEAK_BYREF_ALL
+ 		bool "zero-init anything passed by reference (very strong)"
+ 		depends on GCC_PLUGINS
+-		depends on !(KASAN && KASAN_STACK=1)
++		depends on !(KASAN && KASAN_STACK)
+ 		select GCC_PLUGIN_STRUCTLEAK
+ 		help
+ 		  Zero-initialize any stack variables that may be passed
+_
+
+Patches currently in -mm which might be from walter-zh.wu@mediatek.com are
+
+task_work-kasan-record-task_work_add-call-stack.patch
+
