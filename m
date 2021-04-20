@@ -2,94 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 746C836578B
-	for <lists+stable@lfdr.de>; Tue, 20 Apr 2021 13:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9205D365817
+	for <lists+stable@lfdr.de>; Tue, 20 Apr 2021 13:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231251AbhDTL1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Apr 2021 07:27:15 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:17380 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231639AbhDTL1P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Apr 2021 07:27:15 -0400
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4FPhDF4nJXzjZt5;
-        Tue, 20 Apr 2021 19:24:45 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 20 Apr 2021 19:26:35 +0800
-Subject: Re: [PATCH 5.4 00/73] 5.4.114-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210419130523.802169214@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <2ae894e7-1191-fa7e-23ac-118075f83e0f@huawei.com>
-Date:   Tue, 20 Apr 2021 19:26:35 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S231313AbhDTLva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Apr 2021 07:51:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33564 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231196AbhDTLv3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Apr 2021 07:51:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE2C0613B4;
+        Tue, 20 Apr 2021 11:50:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1618919458;
+        bh=/vF2t84dAR7o9fVFTDS/JoJiOMJukRX4OiuMH7Ppa+E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=H8xYegxWe6pP/WNUkl6ELXaQR06XqbjeEmthF61MWy6/dWigarZGfSrxi5iX3rg1o
+         UERPkjFcjX9+2DyV2xNrjxaUfF0KuNj4VW6DtHunW6TmBoyAIvTBcyZFx708vwxG3F
+         rRjlNPzaSGS0FevMJfciCt9x27l9/GihOGRfDXkM=
+Date:   Tue, 20 Apr 2021 13:50:55 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     Tom Seewald <tseewald@gmail.com>, stable@vger.kernel.org,
+        Colin Ian King <colin.king@canonical.com>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>
+Subject: Re: [PATCH] usbip: Fix incorrect double assignment to udc->ud.tcp_rx
+Message-ID: <YH7AHwt3EQJqNvE8@kroah.com>
+References: <20210412185902.27755-1-tseewald@gmail.com>
+ <f3e734e4-afc2-4d7c-8d02-714935b45764@linuxfoundation.org>
+ <YH121CyWCD18M3hA@kroah.com>
+ <8726436e-49ab-df18-724f-d87625949773@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20210419130523.802169214@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8726436e-49ab-df18-724f-d87625949773@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/4/19 21:05, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.114 release.
-> There are 73 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, Apr 19, 2021 at 04:06:49PM -0600, Shuah Khan wrote:
+> On 4/19/21 6:25 AM, Greg Kroah-Hartman wrote:
+> > On Fri, Apr 16, 2021 at 09:32:35AM -0600, Shuah Khan wrote:
+> > > On 4/12/21 12:59 PM, Tom Seewald wrote:
+> > > > commit 9858af27e69247c5d04c3b093190a93ca365f33d upstream.
+> > > > 
+> > > > Currently udc->ud.tcp_rx is being assigned twice, the second assignment
+> > > > is incorrect, it should be to udc->ud.tcp_tx instead of rx. Fix this.
+> > > > 
+> > > > Fixes: 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races leading to gpf")
+> > > > Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+> > > > Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> > > > Cc: stable <stable@vger.kernel.org>
+> > > > Addresses-Coverity: ("Unused value")
+> > > > Link: https://lore.kernel.org/r/20210311104445.7811-1-colin.king@canonical.com
+> > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > Signed-off-by: Tom Seewald <tseewald@gmail.com>
+> > > > ---
+> > > >    drivers/usb/usbip/vudc_sysfs.c | 2 +-
+> > > >    1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
+> > > > index f44d98eeb36a..51cc5258b63e 100644
+> > > > --- a/drivers/usb/usbip/vudc_sysfs.c
+> > > > +++ b/drivers/usb/usbip/vudc_sysfs.c
+> > > > @@ -187,7 +187,7 @@ static ssize_t store_sockfd(struct device *dev,
+> > > >    		udc->ud.tcp_socket = socket;
+> > > >    		udc->ud.tcp_rx = tcp_rx;
+> > > > -		udc->ud.tcp_rx = tcp_tx;
+> > > > +		udc->ud.tcp_tx = tcp_tx;
+> > > >    		udc->ud.status = SDEV_ST_USED;
+> > > >    		spin_unlock_irq(&udc->ud.lock);
+> > > > 
+> > > 
+> > > Greg,
+> > > 
+> > > Please pick this up for 4.9 and 4.14
+> > 
+> > Why?  The commit it says it fixes, 46613c9dfa96 ("usbip: fix vudc
+> > usbip_sockfd_store races leading to gpf"), is not in any kernel older
+> > than 4.19.y at the moment.
+> > 
 > 
-> Responses should be made by Wed, 21 Apr 2021 13:05:09 +0000.
-> Anything received after that time might be too late.
+> Tom back ported this one a couple of weeks ago to 4.14.y and 4.9.y
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.114-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> I see this commit in 4.14 (checked on 4.14.231)
+> e9c1341b4c948c20f030b6b146fa82575e2fc37b
 > 
-> thanks,
 > 
-> greg k-h
+> I see this commit in 4.9.267 as well.
 > 
+> fe9e15a30be666ec8071f325a39fe13e2251b51d
+> 
+> This fix can go on top of these commits.
 
-Tested on arm64 and x86 for 5.4.114-rc1,
+Now queued up, thanks.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.114-rc1
-Commit: c509b45704fd663fc59405e98d29d7f06eaae4b5
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 5764
-passed: 5764
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 5764
-passed: 5764
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
-
+greg k-h
