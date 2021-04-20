@@ -2,100 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9205D365817
-	for <lists+stable@lfdr.de>; Tue, 20 Apr 2021 13:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C74AF365825
+	for <lists+stable@lfdr.de>; Tue, 20 Apr 2021 13:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbhDTLva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Apr 2021 07:51:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33564 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231196AbhDTLv3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Apr 2021 07:51:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE2C0613B4;
-        Tue, 20 Apr 2021 11:50:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1618919458;
-        bh=/vF2t84dAR7o9fVFTDS/JoJiOMJukRX4OiuMH7Ppa+E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=H8xYegxWe6pP/WNUkl6ELXaQR06XqbjeEmthF61MWy6/dWigarZGfSrxi5iX3rg1o
-         UERPkjFcjX9+2DyV2xNrjxaUfF0KuNj4VW6DtHunW6TmBoyAIvTBcyZFx708vwxG3F
-         rRjlNPzaSGS0FevMJfciCt9x27l9/GihOGRfDXkM=
-Date:   Tue, 20 Apr 2021 13:50:55 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Shuah Khan <skhan@linuxfoundation.org>
-Cc:     Tom Seewald <tseewald@gmail.com>, stable@vger.kernel.org,
-        Colin Ian King <colin.king@canonical.com>,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>
-Subject: Re: [PATCH] usbip: Fix incorrect double assignment to udc->ud.tcp_rx
-Message-ID: <YH7AHwt3EQJqNvE8@kroah.com>
-References: <20210412185902.27755-1-tseewald@gmail.com>
- <f3e734e4-afc2-4d7c-8d02-714935b45764@linuxfoundation.org>
- <YH121CyWCD18M3hA@kroah.com>
- <8726436e-49ab-df18-724f-d87625949773@linuxfoundation.org>
+        id S231196AbhDTLy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Apr 2021 07:54:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45264 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230118AbhDTLy6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Apr 2021 07:54:58 -0400
+Received: from postout2.mail.lrz.de (postout2.mail.lrz.de [IPv6:2001:4ca0:0:103::81bb:ff8a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2A1C06174A;
+        Tue, 20 Apr 2021 04:54:27 -0700 (PDT)
+Received: from lxmhs52.srv.lrz.de (localhost [127.0.0.1])
+        by postout2.mail.lrz.de (Postfix) with ESMTP id 4FPhtQ2z71zyWJ;
+        Tue, 20 Apr 2021 13:54:22 +0200 (CEST)
+Authentication-Results: postout.lrz.de (amavisd-new); dkim=pass (2048-bit key)
+        reason="pass (just generated, assumed good)" header.d=tum.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tum.de; h=
+        in-reply-to:content-disposition:content-type:content-type
+        :mime-version:references:message-id:subject:subject:from:from
+        :date:date:received:received; s=postout; t=1618919662; bh=op7Di6
+        PHNRtoWWFnBrYz80x4rQ07mSfH2KKSChuJOpI=; b=aFEKF9M6KD4szR6Jbe7NsH
+        enHV62FGNACS55M6Ekq2rIGU9Nhjt7f91JaqbPifJGwpeLBAQ8u1YBtqwqodkZLe
+        gNYTLaJ1N4BhglcL5DfzolVeJkJPj7ZFlyJk4sfvlVMQ2giG21adsXY202rhdJ5M
+        vRMoLMD6cqZYi9v11tquWRt3MRiHpWCEbsLZhyGps1hngRsyCb0Z8PWal8ExVryI
+        VFaeIaOQPZUPQPdrCpmtLPOFTGXgpAWCU6vOL7Ot0/rGLaTazkvIpotRaGo258HC
+        TirstppHz1bfm1r0UzAeVSYbLFbjhsWDLL4x1ol5GNBb62D/NN8rvcLp2swDUHuw
+        ==
+X-Virus-Scanned: by amavisd-new at lrz.de in lxmhs52.srv.lrz.de
+X-Spam-Flag: NO
+X-Spam-Score: -2.876
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.876 tagged_above=-999 required=5
+        tests=[ALL_TRUSTED=-1, BAYES_00=-1.9, DMARC_ADKIM_RELAXED=0.001,
+        DMARC_ASPF_RELAXED=0.001, DMARC_POLICY_NONE=0.001,
+        LRZ_DMARC_FAIL=0.001, LRZ_DMARC_FAIL_NONE=0.001,
+        LRZ_DMARC_POLICY=0.001, LRZ_DMARC_TUM_FAIL=0.001,
+        LRZ_DMARC_TUM_REJECT=3.5, LRZ_DMARC_TUM_REJECT_PO=-3.5,
+        LRZ_ENVFROM_FROM_ALIGNED_STRICT=0.001, LRZ_ENVFROM_FROM_MATCH=0.001,
+        LRZ_ENVFROM_TUM_S=0.001, LRZ_FROM_HAS_A=0.001,
+        LRZ_FROM_HAS_AAAA=0.001, LRZ_FROM_HAS_MDOM=0.001,
+        LRZ_FROM_HAS_MX=0.001, LRZ_FROM_HOSTED_DOMAIN=0.001,
+        LRZ_FROM_NAME_IN_ADDR=0.001, LRZ_FROM_PHRASE=0.001,
+        LRZ_FROM_PRE_SUR_PHRASE=0.001, LRZ_FROM_TUM_S=0.001,
+        LRZ_HAS_IN_REPLY_TO=0.001, LRZ_HAS_SPF=0.001, LRZ_HAS_URL_HTTP=0.001,
+        LRZ_URL_HTTP_SINGLE=0.001, LRZ_URL_PLAIN_SINGLE=0.001]
+        autolearn=no autolearn_force=no
+Received: from postout2.mail.lrz.de ([127.0.0.1])
+        by lxmhs52.srv.lrz.de (lxmhs52.srv.lrz.de [127.0.0.1]) (amavisd-new, port 20024)
+        with LMTP id NoDwh_ccxypF; Tue, 20 Apr 2021 13:54:22 +0200 (CEST)
+Received: from yaviniv.e18.physik.tu-muenchen.de (yaviniv.e18.physik.tu-muenchen.de [10.152.72.81])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by postout2.mail.lrz.de (Postfix) with ESMTPSA id 4FPhtM4VgMzyWF;
+        Tue, 20 Apr 2021 13:54:19 +0200 (CEST)
+Date:   Tue, 20 Apr 2021 13:54:15 +0200
+From:   Andrei Rabusov <a.rabusov@tum.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/103] 5.10.32-rc1 review
+Message-ID: <YH7A5zclP6USkEpY@yaviniv.e18.physik.tu-muenchen.de>
+References: <20210419130527.791982064@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8726436e-49ab-df18-724f-d87625949773@linuxfoundation.org>
+In-Reply-To: <20210419130527.791982064@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 19, 2021 at 04:06:49PM -0600, Shuah Khan wrote:
-> On 4/19/21 6:25 AM, Greg Kroah-Hartman wrote:
-> > On Fri, Apr 16, 2021 at 09:32:35AM -0600, Shuah Khan wrote:
-> > > On 4/12/21 12:59 PM, Tom Seewald wrote:
-> > > > commit 9858af27e69247c5d04c3b093190a93ca365f33d upstream.
-> > > > 
-> > > > Currently udc->ud.tcp_rx is being assigned twice, the second assignment
-> > > > is incorrect, it should be to udc->ud.tcp_tx instead of rx. Fix this.
-> > > > 
-> > > > Fixes: 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races leading to gpf")
-> > > > Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-> > > > Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> > > > Cc: stable <stable@vger.kernel.org>
-> > > > Addresses-Coverity: ("Unused value")
-> > > > Link: https://lore.kernel.org/r/20210311104445.7811-1-colin.king@canonical.com
-> > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > Signed-off-by: Tom Seewald <tseewald@gmail.com>
-> > > > ---
-> > > >    drivers/usb/usbip/vudc_sysfs.c | 2 +-
-> > > >    1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > 
-> > > > diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
-> > > > index f44d98eeb36a..51cc5258b63e 100644
-> > > > --- a/drivers/usb/usbip/vudc_sysfs.c
-> > > > +++ b/drivers/usb/usbip/vudc_sysfs.c
-> > > > @@ -187,7 +187,7 @@ static ssize_t store_sockfd(struct device *dev,
-> > > >    		udc->ud.tcp_socket = socket;
-> > > >    		udc->ud.tcp_rx = tcp_rx;
-> > > > -		udc->ud.tcp_rx = tcp_tx;
-> > > > +		udc->ud.tcp_tx = tcp_tx;
-> > > >    		udc->ud.status = SDEV_ST_USED;
-> > > >    		spin_unlock_irq(&udc->ud.lock);
-> > > > 
-> > > 
-> > > Greg,
-> > > 
-> > > Please pick this up for 4.9 and 4.14
-> > 
-> > Why?  The commit it says it fixes, 46613c9dfa96 ("usbip: fix vudc
-> > usbip_sockfd_store races leading to gpf"), is not in any kernel older
-> > than 4.19.y at the moment.
-> > 
+On Mon, Apr 19, 2021 at 03:05:11PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.32 release.
+> There are 103 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Tom back ported this one a couple of weeks ago to 4.14.y and 4.9.y
+> Responses should be made by Wed, 21 Apr 2021 13:05:09 +0000.
+> Anything received after that time might be too late.
 > 
-> I see this commit in 4.14 (checked on 4.14.231)
-> e9c1341b4c948c20f030b6b146fa82575e2fc37b
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.32-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 > 
+> thanks,
 > 
-> I see this commit in 4.9.267 as well.
-> 
-> fe9e15a30be666ec8071f325a39fe13e2251b51d
-> 
-> This fix can go on top of these commits.
+> greg k-h
 
-Now queued up, thanks.
+On my i686 (gcc 10.3) I found no issues with the new rc
 
-greg k-h
+Selftest results [ok/not ok]: [1435/81]
+
+Tested-by: Andrei Rabusov <a.rabusov@tum.de>
