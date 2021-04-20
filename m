@@ -2,91 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88375365DFA
-	for <lists+stable@lfdr.de>; Tue, 20 Apr 2021 18:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C21C365E00
+	for <lists+stable@lfdr.de>; Tue, 20 Apr 2021 18:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232913AbhDTQ4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Apr 2021 12:56:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56116 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232504AbhDTQ4o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Apr 2021 12:56:44 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8368EC06174A
-        for <stable@vger.kernel.org>; Tue, 20 Apr 2021 09:56:11 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id h20so20009425plr.4
-        for <stable@vger.kernel.org>; Tue, 20 Apr 2021 09:56:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=X5DyifeFyUsk9nMOlWlbL7GJRTuBQ89WveKtV9WXxuE=;
-        b=dSlEqecPA0kolF/5pC3y6NvEwWhGcafFZUk/ZtP6zOpuYgu3I/ju5SHqgcaRsJvZgS
-         H7E6pQwy/E7nVCl+wrLXC50zXlNwFWzUIAUDcB5UvgBH5z4v4jjMHRDlWMToFlgJ+4b9
-         enLzqZVnMuaypRP9QDO3apacGp6w8+neh0hcIbUkFd48glmJEGy/pXbz6CmZ/LQ3A3AM
-         QuRi8LDBdG9otFkwkGFlQjreAoe8e/Qpuhv8jldhILO/N5GS1xuoQYzDsU0M7a9wZIzd
-         o3bLi+11O6aH3rMs2QB5qAb9n3iIXltRDrerpYointxX/A9tdWsbCq50hS40wmVD2Ich
-         6rPA==
+        id S232473AbhDTQ7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Apr 2021 12:59:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39875 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233266AbhDTQ7L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Apr 2021 12:59:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1618937919;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=T7OnI4g7y/j0j8gjLvALAW+SBNaqStqVNvhZwF+q8fQ=;
+        b=bbwjFlmX6se0LCWUojxnaeAqoTOrCeLuyxEYosKzVflWQyaQFGVprLuAOlpma/x75ZQQTK
+        qzxqaagaREnYI6zzt7fIFJ39d0uneK+Gq7XCBOOaApPYy26KxorZU48tPbP/FoYCONBmEg
+        gBmNHCo3RzYBCxcjHaDpbk2QSjw8Eqw=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-577-M4jcIf0tMV6vBIMGBeJAhQ-1; Tue, 20 Apr 2021 12:58:37 -0400
+X-MC-Unique: M4jcIf0tMV6vBIMGBeJAhQ-1
+Received: by mail-qt1-f198.google.com with SMTP id p15-20020a05622a00cfb02901ae13813340so11427632qtw.15
+        for <stable@vger.kernel.org>; Tue, 20 Apr 2021 09:58:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=X5DyifeFyUsk9nMOlWlbL7GJRTuBQ89WveKtV9WXxuE=;
-        b=CFT0WM9+VqwrJoXHgrSyAk66xmttTRg/Dw+WTEZDHu+RA0Nnl6WmbteLRegwY6oVtA
-         D8i9I+lDpm0MRfnpLpfRJKYDXh5fHmL+EhkrZHIhd5IbT5zJDFBZSlkcOxco7tM3IeHw
-         GHkgNutSsmD+umS9h3yV/9XyTM4IT00oNPLCGANKLRks6eU2J2YOo2th4wmAXB61vJ3a
-         Oh501tdguHG0MZidrr9lAnA1oJ1kY0EOt5R/Qqq1d+EyYMSgUkQfupzOpN3s4OxPIEC5
-         eJh4ZqITwMKvlxWxynd9KuC1lC4bQnXh0XM/CFy+YLatjLX+YItblQFZjH0nuGS/vaGR
-         PVvA==
-X-Gm-Message-State: AOAM533pTHDjfU39p/y/yZbu3GUa4z8N6hEHdn8J4Mb2nDa6i57MZX8a
-        iNZL7vse99/xnGARqrM8vsfK5rMl8wyGpQ==
-X-Google-Smtp-Source: ABdhPJydOYkPJNhyOEJSkSt45/Dm6yfT+MTD0/Pp9xIH0bIZ+YY9L2C5A4eMTYEeAnTlWCoXak9KPg==
-X-Received: by 2002:a17:90b:120b:: with SMTP id gl11mr5966872pjb.143.1618937770951;
-        Tue, 20 Apr 2021 09:56:10 -0700 (PDT)
-Received: from google.com (240.111.247.35.bc.googleusercontent.com. [35.247.111.240])
-        by smtp.gmail.com with ESMTPSA id ml9sm2531870pjb.2.2021.04.20.09.56.10
+        bh=T7OnI4g7y/j0j8gjLvALAW+SBNaqStqVNvhZwF+q8fQ=;
+        b=UCl/w2m/1Wema+11An+2VXFudboJzg8ehOOlXhnc+kyhZZ6hXYzFourrx4srEsdveh
+         e0gOAm+6JXM+4+d3O658UyEgIftTsoITigVw1GcwYBxR4ox+5vZvJXlMvrk4ZGbcgNok
+         1SnDjPzr/fItLdKBgKxYBQyRei1X+LWwiEyupov6aw1eZBZ9w2s30SkrqYltsoLVhRlo
+         f3GsBo+tOK0CjA+lxmrPzhx4xJCxIXVxflt9k+FxLaeRah7QDSDVpdONrmOkilYNvkWz
+         Iju6AMUyb8lxh0wJNRNRF6NpukxAlBp96NTyw5ta0gBEWY0ef6/FzWKGILHY02XkicE1
+         BW7Q==
+X-Gm-Message-State: AOAM533/ln0ii1leev3Gyb/TUNCgaaINYRSeivOC41w2/kuApT5+bbWH
+        kLuJ36l0bWi285WKwtqxahwk6gN6xJF7CD6jIRZLvn1fLY0ionT2bfPX+Q72gq8nYpJ7lOD2/Yk
+        TUFqP3DaKoy6pUXAT
+X-Received: by 2002:a0c:f546:: with SMTP id p6mr2800295qvm.6.1618937917007;
+        Tue, 20 Apr 2021 09:58:37 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz4vGLU180G23sXR7ipr4r0p+fP/T/k9RjNGzudGX4h5CRoFZSDKgPckbD3RgJpc83I6Xw8fQ==
+X-Received: by 2002:a0c:f546:: with SMTP id p6mr2800271qvm.6.1618937916731;
+        Tue, 20 Apr 2021 09:58:36 -0700 (PDT)
+Received: from xz-x1 (bras-base-toroon474qw-grc-88-174-93-75-154.dsl.bell.ca. [174.93.75.154])
+        by smtp.gmail.com with ESMTPSA id b4sm12604291qkf.64.2021.04.20.09.58.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Apr 2021 09:56:10 -0700 (PDT)
-Date:   Tue, 20 Apr 2021 16:56:06 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: Patch "KVM: VMX: Convert vcpu_vmx.exit_reason to a union" has
- been added to the 5.10-stable tree
-Message-ID: <YH8Hph/VEotO+Iv+@google.com>
-References: <20210419002733.D5675610CB@mail.kernel.org>
- <YH38CpPjGSsSRUgt@google.com>
- <YH4HlIEvoqHWFtz+@sashalap>
+        Tue, 20 Apr 2021 09:58:36 -0700 (PDT)
+Date:   Tue, 20 Apr 2021 12:58:34 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] KVM: selftests: Always run vCPU thread with blocked
+ SIG_IPI
+Message-ID: <20210420165834.GC4440@xz-x1>
+References: <20210420081614.684787-1-pbonzini@redhat.com>
+ <20210420143739.GA4440@xz-x1>
+ <20210420153223.GB4440@xz-x1>
+ <84c52ebe-58a2-6188-270e-c86409e44fa3@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <YH4HlIEvoqHWFtz+@sashalap>
+In-Reply-To: <84c52ebe-58a2-6188-270e-c86409e44fa3@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 19, 2021, Sasha Levin wrote:
-> On Mon, Apr 19, 2021 at 09:54:18PM +0000, Sean Christopherson wrote:
-> > Maybe we'll end up with a more painful conflict in the future that would be best
-> > solved by grabbing this refactoring, but I don't think we're there yet.
+On Tue, Apr 20, 2021 at 06:24:50PM +0200, Paolo Bonzini wrote:
+> On 20/04/21 17:32, Peter Xu wrote:
+> > On Tue, Apr 20, 2021 at 10:37:39AM -0400, Peter Xu wrote:
+> > > On Tue, Apr 20, 2021 at 04:16:14AM -0400, Paolo Bonzini wrote:
+> > > > The main thread could start to send SIG_IPI at any time, even before signal
+> > > > blocked on vcpu thread.  Therefore, start the vcpu thread with the signal
+> > > > blocked.
+> > > > 
+> > > > Without this patch, on very busy cores the dirty_log_test could fail directly
+> > > > on receiving a SIGUSR1 without a handler (when vcpu runs far slower than main).
+> > > > 
+> > > > Reported-by: Peter Xu <peterx@redhat.com>
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> > > 
+> > > Yes, indeed better! :)
+> > > 
+> > > Reviewed-by: Peter Xu <peterx@redhat.com>
+> > 
+> > I just remembered one thing: this will avoid program quits, but still we'll get
+> > the signal missing.
 > 
-> This is the tricky part: when we start having these conflicts it's
-> usually too late to refactor, no one cares, and backports just don't
-> happen.
-> 
-> I'd actually point to the file shuffling (commits like a821bab2d1ee
-> ("KVM: VMX: Move VMX specific files to a "vmx" subdirectory")) you did a
-> few years ago in arch/x86/kvm/ as an example to why we can't wait: those
-> changes made a lot of sense upstream, but for stable kernels it meant
-> that patches were now trying to touch the wrong files and would often
-> fail or do the wrong thing.
-> 
-> On hindsight, we probably should have moved files around in stable trees
-> as well to match what upstream had, but at this point it's too late to
-> go back and fix that, and we're stuck manually editing paths for the
-> lifetime of most of the LTS trees.
+> In what sense the signal will be missing?  As long as the thread exists, the
+> signal will be accepted (but not delivered because it is blocked); it will
+> then be delivered on the first KVM_RUN.
 
-And I guess there's also the argument that inducing even a handful of manual
-backports is more risky overall than taking this one "unnecessary" patch.
+Ah right..  Thanks,
 
-Objection withdrawn, I don't have a strong opinion either way :-)
+-- 
+Peter Xu
+
