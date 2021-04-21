@@ -2,62 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BFA33673EE
-	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 22:01:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBE6367496
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 23:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245616AbhDUUCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 16:02:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47220 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245615AbhDUUCU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 16:02:20 -0400
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 790E6C06174A
-        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 13:01:46 -0700 (PDT)
-Received: by mail-yb1-xb2b.google.com with SMTP id z1so48577130ybf.6
-        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 13:01:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=N25SjpwU7jt3YRnEr3GAIUXkZUK/W3lOm1cYE1CKpNY=;
-        b=G7JYVKHjK6F2HUO6B+H/oniSDXpZCAbY6/ho8+v+7JRI1O7sVMjJG/E2nCFROq5VAP
-         +Jt7jLWKKZBfOwWgvgqy8Ur/t5ajGyAgwyLpElgr4TjYopQl7dHBJE4da6V4HGshitmW
-         gbP81GI1ewkJa3zZLvG6xegeMt/5R0rm+yybtswjGH2Kmsfha998wgHtXHHWtKneBBQT
-         HETYMqY+rFcm5ZFosLVKAun4cMDUVO1HwTDvICbago+LXQm0SgV1xivHgbL505g3j0Zf
-         XrtShRPqu6kbRzPysQJxwGhcnAvgtqcW8DwlTpcsxH7PcE/u9Gcx8WbVYudRisMwf7MM
-         pk5Q==
+        id S238222AbhDUVF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 17:05:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:42521 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S243828AbhDUVF4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 17:05:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619039122;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+NPvL4bnAQ0xyAmY/8IZQZjszIIYldcl5F0YQggfYA4=;
+        b=WXlj+Uv+5YTRM1TdHDvaMLPdQEkl3oN246r24e+EtN2ZmTb7N+G7XfDJc5leHJ2hKV0+hb
+        d3uDqW1c0lPrl20mxPmJKzt663IPxbRt+5k7k7sLwEkPm0Qg+udIaQYg3C87awcsKcCwCP
+        EJhuyLtw56GbjHkXWZRxga4gnD7qSts=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-207-BIYEQ6yHPIy9aPXBg7nFyQ-1; Wed, 21 Apr 2021 17:05:20 -0400
+X-MC-Unique: BIYEQ6yHPIy9aPXBg7nFyQ-1
+Received: by mail-qk1-f197.google.com with SMTP id s143-20020a3745950000b029028274263008so10528670qka.9
+        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 14:05:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=N25SjpwU7jt3YRnEr3GAIUXkZUK/W3lOm1cYE1CKpNY=;
-        b=qb2XzbP2s79uE/Nf9t75YMT2grrV7lXL0Gxkvus/K1CS2eTaV2TwuFV3H2YSR5CY+C
-         eBjsqYlNI/Zcfm4lSiPteVAxiC7aAqNEMbhi0y3/A31F20HMGNI2ZrXwMBYZKG8O36hC
-         9bAmMutunQUxXhj6K+v7R96fwTamXg6EGdN+qT2vgJPgREG6Thb75vvjWxjfeSQZnpF0
-         A4eaUb5oYX3Kdz1cGdOhSrxu7gAGTVNUJZqaQ2j8QlXLqIzoJbDzf7iSlSOg2q1Av6q+
-         lYbHVCulTIlmdCNycQOVeLTdHnQbJ88RkzW/hHcTQhU0WLh6LgToiB+GOoFI/NSuzqKa
-         rdWg==
-X-Gm-Message-State: AOAM5338gNAX7QYPfND9qroYHFoEXA+5vk1I2M2HMfaUxSBqpkHID4BK
-        r4Iq944YxfHxz161IMPwKKmmRzdi4FgxrWFveJXzWA==
-X-Google-Smtp-Source: ABdhPJxQawgMOAh8U7mORlWyVS1yUZDsWs9dCsjLPG9HijkOotn83qeRYhVGs7QfLaIKXNmHvhQBKIT8OxVw9st4uGc=
-X-Received: by 2002:a5b:7c5:: with SMTP id t5mr34532781ybq.190.1619035305484;
- Wed, 21 Apr 2021 13:01:45 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210401181741.168763-1-surenb@google.com> <CAHk-=wg8MDMLi8x+u-dee-ai0KiAavm6+JceV00gRXQRFG=Cgw@mail.gmail.com>
- <c7d580fe-e467-4f08-a11d-6b8ceaf41e8f@suse.cz> <CAHk-=wiQCrpxGL4o5piCSqJF0jahUUYW=9R=oGATiiPnkaGY0g@mail.gmail.com>
- <CAJuCfpFgHMMWZgch5gfjHj936gmpDztb8ZT-vJn6G0-r5BvceA@mail.gmail.com>
- <CAHk-=wj0JH6PnG7dW51Sr5ZqhomqSaSLTQV7z4Si2dLeSVcO_g@mail.gmail.com>
- <alpine.LRH.2.02.2104071432420.31819@file01.intranet.prod.int.rdu2.redhat.com>
- <CAHk-=whUKYdWbKfFzXXnK8n04oCMwEgSnG8Y3tgE=YZUjiDvbA@mail.gmail.com> <CAJuCfpHa+eydE_voX38V-jtv5J_RnyT=eY12-VmcLbVG_u2dyA@mail.gmail.com>
-In-Reply-To: <CAJuCfpHa+eydE_voX38V-jtv5J_RnyT=eY12-VmcLbVG_u2dyA@mail.gmail.com>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Wed, 21 Apr 2021 13:01:34 -0700
-Message-ID: <CAJuCfpHJjtv_=jLULge8D4EK_AK2yGLMcWKcGSaknzuWm0DFtA@mail.gmail.com>
-Subject: Re: [PATCH 0/5] 4.14 backports of fixes for "CoW after fork() issue"
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Mikulas Patocka <mpatocka@redhat.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Peter Xu <peterx@redhat.com>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=+NPvL4bnAQ0xyAmY/8IZQZjszIIYldcl5F0YQggfYA4=;
+        b=jg06SjFBsYSQtw1vksraaOC9ChLBLIJehIbB6yfvF23IW/uyd+kJatlLlH7kNMs/p2
+         hiKHVKKFHAy5mGrJcjS60E0N0GQ9qhbRH1KjKwUM4ndqBJUbx17nLFIu0XAYfdlsdfLX
+         h/+Pgf+IVCuDnrMsBXi2C4mwFF3OW1kobdKMW1HaiVKlQGNtMIvjs5BARSVH+uTv0F4C
+         aee81aXgDIe6XN+FtzHrKA/1aOHM+P+Bc8CV4GMLcrVYrZmU7T4tYyC4nMOY1j9B50zL
+         5/3//LwOHDHL3r3E2nMPwgubDCjcF1li1MAItwKAcBBSFWKRDUI8gLJFE3Nu3nDMSiQx
+         Tltg==
+X-Gm-Message-State: AOAM533ixpxnUW4yefgpve8zTzbHlkB8YzeEoHjP8Lqhoos/K4qd6IlJ
+        oTa66XP5zvrLL9HLmnbKLDHoATkyGmIB9iy7YHgrFwxNLbBJDlbTVjDr9dMGIq22HrGY8of5vgx
+        eyuGRroNltb67WspV
+X-Received: by 2002:a05:620a:2158:: with SMTP id m24mr137859qkm.306.1619039119806;
+        Wed, 21 Apr 2021 14:05:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwxujGZeCbAvz4IXpRdnt1YImSNzwwC/WEtVZvG6EHSmVIC7ejMtWkWr+rWNvTx7EvGNOhIRQ==
+X-Received: by 2002:a05:620a:2158:: with SMTP id m24mr137828qkm.306.1619039119514;
+        Wed, 21 Apr 2021 14:05:19 -0700 (PDT)
+Received: from xz-x1 (bras-base-toroon474qw-grc-77-184-145-104-227.dsl.bell.ca. [184.145.104.227])
+        by smtp.gmail.com with ESMTPSA id v18sm589596qtq.38.2021.04.21.14.05.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Apr 2021 14:05:18 -0700 (PDT)
+Date:   Wed, 21 Apr 2021 17:05:17 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
         stable <stable@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jann Horn <jannh@google.com>,
@@ -68,54 +65,42 @@ Cc:     Mikulas Patocka <mpatocka@redhat.com>,
         Andrea Arcangeli <aarcange@redhat.com>,
         David Hildenbrand <david@redhat.com>,
         Jason Gunthorpe <jgg@ziepe.ca>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 0/5] 4.14 backports of fixes for "CoW after fork() issue"
+Message-ID: <20210421210517.GA6404@xz-x1>
+References: <20210401181741.168763-1-surenb@google.com>
+ <CAHk-=wg8MDMLi8x+u-dee-ai0KiAavm6+JceV00gRXQRFG=Cgw@mail.gmail.com>
+ <c7d580fe-e467-4f08-a11d-6b8ceaf41e8f@suse.cz>
+ <CAHk-=wiQCrpxGL4o5piCSqJF0jahUUYW=9R=oGATiiPnkaGY0g@mail.gmail.com>
+ <CAJuCfpFgHMMWZgch5gfjHj936gmpDztb8ZT-vJn6G0-r5BvceA@mail.gmail.com>
+ <CAHk-=wj0JH6PnG7dW51Sr5ZqhomqSaSLTQV7z4Si2dLeSVcO_g@mail.gmail.com>
+ <alpine.LRH.2.02.2104071432420.31819@file01.intranet.prod.int.rdu2.redhat.com>
+ <CAHk-=whUKYdWbKfFzXXnK8n04oCMwEgSnG8Y3tgE=YZUjiDvbA@mail.gmail.com>
+ <CAJuCfpHa+eydE_voX38V-jtv5J_RnyT=eY12-VmcLbVG_u2dyA@mail.gmail.com>
+ <CAJuCfpHJjtv_=jLULge8D4EK_AK2yGLMcWKcGSaknzuWm0DFtA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAJuCfpHJjtv_=jLULge8D4EK_AK2yGLMcWKcGSaknzuWm0DFtA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 7, 2021 at 2:53 PM Suren Baghdasaryan <surenb@google.com> wrote:
->
-> On Wed, Apr 7, 2021 at 12:23 PM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > On Wed, Apr 7, 2021 at 11:47 AM Mikulas Patocka <mpatocka@redhat.com> wrote:
-> > >
-> > > So, we fixed it, but we don't know why.
-> > >
-> > > Peter Xu's patchset that fixed it is here:
-> > > https://lore.kernel.org/lkml/20200821234958.7896-1-peterx@redhat.com/
-> >
-> > Yeah, that's the part that ends up being really painful to backport
-> > (with all the subsequent fixes too), so the 4.14 people would prefer
-> > to avoid it.
-> >
-> > But I think that if it's a "requires dax pmem and ptrace on top", it
-> > may simply be a non-issue for those users. Although who knows - maybe
-> > that ends up being a real issue on Android..
->
-> A lot to digest, so I need to do some reading now. Thanks everyone!
+Hi, Suren,
 
-After a delay due to vacation I prepared backports of 17839856fd58
-("gup: document and work around "COW can break either way" issue") for
-4.14 and 4.19 kernels. As Linus pointed out, uffd-wp was introduced
-later in 5.7, so is not an issue for 4.x kernels. The issue with THPs
-is still unresolved, so with or without this patch it's still there
-(Android is not affected by this since we do not use THPs with older
-kernels).
-Andrea pointed out that there are other issues and to properly fix
-them his COR approach is needed. However it has not been accepted yet,
-so I can't really backport it. I'll be happy to do that though if it
-is accepted in the future.
+On Wed, Apr 21, 2021 at 01:01:34PM -0700, Suren Baghdasaryan wrote:
+> Peter, you mentioned https://lkml.org/lkml/2020/8/10/439 patch to
+> distinguish real writes vs enforced COW read requests, however I also
+> see that you had a later version of this patch here:
+> https://lore.kernel.org/patchwork/patch/1286506/. Which one should I
+> backport? Or is it not needed in the absence of uffd-wp support in the
+> earlier kernels?
 
-Peter, you mentioned https://lkml.org/lkml/2020/8/10/439 patch to
-distinguish real writes vs enforced COW read requests, however I also
-see that you had a later version of this patch here:
-https://lore.kernel.org/patchwork/patch/1286506/. Which one should I
-backport? Or is it not needed in the absence of uffd-wp support in the
-earlier kernels?
+Sorry I have no ability to evaluate the rest... but according to Linus's
+previous reply, my understanding is that it is not needed, not to mention it's
+not upstreamed too.
+
 Thanks,
-Suren.
 
->
-> >
-> >             Linus
+-- 
+Peter Xu
+
