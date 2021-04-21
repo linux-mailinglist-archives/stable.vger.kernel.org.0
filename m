@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF14366BB7
-	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7A1F366BDE
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240037AbhDUNFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 09:05:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45496 "EHLO mail.kernel.org"
+        id S241298AbhDUNIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 09:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239853AbhDUNFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Apr 2021 09:05:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B538861455;
-        Wed, 21 Apr 2021 13:04:45 +0000 (UTC)
+        id S240139AbhDUNHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Apr 2021 09:07:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55C6561457;
+        Wed, 21 Apr 2021 13:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619010286;
-        bh=fHIhHWhbZ0ZhEMCmgbmyntppO5e7+bgAG3Mo5QZudmY=;
+        s=korg; t=1619010388;
+        bh=JohFeQwR6jXzApbZjK7P2q6uFpDFGfiGCYI+5rIdurw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P9ZAJj9Ok1AnD6oyTDrXniGsEFAsdE0OKXejWL5p469GqRQ/+2mdGjv4/QQlTord3
-         XaRwbeiLAQ6pIE4R+CczsYXoIT88xRs+nKtCg7Mg87oTK0TRL3uOoeknwUq/K428d+
-         fgLDpsKp3ty6zKNRwLySF6KMzRgcgjDKew/qvD/w=
+        b=FnXYLLpPZTowsQEu3H2ZvxmvHSgkKaPUiOmIR2uznkcT/3cHSyVDhBV3HEOigVwDB
+         1Oa6Hh4aacYxef9vUlWp8W+7RneC2zmGLnsj+FOoSf87uQk1n3xhbe7V2VYLQ/GJsV
+         ciacU7mW32zLoRCnjjtghKoFj1YfVxI9Y1jD4QSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 081/190] Revert "tracing: Fix a memory leak by early error exit in trace_pid_write()"
-Date:   Wed, 21 Apr 2021 14:59:16 +0200
-Message-Id: <20210421130105.1226686-82-gregkh@linuxfoundation.org>
+        Kangjie Lu <kjlu@umn.edu>, stable <stable@vger.kernel.org>
+Subject: [PATCH 119/190] Revert "tty: mxs-auart: fix a potential NULL pointer dereference"
+Date:   Wed, 21 Apr 2021 14:59:54 +0200
+Message-Id: <20210421130105.1226686-120-gregkh@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
 References: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
@@ -37,7 +36,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 91862cc7867bba4ee5c8fcf0ca2f1d30427b6129.
+This reverts commit 6734330654dac550f12e932996b868c6d0dcb421.
 
 Commits from @umn.edu addresses have been found to be submitted in "bad
 faith" to try to test the kernel community's ability to review "known
@@ -53,39 +52,29 @@ they actually are a valid fix.  Until that work is complete, remove this
 change to ensure that no problems are being introduced into the
 codebase.
 
-Cc: http
-Cc: stable@vger.kernel.org
-Cc: Wenwen Wang <wang6495@umn.edu>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: stable <stable@vger.kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/tty/serial/mxs-auart.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 5c777627212f..faed4f44d224 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -691,10 +691,8 @@ int trace_pid_write(struct trace_pid_list *filtered_pids,
- 	 * not modified.
- 	 */
- 	pid_list = kmalloc(sizeof(*pid_list), GFP_KERNEL);
--	if (!pid_list) {
--		trace_parser_put(&parser);
-+	if (!pid_list)
- 		return -ENOMEM;
+diff --git a/drivers/tty/serial/mxs-auart.c b/drivers/tty/serial/mxs-auart.c
+index f414d6acad69..edad6ebbdfd5 100644
+--- a/drivers/tty/serial/mxs-auart.c
++++ b/drivers/tty/serial/mxs-auart.c
+@@ -1644,10 +1644,6 @@ static int mxs_auart_probe(struct platform_device *pdev)
+ 
+ 	s->port.mapbase = r->start;
+ 	s->port.membase = ioremap(r->start, resource_size(r));
+-	if (!s->port.membase) {
+-		ret = -ENOMEM;
+-		goto out_disable_clks;
 -	}
- 
- 	pid_list->pid_max = READ_ONCE(pid_max);
- 
-@@ -704,7 +702,6 @@ int trace_pid_write(struct trace_pid_list *filtered_pids,
- 
- 	pid_list->pids = vzalloc((pid_list->pid_max + 7) >> 3);
- 	if (!pid_list->pids) {
--		trace_parser_put(&parser);
- 		kfree(pid_list);
- 		return -ENOMEM;
- 	}
+ 	s->port.ops = &mxs_auart_ops;
+ 	s->port.iotype = UPIO_MEM;
+ 	s->port.fifosize = MXS_AUART_FIFO_SIZE;
 -- 
 2.31.1
 
