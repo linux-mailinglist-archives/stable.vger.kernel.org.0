@@ -2,613 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D67AD367524
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 00:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F20367564
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 00:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235558AbhDUWa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 18:30:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51132 "EHLO
+        id S234815AbhDUW5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 18:57:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235362AbhDUWat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 18:30:49 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96305C06174A;
-        Wed, 21 Apr 2021 15:30:14 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id x12so45006402ejc.1;
-        Wed, 21 Apr 2021 15:30:14 -0700 (PDT)
+        with ESMTP id S233995AbhDUW5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 18:57:12 -0400
+Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A8B7C06138A
+        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 15:56:38 -0700 (PDT)
+Received: by mail-qk1-x74a.google.com with SMTP id e4-20020a37b5040000b02902df9a0070efso10717451qkf.18
+        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 15:56:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=4H89u/5XgFQL/qEEnjKa6SxUPhW0CnH2Fgc0D3DgAGg=;
-        b=VEGf3nmz67RikZWm92VfIyaOFeWgobs9lpmV3I880wFpOyNEE5ndFmysWteBKGouBW
-         +kdiYl9ob/JQhuEQP9xq4iSuuONUZEAWivStZdGNmTHMYCqXsxooU7ig8D2wHNrpKZ8M
-         u0OuEDigQiuPTkeIB0JnqE4jySHjp5O3FCldYVyAhAi16HtwgK76ewJo/EBaqBFPPdrM
-         RmcSTt3WULYVXiUFi/kgs1A6LHVbH5gKvHjDWXQ8gl9yu++XdWJZxzLe96iuYECK3J2N
-         Jo2zfYXCP5/iYLcLeFGJ/TkiZFAAp0LMHTNT+4O9iH1sAJDSbRWRSGEO+y4ubvTWxy28
-         kn+g==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=WI8F6sHKbEkY7kEQwiSfYT+DGU4CIMg8Y47B2zej05Q=;
+        b=tIiakE5DxbCw7W4udzRAd0+gyva6ly/Y8tsq8LoT9Usk8NvuwNATO+ErkqUFiI5+Wi
+         Rt2jweHDuF32vBcBBI8oWRhLInaZVDAKcnFBoG73XiMgUgyV3yS506rOiQRnGT46u6UT
+         8nWMQQycSudM7zQ0daYRYEtd2Lk63ob+x56ZN0EPj61XWo7lYrAaqS1VhrYF49eKghOX
+         41vxuyhjjDE0Jfxg8kH/UT4ZjjHhhyB3on8ZcdsB24tJXwAh6oWFdPSjYJ9D57v2YcFB
+         fJ/7ecMFjyhjxu0hUveuka7X2Z6CEcnnbLS9bRWAfm1BInsT07PixjCTOya1Y8oE+bZh
+         ehQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=4H89u/5XgFQL/qEEnjKa6SxUPhW0CnH2Fgc0D3DgAGg=;
-        b=djZgZ6ktmQsCzuz5y3wXyQ8XDFjrtC92wygyldlxBfgfOPkvBoZvt4zSalT1JXFPit
-         2t+qVDERa65NdfpVivbJO+Bp5XuKTzGnDWv9ODfL64yZmEmU9/Q5evMGjCtJZ84Uv5+v
-         4AEpdoABmuiXRa+a1PKmGI+9o9u4gELYLAnuFDWRhMHodaymtA3wwQ8gy8LH4mxrEOAN
-         tAtmVTqrLeJcKOZtmc8ywuujUn3kkdL4nVlz0RH8tiXPLF2EuG1DkpdA4MbowXhyhyI7
-         XANc9dXy0osSqljAxO8flfqVDW4m5wUJIIsnUmfsSIEbQYcHyu2eq2LgMaDA0EBdCpYO
-         RHAw==
-X-Gm-Message-State: AOAM531K3RJTUhXdmQ1zHIBHV067wO1KEzwI0AWEzDyGHCl15ymrtUWx
-        RGnIEniVyrG2afC5Lw2hk2vdIh/db75m+Q==
-X-Google-Smtp-Source: ABdhPJx1nlcKXXYgTH3nCdfut+re3CNuryGHnVBONOB3o+gfcumuf5K1rF7nusgF/QfXj7yTuI6OBw==
-X-Received: by 2002:a17:906:c058:: with SMTP id bm24mr80880ejb.335.1619044213093;
-        Wed, 21 Apr 2021 15:30:13 -0700 (PDT)
-Received: from ?IPv6:2001:981:6fec:1:b477:e9e4:bff8:61c6? ([2001:981:6fec:1:b477:e9e4:bff8:61c6])
-        by smtp.gmail.com with ESMTPSA id p13sm544230ejr.87.2021.04.21.15.30.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 21 Apr 2021 15:30:12 -0700 (PDT)
-Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        John Stultz <john.stultz@linaro.org>
-Cc:     John Youn <John.Youn@synopsys.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        Yu Chen <chenyu56@huawei.com>, Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
-References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
- <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
- <d053b843-2308-6b42-e7ff-3dc6e33e5c7d@synopsys.com>
- <0882cfae-4708-a67a-f112-c1eb0c7e6f51@gmail.com>
- <1c1d8e4a-c495-4d51-b125-c3909a3bdb44@synopsys.com>
- <db5849f7-ba31-8b18-ebb5-f27c4e36de28@gmail.com>
- <09755742-c73b-f737-01c1-8ecd309de551@gmail.com>
- <4a1245e3-023c-ec69-2ead-dacf5560ff9f@synopsys.com>
- <109affec-2e0c-0882-4514-8cab72eec85b@gmail.com>
- <fdaebefd-36c2-84e0-164f-c376483a0db3@synopsys.com>
- <a485bdc8-35e9-d58b-1411-84463274bb6d@gmail.com>
- <d9bca287-92fe-b2c8-511c-0ae89d2745c9@synopsys.com>
-From:   Ferry Toth <fntoth@gmail.com>
-Message-ID: <ee47f695-a185-ff79-553c-021b2d30d09c@gmail.com>
-Date:   Thu, 22 Apr 2021 00:30:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
-MIME-Version: 1.0
-In-Reply-To: <d9bca287-92fe-b2c8-511c-0ae89d2745c9@synopsys.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=WI8F6sHKbEkY7kEQwiSfYT+DGU4CIMg8Y47B2zej05Q=;
+        b=FznHgtre9K5d1pK+uOQmxsUadaGa5crhTiDcYQFU3XSdgWAjbG3VVyP3EKDz2AemzO
+         iWHUk7Oiwms6EcQcgiX6ChDKI1zT9Kaj937oG6Mvxw/G6HKqZH4qkX8J7OcU1to2AijY
+         8eQIYZUJEzBBGx6aN/IwPdQYr6DNufm4QhiokIQw9XW5LOdLR+cIiNaM7TCHdWPK4K8L
+         hGL27Zrx7UrpOT5mLyBvx8Ml2TB6kY2A8owt2MuS2MkksJqF4XrH3u1OQxCh5EqRQy7G
+         +7pi571Uf1+FK+8Q0o+iD9kqTqm99jQinje1E8oFJ9LCFMJiQUl8cOEbVAOv/jbP7l5/
+         cDOA==
+X-Gm-Message-State: AOAM532lzD39boXKA7sJkZ7/ouDa4c3MdZsYf93bWAiqcYILxz+3EKfQ
+        ZuuBl6/W6UKSgwH3feIJnBr7KFtSKYRFyJ0ax7pK939B7I0lh1gYdB0BgpIfmAvp17APPRiO9bf
+        D+KgEwqMAixF/ZWMqdvCPTzVbS7paW41iQoZNRVdOPI2gZv1sNdM3bodEaLfmIA==
+X-Google-Smtp-Source: ABdhPJz3lyYov/2/yszTfBeTeqEGm3VXVyzJ7YGwC5QdZTj/8K1K6md/e2+GGomzI6jlJFOdZupiVZkc1UQ=
+X-Received: from surenb1.mtv.corp.google.com ([2620:15c:211:200:dae6:51e5:c9a2:646d])
+ (user=surenb job=sendgmr) by 2002:a0c:99d9:: with SMTP id y25mr568253qve.28.1619045797205;
+ Wed, 21 Apr 2021 15:56:37 -0700 (PDT)
+Date:   Wed, 21 Apr 2021 15:56:13 -0700
+Message-Id: <20210421225613.60124-1-surenb@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
+Subject: [PATCH 1/1] gup: document and work around "COW can break either way" issue
+From:   Suren Baghdasaryan <surenb@google.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, jannh@google.com,
+        torvalds@linux-foundation.org, vbabka@suse.cz, peterx@redhat.com,
+        aarcange@redhat.com, david@redhat.com, jgg@ziepe.ca,
+        ktkhai@virtuozzo.com, shli@fb.com, namit@vmware.com,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        kernel-team@android.com, surenb@google.com,
+        Christoph Hellwig <hch@lst.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Kirill Shutemov <kirill@shutemov.name>,
+        Jan Kara <jack@suse.cz>, Matthew Wilcox <willy@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-Op 21-04-2021 om 21:01 schreef Thinh Nguyen:
-> Ferry Toth wrote:
->> Hi
->>
->> Op 19-04-2021 om 23:23 schreef Thinh Nguyen:
->>> Ferry Toth wrote:
->>>> Hi
->>>>
->>>> Op 19-04-2021 om 01:03 schreef Thinh Nguyen:
->>>>> Ferry Toth wrote:
->>>>>> Hi
->>>>>>
->>>>>> Op 17-04-2021 om 16:22 schreef Ferry Toth:
->>>>>>> Hi
->>>>>>>
->>>>>>> Op 17-04-2021 om 04:27 schreef Thinh Nguyen:
->>>>>>>> Ferry Toth wrote:
->>>>>>>>> Hi
->>>>>>>>>
->>>>>>>>> Op 16-04-2021 om 00:23 schreef Thinh Nguyen:
->>>>>>>>>> Thinh Nguyen wrote:
->>>>>>>>>>> From: Yu Chen <chenyu56@huawei.com>
->>>>>>>>>>> From: John Stultz <john.stultz@linaro.org>
->>>>>>>>>>>
->>>>>>>>>>> According to the programming guide, to switch mode for DRD
->>>>>>>>>>> controller,
->>>>>>>>>>> the driver needs to do the following.
->>>>>>>>>>>
->>>>>>>>>>> To switch from device to host:
->>>>>>>>>>> 1. Reset controller with GCTL.CoreSoftReset
->>>>>>>>>>> 2. Set GCTL.PrtCapDir(host mode)
->>>>>>>>>>> 3. Reset the host with USBCMD.HCRESET
->>>>>>>>>>> 4. Then follow up with the initializing host registers sequence
->>>>>>>>>>>
->>>>>>>>>>> To switch from host to device:
->>>>>>>>>>> 1. Reset controller with GCTL.CoreSoftReset
->>>>>>>>>>> 2. Set GCTL.PrtCapDir(device mode)
->>>>>>>>>>> 3. Reset the device with DCTL.CSftRst
->>>>>>>>>>> 4. Then follow up with the initializing registers sequence
->>>>>>>>>>>
->>>>>>>>>>> Currently we're missing step 1) to do GCTL.CoreSoftReset and step
->>>>>>>>>>> 3) of
->>>>>>>>>>> switching from host to device. John Stult reported a lockup issue
->>>>>>>>>>> seen
->>>>>>>>>>> with HiKey960 platform without these steps[1]. Similar issue is
->>>>>>>>>>> observed
->>>>>>>>>>> with Ferry's testing platform[2].
->>>>>>>>>>>
->>>>>>>>>>> So, apply the required steps along with some fixes to Yu Chen's
->>>>>>>>>>> and John
->>>>>>>>>>> Stultz's version. The main fixes to their versions are the
->>>>>>>>>>> missing
->>>>>>>>>>> wait
->>>>>>>>>>> for clocks synchronization before clearing GCTL.CoreSoftReset and
->>>>>>>>>>> only
->>>>>>>>>>> apply DCTL.CSftRst when switching from host to device.
->>>>>>>>>>>
->>>>>>>>>>> [1]
->>>>>>>>>>> https://urldefense.com/v3/__https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/__;!!A4F2R9G_pg!PW9Jbs4wv4a_zKGgZHN0FYrIpfecPX0Ouq9V3d16Yz-9-GSHqZWsfBAF-WkeqLhzN4i3$
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>> [2]
->>>>>>>>>>> https://urldefense.com/v3/__https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/__;!!A4F2R9G_pg!PW9Jbs4wv4a_zKGgZHN0FYrIpfecPX0Ouq9V3d16Yz-9-GSHqZWsfBAF-WkeqGeZStt4$
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
->>>>>>>>>>> Cc: Ferry Toth <fntoth@gmail.com>
->>>>>>>>>>> Cc: Wesley Cheng <wcheng@codeaurora.org>
->>>>>>>>>>> Cc: <stable@vger.kernel.org>
->>>>>>>>>>> Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work
->>>>>>>>>>> properly")
->>>>>>>>>>> Signed-off-by: Yu Chen <chenyu56@huawei.com>
->>>>>>>>>>> Signed-off-by: John Stultz <john.stultz@linaro.org>
->>>>>>>>>>> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
->>>>>>>>>>> ---
->>>>>>>>>>> Changes in v3:
->>>>>>>>>>> - Check if the desired mode is OTG, then keep the old flow
->>>>>>>>>>> - Remove condition for OTG support only since the device can
->>>>>>>>>>> still be
->>>>>>>>>>>        configured DRD host/device mode only
->>>>>>>>>>> - Remove redundant hw_mode check since __dwc3_set_mode() only
->>>>>>>>>>> applies
->>>>>>>>>>> when
->>>>>>>>>>>        hw_mode is DRD
->>>>>>>>>>> Changes in v2:
->>>>>>>>>>> - Initialize mutex per device and not as global mutex.
->>>>>>>>>>> - Add additional checks for DRD only mode
->>>>>>>>>>>
->>>>>>>>>>>       drivers/usb/dwc3/core.c | 27 +++++++++++++++++++++++++++
->>>>>>>>>>>       drivers/usb/dwc3/core.h |  5 +++++
->>>>>>>>>>>       2 files changed, 32 insertions(+)
->>>>>>>>>>>
->>>>>>>>>> Hi John,
->>>>>>>>>>
->>>>>>>>>> If possible, can you run a test with this version on your
->>>>>>>>>> platform?
->>>>>>>>>>
->>>>>>>>>> Thanks,
->>>>>>>>>> Thinh
->>>>>>>>>>
->>>>>>>>> I tested this on edison-arduino with this patch on top of usb-next
->>>>>>>>> (5.12-rc7 + "increase BESL baseline to 6" to prevent throttling").
->>>>>>>>>
->>>>>>>>> On this platform there is a physical switch to switch roles. With
->>>>>>>>> this
->>>>>>>>> patch I find:
->>>>>>>>>
->>>>>>>>> - switch to host mode always works fine
->>>>>>>>>
->>>>>>>>> - switch to gadget mode I need to flip the switch 3x
->>>>>>>>> (gadget-host-gadget).
->>>>>>>>>
->>>>>>>>> An error message appears on the gadget side "dwc3 dwc3.0.auto:
->>>>>>>>> timed
->>>>>>>>> out
->>>>>>>>> waiting for SETUP phase" appears, but then the device connects
->>>>>>>>> to my
->>>>>>>>> PC,
->>>>>>>>> no throttling.
->>>>>>>>>
->>>>>>>>> - alternatively I can switch to gadget 1x and then unplug/replug
->>>>>>>>> the
->>>>>>>>> cable.
->>>>>>>>>
->>>>>>>>> No error message and connects fine.
->>>>>>>>>
->>>>>>>>> - if I flip the switch only once, on the PC side I get:
->>>>>>>>>
->>>>>>>>>       kernel: usb 1-5: new high-speed USB device number 18
->>>>>>>>> usingxhci_hcd
->>>>>>>>>       kernel: usb 1-5: New USB device found, idVendor=1d6b,
->>>>>>>>>       idProduct=0104, bcdDevice= 1.00 kernel: usb1-5: New USB device
->>>>>>>>>       strings: Mfr=1, Product=2, SerialNumber=3kernel:usb 1-5:
->>>>>>>>> Product:
->>>>>>>>>       USBArmory Gadget kernel: usb 1-5: Manufacturer:USBArmory
->>>>>>>>> kernel:
->>>>>>>>>       usb 1-5: SerialNumber: 0123456789abcdef kernel:usb 1-5: can't
->>>>>>>>> set
->>>>>>>>>       config #1, error -110
->>>>>>>> The device failed at set_configuration() request and timed out. It
->>>>>>>> probably timed out from the status stage looking at the device err
->>>>>>>> print.
->>>>>>>>
->>>>>>>>> Then if I wait long enough on the gadget side I get:
->>>>>>>>>
->>>>>>>>>       root@yuna:~# ifconfig
->>>>>>>>>
->>>>>>>>>       usb0: flags=-28605<UP,BROADCAST,RUNNING,MULTICAST,DYNAMIC> mtu
->>>>>>>>> 1500
->>>>>>>>>       inet 169.254.119.239 netmask 255.255.0.0 broadcast
->>>>>>>>> 169.254.255.255
->>>>>>>>>       inet6 fe80::a8bb:ccff:fedd:eef1 prefixlen 64 scopeid
->>>>>>>>> 0x20<link>
->>>>>>>>>       ether aa:bb:cc:dd:ee:f1 txqueuelen 1000 (Ethernet) RX packets
->>>>>>>>> 490424
->>>>>>>>>       bytes 735146578 (701.0 MiB) RX errors 0 dropped191 overruns 0
->>>>>>>>> frame
->>>>>>>>>       0 TX packets 35279 bytes 2532746 (2.4 MiB) TX errors 0
->>>>>>>>> dropped 0
->>>>>>>>>       overruns 0 carrier 0 collisions 0
->>>>>>>>>
->>>>>>>>> (correct would be: inet 10.42.0.221 netmask 255.255.255.0 broadcast
->>>>>>>>> 10.42.0.255)
->>>>>>>>>
->>>>>>>>> So much improved now, but it seems I am still missing something on
->>>>>>>>> plug.
->>>>>>>>>
->>>>>>>> That's great! We can look at it further. Can you capture the
->>>>>>>> tracepoints
->>>>>>>> of the issue. Also, can you try with mass_storage gadget to see
->>>>>>>> if the
->>>>>>>> result is the same?
->>>>>>> I have already gser, eem, mass_storage and uac2 combo. When eem
->>>>>>> fails,
->>>>>>> the mass_storage and uac2 don't appear (on KDE you get all kind of
->>>>>>> popups when they appear).
->>>>>>>
->>>>>>> So either all works, or all fails.
->>>>>>>
->>>>>>> I'll trace this later today.
->>>>>> Trace capturing switch from host-> gadget  here
->>>>>> https://urldefense.com/v3/__https://github.com/andy-shev/linux/files/6329600/5.12-rc7*2Busb-next.zip__;JQ!!A4F2R9G_pg!Oa6XGH3IqY3wwG5KK4FwPuNA0m3q5bRj7N6vdP-y4sAY6mya-96J90NJ0tJnXLOiNwGT$
->>>>>>
->>>>>>
->>>>>>
->>>>>> (Issue history:
->>>>>> https://urldefense.com/v3/__https://github.com/andy-shev/linux/issues/31__;!!A4F2R9G_pg!Oa6XGH3IqY3wwG5KK4FwPuNA0m3q5bRj7N6vdP-y4sAY6mya-96J90NJ0tJnXNc7KgAw$
->>>>>>
->>>>>>
->>>>>> )
->>>>>>
->>>>>> On the PC side this resulted to:
->>>>>>
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: new high-speed USB device
->>>>>> number 12 using xhci_hcd
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: New USB device found,
->>>>>> idVendor=1d6b, idProduct=0104, bcdDevice= 1.00
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: New USB device strings:
->>>>>> Mfr=1,
->>>>>> Product=2, SerialNumber=3
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: Product: USBArmory Gadget
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: Manufacturer: USBArmory
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: SerialNumber:
->>>>>> 0123456789abcdef
->>>>>> apr 17 18:17:49 delfion kernel: usb 1-5: can't set config #1, error
->>>>>> -110
->>>>>>
->>>>>>
->>>>>> Thanks for all your help!
->>>>>>
->>>>> Looks like it's LPM related again. To confirm, try this:
->>>>> Disable LPM with this property "snps,usb2-gadget-lpm-disable"
->>>>> (Note that it's not the same as "snps,dis_enblslpm_quirk")
->>>> Yes, I confirm this helps.
->>>>
->>>> Note: on startup I was in host mode, with gadget cable plugged. The
->>>> first switch to gadget didn't work, all subsequent switches did work, as
->>>> well as unplug/plug the cable.
->>>>
->>>>> Make sure that your testing kernel has this patch [1]
->>>>> 475e8be53d04 ("usb: dwc3: gadget: Check for disabled LPM quirk")
->>>>>
->>>>> [1]
->>>>> https://urldefense.com/v3/__https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git/commit/?h=usb-next&id=475e8be53d0496f9bc6159f4abb3ff5f9b90e8de__;!!A4F2R9G_pg!Mvz1Am6Ka_pOBfD0TmsA3821I05Ti8stMgh5r4XzMwZ9dy1Wan-il-DB4h50DmbaU4Zw$
->>>>>
->>>>>
->>>>>
->>>>> The failure you saw was probably due the gadget function attempting
->>>>> to start a delayed status stage of the SET_CONFIGURATION request.
->>>>> By this time, the host already put the device in low power.
->>>>>
->>>>> The START_TRANSFER command needs to be executed while the device
->>>>> is on "ON" state (or U0 if eSS). We shouldn't use dwc->link_state
->>>>> to check for link state because we only enable link state change
->>>>> interrupt for some controller versions.
->>>>>
->>>>> Once you confirms disabling LPM works, try this fix:
->>>>>
->>>>> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
->>>>> index 6227641f2d31..06cdec79244e 100644
->>>>> --- a/drivers/usb/dwc3/gadget.c
->>>>> +++ b/drivers/usb/dwc3/gadget.c
->>>>> @@ -309,10 +309,14 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep,
->>>>> unsigned int cmd,
->>>>>              if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
->>>>>                    int             needs_wakeup;
->>>>> +               u8              link_state;
->>>>>     -               needs_wakeup = (dwc->link_state ==
->>>>> DWC3_LINK_STATE_U1 ||
->>>>> -                               dwc->link_state == DWC3_LINK_STATE_U2||
->>>>> -                               dwc->link_state == DWC3_LINK_STATE_U3);
->>>>> +               reg = dwc3_readl(dwc->regs, DWC3_DSTS);
->>>>> +               link_state = DWC3_DSTS_USBLNKST(reg);
->>>>> +
->>>>> +               needs_wakeup = (link_state == DWC3_LINK_STATE_U1 ||
->>>>> +                               link_state == DWC3_LINK_STATE_U2 ||
->>>>> +                               link_state == DWC3_LINK_STATE_U3);
->>>>>                      if (unlikely(needs_wakeup)) {
->>>>>                           ret = __dwc3_gadget_wakeup(dwc);
->>>>> @@ -1989,6 +1993,8 @@ static int __dwc3_gadget_wakeup(struct dwc3 *dwc)
->>>>>            case DWC3_LINK_STATE_RESET:
->>>>>            case DWC3_LINK_STATE_RX_DET:    /* in HS, means Early
->>>>> Suspend */
->>>>>            case DWC3_LINK_STATE_U3:        /* in HS, means SUSPEND */
->>>>> +       case DWC3_LINK_STATE_U2:        /* in HS, means Sleep (L1) */
->>>>> +       case DWC3_LINK_STATE_U1:
->>>>>            case DWC3_LINK_STATE_RESUME:
->>>>>                    break;
->>>>>            default:
->>>>>
->>>> Same (good) result as with "snps,usb2-gadget-lpm-disable". Including
->>>> first switch from host->gadget not working.
->>>>
->>> Great! Not sure why the first switch is not working, but it seems like
->>> we were able to eliminate quite a few issues. If you have more dwc3
->>> tracepoints, we can take a look further.
->> I traced but the file is empty. I captured the registers as well. The
->> zip file is here:
->>
->> https://urldefense.com/v3/__https://github.com/andy-shev/linux/files/6346271/first-switch.zip__;!!A4F2R9G_pg!KAmPA0Vw1WUiSxdc5-BKNPyD0klvdr5ucZI3E_C2ojho2rNT9wzMs8HG4qCYSDx89HFE$
->>
->> I found the gadget configuration script was not called, which normally
->> gets called due to a udev rule:
->>
->> ACTION=="add", KERNEL=="dwc3.0.auto", SUBSYSTEMS=="udc",
->> ATTRS{state}=="not attached", RUN+="/usr/bin/conf-gadget.sh"
->>
->> So I retried and see  with ~# udevadm monitor:
->>
->> # flipping the switch from host->gadget
->>
->> KERNEL[51.824914] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/enp0s17u1u1/queues/rx-0
->> (queues)
->> KERNEL[51.825682] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/enp0s17u1u1/queues/tx-0
->> (queues)
->> KERNEL[51.826226] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/enp0s17u1u1
->> (net)
->> KERNEL[51.836041] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:003/usb-001:003:01
->> (mdio_bus)
->> KERNEL[51.836709] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:003/usb-001:003:01
->> (mdio_bus)
->> KERNEL[51.837342] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:003
->> (mdio_bus)
->> KERNEL[51.837763] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[51.838116] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[51.873712] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[51.874000] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[51.874207] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[51.874431] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[51.897175] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[51.897486] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->>
->> # stopped capture tracepoints here, then switch back to host
->>
->> KERNEL[253.214406] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[253.263305] change
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[253.263687] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[253.328354] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[253.328734] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[253.699341] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[253.744911] change
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[253.745804] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[253.805307] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005
->> (mdio_bus)
->> KERNEL[253.812978] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005/usb-001:005:01
->> (mdio_bus)
->> KERNEL[253.814318] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005/usb-001:005:01
->> (mdio_bus)
->> KERNEL[253.815386] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0
->> (net)
->> KERNEL[253.815552] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0/queues/rx-0
->> (queues)
->> KERNEL[253.815778] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0/queues/tx-0
->> (queues)
->> KERNEL[253.825279] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[253.825667] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->>
->> # switch to gadget again
->>
->> KERNEL[314.212144] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0/queues/rx-0
->> (queues)
->> KERNEL[314.212473] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0/queues/tx-0
->> (queues)
->> KERNEL[314.214691] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0
->> (net)
->>
->> # extcon event didn't show the first time
->>
->> KERNEL[314.238385] change
->> /devices/pci0000:00/0000:00:13.0/INTC100E:00/mrfld_bcove_pwrsrc/extcon/extcon0
->> (extcon)
->> KERNEL[314.238677] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005/usb-001:005:01
->> (mdio_bus)
->> KERNEL[314.238863] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005/usb-001:005:01
->> (mdio_bus)
->> KERNEL[314.239015] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005
->> (mdio_bus)
->> KERNEL[314.239205] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[314.239429] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[314.239666] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb2/2-0:1.0 (usb)
->>
->> KERNEL[314.239933] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb2/2-0:1.0 (usb)
->>
->> KERNEL[314.262713] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb2 (usb)
->> KERNEL[314.263030] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[314.263298] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb2 (usb)
->> KERNEL[314.263569] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[314.263815] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[314.264042] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[314.264753] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usbmon/usbmon2
->> (usbmon)
->> KERNEL[314.265019] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[314.265289] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[314.288792] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-0:1.0 (usb)
->>
->> KERNEL[314.289057] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-0:1.0 (usb)
->>
->> KERNEL[314.289327] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1 (usb)
->> KERNEL[314.289661] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1 (usb)
->> KERNEL[314.647375] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usbmon/usbmon1
->> (usbmon)
->> KERNEL[314.647816] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto (platform)
->> KERNEL[314.648143] remove   /kernel/software_nodes/node1 (software_nodes)
->> KERNEL[314.648672] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto (platform)
->>
->> # here is the event we were waiting for
->>
->> KERNEL[314.649158] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/udc/dwc3.0.auto (udc)
->>
->> # after this gadget devices appear normally
->>
->> Maybe this issue is due to extcon missing the event?
->  From the info here, it doesn't look like the host platform device was
-> removed on the first switch. Also, as you pointed it out, the extcon
-> event was not shown on the first switch either. Without a notification
-> to switch mode, the dwc3 driver won't do anything. You need to check why
-> that's the case as I can't help much here.
-Thanks, I am looking into our extcon driver now for this.
->>>> After a 2 - 4 minutes the connection is dropped and reconnected.
->>> Does this occur with LPM disabled also? We can review this issue further
->>> with more dwc3 tracepoints.
->> I captured connection dropping and reconnecting in this fairly long
->> trace near the end of the file:
->>
->> https://urldefense.com/v3/__https://github.com/andy-shev/linux/files/6346323/lost-connection.zip__;!!A4F2R9G_pg!KAmPA0Vw1WUiSxdc5-BKNPyD0klvdr5ucZI3E_C2ojho2rNT9wzMs8HG4qCYSIuUHRz4$
->>
-> Nothing obvious stands out as a problem from the dwc3 driver or the
-> controller. I see a (port) reset after 30 seconds of inactivity, which
-> is a typical timeout and recovery mechanism in the upperlayer from host.
->
-> * Is this a new issue or was it always there?
-I've seen it before, but because of all the other issues it wasn't obvious.
-> * Does turning off LPM help?
-I think so, but maybe didn't wait long enough. This I will retest 
-tomorrow evening.
-> * Are the other gadget functions still work during the 30 seconds
-> inactivity?
-No. The behavior seems same as unplug/plug the cable.
->
->>>> On the gadget end journal shows:
->>>>
->>>> Apr 19 22:08:42 yuna systemd-networkd[507]: usb0: Lost carrier
->>>> Apr 19 22:08:42 yuna systemd-journald[417]: Forwarding to syslog missed
->>>> 1 messages.
->>>> Apr 19 22:08:42 yuna systemd-timesyncd[469]: No network connectivity,
->>>> watching for changes.
->>>> Apr 19 22:08:42 yuna kernel: IPv6: ADDRCONF(NETDEV_CHANGE): usb0: link
->>>> becomes ready
->>>> Apr 19 22:08:42 yuna kernel[480]: [  624.382929] IPv6:
->>>> ADDRCONF(NETDEV_CHANGE): usb0: link becomes ready
->>>> Apr 19 22:08:42 yuna systemd-networkd[507]: usb0: Gained carrier
->>>> Apr 19 22:08:44 yuna systemd-networkd[507]: usb0: Gained IPv6LL
->>>> Apr 19 22:08:44 yuna systemd-timesyncd[469]: Network configuration
->>>> changed, trying to establish connection.
->>>> Apr 19 22:08:57 yuna systemd-timesyncd[469]: Initial synchronization to
->>>> time server 216.239.35.8:123 (time3.google.com).
->>>>
->>>> So, drops and immediately reconnects.
->>>>
->>>   From the look at the log here, it seems to be a reset from host (and an
->>> issue at the protocol level) unrelated to dwc3 driver or the controller.
->>> Hopefully and maybe we can get more clues from dwc3 tracepoints.
->>>
-> BR,
-> Thinh
+commit 17839856fd588f4ab6b789f482ed3ffd7c403e1f upstream.
+
+Doing a "get_user_pages()" on a copy-on-write page for reading can be
+ambiguous: the page can be COW'ed at any time afterwards, and the
+direction of a COW event isn't defined.
+
+Yes, whoever writes to it will generally do the COW, but if the thread
+that did the get_user_pages() unmapped the page before the write (and
+that could happen due to memory pressure in addition to any outright
+action), the writer could also just take over the old page instead.
+
+End result: the get_user_pages() call might result in a page pointer
+that is no longer associated with the original VM, and is associated
+with - and controlled by - another VM having taken it over instead.
+
+So when doing a get_user_pages() on a COW mapping, the only really safe
+thing to do would be to break the COW when getting the page, even when
+only getting it for reading.
+
+At the same time, some users simply don't even care.
+
+For example, the perf code wants to look up the page not because it
+cares about the page, but because the code simply wants to look up the
+physical address of the access for informational purposes, and doesn't
+really care about races when a page might be unmapped and remapped
+elsewhere.
+
+This adds logic to force a COW event by setting FOLL_WRITE on any
+copy-on-write mapping when FOLL_GET (or FOLL_PIN) is used to get a page
+pointer as a result.
+
+The current semantics end up being:
+
+ - __get_user_pages_fast(): no change. If you don't ask for a write,
+   you won't break COW. You'd better know what you're doing.
+
+ - get_user_pages_fast(): the fast-case "look it up in the page tables
+   without anything getting mmap_sem" now refuses to follow a read-only
+   page, since it might need COW breaking.  Which happens in the slow
+   path - the fast path doesn't know if the memory might be COW or not.
+
+ - get_user_pages() (including the slow-path fallback for gup_fast()):
+   for a COW mapping, turn on FOLL_WRITE for FOLL_GET/FOLL_PIN, with
+   very similar semantics to FOLL_FORCE.
+
+If it turns out that we want finer granularity (ie "only break COW when
+it might actually matter" - things like the zero page are special and
+don't need to be broken) we might need to push these semantics deeper
+into the lookup fault path.  So if people care enough, it's possible
+that we might end up adding a new internal FOLL_BREAK_COW flag to go
+with the internal FOLL_COW flag we already have for tracking "I had a
+COW".
+
+Alternatively, if it turns out that different callers might want to
+explicitly control the forced COW break behavior, we might even want to
+make such a flag visible to the users of get_user_pages() instead of
+using the above default semantics.
+
+But for now, this is mostly commentary on the issue (this commit message
+being a lot bigger than the patch, and that patch in turn is almost all
+comments), with that minimal "enable COW breaking early" logic using the
+existing FOLL_WRITE behavior.
+
+[ It might be worth noting that we've always had this ambiguity, and it
+  could arguably be seen as a user-space issue.
+
+  You only get private COW mappings that could break either way in
+  situations where user space is doing cooperative things (ie fork()
+  before an execve() etc), but it _is_ surprising and very subtle, and
+  fork() is supposed to give you independent address spaces.
+
+  So let's treat this as a kernel issue and make the semantics of
+  get_user_pages() easier to understand. Note that obviously a true
+  shared mapping will still get a page that can change under us, so this
+  does _not_ mean that get_user_pages() somehow returns any "stable"
+  page ]
+
+[surenb: backport notes]
+Replaced (gup_flags | FOLL_WRITE) with write=1 in gup_pgd_range.
+Removed FOLL_PIN usage in should_force_cow_break since it's missing in
+the earlier kernels.
+
+Reported-by: Jann Horn <jannh@google.com>
+Tested-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Acked-by: Kirill Shutemov <kirill@shutemov.name>
+Acked-by: Jan Kara <jack@suse.cz>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[surenb: backport to 4.19 kernel]
+Cc: stable@vger.kernel.org # 4.19.x
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+---
+ mm/gup.c         | 44 ++++++++++++++++++++++++++++++++++++++------
+ mm/huge_memory.c |  7 +++----
+ 2 files changed, 41 insertions(+), 10 deletions(-)
+
+diff --git a/mm/gup.c b/mm/gup.c
+index f3088d25bd92..44569927f0ea 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -61,13 +61,22 @@ static int follow_pfn_pte(struct vm_area_struct *vma, unsigned long address,
+ }
+ 
+ /*
+- * FOLL_FORCE can write to even unwritable pte's, but only
+- * after we've gone through a COW cycle and they are dirty.
++ * FOLL_FORCE or a forced COW break can write even to unwritable pte's,
++ * but only after we've gone through a COW cycle and they are dirty.
+  */
+ static inline bool can_follow_write_pte(pte_t pte, unsigned int flags)
+ {
+-	return pte_write(pte) ||
+-		((flags & FOLL_FORCE) && (flags & FOLL_COW) && pte_dirty(pte));
++	return pte_write(pte) || ((flags & FOLL_COW) && pte_dirty(pte));
++}
++
++/*
++ * A (separate) COW fault might break the page the other way and
++ * get_user_pages() would return the page from what is now the wrong
++ * VM. So we need to force a COW break at GUP time even for reads.
++ */
++static inline bool should_force_cow_break(struct vm_area_struct *vma, unsigned int flags)
++{
++	return is_cow_mapping(vma->vm_flags) && (flags & FOLL_GET);
+ }
+ 
+ static struct page *follow_page_pte(struct vm_area_struct *vma,
+@@ -710,12 +719,18 @@ static long __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+ 			if (!vma || check_vma_flags(vma, gup_flags))
+ 				return i ? : -EFAULT;
+ 			if (is_vm_hugetlb_page(vma)) {
++				if (should_force_cow_break(vma, foll_flags))
++					foll_flags |= FOLL_WRITE;
+ 				i = follow_hugetlb_page(mm, vma, pages, vmas,
+ 						&start, &nr_pages, i,
+-						gup_flags, nonblocking);
++						foll_flags, nonblocking);
+ 				continue;
+ 			}
+ 		}
++
++		if (should_force_cow_break(vma, foll_flags))
++			foll_flags |= FOLL_WRITE;
++
+ retry:
+ 		/*
+ 		 * If we have a pending SIGKILL, don't keep faulting pages and
+@@ -1804,6 +1819,10 @@ bool gup_fast_permitted(unsigned long start, int nr_pages, int write)
+  * the regular GUP.
+  * Note a difference with get_user_pages_fast: this always returns the
+  * number of pages pinned, 0 if no pages were pinned.
++ *
++ * Careful, careful! COW breaking can go either way, so a non-write
++ * access can get ambiguous page results. If you call this function without
++ * 'write' set, you'd better be sure that you're ok with that ambiguity.
+  */
+ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+ 			  struct page **pages)
+@@ -1831,6 +1850,12 @@ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+ 	 *
+ 	 * We do not adopt an rcu_read_lock(.) here as we also want to
+ 	 * block IPIs that come from THPs splitting.
++	 *
++	 * NOTE! We allow read-only gup_fast() here, but you'd better be
++	 * careful about possible COW pages. You'll get _a_ COW page, but
++	 * not necessarily the one you intended to get depending on what
++	 * COW event happens after this. COW may break the page copy in a
++	 * random direction.
+ 	 */
+ 
+ 	if (gup_fast_permitted(start, nr_pages, write)) {
+@@ -1876,9 +1901,16 @@ int get_user_pages_fast(unsigned long start, int nr_pages, int write,
+ 					(void __user *)start, len)))
+ 		return -EFAULT;
+ 
++	/*
++	 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
++	 * because get_user_pages() may need to cause an early COW in
++	 * order to avoid confusing the normal COW routines. So only
++	 * targets that are already writable are safe to do by just
++	 * looking at the page tables.
++	 */
+ 	if (gup_fast_permitted(start, nr_pages, write)) {
+ 		local_irq_disable();
+-		gup_pgd_range(addr, end, write, pages, &nr);
++		gup_pgd_range(addr, end, 1, pages, &nr);
+ 		local_irq_enable();
+ 		ret = nr;
+ 	}
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index cf9e2bbffdc1..7c374c0fcf0c 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1432,13 +1432,12 @@ vm_fault_t do_huge_pmd_wp_page(struct vm_fault *vmf, pmd_t orig_pmd)
+ }
+ 
+ /*
+- * FOLL_FORCE can write to even unwritable pmd's, but only
+- * after we've gone through a COW cycle and they are dirty.
++ * FOLL_FORCE or a forced COW break can write even to unwritable pmd's,
++ * but only after we've gone through a COW cycle and they are dirty.
+  */
+ static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
+ {
+-	return pmd_write(pmd) ||
+-	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
++	return pmd_write(pmd) || ((flags & FOLL_COW) && pmd_dirty(pmd));
+ }
+ 
+ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+-- 
+2.31.1.368.gbe11c130af-goog
+
