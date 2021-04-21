@@ -2,88 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D48D4366E2F
-	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 16:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02E3D366E3F
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 16:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235374AbhDUO2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 10:28:34 -0400
-Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:11529 "EHLO
-        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235193AbhDUO2e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 10:28:34 -0400
+        id S239210AbhDUOcR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 10:32:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58286 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238870AbhDUOcR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 10:32:17 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D49E7C06174A
+        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 07:31:43 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id d25so5092214oij.5
+        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 07:31:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1619015282; x=1650551282;
-  h=to:cc:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding:subject;
-  bh=2lNoxGX/RYM6USYtvjT8Br2jzuo6lbcOi3HWRI5WpI8=;
-  b=TLpi7nM/FJxFoX9AFkZ3AJXElKPd3XeVGRmjAik/D/hdj+Xv855sks/j
-   XnMyfF9DOV8i17EzZuHMUxxoGSXMzUAec4Un+q8mMAqMmpwPUednptX5+
-   84J0aOr/kecHU1nLJJeGmbXHzDKWQVjmcD0LCr5q16ZDi+2KELqIvhK0W
-   c=;
-X-IronPort-AV: E=Sophos;i="5.82,240,1613433600"; 
-   d="scan'208";a="109008671"
-Subject: Re: [PATCH 0/8] Fix bpf: fix userspace access for bpf_probe_read{, str}()
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1a-e34f1ddc.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 21 Apr 2021 14:27:55 +0000
-Received: from EX13D01EUA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-1a-e34f1ddc.us-east-1.amazon.com (Postfix) with ESMTPS id B82E4A1D71;
-        Wed, 21 Apr 2021 14:27:53 +0000 (UTC)
-Received: from 8c859063385e.ant.amazon.com (10.43.162.28) by
- EX13D01EUA001.ant.amazon.com (10.43.165.121) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 21 Apr 2021 14:27:51 +0000
-To:     Greg KH <greg@kroah.com>
-CC:     <stable@vger.kernel.org>
-References: <dda18ffd-0406-ec54-1014-b7d89a1bcd56@amazon.com>
- <YIAmHIzn2eW+II3R@kroah.com>
-From:   "Zidenberg, Tsahi" <tsahee@amazon.com>
-Message-ID: <eb943c43-8446-4a8a-c4a2-3e95ede58347@amazon.com>
-Date:   Wed, 21 Apr 2021 17:27:44 +0300
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.1
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=QUNEmYD5YFYThhJKqR84lbZJ/Ob3MmuxIOF1YI+emKU=;
+        b=oX0hduQAakHX+aibypLzn/gHL+lXU3j49z7MpsAG4vDXCWfOcZbsBd6jxZs9U8dJL8
+         Dz22OfdvnKfvDifIlNDNKnoY+LqQpX/S0NQM8rIPvm7KV+P6CMSxxmXXLc67PFNPlxE9
+         Eaq5YyhztX6i1w0Iznq/rJPRLWzwVV4vYT9kKGmP10nY+0zxos2YOWkV7TnozBH26ybs
+         ZEG/pxFJ7ATJLNWoMAGla0dSyoCbq97GCusf94NpHWaPrL7GUYG0A1i+4YuYKBYo1gR0
+         aWcr5tkgIH7mdnhhedi0frhkeQwOsnxAfsvu6qWR9As8i/12rnu3/FRepcb5OQK6hib2
+         rkHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=QUNEmYD5YFYThhJKqR84lbZJ/Ob3MmuxIOF1YI+emKU=;
+        b=fNtHRaLhiz11/BUxr7t4sFpeAjK5fTUFHqyO312L5m1lOCL1svJoKURtf2LrCdW23Q
+         aQkoCf8U0PPYPdv+8mD3ECM5/8b3Bf4HFQMbDDJWTSUYr8qtcnSo/+FHxtvryld28wYN
+         Ivwc/RfymQUgFx/av2S9ye4CF97l8cx5B0LiwaxGXecKtf3BX7tpJtTQC5zu+pX40de4
+         3I0nE8eN+QkvdIHAAObMbOqfC3V5cSRoJq2kpPZg83du9o+D8OkB5CnJaC5jBihKFiUV
+         enPBvAP86yVyixGYeJM0rx1rixlGmV1FfC7GAAAB9bAzAuYSC+/nsqqGWeGi99kEfwP/
+         Pglg==
+X-Gm-Message-State: AOAM532dB4wX3Sqbp9CawUSdcojWk1cxUsXHTUP4HVmPXB5H5nuWJ+eQ
+        eOZdCrH/RcrYi+4wc4MEFKpaezT5KMDxSCIShaI=
+X-Google-Smtp-Source: ABdhPJwP3bZ8PvqlHiEYZ7o0/t+SGKiMqRjdEBWoMrgIWZuKTPQl3J4e3mp4uGSt8xwcrFEG0GYL/xj+w0gaqwOsLXo=
+X-Received: by 2002:aca:d16:: with SMTP id 22mr6764665oin.163.1619015503267;
+ Wed, 21 Apr 2021 07:31:43 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <YIAmHIzn2eW+II3R@kroah.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-IP: [10.43.162.28]
-X-ClientProxiedBy: EX13D31UWC003.ant.amazon.com (10.43.162.34) To
- EX13D01EUA001.ant.amazon.com (10.43.165.121)
+Received: by 2002:a4a:c806:0:0:0:0:0 with HTTP; Wed, 21 Apr 2021 07:31:42
+ -0700 (PDT)
+Reply-To: unionwestern32@accountant.com
+From:   j o <oliviergeorge444@gmail.com>
+Date:   Wed, 21 Apr 2021 14:31:42 +0000
+Message-ID: <CA+JYH4PCRswWzAg=q9KPSvjWmRrf0x=02wXeqJnUySOOVvSq9A@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+ Attention,
+We have deposited the check of your fund ($3.5 MILLIONUSD) through
+Western Union department after our finally meeting regarding your
+fund, All you will do is to contact Western Union director Dr.Philip
+Udom Jude aka via E-mail (unionwestern32@accountant.com.com ). He will
+give you direction on how you will be receiving the funds daily.
+Remember to send him your Full information to avoid wrong transfer
+such as,
 
 
-On 21/04/2021 16:18, Greg KH wrote:
-> On Wed, Apr 21, 2021 at 04:05:32PM +0300, Zidenberg, Tsahi wrote:
->> In arm64, kernelspace address accessors cannot be used to access
->> userspace addresses, which means bpf_probe_read{,str}() cannot access
->> userspace addresses. That causes e.g. command-line parameters to not
->> appear when snooping execve using bpf.
->>
->> This patch series takes the upstream solution. This solution also
->> changes user API in the following ways:
->> * Add probe_read_{user, kernel}{,_str} bpf helpers
->> * Add skb_output helper to the enum only (calling it not supported)
->> * Add support for %pks, %pus specifiers
->>
->> An alternative fix only takes the required logic to existing API without
->> adding new API, was suggested here:
->> https://www.spinics.net/lists/stable/msg454945.html
->>
->> Another option is to only take patches [1-4] of this patchset, and add
->> on top of them commit 8d92db5c04d1 ("bpf: rework the compat kernel probe
->> handling"). In that case, the last patch would require function renames
->> and conflict resolutions that were avoided in this patchset by pulling
->> patches [5-7].
-> What stable tree(s) are you expecting these to be relevant for?
-Sorry I forgot to mention it here..
-This patchset was created/tested for 5.4.
-I expect it to also be relevant for 4.19, but I didn't test it.
-If you like it for 5.4 I could test and resubmit or notify you.
-No updates are necessary for 5.10.
+Receiver's Name _____
+Address: ______
+Country: _____
+Phone Number: _____
 
-Thank you!
-Tsahi.
+Though, Mr.NICHOLA AGUAGU has sent $5000 through Western Union  in
+your name today so contact Dr.Philip Udom Jude aka  as soon as you
+receive this email and tell him to give you the Mtcn, sender name and
+question/answer to pick the $5000  Please let us know as soon as you
+received all your fund,
 
+Best Regards.
+WESTERN UNION AGENT
