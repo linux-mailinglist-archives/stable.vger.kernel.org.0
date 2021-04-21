@@ -2,82 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C00BF366BB3
-	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7CAF366BCC
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240773AbhDUNFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 09:05:31 -0400
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:3877 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239555AbhDUNFD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 09:05:03 -0400
+        id S240750AbhDUNHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 09:07:09 -0400
+Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:20495 "EHLO
+        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239051AbhDUNGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 09:06:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1619010271; x=1650546271;
-  h=to:cc:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding:subject;
-  bh=yewBK2UdkTGSSBHvPotbvWTYavwdTYJMCubqayrc7fc=;
-  b=HVwBTGtbY+1rwGrIg8tAiWhbOkhYHY6Khyap45VauqjzOilA35slSJK9
-   Ps8I5MKl8dUpQvAxTlu9qSn3yjuBqD8jvFrt5D15IQAWL3VEmD8Cw1vXd
-   ZoqjKu+0Lu60zDvDT0OjKvE1V99YfSRWBXld9UIZtotvw+/K9EatmkcLt
-   Y=;
-X-IronPort-AV: E=Sophos;i="5.82,238,1613433600"; 
-   d="scan'208";a="104665525"
-Subject: Re: [PATCH 0/2] fix userspace access on arm64 for linux 5.4
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2b-4ff6265a.us-west-2.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 21 Apr 2021 13:04:21 +0000
-Received: from EX13D01EUA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2b-4ff6265a.us-west-2.amazon.com (Postfix) with ESMTPS id D9BD5A2428;
-        Wed, 21 Apr 2021 13:04:20 +0000 (UTC)
+  t=1619010349; x=1650546349;
+  h=to:cc:from:subject:message-id:date:mime-version:
+   content-transfer-encoding;
+  bh=G54VHrIVXqISdhGhnadHmQGqdXpbcT/YXnRlmQtowA0=;
+  b=Qu7/cpCFJrIqHd5vtBC3bntYabYkY3ox4/MBXkjUib3nuRcvU+SjyePz
+   VSo4Ew+AyUT79kwTj9qnFOLown0oLZL/vntro8Aoq8AnHpjQI3rK8OF1K
+   VE0pGMvI1jhlHK7iKtNuTXMpUBixAK2S0Pv4iF2BTUpvm5MqiUZSzm949
+   g=;
+X-IronPort-AV: E=Sophos;i="5.82,240,1613433600"; 
+   d="scan'208";a="120448982"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-2a-1c1b5cdd.us-west-2.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 21 Apr 2021 13:05:42 +0000
+Received: from EX13D01EUA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-2a-1c1b5cdd.us-west-2.amazon.com (Postfix) with ESMTPS id 8E205A1DD9;
+        Wed, 21 Apr 2021 13:05:40 +0000 (UTC)
 Received: from 8c859063385e.ant.amazon.com (10.43.161.102) by
  EX13D01EUA001.ant.amazon.com (10.43.165.121) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 21 Apr 2021 13:04:18 +0000
-To:     Greg KH <greg@kroah.com>
-CC:     <stable@vger.kernel.org>
-References: <56be4b97-8283-cf09-4dac-46d602cae97c@amazon.com>
- <YHGMWBj+DEW+EiQE@kroah.com>
- <e99e851a-07c3-ab83-0d10-fa2bb87a516d@amazon.com>
- <YHVH2uNBTVDsJ66m@kroah.com>
+ id 15.0.1497.2; Wed, 21 Apr 2021 13:05:37 +0000
+To:     <stable@vger.kernel.org>
+CC:     Greg KH <greg@kroah.com>
 From:   "Zidenberg, Tsahi" <tsahee@amazon.com>
-Message-ID: <66f9c439-13d1-1392-0d20-0c48fb9fdd60@amazon.com>
-Date:   Wed, 21 Apr 2021 16:04:12 +0300
+Subject: [PATCH 0/8] Fix bpf: fix userspace access for bpf_probe_read{,str}()
+Message-ID: <dda18ffd-0406-ec54-1014-b7d89a1bcd56@amazon.com>
+Date:   Wed, 21 Apr 2021 16:05:32 +0300
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
  Gecko/20100101 Thunderbird/78.9.1
 MIME-Version: 1.0
-In-Reply-To: <YHVH2uNBTVDsJ66m@kroah.com>
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
 X-Originating-IP: [10.43.161.102]
-X-ClientProxiedBy: EX13D32UWA004.ant.amazon.com (10.43.160.193) To
+X-ClientProxiedBy: EX13D32UWA001.ant.amazon.com (10.43.160.4) To
  EX13D01EUA001.ant.amazon.com (10.43.165.121)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In arm64, kernelspace address accessors cannot be used to access
+userspace addresses, which means bpf_probe_read{,str}() cannot access
+userspace addresses. That causes e.g. command-line parameters to not
+appear when snooping execve using bpf.
 
+This patch series takes the upstream solution. This solution also
+changes user API in the following ways:
+* Add probe_read_{user, kernel}{,_str} bpf helpers
+* Add skb_output helper to the enum only (calling it not supported)
+* Add support for %pks, %pus specifiers
 
-On 13/04/2021 10:27, Greg KH wrote:
-> On Mon, Apr 12, 2021 at 10:46:41PM +0300, Zidenberg, Tsahi wrote:
->> The original bug that I was working on: command line parameters don't
->> appear when snooping execve using bpf on arm64.
-> Has this ever worked?  If not, it's not really a regression that needs
-> to be fixed, just use a newer kernel version, right?
-It's not so much a regression between old and new kernels, as it is
-a regression when changing architectures. The same API works on x86,
-but not on arm64 (in x86 - you can access userspace with a kernelspace
-access).
-Multiple Linux distributions support both x86 and arm64, and some of
-these choose to keep with 5.4 LTS Linux kernel. I think these
-distributions should expect the same experience across architectures.
-> But your "patch 1" is no where near what that commit is upstream so now
-> you have divered from what is there and created something new.  And we
-> don't like that for obvious reasons (no testing, maintaining over time,
-> etc.)
-I have created an alternative patch series that stays very close to
-upstream. It brings in much more code, and adds some APIs as we
-discussed. Will send it right away for your consideration.
+An alternative fix only takes the required logic to existing API without
+adding new API, was suggested here:
+https://www.spinics.net/lists/stable/msg454945.html
 
-Thank you!
-Tsahi.
+Another option is to only take patches [1-4] of this patchset, and add
+on top of them commit 8d92db5c04d1 ("bpf: rework the compat kernel probe
+handling"). In that case, the last patch would require function renames
+and conflict resolutions that were avoided in this patchset by pulling
+patches [5-7].
+
+Christoph Hellwig (3):
+  maccess: rename strncpy_from_unsafe_user to strncpy_from_user_nofault
+  maccess: rename strncpy_from_unsafe_strict to
+    strncpy_from_kernel_nofault
+  bpf: rework the compat kernel probe handling
+
+Daniel Borkmann (4):
+  uaccess: Add strict non-pagefault kernel-space read function
+  bpf: Add probe_read_{user, kernel} and probe_read_{user, kernel}_str
+    helpers
+  bpf: Restrict bpf_probe_read{, str}() only to archs where they work
+  bpf: Restrict bpf_trace_printk()'s %s usage and add %pks, %pus
+    specifier
+
+Petr Mladek (1):
+  powerpc/bpf: Enable bpf_probe_read{, str}() on powerpc again
+
+ Documentation/core-api/printk-formats.rst |  14 +
+ arch/arm/Kconfig                          |   1 +
+ arch/arm64/Kconfig                        |   1 +
+ arch/powerpc/Kconfig                      |   1 +
+ arch/x86/Kconfig                          |   1 +
+ arch/x86/mm/Makefile                      |   2 +-
+ arch/x86/mm/maccess.c                     |  43 +++
+ include/linux/uaccess.h                   |   8 +-
+ include/uapi/linux/bpf.h                  | 123 ++++++---
+ init/Kconfig                              |   3 +
+ kernel/trace/bpf_trace.c                  | 302 ++++++++++++++++------
+ kernel/trace/trace_kprobe.c               |   2 +-
+ lib/vsprintf.c                            |  12 +
+ mm/maccess.c                              |  48 +++-
+ tools/include/uapi/linux/bpf.h            | 116 ++++++---
+ 15 files changed, 512 insertions(+), 165 deletions(-)
+ create mode 100644 arch/x86/mm/maccess.c
+
+-- 
+2.25.1
+
 
