@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA37B366C1C
-	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46AA366C42
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241580AbhDUNLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 09:11:00 -0400
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:25098 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242240AbhDUNJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 09:09:58 -0400
+        id S239667AbhDUNNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 09:13:22 -0400
+Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:45879 "EHLO
+        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241867AbhDUNLX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 09:11:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1619010565; x=1650546565;
+  t=1619010651; x=1650546651;
   h=subject:from:to:cc:references:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=4dz49e0j4dlJ7n1U/S3W4X62ctZqCqEkCAOg6S2K1QI=;
-  b=DjVS1CVwiOCSSl3SZL9zuavUbcHCk2BabKX3SYl32gTP2ldMd8ePoPcl
-   bWr/s5JrPygO8xrf5+YNdXOrrdTcQY70DaXp3cMpljbkev2/VrOfNLQ5U
-   r3fOV/VtjRaSb9mW/P6Fkjay6rrwr0tEGnmfyFFqSCRkkd/xfs11bEk8z
-   c=;
+  bh=X1Guu4g3y6XQ31GyM/6aVlFFsY0PGtWjyVIc1+SURnU=;
+  b=hU+NOvNoGG1Mcp+2Q6heZXYDNlTVwPGzdH0aZSZMATIzf7ntORKkz67K
+   rkqhye/Q49BuDj+ZcaQctgtZNqjFAuvjcaCA72T9lJIQfY/oD7FaBKYfc
+   R7MCCMqatjtIaRQ3PgVaMEwJbO2D5nMT1fhsSKJtCXvSvAF+D1eh3O4ru
+   Y=;
 X-IronPort-AV: E=Sophos;i="5.82,240,1613433600"; 
-   d="scan'208";a="120450391"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-2a-90c42d1d.us-west-2.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 21 Apr 2021 13:09:24 +0000
-Received: from EX13D01EUA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2a-90c42d1d.us-west-2.amazon.com (Postfix) with ESMTPS id 5FB47A1D40;
-        Wed, 21 Apr 2021 13:09:24 +0000 (UTC)
-Received: from 8c859063385e.ant.amazon.com (10.43.162.28) by
+   d="scan'208";a="103137117"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2b-a7fdc47a.us-west-2.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-4101.iad4.amazon.com with ESMTP; 21 Apr 2021 13:10:44 +0000
+Received: from EX13D01EUA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-2b-a7fdc47a.us-west-2.amazon.com (Postfix) with ESMTPS id B9476C059F;
+        Wed, 21 Apr 2021 13:10:42 +0000 (UTC)
+Received: from 8c859063385e.ant.amazon.com (10.43.161.253) by
  EX13D01EUA001.ant.amazon.com (10.43.165.121) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 21 Apr 2021 13:09:20 +0000
-Subject: [PATCH 3/8] bpf: Restrict bpf_probe_read{, str}() only to archs
- where, they work
+ id 15.0.1497.2; Wed, 21 Apr 2021 13:10:39 +0000
+Subject: [PATCH 4/8] powerpc/bpf: Enable bpf_probe_read{, str}() on powerpc,
+ again
 From:   "Zidenberg, Tsahi" <tsahee@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     Greg KH <greg@kroah.com>
 References: <dda18ffd-0406-ec54-1014-b7d89a1bcd56@amazon.com>
-Message-ID: <03beea9a-bbee-82c0-6842-833e57b0d786@amazon.com>
-Date:   Wed, 21 Apr 2021 16:09:15 +0300
+Message-ID: <39c705ad-d4d2-6ba7-dcf1-6e1ef9db4639@amazon.com>
+Date:   Wed, 21 Apr 2021 16:10:34 +0300
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
  Gecko/20100101 Thunderbird/78.9.1
 MIME-Version: 1.0
@@ -46,130 +46,53 @@ In-Reply-To: <dda18ffd-0406-ec54-1014-b7d89a1bcd56@amazon.com>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-X-Originating-IP: [10.43.162.28]
-X-ClientProxiedBy: EX13D13UWA003.ant.amazon.com (10.43.160.181) To
+X-Originating-IP: [10.43.161.253]
+X-ClientProxiedBy: EX13D22UWB004.ant.amazon.com (10.43.161.165) To
  EX13D01EUA001.ant.amazon.com (10.43.165.121)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 0ebeea8ca8a4d1d453ad299aef0507dab04f6e8d upstream
 
-Given the legacy bpf_probe_read{,str}() BPF helpers are broken on archs
-with overlapping address ranges, we should really take the next step to
-disable them from BPF use there.
+commit d195b1d1d1196681ac4775e0361e9cca70f740c2 upstream
 
-To generally fix the situation, we've recently added new helper variants
-bpf_probe_read_{user,kernel}() and bpf_probe_read_{user,kernel}_str().
-For details on them, see 6ae08ae3dea2 ("bpf: Add probe_read_{user, kernel}
-and probe_read_{user,kernel}_str helpers").
+The commit 0ebeea8ca8a4d1d453a ("bpf: Restrict bpf_probe_read{, str}() only
+to archs where they work") caused that bpf_probe_read{, str}() functions
+were not longer available on architectures where the same logical address
+might have different content in kernel and user memory mapping. These
+architectures should use probe_read_{user,kernel}_str helpers.
 
-Given bpf_probe_read{,str}() have been around for ~5 years by now, there
-are plenty of users at least on x86 still relying on them today, so we
-cannot remove them entirely w/o breaking the BPF tracing ecosystem.
+For backward compatibility, the problematic functions are still available
+on architectures where the user and kernel address spaces are not
+overlapping. This is defined CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE.
 
-However, their use should be restricted to archs with non-overlapping
-address ranges where they are working in their current form. Therefore,
-move this behind a CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE and
-have x86, arm64, arm select it (other archs supporting it can follow-up
-on it as well).
+At the moment, these backward compatible functions are enabled only on x86_64,
+arm, and arm64. Let's do it also on powerpc that has the non overlapping
+address space as well.
 
-For the remaining archs, they can workaround easily by relying on the
-feature probe from bpftool which spills out defines that can be used out
-of BPF C code to implement the drop-in replacement for old/new kernels
-via: bpftool feature probe macro
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 0ebeea8ca8a4 ("bpf: Restrict bpf_probe_read{, str}() only to archs where they work")
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Brendan Gregg <brendan.d.gregg@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/bpf/20200515101118.6508-2-daniel@iogearbox.net
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/lkml/20200527122844.19524-1-pmladek@suse.com
 Cc: <stable@vger.kernel.org> # 5.4
 Signed-off-by: Tsahi Zidenberg <tsahee@amazon.com>
 ---
- arch/arm/Kconfig         | 1 +
- arch/arm64/Kconfig       | 1 +
- arch/x86/Kconfig         | 1 +
- init/Kconfig             | 3 +++
- kernel/trace/bpf_trace.c | 6 ++++--
- 5 files changed, 10 insertions(+), 2 deletions(-)
+ arch/powerpc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 9aa88715f196..70f4057fb5b0 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -14,6 +14,7 @@ config ARM
-     select ARCH_HAS_KEEPINITRD
-     select ARCH_HAS_KCOV
-     select ARCH_HAS_MEMBARRIER_SYNC_CORE
-+    select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-     select ARCH_HAS_PTE_SPECIAL if ARM_LPAE
-     select ARCH_HAS_PHYS_TO_DMA
-     select ARCH_HAS_SETUP_DMA_OPS
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 9c8ea5939865..a8c49916ab8c 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -22,6 +22,7 @@ config ARM64
-     select ARCH_HAS_KCOV
-     select ARCH_HAS_KEEPINITRD
-     select ARCH_HAS_MEMBARRIER_SYNC_CORE
-+    select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-     select ARCH_HAS_PTE_DEVMAP
-     select ARCH_HAS_PTE_SPECIAL
-     select ARCH_HAS_SETUP_DMA_OPS
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 8ef85139553f..b9f666db10c1 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -70,6 +70,7 @@ config X86
-     select ARCH_HAS_KCOV            if X86_64
-     select ARCH_HAS_MEM_ENCRYPT
-     select ARCH_HAS_MEMBARRIER_SYNC_CORE
-+    select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-     select ARCH_HAS_PMEM_API        if X86_64
-     select ARCH_HAS_PTE_DEVMAP        if X86_64
-     select ARCH_HAS_PTE_SPECIAL
-diff --git a/init/Kconfig b/init/Kconfig
-index 96fc45d1b686..1781810d1501 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -2210,6 +2210,9 @@ config ASN1
- 
- source "kernel/Kconfig.locks"
- 
-+config ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+    bool
-+
- config ARCH_HAS_SYNC_CORE_BEFORE_USERMODE
-     bool
- 
-diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
-index 0e329d48ab08..80f0072b31e0 100644
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -808,14 +808,16 @@ tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
-         return &bpf_probe_read_user_proto;
-     case BPF_FUNC_probe_read_kernel:
-         return &bpf_probe_read_kernel_proto;
--    case BPF_FUNC_probe_read:
--        return &bpf_probe_read_compat_proto;
-     case BPF_FUNC_probe_read_user_str:
-         return &bpf_probe_read_user_str_proto;
-     case BPF_FUNC_probe_read_kernel_str:
-         return &bpf_probe_read_kernel_str_proto;
-+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+    case BPF_FUNC_probe_read:
-+        return &bpf_probe_read_compat_proto;
-     case BPF_FUNC_probe_read_str:
-         return &bpf_probe_read_compat_str_proto;
-+#endif
- #ifdef CONFIG_CGROUPS
-     case BPF_FUNC_get_current_cgroup_id:
-         return &bpf_get_current_cgroup_id_proto;
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index c4cbb65e742f..c50bfab7930b 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -129,6 +129,7 @@ config PPC
+     select ARCH_HAS_MMIOWB            if PPC64
+     select ARCH_HAS_PHYS_TO_DMA
+     select ARCH_HAS_PMEM_API
++    select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
+     select ARCH_HAS_PTE_DEVMAP        if PPC_BOOK3S_64
+     select ARCH_HAS_PTE_SPECIAL
+     select ARCH_HAS_MEMBARRIER_CALLBACKS
 -- 
 2.25.1
 
