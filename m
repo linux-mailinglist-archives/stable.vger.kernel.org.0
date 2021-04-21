@@ -2,79 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70137366C26
-	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:12:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C00BF366BB3
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241732AbhDUNLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 09:11:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241089AbhDUNKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Apr 2021 09:10:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23CAC61460;
-        Wed, 21 Apr 2021 13:10:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619010602;
-        bh=0ZMoyGTMN6cdLV84CGS0daXlsSiChDvc+7QBwEONvJA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DMazOH0T1RUH78/eA5e0WJusx1mjgCjzU0D8p5NrV0OQHoyGG5ushzNzwm6NJRJhI
-         ziAJ9DuYAR464v/c4d6pP/xdD6LfYnWyfERW3fYrYPIBDI5GcYmqPfIjsWIhylzwmZ
-         0LTk5CTlyU5gBe0n3kk6uzvt9vaNEYi53ZSUp5Ak=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Wenwen Wang <wang6495@umn.edu>, stable@vger.kernel.org,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 187/190] Revert "ALSA: control: fix a redundant-copy issue"
-Date:   Wed, 21 Apr 2021 15:01:02 +0200
-Message-Id: <20210421130105.1226686-188-gregkh@linuxfoundation.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
-References: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
+        id S240773AbhDUNFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 09:05:31 -0400
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:3877 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239555AbhDUNFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 09:05:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1619010271; x=1650546271;
+  h=to:cc:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding:subject;
+  bh=yewBK2UdkTGSSBHvPotbvWTYavwdTYJMCubqayrc7fc=;
+  b=HVwBTGtbY+1rwGrIg8tAiWhbOkhYHY6Khyap45VauqjzOilA35slSJK9
+   Ps8I5MKl8dUpQvAxTlu9qSn3yjuBqD8jvFrt5D15IQAWL3VEmD8Cw1vXd
+   ZoqjKu+0Lu60zDvDT0OjKvE1V99YfSRWBXld9UIZtotvw+/K9EatmkcLt
+   Y=;
+X-IronPort-AV: E=Sophos;i="5.82,238,1613433600"; 
+   d="scan'208";a="104665525"
+Subject: Re: [PATCH 0/2] fix userspace access on arm64 for linux 5.4
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2b-4ff6265a.us-west-2.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 21 Apr 2021 13:04:21 +0000
+Received: from EX13D01EUA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
+        by email-inbound-relay-2b-4ff6265a.us-west-2.amazon.com (Postfix) with ESMTPS id D9BD5A2428;
+        Wed, 21 Apr 2021 13:04:20 +0000 (UTC)
+Received: from 8c859063385e.ant.amazon.com (10.43.161.102) by
+ EX13D01EUA001.ant.amazon.com (10.43.165.121) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Wed, 21 Apr 2021 13:04:18 +0000
+To:     Greg KH <greg@kroah.com>
+CC:     <stable@vger.kernel.org>
+References: <56be4b97-8283-cf09-4dac-46d602cae97c@amazon.com>
+ <YHGMWBj+DEW+EiQE@kroah.com>
+ <e99e851a-07c3-ab83-0d10-fa2bb87a516d@amazon.com>
+ <YHVH2uNBTVDsJ66m@kroah.com>
+From:   "Zidenberg, Tsahi" <tsahee@amazon.com>
+Message-ID: <66f9c439-13d1-1392-0d20-0c48fb9fdd60@amazon.com>
+Date:   Wed, 21 Apr 2021 16:04:12 +0300
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
+ Gecko/20100101 Thunderbird/78.9.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YHVH2uNBTVDsJ66m@kroah.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Originating-IP: [10.43.161.102]
+X-ClientProxiedBy: EX13D32UWA004.ant.amazon.com (10.43.160.193) To
+ EX13D01EUA001.ant.amazon.com (10.43.165.121)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 3f12888dfae2a48741c4caa9214885b3aaf350f9.
 
-Commits from @umn.edu addresses have been found to be submitted in "bad
-faith" to try to test the kernel community's ability to review "known
-malicious" changes.  The result of these submissions can be found in a
-paper published at the 42nd IEEE Symposium on Security and Privacy
-entitled, "Open Source Insecurity: Stealthily Introducing
-Vulnerabilities via Hypocrite Commits" written by Qiushi Wu (University
-of Minnesota) and Kangjie Lu (University of Minnesota).
 
-Because of this, all submissions from this group must be reverted from
-the kernel tree and will need to be re-reviewed again to determine if
-they actually are a valid fix.  Until that work is complete, remove this
-change to ensure that no problems are being introduced into the
-codebase.
+On 13/04/2021 10:27, Greg KH wrote:
+> On Mon, Apr 12, 2021 at 10:46:41PM +0300, Zidenberg, Tsahi wrote:
+>> The original bug that I was working on: command line parameters don't
+>> appear when snooping execve using bpf on arm64.
+> Has this ever worked?  If not, it's not really a regression that needs
+> to be fixed, just use a newer kernel version, right?
+It's not so much a regression between old and new kernels, as it is
+a regression when changing architectures. The same API works on x86,
+but not on arm64 (in x86 - you can access userspace with a kernelspace
+access).
+Multiple Linux distributions support both x86 and arm64, and some of
+these choose to keep with 5.4 LTS Linux kernel. I think these
+distributions should expect the same experience across architectures.
+> But your "patch 1" is no where near what that commit is upstream so now
+> you have divered from what is there and created something new.  And we
+> don't like that for obvious reasons (no testing, maintaining over time,
+> etc.)
+I have created an alternative patch series that stays very close to
+upstream. It brings in much more code, and adds some APIs as we
+discussed. Will send it right away for your consideration.
 
-Cc: Wenwen Wang <wang6495@umn.edu>
-Cc: <stable@vger.kernel.org>
-Cc: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/core/control_compat.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/sound/core/control_compat.c b/sound/core/control_compat.c
-index 1d708aab9c98..857acf83ae47 100644
---- a/sound/core/control_compat.c
-+++ b/sound/core/control_compat.c
-@@ -381,7 +381,8 @@ static int snd_ctl_elem_add_compat(struct snd_ctl_file *file,
- 	if (copy_from_user(&data->id, &data32->id, sizeof(data->id)) ||
- 	    copy_from_user(&data->type, &data32->type, 3 * sizeof(u32)))
- 		goto error;
--	if (get_user(data->owner, &data32->owner))
-+	if (get_user(data->owner, &data32->owner) ||
-+	    get_user(data->type, &data32->type))
- 		goto error;
- 	switch (data->type) {
- 	case SNDRV_CTL_ELEM_TYPE_BOOLEAN:
--- 
-2.31.1
+Thank you!
+Tsahi.
 
