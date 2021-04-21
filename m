@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68453366C2B
-	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70137366C26
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:12:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242031AbhDUNLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 09:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54002 "EHLO mail.kernel.org"
+        id S241732AbhDUNLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 09:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241399AbhDUNKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Apr 2021 09:10:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03E456143B;
-        Wed, 21 Apr 2021 13:10:12 +0000 (UTC)
+        id S241089AbhDUNKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Apr 2021 09:10:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23CAC61460;
+        Wed, 21 Apr 2021 13:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619010613;
-        bh=d/Kxwex8yL6ysQ5bRXvaV3m6u+RpTx759xF+V/JNs40=;
+        s=korg; t=1619010602;
+        bh=0ZMoyGTMN6cdLV84CGS0daXlsSiChDvc+7QBwEONvJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZ4S9jytfSXnRHkVPONLdHM8TSSWtdGdPvG9rvMcjnNq1eDPBrSHhhJV3s8rWI1hD
-         8Z6uOA1xgL5w6CNKDE2CB5IgmpthWmgKPYQg9q5wdkyV2A+/LX3uvHjdHXRedHNfpM
-         1jCbSO2HcExFAl+5QiwNjC+lAOYq3mSH/zwxDKFg=
+        b=DMazOH0T1RUH78/eA5e0WJusx1mjgCjzU0D8p5NrV0OQHoyGG5ushzNzwm6NJRJhI
+         ziAJ9DuYAR464v/c4d6pP/xdD6LfYnWyfERW3fYrYPIBDI5GcYmqPfIjsWIhylzwmZ
+         0LTk5CTlyU5gBe0n3kk6uzvt9vaNEYi53ZSUp5Ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 181/190] Revert "dm ioctl: harden copy_params()'s copy_from_user() from malicious users"
-Date:   Wed, 21 Apr 2021 15:00:56 +0200
-Message-Id: <20210421130105.1226686-182-gregkh@linuxfoundation.org>
+        Wenwen Wang <wang6495@umn.edu>, stable@vger.kernel.org,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 187/190] Revert "ALSA: control: fix a redundant-copy issue"
+Date:   Wed, 21 Apr 2021 15:01:02 +0200
+Message-Id: <20210421130105.1226686-188-gregkh@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
 References: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
@@ -37,7 +37,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 800a7340ab7dd667edf95e74d8e4f23a17e87076.
+This reverts commit 3f12888dfae2a48741c4caa9214885b3aaf350f9.
 
 Commits from @umn.edu addresses have been found to be submitted in "bad
 faith" to try to test the kernel community's ability to review "known
@@ -53,52 +53,28 @@ they actually are a valid fix.  Until that work is complete, remove this
 change to ensure that no problems are being introduced into the
 codebase.
 
-Cc: stable@vger.kernel.org
 Cc: Wenwen Wang <wang6495@umn.edu>
-Cc: Mike Snitzer <snitzer@redhat.com>
+Cc: <stable@vger.kernel.org>
+Cc: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-ioctl.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ sound/core/control_compat.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
-index 1ca65b434f1f..820342de92cd 100644
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -1747,7 +1747,8 @@ static void free_params(struct dm_ioctl *param, size_t param_size, int param_fla
- }
- 
- static int copy_params(struct dm_ioctl __user *user, struct dm_ioctl *param_kernel,
--		       int ioctl_flags, struct dm_ioctl **param, int *param_flags)
-+		       int ioctl_flags,
-+		       struct dm_ioctl **param, int *param_flags)
- {
- 	struct dm_ioctl *dmi;
- 	int secure_data;
-@@ -1788,13 +1789,18 @@ static int copy_params(struct dm_ioctl __user *user, struct dm_ioctl *param_kern
- 
- 	*param_flags |= DM_PARAMS_MALLOC;
- 
--	/* Copy from param_kernel (which was already copied from user) */
--	memcpy(dmi, param_kernel, minimum_data_size);
--
--	if (copy_from_user(&dmi->data, (char __user *)user + minimum_data_size,
--			   param_kernel->data_size - minimum_data_size))
-+	if (copy_from_user(dmi, user, param_kernel->data_size))
- 		goto bad;
-+
- data_copied:
-+	/*
-+	 * Abort if something changed the ioctl data while it was being copied.
-+	 */
-+	if (dmi->data_size != param_kernel->data_size) {
-+		DMERR("rejecting ioctl: data size modified while processing parameters");
-+		goto bad;
-+	}
-+
- 	/* Wipe the user buffer so we do not return it to userspace */
- 	if (secure_data && clear_user(user, param_kernel->data_size))
- 		goto bad;
+diff --git a/sound/core/control_compat.c b/sound/core/control_compat.c
+index 1d708aab9c98..857acf83ae47 100644
+--- a/sound/core/control_compat.c
++++ b/sound/core/control_compat.c
+@@ -381,7 +381,8 @@ static int snd_ctl_elem_add_compat(struct snd_ctl_file *file,
+ 	if (copy_from_user(&data->id, &data32->id, sizeof(data->id)) ||
+ 	    copy_from_user(&data->type, &data32->type, 3 * sizeof(u32)))
+ 		goto error;
+-	if (get_user(data->owner, &data32->owner))
++	if (get_user(data->owner, &data32->owner) ||
++	    get_user(data->type, &data32->type))
+ 		goto error;
+ 	switch (data->type) {
+ 	case SNDRV_CTL_ELEM_TYPE_BOOLEAN:
 -- 
 2.31.1
 
