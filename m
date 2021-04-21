@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F20367564
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 00:56:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D5D36756B
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 00:58:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234815AbhDUW5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 18:57:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
+        id S235657AbhDUW62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 18:58:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233995AbhDUW5M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 18:57:12 -0400
-Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A8B7C06138A
-        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 15:56:38 -0700 (PDT)
-Received: by mail-qk1-x74a.google.com with SMTP id e4-20020a37b5040000b02902df9a0070efso10717451qkf.18
-        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 15:56:38 -0700 (PDT)
+        with ESMTP id S235481AbhDUW62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 18:58:28 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE43C06138A
+        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 15:57:54 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id d8-20020a25eb080000b02904e6f038cad5so17502574ybs.4
+        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 15:57:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:message-id:mime-version:subject:from:to:cc;
-        bh=WI8F6sHKbEkY7kEQwiSfYT+DGU4CIMg8Y47B2zej05Q=;
-        b=tIiakE5DxbCw7W4udzRAd0+gyva6ly/Y8tsq8LoT9Usk8NvuwNATO+ErkqUFiI5+Wi
-         Rt2jweHDuF32vBcBBI8oWRhLInaZVDAKcnFBoG73XiMgUgyV3yS506rOiQRnGT46u6UT
-         8nWMQQycSudM7zQ0daYRYEtd2Lk63ob+x56ZN0EPj61XWo7lYrAaqS1VhrYF49eKghOX
-         41vxuyhjjDE0Jfxg8kH/UT4ZjjHhhyB3on8ZcdsB24tJXwAh6oWFdPSjYJ9D57v2YcFB
-         fJ/7ecMFjyhjxu0hUveuka7X2Z6CEcnnbLS9bRWAfm1BInsT07PixjCTOya1Y8oE+bZh
-         ehQw==
+        bh=1nWjP/RxIMYmF/BrJAp3jQxj0PjCdfOojaRjn9Er+GI=;
+        b=tTN3wCSvhGounV/buF485d6u1NjMMBKdWCWlXolvCY5Jil8D0aC3aOuC8Zo9p4oozx
+         t9uhQ5egM1z1DKjsJwtrnfN2OPr0jUkX/D9+v698wDWXlFJPHlV3mKLim/8fZEt9tzwP
+         CbnkvyIfwER7fk9mMG/BBpJ8L87vkn4q+bbSjtMeIBo0iiGwGdv1RicB0jvFaxt5ENwB
+         O8P7Zw7ntz/jPXsmTXbHdFxNhzGEVeIiCD3gQyWJkp9jT7/fXCsZV8EimRhv77HMf9Ot
+         pcTiJpE/VGSzWdjSoQWw5po9Q9zKE9NX7IyFvk5JW8pP1S2rt4pTTWgZApDguEeylMI4
+         CkKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=WI8F6sHKbEkY7kEQwiSfYT+DGU4CIMg8Y47B2zej05Q=;
-        b=FznHgtre9K5d1pK+uOQmxsUadaGa5crhTiDcYQFU3XSdgWAjbG3VVyP3EKDz2AemzO
-         iWHUk7Oiwms6EcQcgiX6ChDKI1zT9Kaj937oG6Mvxw/G6HKqZH4qkX8J7OcU1to2AijY
-         8eQIYZUJEzBBGx6aN/IwPdQYr6DNufm4QhiokIQw9XW5LOdLR+cIiNaM7TCHdWPK4K8L
-         hGL27Zrx7UrpOT5mLyBvx8Ml2TB6kY2A8owt2MuS2MkksJqF4XrH3u1OQxCh5EqRQy7G
-         +7pi571Uf1+FK+8Q0o+iD9kqTqm99jQinje1E8oFJ9LCFMJiQUl8cOEbVAOv/jbP7l5/
-         cDOA==
-X-Gm-Message-State: AOAM532lzD39boXKA7sJkZ7/ouDa4c3MdZsYf93bWAiqcYILxz+3EKfQ
-        ZuuBl6/W6UKSgwH3feIJnBr7KFtSKYRFyJ0ax7pK939B7I0lh1gYdB0BgpIfmAvp17APPRiO9bf
-        D+KgEwqMAixF/ZWMqdvCPTzVbS7paW41iQoZNRVdOPI2gZv1sNdM3bodEaLfmIA==
-X-Google-Smtp-Source: ABdhPJz3lyYov/2/yszTfBeTeqEGm3VXVyzJ7YGwC5QdZTj/8K1K6md/e2+GGomzI6jlJFOdZupiVZkc1UQ=
+        bh=1nWjP/RxIMYmF/BrJAp3jQxj0PjCdfOojaRjn9Er+GI=;
+        b=oag24mYRQcgxIkq4CeRxeoSHRgQTf6MPwoWmMvv0CqsCZDlv3m0ggCIhcPNHPNRvBv
+         EjDdTVfymQpUQiLyZutab8tR0CGbozH0DCEC6sgI9PLe4UB/uIEm/UlSJyt0nwmnoxOk
+         eSzrVBBkXrspEeT7yP4gPzlW7k/HXYvdtwPr4RLOqsSt8nDo69JT3wR4SszIv38D2f7I
+         9q753RU9p7t9M2g08llfhKQL9SpdeWfJX+Jm1r/P0kCORySzu0Zv9jXp35zMYtEhb1Bm
+         9x6qUvL2sf09FZCp2v3MAkik8gd4azQZ/GUjdjXRD/VPasAAjqtlZDNVzuBMiPmExenH
+         ryzw==
+X-Gm-Message-State: AOAM533gENVCgctPlO+U882er1sWu50BU5LdRQJNARQ9Zk56F7e4u1vz
+        IxDRN1PIrhdhKsSPko4fc432m6yK6o+bbKhiW972UwQpnLrlTxiqiu8CN2mQygTRaiMI412gmWS
+        fVskNklQ9lAJD0/FW+OjVC8g3Xz66O8D+oAeZ8vGwujIym8Ihhmxd/vdoukpVJg==
+X-Google-Smtp-Source: ABdhPJzTIG2BgxHdHGNxygHKfQfnkDGOKEUVfAzM1lyLBGVwXNXc28h3V1AxUsmxkAPs175qwS9iydKHzD0=
 X-Received: from surenb1.mtv.corp.google.com ([2620:15c:211:200:dae6:51e5:c9a2:646d])
- (user=surenb job=sendgmr) by 2002:a0c:99d9:: with SMTP id y25mr568253qve.28.1619045797205;
- Wed, 21 Apr 2021 15:56:37 -0700 (PDT)
-Date:   Wed, 21 Apr 2021 15:56:13 -0700
-Message-Id: <20210421225613.60124-1-surenb@google.com>
+ (user=surenb job=sendgmr) by 2002:a25:4fc4:: with SMTP id d187mr451085ybb.245.1619045873816;
+ Wed, 21 Apr 2021 15:57:53 -0700 (PDT)
+Date:   Wed, 21 Apr 2021 15:57:50 -0700
+Message-Id: <20210421225750.60668-1-surenb@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
 Subject: [PATCH 1/1] gup: document and work around "COW can break either way" issue
@@ -157,8 +157,8 @@ Acked-by: Jan Kara <jack@suse.cz>
 Cc: Andrea Arcangeli <aarcange@redhat.com>
 Cc: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[surenb: backport to 4.19 kernel]
-Cc: stable@vger.kernel.org # 4.19.x
+[surenb: backport to 4.14 kernel]
+Cc: stable@vger.kernel.org # 4.14.x
 Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 ---
  mm/gup.c         | 44 ++++++++++++++++++++++++++++++++++++++------
@@ -166,7 +166,7 @@ Signed-off-by: Suren Baghdasaryan <surenb@google.com>
  2 files changed, 41 insertions(+), 10 deletions(-)
 
 diff --git a/mm/gup.c b/mm/gup.c
-index f3088d25bd92..44569927f0ea 100644
+index 12b9626b1a9e..cfe0a56f8e27 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
 @@ -61,13 +61,22 @@ static int follow_pfn_pte(struct vm_area_struct *vma, unsigned long address,
@@ -196,7 +196,7 @@ index f3088d25bd92..44569927f0ea 100644
  }
  
  static struct page *follow_page_pte(struct vm_area_struct *vma,
-@@ -710,12 +719,18 @@ static long __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+@@ -694,12 +703,18 @@ static long __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
  			if (!vma || check_vma_flags(vma, gup_flags))
  				return i ? : -EFAULT;
  			if (is_vm_hugetlb_page(vma)) {
@@ -216,10 +216,10 @@ index f3088d25bd92..44569927f0ea 100644
  retry:
  		/*
  		 * If we have a pending SIGKILL, don't keep faulting pages and
-@@ -1804,6 +1819,10 @@ bool gup_fast_permitted(unsigned long start, int nr_pages, int write)
-  * the regular GUP.
-  * Note a difference with get_user_pages_fast: this always returns the
-  * number of pages pinned, 0 if no pages were pinned.
+@@ -1796,6 +1811,10 @@ bool gup_fast_permitted(unsigned long start, int nr_pages, int write)
+ /*
+  * Like get_user_pages_fast() except it's IRQ-safe in that it won't fall back to
+  * the regular GUP. It will only return non-negative values.
 + *
 + * Careful, careful! COW breaking can go either way, so a non-write
 + * access can get ambiguous page results. If you call this function without
@@ -227,7 +227,7 @@ index f3088d25bd92..44569927f0ea 100644
   */
  int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
  			  struct page **pages)
-@@ -1831,6 +1850,12 @@ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+@@ -1823,6 +1842,12 @@ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
  	 *
  	 * We do not adopt an rcu_read_lock(.) here as we also want to
  	 * block IPIs that come from THPs splitting.
@@ -240,7 +240,7 @@ index f3088d25bd92..44569927f0ea 100644
  	 */
  
  	if (gup_fast_permitted(start, nr_pages, write)) {
-@@ -1876,9 +1901,16 @@ int get_user_pages_fast(unsigned long start, int nr_pages, int write,
+@@ -1868,9 +1893,16 @@ int get_user_pages_fast(unsigned long start, int nr_pages, int write,
  					(void __user *)start, len)))
  		return -EFAULT;
  
@@ -259,10 +259,10 @@ index f3088d25bd92..44569927f0ea 100644
  		ret = nr;
  	}
 diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index cf9e2bbffdc1..7c374c0fcf0c 100644
+index 9dbfa7286c61..513f0cf173ad 100644
 --- a/mm/huge_memory.c
 +++ b/mm/huge_memory.c
-@@ -1432,13 +1432,12 @@ vm_fault_t do_huge_pmd_wp_page(struct vm_fault *vmf, pmd_t orig_pmd)
+@@ -1367,13 +1367,12 @@ int do_huge_pmd_wp_page(struct vm_fault *vmf, pmd_t orig_pmd)
  }
  
  /*
@@ -280,5 +280,5 @@ index cf9e2bbffdc1..7c374c0fcf0c 100644
  
  struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
 -- 
-2.31.1.368.gbe11c130af-goog
+2.31.1.498.g6c1eba8ee3d-goog
 
