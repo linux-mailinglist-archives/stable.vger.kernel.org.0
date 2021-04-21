@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3000366BF1
-	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84824366C05
+	for <lists+stable@lfdr.de>; Wed, 21 Apr 2021 15:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241227AbhDUNIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 09:08:46 -0400
-Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:37991 "EHLO
-        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240229AbhDUNHt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 09:07:49 -0400
+        id S239079AbhDUNKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 09:10:19 -0400
+Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:3385 "EHLO
+        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241591AbhDUNJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 09:09:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1619010437; x=1650546437;
+  t=1619010519; x=1650546519;
   h=subject:from:to:cc:references:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=qi9qpSSFejvHTma8np0UdFMojO/Y59AXXjDMbuDHHIA=;
-  b=ItC5/VS62RnJv2M1gXRO4eioc7Ltm7J3S+fBIf9tG4fofB9Z25y4YW/U
-   GpJXeGYu/wFYduHP5Auh9s7i4nG0wKWJJlWgV3QGNxadgmxIC8j0YRKr9
-   VbuVE++9ZPsTiVg784g53w10VE5QdcdjYWDdvYM+y5p3jFOsEVSS8m3Ed
-   Q=;
+  bh=yeIqXC6Ihdlob5a36npy3BhN5enwNf0SqHARhfgP2ds=;
+  b=SGan2qJ0jHdp9gw6iljkPRHvpCTvYfy9AD6AHctRGEGHsdWtODF5WAoB
+   IvK4lKLD2mNEJDcWx1ohaksERRUzSrBjwm3ZioiI8fsACDoyACs3qUkt1
+   BDpj2Y8BO/lCnUT8OAs0g3ljVZBsof8Bs/ZP32JZ7XPtRKj0BjELw7sIw
+   M=;
 X-IronPort-AV: E=Sophos;i="5.82,240,1613433600"; 
-   d="scan'208";a="108989348"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2b-5bdc5131.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 21 Apr 2021 13:07:09 +0000
+   d="scan'208";a="927960719"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-2c-456ef9c9.us-west-2.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-out-9103.sea19.amazon.com with ESMTP; 21 Apr 2021 13:08:28 +0000
 Received: from EX13D01EUA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2b-5bdc5131.us-west-2.amazon.com (Postfix) with ESMTPS id 51BAEA05D5;
-        Wed, 21 Apr 2021 13:07:08 +0000 (UTC)
-Received: from 8c859063385e.ant.amazon.com (10.43.160.119) by
+        by email-inbound-relay-2c-456ef9c9.us-west-2.amazon.com (Postfix) with ESMTPS id 65C9AB4B46;
+        Wed, 21 Apr 2021 13:08:28 +0000 (UTC)
+Received: from 8c859063385e.ant.amazon.com (10.43.161.29) by
  EX13D01EUA001.ant.amazon.com (10.43.165.121) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 21 Apr 2021 13:07:05 +0000
-Subject: [PATCH 1/8] uaccess: Add strict non-pagefault kernel-space read,
- function
+ id 15.0.1497.2; Wed, 21 Apr 2021 13:08:24 +0000
+Subject: bpf: Add probe_read_{user, kernel} and probe_read_{user,, kernel}_str
+ helpers
 From:   "Zidenberg, Tsahi" <tsahee@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     Greg KH <greg@kroah.com>
 References: <dda18ffd-0406-ec54-1014-b7d89a1bcd56@amazon.com>
-Message-ID: <2caa3d3d-9787-ab33-d68b-c39c079078c0@amazon.com>
-Date:   Wed, 21 Apr 2021 16:07:00 +0300
+Message-ID: <cc783450-ee5e-c847-2e29-b18e8bd89491@amazon.com>
+Date:   Wed, 21 Apr 2021 16:08:19 +0300
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
  Gecko/20100101 Thunderbird/78.9.1
 MIME-Version: 1.0
@@ -46,193 +46,592 @@ In-Reply-To: <dda18ffd-0406-ec54-1014-b7d89a1bcd56@amazon.com>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-X-Originating-IP: [10.43.160.119]
-X-ClientProxiedBy: EX13D20UWC002.ant.amazon.com (10.43.162.163) To
+X-Originating-IP: [10.43.161.29]
+X-ClientProxiedBy: EX13D08UWB004.ant.amazon.com (10.43.161.232) To
  EX13D01EUA001.ant.amazon.com (10.43.165.121)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 75a1a607bb7e6d918be3aca11ec2214a275392f4 upstream
+commit 6ae08ae3dea2cfa03dd3665a3c8475c2d429ef47 upstream
 
-Add two new probe_kernel_read_strict() and strncpy_from_unsafe_strict()
-helpers which by default alias to the __probe_kernel_read() and the
-__strncpy_from_unsafe(), respectively, but can be overridden by archs
-which have non-overlapping address ranges for kernel space and user
-space in order to bail out with -EFAULT when attempting to probe user
-memory including non-canonical user access addresses [0]:
+The current bpf_probe_read() and bpf_probe_read_str() helpers are broken
+in that they assume they can be used for probing memory access for kernel
+space addresses /as well as/ user space addresses.
 
-  4-level page tables:
-    user-space mem: 0x0000000000000000 - 0x00007fffffffffff
-    non-canonical:  0x0000800000000000 - 0xffff7fffffffffff
+However, plain use of probe_kernel_read() for both cases will attempt to
+always access kernel space address space given access is performed under
+KERNEL_DS and some archs in-fact have overlapping address spaces where a
+kernel pointer and user pointer would have the /same/ address value and
+therefore accessing application memory via bpf_probe_read{,_str}() would
+read garbage values.
 
-  5-level page tables:
-    user-space mem: 0x0000000000000000 - 0x00ffffffffffffff
-    non-canonical:  0x0100000000000000 - 0xfeffffffffffffff
+Lets fix BPF side by making use of recently added 3d7081822f7f ("uaccess:
+Add non-pagefault user-space read functions"). Unfortunately, the only way
+to fix this status quo is to add dedicated bpf_probe_read_{user,kernel}()
+and bpf_probe_read_{user,kernel}_str() helpers. The bpf_probe_read{,_str}()
+helpers are kept as-is to retain their current behavior.
 
-The idea is that these helpers are complementary to the probe_user_read()
-and strncpy_from_unsafe_user() which probe user-only memory. Both added
-helpers here do the same, but for kernel-only addresses.
+The two *_user() variants attempt the access always under USER_DS set, the
+two *_kernel() variants will -EFAULT when accessing user memory if the
+underlying architecture has non-overlapping address ranges, also avoiding
+throwing the kernel warning via 00c42373d397 ("x86-64: add warning for
+non-canonical user access address dereferences").
 
-Both set of helpers are going to be used for BPF tracing. They also
-explicitly avoid throwing the splat for non-canonical user addresses from
-00c42373d397 ("x86-64: add warning for non-canonical user access address
-dereferences").
+conflict resolution:
+upstream also defines skb_output helper. This commit adds skb_output to
+FUNC_MAPPER, but does not take any code to add support or comments
+detailing the support.
 
-For compat, the current probe_kernel_read() and strncpy_from_unsafe() are
-left as-is.
-
-  [0] Documentation/x86/x86_64/mm.txt
-
+Fixes: a5e8c07059d0 ("bpf: add bpf_probe_read_str helper")
+Fixes: 2541517c32be ("tracing, perf: Implement BPF programs attached to kprobes")
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: x86@kernel.org
-Link: https://lore.kernel.org/bpf/eefeefd769aa5a013531f491a71f0936779e916b.1572649915.git.daniel@iogearbox.net
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/796ee46e948bc808d54891a1108435f8652c6ca4.1572649915.git.daniel@iogearbox.net
 Cc: <stable@vger.kernel.org> # 5.4
 Signed-off-by: Tsahi Zidenberg <tsahee@amazon.com>
 ---
- arch/x86/mm/Makefile    |  2 +-
- arch/x86/mm/maccess.c   | 43 +++++++++++++++++++++++++++++++++++++++++
- include/linux/uaccess.h |  4 ++++
- mm/maccess.c            | 25 +++++++++++++++++++++++-
- 4 files changed, 72 insertions(+), 2 deletions(-)
- create mode 100644 arch/x86/mm/maccess.c
+ include/uapi/linux/bpf.h       | 123 ++++++++++++++--------
+ kernel/trace/bpf_trace.c       | 181 ++++++++++++++++++++++++---------
+ tools/include/uapi/linux/bpf.h | 116 +++++++++++++--------
+ 3 files changed, 294 insertions(+), 126 deletions(-)
 
-diff --git a/arch/x86/mm/Makefile b/arch/x86/mm/Makefile
-index 84373dc9b341..bbc68a54795e 100644
---- a/arch/x86/mm/Makefile
-+++ b/arch/x86/mm/Makefile
-@@ -13,7 +13,7 @@ CFLAGS_REMOVE_mem_encrypt_identity.o    = -pg
- endif
- 
- obj-y    :=  init.o init_$(BITS).o fault.o ioremap.o extable.o pageattr.o mmap.o \
--        pat.o pgtable.o physaddr.o setup_nx.o tlb.o cpu_entry_area.o
-+        pat.o pgtable.o physaddr.o setup_nx.o tlb.o cpu_entry_area.o maccess.o
- 
- # Make sure __phys_addr has no stackprotector
- nostackp := $(call cc-option, -fno-stack-protector)
-diff --git a/arch/x86/mm/maccess.c b/arch/x86/mm/maccess.c
-new file mode 100644
-index 000000000000..f5b85bdc0535
---- /dev/null
-+++ b/arch/x86/mm/maccess.c
-@@ -0,0 +1,43 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+
-+#include <linux/uaccess.h>
-+#include <linux/kernel.h>
-+
-+#ifdef CONFIG_X86_64
-+static __always_inline u64 canonical_address(u64 vaddr, u8 vaddr_bits)
-+{
-+    return ((s64)vaddr << (64 - vaddr_bits)) >> (64 - vaddr_bits);
-+}
-+
-+static __always_inline bool invalid_probe_range(u64 vaddr)
-+{
-+    /*
-+     * Range covering the highest possible canonical userspace address
-+     * as well as non-canonical address range. For the canonical range
-+     * we also need to include the userspace guard page.
-+     */
-+    return vaddr < TASK_SIZE_MAX + PAGE_SIZE ||
-+           canonical_address(vaddr, boot_cpu_data.x86_virt_bits) != vaddr;
-+}
-+#else
-+static __always_inline bool invalid_probe_range(u64 vaddr)
-+{
-+    return vaddr < TASK_SIZE_MAX;
-+}
-+#endif
-+
-+long probe_kernel_read_strict(void *dst, const void *src, size_t size)
-+{
-+    if (unlikely(invalid_probe_range((unsigned long)src)))
-+        return -EFAULT;
-+
-+    return __probe_kernel_read(dst, src, size);
-+}
-+
-+long strncpy_from_unsafe_strict(char *dst, const void *unsafe_addr, long count)
-+{
-+    if (unlikely(invalid_probe_range((unsigned long)unsafe_addr)))
-+        return -EFAULT;
-+
-+    return __strncpy_from_unsafe(dst, unsafe_addr, count);
-+}
-diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
-index 38555435a64a..67f016010aad 100644
---- a/include/linux/uaccess.h
-+++ b/include/linux/uaccess.h
-@@ -311,6 +311,7 @@ copy_struct_from_user(void *dst, size_t ksize, const void __user *src,
-  * happens, handle that and return -EFAULT.
-  */
- extern long probe_kernel_read(void *dst, const void *src, size_t size);
-+extern long probe_kernel_read_strict(void *dst, const void *src, size_t size);
- extern long __probe_kernel_read(void *dst, const void *src, size_t size);
- 
- /*
-@@ -350,6 +351,9 @@ extern long notrace probe_user_write(void __user *dst, const void *src, size_t s
- extern long notrace __probe_user_write(void __user *dst, const void *src, size_t size);
- 
- extern long strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count);
-+extern long strncpy_from_unsafe_strict(char *dst, const void *unsafe_addr,
-+                       long count);
-+extern long __strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count);
- extern long strncpy_from_unsafe_user(char *dst, const void __user *unsafe_addr,
-                      long count);
- extern long strnlen_unsafe_user(const void __user *unsafe_addr, long count);
-diff --git a/mm/maccess.c b/mm/maccess.c
-index 2d3c3d01064c..3ca8d97e5010 100644
---- a/mm/maccess.c
-+++ b/mm/maccess.c
-@@ -43,11 +43,20 @@ probe_write_common(void __user *dst, const void *src, size_t size)
-  * do_page_fault() doesn't attempt to take mmap_sem.  This makes
-  * probe_kernel_read() suitable for use within regions where the caller
-  * already holds mmap_sem, or other locks which nest inside mmap_sem.
-+ *
-+ * probe_kernel_read_strict() is the same as probe_kernel_read() except for
-+ * the case where architectures have non-overlapping user and kernel address
-+ * ranges: probe_kernel_read_strict() will additionally return -EFAULT for
-+ * probing memory on a user address range where probe_user_read() is supposed
-+ * to be used instead.
-  */
- 
- long __weak probe_kernel_read(void *dst, const void *src, size_t size)
-     __attribute__((alias("__probe_kernel_read")));
- 
-+long __weak probe_kernel_read_strict(void *dst, const void *src, size_t size)
-+    __attribute__((alias("__probe_kernel_read")));
-+
- long __probe_kernel_read(void *dst, const void *src, size_t size)
- {
-     long ret;
-@@ -157,8 +166,22 @@ EXPORT_SYMBOL_GPL(probe_user_write);
+diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+index 8649422e760c..2fe91a083f7a 100644
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -560,10 +560,13 @@ union bpf_attr {
+  *     Return
+  *         0 on success, or a negative error in case of failure.
   *
-  * If @count is smaller than the length of the string, copies @count-1 bytes,
-  * sets the last byte of @dst buffer to NUL and returns @count.
+- * int bpf_probe_read(void *dst, u32 size, const void *src)
++ * int bpf_probe_read(void *dst, u32 size, const void *unsafe_ptr)
+  *     Description
+  *         For tracing programs, safely attempt to read *size* bytes from
+- *         address *src* and store the data in *dst*.
++ *         kernel space address *unsafe_ptr* and store the data in *dst*.
 + *
-+ * strncpy_from_unsafe_strict() is the same as strncpy_from_unsafe() except
-+ * for the case where architectures have non-overlapping user and kernel address
-+ * ranges: strncpy_from_unsafe_strict() will additionally return -EFAULT for
-+ * probing memory on a user address range where strncpy_from_unsafe_user() is
-+ * supposed to be used instead.
++ *         Generally, use bpf_probe_read_user() or bpf_probe_read_kernel()
++ *         instead.
+  *     Return
+  *         0 on success, or a negative error in case of failure.
+  *
+@@ -1425,45 +1428,14 @@ union bpf_attr {
+  *     Return
+  *         0 on success, or a negative error in case of failure.
+  *
+- * int bpf_probe_read_str(void *dst, int size, const void *unsafe_ptr)
++ * int bpf_probe_read_str(void *dst, u32 size, const void *unsafe_ptr)
+  *     Description
+- *         Copy a NUL terminated string from an unsafe address
+- *         *unsafe_ptr* to *dst*. The *size* should include the
+- *         terminating NUL byte. In case the string length is smaller than
+- *         *size*, the target is not padded with further NUL bytes. If the
+- *         string length is larger than *size*, just *size*-1 bytes are
+- *         copied and the last byte is set to NUL.
+- *
+- *         On success, the length of the copied string is returned. This
+- *         makes this helper useful in tracing programs for reading
+- *         strings, and more importantly to get its length at runtime. See
+- *         the following snippet:
+- *
+- *         ::
+- *
+- *             SEC("kprobe/sys_open")
+- *             void bpf_sys_open(struct pt_regs *ctx)
+- *             {
+- *                     char buf[PATHLEN]; // PATHLEN is defined to 256
+- *                     int res = bpf_probe_read_str(buf, sizeof(buf),
+- *                                              ctx->di);
+- *
+- *                 // Consume buf, for example push it to
+- *                 // userspace via bpf_perf_event_output(); we
+- *                 // can use res (the string length) as event
+- *                 // size, after checking its boundaries.
+- *             }
+- *
+- *         In comparison, using **bpf_probe_read()** helper here instead
+- *         to read the string would require to estimate the length at
+- *         compile time, and would often result in copying more memory
+- *         than necessary.
++ *         Copy a NUL terminated string from an unsafe kernel address
++ *         *unsafe_ptr* to *dst*. See bpf_probe_read_kernel_str() for
++ *         more details.
+  *
+- *         Another useful use case is when parsing individual process
+- *         arguments or individual environment variables navigating
+- *         *current*\ **->mm->arg_start** and *current*\
+- *         **->mm->env_start**: using this helper and the return value,
+- *         one can quickly iterate at the right offset of the memory area.
++ *         Generally, use bpf_probe_read_user_str() or bpf_probe_read_kernel_str()
++ *         instead.
+  *     Return
+  *         On success, the strictly positive length of the string,
+  *         including the trailing NUL character. On error, a negative
+@@ -2750,6 +2722,72 @@ union bpf_attr {
+  *        **-EOPNOTSUPP** kernel configuration does not enable SYN cookies
+  *
+  *        **-EPROTONOSUPPORT** IP packet version is not 4 or 6
++ *
++ * int bpf_probe_read_user(void *dst, u32 size, const void *unsafe_ptr)
++ *     Description
++ *         Safely attempt to read *size* bytes from user space address
++ *         *unsafe_ptr* and store the data in *dst*.
++ *     Return
++ *         0 on success, or a negative error in case of failure.
++ *
++ * int bpf_probe_read_kernel(void *dst, u32 size, const void *unsafe_ptr)
++ *     Description
++ *         Safely attempt to read *size* bytes from kernel space address
++ *         *unsafe_ptr* and store the data in *dst*.
++ *     Return
++ *         0 on success, or a negative error in case of failure.
++ *
++ * int bpf_probe_read_user_str(void *dst, u32 size, const void *unsafe_ptr)
++ *     Description
++ *         Copy a NUL terminated string from an unsafe user address
++ *         *unsafe_ptr* to *dst*. The *size* should include the
++ *         terminating NUL byte. In case the string length is smaller than
++ *         *size*, the target is not padded with further NUL bytes. If the
++ *         string length is larger than *size*, just *size*-1 bytes are
++ *         copied and the last byte is set to NUL.
++ *
++ *         On success, the length of the copied string is returned. This
++ *         makes this helper useful in tracing programs for reading
++ *         strings, and more importantly to get its length at runtime. See
++ *         the following snippet:
++ *
++ *         ::
++ *
++ *             SEC("kprobe/sys_open")
++ *             void bpf_sys_open(struct pt_regs *ctx)
++ *             {
++ *                     char buf[PATHLEN]; // PATHLEN is defined to 256
++ *                     int res = bpf_probe_read_user_str(buf, sizeof(buf),
++ *                                                   ctx->di);
++ *
++ *                 // Consume buf, for example push it to
++ *                 // userspace via bpf_perf_event_output(); we
++ *                 // can use res (the string length) as event
++ *                 // size, after checking its boundaries.
++ *             }
++ *
++ *         In comparison, using **bpf_probe_read_user()** helper here
++ *         instead to read the string would require to estimate the length
++ *         at compile time, and would often result in copying more memory
++ *         than necessary.
++ *
++ *         Another useful use case is when parsing individual process
++ *         arguments or individual environment variables navigating
++ *         *current*\ **->mm->arg_start** and *current*\
++ *         **->mm->env_start**: using this helper and the return value,
++ *         one can quickly iterate at the right offset of the memory area.
++ *     Return
++ *         On success, the strictly positive length of the string,
++ *         including the trailing NUL character. On error, a negative
++ *         value.
++ *
++ * int bpf_probe_read_kernel_str(void *dst, u32 size, const void *unsafe_ptr)
++ *     Description
++ *         Copy a NUL terminated string from an unsafe kernel address *unsafe_ptr*
++ *         to *dst*. Same semantics as with bpf_probe_read_user_str() apply.
++ *     Return
++ *         On success, the strictly positive length of the string,    including
++ *         the trailing NUL character. On error, a negative value.
   */
--long strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count)
-+
-+long __weak strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count)
-+    __attribute__((alias("__strncpy_from_unsafe")));
-+
-+long __weak strncpy_from_unsafe_strict(char *dst, const void *unsafe_addr,
-+                       long count)
-+    __attribute__((alias("__strncpy_from_unsafe")));
-+
-+long __strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count)
+ #define __BPF_FUNC_MAPPER(FN)        \
+     FN(unspec),            \
+@@ -2862,7 +2900,12 @@ union bpf_attr {
+     FN(sk_storage_get),        \
+     FN(sk_storage_delete),        \
+     FN(send_signal),        \
+-    FN(tcp_gen_syncookie),
++    FN(tcp_gen_syncookie),        \
++    FN(skb_output),            \
++    FN(probe_read_user),        \
++    FN(probe_read_kernel),        \
++    FN(probe_read_user_str),    \
++    FN(probe_read_kernel_str),
+ 
+ /* integer value in 'imm' field of BPF_CALL instruction selects which helper
+  * function eBPF program intends to call
+diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+index 74c1db7178cf..0e329d48ab08 100644
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -138,24 +138,140 @@ static const struct bpf_func_proto bpf_override_return_proto = {
+ };
+ #endif
+ 
+-BPF_CALL_3(bpf_probe_read, void *, dst, u32, size, const void *, unsafe_ptr)
++BPF_CALL_3(bpf_probe_read_user, void *, dst, u32, size,
++       const void __user *, unsafe_ptr)
  {
-     mm_segment_t old_fs = get_fs();
-     const void *src = unsafe_addr;
+-    int ret;
++    int ret = probe_user_read(dst, unsafe_ptr, size);
+ 
+-    ret = security_locked_down(LOCKDOWN_BPF_READ);
+-    if (ret < 0)
+-        goto out;
++    if (unlikely(ret < 0))
++        memset(dst, 0, size);
++
++    return ret;
++}
++
++static const struct bpf_func_proto bpf_probe_read_user_proto = {
++    .func        = bpf_probe_read_user,
++    .gpl_only    = true,
++    .ret_type    = RET_INTEGER,
++    .arg1_type    = ARG_PTR_TO_UNINIT_MEM,
++    .arg2_type    = ARG_CONST_SIZE_OR_ZERO,
++    .arg3_type    = ARG_ANYTHING,
++};
++
++BPF_CALL_3(bpf_probe_read_user_str, void *, dst, u32, size,
++       const void __user *, unsafe_ptr)
++{
++    int ret = strncpy_from_unsafe_user(dst, unsafe_ptr, size);
++
++    if (unlikely(ret < 0))
++        memset(dst, 0, size);
++
++    return ret;
++}
++
++static const struct bpf_func_proto bpf_probe_read_user_str_proto = {
++    .func        = bpf_probe_read_user_str,
++    .gpl_only    = true,
++    .ret_type    = RET_INTEGER,
++    .arg1_type    = ARG_PTR_TO_UNINIT_MEM,
++    .arg2_type    = ARG_CONST_SIZE_OR_ZERO,
++    .arg3_type    = ARG_ANYTHING,
++};
+ 
+-    ret = probe_kernel_read(dst, unsafe_ptr, size);
++static __always_inline int
++bpf_probe_read_kernel_common(void *dst, u32 size, const void *unsafe_ptr,
++                 const bool compat)
++{
++    int ret = security_locked_down(LOCKDOWN_BPF_READ);
++
++    if (unlikely(ret < 0))
++        goto out;
++    ret = compat ? probe_kernel_read(dst, unsafe_ptr, size) :
++          probe_kernel_read_strict(dst, unsafe_ptr, size);
+     if (unlikely(ret < 0))
+ out:
+         memset(dst, 0, size);
++    return ret;
++}
++
++BPF_CALL_3(bpf_probe_read_kernel, void *, dst, u32, size,
++       const void *, unsafe_ptr)
++{
++    return bpf_probe_read_kernel_common(dst, size, unsafe_ptr, false);
++}
++
++static const struct bpf_func_proto bpf_probe_read_kernel_proto = {
++    .func        = bpf_probe_read_kernel,
++    .gpl_only    = true,
++    .ret_type    = RET_INTEGER,
++    .arg1_type    = ARG_PTR_TO_UNINIT_MEM,
++    .arg2_type    = ARG_CONST_SIZE_OR_ZERO,
++    .arg3_type    = ARG_ANYTHING,
++};
++
++BPF_CALL_3(bpf_probe_read_compat, void *, dst, u32, size,
++       const void *, unsafe_ptr)
++{
++    return bpf_probe_read_kernel_common(dst, size, unsafe_ptr, true);
++}
+ 
++static const struct bpf_func_proto bpf_probe_read_compat_proto = {
++    .func        = bpf_probe_read_compat,
++    .gpl_only    = true,
++    .ret_type    = RET_INTEGER,
++    .arg1_type    = ARG_PTR_TO_UNINIT_MEM,
++    .arg2_type    = ARG_CONST_SIZE_OR_ZERO,
++    .arg3_type    = ARG_ANYTHING,
++};
++
++static __always_inline int
++bpf_probe_read_kernel_str_common(void *dst, u32 size, const void *unsafe_ptr,
++                 const bool compat)
++{
++    int ret = security_locked_down(LOCKDOWN_BPF_READ);
++
++    if (unlikely(ret < 0))
++        goto out;
++    /*
++     * The strncpy_from_unsafe_*() call will likely not fill the entire
++     * buffer, but that's okay in this circumstance as we're probing
++     * arbitrary memory anyway similar to bpf_probe_read_*() and might
++     * as well probe the stack. Thus, memory is explicitly cleared
++     * only in error case, so that improper users ignoring return
++     * code altogether don't copy garbage; otherwise length of string
++     * is returned that can be used for bpf_perf_event_output() et al.
++     */
++    ret = compat ? strncpy_from_unsafe(dst, unsafe_ptr, size) :
++          strncpy_from_unsafe_strict(dst, unsafe_ptr, size);
++    if (unlikely(ret < 0))
++out:
++        memset(dst, 0, size);
+     return ret;
+ }
+ 
+-static const struct bpf_func_proto bpf_probe_read_proto = {
+-    .func        = bpf_probe_read,
++BPF_CALL_3(bpf_probe_read_kernel_str, void *, dst, u32, size,
++       const void *, unsafe_ptr)
++{
++    return bpf_probe_read_kernel_str_common(dst, size, unsafe_ptr, false);
++}
++
++static const struct bpf_func_proto bpf_probe_read_kernel_str_proto = {
++    .func        = bpf_probe_read_kernel_str,
++    .gpl_only    = true,
++    .ret_type    = RET_INTEGER,
++    .arg1_type    = ARG_PTR_TO_UNINIT_MEM,
++    .arg2_type    = ARG_CONST_SIZE_OR_ZERO,
++    .arg3_type    = ARG_ANYTHING,
++};
++
++BPF_CALL_3(bpf_probe_read_compat_str, void *, dst, u32, size,
++       const void *, unsafe_ptr)
++{
++    return bpf_probe_read_kernel_str_common(dst, size, unsafe_ptr, true);
++}
++
++static const struct bpf_func_proto bpf_probe_read_compat_str_proto = {
++    .func        = bpf_probe_read_compat_str,
+     .gpl_only    = true,
+     .ret_type    = RET_INTEGER,
+     .arg1_type    = ARG_PTR_TO_UNINIT_MEM,
+@@ -583,41 +699,6 @@ static const struct bpf_func_proto bpf_current_task_under_cgroup_proto = {
+     .arg2_type      = ARG_ANYTHING,
+ };
+ 
+-BPF_CALL_3(bpf_probe_read_str, void *, dst, u32, size,
+-       const void *, unsafe_ptr)
+-{
+-    int ret;
+-
+-    ret = security_locked_down(LOCKDOWN_BPF_READ);
+-    if (ret < 0)
+-        goto out;
+-
+-    /*
+-     * The strncpy_from_unsafe() call will likely not fill the entire
+-     * buffer, but that's okay in this circumstance as we're probing
+-     * arbitrary memory anyway similar to bpf_probe_read() and might
+-     * as well probe the stack. Thus, memory is explicitly cleared
+-     * only in error case, so that improper users ignoring return
+-     * code altogether don't copy garbage; otherwise length of string
+-     * is returned that can be used for bpf_perf_event_output() et al.
+-     */
+-    ret = strncpy_from_unsafe(dst, unsafe_ptr, size);
+-    if (unlikely(ret < 0))
+-out:
+-        memset(dst, 0, size);
+-
+-    return ret;
+-}
+-
+-static const struct bpf_func_proto bpf_probe_read_str_proto = {
+-    .func        = bpf_probe_read_str,
+-    .gpl_only    = true,
+-    .ret_type    = RET_INTEGER,
+-    .arg1_type    = ARG_PTR_TO_UNINIT_MEM,
+-    .arg2_type    = ARG_CONST_SIZE_OR_ZERO,
+-    .arg3_type    = ARG_ANYTHING,
+-};
+-
+ struct send_signal_irq_work {
+     struct irq_work irq_work;
+     struct task_struct *task;
+@@ -697,8 +778,6 @@ tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+         return &bpf_map_pop_elem_proto;
+     case BPF_FUNC_map_peek_elem:
+         return &bpf_map_peek_elem_proto;
+-    case BPF_FUNC_probe_read:
+-        return &bpf_probe_read_proto;
+     case BPF_FUNC_ktime_get_ns:
+         return &bpf_ktime_get_ns_proto;
+     case BPF_FUNC_tail_call:
+@@ -725,8 +804,18 @@ tracing_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+         return &bpf_current_task_under_cgroup_proto;
+     case BPF_FUNC_get_prandom_u32:
+         return &bpf_get_prandom_u32_proto;
++    case BPF_FUNC_probe_read_user:
++        return &bpf_probe_read_user_proto;
++    case BPF_FUNC_probe_read_kernel:
++        return &bpf_probe_read_kernel_proto;
++    case BPF_FUNC_probe_read:
++        return &bpf_probe_read_compat_proto;
++    case BPF_FUNC_probe_read_user_str:
++        return &bpf_probe_read_user_str_proto;
++    case BPF_FUNC_probe_read_kernel_str:
++        return &bpf_probe_read_kernel_str_proto;
+     case BPF_FUNC_probe_read_str:
+-        return &bpf_probe_read_str_proto;
++        return &bpf_probe_read_compat_str_proto;
+ #ifdef CONFIG_CGROUPS
+     case BPF_FUNC_get_current_cgroup_id:
+         return &bpf_get_current_cgroup_id_proto;
+diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
+index 8649422e760c..e4014608849d 100644
+--- a/tools/include/uapi/linux/bpf.h
++++ b/tools/include/uapi/linux/bpf.h
+@@ -560,10 +560,13 @@ union bpf_attr {
+  *     Return
+  *         0 on success, or a negative error in case of failure.
+  *
+- * int bpf_probe_read(void *dst, u32 size, const void *src)
++ * int bpf_probe_read(void *dst, u32 size, const void *unsafe_ptr)
+  *     Description
+  *         For tracing programs, safely attempt to read *size* bytes from
+- *         address *src* and store the data in *dst*.
++ *         kernel space address *unsafe_ptr* and store the data in *dst*.
++ *
++ *         Generally, use bpf_probe_read_user() or bpf_probe_read_kernel()
++ *         instead.
+  *     Return
+  *         0 on success, or a negative error in case of failure.
+  *
+@@ -1425,45 +1428,14 @@ union bpf_attr {
+  *     Return
+  *         0 on success, or a negative error in case of failure.
+  *
+- * int bpf_probe_read_str(void *dst, int size, const void *unsafe_ptr)
++ * int bpf_probe_read_str(void *dst, u32 size, const void *unsafe_ptr)
+  *     Description
+- *         Copy a NUL terminated string from an unsafe address
+- *         *unsafe_ptr* to *dst*. The *size* should include the
+- *         terminating NUL byte. In case the string length is smaller than
+- *         *size*, the target is not padded with further NUL bytes. If the
+- *         string length is larger than *size*, just *size*-1 bytes are
+- *         copied and the last byte is set to NUL.
+- *
+- *         On success, the length of the copied string is returned. This
+- *         makes this helper useful in tracing programs for reading
+- *         strings, and more importantly to get its length at runtime. See
+- *         the following snippet:
+- *
+- *         ::
+- *
+- *             SEC("kprobe/sys_open")
+- *             void bpf_sys_open(struct pt_regs *ctx)
+- *             {
+- *                     char buf[PATHLEN]; // PATHLEN is defined to 256
+- *                     int res = bpf_probe_read_str(buf, sizeof(buf),
+- *                                              ctx->di);
+- *
+- *                 // Consume buf, for example push it to
+- *                 // userspace via bpf_perf_event_output(); we
+- *                 // can use res (the string length) as event
+- *                 // size, after checking its boundaries.
+- *             }
++ *         Copy a NUL terminated string from an unsafe kernel address
++ *         *unsafe_ptr* to *dst*. See bpf_probe_read_kernel_str() for
++ *         more details.
+  *
+- *         In comparison, using **bpf_probe_read()** helper here instead
+- *         to read the string would require to estimate the length at
+- *         compile time, and would often result in copying more memory
+- *         than necessary.
+- *
+- *         Another useful use case is when parsing individual process
+- *         arguments or individual environment variables navigating
+- *         *current*\ **->mm->arg_start** and *current*\
+- *         **->mm->env_start**: using this helper and the return value,
+- *         one can quickly iterate at the right offset of the memory area.
++ *         Generally, use bpf_probe_read_user_str() or bpf_probe_read_kernel_str()
++ *         instead.
+  *     Return
+  *         On success, the strictly positive length of the string,
+  *         including the trailing NUL character. On error, a negative
+@@ -2750,6 +2722,65 @@ union bpf_attr {
+  *        **-EOPNOTSUPP** kernel configuration does not enable SYN cookies
+  *
+  *        **-EPROTONOSUPPORT** IP packet version is not 4 or 6
++ *
++ * int bpf_probe_read_kernel(void *dst, u32 size, const void *unsafe_ptr)
++ *     Description
++ *         Safely attempt to read *size* bytes from kernel space address
++ *         *unsafe_ptr* and store the data in *dst*.
++ *     Return
++ *         0 on success, or a negative error in case of failure.
++ *
++ * int bpf_probe_read_user_str(void *dst, u32 size, const void *unsafe_ptr)
++ *     Description
++ *         Copy a NUL terminated string from an unsafe user address
++ *         *unsafe_ptr* to *dst*. The *size* should include the
++ *         terminating NUL byte. In case the string length is smaller than
++ *         *size*, the target is not padded with further NUL bytes. If the
++ *         string length is larger than *size*, just *size*-1 bytes are
++ *         copied and the last byte is set to NUL.
++ *
++ *         On success, the length of the copied string is returned. This
++ *         makes this helper useful in tracing programs for reading
++ *         strings, and more importantly to get its length at runtime. See
++ *         the following snippet:
++ *
++ *         ::
++ *
++ *             SEC("kprobe/sys_open")
++ *             void bpf_sys_open(struct pt_regs *ctx)
++ *             {
++ *                     char buf[PATHLEN]; // PATHLEN is defined to 256
++ *                     int res = bpf_probe_read_user_str(buf, sizeof(buf),
++ *                                                   ctx->di);
++ *
++ *                 // Consume buf, for example push it to
++ *                 // userspace via bpf_perf_event_output(); we
++ *                 // can use res (the string length) as event
++ *                 // size, after checking its boundaries.
++ *             }
++ *
++ *         In comparison, using **bpf_probe_read_user()** helper here
++ *         instead to read the string would require to estimate the length
++ *         at compile time, and would often result in copying more memory
++ *         than necessary.
++ *
++ *         Another useful use case is when parsing individual process
++ *         arguments or individual environment variables navigating
++ *         *current*\ **->mm->arg_start** and *current*\
++ *         **->mm->env_start**: using this helper and the return value,
++ *         one can quickly iterate at the right offset of the memory area.
++ *     Return
++ *         On success, the strictly positive length of the string,
++ *         including the trailing NUL character. On error, a negative
++ *         value.
++ *
++ * int bpf_probe_read_kernel_str(void *dst, u32 size, const void *unsafe_ptr)
++ *     Description
++ *         Copy a NUL terminated string from an unsafe kernel address *unsafe_ptr*
++ *         to *dst*. Same semantics as with bpf_probe_read_user_str() apply.
++ *     Return
++ *         On success, the strictly positive length of the string,    including
++ *         the trailing NUL character. On error, a negative value.
+  */
+ #define __BPF_FUNC_MAPPER(FN)        \
+     FN(unspec),            \
+@@ -2862,7 +2893,12 @@ union bpf_attr {
+     FN(sk_storage_get),        \
+     FN(sk_storage_delete),        \
+     FN(send_signal),        \
+-    FN(tcp_gen_syncookie),
++    FN(tcp_gen_syncookie),        \
++    FN(skb_output),            \
++    FN(probe_read_user),        \
++    FN(probe_read_kernel),        \
++    FN(probe_read_user_str),    \
++    FN(probe_read_kernel_str),
+ 
+ /* integer value in 'imm' field of BPF_CALL instruction selects which helper
+  * function eBPF program intends to call
 -- 
 2.25.1
 
