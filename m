@@ -2,139 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74004367582
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 01:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B21F3676B8
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 03:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343640AbhDUXGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Apr 2021 19:06:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58864 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235231AbhDUXGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Apr 2021 19:06:09 -0400
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB82C06138A
-        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 16:05:34 -0700 (PDT)
-Received: by mail-yb1-xb32.google.com with SMTP id 65so49132523ybc.4
-        for <stable@vger.kernel.org>; Wed, 21 Apr 2021 16:05:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=NEm8gM/fSFaOWMqgyzI8qdXody5lDepUX4v4tPFO86g=;
-        b=KoOKl0PZnkPYe4SbhkaZQMToH15XqcFEE8rWO4Qhmv2eaa+W9fr2mthitUxLXVJ2DH
-         OV+v9u4Klp87pG+hFBzsX2EViQ79xaZEtq0X31P409NbL5DeB8lKDdl762/BhZ0oMOub
-         UTHQkikHjwVWJOPjMjYHJ6VtrL2unlmZbRE6aCwioGmcRE6QhS1CpUBaON7HMRT7kB95
-         KC3GSmnkPxMKYy7gosgBEmszbBxF4iI56jcyJoJUliH67juEnHThej112XIOlbp1YyB2
-         TzMZRIPXo6xc5DQTEy1kE/fR3ys98BxZSWKHDzRs+RE+3Lr7fDJ7J/d+nJdqEXVAff0W
-         cZ1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=NEm8gM/fSFaOWMqgyzI8qdXody5lDepUX4v4tPFO86g=;
-        b=UwnqFE3EpEgzn1mnCxt65AnvTJ1Rlo7HmpRc/P87fJbEfRlDB8uoiwpkEol/7nkP/Z
-         4q/EALcEZzoC4mr+AVqmSyhCW/x4qQAe2wiIgCcxMVw2OK6UjWh6Bsz6XSGVNfR6mIQG
-         3ZyZ3fBGfthQejJ2QaBv6XMDmJoN+WJYsA5EqD2m3Oyp51EInZvOtOx3KK2PCBsbARy5
-         Gl9WhhFMU2ZLaXmFprHmzb4SCeedTl19xSdfLI8Rczz+pOruwjk1iia3Xp4ZJfVl9hh7
-         K6ykKmXYyTGoKijnmtrNJZWXHTOI8RM9Uyh8oeVE5X+9XbsGej2oF3GzrmNztvImOY8R
-         O8Ug==
-X-Gm-Message-State: AOAM532+p9Dbmd2R3+dnDld5gZmeWGdNOeo4Zn+V/sAJ4y6yQvr7+Ryr
-        Wk2MRSMOqm1oR1DXC4VZmpXubZYwSOnJlVvXCF16sw==
-X-Google-Smtp-Source: ABdhPJyKbZa8U1MlpCzEY3rcgzVqE0BZYxwai22fqQrt69eElmxl+gpvB70oKTySO29O1LJPigy4RIGEBwDeFrfQz6c=
-X-Received: by 2002:a25:dc02:: with SMTP id y2mr523853ybe.23.1619046334091;
- Wed, 21 Apr 2021 16:05:34 -0700 (PDT)
+        id S235350AbhDVBT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Apr 2021 21:19:57 -0400
+Received: from mail-co1nam11on2046.outbound.protection.outlook.com ([40.107.220.46]:19360
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234970AbhDVBT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Apr 2021 21:19:56 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=AOzfasYmEpuxk/kfvKAY6kC+hMiojRdM7svNrfOwMTiZuVLiRKqWHM1q9TtaaoPNLjLP5WjuZlSh+t27QCBeyBh5pf+53Ynod/4TX04KQZ9Okq7kdU7p0BUO1CblpkJnuB/t96+e37cr3SzPKu6cypsvW9I2BjiQ7iVAFWqFqY6XyywmxOUrA27mdF7O34Xhf1P49RNk5z8YMeUEtnhiHp4FgsZSz0njna5VvCwGtd4F5VEGHpmDXAT7OXSBs2qe3Bqzk0+di86Fx5ShkBc92MBuQHPF3YcaGqc6KPHXecFftg7NTR4WJ2D7ecoImikYRU+PLYWf4+wysMRd43vhZA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9u/R+9fCwV6UYMJ2Q6MN/RpoFkfMaKjxceHzfGu6xaU=;
+ b=QMmiMIMTUaIQuFgox+5NUKzc/H5J5b6lZn+Jqj58xVZsI102stCuXs9aphKQN7Scnfo5VU2Pk5rh3hYvlGljjYpKO98C+5i9TPawBTEd8ZEchABR9ED86mH/c3wv9J157q2EqP8Y+atiIkylJmXcuFkxxwenokcbmhlKck68kimS2zNF2Giws/bTBXjpg9i6XP1ocJUF612BZgjyxVf2E235+1cvtAipzr+23yvfvgeoSFtuztZGZi9+8706PRpauMQb+PlxnxFRkt7zRdLgrvWbLD6YMHlMdn4PMB20MRnCdQTdLqm2oFU29aFjY4f4UxA/X2i2eTDYPTLjW0JL+Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9u/R+9fCwV6UYMJ2Q6MN/RpoFkfMaKjxceHzfGu6xaU=;
+ b=F+VLf2YNLYLrU5p/GnGS3dc5PMWkdblFES98iT4s5SakkHDgtTPVS9OlJOnOlhhz1QcvZXBl3fJ4OGV/Lt77njOEDsA08C5k0HPw7To3PN3HK4K3flzfv0IM4/nIHmkJeUDPwQ9lU8sUwfJW2qX/kEcxqk4wKCgXzw32Zu/w4ZM=
+Authentication-Results: lists.infradead.org; dkim=none (message not signed)
+ header.d=none;lists.infradead.org; dmarc=none action=none
+ header.from=amd.com;
+Received: from BYAPR12MB3238.namprd12.prod.outlook.com (2603:10b6:a03:13b::20)
+ by BY5PR12MB3713.namprd12.prod.outlook.com (2603:10b6:a03:1a6::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.21; Thu, 22 Apr
+ 2021 01:19:21 +0000
+Received: from BYAPR12MB3238.namprd12.prod.outlook.com
+ ([fe80::5870:fcd6:b13a:c49c]) by BYAPR12MB3238.namprd12.prod.outlook.com
+ ([fe80::5870:fcd6:b13a:c49c%5]) with mapi id 15.20.4042.024; Thu, 22 Apr 2021
+ 01:19:21 +0000
+From:   Prike Liang <Prike.Liang@amd.com>
+To:     linux-nvme@lists.infradead.org, kbusch@kernel.org,
+        hch@infradead.org, Chaitanya.Kulkarni@wdc.com,
+        gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, Alexander.Deucher@amd.com,
+        Shyam-sundar.S-k@amd.com, Prike Liang <Prike.Liang@amd.com>
+Subject: [PATCH v5 0/2] nvme-pci: add AMD PCIe quirk for NVMe simple suspend/resume
+Date:   Thu, 22 Apr 2021 09:19:04 +0800
+Message-Id: <1619054346-4566-1-git-send-email-Prike.Liang@amd.com>
+X-Mailer: git-send-email 2.7.4
+Content-Type: text/plain
+X-Originating-IP: [180.167.199.189]
+X-ClientProxiedBy: HKAPR03CA0020.apcprd03.prod.outlook.com
+ (2603:1096:203:c9::7) To BYAPR12MB3238.namprd12.prod.outlook.com
+ (2603:10b6:a03:13b::20)
 MIME-Version: 1.0
-References: <20210401181741.168763-1-surenb@google.com> <CAHk-=wg8MDMLi8x+u-dee-ai0KiAavm6+JceV00gRXQRFG=Cgw@mail.gmail.com>
- <c7d580fe-e467-4f08-a11d-6b8ceaf41e8f@suse.cz> <CAHk-=wiQCrpxGL4o5piCSqJF0jahUUYW=9R=oGATiiPnkaGY0g@mail.gmail.com>
- <CAJuCfpFgHMMWZgch5gfjHj936gmpDztb8ZT-vJn6G0-r5BvceA@mail.gmail.com>
- <CAHk-=wj0JH6PnG7dW51Sr5ZqhomqSaSLTQV7z4Si2dLeSVcO_g@mail.gmail.com>
- <alpine.LRH.2.02.2104071432420.31819@file01.intranet.prod.int.rdu2.redhat.com>
- <CAHk-=whUKYdWbKfFzXXnK8n04oCMwEgSnG8Y3tgE=YZUjiDvbA@mail.gmail.com>
- <CAJuCfpHa+eydE_voX38V-jtv5J_RnyT=eY12-VmcLbVG_u2dyA@mail.gmail.com>
- <CAJuCfpHJjtv_=jLULge8D4EK_AK2yGLMcWKcGSaknzuWm0DFtA@mail.gmail.com> <01f47bcc-ed9d-85c0-2dd1-a7f604d1ad28@suse.cz>
-In-Reply-To: <01f47bcc-ed9d-85c0-2dd1-a7f604d1ad28@suse.cz>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Wed, 21 Apr 2021 16:05:23 -0700
-Message-ID: <CAJuCfpHSXUc9+xVSeRWoiWKZKFxnBJGtd_CNicTdAEVs_ZyHKA@mail.gmail.com>
-Subject: Re: [PATCH 0/5] 4.14 backports of fixes for "CoW after fork() issue"
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Peter Xu <peterx@redhat.com>, stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jann Horn <jannh@google.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>, Shaohua Li <shli@fb.com>,
-        Nadav Amit <namit@vmware.com>, Linux-MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Android Kernel Team <kernel-team@android.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from prike.amd.com (180.167.199.189) by HKAPR03CA0020.apcprd03.prod.outlook.com (2603:1096:203:c9::7) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.20.4087.16 via Frontend Transport; Thu, 22 Apr 2021 01:19:18 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b97c963c-fcfa-40bf-7dc0-08d9052ca82e
+X-MS-TrafficTypeDiagnostic: BY5PR12MB3713:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BY5PR12MB37136C2FF35428696A927500FB469@BY5PR12MB3713.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YFAJLVEl9cgNbmR+IyLjpmqfDStWJP8eGXmJkqmdUus8HMVYuLw38q7wGTSW1BjQeKOiOXK299pKj10Q0o3wLG6wAK6HNJc7JSCv76Pp3CUbIkVID5Sh71+mh88RiGxfzPhXDsHk9tVtWIsMQD9HvSsyQdekI6ZeJSVyZlhLgfyS31RMCM/eRkVQQw4b7RroZkgR9/I3KpEYvOGb0fvpN67TpIopX8ZIs0M/3W+XA1uII4X9N4gCTWjOTaV/osoYq3KpBJz3P1Mz8kFLbE1kiJTfzYIj4JX4o/L+NraeSEWblP80jyPT/affvvZ13q4Kna/fAVxU4o5LsgWN6m6YTFaP4vvRiRD6aoKj+/0ia7AHXYU4qOvOtr99+4AxUwJUK8E6ij5D4wWjcLym+mmL9GBv/kNJ6ZIuJHsGNZVBJfNcrF/6AlJwbtEE4BjKDXee3IBTpBexEdXXlmeNgML4iyPHL5qyvOWGf38UbShn/N6+hRQCAGxBqKdXYqwt/XOMqKanyLVOVQ/kCPreZF383/bUWINh4hJc6gcJQOoCZ/E8EiER5bbWEX9daBWsX09yLcZc4rhY6IXzQ9bbkjfcPoQ7ZWHZU2sck79QGxeKOQ5RxLvc4B/8NPPFnDjc28wkW4FH7m+aJ/8PRYSNAAmoXw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB3238.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(396003)(39860400002)(346002)(136003)(366004)(83380400001)(4326008)(8676002)(478600001)(316002)(66946007)(4744005)(8936002)(2906002)(36756003)(86362001)(38100700002)(16526019)(15650500001)(186003)(2616005)(5660300002)(956004)(38350700002)(26005)(6486002)(52116002)(7696005)(6666004)(66476007)(66556008);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?NMO+O4ARpZ51AW1HDCuPVRyrB3+pF2/apF2/J+eoCDYtyLJGHpLtY/BxOYOx?=
+ =?us-ascii?Q?uyHY9uZQXA7Flwj63DDxj2K/7CFEO3wfWX3P1yxij6s6y+naU30o4k23faHP?=
+ =?us-ascii?Q?5dTJNMvxLwSosQ2mSwqn7cqlI3Xk0wSOyOneu1jfM/mJV99rIGAjYLv3XbLa?=
+ =?us-ascii?Q?5FsBnBKbzws4kdVZZ2NKKTLTdLcvglq64TrYnnCK4ZTD2NhC+rQu1PvmpfR+?=
+ =?us-ascii?Q?qZ+DhEDfUvvBVSLM8bxTbXPAnFvPqe21qkdeaDD6oP/yTKoP4q/ZRzGMs5/4?=
+ =?us-ascii?Q?CLfyprqQBN4xMsPGIzstxM89kfT6x5Ldj46VY0zY5h17C/YVxw9jsDWmy6Sg?=
+ =?us-ascii?Q?NM+HQnReqDkyp/aNPfFi4iZsVDLCM57fg1Sgdm32GU/1X676ggVqyfu5S/8D?=
+ =?us-ascii?Q?9xe7xtnoWM/n/hvasV4yp4gWXNcTDQi9vHYfK3FKE3bwH4SR0bGVFLVs7lVh?=
+ =?us-ascii?Q?s2bok+9aP0GrQzxUO5vRcLQmbjJ/JXjqMblxHYUTimissjrqUMRnQOmfmzhH?=
+ =?us-ascii?Q?jlm2TT4z1DEo4fjiF6+Bjz67KvS6y6ocLYWhsDzuBtXJKwL+WFttB4tDUc+M?=
+ =?us-ascii?Q?SI3o+jE31Sp+3q2Y1CJpsVJjo5mpf2AY//4QwLw70JxFGGN+8VcdylwJ054J?=
+ =?us-ascii?Q?PFZcY7CN30wibqWQjQaxUs8rDccJkPjuAWPzofsM5xKTO4/Qg2w9W8kmUrSh?=
+ =?us-ascii?Q?l2GdfJsAzx9XbrhxwbrSZi3EQS1wbAMb8AZgtN9YJXE3IGZ8EGt8MinrszER?=
+ =?us-ascii?Q?oYLi/DrHgoqls3gYEL3zINJRtASaeFZ7Z0aOyN8vew9D7r6HKwvKtJVJfLDp?=
+ =?us-ascii?Q?aG9FRlcBJxqxh+fQRYtG4/Puu/0XGKGcQ5qmGypg2B3Z1BPzkLNEbI8gbsie?=
+ =?us-ascii?Q?8Ji7rzMbDZblmyi32rCz8T2fsrl/IqkbWlBIFQY966bqapcF8zlOaekp86TJ?=
+ =?us-ascii?Q?elA0BqVF7vmVx8Ba0ftf5SPybOrpWnAdDveg6zZe2UHw6uUIJYikNl6eQsoN?=
+ =?us-ascii?Q?YnwzAupsOANjP4mG+mPmsbT5M3YZLtHQS3Ecd6y8x/mS5XKxAD7ErMZnTebR?=
+ =?us-ascii?Q?8HxL3ZbKGXo+3SYJuWldwJvQx+dgAd+tkc3L6M2dEoJGAXfQ8o4Y2zkTCUHU?=
+ =?us-ascii?Q?Rs1dhDwBBc28wSbOxIE/0g70tVPWeqARVZZxMoYDPZdQmLTYCCswgWLEjPzG?=
+ =?us-ascii?Q?QjgIlmS+5cOmEcRvbsHUOtRShCHRYLbbJBOT25qybRF4oGN+5ygn4OVMkVL9?=
+ =?us-ascii?Q?NCzmzAscs4fvNnERfw7szLOHgAbPMjDGu2nSFwGKktuzncuPmtfpFv2S/w7G?=
+ =?us-ascii?Q?YLqL0SgIYWjsLDWrQA2PUiqc?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b97c963c-fcfa-40bf-7dc0-08d9052ca82e
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB3238.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Apr 2021 01:19:21.1792
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: w5b5dWn0LGYVv7KedGAGErqSpWpSp3Y3nqfAGK/FZq1AL0SUa4soCMjL4dfO2WzU
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB3713
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 21, 2021 at 3:59 PM Vlastimil Babka <vbabka@suse.cz> wrote:
->
-> On 4/21/21 10:01 PM, Suren Baghdasaryan wrote:
-> > On Wed, Apr 7, 2021 at 2:53 PM Suren Baghdasaryan <surenb@google.com> wrote:
-> >>
-> >> On Wed, Apr 7, 2021 at 12:23 PM Linus Torvalds
-> >> <torvalds@linux-foundation.org> wrote:
-> >> >
-> >> > On Wed, Apr 7, 2021 at 11:47 AM Mikulas Patocka <mpatocka@redhat.com> wrote:
-> >> > >
-> >> > > So, we fixed it, but we don't know why.
-> >> > >
-> >> > > Peter Xu's patchset that fixed it is here:
-> >> > > https://lore.kernel.org/lkml/20200821234958.7896-1-peterx@redhat.com/
-> >> >
-> >> > Yeah, that's the part that ends up being really painful to backport
-> >> > (with all the subsequent fixes too), so the 4.14 people would prefer
-> >> > to avoid it.
-> >> >
-> >> > But I think that if it's a "requires dax pmem and ptrace on top", it
-> >> > may simply be a non-issue for those users. Although who knows - maybe
-> >> > that ends up being a real issue on Android..
-> >>
-> >> A lot to digest, so I need to do some reading now. Thanks everyone!
-> >
-> > After a delay due to vacation I prepared backports of 17839856fd58
-> > ("gup: document and work around "COW can break either way" issue") for
-> > 4.14 and 4.19 kernels. As Linus pointed out, uffd-wp was introduced
-> > later in 5.7, so is not an issue for 4.x kernels. The issue with THPs
-> > is still unresolved, so with or without this patch it's still there
-> > (Android is not affected by this since we do not use THPs with older
-> > kernels).
->
-> Which THP issue do you mean here? The race that was part of the same Project
-> zero report and was solved by a different patch adding some locking? Or the
-> vmsplice info leak but applied to THP's? Because if it's the latter then I
-> believe 17839856fd58 did solve that too. It was the later switch of approach to
-> rely just on page_count() that left THP side unfixed.
+Those patch series can handle NVMe can't suspend to D3 during s2idle
+entry on some AMD platform. In this case, can be settld by assigning and
+passing a PCIe bus flag to the armed device which need NVMe shutdown opt
+in s2idle suspend and then use PCIe power setting to put the NVMe device
+to D3.
 
-I meant the "vmsplice info leak applied to THP's" but now I realize
-that 17839856fd58 does not use elevated reference count, so indeed
-that should not be a problem. Thanks for the note!
+Prike Liang (2):
+  PCI: add AMD PCIe quirk for nvme shutdown opt
+  nvme-pci: add AMD PCIe quirk for simple suspend/resume
 
->
-> > Andrea pointed out that there are other issues and to properly fix
-> > them his COR approach is needed. However it has not been accepted yet,
-> > so I can't really backport it. I'll be happy to do that though if it
-> > is accepted in the future.
-> >
-> > Peter, you mentioned https://lkml.org/lkml/2020/8/10/439 patch to
-> > distinguish real writes vs enforced COW read requests, however I also
-> > see that you had a later version of this patch here:
-> > https://lore.kernel.org/patchwork/patch/1286506/. Which one should I
-> > backport? Or is it not needed in the absence of uffd-wp support in the
-> > earlier kernels?
-> > Thanks,
-> > Suren.
-> >
-> >>
-> >> >
-> >> >             Linus
-> >
->
+ drivers/nvme/host/pci.c | 2 ++
+ drivers/pci/probe.c     | 5 ++++-
+ drivers/pci/quirks.c    | 7 +++++++
+ include/linux/pci.h     | 2 ++
+ 4 files changed, 15 insertions(+), 1 deletion(-)
+
+-- 
+2.7.4
+
