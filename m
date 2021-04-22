@@ -2,62 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB75F368847
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 22:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0162E3688C7
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 23:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239497AbhDVU4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Apr 2021 16:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37734 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239495AbhDVU4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Apr 2021 16:56:12 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E24C06174A;
-        Thu, 22 Apr 2021 13:55:35 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id mh2so49255506ejb.8;
-        Thu, 22 Apr 2021 13:55:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=dEQlBQ+cKNmvrna+slH7W/hMGqqCGXx5n3UWJyZ8sYQ=;
-        b=aQPxJr4TxH5FQe6Tr21BLzR9VMqBUL40Krw4ITVx/BARvappmztuiXl95pYypsK97g
-         ZEqj7NA5ic/IhLv9TWSjs9y6FhQI5A0Gj+al5w2pVM/uBsseA94XL39aoxR/O9PnEFBg
-         0L3atuGzvBPvYzXjMYu1KBoP0+HbNesraRvpr5+ktKBieDD2gBuH/5A3Lyeg9PcMfKy6
-         VhrIGoT7tpki7yvNvzpezLVBcy8zgxace9IAzlOxKVpjpTG1YcpTg09XHEffHe9P+a8F
-         dUNcrCOS78wHEUaFsQM9foJCDzPNj0Mn2KuvUtMfCDKaSWj15v5yeOBbwe80aOjzOJZQ
-         SqCQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=dEQlBQ+cKNmvrna+slH7W/hMGqqCGXx5n3UWJyZ8sYQ=;
-        b=Rkc3MVQciNUtNcfK7BbdYnM17a/Y11KCPRYE4nluJIVYNT5GjAfkAdil3xZEbuBv50
-         btLaN//ZZVFIv68qgauy4D0RXBoWPyYGNXJxEas23qTr5BgT89j/yft9bKDH6DVcR6al
-         tTiGK0g5BI5LbAiIf5taOIGZ0ODVWXl4eOp9wMIwiNYRGSvnk1VNUZ4Ry0S0ysibnkON
-         UShBM5o2iQg+Wlz6s49gmR6/Q7HogfgYj9JDkbf593sEyNIT7B+VQsFxk7hpE7AMnX2h
-         3d5kjHZQ/7Q0ELv8e7+E37eu2D6bFDtJvvgSLqMltAzfUA54B6iyPehuvs0Ka85L7KDK
-         pbvQ==
-X-Gm-Message-State: AOAM532o9Q9HEHY1I+EXhklMSpnx4Kq27J+I4KHrV7qMQHHH3ZQW8n1f
-        81ZHANGW8CK26F4KRRFZs8OcyM62LDeOBQ==
-X-Google-Smtp-Source: ABdhPJywLNvFriI5I8KqH4xnzheaDmAX8/OfwFjPocj1tGLFXjUnaWLI/u88nXnTerJNaoXFL5q1GA==
-X-Received: by 2002:a17:907:9894:: with SMTP id ja20mr596936ejc.428.1619124933816;
-        Thu, 22 Apr 2021 13:55:33 -0700 (PDT)
-Received: from ?IPv6:2001:981:6fec:1:8cd0:2dad:989e:1456? ([2001:981:6fec:1:8cd0:2dad:989e:1456])
-        by smtp.gmail.com with ESMTPSA id cm21sm2925238edb.29.2021.04.22.13.55.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Apr 2021 13:55:33 -0700 (PDT)
-Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        id S239696AbhDVV7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Apr 2021 17:59:10 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:42560 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236660AbhDVV7I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Apr 2021 17:59:08 -0400
+Received: from mailhost.synopsys.com (badc-mailhost4.synopsys.com [10.192.0.82])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id EA02CC0556;
+        Thu, 22 Apr 2021 21:58:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1619128712; bh=qKqkfQINJCPPwEcUVcmrUq7qclm4NHQf/wz/K7J2CD0=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+        b=XW2IIZDMrQoTuRkYZU4YDF3Vr9j/TiLH20WKrvjmJFM2ARp7oBL6llZNS5vir0h6G
+         tNDY26OV5etRPSUqnSSmDB/fKRpxNkx1yi4GEbKkzX8UF4nkqrzt+2Rv9w7usVWxyv
+         Dex90vnxL5OB7QBDeZgs3olqqvBUa/wIiYeUDTcLHYVdzZDao5u9ZgvQa04TY53yxn
+         HyGw8XVWohqPNl2ojy6JudQEz54Jl3w92+Y9K2jmZ2qVh1Uk5gDXpdc4PIikBzP4B4
+         gNECk42nD9v3hfnYQoq0x6iZE9t35IyQ6frHuLiTbfzNG6/hEpDYhwB+KgIPX7HkPU
+         ZepAMneFDtD5w==
+Received: from o365relay-in.synopsys.com (sv2-o365relay1.synopsys.com [10.202.1.137])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPS id 9A6BEA006E;
+        Thu, 22 Apr 2021 21:58:28 +0000 (UTC)
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2104.outbound.protection.outlook.com [104.47.70.104])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "mail.protection.outlook.com", Issuer "DigiCert Cloud Services CA-1" (verified OK))
+        by o365relay-in.synopsys.com (Postfix) with ESMTPS id 3E6E0400E7;
+        Thu, 22 Apr 2021 21:58:27 +0000 (UTC)
+Authentication-Results: o365relay-in.synopsys.com; dmarc=pass (p=reject dis=none) header.from=synopsys.com
+Authentication-Results: o365relay-in.synopsys.com; spf=pass smtp.mailfrom=thinhn@synopsys.com
+Authentication-Results: o365relay-in.synopsys.com;
+        dkim=pass (1024-bit key; unprotected) header.d=synopsys.com header.i=@synopsys.com header.b="bWikG3fK";
+        dkim-atps=neutral
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=eO1RJ5DMDsDgcsiSV/OmGrI+jV5W9zaJmTcAKu/ECtMfH2cFFxiSAumkOBqtDfWg5ZFmoFnSnOPL6RRuCpWJGRc1qwJgR5EZbM2uNVKgmm/djBTQnKhTTC4Z078F7YsSGQmvMrz77D1rSDekujx6tabLvgooac+E5tUL/ZfS7rYizAWJm8m81eEwtmekN3i6+rncBrXC83rWIm67Bmg4RSTOoRnAru7JRKAmgxfz8TCga2fpqDzcaCxWIXTyV30zztvIgmJF9CYd9TbXZ48gU88t77S6DQpfTkMoQWSWIUD46a29AFbtLgwHdVcoB4nSpsw8JmDGN7+sxpma04LplA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qKqkfQINJCPPwEcUVcmrUq7qclm4NHQf/wz/K7J2CD0=;
+ b=CKKrTVNs2WyW3f++0tzWr9xUB5NWQeEpmxluZRaQGNSwWTk1WXPB4mlpLKBKaf5GKst+t0FrFvlp8PtITEEMBMf74pqEG4AtAmfygTfM5v1Xgtc40YW51m15DuJWDiriCEnddO24F/qtoQDIewiR12BBAw/pZ88N1ngKWMk1RV3aB196MnQYvyl4h0O5Pf+E7wmx0lmVqf5PirsIb6HnJOMj4zcaRUpS8MckFqFXlcBcQPM8Qe5XpCVcYpT7VPfbP9sJ8emxs7w8jIAPZpY2AXCE1k3jqgN8Yr90HPjn7CLx3qftnPs3+6FMhSs68jOdGrEU9P6DI8vXDgVdklkoyw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
+ dkim=pass header.d=synopsys.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qKqkfQINJCPPwEcUVcmrUq7qclm4NHQf/wz/K7J2CD0=;
+ b=bWikG3fK3OQJmM5dgc3fZYDY6Ad0d10DJAN+mL+oaWwEv2xsNDEytz3Olqoge1K9oZ2tMU0rcQPpYq7gnf0u7I/g8yIwtviJl+kikt93/lOPZRmNO7ZQgapiUBFz/EB6C48YSJg2FTrIrxkrCVcX7CvVEaMVZINzAJk3Vvqy+iY=
+Received: from BYAPR12MB4791.namprd12.prod.outlook.com (2603:10b6:a03:10a::12)
+ by BY5PR12MB4920.namprd12.prod.outlook.com (2603:10b6:a03:1d3::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.21; Thu, 22 Apr
+ 2021 21:58:25 +0000
+Received: from BYAPR12MB4791.namprd12.prod.outlook.com
+ ([fe80::7c97:6a33:14c4:dd8c]) by BYAPR12MB4791.namprd12.prod.outlook.com
+ ([fe80::7c97:6a33:14c4:dd8c%6]) with mapi id 15.20.4042.024; Thu, 22 Apr 2021
+ 21:58:25 +0000
+X-SNPS-Relay: synopsys.com
+From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+To:     Ferry Toth <fntoth@gmail.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
         John Stultz <john.stultz@linaro.org>
-Cc:     John Youn <John.Youn@synopsys.com>,
+CC:     John Youn <John.Youn@synopsys.com>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Wesley Cheng <wcheng@codeaurora.org>,
         Yu Chen <chenyu56@huawei.com>, Felipe Balbi <balbi@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Subject: Re: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
+Thread-Topic: [PATCH v3] usb: dwc3: core: Do core softreset when switch mode
+Thread-Index: AQHXMkWV7LsE5m94VkyJIYRuvRhHs6q2J2QAgAF/xoCAAFbPgIAAx46AgAAkXQCAAf+uAIABY2WAgAATBACAAXmvgIABg0OAgAGyMgCAABGQgA==
+Date:   Thu, 22 Apr 2021 21:58:24 +0000
+Message-ID: <41664b06-d58b-b5b1-3f1a-02b9d4bcf24c@synopsys.com>
 References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguyen@synopsys.com>
  <374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com>
  <d053b843-2308-6b42-e7ff-3dc6e33e5c7d@synopsys.com>
@@ -70,556 +93,344 @@ References: <2cb4e704b059a8cc91f37081c8ceb95c6492e416.1618503587.git.Thinh.Nguye
  <fdaebefd-36c2-84e0-164f-c376483a0db3@synopsys.com>
  <a485bdc8-35e9-d58b-1411-84463274bb6d@gmail.com>
  <d9bca287-92fe-b2c8-511c-0ae89d2745c9@synopsys.com>
-From:   Ferry Toth <fntoth@gmail.com>
-Message-ID: <c9ef4bca-9fad-bb66-5ea3-2bd07b5b4e3e@gmail.com>
-Date:   Thu, 22 Apr 2021 22:55:32 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
-MIME-Version: 1.0
-In-Reply-To: <d9bca287-92fe-b2c8-511c-0ae89d2745c9@synopsys.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+ <c9ef4bca-9fad-bb66-5ea3-2bd07b5b4e3e@gmail.com>
+In-Reply-To: <c9ef4bca-9fad-bb66-5ea3-2bd07b5b4e3e@gmail.com>
+Accept-Language: en-US
 Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
+authentication-results: gmail.com; dkim=none (message not signed)
+ header.d=none;gmail.com; dmarc=none action=none header.from=synopsys.com;
+x-originating-ip: [98.248.94.126]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 219f45d7-3e97-4b9f-a201-08d905d9c0e8
+x-ms-traffictypediagnostic: BY5PR12MB4920:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BY5PR12MB492036C5BF966228B4D9717AAA469@BY5PR12MB4920.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: D/wYAvqZV00KWOIx+RPuXPrRpx5KEIP6+pvlYX3chQxOKgNxdy4NF14DU46Xttf3H6H06QH5DvTEQtPldWfixRIx36HUl5x4Tkgtt/Y/pwVkMh0QAAWqfNJC0uAr9PH0148RA0u1VFoGspbXbR9zY2YN9PQK3WGKEnGnOLe8/3o1/eZ9WxD6y6vTOtQXKwI2LLk4LlgJ3nSjm6AWDc3lapoH+0d0SD6QnGzENfqCfD/j0cObw1YwL270FETXqORir8TlgyFyGSpAZuwdfHLxNqqWVoUrcdld4m3KpiQJRY1eodMfK6tx2BeqUB/4co/drUh/WPniVyhBrTmLz6B1v8DCQx2e3tHoGhWX0XGsUQHHAaxnB6eUqvM2bDn1ZCJDsCzwnd9uvNg5c9/ZquAkd0aeulAPZRT/rAG+6EFy7svHaGwlSjAkLHzeGpbRMF1vEvxcjeRUoJSceSWoBgbXQdLnTg4NpCNsA/0sc+sJniK9i4XFTGIs9jrEHnxoY4y5MEV8EjL60uPUfRQdwdK3+OPI98roqsry8XBfvQ2smarrgTn1kLBbjvlI0AZ+cscmRo8stACDN0GVOfsCit8N6HNEqOb/UHoazzjDX6IlQZohNdtwAO9ocLiKttJeQ7ZhNVKnB6awMRjkS78UfxMKOMVKE8JRUZfqm6xQSm3RoN2pP8lnNUVLcyz9KNisSwEOjo/NYuwFRNihiOoBGVCvRJMQqWxI+M1ZHHgFKbsMSNpRMtP/csjbmqHZIk4yKhZq1qhKCoQLby1Svo5KfeBqag==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB4791.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(346002)(376002)(136003)(39850400004)(396003)(366004)(66556008)(66446008)(186003)(66476007)(966005)(64756008)(76116006)(83380400001)(316002)(2616005)(2906002)(6486002)(86362001)(38100700002)(478600001)(6512007)(31686004)(4326008)(5660300002)(54906003)(66946007)(26005)(8676002)(36756003)(30864003)(6506007)(110136005)(122000001)(8936002)(71200400001)(31696002)(43740500002)(45980500001);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: =?utf-8?B?T3diemltM09VOE9GbEtKLzJjRDRiN1VFR3VxL1ovUzBrbXhNV0N4VWZXS2pF?=
+ =?utf-8?B?dGV0L1lEOEVTZUQrZFJSb2JMNmExRWJZUmtTV3ZqSkpyVkJ1NUt1Tmdha0Qv?=
+ =?utf-8?B?QjRrYzZvZHU4STJEL0lPZ3BoVzEwOERnbnRWSGtnckgyTFZyK1p6R0ZZWTRD?=
+ =?utf-8?B?ODZxelR2L3FRdkozVi9QYnlRcytpaTFPVU1odTYyL1RuR213RnRaZU5jNTV1?=
+ =?utf-8?B?V3FJZGlsdTUzdmFia3UvY3JkVlBDT25VVGc1R2FVR2tPS1ZhalkrLzdTWnNR?=
+ =?utf-8?B?QndHcGhDWFVnQVd2RFNVaDVBZGpNdW1hcnozZzhsWTFBeEVWbDZDLy9sV01K?=
+ =?utf-8?B?UWoyMzJjZkVRS2lFdVpiejdITytvRFFxOEFQbXVRTVNPRjNsRk1QVWQ2VFl1?=
+ =?utf-8?B?TTdOU1BhMDVrQUFtVUMvTHl3UkNmVXBXc21maGtwdkwxRTNqSHhsNEZRai9s?=
+ =?utf-8?B?eUl5SHdQZ2tnaTg4cmRKd1pLLzFFVzFiYStVVWRiU2YrTTZDS3J3dFhIbjlP?=
+ =?utf-8?B?cTlwZUwweWwwSHQ4S1lzTFh2MzdHTVdkZXdKZTFXdlRCZTZ4SjhDcW1HQTVy?=
+ =?utf-8?B?NWg5c2ZMNE9yZks1Y29qeU1vRTRxeDNxUlpPMzI3aUhQREJVNXNZeDFXZUxr?=
+ =?utf-8?B?aGlqWjV1REdOZFI2NFdubmd0V2tjOG9oNXFQMmwveHc1eFZvcS9KcGtnVXA0?=
+ =?utf-8?B?T1BuNHpSWlQ3QVp4ZmU2OTdOaVBjRXl5MHNnUnl2UmovOHVIa2F6ZWNYNDAx?=
+ =?utf-8?B?RW1VWVNUbEpKLytad0tZSFZRR2ViOUUxelJnOHBRWTVQeDhOQ1VvL0RnVW83?=
+ =?utf-8?B?bnFRUlo2dGhZOXE1QXVJMEVpU0U4a2wwcFJMemxPRmJJbFlIYlZYL1I4Q1RN?=
+ =?utf-8?B?NUFDVGdPUXBabmw1MFJSMk9QZlJ6alpZamt4MjlzNThwcnlCOE9CbXo0V1R2?=
+ =?utf-8?B?VGFjTzBvM2R5Q3BtbE5LTElmT0l1MkxGMmNKazMwRk91N1BlTTdwMVlLU1pC?=
+ =?utf-8?B?SmM3OEVkTS83Z0p0VTU4ZTlYY2ZIT3kyeUdrZmZBQklsTmZJNENMb1FUREFU?=
+ =?utf-8?B?UUg4QytKU0FhNmk0Q2F2dlNnVUh5QVhsMFZhZlZvNVBlNk5TWkhiVnNyUWZ5?=
+ =?utf-8?B?U0dJOGtmQjRpR0Q3cDlHQ2d6ZXhKRlBGb3lmR1JPVlQ0UU1wSlhUcGRiSVpz?=
+ =?utf-8?B?MmpjMlNEOGNNa0VPTlZ6d3A5dk9kKy9vZVJSdkhYNUNNeGdkNEdEYjVOUFRj?=
+ =?utf-8?B?R1ZOOHZGSTF6SjdhMU5xL1JRVERxYm03bm5qTmhHcVY1ZUhPWkpPS1ZQdFgr?=
+ =?utf-8?B?Qnh1azRwOHphOGoyek5xK0xrK0d4QXErbkFYclpiNjlkdVV4WFV3SUNZWTdR?=
+ =?utf-8?B?V0I4RWsvMHA1NnhCdndKYlNvTXl2M1F2U1dMTGp5Vks1UmdGdWVlMjhsYmtz?=
+ =?utf-8?B?Q0RYSDNVUnZsM2ducVNIalNLRWVnbHhpaFE4OFZLVDQ4aXNQY3BUWlV0K1hv?=
+ =?utf-8?B?cVgwZXUxUDVINlprU2JOZ3FYRmFyd1ZXcTdMMXYxMjdEekhncTh4YU82OWha?=
+ =?utf-8?B?bi9xTjBBWVRqNGluNDJlSEQ4bW5weE82UzlCd281cVlZOEprNzJxQWNrekVK?=
+ =?utf-8?B?K2Rrcm12UGI2Z3pYWncxMkgxNkVuMlRDbFZzSmJnRGZ3aGFsRGIxOFBNa0tY?=
+ =?utf-8?B?QlZTVzNCUFE4aVNXc0dnU2VSWC8wOUZYejQxajNDeTloNlJnQmhlMU8xdW1Q?=
+ =?utf-8?Q?eXIj+WAEbJgmgnWrympewvS1jZRWYLrDAz1LidP?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <7445F01CC304C94A8E4A4B20774A8FD5@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: synopsys.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB4791.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 219f45d7-3e97-4b9f-a201-08d905d9c0e8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Apr 2021 21:58:25.1269
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: lkB464tBtxG9C32YM4pXsApm8RD5wKZRUataCoXUykwSp/Is3//7yuQLicdI4YEgVy184+OkXkWFvHgdCoXM5Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4920
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
-
-Op 21-04-2021 om 21:01 schreef Thinh Nguyen:
-> Ferry Toth wrote:
->> Hi
->>
->> Op 19-04-2021 om 23:23 schreef Thinh Nguyen:
->>> Ferry Toth wrote:
->>>> Hi
->>>>
->>>> Op 19-04-2021 om 01:03 schreef Thinh Nguyen:
->>>>> Ferry Toth wrote:
->>>>>> Hi
->>>>>>
->>>>>> Op 17-04-2021 om 16:22 schreef Ferry Toth:
->>>>>>> Hi
->>>>>>>
->>>>>>> Op 17-04-2021 om 04:27 schreef Thinh Nguyen:
->>>>>>>> Ferry Toth wrote:
->>>>>>>>> Hi
->>>>>>>>>
->>>>>>>>> Op 16-04-2021 om 00:23 schreef Thinh Nguyen:
->>>>>>>>>> Thinh Nguyen wrote:
->>>>>>>>>>> From: Yu Chen <chenyu56@huawei.com>
->>>>>>>>>>> From: John Stultz <john.stultz@linaro.org>
->>>>>>>>>>>
->>>>>>>>>>> According to the programming guide, to switch mode for DRD
->>>>>>>>>>> controller,
->>>>>>>>>>> the driver needs to do the following.
->>>>>>>>>>>
->>>>>>>>>>> To switch from device to host:
->>>>>>>>>>> 1. Reset controller with GCTL.CoreSoftReset
->>>>>>>>>>> 2. Set GCTL.PrtCapDir(host mode)
->>>>>>>>>>> 3. Reset the host with USBCMD.HCRESET
->>>>>>>>>>> 4. Then follow up with the initializing host registers sequence
->>>>>>>>>>>
->>>>>>>>>>> To switch from host to device:
->>>>>>>>>>> 1. Reset controller with GCTL.CoreSoftReset
->>>>>>>>>>> 2. Set GCTL.PrtCapDir(device mode)
->>>>>>>>>>> 3. Reset the device with DCTL.CSftRst
->>>>>>>>>>> 4. Then follow up with the initializing registers sequence
->>>>>>>>>>>
->>>>>>>>>>> Currently we're missing step 1) to do GCTL.CoreSoftReset and step
->>>>>>>>>>> 3) of
->>>>>>>>>>> switching from host to device. John Stult reported a lockup issue
->>>>>>>>>>> seen
->>>>>>>>>>> with HiKey960 platform without these steps[1]. Similar issue is
->>>>>>>>>>> observed
->>>>>>>>>>> with Ferry's testing platform[2].
->>>>>>>>>>>
->>>>>>>>>>> So, apply the required steps along with some fixes to Yu Chen's
->>>>>>>>>>> and John
->>>>>>>>>>> Stultz's version. The main fixes to their versions are the
->>>>>>>>>>> missing
->>>>>>>>>>> wait
->>>>>>>>>>> for clocks synchronization before clearing GCTL.CoreSoftReset and
->>>>>>>>>>> only
->>>>>>>>>>> apply DCTL.CSftRst when switching from host to device.
->>>>>>>>>>>
->>>>>>>>>>> [1]
->>>>>>>>>>> https://urldefense.com/v3/__https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/__;!!A4F2R9G_pg!PW9Jbs4wv4a_zKGgZHN0FYrIpfecPX0Ouq9V3d16Yz-9-GSHqZWsfBAF-WkeqLhzN4i3$
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>> [2]
->>>>>>>>>>> https://urldefense.com/v3/__https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/__;!!A4F2R9G_pg!PW9Jbs4wv4a_zKGgZHN0FYrIpfecPX0Ouq9V3d16Yz-9-GSHqZWsfBAF-WkeqGeZStt4$
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>> Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
->>>>>>>>>>> Cc: Ferry Toth <fntoth@gmail.com>
->>>>>>>>>>> Cc: Wesley Cheng <wcheng@codeaurora.org>
->>>>>>>>>>> Cc: <stable@vger.kernel.org>
->>>>>>>>>>> Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work
->>>>>>>>>>> properly")
->>>>>>>>>>> Signed-off-by: Yu Chen <chenyu56@huawei.com>
->>>>>>>>>>> Signed-off-by: John Stultz <john.stultz@linaro.org>
->>>>>>>>>>> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
->>>>>>>>>>> ---
->>>>>>>>>>> Changes in v3:
->>>>>>>>>>> - Check if the desired mode is OTG, then keep the old flow
->>>>>>>>>>> - Remove condition for OTG support only since the device can
->>>>>>>>>>> still be
->>>>>>>>>>>        configured DRD host/device mode only
->>>>>>>>>>> - Remove redundant hw_mode check since __dwc3_set_mode() only
->>>>>>>>>>> applies
->>>>>>>>>>> when
->>>>>>>>>>>        hw_mode is DRD
->>>>>>>>>>> Changes in v2:
->>>>>>>>>>> - Initialize mutex per device and not as global mutex.
->>>>>>>>>>> - Add additional checks for DRD only mode
->>>>>>>>>>>
->>>>>>>>>>>       drivers/usb/dwc3/core.c | 27 +++++++++++++++++++++++++++
->>>>>>>>>>>       drivers/usb/dwc3/core.h |  5 +++++
->>>>>>>>>>>       2 files changed, 32 insertions(+)
->>>>>>>>>>>
->>>>>>>>>> Hi John,
->>>>>>>>>>
->>>>>>>>>> If possible, can you run a test with this version on your
->>>>>>>>>> platform?
->>>>>>>>>>
->>>>>>>>>> Thanks,
->>>>>>>>>> Thinh
->>>>>>>>>>
->>>>>>>>> I tested this on edison-arduino with this patch on top of usb-next
->>>>>>>>> (5.12-rc7 + "increase BESL baseline to 6" to prevent throttling").
->>>>>>>>>
->>>>>>>>> On this platform there is a physical switch to switch roles. With
->>>>>>>>> this
->>>>>>>>> patch I find:
->>>>>>>>>
->>>>>>>>> - switch to host mode always works fine
->>>>>>>>>
->>>>>>>>> - switch to gadget mode I need to flip the switch 3x
->>>>>>>>> (gadget-host-gadget).
->>>>>>>>>
->>>>>>>>> An error message appears on the gadget side "dwc3 dwc3.0.auto:
->>>>>>>>> timed
->>>>>>>>> out
->>>>>>>>> waiting for SETUP phase" appears, but then the device connects
->>>>>>>>> to my
->>>>>>>>> PC,
->>>>>>>>> no throttling.
->>>>>>>>>
->>>>>>>>> - alternatively I can switch to gadget 1x and then unplug/replug
->>>>>>>>> the
->>>>>>>>> cable.
->>>>>>>>>
->>>>>>>>> No error message and connects fine.
->>>>>>>>>
->>>>>>>>> - if I flip the switch only once, on the PC side I get:
->>>>>>>>>
->>>>>>>>>       kernel: usb 1-5: new high-speed USB device number 18
->>>>>>>>> usingxhci_hcd
->>>>>>>>>       kernel: usb 1-5: New USB device found, idVendor=1d6b,
->>>>>>>>>       idProduct=0104, bcdDevice= 1.00 kernel: usb1-5: New USB device
->>>>>>>>>       strings: Mfr=1, Product=2, SerialNumber=3kernel:usb 1-5:
->>>>>>>>> Product:
->>>>>>>>>       USBArmory Gadget kernel: usb 1-5: Manufacturer:USBArmory
->>>>>>>>> kernel:
->>>>>>>>>       usb 1-5: SerialNumber: 0123456789abcdef kernel:usb 1-5: can't
->>>>>>>>> set
->>>>>>>>>       config #1, error -110
->>>>>>>> The device failed at set_configuration() request and timed out. It
->>>>>>>> probably timed out from the status stage looking at the device err
->>>>>>>> print.
->>>>>>>>
->>>>>>>>> Then if I wait long enough on the gadget side I get:
->>>>>>>>>
->>>>>>>>>       root@yuna:~# ifconfig
->>>>>>>>>
->>>>>>>>>       usb0: flags=-28605<UP,BROADCAST,RUNNING,MULTICAST,DYNAMIC> mtu
->>>>>>>>> 1500
->>>>>>>>>       inet 169.254.119.239 netmask 255.255.0.0 broadcast
->>>>>>>>> 169.254.255.255
->>>>>>>>>       inet6 fe80::a8bb:ccff:fedd:eef1 prefixlen 64 scopeid
->>>>>>>>> 0x20<link>
->>>>>>>>>       ether aa:bb:cc:dd:ee:f1 txqueuelen 1000 (Ethernet) RX packets
->>>>>>>>> 490424
->>>>>>>>>       bytes 735146578 (701.0 MiB) RX errors 0 dropped191 overruns 0
->>>>>>>>> frame
->>>>>>>>>       0 TX packets 35279 bytes 2532746 (2.4 MiB) TX errors 0
->>>>>>>>> dropped 0
->>>>>>>>>       overruns 0 carrier 0 collisions 0
->>>>>>>>>
->>>>>>>>> (correct would be: inet 10.42.0.221 netmask 255.255.255.0 broadcast
->>>>>>>>> 10.42.0.255)
->>>>>>>>>
->>>>>>>>> So much improved now, but it seems I am still missing something on
->>>>>>>>> plug.
->>>>>>>>>
->>>>>>>> That's great! We can look at it further. Can you capture the
->>>>>>>> tracepoints
->>>>>>>> of the issue. Also, can you try with mass_storage gadget to see
->>>>>>>> if the
->>>>>>>> result is the same?
->>>>>>> I have already gser, eem, mass_storage and uac2 combo. When eem
->>>>>>> fails,
->>>>>>> the mass_storage and uac2 don't appear (on KDE you get all kind of
->>>>>>> popups when they appear).
->>>>>>>
->>>>>>> So either all works, or all fails.
->>>>>>>
->>>>>>> I'll trace this later today.
->>>>>> Trace capturing switch from host-> gadget  here
->>>>>> https://urldefense.com/v3/__https://github.com/andy-shev/linux/files/6329600/5.12-rc7*2Busb-next.zip__;JQ!!A4F2R9G_pg!Oa6XGH3IqY3wwG5KK4FwPuNA0m3q5bRj7N6vdP-y4sAY6mya-96J90NJ0tJnXLOiNwGT$
->>>>>>
->>>>>>
->>>>>>
->>>>>> (Issue history:
->>>>>> https://urldefense.com/v3/__https://github.com/andy-shev/linux/issues/31__;!!A4F2R9G_pg!Oa6XGH3IqY3wwG5KK4FwPuNA0m3q5bRj7N6vdP-y4sAY6mya-96J90NJ0tJnXNc7KgAw$
->>>>>>
->>>>>>
->>>>>> )
->>>>>>
->>>>>> On the PC side this resulted to:
->>>>>>
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: new high-speed USB device
->>>>>> number 12 using xhci_hcd
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: New USB device found,
->>>>>> idVendor=1d6b, idProduct=0104, bcdDevice= 1.00
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: New USB device strings:
->>>>>> Mfr=1,
->>>>>> Product=2, SerialNumber=3
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: Product: USBArmory Gadget
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: Manufacturer: USBArmory
->>>>>> apr 17 18:17:44 delfion kernel: usb 1-5: SerialNumber:
->>>>>> 0123456789abcdef
->>>>>> apr 17 18:17:49 delfion kernel: usb 1-5: can't set config #1, error
->>>>>> -110
->>>>>>
->>>>>>
->>>>>> Thanks for all your help!
->>>>>>
->>>>> Looks like it's LPM related again. To confirm, try this:
->>>>> Disable LPM with this property "snps,usb2-gadget-lpm-disable"
->>>>> (Note that it's not the same as "snps,dis_enblslpm_quirk")
->>>> Yes, I confirm this helps.
->>>>
->>>> Note: on startup I was in host mode, with gadget cable plugged. The
->>>> first switch to gadget didn't work, all subsequent switches did work, as
->>>> well as unplug/plug the cable.
->>>>
->>>>> Make sure that your testing kernel has this patch [1]
->>>>> 475e8be53d04 ("usb: dwc3: gadget: Check for disabled LPM quirk")
->>>>>
->>>>> [1]
->>>>> https://urldefense.com/v3/__https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git/commit/?h=usb-next&id=475e8be53d0496f9bc6159f4abb3ff5f9b90e8de__;!!A4F2R9G_pg!Mvz1Am6Ka_pOBfD0TmsA3821I05Ti8stMgh5r4XzMwZ9dy1Wan-il-DB4h50DmbaU4Zw$
->>>>>
->>>>>
->>>>>
->>>>> The failure you saw was probably due the gadget function attempting
->>>>> to start a delayed status stage of the SET_CONFIGURATION request.
->>>>> By this time, the host already put the device in low power.
->>>>>
->>>>> The START_TRANSFER command needs to be executed while the device
->>>>> is on "ON" state (or U0 if eSS). We shouldn't use dwc->link_state
->>>>> to check for link state because we only enable link state change
->>>>> interrupt for some controller versions.
->>>>>
->>>>> Once you confirms disabling LPM works, try this fix:
->>>>>
->>>>> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
->>>>> index 6227641f2d31..06cdec79244e 100644
->>>>> --- a/drivers/usb/dwc3/gadget.c
->>>>> +++ b/drivers/usb/dwc3/gadget.c
->>>>> @@ -309,10 +309,14 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep,
->>>>> unsigned int cmd,
->>>>>              if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
->>>>>                    int             needs_wakeup;
->>>>> +               u8              link_state;
->>>>>     -               needs_wakeup = (dwc->link_state ==
->>>>> DWC3_LINK_STATE_U1 ||
->>>>> -                               dwc->link_state == DWC3_LINK_STATE_U2||
->>>>> -                               dwc->link_state == DWC3_LINK_STATE_U3);
->>>>> +               reg = dwc3_readl(dwc->regs, DWC3_DSTS);
->>>>> +               link_state = DWC3_DSTS_USBLNKST(reg);
->>>>> +
->>>>> +               needs_wakeup = (link_state == DWC3_LINK_STATE_U1 ||
->>>>> +                               link_state == DWC3_LINK_STATE_U2 ||
->>>>> +                               link_state == DWC3_LINK_STATE_U3);
->>>>>                      if (unlikely(needs_wakeup)) {
->>>>>                           ret = __dwc3_gadget_wakeup(dwc);
->>>>> @@ -1989,6 +1993,8 @@ static int __dwc3_gadget_wakeup(struct dwc3 *dwc)
->>>>>            case DWC3_LINK_STATE_RESET:
->>>>>            case DWC3_LINK_STATE_RX_DET:    /* in HS, means Early
->>>>> Suspend */
->>>>>            case DWC3_LINK_STATE_U3:        /* in HS, means SUSPEND */
->>>>> +       case DWC3_LINK_STATE_U2:        /* in HS, means Sleep (L1) */
->>>>> +       case DWC3_LINK_STATE_U1:
->>>>>            case DWC3_LINK_STATE_RESUME:
->>>>>                    break;
->>>>>            default:
->>>>>
->>>> Same (good) result as with "snps,usb2-gadget-lpm-disable". Including
->>>> first switch from host->gadget not working.
->>>>
->>> Great! Not sure why the first switch is not working, but it seems like
->>> we were able to eliminate quite a few issues. If you have more dwc3
->>> tracepoints, we can take a look further.
->> I traced but the file is empty. I captured the registers as well. The
->> zip file is here:
->>
->> https://urldefense.com/v3/__https://github.com/andy-shev/linux/files/6346271/first-switch.zip__;!!A4F2R9G_pg!KAmPA0Vw1WUiSxdc5-BKNPyD0klvdr5ucZI3E_C2ojho2rNT9wzMs8HG4qCYSDx89HFE$
->>
->> I found the gadget configuration script was not called, which normally
->> gets called due to a udev rule:
->>
->> ACTION=="add", KERNEL=="dwc3.0.auto", SUBSYSTEMS=="udc",
->> ATTRS{state}=="not attached", RUN+="/usr/bin/conf-gadget.sh"
->>
->> So I retried and see  with ~# udevadm monitor:
->>
->> # flipping the switch from host->gadget
->>
->> KERNEL[51.824914] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/enp0s17u1u1/queues/rx-0
->> (queues)
->> KERNEL[51.825682] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/enp0s17u1u1/queues/tx-0
->> (queues)
->> KERNEL[51.826226] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/enp0s17u1u1
->> (net)
->> KERNEL[51.836041] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:003/usb-001:003:01
->> (mdio_bus)
->> KERNEL[51.836709] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:003/usb-001:003:01
->> (mdio_bus)
->> KERNEL[51.837342] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:003
->> (mdio_bus)
->> KERNEL[51.837763] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[51.838116] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[51.873712] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[51.874000] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[51.874207] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[51.874431] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[51.897175] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[51.897486] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->>
->> # stopped capture tracepoints here, then switch back to host
->>
->> KERNEL[253.214406] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[253.263305] change
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[253.263687] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[253.328354] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[253.328734] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[253.699341] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[253.744911] change
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[253.745804] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[253.805307] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005
->> (mdio_bus)
->> KERNEL[253.812978] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005/usb-001:005:01
->> (mdio_bus)
->> KERNEL[253.814318] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005/usb-001:005:01
->> (mdio_bus)
->> KERNEL[253.815386] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0
->> (net)
->> KERNEL[253.815552] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0/queues/rx-0
->> (queues)
->> KERNEL[253.815778] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0/queues/tx-0
->> (queues)
->> KERNEL[253.825279] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[253.825667] bind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->>
->> # switch to gadget again
->>
->> KERNEL[314.212144] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0/queues/rx-0
->> (queues)
->> KERNEL[314.212473] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0/queues/tx-0
->> (queues)
->> KERNEL[314.214691] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0/net/eth0
->> (net)
->>
->> # extcon event didn't show the first time
->>
->> KERNEL[314.238385] change
->> /devices/pci0000:00/0000:00:13.0/INTC100E:00/mrfld_bcove_pwrsrc/extcon/extcon0
->> (extcon)
->> KERNEL[314.238677] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005/usb-001:005:01
->> (mdio_bus)
->> KERNEL[314.238863] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005/usb-001:005:01
->> (mdio_bus)
->> KERNEL[314.239015] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/mdio_bus/usb-001:005
->> (mdio_bus)
->> KERNEL[314.239205] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[314.239429] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1/1-1.1:1.0
->> (usb)
->> KERNEL[314.239666] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb2/2-0:1.0 (usb)
->>
->> KERNEL[314.239933] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb2/2-0:1.0 (usb)
->>
->> KERNEL[314.262713] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb2 (usb)
->> KERNEL[314.263030] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[314.263298] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb2 (usb)
->> KERNEL[314.263569] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1.1
->> (usb)
->> KERNEL[314.263815] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[314.264042] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1/1-1:1.0
->> (usb)
->> KERNEL[314.264753] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usbmon/usbmon2
->> (usbmon)
->> KERNEL[314.265019] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[314.265289] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-1 (usb)
->> KERNEL[314.288792] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-0:1.0 (usb)
->>
->> KERNEL[314.289057] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1/1-0:1.0 (usb)
->>
->> KERNEL[314.289327] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1 (usb)
->> KERNEL[314.289661] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usb1 (usb)
->> KERNEL[314.647375] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto/usbmon/usbmon1
->> (usbmon)
->> KERNEL[314.647816] unbind
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto (platform)
->> KERNEL[314.648143] remove   /kernel/software_nodes/node1 (software_nodes)
->> KERNEL[314.648672] remove
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/xhci-hcd.2.auto (platform)
->>
->> # here is the event we were waiting for
->>
->> KERNEL[314.649158] add
->> /devices/pci0000:00/0000:00:11.0/dwc3.0.auto/udc/dwc3.0.auto (udc)
->>
->> # after this gadget devices appear normally
->>
->> Maybe this issue is due to extcon missing the event?
->  From the info here, it doesn't look like the host platform device was
-> removed on the first switch. Also, as you pointed it out, the extcon
-> event was not shown on the first switch either. Without a notification
-> to switch mode, the dwc3 driver won't do anything. You need to check why
-> that's the case as I can't help much here.
->
->>>> After a 2 - 4 minutes the connection is dropped and reconnected.
->>> Does this occur with LPM disabled also? We can review this issue further
->>> with more dwc3 tracepoints.
->> I captured connection dropping and reconnecting in this fairly long
->> trace near the end of the file:
->>
->> https://urldefense.com/v3/__https://github.com/andy-shev/linux/files/6346323/lost-connection.zip__;!!A4F2R9G_pg!KAmPA0Vw1WUiSxdc5-BKNPyD0klvdr5ucZI3E_C2ojho2rNT9wzMs8HG4qCYSIuUHRz4$
->>
-> Nothing obvious stands out as a problem from the dwc3 driver or the
-> controller. I see a (port) reset after 30 seconds of inactivity, which
-> is a typical timeout and recovery mechanism in the upperlayer from host.
->
-> * Is this a new issue or was it always there?
-> * Does turning off LPM help?
-
-I reverted my "usb: gadget: increase BESL baseline to 6" and picked 
-"usb: dwc3: pci: Enable dis_enblslpm_quirk for Intel Merrifield".
-
-So this is again the big hammer you suggested earlier to turn off LPM.
-
-
-After 15 min (at least 4x longer then normal to get a port reset) I have 
-still not seen a port reset.
-
-
-So for now I conclude, yes turning off LPM helps.
-
-
-> * Are the other gadget functions still work during the 30 seconds
-> inactivity?
->
->
->>>> On the gadget end journal shows:
->>>>
->>>> Apr 19 22:08:42 yuna systemd-networkd[507]: usb0: Lost carrier
->>>> Apr 19 22:08:42 yuna systemd-journald[417]: Forwarding to syslog missed
->>>> 1 messages.
->>>> Apr 19 22:08:42 yuna systemd-timesyncd[469]: No network connectivity,
->>>> watching for changes.
->>>> Apr 19 22:08:42 yuna kernel: IPv6: ADDRCONF(NETDEV_CHANGE): usb0: link
->>>> becomes ready
->>>> Apr 19 22:08:42 yuna kernel[480]: [  624.382929] IPv6:
->>>> ADDRCONF(NETDEV_CHANGE): usb0: link becomes ready
->>>> Apr 19 22:08:42 yuna systemd-networkd[507]: usb0: Gained carrier
->>>> Apr 19 22:08:44 yuna systemd-networkd[507]: usb0: Gained IPv6LL
->>>> Apr 19 22:08:44 yuna systemd-timesyncd[469]: Network configuration
->>>> changed, trying to establish connection.
->>>> Apr 19 22:08:57 yuna systemd-timesyncd[469]: Initial synchronization to
->>>> time server 216.239.35.8:123 (time3.google.com).
->>>>
->>>> So, drops and immediately reconnects.
->>>>
->>>   From the look at the log here, it seems to be a reset from host (and an
->>> issue at the protocol level) unrelated to dwc3 driver or the controller.
->>> Hopefully and maybe we can get more clues from dwc3 tracepoints.
->>>
-> BR,
-> Thinh
+RmVycnkgVG90aCB3cm90ZToNCj4gSGkNCj4gDQo+IE9wIDIxLTA0LTIwMjEgb20gMjE6MDEgc2No
+cmVlZiBUaGluaCBOZ3V5ZW46DQo+PiBGZXJyeSBUb3RoIHdyb3RlOg0KPj4+IEhpDQo+Pj4NCj4+
+PiBPcCAxOS0wNC0yMDIxIG9tIDIzOjIzIHNjaHJlZWYgVGhpbmggTmd1eWVuOg0KPj4+PiBGZXJy
+eSBUb3RoIHdyb3RlOg0KPj4+Pj4gSGkNCj4+Pj4+DQo+Pj4+PiBPcCAxOS0wNC0yMDIxIG9tIDAx
+OjAzIHNjaHJlZWYgVGhpbmggTmd1eWVuOg0KPj4+Pj4+IEZlcnJ5IFRvdGggd3JvdGU6DQo+Pj4+
+Pj4+IEhpDQo+Pj4+Pj4+DQo+Pj4+Pj4+IE9wIDE3LTA0LTIwMjEgb20gMTY6MjIgc2NocmVlZiBG
+ZXJyeSBUb3RoOg0KPj4+Pj4+Pj4gSGkNCj4+Pj4+Pj4+DQo+Pj4+Pj4+PiBPcCAxNy0wNC0yMDIx
+IG9tIDA0OjI3IHNjaHJlZWYgVGhpbmggTmd1eWVuOg0KPj4+Pj4+Pj4+IEZlcnJ5IFRvdGggd3Jv
+dGU6DQo+Pj4+Pj4+Pj4+IEhpDQo+Pj4+Pj4+Pj4+DQo+Pj4+Pj4+Pj4+IE9wIDE2LTA0LTIwMjEg
+b20gMDA6MjMgc2NocmVlZiBUaGluaCBOZ3V5ZW46DQo+Pj4+Pj4+Pj4+PiBUaGluaCBOZ3V5ZW4g
+d3JvdGU6DQo+Pj4+Pj4+Pj4+Pj4gRnJvbTogWXUgQ2hlbiA8Y2hlbnl1NTZAaHVhd2VpLmNvbT4N
+Cj4+Pj4+Pj4+Pj4+PiBGcm9tOiBKb2huIFN0dWx0eiA8am9obi5zdHVsdHpAbGluYXJvLm9yZz4N
+Cj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+IEFjY29yZGluZyB0byB0aGUgcHJvZ3JhbW1pbmcg
+Z3VpZGUsIHRvIHN3aXRjaCBtb2RlIGZvciBEUkQNCj4+Pj4+Pj4+Pj4+PiBjb250cm9sbGVyLA0K
+Pj4+Pj4+Pj4+Pj4+IHRoZSBkcml2ZXIgbmVlZHMgdG8gZG8gdGhlIGZvbGxvd2luZy4NCj4+Pj4+
+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+IFRvIHN3aXRjaCBmcm9tIGRldmljZSB0byBob3N0Og0KPj4+
+Pj4+Pj4+Pj4+IDEuIFJlc2V0IGNvbnRyb2xsZXIgd2l0aCBHQ1RMLkNvcmVTb2Z0UmVzZXQNCj4+
+Pj4+Pj4+Pj4+PiAyLiBTZXQgR0NUTC5QcnRDYXBEaXIoaG9zdCBtb2RlKQ0KPj4+Pj4+Pj4+Pj4+
+IDMuIFJlc2V0IHRoZSBob3N0IHdpdGggVVNCQ01ELkhDUkVTRVQNCj4+Pj4+Pj4+Pj4+PiA0LiBU
+aGVuIGZvbGxvdyB1cCB3aXRoIHRoZSBpbml0aWFsaXppbmcgaG9zdCByZWdpc3RlcnMgc2VxdWVu
+Y2UNCj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+IFRvIHN3aXRjaCBmcm9tIGhvc3QgdG8gZGV2
+aWNlOg0KPj4+Pj4+Pj4+Pj4+IDEuIFJlc2V0IGNvbnRyb2xsZXIgd2l0aCBHQ1RMLkNvcmVTb2Z0
+UmVzZXQNCj4+Pj4+Pj4+Pj4+PiAyLiBTZXQgR0NUTC5QcnRDYXBEaXIoZGV2aWNlIG1vZGUpDQo+
+Pj4+Pj4+Pj4+Pj4gMy4gUmVzZXQgdGhlIGRldmljZSB3aXRoIERDVEwuQ1NmdFJzdA0KPj4+Pj4+
+Pj4+Pj4+IDQuIFRoZW4gZm9sbG93IHVwIHdpdGggdGhlIGluaXRpYWxpemluZyByZWdpc3RlcnMg
+c2VxdWVuY2UNCj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+IEN1cnJlbnRseSB3ZSdyZSBtaXNz
+aW5nIHN0ZXAgMSkgdG8gZG8gR0NUTC5Db3JlU29mdFJlc2V0IGFuZA0KPj4+Pj4+Pj4+Pj4+IHN0
+ZXANCj4+Pj4+Pj4+Pj4+PiAzKSBvZg0KPj4+Pj4+Pj4+Pj4+IHN3aXRjaGluZyBmcm9tIGhvc3Qg
+dG8gZGV2aWNlLiBKb2huIFN0dWx0IHJlcG9ydGVkIGEgbG9ja3VwDQo+Pj4+Pj4+Pj4+Pj4gaXNz
+dWUNCj4+Pj4+Pj4+Pj4+PiBzZWVuDQo+Pj4+Pj4+Pj4+Pj4gd2l0aCBIaUtleTk2MCBwbGF0Zm9y
+bSB3aXRob3V0IHRoZXNlIHN0ZXBzWzFdLiBTaW1pbGFyIGlzc3VlIGlzDQo+Pj4+Pj4+Pj4+Pj4g
+b2JzZXJ2ZWQNCj4+Pj4+Pj4+Pj4+PiB3aXRoIEZlcnJ5J3MgdGVzdGluZyBwbGF0Zm9ybVsyXS4N
+Cj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+IFNvLCBhcHBseSB0aGUgcmVxdWlyZWQgc3RlcHMg
+YWxvbmcgd2l0aCBzb21lIGZpeGVzIHRvIFl1IENoZW4ncw0KPj4+Pj4+Pj4+Pj4+IGFuZCBKb2hu
+DQo+Pj4+Pj4+Pj4+Pj4gU3R1bHR6J3MgdmVyc2lvbi4gVGhlIG1haW4gZml4ZXMgdG8gdGhlaXIg
+dmVyc2lvbnMgYXJlIHRoZQ0KPj4+Pj4+Pj4+Pj4+IG1pc3NpbmcNCj4+Pj4+Pj4+Pj4+PiB3YWl0
+DQo+Pj4+Pj4+Pj4+Pj4gZm9yIGNsb2NrcyBzeW5jaHJvbml6YXRpb24gYmVmb3JlIGNsZWFyaW5n
+DQo+Pj4+Pj4+Pj4+Pj4gR0NUTC5Db3JlU29mdFJlc2V0IGFuZA0KPj4+Pj4+Pj4+Pj4+IG9ubHkN
+Cj4+Pj4+Pj4+Pj4+PiBhcHBseSBEQ1RMLkNTZnRSc3Qgd2hlbiBzd2l0Y2hpbmcgZnJvbSBob3N0
+IHRvIGRldmljZS4NCj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+IFsxXQ0KPj4+Pj4+Pj4+Pj4+
+IGh0dHBzOi8vdXJsZGVmZW5zZS5jb20vdjMvX19odHRwczovL2xvcmUua2VybmVsLm9yZy9saW51
+eC11c2IvMjAyMTAxMDgwMTUxMTUuMjc5MjAtMS1qb2huLnN0dWx0ekBsaW5hcm8ub3JnL19fOyEh
+QTRGMlI5R19wZyFQVzlKYnM0d3Y0YV96S0dnWkhOMEZZcklwZmVjUFgwT3VxOVYzZDE2WXotOS1H
+U0hxWldzZkJBRi1Xa2VxTGh6TjRpMyQNCj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+DQo+Pj4+
+Pj4+Pj4+Pj4NCj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+DQo+Pj4+Pj4+Pj4+Pj4gWzJdDQo+
+Pj4+Pj4+Pj4+Pj4gaHR0cHM6Ly91cmxkZWZlbnNlLmNvbS92My9fX2h0dHBzOi8vbG9yZS5rZXJu
+ZWwub3JnL2xpbnV4LXVzYi8wYmE3YTZiYS1lNmE3LTljZDQtMDY5NS02NGZjOTI3ZTAxZjFAZ21h
+aWwuY29tL19fOyEhQTRGMlI5R19wZyFQVzlKYnM0d3Y0YV96S0dnWkhOMEZZcklwZmVjUFgwT3Vx
+OVYzZDE2WXotOS1HU0hxWldzZkJBRi1Xa2VxR2VaU3R0NCQNCj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+
+Pj4+Pj4+DQo+Pj4+Pj4+Pj4+Pj4NCj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+DQo+Pj4+Pj4+
+Pj4+Pj4NCj4+Pj4+Pj4+Pj4+PiBDYzogQW5keSBTaGV2Y2hlbmtvIDxhbmR5LnNoZXZjaGVua29A
+Z21haWwuY29tPg0KPj4+Pj4+Pj4+Pj4+IENjOiBGZXJyeSBUb3RoIDxmbnRvdGhAZ21haWwuY29t
+Pg0KPj4+Pj4+Pj4+Pj4+IENjOiBXZXNsZXkgQ2hlbmcgPHdjaGVuZ0Bjb2RlYXVyb3JhLm9yZz4N
+Cj4+Pj4+Pj4+Pj4+PiBDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+DQo+Pj4+Pj4+Pj4+Pj4g
+Rml4ZXM6IDQxY2UxNDU2ZTFkYiAoInVzYjogZHdjMzogY29yZTogbWFrZSBkd2MzX3NldF9tb2Rl
+KCkNCj4+Pj4+Pj4+Pj4+PiB3b3JrDQo+Pj4+Pj4+Pj4+Pj4gcHJvcGVybHkiKQ0KPj4+Pj4+Pj4+
+Pj4+IFNpZ25lZC1vZmYtYnk6IFl1IENoZW4gPGNoZW55dTU2QGh1YXdlaS5jb20+DQo+Pj4+Pj4+
+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogSm9obiBTdHVsdHogPGpvaG4uc3R1bHR6QGxpbmFyby5vcmc+
+DQo+Pj4+Pj4+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogVGhpbmggTmd1eWVuIDxUaGluaC5OZ3V5ZW5A
+c3lub3BzeXMuY29tPg0KPj4+Pj4+Pj4+Pj4+IC0tLQ0KPj4+Pj4+Pj4+Pj4+IENoYW5nZXMgaW4g
+djM6DQo+Pj4+Pj4+Pj4+Pj4gLSBDaGVjayBpZiB0aGUgZGVzaXJlZCBtb2RlIGlzIE9URywgdGhl
+biBrZWVwIHRoZSBvbGQgZmxvdw0KPj4+Pj4+Pj4+Pj4+IC0gUmVtb3ZlIGNvbmRpdGlvbiBmb3Ig
+T1RHIHN1cHBvcnQgb25seSBzaW5jZSB0aGUgZGV2aWNlIGNhbg0KPj4+Pj4+Pj4+Pj4+IHN0aWxs
+IGJlDQo+Pj4+Pj4+Pj4+Pj4gwqDCoMKgwqDCoMKgIGNvbmZpZ3VyZWQgRFJEIGhvc3QvZGV2aWNl
+IG1vZGUgb25seQ0KPj4+Pj4+Pj4+Pj4+IC0gUmVtb3ZlIHJlZHVuZGFudCBod19tb2RlIGNoZWNr
+IHNpbmNlIF9fZHdjM19zZXRfbW9kZSgpIG9ubHkNCj4+Pj4+Pj4+Pj4+PiBhcHBsaWVzDQo+Pj4+
+Pj4+Pj4+Pj4gd2hlbg0KPj4+Pj4+Pj4+Pj4+IMKgwqDCoMKgwqDCoCBod19tb2RlIGlzIERSRA0K
+Pj4+Pj4+Pj4+Pj4+IENoYW5nZXMgaW4gdjI6DQo+Pj4+Pj4+Pj4+Pj4gLSBJbml0aWFsaXplIG11
+dGV4IHBlciBkZXZpY2UgYW5kIG5vdCBhcyBnbG9iYWwgbXV0ZXguDQo+Pj4+Pj4+Pj4+Pj4gLSBB
+ZGQgYWRkaXRpb25hbCBjaGVja3MgZm9yIERSRCBvbmx5IG1vZGUNCj4+Pj4+Pj4+Pj4+Pg0KPj4+
+Pj4+Pj4+Pj4+IMKgwqDCoMKgwqAgZHJpdmVycy91c2IvZHdjMy9jb3JlLmMgfCAyNyArKysrKysr
+KysrKysrKysrKysrKysrKysrKysNCj4+Pj4+Pj4+Pj4+PiDCoMKgwqDCoMKgIGRyaXZlcnMvdXNi
+L2R3YzMvY29yZS5oIHzCoCA1ICsrKysrDQo+Pj4+Pj4+Pj4+Pj4gwqDCoMKgwqDCoCAyIGZpbGVz
+IGNoYW5nZWQsIDMyIGluc2VydGlvbnMoKykNCj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4gSGkg
+Sm9obiwNCj4+Pj4+Pj4+Pj4+DQo+Pj4+Pj4+Pj4+PiBJZiBwb3NzaWJsZSwgY2FuIHlvdSBydW4g
+YSB0ZXN0IHdpdGggdGhpcyB2ZXJzaW9uIG9uIHlvdXINCj4+Pj4+Pj4+Pj4+IHBsYXRmb3JtPw0K
+Pj4+Pj4+Pj4+Pj4NCj4+Pj4+Pj4+Pj4+IFRoYW5rcywNCj4+Pj4+Pj4+Pj4+IFRoaW5oDQo+Pj4+
+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+PiBJIHRlc3RlZCB0aGlzIG9uIGVkaXNvbi1hcmR1aW5vIHdpdGgg
+dGhpcyBwYXRjaCBvbiB0b3Agb2YNCj4+Pj4+Pj4+Pj4gdXNiLW5leHQNCj4+Pj4+Pj4+Pj4gKDUu
+MTItcmM3ICsgImluY3JlYXNlIEJFU0wgYmFzZWxpbmUgdG8gNiIgdG8gcHJldmVudA0KPj4+Pj4+
+Pj4+PiB0aHJvdHRsaW5nIikuDQo+Pj4+Pj4+Pj4+DQo+Pj4+Pj4+Pj4+IE9uIHRoaXMgcGxhdGZv
+cm0gdGhlcmUgaXMgYSBwaHlzaWNhbCBzd2l0Y2ggdG8gc3dpdGNoIHJvbGVzLiBXaXRoDQo+Pj4+
+Pj4+Pj4+IHRoaXMNCj4+Pj4+Pj4+Pj4gcGF0Y2ggSSBmaW5kOg0KPj4+Pj4+Pj4+Pg0KPj4+Pj4+
+Pj4+PiAtIHN3aXRjaCB0byBob3N0IG1vZGUgYWx3YXlzIHdvcmtzIGZpbmUNCj4+Pj4+Pj4+Pj4N
+Cj4+Pj4+Pj4+Pj4gLSBzd2l0Y2ggdG8gZ2FkZ2V0IG1vZGUgSSBuZWVkIHRvIGZsaXAgdGhlIHN3
+aXRjaCAzeA0KPj4+Pj4+Pj4+PiAoZ2FkZ2V0LWhvc3QtZ2FkZ2V0KS4NCj4+Pj4+Pj4+Pj4NCj4+
+Pj4+Pj4+Pj4gQW4gZXJyb3IgbWVzc2FnZSBhcHBlYXJzIG9uIHRoZSBnYWRnZXQgc2lkZSAiZHdj
+MyBkd2MzLjAuYXV0bzoNCj4+Pj4+Pj4+Pj4gdGltZWQNCj4+Pj4+Pj4+Pj4gb3V0DQo+Pj4+Pj4+
+Pj4+IHdhaXRpbmcgZm9yIFNFVFVQIHBoYXNlIiBhcHBlYXJzLCBidXQgdGhlbiB0aGUgZGV2aWNl
+IGNvbm5lY3RzDQo+Pj4+Pj4+Pj4+IHRvIG15DQo+Pj4+Pj4+Pj4+IFBDLA0KPj4+Pj4+Pj4+PiBu
+byB0aHJvdHRsaW5nLg0KPj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+PiAtIGFsdGVybmF0aXZlbHkgSSBj
+YW4gc3dpdGNoIHRvIGdhZGdldCAxeCBhbmQgdGhlbiB1bnBsdWcvcmVwbHVnDQo+Pj4+Pj4+Pj4+
+IHRoZQ0KPj4+Pj4+Pj4+PiBjYWJsZS4NCj4+Pj4+Pj4+Pj4NCj4+Pj4+Pj4+Pj4gTm8gZXJyb3Ig
+bWVzc2FnZSBhbmQgY29ubmVjdHMgZmluZS4NCj4+Pj4+Pj4+Pj4NCj4+Pj4+Pj4+Pj4gLSBpZiBJ
+IGZsaXAgdGhlIHN3aXRjaCBvbmx5IG9uY2UsIG9uIHRoZSBQQyBzaWRlIEkgZ2V0Og0KPj4+Pj4+
+Pj4+Pg0KPj4+Pj4+Pj4+PiDCoMKgwqDCoMKgIGtlcm5lbDogdXNiIDEtNTogbmV3IGhpZ2gtc3Bl
+ZWQgVVNCIGRldmljZSBudW1iZXIgMTgNCj4+Pj4+Pj4+Pj4gdXNpbmd4aGNpX2hjZA0KPj4+Pj4+
+Pj4+PiDCoMKgwqDCoMKgIGtlcm5lbDogdXNiIDEtNTogTmV3IFVTQiBkZXZpY2UgZm91bmQsIGlk
+VmVuZG9yPTFkNmIsDQo+Pj4+Pj4+Pj4+IMKgwqDCoMKgwqAgaWRQcm9kdWN0PTAxMDQsIGJjZERl
+dmljZT0gMS4wMCBrZXJuZWw6IHVzYjEtNTogTmV3IFVTQg0KPj4+Pj4+Pj4+PiBkZXZpY2UNCj4+
+Pj4+Pj4+Pj4gwqDCoMKgwqDCoCBzdHJpbmdzOiBNZnI9MSwgUHJvZHVjdD0yLCBTZXJpYWxOdW1i
+ZXI9M2tlcm5lbDp1c2IgMS01Og0KPj4+Pj4+Pj4+PiBQcm9kdWN0Og0KPj4+Pj4+Pj4+PiDCoMKg
+wqDCoMKgIFVTQkFybW9yeSBHYWRnZXQga2VybmVsOiB1c2IgMS01OiBNYW51ZmFjdHVyZXI6VVNC
+QXJtb3J5DQo+Pj4+Pj4+Pj4+IGtlcm5lbDoNCj4+Pj4+Pj4+Pj4gwqDCoMKgwqDCoCB1c2IgMS01
+OiBTZXJpYWxOdW1iZXI6IDAxMjM0NTY3ODlhYmNkZWYga2VybmVsOnVzYiAxLTU6DQo+Pj4+Pj4+
+Pj4+IGNhbid0DQo+Pj4+Pj4+Pj4+IHNldA0KPj4+Pj4+Pj4+PiDCoMKgwqDCoMKgIGNvbmZpZyAj
+MSwgZXJyb3IgLTExMA0KPj4+Pj4+Pj4+IFRoZSBkZXZpY2UgZmFpbGVkIGF0IHNldF9jb25maWd1
+cmF0aW9uKCkgcmVxdWVzdCBhbmQgdGltZWQgb3V0LiBJdA0KPj4+Pj4+Pj4+IHByb2JhYmx5IHRp
+bWVkIG91dCBmcm9tIHRoZSBzdGF0dXMgc3RhZ2UgbG9va2luZyBhdCB0aGUgZGV2aWNlIGVycg0K
+Pj4+Pj4+Pj4+IHByaW50Lg0KPj4+Pj4+Pj4+DQo+Pj4+Pj4+Pj4+IFRoZW4gaWYgSSB3YWl0IGxv
+bmcgZW5vdWdoIG9uIHRoZSBnYWRnZXQgc2lkZSBJIGdldDoNCj4+Pj4+Pj4+Pj4NCj4+Pj4+Pj4+
+Pj4gwqDCoMKgwqDCoCByb290QHl1bmE6fiMgaWZjb25maWcNCj4+Pj4+Pj4+Pj4NCj4+Pj4+Pj4+
+Pj4gwqDCoMKgwqDCoCB1c2IwOg0KPj4+Pj4+Pj4+PiBmbGFncz0tMjg2MDU8VVAsQlJPQURDQVNU
+LFJVTk5JTkcsTVVMVElDQVNULERZTkFNSUM+IG10dQ0KPj4+Pj4+Pj4+PiAxNTAwDQo+Pj4+Pj4+
+Pj4+IMKgwqDCoMKgwqAgaW5ldCAxNjkuMjU0LjExOS4yMzkgbmV0bWFzayAyNTUuMjU1LjAuMCBi
+cm9hZGNhc3QNCj4+Pj4+Pj4+Pj4gMTY5LjI1NC4yNTUuMjU1DQo+Pj4+Pj4+Pj4+IMKgwqDCoMKg
+wqAgaW5ldDYgZmU4MDo6YThiYjpjY2ZmOmZlZGQ6ZWVmMSBwcmVmaXhsZW4gNjQgc2NvcGVpZA0K
+Pj4+Pj4+Pj4+PiAweDIwPGxpbms+DQo+Pj4+Pj4+Pj4+IMKgwqDCoMKgwqAgZXRoZXIgYWE6YmI6
+Y2M6ZGQ6ZWU6ZjEgdHhxdWV1ZWxlbiAxMDAwIChFdGhlcm5ldCkgUlgNCj4+Pj4+Pj4+Pj4gcGFj
+a2V0cw0KPj4+Pj4+Pj4+PiA0OTA0MjQNCj4+Pj4+Pj4+Pj4gwqDCoMKgwqDCoCBieXRlcyA3MzUx
+NDY1NzggKDcwMS4wIE1pQikgUlggZXJyb3JzIDAgZHJvcHBlZDE5MQ0KPj4+Pj4+Pj4+PiBvdmVy
+cnVucyAwDQo+Pj4+Pj4+Pj4+IGZyYW1lDQo+Pj4+Pj4+Pj4+IMKgwqDCoMKgwqAgMCBUWCBwYWNr
+ZXRzIDM1Mjc5IGJ5dGVzIDI1MzI3NDYgKDIuNCBNaUIpIFRYIGVycm9ycyAwDQo+Pj4+Pj4+Pj4+
+IGRyb3BwZWQgMA0KPj4+Pj4+Pj4+PiDCoMKgwqDCoMKgIG92ZXJydW5zIDAgY2FycmllciAwIGNv
+bGxpc2lvbnMgMA0KPj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+PiAoY29ycmVjdCB3b3VsZCBiZTogaW5l
+dCAxMC40Mi4wLjIyMSBuZXRtYXNrIDI1NS4yNTUuMjU1LjANCj4+Pj4+Pj4+Pj4gYnJvYWRjYXN0
+DQo+Pj4+Pj4+Pj4+IDEwLjQyLjAuMjU1KQ0KPj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+PiBTbyBtdWNo
+IGltcHJvdmVkIG5vdywgYnV0IGl0IHNlZW1zIEkgYW0gc3RpbGwgbWlzc2luZw0KPj4+Pj4+Pj4+
+PiBzb21ldGhpbmcgb24NCj4+Pj4+Pj4+Pj4gcGx1Zy4NCj4+Pj4+Pj4+Pj4NCj4+Pj4+Pj4+PiBU
+aGF0J3MgZ3JlYXQhIFdlIGNhbiBsb29rIGF0IGl0IGZ1cnRoZXIuIENhbiB5b3UgY2FwdHVyZSB0
+aGUNCj4+Pj4+Pj4+PiB0cmFjZXBvaW50cw0KPj4+Pj4+Pj4+IG9mIHRoZSBpc3N1ZS4gQWxzbywg
+Y2FuIHlvdSB0cnkgd2l0aCBtYXNzX3N0b3JhZ2UgZ2FkZ2V0IHRvIHNlZQ0KPj4+Pj4+Pj4+IGlm
+IHRoZQ0KPj4+Pj4+Pj4+IHJlc3VsdCBpcyB0aGUgc2FtZT8NCj4+Pj4+Pj4+IEkgaGF2ZSBhbHJl
+YWR5IGdzZXIsIGVlbSwgbWFzc19zdG9yYWdlIGFuZCB1YWMyIGNvbWJvLiBXaGVuIGVlbQ0KPj4+
+Pj4+Pj4gZmFpbHMsDQo+Pj4+Pj4+PiB0aGUgbWFzc19zdG9yYWdlIGFuZCB1YWMyIGRvbid0IGFw
+cGVhciAob24gS0RFIHlvdSBnZXQgYWxsIGtpbmQgb2YNCj4+Pj4+Pj4+IHBvcHVwcyB3aGVuIHRo
+ZXkgYXBwZWFyKS4NCj4+Pj4+Pj4+DQo+Pj4+Pj4+PiBTbyBlaXRoZXIgYWxsIHdvcmtzLCBvciBh
+bGwgZmFpbHMuDQo+Pj4+Pj4+Pg0KPj4+Pj4+Pj4gSSdsbCB0cmFjZSB0aGlzIGxhdGVyIHRvZGF5
+Lg0KPj4+Pj4+PiBUcmFjZSBjYXB0dXJpbmcgc3dpdGNoIGZyb20gaG9zdC0+IGdhZGdldMKgIGhl
+cmUNCj4+Pj4+Pj4gaHR0cHM6Ly91cmxkZWZlbnNlLmNvbS92My9fX2h0dHBzOi8vZ2l0aHViLmNv
+bS9hbmR5LXNoZXYvbGludXgvZmlsZXMvNjMyOTYwMC81LjEyLXJjNyoyQnVzYi1uZXh0LnppcF9f
+O0pRISFBNEYyUjlHX3BnIU9hNlhHSDNJcVkzd3dHNUtLNEZ3UHVOQTBtM3E1YlJqN042dmRQLXk0
+c0FZNm15YS05Nko5ME5KMHRKblhMT2lOd0dUJA0KPj4+Pj4+Pg0KPj4+Pj4+Pg0KPj4+Pj4+Pg0K
+Pj4+Pj4+Pg0KPj4+Pj4+PiAoSXNzdWUgaGlzdG9yeToNCj4+Pj4+Pj4gaHR0cHM6Ly91cmxkZWZl
+bnNlLmNvbS92My9fX2h0dHBzOi8vZ2l0aHViLmNvbS9hbmR5LXNoZXYvbGludXgvaXNzdWVzLzMx
+X187ISFBNEYyUjlHX3BnIU9hNlhHSDNJcVkzd3dHNUtLNEZ3UHVOQTBtM3E1YlJqN042dmRQLXk0
+c0FZNm15YS05Nko5ME5KMHRKblhOYzdLZ0F3JA0KPj4+Pj4+Pg0KPj4+Pj4+Pg0KPj4+Pj4+Pg0K
+Pj4+Pj4+PiApDQo+Pj4+Pj4+DQo+Pj4+Pj4+IE9uIHRoZSBQQyBzaWRlIHRoaXMgcmVzdWx0ZWQg
+dG86DQo+Pj4+Pj4+DQo+Pj4+Pj4+IGFwciAxNyAxODoxNzo0NCBkZWxmaW9uIGtlcm5lbDogdXNi
+IDEtNTogbmV3IGhpZ2gtc3BlZWQgVVNCIGRldmljZQ0KPj4+Pj4+PiBudW1iZXIgMTIgdXNpbmcg
+eGhjaV9oY2QNCj4+Pj4+Pj4gYXByIDE3IDE4OjE3OjQ0IGRlbGZpb24ga2VybmVsOiB1c2IgMS01
+OiBOZXcgVVNCIGRldmljZSBmb3VuZCwNCj4+Pj4+Pj4gaWRWZW5kb3I9MWQ2YiwgaWRQcm9kdWN0
+PTAxMDQsIGJjZERldmljZT0gMS4wMA0KPj4+Pj4+PiBhcHIgMTcgMTg6MTc6NDQgZGVsZmlvbiBr
+ZXJuZWw6IHVzYiAxLTU6IE5ldyBVU0IgZGV2aWNlIHN0cmluZ3M6DQo+Pj4+Pj4+IE1mcj0xLA0K
+Pj4+Pj4+PiBQcm9kdWN0PTIsIFNlcmlhbE51bWJlcj0zDQo+Pj4+Pj4+IGFwciAxNyAxODoxNzo0
+NCBkZWxmaW9uIGtlcm5lbDogdXNiIDEtNTogUHJvZHVjdDogVVNCQXJtb3J5IEdhZGdldA0KPj4+
+Pj4+PiBhcHIgMTcgMTg6MTc6NDQgZGVsZmlvbiBrZXJuZWw6IHVzYiAxLTU6IE1hbnVmYWN0dXJl
+cjogVVNCQXJtb3J5DQo+Pj4+Pj4+IGFwciAxNyAxODoxNzo0NCBkZWxmaW9uIGtlcm5lbDogdXNi
+IDEtNTogU2VyaWFsTnVtYmVyOg0KPj4+Pj4+PiAwMTIzNDU2Nzg5YWJjZGVmDQo+Pj4+Pj4+IGFw
+ciAxNyAxODoxNzo0OSBkZWxmaW9uIGtlcm5lbDogdXNiIDEtNTogY2FuJ3Qgc2V0IGNvbmZpZyAj
+MSwgZXJyb3INCj4+Pj4+Pj4gLTExMA0KPj4+Pj4+Pg0KPj4+Pj4+Pg0KPj4+Pj4+PiBUaGFua3Mg
+Zm9yIGFsbCB5b3VyIGhlbHAhDQo+Pj4+Pj4+DQo+Pj4+Pj4gTG9va3MgbGlrZSBpdCdzIExQTSBy
+ZWxhdGVkIGFnYWluLiBUbyBjb25maXJtLCB0cnkgdGhpczoNCj4+Pj4+PiBEaXNhYmxlIExQTSB3
+aXRoIHRoaXMgcHJvcGVydHkgInNucHMsdXNiMi1nYWRnZXQtbHBtLWRpc2FibGUiDQo+Pj4+Pj4g
+KE5vdGUgdGhhdCBpdCdzIG5vdCB0aGUgc2FtZSBhcyAic25wcyxkaXNfZW5ibHNscG1fcXVpcmsi
+KQ0KPj4+Pj4gWWVzLCBJIGNvbmZpcm0gdGhpcyBoZWxwcy4NCj4+Pj4+DQo+Pj4+PiBOb3RlOiBv
+biBzdGFydHVwIEkgd2FzIGluIGhvc3QgbW9kZSwgd2l0aCBnYWRnZXQgY2FibGUgcGx1Z2dlZC4g
+VGhlDQo+Pj4+PiBmaXJzdCBzd2l0Y2ggdG8gZ2FkZ2V0IGRpZG4ndCB3b3JrLCBhbGwgc3Vic2Vx
+dWVudCBzd2l0Y2hlcyBkaWQNCj4+Pj4+IHdvcmssIGFzDQo+Pj4+PiB3ZWxsIGFzIHVucGx1Zy9w
+bHVnIHRoZSBjYWJsZS4NCj4+Pj4+DQo+Pj4+Pj4gTWFrZSBzdXJlIHRoYXQgeW91ciB0ZXN0aW5n
+IGtlcm5lbCBoYXMgdGhpcyBwYXRjaCBbMV0NCj4+Pj4+PiA0NzVlOGJlNTNkMDQgKCJ1c2I6IGR3
+YzM6IGdhZGdldDogQ2hlY2sgZm9yIGRpc2FibGVkIExQTSBxdWlyayIpDQo+Pj4+Pj4NCj4+Pj4+
+PiBbMV0NCj4+Pj4+PiBodHRwczovL3VybGRlZmVuc2UuY29tL3YzL19faHR0cHM6Ly9naXQua2Vy
+bmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvZ3JlZ2toL3VzYi5naXQvY29tbWl0Lz9o
+PXVzYi1uZXh0JmlkPTQ3NWU4YmU1M2QwNDk2ZjliYzYxNTlmNGFiYjNmZjVmOWI5MGU4ZGVfXzsh
+IUE0RjJSOUdfcGchTXZ6MUFtNkthX3BPQmZEMFRtc0EzODIxSTA1VGk4c3RNZ2g1cjRYek13Wjlk
+eTFXYW4taWwtREI0aDUwRG1iYVU0WnckDQo+Pj4+Pj4NCj4+Pj4+Pg0KPj4+Pj4+DQo+Pj4+Pj4N
+Cj4+Pj4+PiBUaGUgZmFpbHVyZSB5b3Ugc2F3IHdhcyBwcm9iYWJseSBkdWUgdGhlIGdhZGdldCBm
+dW5jdGlvbiBhdHRlbXB0aW5nDQo+Pj4+Pj4gdG8gc3RhcnQgYSBkZWxheWVkIHN0YXR1cyBzdGFn
+ZSBvZiB0aGUgU0VUX0NPTkZJR1VSQVRJT04gcmVxdWVzdC4NCj4+Pj4+PiBCeSB0aGlzIHRpbWUs
+IHRoZSBob3N0IGFscmVhZHkgcHV0IHRoZSBkZXZpY2UgaW4gbG93IHBvd2VyLg0KPj4+Pj4+DQo+
+Pj4+Pj4gVGhlIFNUQVJUX1RSQU5TRkVSIGNvbW1hbmQgbmVlZHMgdG8gYmUgZXhlY3V0ZWQgd2hp
+bGUgdGhlIGRldmljZQ0KPj4+Pj4+IGlzIG9uICJPTiIgc3RhdGUgKG9yIFUwIGlmIGVTUykuIFdl
+IHNob3VsZG4ndCB1c2UgZHdjLT5saW5rX3N0YXRlDQo+Pj4+Pj4gdG8gY2hlY2sgZm9yIGxpbmsg
+c3RhdGUgYmVjYXVzZSB3ZSBvbmx5IGVuYWJsZSBsaW5rIHN0YXRlIGNoYW5nZQ0KPj4+Pj4+IGlu
+dGVycnVwdCBmb3Igc29tZSBjb250cm9sbGVyIHZlcnNpb25zLg0KPj4+Pj4+DQo+Pj4+Pj4gT25j
+ZSB5b3UgY29uZmlybXMgZGlzYWJsaW5nIExQTSB3b3JrcywgdHJ5IHRoaXMgZml4Og0KPj4+Pj4+
+DQo+Pj4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdXNiL2R3YzMvZ2FkZ2V0LmMgYi9kcml2ZXJz
+L3VzYi9kd2MzL2dhZGdldC5jDQo+Pj4+Pj4gaW5kZXggNjIyNzY0MWYyZDMxLi4wNmNkZWM3OTI0
+NGUgMTAwNjQ0DQo+Pj4+Pj4gLS0tIGEvZHJpdmVycy91c2IvZHdjMy9nYWRnZXQuYw0KPj4+Pj4+
+ICsrKyBiL2RyaXZlcnMvdXNiL2R3YzMvZ2FkZ2V0LmMNCj4+Pj4+PiBAQCAtMzA5LDEwICszMDks
+MTQgQEAgaW50IGR3YzNfc2VuZF9nYWRnZXRfZXBfY21kKHN0cnVjdCBkd2MzX2VwDQo+Pj4+Pj4g
+KmRlcCwNCj4+Pj4+PiB1bnNpZ25lZCBpbnQgY21kLA0KPj4+Pj4+IMKgwqDCoCDCoMKgwqDCoMKg
+wqDCoMKgIGlmIChEV0MzX0RFUENNRF9DTUQoY21kKSA9PSBEV0MzX0RFUENNRF9TVEFSVFRSQU5T
+RkVSKSB7DQo+Pj4+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGludMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBuZWVkc193YWtldXA7DQo+Pj4+Pj4gK8KgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgdTjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBsaW5rX3N0YXRl
+Ow0KPj4+Pj4+IMKgwqDCoCAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBuZWVkc193YWtl
+dXAgPSAoZHdjLT5saW5rX3N0YXRlID09DQo+Pj4+Pj4gRFdDM19MSU5LX1NUQVRFX1UxIHx8DQo+
+Pj4+Pj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCBkd2MtPmxpbmtfc3RhdGUgPT0NCj4+Pj4+PiBEV0MzX0xJTktfU1RBVEVfVTJ8
+fA0KPj4+Pj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgZHdjLT5saW5rX3N0YXRlID09DQo+Pj4+Pj4gRFdDM19MSU5LX1NUQVRF
+X1UzKTsNCj4+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByZWcgPSBkd2MzX3Jl
+YWRsKGR3Yy0+cmVncywgRFdDM19EU1RTKTsNCj4+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCBsaW5rX3N0YXRlID0gRFdDM19EU1RTX1VTQkxOS1NUKHJlZyk7DQo+Pj4+Pj4gKw0K
+Pj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG5lZWRzX3dha2V1cCA9IChsaW5r
+X3N0YXRlID09IERXQzNfTElOS19TVEFURV9VMSB8fA0KPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgbGlua19zdGF0ZSA9
+PSBEV0MzX0xJTktfU1RBVEVfVTIgfHwNCj4+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGxpbmtfc3RhdGUgPT0gRFdDM19M
+SU5LX1NUQVRFX1UzKTsNCj4+Pj4+PiDCoMKgwqAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgaWYgKHVubGlrZWx5KG5lZWRzX3dha2V1cCkpIHsNCj4+Pj4+PiDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0ID0gX19kd2MzX2dhZGdl
+dF93YWtldXAoZHdjKTsNCj4+Pj4+PiBAQCAtMTk4OSw2ICsxOTkzLDggQEAgc3RhdGljIGludCBf
+X2R3YzNfZ2FkZ2V0X3dha2V1cChzdHJ1Y3QgZHdjMw0KPj4+Pj4+ICpkd2MpDQo+Pj4+Pj4gwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgY2FzZSBEV0MzX0xJTktfU1RBVEVfUkVTRVQ6DQo+Pj4+Pj4gwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgY2FzZSBEV0MzX0xJTktfU1RBVEVfUlhfREVUOsKgwqDCoCAvKiBp
+biBIUywgbWVhbnMgRWFybHkNCj4+Pj4+PiBTdXNwZW5kICovDQo+Pj4+Pj4gwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgY2FzZSBEV0MzX0xJTktfU1RBVEVfVTM6wqDCoMKgwqDCoMKgwqAgLyogaW4gSFMs
+IG1lYW5zIFNVU1BFTkQgKi8NCj4+Pj4+PiArwqDCoMKgwqDCoMKgIGNhc2UgRFdDM19MSU5LX1NU
+QVRFX1UyOsKgwqDCoMKgwqDCoMKgIC8qIGluIEhTLCBtZWFucyBTbGVlcCAoTDEpICovDQo+Pj4+
+Pj4gK8KgwqDCoMKgwqDCoCBjYXNlIERXQzNfTElOS19TVEFURV9VMToNCj4+Pj4+PiDCoMKgwqDC
+oMKgwqDCoMKgwqDCoCBjYXNlIERXQzNfTElOS19TVEFURV9SRVNVTUU6DQo+Pj4+Pj4gwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGJyZWFrOw0KPj4+Pj4+IMKgwqDCoMKgwqDC
+oMKgwqDCoMKgIGRlZmF1bHQ6DQo+Pj4+Pj4NCj4+Pj4+IFNhbWUgKGdvb2QpIHJlc3VsdCBhcyB3
+aXRoICJzbnBzLHVzYjItZ2FkZ2V0LWxwbS1kaXNhYmxlIi4gSW5jbHVkaW5nDQo+Pj4+PiBmaXJz
+dCBzd2l0Y2ggZnJvbSBob3N0LT5nYWRnZXQgbm90IHdvcmtpbmcuDQo+Pj4+Pg0KPj4+PiBHcmVh
+dCEgTm90IHN1cmUgd2h5IHRoZSBmaXJzdCBzd2l0Y2ggaXMgbm90IHdvcmtpbmcsIGJ1dCBpdCBz
+ZWVtcyBsaWtlDQo+Pj4+IHdlIHdlcmUgYWJsZSB0byBlbGltaW5hdGUgcXVpdGUgYSBmZXcgaXNz
+dWVzLiBJZiB5b3UgaGF2ZSBtb3JlIGR3YzMNCj4+Pj4gdHJhY2Vwb2ludHMsIHdlIGNhbiB0YWtl
+IGEgbG9vayBmdXJ0aGVyLg0KPj4+IEkgdHJhY2VkIGJ1dCB0aGUgZmlsZSBpcyBlbXB0eS4gSSBj
+YXB0dXJlZCB0aGUgcmVnaXN0ZXJzIGFzIHdlbGwuIFRoZQ0KPj4+IHppcCBmaWxlIGlzIGhlcmU6
+DQo+Pj4NCj4+PiBodHRwczovL3VybGRlZmVuc2UuY29tL3YzL19faHR0cHM6Ly9naXRodWIuY29t
+L2FuZHktc2hldi9saW51eC9maWxlcy82MzQ2MjcxL2ZpcnN0LXN3aXRjaC56aXBfXzshIUE0RjJS
+OUdfcGchS0FtUEEwVncxV1VpU3hkYzUtQktOUHlEMGtsdmRyNXVjWkkzRV9DMm9qaG8yck5UOXd6
+TXM4SEc0cUNZU0R4ODlIRkUkDQo+Pj4NCg0KPHNuaXA+DQoNCj4+Pg0KPj4+IE1heWJlIHRoaXMg
+aXNzdWUgaXMgZHVlIHRvIGV4dGNvbiBtaXNzaW5nIHRoZSBldmVudD8NCj4+IMKgRnJvbSB0aGUg
+aW5mbyBoZXJlLCBpdCBkb2Vzbid0IGxvb2sgbGlrZSB0aGUgaG9zdCBwbGF0Zm9ybSBkZXZpY2Ug
+d2FzDQo+PiByZW1vdmVkIG9uIHRoZSBmaXJzdCBzd2l0Y2guIEFsc28sIGFzIHlvdSBwb2ludGVk
+IGl0IG91dCwgdGhlIGV4dGNvbg0KPj4gZXZlbnQgd2FzIG5vdCBzaG93biBvbiB0aGUgZmlyc3Qg
+c3dpdGNoIGVpdGhlci4gV2l0aG91dCBhIG5vdGlmaWNhdGlvbg0KPj4gdG8gc3dpdGNoIG1vZGUs
+IHRoZSBkd2MzIGRyaXZlciB3b24ndCBkbyBhbnl0aGluZy4gWW91IG5lZWQgdG8gY2hlY2sgd2h5
+DQo+PiB0aGF0J3MgdGhlIGNhc2UgYXMgSSBjYW4ndCBoZWxwIG11Y2ggaGVyZS4NCj4+DQo+Pj4+
+PiBBZnRlciBhIDIgLSA0IG1pbnV0ZXMgdGhlIGNvbm5lY3Rpb24gaXMgZHJvcHBlZCBhbmQgcmVj
+b25uZWN0ZWQuDQo+Pj4+IERvZXMgdGhpcyBvY2N1ciB3aXRoIExQTSBkaXNhYmxlZCBhbHNvPyBX
+ZSBjYW4gcmV2aWV3IHRoaXMgaXNzdWUNCj4+Pj4gZnVydGhlcg0KPj4+PiB3aXRoIG1vcmUgZHdj
+MyB0cmFjZXBvaW50cy4NCj4+PiBJIGNhcHR1cmVkIGNvbm5lY3Rpb24gZHJvcHBpbmcgYW5kIHJl
+Y29ubmVjdGluZyBpbiB0aGlzIGZhaXJseSBsb25nDQo+Pj4gdHJhY2UgbmVhciB0aGUgZW5kIG9m
+IHRoZSBmaWxlOg0KPj4+DQo+Pj4gaHR0cHM6Ly91cmxkZWZlbnNlLmNvbS92My9fX2h0dHBzOi8v
+Z2l0aHViLmNvbS9hbmR5LXNoZXYvbGludXgvZmlsZXMvNjM0NjMyMy9sb3N0LWNvbm5lY3Rpb24u
+emlwX187ISFBNEYyUjlHX3BnIUtBbVBBMFZ3MVdVaVN4ZGM1LUJLTlB5RDBrbHZkcjV1Y1pJM0Vf
+QzJvamhvMnJOVDl3ek1zOEhHNHFDWVNJdVVIUno0JA0KPj4+DQo+Pj4NCj4+IE5vdGhpbmcgb2J2
+aW91cyBzdGFuZHMgb3V0IGFzIGEgcHJvYmxlbSBmcm9tIHRoZSBkd2MzIGRyaXZlciBvciB0aGUN
+Cj4+IGNvbnRyb2xsZXIuIEkgc2VlIGEgKHBvcnQpIHJlc2V0IGFmdGVyIDMwIHNlY29uZHMgb2Yg
+aW5hY3Rpdml0eSwgd2hpY2gNCj4+IGlzIGEgdHlwaWNhbCB0aW1lb3V0IGFuZCByZWNvdmVyeSBt
+ZWNoYW5pc20gaW4gdGhlIHVwcGVybGF5ZXIgZnJvbSBob3N0Lg0KPj4NCj4+ICogSXMgdGhpcyBh
+IG5ldyBpc3N1ZSBvciB3YXMgaXQgYWx3YXlzIHRoZXJlPw0KPj4gKiBEb2VzIHR1cm5pbmcgb2Zm
+IExQTSBoZWxwPw0KPiANCj4gSSByZXZlcnRlZCBteSAidXNiOiBnYWRnZXQ6IGluY3JlYXNlIEJF
+U0wgYmFzZWxpbmUgdG8gNiIgYW5kIHBpY2tlZA0KPiAidXNiOiBkd2MzOiBwY2k6IEVuYWJsZSBk
+aXNfZW5ibHNscG1fcXVpcmsgZm9yIEludGVsIE1lcnJpZmllbGQiLg0KPiANCj4gU28gdGhpcyBp
+cyBhZ2FpbiB0aGUgYmlnIGhhbW1lciB5b3Ugc3VnZ2VzdGVkIGVhcmxpZXIgdG8gdHVybiBvZmYg
+TFBNLg0KPiANCj4gDQo+IEFmdGVyIDE1IG1pbiAoYXQgbGVhc3QgNHggbG9uZ2VyIHRoZW4gbm9y
+bWFsIHRvIGdldCBhIHBvcnQgcmVzZXQpIEkgaGF2ZQ0KPiBzdGlsbCBub3Qgc2VlbiBhIHBvcnQg
+cmVzZXQuDQo+IA0KPiANCj4gU28gZm9yIG5vdyBJIGNvbmNsdWRlLCB5ZXMgdHVybmluZyBvZmYg
+TFBNIGhlbHBzLg0KPiANCg0KT2suIFRoYW5rcyBmb3IgdGhlIHVwZGF0ZXMuIExvb2tzIGxpa2Ug
+d2UgbWF5IGhhdmUgdG8gdXNlIHRoZSBoYW1tZXINCmFmdGVyYWxsLg0KDQpCdHcsIGVhcmxpZXIg
+SSBtaXN0YWtlbmx5IHNheSAiZGlzX2VuYmxzbHBtX3F1aXJrIiB3aWxsIGRpc2FibGUgTFBNDQpj
+b21wbGV0ZWx5LCBpdCBvbmx5IGRpc2FibGVzIHRoZSBkZXZpY2UgZ29pbmcgaW50byAic2xlZXAi
+IHN0YXRlLiBJZiB5b3UNCndhbnQgdG8gY29tcGxldGVseSBkaXNhYmxlIExQTSwgdXNlICJ1c2Iy
+LWdhZGdldC1scG0tZGlzYWJsZSINCg0KVGhhbmtzLA0KVGhpbmgNCg==
