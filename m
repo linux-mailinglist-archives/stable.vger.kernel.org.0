@@ -2,213 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C087A367E30
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 11:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CFB5367F2E
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 13:01:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbhDVJ6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Apr 2021 05:58:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35898 "EHLO mail.kernel.org"
+        id S235800AbhDVLC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Apr 2021 07:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230285AbhDVJ6I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Apr 2021 05:58:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1EED61360;
-        Thu, 22 Apr 2021 09:57:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619085450;
-        bh=GXLYIZSjckwJ1JZE4yPdbqeiMzOSlDfmFPWFswrnbxk=;
-        h=Subject:To:From:Date:From;
-        b=fwFga6YY5NLcES4nhCu/mSO3maKl54FwXF3qnenrxpqJV4ecZCyI7YGXANyiF5pGO
-         XulEps6Dl/tD5XQ3jqQzjt1JPNqwl6O3O/xuZ6n51vOkHaAv7vZ45iaJ3lTru/Fca3
-         p8LwByPgDTTN2CS7NGdSl53sDi4+mWYe4g5kgkZQ=
-Subject: patch "usb: dwc3: core: Do core softreset when switch mode" added to usb-testing
-To:     chenyu56@huawei.com, Thinh.Nguyen@synopsys.com,
-        andy.shevchenko@gmail.com, fntoth@gmail.com,
-        gregkh@linuxfoundation.org, john.stultz@linaro.org,
-        stable@vger.kernel.org, wcheng@codeaurora.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 22 Apr 2021 11:57:27 +0200
-Message-ID: <16190854474873@kroah.com>
+        id S235634AbhDVLCZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Apr 2021 07:02:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BACD161445;
+        Thu, 22 Apr 2021 11:01:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1619089310;
+        bh=IdqNjuBgiVG/bfNOGbyctqmbMhRNfuCZRrtIeDnl3mM=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=PwYKvGXJSN7U53zHu2hKhrn4igmctxZ8LpicBGW3wT4+WPNobJfuUs9riXJqUvXMv
+         Qy9j6INyUppve2M0EoIm4JD9LWoCRq7Y8/0GXQWvjiSFVvo7t7GZ1ShHw1OHqgrFY9
+         z//2lglzBL7flXjkwIblfUclOedtGaWb3ZtdRkJEDSl2mCrqWMFJfL1w/ILV5UnC8H
+         tqh8c7JAOiJoRponpD8zSG6fJ7w7s5BvYVE3rAH4AR1g9kI7T5dzTkqlanF5DCdN6b
+         42d+4XIOpaG2sv+PJbrgwM/OqQQD1/OsN+vO4Ssu3CVj4gb8Eb627kvUkdL/EJ4WZO
+         PZHQJJ/e3zdmA==
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Wesley Cheng <wcheng@codeaurora.org>, gregkh@linuxfoundation.org,
+        peter.chen@kernel.org
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Hemant Kumar <hemantk@codeaurora.org>, stable@vger.kernel.org,
+        Wesley Cheng <wcheng@codeaurora.org>
+Subject: Re: [PATCH v2] usb: gadget: Fix double free of device descriptor
+ pointers
+In-Reply-To: <1619034452-17334-1-git-send-email-wcheng@codeaurora.org>
+References: <1619034452-17334-1-git-send-email-wcheng@codeaurora.org>
+Date:   Thu, 22 Apr 2021 14:01:42 +0300
+Message-ID: <87lf9amvl5.fsf@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    usb: dwc3: core: Do core softreset when switch mode
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
-From f88359e1588b85cf0e8209ab7d6620085f3441d9 Mon Sep 17 00:00:00 2001
-From: Yu Chen <chenyu56@huawei.com>
-Date: Thu, 15 Apr 2021 15:20:30 -0700
-Subject: usb: dwc3: core: Do core softreset when switch mode
+Hi,
 
-From: John Stultz <john.stultz@linaro.org>
+Wesley Cheng <wcheng@codeaurora.org> writes:
 
-According to the programming guide, to switch mode for DRD controller,
-the driver needs to do the following.
+> From: Hemant Kumar <hemantk@codeaurora.org>
+>
+> Upon driver unbind usb_free_all_descriptors() function frees all
+> speed descriptor pointers without setting them to NULL. In case
+> gadget speed changes (i.e from super speed plus to super speed)
+> after driver unbind only upto super speed descriptor pointers get
+> populated. Super speed plus desc still holds the stale (already
+> freed) pointer. Fix this issue by setting all descriptor pointers
+> to NULL after freeing them in usb_free_all_descriptors().
 
-To switch from device to host:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(host mode)
-3. Reset the host with USBCMD.HCRESET
-4. Then follow up with the initializing host registers sequence
+could you describe this a little better? How can one trigger this case?
+Is the speed demotion happening after unbinding? It's not clear how to
+cause this bug.
 
-To switch from host to device:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(device mode)
-3. Reset the device with DCTL.CSftRst
-4. Then follow up with the initializing registers sequence
+=2D-=20
+balbi
 
-Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
-switching from host to device. John Stult reported a lockup issue seen
-with HiKey960 platform without these steps[1]. Similar issue is observed
-with Ferry's testing platform[2].
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-So, apply the required steps along with some fixes to Yu Chen's and John
-Stultz's version. The main fixes to their versions are the missing wait
-for clocks synchronization before clearing GCTL.CoreSoftReset and only
-apply DCTL.CSftRst when switching from host to device.
+-----BEGIN PGP SIGNATURE-----
 
-[1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
-[2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
-
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ferry Toth <fntoth@gmail.com>
-Cc: Wesley Cheng <wcheng@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Tested-by: Wesley Cheng <wcheng@codeaurora.org>
-Signed-off-by: Yu Chen <chenyu56@huawei.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/dwc3/core.c | 27 +++++++++++++++++++++++++++
- drivers/usb/dwc3/core.h |  5 +++++
- 2 files changed, 32 insertions(+)
-
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 5c25e6a72dbd..2f118ad43571 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -114,6 +114,8 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u32 mode)
- 	dwc->current_dr_role = mode;
- }
- 
-+static int dwc3_core_soft_reset(struct dwc3 *dwc);
-+
- static void __dwc3_set_mode(struct work_struct *work)
- {
- 	struct dwc3 *dwc = work_to_dwc(work);
-@@ -121,6 +123,8 @@ static void __dwc3_set_mode(struct work_struct *work)
- 	int ret;
- 	u32 reg;
- 
-+	mutex_lock(&dwc->mutex);
-+
- 	pm_runtime_get_sync(dwc->dev);
- 
- 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
-@@ -154,6 +158,25 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		break;
- 	}
- 
-+	/* For DRD host or device mode only */
-+	if (dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg |= DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+
-+		/*
-+		 * Wait for internal clocks to synchronized. DWC_usb31 and
-+		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
-+		 * keep it consistent across different IPs, let's wait up to
-+		 * 100ms before clearing GCTL.CORESOFTRESET.
-+		 */
-+		msleep(100);
-+
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg &= ~DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+	}
-+
- 	spin_lock_irqsave(&dwc->lock, flags);
- 
- 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
-@@ -178,6 +201,8 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		}
- 		break;
- 	case DWC3_GCTL_PRTCAP_DEVICE:
-+		dwc3_core_soft_reset(dwc);
-+
- 		dwc3_event_buffers_setup(dwc);
- 
- 		if (dwc->usb2_phy)
-@@ -200,6 +225,7 @@ static void __dwc3_set_mode(struct work_struct *work)
- out:
- 	pm_runtime_mark_last_busy(dwc->dev);
- 	pm_runtime_put_autosuspend(dwc->dev);
-+	mutex_unlock(&dwc->mutex);
- }
- 
- void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
-@@ -1553,6 +1579,7 @@ static int dwc3_probe(struct platform_device *pdev)
- 	dwc3_cache_hwparams(dwc);
- 
- 	spin_lock_init(&dwc->lock);
-+	mutex_init(&dwc->mutex);
- 
- 	pm_runtime_set_active(dev);
- 	pm_runtime_use_autosuspend(dev);
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 695ff2d791e4..7e3afa5378e8 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -13,6 +13,7 @@
- 
- #include <linux/device.h>
- #include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/ioport.h>
- #include <linux/list.h>
- #include <linux/bitops.h>
-@@ -947,6 +948,7 @@ struct dwc3_scratchpad_array {
-  * @scratch_addr: dma address of scratchbuf
-  * @ep0_in_setup: one control transfer is completed and enter setup phase
-  * @lock: for synchronizing
-+ * @mutex: for mode switching
-  * @dev: pointer to our struct device
-  * @sysdev: pointer to the DMA-capable device
-  * @xhci: pointer to our xHCI child
-@@ -1088,6 +1090,9 @@ struct dwc3 {
- 	/* device lock */
- 	spinlock_t		lock;
- 
-+	/* mode switching lock */
-+	struct mutex		mutex;
-+
- 	struct device		*dev;
- 	struct device		*sysdev;
- 
--- 
-2.31.1
-
-
+iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAmCBV5YRHGJhbGJpQGtl
+cm5lbC5vcmcACgkQzL64meEamQZlOQ/8D3Da/0KsYkeI/35cTjiwN80ady26jB4s
+4IRUsq6IQJr4zb4onfb/prNv9fESatLnRcN3rvC4ICHkZldz4MQYtbZu1KXK+MeB
+z8wfY6PBrxdgf6R/NELqsg7PNX6siOPKEykX/4pk4WYv2ks55FCRJZ4jLQEDvcC/
+zpv6GoALmtlBS4u+JcG58aKz58TK5C+B7AMHwNqmtmDw2GkrBqtXnRIPBhsyR0lX
+5L0JLBp3t8nifPL1f9JPRcJwMO/IjQIKJZc0feDiZW8OvyMRzZ7tRLUWbyG6zBLV
+ZBTizo4jPeTdO6Xzzaun0m3+V0jTcO8Gn4Vo7+TbGbxEuceUEP79CnL3JspDTkYU
++H1+wTwReuHrdv1EwkziviYrnOqp96Vpz5XrIJS0Sg4FBsiNk+rZ9Le4sH/uXMlT
+DDbkoewgXlgTjDfVYCxw9h2mPdkHwmGvwfOeqXBez/CZL/Yz3dEYSrduzfWUDtlF
+bxM2hoSozvVQrc0MgP7YqYSuHcUixJfRnarl+TQF6IgJDDV1/mQ83Egl/yE95bdO
+6fzLcCKtzKzBr214+n/DvLycx94RhaAb3ABUCEfyCZSl3n/2KVa1HAPxC9cIJ2DK
+N6T7c/gQVjlcxN+ySPdDt4CGijvpjmHP5a/686Lw2XWx5I2sg7aks4r4wLfDgw73
+A6YIjzc1Y5k=
+=MYza
+-----END PGP SIGNATURE-----
+--=-=-=--
