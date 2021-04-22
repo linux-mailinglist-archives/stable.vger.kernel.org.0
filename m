@@ -2,133 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6003686A1
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 20:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C6C3686A8
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 20:37:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236941AbhDVShN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Apr 2021 14:37:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35070 "EHLO
+        id S236752AbhDVSiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Apr 2021 14:38:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236885AbhDVShM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Apr 2021 14:37:12 -0400
-Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C75C06174A;
-        Thu, 22 Apr 2021 11:36:37 -0700 (PDT)
-Received: by mail-oi1-x22e.google.com with SMTP id r186so18963892oif.8;
-        Thu, 22 Apr 2021 11:36:37 -0700 (PDT)
+        with ESMTP id S236668AbhDVSiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Apr 2021 14:38:16 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F63C06174A
+        for <stable@vger.kernel.org>; Thu, 22 Apr 2021 11:37:42 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id v13so10386870ple.9
+        for <stable@vger.kernel.org>; Thu, 22 Apr 2021 11:37:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=BYTuPMRUexPPGvW6L1BJds8lSCPzcxEGFZPlK6FTX5Q=;
-        b=lzLVIMk/sD6EH5Ou0EKkBA7/dkiIEbylUlyG2qLLy2nEv6Qy9kCTwiat6sai94yuO5
-         WyGo6aFBOA74o/iDElyktIv/qsytHyeIH2qxw5gp4efQbzMHZEI4KEJtnmEE6uKKCYeZ
-         cwYpCIVJi/2ujGTBEHeN8ux8KTKcBsPULjVapcG5R8fqPPJT50POaMiAq8zE2qpqnCnh
-         tXWRKRgoqh6PkeFgpY7VRx4mgge3WcWw1n9ke7hGbN3GhzpMenpI4aBJuuV8TALvFsUL
-         uR6oRY3U6ThdOomUPVo4wQDkMUYwrgOKBrYCkasvPKmb4MJX4RG0QsnSfrwVyVErzv3W
-         8SVw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+VkpKEMQIKMlIFqN5Fuo0d5Pv7utNqjtoV0bku11qdo=;
+        b=gyisl8AeirR/8j1R6SG8sN/UtXfurhNOvTvDIey7e5/EQa9c32cozWORr+zI8DJyPT
+         nbe8LE4inSS88tcOPkHPNUqhllwaHFIji+vYOJ/4QEV6ABUZ9xlKlaQXn9WSJoSUGRsW
+         gIv1ASrvlxPnd45KravgFoV7JuWrvYL438IONGjW/0XsBzXKw70qadAjbpmGwJyzlAFy
+         8+OD+DujezeXGa/f4r7fCvg7ozgP2ygtKU+VYMtvi3+c45QshU0iJkWKYUoTlrEx9IZg
+         xmZXQYqTSF7/bs1j2rcVDJ86mpzwItdxJalKgqZLOfsoMmQPamR7KhEWy3DFhHkgjZll
+         DpAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=BYTuPMRUexPPGvW6L1BJds8lSCPzcxEGFZPlK6FTX5Q=;
-        b=W9Xw0ZQSiCP/KhQdadt/tcRgJyeparzTGGI1eu2lkdAESdmibHJRYkKCaDY/qYwXn4
-         yz4LMnltpp+Epe93pYlnp6O8v9x7Bj1YBe7aHBFkNYbS22QVjPqeuGTj7yAV4P1WIUB7
-         l3attTiRT3uGFCq62kxIziEpWWHzN241AUPdPnBGrBmFwRz7xZ7PySt66I7B9e3+jPqN
-         /gsaX4sUM9AUAPYbtEd/TwRkVBd4M/VksXRgmtqW0j/lMk+BkpQ8gCAb9l9lMJXAOlGj
-         riHILZ1QkAAW6w7ENy8jc4CFpu4lunoM8V+DlIerpMB6osjg1iNDQeOn2mez12yaUdmy
-         WQCA==
-X-Gm-Message-State: AOAM533QlpLW/Q95fy8C89YKf7TjKIMybRJ5CeT9IAajXlXP4tDMaLM8
-        LfzQhLpsWOeNHmQqYx7E19I=
-X-Google-Smtp-Source: ABdhPJxLB1HYUuROmP8V+ubyXzzB0HnMxdsPjxrumTVmWgD12fwqUh8KLYkkg8BTnKRUCy6o3MMJ+A==
-X-Received: by 2002:aca:c755:: with SMTP id x82mr939223oif.83.1619116596702;
-        Thu, 22 Apr 2021 11:36:36 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p11sm780397oti.53.2021.04.22.11.36.35
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 22 Apr 2021 11:36:36 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 22 Apr 2021 11:36:34 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-arch@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 3/4] MIPS: Reinstate platform `__div64_32' handler
-Message-ID: <20210422183634.GA108385@roeck-us.net>
-References: <alpine.DEB.2.21.2104200044060.44318@angie.orcam.me.uk>
- <alpine.DEB.2.21.2104200212500.44318@angie.orcam.me.uk>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+VkpKEMQIKMlIFqN5Fuo0d5Pv7utNqjtoV0bku11qdo=;
+        b=MMDLnEusNTN+aXAyUmgQ+NYOFXVCag9svt8UWWwxOrar/APzea6EVT81lxgc9XaUm1
+         cL2A6wPaq0OtEZOE/is2xDdEVsXHgPwFbUAEqODBDOHP6IVt0sjA0/Aqk7D6e5vOcGOY
+         yxpbAJCynRDV/Q0n9LSgrRG2s/zUdFS6lF2jzu9IHKCiI+KbkZ9G48nVWmccvsOm0ra4
+         dFST5LzHou9EbOkm8loD62Xa7wHESgT/JCSJnz9jEzC+52WnhegMITFYzPDVDfAroyUp
+         z0DkwMoI+qprdGLO9PCBE9tH2mA+aiyZWP74GrtwNTEVLCCspXCy82tkMC7H3KiCUwRQ
+         /IOA==
+X-Gm-Message-State: AOAM531pnYOgtEugA3il4DdLCOyayfMh2Bg+FSQ8/T0SJWVq2bK6Kj05
+        luZlRfVE6KBFutMbt2SQbAI=
+X-Google-Smtp-Source: ABdhPJx1/N+UOwDe8o50Q5sveBcdVYfIBHInb1pUczMqAJR9pI4yDB5pXD0tWbH0kfutRMCrgo4VXw==
+X-Received: by 2002:a17:902:8bcb:b029:ec:a192:21cf with SMTP id r11-20020a1709028bcbb02900eca19221cfmr4918399plo.71.1619116661633;
+        Thu, 22 Apr 2021 11:37:41 -0700 (PDT)
+Received: from archl-on1.. ([103.51.72.77])
+        by smtp.gmail.com with ESMTPSA id oa9sm2640379pjb.44.2021.04.22.11.37.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Apr 2021 11:37:40 -0700 (PDT)
+From:   Anand Moon <linux.amoon@gmail.com>
+To:     linux.amoon@gmail.com
+Cc:     Jaegeuk Kim <jaegeuk@google.com>, stable@vger.kernel.org,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH] dm verity fec: fix misaligned RS roots IO
+Date:   Thu, 22 Apr 2021 18:37:33 +0000
+Message-Id: <20210422183733.918-1-linux.amoon@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.21.2104200212500.44318@angie.orcam.me.uk>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 20, 2021 at 04:50:40AM +0200, Maciej W. Rozycki wrote:
-> Our current MIPS platform `__div64_32' handler is inactive, because it 
-> is incorrectly only enabled for 64-bit configurations, for which generic 
-> `do_div' code does not call it anyway.
-> 
-> The handler is not suitable for being called from there though as it 
-> only calculates 32 bits of the quotient under the assumption the 64-bit 
-> divident has been suitably reduced.  Code for such reduction used to be 
-> there, however it has been incorrectly removed with commit c21004cd5b4c 
-> ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."), which should 
-> have only updated an obsoleted constraint for an inline asm involving 
-> $hi and $lo register outputs, while possibly wiring the original MIPS 
-> variant of the `do_div' macro as `__div64_32' handler for the generic 
-> `do_div' implementation
-> 
-> Correct the handler as follows then:
-> 
-> - Revert most of the commit referred, however retaining the current 
->   formatting, except for the final two instructions of the inline asm 
->   sequence, which the original commit missed.  Omit the original 64-bit 
->   parts though.
-> 
-> - Rename the original `do_div' macro to `__div64_32'.  Use the combined 
->   `x' constraint referring to the MD accumulator as a whole, replacing 
->   the original individual `h' and `l' constraints used for $hi and $lo 
->   registers respectively, of which `h' has been obsoleted with GCC 4.4. 
->   Update surrounding code accordingly.
-> 
->   We have since removed support for GCC versions before 4.9, so no need 
->   for a special arrangement here; GCC has supported the `x' constraint 
->   since forever anyway, or at least going back to 1991.
-> 
-> - Rename the `__base' local variable in `__div64_32' to `__radix' to 
->   avoid a conflict with a local variable in `do_div'.
-> 
-> - Actually enable this code for 32-bit rather than 64-bit configurations
->   by qualifying it with BITS_PER_LONG being 32 instead of 64.  Include 
->   <asm/bitsperlong.h> for this macro rather than <linux/types.h> as we 
->   don't need anything else.
-> 
-> - Finally include <asm-generic/div64.h> last rather than first.
-> 
-> This has passed correctness verification with test_div64 and reduced the 
-> module's average execution time down to 1.0668s and 0.2629s from 2.1529s 
-> and 0.5647s respectively for an R3400 CPU @40MHz and a 5Kc CPU @160MHz.  
-> For a reference 64-bit `do_div' code where we have the DDIVU instruction 
-> available to do the whole calculation right away averages at 0.0660s for 
-> the latter CPU.
-> 
-This patch results in:
+From: Jaegeuk Kim <jaegeuk@google.com>
 
-arch/mips/mti-malta/malta-time.c: In function 'plat_time_init':
-./arch/mips/include/asm/div64.h:76:3: error: inconsistent operand constraints in an 'asm'
+commit df7b59ba9245 ("dm verity: fix FEC for RS roots unaligned to
+block size") introduced the possibility for misaligned roots IO
+relative to the underlying device's logical block size. E.g. Android's
+default RS roots=2 results in dm_bufio->block_size=1024, which causes
+the following EIO if the logical block size of the device is 4096,
+given v->data_dev_block_bits=12:
 
-and similar errors when trying to compile malta_qemu_32r6_defconfig.
-I tried with gcc 8.3.0, 8.4.0, 9.3.0, and 10.3.0.
+E sd 0    : 0:0:0: [sda] tag#30 request not aligned to the logical block size
+E blk_update_request: I/O error, dev sda, sector 10368424 op 0x0:(READ) flags 0x0 phys_seg 1 prio class 0
+E device-mapper: verity-fec: 254:8: FEC 9244672: parity read failed (block 18056): -5
 
-Does this need some additional new compile flags ?
+Fix this by onlu using f->roots for dm_bufio blocksize IFF it is
+aligned to v->data_dev_block_bits.
 
-Thanks,
-Guenter
+Fixes: df7b59ba9245 ("dm verity: fix FEC for RS roots unaligned to block size")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jaegeuk Kim <jaegeuk@google.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+---
+ drivers/md/dm-verity-fec.c | 11 ++++++++---
+ drivers/md/dm-verity-fec.h |  1 +
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/md/dm-verity-fec.c b/drivers/md/dm-verity-fec.c
+index 66f4c6398f67..cea2b3789736 100644
+--- a/drivers/md/dm-verity-fec.c
++++ b/drivers/md/dm-verity-fec.c
+@@ -65,7 +65,7 @@ static u8 *fec_read_parity(struct dm_verity *v, u64 rsb, int index,
+ 	u8 *res;
+ 
+ 	position = (index + rsb) * v->fec->roots;
+-	block = div64_u64_rem(position, v->fec->roots << SECTOR_SHIFT, &rem);
++	block = div64_u64_rem(position, v->fec->io_size, &rem);
+ 	*offset = (unsigned)rem;
+ 
+ 	res = dm_bufio_read(v->fec->bufio, block, buf);
+@@ -154,7 +154,7 @@ static int fec_decode_bufs(struct dm_verity *v, struct dm_verity_fec_io *fio,
+ 
+ 		/* read the next block when we run out of parity bytes */
+ 		offset += v->fec->roots;
+-		if (offset >= v->fec->roots << SECTOR_SHIFT) {
++		if (offset >= v->fec->io_size) {
+ 			dm_bufio_release(buf);
+ 
+ 			par = fec_read_parity(v, rsb, block_offset, &offset, &buf);
+@@ -742,8 +742,13 @@ int verity_fec_ctr(struct dm_verity *v)
+ 		return -E2BIG;
+ 	}
+ 
++	if ((f->roots << SECTOR_SHIFT) & ((1 << v->data_dev_block_bits) - 1))
++		f->io_size = 1 << v->data_dev_block_bits;
++	else
++		f->io_size = v->fec->roots << SECTOR_SHIFT;
++
+ 	f->bufio = dm_bufio_client_create(f->dev->bdev,
+-					  f->roots << SECTOR_SHIFT,
++					  f->io_size,
+ 					  1, 0, NULL, NULL);
+ 	if (IS_ERR(f->bufio)) {
+ 		ti->error = "Cannot initialize FEC bufio client";
+diff --git a/drivers/md/dm-verity-fec.h b/drivers/md/dm-verity-fec.h
+index 42fbd3a7fc9f..3c46c8d61883 100644
+--- a/drivers/md/dm-verity-fec.h
++++ b/drivers/md/dm-verity-fec.h
+@@ -36,6 +36,7 @@ struct dm_verity_fec {
+ 	struct dm_dev *dev;	/* parity data device */
+ 	struct dm_bufio_client *data_bufio;	/* for data dev access */
+ 	struct dm_bufio_client *bufio;		/* for parity data access */
++	size_t io_size;		/* IO size for roots */
+ 	sector_t start;		/* parity data start in blocks */
+ 	sector_t blocks;	/* number of blocks covered */
+ 	sector_t rounds;	/* number of interleaving rounds */
+-- 
+2.31.1
+
