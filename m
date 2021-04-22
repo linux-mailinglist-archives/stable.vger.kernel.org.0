@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 704E3367CF3
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 10:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C16F4367D29
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 11:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229938AbhDVIyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Apr 2021 04:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36462 "EHLO mail.kernel.org"
+        id S230316AbhDVJFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Apr 2021 05:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235458AbhDVIyj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Apr 2021 04:54:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A3C461435;
-        Thu, 22 Apr 2021 08:53:48 +0000 (UTC)
+        id S230270AbhDVJFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Apr 2021 05:05:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCF7361450;
+        Thu, 22 Apr 2021 09:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619081629;
-        bh=SNnwCgOJQvdwJDJw4c3u7AJ01MK6rDXw5upiaMOJgKY=;
+        s=korg; t=1619082280;
+        bh=L54M+lg7lpP5XfabF6SeSlzGfQqpUDDdY1De+RdbDAU=;
         h=Subject:To:From:Date:From;
-        b=paRJSh/GTtQRw3tTj5T0RhkaqASKhx7XpU49zeBulTHvRMiDe9X3jzb08LbMq+2Lf
-         i2f2kHYlff1ujobE9mFZOqfUhRquwDDRRRD80BWAeLbkXUrd4pW2pwFiLolLm9mUAV
-         GhvC6u2mZdJ2rJQcWZNYyjWhf1Nuw5zkYJUenGvM=
-Subject: patch "USB: Add reset-resume quirk for WD19's Realtek Hub" added to usb-testing
-To:     chris.chiu@canonical.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, stern@rowland.harvard.edu
+        b=J4jusCvMAD1yxAG2SZfF7r6hg3Yl/ZdfdbStX0NEKXw2Nf+EURfVG6Aoy7bw/wcB/
+         hll/cY2UYZkvM/3Wmjqi9zvKfRZS3p+4RgIvrkEru5yYarrptppUOdD0nieOvHL5N9
+         WXmHaZCuYAyhvK+RGfQf0uEGD0QyRVJLBriRzQh0=
+Subject: patch "usb: dwc3: gadget: Remove FS bInterval_m1 limitation" added to usb-testing
+To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 22 Apr 2021 10:53:29 +0200
-Message-ID: <1619081609163255@kroah.com>
+Date:   Thu, 22 Apr 2021 11:04:37 +0200
+Message-ID: <161908227717178@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: Add reset-resume quirk for WD19's Realtek Hub
+    usb: dwc3: gadget: Remove FS bInterval_m1 limitation
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,59 +51,48 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From ca91fd8c7643d93bfc18a6fec1a0d3972a46a18a Mon Sep 17 00:00:00 2001
-From: Chris Chiu <chris.chiu@canonical.com>
-Date: Wed, 21 Apr 2021 01:46:51 +0800
-Subject: USB: Add reset-resume quirk for WD19's Realtek Hub
+From 3232a3ce55edfc0d7f8904543b4088a5339c2b2b Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Thu, 15 Apr 2021 00:41:58 -0700
+Subject: usb: dwc3: gadget: Remove FS bInterval_m1 limitation
 
-Realtek Hub (0bda:5487) in Dell Dock WD19 sometimes fails to work
-after the system resumes from suspend with remote wakeup enabled
-device connected:
-[ 1947.640907] hub 5-2.3:1.0: hub_ext_port_status failed (err = -71)
-[ 1947.641208] usb 5-2.3-port5: cannot disable (err = -71)
-[ 1947.641401] hub 5-2.3:1.0: hub_ext_port_status failed (err = -71)
-[ 1947.641450] usb 5-2.3-port4: cannot reset (err = -71)
+The programming guide incorrectly stated that the DCFG.bInterval_m1 must
+be set to 0 when operating in fullspeed. There's no such limitation for
+all IPs. See DWC_usb3x programming guide section 3.2.2.1.
 
-Information of this hub:
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 10 Spd=480  MxCh= 5
-D:  Ver= 2.10 Cls=09(hub  ) Sub=00 Prot=02 MxPS=64 #Cfgs=  1
-P:  Vendor=0bda ProdID=5487 Rev= 1.47
-S:  Manufacturer=Dell Inc.
-S:  Product=Dell dock
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=01 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
-I:* If#= 0 Alt= 1 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=02 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
-
-The failure results from the ETIMEDOUT by chance when turning on
-the suspend feature for the specified port of the hub. The port
-seems to be in an unknown state so the hub_activate during resume
-fails the hub_port_status, then the hub will fail to work.
-
-The quirky hub needs the reset-resume quirk to function correctly.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210420174651.6202-1-chris.chiu@canonical.com
+Fixes: a1679af85b2a ("usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1")
+Cc: <stable@vger.kernel.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/5d4139ae89d810eb0a2d8577fb096fc88e87bfab.1618472454.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc3/gadget.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index 6114cf83bb44..21e7522655ac 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -406,6 +406,7 @@ static const struct usb_device_id usb_quirk_list[] = {
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 1a632a3faf7f..90f4f9e69b22 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -607,12 +607,14 @@ static int dwc3_gadget_set_ep_config(struct dwc3_ep *dep, unsigned int action)
+ 		u8 bInterval_m1;
  
- 	/* Realtek hub in Dell WD19 (Type-C) */
- 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
-+	{ USB_DEVICE(0x0bda, 0x5487), .driver_info = USB_QUIRK_RESET_RESUME },
+ 		/*
+-		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
+-		 * must be set to 0 when the controller operates in full-speed.
++		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13.
++		 *
++		 * NOTE: The programming guide incorrectly stated bInterval_m1
++		 * must be set to 0 when operating in fullspeed. Internally the
++		 * controller does not have this limitation. See DWC_usb3x
++		 * programming guide section 3.2.2.1.
+ 		 */
+ 		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
+-		if (dwc->gadget->speed == USB_SPEED_FULL)
+-			bInterval_m1 = 0;
  
- 	/* Generic RTL8153 based ethernet adapters */
- 	{ USB_DEVICE(0x0bda, 0x8153), .driver_info = USB_QUIRK_NO_LPM },
+ 		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
+ 		    dwc->gadget->speed == USB_SPEED_FULL)
 -- 
 2.31.1
 
