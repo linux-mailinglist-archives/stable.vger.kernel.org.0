@@ -2,66 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 242D6368827
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 22:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03F64368840
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 22:52:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236992AbhDVUoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Apr 2021 16:44:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35114 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236915AbhDVUoP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Apr 2021 16:44:15 -0400
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4F2F3C06174A;
-        Thu, 22 Apr 2021 13:43:39 -0700 (PDT)
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id 79CBA92009C; Thu, 22 Apr 2021 22:43:38 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id 73C7C92009B;
-        Thu, 22 Apr 2021 22:43:38 +0200 (CEST)
-Date:   Thu, 22 Apr 2021 22:43:38 +0200 (CEST)
-From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
-To:     Guenter Roeck <linux@roeck-us.net>
-cc:     Arnd Bergmann <arnd@arndb.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-arch@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 3/4] MIPS: Reinstate platform `__div64_32' handler
-In-Reply-To: <20210422183634.GA108385@roeck-us.net>
-Message-ID: <alpine.DEB.2.21.2104222044560.44318@angie.orcam.me.uk>
-References: <alpine.DEB.2.21.2104200044060.44318@angie.orcam.me.uk> <alpine.DEB.2.21.2104200212500.44318@angie.orcam.me.uk> <20210422183634.GA108385@roeck-us.net>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S239433AbhDVUw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Apr 2021 16:52:56 -0400
+Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:50542 "EHLO
+        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S239406AbhDVUwz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Apr 2021 16:52:55 -0400
+Received: from cwcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 13MKqFTI003582
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 22 Apr 2021 16:52:16 -0400
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 6BCAD15C3B0D; Thu, 22 Apr 2021 16:52:15 -0400 (EDT)
+Date:   Thu, 22 Apr 2021 16:52:15 -0400
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-ext4@vger.kernel.org, Eric Whitney <enwlinux@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] ext4: Fix occasional generic/418 failure
+Message-ID: <YIHh/wfyxLadZYGD@mit.edu>
+References: <20210415155417.4734-1-jack@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210415155417.4734-1-jack@suse.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 22 Apr 2021, Guenter Roeck wrote:
-
-> This patch results in:
+On Thu, Apr 15, 2021 at 05:54:17PM +0200, Jan Kara wrote:
+> Eric has noticed that after pagecache read rework, generic/418 is
+> occasionally failing for ext4 when blocksize < pagesize. In fact, the
+> pagecache rework just made hard to hit race in ext4 more likely. The
+> problem is that since ext4 conversion of direct IO writes to iomap
+> framework (commit 378f32bab371), we update inode size after direct IO
+> write only after invalidating page cache. Thus if buffered read sneaks
+> at unfortunate moment like:
 > 
-> arch/mips/mti-malta/malta-time.c: In function 'plat_time_init':
-> ./arch/mips/include/asm/div64.h:76:3: error: inconsistent operand constraints in an 'asm'
+> CPU1 - write at offset 1k                       CPU2 - read from offset 0
+> iomap_dio_rw(..., IOMAP_DIO_FORCE_WAIT);
+>                                                 ext4_readpage();
+> ext4_handle_inode_extension()
 > 
-> and similar errors when trying to compile malta_qemu_32r6_defconfig.
-
- Thanks for the heads-up, however the 0-DAY bot has caught this issue 
-already last night and I would have addressed it earlier on if not for a 
-failure of my Malta board :( which disrupted my verification.
-
-> I tried with gcc 8.3.0, 8.4.0, 9.3.0, and 10.3.0.
+> the read will zero out tail of the page as it still sees smaller inode
+> size and thus page cache becomes inconsistent with on-disk contents with
+> all the consequences.
 > 
-> Does this need some additional new compile flags ?
+> Fix the problem by moving inode size update into end_io handler which
+> gets called before the page cache is invalidated.
+> 
+> Reported-and-tested-by: Eric Whitney <enwlinux@gmail.com>
+> Fixes: 378f32bab371 ("ext4: introduce direct I/O write using iomap infrastructure")
+> CC: stable@vger.kernel.org
+> Signed-off-by: Jan Kara <jack@suse.cz>
 
- MIPSr6 doesn't have the original division instruction along with the MD 
-accumulator registers anymore, and consequently GCC cannot fit the 
-constraint requested.
+Thanks, applied.
 
- We don't need that asm however.  Maybe we didn't with GCC 2.95 either, 
-but I suspect there was something to it.  Anyway I have just posted a fix.
-
-  Maciej
+					- Ted
