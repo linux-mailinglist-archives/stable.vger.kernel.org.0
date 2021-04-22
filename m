@@ -2,95 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A258C3687E5
-	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 22:29:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40A0B3687A0
+	for <lists+stable@lfdr.de>; Thu, 22 Apr 2021 22:03:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237077AbhDVUaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Apr 2021 16:30:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60166 "EHLO
+        id S239066AbhDVUEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Apr 2021 16:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236993AbhDVUaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Apr 2021 16:30:14 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E83C06174A;
-        Thu, 22 Apr 2021 13:29:37 -0700 (PDT)
-Message-Id: <20210422194704.984540159@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1619123376;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=QEWkB2rFEnM13X0FKJCpTSym3PN7/+G4+71WvlUWCtA=;
-        b=uFb7FlfaNL0gOPm575cXhBZ88RrS2C+xAlB8nEeTZuq8E9IL4rD4yeGlSZzxTR6zTWCZfw
-        xfYAVsCB4RqqUj9FImlylaujjPfHc52S3euiCBDmMpQzO33hR/xXMri+4NmwWFpFd1LX8Z
-        lBAZ2zChAFaUB4qkyOE+UJEZ6cPBpFO9MQgTtz5Z5Qkb9jYwrfkszzO+3szjOKZ23c2sbc
-        NWmt/6e0R/GPuSWLM13DpHf1IziEoxFlqRgZFX/KfLTJPc9KBBWuKAHtgVf8TsVDtlofTA
-        roWPMHAEK3V/OmVeLBU2Dqbf/PwdRGbyCVoEfw1/+XmTLI5umSDDpUBIhI2yKA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1619123376;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=QEWkB2rFEnM13X0FKJCpTSym3PN7/+G4+71WvlUWCtA=;
-        b=4aNt+FsOh9RSDz7T2IdicANpZT/2g1QIy9US8nKK13cGT6fxJ7aDfXGvB7yBNQIBXQ8xzM
-        XzF40T5MgbI4A4CQ==
-Date:   Thu, 22 Apr 2021 21:44:19 +0200
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Adhemerval Zanella <adhemerval.zanella@linaro.org>,
-        Lukasz Majewski <lukma@denx.de>,
-        Florian Weimer <fweimer@redhat.com>,
-        Carlos O'Donell <carlos@redhat.com>,
-        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>, stable@vger.kernel.org,
-        Darren Hart <dvhart@infradead.org>,
-        Kurt Kanzenbach <kurt@linutronix.de>
-Subject: [patch 2/6] futex: Do not apply time namespace adjustment on FUTEX_LOCK_PI
-References: <20210422194417.866740847@linutronix.de>
+        with ESMTP id S239101AbhDVUEO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Apr 2021 16:04:14 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E2DC061756
+        for <stable@vger.kernel.org>; Thu, 22 Apr 2021 13:03:38 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id u15so15538296plf.10
+        for <stable@vger.kernel.org>; Thu, 22 Apr 2021 13:03:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=wfL45R5dBs0MS9kZn3ph77DF/daCg5TSX71XRehgnxk=;
+        b=UjUpfOM/+EU+ODcUcs8lF11e3se8Yw8Lky6BSnX4yXUh+tH0bpE0cSc4yyI3n5B7pk
+         pv8ltbRteNvl2R3roc9z2gnsO8vWps8U6LQsGpj3qY+cNNdAKS4TAI5H102o/aDYkmit
+         DSgHAkITih3THSRWqGyqGn3H5/wg4Zzxk0AD8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=wfL45R5dBs0MS9kZn3ph77DF/daCg5TSX71XRehgnxk=;
+        b=Q1b9V4fX/Ckf9faUcgUgY9ne5NsJAPhpIMPWXt/70+qZZOQ3kuOZHpZyOToHSyvddf
+         FidUTA1OB0rteBtwQlwODguHllo8wdITu938eRl3AJT7v691hQaiJv3Yd2cNQvdyFREZ
+         uA1xWgTyH8GmMEn8OlBub79l01Tp1O3LAAY/uk6E4aqHgTsxzYvPvumV0ZfeQyp9WtKs
+         RSCeCyg1vWUfsEwboCLwIu+pgZDRgpkB9wVBU0vZqPEaqDZind/jn6tEA1sfNM5YolEC
+         DHwwp5JuTW4byePyIxTXkQySMvgmTC5SiiZ3ZEg1bAG7t3n8z6ZJ0A0V5hXzmfayyXBL
+         5k6w==
+X-Gm-Message-State: AOAM531ro2MMIwB0M4T+LEeqFO1WhRP6a6I2eeUik4sP3HRWmQbaraPN
+        k/mNvJMOVjIEycXNKG9oG4oodg==
+X-Google-Smtp-Source: ABdhPJza8gCfdaIX2zwXwIfrBz18VOBT1lbCrdWZuk0N4EoKlrwKK9Gt24lkIqjFphGcuVLpxWADDA==
+X-Received: by 2002:a17:90a:d18a:: with SMTP id fu10mr444528pjb.233.1619121817858;
+        Thu, 22 Apr 2021 13:03:37 -0700 (PDT)
+Received: from localhost ([2620:15c:202:201:acff:4f9f:d039:23ff])
+        by smtp.gmail.com with UTF8SMTPSA id y13sm3044062pgs.93.2021.04.22.13.03.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Apr 2021 13:03:37 -0700 (PDT)
+Date:   Thu, 22 Apr 2021 13:03:36 -0700
+From:   Matthias Kaehlcke <mka@chromium.org>
+To:     Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Mike Tipton <mdtipton@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] interconnect: qcom: bcm-voter: add a missing
+ of_node_put()
+Message-ID: <YIHWmJPcoh4bFKNi@google.com>
+References: <1619116570-13308-1-git-send-email-subbaram@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1619116570-13308-1-git-send-email-subbaram@codeaurora.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-FUTEX_LOCK_PI does not require to have the FUTEX_CLOCK_REALTIME bit set
-because it has been using CLOCK_REALTIME based absolute timeouts
-forever. Due to that, the time namespace adjustment which is applied when
-FUTEX_CLOCK_REALTIME is not set, will wrongly take place for FUTEX_LOCK_PI
-and wreckage the timeout.
+On Thu, Apr 22, 2021 at 11:36:10AM -0700, Subbaraman Narayanamurthy wrote:
+> Add a missing of_node_put() in of_bcm_voter_get() to avoid the
+> reference leak.
+> 
+> Signed-off-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+> Cc: stable@vger.kernel.org
 
-Exclude it from that procedure.
+nit: I think you would typically put tags like 'Cc' or 'Fixed' before
+the 'Signed-off-by' tag.
 
-Fixes: c2f7d08cccf4 ("futex: Adjust absolute futex timeouts with per time namespace offset")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrei Vagin <avagin@gmail.com>
-Cc: stable@vger.kernel.org
----
- kernel/futex.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -3781,7 +3781,7 @@ SYSCALL_DEFINE6(futex, u32 __user *, uad
- 		t = timespec64_to_ktime(ts);
- 		if (cmd == FUTEX_WAIT)
- 			t = ktime_add_safe(ktime_get(), t);
--		else if (!(op & FUTEX_CLOCK_REALTIME))
-+		else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
- 			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
- 		tp = &t;
- 	}
-@@ -3975,7 +3975,7 @@ SYSCALL_DEFINE6(futex_time32, u32 __user
- 		t = timespec64_to_ktime(ts);
- 		if (cmd == FUTEX_WAIT)
- 			t = ktime_add_safe(ktime_get(), t);
--		else if (!(op & FUTEX_CLOCK_REALTIME))
-+		else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
- 			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
- 		tp = &t;
- 	}
-
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
