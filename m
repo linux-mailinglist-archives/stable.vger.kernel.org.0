@@ -2,150 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3813368EE4
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 10:35:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0928368FA4
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 11:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230059AbhDWIfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 04:35:51 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:16616 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241368AbhDWIfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 04:35:50 -0400
-Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4FRSGS0nlWz1BGtK;
-        Fri, 23 Apr 2021 16:32:48 +0800 (CST)
-Received: from huawei.com (10.67.174.47) by DGGEMS411-HUB.china.huawei.com
- (10.3.19.211) with Microsoft SMTP Server id 14.3.498.0; Fri, 23 Apr 2021
- 16:35:05 +0800
-From:   He Ying <heying24@huawei.com>
-To:     <tglx@linutronix.de>, <maz@kernel.org>,
-        <julien.thierry.kdev@gmail.com>, <catalin.marinas@arm.com>,
-        <mark.rutland@arm.com>
-CC:     <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <heying24@huawei.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] irqchip/gic-v3: Do not enable irqs when handling spurious interrups
-Date:   Fri, 23 Apr 2021 04:35:16 -0400
-Message-ID: <20210423083516.170111-1-heying24@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        id S241746AbhDWJpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 05:45:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35932 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230374AbhDWJpr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 05:45:47 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C47CFC06174A
+        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 02:45:10 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id z16so34825616pga.1
+        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 02:45:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=21FONuv9wf/TBhMMknh0pxEkH4v3trVm0zK1vzeowo0=;
+        b=oV4cV4Jfo4lrnkTRW2sRKtuG05gpYFkk3Tt0jAzYkKRIU6A0Otu4LPSWAWNZ7ljbih
+         nEe+jjEcR1MNp3iRotAIhFB1xgkoZ5SXxXmJ0hOV37p+F6BS/QsWvj+FjReLzTHUIpWP
+         VUmqswJDUVMT6Qyn3ZdJQ+4vd6CuOaot30d4S0PeT+kr38ZNsDXzrDuYW8qnhcpDxAgB
+         HBzV7ybbeC0kYiOYrvZ/fHnVoSTSlmWrQODt4fNAd/Vv8LR20P0L+ZgxhYE6Hvkv77gw
+         uK322bQ1bzVXjXx9PurRUGc38NozHe0R1KiYxIZ4C15TH37D8fUvM8iNAkc1pV5CFrfe
+         VpSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=21FONuv9wf/TBhMMknh0pxEkH4v3trVm0zK1vzeowo0=;
+        b=fD3G29xLdi94c5WCgwiLeU5LNIEp5e6MqdirhoVxJEatxmzv4XNoeb+l+IOtP00dyY
+         5lEJ6fUnV4YOYt1tXW8oMgQ17D2og84I1AmEDlKh9rmWR135yOlOiLaV/ep6a3W3pHoZ
+         w/3F+R6DoUqI9E/LGZjqnUijGp/8z4Rl2chvsHl/PxCOx0JifVbS9/85Clp9I3G5d7/I
+         hku1FZ6SXaZsLGqy+GGhBdvQTvR0sEdjHh3n6El9D19JYFfobQ9t14LNyWKblKYiAmea
+         Ab2+2ZS7XMVC5VC/BV0gWR5uolh8B5YW6QwHHVF4A2n3TdCNgh3NKi56pNKuEZS3gVjj
+         5RTw==
+X-Gm-Message-State: AOAM531zV6Oz3x23OirPKsHDNnKCowA2AMFqwyWsVe3ju83ULOA1mxtg
+        li+nYtdJw/elpJN39iXsLCdUcA==
+X-Google-Smtp-Source: ABdhPJy7gj088WmvtP2n6iaI5e7hW05Cqk/g+r4zf53cCy+6ANKYDf4b8Oa5ZEkt2EjBgQ2UKGBrlA==
+X-Received: by 2002:a62:1c0f:0:b029:25f:ba3c:9cc0 with SMTP id c15-20020a621c0f0000b029025fba3c9cc0mr2866796pfc.56.1619171110271;
+        Fri, 23 Apr 2021 02:45:10 -0700 (PDT)
+Received: from C02CV1DAMD6P.bytedance.net ([139.177.225.233])
+        by smtp.gmail.com with ESMTPSA id a6sm4510611pfh.135.2021.04.23.02.45.07
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 23 Apr 2021 02:45:09 -0700 (PDT)
+From:   Chengming Zhou <zhouchengming@bytedance.com>
+To:     axboe@kernel.dk
+Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        zhouchengming@bytedance.com, stable@vger.kernel.org
+Subject: [PATCH] blk-wbt: fix scale logic when disable wbt
+Date:   Fri, 23 Apr 2021 17:45:03 +0800
+Message-Id: <20210423094503.25733-1-zhouchengming@bytedance.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.174.47]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We found this problem in our kernel src tree:
+We encountered kernel crash when disable wbt through min_lat_nsec
+setting to zero, found the problem is the reset of wb_max to zero in
+calc_wb_limits() would break the normal scale logic, caused the
+scale_step value overflow and kernel crash. Below is the crash backtrace:
 
-[   14.816231] ------------[ cut here ]------------
-[   14.816231] kernel BUG at irq.c:99!
-[   14.816232] Internal error: Oops - BUG: 0 [#1] SMP
-[   14.816232] Process swapper/0 (pid: 0, stack limit = 0x(____ptrval____))
-[   14.816233] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      4.19.95.aarch64 #14
-[   14.816233] Hardware name: evb (DT)
-[   14.816234] pstate: 80400085 (Nzcv daIf +PAN -UAO)
-[   14.816234] pc : asm_nmi_enter+0x94/0x98
-[   14.816235] lr : asm_nmi_enter+0x18/0x98
-[   14.816235] sp : ffff000008003c50
-[   14.816235] pmr_save: 00000070
-[   14.816237] x29: ffff000008003c50 x28: ffff0000095f56c0
-[   14.816238] x27: 0000000000000000 x26: ffff000008004000
-[   14.816239] x25: 00000000015e0000 x24: ffff8008fb916000
-[   14.816240] x23: 0000000020400005 x22: ffff0000080817cc
-[   14.816241] x21: ffff000008003da0 x20: 0000000000000060
-[   14.816242] x19: 00000000000003ff x18: ffffffffffffffff
-[   14.816243] x17: 0000000000000008 x16: 003d090000000000
-[   14.816244] x15: ffff0000095ea6c8 x14: ffff8008fff5ab40
-[   14.816244] x13: ffff8008fff58b9d x12: 0000000000000000
-[   14.816245] x11: ffff000008c8a200 x10: 000000008e31fca5
-[   14.816246] x9 : ffff000008c8a208 x8 : 000000000000000f
-[   14.816247] x7 : 0000000000000004 x6 : ffff8008fff58b9e
-[   14.816248] x5 : 0000000000000000 x4 : 0000000080000000
-[   14.816249] x3 : 0000000000000000 x2 : 0000000080000000
-[   14.816250] x1 : 0000000000120000 x0 : ffff0000095f56c0
-[   14.816251] Call trace:
-[   14.816251]  asm_nmi_enter+0x94/0x98
-[   14.816251]  el1_irq+0x8c/0x180                    (IRQ C)
-[   14.816252]  gic_handle_irq+0xbc/0x2e4
-[   14.816252]  el1_irq+0xcc/0x180                    (IRQ B)
-[   14.816253]  arch_timer_handler_virt+0x38/0x58
-[   14.816253]  handle_percpu_devid_irq+0x90/0x240
-[   14.816253]  generic_handle_irq+0x34/0x50
-[   14.816254]  __handle_domain_irq+0x68/0xc0
-[   14.816254]  gic_handle_irq+0xf8/0x2e4
-[   14.816255]  el1_irq+0xcc/0x180                    (IRQ A)
-[   14.816255]  arch_cpu_idle+0x34/0x1c8
-[   14.816255]  default_idle_call+0x24/0x44
-[   14.816256]  do_idle+0x1d0/0x2c8
-[   14.816256]  cpu_startup_entry+0x28/0x30
-[   14.816256]  rest_init+0xb8/0xc8
-[   14.816257]  start_kernel+0x4c8/0x4f4
-[   14.816257] Code: 940587f1 d5384100 b9401001 36a7fd01 (d4210000)
-[   14.816258] Modules linked in: start_dp(O) smeth(O)
-[   15.103092] ---[ end trace 701753956cb14aa8 ]---
-[   15.103093] Kernel panic - not syncing: Fatal exception in interrupt
-[   15.103099] SMP: stopping secondary CPUs
-[   15.103100] Kernel Offset: disabled
-[   15.103100] CPU features: 0x36,a2400218
-[   15.103100] Memory Limit: none
+[43061417.487135] task: ffff9250828d6540 task.stack: ffffbc8b839f0000
+[43061417.487331] RIP: 0010:rwb_arm_timer+0x52/0x60
+[43061417.487472] RSP: 0000:ffff9250bfec3ea8 EFLAGS: 00010206
+[43061417.487646] RAX: 000000005f5e1000 RBX: ffff9250ab6113c0 RCX: 0000000000000000
+[43061417.487877] RDX: 0000000000000000 RSI: ffffffff9fe4a484 RDI: 000000005f5e1000
+[43061417.488109] RBP: 0000000000000100 R08: ffffffff00000000 R09: 00000000ffffffff
+[43061417.488343] R10: 0000000000000000 R11: ffffdc8b3fdcf938 R12: ffff9250a9324d90
+[43061417.488575] R13: ffffffff9f3583a0 R14: ffff9250a9324d80 R15: 0000000000000000
+[43061417.488808] FS:  00007f7aadbee700(0000) GS:ffff9250bfec0000(0000) knlGS:0000000000000000
+[43061417.489069] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[43061417.489258] CR2: 00007f43b7c809b8 CR3: 0000007e42994006 CR4: 00000000007606e0
+[43061417.489490] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[43061417.489722] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[43061417.489952] PKRU: 55555554
+[43061417.490046] Call Trace:
+[43061417.490136]  <IRQ>
+[43061417.490206]  call_timer_fn+0x2e/0x130
+[43061417.490328]  run_timer_softirq+0x1d4/0x420
+[43061417.490466]  ? timerqueue_add+0x54/0x80
+[43061417.490593]  ? enqueue_hrtimer+0x38/0x80
+[43061417.490722]  __do_softirq+0x108/0x2a9
+[43061417.490846]  irq_exit+0xc2/0xd0
+[43061417.490953]  smp_apic_timer_interrupt+0x6c/0x120
+[43061417.491106]  apic_timer_interrupt+0x7d/0x90
+[43061417.491245]  </IRQ>
 
-I look into this issue and find that it's caused by 'BUG_ON(in_nmi())'
-in nmi_enter(). From the call trace, we can find three interrupts which
-I mark as IRQ A, B and C. By adding some prints, I find the IRQ B also
-calls nmi_enter(), but its priority is not GICD_INT_NMI_PRI and its irq
-number is 1023. It enables irq by calling gic_arch_enable_irqs() in
-gic_handle_irq(). At this moment, IRQ C preempts the IRQ B and it's
-an NMI but current context is already in nmi. So that may be the problem.
+Seen from the crash dump, the scale_step became a very big value and
+overflow to zero divisor in div_u64, so kernel crash happened.
 
-When handling spurious interrupts, we shouldn't enable irqs. That's
-because for spurious interrupts we may enter nmi context in el1_irq()
-because current PMR may be GIC_PRIO_IRQOFF. If we enable irqs at this
-time, another NMI may happen and preempt this spurious interrupt
-but the context is already in nmi. That causes a bug on if nested NMI
-is not supported. Even for nested nmi, it's not a normal scenario.
+Since wbt use wb_max == 1 and scaled_max flag as the scale min/max
+point, we only reset wb_normal and wb_background when set min_lat_nsec
+to zero, leave wb_max and scaled_max to be driven by the scale timer.
 
-Though the issue is reported on our private tree, I think it also
-exists on the latest tree for the reasons above. To fix this issue,
-check spurious interrupts right after the read of ICC_IAR1_EL1 and
-return directly for spurious interrupts.
+Higher version kernels than v4.18 include a code refactor patchset that
+split the scale up/down logic and calc_wb_limits(), so disable wbt by
+setting min_lat_nsec to zero will NOT affect the normal scale logic.
 
-Fixes: 17ce302f3117 ("arm64: Fix interrupt tracing in the presence of NMIs")
-Signed-off-by: He Ying <heying24@huawei.com>
+But we don't want to backport that patchset because of very big code
+changes, may introduce other problems. So just fix the crash bug in
+this patch.
+
+Fixes: e34cbd307477 ("blk-wbt: add general throttling mechanism")
+Cc: <stable@vger.kernel.org> # 4.9.x
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
 ---
+ block/blk-wbt.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-v2:
-- Move the check right after the read of ICC_IAR1_EL1 suggested by Marc.
-
- drivers/irqchip/irq-gic-v3.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
-index 94b89258d045..37a23aa6de37 100644
---- a/drivers/irqchip/irq-gic-v3.c
-+++ b/drivers/irqchip/irq-gic-v3.c
-@@ -648,6 +648,10 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
+diff --git a/block/blk-wbt.c b/block/blk-wbt.c
+index 5c105514bca7..24c84ee39029 100644
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -194,11 +194,6 @@ static bool calc_wb_limits(struct rq_wb *rwb)
+ 	unsigned int depth;
+ 	bool ret = false;
  
- 	irqnr = gic_read_iar();
- 
-+	/* Check for special IDs first */
-+	if ((irqnr >= 1020 && irqnr <= 1023))
-+		return;
-+
- 	if (gic_supports_nmi() &&
- 	    unlikely(gic_read_rpr() == GICD_INT_NMI_PRI)) {
- 		gic_handle_nmi(irqnr, regs);
-@@ -659,10 +663,6 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
- 		gic_arch_enable_irqs();
+-	if (!rwb->min_lat_nsec) {
+-		rwb->wb_max = rwb->wb_normal = rwb->wb_background = 0;
+-		return false;
+-	}
+-
+ 	/*
+ 	 * For QD=1 devices, this is a special case. It's important for those
+ 	 * to have one request ready when one completes, so force a depth of
+@@ -244,6 +239,9 @@ static bool calc_wb_limits(struct rq_wb *rwb)
+ 		rwb->wb_background = (rwb->wb_max + 3) / 4;
  	}
  
--	/* Check for special IDs first */
--	if ((irqnr >= 1020 && irqnr <= 1023))
--		return;
--
- 	if (static_branch_likely(&supports_deactivate_key))
- 		gic_write_eoir(irqnr);
- 	else
++	if (!rwb->min_lat_nsec)
++		rwb->wb_normal = rwb->wb_background = 0;
++
+ 	return ret;
+ }
+ 
 -- 
-2.17.1
+2.11.0
 
