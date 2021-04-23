@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B79F369464
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 16:10:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0B2369470
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 16:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229794AbhDWOKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 10:10:45 -0400
-Received: from mail-co1nam11on2078.outbound.protection.outlook.com ([40.107.220.78]:32353
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        id S231628AbhDWOMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 10:12:52 -0400
+Received: from mail-eopbgr700082.outbound.protection.outlook.com ([40.107.70.82]:9217
+        "EHLO NAM04-SN1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229549AbhDWOKp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Apr 2021 10:10:45 -0400
+        id S236941AbhDWOMv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Apr 2021 10:12:51 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dZmNnxtQ4fjU1mVi7YVGvWRRZqM32mmwUdBFTkcQrkLCky3Ps6qYRm+fWbq+0I5to68a0KBogx87V8YLzx2kCc0wEsG98ZsIs6XFrV6qujCbcoiEjYkx6BWMGWLI2je+yGIf7rEjtVUSewRgX9bCtQ+GOIMG1oNRkUJuj51ziTVi6NxYYPNAZAF07bpe8EA+VSp47sDSOmfXoGktWfR9MPN1cQmd/kvqpyXhWvsf3I2nkFs6HHd3z37BZx4rDgOZ9F1Hg90mMd8X22/09CeW4NeuxW88qsxdX+nJlKmHLtcUYP7ECRjUTx3LyBMZJDwwZOfndLXoNFIPPvP2qBv7ew==
+ b=AxKWh9ypOSv0tsYRB86EomaMqCbqUXwyduCUPxyNgv/9qVWaeV9wPCuPn08OIanUCjc7SoQGc6Ch1UIvFzx7hN//b3YHkQ3JyuTmsik36rYHPi0ZEoTqobKLTjrZNDOkh2uulzJ2dYmeQnLqUH2xFlX66Af+VM1CbOlpWgwEuh9HQt0c0azcJPvxS16YNhPdVtvS4FQtDRUW4AxzDPgY5jJ9s6v284u2HLhCptvNqMcyQt8Ned8l69UlLUvuB066hU6Gz7NtIX2kxGQD36cHado/uFllvLKUMaEwuY/T6gLInAvvEIUbGnqP+JT+pmA4EyCxvMmS9lu+9hJ8L04cfA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ouEC4Eo56Z2RHsoI0JY5xupEnUFN/AnEi7+ZdPccIFg=;
- b=NT8s4yOUeSfz68W645frgcoXtvlLc4IA7p/xxA80j6qHQwjBpC+2PpAhzAbabsMc1Y77iY3+WU/MVdDfv77mpDKw5jPFuxJ8L2nkf07UFMSKq4j4rKeHNdj+Y6NQ6fHHou+fLITPiSGeGjQ28Qfz+pNTJX9fOtbHgmV2iBfwfxcaZH2qESItJwOkHqJk4u4WLYelyrff/Wl9onbjGiyB0Fpmw2LvmvDChvRqEDbdMoF6+qry+pfVGgw6K2FcQQ72q8T0HdXuRe8l/YsliC+gUvZfC4ANTOKN/U+XZN2JDcQ/4W5NOLsDG/yXlDZ/WG04zM+Ja/gzDyxLfMNInbfmOA==
+ bh=uBNGeJ/KqlK0qdnXbOfW99X4viDdVlhsUcb+ARonJH0=;
+ b=IixkKr8danT2tDL4cvzo9gamzRpVkFbz39qytOZkVV91Zy+OlRzGeWe50r0ymjWx93aoHQvuEl+73hNcy8FoexIcWy+xahdGm7WlklxLB7cguTNkrMCeiWKGwdq+yhoMUp1W/152Lo8O1IAsY3aOipY/gHoyfzWq+Qz0wsbCmGa4Bp2ohP2LZOb6zvlyADZDiUph7kmcE5ejRDnR3s4h4UUc0LtalGPsXBfrU0QUz277WpLfag2aLD3xS6W8b0Xfq/zfT6OvmAvBI3NE7yq0FfMvRSR5x6V17RyoWpDczPgv8N1E5CrWJqoBO4W92+2M6wiX7LeEerqmXPU1jjWAkA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
  dmarc=pass (p=none sp=none pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ouEC4Eo56Z2RHsoI0JY5xupEnUFN/AnEi7+ZdPccIFg=;
- b=X6OodBB1mW6SVfxjuDUVB7fEqrn3UQZm1oqVBaclduXnpOXvkIJKRUjyxaDi9Y5z9h9Uq5e+iIlasulTBeraVbGBqXb7Y4MvhqvHHbOknzp3zxZLP+eEpsBwj7S7lttxynAQ0mLilUqKCdscfh4iyht5COrw7R2Dly4N7pdluQY=
-Received: from CO2PR04CA0143.namprd04.prod.outlook.com (2603:10b6:104::21) by
- CY4PR12MB1942.namprd12.prod.outlook.com (2603:10b6:903:128::19) with
+ bh=uBNGeJ/KqlK0qdnXbOfW99X4viDdVlhsUcb+ARonJH0=;
+ b=FIf+4WLmLdmINfFMcV5rWyz01AUD2fz3/SqLjYd9B8mPPAd3vkw/WPV+A6ZEZt6n0eg+9bBs31aqzDKNNiN7hmOq4kcuznZ7XZrmYfTCNzmqmfp2E83NbKxmHDeb0cqEfPB1XVBRE1tXeSXy8aVGGLRc0HQ13fJUz8xyY5zGjqQ=
+Received: from DM6PR08CA0046.namprd08.prod.outlook.com (2603:10b6:5:1e0::20)
+ by BYAPR12MB3333.namprd12.prod.outlook.com (2603:10b6:a03:a9::30) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4042.23; Fri, 23 Apr
- 2021 14:10:07 +0000
-Received: from CO1NAM11FT056.eop-nam11.prod.protection.outlook.com
- (2603:10b6:104:0:cafe::48) by CO2PR04CA0143.outlook.office365.com
- (2603:10b6:104::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.23; Fri, 23 Apr
+ 2021 14:12:13 +0000
+Received: from DM6NAM11FT022.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:1e0:cafe::5f) by DM6PR08CA0046.outlook.office365.com
+ (2603:10b6:5:1e0::20) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.20 via Frontend
- Transport; Fri, 23 Apr 2021 14:10:07 +0000
+ Transport; Fri, 23 Apr 2021 14:12:13 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
  header.d=none;lists.freedesktop.org; dmarc=pass action=none
@@ -45,48 +45,48 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=SATLEXMB03.amd.com;
 Received: from SATLEXMB03.amd.com (165.204.84.17) by
- CO1NAM11FT056.mail.protection.outlook.com (10.13.175.107) with Microsoft SMTP
+ DM6NAM11FT022.mail.protection.outlook.com (10.13.172.210) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4065.21 via Frontend Transport; Fri, 23 Apr 2021 14:10:06 +0000
+ 15.20.4065.21 via Frontend Transport; Fri, 23 Apr 2021 14:12:12 +0000
 Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB03.amd.com
  (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Fri, 23 Apr
- 2021 09:10:05 -0500
+ 2021 09:12:12 -0500
 Received: from hwentlanryzen.amd.com (10.180.168.240) by SATLEXMB03.amd.com
  (10.181.40.144) with Microsoft SMTP Server id 15.1.2242.4 via Frontend
- Transport; Fri, 23 Apr 2021 09:10:05 -0500
+ Transport; Fri, 23 Apr 2021 09:12:11 -0500
 From:   Harry Wentland <harry.wentland@amd.com>
 To:     <amd-gfx@lists.freedesktop.org>
 CC:     Harry Wentland <harry.wentland@amd.com>, <stable@vger.kernel.org>,
         <nicholas.kazlauskas@amd.com>, <alexander.deucher@amd.com>,
         <Roman.Li@amd.com>, <hersenxs.wu@amd.com>, <danny.wang@amd.com>
-Subject: [PATCH v2] drm/amd/display: Reject non-zero src_y and src_x for video planes
-Date:   Fri, 23 Apr 2021 10:09:58 -0400
-Message-ID: <20210423140958.25205-1-harry.wentland@amd.com>
+Subject: [PATCH v3] drm/amd/display: Reject non-zero src_y and src_x for video planes
+Date:   Fri, 23 Apr 2021 10:12:10 -0400
+Message-ID: <20210423141210.28814-1-harry.wentland@amd.com>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0ecdefb8-7cbf-48e8-4653-08d906617f72
-X-MS-TrafficTypeDiagnostic: CY4PR12MB1942:
-X-Microsoft-Antispam-PRVS: <CY4PR12MB19428C6A2704F16317FFC8DD8C459@CY4PR12MB1942.namprd12.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: e5220c5a-b355-4061-aa8e-08d90661ca94
+X-MS-TrafficTypeDiagnostic: BYAPR12MB3333:
+X-Microsoft-Antispam-PRVS: <BYAPR12MB333375804B28FA7DFFE760B38C459@BYAPR12MB3333.namprd12.prod.outlook.com>
 X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 7pxf/NKBffZztdMbxlXaO1aLrZ5N9s1nFzjYTfRtHPjZpq3xKxkCglDARdLARusUjBI0h8lks+qXC1jMVTAKGXNdDahK2/H2yyNIKd+ZD6JQ77M71E1usR1DYdDEC5cw6GNNzIV0w2X0plTIJRlw5uQNNnqFKsDq3hxW64B3J9C/rwXSgh2WEiymGtwST8h9cenBi+1iO+rW5QNXumKZk0u//lyk4Ezz8YbF+mnLwifhd67oETbE69EV9ArPh0XJt4AoYIB9xxZ+85SvWKPB6pCgQkGTBFx09mvvv2C/Foy+DpBpiwgIhZcVug/gJs+6DnV/P62S3pzfj1y/ZV7v5ViXpgY2XPaOf4XkQ7bh/Kc0UZA1zOKMMYi0I1WeCfGQSfLZ2ikLVaLLY4/7Kc3kvjJFaGhFwKom0N7+IpUOwaWquSP2grICfANWs4MQJw798tkPGBp9l2/XlhXXtlaE7YQASeywbEeVmEQ9zZ3M99ZUYkbv/WHqYfSrj+VGC0Nqf5mR291qOKZJ9cuMrP4t0bBG3Ye7nVo7vfmK4r4a6Qc3UYCt+0E0/+eJ0H6UmiFHjJdRqzPWGAhEQfqOBNuYdM0chW4uZf9UYwrGJDAM4ginoeUov+hKmvVcV71GEOYOjuMpxTkgrR4MFgLjSENcTfvMWuGVpvtJBwj2y3YJZNUHjEDjtUYnhfkWwGwaVNya
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(396003)(39860400002)(376002)(346002)(136003)(36840700001)(46966006)(478600001)(316002)(26005)(2616005)(47076005)(426003)(70206006)(5660300002)(6916009)(82740400003)(54906003)(186003)(356005)(44832011)(336012)(2906002)(36756003)(4326008)(8936002)(70586007)(1076003)(6666004)(36860700001)(82310400003)(7696005)(86362001)(8676002)(81166007)(36900700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: ScvMOC8NuvQ0gMP/3w3jzppf1MWmJXydwsboflVkrhFeNA5eE02ypKzbQTMSlWlEzVcyiJx83Bnmg/yhYBt6jRaOQeftbZSMFRwR3W6jLMx48UraM5XxShKXmPPOBpu8cFe93CFCkqk7O6iaOIIgYqe0mna9kpup3NA2JxI9JMPAeE+6fn6uP8Cb7h7ysklsYTzWKFz1NXNeiAbfrRyDsoFpeWf97Hsk7r3OCoqvBvmBNh9ExHTdSZZ912IjkbqmpkTSIZEuFEw0Iw55tocTg5fY8qc0JCNhSr7jiP8RJOgk9OfM/TSYbmSz0KMCH21EREQcgo28yFD4Qo2O6/QDB/ZtlMAZg4rhPnVXIImbSNajmFPwZc75cWzWWXtxuLxLVd0dO3xSWEiaO8lSc1ENxSu8Mz24tx+RE7SF1Q1wvZRNT8qjekPcrp88dN1orHfsPXZmovF8k0pJIalL3M62aaKvYtHpM0Y4jboPEiUfi0/W49rExJinmgDLlp+U0LRoQ4VF6lT08yIGwj10g/UAd5DSFFj5+jQ9Qzo7QKFoUAApYXwAttoHPgIBYIohrBHYBlXCAIR+cylVtzmLb+8yAR6xkbq1Vb/QqO3LNYYYKaB9PApBJqrYwCr9SbCzgmIaRm/bgzKOQ5eeF7vuc63q4ACFpvlEY1fabjoRAJt58qW4D/8BhNhsMBF61eYkW+sm
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(39850400004)(346002)(376002)(396003)(136003)(46966006)(36840700001)(336012)(26005)(36756003)(356005)(186003)(82310400003)(2616005)(426003)(44832011)(2906002)(478600001)(86362001)(6916009)(316002)(5660300002)(4326008)(1076003)(70586007)(47076005)(82740400003)(54906003)(70206006)(8676002)(36860700001)(7696005)(81166007)(8936002)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2021 14:10:06.7806
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2021 14:12:12.8981
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0ecdefb8-7cbf-48e8-4653-08d906617f72
+X-MS-Exchange-CrossTenant-Network-Message-Id: e5220c5a-b355-4061-aa8e-08d90661ca94
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT056.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT022.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1942
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3333
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -108,6 +108,8 @@ v2:
  - Add stable CC
  - Based on amd-staging-drm-next
 
+v3: removed trailing whitespace
+
 Signed-off-by: Harry Wentland <harry.wentland@amd.com>
 Cc: stable@vger.kernel.org
 Cc: nicholas.kazlauskas@amd.com
@@ -122,7 +124,7 @@ Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
  1 file changed, 17 insertions(+)
 
 diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index be1769d29742..b12469043e6b 100644
+index be1769d29742..aeedc5a3fb36 100644
 --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
 +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
 @@ -4089,6 +4089,23 @@ static int fill_dc_scaling_info(const struct drm_plane_state *state,
@@ -134,7 +136,7 @@ index be1769d29742..b12469043e6b 100644
 +	 * src_y coordinate into an NV12 buffer can cause a
 +	 * system hang. To avoid hangs (and maybe be overly cautious)
 +	 * let's reject both non-zero src_x and src_y.
-+	 * 
++	 *
 +	 * We currently know of only one use-case to reproduce a
 +	 * scenario with non-zero src_x and src_y for NV12, which
 +	 * is to gesture the YouTube Android app into full screen
