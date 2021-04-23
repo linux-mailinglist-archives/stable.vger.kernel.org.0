@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1B133695CF
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 17:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7313695DD
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 17:13:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242874AbhDWPNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 11:13:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48676 "EHLO mail.kernel.org"
+        id S242829AbhDWPNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 11:13:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237174AbhDWPNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Apr 2021 11:13:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E1EC61477;
-        Fri, 23 Apr 2021 15:12:55 +0000 (UTC)
+        id S243129AbhDWPNq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Apr 2021 11:13:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81D7C6146B;
+        Fri, 23 Apr 2021 15:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619190775;
-        bh=oOGCkzYZtkH/bdiDDPO14HmE3zvLzwY2zsgGUNGdJS8=;
+        s=korg; t=1619190790;
+        bh=2qL86T+Km0KUpRXmE+1i1Ylz6ub/ilQbeW7d3V9BD/E=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dGA/KJYDvnKFAHgzDEO5M9R4ADPINTYcp5yHe+QotYtup/HqXzfoSbkS0mSEesAeJ
-         O3Aj43vs8SE3fLS6YneHrAAtDJCQdMHD0mgdCHdb6yOyAl09+UvDLSrOM2vPDrwWIi
-         CmPx+yBMLFyG5uH0KXKajIlrJ2QTlqAD7LvInDh0=
-Date:   Fri, 23 Apr 2021 17:12:53 +0200
+        b=BvSC28GDkyTgjcdVuTpmJg86+QLUIrOG8FCo5kFwjyczACgS+Vh0sgNfdMLLUVuy8
+         RwQ+B9hoJP+5xenemrGcL8i/K1f7e9WgY2zSibgj7Vp/1uQHvYbsgQeQLQWNDj9Ljz
+         SBvmleZjj8dxIjB6PENkMvIdNnnYt6/VGluZFFA4=
+Date:   Fri, 23 Apr 2021 17:13:07 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andrei Rabusov <a.rabusov@tum.de>
+To:     Samuel Zou <zou_wei@huawei.com>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
 Subject: Re: [PATCH 5.10 000/103] 5.10.32-rc1 review
-Message-ID: <YILj9cIVDaT9l8oB@kroah.com>
+Message-ID: <YILkAwGEmAWWLro2@kroah.com>
 References: <20210419130527.791982064@linuxfoundation.org>
- <YH7A5zclP6USkEpY@yaviniv.e18.physik.tu-muenchen.de>
+ <4599d4bc-937b-0624-5acb-9e7af0f2c9f8@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YH7A5zclP6USkEpY@yaviniv.e18.physik.tu-muenchen.de>
+In-Reply-To: <4599d4bc-937b-0624-5acb-9e7af0f2c9f8@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 20, 2021 at 01:54:15PM +0200, Andrei Rabusov wrote:
-> On Mon, Apr 19, 2021 at 03:05:11PM +0200, Greg Kroah-Hartman wrote:
+On Wed, Apr 21, 2021 at 02:20:59PM +0800, Samuel Zou wrote:
+> 
+> 
+> On 2021/4/19 21:05, Greg Kroah-Hartman wrote:
 > > This is the start of the stable review cycle for the 5.10.32 release.
 > > There are 103 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
@@ -58,12 +60,37 @@ On Tue, Apr 20, 2021 at 01:54:15PM +0200, Andrei Rabusov wrote:
 > > thanks,
 > > 
 > > greg k-h
+> > 
 > 
-> On my i686 (gcc 10.3) I found no issues with the new rc
+> Tested on arm64 and x86 for 5.10.32-rc1,
 > 
-> Selftest results [ok/not ok]: [1435/81]
+> Kernel repo:
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> Branch: linux-5.10.y
+> Version: 5.10.32-rc1
+> Commit: bcedd92af6e5899132429d20a9322b12afec2188
+> Compiler: gcc version 7.3.0 (GCC)
 > 
-> Tested-by: Andrei Rabusov <a.rabusov@tum.de>
+> arm64:
+> --------------------------------------------------------------------
+> Testcase Result Summary:
+> total: 5764
+> passed: 5764
+> failed: 0
+> timeout: 0
+> --------------------------------------------------------------------
+> 
+> x86:
+> --------------------------------------------------------------------
+> Testcase Result Summary:
+> total: 5764
+> passed: 5764
+> failed: 0
+> timeout: 0
+> --------------------------------------------------------------------
+> 
+> Tested-by: Hulk Robot <hulkrobot@huawei.com>
+> 
 
 Thanks for testing and letting me know.
 
