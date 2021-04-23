@@ -2,97 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F15369B0F
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 21:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7675D369B28
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 22:13:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229691AbhDWUAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 16:00:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59088 "EHLO
+        id S234846AbhDWUNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 16:13:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232200AbhDWUAB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 16:00:01 -0400
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B80C06174A
-        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 12:59:20 -0700 (PDT)
-Received: by mail-ot1-x32e.google.com with SMTP id f75-20020a9d03d10000b0290280def9ab76so41203329otf.12
-        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 12:59:20 -0700 (PDT)
+        with ESMTP id S229549AbhDWUNt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 16:13:49 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55426C061574
+        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 13:13:11 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id y32so35917736pga.11
+        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 13:13:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6iSj1GEtiQZ9M3J3gU3b18A/HnutzEB33d+sPDU4Lh8=;
-        b=SJ8vF1y2bTXYd0n1OQqCrR7Ho4O0E73Bs06P2PO565GjWwKCv0WY4tFVg+wJD7TFl+
-         HWhODvTnqJuTk6raOtlb3z5elNi4p5gFd3kk8P18d3G7o9b0TuTcN8q6dW2rvp4+a6V/
-         VoyMaSy+OqXELodgymwdwEAqt8UL8y03/sUMQ=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=frFzQfRIxRdXA2Qra+S0h+GA3h6CGjwkN3TJGIy8Z3o=;
+        b=zCBp7O6b7Vq1J4jDNT6D6wOKXeSQYF9/BU1cgZtMyNW8LZLbQErMQQlU42wyQkUuXR
+         JW5Ys4yZmVVnVJmztEhqZt45g/DlctlrKcT2IsO8DrBX/vW3SI0A6kKHiRvSyxsVo2Z5
+         yS+PaXtFeciswxeOz6+MPB+mEQ6gJG/vOVC/gRM57h6PEr+zslYnrPEF2h5ZgzmXAN3n
+         mpBhGiWQlKNsej6TBmkQshMKdrYgYX1d6N+QEXJ1q/h8uO7g5/1+bP6lHAFW9L6Ne2lD
+         CbYx8qbR0qQTNzG1sWu8c3vurVzde8YZaGcrIBfmjBT5AAKDwHj7S6rAF1WYZ0gf8iiX
+         aPhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6iSj1GEtiQZ9M3J3gU3b18A/HnutzEB33d+sPDU4Lh8=;
-        b=AjEOVn0smslgRVtsCCFUy26Eqquqm7wr7/eNOrD5cznWT7SM9i47HLO4U10ehxQ8tK
-         k9IrR9i3HLbx20DrGO44WTg+6HllZVgnNUkQwgOevrtj8Sl04IKDhAhTK7ou2sibbP9R
-         ZfbKBBrl/+oo+nEOshU1gGkETCx4vV+jQdfDdYgLsoUJX4lIenP3Xu3DRR56NhV6S0ME
-         XXoyzJD9LkjmaYa3rHNKtWu8OKi0YsQNIbCAqhsrpDhivct4XifKw3yicwRJZeYl2zDU
-         uTinlnzYJEJLaq775xtGwjMYV0RAfZms9LLUqRZSBqK+rcq0VeZbu+w4Hyz6QE1Xj6AE
-         5I8A==
-X-Gm-Message-State: AOAM532WldZr7HfV7mAbXbX+UMig0e5NKzRV9o+pGzlqDB+5IvSh4zrF
-        55PKMYRv+TOxvobU2BiulCoAyw==
-X-Google-Smtp-Source: ABdhPJwX8YGq8nYTFV90MV99op+N+/Biz8iVr0qFLYrq2bD1vaPBV3E8YodsM1UucQom0nGyS/4OnQ==
-X-Received: by 2002:a9d:22ca:: with SMTP id y68mr4742403ota.27.1619207960033;
-        Fri, 23 Apr 2021 12:59:20 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id s19sm1574723otq.6.2021.04.23.12.59.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 23 Apr 2021 12:59:19 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] usbip: vudc synchronize sysfs code paths"
- failed to apply to 4.14-stable tree
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org, Tom Seewald <tseewald@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <161812561233164@kroah.com> <YIMjud72SYv5t5tt@debian>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <5a668128-93ff-8e77-f595-dea0c8233d58@linuxfoundation.org>
-Date:   Fri, 23 Apr 2021 13:59:18 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=frFzQfRIxRdXA2Qra+S0h+GA3h6CGjwkN3TJGIy8Z3o=;
+        b=GfralaWGfwzmfqm+JmfM72GY5vrCKmUNwcCXXmZTXGJQGZrWoMzGeiHD2bWQd9iUiU
+         EZgy1Ty6QG3PFnKcWvQQb4Iaat3UeBLt3hFA0HOVYbxNlzRVVU/fqEpmPSbEGvkyHyB2
+         Y2cshkAnlUzVRMw5vkpDAYGeyVPfRXItSqaNBe99//9ZVAGAKtYD9ScFr+wpuVRy5SAa
+         m9NFFnoyzw74bQZcPphr1JixQOcfswsbm4UJmRW9UlFbcoak04Sx3MXAerNVxfcqaVet
+         ekp7GOxuSKzwNCubQxuln5TvkRo/cuG0VoUMrCCqosfQg6wmXVbhf6xwqiJQUkUCa4AN
+         dumg==
+X-Gm-Message-State: AOAM532UijqSlG3grSxm8QQM8OwZUAFADW6xjWWogBU33I1uEjGAKEQj
+        +4qqMV/lpvIzltpYDFkC69kaZnUtcvmDT4ph
+X-Google-Smtp-Source: ABdhPJzHwheldtHjVl9/DsOxESebEQEA/ifMOnvz5nNsiqxOGufFBKl34PbEzijy56rs+LyTAf16Uw==
+X-Received: by 2002:a63:f30a:: with SMTP id l10mr5268202pgh.333.1619208790775;
+        Fri, 23 Apr 2021 13:13:10 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mz20sm8324814pjb.55.2021.04.23.13.13.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Apr 2021 13:13:10 -0700 (PDT)
+Message-ID: <60832a56.1c69fb81.e277e.85d7@mx.google.com>
+Date:   Fri, 23 Apr 2021 13:13:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YIMjud72SYv5t5tt@debian>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.114
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 181 runs, 1 regressions (v5.4.114)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/23/21 1:44 PM, Sudip Mukherjee wrote:
-> Hi Greg,
-> 
-> On Sun, Apr 11, 2021 at 09:20:12AM +0200, gregkh@linuxfoundation.org wrote:
->>
->> The patch below does not apply to the 4.14-stable tree.
->> If someone wants it applied there, or to any other stable or longterm
->> tree, then please email the backport, including the original git commit
->> id to <stable@vger.kernel.org>.
->>
->> thanks,
->>
->> greg k-h
->>
->> ------------------ original commit in Linus's tree ------------------
->>
->>  From bd8b82042269a95db48074b8bb400678dbac1815 Mon Sep 17 00:00:00 2001
-> 
-> Just wondering if you have missed this one as I am not seeing it in your
-> queue for 4.14-stable but can see in 4.9-stable queue. And this will apply
-> directly on top of your 4.14-stable queue.
-> 
-> 
-This patch needed some work. Tom sent in the patch.
+stable-rc/queue/5.4 baseline: 181 runs, 1 regressions (v5.4.114)
 
-https://lore.kernel.org/stable/d2cc4517-4790-b3a7-eec0-16fe06ea22eb@linuxfoundation.org/
+Regressions Summary
+-------------------
 
-thanks,
--- Shuah
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.114/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.114
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a7eb81c1d11ae311c25db88c25a7d5228fe5680a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082f74001c7ef12829b77aa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.114/a=
+rm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.114/a=
+rm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082f74001c7ef12829b7=
+7ab
+        new failure (last pass: v5.4.109-74-g398b28a161d2a) =
+
+ =20
