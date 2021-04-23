@@ -2,110 +2,308 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B279A369AAD
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 21:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9564E369AE3
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 21:26:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231684AbhDWTLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 15:11:44 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:14001 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231735AbhDWTLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Apr 2021 15:11:44 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1619205067; h=Content-Transfer-Encoding: Content-Type:
- In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
- Subject: Sender; bh=nqDuTeZ3IIZiGO3ZwiqtVGLNHOV5zxEBXOCW/TQfJRk=; b=miPQDEh4Cu0yWlB24ptYG/5CVPMoMMQLWFSpTEFHgRXP0eFxWlydJopMJfIw+uWXpKDHQ4WV
- ii1jSggoXultagDP2I129j6gSQrlnZ1IxNeU2oJOe43A4aPIAsX2S9viSmKg/x+OUayepBSu
- 90D00WIL3EyvwHNocvLD+DNgVHA=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n01.prod.us-west-2.postgun.com with SMTP id
- 60831bc4f34440a9d448bc4a (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 23 Apr 2021 19:11:00
- GMT
-Sender: wcheng=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 88076C433D3; Fri, 23 Apr 2021 19:11:00 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        NICE_REPLY_A,SPF_FAIL,URIBL_BLOCKED autolearn=no autolearn_force=no
-        version=3.4.0
-Received: from [10.110.110.218] (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: wcheng)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 3C243C433F1;
-        Fri, 23 Apr 2021 19:10:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 3C243C433F1
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=wcheng@codeaurora.org
-Subject: Re: [PATCH v2] usb: gadget: Fix double free of device descriptor
- pointers
-To:     Felipe Balbi <balbi@kernel.org>, gregkh@linuxfoundation.org,
-        peter.chen@kernel.org
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Hemant Kumar <hemantk@codeaurora.org>, stable@vger.kernel.org
-References: <1619034452-17334-1-git-send-email-wcheng@codeaurora.org>
- <87lf9amvl5.fsf@kernel.org>
-From:   Wesley Cheng <wcheng@codeaurora.org>
-Message-ID: <c5599433-3eb0-3918-d93b-6860f7951e92@codeaurora.org>
-Date:   Fri, 23 Apr 2021 12:10:57 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+        id S229691AbhDWT1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 15:27:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51996 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229549AbhDWT1Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 15:27:24 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A42CC061574
+        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 12:26:48 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id nm3-20020a17090b19c3b029014e1bbf6c60so1803342pjb.4
+        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 12:26:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5f9IbB4GPIBd9YOjyQpgMqX9beMATL9W/yIXL+001AI=;
+        b=Zwn8JtIDovpD78g3x3H//Egb1KST+u4xcR4cBUQRavI66T1mBB7ze5PYAI510vWzdW
+         pZwHCFtiqaMn38W0WUguNC9PVNcesy2ixa7M0PqOTyRRp8h1kzb29UR5GiUDqok88QTR
+         /hNDgfYZd+otgfwWxMBhvHD01s+YDlW9mABPv/nJJcL6aHOzi1R0aRbHxPAU/aQaNg7F
+         pOaGCO+axp0mJPmSGEKDaQn7fO5C87k09laGUW9LojvMltvyCVjRGixy+vFRkBno/CtT
+         IOGshBNfUnLWiKYL6nkGIRaKPEn0RsQg+N/PwzP0zEzQfR8XDxeuplxYo4XMCl2k8KgN
+         anvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5f9IbB4GPIBd9YOjyQpgMqX9beMATL9W/yIXL+001AI=;
+        b=Z+TZC//y7CZrgJqALaCuMGY2OIuBpsroxHoi7GVxVFRY9x9SsKkLg2+VSiGO6u8jIy
+         FfvG/u+eegrGWNk5L2I4fLXn186MmdJqp0+hcQLWScK1uILcmn2z/PWnsB1d/ALKTv2F
+         4YOBqilOLy9b/rgkpKkshYTI5dcTx4HIP2bTK0wTKmmEjyXBE61b+ZfXC/lbKNx7zGqk
+         2rasIWeGxSxa+e9TxP3L4TK/GxVNI+/TZbiZxR9UlLqaVyiINqPZjoNFGXTZmHzQ3P91
+         Su62r/DwZ0knd6YcyHlGFDNx+9WhWoyvcHTS09DQVlAZjGotjetj9gnW6yvs1l0oT6CW
+         Tb9Q==
+X-Gm-Message-State: AOAM531hI3zgwnN10i+nSaL1XnXvtZy6lQXvaGHPDhI3oeLHQLPXHryk
+        k7j5FgAt6sB6vsdQukicekvLpY1Q1PQT3Nnb
+X-Google-Smtp-Source: ABdhPJza3Fp3VdViyU+Sbmc+HN7uq9JHnyHJpRZlLaq3r8BLmMxBccc3A9uPYuD8KHwxx6ZZRkzOVw==
+X-Received: by 2002:a17:902:7403:b029:e9:d170:5b11 with SMTP id g3-20020a1709027403b02900e9d1705b11mr5446806pll.50.1619206007492;
+        Fri, 23 Apr 2021 12:26:47 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b23sm5549116pju.0.2021.04.23.12.26.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Apr 2021 12:26:47 -0700 (PDT)
+Message-ID: <60831f77.1c69fb81.200a3.061d@mx.google.com>
+Date:   Fri, 23 Apr 2021 12:26:47 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <87lf9amvl5.fsf@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.231-36-g4d508eecd3efe
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 134 runs,
+ 6 regressions (v4.14.231-36-g4d508eecd3efe)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.14 baseline: 134 runs, 6 regressions (v4.14.231-36-g4d508=
+eecd3efe)
+
+Regressions Summary
+-------------------
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
+
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
 
 
-On 4/22/2021 4:01 AM, Felipe Balbi wrote:
-> 
-> Hi,
-> 
-> Wesley Cheng <wcheng@codeaurora.org> writes:
-> 
->> From: Hemant Kumar <hemantk@codeaurora.org>
->>
->> Upon driver unbind usb_free_all_descriptors() function frees all
->> speed descriptor pointers without setting them to NULL. In case
->> gadget speed changes (i.e from super speed plus to super speed)
->> after driver unbind only upto super speed descriptor pointers get
->> populated. Super speed plus desc still holds the stale (already
->> freed) pointer. Fix this issue by setting all descriptor pointers
->> to NULL after freeing them in usb_free_all_descriptors().
-> 
-> could you describe this a little better? How can one trigger this case?
-> Is the speed demotion happening after unbinding? It's not clear how to
-> cause this bug.
-> 
-Hi Felipe,
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.231-36-g4d508eecd3efe/plan/baseline/
 
-Internally, we have a mechanism to switch the DWC3 core maximum speed
-parameter dynamically for displayport use cases.  This issue happens
-whenever we have a maximum speed change occur on the USB gadget, which
-for DWC3 happens whenever we call gadget init.  When we switch in and
-out of host mode, gadget init is being executed, leading to the change
-in the USB gadget max speed parameter:
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.231-36-g4d508eecd3efe
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4d508eecd3efea47fba79501b392140679093c94 =
 
-dwc->gadget->max_speed		= dwc->maximum_speed;
 
-I know that configFS gadget has the max_speed sysfs file, which is a
-similar mechanism, but I haven't tried to see if we can reproduce the
-same issue with it.  Let me see if we can reproduce this with that
-configfs speed setting.
 
-Thanks
-Wesley Cheng
+Test Regressions
+---------------- =
 
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082ebec28eba461349b77b2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082ebec28eba461349b7=
+7b3
+        failing since 53 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
+t fail: v4.14.222-120-gdc8887cba23e) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082e888697228a3139b77cb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082e888697228a3139b7=
+7cc
+        failing since 160 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082e885697228a3139b77b6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082e885697228a3139b7=
+7b7
+        failing since 160 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082e87acfa65a98199b77b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082e87acfa65a98199b7=
+7b2
+        failing since 160 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082e84082dd4d29cc9b77ac
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082e84082dd4d29cc9b7=
+7ad
+        failing since 160 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082e84782dd4d29cc9b77c2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
+-36-g4d508eecd3efe/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082e84782dd4d29cc9b7=
+7c3
+        failing since 160 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
