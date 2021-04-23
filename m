@@ -2,213 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A37368E00
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 09:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5BE2368E08
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 09:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241036AbhDWHhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 03:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44182 "EHLO mail.kernel.org"
+        id S230131AbhDWHmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 03:42:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229982AbhDWHhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Apr 2021 03:37:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C078613B0;
-        Fri, 23 Apr 2021 07:36:42 +0000 (UTC)
+        id S229993AbhDWHmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Apr 2021 03:42:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93372613CC;
+        Fri, 23 Apr 2021 07:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619163403;
-        bh=sDLzB7jowhJu+Sb0DYngPqc0f9xsKmFgeoW4yTi/LXY=;
-        h=Subject:To:From:Date:From;
-        b=KJB0ASeUQ5kU+w+eLOVXwbInfTiJqtaflZELP8Xe2ENrRxLX8HD4ePOq9nnDBcJcK
-         ul7DJkjCvLHVRsUArCHVT1qaW2OZw1UtXe7UofblcB+p/FwASlFAllrnh94RWXJLe8
-         YLweoNcyCwTcTo7EAvFsYLr1r0wK8osx0tGRVUOU=
-Subject: patch "usb: dwc3: core: Do core softreset when switch mode" added to usb-next
-To:     chenyu56@huawei.com, Thinh.Nguyen@synopsys.com,
-        andy.shevchenko@gmail.com, fntoth@gmail.com,
-        gregkh@linuxfoundation.org, john.stultz@linaro.org,
-        stable@vger.kernel.org, wcheng@codeaurora.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 23 Apr 2021 09:33:03 +0200
-Message-ID: <161916318329205@kroah.com>
+        s=korg; t=1619163689;
+        bh=xbfW9+nMsr+EbJ1u7f+oV5Mjdc4DYnSoTlX+3kqGAbk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=crTljxvJV7umKvdU2kafFt69fiEhQVvP0k2XW+a+iNcpyWYbPHkyFEpHhu5d3YTJg
+         hS4F36NtWFVdmeILDz7mnLtFOKFkd5dqJG5z6xhEQkuBcLDEhqXPhWYwucg6U3+tSq
+         CqpYUnJwnSHrZ39aIBPNsJ9uLwG4a4LeSmlTHjMs=
+Date:   Fri, 23 Apr 2021 09:41:26 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Manoj Gupta <manojgupta@google.com>
+Cc:     Johannes Berg <johannes@sipsolutions.net>, stable@vger.kernel.org,
+        maskray@google.com, llozano@google.com,
+        linux-wireless@vger.kernel.org
+Subject: Re: [PATCH] iw: set retain atrribute on sections
+Message-ID: <YIJ6Jl5Lzekk2rzC@kroah.com>
+References: <20210422182545.726897-1-manojgupta@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210422182545.726897-1-manojgupta@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    usb: dwc3: core: Do core softreset when switch mode
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From f88359e1588b85cf0e8209ab7d6620085f3441d9 Mon Sep 17 00:00:00 2001
-From: Yu Chen <chenyu56@huawei.com>
-Date: Thu, 15 Apr 2021 15:20:30 -0700
-Subject: usb: dwc3: core: Do core softreset when switch mode
-
-From: John Stultz <john.stultz@linaro.org>
-
-According to the programming guide, to switch mode for DRD controller,
-the driver needs to do the following.
-
-To switch from device to host:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(host mode)
-3. Reset the host with USBCMD.HCRESET
-4. Then follow up with the initializing host registers sequence
-
-To switch from host to device:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(device mode)
-3. Reset the device with DCTL.CSftRst
-4. Then follow up with the initializing registers sequence
-
-Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
-switching from host to device. John Stult reported a lockup issue seen
-with HiKey960 platform without these steps[1]. Similar issue is observed
-with Ferry's testing platform[2].
-
-So, apply the required steps along with some fixes to Yu Chen's and John
-Stultz's version. The main fixes to their versions are the missing wait
-for clocks synchronization before clearing GCTL.CoreSoftReset and only
-apply DCTL.CSftRst when switching from host to device.
-
-[1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
-[2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
-
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ferry Toth <fntoth@gmail.com>
-Cc: Wesley Cheng <wcheng@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Tested-by: Wesley Cheng <wcheng@codeaurora.org>
-Signed-off-by: Yu Chen <chenyu56@huawei.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/dwc3/core.c | 27 +++++++++++++++++++++++++++
- drivers/usb/dwc3/core.h |  5 +++++
- 2 files changed, 32 insertions(+)
-
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 5c25e6a72dbd..2f118ad43571 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -114,6 +114,8 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u32 mode)
- 	dwc->current_dr_role = mode;
- }
- 
-+static int dwc3_core_soft_reset(struct dwc3 *dwc);
-+
- static void __dwc3_set_mode(struct work_struct *work)
- {
- 	struct dwc3 *dwc = work_to_dwc(work);
-@@ -121,6 +123,8 @@ static void __dwc3_set_mode(struct work_struct *work)
- 	int ret;
- 	u32 reg;
- 
-+	mutex_lock(&dwc->mutex);
-+
- 	pm_runtime_get_sync(dwc->dev);
- 
- 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
-@@ -154,6 +158,25 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		break;
- 	}
- 
-+	/* For DRD host or device mode only */
-+	if (dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg |= DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+
-+		/*
-+		 * Wait for internal clocks to synchronized. DWC_usb31 and
-+		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
-+		 * keep it consistent across different IPs, let's wait up to
-+		 * 100ms before clearing GCTL.CORESOFTRESET.
-+		 */
-+		msleep(100);
-+
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg &= ~DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+	}
-+
- 	spin_lock_irqsave(&dwc->lock, flags);
- 
- 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
-@@ -178,6 +201,8 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		}
- 		break;
- 	case DWC3_GCTL_PRTCAP_DEVICE:
-+		dwc3_core_soft_reset(dwc);
-+
- 		dwc3_event_buffers_setup(dwc);
- 
- 		if (dwc->usb2_phy)
-@@ -200,6 +225,7 @@ static void __dwc3_set_mode(struct work_struct *work)
- out:
- 	pm_runtime_mark_last_busy(dwc->dev);
- 	pm_runtime_put_autosuspend(dwc->dev);
-+	mutex_unlock(&dwc->mutex);
- }
- 
- void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
-@@ -1553,6 +1579,7 @@ static int dwc3_probe(struct platform_device *pdev)
- 	dwc3_cache_hwparams(dwc);
- 
- 	spin_lock_init(&dwc->lock);
-+	mutex_init(&dwc->mutex);
- 
- 	pm_runtime_set_active(dev);
- 	pm_runtime_use_autosuspend(dev);
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 695ff2d791e4..7e3afa5378e8 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -13,6 +13,7 @@
- 
- #include <linux/device.h>
- #include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/ioport.h>
- #include <linux/list.h>
- #include <linux/bitops.h>
-@@ -947,6 +948,7 @@ struct dwc3_scratchpad_array {
-  * @scratch_addr: dma address of scratchbuf
-  * @ep0_in_setup: one control transfer is completed and enter setup phase
-  * @lock: for synchronizing
-+ * @mutex: for mode switching
-  * @dev: pointer to our struct device
-  * @sysdev: pointer to the DMA-capable device
-  * @xhci: pointer to our xHCI child
-@@ -1088,6 +1090,9 @@ struct dwc3 {
- 	/* device lock */
- 	spinlock_t		lock;
- 
-+	/* mode switching lock */
-+	struct mutex		mutex;
-+
- 	struct device		*dev;
- 	struct device		*sysdev;
- 
--- 
-2.31.1
+On Thu, Apr 22, 2021 at 11:25:45AM -0700, Manoj Gupta wrote:
+> LLD 13 and GNU ld 2.37 support -z start-stop-gc which allows garbage
+> collection of C identifier name sections despite the __start_/__stop_
+> references.  Simply set the retain attribute so that GCC 11 (if
+> configure-time binutils is 2.36 or newer)/Clang 13 will set the
+> SHF_GNU_RETAIN section attribute to prevent garbage collection.
+> 
+> Without the patch, there are linker errors like the following with -z
+> start-stop-gc:
+> ld.lld: error: undefined symbol: __stop___cmd
+> >>> referenced by iw.c:418
+> >>>               iw.o:(__handle_cmd)
+> 
+> Suggested-by: Fangrui Song <maskray@google.com>
+> 
+> Signed-off-by: Manoj Gupta <manojgupta@google.com>
+> ---
+>  iw.h | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
 
+<formletter>
+
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
