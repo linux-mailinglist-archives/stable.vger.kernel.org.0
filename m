@@ -2,170 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34C9B3691C0
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 14:10:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7599369209
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 14:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234677AbhDWMKk convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 23 Apr 2021 08:10:40 -0400
-Received: from mail-wr1-f50.google.com ([209.85.221.50]:37500 "EHLO
-        mail-wr1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229479AbhDWMKk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 08:10:40 -0400
-Received: by mail-wr1-f50.google.com with SMTP id j5so47198125wrn.4;
-        Fri, 23 Apr 2021 05:10:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=xDdTkEz3jYFi8dUXVTGarIUd1p+hB/XaUF8ZoHdzxKE=;
-        b=MEQ3EOr9cRHCbLPkOUIRAw7tg76gJEBgk1+qxqtkIxSpjRR5LoQfrKMnMLwZUrMSq0
-         14x/73SdFEFsPfUzeLX9BLMNnMvVVuEFP0SoLvigXADK478dHt9tUT4oI557Pc6p1kNj
-         ts5rsjpgwpYYkwvQhGLOjfS0QvtWqkZSSsKJZZT648XKK6+x89RBYmiM5OoqQPDpxXIV
-         WYewnY7hDOxffW0AB17EEsfZ5PdkFMEFXgihi6K8OLHNEXZY2zvirpR9yMd2ymhL/n/t
-         N3+q/+30PeoH2evI4sPU28psF2UhxlrKbLvawxjWwy7rBQ09kuhUcW4cUFzIAhLkjDcJ
-         ejdQ==
-X-Gm-Message-State: AOAM5338xnNMqSjG4cR2pl9tvEpouE1LtZNAsPQ4TXya5pBYnodmxO8Q
-        C7r3qqarmakHmS2wanjzaprPjEdIFEkKCtt4IMA=
-X-Google-Smtp-Source: ABdhPJz6Dsd6AmT5Ml2AN3hXNIf0bBPeLJMJ8jJ+HZwLeHyuVBpj92jgtzaurmQeTY9WijsB2pnBut47CZXK3N22T0k=
-X-Received: by 2002:adf:9d81:: with SMTP id p1mr4477670wre.247.1619179801674;
- Fri, 23 Apr 2021 05:10:01 -0700 (PDT)
+        id S242394AbhDWMZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 08:25:13 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:45766 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242393AbhDWMZM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 08:25:12 -0400
+Date:   Fri, 23 Apr 2021 12:24:34 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1619180675;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=R/gyr1lMkvwIWABkm0oft2MwHWjjX0MGvPtqErZws6k=;
+        b=hGBl7fUyNwt7Cs3kcyh8bedjUa0Bm2hAGRf26jPWrJS/Q/YWlfRsWKHMFw8L34IvljhJtW
+        Aaa5DvMmpQHesY/OoyLFGXaNa02rmqM2q+6o3DVdNtw4rszkLGP/8ohG9tSvDaQC89HLzu
+        ORPxYvdqP4W8hoPTXMeIBWsc6hzDJVP067jpUXfoSj3bI1Km4hHNveNXn1OR5jj3U2F6TQ
+        iCtCRowvmQHk8Wve9dxv787wVB6YkcKJ+kKXtcGdSuuYtKt4dFjohlK9pViMtBmyew7LWJ
+        fvSOeav1u02U/0TYDWIk/fBV6cRJJh+puFEdBELtw8b83iVzGb0QwhfA893agA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1619180675;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=R/gyr1lMkvwIWABkm0oft2MwHWjjX0MGvPtqErZws6k=;
+        b=ONT5O0qQIrKxvBcug84BPrn2KXTHzouMNkf0Fb5OchPcBfZ/Jx0boLSLeHd4OT+jMsasrn
+        vPlH8ZUjsINOSyAQ==
+From:   "irqchip-bot for He Ying" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
+Subject: [irqchip: irq/irqchip-next] irqchip/gic-v3: Do not enable irqs when
+ handling spurious interrups
+Cc:     Mark Rutland <mark.rutland@arm.com>, He Ying <heying24@huawei.com>,
+        Marc Zyngier <maz@kernel.org>, stable@vger.kernel.org,
+        tglx@linutronix.de
+In-Reply-To: <20210423083516.170111-1-heying24@huawei.com>
+References: <20210423083516.170111-1-heying24@huawei.com>
 MIME-Version: 1.0
-References: <20210423023928.688767-1-ray.huang@amd.com>
-In-Reply-To: <20210423023928.688767-1-ray.huang@amd.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 23 Apr 2021 14:09:49 +0200
-Message-ID: <CAJZ5v0iH0-YL-yVPSA2oJF7PGfQs5Tcv5ktH43xMLPAKysDXPw@mail.gmail.com>
-Subject: Re: [PATCH v3] x86, sched: Fix the AMD CPPC maximum perf on some
- specific generations
-To:     Huang Rui <ray.huang@amd.com>
-Cc:     Linux PM <linux-pm@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Jason Bagavatsingham <jason.bagavatsingham@gmail.com>,
-        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-        Nathan Fontenot <nathan.fontenot@amd.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Message-ID: <161918067453.29796.494167512532062279.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 23, 2021 at 4:40 AM Huang Rui <ray.huang@amd.com> wrote:
->
-> Some AMD Ryzen generations has different calculation method on maximum
-> perf. 255 is not for all asics, some specific generations should use 166
-> as the maximum perf. Otherwise, it will report incorrect frequency value
-> like below:
->
-> ~ → lscpu | grep MHz
-> CPU MHz:                         3400.000
-> CPU max MHz:                     7228.3198
-> CPU min MHz:                     2200.0000
->
-> Fixes: 41ea667227ba ("x86, sched: Calculate frequency invariance for AMD systems")
-> Fixes: 3c55e94c0ade ("cpufreq: ACPI: Extend frequency tables to cover boost frequencies")
->
-> Reported-by: Jason Bagavatsingham <jason.bagavatsingham@gmail.com>
-> Tested-by: Jason Bagavatsingham <jason.bagavatsingham@gmail.com>
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211791
-> Signed-off-by: Huang Rui <ray.huang@amd.com>
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: Nathan Fontenot <nathan.fontenot@amd.com>
-> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Cc: Borislav Petkov <bp@suse.de>
-> Cc: x86@kernel.org
-> Cc: stable@vger.kernel.org
-> ---
->
-> Changes from V1 -> V2:
-> - Enhance the commit message.
-> - Move amd_get_highest_perf() into amd.c.
-> - Refine the implementation of switch-case.
-> - Cc stable mail list.
->
-> Changes from V2 -> V3:
-> - Move the update into cppc_get_perf_caps() to correct the highest perf value in
->   the API.
->
-> ---
->  arch/x86/include/asm/processor.h |  2 ++
->  arch/x86/kernel/cpu/amd.c        | 22 ++++++++++++++++++++++
->  drivers/acpi/cppc_acpi.c         |  8 ++++++--
->  3 files changed, 30 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-> index f1b9ed5efaa9..908bcaea1361 100644
-> --- a/arch/x86/include/asm/processor.h
-> +++ b/arch/x86/include/asm/processor.h
-> @@ -804,8 +804,10 @@ DECLARE_PER_CPU(u64, msr_misc_features_shadow);
->
->  #ifdef CONFIG_CPU_SUP_AMD
->  extern u32 amd_get_nodes_per_socket(void);
-> +extern u32 amd_get_highest_perf(void);
->  #else
->  static inline u32 amd_get_nodes_per_socket(void)       { return 0; }
-> +static inline u32 amd_get_highest_perf(void)           { return 0; }
->  #endif
->
->  static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leaves)
-> diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-> index 347a956f71ca..aadb691d9357 100644
-> --- a/arch/x86/kernel/cpu/amd.c
-> +++ b/arch/x86/kernel/cpu/amd.c
-> @@ -1170,3 +1170,25 @@ void set_dr_addr_mask(unsigned long mask, int dr)
->                 break;
->         }
->  }
-> +
-> +u32 amd_get_highest_perf(void)
-> +{
-> +       struct cpuinfo_x86 *c = &boot_cpu_data;
-> +       u32 cppc_max_perf = 225;
-> +
-> +       switch (c->x86) {
-> +       case 0x17:
-> +               if ((c->x86_model >= 0x30 && c->x86_model < 0x40) ||
-> +                   (c->x86_model >= 0x70 && c->x86_model < 0x80))
-> +                       cppc_max_perf = 166;
-> +               break;
-> +       case 0x19:
-> +               if ((c->x86_model >= 0x20 && c->x86_model < 0x30) ||
-> +                   (c->x86_model >= 0x40 && c->x86_model < 0x70))
-> +                       cppc_max_perf = 166;
-> +               break;
-> +       }
-> +
-> +       return cppc_max_perf;
-> +}
-> +EXPORT_SYMBOL_GPL(amd_get_highest_perf);
-> diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
-> index 69057fcd2c04..58e72b6e222f 100644
-> --- a/drivers/acpi/cppc_acpi.c
-> +++ b/drivers/acpi/cppc_acpi.c
-> @@ -1107,8 +1107,12 @@ int cppc_get_perf_caps(int cpunum, struct cppc_perf_caps *perf_caps)
->                 }
->         }
->
-> -       cpc_read(cpunum, highest_reg, &high);
-> -       perf_caps->highest_perf = high;
-> +       if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD) {
+The following commit has been merged into the irq/irqchip-next branch of irqchip:
 
-This is a generic arch-independent file.
+Commit-ID:     a97709f563a078e259bf0861cd259aa60332890a
+Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms/a97709f563a078e259bf0861cd259aa60332890a
+Author:        He Ying <heying24@huawei.com>
+AuthorDate:    Fri, 23 Apr 2021 04:35:16 -04:00
+Committer:     Marc Zyngier <maz@kernel.org>
+CommitterDate: Fri, 23 Apr 2021 13:19:08 +01:00
 
-Can we avoid adding the x86-specific check here?
+irqchip/gic-v3: Do not enable irqs when handling spurious interrups
 
-> +               perf_caps->highest_perf = amd_get_highest_perf();
-> +       } else {
-> +               cpc_read(cpunum, highest_reg, &high);
-> +               perf_caps->highest_perf = high;
-> +       }
->
->         cpc_read(cpunum, lowest_reg, &low);
->         perf_caps->lowest_perf = low;
-> --
-> 2.25.1
->
+We triggered the following error while running our 4.19 kernel
+with the pseudo-NMI patches backported to it:
+
+[   14.816231] ------------[ cut here ]------------
+[   14.816231] kernel BUG at irq.c:99!
+[   14.816232] Internal error: Oops - BUG: 0 [#1] SMP
+[   14.816232] Process swapper/0 (pid: 0, stack limit = 0x(____ptrval____))
+[   14.816233] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      4.19.95.aarch64 #14
+[   14.816233] Hardware name: evb (DT)
+[   14.816234] pstate: 80400085 (Nzcv daIf +PAN -UAO)
+[   14.816234] pc : asm_nmi_enter+0x94/0x98
+[   14.816235] lr : asm_nmi_enter+0x18/0x98
+[   14.816235] sp : ffff000008003c50
+[   14.816235] pmr_save: 00000070
+[   14.816237] x29: ffff000008003c50 x28: ffff0000095f56c0
+[   14.816238] x27: 0000000000000000 x26: ffff000008004000
+[   14.816239] x25: 00000000015e0000 x24: ffff8008fb916000
+[   14.816240] x23: 0000000020400005 x22: ffff0000080817cc
+[   14.816241] x21: ffff000008003da0 x20: 0000000000000060
+[   14.816242] x19: 00000000000003ff x18: ffffffffffffffff
+[   14.816243] x17: 0000000000000008 x16: 003d090000000000
+[   14.816244] x15: ffff0000095ea6c8 x14: ffff8008fff5ab40
+[   14.816244] x13: ffff8008fff58b9d x12: 0000000000000000
+[   14.816245] x11: ffff000008c8a200 x10: 000000008e31fca5
+[   14.816246] x9 : ffff000008c8a208 x8 : 000000000000000f
+[   14.816247] x7 : 0000000000000004 x6 : ffff8008fff58b9e
+[   14.816248] x5 : 0000000000000000 x4 : 0000000080000000
+[   14.816249] x3 : 0000000000000000 x2 : 0000000080000000
+[   14.816250] x1 : 0000000000120000 x0 : ffff0000095f56c0
+[   14.816251] Call trace:
+[   14.816251]  asm_nmi_enter+0x94/0x98
+[   14.816251]  el1_irq+0x8c/0x180                    (IRQ C)
+[   14.816252]  gic_handle_irq+0xbc/0x2e4
+[   14.816252]  el1_irq+0xcc/0x180                    (IRQ B)
+[   14.816253]  arch_timer_handler_virt+0x38/0x58
+[   14.816253]  handle_percpu_devid_irq+0x90/0x240
+[   14.816253]  generic_handle_irq+0x34/0x50
+[   14.816254]  __handle_domain_irq+0x68/0xc0
+[   14.816254]  gic_handle_irq+0xf8/0x2e4
+[   14.816255]  el1_irq+0xcc/0x180                    (IRQ A)
+[   14.816255]  arch_cpu_idle+0x34/0x1c8
+[   14.816255]  default_idle_call+0x24/0x44
+[   14.816256]  do_idle+0x1d0/0x2c8
+[   14.816256]  cpu_startup_entry+0x28/0x30
+[   14.816256]  rest_init+0xb8/0xc8
+[   14.816257]  start_kernel+0x4c8/0x4f4
+[   14.816257] Code: 940587f1 d5384100 b9401001 36a7fd01 (d4210000)
+[   14.816258] Modules linked in: start_dp(O) smeth(O)
+[   15.103092] ---[ end trace 701753956cb14aa8 ]---
+[   15.103093] Kernel panic - not syncing: Fatal exception in interrupt
+[   15.103099] SMP: stopping secondary CPUs
+[   15.103100] Kernel Offset: disabled
+[   15.103100] CPU features: 0x36,a2400218
+[   15.103100] Memory Limit: none
+
+which is cause by a 'BUG_ON(in_nmi())' in nmi_enter().
+
+>From the call trace, we can find three interrupts (noted A, B, C above):
+interrupt (A) is preempted by (B), which is further interrupted by (C).
+
+Subsequent investigations show that (B) results in nmi_enter() being
+called, but that it actually is a spurious interrupt. Furthermore,
+interrupts are reenabled in the context of (B), and (C) fires with
+NMI priority. We end-up with a nested NMI situation, something
+we definitely do not want to (and cannot) handle.
+
+The bug here is that spurious interrupts should never result in any
+state change, and we should just return to the interrupted context.
+Moving the handling of spurious interrupts as early as possible in
+the GICv3 handler fixes this issue.
+
+Fixes: 3f1f3234bc2d ("irqchip/gic-v3: Switch to PMR masking before calling IRQ handler")
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: He Ying <heying24@huawei.com>
+[maz: rewrote commit message, corrected Fixes: tag]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210423083516.170111-1-heying24@huawei.com
+Cc: stable@vger.kernel.org
+---
+ drivers/irqchip/irq-gic-v3.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index eb0ee35..0040402 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -648,6 +648,10 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
+ 
+ 	irqnr = gic_read_iar();
+ 
++	/* Check for special IDs first */
++	if ((irqnr >= 1020 && irqnr <= 1023))
++		return;
++
+ 	if (gic_supports_nmi() &&
+ 	    unlikely(gic_read_rpr() == GICD_INT_NMI_PRI)) {
+ 		gic_handle_nmi(irqnr, regs);
+@@ -659,10 +663,6 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
+ 		gic_arch_enable_irqs();
+ 	}
+ 
+-	/* Check for special IDs first */
+-	if ((irqnr >= 1020 && irqnr <= 1023))
+-		return;
+-
+ 	if (static_branch_likely(&supports_deactivate_key))
+ 		gic_write_eoir(irqnr);
+ 	else
