@@ -2,232 +2,261 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CAE9368D6A
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 08:56:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C7A4368D80
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 09:00:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240770AbhDWG4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 02:56:36 -0400
-Received: from mail-eopbgr20080.outbound.protection.outlook.com ([40.107.2.80]:11893
-        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230131AbhDWG4f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Apr 2021 02:56:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
- s=selector2-armh-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/DVsJHlnkQQhwysEc4Ngg4uQiSHZykaLsy3ArtIIUSA=;
- b=nJaF8KJTPuH8ynP61qvNfaw4SNMoIlcUytW7SLlzwC6LVU8dI0BU9ZcVq06+E1AY5nn1U+UaqYQZnyKZWxUxX3cK7f7k62LTU3ZbVxyFT7yOrmncKGtk++0ERddOKjV9Zz5huYTVyU1StNxQY8g/tMcAO6y2Lsu9YCBJJbNw1NI=
-Received: from DU2PR04CA0219.eurprd04.prod.outlook.com (2603:10a6:10:2b1::14)
- by AM0PR08MB4563.eurprd08.prod.outlook.com (2603:10a6:208:131::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.21; Fri, 23 Apr
- 2021 06:55:57 +0000
-Received: from DB5EUR03FT054.eop-EUR03.prod.protection.outlook.com
- (2603:10a6:10:2b1:cafe::45) by DU2PR04CA0219.outlook.office365.com
- (2603:10a6:10:2b1::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.20 via Frontend
- Transport; Fri, 23 Apr 2021 06:55:57 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 63.35.35.123)
- smtp.mailfrom=arm.com; vger.kernel.org; dkim=pass (signature was verified)
- header.d=armh.onmicrosoft.com;vger.kernel.org; dmarc=pass action=none
- header.from=arm.com;
-Received-SPF: Pass (protection.outlook.com: domain of arm.com designates
- 63.35.35.123 as permitted sender) receiver=protection.outlook.com;
- client-ip=63.35.35.123; helo=64aa7808-outbound-1.mta.getcheckrecipient.com;
-Received: from 64aa7808-outbound-1.mta.getcheckrecipient.com (63.35.35.123) by
- DB5EUR03FT054.mail.protection.outlook.com (10.152.20.248) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4065.21 via Frontend Transport; Fri, 23 Apr 2021 06:55:57 +0000
-Received: ("Tessian outbound 9bcb3c8d6cb1:v90"); Fri, 23 Apr 2021 06:55:57 +0000
-X-CheckRecipientChecked: true
-X-CR-MTA-CID: 2a6a0984b83e97ed
-X-CR-MTA-TID: 64aa7808
-Received: from 1341a400273f.1
-        by 64aa7808-outbound-1.mta.getcheckrecipient.com id FCE8AB21-8A24-4BE8-906C-526E10723F93.1;
-        Fri, 23 Apr 2021 06:55:50 +0000
-Received: from EUR05-DB8-obe.outbound.protection.outlook.com
-    by 64aa7808-outbound-1.mta.getcheckrecipient.com with ESMTPS id 1341a400273f.1
-    (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384);
-    Fri, 23 Apr 2021 06:55:50 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KT0zJojw0oBipAesJIar5F0q2Wa4399ifkkzU2YcPT9/zrjZnU++qBYXFcckbmPVSXmKFo9bF5QKHKaxR1ez0LwYymNC6JpQdjjNft5AYAxK4+3nI5AJogNyA7Lo73MMO5K/DlD5Xz8fBw7Jtj8T3w3K/H+z04pmxBjKGO7GVXBhale9apHSXXQxJ3r66weaxsAfgNttVh+sz3cIN+QmoviQrQTP7fk1re0iAzPfjuK8xXCaU8OAaOrBB1wyuo9ku+LXQ1jGFOgq2ekjYdr5DnyWNAhfqBW8LpEQWvkNxEkFVPch1KFsrMInMMe55ynceuaKrZKuj/WpoWFs7n4QCQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/DVsJHlnkQQhwysEc4Ngg4uQiSHZykaLsy3ArtIIUSA=;
- b=M2HamogndtNWl22uOSh1aEpW5KwrikNZiZnzKANOwjQ7XIH3fG7nOkvE3WwUdUMZPuB9Cu60MWjC7onsUm3bLxCsmkv/dXZMwgestWmsZOsqgT/imada0jtzILZSwqKOSZpCUuSWe6dRI2rNhJh8mN2COOX9FLE0bdutYcLBvGJXxWL+BzHBsrk7tZV29IsoyGktQ5AVhKVnsvxJeTKb8TMYZeLQ1NiZifDgGk1jZeM/yEXh5Tk0ah07n2U/0ilyO2Zyd32qMTd+RRzgLYEC5I5icT7iSmg1nctOibVLZK4u7v3U0khrYQY4nycytqsrcppJhk3O9QSzJwfNXWceAA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=arm.com; dmarc=pass action=none header.from=arm.com; dkim=pass
- header.d=arm.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
- s=selector2-armh-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/DVsJHlnkQQhwysEc4Ngg4uQiSHZykaLsy3ArtIIUSA=;
- b=nJaF8KJTPuH8ynP61qvNfaw4SNMoIlcUytW7SLlzwC6LVU8dI0BU9ZcVq06+E1AY5nn1U+UaqYQZnyKZWxUxX3cK7f7k62LTU3ZbVxyFT7yOrmncKGtk++0ERddOKjV9Zz5huYTVyU1StNxQY8g/tMcAO6y2Lsu9YCBJJbNw1NI=
-Authentication-Results-Original: suse.com; dkim=none (message not signed)
- header.d=none;suse.com; dmarc=none action=none header.from=arm.com;
-Received: from VI1PR08MB3629.eurprd08.prod.outlook.com (2603:10a6:803:7f::25)
- by VI1PR0801MB1837.eurprd08.prod.outlook.com (2603:10a6:800:5a::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.22; Fri, 23 Apr
- 2021 06:55:49 +0000
-Received: from VI1PR08MB3629.eurprd08.prod.outlook.com
- ([fe80::4502:9762:8b3b:63d9]) by VI1PR08MB3629.eurprd08.prod.outlook.com
- ([fe80::4502:9762:8b3b:63d9%4]) with mapi id 15.20.4065.023; Fri, 23 Apr 2021
- 06:55:48 +0000
-Content-Type: text/plain;
-        charset=utf-8
+        id S229519AbhDWHBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 03:01:05 -0400
+Received: from mx2.suse.de ([195.135.220.15]:55634 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229478AbhDWHBF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Apr 2021 03:01:05 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1619161227; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3gXh3FGsXDlt+Rrt1Wsm/dUEJBcFCjrIm4/In1CZTGc=;
+        b=CoTXtgLIjUHnzL1b7CsMnguagAfqih5iEU0WTUeGVW4ZdrlP5n2grb8OAsdeN3MRxSnaVw
+        Uk5ukFz45myh2gUxahLgpj8Kio8qwESo+5N57AO0r/zZe62zKhYF4vxWPI+1CCJxREIyst
+        4YFdxBNteM7HJf1hKZzoLgVT9pfbV/g=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 6CAD5AFE2;
+        Fri, 23 Apr 2021 07:00:27 +0000 (UTC)
 Subject: Re: [PATCH] xen/gntdev: fix gntdev_mmap() error exit path
-From:   Luca Fancellu <luca.fancellu@arm.com>
-In-Reply-To: <20210423054038.26696-1-jgross@suse.com>
-Date:   Fri, 23 Apr 2021 07:55:38 +0100
+To:     Luca Fancellu <luca.fancellu@arm.com>
 Cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Stefano Stabellini <sstabellini@kernel.org>,
         stable@vger.kernel.org,
-        =?utf-8?Q?Marek_Marczykowski-G=C3=B3recki?= 
+        =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
         <marmarek@invisiblethingslab.com>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <467B8109-C829-4755-8398-196E50090898@arm.com>
 References: <20210423054038.26696-1-jgross@suse.com>
-To:     Juergen Gross <jgross@suse.com>
-X-Mailer: Apple Mail (2.3654.60.0.2.21)
-X-Originating-IP: [82.8.129.65]
-X-ClientProxiedBy: LO4P123CA0500.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:1ab::19) To VI1PR08MB3629.eurprd08.prod.outlook.com
- (2603:10a6:803:7f::25)
+ <467B8109-C829-4755-8398-196E50090898@arm.com>
+From:   Juergen Gross <jgross@suse.com>
+Message-ID: <9cb9bd6c-8185-9741-31b9-8f6baf3848a3@suse.com>
+Date:   Fri, 23 Apr 2021 09:00:26 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from a75445.arm.com (82.8.129.65) by LO4P123CA0500.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:1ab::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4042.21 via Frontend Transport; Fri, 23 Apr 2021 06:55:47 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0ca6b551-6473-461a-90bf-08d90624d892
-X-MS-TrafficTypeDiagnostic: VI1PR0801MB1837:|AM0PR08MB4563:
-X-Microsoft-Antispam-PRVS: <AM0PR08MB45639C593545250D48D1C5E3E4459@AM0PR08MB4563.eurprd08.prod.outlook.com>
-x-checkrecipientrouted: true
-NoDisclaimer: true
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam-Untrusted: BCL:0;
-X-Microsoft-Antispam-Message-Info-Original: cYtB2DlWqZYF2EDZRcGjqNfxI444xQfwcM8o94uC6DgCmdEGbQhyS2PHS3n7R9F/9XjgIRLNoPj/pdrh5BRqZ2r+aNomeKJpuU5smBClXRcQ0LgBJfmrewAcWg2Kt3B96HF2KDWMomNLiVEFq39c+yks19/oWFCBRNNkxmg88S0QcJ9fSVV3tvcF9M2dRM70b3WZjkwqhHiB3UCd9FfsrcnxE1ZbRoEQAo0jywNqEI7UMZZ7pHwRpr3q18gaN+N03gFYYmqMJWnpzbrX5g782l3Yc4tK7J/1nNaR8Q3Jk1cQI9hqFZ55vVFrdoXNZfl5XtNyCA2nEiGOiwWHfNjyRIFupC6xP5mDA3mxDVMiIMswIqIrs8Z9RuyIA6dGi7PItQDvX3mcwaA+9tWmxnqNz7GiU9tGyHynX/7zUSSfEVnH7D78K/3/HEMc5CdFOZ/rFraUevy0RjpmlRHK9p7lpVKhYoEYlAYh70V41HA+hEqwKBNWXBkHtxuReoPXKEWXg0oI4vR7thCG2cJbKiwzoPeut24o6shptyL5ckuZae0h5fAzsvO2wcySfm/gizejQmoinjd9IX3QENHfGjyW34U/LolPAvyXk63z/dOFeDWyxRY/g/qzVYXzTfhyTljmnzyRaNOu3XC2V23AYbdLz1o0ywqVt+5ORBLCeF0DzGYDbNQZuA18u7Oj2H2z7nbR
-X-Forefront-Antispam-Report-Untrusted: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR08MB3629.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(396003)(39850400004)(376002)(346002)(136003)(6916009)(33656002)(186003)(16526019)(36756003)(52116002)(2906002)(6486002)(4326008)(66574015)(38350700002)(53546011)(54906003)(6666004)(26005)(316002)(38100700002)(7696005)(956004)(8676002)(86362001)(83380400001)(66556008)(8936002)(478600001)(44832011)(66476007)(66946007)(5660300002)(2616005)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?U2N0bEQzNUFrNWg4V3JUOGFWRVJZamZTa2FjUDE4OG8rQXp6b28yM1h1dnBs?=
- =?utf-8?B?NFlHWFZpbzdwOVp4bXgyYUVkTHUxWHdraE5HcmloRFZsaXo1M21FaWJLak1I?=
- =?utf-8?B?MFpNZ2JVdXpUM0k2WitRZlNsUFk0ZXI1bzJmM2pORnJKWXJOblNpcEQ4S0x5?=
- =?utf-8?B?ck1LQ3Ixd3BNUE1lci96TmZ1Q3RjNTA4OWl2TVR6T29mWXZyNUxZM3hHZmls?=
- =?utf-8?B?UkVXeDRlVTJabDkwSHVEVC9tL1RiQTFJWHdqelF1cDNyeVRxT0RCVVczaTZj?=
- =?utf-8?B?UU1RUkIvTk1tK1ZDNGxLTmlUNDN3akd6Y3ZrMjBnZzVNSlRnWkIvNGpQV3JV?=
- =?utf-8?B?ejJ4L1lMcTEzZzViSXVQSlIxb0NsOW9hVk9CR3NQOWRITVRrQU1GMENXNnM2?=
- =?utf-8?B?bmJlNXJ4dmRoSFlxWStKc3ZxQjNzcnhQZkJMWHlXZStJL2d5WjBMNGIxOStw?=
- =?utf-8?B?VGNjM3QxLzNka0NGdXhQTXdYYllGRGZVcXNneGRVK1NQeFB1QjliU0kxZDZF?=
- =?utf-8?B?MGJ2UVdhdHFVOWRrdVJRYnBjd0RRSW5GV1ZTT1ZZZk9zakx5Qi9FTXViWVhW?=
- =?utf-8?B?ME4zQ3I2TVY2RUJxdUcvQThHcER6ZXpSVG5hQzBEUmNWSGoyaWZ4a1FsZVRr?=
- =?utf-8?B?NXB4TWE1OHdMekZnUUJJMnpRMllOQmpjY3luMnNXa3BVTE5YNHBqN3hwUHlW?=
- =?utf-8?B?YTR4NHR1UEEvRlV3MlZXU0Era3RzV2tDVkZ2TXdIVEdHS29Ea1ZxVVU0c0Fu?=
- =?utf-8?B?Tm8xQ25wQUlhU1psSmNJSy9scG1wSlRocFVZdXRENitXWndzV3NnOFFNc2U1?=
- =?utf-8?B?eFM0bU9udEhHVEQrS3F2RHlxVVp0Y1V0UGxROXppOFVBZGptdkh0V1hWM0ZQ?=
- =?utf-8?B?WHM3TGxqNnAzOG1yVGV4LzV2R2VaYUxEb1QwUVdVbXF6aXU2MWE2K0IwU0ZI?=
- =?utf-8?B?N2xqUEpWYU1keDgzektnNytGOVhyNDVmYlRlL2JoRW1GeTRuQnV5N25MVmpz?=
- =?utf-8?B?VWk5OVJjbk1lTmJmNjgyUmYybGpEakJsQ3ZxT3N3WXZVN0JrbVRPN1pJSzFr?=
- =?utf-8?B?QzByZlo2TitPK25FejVuazdRSWIwQzA1em1OdXdSS2RxeUpFeHpKTHB3b2lM?=
- =?utf-8?B?M3pOZ1hpUzJkTmJnTGs3bU1MekZ2OEwreTJLTFlaTk1lQXhFdmgvblY1dEl3?=
- =?utf-8?B?RExCNDBWbGNoLzBSU3JXOC9aT2lVaG9jejdkZDlicVpaRUVKWDlzamUzUytz?=
- =?utf-8?B?TnV5MDFXZC9MUnlsalg5QXlNRG41U0I2cTRqcXhWdDcwY3V4d09WM3VKSUFW?=
- =?utf-8?B?Vm9TZjJNWE1oY0RMeGZ0N0NUL3RuTjBxNVJJTWNVZjl6YllJMnNydFpSNnYx?=
- =?utf-8?B?UkljRkJhdXF4Z09qM3Evd1pxR2d3S3U1TjVuN09JM1FFZkN2SVp5WmQxdm1I?=
- =?utf-8?B?NHNEQkpQMDBCSkVRdGJ0VHFZN2pwNGxsdHQ0VUR4RWJ0YmNMckdieE1Md1Bx?=
- =?utf-8?B?UWI4MWFQZGI2ME5oekU3eFRRakJZVnZveWNnN0lHeGIrSkF5amhBT2lDN1Bu?=
- =?utf-8?B?eTY4N3V0QmlpQXlCZVc0SDU2YVpNTDMzZ0JYSG1jV3crbU91VnRaQXNDMElZ?=
- =?utf-8?B?NVd4V1FnNFJvYzVsUk5Lb1VKMzJ0RStTSS9VMTB5aFBqYTRNZWM0Q01pWXN5?=
- =?utf-8?B?cjl0bTh3cmQxSnJxVmY1Nk1FVkRjckdpekt3V05WVFk0dlpJWTd3VXUwUTVH?=
- =?utf-8?Q?bAnAHxtzbBoeuCMKTV288oW/ZSJ3Ye7ZCoZqo+W?=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0801MB1837
-Original-Authentication-Results: suse.com; dkim=none (message not signed)
- header.d=none;suse.com; dmarc=none action=none header.from=arm.com;
-X-EOPAttributedMessage: 0
-X-MS-Exchange-Transport-CrossTenantHeadersStripped: DB5EUR03FT054.eop-EUR03.prod.protection.outlook.com
-X-MS-Office365-Filtering-Correlation-Id-Prvs: c1b3bab4-c5ca-4b8c-282e-08d90624d2c6
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: AVzy5KGPspdD5uj2f917OGdvXj2KEwgvBt9GmPhaqQ169FPzmScwXOu14ZFJC/mF1rfxItt+A/eD7qEUE47ri3F449vQpfh0+h6ciECJxQuxncQaBEtv4gXpVCGcXHhIt4+qMKP3gioPYBTcbFEite6ygUve6BeDNXOmcwo1R69pyP2eZpwKCBy18qGHEGlNGD9r+0++kwgsPRWl8YQ6ibAgxpO1JBAZlCeIDCRemNXkMNUr5Sej474Pj7HPWKeQjxqUIU+pjDeH5E/9S8L56Hmu4sT9DC25DngPWmrafjZFlCgCSLdgkGX+PYixE+uJXwv6IGrg7wmF4xMknjYiPvdOyiiOo0308BdbOsusWqEOwTX13jBxe6vOFz7lQCoaCsAVIUmTW8YBhak+orXy9yBNh8KtGzYTFJ+LmTjyzWdYZs78d3y+uTyWOZ7bmcUhMP67V5eUo/pq/8Yxv2njeDbm+ghZadwyBWCJCGY0/1XIefBmXH8g2g6EKU6WPmQtQ/ww6O0kJ5CXsnV5kydkJEhHvPIPXCi0EjIciCViKJ8Z456Y8XUckyo40S2gNBmklOkPmMOmtub/8drE0vV3g7ay9JEZqGOpio66selMIGj9MjuJFhZ7Kl7JxRtxXOtbdXIbs1BKbON952fmbbv9w4bCYnueuLDq2DVGxZpRQYdwGMr/fJYZ6AQb4Dakbvyi
-X-Forefront-Antispam-Report: CIP:63.35.35.123;CTRY:IE;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:64aa7808-outbound-1.mta.getcheckrecipient.com;PTR:ec2-63-35-35-123.eu-west-1.compute.amazonaws.com;CAT:NONE;SFS:(4636009)(376002)(136003)(396003)(39850400004)(346002)(36840700001)(46966006)(6666004)(6486002)(86362001)(36756003)(5660300002)(450100002)(186003)(34020700004)(47076005)(82310400003)(478600001)(53546011)(2616005)(70206006)(83380400001)(16526019)(36860700001)(6862004)(66574015)(2906002)(8936002)(7696005)(82740400003)(336012)(81166007)(107886003)(356005)(8676002)(26005)(70586007)(33656002)(54906003)(44832011)(316002)(4326008)(956004);DIR:OUT;SFP:1101;
-X-OriginatorOrg: arm.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2021 06:55:57.1529
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0ca6b551-6473-461a-90bf-08d90624d892
-X-MS-Exchange-CrossTenant-Id: f34e5979-57d9-4aaa-ad4d-b122a662184d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=f34e5979-57d9-4aaa-ad4d-b122a662184d;Ip=[63.35.35.123];Helo=[64aa7808-outbound-1.mta.getcheckrecipient.com]
-X-MS-Exchange-CrossTenant-AuthSource: DB5EUR03FT054.eop-EUR03.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR08MB4563
+In-Reply-To: <467B8109-C829-4755-8398-196E50090898@arm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="7ayNSUCrXn5ckIGGaFScYNp0p0tZKBGXJ"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--7ayNSUCrXn5ckIGGaFScYNp0p0tZKBGXJ
+Content-Type: multipart/mixed; boundary="LKCNSGiy0nLMI7qsYI7xNT6BUHoXvzqvv";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Luca Fancellu <luca.fancellu@arm.com>
+Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org,
+ =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= <marmarek@invisiblethingslab.com>
+Message-ID: <9cb9bd6c-8185-9741-31b9-8f6baf3848a3@suse.com>
+Subject: Re: [PATCH] xen/gntdev: fix gntdev_mmap() error exit path
+References: <20210423054038.26696-1-jgross@suse.com>
+ <467B8109-C829-4755-8398-196E50090898@arm.com>
+In-Reply-To: <467B8109-C829-4755-8398-196E50090898@arm.com>
 
+--LKCNSGiy0nLMI7qsYI7xNT6BUHoXvzqvv
+Content-Type: multipart/mixed;
+ boundary="------------B36DB28A3BBCE5553396DB97"
+Content-Language: en-US
 
-> On 23 Apr 2021, at 06:40, Juergen Gross <jgross@suse.com> wrote:
+This is a multi-part message in MIME format.
+--------------B36DB28A3BBCE5553396DB97
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+On 23.04.21 08:55, Luca Fancellu wrote:
 >=20
-> Commit d3eeb1d77c5d0af ("xen/gntdev: use mmu_interval_notifier_insert")
-> introduced an error in gntdev_mmap(): in case the call of
-> mmu_interval_notifier_insert_locked() fails the exit path should not
-> call mmu_interval_notifier_remove(), as this might result in NULL
-> dereferences.
 >=20
-> One reason for failure is e.g. a signal pending for the running
-> process.
+>> On 23 Apr 2021, at 06:40, Juergen Gross <jgross@suse.com> wrote:
+>>
+>> Commit d3eeb1d77c5d0af ("xen/gntdev: use mmu_interval_notifier_insert"=
+)
+>> introduced an error in gntdev_mmap(): in case the call of
+>> mmu_interval_notifier_insert_locked() fails the exit path should not
+>> call mmu_interval_notifier_remove(), as this might result in NULL
+>> dereferences.
+>>
+>> One reason for failure is e.g. a signal pending for the running
+>> process.
+>>
+>> Fixes: d3eeb1d77c5d0af ("xen/gntdev: use mmu_interval_notifier_insert"=
+)
+>> Cc: stable@vger.kernel.org
+>> Reported-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethings=
+lab.com>
+>> Tested-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethingsla=
+b.com>
+>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>> ---
+>> drivers/xen/gntdev.c | 4 +++-
+>> 1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+>> index f01d58c7a042..a3e7be96527d 100644
+>> --- a/drivers/xen/gntdev.c
+>> +++ b/drivers/xen/gntdev.c
+>> @@ -1017,8 +1017,10 @@ static int gntdev_mmap(struct file *flip, struc=
+t vm_area_struct *vma)
+>> 		err =3D mmu_interval_notifier_insert_locked(
+>> 			&map->notifier, vma->vm_mm, vma->vm_start,
+>> 			vma->vm_end - vma->vm_start, &gntdev_mmu_ops);
+>> -		if (err)
+>> +		if (err) {
+>> +			map->vma =3D NULL;
+>> 			goto out_unlock_put;
+>> +		}
+>> 	}
+>> 	mutex_unlock(&priv->lock);
+>>
+>> --=20
+>> 2.26.2
+>>
+>>
 >=20
-> Fixes: d3eeb1d77c5d0af ("xen/gntdev: use mmu_interval_notifier_insert")
-> Cc: stable@vger.kernel.org
-> Reported-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethingslab=
-.com>
-> Tested-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethingslab.c=
-om>
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
-> drivers/xen/gntdev.c | 4 +++-
-> 1 file changed, 3 insertions(+), 1 deletion(-)
+> Hi Juergen,
 >=20
-> diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-> index f01d58c7a042..a3e7be96527d 100644
-> --- a/drivers/xen/gntdev.c
-> +++ b/drivers/xen/gntdev.c
-> @@ -1017,8 +1017,10 @@ static int gntdev_mmap(struct file *flip, struct v=
-m_area_struct *vma)
-> 		err =3D mmu_interval_notifier_insert_locked(
-> 			&map->notifier, vma->vm_mm, vma->vm_start,
-> 			vma->vm_end - vma->vm_start, &gntdev_mmu_ops);
-> -		if (err)
-> +		if (err) {
-> +			map->vma =3D NULL;
+> I can see from the code that there is another path to out_unlock_put la=
+bel some lines before:
+>=20
+>          [=E2=80=A6]
+>          vma->vm_private_data =3D map;
+> 	if (map->flags) {
+> 		if ((vma->vm_flags & VM_WRITE) &&
+> 				(map->flags & GNTMAP_readonly))
 > 			goto out_unlock_put;
-> +		}
+> 	} else {
+> 		map->flags =3D GNTMAP_host_map;
+> 		if (!(vma->vm_flags & VM_WRITE))
+> 			map->flags |=3D GNTMAP_readonly;
 > 	}
-> 	mutex_unlock(&priv->lock);
+>          [=E2=80=A6]
 >=20
-> --=20
-> 2.26.2
->=20
->=20
+> Can be the case that use_ptemod is !=3D 0 also for that path?
 
-Hi Juergen,
+map->vma will be NULL in this case, so there will be no problem
+resulting from that path.
 
-I can see from the code that there is another path to out_unlock_put label =
-some lines before:
 
-        [=E2=80=A6]
-        vma->vm_private_data =3D map;
-	if (map->flags) {
-		if ((vma->vm_flags & VM_WRITE) &&
-				(map->flags & GNTMAP_readonly))
-			goto out_unlock_put;
-	} else {
-		map->flags =3D GNTMAP_host_map;
-		if (!(vma->vm_flags & VM_WRITE))
-			map->flags |=3D GNTMAP_readonly;
-	}
-        [=E2=80=A6]
+Juergen
 
-Can be the case that use_ptemod is !=3D 0 also for that path?
+--------------B36DB28A3BBCE5553396DB97
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
 
-Cheers,
-Luca=
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------B36DB28A3BBCE5553396DB97--
+
+--LKCNSGiy0nLMI7qsYI7xNT6BUHoXvzqvv--
+
+--7ayNSUCrXn5ckIGGaFScYNp0p0tZKBGXJ
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmCCcIoFAwAAAAAACgkQsN6d1ii/Ey+w
+nAf+O46tcpYGxWRUlmpQz9aXmS/beyu7Al3yBGxj2izhyazpO5pqlpeoFVYYp4lpDFbHLDv8Gk28
+mjDKZMjqunQHQPQZHz+mQyb5jV0+nYKMtg8zglbYXSaXKJHNUhFeb3/qrHW2ce0G2XTgPBlrhLzc
+FBr2ifE/9GYtTpax4pXB7ZRlVXnyZp4NGNPQyhpzQvwgNeG0ckgpi62mbEKk6tnD2cY4pkacoFfS
+kmtkOl8pPp2rgXZBwRTf8wHkWbtd8umWJ0iu9d2hDj4s7imcKny5Cn8h00lgxVcVfXv9j5blEEVc
+N/sbGvwfN8pmgP3AI8a/Bupwe88ybpwfo5izuwGrcA==
+=zxBS
+-----END PGP SIGNATURE-----
+
+--7ayNSUCrXn5ckIGGaFScYNp0p0tZKBGXJ--
