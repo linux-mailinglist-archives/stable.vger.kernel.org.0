@@ -2,159 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51BAB369B35
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 22:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF5C6369B3F
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 22:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232802AbhDWUT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 16:19:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35162 "EHLO
+        id S232686AbhDWUYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 16:24:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232686AbhDWUT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 16:19:56 -0400
-Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2928C061756
-        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 13:19:17 -0700 (PDT)
-Received: by mail-ot1-x330.google.com with SMTP id c8-20020a9d78480000b0290289e9d1b7bcso32290029otm.4
-        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 13:19:17 -0700 (PDT)
+        with ESMTP id S243798AbhDWUY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 16:24:29 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D7C0C061574
+        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 13:23:51 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id p12so35946313pgj.10
+        for <stable@vger.kernel.org>; Fri, 23 Apr 2021 13:23:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=J1NPesUHck/PXytWUMZaL5H3tigSX17N3XIw4EegWTo=;
-        b=h/zj34eMbFVxnsOvC1DnFfdHinWG50GkumzwQGZ3MZu0ke7Lr1+JaFtFTDV5XOMqgb
-         YRBq6VuCEXA8EBgdPhBKdI8oQ+W1EfSjN+mznToiU1mQ0PHbX7CJj/DLoXjr/0DPhu53
-         nqx6oFLPXP+PI2JuGA23gyWv8SY61CY5Ie7jE=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=AO06Fwxps0UFKjXeyGva24rJ+ZI8gUzRCR3xxqwbS3U=;
+        b=MV4lA9yWm4AJX8yTI+/qlykbyEW0h5a1L9pYlYxcI0HoxbmGuD0a+TImIgBEC5f4jn
+         kykfc2FTC5LOj9SczNtkD+pDrrjzgRUer8uKdETH+Zmm3tiruAkwTkejmVU1XRA6FCU8
+         3/j980EKoxwJEx1r361MNTK5l6hZo33+X0QbhA3aTJVfIJ6goV1PvMuXs7tAMiEvGldV
+         JW3vWROT/MXTXzAuK8PAyF7/LKiaNX58LsqeQiRIK8Q33RQv+0xTO+YJFWSG5zERFyVM
+         qpdrFR5ij0IpT9IHZgEb5nvnsJ7N3JBU5BGpRc9bj1ZcEOsPvh3JvLkOvaFndkpEhNQU
+         XkiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=J1NPesUHck/PXytWUMZaL5H3tigSX17N3XIw4EegWTo=;
-        b=Gb0+m08VfmtX+ff6RctdcvbNolEIcdVPtWQdB1WpDsYsNZsfMYw5cv65KZNoXySC3U
-         AwgZozvRnf5ouIVq30x/LqfT+kJS8GPka+vetekLoaOUwTbwiUI8VQFJGL+v213FTuFV
-         RF9kMQh7S1O/8bKk6pa/6SHGU8QBbEbSsaNDxFjaGl1TiFfNCzYiW9T+lOlIUNRkw2I3
-         6pTPSv//p0agAZVVqDdrzGOQmmW8p8Rqh9bI+5Xbtz7cAQnRysyE5s/nUOKcYCpLqeiJ
-         qrGlXnt80e/9gHtZGvOTi8NI/7Ho/3F82ext8OqyRA4IMq2gHxnNAO75/fTwfchtx+BJ
-         btgg==
-X-Gm-Message-State: AOAM531Uhumw9K13G9c1wSoSzMHhrNKZG8MtVnOE7zBMuDd9yoiBbY/I
-        L+TXAxQhUxB3KKg8r5zaWo6aoQ==
-X-Google-Smtp-Source: ABdhPJxveYdA31BMuoApMGii8ccA7nrQElJ5ZWPWnXUmpT+f0qLEMUCiESWam2UcuOfjVW+ktXgpRA==
-X-Received: by 2002:a9d:6483:: with SMTP id g3mr4825315otl.332.1619209157176;
-        Fri, 23 Apr 2021 13:19:17 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id o20sm1364829oos.19.2021.04.23.13.19.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 23 Apr 2021 13:19:16 -0700 (PDT)
-Subject: Re: [PATCH] media: gspca: stv06xx: Fix memleak in stv06xx subdrivers
-To:     Pavel Skripkin <paskripkin@gmail.com>,
-        Atul Gopinathan <atulgopinathan@gmail.com>
-Cc:     syzbot+990626a4ef6f043ed4cd@syzkaller.appspotmail.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        mchehab@kernel.org, linux-kernel-mentees@lists.linuxfoundation.org,
-        linux-media@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20210422160742.7166-1-atulgopinathan@gmail.com>
- <20210422215511.01489adb@gmail.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <36f126fc-6a5e-a078-4cf0-c73d6795a111@linuxfoundation.org>
-Date:   Fri, 23 Apr 2021 14:19:15 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=AO06Fwxps0UFKjXeyGva24rJ+ZI8gUzRCR3xxqwbS3U=;
+        b=Ltni1lpNjvRKWgRphKUNaAGoOUNf1zVsYeE2eyXcoeXeJQTDyee5yfM29IXoIhYWTN
+         xLu57TpCcAvFtpp09Jswet9FXxlaC8CSuShrWBw2s3UQ3an6CZAouIQXDz9HyvO/UH7X
+         6LwyO5hPDvVhyroKo3erXFuGYftKmdOL+pUUNH2VTpbCxm5aiMD9Hm6MUVW5SojnEcnX
+         uyprrGde63Rr9CSHpX+KzKMTXG4SVolayZSFa1gkf1Rd33BptukuAud1L3lbZKkI+uIY
+         tuugeSuA9ebZ9oQQr8cC3HtP6vOTcdLE3hZlWXxlO5VsZaYVAmdjmRwwWA+lVXpJeU3a
+         j7yQ==
+X-Gm-Message-State: AOAM5337J8w/IR3qIYVLZASDyqio8R/0Ki7RjG6SDkS/FaxC/ZdzyXC1
+        GW40fPWlepogvdaqB449EteChP3cgzcDLvHh
+X-Google-Smtp-Source: ABdhPJz46bBGGg8jpseD80SKlFJyuTXWXKz5t8BWR9ZxG/AVSX7Z5GMHqVb6F7BQqzjGTlFAa11puA==
+X-Received: by 2002:a63:3c9:: with SMTP id 192mr5527000pgd.423.1619209430555;
+        Fri, 23 Apr 2021 13:23:50 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o30sm5660305pgc.55.2021.04.23.13.23.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Apr 2021 13:23:50 -0700 (PDT)
+Message-ID: <60832cd6.1c69fb81.29a79.0cb9@mx.google.com>
+Date:   Fri, 23 Apr 2021 13:23:50 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210422215511.01489adb@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.188-43-gf7796965d612
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 161 runs,
+ 5 regressions (v4.19.188-43-gf7796965d612)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/22/21 12:55 PM, Pavel Skripkin wrote:
-> Hi!
-> 
-> On Thu, 22 Apr 2021 21:37:42 +0530
-> Atul Gopinathan <atulgopinathan@gmail.com> wrote:
->> During probing phase of a gspca driver in "gspca_dev_probe2()", the
->> stv06xx subdrivers have certain sensor variants (namely, hdcs_1x00,
->> hdcs_1020 and pb_0100) that allocate memory for their respective
->> sensor which is passed to the "sd->sensor_priv" field. During the
->> same probe routine, after "sensor_priv" allocation, there are chances
->> of later functions invoked to fail which result in the probing
->> routine to end immediately via "goto out" path. While doing so, the
->> memory allocated earlier for the sensor isn't taken care of resulting
->> in memory leak.
->>
->> Fix this by adding operations to the gspca, stv06xx and down to the
->> sensor levels to free this allocated memory during gspca probe
->> failure.
->>
->> -
->> The current level of hierarchy looks something like this:
->>
->> 	gspca (main driver) represented by struct gspca_dev
->> 	   |
->> ___________|_____________________________________
->> |	|	|	|	|		| (subdrivers)
->> 			|			  represented
->>   			stv06xx			  by "struct
->> sd" |
->>   	 _______________|_______________
->>   	 |	|	|	|	|  (sensors)
->> 	 	|			|
->>   		hdcs_1x00/1020		pb01000
->> 			|_________________|
->> 				|
->> 			These three sensor variants
->> 			allocate memory for
->> 			"sd->sensor_priv" field.
->>
->> Here, "struct gspca_dev" is the representation used in the top level.
->> In the sub-driver levels, "gspca_dev" pointer is cast to "struct sd*",
->> something like this:
->>
->> 	struct sd *sd = (struct sd *)gspca_dev;
->>
->> This is possible because the first field of "struct sd" is
->> "gspca_dev":
->>
->> 	struct sd {
->> 		struct gspca_dev;
->> 		.
->> 		.
->> 	}
->>
->> Therefore, to deallocate the "sd->sensor_priv" fields from
->> "gspca_dev_probe2()" which is at the top level, the patch creates
->> operations for the subdrivers and sensors to be invoked from the gspca
->> driver levels. These operations essentially free the "sd->sensor_priv"
->> which were allocated by the "config" and "init_controls" operations in
->> the case of stv06xx sub-drivers and the sensor levels.
->>
->> This patch doesn't affect other sub-drivers or even sensors who never
->> allocate memory to "sensor_priv". It has also been tested by syzbot
->> and it returned an "OK" result.
->>
->> https://syzkaller.appspot.com/bug?id=ab69427f2911374e5f0b347d0d7795bfe384016c
->> -
->>
->> Fixes: 4c98834addfe ("V4L/DVB (10048): gspca - stv06xx: New
->> subdriver.") Cc: stable@vger.kernel.org
->> Suggested-by: Shuah Khan <skhan@linuxfoundation.org>
->> Reported-by: syzbot+990626a4ef6f043ed4cd@syzkaller.appspotmail.com
->> Tested-by: syzbot+990626a4ef6f043ed4cd@syzkaller.appspotmail.com
->> Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-> 
-> AFAIK, something similar is already applied to linux-media tree
-> https://git.linuxtv.org/media_tree.git/commit/?id=4f4e6644cd876c844cdb3bea2dd7051787d5ae25
-> 
+stable-rc/queue/4.19 baseline: 161 runs, 5 regressions (v4.19.188-43-gf7796=
+965d612)
 
-Pavel,
+Regressions Summary
+-------------------
 
-Does the above handle the other drivers hdcs_1x00/1020 and pb01000?
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Atul's patch handles those cases. If thoese code paths need to be fixes,
-Atul could do a patch on top of yours perhaps?
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-thanks,
--- Shuah
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.188-43-gf7796965d612/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.188-43-gf7796965d612
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f7796965d612aa49247c8fc16ed11709e40ff1af =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082f9a9591f123e9e9b77c2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082f9a9591f123e9e9b7=
+7c3
+        failing since 160 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082f9b55a53bcec499b77c7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082f9b55a53bcec499b7=
+7c8
+        failing since 160 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082f9f867c5c04c089b77a3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082f9f867c5c04c089b7=
+7a4
+        failing since 160 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082f95d1c083cb5d29b779e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082f95d1c083cb5d29b7=
+79f
+        failing since 160 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6082f9653c773ff7e59b7795
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.188=
+-43-gf7796965d612/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6082f9653c773ff7e59b7=
+796
+        failing since 160 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
