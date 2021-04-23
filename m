@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F135369212
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 14:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A312C36921D
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 14:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234417AbhDWM14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 08:27:56 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:17033 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231338AbhDWM1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 08:27:50 -0400
-Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FRYPQ11bjzPtJ2;
-        Fri, 23 Apr 2021 20:24:10 +0800 (CST)
-Received: from huawei.com (10.175.127.227) by DGGEMS409-HUB.china.huawei.com
- (10.3.19.209) with Microsoft SMTP Server id 14.3.498.0; Fri, 23 Apr 2021
- 20:27:06 +0800
+        id S229965AbhDWMaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 08:30:35 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:17398 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229479AbhDWMae (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 23 Apr 2021 08:30:34 -0400
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4FRYTp49TlzlZHb;
+        Fri, 23 Apr 2021 20:27:58 +0800 (CST)
+Received: from huawei.com (10.175.127.227) by DGGEMS405-HUB.china.huawei.com
+ (10.3.19.205) with Microsoft SMTP Server id 14.3.498.0; Fri, 23 Apr 2021
+ 20:29:47 +0800
 From:   Zhang Yi <yi.zhang@huawei.com>
 To:     <stable@vger.kernel.org>
 CC:     <gregkh@linuxfoundation.org>, <tytso@mit.edu>, <sashal@kernel.org>,
         <yi.zhang@huawei.com>
-Subject: [PATCH 4.4] ext4: correct error label in ext4_rename()
-Date:   Fri, 23 Apr 2021 20:35:07 +0800
-Message-ID: <20210423123507.1936208-1-yi.zhang@huawei.com>
+Subject: [PATCH 4.9] ext4: correct error label in ext4_rename()
+Date:   Fri, 23 Apr 2021 20:37:50 +0800
+Message-ID: <20210423123750.1946580-1-yi.zhang@huawei.com>
 X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
@@ -53,19 +53,19 @@ forgetting to change to release_bh, which may trigger below bug.
  ...
  ---[ end trace 75346ce7c76b9f06 ]---
 
-Fixes: 2fc8ce56985d ("ext4: do not iput inode under running transaction in ext4_rename()")
+Fixes: f5337ec530a6 ("ext4: do not iput inode under running transaction in ext4_rename()")
 Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
 ---
  fs/ext4/namei.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index f22fcb393684..8cd2a7e1eef1 100644
+index bbda3ea7039f..4d9901a18b97 100644
 --- a/fs/ext4/namei.c
 +++ b/fs/ext4/namei.c
-@@ -3561,7 +3561,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	    !ext4_is_child_context_consistent_with_parent(new.dir,
- 							  old.inode)) {
+@@ -3621,7 +3621,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	    ext4_encrypted_inode(new.dir) &&
+ 	    !fscrypt_has_permitted_context(new.dir, old.inode)) {
  		retval = -EXDEV;
 -		goto end_rename;
 +		goto release_bh;
