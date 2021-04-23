@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B43E368DF8
-	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 09:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6D54368DF9
+	for <lists+stable@lfdr.de>; Fri, 23 Apr 2021 09:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240937AbhDWHgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 23 Apr 2021 03:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43126 "EHLO mail.kernel.org"
+        id S236205AbhDWHgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 23 Apr 2021 03:36:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236205AbhDWHgL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 23 Apr 2021 03:36:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC2AC613D7;
-        Fri, 23 Apr 2021 07:35:32 +0000 (UTC)
+        id S229456AbhDWHgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 23 Apr 2021 03:36:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2C28613CC;
+        Fri, 23 Apr 2021 07:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619163333;
-        bh=PSuBLIjWdbCPaUPiaxxaBu5PbntPOQJVZD9/uIbCQnw=;
+        s=korg; t=1619163346;
+        bh=br0p1CRG343pCzAMPCjS5i4HoXXjVIKqLx+em5IMwu4=;
         h=Subject:To:From:Date:From;
-        b=wqYrlsRMB1f7fZ4/301FR9vAqhTAgMovcgf7Tkdm7xJrpLTUKotp6FcCU4pBHGRUC
-         tq9Xptg0OL1mcSaIhYui1xFoLCd2HMUcQePFNjIUm7fF4Fn9P6JzSFvXlFwOQMgdKp
-         M/KgzMBDQabNq5DrizcfLiYzg3s2U6mUtDsmiW8E=
-Subject: patch "usb: gadget: dummy_hcd: fix gpf in gadget_setup" added to usb-next
-To:     mail@anirudhrb.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, stern@rowland.harvard.edu
+        b=Ara/11PFagzlZUg56JkMCyH5fGXd9n/4FNyatuEDnK4zFFURaBghOv/dvM2bFlhtD
+         AejmsejNoU3ejVtvEeGry1Y2UoIUOeme+BQwYgdfbCnz2bHbXtIjLyw60r1d77fzrx
+         xXBn2YYZAlJXY3FD1gnUw/bmw/D8abvVJNR4QM60=
+Subject: patch "USB: CDC-ACM: fix poison/unpoison imbalance" added to usb-next
+To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 23 Apr 2021 09:32:49 +0200
-Message-ID: <161916316924046@kroah.com>
+Date:   Fri, 23 Apr 2021 09:32:52 +0200
+Message-ID: <16191631723072@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: dummy_hcd: fix gpf in gadget_setup
+    USB: CDC-ACM: fix poison/unpoison imbalance
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,93 +51,45 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 4a5d797a9f9c4f18585544237216d7812686a71f Mon Sep 17 00:00:00 2001
-From: Anirudh Rayabharam <mail@anirudhrb.com>
-Date: Mon, 19 Apr 2021 09:07:08 +0530
-Subject: usb: gadget: dummy_hcd: fix gpf in gadget_setup
+From a8b3b519618f30a87a304c4e120267ce6f8dc68a Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Wed, 21 Apr 2021 09:45:13 +0200
+Subject: USB: CDC-ACM: fix poison/unpoison imbalance
 
-Fix a general protection fault reported by syzbot due to a race between
-gadget_setup() and gadget_unbind() in raw_gadget.
+suspend() does its poisoning conditionally, resume() does it
+unconditionally. On a device with combined interfaces this
+will balance, on a device with two interfaces the counter will
+go negative and resubmission will fail.
 
-The gadget core is supposed to guarantee that there won't be any more
-callbacks to the gadget driver once the driver's unbind routine is
-called. That guarantee is enforced in usb_gadget_remove_driver as
-follows:
+Both actions need to be done conditionally.
 
-        usb_gadget_disconnect(udc->gadget);
-        if (udc->gadget->irq)
-                synchronize_irq(udc->gadget->irq);
-        udc->driver->unbind(udc->gadget);
-        usb_gadget_udc_stop(udc);
-
-usb_gadget_disconnect turns off the pullup resistor, telling the host
-that the gadget is no longer connected and preventing the transmission
-of any more USB packets. Any packets that have already been received
-are sure to processed by the UDC driver's interrupt handler by the time
-synchronize_irq returns.
-
-But this doesn't work with dummy_hcd, because dummy_hcd doesn't use
-interrupts; it uses a timer instead. It does have code to emulate the
-effect of synchronize_irq, but that code doesn't get invoked at the
-right time -- it currently runs in usb_gadget_udc_stop, after the unbind
-callback instead of before. Indeed, there's no way for
-usb_gadget_remove_driver to invoke this code before the unbind callback.
-
-To fix this, move the synchronize_irq() emulation code to dummy_pullup
-so that it runs before unbind. Also, add a comment explaining why it is
-necessary to have it there.
-
-Reported-by: syzbot+eb4674092e6cc8d9e0bd@syzkaller.appspotmail.com
-Suggested-by: Alan Stern <stern@rowland.harvard.edu>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210419033713.3021-1-mail@anirudhrb.com
+Fixes: 6069e3e927c8f ("USB: cdc-acm: untangle a circular dependency between callback and softint")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210421074513.4327-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/dummy_hcd.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/usb/class/cdc-acm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
-index ce24d4f28f2a..7db773c87379 100644
---- a/drivers/usb/gadget/udc/dummy_hcd.c
-+++ b/drivers/usb/gadget/udc/dummy_hcd.c
-@@ -903,6 +903,21 @@ static int dummy_pullup(struct usb_gadget *_gadget, int value)
- 	spin_lock_irqsave(&dum->lock, flags);
- 	dum->pullup = (value != 0);
- 	set_link_state(dum_hcd);
-+	if (value == 0) {
-+		/*
-+		 * Emulate synchronize_irq(): wait for callbacks to finish.
-+		 * This seems to be the best place to emulate the call to
-+		 * synchronize_irq() that's in usb_gadget_remove_driver().
-+		 * Doing it in dummy_udc_stop() would be too late since it
-+		 * is called after the unbind callback and unbind shouldn't
-+		 * be invoked until all the other callbacks are finished.
-+		 */
-+		while (dum->callback_usage > 0) {
-+			spin_unlock_irqrestore(&dum->lock, flags);
-+			usleep_range(1000, 2000);
-+			spin_lock_irqsave(&dum->lock, flags);
-+		}
-+	}
- 	spin_unlock_irqrestore(&dum->lock, flags);
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index b74713518b3a..c103961c3fae 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1624,12 +1624,13 @@ static int acm_resume(struct usb_interface *intf)
+ 	struct urb *urb;
+ 	int rv = 0;
  
- 	usb_hcd_poll_rh_status(dummy_hcd_to_hcd(dum_hcd));
-@@ -1004,14 +1019,6 @@ static int dummy_udc_stop(struct usb_gadget *g)
- 	spin_lock_irq(&dum->lock);
- 	dum->ints_enabled = 0;
- 	stop_activity(dum);
--
--	/* emulate synchronize_irq(): wait for callbacks to finish */
--	while (dum->callback_usage > 0) {
--		spin_unlock_irq(&dum->lock);
--		usleep_range(1000, 2000);
--		spin_lock_irq(&dum->lock);
--	}
--
- 	dum->driver = NULL;
- 	spin_unlock_irq(&dum->lock);
+-	acm_unpoison_urbs(acm);
+ 	spin_lock_irq(&acm->write_lock);
+ 
+ 	if (--acm->susp_count)
+ 		goto out;
+ 
++	acm_unpoison_urbs(acm);
++
+ 	if (tty_port_initialized(&acm->port)) {
+ 		rv = usb_submit_urb(acm->ctrlurb, GFP_ATOMIC);
  
 -- 
 2.31.1
