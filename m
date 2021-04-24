@@ -2,53 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E1D36A1AC
-	for <lists+stable@lfdr.de>; Sat, 24 Apr 2021 16:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B17336A1AD
+	for <lists+stable@lfdr.de>; Sat, 24 Apr 2021 16:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232035AbhDXOrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Apr 2021 10:47:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42728 "EHLO mail.kernel.org"
+        id S232051AbhDXOsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Apr 2021 10:48:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230211AbhDXOq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 24 Apr 2021 10:46:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C26EF613C4;
-        Sat, 24 Apr 2021 14:46:20 +0000 (UTC)
+        id S231940AbhDXOsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 24 Apr 2021 10:48:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAAEB61404;
+        Sat, 24 Apr 2021 14:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619275581;
-        bh=4oPo8Ag55Oj+kkLINFDlMDXPrrJ5z7xa+BCsGJ1ptJQ=;
+        s=korg; t=1619275648;
+        bh=EaVsXfeFt3QwPHQKa1kWysWwtxSIpPWgroajl+C8veU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HPY31R9uCrHt7Q2Cdvu1iYRoObTdQ6S+IHhFRfIG0wN3KhTZBByUIxjt45c8g/eOT
-         t6702EdaGkC2xMv+UP6YP5g4wMZTQytcKRGrRwQ900fci0EuW0O4qdJFzfTeXrqYbY
-         i6rCMhz/t2PoDgBja5hyArtB+b9mPyUIUoZ/75zc=
-Date:   Sat, 24 Apr 2021 16:46:18 +0200
+        b=SBfQs9/8Z3z1Ifhi4i/rvPpPBniENxB7zivRvbpswqVFZPkaP/LNm5PwF97DsyTeJ
+         WxSCzQPcv7p4FqrPss0+it3IZgAJYRl2mUk1a2qZrGt+npEQUzQvm8hX96A7i4B/SX
+         RjTHeevo6URDcUygtgmCKAhsxw7VBPIfoU0Aj4wg=
+Date:   Sat, 24 Apr 2021 16:47:25 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     mail@anirudhrb.com, davem@davemloft.net, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] net: hso: fix null-ptr-deref during tty
- device unregistration" failed to apply to 4.14-stable tree
-Message-ID: <YIQvOsYh5+/1ZjrJ@kroah.com>
-References: <161806330327108@kroah.com>
- <YIMbD19ioXTqm6cp@debian>
+To:     "Zidenberg, Tsahi" <tsahee@amazon.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 0/8] Fix bpf: fix userspace access for
+ bpf_probe_read{,str}()
+Message-ID: <YIQvfapynnC9Od+l@kroah.com>
+References: <dda18ffd-0406-ec54-1014-b7d89a1bcd56@amazon.com>
+ <YILi0740FGK78Zy8@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YIMbD19ioXTqm6cp@debian>
+In-Reply-To: <YILi0740FGK78Zy8@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 23, 2021 at 08:07:59PM +0100, Sudip Mukherjee wrote:
-> Hi Greg,
+On Fri, Apr 23, 2021 at 05:08:03PM +0200, Greg KH wrote:
+> On Wed, Apr 21, 2021 at 04:05:32PM +0300, Zidenberg, Tsahi wrote:
+> > In arm64, kernelspace address accessors cannot be used to access
+> > userspace addresses, which means bpf_probe_read{,str}() cannot access
+> > userspace addresses. That causes e.g. command-line parameters to not
+> > appear when snooping execve using bpf.
 > 
-> On Sat, Apr 10, 2021 at 04:01:43PM +0200, gregkh@linuxfoundation.org wrote:
+> Again, this really feels like a new feature, not a regression or bugfix
+> at all.  And in looking at these patches, that feeling really gets
+> stronger.
+> 
+> > This patch series takes the upstream solution. This solution also
+> > changes user API in the following ways:
+> > * Add probe_read_{user, kernel}{,_str} bpf helpers
+> > * Add skb_output helper to the enum only (calling it not supported)
+> > * Add support for %pks, %pus specifiers
 > > 
-> > The patch below does not apply to the 4.14-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+> > An alternative fix only takes the required logic to existing API without
+> > adding new API, was suggested here:
+> > https://www.spinics.net/lists/stable/msg454945.html
+> > 
+> > Another option is to only take patches [1-4] of this patchset, and add
+> > on top of them commit 8d92db5c04d1 ("bpf: rework the compat kernel probe
+> > handling"). In that case, the last patch would require function renames
+> > and conflict resolutions that were avoided in this patchset by pulling
+> > patches [5-7].
 > 
-> Here is the backport. Will also apply for 4.9-stable and 4.4-stable.
+> The other option is to move your system to a newer kernel release that
+> has this new feature, right?  :)
+> 
+> What prevents you from doing that today?  What bug is this solving that
+> worked in previous kernel releases and was broken in 5.4.y?
 
-Thanks, now queued up.
+And again, "feature parity across CPU architectures for the same
+release" is nothing that Linux has EVER guaranteed...
+
+thanks,
 
 greg k-h
