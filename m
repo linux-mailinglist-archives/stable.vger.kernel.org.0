@@ -2,77 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B17336A1AD
-	for <lists+stable@lfdr.de>; Sat, 24 Apr 2021 16:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2353336A1AF
+	for <lists+stable@lfdr.de>; Sat, 24 Apr 2021 16:50:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232051AbhDXOsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Apr 2021 10:48:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43520 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231940AbhDXOsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 24 Apr 2021 10:48:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAAEB61404;
-        Sat, 24 Apr 2021 14:47:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619275648;
-        bh=EaVsXfeFt3QwPHQKa1kWysWwtxSIpPWgroajl+C8veU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SBfQs9/8Z3z1Ifhi4i/rvPpPBniENxB7zivRvbpswqVFZPkaP/LNm5PwF97DsyTeJ
-         WxSCzQPcv7p4FqrPss0+it3IZgAJYRl2mUk1a2qZrGt+npEQUzQvm8hX96A7i4B/SX
-         RjTHeevo6URDcUygtgmCKAhsxw7VBPIfoU0Aj4wg=
-Date:   Sat, 24 Apr 2021 16:47:25 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Zidenberg, Tsahi" <tsahee@amazon.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 0/8] Fix bpf: fix userspace access for
- bpf_probe_read{,str}()
-Message-ID: <YIQvfapynnC9Od+l@kroah.com>
-References: <dda18ffd-0406-ec54-1014-b7d89a1bcd56@amazon.com>
- <YILi0740FGK78Zy8@kroah.com>
+        id S231940AbhDXOvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Apr 2021 10:51:23 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:50851 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231814AbhDXOvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Apr 2021 10:51:22 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 5283E5C00D9;
+        Sat, 24 Apr 2021 10:50:44 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 24 Apr 2021 10:50:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=qP7nOuBgYMMCggPA9hPMYTlEj6T
+        brjnsTUUSRS18HYA=; b=S29yr/1yYebL9wWlBn80pbC0ooAYpoAMGuFjdRYRi2i
+        O6fVdssl4uxtvYBvIUm5fewwa4alD6S8NpynY7nBDfRk/nuLj0BLqAgZJNCp8zXK
+        YfZUXSWZDaajqNx8dzgD23NeanS4sVHCQRIAchtKJjpswnFarSe5TIjTIiAi0X7A
+        YqbTDNh0b1fjEGxPqAHn5ao1R0KcUBvTzE8w5/yT/Us7GCkXbraWQ3pH98fk2oOE
+        cFV7n9Fkg9gN8CcGVw8+Y4ksuxgewuJXpj4qplt+eygo+6QokMYQ5VuRyRvqb4m6
+        LO78VJcvszsmNpHJvecRWxfbOUoqlMGCTY7uh5rbCIw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=qP7nOu
+        BgYMMCggPA9hPMYTlEj6TbrjnsTUUSRS18HYA=; b=osTephzniCDyNyZM3XxXl6
+        xnxs9AM07WG+dtmVz4XRTQpwxATpB0xugg7AWMBLJNyQUxxdSgTipwmr13xoWNDG
+        4BfnHE28/qosrG5A2ZjwX0RoM9wsGcvxt+6Tj8HGAhOOp1PN2vQBw/gUIxGAPlg/
+        5TyvZtE5ixcm66elK/vDmAEJMVERmU1AiHs5YkLtzCbt7G6OIcZQyDP9b/Yp5hYt
+        SnLXQf7m3Ygn+XrUYeirkR7CJs+fvzedfdaMg1t+mPH0FWhWfuQEpWoQxGawN1y2
+        tUu3X1i09CPOBEhuRwFSdAm8WiD1POOkBG8Q/EOI+6bxy50GqOMotU6DNAbi/ggQ
+        ==
+X-ME-Sender: <xms:QzCEYIOe9IzdG4u0aSDAqRG_HhMrER3wmoXO9qzezCw_Ij1-2P02bg>
+    <xme:QzCEYO9LS82y10naAXwArH1U6JcLACrizHW0oECryVX6fZvPUSoJRKOLtj86w-r5p
+    57JMws_veJmww>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugedgkedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeffkefhge
+    fgvdejvdelteegheeiffdtieeiudeitdeklefhfefhjeefudegudevgeenucffohhmrghi
+    nheplhgruhhntghhphgrugdrnhgvthenucfkphepkeefrdekiedrjeegrdeigeenucevlh
+    hushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhr
+    ohgrhhdrtghomh
+X-ME-Proxy: <xmx:QzCEYPRm_EiW04jk5iB1BF2clNv2HCV9kQIrsCaBeEbdsmupgSK1DQ>
+    <xmx:QzCEYAt6yp2b4oCCIWTAovqBNCGzWoZIkuMdnEWuFXOyMUT1ndCgnA>
+    <xmx:QzCEYAedQ2Hv6CSLNnLB1NK-9m3RejsNyXL1NLJ30wEY9OuHow3nrw>
+    <xmx:RDCEYBqkDFAq9c4L2XGozNLyfunCL9VW6KHrBIjYrpardiHbtc54NA>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6F08B24005D;
+        Sat, 24 Apr 2021 10:50:43 -0400 (EDT)
+Date:   Sat, 24 Apr 2021 16:50:41 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Cc:     stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Dan Streetman <ddstreet@canonical.com>
+Subject: Re: [PATCH stable v5.4+] s390/ptrace: return -ENOSYS when invalid
+ syscall is supplied
+Message-ID: <YIQwQSUDnZJVb0ei@kroah.com>
+References: <20210421165853.148822-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YILi0740FGK78Zy8@kroah.com>
+In-Reply-To: <20210421165853.148822-1-krzysztof.kozlowski@canonical.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 23, 2021 at 05:08:03PM +0200, Greg KH wrote:
-> On Wed, Apr 21, 2021 at 04:05:32PM +0300, Zidenberg, Tsahi wrote:
-> > In arm64, kernelspace address accessors cannot be used to access
-> > userspace addresses, which means bpf_probe_read{,str}() cannot access
-> > userspace addresses. That causes e.g. command-line parameters to not
-> > appear when snooping execve using bpf.
+On Wed, Apr 21, 2021 at 06:58:53PM +0200, Krzysztof Kozlowski wrote:
+> From: Sven Schnelle <svens@linux.ibm.com>
 > 
-> Again, this really feels like a new feature, not a regression or bugfix
-> at all.  And in looking at these patches, that feeling really gets
-> stronger.
+> commit cd29fa798001075a554b978df3a64e6656c25794 upstream.
 > 
-> > This patch series takes the upstream solution. This solution also
-> > changes user API in the following ways:
-> > * Add probe_read_{user, kernel}{,_str} bpf helpers
-> > * Add skb_output helper to the enum only (calling it not supported)
-> > * Add support for %pks, %pus specifiers
-> > 
-> > An alternative fix only takes the required logic to existing API without
-> > adding new API, was suggested here:
-> > https://www.spinics.net/lists/stable/msg454945.html
-> > 
-> > Another option is to only take patches [1-4] of this patchset, and add
-> > on top of them commit 8d92db5c04d1 ("bpf: rework the compat kernel probe
-> > handling"). In that case, the last patch would require function renames
-> > and conflict resolutions that were avoided in this patchset by pulling
-> > patches [5-7].
+> The current code returns the syscall number which an invalid
+> syscall number is supplied and tracing is enabled. This makes
+> the strace testsuite fail.
 > 
-> The other option is to move your system to a newer kernel release that
-> has this new feature, right?  :)
-> 
-> What prevents you from doing that today?  What bug is this solving that
-> worked in previous kernel releases and was broken in 5.4.y?
+> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+> Signed-off-by: Dan Streetman <ddstreet@canonical.com>
+> Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1895132
+> [krzysztof: adjusted the backport around missing ifdef CONFIG_SECCOMP,
+>  add Link and Fixes; apparently this should go with the referenced commit]
+> Fixes: 00332c16b160 ("s390/ptrace: pass invalid syscall numbers to tracing")
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-And again, "feature parity across CPU architectures for the same
-release" is nothing that Linux has EVER guaranteed...
-
-thanks,
+Thanks for this, now queued up.
 
 greg k-h
