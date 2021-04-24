@@ -2,124 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C273336A1A3
-	for <lists+stable@lfdr.de>; Sat, 24 Apr 2021 16:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F5A36A1A9
+	for <lists+stable@lfdr.de>; Sat, 24 Apr 2021 16:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231940AbhDXOkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 24 Apr 2021 10:40:05 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:46687 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229848AbhDXOkE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 24 Apr 2021 10:40:04 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 13F111940717;
-        Sat, 24 Apr 2021 10:39:25 -0400 (EDT)
+        id S232035AbhDXOo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 24 Apr 2021 10:44:29 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:46047 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229630AbhDXOo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 24 Apr 2021 10:44:29 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 6938E5C00D9;
+        Sat, 24 Apr 2021 10:43:50 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sat, 24 Apr 2021 10:39:25 -0400
+  by compute4.internal (MEProxy); Sat, 24 Apr 2021 10:43:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=2ZOfQhPJ+uxZJ5RC6Fp4DFPdIwM
+        NdnjI00W7BuBOvhY=; b=q2rhkY/1dpcs6KVp70ra4MSSQ9UOliYIj25vws7jA1X
+        z9Nm0iLUErzCrSOyDjTO9NzBhHpthDDhvSrAhtcJE0Hfl6MrMZAlvlBDyAZJu7IQ
+        K90abSilsO4DuOxNryh1kRQV7SXiy6o5WJlQPVcIBJnb8DsKfZyYv1eXQS3zgAr6
+        lQw67NFUgeMz/zbCNvvJpuPCdioNwXfgKZUGvTi57rYcWEnfHHAWPhNs8WEpkNe9
+        cDiwrRCVgsXVxx9obQ0/SsNdfFCenziwhIRXU4Jhx2HroeMfy8q8vxL5sPYAMvfk
+        qeypaRODNcfHeyIXNzPPFGF4KncyLbae2/bbnBqvdeA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=g+9VkY
-        lffTWm8g6AnXVo880q3nTZB0FTxynLE4PyAQ4=; b=EaEEP4XwrKTRg5jCh+rwhL
-        vjSy0MOSMOfauvGY9kWwuQrUrOwX2ytaGhAWUEKYiAbuXlty//ML4d7pcLIcSJoc
-        u4W0uBTnhNVfEs1P8e8vOkZPS8vTLaZxB33FTv0M+5f0FkampNayN1h32YWPIwyR
-        C8dwHF2/XfNhEWjPcZnAwiqZXVthCrFnXSGpOlSHVE4MLrhYlHRvcSSnxVI1Y4Dn
-        LkMb0vg+/zzR0KdjTPLDSlIaSUlXsoDhECUO1Qbf/bq+FEDnxxhyCZxjJlQZ+r4f
-        XOG+fVLn20URGAC9KYhnR9FCiFWGFfJ8PozOjH2kHOpVcptJSJkg2L0NqXc69OfQ
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2ZOfQh
+        PJ+uxZJ5RC6Fp4DFPdIwMNdnjI00W7BuBOvhY=; b=pgl0XA+Ts45SFG93UGp0K1
+        jszlUkS2jfx6Y9uxKdKDqrSSDESFmv1paP+YeVe7gsSCq1YlXTrkIbtV929rmF5u
+        //MjGPXeSsduIbc0IWPtFbB7AcXUEAskSnPb+93GR8cJRfdeLqySTd8S6Wcisc7c
+        AK1UGrK0b3hYbKAR3hcSgfnQFQfgdept9PukSlzF6Uyjrh/hS6pPHPRWm812ZTm5
+        Rlznql1XrVGc+DnD9H2UnQjMQ7AxqJRl0Jt83rgxpeNJtQOqRI42zHuKktoMShpl
+        iF1iT2eIoTGB2UAslKB2DwW2H2i1yfvAr6qLq8ic4q9CHwEmShD1ecoMuUu/3eLA
         ==
-X-ME-Sender: <xms:nC2EYIdXOrmUcgpXAkgreLj2ChOujgECMzfpGV2-8468i2NWOZciDA>
-    <xme:nC2EYOh5hqiFXsHvjIAlSI30HHXsl3oF2QR3gWS4R_HE1uAu0N55962rmh738P21f
-    poooBDKGTo5BA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugedgkedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:pi6EYGj9wNHr2cyKlX2kPN8kFDCfaIBZZShpQ_zSD8gE0d4QBGpeWQ>
+    <xme:pi6EYHBxrcZCAQById3N_kzMI-DiKPzqH6TaYpnIos-NBZAweOtWpUTz3H8xGNTAf
+    Oy_n4MxwHPHBQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddugedgkeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepvdffgeejjeeitdeiffejieejfffghedviedujeehfe
-    egvefhhfevvdefueehkeelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:nC2EYIoKPQB_h7mXx7EyIDoxEqBgM4hTZQrmm7zy4ZWvWWgeLVGoMg>
-    <xmx:nC2EYGFwfwapAhS16ZGAQSLwOACY767osICrac17vt9F4okymyPNOw>
-    <xmx:nC2EYKkHJC8M88Wh_Zb-w7bSV86MiDTYQY7iq_pTLqOg9VemeC4Reg>
-    <xmx:nS2EYAGtA9sKIRBDPfuuWlrxsym8LwSdFpoktI2gFu3b9_tQ-2GEhQ>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:pi6EYOFEZBY4aB_X5tzafPZfpIn6idXEOBMiH4J28Z_-u1cWiRXIuA>
+    <xmx:pi6EYPTl4oA5u37XEWIwlodkyvJUdYIJfttKOE1X0-n-pSgikclkpg>
+    <xmx:pi6EYDzlaIzVtEDH3aHl3kB-OVBBX6SpEUvCu-RXk7bcWLbkyAoJQg>
+    <xmx:pi6EYEtixLogvlAGI2jafdFfrz3VTsjawkPCblyGWCCR7Noz6bF7Eg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 76AD71080064;
-        Sat, 24 Apr 2021 10:39:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Fix modesetting in case of unexpected AUX timeouts" failed to apply to 5.11-stable tree
-To:     imre.deak@intel.com, rodrigo.vivi@intel.com,
-        ville.syrjala@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 24 Apr 2021 16:39:22 +0200
-Message-ID: <16192751626819@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id EB8C9108005B;
+        Sat, 24 Apr 2021 10:43:49 -0400 (EDT)
+Date:   Sat, 24 Apr 2021 16:43:48 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Jianxiong Gao <jxgao@google.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v5.10 0/8] preserve DMA offsets when using swiotlb
+Message-ID: <YIQupJuzbdgif6WA@kroah.com>
+References: <20210405210230.1707074-1-jxgao@google.com>
+ <YG2q6Tm58tWRBtmK@kroah.com>
+ <CAMGD6P1OEhOXfFV5JpPfTjWPhjjr8KCGTEhVzB74zpnmdLb4sw@mail.gmail.com>
+ <YILkSsR4ejv5CraF@kroah.com>
+ <CAMGD6P2gUpUuX5cdPi1Q0nqRFmsBPctUR+hBt+DnPK+H4jHiiQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMGD6P2gUpUuX5cdPi1Q0nqRFmsBPctUR+hBt+DnPK+H4jHiiQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Apr 23, 2021 at 10:28:32AM -0700, Jianxiong Gao wrote:
+> > How?  Anything that installed 5.10 when it was released never had this
+> > working, they had to move to 5.12 to get that to work.
+> 
+> I wasn't clear. The bug is not specific to SEV virtualization. We
+> simply encountered it while working on SEV virtualization. This is a
+> pre-existing bug.
+> 
+> Briefly, the NVMe spec expects a page offset to be retained from the
+> memory address space to the IO address space.
+> 
+> Before these patches, the SWIOTLB truncates any page offset.
+> 
+> Thus, all NVMe + SWIOTLB systems are broken due to this bug without
+> these patches.
 
-The patch below does not apply to the 5.11-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Ok, and what prevents you from adding this new feature do your "custom"
+kernel, or to use 5.12 instead?
+
+This is a new feature that Linux has never supported, and these patches
+are not "trivial" at all.  I also do not see the maintainer of the
+subsystem agreeing that these are needed to be backported, which is not
+a good sign.
+
+So I recommend just using a newer kernel version, that way all will be
+good and no need to backport anything.  What is preventing you from
+doing that today?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From d2b9935d65dab6e92beb33c150c1a6ded14ab670 Mon Sep 17 00:00:00 2001
-From: Imre Deak <imre.deak@intel.com>
-Date: Tue, 13 Apr 2021 02:24:12 +0300
-Subject: [PATCH] drm/i915: Fix modesetting in case of unexpected AUX timeouts
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-In case AUX failures happen unexpectedly during a modeset, the driver
-should still complete the modeset. In particular the driver should
-perform the link training sequence steps even in case of an AUX failure,
-as this sequence also includes port initialization steps. Not doing that
-can leave the port/pipe in a broken state and lead for instance to a
-flip done timeout.
-
-Fix this by continuing with link training (in a no-LTTPR mode) if the
-DPRX DPCD readout failed for some reason at the beginning of link
-training. After a successful connector detection we already have the
-DPCD read out and cached, so the failed repeated read for it should not
-cause a problem. Note that a partial AUX read could in theory partly
-overwrite the cached DPCD (and return error) but this overwrite should
-not happen if the returned values are corrupted (due to a timeout or
-some other IO error).
-
-Kudos to Ville to root cause the problem.
-
-Fixes: 7dffbdedb96a ("drm/i915: Disable LTTPR support when the DPCD rev < 1.4")
-References: https://gitlab.freedesktop.org/drm/intel/-/issues/3308
-Cc: stable@vger.kernel.org # 5.11
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210412232413.2755054-1-imre.deak@intel.com
-(cherry picked from commit e42e7e585984b85b0fb9dd1fefc85ee4800ca629)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-[adjusted Fixes: tag]
-
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-index be6ac0dd846e..2ed309534e97 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-@@ -848,7 +848,8 @@ void intel_dp_start_link_train(struct intel_dp *intel_dp,
- 	int lttpr_count = intel_dp_init_lttpr_and_dprx_caps(intel_dp);
- 
- 	if (lttpr_count < 0)
--		return;
-+		/* Still continue with enabling the port and link training. */
-+		lttpr_count = 0;
- 
- 	if (!intel_dp_link_train_all_phys(intel_dp, crtc_state, lttpr_count))
- 		intel_dp_schedule_fallback_link_training(intel_dp, crtc_state);
-
