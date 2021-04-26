@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF8AE36ADE4
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B7836AD02
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232422AbhDZHkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:40:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46770 "EHLO mail.kernel.org"
+        id S232296AbhDZHby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:31:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233065AbhDZHi0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:38:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1877611C0;
-        Mon, 26 Apr 2021 07:36:13 +0000 (UTC)
+        id S232280AbhDZHbx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:31:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EFDF613A9;
+        Mon, 26 Apr 2021 07:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422574;
-        bh=sfvPGL1+xjrI8Ql7xV105n6ykfu9JIjG03xKjTjvr6c=;
+        s=korg; t=1619422272;
+        bh=+dKzJ0svpQ8wz47I4efTJFPPg5dvuvwm6wV5wbsFGoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APsi9uftE2n7/HBfO2ExLPRFP2n5RnLdik6to/7A0+xWHOCq4zfwWUu5WvEwAr9gw
-         dn9XcryI2hFQmTQSDaMFNGlOvGoUHO9FBnwfTs3KJ/yKqJGiz4GNfCHNKTfSyN4Qcy
-         p7HQ8kKkS97GeRVc4d03bJ3WwMIjnj7ZmKIYdphU=
+        b=MybPnXaHuuVrb7KPZ7Ja9f2sOU+hUBdjr0voY46YQdlcBx947AfXnEIottE19uXvI
+         sheBxPi5eE60oJU/xv+UYhoLrc9PESw8ia/8EM8rP224jnPgOF/Nsnbpezvk1CxSac
+         vWYCGyG4TaTQUbAGScI+U5feOkJVDtJsHLJsE17Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/57] net: ieee802154: stop dump llsec seclevels for monitors
-Date:   Mon, 26 Apr 2021 09:29:16 +0200
-Message-Id: <20210426072821.228203026@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 19/32] net: davicom: Fix regulator not turned off on failed probe
+Date:   Mon, 26 Apr 2021 09:29:17 +0200
+Message-Id: <20210426072817.235253093@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 4c9b4f55ad1f5a4b6206ac4ea58f273126d21925 ]
+commit 31457db3750c0b0ed229d836f2609fdb8a5b790e upstream.
 
-This patch stops dumping llsec seclevels for monitors which we don't
-support yet. Otherwise we will access llsec mib which isn't initialized
-for monitors.
+When the probe fails, we must disable the regulator that was previously
+enabled.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-13-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch is a follow-up to commit ac88c531a5b3
+("net: davicom: Fix regulator not turned off on failed probe") which missed
+one case.
+
+Fixes: 7994fe55a4a2 ("dm9000: Add regulator and reset support to dm9000")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ieee802154/nl802154.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/davicom/dm9000.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index eaeff7c08bdf..29916f8cfdc3 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -2048,6 +2048,11 @@ nl802154_dump_llsec_seclevel(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (err)
- 		return err;
+--- a/drivers/net/ethernet/davicom/dm9000.c
++++ b/drivers/net/ethernet/davicom/dm9000.c
+@@ -1484,8 +1484,10 @@ dm9000_probe(struct platform_device *pde
  
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
-+		err = skb->len;
-+		goto out_err;
+ 	/* Init network device */
+ 	ndev = alloc_etherdev(sizeof(struct board_info));
+-	if (!ndev)
+-		return -ENOMEM;
++	if (!ndev) {
++		ret = -ENOMEM;
++		goto out_regulator_disable;
 +	}
-+
- 	if (!wpan_dev->netdev) {
- 		err = -EINVAL;
- 		goto out_err;
--- 
-2.30.2
-
+ 
+ 	SET_NETDEV_DEV(ndev, &pdev->dev);
+ 
 
 
