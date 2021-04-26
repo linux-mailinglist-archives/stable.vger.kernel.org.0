@@ -2,129 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D5DA36B69A
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 18:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF3E36B6B9
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 18:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234156AbhDZQRy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 12:17:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42744 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234124AbhDZQRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 12:17:54 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8605C061574
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 09:17:11 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id t4so2017715ejo.0
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 09:17:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linbit-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=z0s/QudF5xuqokO8AbEIUlgc03ab4PiaQlTx7gwBdNE=;
-        b=kOoTxmh3dffm/sy9Pu6sUPcI1mEY4BuU/4VKFRFoHXTZ9esNi4Pw8pM5Duw0aSIf89
-         ++rPSWq6C6maM6lj0RW24GoT/a05Xpk761r3Rk9UqIiNAaHFkK9uJ0NA+6k7grBk+4fp
-         QPwpvZvMQ+CilLJ2H09ImR/yOGPnVlqPnHRFHQxKDuJhLSX9YXItyjTdL4W8acxVf4xI
-         ZBYsYS/PiVoWELbhbm/QPgUUwK3m5aEti2orwn+nCyX6ZbPcjDlt8WnII2J0fMZY6Tb0
-         LIf6iXPTbCzKXNdVSVFbf87Wkvl4Xj6z8XY7cntFTbT1YfZYcsZ0pRXXHnRtrW8VEyzX
-         YBxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=z0s/QudF5xuqokO8AbEIUlgc03ab4PiaQlTx7gwBdNE=;
-        b=Q1+diQrHHfrhdczyhEgavWhEodRP3iApC+jYsqW5tZoH96KMiSv/ACmhF6JybMXbkj
-         Nv/K+Ez8iCCKxwSrm1oUXAkjl3tvwZPji+xUUWcDlue37yXYC7mn97EMmjxNuswDOSAB
-         Sed20sUF1oCcbDSZ3rm9UjX6pd2FK/7aNcNx6RHIsR1jwvEouz4eWndD60t/D5aFDHlv
-         zNrlO0MR31HN5me9Al53ydzxD6eL9/Ckfw04PGH1z5lqengvC+/0BOPyzgqf+saJzYEa
-         8ABvodJQLpVUiFcak/PZGsis/5nxXxlFhLn/qP5l/L6BRCJmoEIDZXz0nh8jgM4gfw3/
-         PwZw==
-X-Gm-Message-State: AOAM530mp62t0gjgVVWpwnLE2t48RYtQiYOXBcKTkgWrLVI8NHqJ5DWc
-        1ulB8ir7kyNRDVUnxqAceFn4Eg==
-X-Google-Smtp-Source: ABdhPJyvGTz7/2UQqNc+B8Ep9opghGwuD3Ejqs70g1u8wRRCI1DLFzJzfSw6+EeopG1r3PYSmIo+dQ==
-X-Received: by 2002:a17:906:694f:: with SMTP id c15mr11776544ejs.72.1619453830398;
-        Mon, 26 Apr 2021 09:17:10 -0700 (PDT)
-Received: from localhost.localdomain (85-127-190-169.dsl.dynamic.surfer.at. [85.127.190.169])
-        by smtp.gmail.com with ESMTPSA id v4sm12233931ejj.84.2021.04.26.09.17.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Apr 2021 09:17:10 -0700 (PDT)
-Received: from localhost.localdomain (localhost [127.0.0.1])
-        by localhost.localdomain (8.15.2/8.15.2) with ESMTPS id 13QGH8Tj3447734
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Mon, 26 Apr 2021 18:17:08 +0200
-Received: (from christoph@localhost)
-        by localhost.localdomain (8.15.2/8.15.2/Submit) id 13QGH8k03447732;
-        Mon, 26 Apr 2021 18:17:08 +0200
-From:   =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        id S234437AbhDZQZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 12:25:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42552 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234174AbhDZQZJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 12:25:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71B0B6109E;
+        Mon, 26 Apr 2021 16:24:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1619454268;
+        bh=/mciGT2r+qLp/iKvtxJFn7ZF3e7aO9Aj7SKL5nmD3h8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GK75p3rD+ioPXfodNXoYViaWoDnK5nKqecFAvQD/2DtW37+DPjS0oMvbjXQzEfOY7
+         PnzzAQfQ63mqQ41F6vDEGaXPJg7sSunBmFDGAOGeeMiCNuRg+cgRFIL3f3A9ohs/XC
+         5brC1aud4+a9hzvsVgqaXB8VNMUMBG1ezwz33k1M=
+Date:   Mon, 26 Apr 2021 18:24:25 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Christoph =?iso-8859-1?Q?B=F6hmwalder?= 
         <christoph.boehmwalder@linbit.com>
-To:     christoph.boehmwalder@linbit.com
 Cc:     Lars Ellenberg <lars.ellenberg@linbit.com>, stable@vger.kernel.org
-Subject: [PATCH] drbd: fix potential silent data corruption
-Date:   Mon, 26 Apr 2021 18:17:08 +0200
-Message-Id: <20210426161708.3447606-1-christoph.boehmwalder@linbit.com>
-X-Mailer: git-send-email 2.26.3
+Subject: Re: [PATCH] drbd: fix potential silent data corruption
+Message-ID: <YIbpOckPOARlvJ6J@kroah.com>
+References: <20210426161708.3447606-1-christoph.boehmwalder@linbit.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210426161708.3447606-1-christoph.boehmwalder@linbit.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars Ellenberg <lars.ellenberg@linbit.com>
+On Mon, Apr 26, 2021 at 06:17:08PM +0200, Christoph Böhmwalder wrote:
+> From: Lars Ellenberg <lars.ellenberg@linbit.com>
+> 
+> Scenario:
+> ---------
+> 
+> bio chain generated by blk_queue_split().
+> Some split bio fails and propagates its error status to the "parent" bio.
+> But then the (last part of the) parent bio itself completes without error.
+> 
+> We would clobber the already recorded error status with BLK_STS_OK,
+> causing silent data corruption.
+> 
+> Reproducer:
+> -----------
+> 
+> How to trigger this in the real world within seconds:
+> 
+> DRBD on top of degraded parity raid,
+> small stripe_cache_size, large read_ahead setting.
+> Drop page cache (sysctl vm.drop_caches=1, fadvise "DONTNEED",
+> umount and mount again, "reboot").
+> 
+> Cause significant read ahead.
+> 
+> Large read ahead request is split by blk_queue_split().
+> Parts of the read ahead that are already in the stripe cache,
+> or find an available stripe cache to use, can be serviced.
+> Parts of the read ahead that would need "too much work",
+> would need to wait for a "stripe_head" to become available,
+> are rejected immediately.
+> 
+> For larger read ahead requests that are split in many pieces, it is very
+> likely that some "splits" will be serviced, but then the stripe cache is
+> exhausted/busy, and the remaining ones will be rejected.
+> 
+> Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
+> Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+> Cc: <stable@vger.kernel.org> # 4.13.x
+> ---
+>  drivers/block/drbd/drbd_req.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
+> index 9398c2c2cb2d..a384a58de1fd 100644
+> --- a/drivers/block/drbd/drbd_req.c
+> +++ b/drivers/block/drbd/drbd_req.c
+> @@ -180,7 +180,8 @@ void start_new_tl_epoch(struct drbd_connection *connection)
+>  void complete_master_bio(struct drbd_device *device,
+>  		struct bio_and_error *m)
+>  {
+> -	m->bio->bi_status = errno_to_blk_status(m->error);
+> +	if (unlikely(m->error))
+> +		m->bio->bi_status = errno_to_blk_status(m->error);
+>  	bio_endio(m->bio);
+>  	dec_ap_bio(device);
+>  }
+> -- 
+> 2.26.3
+> 
 
-Scenario:
----------
+<formletter>
 
-bio chain generated by blk_queue_split().
-Some split bio fails and propagates its error status to the "parent" bio.
-But then the (last part of the) parent bio itself completes without error.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-We would clobber the already recorded error status with BLK_STS_OK,
-causing silent data corruption.
-
-Reproducer:
------------
-
-How to trigger this in the real world within seconds:
-
-DRBD on top of degraded parity raid,
-small stripe_cache_size, large read_ahead setting.
-Drop page cache (sysctl vm.drop_caches=1, fadvise "DONTNEED",
-umount and mount again, "reboot").
-
-Cause significant read ahead.
-
-Large read ahead request is split by blk_queue_split().
-Parts of the read ahead that are already in the stripe cache,
-or find an available stripe cache to use, can be serviced.
-Parts of the read ahead that would need "too much work",
-would need to wait for a "stripe_head" to become available,
-are rejected immediately.
-
-For larger read ahead requests that are split in many pieces, it is very
-likely that some "splits" will be serviced, but then the stripe cache is
-exhausted/busy, and the remaining ones will be rejected.
-
-Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
-Signed-off-by: Christoph BÃ¶hmwalder <christoph.boehmwalder@linbit.com>
-Cc: <stable@vger.kernel.org> # 4.13.x
----
- drivers/block/drbd/drbd_req.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
-index 9398c2c2cb2d..a384a58de1fd 100644
---- a/drivers/block/drbd/drbd_req.c
-+++ b/drivers/block/drbd/drbd_req.c
-@@ -180,7 +180,8 @@ void start_new_tl_epoch(struct drbd_connection *connection)
- void complete_master_bio(struct drbd_device *device,
- 		struct bio_and_error *m)
- {
--	m->bio->bi_status = errno_to_blk_status(m->error);
-+	if (unlikely(m->error))
-+		m->bio->bi_status = errno_to_blk_status(m->error);
- 	bio_endio(m->bio);
- 	dec_ap_bio(device);
- }
--- 
-2.26.3
-
+</formletter>
