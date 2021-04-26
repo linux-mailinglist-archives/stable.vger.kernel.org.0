@@ -2,95 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1276E36B80D
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 19:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74ED836B816
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 19:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235660AbhDZR1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 13:27:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58732 "EHLO
+        id S235654AbhDZRbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 13:31:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235241AbhDZR1T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 13:27:19 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8EAC061574;
-        Mon, 26 Apr 2021 10:26:36 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id v20so2040924plo.10;
-        Mon, 26 Apr 2021 10:26:36 -0700 (PDT)
+        with ESMTP id S235550AbhDZRbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 13:31:20 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60926C061574
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 10:30:37 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id u80so23572519oia.0
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 10:30:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=cLCIZh+uto70g/NGlh3JaxgO0+JUYsKVcdMpfP2tX1Y=;
-        b=bm26pDCR6Vqr1uEpGAWtGBxWON02GY6aLnHsiiwzctRfHXLhOm/E79PV0HBK+RWmlZ
-         n3fIHi+4vNr779nEdSSEM5+pFprfWWtzuwODZ3rv8Ba74A7r0WDsTzbYlsfVKd6WBe7L
-         Y5oP6xWB94rzCBo1/Gl3bOJUCoapszjHbu1arFMgtoGBTvCmBujz2h8iWjJi4Gsq2Ayl
-         p9SfESj8lpLbXi29dZTuT4wPj1p/BSeBqkSFKFFXLvCeyazceDKcgcDnTiUep0eQ1uPi
-         01GD2M3L8LNDNoUCwA0k5YH3cuXHFM2Jb3+6mp/l95x/wMsUxPDG5RlLSGkYZemCxqq3
-         7vDA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=wyyhcHvvxF52Sd3fLoAibHOh3vzTBM6XwtNGmvVGbpQ=;
+        b=PYw98oAlti0/8OXYfvE8xI4BhSqgC0tz/aPPvVjVVQBr03iT0ocpcf66XmaHwOsv+2
+         tjPf7TUEZA+mySnJrjC27aysT86r0V8dzfnmrEVdwZI/saXN+xD+4/MMC+ho4czxD4RM
+         PIBuD36szw2/up4I+Mjtw3MkXBkCKQjL+SVzEqzD9Q38QYvEKr2L9M42AYh7aQBM9Pek
+         hnRTU341ZBDCtKROhPPpxuUPXQT+jqmPnLFnBo0rH+T0J9TwSzjbC4b/ADNNELOWAMh4
+         IXPY8kdGcXVbuelbaAycq/ceRSjeB0jA5sM4NgpTRIouNaO7IgI81apQry4t7l4PFf7N
+         zY3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=cLCIZh+uto70g/NGlh3JaxgO0+JUYsKVcdMpfP2tX1Y=;
-        b=Nyy21XrAzwGh3z8X1L42v4xPx79FwZgZ9dZ4prOZxpmZAHPhPgOyizq9yLtbAuUrfD
-         S+R+HSqXOKBPYJp6uKYOm8cSBuG0INXsWuAXLrPrRLV/6VKei1M0dd+dHv6sDpFdmY7I
-         yUrL8KfayfSvXvEEPn/EzbUTUCnAYm82PyRQJhrQHbtEtD3Y8QnJpsFbtXQ3yakMHdPX
-         aSouc27HeSu+JuwlbRJBiYMexz/Dj1ZiVDVnDo/MyHYTkQLNmHyKKVcKv5CDCioZx21d
-         i0D0Bj/SXJQg7HhfuvORHz6orcbZpEeSkcuMPfzMeMB2T9ufPRFargPsnoYeJToVMZAt
-         wyxg==
-X-Gm-Message-State: AOAM533OVw2KUFl1jnp3MDLwW+h7iGYTFRkdC/+ynof9qlP11EU80nOg
-        s30OUzI1CL8DbKbFdKfNVxvv0376+k8=
-X-Google-Smtp-Source: ABdhPJwJK9jk8v4MENSbXY+EcbigbNrZrf36mSDMYE9ZZrqxR1zBQlc+qYbO0Trd0YFcSP0XPXOb8g==
-X-Received: by 2002:a17:90a:ea11:: with SMTP id w17mr186661pjy.6.1619457995937;
-        Mon, 26 Apr 2021 10:26:35 -0700 (PDT)
-Received: from [10.67.49.104] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id t19sm343056pjs.1.2021.04.26.10.26.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 26 Apr 2021 10:26:35 -0700 (PDT)
-Subject: Re: [PATCH 4.9 00/37] 4.9.268-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210426072817.245304364@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <4eebc3d4-23f6-f8ce-470c-14996525c2aa@gmail.com>
-Date:   Mon, 26 Apr 2021 10:26:34 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        bh=wyyhcHvvxF52Sd3fLoAibHOh3vzTBM6XwtNGmvVGbpQ=;
+        b=FD7bQ8MkTF8KVHAVchQYryJImHJwcRNP/fLEO5HwUYN52Y0MnzM/j1rxRH22PCpk/4
+         6NDxl9jNhP5l/hzHxlW3l75c1/IWP5ImZ4hkfS2tjMBCh3e1Hu2l2C+1i1qhQ2CkXa9V
+         GceJ03srya3HRE9K3MvyG21JFG9/d1HKpU0Df7rrcSYhjNRFniGborrNGMlqe7yT/z3+
+         69caJd9uhPrZ1+hyW1qUz8/f5qYPM/gF682FDCll8sG8Kzqh4k7cz8hmyltVEtP6gWEm
+         NtuZp1vJCUnPv3EErEGRlqfa1Cm5ZCGgVL8+0h/z/7dsZYCfGWYkFs0WorZyHBaMZT45
+         z64w==
+X-Gm-Message-State: AOAM531JTrkI57MzfG1wZfaqz/RHiJnczHDK4THOP0tzS5Azro+Qq+P/
+        Zmv1RdjCzvHYfAmGZk6WekHh8IrEdisyPonM
+X-Google-Smtp-Source: ABdhPJyJ+2y5qAiMMTfmOsBfmHPOlA+fJGCI098wyUZ5vmMBKjckHXdq+FFVQ+FVFRec3rFRR9jgHA==
+X-Received: by 2002:aca:4b90:: with SMTP id y138mr12940905oia.169.1619458236280;
+        Mon, 26 Apr 2021 10:30:36 -0700 (PDT)
+Received: from proxmox.local.lan (2603-80a0-0e01-cc2f-0226-b9ff-fe41-ba6b.res6.spectrum.com. [2603:80a0:e01:cc2f:226:b9ff:fe41:ba6b])
+        by smtp.googlemail.com with ESMTPSA id j8sm3745957otj.49.2021.04.26.10.30.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Apr 2021 10:30:35 -0700 (PDT)
+From:   Tom Seewald <tseewald@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     tseewald@gmail.com, Shuah Khan <skhan@linuxfoundation.org>,
+        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>
+Subject: [PATCH] usbip: vudc synchronize sysfs code paths
+Date:   Mon, 26 Apr 2021 12:28:31 -0500
+Message-Id: <20210426172831.24030-1-tseewald@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/26/21 12:29 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.268 release.
-> There are 37 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 28 Apr 2021 07:28:08 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.268-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
+commit bd8b82042269a95db48074b8bb400678dbac1815 upstream.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Fuzzing uncovered race condition between sysfs code paths in usbip
+drivers. Device connect/disconnect code paths initiated through
+sysfs interface are prone to races if disconnect happens during
+connect and vice versa.
+
+Use sysfs_lock to protect sysfs paths in vudc.
+
+Cc: stable@vger.kernel.org # 4.14.x
+Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/caabcf3fc87bdae970509b5ff32d05bb7ce2fb15.1616807117.git.skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+---
+ drivers/usb/usbip/vudc_dev.c   | 1 +
+ drivers/usb/usbip/vudc_sysfs.c | 5 +++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/drivers/usb/usbip/vudc_dev.c b/drivers/usb/usbip/vudc_dev.c
+index 7091848df6c8..d61b22bb1d8b 100644
+--- a/drivers/usb/usbip/vudc_dev.c
++++ b/drivers/usb/usbip/vudc_dev.c
+@@ -582,6 +582,7 @@ static int init_vudc_hw(struct vudc *udc)
+ 	init_waitqueue_head(&udc->tx_waitq);
+ 
+ 	spin_lock_init(&ud->lock);
++	mutex_init(&ud->sysfs_lock);
+ 	ud->status = SDEV_ST_AVAILABLE;
+ 	ud->side = USBIP_VUDC;
+ 
+diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
+index f44d98eeb36a..e9d8dbd4e5a4 100644
+--- a/drivers/usb/usbip/vudc_sysfs.c
++++ b/drivers/usb/usbip/vudc_sysfs.c
+@@ -125,6 +125,7 @@ static ssize_t store_sockfd(struct device *dev,
+ 		dev_err(dev, "no device");
+ 		return -ENODEV;
+ 	}
++	mutex_lock(&udc->ud.sysfs_lock);
+ 	spin_lock_irqsave(&udc->lock, flags);
+ 	/* Don't export what we don't have */
+ 	if (!udc->driver || !udc->pullup) {
+@@ -200,6 +201,8 @@ static ssize_t store_sockfd(struct device *dev,
+ 
+ 		wake_up_process(udc->ud.tcp_rx);
+ 		wake_up_process(udc->ud.tcp_tx);
++
++		mutex_unlock(&udc->ud.sysfs_lock);
+ 		return count;
+ 
+ 	} else {
+@@ -220,6 +223,7 @@ static ssize_t store_sockfd(struct device *dev,
+ 	}
+ 
+ 	spin_unlock_irqrestore(&udc->lock, flags);
++	mutex_unlock(&udc->ud.sysfs_lock);
+ 
+ 	return count;
+ 
+@@ -229,6 +233,7 @@ static ssize_t store_sockfd(struct device *dev,
+ 	spin_unlock_irq(&udc->ud.lock);
+ unlock:
+ 	spin_unlock_irqrestore(&udc->lock, flags);
++	mutex_unlock(&udc->ud.sysfs_lock);
+ 
+ 	return ret;
+ }
 -- 
-Florian
+2.20.1
+
