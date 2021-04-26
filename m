@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28A9C36AE82
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C158C36AEBD
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233186AbhDZHp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60148 "EHLO mail.kernel.org"
+        id S232648AbhDZHqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:46:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233386AbhDZHnf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:43:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 737FF613D1;
-        Mon, 26 Apr 2021 07:40:03 +0000 (UTC)
+        id S234292AbhDZHpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:45:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67315613FF;
+        Mon, 26 Apr 2021 07:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422804;
-        bh=x2n7AHMk4xuQM/Nj3J0Y6kw8h5pEDWqP9+6+2bmkT/c=;
+        s=korg; t=1619422931;
+        bh=u70HHnX1guswWqpHM6QDKDJVZ8xKtECfDyb/9SIhUJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/6Rl3kbFnUBJuNZCXU1ok6axTMxYKcC7pCbtR71QCmzxqmYddBteqs3jcE9VXTQh
-         oa9rUeYJcDmfmDZ+ANBlv154iUwJwU47xGnqCio4hWxddt7BDvo+GeXHIsXQBrBClA
-         Fs+Kbso57dtubUA6z4d7nrUSEKaFMKWHrTb4dSKU=
+        b=zJVTaxb24XXqUu1diSd0ZIghHeSDqT9KvCUJUwAsK5wtO0G6k6zxF29a8+fDNMZho
+         zFYqKqLJvAHPVfTu3SJ8UwXRgCZLHaufKJROpjZNZbC9GkWRdzauv8aCx3nb2KmNeK
+         7RaGimgvM7V7xQwiDqUvM678+sKKCTV2RogPRUA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Angelo Dureghello <angelo@kernel-space.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 35/36] ia64: tools: remove duplicate definition of ia64_mf() on ia64
-Date:   Mon, 26 Apr 2021 09:30:17 +0200
-Message-Id: <20210426072819.979335296@linuxfoundation.org>
+Subject: [PATCH 5.11 31/41] m68k: fix flatmem memory model setup
+Date:   Mon, 26 Apr 2021 09:30:18 +0200
+Message-Id: <20210426072820.748721386@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
-References: <20210426072818.777662399@linuxfoundation.org>
+In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
+References: <20210426072819.666570770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+From: Angelo Dureghello <angelo@kernel-space.org>
 
-[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
+[ Upstream commit d2bd44c4c05d043fb65cfdf26c54e6d8b94a4b41 ]
 
-The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
-already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
-failing to build:
+Detected a broken boot on mcf54415, likely introduced from
 
-    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
-  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
-                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
-                   from libbpf.c:37:
-  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
-     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
-        |
-  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
-                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
-                   from /usr/include/linux/swab.h:8,
-                   from /usr/include/linux/byteorder/little_endian.h:13,
-                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
-                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
-                   from libbpf.c:36:
-  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
-    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
-        |
-  cc1: all warnings being treated as errors
+commit 4bfc848e0981
+("m68k/mm: enable use of generic memory_model.h for !DISCONTIGMEM")
 
-Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
+Fix ARCH_PFN_OFFSET to be a pfn.
 
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Angelo Dureghello <angelo@kernel-space.org>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/arch/ia64/include/asm/barrier.h | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/m68k/include/asm/page_mm.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
-index 4d471d9511a5..6fffe5682713 100644
---- a/tools/arch/ia64/include/asm/barrier.h
-+++ b/tools/arch/ia64/include/asm/barrier.h
-@@ -39,9 +39,6 @@
-  * sequential memory pages only.
-  */
+diff --git a/arch/m68k/include/asm/page_mm.h b/arch/m68k/include/asm/page_mm.h
+index 7f5912af2a52..21b1071e0a34 100644
+--- a/arch/m68k/include/asm/page_mm.h
++++ b/arch/m68k/include/asm/page_mm.h
+@@ -167,7 +167,7 @@ static inline __attribute_const__ int __virt_to_node_shift(void)
+ 	((__p) - pgdat->node_mem_map) + pgdat->node_start_pfn;		\
+ })
+ #else
+-#define ARCH_PFN_OFFSET (m68k_memory[0].addr)
++#define ARCH_PFN_OFFSET (m68k_memory[0].addr >> PAGE_SHIFT)
+ #include <asm-generic/memory_model.h>
+ #endif
  
--/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
--#define ia64_mf()       asm volatile ("mf" ::: "memory")
--
- #define mb()		ia64_mf()
- #define rmb()		mb()
- #define wmb()		mb()
 -- 
 2.30.2
 
