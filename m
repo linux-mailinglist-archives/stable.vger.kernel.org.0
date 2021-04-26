@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 947FC36AD70
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B88F36ADED
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232880AbhDZHgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:36:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46674 "EHLO mail.kernel.org"
+        id S232747AbhDZHk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:40:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232883AbhDZHgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6854161360;
-        Mon, 26 Apr 2021 07:33:43 +0000 (UTC)
+        id S233137AbhDZHiw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:38:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5063E613AB;
+        Mon, 26 Apr 2021 07:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422423;
-        bh=cSKMPvzKiZHkjkJf3FKCkhDji03VdrGi0SEVc4Tvhz0=;
+        s=korg; t=1619422597;
+        bh=C6qUDGwnbP62CeFr17CGJZfay2WsnWnpgn67e8vL2kU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=St7Hv9mYk+bwznhtUlj4PdnZx3rxj+PXkkNZ/vt14h4MZRFI8Xn932JbceBL+3+Fr
-         uy2I4NvCDJ3j02tDboNrxk0p/ByT494H9AZ6Ugz6SCp6PULfcex3DeePoR0/51fqVh
-         8NA2GtIszJRQAqat1KhJHbJ3r+2GbfTJ72Yh+Kn4=
+        b=rf1HYOXXGgFeb3JrekYwZ2E8l8Q7Rl2FCGIcKMuvDDWNrpqoAsWGNA9Te6jHY2xTI
+         K0Kr6jnqS5Rr387ZX+qwXo9Za219w+UWYjn0vckpFkQoX2UDtWshS6Q8BxgB90otjC
+         YFbEC5MaskWT4SzvyIzTtPTHsHVq7qXvPy6BXWdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        Colin Ian King <colin.king@canonical.com>,
-        Tom Seewald <tseewald@gmail.com>
-Subject: [PATCH 4.9 23/37] usbip: Fix incorrect double assignment to udc->ud.tcp_rx
-Date:   Mon, 26 Apr 2021 09:29:24 +0200
-Message-Id: <20210426072818.037894368@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 28/57] arm64: fix inline asm in load_unaligned_zeropad()
+Date:   Mon, 26 Apr 2021 09:29:25 +0200
+Message-Id: <20210426072821.529027279@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Peter Collingbourne <pcc@google.com>
 
-commit 9858af27e69247c5d04c3b093190a93ca365f33d upstream.
+commit 185f2e5f51c2029efd9dd26cceb968a44fe053c6 upstream.
 
-Currently udc->ud.tcp_rx is being assigned twice, the second assignment
-is incorrect, it should be to udc->ud.tcp_tx instead of rx. Fix this.
+The inline asm's addr operand is marked as input-only, however in
+the case where an exception is taken it may be modified by the BIC
+instruction on the exception path. Fix the problem by using a temporary
+register as the destination register for the BIC instruction.
 
-Fixes: 46613c9dfa96 ("usbip: fix vudc usbip_sockfd_store races leading to gpf")
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Addresses-Coverity: ("Unused value")
-Link: https://lore.kernel.org/r/20210311104445.7811-1-colin.king@canonical.com
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: stable@vger.kernel.org
+Link: https://linux-review.googlesource.com/id/I84538c8a2307d567b4f45bb20b715451005f9617
+Link: https://lore.kernel.org/r/20210401165110.3952103-1-pcc@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/vudc_sysfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/word-at-a-time.h |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/usbip/vudc_sysfs.c
-+++ b/drivers/usb/usbip/vudc_sysfs.c
-@@ -187,7 +187,7 @@ static ssize_t store_sockfd(struct devic
+--- a/arch/arm64/include/asm/word-at-a-time.h
++++ b/arch/arm64/include/asm/word-at-a-time.h
+@@ -64,7 +64,7 @@ static inline unsigned long find_zero(un
+  */
+ static inline unsigned long load_unaligned_zeropad(const void *addr)
+ {
+-	unsigned long ret, offset;
++	unsigned long ret, tmp;
  
- 		udc->ud.tcp_socket = socket;
- 		udc->ud.tcp_rx = tcp_rx;
--		udc->ud.tcp_rx = tcp_tx;
-+		udc->ud.tcp_tx = tcp_tx;
- 		udc->ud.status = SDEV_ST_USED;
+ 	/* Load word from unaligned pointer addr */
+ 	asm(
+@@ -72,9 +72,9 @@ static inline unsigned long load_unalign
+ 	"2:\n"
+ 	"	.pushsection .fixup,\"ax\"\n"
+ 	"	.align 2\n"
+-	"3:	and	%1, %2, #0x7\n"
+-	"	bic	%2, %2, #0x7\n"
+-	"	ldr	%0, [%2]\n"
++	"3:	bic	%1, %2, #0x7\n"
++	"	ldr	%0, [%1]\n"
++	"	and	%1, %2, #0x7\n"
+ 	"	lsl	%1, %1, #0x3\n"
+ #ifndef __AARCH64EB__
+ 	"	lsr	%0, %0, %1\n"
+@@ -84,7 +84,7 @@ static inline unsigned long load_unalign
+ 	"	b	2b\n"
+ 	"	.popsection\n"
+ 	_ASM_EXTABLE(1b, 3b)
+-	: "=&r" (ret), "=&r" (offset)
++	: "=&r" (ret), "=&r" (tmp)
+ 	: "r" (addr), "Q" (*(unsigned long *)addr));
  
- 		spin_unlock_irq(&udc->ud.lock);
+ 	return ret;
 
 
