@@ -2,68 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51A8436AFD0
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 10:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8DF036AFE2
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 10:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232080AbhDZIk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 04:40:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47602 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232343AbhDZIk2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 04:40:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62FBE61026;
-        Mon, 26 Apr 2021 08:39:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619426386;
-        bh=qmBzYEu9Br729+JjbL2iaRcxwkLblYZWZBSJZ2/X8/Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lH5OXRYLfOWxZiREksdAwmEnsT8uPwGz1gPWQxo+539jCrJHkiAvwHr79nBWap9aX
-         mizyB0PaixVznKf6/4OzIBR3ioif4mYLagBPE90oNdwlVfOCq7W6Y8u9WDyD35tYju
-         kksypEFnXbtXbrgAl00EFoI1M9bzz0rizcMQQbmw=
-Date:   Mon, 26 Apr 2021 10:39:44 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Gao Xiang <hsiangkao@redhat.com>
+        id S232340AbhDZIoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 04:44:06 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:35625 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232068AbhDZIoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 04:44:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1619426604;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Wz6WYdlaJ9ziC7ExdEujknNmn1q4Z9TPX1vLmCnL7NU=;
+        b=bp8s+07RUcGkiKI8bxIkA7su1sfdCKObL3XLsFUgj1ZhtfOTStlU5oI+WqRjmTixYwp08v
+        /yJCNq+EV+8xdZa3Fl7PvHoD3qng4NSZF2SBTvn02Y6ZsP7bWYRTiOWLF6ZqYOr9RC2Gtg
+        TeBZ5NjOw0Ak7hd4CJ3d02K+TACWAGw=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-482-pe2ucA-3NWKVIYnNJVt2pg-1; Mon, 26 Apr 2021 04:43:20 -0400
+X-MC-Unique: pe2ucA-3NWKVIYnNJVt2pg-1
+Received: by mail-pj1-f71.google.com with SMTP id u5-20020a17090a3fc5b029014e545d9a6eso6981094pjm.2
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 01:43:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Wz6WYdlaJ9ziC7ExdEujknNmn1q4Z9TPX1vLmCnL7NU=;
+        b=pONNExu3ENxdVXyIdqeRDEnMgGxkcydsRAec1pItSeMKawpjV8IWeSRMWC+YRDkX1U
+         vMCT2rFV154LOWHMNZh/X2fB10hUY5VK3EFfNm8Toj7L3iSXpaGeIVOfqDWmWnsTxHwm
+         W1JDKqsE7/d73pXqn6rwPMG3b+ZIK4KX4KqkR0AUV1GqeBXf7BTlsYUo0FFgkIJodCHJ
+         JkxNmA6ZxmGzSXnZInyLdEj6Uwi5N5uoNBEOnaeiYP9WcD4X1u5UtxQw9t5i7Q6VOAJx
+         4uV0DERd+FTv+7C1arBLRQyjSkPmDYN+HhgzDLsfW7UHKSWpC2mTpwuU+z++oCUjx8Ub
+         NEzw==
+X-Gm-Message-State: AOAM532JhTgMHPo999kIC/EQvIlKKiVGuWRLYk3IpeRbARI1oiOZoYZS
+        tmwzp4pWzm36Fp2kbmGh8KBVgO8skg4Z174HU81re+2FW02Fh2BAKB5qf2zDOua4Zm/LzFze/BI
+        2pwrqsV5tIG441YKX
+X-Received: by 2002:a17:90a:a505:: with SMTP id a5mr19853535pjq.58.1619426599217;
+        Mon, 26 Apr 2021 01:43:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzondjCaj9YscCnoJ2g1s783lMBccvbn3/Gfn0Oft7LAapuFL8XWpxpeIQsHhkVOLee47FisQ==
+X-Received: by 2002:a17:90a:a505:: with SMTP id a5mr19853514pjq.58.1619426599015;
+        Mon, 26 Apr 2021 01:43:19 -0700 (PDT)
+Received: from xiangao.remote.csb ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id m5sm5165251pjc.10.2021.04.26.01.43.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Apr 2021 01:43:18 -0700 (PDT)
+Date:   Mon, 26 Apr 2021 16:43:07 +0800
+From:   Gao Xiang <hsiangkao@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, linux-erofs@lists.ozlabs.org,
         Chao Yu <yuchao0@huawei.com>
 Subject: Re: [PATCH for-4.19] erofs: fix extended inode could cross boundary
-Message-ID: <YIZ8UOo0c2CLt8pl@kroah.com>
+Message-ID: <20210426084307.GA4042836@xiangao.remote.csb>
 References: <20210426082933.4040996-1-hsiangkao@redhat.com>
+ <YIZ8UOo0c2CLt8pl@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210426082933.4040996-1-hsiangkao@redhat.com>
+In-Reply-To: <YIZ8UOo0c2CLt8pl@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 26, 2021 at 04:29:33PM +0800, Gao Xiang wrote:
-> commit 0dcd3c94e02438f4a571690e26f4ee997524102a upstream.
+On Mon, Apr 26, 2021 at 10:39:44AM +0200, Greg Kroah-Hartman wrote:
+> On Mon, Apr 26, 2021 at 04:29:33PM +0800, Gao Xiang wrote:
+> > commit 0dcd3c94e02438f4a571690e26f4ee997524102a upstream.
+> > 
+> > Each ondisk inode should be aligned with inode slot boundary
+> > (32-byte alignment) because of nid calculation formula, so all
+> > compact inodes (32 byte) cannot across page boundary. However,
+> > extended inode is now 64-byte form, which can across page boundary
+> > in principle if the location is specified on purpose, although
+> > it's hard to be generated by mkfs due to the allocation policy
+> > and rarely used by Android use case now mainly for > 4GiB files.
+> > 
+> > For now, only two fields `i_ctime_nsec` and `i_nlink' couldn't
+> > be read from disk properly and cause out-of-bound memory read
+> > with random value.
+> > 
+> > Let's fix now.
+> > 
+> > Fixes: 431339ba9042 ("staging: erofs: add inode operations")
+> > Cc: <stable@vger.kernel.org> # 4.19+
+> > Link: https://lore.kernel.org/r/20200729175801.GA23973@xiangao.remote.csb
+> > Reviewed-by: Chao Yu <yuchao0@huawei.com>
+> > [ Gao Xiang: resolve non-trivial conflicts for latest 4.19.y. ]
+> > Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+> > ---
+> >  drivers/staging/erofs/inode.c | 135 ++++++++++++++++++++++------------
+> >  1 file changed, 90 insertions(+), 45 deletions(-)
 > 
-> Each ondisk inode should be aligned with inode slot boundary
-> (32-byte alignment) because of nid calculation formula, so all
-> compact inodes (32 byte) cannot across page boundary. However,
-> extended inode is now 64-byte form, which can across page boundary
-> in principle if the location is specified on purpose, although
-> it's hard to be generated by mkfs due to the allocation policy
-> and rarely used by Android use case now mainly for > 4GiB files.
-> 
-> For now, only two fields `i_ctime_nsec` and `i_nlink' couldn't
-> be read from disk properly and cause out-of-bound memory read
-> with random value.
-> 
-> Let's fix now.
-> 
-> Fixes: 431339ba9042 ("staging: erofs: add inode operations")
-> Cc: <stable@vger.kernel.org> # 4.19+
-> Link: https://lore.kernel.org/r/20200729175801.GA23973@xiangao.remote.csb
-> Reviewed-by: Chao Yu <yuchao0@huawei.com>
-> [ Gao Xiang: resolve non-trivial conflicts for latest 4.19.y. ]
-> Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-> ---
->  drivers/staging/erofs/inode.c | 135 ++++++++++++++++++++++------------
->  1 file changed, 90 insertions(+), 45 deletions(-)
+> Thanks for the backport, I'll queue it up after this latest round of
+> stable kernels is released later this week.
 
-Thanks for the backport, I'll queue it up after this latest round of
-stable kernels is released later this week.
+Thanks Greg, sorry about the delay.
+Sounds good to me.
 
-greg k-h
+Thanks,
+Gao Xiang
+
+> 
+> greg k-h
+> 
+
