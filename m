@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F7636AE19
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7CE36AD86
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233156AbhDZHll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        id S232666AbhDZHhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:37:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233555AbhDZHjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 324D6613C6;
-        Mon, 26 Apr 2021 07:37:59 +0000 (UTC)
+        id S232172AbhDZHd7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:33:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B5FA611BD;
+        Mon, 26 Apr 2021 07:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422679;
-        bh=3HMu736YuqwVAbCDUhlkGow54NNd0D83Yn5olVJTAWQ=;
+        s=korg; t=1619422397;
+        bh=84fEXRoir9ZD96qpuD0HzoQzv/MQfRsgEFL6wgpLaVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1oCX1Gz2lZniEXzWQ84vhnlvPbTIuqIR3FT2FSYx843jBkctPvSbX7c31sVsPNH2
-         LhYo9K0zyEphxmxS2wfL+lnoiOCAQc/zqiCFxER6z7suBRcnQcjzUxz4/Bs+h2q+ob
-         S9GueGdARpwdK/VQQiu7/bVdmwBZP746oSnAZMIc=
+        b=GQUeEWlpb0PboCNaInyhSuP8AW+4k0+/zPg8Lx6LacrJg3obrkZe4tK31WfwirQ/0
+         jWGbE/fi6yHGNFtclKChJO/bY09RDg3kbxkYV88X7HiXktdtpNWbBJN7EYm2RgWmhj
+         TDpSNkj6gNzALs1Vzzij1Eg726b+i1jzbHXOAcKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Lijun Pan <lijunp213@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 37/57] ibmvnic: avoid calling napi_disable() twice
+        stable@vger.kernel.org, Michael Brown <mbrown@fensystems.co.uk>,
+        Paul Durrant <paul@xen.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 33/37] xen-netback: Check for hotplug-status existence before watching
 Date:   Mon, 26 Apr 2021 09:29:34 +0200
-Message-Id: <20210426072821.828786541@linuxfoundation.org>
+Message-Id: <20210426072818.365616663@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <lijunp213@gmail.com>
+From: Michael Brown <mbrown@fensystems.co.uk>
 
-commit 0775ebc4cf8554bdcd2c212669a0868ab68df5c0 upstream.
+[ Upstream commit 2afeec08ab5c86ae21952151f726bfe184f6b23d ]
 
-__ibmvnic_open calls napi_disable without checking whether NAPI polling
-has already been disabled or not. This could cause napi_disable
-being called twice, which could generate deadlock. For example,
-the first napi_disable will spin until NAPI_STATE_SCHED is cleared
-by napi_complete_done, then set it again.
-When napi_disable is called the second time, it will loop infinitely
-because no dev->poll will be running to clear NAPI_STATE_SCHED.
+The logic in connect() is currently written with the assumption that
+xenbus_watch_pathfmt() will return an error for a node that does not
+exist.  This assumption is incorrect: xenstore does allow a watch to
+be registered for a nonexistent node (and will send notifications
+should the node be subsequently created).
 
-To prevent above scenario from happening, call ibmvnic_napi_disable()
-which checks if napi is disabled or not before calling napi_disable.
+As of commit 1f2565780 ("xen-netback: remove 'hotplug-status' once it
+has served its purpose"), this leads to a failure when a domU
+transitions into XenbusStateConnected more than once.  On the first
+domU transition into Connected state, the "hotplug-status" node will
+be deleted by the hotplug_status_changed() callback in dom0.  On the
+second or subsequent domU transition into Connected state, the
+hotplug_status_changed() callback will therefore never be invoked, and
+so the backend will remain stuck in InitWait.
 
-Fixes: bfc32f297337 ("ibmvnic: Move resource initialization to its own routine")
-Suggested-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: Lijun Pan <lijunp213@gmail.com>
+This failure prevents scenarios such as reloading the xen-netfront
+module within a domU, or booting a domU via iPXE.  There is
+unfortunately no way for the domU to work around this dom0 bug.
+
+Fix by explicitly checking for existence of the "hotplug-status" node,
+thereby creating the behaviour that was previously assumed to exist.
+
+Signed-off-by: Michael Brown <mbrown@fensystems.co.uk>
+Reviewed-by: Paul Durrant <paul@xen.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/xen-netback/xenbus.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1092,8 +1092,7 @@ static int __ibmvnic_open(struct net_dev
+diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
+index 78788402edd8..e6646c8a7bdb 100644
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -1040,11 +1040,15 @@ static void connect(struct backend_info *be)
+ 	xenvif_carrier_on(be->vif);
  
- 	rc = set_link_state(adapter, IBMVNIC_LOGICAL_LNK_UP);
- 	if (rc) {
--		for (i = 0; i < adapter->req_rx_queues; i++)
--			napi_disable(&adapter->napi[i]);
-+		ibmvnic_napi_disable(adapter);
- 		release_resources(adapter);
- 		return rc;
- 	}
+ 	unregister_hotplug_status_watch(be);
+-	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
+-				   hotplug_status_changed,
+-				   "%s/%s", dev->nodename, "hotplug-status");
+-	if (!err)
++	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
++		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
++					   NULL, hotplug_status_changed,
++					   "%s/%s", dev->nodename,
++					   "hotplug-status");
++		if (err)
++			goto err;
+ 		be->have_hotplug_status_watch = 1;
++	}
+ 
+ 	netif_tx_wake_all_queues(be->vif->dev);
+ 
+-- 
+2.30.2
+
 
 
