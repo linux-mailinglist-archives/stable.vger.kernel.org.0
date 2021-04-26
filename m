@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E368136AE17
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABB736ADA2
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232797AbhDZHlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49330 "EHLO mail.kernel.org"
+        id S232559AbhDZHha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:37:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233539AbhDZHjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82E5B6105A;
-        Mon, 26 Apr 2021 07:37:56 +0000 (UTC)
+        id S232964AbhDZHgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:36:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F51C613C8;
+        Mon, 26 Apr 2021 07:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422677;
-        bh=HAbry266Fwe7Uqel21mqnVRIJvx0BTRIOCJDvPoM5LA=;
+        s=korg; t=1619422497;
+        bh=twE28YvQOV13luP7uCgta16wuw9AFEaPxfxoQVcwI+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2hynEA1MoNDcTf7mWPTU0b/ozLGAwVMZN4MIR9jURYt1ktJfQN5MwDrEECQ6eI5Gx
-         luCB/nf+gxK2ISVKDp6I9FFLwWrKkFeUoSvtbd1Ecpl8RmzdaBfqdKYOr2aGui9jRj
-         RtXc+EdkX9auVSwTrNQothZZg0So5HTfqxHpOgY4=
+        b=Fh9PeMh5Jix2gguYzs67FiLQXBSAjp4WDgwifrrF+DZPmAl2vz/YVunTgAho1fPox
+         +hQHYzu6rp8t1K9xPL8YyEHikG7gYbm8M0GskS7szGO/jQdkgG4ylagEeqC+curdvI
+         Bxm2kFDS1+8R/Yk57c5d+QhXSrNtf/0/S+B5dlps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shujin Li <lishujin@kuaishou.com>,
-        Jason Xing <xingwanli@kuaishou.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 36/57] i40e: fix the panic when running bpf in xdpdrv mode
+        stable@vger.kernel.org,
+        syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 37/49] net: hso: fix null-ptr-deref during tty device unregistration
 Date:   Mon, 26 Apr 2021 09:29:33 +0200
-Message-Id: <20210426072821.795621475@linuxfoundation.org>
+Message-Id: <20210426072820.988226933@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +42,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Xing <xingwanli@kuaishou.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 4e39a072a6a0fc422ba7da5e4336bdc295d70211 upstream.
+commit 8a12f8836145ffe37e9c8733dce18c22fb668b66 upstream
 
-Fix this panic by adding more rules to calculate the value of @rss_size_max
-which could be used in allocating the queues when bpf is loaded, which,
-however, could cause the failure and then trigger the NULL pointer of
-vsi->rx_rings. Prio to this fix, the machine doesn't care about how many
-cpus are online and then allocates 256 queues on the machine with 32 cpus
-online actually.
+Multiple ttys try to claim the same the minor number causing a double
+unregistration of the same device. The first unregistration succeeds
+but the next one results in a null-ptr-deref.
 
-Once the load of bpf begins, the log will go like this "failed to get
-tracking for 256 queues for VSI 0 err -12" and this "setup of MAIN VSI
-failed".
+The get_free_serial_index() function returns an available minor number
+but doesn't assign it immediately. The assignment is done by the caller
+later. But before this assignment, calls to get_free_serial_index()
+would return the same minor number.
 
-Thus, I attach the key information of the crash-log here.
+Fix this by modifying get_free_serial_index to assign the minor number
+immediately after one is found to be and rename it to obtain_minor()
+to better reflect what it does. Similary, rename set_serial_by_index()
+to release_minor() and modify it to free up the minor number of the
+given hso_serial. Every obtain_minor() should have corresponding
+release_minor() call.
 
-BUG: unable to handle kernel NULL pointer dereference at
-0000000000000000
-RIP: 0010:i40e_xdp+0xdd/0x1b0 [i40e]
-Call Trace:
-[2160294.717292]  ? i40e_reconfig_rss_queues+0x170/0x170 [i40e]
-[2160294.717666]  dev_xdp_install+0x4f/0x70
-[2160294.718036]  dev_change_xdp_fd+0x11f/0x230
-[2160294.718380]  ? dev_disable_lro+0xe0/0xe0
-[2160294.718705]  do_setlink+0xac7/0xe70
-[2160294.719035]  ? __nla_parse+0xed/0x120
-[2160294.719365]  rtnl_newlink+0x73b/0x860
-
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Co-developed-by: Shujin Li <lishujin@kuaishou.com>
-Signed-off-by: Shujin Li <lishujin@kuaishou.com>
-Signed-off-by: Jason Xing <xingwanli@kuaishou.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Fixes: 72dc1c096c705 ("HSO: add option hso driver")
+Reported-by: syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com
+Tested-by: syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/usb/hso.c |   33 ++++++++++++---------------------
+ 1 file changed, 12 insertions(+), 21 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -11211,6 +11211,7 @@ static int i40e_sw_init(struct i40e_pf *
- {
- 	int err = 0;
- 	int size;
-+	u16 pow;
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -626,7 +626,7 @@ static struct hso_serial *get_serial_by_
+ 	return serial;
+ }
  
- 	/* Set default capability flags */
- 	pf->flags = I40E_FLAG_RX_CSUM_ENABLED |
-@@ -11229,6 +11230,11 @@ static int i40e_sw_init(struct i40e_pf *
- 	pf->rss_table_size = pf->hw.func_caps.rss_table_size;
- 	pf->rss_size_max = min_t(int, pf->rss_size_max,
- 				 pf->hw.func_caps.num_tx_qp);
-+
-+	/* find the next higher power-of-2 of num cpus */
-+	pow = roundup_pow_of_two(num_online_cpus());
-+	pf->rss_size_max = min_t(int, pf->rss_size_max, pow);
-+
- 	if (pf->hw.func_caps.rss) {
- 		pf->flags |= I40E_FLAG_RSS_ENABLED;
- 		pf->alloc_rss_size = min_t(int, pf->rss_size_max,
+-static int get_free_serial_index(void)
++static int obtain_minor(struct hso_serial *serial)
+ {
+ 	int index;
+ 	unsigned long flags;
+@@ -634,8 +634,10 @@ static int get_free_serial_index(void)
+ 	spin_lock_irqsave(&serial_table_lock, flags);
+ 	for (index = 0; index < HSO_SERIAL_TTY_MINORS; index++) {
+ 		if (serial_table[index] == NULL) {
++			serial_table[index] = serial->parent;
++			serial->minor = index;
+ 			spin_unlock_irqrestore(&serial_table_lock, flags);
+-			return index;
++			return 0;
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(&serial_table_lock, flags);
+@@ -644,15 +646,12 @@ static int get_free_serial_index(void)
+ 	return -1;
+ }
+ 
+-static void set_serial_by_index(unsigned index, struct hso_serial *serial)
++static void release_minor(struct hso_serial *serial)
+ {
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&serial_table_lock, flags);
+-	if (serial)
+-		serial_table[index] = serial->parent;
+-	else
+-		serial_table[index] = NULL;
++	serial_table[serial->minor] = NULL;
+ 	spin_unlock_irqrestore(&serial_table_lock, flags);
+ }
+ 
+@@ -2241,6 +2240,7 @@ static int hso_stop_serial_device(struct
+ static void hso_serial_tty_unregister(struct hso_serial *serial)
+ {
+ 	tty_unregister_device(tty_drv, serial->minor);
++	release_minor(serial);
+ }
+ 
+ static void hso_serial_common_free(struct hso_serial *serial)
+@@ -2265,25 +2265,23 @@ static int hso_serial_common_create(stru
+ 				    int rx_size, int tx_size)
+ {
+ 	struct device *dev;
+-	int minor;
+ 	int i;
+ 
+ 	tty_port_init(&serial->port);
+ 
+-	minor = get_free_serial_index();
+-	if (minor < 0)
++	if (obtain_minor(serial))
+ 		goto exit2;
+ 
+ 	/* register our minor number */
+ 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
+-			tty_drv, minor, &serial->parent->interface->dev,
++			tty_drv, serial->minor, &serial->parent->interface->dev,
+ 			serial->parent, hso_serial_dev_groups);
+-	if (IS_ERR(serial->parent->dev))
++	if (IS_ERR(serial->parent->dev)) {
++		release_minor(serial);
+ 		goto exit2;
++	}
+ 	dev = serial->parent->dev;
+ 
+-	/* fill in specific data for later use */
+-	serial->minor = minor;
+ 	serial->magic = HSO_SERIAL_MAGIC;
+ 	spin_lock_init(&serial->serial_lock);
+ 	serial->num_rx_urbs = num_urbs;
+@@ -2676,9 +2674,6 @@ static struct hso_device *hso_create_bul
+ 
+ 	serial->write_data = hso_std_serial_write_data;
+ 
+-	/* and record this serial */
+-	set_serial_by_index(serial->minor, serial);
+-
+ 	/* setup the proc dirs and files if needed */
+ 	hso_log_port(hso_dev);
+ 
+@@ -2735,9 +2730,6 @@ struct hso_device *hso_create_mux_serial
+ 	serial->shared_int->ref_count++;
+ 	mutex_unlock(&serial->shared_int->shared_int_lock);
+ 
+-	/* and record this serial */
+-	set_serial_by_index(serial->minor, serial);
+-
+ 	/* setup the proc dirs and files if needed */
+ 	hso_log_port(hso_dev);
+ 
+@@ -3122,7 +3114,6 @@ static void hso_free_interface(struct us
+ 			cancel_work_sync(&serial_table[i]->async_get_intf);
+ 			hso_serial_tty_unregister(serial);
+ 			kref_put(&serial_table[i]->ref, hso_serial_ref_free);
+-			set_serial_by_index(i, NULL);
+ 		}
+ 	}
+ 
 
 
