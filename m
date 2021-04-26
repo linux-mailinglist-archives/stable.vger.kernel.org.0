@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9DD836ADE1
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0575E36AD3D
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233007AbhDZHkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:40:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50350 "EHLO mail.kernel.org"
+        id S232592AbhDZHdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:33:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232868AbhDZHiX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:38:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76B2661249;
-        Mon, 26 Apr 2021 07:36:08 +0000 (UTC)
+        id S232609AbhDZHdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:33:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D84361263;
+        Mon, 26 Apr 2021 07:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422569;
-        bh=xrPLNgO19sbVk5VB2f6faoNOfD7T50fssk/vyzokIVA=;
+        s=korg; t=1619422347;
+        bh=o9aazAg99Z2GnbI6EckyyWN4IGXiTmYiRUAK8ZcwmxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPYMf0Sq22Tkqo089UwKZF2QDCN8tWQ4X8gfkeCR+MllfwtxSFAZKZMJ9rdggxDRe
-         LLQ5cerMco/Vhu243PllwAhVC/2BiUq0QU3aZUTZb7LCUUetBthANhpcCcGmo855yD
-         XGdDGBj4FwRY0UznBHCcFLjz3ktm1+8TAs4DbSgQ=
+        b=BFZeeyHOnWLLnj1MMJCykL3ktomygRVgYJnNWHfJRcbIC462cb2+kUsKOyuGEhUJf
+         Cn+KbD6+C9ljen24L6WchuBbrqrX/gf5ldkOycBFExrAwSXi8rPUYOkm/eaujAmmPy
+         1jh6WNt7ZQi4MXxAJytLE5PLdWVHUychiE9VuwYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/57] net: ieee802154: stop dump llsec devkeys for monitors
-Date:   Mon, 26 Apr 2021 09:29:14 +0200
-Message-Id: <20210426072821.149781711@linuxfoundation.org>
+Subject: [PATCH 4.9 14/37] net: ieee802154: stop dump llsec seclevels for monitors
+Date:   Mon, 26 Apr 2021 09:29:15 +0200
+Message-Id: <20210426072817.734205700@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,14 +42,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 080d1a57a94d93e70f84b7a360baa351388c574f ]
+[ Upstream commit 4c9b4f55ad1f5a4b6206ac4ea58f273126d21925 ]
 
-This patch stops dumping llsec devkeys for monitors which we don't support
-yet. Otherwise we will access llsec mib which isn't initialized for
-monitors.
+This patch stops dumping llsec seclevels for monitors which we don't
+support yet. Otherwise we will access llsec mib which isn't initialized
+for monitors.
 
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-10-aahringo@redhat.com
+Link: https://lore.kernel.org/r/20210405003054.256017-13-aahringo@redhat.com
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -57,10 +57,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index d1e309de88b6..6d9fc2947dd8 100644
+index 57da67e2732d..0e6d9bf92be3 100644
 --- a/net/ieee802154/nl802154.c
 +++ b/net/ieee802154/nl802154.c
-@@ -1874,6 +1874,11 @@ nl802154_dump_llsec_devkey(struct sk_buff *skb, struct netlink_callback *cb)
+@@ -2063,6 +2063,11 @@ nl802154_dump_llsec_seclevel(struct sk_buff *skb, struct netlink_callback *cb)
  	if (err)
  		return err;
  
