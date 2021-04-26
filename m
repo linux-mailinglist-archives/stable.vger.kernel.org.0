@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B798E36ADBB
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C3836AE23
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232446AbhDZHiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:38:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
+        id S233372AbhDZHlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233003AbhDZHhW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:37:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D761613C6;
-        Mon, 26 Apr 2021 07:35:15 +0000 (UTC)
+        id S233353AbhDZHjW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95331613C5;
+        Mon, 26 Apr 2021 07:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422516;
-        bh=CKQFmNiXMmE0Ym4kaHjGIgk0DPl4tyRf9CxYv9Sp6Kk=;
+        s=korg; t=1619422634;
+        bh=4dfD035EZVU7/rE1m/24A+eFBD9li4LC3/bEig9uRaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anSZqcT2zssjUx6MwClRiS1eYwjU9x7DRLG1uN1M56vS8OUgm6XJ6xoaICzZ0jJpi
-         HQVS1i/UQX7Pgw/HogB65ewsw1UvJQPytsPMKavw6Es0gA1CGFgUQyBYrbHliGp3wb
-         otyfTfpGwNdz8+QmIwfMZ0zbE7UlLeICMdD/rUbs=
+        b=G0fwiShx3kNg00VKJVTBCcISjFN1tcf+ylyN/09VSO6Y9S5ojOXB0MgCjCO3O++HQ
+         nDnYisQBzQUooUvpQBapo6f1dzecO0N9CMdyu1vEk6/FVQPD0DV9N9JqypR2Shi3aC
+         8GKolphl+/cWJMVA+VROwacrzCJOtSpiqAV6lCQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org, Yuanyuan Zhong <yzhong@purestorage.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 44/49] s390/entry: save the caller of psw_idle
-Date:   Mon, 26 Apr 2021 09:29:40 +0200
-Message-Id: <20210426072821.228964689@linuxfoundation.org>
+Subject: [PATCH 4.19 44/57] pinctrl: lewisburg: Update number of pins in community
+Date:   Mon, 26 Apr 2021 09:29:41 +0200
+Message-Id: <20210426072822.058864172@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Yuanyuan Zhong <yzhong@purestorage.com>
 
-[ Upstream commit a994eddb947ea9ebb7b14d9a1267001699f0a136 ]
+[ Upstream commit 196d941753297d0ca73c563ccd7d00be049ec226 ]
 
-Currently psw_idle does not allocate a stack frame and does not
-save its r14 and r15 into the save area. Even though this is valid from
-call ABI point of view, because psw_idle does not make any calls
-explicitly, in reality psw_idle is an entry point for controlled
-transition into serving interrupts. So, in practice, psw_idle stack
-frame is analyzed during stack unwinding. Depending on build options
-that r14 slot in the save area of psw_idle might either contain a value
-saved by previous sibling call or complete garbage.
+When updating pin names for Intel Lewisburg, the numbers of pins were
+left behind. Update them accordingly.
 
-  [task    0000038000003c28] do_ext_irq+0xd6/0x160
-  [task    0000038000003c78] ext_int_handler+0xba/0xe8
-  [task   *0000038000003dd8] psw_idle_exit+0x0/0x8 <-- pt_regs
- ([task    0000038000003dd8] 0x0)
-  [task    0000038000003e10] default_idle_call+0x42/0x148
-  [task    0000038000003e30] do_idle+0xce/0x160
-  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
-  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
-
-So, to make a stacktrace nicer and actually point for the real caller of
-psw_idle in this frequently occurring case, make psw_idle save its r14.
-
-  [task    0000038000003c28] do_ext_irq+0xd6/0x160
-  [task    0000038000003c78] ext_int_handler+0xba/0xe8
-  [task   *0000038000003dd8] psw_idle_exit+0x0/0x6 <-- pt_regs
- ([task    0000038000003dd8] arch_cpu_idle+0x3c/0xd0)
-  [task    0000038000003e10] default_idle_call+0x42/0x148
-  [task    0000038000003e30] do_idle+0xce/0x160
-  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
-  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
-
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: e66ff71fd0db ("pinctrl: lewisburg: Update pin list according to v1.1v6")
+Signed-off-by: Yuanyuan Zhong <yzhong@purestorage.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/entry.S | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/intel/pinctrl-lewisburg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index e928c2af6a10..dd470f45c4b9 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -967,6 +967,7 @@ ENTRY(ext_int_handler)
-  * Load idle PSW. The second "half" of this function is in .Lcleanup_idle.
-  */
- ENTRY(psw_idle)
-+	stg	%r14,(__SF_GPRS+8*8)(%r15)
- 	stg	%r3,__SF_EMPTY(%r15)
- 	larl	%r1,.Lpsw_idle_lpsw+4
- 	stg	%r1,__SF_EMPTY+8(%r15)
+diff --git a/drivers/pinctrl/intel/pinctrl-lewisburg.c b/drivers/pinctrl/intel/pinctrl-lewisburg.c
+index dc32c22bf19f..8388aa671b21 100644
+--- a/drivers/pinctrl/intel/pinctrl-lewisburg.c
++++ b/drivers/pinctrl/intel/pinctrl-lewisburg.c
+@@ -297,9 +297,9 @@ static const struct pinctrl_pin_desc lbg_pins[] = {
+ static const struct intel_community lbg_communities[] = {
+ 	LBG_COMMUNITY(0, 0, 71),
+ 	LBG_COMMUNITY(1, 72, 132),
+-	LBG_COMMUNITY(3, 133, 144),
+-	LBG_COMMUNITY(4, 145, 180),
+-	LBG_COMMUNITY(5, 181, 246),
++	LBG_COMMUNITY(3, 133, 143),
++	LBG_COMMUNITY(4, 144, 178),
++	LBG_COMMUNITY(5, 179, 246),
+ };
+ 
+ static const struct intel_pinctrl_soc_data lbg_soc_data = {
 -- 
 2.30.2
 
