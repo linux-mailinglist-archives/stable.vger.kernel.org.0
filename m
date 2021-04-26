@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1BFF36AD1C
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F08136AD56
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232143AbhDZHcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:32:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
+        id S232748AbhDZHdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:33:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232457AbhDZHc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:32:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6390F613AA;
-        Mon, 26 Apr 2021 07:31:46 +0000 (UTC)
+        id S232721AbhDZHdt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:33:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEA5461004;
+        Mon, 26 Apr 2021 07:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422307;
-        bh=fHFOnsQLMFscmjvYwSOF2A1HDpCLUbB0mNtgYqTTizk=;
+        s=korg; t=1619422387;
+        bh=Jr1FW1DpEb/HpXC8WDF7LBl/NLMvAYSoaajw1ahahRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzAgeSoDImfRpPI+egokIY2ESJ1m/xQpqECJ8wfs5cayX16w+2kvroiQOg9yu4CHC
-         k87J6raMoTjrJ2ZIjr56xHURK8JblV+Z4sn6B+4rLTZD1xQJAy7DIbdCfrreFTmmkS
-         TKK+laeyXkUiLhL1fAf99zShwVpT8rc3M0HhZv0A=
+        b=YhmayA44+own8pvStCx0otjs/prLv+RV4lTAUbbP6YFEWprPzDnFlxC5dtzhc2LeE
+         GI/CqxZwYMu3kQKvHJqdnjxJJoowKLnSS9w9OZO2wBz6a3h9MYxYM98FKJiaZHxnHB
+         qFjXutcDVZcpK9P/lt6Q0UQY5E4pfwfsDdkqAJeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
-        Borislav Petkov <bp@suse.de>, Dave Young <dyoung@redhat.com>
-Subject: [PATCH 4.4 32/32] x86/crash: Fix crash_setup_memmap_entries() out-of-bounds access
+        Zhang Yi <yi.zhang@huawei.com>
+Subject: [PATCH 4.9 29/37] ext4: correct error label in ext4_rename()
 Date:   Mon, 26 Apr 2021 09:29:30 +0200
-Message-Id: <20210426072817.638830875@linuxfoundation.org>
+Message-Id: <20210426072818.241680931@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
-References: <20210426072816.574319312@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +38,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Galbraith <efault@gmx.de>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-commit 5849cdf8c120e3979c57d34be55b92d90a77a47e upstream.
+The backport of upstream patch 5dccdc5a1916 ("ext4: do not iput inode
+under running transaction in ext4_rename()") introduced a regression on
+the stable kernels 4.14 and older. One of the end_rename error label was
+forgetting to change to release_bh, which may trigger below bug.
 
-Commit in Fixes: added support for kexec-ing a kernel on panic using a
-new system call. As part of it, it does prepare a memory map for the new
-kernel.
+ ------------[ cut here ]------------
+ kernel BUG at /home/zhangyi/hulk-4.4/fs/ext4/ext4_jbd2.c:30!
+ ...
+ Call Trace:
+  [<ffffffff8b4207b2>] ext4_rename+0x9e2/0x10c0
+  [<ffffffff8b331324>] ? unlazy_walk+0x124/0x2a0
+  [<ffffffff8b420eb5>] ext4_rename2+0x25/0x60
+  [<ffffffff8b335104>] vfs_rename+0x3a4/0xed0
+  [<ffffffff8b33a7ad>] SYSC_renameat2+0x57d/0x7f0
+  [<ffffffff8b33c119>] SyS_renameat+0x19/0x30
+  [<ffffffff8bc57bb8>] entry_SYSCALL_64_fastpath+0x18/0x78
+ ...
+ ---[ end trace 75346ce7c76b9f06 ]---
 
-However, while doing so, it wrongly accesses memory it has not
-allocated: it accesses the first element of the cmem->ranges[] array in
-memmap_exclude_ranges() but it has not allocated the memory for it in
-crash_setup_memmap_entries(). As KASAN reports:
-
-  BUG: KASAN: vmalloc-out-of-bounds in crash_setup_memmap_entries+0x17e/0x3a0
-  Write of size 8 at addr ffffc90000426008 by task kexec/1187
-
-  (gdb) list *crash_setup_memmap_entries+0x17e
-  0xffffffff8107cafe is in crash_setup_memmap_entries (arch/x86/kernel/crash.c:322).
-  317                                      unsigned long long mend)
-  318     {
-  319             unsigned long start, end;
-  320
-  321             cmem->ranges[0].start = mstart;
-  322             cmem->ranges[0].end = mend;
-  323             cmem->nr_ranges = 1;
-  324
-  325             /* Exclude elf header region */
-  326             start = image->arch.elf_load_addr;
-  (gdb)
-
-Make sure the ranges array becomes a single element allocated.
-
- [ bp: Write a proper commit message. ]
-
-Fixes: dd5f726076cc ("kexec: support for kexec on panic using new system call")
-Signed-off-by: Mike Galbraith <efault@gmx.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dave Young <dyoung@redhat.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/725fa3dc1da2737f0f6188a1a9701bead257ea9d.camel@gmx.de
+Fixes: f5337ec530a6 ("ext4: do not iput inode under running transaction in ext4_rename()")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/crash.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ext4/namei.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/crash.c
-+++ b/arch/x86/kernel/crash.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
-+#include <linux/overflow.h>
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3621,7 +3621,7 @@ static int ext4_rename(struct inode *old
+ 	    ext4_encrypted_inode(new.dir) &&
+ 	    !fscrypt_has_permitted_context(new.dir, old.inode)) {
+ 		retval = -EXDEV;
+-		goto end_rename;
++		goto release_bh;
+ 	}
  
- #include <asm/processor.h>
- #include <asm/hardirq.h>
-@@ -572,7 +573,7 @@ int crash_setup_memmap_entries(struct ki
- 	struct crash_memmap_data cmd;
- 	struct crash_mem *cmem;
- 
--	cmem = vzalloc(sizeof(struct crash_mem));
-+	cmem = vzalloc(struct_size(cmem, ranges, 1));
- 	if (!cmem)
- 		return -ENOMEM;
- 
+ 	new.bh = ext4_find_entry(new.dir, &new.dentry->d_name,
 
 
