@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1830B36AD45
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 803EF36AE1B
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232630AbhDZHdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:33:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44596 "EHLO mail.kernel.org"
+        id S232691AbhDZHln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232634AbhDZHdX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:33:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EAC761360;
-        Mon, 26 Apr 2021 07:32:37 +0000 (UTC)
+        id S232837AbhDZHhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:37:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E03F613DD;
+        Mon, 26 Apr 2021 07:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422357;
-        bh=q3j0YkazXOCbG2Izf4RL81IikRFJeV8YQYzMLMhbLII=;
+        s=korg; t=1619422551;
+        bh=uAAUyMljlcrTr7L/lCee6dkkMCsypVanYPJhHqDkpug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zBMrHRGrtZV38QTKh2Rat4aEelPcHXN97Z/A7DCiW52nByML4RXWXsCLTfCF/0CJb
-         fW5sg1Bue6XSGwZe14r6Jaf661Q6TPlZH2YzDWmRYXjwvDz49HLJ7T6OobMqKIRwVv
-         0dqy1RW1Qh5mlVkoogiKow7pvDky3o7qmIb8w72g=
+        b=P/RzwpjbtokXHVeA0SiVtQFaPdvz1N58JYd1xVHI8mlpJkIMTx1YAmf40gc+loIG3
+         ZAWBicjGlPKlm0uQb3O+NJ99vgkS/BHkYWtoNtJMGjK6NDmulsSU5gAvzArJ0wQglr
+         eAbLeiGvqBDglRcd9X91MrYHqYh/JIU/J71t004Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Santosh Shilimkar <ssantosh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/37] arc: kernel: Return -EFAULT if copy_to_user() fails
-Date:   Mon, 26 Apr 2021 09:29:06 +0200
-Message-Id: <20210426072817.432693073@linuxfoundation.org>
+Subject: [PATCH 4.19 10/57] ARM: keystone: fix integer overflow warning
+Date:   Mon, 26 Apr 2021 09:29:07 +0200
+Message-Id: <20210426072820.917254331@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 46e152186cd89d940b26726fff11eb3f4935b45a ]
+[ Upstream commit 844b85dda2f569943e1e018fdd63b6f7d1d6f08e ]
 
-The copy_to_user() function returns the number of bytes remaining to be
-copied, but we want to return -EFAULT if the copy doesn't complete.
+clang warns about an impossible condition when building with 32-bit
+phys_addr_t:
 
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+arch/arm/mach-keystone/keystone.c:79:16: error: result of comparison of constant 51539607551 with expression of type 'phys_addr_t' (aka 'unsigned int') is always false [-Werror,-Wtautological-constant-out-of-range-compare]
+            mem_end   > KEYSTONE_HIGH_PHYS_END) {
+            ~~~~~~~   ^ ~~~~~~~~~~~~~~~~~~~~~~
+arch/arm/mach-keystone/keystone.c:78:16: error: result of comparison of constant 34359738368 with expression of type 'phys_addr_t' (aka 'unsigned int') is always true [-Werror,-Wtautological-constant-out-of-range-compare]
+        if (mem_start < KEYSTONE_HIGH_PHYS_START ||
+            ~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~
+
+Change the temporary variable to a fixed-size u64 to avoid the warning.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
+Link: https://lore.kernel.org/r/20210323131814.2751750-1-arnd@kernel.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/signal.c | 4 ++--
+ arch/arm/mach-keystone/keystone.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arc/kernel/signal.c b/arch/arc/kernel/signal.c
-index d347bbc086fe..16cdb471d3db 100644
---- a/arch/arc/kernel/signal.c
-+++ b/arch/arc/kernel/signal.c
-@@ -97,7 +97,7 @@ stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
- 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
- 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
+diff --git a/arch/arm/mach-keystone/keystone.c b/arch/arm/mach-keystone/keystone.c
+index 84613abf35a3..79ff5b953431 100644
+--- a/arch/arm/mach-keystone/keystone.c
++++ b/arch/arm/mach-keystone/keystone.c
+@@ -65,7 +65,7 @@ static void __init keystone_init(void)
+ static long long __init keystone_pv_fixup(void)
+ {
+ 	long long offset;
+-	phys_addr_t mem_start, mem_end;
++	u64 mem_start, mem_end;
  
--	return err;
-+	return err ? -EFAULT : 0;
- }
+ 	mem_start = memblock_start_of_DRAM();
+ 	mem_end = memblock_end_of_DRAM();
+@@ -78,7 +78,7 @@ static long long __init keystone_pv_fixup(void)
+ 	if (mem_start < KEYSTONE_HIGH_PHYS_START ||
+ 	    mem_end   > KEYSTONE_HIGH_PHYS_END) {
+ 		pr_crit("Invalid address space for memory (%08llx-%08llx)\n",
+-		        (u64)mem_start, (u64)mem_end);
++		        mem_start, mem_end);
+ 		return 0;
+ 	}
  
- static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
-@@ -111,7 +111,7 @@ static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
- 				&(sf->uc.uc_mcontext.regs.scratch),
- 				sizeof(sf->uc.uc_mcontext.regs.scratch));
- 	if (err)
--		return err;
-+		return -EFAULT;
- 
- 	set_current_blocked(&set);
- 	regs->bta	= uregs.scratch.bta;
 -- 
 2.30.2
 
