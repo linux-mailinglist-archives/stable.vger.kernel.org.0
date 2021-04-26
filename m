@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A051936AD33
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E95336AD08
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232489AbhDZHdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:33:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44482 "EHLO mail.kernel.org"
+        id S232297AbhDZHcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:32:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232558AbhDZHc4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:32:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 607DD6135F;
-        Mon, 26 Apr 2021 07:32:13 +0000 (UTC)
+        id S232280AbhDZHcC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:32:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F7736105A;
+        Mon, 26 Apr 2021 07:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422334;
-        bh=msIJ8Uv4dU6XhjrAKmnjhh/PxmMOlH5imlNT9NhGE/M=;
+        s=korg; t=1619422280;
+        bh=cozPDNfZ1ilLtxabbov4dYohEi27shFb6gSZS/63Wfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWLfwlDDyicpUBjohSMtuhuM/sYnEKkyWeJ+g5PXtggkqoOwvpgcuG17Sxg7t85YD
-         3QDGrW1yNQCpk3z2BpiQzWFRfmX6xgRx0Cy9uMMPZROyLmRuR8l0mfMYbyE1U/u4Pc
-         JedZg9Y/FBoq93BgZHPA+n9sv/DvlpTgtj/uvZ7I=
+        b=DDxj4sPVSXEMxy2yHbXsnhWpZ+HI4bzrX1duMqEOSYBCcWCwBZ2zJ9iZjUlicZQBk
+         HQIke4+MMdtfJpwW1Po1JmWDl9GoFNArD+1z15JcYOa5MGYHdRvFM1+yEb4e4vLzm/
+         2Z+zzCXGTgwMCZIIaXmQ2/mHgoVs/fcjjuQCrYdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 01/37] net/sctp: fix race condition in sctp_destroy_sock
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 04/32] ARM: dts: Fix moving mmc devices with aliases for omap4 & 5
 Date:   Mon, 26 Apr 2021 09:29:02 +0200
-Message-Id: <20210426072817.296912487@linuxfoundation.org>
+Message-Id: <20210426072816.749255331@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,80 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Or Cohen <orcohen@paloaltonetworks.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit b166a20b07382b8bc1dcee2a448715c9c2c81b5b upstream.
+[ Upstream commit 77335a040178a0456d4eabc8bf17a7ca3ee4a327 ]
 
-If sctp_destroy_sock is called without sock_net(sk)->sctp.addr_wq_lock
-held and sp->do_auto_asconf is true, then an element is removed
-from the auto_asconf_splist without any proper locking.
+Fix moving mmc devices with dts aliases as discussed on the lists.
+Without this we now have internal eMMC mmc1 show up as mmc2 compared
+to the earlier order of devices.
 
-This can happen in the following functions:
-1. In sctp_accept, if sctp_sock_migrate fails.
-2. In inet_create or inet6_create, if there is a bpf program
-   attached to BPF_CGROUP_INET_SOCK_CREATE which denies
-   creation of the sctp socket.
-
-The bug is fixed by acquiring addr_wq_lock in sctp_destroy_sock
-instead of sctp_close.
-
-This addresses CVE-2021-23133.
-
-Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Fixes: 610236587600 ("bpf: Add new cgroup attach type to enable sock modifications")
-Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/socket.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/omap4.dtsi | 5 +++++
+ arch/arm/boot/dts/omap5.dtsi | 5 +++++
+ 2 files changed, 10 insertions(+)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1582,11 +1582,9 @@ static void sctp_close(struct sock *sk,
- 
- 	/* Supposedly, no process has access to the socket, but
- 	 * the net layers still may.
--	 * Also, sctp_destroy_sock() needs to be called with addr_wq_lock
--	 * held and that should be grabbed before socket lock.
- 	 */
--	spin_lock_bh(&net->sctp.addr_wq_lock);
--	bh_lock_sock_nested(sk);
-+	local_bh_disable();
-+	bh_lock_sock(sk);
- 
- 	/* Hold the sock, since sk_common_release() will put sock_put()
- 	 * and we have just a little more cleanup.
-@@ -1595,7 +1593,7 @@ static void sctp_close(struct sock *sk,
- 	sk_common_release(sk);
- 
- 	bh_unlock_sock(sk);
--	spin_unlock_bh(&net->sctp.addr_wq_lock);
-+	local_bh_enable();
- 
- 	sock_put(sk);
- 
-@@ -4262,9 +4260,6 @@ static int sctp_init_sock(struct sock *s
- 	sk_sockets_allocated_inc(sk);
- 	sock_prot_inuse_add(net, sk->sk_prot, 1);
- 
--	/* Nothing can fail after this block, otherwise
--	 * sctp_destroy_sock() will be called without addr_wq_lock held
--	 */
- 	if (net->sctp.default_auto_asconf) {
- 		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_add_tail(&sp->auto_asconf_list,
-@@ -4299,7 +4294,9 @@ static void sctp_destroy_sock(struct soc
- 
- 	if (sp->do_auto_asconf) {
- 		sp->do_auto_asconf = 0;
-+		spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_del(&sp->auto_asconf_list);
-+		spin_unlock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 	}
- 	sctp_endpoint_free(sp->ep);
- 	local_bh_disable();
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 8a5628c4b135..656e35ec037d 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -21,6 +21,11 @@
+ 		i2c1 = &i2c2;
+ 		i2c2 = &i2c3;
+ 		i2c3 = &i2c4;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
++		mmc3 = &mmc4;
++		mmc4 = &mmc5;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index 4c04389dab32..b61ea6ca59b3 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -26,6 +26,11 @@
+ 		i2c2 = &i2c3;
+ 		i2c3 = &i2c4;
+ 		i2c4 = &i2c5;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
++		mmc3 = &mmc4;
++		mmc4 = &mmc5;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
+-- 
+2.30.2
+
 
 
