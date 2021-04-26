@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9590736AD60
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B071436AD16
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:32:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232079AbhDZHgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
+        id S232385AbhDZHcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:32:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232777AbhDZHeD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:34:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F8E561077;
-        Mon, 26 Apr 2021 07:33:21 +0000 (UTC)
+        id S231171AbhDZHcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:32:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6672061006;
+        Mon, 26 Apr 2021 07:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422402;
-        bh=cb/WSjGhZm9qsYRe4EugrntntQRK3N9XOP/ZsHZsCME=;
+        s=korg; t=1619422299;
+        bh=mVyWi9XG90EchzaJQHS0kyf10Ks7lxWF4bcLEboImsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQrIjNbaJ3Zh3klrmqaEaM2jTBRvSNgR7mU1+XrdjIpkq39m2dTJ4Jld7q5lJDyyd
-         Qmvv8z5BAehC3c4h2gRaWEBCXfmEQNHkkeSLAhkhkbmTp7Tf6+d/Em535qZCwNQDRz
-         HrvJjRZw/NOgAI78wFddvhSIfzJak/syk9RJbOlM=
+        b=Nmd3zUYg7xhGfT/2CuLlhq+tAuEHJahEd8x8QKONrhD5OvVjE1TyNLQqX/K+27Iwe
+         i6gNGtlIs6MYyz0P4J50H/FWwlfULqDGV4sHkoMc0umuz84iANaG//HAB6HSgWsV3B
+         39WsoIrxoYSObqGDgtG7Ep0vbKH6Ht02sL39LfM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Marcos Paulo de Souza <mpdesouza@suse.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 17/37] Input: i8042 - fix Pegatron C15B ID entry
-Date:   Mon, 26 Apr 2021 09:29:18 +0200
-Message-Id: <20210426072817.835788879@linuxfoundation.org>
+        stable@vger.kernel.org, Fredrik Strupe <fredrik@strupe.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.4 21/32] ARM: 9071/1: uprobes: Dont hook on thumb instructions
+Date:   Mon, 26 Apr 2021 09:29:19 +0200
+Message-Id: <20210426072817.296558540@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-commit daa58c8eec0a65ac8e2e77ff3ea8a233d8eec954 upstream.
+commit d2f7eca60b29006285d57c7035539e33300e89e5 upstream.
 
-The Zenbook Flip entry that was added overwrites a previous one
-because of a typo:
+Since uprobes is not supported for thumb, check that the thumb bit is
+not set when matching the uprobes instruction hooks.
 
-In file included from drivers/input/serio/i8042.h:23,
-                 from drivers/input/serio/i8042.c:131:
-drivers/input/serio/i8042-x86ia64io.h:591:28: error: initialized field overwritten [-Werror=override-init]
-  591 |                 .matches = {
-      |                            ^
-drivers/input/serio/i8042-x86ia64io.h:591:28: note: (near initialization for 'i8042_dmi_noselftest_table[0].matches')
+The Arm UDF instructions used for uprobes triggering
+(UPROBE_SWBP_ARM_INSN and UPROBE_SS_ARM_INSN) coincidentally share the
+same encoding as a pair of unallocated 32-bit thumb instructions (not
+UDF) when the condition code is 0b1111 (0xf). This in effect makes it
+possible to trigger the uprobes functionality from thumb, and at that
+using two unallocated instructions which are not permanently undefined.
 
-Add the missing separator between the two.
-
-Fixes: b5d6e7ab7fe7 ("Input: i8042 - add ASUS Zenbook Flip to noselftest list")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Link: https://lore.kernel.org/r/20210323130623.2302402-1-arnd@kernel.org
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: c7edc9e326d5 ("ARM: add uprobes support")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/probes/uprobes/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -579,6 +579,7 @@ static const struct dmi_system_id i8042_
- 			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-CS"),
- 		},
-+	}, {
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
+--- a/arch/arm/probes/uprobes/core.c
++++ b/arch/arm/probes/uprobes/core.c
+@@ -207,7 +207,7 @@ unsigned long uprobe_get_swbp_addr(struc
+ static struct undef_hook uprobes_arm_break_hook = {
+ 	.instr_mask	= 0x0fffffff,
+ 	.instr_val	= (UPROBE_SWBP_ARM_INSN & 0x0fffffff),
+-	.cpsr_mask	= MODE_MASK,
++	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
+ 	.cpsr_val	= USR_MODE,
+ 	.fn		= uprobe_trap_handler,
+ };
+@@ -215,7 +215,7 @@ static struct undef_hook uprobes_arm_bre
+ static struct undef_hook uprobes_arm_ss_hook = {
+ 	.instr_mask	= 0x0fffffff,
+ 	.instr_val	= (UPROBE_SS_ARM_INSN & 0x0fffffff),
+-	.cpsr_mask	= MODE_MASK,
++	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
+ 	.cpsr_val	= USR_MODE,
+ 	.fn		= uprobe_trap_handler,
+ };
 
 
