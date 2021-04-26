@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B071436AD16
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5328336AD90
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232385AbhDZHcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:32:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43220 "EHLO mail.kernel.org"
+        id S232570AbhDZHhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:37:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231171AbhDZHcW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:32:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6672061006;
-        Mon, 26 Apr 2021 07:31:38 +0000 (UTC)
+        id S232913AbhDZHgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:36:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41331613BB;
+        Mon, 26 Apr 2021 07:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422299;
-        bh=mVyWi9XG90EchzaJQHS0kyf10Ks7lxWF4bcLEboImsE=;
+        s=korg; t=1619422466;
+        bh=C6qUDGwnbP62CeFr17CGJZfay2WsnWnpgn67e8vL2kU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nmd3zUYg7xhGfT/2CuLlhq+tAuEHJahEd8x8QKONrhD5OvVjE1TyNLQqX/K+27Iwe
-         i6gNGtlIs6MYyz0P4J50H/FWwlfULqDGV4sHkoMc0umuz84iANaG//HAB6HSgWsV3B
-         39WsoIrxoYSObqGDgtG7Ep0vbKH6Ht02sL39LfM8=
+        b=maAaixKkPPQ2l1hIkj9A5PZryUmRiz0R2i6FH9z3o1X1swXIMFERjiFHqRQzBXkTw
+         qMpZ3/zTBCODFHDB7YGDzBSosqvcsrhng4iOmt/NP82+XOqrKTefLmfKI0Bmi+4mMZ
+         KL9oUdYReibUvuO9njQeal/6PKn0CdkDUh6e/L0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fredrik Strupe <fredrik@strupe.net>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.4 21/32] ARM: 9071/1: uprobes: Dont hook on thumb instructions
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.14 23/49] arm64: fix inline asm in load_unaligned_zeropad()
 Date:   Mon, 26 Apr 2021 09:29:19 +0200
-Message-Id: <20210426072817.296558540@linuxfoundation.org>
+Message-Id: <20210426072820.512718589@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
-References: <20210426072816.574319312@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fredrik Strupe <fredrik@strupe.net>
+From: Peter Collingbourne <pcc@google.com>
 
-commit d2f7eca60b29006285d57c7035539e33300e89e5 upstream.
+commit 185f2e5f51c2029efd9dd26cceb968a44fe053c6 upstream.
 
-Since uprobes is not supported for thumb, check that the thumb bit is
-not set when matching the uprobes instruction hooks.
+The inline asm's addr operand is marked as input-only, however in
+the case where an exception is taken it may be modified by the BIC
+instruction on the exception path. Fix the problem by using a temporary
+register as the destination register for the BIC instruction.
 
-The Arm UDF instructions used for uprobes triggering
-(UPROBE_SWBP_ARM_INSN and UPROBE_SS_ARM_INSN) coincidentally share the
-same encoding as a pair of unallocated 32-bit thumb instructions (not
-UDF) when the condition code is 0b1111 (0xf). This in effect makes it
-possible to trigger the uprobes functionality from thumb, and at that
-using two unallocated instructions which are not permanently undefined.
-
-Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Signed-off-by: Peter Collingbourne <pcc@google.com>
 Cc: stable@vger.kernel.org
-Fixes: c7edc9e326d5 ("ARM: add uprobes support")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Link: https://linux-review.googlesource.com/id/I84538c8a2307d567b4f45bb20b715451005f9617
+Link: https://lore.kernel.org/r/20210401165110.3952103-1-pcc@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/probes/uprobes/core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/word-at-a-time.h |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/arm/probes/uprobes/core.c
-+++ b/arch/arm/probes/uprobes/core.c
-@@ -207,7 +207,7 @@ unsigned long uprobe_get_swbp_addr(struc
- static struct undef_hook uprobes_arm_break_hook = {
- 	.instr_mask	= 0x0fffffff,
- 	.instr_val	= (UPROBE_SWBP_ARM_INSN & 0x0fffffff),
--	.cpsr_mask	= MODE_MASK,
-+	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
- 	.cpsr_val	= USR_MODE,
- 	.fn		= uprobe_trap_handler,
- };
-@@ -215,7 +215,7 @@ static struct undef_hook uprobes_arm_bre
- static struct undef_hook uprobes_arm_ss_hook = {
- 	.instr_mask	= 0x0fffffff,
- 	.instr_val	= (UPROBE_SS_ARM_INSN & 0x0fffffff),
--	.cpsr_mask	= MODE_MASK,
-+	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
- 	.cpsr_val	= USR_MODE,
- 	.fn		= uprobe_trap_handler,
- };
+--- a/arch/arm64/include/asm/word-at-a-time.h
++++ b/arch/arm64/include/asm/word-at-a-time.h
+@@ -64,7 +64,7 @@ static inline unsigned long find_zero(un
+  */
+ static inline unsigned long load_unaligned_zeropad(const void *addr)
+ {
+-	unsigned long ret, offset;
++	unsigned long ret, tmp;
+ 
+ 	/* Load word from unaligned pointer addr */
+ 	asm(
+@@ -72,9 +72,9 @@ static inline unsigned long load_unalign
+ 	"2:\n"
+ 	"	.pushsection .fixup,\"ax\"\n"
+ 	"	.align 2\n"
+-	"3:	and	%1, %2, #0x7\n"
+-	"	bic	%2, %2, #0x7\n"
+-	"	ldr	%0, [%2]\n"
++	"3:	bic	%1, %2, #0x7\n"
++	"	ldr	%0, [%1]\n"
++	"	and	%1, %2, #0x7\n"
+ 	"	lsl	%1, %1, #0x3\n"
+ #ifndef __AARCH64EB__
+ 	"	lsr	%0, %0, %1\n"
+@@ -84,7 +84,7 @@ static inline unsigned long load_unalign
+ 	"	b	2b\n"
+ 	"	.popsection\n"
+ 	_ASM_EXTABLE(1b, 3b)
+-	: "=&r" (ret), "=&r" (offset)
++	: "=&r" (ret), "=&r" (tmp)
+ 	: "r" (addr), "Q" (*(unsigned long *)addr));
+ 
+ 	return ret;
 
 
