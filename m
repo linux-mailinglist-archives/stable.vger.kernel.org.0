@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D6E36AD51
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F4436ADCA
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232638AbhDZHdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45964 "EHLO mail.kernel.org"
+        id S233105AbhDZHig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:38:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232257AbhDZHdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:33:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0384611BF;
-        Mon, 26 Apr 2021 07:32:58 +0000 (UTC)
+        id S232571AbhDZHha (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:37:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A917613D7;
+        Mon, 26 Apr 2021 07:35:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422379;
-        bh=FOVNsP37ujZU56ZO0D/Mg7ahp3v4DxwECQ6+MyBv7tE=;
+        s=korg; t=1619422542;
+        bh=LOdzuD3WJUlPIfQtPBrWx+Srod6U7vS9VcjxhfKBw+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lur5EpmLNh1/LlGkQqlEcI9SIjXnioAcCfCBePQfZ6AH/gjRkcbUWAcWrMDnMVnas
-         qIdDTHjnblQr5k6eCs01xWv+y6761v4ncLI2sG9TWmSnJoRtCKgx4MzC0iLrT3Xugb
-         4pY+4reR13s2S1yFx4CKh4jeT1Dsa3xS7VDOox7s=
+        b=U8UPSFQfbDyh1uXLWfoqcMn1CVIIks9/1cNDRpJtb/lS3kcFzahjUOsNw8PiN32hn
+         8fF8ILPm1+aBaQ0y+JcTo+ROJdsusVmoG+wxkHWsf6xWLnImv6pFHJxJnMG87JogDk
+         RYRxJ8xuEYjNhZwya1anjW61Q13Rkjp3ehAlTOZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Tom Seewald <tseewald@gmail.com>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 26/37] usbip: vudc synchronize sysfs code paths
-Date:   Mon, 26 Apr 2021 09:29:27 +0200
-Message-Id: <20210426072818.135957668@linuxfoundation.org>
+        stable@vger.kernel.org, Lijun Pan <lijunp213@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 32/49] ibmvnic: remove duplicate napi_schedule call in do_reset function
+Date:   Mon, 26 Apr 2021 09:29:28 +0200
+Message-Id: <20210426072820.813674741@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Lijun Pan <lijunp213@gmail.com>
 
-commit bd8b82042269a95db48074b8bb400678dbac1815 upstream.
+commit d3a6abccbd272aea7dc2c6f984bb5a2c11278e44 upstream.
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
+During adapter reset, do_reset/do_hard_reset calls ibmvnic_open(),
+which will calls napi_schedule if previous state is VNIC_CLOSED
+(i.e, the reset case, and "ifconfig down" case). So there is no need
+for do_reset to call napi_schedule again at the end of the function
+though napi_schedule will neglect the request if napi is already
+scheduled.
 
-Use sysfs_lock to protect sysfs paths in vudc.
-
-Cc: stable@vger.kernel.org # 4.9.x # 4.14.x
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/caabcf3fc87bdae970509b5ff32d05bb7ce2fb15.1616807117.git.skhan@linuxfoundation.org
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Fixes: ed651a10875f ("ibmvnic: Updated reset handling")
+Signed-off-by: Lijun Pan <lijunp213@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/vudc_dev.c   |    1 +
- drivers/usb/usbip/vudc_sysfs.c |    5 +++++
- 2 files changed, 6 insertions(+)
+ drivers/net/ethernet/ibm/ibmvnic.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/usb/usbip/vudc_dev.c
-+++ b/drivers/usb/usbip/vudc_dev.c
-@@ -582,6 +582,7 @@ static int init_vudc_hw(struct vudc *udc
- 	init_waitqueue_head(&udc->tx_waitq);
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1431,7 +1431,7 @@ static int do_reset(struct ibmvnic_adapt
+ 		    struct ibmvnic_rwi *rwi, u32 reset_state)
+ {
+ 	struct net_device *netdev = adapter->netdev;
+-	int i, rc;
++	int rc;
  
- 	spin_lock_init(&ud->lock);
-+	mutex_init(&ud->sysfs_lock);
- 	ud->status = SDEV_ST_AVAILABLE;
- 	ud->side = USBIP_VUDC;
+ 	netdev_dbg(adapter->netdev, "Re-setting driver (%d)\n",
+ 		   rwi->reset_reason);
+@@ -1496,10 +1496,6 @@ static int do_reset(struct ibmvnic_adapt
+ 	/* refresh device's multicast list */
+ 	ibmvnic_set_multi(netdev);
  
---- a/drivers/usb/usbip/vudc_sysfs.c
-+++ b/drivers/usb/usbip/vudc_sysfs.c
-@@ -125,6 +125,7 @@ static ssize_t store_sockfd(struct devic
- 		dev_err(dev, "no device");
- 		return -ENODEV;
- 	}
-+	mutex_lock(&udc->ud.sysfs_lock);
- 	spin_lock_irqsave(&udc->lock, flags);
- 	/* Don't export what we don't have */
- 	if (!udc->driver || !udc->pullup) {
-@@ -200,6 +201,8 @@ static ssize_t store_sockfd(struct devic
+-	/* kick napi */
+-	for (i = 0; i < adapter->req_rx_queues; i++)
+-		napi_schedule(&adapter->napi[i]);
+-
+ 	if (adapter->reset_reason != VNIC_RESET_FAILOVER)
+ 		netdev_notify_peers(netdev);
  
- 		wake_up_process(udc->ud.tcp_rx);
- 		wake_up_process(udc->ud.tcp_tx);
-+
-+		mutex_unlock(&udc->ud.sysfs_lock);
- 		return count;
- 
- 	} else {
-@@ -220,6 +223,7 @@ static ssize_t store_sockfd(struct devic
- 	}
- 
- 	spin_unlock_irqrestore(&udc->lock, flags);
-+	mutex_unlock(&udc->ud.sysfs_lock);
- 
- 	return count;
- 
-@@ -229,6 +233,7 @@ unlock_ud:
- 	spin_unlock_irq(&udc->ud.lock);
- unlock:
- 	spin_unlock_irqrestore(&udc->lock, flags);
-+	mutex_unlock(&udc->ud.sysfs_lock);
- 
- 	return ret;
- }
 
 
