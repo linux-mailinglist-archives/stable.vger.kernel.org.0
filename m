@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D84536AE90
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF16436AE50
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232184AbhDZHpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60076 "EHLO mail.kernel.org"
+        id S233444AbhDZHnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:43:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233811AbhDZHoU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:44:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6076613DF;
-        Mon, 26 Apr 2021 07:40:34 +0000 (UTC)
+        id S233459AbhDZHlu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:41:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70246613AF;
+        Mon, 26 Apr 2021 07:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422835;
-        bh=WNa6cmLFR1ps0i/+YURskK1FOl/xhyAEyTXYllI+WCw=;
+        s=korg; t=1619422757;
+        bh=zAgo88+hqQFP8MeP6wbx6FNplEoNlK4DeHeoK5/GuhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vvYSO2WY0VhrmEUUr1jV5ZbPtTJmC7giLm+BaYbLmXaRioZHJ55ye+1stPSLU3L1m
-         Scua1kzbLkwCXm2Y8IRDZHGw+S92OAr7LfemC8YHgWrS+SsKjqSL1Irg+erWl0iLwN
-         E5d1eSMnCA9M6CGNPFNeQjs8HkHFmvg4VNH+fcjI=
+        b=ILyK4petjasTdlTCA3Tu4XLCx7WEjNfSFib0SoqykDGJ9PNoZjbuKEvzEskLL1GH/
+         7eNLVkIe2z9FFuLgVAsfe46Enev9DD59xc8+gH6PL5ZTLULvT7wEsme7tRUXWlezQk
+         FEUkaBUZpNz/7RXNTE1euZs5Bk+zolCmbRJijbJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karel Zak <kzak@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 11/41] block: return -EBUSY when there are open partitions in blkdev_reread_part
+Subject: [PATCH 5.10 16/36] perf auxtrace: Fix potential NULL pointer dereference
 Date:   Mon, 26 Apr 2021 09:29:58 +0200
-Message-Id: <20210426072820.064323264@linuxfoundation.org>
+Message-Id: <20210426072819.338696417@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
-References: <20210426072819.666570770@linuxfoundation.org>
+In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
+References: <20210426072818.777662399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 68e6582e8f2dc32fd2458b9926564faa1fb4560e ]
+[ Upstream commit b14585d9f18dc617e975815570fe836be656b1da ]
 
-The switch to go through blkdev_get_by_dev means we now ignore the
-return value from bdev_disk_changed in __blkdev_get.  Add a manual
-check to restore the old semantics.
+In the function auxtrace_parse_snapshot_options(), the callback pointer
+"itr->parse_snapshot_options" can be NULL if it has not been set during
+the AUX record initialization.  This can cause tool crashing if the
+callback pointer "itr->parse_snapshot_options" is dereferenced without
+performing NULL check.
 
-Fixes: 4601b4b130de ("block: reopen the device in blkdev_reread_part")
-Reported-by: Karel Zak <kzak@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210421160502.447418-1-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Add a NULL check for the pointer "itr->parse_snapshot_options" before
+invoke the callback.
+
+Fixes: d20031bb63dd6dde ("perf tools: Add AUX area tracing Snapshot Mode")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
+Link: http://lore.kernel.org/lkml/20210420151554.2031768-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/ioctl.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/util/auxtrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/ioctl.c b/block/ioctl.c
-index ff241e663c01..8ba1ed8defd0 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -89,6 +89,8 @@ static int blkdev_reread_part(struct block_device *bdev, fmode_t mode)
- 		return -EINVAL;
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
-+	if (bdev->bd_part_count)
-+		return -EBUSY;
+diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
+index d8ada6a3c555..d3c15b53495d 100644
+--- a/tools/perf/util/auxtrace.c
++++ b/tools/perf/util/auxtrace.c
+@@ -636,7 +636,7 @@ int auxtrace_parse_snapshot_options(struct auxtrace_record *itr,
+ 		break;
+ 	}
  
- 	/*
- 	 * Reopen the device to revalidate the driver state and force a
+-	if (itr)
++	if (itr && itr->parse_snapshot_options)
+ 		return itr->parse_snapshot_options(itr, opts, str);
+ 
+ 	pr_err("No AUX area tracing to snapshot\n");
 -- 
 2.30.2
 
