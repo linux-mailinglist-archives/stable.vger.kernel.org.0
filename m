@@ -2,88 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9704536B3CB
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 15:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4181D36B430
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 15:42:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231876AbhDZNIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 09:08:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41986 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231862AbhDZNIe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 09:08:34 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B80A861353;
-        Mon, 26 Apr 2021 13:07:51 +0000 (UTC)
-Date:   Mon, 26 Apr 2021 09:07:50 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lib/vsprintf.c: remove leftover 'f' and 'F' cases from
- bstr_printf()
-Message-ID: <20210426090750.6be265d2@gandalf.local.home>
-In-Reply-To: <20210423094529.1862521-1-linux@rasmusvillemoes.dk>
-References: <20210423094529.1862521-1-linux@rasmusvillemoes.dk>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        id S231862AbhDZNnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 09:43:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36218 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230250AbhDZNnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 09:43:00 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772F9C061574
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 06:42:19 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id f2-20020a17090a4a82b02900c67bf8dc69so5230946pjh.1
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 06:42:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7UseeIaMmveu74ZH/Wrc8S3zclR50CG2PtvsCl9zxVc=;
+        b=eM+/ioLRk9HA6GecneKeZo5I5YP6460DC1BlYvjLyYe3J3xXGUaQY1jM+LRo67qJqu
+         Uu2oP8d1CVVaZ9UHTa/tSwJQYiR2AesalHgDMKUg9D+hzaFG1nKjniwqXrkLrCHvHYUV
+         QwlQ7kW6PZHfdhBbG2PLRHmjVLb/pP65J+nb36ll8/tcHJFnHigxfIp3hlCf8jQ5tvu3
+         ukkj9O80u6LZXpCljtx8TexX3xPVSs/h3qAezBfnDZZllGkzfJBXxVBilEZwF38/9o1t
+         S5NcELNxZ4ThCRDsMU3Dr3HRebzBt8B3rcdP9QUrb41JYvNCHqarjhfVuRYnPAC0jOWG
+         auyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7UseeIaMmveu74ZH/Wrc8S3zclR50CG2PtvsCl9zxVc=;
+        b=HCEqUaANwt672Gl192eyl8js1UOTen9nFz5sDXtrQaiHrUhmT+5bzD4mKigbtdTe/k
+         HeY4N/OK/gQ7mP8bW4Q45tT+EJ6BOuNxkx/wBjPAwmCI7FG6mn2Ay/uMTEle1kRyK7Ct
+         /te0Qrtn+mhebO9Ga/rHhAr48XlzEjq8Zti9H46vw3J9gkVYzJuEgbbYU/KF+xek6Py0
+         XfqZYvy17B3V26KJ5T6lZmKVeaN3tciWxQjSudk7hJbRJVABB5EzEX5rFvfTiyKtY2Pw
+         Xz+5tHipBN1jqUilWwKaLB6+Enw7mk39szMWtIuveB+j605Vk+n9MWvwHydJMPCVK6KK
+         tufw==
+X-Gm-Message-State: AOAM530n/pTkJqb4ymeW1RvrviaTbnHSu+qqMNv/SrA+Y9vpF8NEYBNH
+        YwU8mDyYRWs+ioDY2DxHjueukYkn5B6nxliq
+X-Google-Smtp-Source: ABdhPJygFyPuGGTBJTtdAIiHBFe8F4ORF2bG5W6oa4zjJQURWN/cypo0JbqWcdJug2JjTVp89/VQAA==
+X-Received: by 2002:a17:903:22cb:b029:ec:c30b:cf69 with SMTP id y11-20020a17090322cbb02900ecc30bcf69mr18712168plg.67.1619444538708;
+        Mon, 26 Apr 2021 06:42:18 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j29sm11201801pgl.30.2021.04.26.06.42.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Apr 2021 06:42:18 -0700 (PDT)
+Message-ID: <6086c33a.1c69fb81.5dd04.0cff@mx.google.com>
+Date:   Mon, 26 Apr 2021 06:42:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.114-21-gf9824acd6902
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 146 runs,
+ 4 regressions (v5.4.114-21-gf9824acd6902)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 23 Apr 2021 11:45:29 +0200
-Rasmus Villemoes <linux@rasmusvillemoes.dk> wrote:
+stable-rc/linux-5.4.y baseline: 146 runs, 4 regressions (v5.4.114-21-gf9824=
+acd6902)
 
-> Commit 9af7706492f9 ("lib/vsprintf: Remove support for %pF and %pf in
-> favour of %pS and %ps") removed support for %pF and %pf, and correctly
-> removed the handling of those cases in vbin_printf(). However, the
-> corresponding cases in bstr_printf() were left behind.
-> 
-> In the same series, %pf was re-purposed for dealing with
-> fwnodes (3bd32d6a2ee6, "lib/vsprintf: Add %pfw conversion specifier
-> for printing fwnode names").
-> 
-> So should anyone use %pf with the binary printf routines,
-> vbin_printf() would (correctly, as it involves dereferencing the
-> pointer) do the string formatting to the u32 array, but bstr_printf()
-> would not copy the string from the u32 array, but instead interpret
-> the first sizeof(void*) bytes of the formatted string as a pointer -
-> which generally won't end well (also, all subsequent get_args would be
-> out of sync).
-> 
-> Fixes: 9af7706492f9 ("lib/vsprintf: Remove support for %pF and %pf in favour of %pS and %ps")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-> ---
+Regressions Summary
+-------------------
 
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Thanks!
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
--- Steve
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
->  lib/vsprintf.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-> index 41ddc353ebb8..39ef2e314da5 100644
-> --- a/lib/vsprintf.c
-> +++ b/lib/vsprintf.c
-> @@ -3135,8 +3135,6 @@ int bstr_printf(char *buf, size_t size, const char *fmt, const u32 *bin_buf)
->  			switch (*fmt) {
->  			case 'S':
->  			case 's':
-> -			case 'F':
-> -			case 'f':
->  			case 'x':
->  			case 'K':
->  			case 'e':
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.114-21-gf9824acd6902/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.114-21-gf9824acd6902
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f9824acd69029477e99bf0757f1589371108dba5 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/608690039576b036649b77aa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.114=
+-21-gf9824acd6902/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.114=
+-21-gf9824acd6902/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/608690039576b036649b7=
+7ab
+        failing since 162 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60868e5a720361b2ab9b7795
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.114=
+-21-gf9824acd6902/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.114=
+-21-gf9824acd6902/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60868e5a720361b2ab9b7=
+796
+        failing since 162 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60869065f26768e17b9b77b1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.114=
+-21-gf9824acd6902/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.114=
+-21-gf9824acd6902/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60869065f26768e17b9b7=
+7b2
+        failing since 162 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6086a8cf8815cb60499b77a9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.114=
+-21-gf9824acd6902/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.114=
+-21-gf9824acd6902/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6086a8cf8815cb60499b7=
+7aa
+        failing since 162 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =20
