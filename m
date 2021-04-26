@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F11036AE29
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F82D36AE31
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232653AbhDZHlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56422 "EHLO mail.kernel.org"
+        id S232911AbhDZHly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233610AbhDZHjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E44F613DB;
-        Mon, 26 Apr 2021 07:38:15 +0000 (UTC)
+        id S232398AbhDZHjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2930611BD;
+        Mon, 26 Apr 2021 07:38:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422696;
-        bh=3qZ3T9kPAnKtnT8A0CWerrwoNYFH0QEcKuS+VNkTW+4=;
+        s=korg; t=1619422698;
+        bh=oyP6LS1k5NAJuRJ7cgqeIJDp4HwS7W3aMhJT+0+SU/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRovMvP4jCVrSYEL7UgnqyQUfFkmcqqatCXM45qApfE+WI8/2LTFdl0rkjRT019IU
-         2fcXgZk1MGPzHL++CPMSSIXCQAxEge1l1Li/wWYUwi4ZIRu/43JjvORaDxq0V01n70
-         Q4HZzhUnxfXRWJfYqWkOqQi53PUQLoZkCzWPn5AM=
+        b=kqFoPZBGUPIkT+Pj6bQst7rBE6J0sdlQVp5gTQTnTFIOsGLiVgTYjZAEDJJ9l1ZjV
+         +zmacVBn2beEkfH7YiO/sh8bzSaxR8JLo7Aj0E7kCicQ0BPIBenvw5Wwik2SXXltw/
+         wGY//Nw/wqAjlrEKgVHEf1KyrAY6i9ceWgBbjN3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Adam Ford <aford173@gmail.com>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Yuanyuan Zhong <yzhong@purestorage.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/20] gpio: omap: Save and restore sysconfig
-Date:   Mon, 26 Apr 2021 09:29:53 +0200
-Message-Id: <20210426072816.767113942@linuxfoundation.org>
+Subject: [PATCH 5.4 03/20] pinctrl: lewisburg: Update number of pins in community
+Date:   Mon, 26 Apr 2021 09:29:54 +0200
+Message-Id: <20210426072816.798083199@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210426072816.686976183@linuxfoundation.org>
 References: <20210426072816.686976183@linuxfoundation.org>
@@ -45,116 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Yuanyuan Zhong <yzhong@purestorage.com>
 
-[ Upstream commit ddd8d94ca31e768c76cf8bfe34ba7b10136b3694 ]
+[ Upstream commit 196d941753297d0ca73c563ccd7d00be049ec226 ]
 
-As we are using cpu_pm to save and restore context, we must also save and
-restore the GPIO sysconfig register. This is needed because we are not
-calling PM runtime functions at all with cpu_pm.
+When updating pin names for Intel Lewisburg, the numbers of pins were
+left behind. Update them accordingly.
 
-We need to save the sysconfig on idle as it's value can get reconfigured by
-PM runtime and can be different from the init time value. Device specific
-flags like "ti,no-idle-on-init" can affect the init value.
-
-Fixes: b764a5863fd8 ("gpio: omap: Remove custom PM calls and use cpu_pm instead")
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Adam Ford <aford173@gmail.com>
-Cc: Andreas Kemnade <andreas@kemnade.info>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: e66ff71fd0db ("pinctrl: lewisburg: Update pin list according to v1.1v6")
+Signed-off-by: Yuanyuan Zhong <yzhong@purestorage.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-omap.c                | 9 +++++++++
- include/linux/platform_data/gpio-omap.h | 3 +++
- 2 files changed, 12 insertions(+)
+ drivers/pinctrl/intel/pinctrl-lewisburg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
-index d0f27084a942..ce6954390cfd 100644
---- a/drivers/gpio/gpio-omap.c
-+++ b/drivers/gpio/gpio-omap.c
-@@ -29,6 +29,7 @@
- #define OMAP4_GPIO_DEBOUNCINGTIME_MASK 0xFF
+diff --git a/drivers/pinctrl/intel/pinctrl-lewisburg.c b/drivers/pinctrl/intel/pinctrl-lewisburg.c
+index 7fdf4257df1e..ad4b446d588e 100644
+--- a/drivers/pinctrl/intel/pinctrl-lewisburg.c
++++ b/drivers/pinctrl/intel/pinctrl-lewisburg.c
+@@ -299,9 +299,9 @@ static const struct pinctrl_pin_desc lbg_pins[] = {
+ static const struct intel_community lbg_communities[] = {
+ 	LBG_COMMUNITY(0, 0, 71),
+ 	LBG_COMMUNITY(1, 72, 132),
+-	LBG_COMMUNITY(3, 133, 144),
+-	LBG_COMMUNITY(4, 145, 180),
+-	LBG_COMMUNITY(5, 181, 246),
++	LBG_COMMUNITY(3, 133, 143),
++	LBG_COMMUNITY(4, 144, 178),
++	LBG_COMMUNITY(5, 179, 246),
+ };
  
- struct gpio_regs {
-+	u32 sysconfig;
- 	u32 irqenable1;
- 	u32 irqenable2;
- 	u32 wake_en;
-@@ -1058,6 +1059,7 @@ static void omap_gpio_init_context(struct gpio_bank *p)
- 	const struct omap_gpio_reg_offs *regs = p->regs;
- 	void __iomem *base = p->base;
- 
-+	p->context.sysconfig	= readl_relaxed(base + regs->sysconfig);
- 	p->context.ctrl		= readl_relaxed(base + regs->ctrl);
- 	p->context.oe		= readl_relaxed(base + regs->direction);
- 	p->context.wake_en	= readl_relaxed(base + regs->wkup_en);
-@@ -1077,6 +1079,7 @@ static void omap_gpio_restore_context(struct gpio_bank *bank)
- 	const struct omap_gpio_reg_offs *regs = bank->regs;
- 	void __iomem *base = bank->base;
- 
-+	writel_relaxed(bank->context.sysconfig, base + regs->sysconfig);
- 	writel_relaxed(bank->context.wake_en, base + regs->wkup_en);
- 	writel_relaxed(bank->context.ctrl, base + regs->ctrl);
- 	writel_relaxed(bank->context.leveldetect0, base + regs->leveldetect0);
-@@ -1104,6 +1107,10 @@ static void omap_gpio_idle(struct gpio_bank *bank, bool may_lose_context)
- 
- 	bank->saved_datain = readl_relaxed(base + bank->regs->datain);
- 
-+	/* Save syconfig, it's runtime value can be different from init value */
-+	if (bank->loses_context)
-+		bank->context.sysconfig = readl_relaxed(base + bank->regs->sysconfig);
-+
- 	if (!bank->enabled_non_wakeup_gpios)
- 		goto update_gpio_context_count;
- 
-@@ -1259,6 +1266,7 @@ static int gpio_omap_cpu_notifier(struct notifier_block *nb,
- 
- static const struct omap_gpio_reg_offs omap2_gpio_regs = {
- 	.revision =		OMAP24XX_GPIO_REVISION,
-+	.sysconfig =		OMAP24XX_GPIO_SYSCONFIG,
- 	.direction =		OMAP24XX_GPIO_OE,
- 	.datain =		OMAP24XX_GPIO_DATAIN,
- 	.dataout =		OMAP24XX_GPIO_DATAOUT,
-@@ -1282,6 +1290,7 @@ static const struct omap_gpio_reg_offs omap2_gpio_regs = {
- 
- static const struct omap_gpio_reg_offs omap4_gpio_regs = {
- 	.revision =		OMAP4_GPIO_REVISION,
-+	.sysconfig =		OMAP4_GPIO_SYSCONFIG,
- 	.direction =		OMAP4_GPIO_OE,
- 	.datain =		OMAP4_GPIO_DATAIN,
- 	.dataout =		OMAP4_GPIO_DATAOUT,
-diff --git a/include/linux/platform_data/gpio-omap.h b/include/linux/platform_data/gpio-omap.h
-index 8b30b14b47d3..f377817ce75c 100644
---- a/include/linux/platform_data/gpio-omap.h
-+++ b/include/linux/platform_data/gpio-omap.h
-@@ -85,6 +85,7 @@
-  * omap2+ specific GPIO registers
-  */
- #define OMAP24XX_GPIO_REVISION		0x0000
-+#define OMAP24XX_GPIO_SYSCONFIG		0x0010
- #define OMAP24XX_GPIO_IRQSTATUS1	0x0018
- #define OMAP24XX_GPIO_IRQSTATUS2	0x0028
- #define OMAP24XX_GPIO_IRQENABLE2	0x002c
-@@ -108,6 +109,7 @@
- #define OMAP24XX_GPIO_SETDATAOUT	0x0094
- 
- #define OMAP4_GPIO_REVISION		0x0000
-+#define OMAP4_GPIO_SYSCONFIG		0x0010
- #define OMAP4_GPIO_EOI			0x0020
- #define OMAP4_GPIO_IRQSTATUSRAW0	0x0024
- #define OMAP4_GPIO_IRQSTATUSRAW1	0x0028
-@@ -148,6 +150,7 @@
- #ifndef __ASSEMBLER__
- struct omap_gpio_reg_offs {
- 	u16 revision;
-+	u16 sysconfig;
- 	u16 direction;
- 	u16 datain;
- 	u16 dataout;
+ static const struct intel_pinctrl_soc_data lbg_soc_data = {
 -- 
 2.30.2
 
