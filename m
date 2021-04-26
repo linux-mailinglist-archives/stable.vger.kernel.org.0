@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41BB236AD30
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7D6E36AD51
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232561AbhDZHc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:32:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44276 "EHLO mail.kernel.org"
+        id S232638AbhDZHdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:33:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232516AbhDZHct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:32:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D400161077;
-        Mon, 26 Apr 2021 07:32:07 +0000 (UTC)
+        id S232257AbhDZHdl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:33:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0384611BF;
+        Mon, 26 Apr 2021 07:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422328;
-        bh=zDxJXd2qXq1dSCjtYIk8HjNfAOGtRtdfoj7hOk/H7d8=;
+        s=korg; t=1619422379;
+        bh=FOVNsP37ujZU56ZO0D/Mg7ahp3v4DxwECQ6+MyBv7tE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwUYrLvluErEJBEO6uDrm5zSs/GqaaMnh248fp8gwOwhYiN7T7EWQX2f3UVHJ5Nz6
-         Kn9Xzwaxm5Mzc8NT+wNfGuWNHuHOQkvi27RkRgTnJ0M6kEkkiUbmQ8Rw/dXnLGvCUN
-         dC2+BR2q1hDUy2WIDjJNSepiTJWvJDAA+LQphEZg=
+        b=Lur5EpmLNh1/LlGkQqlEcI9SIjXnioAcCfCBePQfZ6AH/gjRkcbUWAcWrMDnMVnas
+         qIdDTHjnblQr5k6eCs01xWv+y6761v4ncLI2sG9TWmSnJoRtCKgx4MzC0iLrT3Xugb
+         4pY+4reR13s2S1yFx4CKh4jeT1Dsa3xS7VDOox7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 29/32] ia64: tools: remove duplicate definition of ia64_mf() on ia64
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Tom Seewald <tseewald@gmail.com>,
+        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 26/37] usbip: vudc synchronize sysfs code paths
 Date:   Mon, 26 Apr 2021 09:29:27 +0200
-Message-Id: <20210426072817.542932085@linuxfoundation.org>
+Message-Id: <20210426072818.135957668@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
-References: <20210426072816.574319312@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
+commit bd8b82042269a95db48074b8bb400678dbac1815 upstream.
 
-The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
-already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
-failing to build:
+Fuzzing uncovered race condition between sysfs code paths in usbip
+drivers. Device connect/disconnect code paths initiated through
+sysfs interface are prone to races if disconnect happens during
+connect and vice versa.
 
-    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
-  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
-                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
-                   from libbpf.c:37:
-  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
-     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
-        |
-  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
-                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
-                   from /usr/include/linux/swab.h:8,
-                   from /usr/include/linux/byteorder/little_endian.h:13,
-                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
-                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
-                   from libbpf.c:36:
-  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
-    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
-        |
-  cc1: all warnings being treated as errors
+Use sysfs_lock to protect sysfs paths in vudc.
 
-Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
-
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 4.9.x # 4.14.x
+Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/caabcf3fc87bdae970509b5ff32d05bb7ce2fb15.1616807117.git.skhan@linuxfoundation.org
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/arch/ia64/include/asm/barrier.h |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/usb/usbip/vudc_dev.c   |    1 +
+ drivers/usb/usbip/vudc_sysfs.c |    5 +++++
+ 2 files changed, 6 insertions(+)
 
---- a/tools/arch/ia64/include/asm/barrier.h
-+++ b/tools/arch/ia64/include/asm/barrier.h
-@@ -38,9 +38,6 @@
-  * sequential memory pages only.
-  */
+--- a/drivers/usb/usbip/vudc_dev.c
++++ b/drivers/usb/usbip/vudc_dev.c
+@@ -582,6 +582,7 @@ static int init_vudc_hw(struct vudc *udc
+ 	init_waitqueue_head(&udc->tx_waitq);
  
--/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
--#define ia64_mf()       asm volatile ("mf" ::: "memory")
--
- #define mb()		ia64_mf()
- #define rmb()		mb()
- #define wmb()		mb()
+ 	spin_lock_init(&ud->lock);
++	mutex_init(&ud->sysfs_lock);
+ 	ud->status = SDEV_ST_AVAILABLE;
+ 	ud->side = USBIP_VUDC;
+ 
+--- a/drivers/usb/usbip/vudc_sysfs.c
++++ b/drivers/usb/usbip/vudc_sysfs.c
+@@ -125,6 +125,7 @@ static ssize_t store_sockfd(struct devic
+ 		dev_err(dev, "no device");
+ 		return -ENODEV;
+ 	}
++	mutex_lock(&udc->ud.sysfs_lock);
+ 	spin_lock_irqsave(&udc->lock, flags);
+ 	/* Don't export what we don't have */
+ 	if (!udc->driver || !udc->pullup) {
+@@ -200,6 +201,8 @@ static ssize_t store_sockfd(struct devic
+ 
+ 		wake_up_process(udc->ud.tcp_rx);
+ 		wake_up_process(udc->ud.tcp_tx);
++
++		mutex_unlock(&udc->ud.sysfs_lock);
+ 		return count;
+ 
+ 	} else {
+@@ -220,6 +223,7 @@ static ssize_t store_sockfd(struct devic
+ 	}
+ 
+ 	spin_unlock_irqrestore(&udc->lock, flags);
++	mutex_unlock(&udc->ud.sysfs_lock);
+ 
+ 	return count;
+ 
+@@ -229,6 +233,7 @@ unlock_ud:
+ 	spin_unlock_irq(&udc->ud.lock);
+ unlock:
+ 	spin_unlock_irqrestore(&udc->lock, flags);
++	mutex_unlock(&udc->ud.sysfs_lock);
+ 
+ 	return ret;
+ }
 
 
