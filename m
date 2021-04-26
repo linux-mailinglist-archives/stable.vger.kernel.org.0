@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAD836AD4A
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 731F336ADDB
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232658AbhDZHdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:33:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45510 "EHLO mail.kernel.org"
+        id S232946AbhDZHjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:39:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232298AbhDZHd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:33:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 782F161077;
-        Mon, 26 Apr 2021 07:32:45 +0000 (UTC)
+        id S232435AbhDZHh7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:37:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B665611BF;
+        Mon, 26 Apr 2021 07:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422365;
-        bh=4ha8hzvQewrAkYWKaJdNQ2KOkMlMHpc8eBqJkj1wlRY=;
+        s=korg; t=1619422557;
+        bh=WIXlCnzhKxXVdFzpZ6w4P7U1gKoinHF2UJbEjqZzq58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQLlQizy5JneRgp8Q5NUFTYcBrmVMjAgokR8+rUbMTVPl/ccn361/WMNK6vULHyai
-         8VszEZidG7JegdEuD+03IDXOSpaIbmjm4BOpdp4Q6GuEYG7I5sskkLbXmqjIk+lSK6
-         56WGvsuwxVCcpLjyaylMnUpl1pvbffWPEgam1iCA=
+        b=w9FjWjBPUUSXw8NmQNpNsg4FK8glJquWtKweobrqWHg4okJ5NhPibFn3dATyy96hD
+         t1UPzbcbeH5UeD2yUqgQcesERMHqhqeKyIpPMCmo7gZyXbFnPVWmgVVwkZLruxhQJh
+         dt77x13ipG8ar3aRb36HnZntrXaJxVQOwTV4rjBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nicolin Chen <nicoleotsuka@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/37] ASoC: fsl_esai: Fix TDM slot setup for I2S mode
+Subject: [PATCH 4.19 12/57] ASoC: fsl_esai: Fix TDM slot setup for I2S mode
 Date:   Mon, 26 Apr 2021 09:29:09 +0200
-Message-Id: <20210426072817.532903014@linuxfoundation.org>
+Message-Id: <20210426072820.980013765@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,10 +62,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
-index fa64cc2b1729..94bf497092b2 100644
+index ff96db91f818..baa76337c33f 100644
 --- a/sound/soc/fsl/fsl_esai.c
 +++ b/sound/soc/fsl/fsl_esai.c
-@@ -495,11 +495,13 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
+@@ -497,11 +497,13 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
  				   ESAI_SAICR_SYNC, esai_priv->synchronous ?
  				   ESAI_SAICR_SYNC : 0);
  
