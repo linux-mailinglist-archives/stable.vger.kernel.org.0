@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B12336ADAE
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C2E36ADFE
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232784AbhDZHhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:37:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46576 "EHLO mail.kernel.org"
+        id S233090AbhDZHkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232700AbhDZHhQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:37:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 152F7613C9;
-        Mon, 26 Apr 2021 07:35:03 +0000 (UTC)
+        id S233310AbhDZHjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D6A4613BE;
+        Mon, 26 Apr 2021 07:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422504;
-        bh=EDj1gHlZSzYdYf98LrWwBli/46xSjlYyncHL60ccxE8=;
+        s=korg; t=1619422624;
+        bh=mVTZ/DVql5tiNk6QWlIhCIbgFMKMkNE/J1DwN+CRZAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2327fmRoylbCzmGcUKQCOLW5mH9bqcnfCsoE497KPCFQbqu8svX4MbO0WQdzbW9y
-         EdGOusUQ9T2tF9J8dEVJUqRXwXzfb5O9b0JZhUSa2nrtMxvWbvU1H9I8Pw4RvT71qr
-         WM+G9lHZzrivMeSnTF0t7lT5qB+cv8qWSKSszLXU=
+        b=fZODo1uFb0gzFe2uYwYVLjCqHjTWCs1iPdYhlmMStxJjI5nLnwPkYik4ENkfhQ7PN
+         C3uz7iWPNcDBbnWGbIv/S185aq1NAMAVzOOasMYmXTQA5DKqqUxqpU0XzAW9JnevRc
+         A9YV39+1Ea+R3EHMZ6OflXt/PXqQVNeijCnnbiII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/49] HID: alps: fix error return code in alps_input_configured()
-Date:   Mon, 26 Apr 2021 09:29:36 +0200
-Message-Id: <20210426072821.089287977@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 40/57] ARM: footbridge: fix PCI interrupt mapping
+Date:   Mon, 26 Apr 2021 09:29:37 +0200
+Message-Id: <20210426072821.923586511@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit fa8ba6e5dc0e78e409e503ddcfceef5dd96527f4 ]
+[ Upstream commit 30e3b4f256b4e366a61658c294f6a21b8626dda7 ]
 
-When input_register_device() fails, no error return code is assigned.
-To fix this bug, ret is assigned with -ENOENT as error return code.
+Since commit 30fdfb929e82 ("PCI: Add a call to pci_assign_irq() in
+pci_device_probe()"), the PCI code will call the IRQ mapping function
+whenever a PCI driver is probed. If these are marked as __init, this
+causes an oops if a PCI driver is loaded or bound after the kernel has
+initialised.
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 30fdfb929e82 ("PCI: Add a call to pci_assign_irq() in pci_device_probe()")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-alps.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-footbridge/cats-pci.c      | 4 ++--
+ arch/arm/mach-footbridge/ebsa285-pci.c   | 4 ++--
+ arch/arm/mach-footbridge/netwinder-pci.c | 2 +-
+ arch/arm/mach-footbridge/personal-pci.c  | 5 ++---
+ 4 files changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index ed9c0ea5b026..1bc6ad0339d2 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -429,6 +429,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 		ret = input_register_device(data->input2);
- 		if (ret) {
- 			input_free_device(input2);
-+			ret = -ENOENT;
- 			goto exit;
- 		}
- 	}
+diff --git a/arch/arm/mach-footbridge/cats-pci.c b/arch/arm/mach-footbridge/cats-pci.c
+index 0b2fd7e2e9b4..90b1e9be430e 100644
+--- a/arch/arm/mach-footbridge/cats-pci.c
++++ b/arch/arm/mach-footbridge/cats-pci.c
+@@ -15,14 +15,14 @@
+ #include <asm/mach-types.h>
+ 
+ /* cats host-specific stuff */
+-static int irqmap_cats[] __initdata = { IRQ_PCI, IRQ_IN0, IRQ_IN1, IRQ_IN3 };
++static int irqmap_cats[] = { IRQ_PCI, IRQ_IN0, IRQ_IN1, IRQ_IN3 };
+ 
+ static u8 cats_no_swizzle(struct pci_dev *dev, u8 *pin)
+ {
+ 	return 0;
+ }
+ 
+-static int __init cats_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
++static int cats_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
+ {
+ 	if (dev->irq >= 255)
+ 		return -1;	/* not a valid interrupt. */
+diff --git a/arch/arm/mach-footbridge/ebsa285-pci.c b/arch/arm/mach-footbridge/ebsa285-pci.c
+index 6f28aaa9ca79..c3f280d08fa7 100644
+--- a/arch/arm/mach-footbridge/ebsa285-pci.c
++++ b/arch/arm/mach-footbridge/ebsa285-pci.c
+@@ -14,9 +14,9 @@
+ #include <asm/mach/pci.h>
+ #include <asm/mach-types.h>
+ 
+-static int irqmap_ebsa285[] __initdata = { IRQ_IN3, IRQ_IN1, IRQ_IN0, IRQ_PCI };
++static int irqmap_ebsa285[] = { IRQ_IN3, IRQ_IN1, IRQ_IN0, IRQ_PCI };
+ 
+-static int __init ebsa285_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
++static int ebsa285_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
+ {
+ 	if (dev->vendor == PCI_VENDOR_ID_CONTAQ &&
+ 	    dev->device == PCI_DEVICE_ID_CONTAQ_82C693)
+diff --git a/arch/arm/mach-footbridge/netwinder-pci.c b/arch/arm/mach-footbridge/netwinder-pci.c
+index 9473aa0305e5..e8304392074b 100644
+--- a/arch/arm/mach-footbridge/netwinder-pci.c
++++ b/arch/arm/mach-footbridge/netwinder-pci.c
+@@ -18,7 +18,7 @@
+  * We now use the slot ID instead of the device identifiers to select
+  * which interrupt is routed where.
+  */
+-static int __init netwinder_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
++static int netwinder_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
+ {
+ 	switch (slot) {
+ 	case 0:  /* host bridge */
+diff --git a/arch/arm/mach-footbridge/personal-pci.c b/arch/arm/mach-footbridge/personal-pci.c
+index 4391e433a4b2..9d19aa98a663 100644
+--- a/arch/arm/mach-footbridge/personal-pci.c
++++ b/arch/arm/mach-footbridge/personal-pci.c
+@@ -14,13 +14,12 @@
+ #include <asm/mach/pci.h>
+ #include <asm/mach-types.h>
+ 
+-static int irqmap_personal_server[] __initdata = {
++static int irqmap_personal_server[] = {
+ 	IRQ_IN0, IRQ_IN1, IRQ_IN2, IRQ_IN3, 0, 0, 0,
+ 	IRQ_DOORBELLHOST, IRQ_DMA1, IRQ_DMA2, IRQ_PCI
+ };
+ 
+-static int __init personal_server_map_irq(const struct pci_dev *dev, u8 slot,
+-	u8 pin)
++static int personal_server_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
+ {
+ 	unsigned char line;
+ 
 -- 
 2.30.2
 
