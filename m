@@ -2,78 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37CD636BC24
-	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 01:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DDB736BC4D
+	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 01:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234474AbhDZXjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 19:39:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55952 "EHLO
+        id S235298AbhDZXqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 19:46:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234458AbhDZXjw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 19:39:52 -0400
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9998C061574
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 16:39:09 -0700 (PDT)
-Received: by mail-lj1-x232.google.com with SMTP id o16so66110585ljp.3
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 16:39:09 -0700 (PDT)
+        with ESMTP id S234929AbhDZXqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 19:46:47 -0400
+Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78597C061760
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 16:46:04 -0700 (PDT)
+Received: by mail-io1-xd2f.google.com with SMTP id e186so4735166iof.7
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 16:46:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=sXEOz16m59De8VnyyWCvrX1c0swLl/AVEjUU9MVmkzY=;
-        b=mgusJng8O6iQl8nPPIwXMR58scPGqLthS+RnZOH0kAM/VFDOiukl43ufrlP8HC/a1K
-         UXO3Yv04SOKqWV+58cX60CcafLS2+Lk/g3qivD5TiqvlqDzhYKPaXMcqI0qNtRy0vh/2
-         a/Jc/aLg4WF5GPzv2+8h7uwG4c3Hvg+0IBsIFAbMvZxKcGrgeWGQ4GvBsnFzglXCJvYX
-         kWXSPz48RnnIew7t4XUVRpFofJ+7iRibYN57cg6T+SvIEzxw4NeCvb2VRqRNKUdp83VP
-         CxSOqXul0EUJ26oQCsuQxd5Y/I4BTkhv/sKqU5CoOYEdyKhkKnjO2xhlmTjgnmdPoIkn
-         Ar0w==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=aeFXEQA1OpO2ZkSlsw4q2VLn498e4QOy+9AcANmjbzg=;
+        b=XnYuOHtQOQmX1ztPes9lmziQQ/Q+ik/hngtsucKh1eBIBJhj2XMF8+0Edsb+/H/0Qf
+         FcbOLiAOkPv95Ih/k+SrchNn4BVZ7lUWUWiy8dRVGrBDxmvYgoZxsOZtPoYcwVmylrIQ
+         DOijOJQBc8lRUUWHwNKyy04obt7OWZb5Q40EA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=sXEOz16m59De8VnyyWCvrX1c0swLl/AVEjUU9MVmkzY=;
-        b=pAWqUEVIFDyJj5P/4EIaZHNh6p5MnMkeqtohUPlo1OgCM17U4XH97mD9nGppYvp3+n
-         ntSPLEQdGK1Z4REKmORf3k7nuq+AWPIeITm2JuXc3c/HWm+1kPLbl+rY9gzQbyWb6h9G
-         nfc1bt/6fJ6YqXloPNPhQnwjGLXZMt5KzpXqdfTFczMLEOxXJnOwQRcYuAnbeehS08DW
-         9pQShfWtRz7kr3xNxtGEzJMrPRIwB1yrbbvH+a/HpoICFtgzUUwclMolTG5V+9F6o3y8
-         rtiApWy3Nrip/9DZfhTp1fsEkax7s46Lpq5VWlfYJyFxAlBoo/b4JHifItWLqyyOqDCP
-         AwIg==
-X-Gm-Message-State: AOAM533++AB/C71g3OVj7zrZFH42+3RpULg0vHw8SeUg4/Ks8+opFb2N
-        +fH/x95zRR+8ez9CTdvVQvWsjm1sdTzgtgCOEzw=
-X-Google-Smtp-Source: ABdhPJy6fDOXHBzGYL4f7LRXdGlD4jMqFn7cvYibd+l/2YEgV7BR54wuHIc4FFI38VSA1iDm2q6XNIWroguhaKMgkSY=
-X-Received: by 2002:a2e:8715:: with SMTP id m21mr14700545lji.319.1619480348108;
- Mon, 26 Apr 2021 16:39:08 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=aeFXEQA1OpO2ZkSlsw4q2VLn498e4QOy+9AcANmjbzg=;
+        b=LAV/ENPOf18V9dIDM+GWhDQNicGgSkC+9rlZhs1+UAY3qHTo3njz90iZrSLYaPds5P
+         p9i3cdcTkzSMq4H0YIXQ2BU9g60rxBKIc7P0TI8OQtkwFlO8OLTrYvv40yAZJB9RuUEA
+         3m0YQzeIWe2WObw3sE8nWecMl1qR4JbyVpmDX9ElgyLzqD2qXExA2eMIAYIJ1GfPSkGJ
+         vxiTTzQ5VMwQvusoW+o9HDt8CgrwCWcYBIT0IFmmURw0njm4Mj9Bw5fNsUHMRjLhy/f2
+         /XXy9JguLRI1pcfILDBIO1Na8tlVEQmxBTT0oMKAh9x5fdrsyxoskqLuX+itdp5bBK/P
+         c/Dw==
+X-Gm-Message-State: AOAM533Wp0v/4SmnQuRI3gXQWIYHsoJYlzHtdpsBWANWAbtS4oD/U/xr
+        bIhfel6xObqwtXjuOEKwudWeXw==
+X-Google-Smtp-Source: ABdhPJxMekIED+uhIqW300/rZH7aS4Aut/ISFFQUrRnLNY34t3eNwpX5XHeDjalc8EXTjMYsvB9Z7w==
+X-Received: by 2002:a5d:9742:: with SMTP id c2mr16627406ioo.58.1619480763532;
+        Mon, 26 Apr 2021 16:46:03 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id 12sm601980ill.72.2021.04.26.16.46.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Apr 2021 16:46:03 -0700 (PDT)
+Subject: Re: [PATCH 5.11 00/41] 5.11.17-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210426072819.666570770@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <ec54055b-650d-a516-818d-d29e4c0d011b@linuxfoundation.org>
+Date:   Mon, 26 Apr 2021 17:46:02 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Reply-To: dixie.prichard@yandex.com
-Sender: mr.daviwilliams30@gmail.com
-Received: by 2002:aa6:c091:0:b029:c7:cc89:b5b3 with HTTP; Mon, 26 Apr 2021
- 16:39:07 -0700 (PDT)
-From:   Dixie Prichard <al1065pel@gmail.com>
-Date:   Tue, 27 Apr 2021 00:39:07 +0100
-X-Google-Sender-Auth: oUQwOCN2FHutpkjKBPr3fsK5nCk
-Message-ID: <CAK8O2rToO7FYMAUfN1f2_5gyyqjCt4patFioq7Ym65ttmkQX1Q@mail.gmail.com>
-Subject: GREETINGS
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 4/26/21 1:29 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.11.17 release.
+> There are 41 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 28 Apr 2021 07:28:08 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.17-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Accept my apologies for writing you a surprise letter. My name is Mrs.
-Dixie Prichard. I am the Chief Operating Officer and Regional
-Accountant for First Pillar Finance Bank, United Kingdom. I have the
-option to transfer the sum of (=C2=A3 6.3 million) to you. This fund
-originally belonged to one of our late bank customers that has a
-similar surname as yours, and he died in the earthquake disaster on
-May 26, 2006 in Jakarta, Indonesia, in which around 5,782 people were
-killed. Please I need your assistant for this mutual benefit.
+Compiled and booted on my test system. No dmesg regressions.
 
-I will provide you with more information on this transaction in your
-response to this letter. Thank you in anticipation of your urgent
-response.
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Best Regards,
-Mrs. Dixie Prichard.
+thanks,
+-- Shuah
+
