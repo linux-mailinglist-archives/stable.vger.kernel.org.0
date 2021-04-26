@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E8D636AE00
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE7AC36ADFC
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:40:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233134AbhDZHko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:40:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
+        id S233049AbhDZHkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:40:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233325AbhDZHjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233328AbhDZHjU (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 26 Apr 2021 03:39:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A41C613B0;
-        Mon, 26 Apr 2021 07:37:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EB74613C9;
+        Mon, 26 Apr 2021 07:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422629;
-        bh=HuyvIk4MZg4sYZzZMvpfWA/XRPjhPqXzTZ05GYnFL64=;
+        s=korg; t=1619422631;
+        bh=ytPQ/Gwmb2vvgbwGwy8M2SZ6psCb2DhKMbKTSUct99w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnYZfzVuLJn+w0/Amlj3MQhyAZ/eYcqz1otlbdw2gIU19EfHl47E8kfpv8dTz8xha
-         22yJwBiDcvZXl0e64bWoV9prL8/OdXrcyadh4qiEQpgU/Lg9jRwgy4uJxAB6hc5nz3
-         cZFjmsd0jmPBzrqxXXPLu+e7TJDTxyL1HhWcvqc8=
+        b=RU37xQoZ7xFHeWcmUQQzW1k0CyesjVjl0lx/Ij8NnX+LB7DiqBgfB324wxd2CvbR7
+         FhlxKBzKwAsbhV8j0fS9ewIaBecWU/VWeg4xpIzuLPjceqr76T9jcG8My0C/Z4bQnc
+         ZXkIBmYWYjnftQKxxpgM2qfacNtnkPcaGEQlyl1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 42/57] net: phy: marvell: fix detection of PHY on Topaz switches
-Date:   Mon, 26 Apr 2021 09:29:39 +0200
-Message-Id: <20210426072821.988680984@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Kirill Shutemov <kirill@shutemov.name>,
+        Jan Kara <jack@suse.cz>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Suren Baghdasaryan <surenb@google.com>
+Subject: [PATCH 4.19 43/57] gup: document and work around "COW can break either way" issue
+Date:   Mon, 26 Apr 2021 09:29:40 +0200
+Message-Id: <20210426072822.027581970@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
 References: <20210426072820.568997499@linuxfoundation.org>
@@ -42,160 +46,217 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 1fe976d308acb6374c899a4ee8025a0a016e453e upstream.
+commit 17839856fd588f4ab6b789f482ed3ffd7c403e1f upstream.
 
-Since commit fee2d546414d ("net: phy: marvell: mv88e6390 temperature
-sensor reading"), Linux reports the temperature of Topaz hwmon as
-constant -75°C.
+Doing a "get_user_pages()" on a copy-on-write page for reading can be
+ambiguous: the page can be COW'ed at any time afterwards, and the
+direction of a COW event isn't defined.
 
-This is because switches from the Topaz family (88E6141 / 88E6341) have
-the address of the temperature sensor register different from Peridot.
+Yes, whoever writes to it will generally do the COW, but if the thread
+that did the get_user_pages() unmapped the page before the write (and
+that could happen due to memory pressure in addition to any outright
+action), the writer could also just take over the old page instead.
 
-This address is instead compatible with 88E1510 PHYs, as was used for
-Topaz before the above mentioned commit.
+End result: the get_user_pages() call might result in a page pointer
+that is no longer associated with the original VM, and is associated
+with - and controlled by - another VM having taken it over instead.
 
-Create a new mapping table between switch family and PHY ID for families
-which don't have a model number. And define PHY IDs for Topaz and Peridot
-families.
+So when doing a get_user_pages() on a COW mapping, the only really safe
+thing to do would be to break the COW when getting the page, even when
+only getting it for reading.
 
-Create a new PHY ID and a new PHY driver for Topaz's internal PHY.
-The only difference from Peridot's PHY driver is the HWMON probing
-method.
+At the same time, some users simply don't even care.
 
-Prior this change Topaz's internal PHY is detected by kernel as:
+For example, the perf code wants to look up the page not because it
+cares about the page, but because the code simply wants to look up the
+physical address of the access for informational purposes, and doesn't
+really care about races when a page might be unmapped and remapped
+elsewhere.
 
-  PHY [...] driver [Marvell 88E6390] (irq=63)
+This adds logic to force a COW event by setting FOLL_WRITE on any
+copy-on-write mapping when FOLL_GET (or FOLL_PIN) is used to get a page
+pointer as a result.
 
-And afterwards as:
+The current semantics end up being:
 
-  PHY [...] driver [Marvell 88E6341 Family] (irq=63)
+ - __get_user_pages_fast(): no change. If you don't ask for a write,
+   you won't break COW. You'd better know what you're doing.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-BugLink: https://github.com/globalscaletechnologies/linux/issues/1
-Fixes: fee2d546414d ("net: phy: marvell: mv88e6390 temperature sensor reading")
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ - get_user_pages_fast(): the fast-case "look it up in the page tables
+   without anything getting mmap_sem" now refuses to follow a read-only
+   page, since it might need COW breaking.  Which happens in the slow
+   path - the fast path doesn't know if the memory might be COW or not.
+
+ - get_user_pages() (including the slow-path fallback for gup_fast()):
+   for a COW mapping, turn on FOLL_WRITE for FOLL_GET/FOLL_PIN, with
+   very similar semantics to FOLL_FORCE.
+
+If it turns out that we want finer granularity (ie "only break COW when
+it might actually matter" - things like the zero page are special and
+don't need to be broken) we might need to push these semantics deeper
+into the lookup fault path.  So if people care enough, it's possible
+that we might end up adding a new internal FOLL_BREAK_COW flag to go
+with the internal FOLL_COW flag we already have for tracking "I had a
+COW".
+
+Alternatively, if it turns out that different callers might want to
+explicitly control the forced COW break behavior, we might even want to
+make such a flag visible to the users of get_user_pages() instead of
+using the above default semantics.
+
+But for now, this is mostly commentary on the issue (this commit message
+being a lot bigger than the patch, and that patch in turn is almost all
+comments), with that minimal "enable COW breaking early" logic using the
+existing FOLL_WRITE behavior.
+
+[ It might be worth noting that we've always had this ambiguity, and it
+  could arguably be seen as a user-space issue.
+
+  You only get private COW mappings that could break either way in
+  situations where user space is doing cooperative things (ie fork()
+  before an execve() etc), but it _is_ surprising and very subtle, and
+  fork() is supposed to give you independent address spaces.
+
+  So let's treat this as a kernel issue and make the semantics of
+  get_user_pages() easier to understand. Note that obviously a true
+  shared mapping will still get a page that can change under us, so this
+  does _not_ mean that get_user_pages() somehow returns any "stable"
+  page ]
+
+[surenb: backport notes
+	Replaced (gup_flags | FOLL_WRITE) with write=1 in gup_pgd_range.
+	Removed FOLL_PIN usage in should_force_cow_break since it's missing in
+	the earlier kernels.]
+
+Reported-by: Jann Horn <jannh@google.com>
+Tested-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Acked-by: Kirill Shutemov <kirill@shutemov.name>
+Acked-by: Jan Kara <jack@suse.cz>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[surenb: backport to 4.19 kernel]
+Cc: stable@vger.kernel.org # 4.19.x
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/dsa/mv88e6xxx/chip.c |   30 +++++++++++++-----------------
- drivers/net/phy/marvell.c        |   28 +++++++++++++++++++++++++---
- include/linux/marvell_phy.h      |    5 +++--
- 3 files changed, 41 insertions(+), 22 deletions(-)
 
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2634,10 +2634,17 @@ unlock:
- 	return err;
+---
+ mm/gup.c         |   44 ++++++++++++++++++++++++++++++++++++++------
+ mm/huge_memory.c |    7 +++----
+ 2 files changed, 41 insertions(+), 10 deletions(-)
+
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -61,13 +61,22 @@ static int follow_pfn_pte(struct vm_area
  }
  
-+/* prod_id for switch families which do not have a PHY model number */
-+static const u16 family_prod_id_table[] = {
-+	[MV88E6XXX_FAMILY_6341] = MV88E6XXX_PORT_SWITCH_ID_PROD_6341,
-+	[MV88E6XXX_FAMILY_6390] = MV88E6XXX_PORT_SWITCH_ID_PROD_6390,
-+};
-+
- static int mv88e6xxx_mdio_read(struct mii_bus *bus, int phy, int reg)
- {
- 	struct mv88e6xxx_mdio_bus *mdio_bus = bus->priv;
- 	struct mv88e6xxx_chip *chip = mdio_bus->chip;
-+	u16 prod_id;
- 	u16 val;
- 	int err;
- 
-@@ -2648,23 +2655,12 @@ static int mv88e6xxx_mdio_read(struct mi
- 	err = chip->info->ops->phy_read(chip, bus, phy, reg, &val);
- 	mutex_unlock(&chip->reg_lock);
- 
--	if (reg == MII_PHYSID2) {
--		/* Some internal PHYs don't have a model number. */
--		if (chip->info->family != MV88E6XXX_FAMILY_6165)
--			/* Then there is the 6165 family. It gets is
--			 * PHYs correct. But it can also have two
--			 * SERDES interfaces in the PHY address
--			 * space. And these don't have a model
--			 * number. But they are not PHYs, so we don't
--			 * want to give them something a PHY driver
--			 * will recognise.
--			 *
--			 * Use the mv88e6390 family model number
--			 * instead, for anything which really could be
--			 * a PHY,
--			 */
--			if (!(val & 0x3f0))
--				val |= MV88E6XXX_PORT_SWITCH_ID_PROD_6390 >> 4;
-+	/* Some internal PHYs don't have a model number. */
-+	if (reg == MII_PHYSID2 && !(val & 0x3f0) &&
-+	    chip->info->family < ARRAY_SIZE(family_prod_id_table)) {
-+		prod_id = family_prod_id_table[chip->info->family];
-+		if (prod_id)
-+			val |= prod_id >> 4;
- 	}
- 
- 	return err ? err : val;
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -2329,9 +2329,30 @@ static struct phy_driver marvell_drivers
- 		.get_stats = marvell_get_stats,
- 	},
- 	{
--		.phy_id = MARVELL_PHY_ID_88E6390,
-+		.phy_id = MARVELL_PHY_ID_88E6341_FAMILY,
- 		.phy_id_mask = MARVELL_PHY_ID_MASK,
--		.name = "Marvell 88E6390",
-+		.name = "Marvell 88E6341 Family",
-+		.features = PHY_GBIT_FEATURES,
-+		.flags = PHY_HAS_INTERRUPT,
-+		.probe = m88e1510_probe,
-+		.config_init = &marvell_config_init,
-+		.config_aneg = &m88e6390_config_aneg,
-+		.read_status = &marvell_read_status,
-+		.ack_interrupt = &marvell_ack_interrupt,
-+		.config_intr = &marvell_config_intr,
-+		.did_interrupt = &m88e1121_did_interrupt,
-+		.resume = &genphy_resume,
-+		.suspend = &genphy_suspend,
-+		.read_page = marvell_read_page,
-+		.write_page = marvell_write_page,
-+		.get_sset_count = marvell_get_sset_count,
-+		.get_strings = marvell_get_strings,
-+		.get_stats = marvell_get_stats,
-+	},
-+	{
-+		.phy_id = MARVELL_PHY_ID_88E6390_FAMILY,
-+		.phy_id_mask = MARVELL_PHY_ID_MASK,
-+		.name = "Marvell 88E6390 Family",
- 		.features = PHY_GBIT_FEATURES,
- 		.flags = PHY_HAS_INTERRUPT,
- 		.probe = m88e6390_probe,
-@@ -2368,7 +2389,8 @@ static struct mdio_device_id __maybe_unu
- 	{ MARVELL_PHY_ID_88E1540, MARVELL_PHY_ID_MASK },
- 	{ MARVELL_PHY_ID_88E1545, MARVELL_PHY_ID_MASK },
- 	{ MARVELL_PHY_ID_88E3016, MARVELL_PHY_ID_MASK },
--	{ MARVELL_PHY_ID_88E6390, MARVELL_PHY_ID_MASK },
-+	{ MARVELL_PHY_ID_88E6341_FAMILY, MARVELL_PHY_ID_MASK },
-+	{ MARVELL_PHY_ID_88E6390_FAMILY, MARVELL_PHY_ID_MASK },
- 	{ }
- };
- 
---- a/include/linux/marvell_phy.h
-+++ b/include/linux/marvell_phy.h
-@@ -21,11 +21,12 @@
- #define MARVELL_PHY_ID_88E1545		0x01410ea0
- #define MARVELL_PHY_ID_88E3016		0x01410e60
- 
--/* The MV88e6390 Ethernet switch contains embedded PHYs. These PHYs do
-+/* These Ethernet switch families contain embedded PHYs, but they do
-  * not have a model ID. So the switch driver traps reads to the ID2
-  * register and returns the switch family ID
+ /*
+- * FOLL_FORCE can write to even unwritable pte's, but only
+- * after we've gone through a COW cycle and they are dirty.
++ * FOLL_FORCE or a forced COW break can write even to unwritable pte's,
++ * but only after we've gone through a COW cycle and they are dirty.
   */
--#define MARVELL_PHY_ID_88E6390		0x01410f90
-+#define MARVELL_PHY_ID_88E6341_FAMILY	0x01410f41
-+#define MARVELL_PHY_ID_88E6390_FAMILY	0x01410f90
+ static inline bool can_follow_write_pte(pte_t pte, unsigned int flags)
+ {
+-	return pte_write(pte) ||
+-		((flags & FOLL_FORCE) && (flags & FOLL_COW) && pte_dirty(pte));
++	return pte_write(pte) || ((flags & FOLL_COW) && pte_dirty(pte));
++}
++
++/*
++ * A (separate) COW fault might break the page the other way and
++ * get_user_pages() would return the page from what is now the wrong
++ * VM. So we need to force a COW break at GUP time even for reads.
++ */
++static inline bool should_force_cow_break(struct vm_area_struct *vma, unsigned int flags)
++{
++	return is_cow_mapping(vma->vm_flags) && (flags & FOLL_GET);
+ }
  
- #define MARVELL_PHY_FAMILY_ID(id)	((id) >> 4)
+ static struct page *follow_page_pte(struct vm_area_struct *vma,
+@@ -710,12 +719,18 @@ static long __get_user_pages(struct task
+ 			if (!vma || check_vma_flags(vma, gup_flags))
+ 				return i ? : -EFAULT;
+ 			if (is_vm_hugetlb_page(vma)) {
++				if (should_force_cow_break(vma, foll_flags))
++					foll_flags |= FOLL_WRITE;
+ 				i = follow_hugetlb_page(mm, vma, pages, vmas,
+ 						&start, &nr_pages, i,
+-						gup_flags, nonblocking);
++						foll_flags, nonblocking);
+ 				continue;
+ 			}
+ 		}
++
++		if (should_force_cow_break(vma, foll_flags))
++			foll_flags |= FOLL_WRITE;
++
+ retry:
+ 		/*
+ 		 * If we have a pending SIGKILL, don't keep faulting pages and
+@@ -1804,6 +1819,10 @@ bool gup_fast_permitted(unsigned long st
+  * the regular GUP.
+  * Note a difference with get_user_pages_fast: this always returns the
+  * number of pages pinned, 0 if no pages were pinned.
++ *
++ * Careful, careful! COW breaking can go either way, so a non-write
++ * access can get ambiguous page results. If you call this function without
++ * 'write' set, you'd better be sure that you're ok with that ambiguity.
+  */
+ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+ 			  struct page **pages)
+@@ -1831,6 +1850,12 @@ int __get_user_pages_fast(unsigned long
+ 	 *
+ 	 * We do not adopt an rcu_read_lock(.) here as we also want to
+ 	 * block IPIs that come from THPs splitting.
++	 *
++	 * NOTE! We allow read-only gup_fast() here, but you'd better be
++	 * careful about possible COW pages. You'll get _a_ COW page, but
++	 * not necessarily the one you intended to get depending on what
++	 * COW event happens after this. COW may break the page copy in a
++	 * random direction.
+ 	 */
  
+ 	if (gup_fast_permitted(start, nr_pages, write)) {
+@@ -1876,9 +1901,16 @@ int get_user_pages_fast(unsigned long st
+ 					(void __user *)start, len)))
+ 		return -EFAULT;
+ 
++	/*
++	 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
++	 * because get_user_pages() may need to cause an early COW in
++	 * order to avoid confusing the normal COW routines. So only
++	 * targets that are already writable are safe to do by just
++	 * looking at the page tables.
++	 */
+ 	if (gup_fast_permitted(start, nr_pages, write)) {
+ 		local_irq_disable();
+-		gup_pgd_range(addr, end, write, pages, &nr);
++		gup_pgd_range(addr, end, 1, pages, &nr);
+ 		local_irq_enable();
+ 		ret = nr;
+ 	}
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1432,13 +1432,12 @@ out_unlock:
+ }
+ 
+ /*
+- * FOLL_FORCE can write to even unwritable pmd's, but only
+- * after we've gone through a COW cycle and they are dirty.
++ * FOLL_FORCE or a forced COW break can write even to unwritable pmd's,
++ * but only after we've gone through a COW cycle and they are dirty.
+  */
+ static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
+ {
+-	return pmd_write(pmd) ||
+-	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
++	return pmd_write(pmd) || ((flags & FOLL_COW) && pmd_dirty(pmd));
+ }
+ 
+ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
 
 
