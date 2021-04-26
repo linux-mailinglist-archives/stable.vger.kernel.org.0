@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEEDF36AEA1
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DB2C36AE0F
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232504AbhDZHpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
+        id S233305AbhDZHle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234043AbhDZHoo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:44:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFC66613DC;
-        Mon, 26 Apr 2021 07:41:16 +0000 (UTC)
+        id S233481AbhDZHjl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7328E613D0;
+        Mon, 26 Apr 2021 07:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422877;
-        bh=/3N0E6+hOxggBDfkuOMqtb4lM4JlwQVRZe4+NBkJ+qA=;
+        s=korg; t=1619422665;
+        bh=uJpH5YPPJmhUxv7AM91hsYVccL/15UaUQyMRo4BWexo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbLrqTXPuxMa+81BQRlGhi0HIc9G2eTyJ0bkyzE9jqHZwsyW+aOIe/zBn+6s7lD/3
-         GrNwn2Cim+9QUe1gY/0BCHHX/tt1z8AqCFeiUkEBnnUGpV2ICu1+AbAOqOr31dBeyx
-         9bsO0r/SYKNjE4S91BkLpYxKNekmdrLnQQh3uEWo=
+        b=kF+6PJTrN2yNkKqhRBeDrJmRi1lj2Vv3sB2jW7CSmq3FaUMFfXb6be199vDg9pIxy
+         vA65uW9lAxafKok36KTjqTj8sUqTYRJBRwkHayFs9A8fgLkdSVtf6orpa39uqBdx4R
+         rjmDcWmU94tyAUCpobz7HJw3lTb3Z/CfHG+Tsvcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiansong Chen <Jiansong.Chen@amd.com>,
-        Tao Zhou <tao.zhou1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 06/41] drm/amdgpu: fix GCR_GENERAL_CNTL offset for dimgrey_cavefish
+        stable@vger.kernel.org,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 56/57] ia64: tools: remove duplicate definition of ia64_mf() on ia64
 Date:   Mon, 26 Apr 2021 09:29:53 +0200
-Message-Id: <20210426072819.910540107@linuxfoundation.org>
+Message-Id: <20210426072822.480978090@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
-References: <20210426072819.666570770@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiansong Chen <Jiansong.Chen@amd.com>
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-commit 24d034528ef06ad94cfcf4394beac0443ab1b16d upstream.
+[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
 
-dimgrey_cavefish has similar gc_10_3 ip with sienna_cichlid,
-so follow its registers offset setting.
+The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
+already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
+failing to build:
 
-Signed-off-by: Jiansong Chen <Jiansong.Chen@amd.com>
-Reviewed-by: Tao Zhou <tao.zhou1@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
+  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
+                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
+                   from libbpf.c:37:
+  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
+     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
+        |
+  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
+                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
+                   from /usr/include/linux/swab.h:8,
+                   from /usr/include/linux/byteorder/little_endian.h:13,
+                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
+                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
+                   from libbpf.c:36:
+  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
+    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
+        |
+  cc1: all warnings being treated as errors
+
+Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
+
+Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/arch/ia64/include/asm/barrier.h | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-@@ -3280,7 +3280,7 @@ static const struct soc15_reg_golden gol
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmCPF_GCR_CNTL, 0x0007ffff, 0x0000c000),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG3, 0x00000280, 0x00000280),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG4, 0x07800000, 0x00800000),
--	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGCR_GENERAL_CNTL, 0x00001d00, 0x00000500),
-+	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGCR_GENERAL_CNTL_Sienna_Cichlid, 0x00001d00, 0x00000500),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGE_PC_CNTL, 0x003c0000, 0x00280400),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGL2A_ADDR_MATCH_MASK, 0xffffffff, 0xffffffcf),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGL2C_ADDR_MATCH_MASK, 0xffffffff, 0xffffffcf),
+diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
+index d808ee0e77b5..90f8bbd9aede 100644
+--- a/tools/arch/ia64/include/asm/barrier.h
++++ b/tools/arch/ia64/include/asm/barrier.h
+@@ -39,9 +39,6 @@
+  * sequential memory pages only.
+  */
+ 
+-/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
+-#define ia64_mf()       asm volatile ("mf" ::: "memory")
+-
+ #define mb()		ia64_mf()
+ #define rmb()		mb()
+ #define wmb()		mb()
+-- 
+2.30.2
+
 
 
