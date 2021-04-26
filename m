@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C83536ADD0
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B9AC36AD1D
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232916AbhDZHix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
+        id S232262AbhDZHcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:32:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232411AbhDZHhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:37:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C70EC613F1;
-        Mon, 26 Apr 2021 07:35:46 +0000 (UTC)
+        id S232416AbhDZHca (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:32:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26B5A611C9;
+        Mon, 26 Apr 2021 07:31:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422547;
-        bh=gBR1+DPpBGuIw+kUtmqj1EMCH9aDNO5QTwwOUiwajX4=;
+        s=korg; t=1619422309;
+        bh=ePKgHYrMCvetSA5ZIScOwo9vPcIwkmkQGfZFuVIbcTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjScUmDJxTUbKQfOW3DwHeEx3YlGS0TzohLdrLP2EEAmx18B68qw+WL8LhT2ho51M
-         cCSPNw4xVEyJcEPQ10l9/rzdM7hHCmfH1Lijs4ahJio0R9/j9nXY1+nDIwCVSjn7GI
-         Eb2zScxxQR8L0MFP5LMvMcQAWwN+ie8n7UDih6Og=
+        b=rEzwtW6Ot0FrSp3+Z5VjITaBRdlSYL5vFToZlUvmbTG/Qh6lFY0ARc0RQ2WfDQzPl
+         cwCD/m3YRQIEA+SuGZwqJSE4WFxy1CGLo/LVOKAvLaA7MmjVLApu8rN68HOEY7EK/V
+         WnBhGLFl0KFwLE0wcf+U697qmTkCAM0nZkb2amKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.14 24/49] arm64: alternatives: Move length validation in alternative_{insn, endif}
+        stable@vger.kernel.org,
+        syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 22/32] net: hso: fix null-ptr-deref during tty device unregistration
 Date:   Mon, 26 Apr 2021 09:29:20 +0200
-Message-Id: <20210426072820.550184467@linuxfoundation.org>
+Message-Id: <20210426072817.327441466@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,74 +42,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 22315a2296f4c251fa92aec45fbbae37e9301b6c upstream.
+commit 8a12f8836145ffe37e9c8733dce18c22fb668b66 upstream
 
-After commit 2decad92f473 ("arm64: mte: Ensure TIF_MTE_ASYNC_FAULT is
-set atomically"), LLVM's integrated assembler fails to build entry.S:
+Multiple ttys try to claim the same the minor number causing a double
+unregistration of the same device. The first unregistration succeeds
+but the next one results in a null-ptr-deref.
 
-<instantiation>:5:7: error: expected assembly-time absolute expression
- .org . - (664b-663b) + (662b-661b)
-      ^
-<instantiation>:6:7: error: expected assembly-time absolute expression
- .org . - (662b-661b) + (664b-663b)
-      ^
+The get_free_serial_index() function returns an available minor number
+but doesn't assign it immediately. The assignment is done by the caller
+later. But before this assignment, calls to get_free_serial_index()
+would return the same minor number.
 
-The root cause is LLVM's assembler has a one-pass design, meaning it
-cannot figure out these instruction lengths when the .org directive is
-outside of the subsection that they are in, which was changed by the
-.arch_extension directive added in the above commit.
+Fix this by modifying get_free_serial_index to assign the minor number
+immediately after one is found to be and rename it to obtain_minor()
+to better reflect what it does. Similary, rename set_serial_by_index()
+to release_minor() and modify it to free up the minor number of the
+given hso_serial. Every obtain_minor() should have corresponding
+release_minor() call.
 
-Apply the same fix from commit 966a0acce2fc ("arm64/alternatives: move
-length validation inside the subsection") to the alternative_endif
-macro, shuffling the .org directives so that the length validation
-happen will always happen in the same subsections. alternative_insn has
-not shown any issue yet but it appears that it could have the same issue
-in the future so just preemptively change it.
-
-Fixes: f7b93d42945c ("arm64/alternatives: use subsections for replacement sequences")
-Cc: <stable@vger.kernel.org> # 5.8.x
-Link: https://github.com/ClangBuiltLinux/linux/issues/1347
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20210414000803.662534-1-nathan@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 72dc1c096c705 ("HSO: add option hso driver")
+Reported-by: syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com
+Tested-by: syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/alternative.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/usb/hso.c |   33 ++++++++++++---------------------
+ 1 file changed, 12 insertions(+), 21 deletions(-)
 
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -114,9 +114,9 @@ void apply_alternatives(void *start, siz
- 	.popsection
- 	.subsection 1
- 663:	\insn2
--664:	.previous
--	.org	. - (664b-663b) + (662b-661b)
-+664:	.org	. - (664b-663b) + (662b-661b)
- 	.org	. - (662b-661b) + (664b-663b)
-+	.previous
- 	.endif
- .endm
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -635,7 +635,7 @@ static struct hso_serial *get_serial_by_
+ 	return serial;
+ }
  
-@@ -186,11 +186,11 @@ void apply_alternatives(void *start, siz
-  */
- .macro alternative_endif
- 664:
-+	.org	. - (664b-663b) + (662b-661b)
-+	.org	. - (662b-661b) + (664b-663b)
- 	.if .Lasm_alt_mode==0
- 	.previous
- 	.endif
--	.org	. - (664b-663b) + (662b-661b)
--	.org	. - (662b-661b) + (664b-663b)
- .endm
+-static int get_free_serial_index(void)
++static int obtain_minor(struct hso_serial *serial)
+ {
+ 	int index;
+ 	unsigned long flags;
+@@ -643,8 +643,10 @@ static int get_free_serial_index(void)
+ 	spin_lock_irqsave(&serial_table_lock, flags);
+ 	for (index = 0; index < HSO_SERIAL_TTY_MINORS; index++) {
+ 		if (serial_table[index] == NULL) {
++			serial_table[index] = serial->parent;
++			serial->minor = index;
+ 			spin_unlock_irqrestore(&serial_table_lock, flags);
+-			return index;
++			return 0;
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(&serial_table_lock, flags);
+@@ -653,15 +655,12 @@ static int get_free_serial_index(void)
+ 	return -1;
+ }
  
- /*
+-static void set_serial_by_index(unsigned index, struct hso_serial *serial)
++static void release_minor(struct hso_serial *serial)
+ {
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&serial_table_lock, flags);
+-	if (serial)
+-		serial_table[index] = serial->parent;
+-	else
+-		serial_table[index] = NULL;
++	serial_table[serial->minor] = NULL;
+ 	spin_unlock_irqrestore(&serial_table_lock, flags);
+ }
+ 
+@@ -2249,6 +2248,7 @@ static int hso_stop_serial_device(struct
+ static void hso_serial_tty_unregister(struct hso_serial *serial)
+ {
+ 	tty_unregister_device(tty_drv, serial->minor);
++	release_minor(serial);
+ }
+ 
+ static void hso_serial_common_free(struct hso_serial *serial)
+@@ -2273,25 +2273,23 @@ static int hso_serial_common_create(stru
+ 				    int rx_size, int tx_size)
+ {
+ 	struct device *dev;
+-	int minor;
+ 	int i;
+ 
+ 	tty_port_init(&serial->port);
+ 
+-	minor = get_free_serial_index();
+-	if (minor < 0)
++	if (obtain_minor(serial))
+ 		goto exit2;
+ 
+ 	/* register our minor number */
+ 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
+-			tty_drv, minor, &serial->parent->interface->dev,
++			tty_drv, serial->minor, &serial->parent->interface->dev,
+ 			serial->parent, hso_serial_dev_groups);
+-	if (IS_ERR(serial->parent->dev))
++	if (IS_ERR(serial->parent->dev)) {
++		release_minor(serial);
+ 		goto exit2;
++	}
+ 	dev = serial->parent->dev;
+ 
+-	/* fill in specific data for later use */
+-	serial->minor = minor;
+ 	serial->magic = HSO_SERIAL_MAGIC;
+ 	spin_lock_init(&serial->serial_lock);
+ 	serial->num_rx_urbs = num_urbs;
+@@ -2692,9 +2690,6 @@ static struct hso_device *hso_create_bul
+ 
+ 	serial->write_data = hso_std_serial_write_data;
+ 
+-	/* and record this serial */
+-	set_serial_by_index(serial->minor, serial);
+-
+ 	/* setup the proc dirs and files if needed */
+ 	hso_log_port(hso_dev);
+ 
+@@ -2751,9 +2746,6 @@ struct hso_device *hso_create_mux_serial
+ 	serial->shared_int->ref_count++;
+ 	mutex_unlock(&serial->shared_int->shared_int_lock);
+ 
+-	/* and record this serial */
+-	set_serial_by_index(serial->minor, serial);
+-
+ 	/* setup the proc dirs and files if needed */
+ 	hso_log_port(hso_dev);
+ 
+@@ -3140,7 +3132,6 @@ static void hso_free_interface(struct us
+ 			cancel_work_sync(&serial_table[i]->async_get_intf);
+ 			hso_serial_tty_unregister(serial);
+ 			kref_put(&serial_table[i]->ref, hso_serial_ref_free);
+-			set_serial_by_index(i, NULL);
+ 		}
+ 	}
+ 
 
 
