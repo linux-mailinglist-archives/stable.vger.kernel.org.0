@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E48C036AE0C
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BB936AE8C
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233210AbhDZHky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50372 "EHLO mail.kernel.org"
+        id S233147AbhDZHpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233468AbhDZHji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D635613CF;
-        Mon, 26 Apr 2021 07:37:32 +0000 (UTC)
+        id S233762AbhDZHoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:44:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B73A1613E2;
+        Mon, 26 Apr 2021 07:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422653;
-        bh=wR6pr5QdpJH085Lt23DSVtUerLrLmPTa3RzwULkpT3o=;
+        s=korg; t=1619422830;
+        bh=f+ZOyiIVIDMvKa78Ed05egQkhxVQ65Qhn1l+FSOw2Js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JgPQgTBXTAxQa1TxTD+BtmHdlc5kF8CbkGYIy3kUseCzb0XmA5PGj6qSx8VF1bPFr
-         1a3/g24rA2DJWzs8iTZdSI6hNGeeWre5cE9Jo+9M08w2E1Sc2hovXzN6ZE6n0WxpwD
-         cVulCV1TDhIQGWhid4c9dFVJ/KbEzrWvi73Y7/28=
+        b=uADrbW/JRUqBdH8c0SLZZ06nalgkiyQGraItp9azq/EX0JZYdS8mfLdInlBs1p0iW
+         /DPK68pG8fKbDWAr0P/ykRtIds4y7SAGUcsktvc9dAz5Z3InjAWghh1C1U98hJp3PJ
+         l8chT+6evSgiPoBk1fwNNpqHSgTnr8aEj6DT4cIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot+2e406a9ac75bb71d4b7a@syzkaller.appspotmail.com,
-        Phillip Potter <phil@philpotter.co.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 51/57] net: geneve: check skb is large enough for IPv4/IPv6 header
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.11 01/41] vhost-vdpa: protect concurrent access to vhost device iotlb
 Date:   Mon, 26 Apr 2021 09:29:48 +0200
-Message-Id: <20210426072822.301891397@linuxfoundation.org>
+Message-Id: <20210426072819.722442784@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
+References: <20210426072819.666570770@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,52 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 6628ddfec7580882f11fdc5c194a8ea781fdadfa ]
+commit a9d064524fc3cf463b3bb14fa63de78aafb40dab upstream.
 
-Check within geneve_xmit_skb/geneve6_xmit_skb that sk_buff structure
-is large enough to include IPv4 or IPv6 header, and reject if not. The
-geneve_xmit_skb portion and overall idea was contributed by Eric Dumazet.
-Fixes a KMSAN-found uninit-value bug reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=abe95dc3e3e9667fc23b8d81f29ecad95c6f106f
+Protect vhost device iotlb by vhost_dev->mutex. Otherwise,
+it might cause corruption of the list and interval tree in
+struct vhost_iotlb if userspace sends the VHOST_IOTLB_MSG_V2
+message concurrently.
 
-Suggested-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot+2e406a9ac75bb71d4b7a@syzkaller.appspotmail.com
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4c8cf318("vhost: introduce vDPA-based backend")
+Cc: stable@vger.kernel.org
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20210412095512.178-1-xieyongji@bytedance.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/vhost/vdpa.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index 2e2afc824a6a..ce6fecf421f8 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -839,6 +839,9 @@ static int geneve_xmit_skb(struct sk_buff *skb, struct net_device *dev,
- 	__be16 df;
- 	int err;
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -745,9 +745,11 @@ static int vhost_vdpa_process_iotlb_msg(
+ 	const struct vdpa_config_ops *ops = vdpa->config;
+ 	int r = 0;
  
-+	if (!pskb_network_may_pull(skb, sizeof(struct iphdr)))
-+		return -EINVAL;
++	mutex_lock(&dev->mutex);
 +
- 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
- 			      geneve->info.key.tp_dst, sport);
-@@ -882,6 +885,9 @@ static int geneve6_xmit_skb(struct sk_buff *skb, struct net_device *dev,
- 	__be16 sport;
- 	int err;
+ 	r = vhost_dev_check_owner(dev);
+ 	if (r)
+-		return r;
++		goto unlock;
  
-+	if (!pskb_network_may_pull(skb, sizeof(struct ipv6hdr)))
-+		return -EINVAL;
-+
- 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
- 				geneve->info.key.tp_dst, sport);
--- 
-2.30.2
-
+ 	switch (msg->type) {
+ 	case VHOST_IOTLB_UPDATE:
+@@ -768,6 +770,8 @@ static int vhost_vdpa_process_iotlb_msg(
+ 		r = -EINVAL;
+ 		break;
+ 	}
++unlock:
++	mutex_unlock(&dev->mutex);
+ 
+ 	return r;
+ }
 
 
