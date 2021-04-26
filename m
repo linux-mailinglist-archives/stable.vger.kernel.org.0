@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB2C36AE0F
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 519D936AE4B
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbhDZHle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49252 "EHLO mail.kernel.org"
+        id S233368AbhDZHne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:43:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233481AbhDZHjl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7328E613D0;
-        Mon, 26 Apr 2021 07:37:44 +0000 (UTC)
+        id S233435AbhDZHls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:41:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF863611CE;
+        Mon, 26 Apr 2021 07:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422665;
-        bh=uJpH5YPPJmhUxv7AM91hsYVccL/15UaUQyMRo4BWexo=;
+        s=korg; t=1619422745;
+        bh=pQxOZyzCDbuEayLP+Of1qJJSPxwzE3v+g8ukJpvEZfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kF+6PJTrN2yNkKqhRBeDrJmRi1lj2Vv3sB2jW7CSmq3FaUMFfXb6be199vDg9pIxy
-         vA65uW9lAxafKok36KTjqTj8sUqTYRJBRwkHayFs9A8fgLkdSVtf6orpa39uqBdx4R
-         rjmDcWmU94tyAUCpobz7HJw3lTb3Z/CfHG+Tsvcg=
+        b=NIEs5KHO+tUrDodYiyNeeRw7bTqFwvneCbmZwh/aDUxDennvjATdNrXFNfu/4M4cq
+         jjW0lO3VqvqNjiSrK89M9wchKNK2Rf0DPdeTtHGVDPPpgsOrOpOKopvIYJYuaf4gTn
+         Yw294gzF/cuHfUMB3h5PoaFU34Gcy/uhk9cdDJ6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/57] ia64: tools: remove duplicate definition of ia64_mf() on ia64
+Subject: [PATCH 5.10 11/36] bpf: Refactor and streamline bounds check into helper
 Date:   Mon, 26 Apr 2021 09:29:53 +0200
-Message-Id: <20210426072822.480978090@linuxfoundation.org>
+Message-Id: <20210426072819.182789198@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
+References: <20210426072818.777662399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
+[ Upstream commit 073815b756c51ba9d8384d924c5d1c03ca3d1ae4 ]
 
-The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
-already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
-failing to build:
+Move the bounds check in adjust_ptr_min_max_vals() into a small helper named
+sanitize_check_bounds() in order to simplify the former a bit.
 
-    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
-  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
-                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
-                   from libbpf.c:37:
-  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
-     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
-        |
-  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
-                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
-                   from /usr/include/linux/swab.h:8,
-                   from /usr/include/linux/byteorder/little_endian.h:13,
-                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
-                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
-                   from libbpf.c:36:
-  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
-    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
-        |
-  cc1: all warnings being treated as errors
-
-Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
-
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/arch/ia64/include/asm/barrier.h | 3 ---
- 1 file changed, 3 deletions(-)
+ kernel/bpf/verifier.c | 49 +++++++++++++++++++++++++++++--------------
+ 1 file changed, 33 insertions(+), 16 deletions(-)
 
-diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
-index d808ee0e77b5..90f8bbd9aede 100644
---- a/tools/arch/ia64/include/asm/barrier.h
-+++ b/tools/arch/ia64/include/asm/barrier.h
-@@ -39,9 +39,6 @@
-  * sequential memory pages only.
-  */
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 94923c2bdd81..1b97fd364ce2 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5883,6 +5883,37 @@ static int check_stack_access_for_ptr_arithmetic(
+ 	return 0;
+ }
  
--/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
--#define ia64_mf()       asm volatile ("mf" ::: "memory")
--
- #define mb()		ia64_mf()
- #define rmb()		mb()
- #define wmb()		mb()
++static int sanitize_check_bounds(struct bpf_verifier_env *env,
++				 const struct bpf_insn *insn,
++				 const struct bpf_reg_state *dst_reg)
++{
++	u32 dst = insn->dst_reg;
++
++	/* For unprivileged we require that resulting offset must be in bounds
++	 * in order to be able to sanitize access later on.
++	 */
++	if (env->bypass_spec_v1)
++		return 0;
++
++	switch (dst_reg->type) {
++	case PTR_TO_STACK:
++		if (check_stack_access_for_ptr_arithmetic(env, dst, dst_reg,
++					dst_reg->off + dst_reg->var_off.value))
++			return -EACCES;
++		break;
++	case PTR_TO_MAP_VALUE:
++		if (check_map_access(env, dst, dst_reg->off, 1, false)) {
++			verbose(env, "R%d pointer arithmetic of map value goes out of range, "
++				"prohibited for !root\n", dst);
++			return -EACCES;
++		}
++		break;
++	default:
++		break;
++	}
++
++	return 0;
++}
+ 
+ /* Handles arithmetic on a pointer and a scalar: computes new min/max and var_off.
+  * Caller should also handle BPF_MOV case separately.
+@@ -6108,22 +6139,8 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
+ 	__reg_deduce_bounds(dst_reg);
+ 	__reg_bound_offset(dst_reg);
+ 
+-	/* For unprivileged we require that resulting offset must be in bounds
+-	 * in order to be able to sanitize access later on.
+-	 */
+-	if (!env->bypass_spec_v1) {
+-		if (dst_reg->type == PTR_TO_MAP_VALUE &&
+-		    check_map_access(env, dst, dst_reg->off, 1, false)) {
+-			verbose(env, "R%d pointer arithmetic of map value goes out of range, "
+-				"prohibited for !root\n", dst);
+-			return -EACCES;
+-		} else if (dst_reg->type == PTR_TO_STACK &&
+-			   check_stack_access_for_ptr_arithmetic(
+-				   env, dst, dst_reg, dst_reg->off +
+-				   dst_reg->var_off.value)) {
+-			return -EACCES;
+-		}
+-	}
++	if (sanitize_check_bounds(env, insn, dst_reg) < 0)
++		return -EACCES;
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
