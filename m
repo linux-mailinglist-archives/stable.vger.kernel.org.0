@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 345EE36AD64
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F7636AE19
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232493AbhDZHgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:36:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
+        id S233156AbhDZHll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232711AbhDZHd7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:33:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDEB961041;
-        Mon, 26 Apr 2021 07:33:14 +0000 (UTC)
+        id S233555AbhDZHjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 324D6613C6;
+        Mon, 26 Apr 2021 07:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422395;
-        bh=UBM7ZCIabD+Oae9YQ37RNPL/vvvorK19qFEkh+adkNI=;
+        s=korg; t=1619422679;
+        bh=3HMu736YuqwVAbCDUhlkGow54NNd0D83Yn5olVJTAWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRsbwFYEf0osYnChi1mK4xZdhGyaBeWvq41ZWTZ27h5RGSnRCqEKYtodvzzb282+u
-         2ViygCTQBYpR4PC5Le+vMJznE6XeUunvdZappQ3vor0ba2ORN0em6XNcA2lZUa/X0M
-         04SPXo8+h7Ac6lgNqwJB2RYC+hnVIJZU0uMddkqU=
+        b=B1oCX1Gz2lZniEXzWQ84vhnlvPbTIuqIR3FT2FSYx843jBkctPvSbX7c31sVsPNH2
+         LhYo9K0zyEphxmxS2wfL+lnoiOCAQc/zqiCFxER6z7suBRcnQcjzUxz4/Bs+h2q+ob
+         S9GueGdARpwdK/VQQiu7/bVdmwBZP746oSnAZMIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 32/37] s390/entry: save the caller of psw_idle
-Date:   Mon, 26 Apr 2021 09:29:33 +0200
-Message-Id: <20210426072818.334791455@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
+        Lijun Pan <lijunp213@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 37/57] ibmvnic: avoid calling napi_disable() twice
+Date:   Mon, 26 Apr 2021 09:29:34 +0200
+Message-Id: <20210426072821.828786541@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Lijun Pan <lijunp213@gmail.com>
 
-[ Upstream commit a994eddb947ea9ebb7b14d9a1267001699f0a136 ]
+commit 0775ebc4cf8554bdcd2c212669a0868ab68df5c0 upstream.
 
-Currently psw_idle does not allocate a stack frame and does not
-save its r14 and r15 into the save area. Even though this is valid from
-call ABI point of view, because psw_idle does not make any calls
-explicitly, in reality psw_idle is an entry point for controlled
-transition into serving interrupts. So, in practice, psw_idle stack
-frame is analyzed during stack unwinding. Depending on build options
-that r14 slot in the save area of psw_idle might either contain a value
-saved by previous sibling call or complete garbage.
+__ibmvnic_open calls napi_disable without checking whether NAPI polling
+has already been disabled or not. This could cause napi_disable
+being called twice, which could generate deadlock. For example,
+the first napi_disable will spin until NAPI_STATE_SCHED is cleared
+by napi_complete_done, then set it again.
+When napi_disable is called the second time, it will loop infinitely
+because no dev->poll will be running to clear NAPI_STATE_SCHED.
 
-  [task    0000038000003c28] do_ext_irq+0xd6/0x160
-  [task    0000038000003c78] ext_int_handler+0xba/0xe8
-  [task   *0000038000003dd8] psw_idle_exit+0x0/0x8 <-- pt_regs
- ([task    0000038000003dd8] 0x0)
-  [task    0000038000003e10] default_idle_call+0x42/0x148
-  [task    0000038000003e30] do_idle+0xce/0x160
-  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
-  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
+To prevent above scenario from happening, call ibmvnic_napi_disable()
+which checks if napi is disabled or not before calling napi_disable.
 
-So, to make a stacktrace nicer and actually point for the real caller of
-psw_idle in this frequently occurring case, make psw_idle save its r14.
-
-  [task    0000038000003c28] do_ext_irq+0xd6/0x160
-  [task    0000038000003c78] ext_int_handler+0xba/0xe8
-  [task   *0000038000003dd8] psw_idle_exit+0x0/0x6 <-- pt_regs
- ([task    0000038000003dd8] arch_cpu_idle+0x3c/0xd0)
-  [task    0000038000003e10] default_idle_call+0x42/0x148
-  [task    0000038000003e30] do_idle+0xce/0x160
-  [task    0000038000003e70] cpu_startup_entry+0x36/0x40
-  [task    0000038000003ea0] arch_call_rest_init+0x76/0x80
-
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: bfc32f297337 ("ibmvnic: Move resource initialization to its own routine")
+Suggested-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Signed-off-by: Lijun Pan <lijunp213@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/entry.S | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/ibm/ibmvnic.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 771cfd2e1e6d..708b8ee604d0 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -902,6 +902,7 @@ ENTRY(ext_int_handler)
-  * Load idle PSW. The second "half" of this function is in .Lcleanup_idle.
-  */
- ENTRY(psw_idle)
-+	stg	%r14,(__SF_GPRS+8*8)(%r15)
- 	stg	%r3,__SF_EMPTY(%r15)
- 	larl	%r1,.Lpsw_idle_lpsw+4
- 	stg	%r1,__SF_EMPTY+8(%r15)
--- 
-2.30.2
-
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1092,8 +1092,7 @@ static int __ibmvnic_open(struct net_dev
+ 
+ 	rc = set_link_state(adapter, IBMVNIC_LOGICAL_LNK_UP);
+ 	if (rc) {
+-		for (i = 0; i < adapter->req_rx_queues; i++)
+-			napi_disable(&adapter->napi[i]);
++		ibmvnic_napi_disable(adapter);
+ 		release_resources(adapter);
+ 		return rc;
+ 	}
 
 
