@@ -2,88 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7510736BAA3
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 22:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB75C36BAB8
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 22:31:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241784AbhDZUWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 16:22:40 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:40266 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238112AbhDZUWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 16:22:40 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1619468518; h=References: In-Reply-To: Message-Id: Date:
- Subject: Cc: To: From: Sender;
- bh=3LGFtiTRJjNMYbJ6EUUyU7V1Qj7k6TQXUxK2E6mPlFU=; b=vBX84bpXvjAjnxTAOJymBDr0lbcemn36Tx+H7wEbJ0e6UqcJ4JSxH0WONSYGD59nvkTTcasj
- 8HsjpgFw4x3OoZJ/O2F1spYgesgk8zr7HUwrYQFKitcjd8t7EpVOLx9L7FhnJ7QktnQIJIJr
- wIeWEYTZFC7dxriPSLYCi9ZKx6U=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n01.prod.us-west-2.postgun.com with SMTP id
- 608720d4f34440a9d4d63ffd (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 26 Apr 2021 20:21:40
- GMT
-Sender: subbaram=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id E43BAC43217; Mon, 26 Apr 2021 20:21:40 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL
-        autolearn=no autolearn_force=no version=3.4.0
-Received: from subbaram-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: subbaram)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 06071C433D3;
-        Mon, 26 Apr 2021 20:21:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 06071C433D3
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=subbaram@codeaurora.org
-From:   Subbaraman Narayanamurthy <subbaram@codeaurora.org>
-To:     jackp@codeaurora.org
-Cc:     abhilash.k.v@intel.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux-usb@vger.kernel.org,
-        stable@vger.kernel.org, subbaram@codeaurora.org
-Subject: Re: [PATCH] usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4
-Date:   Mon, 26 Apr 2021 13:21:31 -0700
-Message-Id: <1619468491-22053-1-git-send-email-subbaram@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <20210426192605.GB20698@jackp-linux.qualcomm.com>
-References: <20210426192605.GB20698@jackp-linux.qualcomm.com>
+        id S236419AbhDZUcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 16:32:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43360 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235996AbhDZUcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 16:32:15 -0400
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85679C061574;
+        Mon, 26 Apr 2021 13:31:33 -0700 (PDT)
+Received: by mail-wm1-x32f.google.com with SMTP id k128so30597260wmk.4;
+        Mon, 26 Apr 2021 13:31:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=yrkMIFTTF7Sx59P8sjJJQ3KD41MDwlg4vL7mJ7AwJ7I=;
+        b=e4R6GMolxsmj+YDnoWMcMCx8/GGe2bUqjnhIccdSlLc6qpRNd+qpK+yqTL39Q6XoRe
+         eHjpvyY32e1G+g3zx/uVXiwWbbCV1d9TTvovJbH1ypfmVuOriyxYW1rwzAE7LoCiMy0C
+         OH0PkRWsg093O7Nyt50teq9Sq7lY6dRtCLa4ENqEq5EPXUc3R098w+zfOOBU9PXANSF+
+         JqI27IxUqfGkqVxMHrjKIF09XMOx8xuyzxoGBt5p2EPbN6A2PCDCOydOGlskE9PLEQqO
+         pbURRRG3DWHKpBuLrTthF9RgAO3DQpF78PvUYNFi9nnFKWdqM3fCFxw0GNIFcjeQ4rg0
+         4NUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=yrkMIFTTF7Sx59P8sjJJQ3KD41MDwlg4vL7mJ7AwJ7I=;
+        b=luJ0fkhremKChRvx70sBXhpsMujHs2qeUExaXuU75x2ArcRUm3r29JDcBKwYCTylkH
+         7xwASu3rApazj/IrlRuzjYebEMTs8qSXJiyBZ8RLQNgwpp1hR0Of7At1t8agH9cR1c8L
+         V0YoG/iXhJ3wrP6DR+jDFh+wkjSMN12eJcrM1af+qpX0zUBEBoUF7dF5dpit4p/O3yGs
+         /U5rZ6cCiHI0TQSbKVDmvSOB5Kiujp9iwGcpVdYZPLRJzrgywX1b2/rjgGBktxhlplbr
+         S8pytTdDzSLZQE96f99nRYS7q9pcMYgZHiSNhLA8dMqtz0LLDLgA7tTC9m8yHsXFro4C
+         V2Lw==
+X-Gm-Message-State: AOAM530EjLO8OBKg6cK/NjJX/Rp6AWHHIeV+90hFAHaI/p7jcdkrHWd+
+        33zHJX6HVLrKGdmJVzknQK8=
+X-Google-Smtp-Source: ABdhPJwg5pHGmpWvoQ0+m5HnXZQ0tNJvIQC+dfpO3lb2unRLnjFsdyH1xBBJ/2wS1iCDLflZFgl37A==
+X-Received: by 2002:a05:600c:4896:: with SMTP id j22mr731011wmp.156.1619469092199;
+        Mon, 26 Apr 2021 13:31:32 -0700 (PDT)
+Received: from debian (host-84-13-30-150.opaltelecom.net. [84.13.30.150])
+        by smtp.gmail.com with ESMTPSA id o27sm1715915wra.4.2021.04.26.13.31.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Apr 2021 13:31:31 -0700 (PDT)
+Date:   Mon, 26 Apr 2021 21:31:29 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/20] 5.4.115-rc1 review
+Message-ID: <YIcjIcdEJUNIQt1c@debian>
+References: <20210426072816.686976183@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210426072816.686976183@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> If such a source is connected it's possible the UCSI FW could have
+Hi Greg,
 
-s/UCSI FW/PPM
-
-> We can resolve this by instead retrieving and storing up to the
-> maximum of 7 PDOs in the con->src_pdos array. This would involve
-> two calls to the GET_PDOS command.
+On Mon, Apr 26, 2021 at 09:29:51AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.115 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
+> Responses should be made by Wed, 28 Apr 2021 07:28:08 +0000.
+> Anything received after that time might be too late.
 
-This issue (see the signature below) is found by enabling UBSAN and
-connecting a charger adapter that can advertise 5 PDOs and RPDO selected
-by PPM is 5.
+Build test:
+mips (gcc version 10.3.1 20210419): 65 configs -> no new failure
+arm (gcc version 10.3.1 20210419): 107 configs -> no new failure
+x86_64 (gcc version 10.2.1 20210110): 2 configs -> no failure
 
-[  151.545106][   T70] Unexpected kernel BRK exception at EL1
-[  151.545112][   T70] Internal error: BRK handler: f2005512 [#1] PREEMPT SMP
-...
-[  151.545499][   T70] pc : ucsi_psy_get_prop+0x208/0x20c
-[  151.545507][   T70] lr : power_supply_show_property+0xc0/0x328
-...
-[  151.545542][   T70] Call trace:
-[  151.545544][   T70]  ucsi_psy_get_prop+0x208/0x20c
-[  151.545546][   T70]  power_supply_uevent+0x1a4/0x2f0
-[  151.545550][   T70]  dev_uevent+0x200/0x384
-[  151.545555][   T70]  kobject_uevent_env+0x1d4/0x7e8
-[  151.545557][   T70]  power_supply_changed_work+0x174/0x31c
-[  151.545562][   T70]  process_one_work+0x244/0x6f0
-[  151.545564][   T70]  worker_thread+0x3e0/0xa64
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression.
+arm: Booted on rpi3b. No regression.
 
-> Fixes: 992a60ed0d5e ("usb: typec: ucsi: register with power_supply class")
-> Fixes: 4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
