@@ -2,90 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1701436AA31
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 03:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E20A336AAA9
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 04:40:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231422AbhDZBId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 25 Apr 2021 21:08:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39632 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231403AbhDZBIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 25 Apr 2021 21:08:32 -0400
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CED7DC061574
-        for <stable@vger.kernel.org>; Sun, 25 Apr 2021 18:07:50 -0700 (PDT)
-Received: by mail-lj1-x230.google.com with SMTP id l22so54731287ljc.9
-        for <stable@vger.kernel.org>; Sun, 25 Apr 2021 18:07:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XKYDend4fR4Ns4FQUvGIkyd1mejjx00DHoiaI53DpUk=;
-        b=bYXil6U8aeDmJjz/7ei+17pn/IQ0sTBX/L0Iva4D7Wz2ESeOPo16kNbkeURvgac0vz
-         1B8SPnvLfWhx5F3XaBp3Cqtnpf045rDXKVnpuLAgbbFoSAcAPY5aSoi3yyymWOpv8lPc
-         /oWCxfYguys94UmN3T/LwbbkoJ48yDteFsnilb/Df7i1+sZId0JXaZ42gKeFzrWEaZGb
-         yK5dHUTa44n4ipKf1p1HeasNuDEY8bBWCvcy64LraZWjsGhNnFRg3oNfNuhfL91Yb2nX
-         9MjdGxKDA01dz56VDYMVOqtTHYRqgTaKrdCh6qrYWaFn6YGen4R/32+OfOpr/DEDHIuJ
-         lNEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XKYDend4fR4Ns4FQUvGIkyd1mejjx00DHoiaI53DpUk=;
-        b=lwPutcEWfQcWMJEeVzL3yN9MZU9gt3TAayVIizWQbfcRkxzN2A7CP2BHLgCc0NH+X6
-         I8PQ1u12l54j8o8kL54iKYFMEbZ6wEcqAiqjkH7gpX1JKrKUVwNx1D5+BFGqbepv2u4i
-         FHKjyMxGpPK/LUNap/smlDrh3FDWCctMRhucBqxfNl5l/36t70w5wcg5IZ5l6TWqg31i
-         hTUT4+8QnMnGXjTG6arqn1A2lRUResGOHcEEqTl59+VZDOeofMWAp4eBnLrTX1ZkqnGU
-         fhsdGEMksRdbwV+tXdYFFWtW2Ozf1Ih+bK9c2vW/hRlAfar9hDjOsEXitHQOMwFb60Rd
-         RhNA==
-X-Gm-Message-State: AOAM533iP5JUnb+E7HhCihvdV3IQtZwW1Cctx6I6lqLgjxUlcmo7oV7B
-        19BQnCBwIRjxNRHRWU8oZCrtgoyUpq7W0O3jdQY=
-X-Google-Smtp-Source: ABdhPJx9rxRjCRa3GYQ4p7AriZSX+wuIRNLIPwg1hDSn19j0bPcIznRbTBs+e+SDM30duj0ltKecu0Y3Yl2H7mgeYW8=
-X-Received: by 2002:a2e:990b:: with SMTP id v11mr10986592lji.53.1619399269267;
- Sun, 25 Apr 2021 18:07:49 -0700 (PDT)
+        id S231608AbhDZCkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 25 Apr 2021 22:40:05 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:17056 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231550AbhDZCkF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 25 Apr 2021 22:40:05 -0400
+Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4FT8DS5bg9z17Rk1;
+        Mon, 26 Apr 2021 10:36:56 +0800 (CST)
+Received: from huawei.com (10.67.174.47) by DGGEMS408-HUB.china.huawei.com
+ (10.3.19.208) with Microsoft SMTP Server id 14.3.498.0; Mon, 26 Apr 2021
+ 10:39:16 +0800
+From:   He Ying <heying24@huawei.com>
+To:     <patchwork@huawei.com>
+CC:     <huawei.libin@huawei.com>, <yangerkun@huawei.com>,
+        <xiexiuqi@huawei.com>, <guohanjun@huawei.com>,
+        He Ying <heying24@huawei.com>, Marc Zyngier <maz@kernel.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH hulk-4.19-next] irqchip/gic-v3: Do not enable irqs when handling spurious interrups
+Date:   Sun, 25 Apr 2021 22:39:29 -0400
+Message-ID: <20210426023929.89400-1-heying24@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-References: <20210423175701.76637-1-marex@denx.de>
-In-Reply-To: <20210423175701.76637-1-marex@denx.de>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Sun, 25 Apr 2021 22:07:38 -0300
-Message-ID: <CAOMZO5C00Lz1U6vWYCgi2cWG9cCjxSNxrB2Zxn3d5rTTKJQO=Q@mail.gmail.com>
-Subject: Re: [PATCH V2] ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5 regulators
-To:     Marek Vasut <marex@denx.de>
-Cc:     "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        Ludwig Zenz <lzenz@dh-electronics.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.47]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Marek,
+hulk inclusion
+category: bugfix
+bugzilla: NA
+DTS: NA
+CVE: NA
 
-On Fri, Apr 23, 2021 at 2:57 PM Marek Vasut <marex@denx.de> wrote:
->
-> Per schematic, both PU and SOC regulator are supplied from LTC3676 SW1
-> via VDDSOC_IN rail, add the PU input. Both VDD1P1, VDD2P5 are supplied
-> from LTC3676 SW2 via VDDHIGH_IN rail, add both inputs.
->
-> While no instability or problems are currently observed, the regulators
-> should be fully described in DT and that description should fully match
-> the hardware, else this might lead to unforseen issues later. Fix this.
->
-> Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
-> Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-> Cc: Fabio Estevam <festevam@gmail.com>
-> Cc: Ludwig Zenz <lzenz@dh-electronics.com>
-> Cc: NXP Linux Team <linux-imx@nxp.com>
-> Cc: Shawn Guo <shawnguo@kernel.org>
-> Cc: stable@vger.kernel.org
+--------------------------------
 
-You missed your Signed-off-by tag.
+We triggered the following error while running our 4.19 kernel
+with the pseudo-NMI patches backported to it:
 
-With that added:
+[   14.816231] ------------[ cut here ]------------
+[   14.816231] kernel BUG at irq.c:99!
+[   14.816232] Internal error: Oops - BUG: 0 [#1] SMP
+[   14.816232] Process swapper/0 (pid: 0, stack limit = 0x(____ptrval____))
+[   14.816233] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      4.19.95.aarch64 #14
+[   14.816233] Hardware name: evb (DT)
+[   14.816234] pstate: 80400085 (Nzcv daIf +PAN -UAO)
+[   14.816234] pc : asm_nmi_enter+0x94/0x98
+[   14.816235] lr : asm_nmi_enter+0x18/0x98
+[   14.816235] sp : ffff000008003c50
+[   14.816235] pmr_save: 00000070
+[   14.816237] x29: ffff000008003c50 x28: ffff0000095f56c0
+[   14.816238] x27: 0000000000000000 x26: ffff000008004000
+[   14.816239] x25: 00000000015e0000 x24: ffff8008fb916000
+[   14.816240] x23: 0000000020400005 x22: ffff0000080817cc
+[   14.816241] x21: ffff000008003da0 x20: 0000000000000060
+[   14.816242] x19: 00000000000003ff x18: ffffffffffffffff
+[   14.816243] x17: 0000000000000008 x16: 003d090000000000
+[   14.816244] x15: ffff0000095ea6c8 x14: ffff8008fff5ab40
+[   14.816244] x13: ffff8008fff58b9d x12: 0000000000000000
+[   14.816245] x11: ffff000008c8a200 x10: 000000008e31fca5
+[   14.816246] x9 : ffff000008c8a208 x8 : 000000000000000f
+[   14.816247] x7 : 0000000000000004 x6 : ffff8008fff58b9e
+[   14.816248] x5 : 0000000000000000 x4 : 0000000080000000
+[   14.816249] x3 : 0000000000000000 x2 : 0000000080000000
+[   14.816250] x1 : 0000000000120000 x0 : ffff0000095f56c0
+[   14.816251] Call trace:
+[   14.816251]  asm_nmi_enter+0x94/0x98
+[   14.816251]  el1_irq+0x8c/0x180                    (IRQ C)
+[   14.816252]  gic_handle_irq+0xbc/0x2e4
+[   14.816252]  el1_irq+0xcc/0x180                    (IRQ B)
+[   14.816253]  arch_timer_handler_virt+0x38/0x58
+[   14.816253]  handle_percpu_devid_irq+0x90/0x240
+[   14.816253]  generic_handle_irq+0x34/0x50
+[   14.816254]  __handle_domain_irq+0x68/0xc0
+[   14.816254]  gic_handle_irq+0xf8/0x2e4
+[   14.816255]  el1_irq+0xcc/0x180                    (IRQ A)
+[   14.816255]  arch_cpu_idle+0x34/0x1c8
+[   14.816255]  default_idle_call+0x24/0x44
+[   14.816256]  do_idle+0x1d0/0x2c8
+[   14.816256]  cpu_startup_entry+0x28/0x30
+[   14.816256]  rest_init+0xb8/0xc8
+[   14.816257]  start_kernel+0x4c8/0x4f4
+[   14.816257] Code: 940587f1 d5384100 b9401001 36a7fd01 (d4210000)
+[   14.816258] Modules linked in: start_dp(O) smeth(O)
+[   15.103092] ---[ end trace 701753956cb14aa8 ]---
+[   15.103093] Kernel panic - not syncing: Fatal exception in interrupt
+[   15.103099] SMP: stopping secondary CPUs
+[   15.103100] Kernel Offset: disabled
+[   15.103100] CPU features: 0x36,a2400218
+[   15.103100] Memory Limit: none
 
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
+which is cause by a 'BUG_ON(in_nmi())' in nmi_enter().
+
+From the call trace, we can find three interrupts (noted A, B, C above):
+interrupt (A) is preempted by (B), which is further interrupted by (C).
+
+Subsequent investigations show that (B) results in nmi_enter() being
+called, but that it actually is a spurious interrupt. Furthermore,
+interrupts are reenabled in the context of (B), and (C) fires with
+NMI priority. We end-up with a nested NMI situation, something
+we definitely do not want to (and cannot) handle.
+
+The bug here is that spurious interrupts should never result in any
+state change, and we should just return to the interrupted context.
+Moving the handling of spurious interrupts as early as possible in
+the GICv3 handler fixes this issue.
+
+Fixes: 3f1f3234bc2d ("irqchip/gic-v3: Switch to PMR masking before calling IRQ handler")
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: He Ying <heying24@huawei.com>
+[maz: rewrote commit message, corrected Fixes: tag]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210423083516.170111-1-heying24@huawei.com
+Cc: stable@vger.kernel.org
+
+Signed-off-by: He Ying <heying24@huawei.com>
+---
+ drivers/irqchip/irq-gic-v3.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index 14e9c1a5627b..acf0ae4ef612 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -518,6 +518,10 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
+ 
+ 	irqnr = gic_read_iar();
+ 
++	/* Check for special IDs first */
++	if ((irqnr >= 1020 && irqnr <= 1023))
++		return;
++
+ 	if (gic_supports_nmi() &&
+ 	    unlikely(gic_read_rpr() == GICD_INT_NMI_PRI)) {
+ 		gic_handle_nmi(irqnr, regs);
+-- 
+2.17.1
+
