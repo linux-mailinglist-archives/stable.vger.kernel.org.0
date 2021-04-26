@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B7D36ADA5
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C97A036AE13
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbhDZHhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:37:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        id S232602AbhDZHli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232965AbhDZHgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48BFD613C1;
-        Mon, 26 Apr 2021 07:34:52 +0000 (UTC)
+        id S233523AbhDZHjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8543861041;
+        Mon, 26 Apr 2021 07:37:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422492;
-        bh=mVyWi9XG90EchzaJQHS0kyf10Ks7lxWF4bcLEboImsE=;
+        s=korg; t=1619422672;
+        bh=c3etItYbJNLwhyV+X5QRFBVYf4oOqVzZ7m6Jhhxowvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHnd2N7GuvmvHhSTlyn2GHvYc5BCc/oMENQ/sMnVYIVBmlAu1WrTysnOw3OFEseTv
-         YPZng2T20jzpf0QYEzt5SZ6pCtcJrcBsLPffZ09F4M5/Z0DWiX3rUoYPG3DC4alHo2
-         RYqdUl6xSNWsJJpOIfdo+BeRmp39vHUDNUNHRsAY=
+        b=I+QNiLkiLEq+OI2T0XY+CI4z+NrXCnQLLpptD4nLIi6KZStI+0L4NjfLmraV5aBv2
+         LHH5Ea7LINsPkmUWCg7BjruK/zhrgWeUdUcMV+QXsIaYdtA+/SsAAOZiRVQcZXQGYm
+         iz8Y6+pPsbubpfLtxMe+RqNI2mHyqZ0Wlj0SRefc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fredrik Strupe <fredrik@strupe.net>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.14 35/49] ARM: 9071/1: uprobes: Dont hook on thumb instructions
+        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 34/57] net: sit: Unregister catch-all devices
 Date:   Mon, 26 Apr 2021 09:29:31 +0200
-Message-Id: <20210426072820.920816921@linuxfoundation.org>
+Message-Id: <20210426072821.734197259@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fredrik Strupe <fredrik@strupe.net>
+From: Hristo Venev <hristo@venev.name>
 
-commit d2f7eca60b29006285d57c7035539e33300e89e5 upstream.
+commit 610f8c0fc8d46e0933955ce13af3d64484a4630a upstream.
 
-Since uprobes is not supported for thumb, check that the thumb bit is
-not set when matching the uprobes instruction hooks.
+A sit interface created without a local or a remote address is linked
+into the `sit_net::tunnels_wc` list of its original namespace. When
+deleting a network namespace, delete the devices that have been moved.
 
-The Arm UDF instructions used for uprobes triggering
-(UPROBE_SWBP_ARM_INSN and UPROBE_SS_ARM_INSN) coincidentally share the
-same encoding as a pair of unallocated 32-bit thumb instructions (not
-UDF) when the condition code is 0b1111 (0xf). This in effect makes it
-possible to trigger the uprobes functionality from thumb, and at that
-using two unallocated instructions which are not permanently undefined.
+The following script triggers a null pointer dereference if devices
+linked in a deleted `sit_net` remain:
 
-Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
-Cc: stable@vger.kernel.org
-Fixes: c7edc9e326d5 ("ARM: add uprobes support")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+    for i in `seq 1 30`; do
+        ip netns add ns-test
+        ip netns exec ns-test ip link add dev veth0 type veth peer veth1
+        ip netns exec ns-test ip link add dev sit$i type sit dev veth0
+        ip netns exec ns-test ip link set dev sit$i netns $$
+        ip netns del ns-test
+    done
+    for i in `seq 1 30`; do
+        ip link del dev sit$i
+    done
+
+Fixes: 5e6700b3bf98f ("sit: add support of x-netns")
+Signed-off-by: Hristo Venev <hristo@venev.name>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/probes/uprobes/core.c |    4 ++--
+ net/ipv6/sit.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/probes/uprobes/core.c
-+++ b/arch/arm/probes/uprobes/core.c
-@@ -207,7 +207,7 @@ unsigned long uprobe_get_swbp_addr(struc
- static struct undef_hook uprobes_arm_break_hook = {
- 	.instr_mask	= 0x0fffffff,
- 	.instr_val	= (UPROBE_SWBP_ARM_INSN & 0x0fffffff),
--	.cpsr_mask	= MODE_MASK,
-+	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
- 	.cpsr_val	= USR_MODE,
- 	.fn		= uprobe_trap_handler,
- };
-@@ -215,7 +215,7 @@ static struct undef_hook uprobes_arm_bre
- static struct undef_hook uprobes_arm_ss_hook = {
- 	.instr_mask	= 0x0fffffff,
- 	.instr_val	= (UPROBE_SS_ARM_INSN & 0x0fffffff),
--	.cpsr_mask	= MODE_MASK,
-+	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
- 	.cpsr_val	= USR_MODE,
- 	.fn		= uprobe_trap_handler,
- };
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1818,9 +1818,9 @@ static void __net_exit sit_destroy_tunne
+ 		if (dev->rtnl_link_ops == &sit_link_ops)
+ 			unregister_netdevice_queue(dev, head);
+ 
+-	for (prio = 1; prio < 4; prio++) {
++	for (prio = 0; prio < 4; prio++) {
+ 		int h;
+-		for (h = 0; h < IP6_SIT_HASH_SIZE; h++) {
++		for (h = 0; h < (prio ? IP6_SIT_HASH_SIZE : 1); h++) {
+ 			struct ip_tunnel *t;
+ 
+ 			t = rtnl_dereference(sitn->tunnels[prio][h]);
 
 
