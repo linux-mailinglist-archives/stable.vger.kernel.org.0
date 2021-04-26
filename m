@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C6236AD6E
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C59AB36AE1F
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232779AbhDZHgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46576 "EHLO mail.kernel.org"
+        id S233298AbhDZHlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232875AbhDZHgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20F81611CD;
-        Mon, 26 Apr 2021 07:33:33 +0000 (UTC)
+        id S233083AbhDZHi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:38:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2D1861364;
+        Mon, 26 Apr 2021 07:36:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422414;
-        bh=eXnuyH5QbX6mW2c/9m+tZrIJSKyF1EQCCgHHyE8fFFM=;
+        s=korg; t=1619422586;
+        bh=+aeO+f+Y2ffOCXajMAx0E9n74vMRNP/r8MCf0cTWVPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Pmmsd1+IKwPf0y+MmGeLJzzi+U1p4Rotq0SQUrupd12d7uOxZMTcunSnukh80ytC
-         DkU/ele63dzpC05I81zklHCgiE7AgfVMEOE0gB+ZG3iwGqt9N3NY2YaLFd/pyvtGdw
-         yPezer+9T0g6cxz4Zg5hqJMP4dDrKuPkJT1zRAX4=
+        b=1gJLh15v6jjeghFiS91SD2egtniTPRP/ooH4LwSODWljrCvmcQAsIBM5+ThDQ33Wz
+         QmmGUmzCTJYDx2dkz0q4tdkDQw/H5/7dxiNiciyrmQIH7Vdgp7N2l+Uk3TLA3Z85io
+         cUNEjB2m2EmylQDDxdPdoGOS+0JGueaewZH1rAVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 19/37] net: davicom: Fix regulator not turned off on failed probe
+        stable@vger.kernel.org, Caleb Connolly <caleb@connolly.tech>,
+        Andi Shyti <andi@etezian.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 23/57] Input: s6sy761 - fix coordinate read bit shift
 Date:   Mon, 26 Apr 2021 09:29:20 +0200
-Message-Id: <20210426072817.911422519@linuxfoundation.org>
+Message-Id: <20210426072821.364580076@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Caleb Connolly <caleb@connolly.tech>
 
-commit 31457db3750c0b0ed229d836f2609fdb8a5b790e upstream.
+commit 30b3f68715595dee7fe4d9bd91a2252c3becdf0a upstream.
 
-When the probe fails, we must disable the regulator that was previously
-enabled.
+The touch coordinate register contains the following:
 
-This patch is a follow-up to commit ac88c531a5b3
-("net: davicom: Fix regulator not turned off on failed probe") which missed
-one case.
+        byte 3             byte 2             byte 1
++--------+--------+ +-----------------+ +-----------------+
+|        |        | |                 | |                 |
+| X[3:0] | Y[3:0] | |     Y[11:4]     | |     X[11:4]     |
+|        |        | |                 | |                 |
++--------+--------+ +-----------------+ +-----------------+
 
-Fixes: 7994fe55a4a2 ("dm9000: Add regulator and reset support to dm9000")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Bytes 2 and 1 need to be shifted left by 4 bits, the least significant
+nibble of each is stored in byte 3. Currently they are only
+being shifted by 3 causing the reported coordinates to be incorrect.
+
+This matches downstream examples, and has been confirmed on my
+device (OnePlus 7 Pro).
+
+Fixes: 0145a7141e59 ("Input: add support for the Samsung S6SY761 touchscreen")
+Signed-off-by: Caleb Connolly <caleb@connolly.tech>
+Reviewed-by: Andi Shyti <andi@etezian.org>
+Link: https://lore.kernel.org/r/20210305185710.225168-1-caleb@connolly.tech
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/davicom/dm9000.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/s6sy761.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/davicom/dm9000.c
-+++ b/drivers/net/ethernet/davicom/dm9000.c
-@@ -1481,8 +1481,10 @@ dm9000_probe(struct platform_device *pde
+--- a/drivers/input/touchscreen/s6sy761.c
++++ b/drivers/input/touchscreen/s6sy761.c
+@@ -145,8 +145,8 @@ static void s6sy761_report_coordinates(s
+ 	u8 major = event[4];
+ 	u8 minor = event[5];
+ 	u8 z = event[6] & S6SY761_MASK_Z;
+-	u16 x = (event[1] << 3) | ((event[3] & S6SY761_MASK_X) >> 4);
+-	u16 y = (event[2] << 3) | (event[3] & S6SY761_MASK_Y);
++	u16 x = (event[1] << 4) | ((event[3] & S6SY761_MASK_X) >> 4);
++	u16 y = (event[2] << 4) | (event[3] & S6SY761_MASK_Y);
  
- 	/* Init network device */
- 	ndev = alloc_etherdev(sizeof(struct board_info));
--	if (!ndev)
--		return -ENOMEM;
-+	if (!ndev) {
-+		ret = -ENOMEM;
-+		goto out_regulator_disable;
-+	}
- 
- 	SET_NETDEV_DEV(ndev, &pdev->dev);
+ 	input_mt_slot(sdata->input, tid);
  
 
 
