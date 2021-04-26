@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD88C36AD3C
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC8336ACFD
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232160AbhDZHdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:33:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44596 "EHLO mail.kernel.org"
+        id S232265AbhDZHbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:31:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232568AbhDZHdF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:33:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CD6E611BD;
-        Mon, 26 Apr 2021 07:32:23 +0000 (UTC)
+        id S232254AbhDZHbr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:31:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E164610FC;
+        Mon, 26 Apr 2021 07:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422344;
-        bh=Ca8g5cOyU+0bQy6KXKOZYotpHmu5LRioGqhmX04drBQ=;
+        s=korg; t=1619422265;
+        bh=D4hR8mKvAir5lW8186XPQjpX5BXvw+gV6Vtd4glAfhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWxmaXdnRCv2KqxsO9wKbkg7ElNr3lEFR34GcLUhHwhzbx9Y8A/KDmu8ovIQhVIfB
-         8oh8ldO0l6ZWDDl+t4NL+8jf1xI1zCinr20/H4Pf1678adeO7+G1GTN1gSYBaPw6aP
-         UpJkTqoLV/3ZiCawOKW0stugU2tfVdvG5K/UBlCk=
+        b=hrpVZz9URjvd2XjXeg8TZ9SO5ULZ2JQcX/qlkTPNQWO+xkWrDr8TrVIvACxqsgLt2
+         WSZQ92UKg7rsxslIQ7EfO+Lz4AblmGUU79GxUXUzplONXqbU0jht8+rf0Q5NTU3zxm
+         CdZledjvTN0wMAJsDQyVmL5TYIm1889zwmDAoyzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/37] net: ieee802154: forbid monitor for add llsec devkey
+Subject: [PATCH 4.4 16/32] pcnet32: Use pci_resource_len to validate PCI resource
 Date:   Mon, 26 Apr 2021 09:29:14 +0200
-Message-Id: <20210426072817.702489201@linuxfoundation.org>
+Message-Id: <20210426072817.143673875@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit a347b3b394868fef15b16f143719df56184be81d ]
+[ Upstream commit 66c3f05ddc538ee796321210c906b6ae6fc0792a ]
 
-This patch forbids to add llsec devkey for monitor interfaces which we
-don't support yet. Otherwise we will access llsec mib which isn't
-initialized for monitors.
+pci_resource_start() is not a good indicator to determine if a PCI
+resource exists or not, since the resource may start at address 0.
+This is seen when trying to instantiate the driver in qemu for riscv32
+or riscv64.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-11-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+pci 0000:00:01.0: reg 0x10: [io  0x0000-0x001f]
+pci 0000:00:01.0: reg 0x14: [mem 0x00000000-0x0000001f]
+...
+pcnet32: card has no PCI IO resources, aborting
+
+Use pci_resouce_len() instead.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl802154.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/amd/pcnet32.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index dfa9cedd27c8..57da67e2732d 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1951,6 +1951,9 @@ static int nl802154_add_llsec_devkey(struct sk_buff *skb, struct genl_info *info
- 	struct ieee802154_llsec_device_key key;
- 	__le64 extended_addr;
+diff --git a/drivers/net/ethernet/amd/pcnet32.c b/drivers/net/ethernet/amd/pcnet32.c
+index 7ccebae9cb48..b305903c91c4 100644
+--- a/drivers/net/ethernet/amd/pcnet32.c
++++ b/drivers/net/ethernet/amd/pcnet32.c
+@@ -1493,8 +1493,7 @@ pcnet32_probe_pci(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	}
+ 	pci_set_master(pdev);
  
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
-+		return -EOPNOTSUPP;
+-	ioaddr = pci_resource_start(pdev, 0);
+-	if (!ioaddr) {
++	if (!pci_resource_len(pdev, 0)) {
+ 		if (pcnet32_debug & NETIF_MSG_PROBE)
+ 			pr_err("card has no PCI IO resources, aborting\n");
+ 		return -ENODEV;
+@@ -1506,6 +1505,8 @@ pcnet32_probe_pci(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			pr_err("architecture does not support 32bit PCI busmaster DMA\n");
+ 		return err;
+ 	}
 +
- 	if (!info->attrs[NL802154_ATTR_SEC_DEVKEY] ||
- 	    nla_parse_nested(attrs, NL802154_DEVKEY_ATTR_MAX,
- 			     info->attrs[NL802154_ATTR_SEC_DEVKEY],
++	ioaddr = pci_resource_start(pdev, 0);
+ 	if (!request_region(ioaddr, PCNET32_TOTAL_SIZE, "pcnet32_probe_pci")) {
+ 		if (pcnet32_debug & NETIF_MSG_PROBE)
+ 			pr_err("io address range already allocated\n");
 -- 
 2.30.2
 
