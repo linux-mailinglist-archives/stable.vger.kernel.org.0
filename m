@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5EA236AE8F
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D84536AE90
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232112AbhDZHpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56422 "EHLO mail.kernel.org"
+        id S232184AbhDZHpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:45:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233799AbhDZHoN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:44:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33B8B613C8;
-        Mon, 26 Apr 2021 07:40:32 +0000 (UTC)
+        id S233811AbhDZHoU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:44:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6076613DF;
+        Mon, 26 Apr 2021 07:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422832;
-        bh=oyP6LS1k5NAJuRJ7cgqeIJDp4HwS7W3aMhJT+0+SU/U=;
+        s=korg; t=1619422835;
+        bh=WNa6cmLFR1ps0i/+YURskK1FOl/xhyAEyTXYllI+WCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scLhX3ZUinCpIrqvXr6SnEhQNBryPlL1C1eM5wz53ppOlA1bpO4EckBOfiyaQYqmj
-         EDebZyyXPRzlr9cIzlgfPqEik3lprB2+2rSvpBY2SQLk8bh+dFrGR4sn0Q54mRsegp
-         TAuAAuRLGfivM0kqp1Tm3MVIFPVUxVP7J4iOP9do=
+        b=vvYSO2WY0VhrmEUUr1jV5ZbPtTJmC7giLm+BaYbLmXaRioZHJ55ye+1stPSLU3L1m
+         Scua1kzbLkwCXm2Y8IRDZHGw+S92OAr7LfemC8YHgWrS+SsKjqSL1Irg+erWl0iLwN
+         E5d1eSMnCA9M6CGNPFNeQjs8HkHFmvg4VNH+fcjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuanyuan Zhong <yzhong@purestorage.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Karel Zak <kzak@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 10/41] pinctrl: lewisburg: Update number of pins in community
-Date:   Mon, 26 Apr 2021 09:29:57 +0200
-Message-Id: <20210426072820.032602154@linuxfoundation.org>
+Subject: [PATCH 5.11 11/41] block: return -EBUSY when there are open partitions in blkdev_reread_part
+Date:   Mon, 26 Apr 2021 09:29:58 +0200
+Message-Id: <20210426072820.064323264@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
 References: <20210426072819.666570770@linuxfoundation.org>
@@ -40,38 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuanyuan Zhong <yzhong@purestorage.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 196d941753297d0ca73c563ccd7d00be049ec226 ]
+[ Upstream commit 68e6582e8f2dc32fd2458b9926564faa1fb4560e ]
 
-When updating pin names for Intel Lewisburg, the numbers of pins were
-left behind. Update them accordingly.
+The switch to go through blkdev_get_by_dev means we now ignore the
+return value from bdev_disk_changed in __blkdev_get.  Add a manual
+check to restore the old semantics.
 
-Fixes: e66ff71fd0db ("pinctrl: lewisburg: Update pin list according to v1.1v6")
-Signed-off-by: Yuanyuan Zhong <yzhong@purestorage.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 4601b4b130de ("block: reopen the device in blkdev_reread_part")
+Reported-by: Karel Zak <kzak@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210421160502.447418-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-lewisburg.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ block/ioctl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-lewisburg.c b/drivers/pinctrl/intel/pinctrl-lewisburg.c
-index 7fdf4257df1e..ad4b446d588e 100644
---- a/drivers/pinctrl/intel/pinctrl-lewisburg.c
-+++ b/drivers/pinctrl/intel/pinctrl-lewisburg.c
-@@ -299,9 +299,9 @@ static const struct pinctrl_pin_desc lbg_pins[] = {
- static const struct intel_community lbg_communities[] = {
- 	LBG_COMMUNITY(0, 0, 71),
- 	LBG_COMMUNITY(1, 72, 132),
--	LBG_COMMUNITY(3, 133, 144),
--	LBG_COMMUNITY(4, 145, 180),
--	LBG_COMMUNITY(5, 181, 246),
-+	LBG_COMMUNITY(3, 133, 143),
-+	LBG_COMMUNITY(4, 144, 178),
-+	LBG_COMMUNITY(5, 179, 246),
- };
+diff --git a/block/ioctl.c b/block/ioctl.c
+index ff241e663c01..8ba1ed8defd0 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -89,6 +89,8 @@ static int blkdev_reread_part(struct block_device *bdev, fmode_t mode)
+ 		return -EINVAL;
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
++	if (bdev->bd_part_count)
++		return -EBUSY;
  
- static const struct intel_pinctrl_soc_data lbg_soc_data = {
+ 	/*
+ 	 * Reopen the device to revalidate the driver state and force a
 -- 
 2.30.2
 
