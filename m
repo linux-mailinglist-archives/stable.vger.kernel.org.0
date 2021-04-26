@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9865236AE16
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1BFF36AD1C
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232345AbhDZHlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56278 "EHLO mail.kernel.org"
+        id S232143AbhDZHcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:32:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233524AbhDZHjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3522C61077;
-        Mon, 26 Apr 2021 07:37:49 +0000 (UTC)
+        id S232457AbhDZHc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:32:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6390F613AA;
+        Mon, 26 Apr 2021 07:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422669;
-        bh=EvIaBCVx7dtkWEt7kx0Hmxu09OHgaBoPE8ereCmAfTM=;
+        s=korg; t=1619422307;
+        bh=fHFOnsQLMFscmjvYwSOF2A1HDpCLUbB0mNtgYqTTizk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bWWtB1YNzdkeuaFAg9lzVRe7yDgwPVw/palnIf3cIJmtBqLE8KL8cj+iPifJvGDdO
-         AzLqFqeC46oIjELs+RMIvy9k4fZN5pCFcyHID2QZZUlr4ba89aka8YFig3gFInsosR
-         5vGDqYSXvwlwn/w4dv01JmO+ovTINiwuULZYrvxU=
+        b=OzAgeSoDImfRpPI+egokIY2ESJ1m/xQpqECJ8wfs5cayX16w+2kvroiQOg9yu4CHC
+         k87J6raMoTjrJ2ZIjr56xHURK8JblV+Z4sn6B+4rLTZD1xQJAy7DIbdCfrreFTmmkS
+         TKK+laeyXkUiLhL1fAf99zShwVpT8rc3M0HhZv0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 33/57] net: davicom: Fix regulator not turned off on failed probe
+        stable@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
+        Borislav Petkov <bp@suse.de>, Dave Young <dyoung@redhat.com>
+Subject: [PATCH 4.4 32/32] x86/crash: Fix crash_setup_memmap_entries() out-of-bounds access
 Date:   Mon, 26 Apr 2021 09:29:30 +0200
-Message-Id: <20210426072821.701850207@linuxfoundation.org>
+Message-Id: <20210426072817.638830875@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Mike Galbraith <efault@gmx.de>
 
-commit 31457db3750c0b0ed229d836f2609fdb8a5b790e upstream.
+commit 5849cdf8c120e3979c57d34be55b92d90a77a47e upstream.
 
-When the probe fails, we must disable the regulator that was previously
-enabled.
+Commit in Fixes: added support for kexec-ing a kernel on panic using a
+new system call. As part of it, it does prepare a memory map for the new
+kernel.
 
-This patch is a follow-up to commit ac88c531a5b3
-("net: davicom: Fix regulator not turned off on failed probe") which missed
-one case.
+However, while doing so, it wrongly accesses memory it has not
+allocated: it accesses the first element of the cmem->ranges[] array in
+memmap_exclude_ranges() but it has not allocated the memory for it in
+crash_setup_memmap_entries(). As KASAN reports:
 
-Fixes: 7994fe55a4a2 ("dm9000: Add regulator and reset support to dm9000")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  BUG: KASAN: vmalloc-out-of-bounds in crash_setup_memmap_entries+0x17e/0x3a0
+  Write of size 8 at addr ffffc90000426008 by task kexec/1187
+
+  (gdb) list *crash_setup_memmap_entries+0x17e
+  0xffffffff8107cafe is in crash_setup_memmap_entries (arch/x86/kernel/crash.c:322).
+  317                                      unsigned long long mend)
+  318     {
+  319             unsigned long start, end;
+  320
+  321             cmem->ranges[0].start = mstart;
+  322             cmem->ranges[0].end = mend;
+  323             cmem->nr_ranges = 1;
+  324
+  325             /* Exclude elf header region */
+  326             start = image->arch.elf_load_addr;
+  (gdb)
+
+Make sure the ranges array becomes a single element allocated.
+
+ [ bp: Write a proper commit message. ]
+
+Fixes: dd5f726076cc ("kexec: support for kexec on panic using new system call")
+Signed-off-by: Mike Galbraith <efault@gmx.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Dave Young <dyoung@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/725fa3dc1da2737f0f6188a1a9701bead257ea9d.camel@gmx.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/davicom/dm9000.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/crash.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/davicom/dm9000.c
-+++ b/drivers/net/ethernet/davicom/dm9000.c
-@@ -1482,8 +1482,10 @@ dm9000_probe(struct platform_device *pde
+--- a/arch/x86/kernel/crash.c
++++ b/arch/x86/kernel/crash.c
+@@ -23,6 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
++#include <linux/overflow.h>
  
- 	/* Init network device */
- 	ndev = alloc_etherdev(sizeof(struct board_info));
--	if (!ndev)
--		return -ENOMEM;
-+	if (!ndev) {
-+		ret = -ENOMEM;
-+		goto out_regulator_disable;
-+	}
+ #include <asm/processor.h>
+ #include <asm/hardirq.h>
+@@ -572,7 +573,7 @@ int crash_setup_memmap_entries(struct ki
+ 	struct crash_memmap_data cmd;
+ 	struct crash_mem *cmem;
  
- 	SET_NETDEV_DEV(ndev, &pdev->dev);
+-	cmem = vzalloc(sizeof(struct crash_mem));
++	cmem = vzalloc(struct_size(cmem, ranges, 1));
+ 	if (!cmem)
+ 		return -ENOMEM;
  
 
 
