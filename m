@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 756B836ADA6
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9865236AE16
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233054AbhDZHhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:37:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
+        id S232345AbhDZHlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232967AbhDZHgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 798BC613C2;
-        Mon, 26 Apr 2021 07:34:49 +0000 (UTC)
+        id S233524AbhDZHjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3522C61077;
+        Mon, 26 Apr 2021 07:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422490;
-        bh=mVTZ/DVql5tiNk6QWlIhCIbgFMKMkNE/J1DwN+CRZAs=;
+        s=korg; t=1619422669;
+        bh=EvIaBCVx7dtkWEt7kx0Hmxu09OHgaBoPE8ereCmAfTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xggecf2YNdZ8HQOFbuhUmgVnAP1k4GlMWex7NfPUtcXBJegczL6MTMWMsrtFTwewb
-         YoOdCZRmutFDh6dbGamITxUiesp8fggf6CiaHhuqHkty0oaHij0zFdZ1YrjIe6cj9K
-         6/vHSHw+eLjRXOjIMWcIJmJIGaFvG6oGwlOPX9d0=
+        b=bWWtB1YNzdkeuaFAg9lzVRe7yDgwPVw/palnIf3cIJmtBqLE8KL8cj+iPifJvGDdO
+         AzLqFqeC46oIjELs+RMIvy9k4fZN5pCFcyHID2QZZUlr4ba89aka8YFig3gFInsosR
+         5vGDqYSXvwlwn/w4dv01JmO+ovTINiwuULZYrvxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/49] ARM: footbridge: fix PCI interrupt mapping
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 33/57] net: davicom: Fix regulator not turned off on failed probe
 Date:   Mon, 26 Apr 2021 09:29:30 +0200
-Message-Id: <20210426072820.887501756@linuxfoundation.org>
+Message-Id: <20210426072821.701850207@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,98 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 30e3b4f256b4e366a61658c294f6a21b8626dda7 ]
+commit 31457db3750c0b0ed229d836f2609fdb8a5b790e upstream.
 
-Since commit 30fdfb929e82 ("PCI: Add a call to pci_assign_irq() in
-pci_device_probe()"), the PCI code will call the IRQ mapping function
-whenever a PCI driver is probed. If these are marked as __init, this
-causes an oops if a PCI driver is loaded or bound after the kernel has
-initialised.
+When the probe fails, we must disable the regulator that was previously
+enabled.
 
-Fixes: 30fdfb929e82 ("PCI: Add a call to pci_assign_irq() in pci_device_probe()")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch is a follow-up to commit ac88c531a5b3
+("net: davicom: Fix regulator not turned off on failed probe") which missed
+one case.
+
+Fixes: 7994fe55a4a2 ("dm9000: Add regulator and reset support to dm9000")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-footbridge/cats-pci.c      | 4 ++--
- arch/arm/mach-footbridge/ebsa285-pci.c   | 4 ++--
- arch/arm/mach-footbridge/netwinder-pci.c | 2 +-
- arch/arm/mach-footbridge/personal-pci.c  | 5 ++---
- 4 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/davicom/dm9000.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-footbridge/cats-pci.c b/arch/arm/mach-footbridge/cats-pci.c
-index 0b2fd7e2e9b4..90b1e9be430e 100644
---- a/arch/arm/mach-footbridge/cats-pci.c
-+++ b/arch/arm/mach-footbridge/cats-pci.c
-@@ -15,14 +15,14 @@
- #include <asm/mach-types.h>
+--- a/drivers/net/ethernet/davicom/dm9000.c
++++ b/drivers/net/ethernet/davicom/dm9000.c
+@@ -1482,8 +1482,10 @@ dm9000_probe(struct platform_device *pde
  
- /* cats host-specific stuff */
--static int irqmap_cats[] __initdata = { IRQ_PCI, IRQ_IN0, IRQ_IN1, IRQ_IN3 };
-+static int irqmap_cats[] = { IRQ_PCI, IRQ_IN0, IRQ_IN1, IRQ_IN3 };
+ 	/* Init network device */
+ 	ndev = alloc_etherdev(sizeof(struct board_info));
+-	if (!ndev)
+-		return -ENOMEM;
++	if (!ndev) {
++		ret = -ENOMEM;
++		goto out_regulator_disable;
++	}
  
- static u8 cats_no_swizzle(struct pci_dev *dev, u8 *pin)
- {
- 	return 0;
- }
+ 	SET_NETDEV_DEV(ndev, &pdev->dev);
  
--static int __init cats_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int cats_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	if (dev->irq >= 255)
- 		return -1;	/* not a valid interrupt. */
-diff --git a/arch/arm/mach-footbridge/ebsa285-pci.c b/arch/arm/mach-footbridge/ebsa285-pci.c
-index 6f28aaa9ca79..c3f280d08fa7 100644
---- a/arch/arm/mach-footbridge/ebsa285-pci.c
-+++ b/arch/arm/mach-footbridge/ebsa285-pci.c
-@@ -14,9 +14,9 @@
- #include <asm/mach/pci.h>
- #include <asm/mach-types.h>
- 
--static int irqmap_ebsa285[] __initdata = { IRQ_IN3, IRQ_IN1, IRQ_IN0, IRQ_PCI };
-+static int irqmap_ebsa285[] = { IRQ_IN3, IRQ_IN1, IRQ_IN0, IRQ_PCI };
- 
--static int __init ebsa285_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int ebsa285_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	if (dev->vendor == PCI_VENDOR_ID_CONTAQ &&
- 	    dev->device == PCI_DEVICE_ID_CONTAQ_82C693)
-diff --git a/arch/arm/mach-footbridge/netwinder-pci.c b/arch/arm/mach-footbridge/netwinder-pci.c
-index 9473aa0305e5..e8304392074b 100644
---- a/arch/arm/mach-footbridge/netwinder-pci.c
-+++ b/arch/arm/mach-footbridge/netwinder-pci.c
-@@ -18,7 +18,7 @@
-  * We now use the slot ID instead of the device identifiers to select
-  * which interrupt is routed where.
-  */
--static int __init netwinder_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int netwinder_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	switch (slot) {
- 	case 0:  /* host bridge */
-diff --git a/arch/arm/mach-footbridge/personal-pci.c b/arch/arm/mach-footbridge/personal-pci.c
-index 4391e433a4b2..9d19aa98a663 100644
---- a/arch/arm/mach-footbridge/personal-pci.c
-+++ b/arch/arm/mach-footbridge/personal-pci.c
-@@ -14,13 +14,12 @@
- #include <asm/mach/pci.h>
- #include <asm/mach-types.h>
- 
--static int irqmap_personal_server[] __initdata = {
-+static int irqmap_personal_server[] = {
- 	IRQ_IN0, IRQ_IN1, IRQ_IN2, IRQ_IN3, 0, 0, 0,
- 	IRQ_DOORBELLHOST, IRQ_DMA1, IRQ_DMA2, IRQ_PCI
- };
- 
--static int __init personal_server_map_irq(const struct pci_dev *dev, u8 slot,
--	u8 pin)
-+static int personal_server_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	unsigned char line;
- 
--- 
-2.30.2
-
 
 
