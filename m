@@ -2,142 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53B2536B6D3
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 18:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C665936B6D5
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 18:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234220AbhDZQbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 12:31:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45848 "EHLO
+        id S234421AbhDZQba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 12:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234148AbhDZQbJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 12:31:09 -0400
-Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D6F9C061756
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 09:30:28 -0700 (PDT)
-Received: by mail-pg1-x54a.google.com with SMTP id t64-20020a6381430000b029020997d0fbb4so12713577pgd.22
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 09:30:28 -0700 (PDT)
+        with ESMTP id S234369AbhDZQb3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 12:31:29 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F076C061756
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 09:30:46 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id s15so66500336edd.4
+        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 09:30:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=qwJB76TBNHkWENBY8Fsauk6AZ+kOn0Ka4OvKB1fagVk=;
-        b=Ub/EN49mU2BOHY5wVySpTczmneT9YBqKLpTak1v8liVsYTdbnVI40kYVFsCSGRpaZ8
-         Jm3BKSRr6fk/gdivQqOyBtcoFuiXkx2paYyEidOmh92hfj7m6d/CnhG5TFen9UcUpgJY
-         53HCFWpDlDzCXzcFqSI01u3eOPGFYsUMaYnePqxSsGet2cEH8OO1urZg4CRXa3CN+YaA
-         XaHkFDKqHCQGSB5APQtszArOouhiDTEnjeSW1rO6IlIg2KeNxKLI2jeEfMFLyQzMhODS
-         vc1u1IMdEb9OgoTFMavIEX4sQl1SreaXnWAWzXm2VUcC70ATe5Q8CFIEp2RpPsc2hQO0
-         x9lA==
+        d=linbit-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=sY7pwJ5XUrAgwm6qxLiYO/Kvi5B35cZY3vNXeQfDpAM=;
+        b=Mhnn9Sqg4R0YVY6mscnaoTlrM7x3U9DbcTy9UdrV0GQC389ZTI/taRj5CkWIv8C3ao
+         4Zho3We6JccxVbi47DrX5C3bAyLqEl+20uEaVP4PzUEb3EOQ3glpoFmSNrKg2ZwbqQjU
+         hooRn9fHo+AtPJb9NaTmDF1WgFAqRPyl2pgPfgdJkfwXdpYZspHAF0Bcru7+FxI62tiD
+         0XmaDoHB4aKXQUJ0Ukyu/DsHh615F9bRotbFdhO7Y74g+et+XewMPhKiuD4I6p7G85g+
+         4xjNz34UtHSjwDzVhO3H6Qovmvdc+OJ3EUjiMeY5R5a/RgqBu1UVjhwPvIlZPOxYkQge
+         kMjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=qwJB76TBNHkWENBY8Fsauk6AZ+kOn0Ka4OvKB1fagVk=;
-        b=AFkDo0V8nq2Oqc8JI/5IWmIwot3BZ7mSrJkgeiDIYvou0cr+lINTEmfD7KmBveVJiL
-         koAv0VlDY+AM3kZORtHX6N91FR7yrFi1J28CeDmz59D+tSMSNjINjmzUS1icVAjs1Tza
-         7+A51f+kZ1lb4ZsYyiOEowi5vt1t5uVy+a5fu+0wllf6TpsQy4ke1bqtk9pQe+s2MR8L
-         wReXWydPzzt0sMTz1m9Pc/1/OA+2ucSQnRkA+3ObWwoZR5bLB8HAtBfyE9DgGRP9kiwy
-         AisRapH4vg8ZA1tGuGUXv21Zid1d1bjZ6gNlcagEe1VazBntv1uwQ8j3fd0qvagfUfZl
-         wTkg==
-X-Gm-Message-State: AOAM532zndJACo7W0MebA0DZIsmheBH0xFC11dEsPpWT8hTF4cDnnSz4
-        bVfgyw8tx5L01Oxls4J1ixcfbIBY2UlM2U1q
-X-Google-Smtp-Source: ABdhPJwCzwRBpTmH+3q3wHO4CPtXBQaJBa4UXv6Zxo++Y+b4ppDt6i+vzGaG71ssca7RUl8tXMrHBuFItfMlUTHS
-X-Received: from manoj.svl.corp.google.com ([2620:15c:2ce:0:2b5d:c38b:f03d:9410])
- (user=manojgupta job=sendgmr) by 2002:a17:90a:730c:: with SMTP id
- m12mr23423979pjk.111.1619454627559; Mon, 26 Apr 2021 09:30:27 -0700 (PDT)
-Date:   Mon, 26 Apr 2021 09:30:21 -0700
-In-Reply-To: <20210422182545.726897-1-manojgupta@google.com>
-Message-Id: <20210426163021.3594482-1-manojgupta@google.com>
-Mime-Version: 1.0
-References: <20210422182545.726897-1-manojgupta@google.com>
-X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
-Subject: [PATCH v2] iw: set retain atrribute on sections
-From:   Manoj Gupta <manojgupta@google.com>
-To:     Johannes Berg <johannes.berg@intel.com>,
-        Johannes Berg <johannes@sipsolutions.net>
-Cc:     llozano@google.com, manojgupta@google.com,
-        linux-wireless@vger.kernel.org, Fangrui Song <maskray@google.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=sY7pwJ5XUrAgwm6qxLiYO/Kvi5B35cZY3vNXeQfDpAM=;
+        b=tN51jrFzu7HQnVJ0r2k6T6YtVqshEYm1Rh2ulgduKBH0MUws8pAF25I9dEHR8BZ1/g
+         Rmm9q/ZlJg7XKpk9ihUVMBnY32nJgq7jMDOop8pAlHqF/dB/Gvclns6zfWT154ouxVVz
+         sZxf5R1w/YW/rZG5ID3AMBIEW2cC+NuLV40WO1xVz/EEluL1oWG/uGTDB3VXcIi0wcey
+         MNxHzgTf+dzYr6X12JpOX1w+rWYiIqOr19TCOQyUq/C4cnzyohRBdfkqy8YLkSdain0P
+         ucLUF+t+o6D2/PeqtNMf/k53FBjZ4OGgQCb4XJC9TKoITuOiP36RJ+nisRbfPReu1Uq8
+         Dq4w==
+X-Gm-Message-State: AOAM532ztEvqfCp2nDeNRtPUn36dHL7VA1jYsuMaS8q7w/C/AVJ3VeEa
+        Gdmwrcv9Xo3VbZRtiYWKkEYs3w==
+X-Google-Smtp-Source: ABdhPJydqvL5CYnnJgS8/QIp6pHbsixoj+Uw/m4nB4dtt/U5awp7VfdALWcLY2epud1bqGyXI0dAbg==
+X-Received: by 2002:a05:6402:617:: with SMTP id n23mr10260006edv.45.1619454645350;
+        Mon, 26 Apr 2021 09:30:45 -0700 (PDT)
+Received: from localhost.localdomain (85-127-190-169.dsl.dynamic.surfer.at. [85.127.190.169])
+        by smtp.gmail.com with ESMTPSA id gt33sm11688479ejc.89.2021.04.26.09.30.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Apr 2021 09:30:44 -0700 (PDT)
+Received: from localhost.localdomain (localhost [127.0.0.1])
+        by localhost.localdomain (8.15.2/8.15.2) with ESMTPS id 13QGUiXp3454465
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Mon, 26 Apr 2021 18:30:44 +0200
+Received: (from christoph@localhost)
+        by localhost.localdomain (8.15.2/8.15.2/Submit) id 13QGUh403454464;
+        Mon, 26 Apr 2021 18:30:43 +0200
+From:   =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>
+To:     drbd-dev@tron.linbit.com
+Cc:     Philipp Reisner <philipp.reisner@linbit.com>,
+        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, stable@vger.kernel.org
+Subject: [PATCH] drbd: fix potential silent data corruption
+Date:   Mon, 26 Apr 2021 18:30:32 +0200
+Message-Id: <20210426163032.3454129-1-christoph.boehmwalder@linbit.com>
+X-Mailer: git-send-email 2.26.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LLD 13 and GNU ld 2.37 support -z start-stop-gc which allows garbage
-collection of C identifier name sections despite the __start_/__stop_
-references.  Simply set the retain attribute so that GCC 11 (if
-configure-time binutils is 2.36 or newer)/Clang 13 will set the
-SHF_GNU_RETAIN section attribute to prevent garbage collection.
+From: Lars Ellenberg <lars.ellenberg@linbit.com>
 
-Without the patch, there are linker errors like the following with -z
-start-stop-gc:
-ld.lld: error: undefined symbol: __stop___cmd
->>> referenced by iw.c:418
->>>               iw.o:(__handle_cmd)
+Scenario:
+---------
 
-Suggested-by: Fangrui Song <maskray@google.com>
+bio chain generated by blk_queue_split().
+Some split bio fails and propagates its error status to the "parent" bio.
+But then the (last part of the) parent bio itself completes without error.
 
-Cc: stable@vger.kernel.org
+We would clobber the already recorded error status with BLK_STS_OK,
+causing silent data corruption.
 
-Signed-off-by: Manoj Gupta <manojgupta@google.com>
+Reproducer:
+-----------
+
+How to trigger this in the real world within seconds:
+
+DRBD on top of degraded parity raid,
+small stripe_cache_size, large read_ahead setting.
+Drop page cache (sysctl vm.drop_caches=1, fadvise "DONTNEED",
+umount and mount again, "reboot").
+
+Cause significant read ahead.
+
+Large read ahead request is split by blk_queue_split().
+Parts of the read ahead that are already in the stripe cache,
+or find an available stripe cache to use, can be serviced.
+Parts of the read ahead that would need "too much work",
+would need to wait for a "stripe_head" to become available,
+are rejected immediately.
+
+For larger read ahead requests that are split in many pieces, it is very
+likely that some "splits" will be serviced, but then the stripe cache is
+exhausted/busy, and the remaining ones will be rejected.
+
+Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
+Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Cc: <stable@vger.kernel.org> # 4.13.x
 ---
-Changes v1 -> v2:
-Apply the retain attribute to all places with attribute used.
 
- iw.h | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+Note: this will need to be backported to versions prior to 4.13 too, but
+the API changed in the meantime (from the new bio->bi_status to the old
+bio->bi_error). I will send a separate patch for these older versions.
 
-diff --git a/iw.h b/iw.h
-index 7f7f4fc..8ca8e44 100644
---- a/iw.h
-+++ b/iw.h
-@@ -118,8 +118,9 @@ struct chandef {
- 		.parent = _section,					\
- 		.selector = (_sel),					\
- 	};								\
-+	_Pragma("GCC diagnostic ignored \"-Wattributes\"") 		\
- 	static struct cmd *__cmd ## _ ## _symname ## _ ## _handler ## _ ## _nlcmd ## _ ## _idby ## _ ## _hidden ## _p \
--	__attribute__((used,section("__cmd"))) =			\
-+	__attribute__((used,retain,section("__cmd"))) =			\
- 	&__cmd ## _ ## _symname ## _ ## _handler ## _ ## _nlcmd ## _ ## _idby ## _ ## _hidden
- #define __ACMD(_section, _symname, _name, _args, _nlcmd, _flags, _hidden, _idby, _handler, _help, _sel, _alias)\
- 	__COMMAND(_section, _symname, _name, _args, _nlcmd, _flags, _hidden, _idby, _handler, _help, _sel);\
-@@ -141,16 +142,18 @@ struct chandef {
- 		.handler = (_handler),					\
- 		.help = (_help),					\
- 	 };								\
-+	_Pragma("GCC diagnostic ignored \"-Wattributes\"") 		\
- 	static struct cmd *__section ## _ ## _name ## _p		\
--	__attribute__((used,section("__cmd"))) = &__section ## _ ## _name
-+	__attribute__((used,retain,section("__cmd"))) = &__section ## _ ## _name
- 
- #define SECTION(_name)							\
- 	struct cmd __section ## _ ## _name = {				\
- 		.name = (#_name),					\
- 		.hidden = 1,						\
- 	};								\
-+	_Pragma("GCC diagnostic ignored \"-Wattributes\"") 		\
- 	static struct cmd *__section ## _ ## _name ## _p		\
--	__attribute__((used,section("__cmd"))) = &__section ## _ ## _name
-+	__attribute__((used,retain,section("__cmd"))) = &__section ## _ ## _name
- 
- #define DECLARE_SECTION(_name)						\
- 	extern struct cmd __section ## _ ## _name;
-@@ -162,13 +165,14 @@ struct vendor_event {
- };
- 
- #define VENDOR_EVENT(_id, _subcmd, _callback)				\
-+	_Pragma("GCC diagnostic ignored \"-Wattributes\"") 		\
- 	const struct vendor_event 					\
- 	vendor_event_ ## _id ## _ ## _subcmd = {			\
- 		.vendor_id = _id,					\
- 		.subcmd = _subcmd,					\
- 		.callback = _callback,					\
- 	}, * const vendor_event_ ## _id ## _ ## _subcmd ## _p		\
--	__attribute__((used,section("vendor_event"))) =			\
-+	__attribute__((used,retain,section("vendor_event"))) =			\
- 		&vendor_event_ ## _id ## _ ## _subcmd
- 
- extern const char iw_version[];
+In addition, the generic bio_endio/bio_chain_endio has to be fixed in
+a similar way for versions before 4.6. This equates to a backport of
+upstream commit af3e3a5259e3 ("block: don't unecessarily clobber bi_error
+for chained bios").
+
+ drivers/block/drbd/drbd_req.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
+index 9398c2c2cb2d..a384a58de1fd 100644
+--- a/drivers/block/drbd/drbd_req.c
++++ b/drivers/block/drbd/drbd_req.c
+@@ -180,7 +180,8 @@ void start_new_tl_epoch(struct drbd_connection *connection)
+ void complete_master_bio(struct drbd_device *device,
+ 		struct bio_and_error *m)
+ {
+-	m->bio->bi_status = errno_to_blk_status(m->error);
++	if (unlikely(m->error))
++		m->bio->bi_status = errno_to_blk_status(m->error);
+ 	bio_endio(m->bio);
+ 	dec_ap_bio(device);
+ }
 -- 
-2.31.1.498.g6c1eba8ee3d-goog
+2.26.3
 
