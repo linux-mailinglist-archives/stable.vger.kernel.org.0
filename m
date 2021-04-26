@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8851B36ADDE
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AEA236ACF8
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232531AbhDZHkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:40:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
+        id S232181AbhDZHbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232718AbhDZHiV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:38:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8320D611CE;
-        Mon, 26 Apr 2021 07:36:03 +0000 (UTC)
+        id S232216AbhDZHbk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:31:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 858D261006;
+        Mon, 26 Apr 2021 07:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422564;
-        bh=D9Xd2tqMbTY/XmBsFXsBIvmRstaHAbmOpeR6YPKKrso=;
+        s=korg; t=1619422259;
+        bh=wBHzP7ippDZ5TEjuEukfRt7IGycj9w2ySWUjjv0Fqbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HE1c0wSVPQo8hHlbdFvwLCWOOcDYNR+s7+V5cwZoOLibESB394bjQGPv3DmOc9+81
-         EOD1EEnAtYc/eUup15laPgSCj92/ddHVThlcw7kDtdJgq09iZPee0/8pLSM8hbVOPq
-         KEN3ZUKudUtSrdhvcx/dC8+Wi7SRVWirowFRMosI=
+        b=aABHgS2akdAOI3XZs1Y9g3JqLM+ATR/XPGeVOMxDNet7S5b8X0xF8SY046L3yP/q8
+         /nl/sW4N2quuqmEVmCP8ZQSYybXU9GFEBjAzYp+DU3icEy3UrKGwgJ4EEIkaFDUq1U
+         c6myxhdOuDgKLWmKgZzW7A01CKyVZ75WOTF5lIJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/57] net: ieee802154: stop dump llsec devs for monitors
+Subject: [PATCH 4.4 14/32] net: ieee802154: stop dump llsec seclevels for monitors
 Date:   Mon, 26 Apr 2021 09:29:12 +0200
-Message-Id: <20210426072821.088541314@linuxfoundation.org>
+Message-Id: <20210426072817.073119190@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,14 +42,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 5582d641e6740839c9b83efd1fbf9bcd00b6f5fc ]
+[ Upstream commit 4c9b4f55ad1f5a4b6206ac4ea58f273126d21925 ]
 
-This patch stops dumping llsec devs for monitors which we don't support
-yet. Otherwise we will access llsec mib which isn't initialized for
-monitors.
+This patch stops dumping llsec seclevels for monitors which we don't
+support yet. Otherwise we will access llsec mib which isn't initialized
+for monitors.
 
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-7-aahringo@redhat.com
+Link: https://lore.kernel.org/r/20210405003054.256017-13-aahringo@redhat.com
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -57,10 +57,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index 86bc714a93a8..6a45838fd1b3 100644
+index 4ee080f3a41d..f07a3027d66c 100644
 --- a/net/ieee802154/nl802154.c
 +++ b/net/ieee802154/nl802154.c
-@@ -1693,6 +1693,11 @@ nl802154_dump_llsec_dev(struct sk_buff *skb, struct netlink_callback *cb)
+@@ -2013,6 +2013,11 @@ nl802154_dump_llsec_seclevel(struct sk_buff *skb, struct netlink_callback *cb)
  	if (err)
  		return err;
  
