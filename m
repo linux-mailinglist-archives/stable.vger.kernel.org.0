@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 663C336AD10
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECE236AD9C
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232348AbhDZHcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:32:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42880 "EHLO mail.kernel.org"
+        id S233023AbhDZHh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:37:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232381AbhDZHcN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:32:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABFA2613C1;
-        Mon, 26 Apr 2021 07:31:27 +0000 (UTC)
+        id S232935AbhDZHgm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:36:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B0C9613C0;
+        Mon, 26 Apr 2021 07:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422288;
-        bh=Ew3eZz1A7AARzihvbY2139f+yYZ87nnlDO80F4sd2Sc=;
+        s=korg; t=1619422483;
+        bh=FdOaX8WnI7T1gfaf/zu47qGEtb6BiJ3GhJsV2l1CS8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmLgkPn39KXiXQ/hIlLxmMXJQEp67nYQzNiobj8gSFf2V48WrnTxnatx1KHqFOlfb
-         su+32RLz76uVOHCe7ou2qRt0nj40TTza4H1NgLyH9+tLcxqUTfHsDARYjXdUdBDsQt
-         xtlecTLB+3Ngh6KsGydNPRW94OqgkPSV2/uMLyVQ=
+        b=fLY/kIjYNuewMg8HoDaGNA1ymdcmAeMZQba+HkTynB1m/gKmhltRn1yNpCVu+dmHo
+         OhA6ucYfjFlgAlbDGxAUQIZogQ/KF5u3MTPXa1jgDAGyXXS37W47/cHabr4UuxoNtZ
+         AfqBT02K013ZGZPGne8v9Vv5d3iHovYJYP16rj7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Santosh Shilimkar <ssantosh@kernel.org>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Martin Wilck <mwilck@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 07/32] ARM: keystone: fix integer overflow warning
+Subject: [PATCH 4.14 09/49] scsi: scsi_transport_srp: Dont block target in SRP_PORT_LOST state
 Date:   Mon, 26 Apr 2021 09:29:05 +0200
-Message-Id: <20210426072816.843441846@linuxfoundation.org>
+Message-Id: <20210426072820.028843948@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
-References: <20210426072816.574319312@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Martin Wilck <mwilck@suse.com>
 
-[ Upstream commit 844b85dda2f569943e1e018fdd63b6f7d1d6f08e ]
+[ Upstream commit 5cd0f6f57639c5afbb36100c69281fee82c95ee7 ]
 
-clang warns about an impossible condition when building with 32-bit
-phys_addr_t:
+rport_dev_loss_timedout() sets the rport state to SRP_PORT_LOST and the
+SCSI target state to SDEV_TRANSPORT_OFFLINE. If this races with
+srp_reconnect_work(), a warning is printed:
 
-arch/arm/mach-keystone/keystone.c:79:16: error: result of comparison of constant 51539607551 with expression of type 'phys_addr_t' (aka 'unsigned int') is always false [-Werror,-Wtautological-constant-out-of-range-compare]
-            mem_end   > KEYSTONE_HIGH_PHYS_END) {
-            ~~~~~~~   ^ ~~~~~~~~~~~~~~~~~~~~~~
-arch/arm/mach-keystone/keystone.c:78:16: error: result of comparison of constant 34359738368 with expression of type 'phys_addr_t' (aka 'unsigned int') is always true [-Werror,-Wtautological-constant-out-of-range-compare]
-        if (mem_start < KEYSTONE_HIGH_PHYS_START ||
-            ~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~
+Mar 27 18:48:07 ictm1604s01h4 kernel: dev_loss_tmo expired for SRP port-18:1 / host18.
+Mar 27 18:48:07 ictm1604s01h4 kernel: ------------[ cut here ]------------
+Mar 27 18:48:07 ictm1604s01h4 kernel: scsi_internal_device_block(18:0:0:100) failed: ret = -22
+Mar 27 18:48:07 ictm1604s01h4 kernel: Call Trace:
+Mar 27 18:48:07 ictm1604s01h4 kernel:  ? scsi_target_unblock+0x50/0x50 [scsi_mod]
+Mar 27 18:48:07 ictm1604s01h4 kernel:  starget_for_each_device+0x80/0xb0 [scsi_mod]
+Mar 27 18:48:07 ictm1604s01h4 kernel:  target_block+0x24/0x30 [scsi_mod]
+Mar 27 18:48:07 ictm1604s01h4 kernel:  device_for_each_child+0x57/0x90
+Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_rport+0xe4/0x230 [scsi_transport_srp]
+Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_work+0x40/0xc0 [scsi_transport_srp]
 
-Change the temporary variable to a fixed-size u64 to avoid the warning.
+Avoid this by not trying to block targets for rports in SRP_PORT_LOST
+state.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
-Link: https://lore.kernel.org/r/20210323131814.2751750-1-arnd@kernel.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210401091105.8046-1-mwilck@suse.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-keystone/keystone.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_transport_srp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-keystone/keystone.c b/arch/arm/mach-keystone/keystone.c
-index c279293f084c..0f1f5c4141d5 100644
---- a/arch/arm/mach-keystone/keystone.c
-+++ b/arch/arm/mach-keystone/keystone.c
-@@ -71,7 +71,7 @@ static phys_addr_t keystone_virt_to_idmap(unsigned long x)
- static long long __init keystone_pv_fixup(void)
- {
- 	long long offset;
--	phys_addr_t mem_start, mem_end;
-+	u64 mem_start, mem_end;
- 
- 	mem_start = memblock_start_of_DRAM();
- 	mem_end = memblock_end_of_DRAM();
-@@ -84,7 +84,7 @@ static long long __init keystone_pv_fixup(void)
- 	if (mem_start < KEYSTONE_HIGH_PHYS_START ||
- 	    mem_end   > KEYSTONE_HIGH_PHYS_END) {
- 		pr_crit("Invalid address space for memory (%08llx-%08llx)\n",
--		        (u64)mem_start, (u64)mem_end);
-+		        mem_start, mem_end);
- 		return 0;
- 	}
- 
+diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
+index a0e35028ebda..118e764108f7 100644
+--- a/drivers/scsi/scsi_transport_srp.c
++++ b/drivers/scsi/scsi_transport_srp.c
+@@ -555,7 +555,7 @@ int srp_reconnect_rport(struct srp_rport *rport)
+ 	res = mutex_lock_interruptible(&rport->mutex);
+ 	if (res)
+ 		goto out;
+-	if (rport->state != SRP_RPORT_FAIL_FAST)
++	if (rport->state != SRP_RPORT_FAIL_FAST && rport->state != SRP_RPORT_LOST)
+ 		/*
+ 		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
+ 		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
 -- 
 2.30.2
 
