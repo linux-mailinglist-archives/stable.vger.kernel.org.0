@@ -2,102 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA7F36B770
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 19:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2AC336B799
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 19:10:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234795AbhDZRE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 13:04:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49906 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234628AbhDZRE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 13:04:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7BD861103;
-        Mon, 26 Apr 2021 17:04:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619456656;
-        bh=7CXGXNARIoSURj5YD7uQQRwpUg88MFd6UNAD7hw7J4g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FOW3LqycjOtSq/DGgtfmV16U4St9QQV4GG0wFSuD7BVK4IPc0y/AYXV+bThRpO+m7
-         Z2GYEU8saijgor5wz99F59Ffsbtt75mZ3WkFXHQTFMp7IRXChgKrm/5UwbaVusfUaQ
-         fIbkr9uDouHIsU4Ral30MWnopVraHNiuxo2b1Gwg=
-Date:   Mon, 26 Apr 2021 19:04:13 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Richard Genoud <richard.genoud@gmail.com>
-Cc:     Jiri Slaby <jirislaby@kernel.org>, linux-kernel@vger.kernel.org,
-        Kangjie Lu <kjlu@umn.edu>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 120/190] Revert "tty: atmel_serial: fix a potential NULL
- pointer dereference"
-Message-ID: <YIbyjQrfxmcyqWW5@kroah.com>
-References: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
- <20210421130105.1226686-121-gregkh@linuxfoundation.org>
- <57f44dfa-a502-ee4f-6d53-0ab7cba00e1b@kernel.org>
- <ad76449f-0603-a156-85d6-37d3c906b4cc@posteo.net>
+        id S235310AbhDZRKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 13:10:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54984 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235308AbhDZRKu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 13:10:50 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB77C061574;
+        Mon, 26 Apr 2021 10:10:09 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id y32so40467710pga.11;
+        Mon, 26 Apr 2021 10:10:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=zuB8XzhZgx1feYZQ3hKE3E0FpvAhK1clI+xF7cNImtA=;
+        b=Br8qz121RbbXEBvunTTjqCTfPuGsL/1K72Br6f7r+GGI+m+SlILB1WPjFXGj7SFMWC
+         GEmVzHF2TvTOWPbDKn32jFwOW06aom0TZpSKaGOpgSJSlnb1bfgFMKWIixC6PPey/JFN
+         y/SRorwzYn6+lbkYxqvgOLV6I2ihCY8eNQgTvlChbYkQRoOisWiNpSZbrFTqWtt+LoHF
+         23/Ps88DKKJYdBFD0WULXRffUpBVrVvr1Bfe+fgHTesVXP9XonYqHHjrw2sV8QeNL7pE
+         ezXTjK3cd9sJWIU/07/6nPyXqADTTEVBqFwacir+Vg/FUpF83DAMChPKQ8ZBdd00vfms
+         TDKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=zuB8XzhZgx1feYZQ3hKE3E0FpvAhK1clI+xF7cNImtA=;
+        b=CGUwBUZIBQGaiVD6OnhStK+HYG+Blv6zVA1MJYTOCKW5u6JBKhRjGEFmBFY+ttlz03
+         VR14q8NyDowtNbFwnlxhIhxKROlQWr/x1aQxCN9nsdbMGB8Gjk2P7FRReOAQjtC5/gUV
+         LK2w39KMQuVR2RInIut7HxKeBbyqZl9edYw4MTcOpWhRW4xQEoe63bi+sUzK10rs8fMT
+         c7HQ6+d+KQc5AWIRFF4m1Qz+oVkU2Ew5tEX7NHI9ulSSmht79pzyjG+EJbuFS1D4r2Ui
+         RwLcwyd2OGt+FyvjS90hf0e1DdcnjQekjGePm3izL9CR1LvnXr7eYd0kAUK54ZmccEJb
+         FRUw==
+X-Gm-Message-State: AOAM532v1s5s6tR3OVmz6jPJCMC/jwqyCqnYrUYhFR8T3dktcfwuefUC
+        KONXJ8VhHAEi1h0yDyBQcRK+IJXGZlU=
+X-Google-Smtp-Source: ABdhPJw6qrOLWcErT5a5EQItixWKY/s9yhcotyoiXH7LTpJWOCQPOkQpJ1QHUCuJ8K1jFTIX/ZsAkA==
+X-Received: by 2002:aa7:8888:0:b029:278:e19f:f629 with SMTP id z8-20020aa788880000b0290278e19ff629mr2175856pfe.57.1619457008185;
+        Mon, 26 Apr 2021 10:10:08 -0700 (PDT)
+Received: from [10.67.49.104] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id t19sm321732pjs.1.2021.04.26.10.10.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Apr 2021 10:10:07 -0700 (PDT)
+Subject: Re: [PATCH 5.4 00/20] 5.4.115-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210426072816.686976183@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <0762af4a-9c28-1fb1-5594-240e2f05aa81@gmail.com>
+Date:   Mon, 26 Apr 2021 10:10:06 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ad76449f-0603-a156-85d6-37d3c906b4cc@posteo.net>
+In-Reply-To: <20210426072816.686976183@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 22, 2021 at 06:47:20AM +0000, Richard Genoud wrote:
+On 4/26/21 12:29 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.115 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
+> Responses should be made by Wed, 28 Apr 2021 07:28:08 +0000.
+> Anything received after that time might be too late.
 > 
-> Le 22/04/2021 à 07:18, Jiri Slaby a écrit :
-> > On 21. 04. 21, 14:59, Greg Kroah-Hartman wrote:
-> > > This reverts commit c85be041065c0be8bc48eda4c45e0319caf1d0e5.
-> > > 
-> > > Commits from @umn.edu addresses have been found to be submitted in "bad
-> > > faith" to try to test the kernel community's ability to review "known
-> > > malicious" changes.  The result of these submissions can be found in a
-> > > paper published at the 42nd IEEE Symposium on Security and Privacy
-> > > entitled, "Open Source Insecurity: Stealthily Introducing
-> > > Vulnerabilities via Hypocrite Commits" written by Qiushi Wu (University
-> > > of Minnesota) and Kangjie Lu (University of Minnesota).
-> > > 
-> > > Because of this, all submissions from this group must be reverted from
-> > > the kernel tree and will need to be re-reviewed again to determine if
-> > > they actually are a valid fix.  Until that work is complete, remove this
-> > > change to ensure that no problems are being introduced into the
-> > > codebase.
-> > > 
-> > > Cc: Kangjie Lu <kjlu@umn.edu>
-> > > Cc: Richard Genoud <richard.genoud@gmail.com>
-> > > Cc: stable <stable@vger.kernel.org>
-> > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > ---
-> > >   drivers/tty/serial/atmel_serial.c | 4 ----
-> > >   1 file changed, 4 deletions(-)
-> > > 
-> > > diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-> > > index a24e5c2b30bc..9786d8e5f04f 100644
-> > > --- a/drivers/tty/serial/atmel_serial.c
-> > > +++ b/drivers/tty/serial/atmel_serial.c
-> > > @@ -1256,10 +1256,6 @@ static int atmel_prepare_rx_dma(struct uart_port *port)
-> > >                        sg_dma_len(&atmel_port->sg_rx)/2,
-> > >                        DMA_DEV_TO_MEM,
-> > >                        DMA_PREP_INTERRUPT);
-> > > -    if (!desc) {
-> > > -        dev_err(port->dev, "Preparing DMA cyclic failed\n");
-> > > -        goto chan_err;
-> > > -    }
-> > 
-> > I cannot find anything malicious in the original fix:
-> > * port->dev is valid for dev_err
-> > * dmaengine_prep_dma_cyclic returns NULL in case of error
-> > * chan_err invokes atmel_release_rx_dma which undoes the previous initialization code.
-> > 
-> > Hence a NACK from me for the revert.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.115-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
 > 
-> I agree with your NACK.
-> Back at the time (march 2019), I reviewed the changed and asked for a 2nd version and
-> I didn't found anything suspicious.
-> But the more eyes, the better.
+> thanks,
 > 
-> cf http://lkml.iu.edu/hypermail/linux/kernel/1903.1/05858.html
+> greg k-h
 
-Thanks for the review, now dropped.
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-greg k-h
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
