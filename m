@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F4836AE1E
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D9EC36AD4B
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233270AbhDZHlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50372 "EHLO mail.kernel.org"
+        id S232116AbhDZHdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:33:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231989AbhDZHh7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:37:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6E1961360;
-        Mon, 26 Apr 2021 07:35:58 +0000 (UTC)
+        id S232316AbhDZHda (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:33:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FBFA611BD;
+        Mon, 26 Apr 2021 07:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422559;
-        bh=D++A6pyCM7YDJYub65RsVkXgkMg6MnLq7EbMwGaR7WM=;
+        s=korg; t=1619422368;
+        bh=9Y9aUiMkj3sk0HzKzswKry9bAVyCi5YuxtB899vcilk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t7uWTgyTSUrx3mQVobprTb6m+UU5YwQdWW9GFIyfOO43Zu9GCw9aH0N5lfUY5pnEj
-         qq9z/aznImIC1/yWYnb6NID9KvccV87DZDXnr2IpZck6GEikmCt4WHUfcHFxameiAQ
-         OhnXLUoq34mXKRmoEQRh0nK6lAYnjneXRrA0cj2c=
+        b=dzjsIZa+2NENXo3PoxsGOibtr5C+IwUEuWa2XoU3yZ98bv9oHmOaY1hnqUq8mns0U
+         7ZAq3Zd7IGnNQVzHVXdW5Ekm9fj0A/vbAM9gyr8bO2+cgyCunn4XepusKcJrOyvjZu
+         YCg0tpN0i9nAckoqN720hfCNAPWyZory5voVutbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/57] scsi: scsi_transport_srp: Dont block target in SRP_PORT_LOST state
+Subject: [PATCH 4.9 09/37] net: ieee802154: stop dump llsec keys for monitors
 Date:   Mon, 26 Apr 2021 09:29:10 +0200
-Message-Id: <20210426072821.019308407@linuxfoundation.org>
+Message-Id: <20210426072817.564995530@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 5cd0f6f57639c5afbb36100c69281fee82c95ee7 ]
+[ Upstream commit fb3c5cdf88cd504ef11d59e8d656f4bc896c6922 ]
 
-rport_dev_loss_timedout() sets the rport state to SRP_PORT_LOST and the
-SCSI target state to SDEV_TRANSPORT_OFFLINE. If this races with
-srp_reconnect_work(), a warning is printed:
+This patch stops dumping llsec keys for monitors which we don't support
+yet. Otherwise we will access llsec mib which isn't initialized for
+monitors.
 
-Mar 27 18:48:07 ictm1604s01h4 kernel: dev_loss_tmo expired for SRP port-18:1 / host18.
-Mar 27 18:48:07 ictm1604s01h4 kernel: ------------[ cut here ]------------
-Mar 27 18:48:07 ictm1604s01h4 kernel: scsi_internal_device_block(18:0:0:100) failed: ret = -22
-Mar 27 18:48:07 ictm1604s01h4 kernel: Call Trace:
-Mar 27 18:48:07 ictm1604s01h4 kernel:  ? scsi_target_unblock+0x50/0x50 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  starget_for_each_device+0x80/0xb0 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  target_block+0x24/0x30 [scsi_mod]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  device_for_each_child+0x57/0x90
-Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_rport+0xe4/0x230 [scsi_transport_srp]
-Mar 27 18:48:07 ictm1604s01h4 kernel:  srp_reconnect_work+0x40/0xc0 [scsi_transport_srp]
-
-Avoid this by not trying to block targets for rports in SRP_PORT_LOST
-state.
-
-Link: https://lore.kernel.org/r/20210401091105.8046-1-mwilck@suse.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210405003054.256017-4-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_srp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ieee802154/nl802154.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
-index 2aaf1b710398..9ac89462a8e0 100644
---- a/drivers/scsi/scsi_transport_srp.c
-+++ b/drivers/scsi/scsi_transport_srp.c
-@@ -555,7 +555,7 @@ int srp_reconnect_rport(struct srp_rport *rport)
- 	res = mutex_lock_interruptible(&rport->mutex);
- 	if (res)
- 		goto out;
--	if (rport->state != SRP_RPORT_FAIL_FAST)
-+	if (rport->state != SRP_RPORT_FAIL_FAST && rport->state != SRP_RPORT_LOST)
- 		/*
- 		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
- 		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
+diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
+index f07a208ae21f..41d64b963c78 100644
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -1531,6 +1531,11 @@ nl802154_dump_llsec_key(struct sk_buff *skb, struct netlink_callback *cb)
+ 	if (err)
+ 		return err;
+ 
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
++		err = skb->len;
++		goto out_err;
++	}
++
+ 	if (!wpan_dev->netdev) {
+ 		err = -EINVAL;
+ 		goto out_err;
 -- 
 2.30.2
 
