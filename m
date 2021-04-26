@@ -2,144 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C665936B6D5
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 18:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B8836B756
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 18:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234421AbhDZQba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 12:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45916 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234369AbhDZQb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 12:31:29 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F076C061756
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 09:30:46 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id s15so66500336edd.4
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 09:30:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linbit-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sY7pwJ5XUrAgwm6qxLiYO/Kvi5B35cZY3vNXeQfDpAM=;
-        b=Mhnn9Sqg4R0YVY6mscnaoTlrM7x3U9DbcTy9UdrV0GQC389ZTI/taRj5CkWIv8C3ao
-         4Zho3We6JccxVbi47DrX5C3bAyLqEl+20uEaVP4PzUEb3EOQ3glpoFmSNrKg2ZwbqQjU
-         hooRn9fHo+AtPJb9NaTmDF1WgFAqRPyl2pgPfgdJkfwXdpYZspHAF0Bcru7+FxI62tiD
-         0XmaDoHB4aKXQUJ0Ukyu/DsHh615F9bRotbFdhO7Y74g+et+XewMPhKiuD4I6p7G85g+
-         4xjNz34UtHSjwDzVhO3H6Qovmvdc+OJ3EUjiMeY5R5a/RgqBu1UVjhwPvIlZPOxYkQge
-         kMjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sY7pwJ5XUrAgwm6qxLiYO/Kvi5B35cZY3vNXeQfDpAM=;
-        b=tN51jrFzu7HQnVJ0r2k6T6YtVqshEYm1Rh2ulgduKBH0MUws8pAF25I9dEHR8BZ1/g
-         Rmm9q/ZlJg7XKpk9ihUVMBnY32nJgq7jMDOop8pAlHqF/dB/Gvclns6zfWT154ouxVVz
-         sZxf5R1w/YW/rZG5ID3AMBIEW2cC+NuLV40WO1xVz/EEluL1oWG/uGTDB3VXcIi0wcey
-         MNxHzgTf+dzYr6X12JpOX1w+rWYiIqOr19TCOQyUq/C4cnzyohRBdfkqy8YLkSdain0P
-         ucLUF+t+o6D2/PeqtNMf/k53FBjZ4OGgQCb4XJC9TKoITuOiP36RJ+nisRbfPReu1Uq8
-         Dq4w==
-X-Gm-Message-State: AOAM532ztEvqfCp2nDeNRtPUn36dHL7VA1jYsuMaS8q7w/C/AVJ3VeEa
-        Gdmwrcv9Xo3VbZRtiYWKkEYs3w==
-X-Google-Smtp-Source: ABdhPJydqvL5CYnnJgS8/QIp6pHbsixoj+Uw/m4nB4dtt/U5awp7VfdALWcLY2epud1bqGyXI0dAbg==
-X-Received: by 2002:a05:6402:617:: with SMTP id n23mr10260006edv.45.1619454645350;
-        Mon, 26 Apr 2021 09:30:45 -0700 (PDT)
-Received: from localhost.localdomain (85-127-190-169.dsl.dynamic.surfer.at. [85.127.190.169])
-        by smtp.gmail.com with ESMTPSA id gt33sm11688479ejc.89.2021.04.26.09.30.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Apr 2021 09:30:44 -0700 (PDT)
-Received: from localhost.localdomain (localhost [127.0.0.1])
-        by localhost.localdomain (8.15.2/8.15.2) with ESMTPS id 13QGUiXp3454465
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Mon, 26 Apr 2021 18:30:44 +0200
-Received: (from christoph@localhost)
-        by localhost.localdomain (8.15.2/8.15.2/Submit) id 13QGUh403454464;
-        Mon, 26 Apr 2021 18:30:43 +0200
-From:   =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>
-To:     drbd-dev@tron.linbit.com
-Cc:     Philipp Reisner <philipp.reisner@linbit.com>,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, stable@vger.kernel.org
-Subject: [PATCH] drbd: fix potential silent data corruption
-Date:   Mon, 26 Apr 2021 18:30:32 +0200
-Message-Id: <20210426163032.3454129-1-christoph.boehmwalder@linbit.com>
-X-Mailer: git-send-email 2.26.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S234257AbhDZQ7Z convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 26 Apr 2021 12:59:25 -0400
+Received: from coyote.holtmann.net ([212.227.132.17]:48737 "EHLO
+        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233736AbhDZQ7Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 12:59:25 -0400
+X-Greylist: delayed 405 seconds by postgrey-1.27 at vger.kernel.org; Mon, 26 Apr 2021 12:59:25 EDT
+Received: from marcel-macbook.holtmann.net (p4fefc624.dip0.t-ipconnect.de [79.239.198.36])
+        by mail.holtmann.org (Postfix) with ESMTPSA id 60165CECEA;
+        Mon, 26 Apr 2021 18:59:45 +0200 (CEST)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.60.0.2.21\))
+Subject: Re: [PATCH v2] Bluetooth: Make spurious error message debug
+From:   Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <20210426144419.451157-1-szymon.janc@codecoup.pl>
+Date:   Mon, 26 Apr 2021 18:51:56 +0200
+Cc:     Bluetooth Kernel Mailing List <linux-bluetooth@vger.kernel.org>,
+        stable@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Message-Id: <68043295-4E52-4C3C-9023-B7FC272072B6@holtmann.org>
+References: <20210426144419.451157-1-szymon.janc@codecoup.pl>
+To:     Szymon Janc <szymon.janc@codecoup.pl>
+X-Mailer: Apple Mail (2.3654.60.0.2.21)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars Ellenberg <lars.ellenberg@linbit.com>
+Hi Szymon,
 
-Scenario:
----------
+> Even with rate limited reporting this is very spammy and since
+> it is remote device that is providing bogus data there is no
+> need to report this as error.
+> 
+> [72454.143336] bt_err_ratelimited: 10 callbacks suppressed
+> [72454.143337] Bluetooth: hci0: advertising data len corrected
+> [72454.296314] Bluetooth: hci0: advertising data len corrected
+> [72454.892329] Bluetooth: hci0: advertising data len corrected
+> [72455.051319] Bluetooth: hci0: advertising data len corrected
+> [72455.357326] Bluetooth: hci0: advertising data len corrected
+> [72455.663295] Bluetooth: hci0: advertising data len corrected
+> [72455.787278] Bluetooth: hci0: advertising data len corrected
+> [72455.942278] Bluetooth: hci0: advertising data len corrected
+> [72456.094276] Bluetooth: hci0: advertising data len corrected
+> [72456.249137] Bluetooth: hci0: advertising data len corrected
+> [72459.416333] bt_err_ratelimited: 13 callbacks suppressed
+> [72459.416334] Bluetooth: hci0: advertising data len corrected
+> [72459.721334] Bluetooth: hci0: advertising data len corrected
+> [72460.011317] Bluetooth: hci0: advertising data len corrected
+> [72460.327171] Bluetooth: hci0: advertising data len corrected
+> [72460.638294] Bluetooth: hci0: advertising data len corrected
+> [72460.946350] Bluetooth: hci0: advertising data len corrected
+> [72461.225320] Bluetooth: hci0: advertising data len corrected
+> [72461.690322] Bluetooth: hci0: advertising data len corrected
+> [72462.118318] Bluetooth: hci0: advertising data len corrected
+> [72462.427319] Bluetooth: hci0: advertising data len corrected
+> [72464.546319] bt_err_ratelimited: 7 callbacks suppressed
+> [72464.546319] Bluetooth: hci0: advertising data len corrected
+> [72464.857318] Bluetooth: hci0: advertising data len corrected
+> [72465.163332] Bluetooth: hci0: advertising data len corrected
+> [72465.278331] Bluetooth: hci0: advertising data len corrected
+> [72465.432323] Bluetooth: hci0: advertising data len corrected
+> [72465.891334] Bluetooth: hci0: advertising data len corrected
+> [72466.045334] Bluetooth: hci0: advertising data len corrected
+> [72466.197321] Bluetooth: hci0: advertising data len corrected
+> [72466.340318] Bluetooth: hci0: advertising data len corrected
+> [72466.498335] Bluetooth: hci0: advertising data len corrected
+> [72469.803299] bt_err_ratelimited: 10 callbacks suppressed
+> 
+> Signed-off-by: Szymon Janc <szymon.janc@codecoup.pl>
+> Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=203753
+> Cc: stable@vger.kernel.org
+> ---
+> net/bluetooth/hci_event.c | 4 ++--
+> 1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+> index 5e99968939ce..2a27d5764ba0 100644
+> --- a/net/bluetooth/hci_event.c
+> +++ b/net/bluetooth/hci_event.c
+> @@ -5476,8 +5476,8 @@ static void process_adv_report(struct hci_dev *hdev, u8 type, bdaddr_t *bdaddr,
+> 
+> 	/* Adjust for actual length */
+> 	if (len != real_len) {
+> -		bt_dev_err_ratelimited(hdev, "advertising data len corrected %u -> %u",
+> -				       len, real_len);
+> +		bt_dev_dbg(hdev, "advertising data len corrected %u->%u",
+> +			   len, real_len);
+> 		len = real_len;
+> 	}
 
-bio chain generated by blk_queue_split().
-Some split bio fails and propagates its error status to the "parent" bio.
-But then the (last part of the) parent bio itself completes without error.
+then don’t even bother with bt_dev_dbg either. That is also just eating up cycles.
 
-We would clobber the already recorded error status with BLK_STS_OK,
-causing silent data corruption.
+Regards
 
-Reproducer:
------------
-
-How to trigger this in the real world within seconds:
-
-DRBD on top of degraded parity raid,
-small stripe_cache_size, large read_ahead setting.
-Drop page cache (sysctl vm.drop_caches=1, fadvise "DONTNEED",
-umount and mount again, "reboot").
-
-Cause significant read ahead.
-
-Large read ahead request is split by blk_queue_split().
-Parts of the read ahead that are already in the stripe cache,
-or find an available stripe cache to use, can be serviced.
-Parts of the read ahead that would need "too much work",
-would need to wait for a "stripe_head" to become available,
-are rejected immediately.
-
-For larger read ahead requests that are split in many pieces, it is very
-likely that some "splits" will be serviced, but then the stripe cache is
-exhausted/busy, and the remaining ones will be rejected.
-
-Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
-Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Cc: <stable@vger.kernel.org> # 4.13.x
----
-
-Note: this will need to be backported to versions prior to 4.13 too, but
-the API changed in the meantime (from the new bio->bi_status to the old
-bio->bi_error). I will send a separate patch for these older versions.
-
-In addition, the generic bio_endio/bio_chain_endio has to be fixed in
-a similar way for versions before 4.6. This equates to a backport of
-upstream commit af3e3a5259e3 ("block: don't unecessarily clobber bi_error
-for chained bios").
-
- drivers/block/drbd/drbd_req.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
-index 9398c2c2cb2d..a384a58de1fd 100644
---- a/drivers/block/drbd/drbd_req.c
-+++ b/drivers/block/drbd/drbd_req.c
-@@ -180,7 +180,8 @@ void start_new_tl_epoch(struct drbd_connection *connection)
- void complete_master_bio(struct drbd_device *device,
- 		struct bio_and_error *m)
- {
--	m->bio->bi_status = errno_to_blk_status(m->error);
-+	if (unlikely(m->error))
-+		m->bio->bi_status = errno_to_blk_status(m->error);
- 	bio_endio(m->bio);
- 	dec_ap_bio(device);
- }
--- 
-2.26.3
+Marcel
 
