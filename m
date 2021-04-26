@@ -2,47 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F3236BA4F
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 21:52:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7729736BA62
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 22:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241079AbhDZTw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 15:52:59 -0400
-Received: from vps0.lunn.ch ([185.16.172.187]:41728 "EHLO vps0.lunn.ch"
+        id S241675AbhDZUA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 16:00:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241076AbhDZTw7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 15:52:59 -0400
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94)
-        (envelope-from <andrew@lunn.ch>)
-        id 1lb7H7-001Eqc-0j; Mon, 26 Apr 2021 21:52:09 +0200
-Date:   Mon, 26 Apr 2021 21:52:09 +0200
-From:   Andrew Lunn <andrew@lunn.ch>
-To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
-Cc:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH mvebu + mvebu/dt64 4/4] arm64: dts: marvell: armada-37xx:
- move firmware node to generic dtsi file
-Message-ID: <YIcZ6cUSzp/1/liH@lunn.ch>
-References: <20210308153703.23097-1-kabel@kernel.org>
- <20210308153703.23097-4-kabel@kernel.org>
- <87czw4kath.fsf@BL-laptop>
- <20210312101027.1997ec75@kernel.org>
- <YEt/Ll08M1cwgGR/@lunn.ch>
- <20210312161704.5e575906@kernel.org>
- <YEuOfI5FKLYgdQV+@lunn.ch>
- <20210315101454.dpyfdwk43poirxlw@pali>
- <YE9OMFHwLi8q0qnb@lunn.ch>
- <20210426183612.kj5g3wklgue3gx55@pali>
+        id S236419AbhDZUAz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 16:00:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 4860D6135D;
+        Mon, 26 Apr 2021 20:00:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1619467210;
+        bh=kMmQIwQL5QHxMjtbd+hiNFBqiEl7YsRI/Me5nMKtcrQ=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=G99eVjzJCJhq1WFIB0d5SXvuJKrAvwVKEEtMn0sOcT8pTKp4JyATsJbYjJ2VwYwTX
+         F3C2XJVutGesqvB+IyxGpYGrIzj7LL8a9AUL2IO2MdYBrmPn/5TPym5GTsZ+2HH31O
+         dMqj22ncOu5S/R3c29L4XMvky8PLPZKYtFXceNVaJQ501Hew/QKzoT77g5NhxEACkV
+         HqzDg0C+8ICQSbL519D0+UXWVRSagKwGZ6szafMM1y1gkDWr2MAS+XfdE88diBmcx7
+         cSAJLLg6pT0t2E2y9DC99R/04PwxYMKIbP21bQ9rTatqEMFfUh23brSBEoPwg6hZok
+         /sx58jmMFdh5Q==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 3D5BE60A09;
+        Mon, 26 Apr 2021 20:00:10 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210426183612.kj5g3wklgue3gx55@pali>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] net: hso: fix NULL-deref on disconnect regression
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <161946721024.23958.2611872115325420575.git-patchwork-notify@kernel.org>
+Date:   Mon, 26 Apr 2021 20:00:10 +0000
+References: <20210426081149.10498-1-johan@kernel.org>
+In-Reply-To: <20210426081149.10498-1-johan@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     davem@davemloft.net, kuba@kernel.org, gregkh@linuxfoundation.org,
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        mail@anirudhrb.com, leoanto@aruba.it
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Ok! What about compatible string "marvell,armada-3700-rwtm-firmware"?
+Hello:
 
-Yes, that is O.K.
+This patch was applied to netdev/net-next.git (refs/heads/master):
 
-     Andrew
+On Mon, 26 Apr 2021 10:11:49 +0200 you wrote:
+> Commit 8a12f8836145 ("net: hso: fix null-ptr-deref during tty device
+> unregistration") fixed the racy minor allocation reported by syzbot, but
+> introduced an unconditional NULL-pointer dereference on every disconnect
+> instead.
+> 
+> Specifically, the serial device table must no longer be accessed after
+> the minor has been released by hso_serial_tty_unregister().
+> 
+> [...]
+
+Here is the summary with links:
+  - net: hso: fix NULL-deref on disconnect regression
+    https://git.kernel.org/netdev/net-next/c/2ad5692db728
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
