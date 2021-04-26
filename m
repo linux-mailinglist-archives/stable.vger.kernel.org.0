@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7EFB36AE9A
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD9E36AE5E
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233060AbhDZHpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60146 "EHLO mail.kernel.org"
+        id S233162AbhDZHoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:44:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233870AbhDZHoX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:44:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E0D8613C2;
-        Mon, 26 Apr 2021 07:40:52 +0000 (UTC)
+        id S233669AbhDZHnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:43:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A639C613BC;
+        Mon, 26 Apr 2021 07:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422853;
-        bh=NXGoH78Kp2eo148446i7uboIojbe33UGTo54o2XgmwE=;
+        s=korg; t=1619422777;
+        bh=Pcw49y1E0fdtvfEUzDApg+mSF6Eqc3PK/dvzuvX2dm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zhOINIAmp2PstzSY8v8qX/alX2AH0Y+BVk8DMeluIR/j3N5OnBqSl7C05iLQcj0g
-         G6Md3daM9XiybJm7URWJpXRgkTtJrdDRO3y6P/bS7UG8qYvgYBTpTAR3Rb97n39KSF
-         mxG4GmxoDtfNDOY6AoWsoc0mXrmxyXrT26jc+sxQ=
+        b=He0sKvZ6521PZrdY4gN6JpmeWX6WTryrkb8ozcBkREae4Zk8cHlasux4UpwR406bj
+         iSA7i/PZzvWxlHm27YPsmuqtKA+IWABfYDYrO3TPLMGB46YuYgDizxkn+HF8v6Y3yO
+         bQ5wsgJ3LoRtLkNFHHSwabRNDfyyRlwQLHfsvZyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Wahl <steve.wahl@hpe.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 18/41] perf/x86/intel/uncore: Remove uncore extra PCI dev HSWEP_PCI_PCU_3
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 23/36] dmaengine: xilinx: dpdma: Fix descriptor issuing on video group
 Date:   Mon, 26 Apr 2021 09:30:05 +0200
-Message-Id: <20210426072820.302374773@linuxfoundation.org>
+Message-Id: <20210426072819.580107876@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
-References: <20210426072819.666570770@linuxfoundation.org>
+In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
+References: <20210426072818.777662399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,156 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 9d480158ee86ad606d3a8baaf81e6b71acbfd7d5 ]
+[ Upstream commit 1cbd44666216278bbb6a55bcb6b9283702171c77 ]
 
-There may be a kernel panic on the Haswell server and the Broadwell
-server, if the snbep_pci2phy_map_init() return error.
+When multiple channels are part of a video group, the transfer is
+triggered only when all channels in the group are ready. The logic to do
+so is incorrect, as it causes the descriptors for all channels but the
+last one in a group to not being pushed to the hardware. Fix it.
 
-The uncore_extra_pci_dev[HSWEP_PCI_PCU_3] is used in the cpu_init() to
-detect the existence of the SBOX, which is a MSR type of PMON unit.
-The uncore_extra_pci_dev is allocated in the uncore_pci_init(). If the
-snbep_pci2phy_map_init() returns error, perf doesn't initialize the
-PCI type of the PMON units, so the uncore_extra_pci_dev will not be
-allocated. But perf may continue initializing the MSR type of PMON
-units. A null dereference kernel panic will be triggered.
-
-The sockets in a Haswell server or a Broadwell server are identical.
-Only need to detect the existence of the SBOX once.
-Current perf probes all available PCU devices and stores them into the
-uncore_extra_pci_dev. It's unnecessary.
-Use the pci_get_device() to replace the uncore_extra_pci_dev. Only
-detect the existence of the SBOX on the first available PCU device once.
-
-Factor out hswep_has_limit_sbox(), since the Haswell server and the
-Broadwell server uses the same way to detect the existence of the SBOX.
-
-Add some macros to replace the magic number.
-
-Fixes: 5306c31c5733 ("perf/x86/uncore/hsw-ep: Handle systems with only two SBOXes")
-Reported-by: Steve Wahl <steve.wahl@hpe.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Steve Wahl <steve.wahl@hpe.com>
-Link: https://lkml.kernel.org/r/1618521764-100923-1-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/20210307040629.29308-2-laurent.pinchart@ideasonboard.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 61 ++++++++++++----------------
- 1 file changed, 26 insertions(+), 35 deletions(-)
+ drivers/dma/xilinx/xilinx_dpdma.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 7bdb1821215d..3112186a4f4b 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -1159,7 +1159,6 @@ enum {
- 	SNBEP_PCI_QPI_PORT0_FILTER,
- 	SNBEP_PCI_QPI_PORT1_FILTER,
- 	BDX_PCI_QPI_PORT2_FILTER,
--	HSWEP_PCI_PCU_3,
- };
+diff --git a/drivers/dma/xilinx/xilinx_dpdma.c b/drivers/dma/xilinx/xilinx_dpdma.c
+index 55df63dead8d..d504112c609e 100644
+--- a/drivers/dma/xilinx/xilinx_dpdma.c
++++ b/drivers/dma/xilinx/xilinx_dpdma.c
+@@ -839,6 +839,7 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 	struct xilinx_dpdma_tx_desc *desc;
+ 	struct virt_dma_desc *vdesc;
+ 	u32 reg, channels;
++	bool first_frame;
  
- static int snbep_qpi_hw_config(struct intel_uncore_box *box, struct perf_event *event)
-@@ -2816,22 +2815,33 @@ static struct intel_uncore_type *hswep_msr_uncores[] = {
- 	NULL,
- };
+ 	lockdep_assert_held(&chan->lock);
  
--void hswep_uncore_cpu_init(void)
-+#define HSWEP_PCU_DID			0x2fc0
-+#define HSWEP_PCU_CAPID4_OFFET		0x94
-+#define hswep_get_chop(_cap)		(((_cap) >> 6) & 0x3)
-+
-+static bool hswep_has_limit_sbox(unsigned int device)
- {
--	int pkg = boot_cpu_data.logical_proc_id;
-+	struct pci_dev *dev = pci_get_device(PCI_VENDOR_ID_INTEL, device, NULL);
-+	u32 capid4;
-+
-+	if (!dev)
-+		return false;
-+
-+	pci_read_config_dword(dev, HSWEP_PCU_CAPID4_OFFET, &capid4);
-+	if (!hswep_get_chop(capid4))
-+		return true;
+@@ -852,14 +853,6 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 		chan->running = true;
+ 	}
  
-+	return false;
-+}
-+
-+void hswep_uncore_cpu_init(void)
-+{
- 	if (hswep_uncore_cbox.num_boxes > boot_cpu_data.x86_max_cores)
- 		hswep_uncore_cbox.num_boxes = boot_cpu_data.x86_max_cores;
- 
- 	/* Detect 6-8 core systems with only two SBOXes */
--	if (uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3]) {
--		u32 capid4;
+-	if (chan->video_group)
+-		channels = xilinx_dpdma_chan_video_group_ready(chan);
+-	else
+-		channels = BIT(chan->id);
 -
--		pci_read_config_dword(uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3],
--				      0x94, &capid4);
--		if (((capid4 >> 6) & 0x3) == 0)
--			hswep_uncore_sbox.num_boxes = 2;
--	}
-+	if (hswep_has_limit_sbox(HSWEP_PCU_DID))
-+		hswep_uncore_sbox.num_boxes = 2;
+-	if (!channels)
+-		return;
+-
+ 	vdesc = vchan_next_desc(&chan->vchan);
+ 	if (!vdesc)
+ 		return;
+@@ -884,13 +877,26 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 			    FIELD_PREP(XILINX_DPDMA_CH_DESC_START_ADDRE_MASK,
+ 				       upper_32_bits(sw_desc->dma_addr)));
  
- 	uncore_msr_uncores = hswep_msr_uncores;
+-	if (chan->first_frame)
++	first_frame = chan->first_frame;
++	chan->first_frame = false;
++
++	if (chan->video_group) {
++		channels = xilinx_dpdma_chan_video_group_ready(chan);
++		/*
++		 * Trigger the transfer only when all channels in the group are
++		 * ready.
++		 */
++		if (!channels)
++			return;
++	} else {
++		channels = BIT(chan->id);
++	}
++
++	if (first_frame)
+ 		reg = XILINX_DPDMA_GBL_TRIG_MASK(channels);
+ 	else
+ 		reg = XILINX_DPDMA_GBL_RETRIG_MASK(channels);
+ 
+-	chan->first_frame = false;
+-
+ 	dpdma_write(xdev->reg, XILINX_DPDMA_GBL, reg);
  }
-@@ -3094,11 +3104,6 @@ static const struct pci_device_id hswep_uncore_pci_ids[] = {
- 		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
- 						   SNBEP_PCI_QPI_PORT1_FILTER),
- 	},
--	{ /* PCU.3 (for Capability registers) */
--		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2fc0),
--		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
--						   HSWEP_PCI_PCU_3),
--	},
- 	{ /* end: all zeroes */ }
- };
- 
-@@ -3190,27 +3195,18 @@ static struct event_constraint bdx_uncore_pcu_constraints[] = {
- 	EVENT_CONSTRAINT_END
- };
- 
-+#define BDX_PCU_DID			0x6fc0
-+
- void bdx_uncore_cpu_init(void)
- {
--	int pkg = topology_phys_to_logical_pkg(boot_cpu_data.phys_proc_id);
--
- 	if (bdx_uncore_cbox.num_boxes > boot_cpu_data.x86_max_cores)
- 		bdx_uncore_cbox.num_boxes = boot_cpu_data.x86_max_cores;
- 	uncore_msr_uncores = bdx_msr_uncores;
- 
--	/* BDX-DE doesn't have SBOX */
--	if (boot_cpu_data.x86_model == 86) {
--		uncore_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
- 	/* Detect systems with no SBOXes */
--	} else if (uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3]) {
--		struct pci_dev *pdev;
--		u32 capid4;
--
--		pdev = uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3];
--		pci_read_config_dword(pdev, 0x94, &capid4);
--		if (((capid4 >> 6) & 0x3) == 0)
--			bdx_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
--	}
-+	if ((boot_cpu_data.x86_model == 86) || hswep_has_limit_sbox(BDX_PCU_DID))
-+		uncore_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
-+
- 	hswep_uncore_pcu.constraints = bdx_uncore_pcu_constraints;
- }
- 
-@@ -3431,11 +3427,6 @@ static const struct pci_device_id bdx_uncore_pci_ids[] = {
- 		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
- 						   BDX_PCI_QPI_PORT2_FILTER),
- 	},
--	{ /* PCU.3 (for Capability registers) */
--		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x6fc0),
--		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
--						   HSWEP_PCI_PCU_3),
--	},
- 	{ /* end: all zeroes */ }
- };
  
 -- 
 2.30.2
