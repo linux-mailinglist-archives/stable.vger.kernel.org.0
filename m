@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE7436AE7B
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5B436AEB2
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233161AbhDZHp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60130 "EHLO mail.kernel.org"
+        id S232987AbhDZHqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:46:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233355AbhDZHne (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:43:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6849613C3;
-        Mon, 26 Apr 2021 07:40:00 +0000 (UTC)
+        id S234264AbhDZHpF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:45:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCF0561168;
+        Mon, 26 Apr 2021 07:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422801;
-        bh=LrzwD02RnLgoVuAueIQ5a9G1U6hrNPFklKerrb/eNV4=;
+        s=korg; t=1619422925;
+        bh=OfTZhQVCkfP1iUoe6FXBgYEwvVROmP5JhRAWr8lWs4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfKdhwLwHD3gh7Kv+0ntZtp/Xh/ULeItV8WKadtmvqt1w98OfKhy51Kxz0eYaDhvA
-         rJ0GHD5N8JEQoAY/kA3udDLd3inAkvw0mC5La0xf97qryacI99uJENBpBjQJlcGF2h
-         4/fKdUlN/LHEFBzmMDMA3u2gydGy5gREDtwUrS5c=
+        b=v03I6YM6FSyQR3YNNTUWLJN1YWR0RSLKIDKDtIbOnr7t56afvi1wfdua12GiwY1mM
+         i8uMGZEQ6dm5vUciUlr8mixKhof/WIVQ7YTlpw0ica/FA/aL2ltNRBN40VBytlpu2K
+         0wG6ntc5K/H7rjx4MnXFgrxMTsb5UpUYReVk7QrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 34/36] ia64: fix discontig.c section mismatches
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 29/41] dmaengine: xilinx: dpdma: Fix race condition in done IRQ
 Date:   Mon, 26 Apr 2021 09:30:16 +0200
-Message-Id: <20210426072819.942348415@linuxfoundation.org>
+Message-Id: <20210426072820.687194792@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
-References: <20210426072818.777662399@linuxfoundation.org>
+In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
+References: <20210426072819.666570770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit e2af9da4f867a1a54f1252bf3abc1a5c63951778 ]
+[ Upstream commit 868833fbffbe51c487df4f95d4de9194264a4b30 ]
 
-Fix IA64 discontig.c Section mismatch warnings.
+The active descriptor pointer is accessed from different contexts,
+including different interrupt handlers, and its access must be protected
+by the channel's lock. This wasn't done in the done IRQ handler. Fix it.
 
-When CONFIG_SPARSEMEM=y and CONFIG_MEMORY_HOTPLUG=y, the functions
-computer_pernodesize() and scatter_node_data() should not be marked as
-__meminit because they are needed after init, on any memory hotplug
-event.  Also, early_nr_cpus_node() is called by compute_pernodesize(),
-so early_nr_cpus_node() cannot be __meminit either.
-
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1612): Section mismatch in reference from the function arch_alloc_nodedata() to the function .meminit.text:compute_pernodesize()
-  The function arch_alloc_nodedata() references the function __meminit compute_pernodesize().
-  This is often because arch_alloc_nodedata lacks a __meminit annotation or the annotation of compute_pernodesize is wrong.
-
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1692): Section mismatch in reference from the function arch_refresh_nodedata() to the function .meminit.text:scatter_node_data()
-  The function arch_refresh_nodedata() references the function __meminit scatter_node_data().
-  This is often because arch_refresh_nodedata lacks a __meminit annotation or the annotation of scatter_node_data is wrong.
-
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1502): Section mismatch in reference from the function compute_pernodesize() to the function .meminit.text:early_nr_cpus_node()
-  The function compute_pernodesize() references the function __meminit early_nr_cpus_node().
-  This is often because compute_pernodesize lacks a __meminit annotation or the annotation of early_nr_cpus_node is wrong.
-
-Link: https://lkml.kernel.org/r/20210411001201.3069-1-rdunlap@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/20210307040629.29308-3-laurent.pinchart@ideasonboard.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/mm/discontig.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/dma/xilinx/xilinx_dpdma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
-index dbe829fc5298..4d0813419013 100644
---- a/arch/ia64/mm/discontig.c
-+++ b/arch/ia64/mm/discontig.c
-@@ -94,7 +94,7 @@ static int __init build_node_maps(unsigned long start, unsigned long len,
-  * acpi_boot_init() (which builds the node_to_cpu_mask array) hasn't been
-  * called yet.  Note that node 0 will also count all non-existent cpus.
+diff --git a/drivers/dma/xilinx/xilinx_dpdma.c b/drivers/dma/xilinx/xilinx_dpdma.c
+index d504112c609e..70b29bd079c9 100644
+--- a/drivers/dma/xilinx/xilinx_dpdma.c
++++ b/drivers/dma/xilinx/xilinx_dpdma.c
+@@ -1048,13 +1048,14 @@ static int xilinx_dpdma_chan_stop(struct xilinx_dpdma_chan *chan)
   */
--static int __meminit early_nr_cpus_node(int node)
-+static int early_nr_cpus_node(int node)
+ static void xilinx_dpdma_chan_done_irq(struct xilinx_dpdma_chan *chan)
  {
- 	int cpu, n = 0;
+-	struct xilinx_dpdma_tx_desc *active = chan->desc.active;
++	struct xilinx_dpdma_tx_desc *active;
+ 	unsigned long flags;
  
-@@ -109,7 +109,7 @@ static int __meminit early_nr_cpus_node(int node)
-  * compute_pernodesize - compute size of pernode data
-  * @node: the node id.
-  */
--static unsigned long __meminit compute_pernodesize(int node)
-+static unsigned long compute_pernodesize(int node)
- {
- 	unsigned long pernodesize = 0, cpus;
+ 	spin_lock_irqsave(&chan->lock, flags);
  
-@@ -366,7 +366,7 @@ static void __init reserve_pernode_space(void)
- 	}
- }
+ 	xilinx_dpdma_debugfs_desc_done_irq(chan);
  
--static void __meminit scatter_node_data(void)
-+static void scatter_node_data(void)
- {
- 	pg_data_t **dst;
- 	int node;
++	active = chan->desc.active;
+ 	if (active)
+ 		vchan_cyclic_callback(&active->vdesc);
+ 	else
 -- 
 2.30.2
 
