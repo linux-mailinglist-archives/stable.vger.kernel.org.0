@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4556036AD52
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7920336ADC9
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232695AbhDZHdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46064 "EHLO mail.kernel.org"
+        id S233098AbhDZHie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232681AbhDZHdn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:33:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AEB5611CD;
-        Mon, 26 Apr 2021 07:33:01 +0000 (UTC)
+        id S233041AbhDZHh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:37:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78F4B613D9;
+        Mon, 26 Apr 2021 07:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422382;
-        bh=zKOSe2vlocg7WUvmY+9ry+wdhhjgyeOWSVPmg63RPYw=;
+        s=korg; t=1619422545;
+        bh=hbNxn91tB5WAKjcmUEBPZQNAWEj8RxqAKO99olmO4rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMY7LYzTmzcidDH9ih2j1Ao2HwA+kM500rIBwjogbvmJDqgS6Yh3BNk/h7MgnbEyn
-         /Yyn+6N5K7XAgPMjU3pxauQD6mKf8zrwcTmLL74Zt8giIK+MfB49K0QItV9bp95mFH
-         IBj8FH1MnMflBe3h2A5cSw0/u2/4ioqKsTu1kNnk=
+        b=inHm2jaBBhqjSQchECUthFKCVR6zU/7rlv+N2SdM489EIjVk2XlD2X+iOXXCaXBaJ
+         OMIbSo+5yc97IbKkFn2QNP7vk+U5eM9WTsy0wXShVqvRdMCPzoFlK5EgsezBJKu2q0
+         dbx2PMlYrD4XwqS6wet3XiRsBSFGVsJvP57XgIxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Tom Seewald <tseewald@gmail.com>,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 27/37] usbip: synchronize event handler with sysfs code paths
-Date:   Mon, 26 Apr 2021 09:29:28 +0200
-Message-Id: <20210426072818.168255922@linuxfoundation.org>
+        stable@vger.kernel.org, Lijun Pan <lijunp213@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 33/49] ibmvnic: remove duplicate napi_schedule call in open function
+Date:   Mon, 26 Apr 2021 09:29:29 +0200
+Message-Id: <20210426072820.850598172@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Lijun Pan <lijunp213@gmail.com>
 
-commit 363eaa3a450abb4e63bd6e3ad79d1f7a0f717814 upstream.
+commit 7c451f3ef676c805a4b77a743a01a5c21a250a73 upstream.
 
-Fuzzing uncovered race condition between sysfs code paths in usbip
-drivers. Device connect/disconnect code paths initiated through
-sysfs interface are prone to races if disconnect happens during
-connect and vice versa.
+Remove the unnecessary napi_schedule() call in __ibmvnic_open() since
+interrupt_rx() calls napi_schedule_prep/__napi_schedule during every
+receive interrupt.
 
-Use sysfs_lock to synchronize event handler with sysfs paths
-in usbip drivers.
-
-Cc: stable@vger.kernel.org # 4.9.x
-Reported-and-tested-by: syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/c5c8723d3f29dfe3d759cfaafa7dd16b0dfe2918.1616807117.git.skhan@linuxfoundation.org
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Fixes: ed651a10875f ("ibmvnic: Updated reset handling")
+Signed-off-by: Lijun Pan <lijunp213@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/usbip_event.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/ibm/ibmvnic.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/usb/usbip/usbip_event.c
-+++ b/drivers/usb/usbip/usbip_event.c
-@@ -84,6 +84,7 @@ static void event_handler(struct work_st
- 	while ((ud = get_event()) != NULL) {
- 		usbip_dbg_eh("pending event %lx\n", ud->event);
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -898,11 +898,6 @@ static int __ibmvnic_open(struct net_dev
  
-+		mutex_lock(&ud->sysfs_lock);
- 		/*
- 		 * NOTE: shutdown must come first.
- 		 * Shutdown the device.
-@@ -104,6 +105,7 @@ static void event_handler(struct work_st
- 			ud->eh_ops.unusable(ud);
- 			unset_event(ud, USBIP_EH_UNUSABLE);
- 		}
-+		mutex_unlock(&ud->sysfs_lock);
+ 	netif_tx_start_all_queues(netdev);
  
- 		wake_up(&ud->eh_waitq);
- 	}
+-	if (prev_state == VNIC_CLOSED) {
+-		for (i = 0; i < adapter->req_rx_queues; i++)
+-			napi_schedule(&adapter->napi[i]);
+-	}
+-
+ 	adapter->state = VNIC_OPEN;
+ 	return rc;
+ }
 
 
