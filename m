@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E30FB36AD54
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E9536AD1B
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232706AbhDZHds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:33:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46160 "EHLO mail.kernel.org"
+        id S232418AbhDZHcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:32:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232698AbhDZHdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:33:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 451F4611BF;
-        Mon, 26 Apr 2021 07:33:04 +0000 (UTC)
+        id S232448AbhDZHc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:32:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7F3961077;
+        Mon, 26 Apr 2021 07:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422384;
-        bh=/FET0OnZKddjKdcR2rjpSLKM0BcsX2Qq39WiusLCRwk=;
+        s=korg; t=1619422304;
+        bh=K2ef7W0qv6wVh1N/mhwiEy3smgYtVGKT/yQpNUmzJCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EGghVTWKwTRU3NPS2pa7jQpBgBQjdRwPfTVSiyD6KLFFoCIVlWWeyEl94hrMK5gpq
-         XRdzZloWbXb7hD5SfRHR5pu0t5w3bcyHp2ForxftLNV23nhmeUp9MHPVDX/y2+0Pfu
-         5yZQesk5VHLbsnjd405uUNLvdf1bwX62cFE0/ZzI=
+        b=DTCTpTsSXb4tIGyvyJABZCsRz0KLr1koFpNxRRVN28cASmuR/rs2A3FQ9ExpIsK7Z
+         nSzw97T8sbXLacUMgvYZLaoIsCAqNN7IkpXLJony3pdcLx65yxGZbng6h9FvCq+1bS
+         bjg9A7wR+Ov1uQ63n/RG4YH6lJRzey9IZGjqoPyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 28/37] net: hso: fix null-ptr-deref during tty device unregistration
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Matthew Wilcox <mawilcox@microsoft.com>
+Subject: [PATCH 4.4 31/32] overflow.h: Add allocation size calculation helpers
 Date:   Mon, 26 Apr 2021 09:29:29 +0200
-Message-Id: <20210426072818.206452574@linuxfoundation.org>
+Message-Id: <20210426072817.603584888@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,146 +39,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 8a12f8836145ffe37e9c8733dce18c22fb668b66 upstream
+commit 610b15c50e86eb1e4b77274fabcaea29ac72d6a8 upstream.
 
-Multiple ttys try to claim the same the minor number causing a double
-unregistration of the same device. The first unregistration succeeds
-but the next one results in a null-ptr-deref.
+In preparation for replacing unchecked overflows for memory allocations,
+this creates helpers for the 3 most common calculations:
 
-The get_free_serial_index() function returns an available minor number
-but doesn't assign it immediately. The assignment is done by the caller
-later. But before this assignment, calls to get_free_serial_index()
-would return the same minor number.
+array_size(a, b): 2-dimensional array
+array3_size(a, b, c): 3-dimensional array
+struct_size(ptr, member, n): struct followed by n-many trailing members
 
-Fix this by modifying get_free_serial_index to assign the minor number
-immediately after one is found to be and rename it to obtain_minor()
-to better reflect what it does. Similary, rename set_serial_by_index()
-to release_minor() and modify it to free up the minor number of the
-given hso_serial. Every obtain_minor() should have corresponding
-release_minor() call.
+Each of these return SIZE_MAX on overflow instead of wrapping around.
 
-Fixes: 72dc1c096c705 ("HSO: add option hso driver")
-Reported-by: syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com
-Tested-by: syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+(Additionally renames a variable named "array_size" to avoid future
+collision.)
+
+Co-developed-by: Matthew Wilcox <mawilcox@microsoft.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/hso.c |   33 ++++++++++++---------------------
- 1 file changed, 12 insertions(+), 21 deletions(-)
+ drivers/md/dm-table.c    |   10 +++---
+ include/linux/overflow.h |   73 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 78 insertions(+), 5 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -626,7 +626,7 @@ static struct hso_serial *get_serial_by_
- 	return serial;
- }
- 
--static int get_free_serial_index(void)
-+static int obtain_minor(struct hso_serial *serial)
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -516,14 +516,14 @@ static int adjoin(struct dm_table *table
+  * On the other hand, dm-switch needs to process bulk data using messages and
+  * excessive use of GFP_NOIO could cause trouble.
+  */
+-static char **realloc_argv(unsigned *array_size, char **old_argv)
++static char **realloc_argv(unsigned *size, char **old_argv)
  {
- 	int index;
- 	unsigned long flags;
-@@ -634,8 +634,10 @@ static int get_free_serial_index(void)
- 	spin_lock_irqsave(&serial_table_lock, flags);
- 	for (index = 0; index < HSO_SERIAL_TTY_MINORS; index++) {
- 		if (serial_table[index] == NULL) {
-+			serial_table[index] = serial->parent;
-+			serial->minor = index;
- 			spin_unlock_irqrestore(&serial_table_lock, flags);
--			return index;
-+			return 0;
- 		}
+ 	char **argv;
+ 	unsigned new_size;
+ 	gfp_t gfp;
+ 
+-	if (*array_size) {
+-		new_size = *array_size * 2;
++	if (*size) {
++		new_size = *size * 2;
+ 		gfp = GFP_KERNEL;
+ 	} else {
+ 		new_size = 8;
+@@ -531,8 +531,8 @@ static char **realloc_argv(unsigned *arr
  	}
- 	spin_unlock_irqrestore(&serial_table_lock, flags);
-@@ -644,15 +646,12 @@ static int get_free_serial_index(void)
- 	return -1;
- }
- 
--static void set_serial_by_index(unsigned index, struct hso_serial *serial)
-+static void release_minor(struct hso_serial *serial)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&serial_table_lock, flags);
--	if (serial)
--		serial_table[index] = serial->parent;
--	else
--		serial_table[index] = NULL;
-+	serial_table[serial->minor] = NULL;
- 	spin_unlock_irqrestore(&serial_table_lock, flags);
- }
- 
-@@ -2243,6 +2242,7 @@ static int hso_stop_serial_device(struct
- static void hso_serial_tty_unregister(struct hso_serial *serial)
- {
- 	tty_unregister_device(tty_drv, serial->minor);
-+	release_minor(serial);
- }
- 
- static void hso_serial_common_free(struct hso_serial *serial)
-@@ -2267,25 +2267,23 @@ static int hso_serial_common_create(stru
- 				    int rx_size, int tx_size)
- {
- 	struct device *dev;
--	int minor;
- 	int i;
- 
- 	tty_port_init(&serial->port);
- 
--	minor = get_free_serial_index();
--	if (minor < 0)
-+	if (obtain_minor(serial))
- 		goto exit2;
- 
- 	/* register our minor number */
- 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
--			tty_drv, minor, &serial->parent->interface->dev,
-+			tty_drv, serial->minor, &serial->parent->interface->dev,
- 			serial->parent, hso_serial_dev_groups);
--	if (IS_ERR(serial->parent->dev))
-+	if (IS_ERR(serial->parent->dev)) {
-+		release_minor(serial);
- 		goto exit2;
-+	}
- 	dev = serial->parent->dev;
- 
--	/* fill in specific data for later use */
--	serial->minor = minor;
- 	serial->magic = HSO_SERIAL_MAGIC;
- 	spin_lock_init(&serial->serial_lock);
- 	serial->num_rx_urbs = num_urbs;
-@@ -2678,9 +2676,6 @@ static struct hso_device *hso_create_bul
- 
- 	serial->write_data = hso_std_serial_write_data;
- 
--	/* and record this serial */
--	set_serial_by_index(serial->minor, serial);
--
- 	/* setup the proc dirs and files if needed */
- 	hso_log_port(hso_dev);
- 
-@@ -2737,9 +2732,6 @@ struct hso_device *hso_create_mux_serial
- 	serial->shared_int->ref_count++;
- 	mutex_unlock(&serial->shared_int->shared_int_lock);
- 
--	/* and record this serial */
--	set_serial_by_index(serial->minor, serial);
--
- 	/* setup the proc dirs and files if needed */
- 	hso_log_port(hso_dev);
- 
-@@ -3124,7 +3116,6 @@ static void hso_free_interface(struct us
- 			cancel_work_sync(&serial_table[i]->async_get_intf);
- 			hso_serial_tty_unregister(serial);
- 			kref_put(&serial_table[i]->ref, hso_serial_ref_free);
--			set_serial_by_index(i, NULL);
- 		}
+ 	argv = kmalloc(new_size * sizeof(*argv), gfp);
+ 	if (argv) {
+-		memcpy(argv, old_argv, *array_size * sizeof(*argv));
+-		*array_size = new_size;
++		memcpy(argv, old_argv, *size * sizeof(*argv));
++		*size = new_size;
  	}
  
+ 	kfree(old_argv);
+--- a/include/linux/overflow.h
++++ b/include/linux/overflow.h
+@@ -202,4 +202,77 @@
+ 
+ #endif /* COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW */
+ 
++/**
++ * array_size() - Calculate size of 2-dimensional array.
++ *
++ * @a: dimension one
++ * @b: dimension two
++ *
++ * Calculates size of 2-dimensional array: @a * @b.
++ *
++ * Returns: number of bytes needed to represent the array or SIZE_MAX on
++ * overflow.
++ */
++static inline __must_check size_t array_size(size_t a, size_t b)
++{
++	size_t bytes;
++
++	if (check_mul_overflow(a, b, &bytes))
++		return SIZE_MAX;
++
++	return bytes;
++}
++
++/**
++ * array3_size() - Calculate size of 3-dimensional array.
++ *
++ * @a: dimension one
++ * @b: dimension two
++ * @c: dimension three
++ *
++ * Calculates size of 3-dimensional array: @a * @b * @c.
++ *
++ * Returns: number of bytes needed to represent the array or SIZE_MAX on
++ * overflow.
++ */
++static inline __must_check size_t array3_size(size_t a, size_t b, size_t c)
++{
++	size_t bytes;
++
++	if (check_mul_overflow(a, b, &bytes))
++		return SIZE_MAX;
++	if (check_mul_overflow(bytes, c, &bytes))
++		return SIZE_MAX;
++
++	return bytes;
++}
++
++static inline __must_check size_t __ab_c_size(size_t n, size_t size, size_t c)
++{
++	size_t bytes;
++
++	if (check_mul_overflow(n, size, &bytes))
++		return SIZE_MAX;
++	if (check_add_overflow(bytes, c, &bytes))
++		return SIZE_MAX;
++
++	return bytes;
++}
++
++/**
++ * struct_size() - Calculate size of structure with trailing array.
++ * @p: Pointer to the structure.
++ * @member: Name of the array member.
++ * @n: Number of elements in the array.
++ *
++ * Calculates size of memory needed for structure @p followed by an
++ * array of @n @member elements.
++ *
++ * Return: number of bytes needed or SIZE_MAX on overflow.
++ */
++#define struct_size(p, member, n)					\
++	__ab_c_size(n,							\
++		    sizeof(*(p)->member) + __must_be_array((p)->member),\
++		    sizeof(*(p)))
++
+ #endif /* __LINUX_OVERFLOW_H */
 
 
