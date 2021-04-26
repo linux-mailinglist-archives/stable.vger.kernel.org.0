@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D1336ADE3
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1518236ACFE
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232266AbhDZHkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:40:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49252 "EHLO mail.kernel.org"
+        id S232259AbhDZHbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:31:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232713AbhDZHiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:38:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32B3261363;
-        Mon, 26 Apr 2021 07:36:11 +0000 (UTC)
+        id S232266AbhDZHbs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:31:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14FA7611C0;
+        Mon, 26 Apr 2021 07:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422571;
-        bh=fh1+CkwaMcx6qd70/4Lg+uH0X42cRjIcO52Pdp0GE3U=;
+        s=korg; t=1619422267;
+        bh=cb/WSjGhZm9qsYRe4EugrntntQRK3N9XOP/ZsHZsCME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAlLjl8nCVuVOFbqI/gPquWMlsFUtjjUPiNCDUhBCkPK4O2TPLbhP9AM6NGiE0a7D
-         o+sVYqzyfSKOhFs1M8g7b6hdTVMG7fql8ZK9Apz0rtLrB5GCYdOiMioslgqnETQDgL
-         AOBXxYKu0FCYC2KAOgeteJmuFBbgp/xM4G7BcwPc=
+        b=2YSbn93DoVor7TuJlfOL3Cr3WrIiJp11PwvMBcWam9ZXo8QWfdz3cW1GHakZkQpQY
+         jp6LkrRn2nFlyERoQeAtsJWG6LAnIRZHg1df9cxuGmumZqIqR03TotCZ64ynHi7Kn6
+         4qFMj5ctikKx8Pd7LqcxS+hTn8M2VZmXrX1c/W3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/57] net: ieee802154: forbid monitor for add llsec devkey
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Marcos Paulo de Souza <mpdesouza@suse.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.4 17/32] Input: i8042 - fix Pegatron C15B ID entry
 Date:   Mon, 26 Apr 2021 09:29:15 +0200
-Message-Id: <20210426072821.198338691@linuxfoundation.org>
+Message-Id: <20210426072817.174624360@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit a347b3b394868fef15b16f143719df56184be81d ]
+commit daa58c8eec0a65ac8e2e77ff3ea8a233d8eec954 upstream.
 
-This patch forbids to add llsec devkey for monitor interfaces which we
-don't support yet. Otherwise we will access llsec mib which isn't
-initialized for monitors.
+The Zenbook Flip entry that was added overwrites a previous one
+because of a typo:
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-11-aahringo@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In file included from drivers/input/serio/i8042.h:23,
+                 from drivers/input/serio/i8042.c:131:
+drivers/input/serio/i8042-x86ia64io.h:591:28: error: initialized field overwritten [-Werror=override-init]
+  591 |                 .matches = {
+      |                            ^
+drivers/input/serio/i8042-x86ia64io.h:591:28: note: (near initialization for 'i8042_dmi_noselftest_table[0].matches')
+
+Add the missing separator between the two.
+
+Fixes: b5d6e7ab7fe7 ("Input: i8042 - add ASUS Zenbook Flip to noselftest list")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+Link: https://lore.kernel.org/r/20210323130623.2302402-1-arnd@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ieee802154/nl802154.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index 6d9fc2947dd8..eaeff7c08bdf 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1936,6 +1936,9 @@ static int nl802154_add_llsec_devkey(struct sk_buff *skb, struct genl_info *info
- 	struct ieee802154_llsec_device_key key;
- 	__le64 extended_addr;
- 
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
-+		return -EOPNOTSUPP;
-+
- 	if (!info->attrs[NL802154_ATTR_SEC_DEVKEY] ||
- 	    nla_parse_nested(attrs, NL802154_DEVKEY_ATTR_MAX,
- 			     info->attrs[NL802154_ATTR_SEC_DEVKEY],
--- 
-2.30.2
-
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -579,6 +579,7 @@ static const struct dmi_system_id i8042_
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-CS"),
+ 		},
++	}, {
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
 
 
