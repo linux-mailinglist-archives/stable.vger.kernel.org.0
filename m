@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA44036AD7D
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B4FD36ACF7
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232173AbhDZHgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:36:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
+        id S232185AbhDZHbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232213AbhDZHgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88D2C613AA;
-        Mon, 26 Apr 2021 07:34:04 +0000 (UTC)
+        id S232208AbhDZHbi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:31:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39488611BD;
+        Mon, 26 Apr 2021 07:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422445;
-        bh=sfvPGL1+xjrI8Ql7xV105n6ykfu9JIjG03xKjTjvr6c=;
+        s=korg; t=1619422256;
+        bh=JAnE0DFAqpBdPXY9O0OJ1Ow4OCtQaSZVmlgghKQKbl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HD/u1YLxaXMFNunoZoR+REwEKcZdwoGvJ3096mjJKm+W9jRdpmAUL7nRn/MgzHmhB
-         Xw0s6OXJ/Tfx31CueSYr1Vj840RYy5qpna0SDATrnTchUVD2f7/IKCDIHoXluVnUvA
-         mqLS7xMw1XKmo/mH6HfJBKu6aUlAEqugn6TQDMA4=
+        b=Xqe8wj5568X720SU1q2zznVqpTWB3NWI3X6pEMn9QmnqXeO8oAOp402/Paji0t4Bf
+         nXhh5ssapdYywGoVAnCHD/qPFs0Xv/UtSLR2MV+TZK+IGgp86b1a7ScVBErQQxu9iV
+         iW5QMW4UIzJK9HEF7mOsJS1qIUvZOYx4CuCbddnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
         Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/49] net: ieee802154: stop dump llsec seclevels for monitors
+Subject: [PATCH 4.4 13/32] net: ieee802154: forbid monitor for add llsec devkey
 Date:   Mon, 26 Apr 2021 09:29:11 +0200
-Message-Id: <20210426072820.240794589@linuxfoundation.org>
+Message-Id: <20210426072817.042019495@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
+References: <20210426072816.574319312@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +42,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 4c9b4f55ad1f5a4b6206ac4ea58f273126d21925 ]
+[ Upstream commit a347b3b394868fef15b16f143719df56184be81d ]
 
-This patch stops dumping llsec seclevels for monitors which we don't
-support yet. Otherwise we will access llsec mib which isn't initialized
-for monitors.
+This patch forbids to add llsec devkey for monitor interfaces which we
+don't support yet. Otherwise we will access llsec mib which isn't
+initialized for monitors.
 
 Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210405003054.256017-13-aahringo@redhat.com
+Link: https://lore.kernel.org/r/20210405003054.256017-11-aahringo@redhat.com
 Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl802154.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/ieee802154/nl802154.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index eaeff7c08bdf..29916f8cfdc3 100644
+index 19d0d22ff625..4ee080f3a41d 100644
 --- a/net/ieee802154/nl802154.c
 +++ b/net/ieee802154/nl802154.c
-@@ -2048,6 +2048,11 @@ nl802154_dump_llsec_seclevel(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (err)
- 		return err;
+@@ -1901,6 +1901,9 @@ static int nl802154_add_llsec_devkey(struct sk_buff *skb, struct genl_info *info
+ 	struct ieee802154_llsec_device_key key;
+ 	__le64 extended_addr;
  
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
-+		err = skb->len;
-+		goto out_err;
-+	}
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
 +
- 	if (!wpan_dev->netdev) {
- 		err = -EINVAL;
- 		goto out_err;
+ 	if (!info->attrs[NL802154_ATTR_SEC_DEVKEY] ||
+ 	    nla_parse_nested(attrs, NL802154_DEVKEY_ATTR_MAX,
+ 			     info->attrs[NL802154_ATTR_SEC_DEVKEY],
 -- 
 2.30.2
 
