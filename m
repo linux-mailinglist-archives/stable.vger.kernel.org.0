@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A39D36AE8D
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBE7436AE7B
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232627AbhDZHpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
+        id S233161AbhDZHp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:45:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233748AbhDZHoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:44:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED893613C1;
-        Mon, 26 Apr 2021 07:40:24 +0000 (UTC)
+        id S233355AbhDZHne (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:43:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6849613C3;
+        Mon, 26 Apr 2021 07:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422825;
-        bh=czNKm0mqDxsUeA3xKoBQNmTrg6kgyI/Wl2LfDy6++18=;
+        s=korg; t=1619422801;
+        bh=LrzwD02RnLgoVuAueIQ5a9G1U6hrNPFklKerrb/eNV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZ0j/8fmPEDjgw7TKlbnczWftkAqqCu0BkPlpWouXjwppCCWDdLE7ATGebQQKnE8d
-         IKdWYN24WmiX3fDmn2mIEtahAUZbDY1AoWON0bsQAAceyDYDHK3oScsf8SaG8/AEHZ
-         ueAhZ8/Bf48dbqLYV0HbghCr3LFF5RCnareW4t9w=
+        b=wfKdhwLwHD3gh7Kv+0ntZtp/Xh/ULeItV8WKadtmvqt1w98OfKhy51Kxz0eYaDhvA
+         rJ0GHD5N8JEQoAY/kA3udDLd3inAkvw0mC5La0xf97qryacI99uJENBpBjQJlcGF2h
+         4/fKdUlN/LHEFBzmMDMA3u2gydGy5gREDtwUrS5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Guo Ren <guoren@kernel.org>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Mike Rapoport <rppt@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 33/36] csky: change a Kconfig symbol name to fix e1000 build error
-Date:   Mon, 26 Apr 2021 09:30:15 +0200
-Message-Id: <20210426072819.910686915@linuxfoundation.org>
+Subject: [PATCH 5.10 34/36] ia64: fix discontig.c section mismatches
+Date:   Mon, 26 Apr 2021 09:30:16 +0200
+Message-Id: <20210426072819.942348415@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
 References: <20210426072818.777662399@linuxfoundation.org>
@@ -46,54 +44,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit d199161653d612b8fb96ac51bfd5b2d2782ecef3 ]
+[ Upstream commit e2af9da4f867a1a54f1252bf3abc1a5c63951778 ]
 
-e1000's #define of CONFIG_RAM_BASE conflicts with a Kconfig symbol in
-arch/csky/Kconfig.
+Fix IA64 discontig.c Section mismatch warnings.
 
-The symbol in e1000 has been around longer, so change arch/csky/ to use
-DRAM_BASE instead of RAM_BASE to remove the conflict.  (although e1000
-is also a 2-line change)
+When CONFIG_SPARSEMEM=y and CONFIG_MEMORY_HOTPLUG=y, the functions
+computer_pernodesize() and scatter_node_data() should not be marked as
+__meminit because they are needed after init, on any memory hotplug
+event.  Also, early_nr_cpus_node() is called by compute_pernodesize(),
+so early_nr_cpus_node() cannot be __meminit either.
 
-Link: https://lkml.kernel.org/r/20210411055335.7111-1-rdunlap@infradead.org
+  WARNING: modpost: vmlinux.o(.text.unlikely+0x1612): Section mismatch in reference from the function arch_alloc_nodedata() to the function .meminit.text:compute_pernodesize()
+  The function arch_alloc_nodedata() references the function __meminit compute_pernodesize().
+  This is often because arch_alloc_nodedata lacks a __meminit annotation or the annotation of compute_pernodesize is wrong.
+
+  WARNING: modpost: vmlinux.o(.text.unlikely+0x1692): Section mismatch in reference from the function arch_refresh_nodedata() to the function .meminit.text:scatter_node_data()
+  The function arch_refresh_nodedata() references the function __meminit scatter_node_data().
+  This is often because arch_refresh_nodedata lacks a __meminit annotation or the annotation of scatter_node_data is wrong.
+
+  WARNING: modpost: vmlinux.o(.text.unlikely+0x1502): Section mismatch in reference from the function compute_pernodesize() to the function .meminit.text:early_nr_cpus_node()
+  The function compute_pernodesize() references the function __meminit early_nr_cpus_node().
+  This is often because compute_pernodesize lacks a __meminit annotation or the annotation of early_nr_cpus_node is wrong.
+
+Link: https://lkml.kernel.org/r/20210411001201.3069-1-rdunlap@infradead.org
 Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Guo Ren <guoren@kernel.org>
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc: Mike Rapoport <rppt@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/Kconfig            | 2 +-
- arch/csky/include/asm/page.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/ia64/mm/discontig.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-index 268fad5f51cf..7bf0a617e94c 100644
---- a/arch/csky/Kconfig
-+++ b/arch/csky/Kconfig
-@@ -292,7 +292,7 @@ config FORCE_MAX_ZONEORDER
- 	int "Maximum zone order"
- 	default "11"
+diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
+index dbe829fc5298..4d0813419013 100644
+--- a/arch/ia64/mm/discontig.c
++++ b/arch/ia64/mm/discontig.c
+@@ -94,7 +94,7 @@ static int __init build_node_maps(unsigned long start, unsigned long len,
+  * acpi_boot_init() (which builds the node_to_cpu_mask array) hasn't been
+  * called yet.  Note that node 0 will also count all non-existent cpus.
+  */
+-static int __meminit early_nr_cpus_node(int node)
++static int early_nr_cpus_node(int node)
+ {
+ 	int cpu, n = 0;
  
--config RAM_BASE
-+config DRAM_BASE
- 	hex "DRAM start addr (the same with memory-section in dts)"
- 	default 0x0
+@@ -109,7 +109,7 @@ static int __meminit early_nr_cpus_node(int node)
+  * compute_pernodesize - compute size of pernode data
+  * @node: the node id.
+  */
+-static unsigned long __meminit compute_pernodesize(int node)
++static unsigned long compute_pernodesize(int node)
+ {
+ 	unsigned long pernodesize = 0, cpus;
  
-diff --git a/arch/csky/include/asm/page.h b/arch/csky/include/asm/page.h
-index 9b98bf31d57c..16878240ef9a 100644
---- a/arch/csky/include/asm/page.h
-+++ b/arch/csky/include/asm/page.h
-@@ -28,7 +28,7 @@
- #define SSEG_SIZE	0x20000000
- #define LOWMEM_LIMIT	(SSEG_SIZE * 2)
+@@ -366,7 +366,7 @@ static void __init reserve_pernode_space(void)
+ 	}
+ }
  
--#define PHYS_OFFSET_OFFSET (CONFIG_RAM_BASE & (SSEG_SIZE - 1))
-+#define PHYS_OFFSET_OFFSET (CONFIG_DRAM_BASE & (SSEG_SIZE - 1))
- 
- #ifndef __ASSEMBLY__
- 
+-static void __meminit scatter_node_data(void)
++static void scatter_node_data(void)
+ {
+ 	pg_data_t **dst;
+ 	int node;
 -- 
 2.30.2
 
