@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC5F36AE1A
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5A536AD61
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233160AbhDZHll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49392 "EHLO mail.kernel.org"
+        id S232314AbhDZHgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:36:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233567AbhDZHjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C96961152;
-        Mon, 26 Apr 2021 07:38:01 +0000 (UTC)
+        id S232746AbhDZHeB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:34:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5D4B6105A;
+        Mon, 26 Apr 2021 07:33:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422682;
-        bh=YlWBcBgIfiPCKrYK/0SepKj02YGc7U2b3kT2ZXTNTlM=;
+        s=korg; t=1619422400;
+        bh=zAq6j4WNvL9szHvvi6C/GiCYwJFCVoonCOJU8D4FLjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsXiuEVxQ8SrAQ5InY3LMAYLUv0VMo3PHVbHnPeQ/D1ReMQYC3MkjrJUcyxCe74Gp
-         L88K9laQ9Y8DbN18sxh8s3Gm/oJcQAu5enTPq82HjjK8lizJ2H7ogF6wCyKDy3/hRV
-         W0s87obgcs7Uwaues0jrQS8AmKst5mjuAMko9pRU=
+        b=EoCHttd85qi4UJ/R5EPg2wzwNpV+pK+7CvCTrK98BZCfF7b9ytmTDXCN9KAQrk82t
+         ik9h4x8N8Dq7WN4bngPg8qAZYge+NH56uVFy8Qd/00S8uFtIv7RLzzOsosP5mtj5VB
+         /3AKEv0zWkDLiBGUm3LPTYbcK2da3W0996kx7P+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <lijunp213@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 38/57] ibmvnic: remove duplicate napi_schedule call in do_reset function
+        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 34/37] cavium/liquidio: Fix duplicate argument
 Date:   Mon, 26 Apr 2021 09:29:35 +0200
-Message-Id: <20210426072821.861100755@linuxfoundation.org>
+Message-Id: <20210426072818.407428932@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <lijunp213@gmail.com>
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-commit d3a6abccbd272aea7dc2c6f984bb5a2c11278e44 upstream.
+[ Upstream commit 416dcc5ce9d2a810477171c62ffa061a98f87367 ]
 
-During adapter reset, do_reset/do_hard_reset calls ibmvnic_open(),
-which will calls napi_schedule if previous state is VNIC_CLOSED
-(i.e, the reset case, and "ifconfig down" case). So there is no need
-for do_reset to call napi_schedule again at the end of the function
-though napi_schedule will neglect the request if napi is already
-scheduled.
+Fix the following coccicheck warning:
 
-Fixes: ed651a10875f ("ibmvnic: Updated reset handling")
-Signed-off-by: Lijun Pan <lijunp213@gmail.com>
+./drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h:413:6-28:
+duplicated argument to & or |
+
+The CN6XXX_INTR_M1UPB0_ERR here is duplicate.
+Here should be CN6XXX_INTR_M1UNB0_ERR.
+
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1760,7 +1760,7 @@ static int do_reset(struct ibmvnic_adapt
- 	u64 old_num_rx_queues, old_num_tx_queues;
- 	u64 old_num_rx_slots, old_num_tx_slots;
- 	struct net_device *netdev = adapter->netdev;
--	int i, rc;
-+	int rc;
- 
- 	netdev_dbg(adapter->netdev, "Re-setting driver (%d)\n",
- 		   rwi->reset_reason);
-@@ -1878,10 +1878,6 @@ static int do_reset(struct ibmvnic_adapt
- 	/* refresh device's multicast list */
- 	ibmvnic_set_multi(netdev);
- 
--	/* kick napi */
--	for (i = 0; i < adapter->req_rx_queues; i++)
--		napi_schedule(&adapter->napi[i]);
--
- 	if (adapter->reset_reason != VNIC_RESET_FAILOVER &&
- 	    adapter->reset_reason != VNIC_RESET_CHANGE_PARAM) {
- 		call_netdevice_notifiers(NETDEV_NOTIFY_PEERS, netdev);
+diff --git a/drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h b/drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h
+index 5e3aff242ad3..3ab84d18ad3a 100644
+--- a/drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h
++++ b/drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h
+@@ -417,7 +417,7 @@
+ 	   | CN6XXX_INTR_M0UNWI_ERR             \
+ 	   | CN6XXX_INTR_M1UPB0_ERR             \
+ 	   | CN6XXX_INTR_M1UPWI_ERR             \
+-	   | CN6XXX_INTR_M1UPB0_ERR             \
++	   | CN6XXX_INTR_M1UNB0_ERR             \
+ 	   | CN6XXX_INTR_M1UNWI_ERR             \
+ 	   | CN6XXX_INTR_INSTR_DB_OF_ERR        \
+ 	   | CN6XXX_INTR_SLIST_DB_OF_ERR        \
+-- 
+2.30.2
+
 
 
