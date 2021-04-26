@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6158B36AEA3
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C92EC36AE2C
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232782AbhDZHpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59578 "EHLO mail.kernel.org"
+        id S233511AbhDZHlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234092AbhDZHor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:44:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8153613E3;
-        Mon, 26 Apr 2021 07:41:21 +0000 (UTC)
+        id S233632AbhDZHjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD4AE613D2;
+        Mon, 26 Apr 2021 07:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422882;
-        bh=cF9brIkzMn7X6OUeIYmyYlwPCL9kFNXn1fdTYvJB3R4=;
+        s=korg; t=1619422703;
+        bh=dQOG0laoapLFxO2rFa+JWZVS/IKfrplnybk3BUCUjbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npXnzQ6ne4TEdqjsLQamYruR1wzHibNR+jRtU2DVsDZj3tfWlBKVigDUkRWWu1GZ/
-         54f4hcuqcKkaJbGXruql4S/6PBrdacjWKm0Rt/+mKBV7iTBY2xjBSLO7zCYvGzPZr7
-         cjpZjJ0kzfOg3UpjreuCIqXYoTi8gslzQD1eTYGk=
+        b=AOxL6PZmYsQi7xofhzvsIARGtU2MHzgBMnqSBuYf9OeZbqL2g6Vig6V8x/+bBngB4
+         Kcqa1mJvS50fTUBG3sY5iYXOBj3Ud+EHsAbB2++p0lI8Vxk4lsEfM/gHOnsRoIHOXq
+         GRAXAPHJs+QhPL16M+srhdWXn/gohehuVjVHjTZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        stable@vger.kernel.org, Ali Saidi <alisaidi@amazon.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Waiman Long <longman@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 08/41] KEYS: trusted: Fix TPM reservation for seal/unseal
-Date:   Mon, 26 Apr 2021 09:29:55 +0200
-Message-Id: <20210426072819.972833675@linuxfoundation.org>
+Subject: [PATCH 5.4 05/20] locking/qrwlock: Fix ordering in queued_write_lock_slowpath()
+Date:   Mon, 26 Apr 2021 09:29:56 +0200
+Message-Id: <20210426072816.857926428@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
-References: <20210426072819.666570770@linuxfoundation.org>
+In-Reply-To: <20210426072816.686976183@linuxfoundation.org>
+References: <20210426072816.686976183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Ali Saidi <alisaidi@amazon.com>
 
-[ Upstream commit 9d5171eab462a63e2fbebfccf6026e92be018f20 ]
+[ Upstream commit 84a24bf8c52e66b7ac89ada5e3cfbe72d65c1896 ]
 
-The original patch 8c657a0590de ("KEYS: trusted: Reserve TPM for seal
-and unseal operations") was correct on the mailing list:
+While this code is executed with the wait_lock held, a reader can
+acquire the lock without holding wait_lock.  The writer side loops
+checking the value with the atomic_cond_read_acquire(), but only truly
+acquires the lock when the compare-and-exchange is completed
+successfully which isn’t ordered. This exposes the window between the
+acquire and the cmpxchg to an A-B-A problem which allows reads
+following the lock acquisition to observe values speculatively before
+the write lock is truly acquired.
 
-https://lore.kernel.org/linux-integrity/20210128235621.127925-4-jarkko@kernel.org/
+We've seen a problem in epoll where the reader does a xchg while
+holding the read lock, but the writer can see a value change out from
+under it.
 
-But somehow got rebased so that the tpm_try_get_ops() in
-tpm2_seal_trusted() got lost.  This causes an imbalanced put of the
-TPM ops and causes oopses on TIS based hardware.
+  Writer                                | Reader
+  --------------------------------------------------------------------------------
+  ep_scan_ready_list()                  |
+  |- write_lock_irq()                   |
+      |- queued_write_lock_slowpath()   |
+	|- atomic_cond_read_acquire()   |
+				        | read_lock_irqsave(&ep->lock, flags);
+     --> (observes value before unlock) |  chain_epi_lockless()
+     |                                  |    epi->next = xchg(&ep->ovflist, epi);
+     |                                  | read_unlock_irqrestore(&ep->lock, flags);
+     |                                  |
+     |     atomic_cmpxchg_relaxed()     |
+     |-- READ_ONCE(ep->ovflist);        |
 
-This fix puts back the lost tpm_try_get_ops()
+A core can order the read of the ovflist ahead of the
+atomic_cmpxchg_relaxed(). Switching the cmpxchg to use acquire
+semantics addresses this issue at which point the atomic_cond_read can
+be switched to use relaxed semantics.
 
-Fixes: 8c657a0590de ("KEYS: trusted: Reserve TPM for seal and unseal operations")
-Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-Acked-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Fixes: b519b56e378ee ("locking/qrwlock: Use atomic_cond_read_acquire() when spinning in qrwlock")
+Signed-off-by: Ali Saidi <alisaidi@amazon.com>
+[peterz: use try_cmpxchg()]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Steve Capper <steve.capper@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Tested-by: Steve Capper <steve.capper@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/keys/trusted-keys/trusted_tpm2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/locking/qrwlock.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/security/keys/trusted-keys/trusted_tpm2.c b/security/keys/trusted-keys/trusted_tpm2.c
-index e2a0ed5d02f0..c87c4df8703d 100644
---- a/security/keys/trusted-keys/trusted_tpm2.c
-+++ b/security/keys/trusted-keys/trusted_tpm2.c
-@@ -79,7 +79,7 @@ int tpm2_seal_trusted(struct tpm_chip *chip,
- 	if (i == ARRAY_SIZE(tpm2_hash_map))
- 		return -EINVAL;
+diff --git a/kernel/locking/qrwlock.c b/kernel/locking/qrwlock.c
+index fe9ca92faa2a..909b0bf22a1e 100644
+--- a/kernel/locking/qrwlock.c
++++ b/kernel/locking/qrwlock.c
+@@ -61,6 +61,8 @@ EXPORT_SYMBOL(queued_read_lock_slowpath);
+  */
+ void queued_write_lock_slowpath(struct qrwlock *lock)
+ {
++	int cnts;
++
+ 	/* Put the writer into the wait queue */
+ 	arch_spin_lock(&lock->wait_lock);
  
--	rc = tpm_buf_init(&buf, TPM2_ST_SESSIONS, TPM2_CC_CREATE);
-+	rc = tpm_try_get_ops(chip);
- 	if (rc)
- 		return rc;
+@@ -74,9 +76,8 @@ void queued_write_lock_slowpath(struct qrwlock *lock)
  
+ 	/* When no more readers or writers, set the locked flag */
+ 	do {
+-		atomic_cond_read_acquire(&lock->cnts, VAL == _QW_WAITING);
+-	} while (atomic_cmpxchg_relaxed(&lock->cnts, _QW_WAITING,
+-					_QW_LOCKED) != _QW_WAITING);
++		cnts = atomic_cond_read_relaxed(&lock->cnts, VAL == _QW_WAITING);
++	} while (!atomic_try_cmpxchg_acquire(&lock->cnts, &cnts, _QW_LOCKED));
+ unlock:
+ 	arch_spin_unlock(&lock->wait_lock);
+ }
 -- 
 2.30.2
 
