@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F52336AE21
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D027236AE59
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233352AbhDZHlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56330 "EHLO mail.kernel.org"
+        id S232532AbhDZHnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233373AbhDZHjX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41597613B1;
-        Mon, 26 Apr 2021 07:37:18 +0000 (UTC)
+        id S233630AbhDZHm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:42:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAC95613AC;
+        Mon, 26 Apr 2021 07:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422638;
-        bh=dyRldP5WwRQox7FWHAv/9vRbVj4P9Q2XOhGBEqwoVFg=;
+        s=korg; t=1619422766;
+        bh=oBC+dwlVZO+RPkhhqBHg07yV4vgCDUVynGMprcDaUek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGznGCsKzWJYxjQRt8YYEFOSJact1lKEd9wo2lKOOLS4bpuYqd9/lZJt9/JCx145N
-         ntX4egxyarJGsGHN8vP6jqgt5C0vzf6gTAjxUFcsPL5T1/k5B9lpZS0AiU7qbkO7f0
-         8dzyuAqq7Zl/gMW7Bpoz0h9Rm0mazQMIeTgeuGag=
+        b=HEGMZ5Crp2TNz1BMLCuUytw8HJu7WZ9KkZyZV8/v67Ct11FM0M78mftq+zMcZyFSd
+         8XmBUTKOdWS3pk9Zd5U1lKaY2duWBm5+0BICrHBOUzVjET8uooatume9Q7VW3QHMpM
+         tS2S8nyss4DLdxWXyOVG+0qlxJPSPv6z9JRjaa3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Wahl <steve.wahl@hpe.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Adam Ford <aford173@gmail.com>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 46/57] perf/x86/intel/uncore: Remove uncore extra PCI dev HSWEP_PCI_PCU_3
-Date:   Mon, 26 Apr 2021 09:29:43 +0200
-Message-Id: <20210426072822.131385198@linuxfoundation.org>
+Subject: [PATCH 5.10 02/36] gpio: omap: Save and restore sysconfig
+Date:   Mon, 26 Apr 2021 09:29:44 +0200
+Message-Id: <20210426072818.872067252@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
+References: <20210426072818.777662399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,157 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 9d480158ee86ad606d3a8baaf81e6b71acbfd7d5 ]
+[ Upstream commit ddd8d94ca31e768c76cf8bfe34ba7b10136b3694 ]
 
-There may be a kernel panic on the Haswell server and the Broadwell
-server, if the snbep_pci2phy_map_init() return error.
+As we are using cpu_pm to save and restore context, we must also save and
+restore the GPIO sysconfig register. This is needed because we are not
+calling PM runtime functions at all with cpu_pm.
 
-The uncore_extra_pci_dev[HSWEP_PCI_PCU_3] is used in the cpu_init() to
-detect the existence of the SBOX, which is a MSR type of PMON unit.
-The uncore_extra_pci_dev is allocated in the uncore_pci_init(). If the
-snbep_pci2phy_map_init() returns error, perf doesn't initialize the
-PCI type of the PMON units, so the uncore_extra_pci_dev will not be
-allocated. But perf may continue initializing the MSR type of PMON
-units. A null dereference kernel panic will be triggered.
+We need to save the sysconfig on idle as it's value can get reconfigured by
+PM runtime and can be different from the init time value. Device specific
+flags like "ti,no-idle-on-init" can affect the init value.
 
-The sockets in a Haswell server or a Broadwell server are identical.
-Only need to detect the existence of the SBOX once.
-Current perf probes all available PCU devices and stores them into the
-uncore_extra_pci_dev. It's unnecessary.
-Use the pci_get_device() to replace the uncore_extra_pci_dev. Only
-detect the existence of the SBOX on the first available PCU device once.
-
-Factor out hswep_has_limit_sbox(), since the Haswell server and the
-Broadwell server uses the same way to detect the existence of the SBOX.
-
-Add some macros to replace the magic number.
-
-Fixes: 5306c31c5733 ("perf/x86/uncore/hsw-ep: Handle systems with only two SBOXes")
-Reported-by: Steve Wahl <steve.wahl@hpe.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Steve Wahl <steve.wahl@hpe.com>
-Link: https://lkml.kernel.org/r/1618521764-100923-1-git-send-email-kan.liang@linux.intel.com
+Fixes: b764a5863fd8 ("gpio: omap: Remove custom PM calls and use cpu_pm instead")
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Adam Ford <aford173@gmail.com>
+Cc: Andreas Kemnade <andreas@kemnade.info>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 61 ++++++++++++----------------
- 1 file changed, 26 insertions(+), 35 deletions(-)
+ drivers/gpio/gpio-omap.c                | 9 +++++++++
+ include/linux/platform_data/gpio-omap.h | 3 +++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 8e4e8e423839..c06074b847fa 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -1030,7 +1030,6 @@ enum {
- 	SNBEP_PCI_QPI_PORT0_FILTER,
- 	SNBEP_PCI_QPI_PORT1_FILTER,
- 	BDX_PCI_QPI_PORT2_FILTER,
--	HSWEP_PCI_PCU_3,
- };
+diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
+index f7ceb2b11afc..a7e8ed5191a8 100644
+--- a/drivers/gpio/gpio-omap.c
++++ b/drivers/gpio/gpio-omap.c
+@@ -29,6 +29,7 @@
+ #define OMAP4_GPIO_DEBOUNCINGTIME_MASK 0xFF
  
- static int snbep_qpi_hw_config(struct intel_uncore_box *box, struct perf_event *event)
-@@ -2687,22 +2686,33 @@ static struct intel_uncore_type *hswep_msr_uncores[] = {
- 	NULL,
- };
+ struct gpio_regs {
++	u32 sysconfig;
+ 	u32 irqenable1;
+ 	u32 irqenable2;
+ 	u32 wake_en;
+@@ -1072,6 +1073,7 @@ static void omap_gpio_init_context(struct gpio_bank *p)
+ 	const struct omap_gpio_reg_offs *regs = p->regs;
+ 	void __iomem *base = p->base;
  
--void hswep_uncore_cpu_init(void)
-+#define HSWEP_PCU_DID			0x2fc0
-+#define HSWEP_PCU_CAPID4_OFFET		0x94
-+#define hswep_get_chop(_cap)		(((_cap) >> 6) & 0x3)
++	p->context.sysconfig	= readl_relaxed(base + regs->sysconfig);
+ 	p->context.ctrl		= readl_relaxed(base + regs->ctrl);
+ 	p->context.oe		= readl_relaxed(base + regs->direction);
+ 	p->context.wake_en	= readl_relaxed(base + regs->wkup_en);
+@@ -1091,6 +1093,7 @@ static void omap_gpio_restore_context(struct gpio_bank *bank)
+ 	const struct omap_gpio_reg_offs *regs = bank->regs;
+ 	void __iomem *base = bank->base;
+ 
++	writel_relaxed(bank->context.sysconfig, base + regs->sysconfig);
+ 	writel_relaxed(bank->context.wake_en, base + regs->wkup_en);
+ 	writel_relaxed(bank->context.ctrl, base + regs->ctrl);
+ 	writel_relaxed(bank->context.leveldetect0, base + regs->leveldetect0);
+@@ -1118,6 +1121,10 @@ static void omap_gpio_idle(struct gpio_bank *bank, bool may_lose_context)
+ 
+ 	bank->saved_datain = readl_relaxed(base + bank->regs->datain);
+ 
++	/* Save syconfig, it's runtime value can be different from init value */
++	if (bank->loses_context)
++		bank->context.sysconfig = readl_relaxed(base + bank->regs->sysconfig);
 +
-+static bool hswep_has_limit_sbox(unsigned int device)
- {
--	int pkg = boot_cpu_data.logical_proc_id;
-+	struct pci_dev *dev = pci_get_device(PCI_VENDOR_ID_INTEL, device, NULL);
-+	u32 capid4;
-+
-+	if (!dev)
-+		return false;
-+
-+	pci_read_config_dword(dev, HSWEP_PCU_CAPID4_OFFET, &capid4);
-+	if (!hswep_get_chop(capid4))
-+		return true;
+ 	if (!bank->enabled_non_wakeup_gpios)
+ 		goto update_gpio_context_count;
  
-+	return false;
-+}
-+
-+void hswep_uncore_cpu_init(void)
-+{
- 	if (hswep_uncore_cbox.num_boxes > boot_cpu_data.x86_max_cores)
- 		hswep_uncore_cbox.num_boxes = boot_cpu_data.x86_max_cores;
+@@ -1282,6 +1289,7 @@ static int gpio_omap_cpu_notifier(struct notifier_block *nb,
  
- 	/* Detect 6-8 core systems with only two SBOXes */
--	if (uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3]) {
--		u32 capid4;
--
--		pci_read_config_dword(uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3],
--				      0x94, &capid4);
--		if (((capid4 >> 6) & 0x3) == 0)
--			hswep_uncore_sbox.num_boxes = 2;
--	}
-+	if (hswep_has_limit_sbox(HSWEP_PCU_DID))
-+		hswep_uncore_sbox.num_boxes = 2;
+ static const struct omap_gpio_reg_offs omap2_gpio_regs = {
+ 	.revision =		OMAP24XX_GPIO_REVISION,
++	.sysconfig =		OMAP24XX_GPIO_SYSCONFIG,
+ 	.direction =		OMAP24XX_GPIO_OE,
+ 	.datain =		OMAP24XX_GPIO_DATAIN,
+ 	.dataout =		OMAP24XX_GPIO_DATAOUT,
+@@ -1305,6 +1313,7 @@ static const struct omap_gpio_reg_offs omap2_gpio_regs = {
  
- 	uncore_msr_uncores = hswep_msr_uncores;
- }
-@@ -2965,11 +2975,6 @@ static const struct pci_device_id hswep_uncore_pci_ids[] = {
- 		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
- 						   SNBEP_PCI_QPI_PORT1_FILTER),
- 	},
--	{ /* PCU.3 (for Capability registers) */
--		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2fc0),
--		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
--						   HSWEP_PCI_PCU_3),
--	},
- 	{ /* end: all zeroes */ }
- };
+ static const struct omap_gpio_reg_offs omap4_gpio_regs = {
+ 	.revision =		OMAP4_GPIO_REVISION,
++	.sysconfig =		OMAP4_GPIO_SYSCONFIG,
+ 	.direction =		OMAP4_GPIO_OE,
+ 	.datain =		OMAP4_GPIO_DATAIN,
+ 	.dataout =		OMAP4_GPIO_DATAOUT,
+diff --git a/include/linux/platform_data/gpio-omap.h b/include/linux/platform_data/gpio-omap.h
+index 8b30b14b47d3..f377817ce75c 100644
+--- a/include/linux/platform_data/gpio-omap.h
++++ b/include/linux/platform_data/gpio-omap.h
+@@ -85,6 +85,7 @@
+  * omap2+ specific GPIO registers
+  */
+ #define OMAP24XX_GPIO_REVISION		0x0000
++#define OMAP24XX_GPIO_SYSCONFIG		0x0010
+ #define OMAP24XX_GPIO_IRQSTATUS1	0x0018
+ #define OMAP24XX_GPIO_IRQSTATUS2	0x0028
+ #define OMAP24XX_GPIO_IRQENABLE2	0x002c
+@@ -108,6 +109,7 @@
+ #define OMAP24XX_GPIO_SETDATAOUT	0x0094
  
-@@ -3061,27 +3066,18 @@ static struct event_constraint bdx_uncore_pcu_constraints[] = {
- 	EVENT_CONSTRAINT_END
- };
- 
-+#define BDX_PCU_DID			0x6fc0
-+
- void bdx_uncore_cpu_init(void)
- {
--	int pkg = topology_phys_to_logical_pkg(boot_cpu_data.phys_proc_id);
--
- 	if (bdx_uncore_cbox.num_boxes > boot_cpu_data.x86_max_cores)
- 		bdx_uncore_cbox.num_boxes = boot_cpu_data.x86_max_cores;
- 	uncore_msr_uncores = bdx_msr_uncores;
- 
--	/* BDX-DE doesn't have SBOX */
--	if (boot_cpu_data.x86_model == 86) {
--		uncore_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
- 	/* Detect systems with no SBOXes */
--	} else if (uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3]) {
--		struct pci_dev *pdev;
--		u32 capid4;
--
--		pdev = uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3];
--		pci_read_config_dword(pdev, 0x94, &capid4);
--		if (((capid4 >> 6) & 0x3) == 0)
--			bdx_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
--	}
-+	if ((boot_cpu_data.x86_model == 86) || hswep_has_limit_sbox(BDX_PCU_DID))
-+		uncore_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
-+
- 	hswep_uncore_pcu.constraints = bdx_uncore_pcu_constraints;
- }
- 
-@@ -3302,11 +3298,6 @@ static const struct pci_device_id bdx_uncore_pci_ids[] = {
- 		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
- 						   BDX_PCI_QPI_PORT2_FILTER),
- 	},
--	{ /* PCU.3 (for Capability registers) */
--		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x6fc0),
--		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
--						   HSWEP_PCI_PCU_3),
--	},
- 	{ /* end: all zeroes */ }
- };
- 
+ #define OMAP4_GPIO_REVISION		0x0000
++#define OMAP4_GPIO_SYSCONFIG		0x0010
+ #define OMAP4_GPIO_EOI			0x0020
+ #define OMAP4_GPIO_IRQSTATUSRAW0	0x0024
+ #define OMAP4_GPIO_IRQSTATUSRAW1	0x0028
+@@ -148,6 +150,7 @@
+ #ifndef __ASSEMBLER__
+ struct omap_gpio_reg_offs {
+ 	u16 revision;
++	u16 sysconfig;
+ 	u16 direction;
+ 	u16 datain;
+ 	u16 dataout;
 -- 
 2.30.2
 
