@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B62236AD93
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D23A36ADF2
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233015AbhDZHhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:37:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
+        id S232832AbhDZHka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:40:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232912AbhDZHgj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFD17613B2;
-        Mon, 26 Apr 2021 07:34:30 +0000 (UTC)
+        id S233205AbhDZHjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57936611C9;
+        Mon, 26 Apr 2021 07:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422471;
-        bh=vkV34FM6761YRz5Fm5iyW5C9HbhFmXJFqazH5TguhvI=;
+        s=korg; t=1619422604;
+        bh=mQjJ6x20xtSCymemq+yGIgamS3EJ0KEd6zbDPnV6+DU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tb9mS3Hs0Ku3+LGnVplSQ893QOpaheLssidcTZD4dYyIK5LtRU9sSxa7EwBykB3B6
-         XuO5nhMMjxrBYHaTvgBW5p47kC9/0DPJxJj3lZLKqx56XBTmGGNV2Zy2JPoFC0phzH
-         lBCd+ykF3sxlPzdVWbx1odCYwgV52tNecUtW9IlU=
+        b=SajTRdFRlgC0qmWfUJbxZ2ppGXtvc3hKryP9tJ9CrxjWGzFEFKkyXGon47ZGgOOgf
+         OqWDmz+T6KBCrOxDVkeEd3wpwrHdL0pGG6gCghiNaWQ9gAwBYWzhOJ7XVn5+sECSy2
+         OpwydW66Fa0I4NqiTYsdpClKywSlMhT6ezL86pro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/49] ARM: dts: Fix moving mmc devices with aliases for omap4 & 5
-Date:   Mon, 26 Apr 2021 09:29:00 +0200
-Message-Id: <20210426072819.864712192@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 04/57] dmaengine: dw: Make it dependent to HAS_IOMEM
+Date:   Mon, 26 Apr 2021 09:29:01 +0200
+Message-Id: <20210426072820.723532700@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 77335a040178a0456d4eabc8bf17a7ca3ee4a327 ]
+[ Upstream commit 88cd1d6191b13689094310c2405394e4ce36d061 ]
 
-Fix moving mmc devices with dts aliases as discussed on the lists.
-Without this we now have internal eMMC mmc1 show up as mmc2 compared
-to the earlier order of devices.
+Some architectures do not provide devm_*() APIs. Hence make the driver
+dependent on HAVE_IOMEM.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: dbde5c2934d1 ("dw_dmac: use devm_* functions to simplify code")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20210324141757.24710-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap4.dtsi | 5 +++++
- arch/arm/boot/dts/omap5.dtsi | 5 +++++
- 2 files changed, 10 insertions(+)
+ drivers/dma/dw/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index 28d10abd8b04..09129365c0e1 100644
---- a/arch/arm/boot/dts/omap4.dtsi
-+++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -22,6 +22,11 @@
- 		i2c1 = &i2c2;
- 		i2c2 = &i2c3;
- 		i2c3 = &i2c4;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
-+		mmc3 = &mmc4;
-+		mmc4 = &mmc5;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
-diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
-index bc3f53c79e9d..9786baf7f9c4 100644
---- a/arch/arm/boot/dts/omap5.dtsi
-+++ b/arch/arm/boot/dts/omap5.dtsi
-@@ -25,6 +25,11 @@
- 		i2c2 = &i2c3;
- 		i2c3 = &i2c4;
- 		i2c4 = &i2c5;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
-+		mmc3 = &mmc4;
-+		mmc4 = &mmc5;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
+diff --git a/drivers/dma/dw/Kconfig b/drivers/dma/dw/Kconfig
+index 04b9728c1d26..070860ec0ef1 100644
+--- a/drivers/dma/dw/Kconfig
++++ b/drivers/dma/dw/Kconfig
+@@ -8,6 +8,7 @@ config DW_DMAC_CORE
+ 
+ config DW_DMAC
+ 	tristate "Synopsys DesignWare AHB DMA platform driver"
++	depends on HAS_IOMEM
+ 	select DW_DMAC_CORE
+ 	help
+ 	  Support the Synopsys DesignWare AHB DMA controller. This
+@@ -16,6 +17,7 @@ config DW_DMAC
+ config DW_DMAC_PCI
+ 	tristate "Synopsys DesignWare AHB DMA PCI driver"
+ 	depends on PCI
++	depends on HAS_IOMEM
+ 	select DW_DMAC_CORE
+ 	help
+ 	  Support the Synopsys DesignWare AHB DMA controller on the
 -- 
 2.30.2
 
