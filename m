@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C97A036AE13
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C27D36AD58
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232602AbhDZHli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56258 "EHLO mail.kernel.org"
+        id S232725AbhDZHdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:33:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233523AbhDZHjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8543861041;
-        Mon, 26 Apr 2021 07:37:51 +0000 (UTC)
+        id S232733AbhDZHdv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:33:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A12326105A;
+        Mon, 26 Apr 2021 07:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422672;
-        bh=c3etItYbJNLwhyV+X5QRFBVYf4oOqVzZ7m6Jhhxowvc=;
+        s=korg; t=1619422390;
+        bh=EDj1gHlZSzYdYf98LrWwBli/46xSjlYyncHL60ccxE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+QNiLkiLEq+OI2T0XY+CI4z+NrXCnQLLpptD4nLIi6KZStI+0L4NjfLmraV5aBv2
-         LHH5Ea7LINsPkmUWCg7BjruK/zhrgWeUdUcMV+QXsIaYdtA+/SsAAOZiRVQcZXQGYm
-         iz8Y6+pPsbubpfLtxMe+RqNI2mHyqZ0Wlj0SRefc=
+        b=CDbiPbK0/gT5tlT7ATkNopDMWd935W0sSnac6Koqt0Bz8LvJhlcuD7451f0KA92dh
+         RB2VwJQqWAb755QFULTLpfReWEoS4tqKHwqyZiJwvG4JhH+JyOe6JcNXq9wyf+oTka
+         pPe6RxT8NYYHZO69+kGDwUUqzmh0rxcSaUhS7BJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 34/57] net: sit: Unregister catch-all devices
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 30/37] HID: alps: fix error return code in alps_input_configured()
 Date:   Mon, 26 Apr 2021 09:29:31 +0200
-Message-Id: <20210426072821.734197259@linuxfoundation.org>
+Message-Id: <20210426072818.273795807@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hristo Venev <hristo@venev.name>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-commit 610f8c0fc8d46e0933955ce13af3d64484a4630a upstream.
+[ Upstream commit fa8ba6e5dc0e78e409e503ddcfceef5dd96527f4 ]
 
-A sit interface created without a local or a remote address is linked
-into the `sit_net::tunnels_wc` list of its original namespace. When
-deleting a network namespace, delete the devices that have been moved.
+When input_register_device() fails, no error return code is assigned.
+To fix this bug, ret is assigned with -ENOENT as error return code.
 
-The following script triggers a null pointer dereference if devices
-linked in a deleted `sit_net` remain:
-
-    for i in `seq 1 30`; do
-        ip netns add ns-test
-        ip netns exec ns-test ip link add dev veth0 type veth peer veth1
-        ip netns exec ns-test ip link add dev sit$i type sit dev veth0
-        ip netns exec ns-test ip link set dev sit$i netns $$
-        ip netns del ns-test
-    done
-    for i in `seq 1 30`; do
-        ip link del dev sit$i
-    done
-
-Fixes: 5e6700b3bf98f ("sit: add support of x-netns")
-Signed-off-by: Hristo Venev <hristo@venev.name>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/sit.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-alps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1818,9 +1818,9 @@ static void __net_exit sit_destroy_tunne
- 		if (dev->rtnl_link_ops == &sit_link_ops)
- 			unregister_netdevice_queue(dev, head);
- 
--	for (prio = 1; prio < 4; prio++) {
-+	for (prio = 0; prio < 4; prio++) {
- 		int h;
--		for (h = 0; h < IP6_SIT_HASH_SIZE; h++) {
-+		for (h = 0; h < (prio ? IP6_SIT_HASH_SIZE : 1); h++) {
- 			struct ip_tunnel *t;
- 
- 			t = rtnl_dereference(sitn->tunnels[prio][h]);
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index ed9c0ea5b026..1bc6ad0339d2 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -429,6 +429,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		ret = input_register_device(data->input2);
+ 		if (ret) {
+ 			input_free_device(input2);
++			ret = -ENOENT;
+ 			goto exit;
+ 		}
+ 	}
+-- 
+2.30.2
+
 
 
