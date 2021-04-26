@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3A1B36AE9F
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA29436AEB5
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233279AbhDZHpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37316 "EHLO mail.kernel.org"
+        id S233364AbhDZHqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:46:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233988AbhDZHoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:44:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BB07613F1;
-        Mon, 26 Apr 2021 07:41:03 +0000 (UTC)
+        id S233501AbhDZHni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:43:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FAFA61152;
+        Mon, 26 Apr 2021 07:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422864;
-        bh=KVuSzgEWL8yOaClH1gfHCtSceNgJivoQJwjpO7bOolE=;
+        s=korg; t=1619422808;
+        bh=zOqFHToOZjvTBMPs6beVPhiipgQIvM6HG6HLqSy2x5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yR71Rw8gZJQhuy53QSrxLI/mw89J3Lk0ASPhtZdJs5OSxXvUMID5UPqY9vKF2lLUD
-         YN/mNnbzBF5js2T0soeLV5n0v3ehmijQ+IkIJJUZiAPFtD2S6KrvW45Unz+oLY4NAD
-         Ee6v43/xm9rq6qOcLVneaoY9RCbk6OF3/+9Z5An8=
+        b=eyE1U8Ek4vldQxS7TpxSr3zpTzvhKRMwJyiYJUgBsQhBUO2o1LUh+CVJtqoat3fJO
+         3wVInI16hQaaQB3Ug5GyYdeq2S+8cXAqSScvPnq2YCxG8ShYOC/gZ/GNmcWa/O8Yv5
+         UBtWrFapfVuS8ZV3HGGzY/W5g0uR8XDU07wd+0b0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot+2e406a9ac75bb71d4b7a@syzkaller.appspotmail.com,
+        Phillip Potter <phil@philpotter.co.uk>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 21/41] perf map: Fix error return code in maps__clone()
+Subject: [PATCH 5.10 26/36] net: geneve: check skb is large enough for IPv4/IPv6 header
 Date:   Mon, 26 Apr 2021 09:30:08 +0200
-Message-Id: <20210426072820.404080371@linuxfoundation.org>
+Message-Id: <20210426072819.683135603@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
-References: <20210426072819.666570770@linuxfoundation.org>
+In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
+References: <20210426072818.777662399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-[ Upstream commit c6f87141254d16e281e4b4431af7316895207b8f ]
+[ Upstream commit 6628ddfec7580882f11fdc5c194a8ea781fdadfa ]
 
-Although 'err' has been initialized to -ENOMEM, but it will be reassigned
-by the "err = unwind__prepare_access(...)" statement in the for loop. So
-that, the value of 'err' is unknown when map__clone() failed.
+Check within geneve_xmit_skb/geneve6_xmit_skb that sk_buff structure
+is large enough to include IPv4 or IPv6 header, and reject if not. The
+geneve_xmit_skb portion and overall idea was contributed by Eric Dumazet.
+Fixes a KMSAN-found uninit-value bug reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=abe95dc3e3e9667fc23b8d81f29ecad95c6f106f
 
-Fixes: 6c502584438bda63 ("perf unwind: Call unwind__prepare_access for forked thread")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: zhen lei <thunder.leizhen@huawei.com>
-Link: http://lore.kernel.org/lkml/20210415092744.3793-1-thunder.leizhen@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+2e406a9ac75bb71d4b7a@syzkaller.appspotmail.com
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/map.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/geneve.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
-index e2537d5acab0..f4d44f75ba15 100644
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -836,15 +836,18 @@ out:
- int maps__clone(struct thread *thread, struct maps *parent)
- {
- 	struct maps *maps = thread->maps;
--	int err = -ENOMEM;
-+	int err;
- 	struct map *map;
+diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
+index abd37f26af68..11864ac101b8 100644
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -890,6 +890,9 @@ static int geneve_xmit_skb(struct sk_buff *skb, struct net_device *dev,
+ 	__be16 sport;
+ 	int err;
  
- 	down_read(&parent->lock);
- 
- 	maps__for_each_entry(parent, map) {
- 		struct map *new = map__clone(map);
--		if (new == NULL)
++	if (!pskb_network_may_pull(skb, sizeof(struct iphdr)))
++		return -EINVAL;
 +
-+		if (new == NULL) {
-+			err = -ENOMEM;
- 			goto out_unlock;
-+		}
+ 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
+ 			      geneve->cfg.info.key.tp_dst, sport);
+@@ -984,6 +987,9 @@ static int geneve6_xmit_skb(struct sk_buff *skb, struct net_device *dev,
+ 	__be16 sport;
+ 	int err;
  
- 		err = unwind__prepare_access(maps, new, NULL);
- 		if (err)
++	if (!pskb_network_may_pull(skb, sizeof(struct ipv6hdr)))
++		return -EINVAL;
++
+ 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
+ 				geneve->cfg.info.key.tp_dst, sport);
 -- 
 2.30.2
 
