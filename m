@@ -2,86 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8302936BB0D
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 23:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94AFB36BBBD
+	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 00:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234864AbhDZVMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 17:12:21 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:51208 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234275AbhDZVMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 17:12:20 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 7FCBF1C0B79; Mon, 26 Apr 2021 23:11:37 +0200 (CEST)
-Date:   Mon, 26 Apr 2021 23:11:36 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tony Lindgren <tony@atomide.com>,
-        Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        linux-omap@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.4 1/7] ARM: dts: Fix swapped mmc order for omap3
-Message-ID: <20210426211136.GA31646@amd>
-References: <20210419204608.7191-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
-Content-Disposition: inline
-In-Reply-To: <20210419204608.7191-1-sashal@kernel.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+        id S232647AbhDZWhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 18:37:32 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:58093 "EHLO m43-7.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232235AbhDZWhb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 18:37:31 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1619476609; h=References: In-Reply-To: Message-Id: Date:
+ Subject: Cc: To: From: Sender;
+ bh=oCnweCBMh3IHM3K4LW+++d+iSCW1tV81y0CJQjgIx7U=; b=dEXN29gWxarHQbiKKiSpi+p0Dhi9sEGh6ylFOzJGMA/GfUfOyZfMzDhmX54GuwQu74uU4Jji
+ kxnLdKNB2g/aNFmSykKUFkOp3biDxQKjFj/+zniz9unDB2v0sA5q5XnPCsOgo+9VoOcQcYm1
+ 7w57wYR0njlALQKeAqakPYGNA7s=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
+ 6087407f2cc44d3aeacae960 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 26 Apr 2021 22:36:47
+ GMT
+Sender: subbaram=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 1B7DAC4323A; Mon, 26 Apr 2021 22:36:47 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL
+        autolearn=no autolearn_force=no version=3.4.0
+Received: from subbaram-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: subbaram)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 32572C433D3;
+        Mon, 26 Apr 2021 22:36:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 32572C433D3
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=subbaram@codeaurora.org
+From:   Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+To:     jackp@codeaurora.org
+Cc:     abhilash.k.v@intel.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org, subbaram@codeaurora.org
+Subject: Re: [PATCH] usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4
+Date:   Mon, 26 Apr 2021 15:36:20 -0700
+Message-Id: <1619476580-13072-1-git-send-email-subbaram@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <20210426204213.GC20698@jackp-linux.qualcomm.com>
+References: <20210426204213.GC20698@jackp-linux.qualcomm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> UBSAN FTW. Want me to copy this trace into the commit text as well?
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, I think it would be good as this issue is found by enabling UBSAN.
+Also, it gives the context that by inserting a PD charger adapter that
+can support more than 4 PDOs, device can crash because of an OOB access.
 
-Hi!
-
-> From: Tony Lindgren <tony@atomide.com>
->=20
-> [ Upstream commit a1ebdb3741993f853865d1bd8f77881916ad53a7 ]
->=20
-> Also some omap3 devices like n900 seem to have eMMC and micro-sd swapped
-> around with commit 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for
-> drivers that existed in v4.4").
->=20
-> Let's fix the issue with aliases as discussed on the mailing lists. While
-> the mmc aliases should be board specific, let's first fix the issue with
-> minimal changes.
-
-21b2cec61c04 tries to make newer kernels compatible with 4.4, and this
-is fixup for 21b2cec61c04. 21b2cec61c04 is not in 4.4 (obviously) so i
-don't believe we need this for 4.4.
-
-As this claims to "making it compatible with 4.4", I believe we should
-leave 4.4 alone.
-
-21b2cec61c04 is not present in v4.19, either, but what needs to be
-done there is less clear.
-
-21b2cec61c04 is in v5.10, so a1ebdb3741993f853865d1bd8f77881916ad53a7
-makes sense there, too.
-
-Best regards,
-								Pavel
---=20
-http://www.livejournal.com/~pavelmachek
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmCHLIgACgkQMOfwapXb+vL79wCgs2jx6N45TMeX+TDZerFINSqJ
-EIMAnjD8EduuGN8g5U6/iKTjK4vuJZ57
-=DuMi
------END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--
+-Subbaraman
