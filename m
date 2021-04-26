@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42DAE36AE8B
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C0D36AEBE
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232994AbhDZHpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34610 "EHLO mail.kernel.org"
+        id S232838AbhDZHqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:46:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232682AbhDZHoF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:44:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E0AB613B3;
-        Mon, 26 Apr 2021 07:40:22 +0000 (UTC)
+        id S234309AbhDZHpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:45:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E17D613F8;
+        Mon, 26 Apr 2021 07:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422823;
-        bh=jqlxbD4jWz55BNOzhYL6VinJOSoZoV0z2NCOXkKdtbA=;
+        s=korg; t=1619422923;
+        bh=Pcw49y1E0fdtvfEUzDApg+mSF6Eqc3PK/dvzuvX2dm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4zf9i8G9RLcgeAewK7OHqKhRuUZaCEATmfBSIfQ7Mk28py42WnJkrMLKWHJ9bm71
-         YDDvdrkuGYt/28m3LOrI8AjGs4kpS5oNeQw5fxIQGW/xXDNlL9I9ZDjKI25h0qruHj
-         VlT8BrS8dmEu1PfUrc69tk30t0N6/suq5ww6pz48=
+        b=U/H0v6VJ7fy4g6o6dj87nQYOxn0cHB3zO2Z67pXzXiLgSogMFlRRS8fTt3cCzGrqO
+         oJMvdxDz8oKMeqk1tXT7SkWSk5XGbsgzDtu7u/O2abhiPr0FXTusWy9qQ54A/LpZrf
+         3ugit8X96Ql0aCnO2f4PG1Vs+4mkKNEEHlqJHjJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Marco Elver <elver@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 32/36] kasan: fix hwasan build for gcc
-Date:   Mon, 26 Apr 2021 09:30:14 +0200
-Message-Id: <20210426072819.880836700@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 28/41] dmaengine: xilinx: dpdma: Fix descriptor issuing on video group
+Date:   Mon, 26 Apr 2021 09:30:15 +0200
+Message-Id: <20210426072820.649426386@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
-References: <20210426072818.777662399@linuxfoundation.org>
+In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
+References: <20210426072819.666570770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,82 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 5c595ac4c776c44b5c59de22ab43b3fe256d9fbb ]
+[ Upstream commit 1cbd44666216278bbb6a55bcb6b9283702171c77 ]
 
-gcc-11 adds support for -fsanitize=kernel-hwaddress, so it becomes
-possible to enable CONFIG_KASAN_SW_TAGS.
+When multiple channels are part of a video group, the transfer is
+triggered only when all channels in the group are ready. The logic to do
+so is incorrect, as it causes the descriptors for all channels but the
+last one in a group to not being pushed to the hardware. Fix it.
 
-Unfortunately this fails to build at the moment, because the
-corresponding command line arguments use llvm specific syntax.
-
-Change it to use the cc-param macro instead, which works on both clang
-and gcc.
-
-[elver@google.com: fixup for "kasan: fix hwasan build for gcc"]
-  Link: https://lkml.kernel.org/r/YHQZVfVVLE/LDK2v@elver.google.com
-
-Link: https://lkml.kernel.org/r/20210323124112.1229772-1-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Marco Elver <elver@google.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Acked-by: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Michal Marek <michal.lkml@markovi.net>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/20210307040629.29308-2-laurent.pinchart@ideasonboard.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.kasan | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/dma/xilinx/xilinx_dpdma.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/scripts/Makefile.kasan b/scripts/Makefile.kasan
-index 1e000cc2e7b4..127012f45166 100644
---- a/scripts/Makefile.kasan
-+++ b/scripts/Makefile.kasan
-@@ -2,6 +2,8 @@
- CFLAGS_KASAN_NOSANITIZE := -fno-builtin
- KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SHADOW_OFFSET)
+diff --git a/drivers/dma/xilinx/xilinx_dpdma.c b/drivers/dma/xilinx/xilinx_dpdma.c
+index 55df63dead8d..d504112c609e 100644
+--- a/drivers/dma/xilinx/xilinx_dpdma.c
++++ b/drivers/dma/xilinx/xilinx_dpdma.c
+@@ -839,6 +839,7 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 	struct xilinx_dpdma_tx_desc *desc;
+ 	struct virt_dma_desc *vdesc;
+ 	u32 reg, channels;
++	bool first_frame;
  
-+cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
-+
- ifdef CONFIG_KASAN_GENERIC
+ 	lockdep_assert_held(&chan->lock);
  
- ifdef CONFIG_KASAN_INLINE
-@@ -12,8 +14,6 @@ endif
+@@ -852,14 +853,6 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 		chan->running = true;
+ 	}
  
- CFLAGS_KASAN_MINIMAL := -fsanitize=kernel-address
- 
--cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
+-	if (chan->video_group)
+-		channels = xilinx_dpdma_chan_video_group_ready(chan);
+-	else
+-		channels = BIT(chan->id);
 -
- # -fasan-shadow-offset fails without -fsanitize
- CFLAGS_KASAN_SHADOW := $(call cc-option, -fsanitize=kernel-address \
- 			-fasan-shadow-offset=$(KASAN_SHADOW_OFFSET), \
-@@ -36,14 +36,14 @@ endif # CONFIG_KASAN_GENERIC
- ifdef CONFIG_KASAN_SW_TAGS
+-	if (!channels)
+-		return;
+-
+ 	vdesc = vchan_next_desc(&chan->vchan);
+ 	if (!vdesc)
+ 		return;
+@@ -884,13 +877,26 @@ static void xilinx_dpdma_chan_queue_transfer(struct xilinx_dpdma_chan *chan)
+ 			    FIELD_PREP(XILINX_DPDMA_CH_DESC_START_ADDRE_MASK,
+ 				       upper_32_bits(sw_desc->dma_addr)));
  
- ifdef CONFIG_KASAN_INLINE
--    instrumentation_flags := -mllvm -hwasan-mapping-offset=$(KASAN_SHADOW_OFFSET)
-+    instrumentation_flags := $(call cc-param,hwasan-mapping-offset=$(KASAN_SHADOW_OFFSET))
- else
--    instrumentation_flags := -mllvm -hwasan-instrument-with-calls=1
-+    instrumentation_flags := $(call cc-param,hwasan-instrument-with-calls=1)
- endif
+-	if (chan->first_frame)
++	first_frame = chan->first_frame;
++	chan->first_frame = false;
++
++	if (chan->video_group) {
++		channels = xilinx_dpdma_chan_video_group_ready(chan);
++		/*
++		 * Trigger the transfer only when all channels in the group are
++		 * ready.
++		 */
++		if (!channels)
++			return;
++	} else {
++		channels = BIT(chan->id);
++	}
++
++	if (first_frame)
+ 		reg = XILINX_DPDMA_GBL_TRIG_MASK(channels);
+ 	else
+ 		reg = XILINX_DPDMA_GBL_RETRIG_MASK(channels);
  
- CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
--		-mllvm -hwasan-instrument-stack=$(CONFIG_KASAN_STACK) \
--		-mllvm -hwasan-use-short-granules=0 \
-+		$(call cc-param,hwasan-instrument-stack=$(CONFIG_KASAN_STACK)) \
-+		$(call cc-param,hwasan-use-short-granules=0) \
- 		$(instrumentation_flags)
+-	chan->first_frame = false;
+-
+ 	dpdma_write(xdev->reg, XILINX_DPDMA_GBL, reg);
+ }
  
- endif # CONFIG_KASAN_SW_TAGS
 -- 
 2.30.2
 
