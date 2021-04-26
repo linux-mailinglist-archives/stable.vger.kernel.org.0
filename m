@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6AD36ADCF
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA1C36AD91
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233136AbhDZHiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:38:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46576 "EHLO mail.kernel.org"
+        id S232701AbhDZHhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:37:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232828AbhDZHhq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:37:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 163A8613DA;
-        Mon, 26 Apr 2021 07:35:48 +0000 (UTC)
+        id S232910AbhDZHgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:36:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0345E613AB;
+        Mon, 26 Apr 2021 07:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422549;
-        bh=pPvDJg7w0ccVOFSlasxI6wYypajAjwZLNJjnSgZh52s=;
+        s=korg; t=1619422456;
+        bh=Tf9WxtiHQvdriJ2+5M8WNhvlSiNu0TsP/ipvH5quYVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0KNRw++HnyywO1Y5TU/Loi1b6fqUM4YVl0/KfwN8dD1sWWBkJvdbSNEoWsDGFyaR6
-         s05YNd0BqpLA2290poAnYk6EDc4t6xi4oSODs4CP5x3Vqf3Klxs/Suh1pIdT5V4I3X
-         tSdbCpNJXq53zSz1Rm0ELWPfq8PdYXSO2+S1TjIA=
+        b=jg7kUh+lr5JmyRrysQS3qQVS5fVziDMPT6ueSwRa0gxKhOmxDytHknyoBWxXF9EcA
+         d0KnE2WWa+1wcI2JOl3BBElavbBN0wdy4b0wnDtezgUv5gBYBzEe3lWXhausaBfFuQ
+         tl+1+KLTFGX23SEg2HtolPw4qsurem7LVzTuvVIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 01/57] net/sctp: fix race condition in sctp_destroy_sock
+        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 02/49] Input: nspire-keypad - enable interrupts only when opened
 Date:   Mon, 26 Apr 2021 09:28:58 +0200
-Message-Id: <20210426072820.621580223@linuxfoundation.org>
+Message-Id: <20210426072819.802269287@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,80 +40,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Or Cohen <orcohen@paloaltonetworks.com>
+From: Fabian Vogt <fabian@ritter-vogt.de>
 
-commit b166a20b07382b8bc1dcee2a448715c9c2c81b5b upstream.
+[ Upstream commit 69d5ff3e9e51e23d5d81bf48480aa5671be67a71 ]
 
-If sctp_destroy_sock is called without sock_net(sk)->sctp.addr_wq_lock
-held and sp->do_auto_asconf is true, then an element is removed
-from the auto_asconf_splist without any proper locking.
+The driver registers an interrupt handler in _probe, but didn't configure
+them until later when the _open function is called. In between, the keypad
+can fire an IRQ due to touchpad activity, which the handler ignores. This
+causes the kernel to disable the interrupt, blocking the keypad from
+working.
 
-This can happen in the following functions:
-1. In sctp_accept, if sctp_sock_migrate fails.
-2. In inet_create or inet6_create, if there is a bpf program
-   attached to BPF_CGROUP_INET_SOCK_CREATE which denies
-   creation of the sctp socket.
+Fix this by disabling interrupts before registering the handler.
+Additionally, disable them in _close, so that they're only enabled while
+open.
 
-The bug is fixed by acquiring addr_wq_lock in sctp_destroy_sock
-instead of sctp_close.
-
-This addresses CVE-2021-23133.
-
-Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Fixes: 610236587600 ("bpf: Add new cgroup attach type to enable sock modifications")
-Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fc4f31461892 ("Input: add TI-Nspire keypad support")
+Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
+Link: https://lore.kernel.org/r/3383725.iizBOSrK1V@linux-e202.suse.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/socket.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/input/keyboard/nspire-keypad.c | 56 ++++++++++++++------------
+ 1 file changed, 31 insertions(+), 25 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1569,11 +1569,9 @@ static void sctp_close(struct sock *sk,
+diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
+index c7f26fa3034c..cf138d836eec 100644
+--- a/drivers/input/keyboard/nspire-keypad.c
++++ b/drivers/input/keyboard/nspire-keypad.c
+@@ -96,9 +96,15 @@ static irqreturn_t nspire_keypad_irq(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
  
- 	/* Supposedly, no process has access to the socket, but
- 	 * the net layers still may.
--	 * Also, sctp_destroy_sock() needs to be called with addr_wq_lock
--	 * held and that should be grabbed before socket lock.
- 	 */
--	spin_lock_bh(&net->sctp.addr_wq_lock);
--	bh_lock_sock_nested(sk);
-+	local_bh_disable();
-+	bh_lock_sock(sk);
+-static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
++static int nspire_keypad_open(struct input_dev *input)
+ {
++	struct nspire_keypad *keypad = input_get_drvdata(input);
+ 	unsigned long val = 0, cycles_per_us, delay_cycles, row_delay_cycles;
++	int error;
++
++	error = clk_prepare_enable(keypad->clk);
++	if (error)
++		return error;
  
- 	/* Hold the sock, since sk_common_release() will put sock_put()
- 	 * and we have just a little more cleanup.
-@@ -1582,7 +1580,7 @@ static void sctp_close(struct sock *sk,
- 	sk_common_release(sk);
+ 	cycles_per_us = (clk_get_rate(keypad->clk) / 1000000);
+ 	if (cycles_per_us == 0)
+@@ -124,30 +130,6 @@ static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
+ 	keypad->int_mask = 1 << 1;
+ 	writel(keypad->int_mask, keypad->reg_base + KEYPAD_INTMSK);
  
- 	bh_unlock_sock(sk);
--	spin_unlock_bh(&net->sctp.addr_wq_lock);
-+	local_bh_enable();
+-	/* Disable GPIO interrupts to prevent hanging on touchpad */
+-	/* Possibly used to detect touchpad events */
+-	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
+-	/* Acknowledge existing interrupts */
+-	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
+-
+-	return 0;
+-}
+-
+-static int nspire_keypad_open(struct input_dev *input)
+-{
+-	struct nspire_keypad *keypad = input_get_drvdata(input);
+-	int error;
+-
+-	error = clk_prepare_enable(keypad->clk);
+-	if (error)
+-		return error;
+-
+-	error = nspire_keypad_chip_init(keypad);
+-	if (error) {
+-		clk_disable_unprepare(keypad->clk);
+-		return error;
+-	}
+-
+ 	return 0;
+ }
  
- 	sock_put(sk);
+@@ -155,6 +137,11 @@ static void nspire_keypad_close(struct input_dev *input)
+ {
+ 	struct nspire_keypad *keypad = input_get_drvdata(input);
  
-@@ -4776,9 +4774,6 @@ static int sctp_init_sock(struct sock *s
- 	sk_sockets_allocated_inc(sk);
- 	sock_prot_inuse_add(net, sk->sk_prot, 1);
++	/* Disable interrupts */
++	writel(0, keypad->reg_base + KEYPAD_INTMSK);
++	/* Acknowledge existing interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_INT);
++
+ 	clk_disable_unprepare(keypad->clk);
+ }
  
--	/* Nothing can fail after this block, otherwise
--	 * sctp_destroy_sock() will be called without addr_wq_lock held
--	 */
- 	if (net->sctp.default_auto_asconf) {
- 		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_add_tail(&sp->auto_asconf_list,
-@@ -4813,7 +4808,9 @@ static void sctp_destroy_sock(struct soc
- 
- 	if (sp->do_auto_asconf) {
- 		sp->do_auto_asconf = 0;
-+		spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_del(&sp->auto_asconf_list);
-+		spin_unlock_bh(&sock_net(sk)->sctp.addr_wq_lock);
+@@ -215,6 +202,25 @@ static int nspire_keypad_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  	}
- 	sctp_endpoint_free(sp->ep);
- 	local_bh_disable();
+ 
++	error = clk_prepare_enable(keypad->clk);
++	if (error) {
++		dev_err(&pdev->dev, "failed to enable clock\n");
++		return error;
++	}
++
++	/* Disable interrupts */
++	writel(0, keypad->reg_base + KEYPAD_INTMSK);
++	/* Acknowledge existing interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_INT);
++
++	/* Disable GPIO interrupts to prevent hanging on touchpad */
++	/* Possibly used to detect touchpad events */
++	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
++	/* Acknowledge existing GPIO interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
++
++	clk_disable_unprepare(keypad->clk);
++
+ 	input_set_drvdata(input, keypad);
+ 
+ 	input->id.bustype = BUS_HOST;
+-- 
+2.30.2
+
 
 
