@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC68836AD2C
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C829F36AE3B
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232328AbhDZHcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:32:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
+        id S232728AbhDZHnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:43:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232499AbhDZHcr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:32:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55B4F6105A;
-        Mon, 26 Apr 2021 07:32:05 +0000 (UTC)
+        id S233581AbhDZHjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32C0D613D8;
+        Mon, 26 Apr 2021 07:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422325;
-        bh=07caHPhzZxVAkO5mCF9RtGW81v4eRFptXroX2W2y9/4=;
+        s=korg; t=1619422686;
+        bh=vAzjK3ON9nhuy6MmsXaIwbmI6ViBagkJOSDHZK30qZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MnnqOkOyfki57b4OW4Qq1o+z/nhJ6u9EFZFOWGlsdNRm8ZOe01ury57N4AfagL3RT
-         8cSERgWYrOjs0ALmq4eBXCl3rQnPW6sGrJpeCzoQ2qTFJxkQE2OdnngS/td2Cc+q+G
-         uS1GPrEYeyxTW0gwMO3+GsxHsNhn8YcTmgvmsqgs=
+        b=V2iuSEPEDs9XGQVXjHXPtRTkE3T0EvqNHNlN+be14Nhri44iA4gMwDITaO6OX14FW
+         XPU7rW9dJ4PeI/ZEnazPcc9kdoHtrg1UJAwNy7lAOlkmNFdoHdeIJk17ZR5DPL5Ukp
+         KAOVkoMbo9B8R27w1mapGgFNn1Bi+IczyUxZdN3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 28/32] ia64: fix discontig.c section mismatches
-Date:   Mon, 26 Apr 2021 09:29:26 +0200
-Message-Id: <20210426072817.512740533@linuxfoundation.org>
+        stable@vger.kernel.org, Luo Jiaxing <luojiaxing@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Jolly Shah <jollys@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 30/57] scsi: libsas: Reset num_scatter if libata marks qc as NODATA
+Date:   Mon, 26 Apr 2021 09:29:27 +0200
+Message-Id: <20210426072821.602763274@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
-References: <20210426072816.574319312@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jolly Shah <jollys@google.com>
 
-[ Upstream commit e2af9da4f867a1a54f1252bf3abc1a5c63951778 ]
+commit 176ddd89171ddcf661862d90c5d257877f7326d6 upstream.
 
-Fix IA64 discontig.c Section mismatch warnings.
+When the cache_type for the SCSI device is changed, the SCSI layer issues a
+MODE_SELECT command. The caching mode details are communicated via a
+request buffer associated with the SCSI command with data direction set as
+DMA_TO_DEVICE (scsi_mode_select()). When this command reaches the libata
+layer, as a part of generic initial setup, libata layer sets up the
+scatterlist for the command using the SCSI command (ata_scsi_qc_new()).
+This command is then translated by the libata layer into
+ATA_CMD_SET_FEATURES (ata_scsi_mode_select_xlat()). The libata layer treats
+this as a non-data command (ata_mselect_caching()), since it only needs an
+ATA taskfile to pass the caching on/off information to the device. It does
+not need the scatterlist that has been setup, so it does not perform
+dma_map_sg() on the scatterlist (ata_qc_issue()). Unfortunately, when this
+command reaches the libsas layer (sas_ata_qc_issue()), libsas layer sees it
+as a non-data command with a scatterlist. It cannot extract the correct DMA
+length since the scatterlist has not been mapped with dma_map_sg() for a
+DMA operation. When this partially constructed SAS task reaches pm80xx
+LLDD, it results in the following warning:
 
-When CONFIG_SPARSEMEM=y and CONFIG_MEMORY_HOTPLUG=y, the functions
-computer_pernodesize() and scatter_node_data() should not be marked as
-__meminit because they are needed after init, on any memory hotplug
-event.  Also, early_nr_cpus_node() is called by compute_pernodesize(),
-so early_nr_cpus_node() cannot be __meminit either.
+"pm80xx_chip_sata_req 6058: The sg list address
+start_addr=0x0000000000000000 data_len=0x0end_addr_high=0xffffffff
+end_addr_low=0xffffffff has crossed 4G boundary"
 
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1612): Section mismatch in reference from the function arch_alloc_nodedata() to the function .meminit.text:compute_pernodesize()
-  The function arch_alloc_nodedata() references the function __meminit compute_pernodesize().
-  This is often because arch_alloc_nodedata lacks a __meminit annotation or the annotation of compute_pernodesize is wrong.
+Update libsas to handle ATA non-data commands separately so num_scatter and
+total_xfer_len remain 0.
 
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1692): Section mismatch in reference from the function arch_refresh_nodedata() to the function .meminit.text:scatter_node_data()
-  The function arch_refresh_nodedata() references the function __meminit scatter_node_data().
-  This is often because arch_refresh_nodedata lacks a __meminit annotation or the annotation of scatter_node_data is wrong.
-
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1502): Section mismatch in reference from the function compute_pernodesize() to the function .meminit.text:early_nr_cpus_node()
-  The function compute_pernodesize() references the function __meminit early_nr_cpus_node().
-  This is often because compute_pernodesize lacks a __meminit annotation or the annotation of early_nr_cpus_node is wrong.
-
-Link: https://lkml.kernel.org/r/20210411001201.3069-1-rdunlap@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20210318225632.2481291-1-jollys@google.com
+Fixes: 53de092f47ff ("scsi: libsas: Set data_dir as DMA_NONE if libata marks qc as NODATA")
+Tested-by: Luo Jiaxing <luojiaxing@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Jolly Shah <jollys@google.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/ia64/mm/discontig.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/libsas/sas_ata.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
-index 878626805369..3b0c892953ab 100644
---- a/arch/ia64/mm/discontig.c
-+++ b/arch/ia64/mm/discontig.c
-@@ -99,7 +99,7 @@ static int __init build_node_maps(unsigned long start, unsigned long len,
-  * acpi_boot_init() (which builds the node_to_cpu_mask array) hasn't been
-  * called yet.  Note that node 0 will also count all non-existent cpus.
-  */
--static int __meminit early_nr_cpus_node(int node)
-+static int early_nr_cpus_node(int node)
- {
- 	int cpu, n = 0;
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -215,18 +215,17 @@ static unsigned int sas_ata_qc_issue(str
+ 		memcpy(task->ata_task.atapi_packet, qc->cdb, qc->dev->cdb_len);
+ 		task->total_xfer_len = qc->nbytes;
+ 		task->num_scatter = qc->n_elem;
++		task->data_dir = qc->dma_dir;
++	} else if (qc->tf.protocol == ATA_PROT_NODATA) {
++		task->data_dir = DMA_NONE;
+ 	} else {
+ 		for_each_sg(qc->sg, sg, qc->n_elem, si)
+ 			xfer += sg_dma_len(sg);
  
-@@ -114,7 +114,7 @@ static int __meminit early_nr_cpus_node(int node)
-  * compute_pernodesize - compute size of pernode data
-  * @node: the node id.
-  */
--static unsigned long __meminit compute_pernodesize(int node)
-+static unsigned long compute_pernodesize(int node)
- {
- 	unsigned long pernodesize = 0, cpus;
- 
-@@ -411,7 +411,7 @@ static void __init reserve_pernode_space(void)
- 	}
- }
- 
--static void __meminit scatter_node_data(void)
-+static void scatter_node_data(void)
- {
- 	pg_data_t **dst;
- 	int node;
--- 
-2.30.2
-
+ 		task->total_xfer_len = xfer;
+ 		task->num_scatter = si;
+-	}
+-
+-	if (qc->tf.protocol == ATA_PROT_NODATA)
+-		task->data_dir = DMA_NONE;
+-	else
+ 		task->data_dir = qc->dma_dir;
++	}
+ 	task->scatter = qc->sg;
+ 	task->ata_task.retry_count = 1;
+ 	task->task_state_flags = SAS_TASK_STATE_PENDING;
 
 
