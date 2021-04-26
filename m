@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6105B36AE18
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 884EB36AD5D
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233088AbhDZHlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
+        id S232246AbhDZHez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:34:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233543AbhDZHjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0A74613CB;
-        Mon, 26 Apr 2021 07:37:53 +0000 (UTC)
+        id S232754AbhDZHdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:33:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C9D61004;
+        Mon, 26 Apr 2021 07:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422674;
-        bh=bWjkEMqWk8LpqfI0qoaV2gfWeqoPKQ0GCiIZbx7y7bw=;
+        s=korg; t=1619422392;
+        bh=t0vC+f2byHsMR+27DDNB5nfUbO6bLL77AyUQ7BA8Fak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkY6aa7HAYNlN92gvDFAbGDyg7aTVA4SSFuqsXEZgon6UUh3fgFTgunXd1VLZxZED
-         17SBkgdomvSZho6LiUmxpob53J356hCOpRSXYEcz15ATaZeweQpCl10BUG0yGTQT2S
-         OEe23pqsmYszD3BvsPSC5cO8QaG7jjb9kXegH2fY=
+        b=jZzmbKvJ0TVDdR3EmVICCl0L7HKzQhNG4OQp7aRIWhFLTUz6DNWSYr+ljQQm9gZ9n
+         7iPWAw3JNb8+Mf6C2Katwf/BwN+VOejaUH7QHdaSgIA/RfvCOq3bIukP+/neXgIfrz
+         Ri8GR6WHiXfTd5gyPhtZ0No/X6qajN5hFOEckCKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 35/57] net: ip6_tunnel: Unregister catch-all devices
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 31/37] ARM: dts: Fix swapped mmc order for omap3
 Date:   Mon, 26 Apr 2021 09:29:32 +0200
-Message-Id: <20210426072821.763792328@linuxfoundation.org>
+Message-Id: <20210426072818.303109646@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hristo Venev <hristo@venev.name>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 941ea91e87a6e879ed82dad4949f6234f2702bec upstream.
+[ Upstream commit a1ebdb3741993f853865d1bd8f77881916ad53a7 ]
 
-Similarly to the sit case, we need to remove the tunnels with no
-addresses that have been moved to another network namespace.
+Also some omap3 devices like n900 seem to have eMMC and micro-sd swapped
+around with commit 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for
+drivers that existed in v4.4").
 
-Fixes: 0bd8762824e73 ("ip6tnl: add x-netns support")
-Signed-off-by: Hristo Venev <hristo@venev.name>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's fix the issue with aliases as discussed on the mailing lists. While
+the mmc aliases should be board specific, let's first fix the issue with
+minimal changes.
+
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_tunnel.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm/boot/dts/omap3.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -2222,6 +2222,16 @@ static void __net_exit ip6_tnl_destroy_t
- 			t = rtnl_dereference(t->next);
- 		}
- 	}
-+
-+	t = rtnl_dereference(ip6n->tnls_wc[0]);
-+	while (t) {
-+		/* If dev is in the same netns, it has already
-+		 * been added to the list by the previous loop.
-+		 */
-+		if (!net_eq(dev_net(t->dev), net))
-+			unregister_netdevice_queue(t->dev, list);
-+		t = rtnl_dereference(t->next);
-+	}
- }
- 
- static int __net_init ip6_tnl_init_net(struct net *net)
+diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
+index 2008648b8c9f..0a7600d06fb5 100644
+--- a/arch/arm/boot/dts/omap3.dtsi
++++ b/arch/arm/boot/dts/omap3.dtsi
+@@ -23,6 +23,9 @@
+ 		i2c0 = &i2c1;
+ 		i2c1 = &i2c2;
+ 		i2c2 = &i2c3;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
+-- 
+2.30.2
+
 
 
