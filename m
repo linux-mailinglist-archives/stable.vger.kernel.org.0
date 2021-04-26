@@ -2,109 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8DF036AFE2
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 10:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F12136AFE7
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 10:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232340AbhDZIoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 04:44:06 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:35625 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232068AbhDZIoG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 04:44:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1619426604;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Wz6WYdlaJ9ziC7ExdEujknNmn1q4Z9TPX1vLmCnL7NU=;
-        b=bp8s+07RUcGkiKI8bxIkA7su1sfdCKObL3XLsFUgj1ZhtfOTStlU5oI+WqRjmTixYwp08v
-        /yJCNq+EV+8xdZa3Fl7PvHoD3qng4NSZF2SBTvn02Y6ZsP7bWYRTiOWLF6ZqYOr9RC2Gtg
-        TeBZ5NjOw0Ak7hd4CJ3d02K+TACWAGw=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-482-pe2ucA-3NWKVIYnNJVt2pg-1; Mon, 26 Apr 2021 04:43:20 -0400
-X-MC-Unique: pe2ucA-3NWKVIYnNJVt2pg-1
-Received: by mail-pj1-f71.google.com with SMTP id u5-20020a17090a3fc5b029014e545d9a6eso6981094pjm.2
-        for <stable@vger.kernel.org>; Mon, 26 Apr 2021 01:43:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Wz6WYdlaJ9ziC7ExdEujknNmn1q4Z9TPX1vLmCnL7NU=;
-        b=pONNExu3ENxdVXyIdqeRDEnMgGxkcydsRAec1pItSeMKawpjV8IWeSRMWC+YRDkX1U
-         vMCT2rFV154LOWHMNZh/X2fB10hUY5VK3EFfNm8Toj7L3iSXpaGeIVOfqDWmWnsTxHwm
-         W1JDKqsE7/d73pXqn6rwPMG3b+ZIK4KX4KqkR0AUV1GqeBXf7BTlsYUo0FFgkIJodCHJ
-         JkxNmA6ZxmGzSXnZInyLdEj6Uwi5N5uoNBEOnaeiYP9WcD4X1u5UtxQw9t5i7Q6VOAJx
-         4uV0DERd+FTv+7C1arBLRQyjSkPmDYN+HhgzDLsfW7UHKSWpC2mTpwuU+z++oCUjx8Ub
-         NEzw==
-X-Gm-Message-State: AOAM532JhTgMHPo999kIC/EQvIlKKiVGuWRLYk3IpeRbARI1oiOZoYZS
-        tmwzp4pWzm36Fp2kbmGh8KBVgO8skg4Z174HU81re+2FW02Fh2BAKB5qf2zDOua4Zm/LzFze/BI
-        2pwrqsV5tIG441YKX
-X-Received: by 2002:a17:90a:a505:: with SMTP id a5mr19853535pjq.58.1619426599217;
-        Mon, 26 Apr 2021 01:43:19 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzondjCaj9YscCnoJ2g1s783lMBccvbn3/Gfn0Oft7LAapuFL8XWpxpeIQsHhkVOLee47FisQ==
-X-Received: by 2002:a17:90a:a505:: with SMTP id a5mr19853514pjq.58.1619426599015;
-        Mon, 26 Apr 2021 01:43:19 -0700 (PDT)
-Received: from xiangao.remote.csb ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id m5sm5165251pjc.10.2021.04.26.01.43.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Apr 2021 01:43:18 -0700 (PDT)
-Date:   Mon, 26 Apr 2021 16:43:07 +0800
-From:   Gao Xiang <hsiangkao@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-        Chao Yu <yuchao0@huawei.com>
-Subject: Re: [PATCH for-4.19] erofs: fix extended inode could cross boundary
-Message-ID: <20210426084307.GA4042836@xiangao.remote.csb>
-References: <20210426082933.4040996-1-hsiangkao@redhat.com>
- <YIZ8UOo0c2CLt8pl@kroah.com>
+        id S232112AbhDZIpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 04:45:41 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:17037 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232068AbhDZIpk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 04:45:40 -0400
+Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FTJKQ5HZZzPrTj;
+        Mon, 26 Apr 2021 16:41:46 +0800 (CST)
+Received: from [10.174.178.147] (10.174.178.147) by
+ DGGEMS409-HUB.china.huawei.com (10.3.19.209) with Microsoft SMTP Server id
+ 14.3.498.0; Mon, 26 Apr 2021 16:44:45 +0800
+Subject: Re: [PATCH hulk-4.19-next] irqchip/gic-v3: Do not enable irqs when
+ handling spurious interrups
+To:     Greg KH <gregkh@linuxfoundation.org>, He Ying <heying24@huawei.com>
+CC:     <patchwork@huawei.com>, <huawei.libin@huawei.com>,
+        <yangerkun@huawei.com>, <xiexiuqi@huawei.com>,
+        Marc Zyngier <maz@kernel.org>, <stable@vger.kernel.org>
+References: <20210426023929.89400-1-heying24@huawei.com>
+ <YIZSLWRYa+VzZfrm@kroah.com>
+From:   Hanjun Guo <guohanjun@huawei.com>
+Message-ID: <bd1206d7-e23d-59b2-6fbb-9938d3dc27a1@huawei.com>
+Date:   Mon, 26 Apr 2021 16:44:45 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YIZ8UOo0c2CLt8pl@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <YIZSLWRYa+VzZfrm@kroah.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.147]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 26, 2021 at 10:39:44AM +0200, Greg Kroah-Hartman wrote:
-> On Mon, Apr 26, 2021 at 04:29:33PM +0800, Gao Xiang wrote:
-> > commit 0dcd3c94e02438f4a571690e26f4ee997524102a upstream.
-> > 
-> > Each ondisk inode should be aligned with inode slot boundary
-> > (32-byte alignment) because of nid calculation formula, so all
-> > compact inodes (32 byte) cannot across page boundary. However,
-> > extended inode is now 64-byte form, which can across page boundary
-> > in principle if the location is specified on purpose, although
-> > it's hard to be generated by mkfs due to the allocation policy
-> > and rarely used by Android use case now mainly for > 4GiB files.
-> > 
-> > For now, only two fields `i_ctime_nsec` and `i_nlink' couldn't
-> > be read from disk properly and cause out-of-bound memory read
-> > with random value.
-> > 
-> > Let's fix now.
-> > 
-> > Fixes: 431339ba9042 ("staging: erofs: add inode operations")
-> > Cc: <stable@vger.kernel.org> # 4.19+
-> > Link: https://lore.kernel.org/r/20200729175801.GA23973@xiangao.remote.csb
-> > Reviewed-by: Chao Yu <yuchao0@huawei.com>
-> > [ Gao Xiang: resolve non-trivial conflicts for latest 4.19.y. ]
-> > Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-> > ---
-> >  drivers/staging/erofs/inode.c | 135 ++++++++++++++++++++++------------
-> >  1 file changed, 90 insertions(+), 45 deletions(-)
+On 2021/4/26 13:39, Greg KH wrote:
+> On Sun, Apr 25, 2021 at 10:39:29PM -0400, He Ying wrote:
+>> hulk inclusion
+>> category: bugfix
+>> bugzilla: NA
+>> DTS: NA
+>> CVE: NA
+>>
+>> --------------------------------
+>>
+>> We triggered the following error while running our 4.19 kernel
+>> with the pseudo-NMI patches backported to it:
+>>
+>> [   14.816231] ------------[ cut here ]------------
+>> [   14.816231] kernel BUG at irq.c:99!
+>> [   14.816232] Internal error: Oops - BUG: 0 [#1] SMP
+>> [   14.816232] Process swapper/0 (pid: 0, stack limit = 0x(____ptrval____))
+>> [   14.816233] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      4.19.95.aarch64 #14
+>> [   14.816233] Hardware name: evb (DT)
+>> [   14.816234] pstate: 80400085 (Nzcv daIf +PAN -UAO)
+>> [   14.816234] pc : asm_nmi_enter+0x94/0x98
+>> [   14.816235] lr : asm_nmi_enter+0x18/0x98
+>> [   14.816235] sp : ffff000008003c50
+>> [   14.816235] pmr_save: 00000070
+>> [   14.816237] x29: ffff000008003c50 x28: ffff0000095f56c0
+>> [   14.816238] x27: 0000000000000000 x26: ffff000008004000
+>> [   14.816239] x25: 00000000015e0000 x24: ffff8008fb916000
+>> [   14.816240] x23: 0000000020400005 x22: ffff0000080817cc
+>> [   14.816241] x21: ffff000008003da0 x20: 0000000000000060
+>> [   14.816242] x19: 00000000000003ff x18: ffffffffffffffff
+>> [   14.816243] x17: 0000000000000008 x16: 003d090000000000
+>> [   14.816244] x15: ffff0000095ea6c8 x14: ffff8008fff5ab40
+>> [   14.816244] x13: ffff8008fff58b9d x12: 0000000000000000
+>> [   14.816245] x11: ffff000008c8a200 x10: 000000008e31fca5
+>> [   14.816246] x9 : ffff000008c8a208 x8 : 000000000000000f
+>> [   14.816247] x7 : 0000000000000004 x6 : ffff8008fff58b9e
+>> [   14.816248] x5 : 0000000000000000 x4 : 0000000080000000
+>> [   14.816249] x3 : 0000000000000000 x2 : 0000000080000000
+>> [   14.816250] x1 : 0000000000120000 x0 : ffff0000095f56c0
+>> [   14.816251] Call trace:
+>> [   14.816251]  asm_nmi_enter+0x94/0x98
+>> [   14.816251]  el1_irq+0x8c/0x180                    (IRQ C)
+>> [   14.816252]  gic_handle_irq+0xbc/0x2e4
+>> [   14.816252]  el1_irq+0xcc/0x180                    (IRQ B)
+>> [   14.816253]  arch_timer_handler_virt+0x38/0x58
+>> [   14.816253]  handle_percpu_devid_irq+0x90/0x240
+>> [   14.816253]  generic_handle_irq+0x34/0x50
+>> [   14.816254]  __handle_domain_irq+0x68/0xc0
+>> [   14.816254]  gic_handle_irq+0xf8/0x2e4
+>> [   14.816255]  el1_irq+0xcc/0x180                    (IRQ A)
+>> [   14.816255]  arch_cpu_idle+0x34/0x1c8
+>> [   14.816255]  default_idle_call+0x24/0x44
+>> [   14.816256]  do_idle+0x1d0/0x2c8
+>> [   14.816256]  cpu_startup_entry+0x28/0x30
+>> [   14.816256]  rest_init+0xb8/0xc8
+>> [   14.816257]  start_kernel+0x4c8/0x4f4
+>> [   14.816257] Code: 940587f1 d5384100 b9401001 36a7fd01 (d4210000)
+>> [   14.816258] Modules linked in: start_dp(O) smeth(O)
+>> [   15.103092] ---[ end trace 701753956cb14aa8 ]---
+>> [   15.103093] Kernel panic - not syncing: Fatal exception in interrupt
+>> [   15.103099] SMP: stopping secondary CPUs
+>> [   15.103100] Kernel Offset: disabled
+>> [   15.103100] CPU features: 0x36,a2400218
+>> [   15.103100] Memory Limit: none
+>>
+>> which is cause by a 'BUG_ON(in_nmi())' in nmi_enter().
+>>
+>> >From the call trace, we can find three interrupts (noted A, B, C above):
+>> interrupt (A) is preempted by (B), which is further interrupted by (C).
+>>
+>> Subsequent investigations show that (B) results in nmi_enter() being
+>> called, but that it actually is a spurious interrupt. Furthermore,
+>> interrupts are reenabled in the context of (B), and (C) fires with
+>> NMI priority. We end-up with a nested NMI situation, something
+>> we definitely do not want to (and cannot) handle.
+>>
+>> The bug here is that spurious interrupts should never result in any
+>> state change, and we should just return to the interrupted context.
+>> Moving the handling of spurious interrupts as early as possible in
+>> the GICv3 handler fixes this issue.
+>>
+>> Fixes: 3f1f3234bc2d ("irqchip/gic-v3: Switch to PMR masking before calling IRQ handler")
 > 
-> Thanks for the backport, I'll queue it up after this latest round of
-> stable kernels is released later this week.
-
-Thanks Greg, sorry about the delay.
-Sounds good to me.
-
-Thanks,
-Gao Xiang
-
+> This commit is in 5.1, not 4.19.
 > 
-> greg k-h
+> How are you hitting this?
 > 
+> What are we supposed to do wit this patch?
+> 
+> confused,
 
+Sorry for the noise, we have an internally used kernel which is based
+on LTS 4.19 kernel, and we backported some mainline features including
+the pseudo NMI for ARM64, that's why we backporting the following
+bugfixes as well.
+
+I didn't notice it was cced stable and Marc as well, and adding
+my review tag (for internally review process), sorry.
+
+Thanks
+Hanjun
