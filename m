@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E08E836AD71
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D253B36ADA4
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232471AbhDZHgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:36:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
+        id S232795AbhDZHha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:37:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232878AbhDZHgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 765EB61249;
-        Mon, 26 Apr 2021 07:33:36 +0000 (UTC)
+        id S232960AbhDZHgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:36:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F16C7613B1;
+        Mon, 26 Apr 2021 07:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422417;
-        bh=eCfEGQTovAKZ92NQC28F5QS3baM+7g1KYRai2o6cKcM=;
+        s=korg; t=1619422487;
+        bh=1oGOIp7h3twToVROsUH/gsrhBU5B8Xms4BkTTFSFlk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDHageYAKrCTRqLFta39zgugseUyoB8keUU/bwopOapWKl+G5AP38r+MA9Zw7Wxrn
-         AuVotmdXmYLY2jPEdt+y8FUMkwcp/9R/1OUkrJRaHLdYa35x+NNiCpLlCkB++nz63B
-         FOEpOsL59szyB/mX9F/9ZLwmcWLVy5BpUqWnoD9M=
+        b=woyVTXouLxUDBYZDyOT+smWtryrYLzPRej1R19j2NrQVtu1wr+z0BCzwCa0ORVQQC
+         9oRpujY55lgcwq7V3S3NVSOd14Fm2JYPbE/cCuhv0RSFuqvOKU2jeYMtiK6KAOpycV
+         QENfWSzQhlKh5LcPnNVYxbp534qaVPuh5ibqi4yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hristo Venev <hristo@venev.name>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 20/37] net: sit: Unregister catch-all devices
+        stable@vger.kernel.org, Luo Jiaxing <luojiaxing@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Jolly Shah <jollys@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 25/49] scsi: libsas: Reset num_scatter if libata marks qc as NODATA
 Date:   Mon, 26 Apr 2021 09:29:21 +0200
-Message-Id: <20210426072817.942653452@linuxfoundation.org>
+Message-Id: <20210426072820.581141392@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
-References: <20210426072817.245304364@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hristo Venev <hristo@venev.name>
+From: Jolly Shah <jollys@google.com>
 
-commit 610f8c0fc8d46e0933955ce13af3d64484a4630a upstream.
+commit 176ddd89171ddcf661862d90c5d257877f7326d6 upstream.
 
-A sit interface created without a local or a remote address is linked
-into the `sit_net::tunnels_wc` list of its original namespace. When
-deleting a network namespace, delete the devices that have been moved.
+When the cache_type for the SCSI device is changed, the SCSI layer issues a
+MODE_SELECT command. The caching mode details are communicated via a
+request buffer associated with the SCSI command with data direction set as
+DMA_TO_DEVICE (scsi_mode_select()). When this command reaches the libata
+layer, as a part of generic initial setup, libata layer sets up the
+scatterlist for the command using the SCSI command (ata_scsi_qc_new()).
+This command is then translated by the libata layer into
+ATA_CMD_SET_FEATURES (ata_scsi_mode_select_xlat()). The libata layer treats
+this as a non-data command (ata_mselect_caching()), since it only needs an
+ATA taskfile to pass the caching on/off information to the device. It does
+not need the scatterlist that has been setup, so it does not perform
+dma_map_sg() on the scatterlist (ata_qc_issue()). Unfortunately, when this
+command reaches the libsas layer (sas_ata_qc_issue()), libsas layer sees it
+as a non-data command with a scatterlist. It cannot extract the correct DMA
+length since the scatterlist has not been mapped with dma_map_sg() for a
+DMA operation. When this partially constructed SAS task reaches pm80xx
+LLDD, it results in the following warning:
 
-The following script triggers a null pointer dereference if devices
-linked in a deleted `sit_net` remain:
+"pm80xx_chip_sata_req 6058: The sg list address
+start_addr=0x0000000000000000 data_len=0x0end_addr_high=0xffffffff
+end_addr_low=0xffffffff has crossed 4G boundary"
 
-    for i in `seq 1 30`; do
-        ip netns add ns-test
-        ip netns exec ns-test ip link add dev veth0 type veth peer veth1
-        ip netns exec ns-test ip link add dev sit$i type sit dev veth0
-        ip netns exec ns-test ip link set dev sit$i netns $$
-        ip netns del ns-test
-    done
-    for i in `seq 1 30`; do
-        ip link del dev sit$i
-    done
+Update libsas to handle ATA non-data commands separately so num_scatter and
+total_xfer_len remain 0.
 
-Fixes: 5e6700b3bf98f ("sit: add support of x-netns")
-Signed-off-by: Hristo Venev <hristo@venev.name>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210318225632.2481291-1-jollys@google.com
+Fixes: 53de092f47ff ("scsi: libsas: Set data_dir as DMA_NONE if libata marks qc as NODATA")
+Tested-by: Luo Jiaxing <luojiaxing@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Jolly Shah <jollys@google.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/libsas/sas_ata.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1799,9 +1799,9 @@ static void __net_exit sit_destroy_tunne
- 		if (dev->rtnl_link_ops == &sit_link_ops)
- 			unregister_netdevice_queue(dev, head);
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -219,18 +219,17 @@ static unsigned int sas_ata_qc_issue(str
+ 		memcpy(task->ata_task.atapi_packet, qc->cdb, qc->dev->cdb_len);
+ 		task->total_xfer_len = qc->nbytes;
+ 		task->num_scatter = qc->n_elem;
++		task->data_dir = qc->dma_dir;
++	} else if (qc->tf.protocol == ATA_PROT_NODATA) {
++		task->data_dir = DMA_NONE;
+ 	} else {
+ 		for_each_sg(qc->sg, sg, qc->n_elem, si)
+ 			xfer += sg_dma_len(sg);
  
--	for (prio = 1; prio < 4; prio++) {
-+	for (prio = 0; prio < 4; prio++) {
- 		int h;
--		for (h = 0; h < IP6_SIT_HASH_SIZE; h++) {
-+		for (h = 0; h < (prio ? IP6_SIT_HASH_SIZE : 1); h++) {
- 			struct ip_tunnel *t;
- 
- 			t = rtnl_dereference(sitn->tunnels[prio][h]);
+ 		task->total_xfer_len = xfer;
+ 		task->num_scatter = si;
+-	}
+-
+-	if (qc->tf.protocol == ATA_PROT_NODATA)
+-		task->data_dir = DMA_NONE;
+-	else
+ 		task->data_dir = qc->dma_dir;
++	}
+ 	task->scatter = qc->sg;
+ 	task->ata_task.retry_count = 1;
+ 	task->task_state_flags = SAS_TASK_STATE_PENDING;
 
 
