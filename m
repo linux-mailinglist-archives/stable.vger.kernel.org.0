@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C2E36ADFE
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B23436AD62
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:36:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233090AbhDZHkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49330 "EHLO mail.kernel.org"
+        id S232151AbhDZHgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:36:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233310AbhDZHjU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D6A4613BE;
-        Mon, 26 Apr 2021 07:37:04 +0000 (UTC)
+        id S232784AbhDZHeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:34:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EABBF61152;
+        Mon, 26 Apr 2021 07:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422624;
-        bh=mVTZ/DVql5tiNk6QWlIhCIbgFMKMkNE/J1DwN+CRZAs=;
+        s=korg; t=1619422407;
+        bh=HGKoeYccslyDMJAjKQum+MqK9xLjwCuOgVCaBy/LkXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZODo1uFb0gzFe2uYwYVLjCqHjTWCs1iPdYhlmMStxJjI5nLnwPkYik4ENkfhQ7PN
-         C3uz7iWPNcDBbnWGbIv/S185aq1NAMAVzOOasMYmXTQA5DKqqUxqpU0XzAW9JnevRc
-         A9YV39+1Ea+R3EHMZ6OflXt/PXqQVNeijCnnbiII=
+        b=mKT9CpFSu2a8lNgicZgPkL76LbKigGWK/uqXGCbnpNbs3dHu+Bq88V3J1S88o+cAX
+         PiGcSY7fZ7OgzeX0W1X2dM4yXTC4r1d6/nytesuOqGC7OUDSY5ULdf6c/ZAVHNgGeB
+         hYSSRE0wVzrvc1pH1LDqY/yig7rtcdQmYa+7xu6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/57] ARM: footbridge: fix PCI interrupt mapping
+Subject: [PATCH 4.9 36/37] ia64: tools: remove duplicate definition of ia64_mf() on ia64
 Date:   Mon, 26 Apr 2021 09:29:37 +0200
-Message-Id: <20210426072821.923586511@linuxfoundation.org>
+Message-Id: <20210426072818.480614303@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,96 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-[ Upstream commit 30e3b4f256b4e366a61658c294f6a21b8626dda7 ]
+[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
 
-Since commit 30fdfb929e82 ("PCI: Add a call to pci_assign_irq() in
-pci_device_probe()"), the PCI code will call the IRQ mapping function
-whenever a PCI driver is probed. If these are marked as __init, this
-causes an oops if a PCI driver is loaded or bound after the kernel has
-initialised.
+The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
+already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
+failing to build:
 
-Fixes: 30fdfb929e82 ("PCI: Add a call to pci_assign_irq() in pci_device_probe()")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
+  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
+                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
+                   from libbpf.c:37:
+  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
+     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
+        |
+  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
+                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
+                   from /usr/include/linux/swab.h:8,
+                   from /usr/include/linux/byteorder/little_endian.h:13,
+                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
+                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
+                   from libbpf.c:36:
+  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
+    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
+        |
+  cc1: all warnings being treated as errors
+
+Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
+
+Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-footbridge/cats-pci.c      | 4 ++--
- arch/arm/mach-footbridge/ebsa285-pci.c   | 4 ++--
- arch/arm/mach-footbridge/netwinder-pci.c | 2 +-
- arch/arm/mach-footbridge/personal-pci.c  | 5 ++---
- 4 files changed, 7 insertions(+), 8 deletions(-)
+ tools/arch/ia64/include/asm/barrier.h | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/arm/mach-footbridge/cats-pci.c b/arch/arm/mach-footbridge/cats-pci.c
-index 0b2fd7e2e9b4..90b1e9be430e 100644
---- a/arch/arm/mach-footbridge/cats-pci.c
-+++ b/arch/arm/mach-footbridge/cats-pci.c
-@@ -15,14 +15,14 @@
- #include <asm/mach-types.h>
- 
- /* cats host-specific stuff */
--static int irqmap_cats[] __initdata = { IRQ_PCI, IRQ_IN0, IRQ_IN1, IRQ_IN3 };
-+static int irqmap_cats[] = { IRQ_PCI, IRQ_IN0, IRQ_IN1, IRQ_IN3 };
- 
- static u8 cats_no_swizzle(struct pci_dev *dev, u8 *pin)
- {
- 	return 0;
- }
- 
--static int __init cats_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int cats_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	if (dev->irq >= 255)
- 		return -1;	/* not a valid interrupt. */
-diff --git a/arch/arm/mach-footbridge/ebsa285-pci.c b/arch/arm/mach-footbridge/ebsa285-pci.c
-index 6f28aaa9ca79..c3f280d08fa7 100644
---- a/arch/arm/mach-footbridge/ebsa285-pci.c
-+++ b/arch/arm/mach-footbridge/ebsa285-pci.c
-@@ -14,9 +14,9 @@
- #include <asm/mach/pci.h>
- #include <asm/mach-types.h>
- 
--static int irqmap_ebsa285[] __initdata = { IRQ_IN3, IRQ_IN1, IRQ_IN0, IRQ_PCI };
-+static int irqmap_ebsa285[] = { IRQ_IN3, IRQ_IN1, IRQ_IN0, IRQ_PCI };
- 
--static int __init ebsa285_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int ebsa285_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	if (dev->vendor == PCI_VENDOR_ID_CONTAQ &&
- 	    dev->device == PCI_DEVICE_ID_CONTAQ_82C693)
-diff --git a/arch/arm/mach-footbridge/netwinder-pci.c b/arch/arm/mach-footbridge/netwinder-pci.c
-index 9473aa0305e5..e8304392074b 100644
---- a/arch/arm/mach-footbridge/netwinder-pci.c
-+++ b/arch/arm/mach-footbridge/netwinder-pci.c
-@@ -18,7 +18,7 @@
-  * We now use the slot ID instead of the device identifiers to select
-  * which interrupt is routed where.
+diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
+index e4422b4b634e..94ae4a333a35 100644
+--- a/tools/arch/ia64/include/asm/barrier.h
++++ b/tools/arch/ia64/include/asm/barrier.h
+@@ -38,9 +38,6 @@
+  * sequential memory pages only.
   */
--static int __init netwinder_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int netwinder_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	switch (slot) {
- 	case 0:  /* host bridge */
-diff --git a/arch/arm/mach-footbridge/personal-pci.c b/arch/arm/mach-footbridge/personal-pci.c
-index 4391e433a4b2..9d19aa98a663 100644
---- a/arch/arm/mach-footbridge/personal-pci.c
-+++ b/arch/arm/mach-footbridge/personal-pci.c
-@@ -14,13 +14,12 @@
- #include <asm/mach/pci.h>
- #include <asm/mach-types.h>
  
--static int irqmap_personal_server[] __initdata = {
-+static int irqmap_personal_server[] = {
- 	IRQ_IN0, IRQ_IN1, IRQ_IN2, IRQ_IN3, 0, 0, 0,
- 	IRQ_DOORBELLHOST, IRQ_DMA1, IRQ_DMA2, IRQ_PCI
- };
- 
--static int __init personal_server_map_irq(const struct pci_dev *dev, u8 slot,
--	u8 pin)
-+static int personal_server_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	unsigned char line;
- 
+-/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
+-#define ia64_mf()       asm volatile ("mf" ::: "memory")
+-
+ #define mb()		ia64_mf()
+ #define rmb()		mb()
+ #define wmb()		mb()
 -- 
 2.30.2
 
