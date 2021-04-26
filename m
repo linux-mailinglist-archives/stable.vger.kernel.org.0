@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B04F36AD92
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD4DB36ADE6
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232917AbhDZHhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:37:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46674 "EHLO mail.kernel.org"
+        id S232496AbhDZHkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:40:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232877AbhDZHgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE2F2613B0;
-        Mon, 26 Apr 2021 07:34:20 +0000 (UTC)
+        id S233081AbhDZHi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:38:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A05EB6139A;
+        Mon, 26 Apr 2021 07:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422461;
-        bh=qoh0+QTxJjG1PnSDppobqNpjTMSrjfxLl4vZ/2kIq+0=;
+        s=korg; t=1619422579;
+        bh=riTn4wrx9hxkskK0M7/hEe606PHzGMWYaqb52c2i+WQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGpstbCmFRV7h2osW1R39Alpql9UszXbp3i2+GslzpO7TB+8vMILcoziqO7WxWKbP
-         6CI3POgO7sPDRbwMG3xnK60MmLTItaS77t7T1RTgX6ARWqpKCaGWA4/ErvgliMPZ+g
-         SPI71lgMt4vk4YigxAOMCsYdPiT1Sc4hx1fZmKZ0=
+        b=kN9EzCjmkSykZZOTz4+kxKkSZ5ZHcKVyGGNhtFx+ll80eYdIpq4hiaJKU6MJ79p4H
+         cll7wUCZzwGD0H6EVadFxy32zNecuaiIcW05UTvsRtuhKjgaYPjaTzAa5tpcSru8AK
+         o/VgGRStKw5AbzzC1m6SwuqDOXgjAFVn/fKmbHoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
-        Jason Gerecke <Jason.Gerecke@wacom.com>,
-        Juan Garrido <Juan.Garrido@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14 21/49] HID: wacom: set EV_KEY and EV_ABS only for non-HID_GENERIC type of devices
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/57] net: ieee802154: forbid monitor for add llsec seclevel
 Date:   Mon, 26 Apr 2021 09:29:17 +0200
-Message-Id: <20210426072820.448402029@linuxfoundation.org>
+Message-Id: <20210426072821.268120092@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping Cheng <pinglinux@gmail.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 276559d8d02c2709281578976ca2f53bc62063d4 upstream.
+[ Upstream commit 9ec87e322428d4734ac647d1a8e507434086993d ]
 
-Valid HID_GENERIC type of devices set EV_KEY and EV_ABS by wacom_map_usage.
-When *_input_capabilities are reached, those devices should already have
-their proper EV_* set. EV_KEY and EV_ABS only need to be set for
-non-HID_GENERIC type of devices in *_input_capabilities.
+This patch forbids to add llsec seclevel for monitor interfaces which we
+don't support yet. Otherwise we will access llsec mib which isn't
+initialized for monitors.
 
-Devices that don't support HID descitoprs will pass back to hid-input for
-registration without being accidentally rejected by the introduction of
-patch: "Input: refuse to register absolute devices without absinfo"
-
-Fixes: 6ecfe51b4082 ("Input: refuse to register absolute devices without absinfo")
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Jason Gerecke <Jason.Gerecke@wacom.com>
-Tested-by: Juan Garrido <Juan.Garrido@wacom.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210405003054.256017-14-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/ieee802154/nl802154.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3346,8 +3346,6 @@ int wacom_setup_pen_input_capabilities(s
- {
- 	struct wacom_features *features = &wacom_wac->features;
+diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
+index 29916f8cfdc3..b1c55db73764 100644
+--- a/net/ieee802154/nl802154.c
++++ b/net/ieee802154/nl802154.c
+@@ -2138,6 +2138,9 @@ static int nl802154_add_llsec_seclevel(struct sk_buff *skb,
+ 	struct wpan_dev *wpan_dev = dev->ieee802154_ptr;
+ 	struct ieee802154_llsec_seclevel sl;
  
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
- 		return -ENODEV;
- 
-@@ -3360,6 +3358,7 @@ int wacom_setup_pen_input_capabilities(s
- 		/* setup has already been done */
- 		return 0;
- 
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	__set_bit(ABS_MISC, input_dev->absbit);
- 
-@@ -3508,8 +3507,6 @@ int wacom_setup_touch_input_capabilities
- {
- 	struct wacom_features *features = &wacom_wac->features;
- 
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
- 		return -ENODEV;
- 
-@@ -3522,6 +3519,7 @@ int wacom_setup_touch_input_capabilities
- 		/* setup has already been done */
- 		return 0;
- 
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 
- 	if (features->touch_max == 1) {
++	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
++		return -EOPNOTSUPP;
++
+ 	if (llsec_parse_seclevel(info->attrs[NL802154_ATTR_SEC_LEVEL],
+ 				 &sl) < 0)
+ 		return -EINVAL;
+-- 
+2.30.2
+
 
 
