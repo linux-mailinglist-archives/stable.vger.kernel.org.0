@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF4C736ADBE
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F52336AE21
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233005AbhDZHiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:38:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49252 "EHLO mail.kernel.org"
+        id S233352AbhDZHlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233010AbhDZHhY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:37:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DD20613D3;
-        Mon, 26 Apr 2021 07:35:22 +0000 (UTC)
+        id S233373AbhDZHjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41597613B1;
+        Mon, 26 Apr 2021 07:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422523;
-        bh=lnysf96Opzj0ZpAgpynl12FghCRqEvkaUKfn4+Gt+9s=;
+        s=korg; t=1619422638;
+        bh=dyRldP5WwRQox7FWHAv/9vRbVj4P9Q2XOhGBEqwoVFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iD+sfnS3d512oFCyVslw9qzhkP81VkuBtsj0+GiGcTdLdnCtryc/71DbEX68UjFxt
-         L6CyTY+JUtqkN0jjTeCLPqgz18KOs4T29LDxb0AcCA22In6XoX8qqR8NzYILrPZudl
-         ytnA4KmJ9VvJl2/LZY0GctIYp6QoEo4DrGoHz6OI=
+        b=jGznGCsKzWJYxjQRt8YYEFOSJact1lKEd9wo2lKOOLS4bpuYqd9/lZJt9/JCx145N
+         ntX4egxyarJGsGHN8vP6jqgt5C0vzf6gTAjxUFcsPL5T1/k5B9lpZS0AiU7qbkO7f0
+         8dzyuAqq7Zl/gMW7Bpoz0h9Rm0mazQMIeTgeuGag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Steve Wahl <steve.wahl@hpe.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 47/49] ia64: fix discontig.c section mismatches
+Subject: [PATCH 4.19 46/57] perf/x86/intel/uncore: Remove uncore extra PCI dev HSWEP_PCI_PCU_3
 Date:   Mon, 26 Apr 2021 09:29:43 +0200
-Message-Id: <20210426072821.332507431@linuxfoundation.org>
+Message-Id: <20210426072822.131385198@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +41,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit e2af9da4f867a1a54f1252bf3abc1a5c63951778 ]
+[ Upstream commit 9d480158ee86ad606d3a8baaf81e6b71acbfd7d5 ]
 
-Fix IA64 discontig.c Section mismatch warnings.
+There may be a kernel panic on the Haswell server and the Broadwell
+server, if the snbep_pci2phy_map_init() return error.
 
-When CONFIG_SPARSEMEM=y and CONFIG_MEMORY_HOTPLUG=y, the functions
-computer_pernodesize() and scatter_node_data() should not be marked as
-__meminit because they are needed after init, on any memory hotplug
-event.  Also, early_nr_cpus_node() is called by compute_pernodesize(),
-so early_nr_cpus_node() cannot be __meminit either.
+The uncore_extra_pci_dev[HSWEP_PCI_PCU_3] is used in the cpu_init() to
+detect the existence of the SBOX, which is a MSR type of PMON unit.
+The uncore_extra_pci_dev is allocated in the uncore_pci_init(). If the
+snbep_pci2phy_map_init() returns error, perf doesn't initialize the
+PCI type of the PMON units, so the uncore_extra_pci_dev will not be
+allocated. But perf may continue initializing the MSR type of PMON
+units. A null dereference kernel panic will be triggered.
 
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1612): Section mismatch in reference from the function arch_alloc_nodedata() to the function .meminit.text:compute_pernodesize()
-  The function arch_alloc_nodedata() references the function __meminit compute_pernodesize().
-  This is often because arch_alloc_nodedata lacks a __meminit annotation or the annotation of compute_pernodesize is wrong.
+The sockets in a Haswell server or a Broadwell server are identical.
+Only need to detect the existence of the SBOX once.
+Current perf probes all available PCU devices and stores them into the
+uncore_extra_pci_dev. It's unnecessary.
+Use the pci_get_device() to replace the uncore_extra_pci_dev. Only
+detect the existence of the SBOX on the first available PCU device once.
 
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1692): Section mismatch in reference from the function arch_refresh_nodedata() to the function .meminit.text:scatter_node_data()
-  The function arch_refresh_nodedata() references the function __meminit scatter_node_data().
-  This is often because arch_refresh_nodedata lacks a __meminit annotation or the annotation of scatter_node_data is wrong.
+Factor out hswep_has_limit_sbox(), since the Haswell server and the
+Broadwell server uses the same way to detect the existence of the SBOX.
 
-  WARNING: modpost: vmlinux.o(.text.unlikely+0x1502): Section mismatch in reference from the function compute_pernodesize() to the function .meminit.text:early_nr_cpus_node()
-  The function compute_pernodesize() references the function __meminit early_nr_cpus_node().
-  This is often because compute_pernodesize lacks a __meminit annotation or the annotation of early_nr_cpus_node is wrong.
+Add some macros to replace the magic number.
 
-Link: https://lkml.kernel.org/r/20210411001201.3069-1-rdunlap@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 5306c31c5733 ("perf/x86/uncore/hsw-ep: Handle systems with only two SBOXes")
+Reported-by: Steve Wahl <steve.wahl@hpe.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Steve Wahl <steve.wahl@hpe.com>
+Link: https://lkml.kernel.org/r/1618521764-100923-1-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/mm/discontig.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/events/intel/uncore_snbep.c | 61 ++++++++++++----------------
+ 1 file changed, 26 insertions(+), 35 deletions(-)
 
-diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
-index 9b2d994cddf6..99b59a7ec187 100644
---- a/arch/ia64/mm/discontig.c
-+++ b/arch/ia64/mm/discontig.c
-@@ -100,7 +100,7 @@ static int __init build_node_maps(unsigned long start, unsigned long len,
-  * acpi_boot_init() (which builds the node_to_cpu_mask array) hasn't been
-  * called yet.  Note that node 0 will also count all non-existent cpus.
-  */
--static int __meminit early_nr_cpus_node(int node)
-+static int early_nr_cpus_node(int node)
- {
- 	int cpu, n = 0;
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index 8e4e8e423839..c06074b847fa 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -1030,7 +1030,6 @@ enum {
+ 	SNBEP_PCI_QPI_PORT0_FILTER,
+ 	SNBEP_PCI_QPI_PORT1_FILTER,
+ 	BDX_PCI_QPI_PORT2_FILTER,
+-	HSWEP_PCI_PCU_3,
+ };
  
-@@ -115,7 +115,7 @@ static int __meminit early_nr_cpus_node(int node)
-  * compute_pernodesize - compute size of pernode data
-  * @node: the node id.
-  */
--static unsigned long __meminit compute_pernodesize(int node)
-+static unsigned long compute_pernodesize(int node)
- {
- 	unsigned long pernodesize = 0, cpus;
+ static int snbep_qpi_hw_config(struct intel_uncore_box *box, struct perf_event *event)
+@@ -2687,22 +2686,33 @@ static struct intel_uncore_type *hswep_msr_uncores[] = {
+ 	NULL,
+ };
  
-@@ -412,7 +412,7 @@ static void __init reserve_pernode_space(void)
- 	}
+-void hswep_uncore_cpu_init(void)
++#define HSWEP_PCU_DID			0x2fc0
++#define HSWEP_PCU_CAPID4_OFFET		0x94
++#define hswep_get_chop(_cap)		(((_cap) >> 6) & 0x3)
++
++static bool hswep_has_limit_sbox(unsigned int device)
+ {
+-	int pkg = boot_cpu_data.logical_proc_id;
++	struct pci_dev *dev = pci_get_device(PCI_VENDOR_ID_INTEL, device, NULL);
++	u32 capid4;
++
++	if (!dev)
++		return false;
++
++	pci_read_config_dword(dev, HSWEP_PCU_CAPID4_OFFET, &capid4);
++	if (!hswep_get_chop(capid4))
++		return true;
+ 
++	return false;
++}
++
++void hswep_uncore_cpu_init(void)
++{
+ 	if (hswep_uncore_cbox.num_boxes > boot_cpu_data.x86_max_cores)
+ 		hswep_uncore_cbox.num_boxes = boot_cpu_data.x86_max_cores;
+ 
+ 	/* Detect 6-8 core systems with only two SBOXes */
+-	if (uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3]) {
+-		u32 capid4;
+-
+-		pci_read_config_dword(uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3],
+-				      0x94, &capid4);
+-		if (((capid4 >> 6) & 0x3) == 0)
+-			hswep_uncore_sbox.num_boxes = 2;
+-	}
++	if (hswep_has_limit_sbox(HSWEP_PCU_DID))
++		hswep_uncore_sbox.num_boxes = 2;
+ 
+ 	uncore_msr_uncores = hswep_msr_uncores;
+ }
+@@ -2965,11 +2975,6 @@ static const struct pci_device_id hswep_uncore_pci_ids[] = {
+ 		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
+ 						   SNBEP_PCI_QPI_PORT1_FILTER),
+ 	},
+-	{ /* PCU.3 (for Capability registers) */
+-		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2fc0),
+-		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
+-						   HSWEP_PCI_PCU_3),
+-	},
+ 	{ /* end: all zeroes */ }
+ };
+ 
+@@ -3061,27 +3066,18 @@ static struct event_constraint bdx_uncore_pcu_constraints[] = {
+ 	EVENT_CONSTRAINT_END
+ };
+ 
++#define BDX_PCU_DID			0x6fc0
++
+ void bdx_uncore_cpu_init(void)
+ {
+-	int pkg = topology_phys_to_logical_pkg(boot_cpu_data.phys_proc_id);
+-
+ 	if (bdx_uncore_cbox.num_boxes > boot_cpu_data.x86_max_cores)
+ 		bdx_uncore_cbox.num_boxes = boot_cpu_data.x86_max_cores;
+ 	uncore_msr_uncores = bdx_msr_uncores;
+ 
+-	/* BDX-DE doesn't have SBOX */
+-	if (boot_cpu_data.x86_model == 86) {
+-		uncore_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
+ 	/* Detect systems with no SBOXes */
+-	} else if (uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3]) {
+-		struct pci_dev *pdev;
+-		u32 capid4;
+-
+-		pdev = uncore_extra_pci_dev[pkg].dev[HSWEP_PCI_PCU_3];
+-		pci_read_config_dword(pdev, 0x94, &capid4);
+-		if (((capid4 >> 6) & 0x3) == 0)
+-			bdx_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
+-	}
++	if ((boot_cpu_data.x86_model == 86) || hswep_has_limit_sbox(BDX_PCU_DID))
++		uncore_msr_uncores[BDX_MSR_UNCORE_SBOX] = NULL;
++
+ 	hswep_uncore_pcu.constraints = bdx_uncore_pcu_constraints;
  }
  
--static void __meminit scatter_node_data(void)
-+static void scatter_node_data(void)
- {
- 	pg_data_t **dst;
- 	int node;
+@@ -3302,11 +3298,6 @@ static const struct pci_device_id bdx_uncore_pci_ids[] = {
+ 		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
+ 						   BDX_PCI_QPI_PORT2_FILTER),
+ 	},
+-	{ /* PCU.3 (for Capability registers) */
+-		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x6fc0),
+-		.driver_data = UNCORE_PCI_DEV_DATA(UNCORE_EXTRA_PCI_DEV,
+-						   HSWEP_PCI_PCU_3),
+-	},
+ 	{ /* end: all zeroes */ }
+ };
+ 
 -- 
 2.30.2
 
