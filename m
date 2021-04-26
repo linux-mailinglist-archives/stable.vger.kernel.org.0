@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A4E36AEBC
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A9C36AE82
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232228AbhDZHqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:46:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34610 "EHLO mail.kernel.org"
+        id S233186AbhDZHp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:45:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234286AbhDZHpG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:45:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84877613F4;
-        Mon, 26 Apr 2021 07:42:07 +0000 (UTC)
+        id S233386AbhDZHnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:43:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 737FF613D1;
+        Mon, 26 Apr 2021 07:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422928;
-        bh=1zFtDWAlhy8r55cLddWAqWsGkVgmwlVTnr5T3nlV8k4=;
+        s=korg; t=1619422804;
+        bh=x2n7AHMk4xuQM/Nj3J0Y6kw8h5pEDWqP9+6+2bmkT/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWrU9gli4AHsFWrNITiRXBieTY7Ua9SGiTt9WnmmTcSEd6oLv5Grq2m4U32TGwZ//
-         5n7QIwrFB2BZYFjcyJFpXcjEBt6Jjdc3W/K1TJsWPT8YolXMEYRs4w74Q6UuF2Cu+k
-         jxJk2k9nhUc2RNbrAIs9hUXdRO4biojnKOU3DjuQ=
+        b=A/6Rl3kbFnUBJuNZCXU1ok6axTMxYKcC7pCbtR71QCmzxqmYddBteqs3jcE9VXTQh
+         oa9rUeYJcDmfmDZ+ANBlv154iUwJwU47xGnqCio4hWxddt7BDvo+GeXHIsXQBrBClA
+         Fs+Kbso57dtubUA6z4d7nrUSEKaFMKWHrTb4dSKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 30/41] ARM: dts: Fix swapped mmc order for omap3
+Subject: [PATCH 5.10 35/36] ia64: tools: remove duplicate definition of ia64_mf() on ia64
 Date:   Mon, 26 Apr 2021 09:30:17 +0200
-Message-Id: <20210426072820.718286025@linuxfoundation.org>
+Message-Id: <20210426072819.979335296@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
-References: <20210426072819.666570770@linuxfoundation.org>
+In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
+References: <20210426072818.777662399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-[ Upstream commit a1ebdb3741993f853865d1bd8f77881916ad53a7 ]
+[ Upstream commit f4bf09dc3aaa4b07cd15630f2023f68cb2668809 ]
 
-Also some omap3 devices like n900 seem to have eMMC and micro-sd swapped
-around with commit 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for
-drivers that existed in v4.4").
+The ia64_mf() macro defined in tools/arch/ia64/include/asm/barrier.h is
+already defined in <asm/gcc_intrin.h> on ia64 which causes libbpf
+failing to build:
 
-Let's fix the issue with aliases as discussed on the mailing lists. While
-the mmc aliases should be board specific, let's first fix the issue with
-minimal changes.
+    CC       /usr/src/linux/tools/bpf/bpftool//libbpf/staticobjs/libbpf.o
+  In file included from /usr/src/linux/tools/include/asm/barrier.h:24,
+                   from /usr/src/linux/tools/include/linux/ring_buffer.h:4,
+                   from libbpf.c:37:
+  /usr/src/linux/tools/include/asm/../../arch/ia64/include/asm/barrier.h:43: error: "ia64_mf" redefined [-Werror]
+     43 | #define ia64_mf()       asm volatile ("mf" ::: "memory")
+        |
+  In file included from /usr/include/ia64-linux-gnu/asm/intrinsics.h:20,
+                   from /usr/include/ia64-linux-gnu/asm/swab.h:11,
+                   from /usr/include/linux/swab.h:8,
+                   from /usr/include/linux/byteorder/little_endian.h:13,
+                   from /usr/include/ia64-linux-gnu/asm/byteorder.h:5,
+                   from /usr/src/linux/tools/include/uapi/linux/perf_event.h:20,
+                   from libbpf.c:36:
+  /usr/include/ia64-linux-gnu/asm/gcc_intrin.h:382: note: this is the location of the previous definition
+    382 | #define ia64_mf() __asm__ volatile ("mf" ::: "memory")
+        |
+  cc1: all warnings being treated as errors
 
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Thus, remove the definition from tools/arch/ia64/include/asm/barrier.h.
+
+Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/arch/ia64/include/asm/barrier.h | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
-index 9dcae1f2bc99..c5b9da0d7e6c 100644
---- a/arch/arm/boot/dts/omap3.dtsi
-+++ b/arch/arm/boot/dts/omap3.dtsi
-@@ -24,6 +24,9 @@
- 		i2c0 = &i2c1;
- 		i2c1 = &i2c2;
- 		i2c2 = &i2c3;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
+diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
+index 4d471d9511a5..6fffe5682713 100644
+--- a/tools/arch/ia64/include/asm/barrier.h
++++ b/tools/arch/ia64/include/asm/barrier.h
+@@ -39,9 +39,6 @@
+  * sequential memory pages only.
+  */
+ 
+-/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
+-#define ia64_mf()       asm volatile ("mf" ::: "memory")
+-
+ #define mb()		ia64_mf()
+ #define rmb()		mb()
+ #define wmb()		mb()
 -- 
 2.30.2
 
