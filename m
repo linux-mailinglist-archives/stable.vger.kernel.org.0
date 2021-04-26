@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5B436AEB2
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A4E36AEBC
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232987AbhDZHqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:46:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
+        id S232228AbhDZHqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:46:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234264AbhDZHpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:45:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCF0561168;
-        Mon, 26 Apr 2021 07:42:04 +0000 (UTC)
+        id S234286AbhDZHpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:45:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84877613F4;
+        Mon, 26 Apr 2021 07:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422925;
-        bh=OfTZhQVCkfP1iUoe6FXBgYEwvVROmP5JhRAWr8lWs4c=;
+        s=korg; t=1619422928;
+        bh=1zFtDWAlhy8r55cLddWAqWsGkVgmwlVTnr5T3nlV8k4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v03I6YM6FSyQR3YNNTUWLJN1YWR0RSLKIDKDtIbOnr7t56afvi1wfdua12GiwY1mM
-         i8uMGZEQ6dm5vUciUlr8mixKhof/WIVQ7YTlpw0ica/FA/aL2ltNRBN40VBytlpu2K
-         0wG6ntc5K/H7rjx4MnXFgrxMTsb5UpUYReVk7QrM=
+        b=ZWrU9gli4AHsFWrNITiRXBieTY7Ua9SGiTt9WnmmTcSEd6oLv5Grq2m4U32TGwZ//
+         5n7QIwrFB2BZYFjcyJFpXcjEBt6Jjdc3W/K1TJsWPT8YolXMEYRs4w74Q6UuF2Cu+k
+         jxJk2k9nhUc2RNbrAIs9hUXdRO4biojnKOU3DjuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 29/41] dmaengine: xilinx: dpdma: Fix race condition in done IRQ
-Date:   Mon, 26 Apr 2021 09:30:16 +0200
-Message-Id: <20210426072820.687194792@linuxfoundation.org>
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 30/41] ARM: dts: Fix swapped mmc order for omap3
+Date:   Mon, 26 Apr 2021 09:30:17 +0200
+Message-Id: <20210426072820.718286025@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210426072819.666570770@linuxfoundation.org>
 References: <20210426072819.666570770@linuxfoundation.org>
@@ -40,42 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 868833fbffbe51c487df4f95d4de9194264a4b30 ]
+[ Upstream commit a1ebdb3741993f853865d1bd8f77881916ad53a7 ]
 
-The active descriptor pointer is accessed from different contexts,
-including different interrupt handlers, and its access must be protected
-by the channel's lock. This wasn't done in the done IRQ handler. Fix it.
+Also some omap3 devices like n900 seem to have eMMC and micro-sd swapped
+around with commit 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for
+drivers that existed in v4.4").
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/20210307040629.29308-3-laurent.pinchart@ideasonboard.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Let's fix the issue with aliases as discussed on the mailing lists. While
+the mmc aliases should be board specific, let's first fix the issue with
+minimal changes.
+
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dpdma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/omap3.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/dma/xilinx/xilinx_dpdma.c b/drivers/dma/xilinx/xilinx_dpdma.c
-index d504112c609e..70b29bd079c9 100644
---- a/drivers/dma/xilinx/xilinx_dpdma.c
-+++ b/drivers/dma/xilinx/xilinx_dpdma.c
-@@ -1048,13 +1048,14 @@ static int xilinx_dpdma_chan_stop(struct xilinx_dpdma_chan *chan)
-  */
- static void xilinx_dpdma_chan_done_irq(struct xilinx_dpdma_chan *chan)
- {
--	struct xilinx_dpdma_tx_desc *active = chan->desc.active;
-+	struct xilinx_dpdma_tx_desc *active;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&chan->lock, flags);
- 
- 	xilinx_dpdma_debugfs_desc_done_irq(chan);
- 
-+	active = chan->desc.active;
- 	if (active)
- 		vchan_cyclic_callback(&active->vdesc);
- 	else
+diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
+index 9dcae1f2bc99..c5b9da0d7e6c 100644
+--- a/arch/arm/boot/dts/omap3.dtsi
++++ b/arch/arm/boot/dts/omap3.dtsi
+@@ -24,6 +24,9 @@
+ 		i2c0 = &i2c1;
+ 		i2c1 = &i2c2;
+ 		i2c2 = &i2c3;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
 -- 
 2.30.2
 
