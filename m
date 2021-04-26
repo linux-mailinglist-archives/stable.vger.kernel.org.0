@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6672636AD05
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B62236AD93
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232295AbhDZHcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:32:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42422 "EHLO mail.kernel.org"
+        id S233015AbhDZHhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:37:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232297AbhDZHb6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:31:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B20FD61006;
-        Mon, 26 Apr 2021 07:31:14 +0000 (UTC)
+        id S232912AbhDZHgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:36:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFD17613B2;
+        Mon, 26 Apr 2021 07:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422275;
-        bh=LOlADFzhj9u7N+oW6X7MLeJkJfSO1cq7azF0vxb+kMc=;
+        s=korg; t=1619422471;
+        bh=vkV34FM6761YRz5Fm5iyW5C9HbhFmXJFqazH5TguhvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1egjIwL6ZG1TCczDyejjzwsOUI5DbEjnAFu3CNhFGHLWkLQNFaL54k7cvbKcaSHho
-         h+mUYqKYO5J7ukZMNMmohBKkbVL+pVqUHbcOWYgjiZxRT8rlB0x6F1NrxXMr0p1D9Q
-         nAWYVGVifcXBAS6OPZchwP5oOvGsdpb/Vvr/iWKY=
+        b=Tb9mS3Hs0Ku3+LGnVplSQ893QOpaheLssidcTZD4dYyIK5LtRU9sSxa7EwBykB3B6
+         XuO5nhMMjxrBYHaTvgBW5p47kC9/0DPJxJj3lZLKqx56XBTmGGNV2Zy2JPoFC0phzH
+         lBCd+ykF3sxlPzdVWbx1odCYwgV52tNecUtW9IlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/32] Input: nspire-keypad - enable interrupts only when opened
+Subject: [PATCH 4.14 04/49] ARM: dts: Fix moving mmc devices with aliases for omap4 & 5
 Date:   Mon, 26 Apr 2021 09:29:00 +0200
-Message-Id: <20210426072816.678166882@linuxfoundation.org>
+Message-Id: <20210426072819.864712192@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
-References: <20210426072816.574319312@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabian Vogt <fabian@ritter-vogt.de>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 69d5ff3e9e51e23d5d81bf48480aa5671be67a71 ]
+[ Upstream commit 77335a040178a0456d4eabc8bf17a7ca3ee4a327 ]
 
-The driver registers an interrupt handler in _probe, but didn't configure
-them until later when the _open function is called. In between, the keypad
-can fire an IRQ due to touchpad activity, which the handler ignores. This
-causes the kernel to disable the interrupt, blocking the keypad from
-working.
+Fix moving mmc devices with dts aliases as discussed on the lists.
+Without this we now have internal eMMC mmc1 show up as mmc2 compared
+to the earlier order of devices.
 
-Fix this by disabling interrupts before registering the handler.
-Additionally, disable them in _close, so that they're only enabled while
-open.
-
-Fixes: fc4f31461892 ("Input: add TI-Nspire keypad support")
-Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
-Link: https://lore.kernel.org/r/3383725.iizBOSrK1V@linux-e202.suse.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/nspire-keypad.c | 56 ++++++++++++++------------
- 1 file changed, 31 insertions(+), 25 deletions(-)
+ arch/arm/boot/dts/omap4.dtsi | 5 +++++
+ arch/arm/boot/dts/omap5.dtsi | 5 +++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
-index 7abfd34eb87e..bcec72367c1d 100644
---- a/drivers/input/keyboard/nspire-keypad.c
-+++ b/drivers/input/keyboard/nspire-keypad.c
-@@ -96,9 +96,15 @@ static irqreturn_t nspire_keypad_irq(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
-+static int nspire_keypad_open(struct input_dev *input)
- {
-+	struct nspire_keypad *keypad = input_get_drvdata(input);
- 	unsigned long val = 0, cycles_per_us, delay_cycles, row_delay_cycles;
-+	int error;
-+
-+	error = clk_prepare_enable(keypad->clk);
-+	if (error)
-+		return error;
- 
- 	cycles_per_us = (clk_get_rate(keypad->clk) / 1000000);
- 	if (cycles_per_us == 0)
-@@ -124,30 +130,6 @@ static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
- 	keypad->int_mask = 1 << 1;
- 	writel(keypad->int_mask, keypad->reg_base + KEYPAD_INTMSK);
- 
--	/* Disable GPIO interrupts to prevent hanging on touchpad */
--	/* Possibly used to detect touchpad events */
--	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
--	/* Acknowledge existing interrupts */
--	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
--
--	return 0;
--}
--
--static int nspire_keypad_open(struct input_dev *input)
--{
--	struct nspire_keypad *keypad = input_get_drvdata(input);
--	int error;
--
--	error = clk_prepare_enable(keypad->clk);
--	if (error)
--		return error;
--
--	error = nspire_keypad_chip_init(keypad);
--	if (error) {
--		clk_disable_unprepare(keypad->clk);
--		return error;
--	}
--
- 	return 0;
- }
- 
-@@ -155,6 +137,11 @@ static void nspire_keypad_close(struct input_dev *input)
- {
- 	struct nspire_keypad *keypad = input_get_drvdata(input);
- 
-+	/* Disable interrupts */
-+	writel(0, keypad->reg_base + KEYPAD_INTMSK);
-+	/* Acknowledge existing interrupts */
-+	writel(~0, keypad->reg_base + KEYPAD_INT);
-+
- 	clk_disable_unprepare(keypad->clk);
- }
- 
-@@ -215,6 +202,25 @@ static int nspire_keypad_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
-+	error = clk_prepare_enable(keypad->clk);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to enable clock\n");
-+		return error;
-+	}
-+
-+	/* Disable interrupts */
-+	writel(0, keypad->reg_base + KEYPAD_INTMSK);
-+	/* Acknowledge existing interrupts */
-+	writel(~0, keypad->reg_base + KEYPAD_INT);
-+
-+	/* Disable GPIO interrupts to prevent hanging on touchpad */
-+	/* Possibly used to detect touchpad events */
-+	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
-+	/* Acknowledge existing GPIO interrupts */
-+	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
-+
-+	clk_disable_unprepare(keypad->clk);
-+
- 	input_set_drvdata(input, keypad);
- 
- 	input->id.bustype = BUS_HOST;
+diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
+index 28d10abd8b04..09129365c0e1 100644
+--- a/arch/arm/boot/dts/omap4.dtsi
++++ b/arch/arm/boot/dts/omap4.dtsi
+@@ -22,6 +22,11 @@
+ 		i2c1 = &i2c2;
+ 		i2c2 = &i2c3;
+ 		i2c3 = &i2c4;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
++		mmc3 = &mmc4;
++		mmc4 = &mmc5;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index bc3f53c79e9d..9786baf7f9c4 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -25,6 +25,11 @@
+ 		i2c2 = &i2c3;
+ 		i2c3 = &i2c4;
+ 		i2c4 = &i2c5;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
++		mmc3 = &mmc4;
++		mmc4 = &mmc5;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
 -- 
 2.30.2
 
