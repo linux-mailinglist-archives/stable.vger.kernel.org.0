@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5328336AD90
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 181A336ADE7
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232570AbhDZHhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
+        id S232549AbhDZHkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:40:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232913AbhDZHgj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:36:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41331613BB;
-        Mon, 26 Apr 2021 07:34:26 +0000 (UTC)
+        id S233085AbhDZHi3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:38:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B012613AC;
+        Mon, 26 Apr 2021 07:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422466;
-        bh=C6qUDGwnbP62CeFr17CGJZfay2WsnWnpgn67e8vL2kU=;
+        s=korg; t=1619422583;
+        bh=U28tPSBWMKJgHr9sUYtb6gXw4ST79fKEpwdQdM52yio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maAaixKkPPQ2l1hIkj9A5PZryUmRiz0R2i6FH9z3o1X1swXIMFERjiFHqRQzBXkTw
-         qMpZ3/zTBCODFHDB7YGDzBSosqvcsrhng4iOmt/NP82+XOqrKTefLmfKI0Bmi+4mMZ
-         KL9oUdYReibUvuO9njQeal/6PKn0CdkDUh6e/L0g=
+        b=jkXhlI/CGoszTJ+4qAeBFDvW9k+XaOF8QE2dxa+ObHM1XsQXZ79MIj3t6gyGXrhDX
+         9lg9xwBUTxZO1ExKL/APkpzspWE37L+zsAqKsjayUZ7FpA64kJ6R0BYerxZnpjemgZ
+         w1UQyYPjcdOqXdt5bLRwntSLnqUsfgW5zFcQpZgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.14 23/49] arm64: fix inline asm in load_unaligned_zeropad()
+        stable@vger.kernel.org,
+        Seevalamuthu Mariappan <seevalam@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/57] mac80211: clear sta->fast_rx when STA removed from 4-addr VLAN
 Date:   Mon, 26 Apr 2021 09:29:19 +0200
-Message-Id: <20210426072820.512718589@linuxfoundation.org>
+Message-Id: <20210426072821.333962448@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
-References: <20210426072819.721586742@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
+From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
 
-commit 185f2e5f51c2029efd9dd26cceb968a44fe053c6 upstream.
+[ Upstream commit dd0b45538146cb6a54d6da7663b8c3afd16ebcfd ]
 
-The inline asm's addr operand is marked as input-only, however in
-the case where an exception is taken it may be modified by the BIC
-instruction on the exception path. Fix the problem by using a temporary
-register as the destination register for the BIC instruction.
+In some race conditions, with more clients and traffic configuration,
+below crash is seen when making the interface down. sta->fast_rx wasn't
+cleared when STA gets removed from 4-addr AP_VLAN interface. The crash is
+due to try accessing 4-addr AP_VLAN interface's net_device (fast_rx->dev)
+which has been deleted already.
 
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Cc: stable@vger.kernel.org
-Link: https://linux-review.googlesource.com/id/I84538c8a2307d567b4f45bb20b715451005f9617
-Link: https://lore.kernel.org/r/20210401165110.3952103-1-pcc@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Resolve this by clearing sta->fast_rx pointer when STA removes
+from a 4-addr VLAN.
+
+[  239.449529] Unable to handle kernel NULL pointer dereference at virtual address 00000004
+[  239.449531] pgd = 80204000
+...
+[  239.481496] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 4.4.60 #227
+[  239.481591] Hardware name: Generic DT based system
+[  239.487665] task: be05b700 ti: be08e000 task.ti: be08e000
+[  239.492360] PC is at get_rps_cpu+0x2d4/0x31c
+[  239.497823] LR is at 0xbe08fc54
+...
+[  239.778574] [<80739740>] (get_rps_cpu) from [<8073cb10>] (netif_receive_skb_internal+0x8c/0xac)
+[  239.786722] [<8073cb10>] (netif_receive_skb_internal) from [<8073d578>] (napi_gro_receive+0x48/0xc4)
+[  239.795267] [<8073d578>] (napi_gro_receive) from [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames+0xbcc/0x12d4 [mac80211])
+[  239.804776] [<c7b83e8c>] (ieee80211_mark_rx_ba_filtered_frames [mac80211]) from [<c7b84d4c>] (ieee80211_rx_napi+0x7b8/0x8c8 [mac8
+            0211])
+[  239.815857] [<c7b84d4c>] (ieee80211_rx_napi [mac80211]) from [<c7f63d7c>] (ath11k_dp_process_rx+0x7bc/0x8c8 [ath11k])
+[  239.827757] [<c7f63d7c>] (ath11k_dp_process_rx [ath11k]) from [<c7f5b6c4>] (ath11k_dp_service_srng+0x2c0/0x2e0 [ath11k])
+[  239.838484] [<c7f5b6c4>] (ath11k_dp_service_srng [ath11k]) from [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll+0x20/0x84 [ath11k_ahb]
+            )
+[  239.849419] [<7f55b7dc>] (ath11k_ahb_ext_grp_napi_poll [ath11k_ahb]) from [<8073ce1c>] (net_rx_action+0xe0/0x28c)
+[  239.860945] [<8073ce1c>] (net_rx_action) from [<80324868>] (__do_softirq+0xe4/0x228)
+[  239.871269] [<80324868>] (__do_softirq) from [<80324c48>] (irq_exit+0x98/0x108)
+[  239.879080] [<80324c48>] (irq_exit) from [<8035c59c>] (__handle_domain_irq+0x90/0xb4)
+[  239.886114] [<8035c59c>] (__handle_domain_irq) from [<8030137c>] (gic_handle_irq+0x50/0x94)
+[  239.894100] [<8030137c>] (gic_handle_irq) from [<803024c0>] (__irq_svc+0x40/0x74)
+
+Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+Link: https://lore.kernel.org/r/1616163532-3881-1-git-send-email-seevalam@codeaurora.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/word-at-a-time.h |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/mac80211/cfg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/word-at-a-time.h
-+++ b/arch/arm64/include/asm/word-at-a-time.h
-@@ -64,7 +64,7 @@ static inline unsigned long find_zero(un
-  */
- static inline unsigned long load_unaligned_zeropad(const void *addr)
- {
--	unsigned long ret, offset;
-+	unsigned long ret, tmp;
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index f484f9fc62ca..6804cdd43bef 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -1548,8 +1548,10 @@ static int ieee80211_change_station(struct wiphy *wiphy,
+ 		}
  
- 	/* Load word from unaligned pointer addr */
- 	asm(
-@@ -72,9 +72,9 @@ static inline unsigned long load_unalign
- 	"2:\n"
- 	"	.pushsection .fixup,\"ax\"\n"
- 	"	.align 2\n"
--	"3:	and	%1, %2, #0x7\n"
--	"	bic	%2, %2, #0x7\n"
--	"	ldr	%0, [%2]\n"
-+	"3:	bic	%1, %2, #0x7\n"
-+	"	ldr	%0, [%1]\n"
-+	"	and	%1, %2, #0x7\n"
- 	"	lsl	%1, %1, #0x3\n"
- #ifndef __AARCH64EB__
- 	"	lsr	%0, %0, %1\n"
-@@ -84,7 +84,7 @@ static inline unsigned long load_unalign
- 	"	b	2b\n"
- 	"	.popsection\n"
- 	_ASM_EXTABLE(1b, 3b)
--	: "=&r" (ret), "=&r" (offset)
-+	: "=&r" (ret), "=&r" (tmp)
- 	: "r" (addr), "Q" (*(unsigned long *)addr));
+ 		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
+-		    sta->sdata->u.vlan.sta)
++		    sta->sdata->u.vlan.sta) {
++			ieee80211_clear_fast_rx(sta);
+ 			RCU_INIT_POINTER(sta->sdata->u.vlan.sta, NULL);
++		}
  
- 	return ret;
+ 		if (test_sta_flag(sta, WLAN_STA_AUTHORIZED))
+ 			ieee80211_vif_dec_num_mcast(sta->sdata);
+-- 
+2.30.2
+
 
 
