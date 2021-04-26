@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1518236ACFE
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:31:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6476B36AD8D
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232259AbhDZHbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:31:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42124 "EHLO mail.kernel.org"
+        id S232599AbhDZHhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:37:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232266AbhDZHbs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:31:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14FA7611C0;
-        Mon, 26 Apr 2021 07:31:06 +0000 (UTC)
+        id S232869AbhDZHgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:36:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 569C561004;
+        Mon, 26 Apr 2021 07:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422267;
-        bh=cb/WSjGhZm9qsYRe4EugrntntQRK3N9XOP/ZsHZsCME=;
+        s=korg; t=1619422458;
+        bh=S9j2j3t4tF2/8xQSthAg9QuWfEmYK7JBs2DtGb+LQoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2YSbn93DoVor7TuJlfOL3Cr3WrIiJp11PwvMBcWam9ZXo8QWfdz3cW1GHakZkQpQY
-         jp6LkrRn2nFlyERoQeAtsJWG6LAnIRZHg1df9cxuGmumZqIqR03TotCZ64ynHi7Kn6
-         4qFMj5ctikKx8Pd7LqcxS+hTn8M2VZmXrX1c/W3k=
+        b=ioEmqgvxfprInbTtMpX/7OUIUXtgNL94O/P7FbS9+RS8FjP8IXx+juOWGjp6h3v6u
+         pfEV/ZgjQHSpmVa1EZok1A1pme9SHchfhdipzrBffCab8NMmYP2B/HYc1MXkSSwD3E
+         v9rVpk5fXugPE2NwM743EMEO9Aw04xPBqYLuNrMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans de Goede <hdegoede@redhat.com>,
         Marcos Paulo de Souza <mpdesouza@suse.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 17/32] Input: i8042 - fix Pegatron C15B ID entry
-Date:   Mon, 26 Apr 2021 09:29:15 +0200
-Message-Id: <20210426072817.174624360@linuxfoundation.org>
+Subject: [PATCH 4.14 20/49] Input: i8042 - fix Pegatron C15B ID entry
+Date:   Mon, 26 Apr 2021 09:29:16 +0200
+Message-Id: <20210426072820.417323643@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072816.574319312@linuxfoundation.org>
-References: <20210426072816.574319312@linuxfoundation.org>
+In-Reply-To: <20210426072819.721586742@linuxfoundation.org>
+References: <20210426072819.721586742@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -71,9 +71,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/input/serio/i8042-x86ia64io.h
 +++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -579,6 +579,7 @@ static const struct dmi_system_id i8042_
- 			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-CS"),
+@@ -592,6 +592,7 @@ static const struct dmi_system_id i8042_
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
  		},
 +	}, {
  		.matches = {
