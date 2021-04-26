@@ -2,101 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D31736BACC
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 22:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8302936BB0D
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 23:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234084AbhDZUnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 16:43:12 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:19764 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233971AbhDZUnM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 16:43:12 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1619469750; h=In-Reply-To: Content-Type: MIME-Version:
- References: Message-ID: Subject: Cc: To: From: Date: Sender;
- bh=vOHO8cz5mRXLMj1d0Yn2sPy4MHZ3C4usEDqWxFA7sTQ=; b=mRmgsqtY+gF5Crt390j1JObGTkWBEqE8HAF0BxB4l4FoXvISwDbVXOnXmODY3G6zCDpcHzmL
- xyVYUioHbdUYXIfAYdRWlsnoi7cH08LRCNRwsKHHsqTKoVTo03lhg/N4PsAVdp1Q6NySawHS
- LcTj2r7xHuUATpj44l1lFLZaAyM=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n02.prod.us-west-2.postgun.com with SMTP id
- 608725a9215b831afbdfc056 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 26 Apr 2021 20:42:17
- GMT
-Sender: jackp=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id EDF50C43460; Mon, 26 Apr 2021 20:42:16 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL
-        autolearn=no autolearn_force=no version=3.4.0
-Received: from jackp-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: jackp)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 0CD81C433D3;
-        Mon, 26 Apr 2021 20:42:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 0CD81C433D3
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=jackp@codeaurora.org
-Date:   Mon, 26 Apr 2021 13:42:13 -0700
-From:   Jack Pham <jackp@codeaurora.org>
-To:     Subbaraman Narayanamurthy <subbaram@codeaurora.org>
-Cc:     abhilash.k.v@intel.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux-usb@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] usb: typec: ucsi: Retrieve all the PDOs instead of just
- the first 4
-Message-ID: <20210426204213.GC20698@jackp-linux.qualcomm.com>
-References: <20210426192605.GB20698@jackp-linux.qualcomm.com>
- <1619468491-22053-1-git-send-email-subbaram@codeaurora.org>
+        id S234864AbhDZVMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 17:12:21 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:51208 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234275AbhDZVMU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 26 Apr 2021 17:12:20 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 7FCBF1C0B79; Mon, 26 Apr 2021 23:11:37 +0200 (CEST)
+Date:   Mon, 26 Apr 2021 23:11:36 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tony Lindgren <tony@atomide.com>,
+        Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        linux-omap@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.4 1/7] ARM: dts: Fix swapped mmc order for omap3
+Message-ID: <20210426211136.GA31646@amd>
+References: <20210419204608.7191-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
 Content-Disposition: inline
-In-Reply-To: <1619468491-22053-1-git-send-email-subbaram@codeaurora.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20210419204608.7191-1-sashal@kernel.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 26, 2021 at 01:21:31PM -0700, Subbaraman Narayanamurthy wrote:
-> > If such a source is connected it's possible the UCSI FW could have
-> 
-> s/UCSI FW/PPM
 
-Right, PPM is a more apt descriptor. Waiting to see if Heikki has any
-feedback first before sending a V2.
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > We can resolve this by instead retrieving and storing up to the
-> > maximum of 7 PDOs in the con->src_pdos array. This would involve
-> > two calls to the GET_PDOS command.
-> > 
-> 
-> This issue (see the signature below) is found by enabling UBSAN and
-> connecting a charger adapter that can advertise 5 PDOs and RPDO selected
-> by PPM is 5.
-> 
-> [  151.545106][   T70] Unexpected kernel BRK exception at EL1
-> [  151.545112][   T70] Internal error: BRK handler: f2005512 [#1] PREEMPT SMP
-> ...
-> [  151.545499][   T70] pc : ucsi_psy_get_prop+0x208/0x20c
-> [  151.545507][   T70] lr : power_supply_show_property+0xc0/0x328
-> ...
-> [  151.545542][   T70] Call trace:
-> [  151.545544][   T70]  ucsi_psy_get_prop+0x208/0x20c
-> [  151.545546][   T70]  power_supply_uevent+0x1a4/0x2f0
-> [  151.545550][   T70]  dev_uevent+0x200/0x384
-> [  151.545555][   T70]  kobject_uevent_env+0x1d4/0x7e8
-> [  151.545557][   T70]  power_supply_changed_work+0x174/0x31c
-> [  151.545562][   T70]  process_one_work+0x244/0x6f0
-> [  151.545564][   T70]  worker_thread+0x3e0/0xa64
+Hi!
 
-UBSAN FTW. Want me to copy this trace into the commit text as well?
+> From: Tony Lindgren <tony@atomide.com>
+>=20
+> [ Upstream commit a1ebdb3741993f853865d1bd8f77881916ad53a7 ]
+>=20
+> Also some omap3 devices like n900 seem to have eMMC and micro-sd swapped
+> around with commit 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for
+> drivers that existed in v4.4").
+>=20
+> Let's fix the issue with aliases as discussed on the mailing lists. While
+> the mmc aliases should be board specific, let's first fix the issue with
+> minimal changes.
 
-Jack
--- 
-The Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+21b2cec61c04 tries to make newer kernels compatible with 4.4, and this
+is fixup for 21b2cec61c04. 21b2cec61c04 is not in 4.4 (obviously) so i
+don't believe we need this for 4.4.
+
+As this claims to "making it compatible with 4.4", I believe we should
+leave 4.4 alone.
+
+21b2cec61c04 is not present in v4.19, either, but what needs to be
+done there is less clear.
+
+21b2cec61c04 is in v5.10, so a1ebdb3741993f853865d1bd8f77881916ad53a7
+makes sense there, too.
+
+Best regards,
+								Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmCHLIgACgkQMOfwapXb+vL79wCgs2jx6N45TMeX+TDZerFINSqJ
+EIMAnjD8EduuGN8g5U6/iKTjK4vuJZ57
+=DuMi
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--
