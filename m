@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2573636ADF4
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B12C536AD3F
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232273AbhDZHkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56168 "EHLO mail.kernel.org"
+        id S232405AbhDZHdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:33:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233233AbhDZHjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:39:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C2046135F;
-        Mon, 26 Apr 2021 07:36:48 +0000 (UTC)
+        id S232627AbhDZHdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:33:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26EF36105A;
+        Mon, 26 Apr 2021 07:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422609;
-        bh=kx6l9CmZBBzW1xaF2lf7VZcdCp96piIIkTRvHyNb0SA=;
+        s=korg; t=1619422349;
+        bh=LOlADFzhj9u7N+oW6X7MLeJkJfSO1cq7azF0vxb+kMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwEqNHb5LZsRHvWuAGbgReoGChTPxs0DdTwSsAXWQI8MkHkhtFZokrk57Zmnwa/Eh
-         deRREuF7sSZoL49TA2mj5a6X3mdYjXuLbXAz+cjSrmpp1LlXTJPN5nRSVCWkdT5r6L
-         3Ockj6lhPnCvUn0+cmt+GyCb8dT0BjtNw075ilXs=
+        b=d/IOn5us08ij8Hs3Suv/m35F6gGSavEn6ftxGt9XWXBiOuwBFpX+9i5kJWMxRJF8O
+         0+G5hYz6Y5Iegu6o9BpNnzCwbCcUG8Lb60z+EyuksUpqSe4l/f1Ipw5LZ6g7ACsZJR
+         sngTYPshNX9Xwt3+vVVXWGDBuAEPLyKCS/ygxR9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/57] ARM: dts: Fix moving mmc devices with aliases for omap4 & 5
+Subject: [PATCH 4.9 02/37] Input: nspire-keypad - enable interrupts only when opened
 Date:   Mon, 26 Apr 2021 09:29:03 +0200
-Message-Id: <20210426072820.784009503@linuxfoundation.org>
+Message-Id: <20210426072817.328747114@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
-References: <20210426072820.568997499@linuxfoundation.org>
+In-Reply-To: <20210426072817.245304364@linuxfoundation.org>
+References: <20210426072817.245304364@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +40,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Fabian Vogt <fabian@ritter-vogt.de>
 
-[ Upstream commit 77335a040178a0456d4eabc8bf17a7ca3ee4a327 ]
+[ Upstream commit 69d5ff3e9e51e23d5d81bf48480aa5671be67a71 ]
 
-Fix moving mmc devices with dts aliases as discussed on the lists.
-Without this we now have internal eMMC mmc1 show up as mmc2 compared
-to the earlier order of devices.
+The driver registers an interrupt handler in _probe, but didn't configure
+them until later when the _open function is called. In between, the keypad
+can fire an IRQ due to touchpad activity, which the handler ignores. This
+causes the kernel to disable the interrupt, blocking the keypad from
+working.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fix this by disabling interrupts before registering the handler.
+Additionally, disable them in _close, so that they're only enabled while
+open.
+
+Fixes: fc4f31461892 ("Input: add TI-Nspire keypad support")
+Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
+Link: https://lore.kernel.org/r/3383725.iizBOSrK1V@linux-e202.suse.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap4.dtsi | 5 +++++
- arch/arm/boot/dts/omap5.dtsi | 5 +++++
- 2 files changed, 10 insertions(+)
+ drivers/input/keyboard/nspire-keypad.c | 56 ++++++++++++++------------
+ 1 file changed, 31 insertions(+), 25 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index 8f907c235b02..046e77024567 100644
---- a/arch/arm/boot/dts/omap4.dtsi
-+++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -25,6 +25,11 @@
- 		i2c1 = &i2c2;
- 		i2c2 = &i2c3;
- 		i2c3 = &i2c4;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
-+		mmc3 = &mmc4;
-+		mmc4 = &mmc5;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
-diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
-index 3c0bafe0fb05..cf66c374de4f 100644
---- a/arch/arm/boot/dts/omap5.dtsi
-+++ b/arch/arm/boot/dts/omap5.dtsi
-@@ -26,6 +26,11 @@
- 		i2c2 = &i2c3;
- 		i2c3 = &i2c4;
- 		i2c4 = &i2c5;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
-+		mmc3 = &mmc4;
-+		mmc4 = &mmc5;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
+diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
+index 7abfd34eb87e..bcec72367c1d 100644
+--- a/drivers/input/keyboard/nspire-keypad.c
++++ b/drivers/input/keyboard/nspire-keypad.c
+@@ -96,9 +96,15 @@ static irqreturn_t nspire_keypad_irq(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
++static int nspire_keypad_open(struct input_dev *input)
+ {
++	struct nspire_keypad *keypad = input_get_drvdata(input);
+ 	unsigned long val = 0, cycles_per_us, delay_cycles, row_delay_cycles;
++	int error;
++
++	error = clk_prepare_enable(keypad->clk);
++	if (error)
++		return error;
+ 
+ 	cycles_per_us = (clk_get_rate(keypad->clk) / 1000000);
+ 	if (cycles_per_us == 0)
+@@ -124,30 +130,6 @@ static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
+ 	keypad->int_mask = 1 << 1;
+ 	writel(keypad->int_mask, keypad->reg_base + KEYPAD_INTMSK);
+ 
+-	/* Disable GPIO interrupts to prevent hanging on touchpad */
+-	/* Possibly used to detect touchpad events */
+-	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
+-	/* Acknowledge existing interrupts */
+-	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
+-
+-	return 0;
+-}
+-
+-static int nspire_keypad_open(struct input_dev *input)
+-{
+-	struct nspire_keypad *keypad = input_get_drvdata(input);
+-	int error;
+-
+-	error = clk_prepare_enable(keypad->clk);
+-	if (error)
+-		return error;
+-
+-	error = nspire_keypad_chip_init(keypad);
+-	if (error) {
+-		clk_disable_unprepare(keypad->clk);
+-		return error;
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -155,6 +137,11 @@ static void nspire_keypad_close(struct input_dev *input)
+ {
+ 	struct nspire_keypad *keypad = input_get_drvdata(input);
+ 
++	/* Disable interrupts */
++	writel(0, keypad->reg_base + KEYPAD_INTMSK);
++	/* Acknowledge existing interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_INT);
++
+ 	clk_disable_unprepare(keypad->clk);
+ }
+ 
+@@ -215,6 +202,25 @@ static int nspire_keypad_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
++	error = clk_prepare_enable(keypad->clk);
++	if (error) {
++		dev_err(&pdev->dev, "failed to enable clock\n");
++		return error;
++	}
++
++	/* Disable interrupts */
++	writel(0, keypad->reg_base + KEYPAD_INTMSK);
++	/* Acknowledge existing interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_INT);
++
++	/* Disable GPIO interrupts to prevent hanging on touchpad */
++	/* Possibly used to detect touchpad events */
++	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
++	/* Acknowledge existing GPIO interrupts */
++	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
++
++	clk_disable_unprepare(keypad->clk);
++
+ 	input_set_drvdata(input, keypad);
+ 
+ 	input->id.bustype = BUS_HOST;
 -- 
 2.30.2
 
