@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B175E36AE73
-	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:46:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04E8E36AE0A
+	for <lists+stable@lfdr.de>; Mon, 26 Apr 2021 09:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234463AbhDZHpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 26 Apr 2021 03:45:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56330 "EHLO mail.kernel.org"
+        id S233170AbhDZHkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 26 Apr 2021 03:40:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232616AbhDZHnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 26 Apr 2021 03:43:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D03EA613AA;
-        Mon, 26 Apr 2021 07:39:43 +0000 (UTC)
+        id S233462AbhDZHjf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 26 Apr 2021 03:39:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DABF613C4;
+        Mon, 26 Apr 2021 07:37:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619422784;
-        bh=oyP6LS1k5NAJuRJ7cgqeIJDp4HwS7W3aMhJT+0+SU/U=;
+        s=korg; t=1619422650;
+        bh=pIvtuvid/lf5mLpxdZraK8AAKjMLbIu0qn9okCBA1vU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Et7FLxLcL1ZC7JeNwbQj1yDtJHcU5+NYDs8gVKgm/vJpYJtGRHT0L5DHkyTfQsOj
-         T/VgbiMdpYAPf2ebhQv4ZZbqiDylwBMZOyfazFgHqla7B2/wgZFwprIwQgwbN6CTxn
-         MCXYAL/fS3v2Jnp79iwZL2o099oPFMELhVGCgDM8=
+        b=fJCAt2vpNFLSTvEO1RoH07IFR8poPFMHT2lOb+Su+yT5NRMz31oHpMIUHjHIgRbwF
+         LRibNAjxzrY6Yp2qgZXlbIJWoI3wiOhxlkFylZ38JVj94hR7jBdtV/+9BAW+GAOMSZ
+         yqPlLtu8quwKnPHGirEUgM2p/0Ohqxn5DCyAgT6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuanyuan Zhong <yzhong@purestorage.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 05/36] pinctrl: lewisburg: Update number of pins in community
+Subject: [PATCH 4.19 50/57] ARM: dts: Fix swapped mmc order for omap3
 Date:   Mon, 26 Apr 2021 09:29:47 +0200
-Message-Id: <20210426072818.969086612@linuxfoundation.org>
+Message-Id: <20210426072822.265289551@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210426072818.777662399@linuxfoundation.org>
-References: <20210426072818.777662399@linuxfoundation.org>
+In-Reply-To: <20210426072820.568997499@linuxfoundation.org>
+References: <20210426072820.568997499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuanyuan Zhong <yzhong@purestorage.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 196d941753297d0ca73c563ccd7d00be049ec226 ]
+[ Upstream commit a1ebdb3741993f853865d1bd8f77881916ad53a7 ]
 
-When updating pin names for Intel Lewisburg, the numbers of pins were
-left behind. Update them accordingly.
+Also some omap3 devices like n900 seem to have eMMC and micro-sd swapped
+around with commit 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for
+drivers that existed in v4.4").
 
-Fixes: e66ff71fd0db ("pinctrl: lewisburg: Update pin list according to v1.1v6")
-Signed-off-by: Yuanyuan Zhong <yzhong@purestorage.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Let's fix the issue with aliases as discussed on the mailing lists. While
+the mmc aliases should be board specific, let's first fix the issue with
+minimal changes.
+
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-lewisburg.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/omap3.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-lewisburg.c b/drivers/pinctrl/intel/pinctrl-lewisburg.c
-index 7fdf4257df1e..ad4b446d588e 100644
---- a/drivers/pinctrl/intel/pinctrl-lewisburg.c
-+++ b/drivers/pinctrl/intel/pinctrl-lewisburg.c
-@@ -299,9 +299,9 @@ static const struct pinctrl_pin_desc lbg_pins[] = {
- static const struct intel_community lbg_communities[] = {
- 	LBG_COMMUNITY(0, 0, 71),
- 	LBG_COMMUNITY(1, 72, 132),
--	LBG_COMMUNITY(3, 133, 144),
--	LBG_COMMUNITY(4, 145, 180),
--	LBG_COMMUNITY(5, 181, 246),
-+	LBG_COMMUNITY(3, 133, 143),
-+	LBG_COMMUNITY(4, 144, 178),
-+	LBG_COMMUNITY(5, 179, 246),
- };
- 
- static const struct intel_pinctrl_soc_data lbg_soc_data = {
+diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
+index 4043ecb38016..0c8fcfb292bf 100644
+--- a/arch/arm/boot/dts/omap3.dtsi
++++ b/arch/arm/boot/dts/omap3.dtsi
+@@ -23,6 +23,9 @@
+ 		i2c0 = &i2c1;
+ 		i2c1 = &i2c2;
+ 		i2c2 = &i2c3;
++		mmc0 = &mmc1;
++		mmc1 = &mmc2;
++		mmc2 = &mmc3;
+ 		serial0 = &uart1;
+ 		serial1 = &uart2;
+ 		serial2 = &uart3;
 -- 
 2.30.2
 
