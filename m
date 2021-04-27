@@ -2,117 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F29F636C1C7
-	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 11:33:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B3836C214
+	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 11:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235184AbhD0Jdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Apr 2021 05:33:49 -0400
-Received: from mx2.suse.de ([195.135.220.15]:43198 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231148AbhD0Jdt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Apr 2021 05:33:49 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 44760B13E;
-        Tue, 27 Apr 2021 09:33:05 +0000 (UTC)
-Subject: Re: [PATCH v3] nvme: rdma/tcp: fix list corruption with anatt timer
-To:     mwilck@suse.com, Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Chao Leng <lengchao@huawei.com>
-Cc:     Daniel Wagner <dwagner@suse.de>, linux-nvme@lists.infradead.org,
-        stable@vger.kernel.org
-References: <20210427085246.13728-1-mwilck@suse.com>
-From:   Hannes Reinecke <hare@suse.de>
-Organization: SUSE Linux GmbH
-Message-ID: <0ff2dbc0-0182-f54d-b750-084feac53601@suse.de>
-Date:   Tue, 27 Apr 2021 11:33:04 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+        id S235033AbhD0Ju4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Apr 2021 05:50:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49020 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231148AbhD0Juz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Apr 2021 05:50:55 -0400
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80329C061574;
+        Tue, 27 Apr 2021 02:50:12 -0700 (PDT)
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.94)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1lbKM1-000e2r-08; Tue, 27 Apr 2021 11:50:05 +0200
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     linux-wireless@vger.kernel.org
+Cc:     Harald Arnesen <harald@skogtun.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
+Subject: [PATCH] cfg80211: fix locking in netlink owner interface destruction
+Date:   Tue, 27 Apr 2021 11:49:52 +0200
+Message-Id: <20210427114946.aa0879857e8f.I846942fa5fc6ec92cda98f663df323240c49893a@changeid>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-In-Reply-To: <20210427085246.13728-1-mwilck@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/27/21 10:52 AM, mwilck@suse.com wrote:
-> From: Martin Wilck <mwilck@suse.com>
-> 
-> We have observed a few crashes run_timer_softirq(), where a broken
-> timer_list struct belonging to an anatt_timer was encountered. The broken
-> structures look like this, and we see actually multiple ones attached to
-> the same timer base:
-> 
-> crash> struct timer_list 0xffff92471bcfdc90
-> struct timer_list {
->   entry = {
->     next = 0xdead000000000122,  // LIST_POISON2
->     pprev = 0x0
->   },
->   expires = 4296022933,
->   function = 0xffffffffc06de5e0 <nvme_anatt_timeout>,
->   flags = 20
-> }
-> 
-> If such a timer is encountered in run_timer_softirq(), the kernel
-> crashes. The test scenario was an I/O load test with lots of NVMe
-> controllers, some of which were removed and re-added on the storage side.
-> 
-> I think this may happen if the rdma recovery_work starts, in this call
-> chain:
-> 
-> nvme_rdma_error_recovery_work()
->   /* this stops all sorts of activity for the controller, but not
->      the multipath-related work queue and timer */
->   nvme_rdma_reconnect_or_remove(ctrl)
->     => kicks reconnect_work
-> 
-> work queue: reconnect_work
-> 
-> nvme_rdma_reconnect_ctrl_work()
->   nvme_rdma_setup_ctrl()
->     nvme_rdma_configure_admin_queue()
->        nvme_init_identify()
->           nvme_mpath_init()
-> 	     # this sets some fields of the timer_list without taking a lock
->              timer_setup()
->              nvme_read_ana_log()
-> 	         mod_timer() or del_timer_sync()
-> 
-> Similar for TCP. The idea for the patch is based on the observation that
-> nvme_rdma_reset_ctrl_work() calls nvme_stop_ctrl()->nvme_mpath_stop(),
-> whereas nvme_rdma_error_recovery_work() stops only the keepalive timer, but
-> not the anatt timer.
-> 
-> I admit that the root cause analysis isn't rock solid yet. In particular, I
-> can't explain why we see LIST_POISON2 in the "next" pointer, which would
-> indicate that the timer has been detached before; yet we find it linked to
-> the timer base when the crash occurs.
-> 
-> OTOH, the anatt_timer is only touched in nvme_mpath_init() (see above) and
-> nvme_mpath_stop(), so the hypothesis that modifying active timers may cause
-> the issue isn't totally out of sight. I suspect that the LIST_POISON2 may
-> come to pass in multiple steps.
-> 
-> If anyone has better ideas, please advise. The issue occurs very
-> sporadically; verifying this by testing will be difficult.
-> 
-> Signed-off-by: Martin Wilck <mwilck@suse.com>
-> Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-> Reviewed-by: Chao Leng <lengchao@huawei.com>
-> Cc: stable@vger.kernel.org
-> 
-As indicated in my previous mail, please change the description. We have
-since established a actual reason (duplicate calls to add_timer()), so
-please list it here.
+From: Johannes Berg <johannes.berg@intel.com>
 
-Cheers,
+Harald Arnesen reported [1] a deadlock at reboot time, and after
+he captured a stack trace a picture developed of what's going on:
 
-Hannes
+The distribution he's using is using iwd (not wpa_supplicant) to
+manage wireless. iwd will usually use the "socket owner" option
+when it creates new interfaces, so that they're automatically
+destroyed when it quits (unexpectedly or otherwise). This is also
+done by wpa_supplicant, but it doesn't do it for the normal one,
+only for additional ones, which is different with iwd.
+
+Anyway, during shutdown, iwd quits while the netdev is still UP,
+i.e. IFF_UP is set. This causes the stack trace that Linus so
+nicely transcribed from the pictures:
+
+cfg80211_destroy_iface_wk() takes wiphy_lock
+ -> cfg80211_destroy_ifaces()
+  ->ieee80211_del_iface
+    ->ieeee80211_if_remove
+      ->cfg80211_unregister_wdev
+        ->unregister_netdevice_queue
+          ->dev_close_many
+            ->__dev_close_many
+              ->raw_notifier_call_chain
+                ->cfg80211_netdev_notifier_call
+and that last call tries to take wiphy_lock again.
+
+In commit a05829a7222e ("cfg80211: avoid holding the RTNL when
+calling the driver") I had taken into account the possibility of
+recursing from cfg80211 into cfg80211_netdev_notifier_call() via
+the network stack, but only for NETDEV_UNREGISTER, not for what
+happens here, NETDEV_GOING_DOWN and NETDEV_DOWN notifications.
+
+Additionally, while this worked still back in commit 78f22b6a3a92
+("cfg80211: allow userspace to take ownership of interfaces"), it
+missed another corner case: unregistering a netdev will cause
+dev_close() to be called, and thus stop wireless operations (e.g.
+disconnecting), but there are some types of virtual interfaces in
+wifi that don't have a netdev - for that we need an additional
+call to cfg80211_leave().
+
+So, to fix this mess, change cfg80211_destroy_ifaces() to not
+require the wiphy_lock(), but instead make it acquire it, but
+only after it has actually closed all the netdevs on the list,
+and then call cfg80211_leave() as well before removing them
+from the driver, to fix the second issue. The locking change in
+this requires modifying the nl80211 call to not get the wiphy
+lock passed in, but acquire it by itself after flushing any
+potentially pending destruction requests.
+
+[1] https://lore.kernel.org/r/09464e67-f3de-ac09-28a3-e27b7914ee7d@skogtun.org
+
+Cc: stable@vger.kernel.org # 5.12
+Reported-by: Harald Arnesen <harald@skogtun.org>
+Fixes: 776a39b8196d ("cfg80211: call cfg80211_destroy_ifaces() with wiphy lock held")
+Fixes: 78f22b6a3a92 ("cfg80211: allow userspace to take ownership of interfaces")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+Linus, I'll send this the regular way, just CC'ing you since
+you were involved in the debug.
+---
+ net/wireless/core.c    | 21 +++++++++++++++++----
+ net/wireless/nl80211.c | 24 +++++++++++++++++++-----
+ 2 files changed, 36 insertions(+), 9 deletions(-)
+
+diff --git a/net/wireless/core.c b/net/wireless/core.c
+index a2785379df6e..589ee5a69a2e 100644
+--- a/net/wireless/core.c
++++ b/net/wireless/core.c
+@@ -332,14 +332,29 @@ static void cfg80211_event_work(struct work_struct *work)
+ void cfg80211_destroy_ifaces(struct cfg80211_registered_device *rdev)
+ {
+ 	struct wireless_dev *wdev, *tmp;
++	bool found = false;
+ 
+ 	ASSERT_RTNL();
+-	lockdep_assert_wiphy(&rdev->wiphy);
+ 
++	list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
++		if (wdev->nl_owner_dead) {
++			if (wdev->netdev)
++				dev_close(wdev->netdev);
++			found = true;
++		}
++	}
++
++	if (!found)
++		return;
++
++	wiphy_lock(&rdev->wiphy);
+ 	list_for_each_entry_safe(wdev, tmp, &rdev->wiphy.wdev_list, list) {
+-		if (wdev->nl_owner_dead)
++		if (wdev->nl_owner_dead) {
++			cfg80211_leave(rdev, wdev);
+ 			rdev_del_virtual_intf(rdev, wdev);
++		}
+ 	}
++	wiphy_unlock(&rdev->wiphy);
+ }
+ 
+ static void cfg80211_destroy_iface_wk(struct work_struct *work)
+@@ -350,9 +365,7 @@ static void cfg80211_destroy_iface_wk(struct work_struct *work)
+ 			    destroy_work);
+ 
+ 	rtnl_lock();
+-	wiphy_lock(&rdev->wiphy);
+ 	cfg80211_destroy_ifaces(rdev);
+-	wiphy_unlock(&rdev->wiphy);
+ 	rtnl_unlock();
+ }
+ 
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index b1df42e4f1eb..a5224da63832 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -3929,7 +3929,7 @@ static int nl80211_set_interface(struct sk_buff *skb, struct genl_info *info)
+ 	return err;
+ }
+ 
+-static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
++static int _nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
+ {
+ 	struct cfg80211_registered_device *rdev = info->user_ptr[0];
+ 	struct vif_params params;
+@@ -3938,9 +3938,6 @@ static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
+ 	int err;
+ 	enum nl80211_iftype type = NL80211_IFTYPE_UNSPECIFIED;
+ 
+-	/* to avoid failing a new interface creation due to pending removal */
+-	cfg80211_destroy_ifaces(rdev);
+-
+ 	memset(&params, 0, sizeof(params));
+ 
+ 	if (!info->attrs[NL80211_ATTR_IFNAME])
+@@ -4028,6 +4025,21 @@ static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
+ 	return genlmsg_reply(msg, info);
+ }
+ 
++static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
++{
++	struct cfg80211_registered_device *rdev = info->user_ptr[0];
++	int ret;
++
++	/* to avoid failing a new interface creation due to pending removal */
++	cfg80211_destroy_ifaces(rdev);
++
++	wiphy_lock(&rdev->wiphy);
++	ret = _nl80211_new_interface(skb, info);
++	wiphy_unlock(&rdev->wiphy);
++
++	return ret;
++}
++
+ static int nl80211_del_interface(struct sk_buff *skb, struct genl_info *info)
+ {
+ 	struct cfg80211_registered_device *rdev = info->user_ptr[0];
+@@ -15040,7 +15052,9 @@ static const struct genl_small_ops nl80211_small_ops[] = {
+ 		.doit = nl80211_new_interface,
+ 		.flags = GENL_UNS_ADMIN_PERM,
+ 		.internal_flags = NL80211_FLAG_NEED_WIPHY |
+-				  NL80211_FLAG_NEED_RTNL,
++				  NL80211_FLAG_NEED_RTNL |
++				  /* we take the wiphy mutex later ourselves */
++				  NL80211_FLAG_NO_WIPHY_MTX,
+ 	},
+ 	{
+ 		.cmd = NL80211_CMD_DEL_INTERFACE,
 -- 
-Dr. Hannes Reinecke		        Kernel Storage Architect
-hare@suse.de			               +49 911 74053 688
-SUSE Software Solutions Germany GmbH, 90409 Nürnberg
-GF: F. Imendörffer, HRB 36809 (AG Nürnberg)
+2.30.2
+
