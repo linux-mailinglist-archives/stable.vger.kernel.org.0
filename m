@@ -2,232 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE52036C5CA
-	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 14:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0EDA36C5E1
+	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 14:12:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236117AbhD0MIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Apr 2021 08:08:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51484 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235501AbhD0MIN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Apr 2021 08:08:13 -0400
-Received: from smtp.domeneshop.no (smtp.domeneshop.no [IPv6:2a01:5b40:0:3005::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3735C061756;
-        Tue, 27 Apr 2021 05:07:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=skogtun.org
-        ; s=ds202012; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=yNQKTiaSX9YkEw5rvnmDnAQkpI15JsyRTEcsnXXwEEg=; b=XvpfghEsS3gej5oU+L7gQHaTa2
-        11pJcImwautxN3ZRA+GAariMvsYFtY/LpTQdOutSo8KeOiaPL07jLLZ1aEg5CC05pSI7Js1F+OjMr
-        P93SBTC8MKbVwGw45xmRGdGwBKla4L+zFtyvSkuIRcau1yiSSGqqurRse4gorjj6ACLbnXXCHuOgA
-        5DSHAbXpbvkaErpY5bj1+NkOSSQ11xKuf7YtuEUnFVzs/9GkPiZvE+Hj/KsGVc34Z83vnDvpWqETJ
-        zjol43RQXANlxETBvrD8Cskk3jfySgLfZF3oWKsoaEVxgX4LAZaWaBZpji9DgOuvhWV3xs2QGJhQK
-        y9NFYmfw==;
-Received: from [2001:4643:10eb:0:200:5e10:0:6] (port=48594)
-        by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <harald@skogtun.org>)
-        id 1lbMUy-0000M8-EV; Tue, 27 Apr 2021 14:07:28 +0200
-Subject: Re: [PATCH] cfg80211: fix locking in netlink owner interface
- destruction
-To:     Johannes Berg <johannes@sipsolutions.net>,
-        linux-wireless@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
-References: <20210427114946.aa0879857e8f.I846942fa5fc6ec92cda98f663df323240c49893a@changeid>
-From:   Harald Arnesen <harald@skogtun.org>
-Message-ID: <07e5bcb9-7de3-2e0a-cdeb-adc0dd4f1fd4@skogtun.org>
-Date:   Tue, 27 Apr 2021 14:07:25 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
-MIME-Version: 1.0
-In-Reply-To: <20210427114946.aa0879857e8f.I846942fa5fc6ec92cda98f663df323240c49893a@changeid>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S235476AbhD0MNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Apr 2021 08:13:40 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:51116 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235410AbhD0MNj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Apr 2021 08:13:39 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost1.synopsys.com [10.225.0.209])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 33738400E1;
+        Tue, 27 Apr 2021 12:12:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1619525576; bh=d7ROy3cYQCkmR+Q3KN4iMTu5vZ0ws556TwzYVn7dLrI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Wj2Oi1+HgAJ0wYHpXo+sNmYeO/Fh/zhanURxYvtXjbubvSbkrSikbqnksmGeP4+gK
+         WT2BQsWNSKOyCNW31PSOuvSJ2V+UC/jKhAAwzMv2EKPYsV9dYHo1fX6vJUHyyVtiFf
+         U222V+9BmwOWqXNttx7pvXS1IO8EQ4FeSJuEnl135/bmtfZXEDr9lHPp1Rf+swUtRA
+         gZJxutv22tb6RUW3GB7zGBfcRjSYBU5zUIs/SXI2wiCoJ9l4iJKyACe0oTwprGSeFy
+         2p0AVJqR1H4r/1ngFOEqr+WflbUPJrmhwcEVUjghFU7MblRxYjTQSxbkanWfwWklDX
+         Uc1hdSwMgaO3w==
+Received: from ru20arcgnu1.internal.synopsys.com (ru20arcgnu1.internal.synopsys.com [10.121.9.48])
+        by mailhost.synopsys.com (Postfix) with ESMTP id 6E34EA005E;
+        Tue, 27 Apr 2021 12:12:52 +0000 (UTC)
+X-SNPS-Relay: synopsys.com
+From:   Vladimir Isaev <Vladimir.Isaev@synopsys.com>
+To:     linux-snps-arc@lists.infradead.org
+Cc:     linux-arch@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, rppt@linux.ibm.com,
+        Vladimir Isaev <Vladimir.Isaev@synopsys.com>,
+        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] ARC: Use 40-bit physical page mask for PAE
+Date:   Tue, 27 Apr 2021 15:12:37 +0300
+Message-Id: <20210427121237.2889-1-isaev@synopsys.com>
+X-Mailer: git-send-email 2.16.2
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I can confirm that the machine reboots with this patch applied.
-Harald Arnesen
+32-bit PAGE_MASK can not be used as a mask for physical addresses
+when PAE is enabled. PAGE_MASK_PHYS must be used for physical
+addresses instead of PAGE_MASK.
 
+Without this, init gets SIGSEGV if pte_modify was called:
 
-Johannes Berg [27.04.2021 11:49]:
-> From: Johannes Berg <johannes.berg@intel.com>
-> 
-> Harald Arnesen reported [1] a deadlock at reboot time, and after
-> he captured a stack trace a picture developed of what's going on:
-> 
-> The distribution he's using is using iwd (not wpa_supplicant) to
-> manage wireless. iwd will usually use the "socket owner" option
-> when it creates new interfaces, so that they're automatically
-> destroyed when it quits (unexpectedly or otherwise). This is also
-> done by wpa_supplicant, but it doesn't do it for the normal one,
-> only for additional ones, which is different with iwd.
-> 
-> Anyway, during shutdown, iwd quits while the netdev is still UP,
-> i.e. IFF_UP is set. This causes the stack trace that Linus so
-> nicely transcribed from the pictures:
-> 
-> cfg80211_destroy_iface_wk() takes wiphy_lock
->  -> cfg80211_destroy_ifaces()
->   ->ieee80211_del_iface
->     ->ieeee80211_if_remove
->       ->cfg80211_unregister_wdev
->         ->unregister_netdevice_queue
->           ->dev_close_many
->             ->__dev_close_many
->               ->raw_notifier_call_chain
->                 ->cfg80211_netdev_notifier_call
-> and that last call tries to take wiphy_lock again.
-> 
-> In commit a05829a7222e ("cfg80211: avoid holding the RTNL when
-> calling the driver") I had taken into account the possibility of
-> recursing from cfg80211 into cfg80211_netdev_notifier_call() via
-> the network stack, but only for NETDEV_UNREGISTER, not for what
-> happens here, NETDEV_GOING_DOWN and NETDEV_DOWN notifications.
-> 
-> Additionally, while this worked still back in commit 78f22b6a3a92
-> ("cfg80211: allow userspace to take ownership of interfaces"), it
-> missed another corner case: unregistering a netdev will cause
-> dev_close() to be called, and thus stop wireless operations (e.g.
-> disconnecting), but there are some types of virtual interfaces in
-> wifi that don't have a netdev - for that we need an additional
-> call to cfg80211_leave().
-> 
-> So, to fix this mess, change cfg80211_destroy_ifaces() to not
-> require the wiphy_lock(), but instead make it acquire it, but
-> only after it has actually closed all the netdevs on the list,
-> and then call cfg80211_leave() as well before removing them
-> from the driver, to fix the second issue. The locking change in
-> this requires modifying the nl80211 call to not get the wiphy
-> lock passed in, but acquire it by itself after flushing any
-> potentially pending destruction requests.
-> 
-> [1] https://lore.kernel.org/r/09464e67-f3de-ac09-28a3-e27b7914ee7d@skogtun.org
-> 
-> Cc: stable@vger.kernel.org # 5.12
-> Reported-by: Harald Arnesen <harald@skogtun.org>
-> Fixes: 776a39b8196d ("cfg80211: call cfg80211_destroy_ifaces() with wiphy lock held")
-> Fixes: 78f22b6a3a92 ("cfg80211: allow userspace to take ownership of interfaces")
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-> ---
-> Linus, I'll send this the regular way, just CC'ing you since
-> you were involved in the debug.
-> ---
->  net/wireless/core.c    | 21 +++++++++++++++++----
->  net/wireless/nl80211.c | 24 +++++++++++++++++++-----
->  2 files changed, 36 insertions(+), 9 deletions(-)
-> 
-> diff --git a/net/wireless/core.c b/net/wireless/core.c
-> index a2785379df6e..589ee5a69a2e 100644
-> --- a/net/wireless/core.c
-> +++ b/net/wireless/core.c
-> @@ -332,14 +332,29 @@ static void cfg80211_event_work(struct work_struct *work)
->  void cfg80211_destroy_ifaces(struct cfg80211_registered_device *rdev)
->  {
->  	struct wireless_dev *wdev, *tmp;
-> +	bool found = false;
->  
->  	ASSERT_RTNL();
-> -	lockdep_assert_wiphy(&rdev->wiphy);
->  
-> +	list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
-> +		if (wdev->nl_owner_dead) {
-> +			if (wdev->netdev)
-> +				dev_close(wdev->netdev);
-> +			found = true;
-> +		}
-> +	}
-> +
-> +	if (!found)
-> +		return;
-> +
-> +	wiphy_lock(&rdev->wiphy);
->  	list_for_each_entry_safe(wdev, tmp, &rdev->wiphy.wdev_list, list) {
-> -		if (wdev->nl_owner_dead)
-> +		if (wdev->nl_owner_dead) {
-> +			cfg80211_leave(rdev, wdev);
->  			rdev_del_virtual_intf(rdev, wdev);
-> +		}
->  	}
-> +	wiphy_unlock(&rdev->wiphy);
->  }
->  
->  static void cfg80211_destroy_iface_wk(struct work_struct *work)
-> @@ -350,9 +365,7 @@ static void cfg80211_destroy_iface_wk(struct work_struct *work)
->  			    destroy_work);
->  
->  	rtnl_lock();
-> -	wiphy_lock(&rdev->wiphy);
->  	cfg80211_destroy_ifaces(rdev);
-> -	wiphy_unlock(&rdev->wiphy);
->  	rtnl_unlock();
->  }
->  
-> diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-> index b1df42e4f1eb..a5224da63832 100644
-> --- a/net/wireless/nl80211.c
-> +++ b/net/wireless/nl80211.c
-> @@ -3929,7 +3929,7 @@ static int nl80211_set_interface(struct sk_buff *skb, struct genl_info *info)
->  	return err;
->  }
->  
-> -static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
-> +static int _nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
->  {
->  	struct cfg80211_registered_device *rdev = info->user_ptr[0];
->  	struct vif_params params;
-> @@ -3938,9 +3938,6 @@ static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
->  	int err;
->  	enum nl80211_iftype type = NL80211_IFTYPE_UNSPECIFIED;
->  
-> -	/* to avoid failing a new interface creation due to pending removal */
-> -	cfg80211_destroy_ifaces(rdev);
-> -
->  	memset(&params, 0, sizeof(params));
->  
->  	if (!info->attrs[NL80211_ATTR_IFNAME])
-> @@ -4028,6 +4025,21 @@ static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
->  	return genlmsg_reply(msg, info);
->  }
->  
-> +static int nl80211_new_interface(struct sk_buff *skb, struct genl_info *info)
-> +{
-> +	struct cfg80211_registered_device *rdev = info->user_ptr[0];
-> +	int ret;
-> +
-> +	/* to avoid failing a new interface creation due to pending removal */
-> +	cfg80211_destroy_ifaces(rdev);
-> +
-> +	wiphy_lock(&rdev->wiphy);
-> +	ret = _nl80211_new_interface(skb, info);
-> +	wiphy_unlock(&rdev->wiphy);
-> +
-> +	return ret;
-> +}
-> +
->  static int nl80211_del_interface(struct sk_buff *skb, struct genl_info *info)
->  {
->  	struct cfg80211_registered_device *rdev = info->user_ptr[0];
-> @@ -15040,7 +15052,9 @@ static const struct genl_small_ops nl80211_small_ops[] = {
->  		.doit = nl80211_new_interface,
->  		.flags = GENL_UNS_ADMIN_PERM,
->  		.internal_flags = NL80211_FLAG_NEED_WIPHY |
-> -				  NL80211_FLAG_NEED_RTNL,
-> +				  NL80211_FLAG_NEED_RTNL |
-> +				  /* we take the wiphy mutex later ourselves */
-> +				  NL80211_FLAG_NO_WIPHY_MTX,
->  	},
->  	{
->  		.cmd = NL80211_CMD_DEL_INTERFACE,
-> 
+potentially unexpected fatal signal 11.
+Path: /bin/busybox
+CPU: 0 PID: 1 Comm: init Not tainted 5.12.0-rc5-00003-g1e43c377a79f-dirty
+Insn could not be fetched
+    @No matching VMA found
+ECR: 0x00040000 EFA: 0x00000000 ERET: 0x00000000
+STAT: 0x80080082 [IE U     ]   BTA: 0x00000000
+ SP: 0x5f9ffe44  FP: 0x00000000 BLK: 0xaf3d4
+LPS: 0x000d093e LPE: 0x000d0950 LPC: 0x00000000
+r00: 0x00000002 r01: 0x5f9fff14 r02: 0x5f9fff20
+r03: 0x00000000 r04: 0x00000a48 r05: 0x001855b8
+r06: 0x00186654 r07: 0x00010034 r08: 0x000000e2
+r09: 0x00000007 r10: 0x00000000 r11: 0x00000000
+r12: 0x00000000 r13: 0x00000001 r14: 0x00000002
+r15: 0x5f9fff14 r16: 0x5f9fff20 r17: 0x001855d0
+r18: 0x00000001 r19: 0x00000000 r20: 0x00000000
+r21: 0x00000000 r22: 0x00000000 r23: 0x00000000
+r24: 0x00000000 r25: 0x0018a488
+Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
 
+Signed-off-by: Vladimir Isaev <isaev@synopsys.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: stable@vger.kernel.org
+---
+Changes for v2:
+ - PHYSICAL_PAGE_MASK -> PAGE_MASK_PHYS
+ - off variable in ioremap_prot is now unsigned int and uses PAGE_MASK
+ - Revised commit message
+---
+ arch/arc/include/asm/page.h      | 12 ++++++++++++
+ arch/arc/include/asm/pgtable.h   | 12 +++---------
+ arch/arc/include/uapi/asm/page.h |  1 -
+ arch/arc/mm/ioremap.c            |  5 +++--
+ arch/arc/mm/tlb.c                |  2 +-
+ 5 files changed, 19 insertions(+), 13 deletions(-)
 
+diff --git a/arch/arc/include/asm/page.h b/arch/arc/include/asm/page.h
+index ad9b7fe4dba3..4a9d33372fe2 100644
+--- a/arch/arc/include/asm/page.h
++++ b/arch/arc/include/asm/page.h
+@@ -7,6 +7,18 @@
+ 
+ #include <uapi/asm/page.h>
+ 
++#ifdef CONFIG_ARC_HAS_PAE40
++
++#define MAX_POSSIBLE_PHYSMEM_BITS	40
++#define PAGE_MASK_PHYS			(0xff00000000ull | PAGE_MASK)
++
++#else /* CONFIG_ARC_HAS_PAE40 */
++
++#define MAX_POSSIBLE_PHYSMEM_BITS	32
++#define PAGE_MASK_PHYS			PAGE_MASK
++
++#endif /* CONFIG_ARC_HAS_PAE40 */
++
+ #ifndef __ASSEMBLY__
+ 
+ #define clear_page(paddr)		memset((paddr), 0, PAGE_SIZE)
+diff --git a/arch/arc/include/asm/pgtable.h b/arch/arc/include/asm/pgtable.h
+index 163641726a2b..5878846f00cf 100644
+--- a/arch/arc/include/asm/pgtable.h
++++ b/arch/arc/include/asm/pgtable.h
+@@ -107,8 +107,8 @@
+ #define ___DEF (_PAGE_PRESENT | _PAGE_CACHEABLE)
+ 
+ /* Set of bits not changed in pte_modify */
+-#define _PAGE_CHG_MASK	(PAGE_MASK | _PAGE_ACCESSED | _PAGE_DIRTY | _PAGE_SPECIAL)
+-
++#define _PAGE_CHG_MASK	(PAGE_MASK_PHYS | _PAGE_ACCESSED | _PAGE_DIRTY | \
++							   _PAGE_SPECIAL)
+ /* More Abbrevaited helpers */
+ #define PAGE_U_NONE     __pgprot(___DEF)
+ #define PAGE_U_R        __pgprot(___DEF | _PAGE_READ)
+@@ -132,13 +132,7 @@
+ #define PTE_BITS_IN_PD0		(_PAGE_GLOBAL | _PAGE_PRESENT | _PAGE_HW_SZ)
+ #define PTE_BITS_RWX		(_PAGE_EXECUTE | _PAGE_WRITE | _PAGE_READ)
+ 
+-#ifdef CONFIG_ARC_HAS_PAE40
+-#define PTE_BITS_NON_RWX_IN_PD1	(0xff00000000 | PAGE_MASK | _PAGE_CACHEABLE)
+-#define MAX_POSSIBLE_PHYSMEM_BITS 40
+-#else
+-#define PTE_BITS_NON_RWX_IN_PD1	(PAGE_MASK | _PAGE_CACHEABLE)
+-#define MAX_POSSIBLE_PHYSMEM_BITS 32
+-#endif
++#define PTE_BITS_NON_RWX_IN_PD1	(PAGE_MASK_PHYS | _PAGE_CACHEABLE)
+ 
+ /**************************************************************************
+  * Mapping of vm_flags (Generic VM) to PTE flags (arch specific)
+diff --git a/arch/arc/include/uapi/asm/page.h b/arch/arc/include/uapi/asm/page.h
+index 2a97e2718a21..2a4ad619abfb 100644
+--- a/arch/arc/include/uapi/asm/page.h
++++ b/arch/arc/include/uapi/asm/page.h
+@@ -33,5 +33,4 @@
+ 
+ #define PAGE_MASK	(~(PAGE_SIZE-1))
+ 
+-
+ #endif /* _UAPI__ASM_ARC_PAGE_H */
+diff --git a/arch/arc/mm/ioremap.c b/arch/arc/mm/ioremap.c
+index fac4adc90204..95c649fbc95a 100644
+--- a/arch/arc/mm/ioremap.c
++++ b/arch/arc/mm/ioremap.c
+@@ -53,9 +53,10 @@ EXPORT_SYMBOL(ioremap);
+ void __iomem *ioremap_prot(phys_addr_t paddr, unsigned long size,
+ 			   unsigned long flags)
+ {
++	unsigned int off;
+ 	unsigned long vaddr;
+ 	struct vm_struct *area;
+-	phys_addr_t off, end;
++	phys_addr_t end;
+ 	pgprot_t prot = __pgprot(flags);
+ 
+ 	/* Don't allow wraparound, zero size */
+@@ -72,7 +73,7 @@ void __iomem *ioremap_prot(phys_addr_t paddr, unsigned long size,
+ 
+ 	/* Mappings have to be page-aligned */
+ 	off = paddr & ~PAGE_MASK;
+-	paddr &= PAGE_MASK;
++	paddr &= PAGE_MASK_PHYS;
+ 	size = PAGE_ALIGN(end + 1) - paddr;
+ 
+ 	/*
+diff --git a/arch/arc/mm/tlb.c b/arch/arc/mm/tlb.c
+index 9bb3c24f3677..9c7c68247289 100644
+--- a/arch/arc/mm/tlb.c
++++ b/arch/arc/mm/tlb.c
+@@ -576,7 +576,7 @@ void update_mmu_cache(struct vm_area_struct *vma, unsigned long vaddr_unaligned,
+ 		      pte_t *ptep)
+ {
+ 	unsigned long vaddr = vaddr_unaligned & PAGE_MASK;
+-	phys_addr_t paddr = pte_val(*ptep) & PAGE_MASK;
++	phys_addr_t paddr = pte_val(*ptep) & PAGE_MASK_PHYS;
+ 	struct page *page = pfn_to_page(pte_pfn(*ptep));
+ 
+ 	create_tlb(vma, vaddr, ptep);
 -- 
-Hilsen Harald
+2.16.2
+
