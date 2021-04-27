@@ -2,109 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9AA236C9E1
-	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 18:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF8A36C9ED
+	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 19:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236611AbhD0Q72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Apr 2021 12:59:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44906 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237720AbhD0Q71 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 27 Apr 2021 12:59:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BA6561165;
-        Tue, 27 Apr 2021 16:58:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619542723;
-        bh=wERojalQ9dUWLbKBoiBa7cXRmoy3rgdT4eSYH2cRmew=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KIETlKK7KKOunXOjbqIpzyBvi8EU4ZAuTAlTLc9pJwDh29Q0TBzwoslu1BNB3LG4A
-         EsJWhSxHGJP8aQrOZK3wDbKx6lbZeHBkGEzkS7S0csRsHXiSk1817nIdOk7j4Uz7ZG
-         furEgWnId4H6BiyflxCW5pmiYw8YVj8nA3Je7dkM=
-Date:   Tue, 27 Apr 2021 18:58:41 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: Re: [PATCH 181/190] Revert "dm ioctl: harden copy_params()'s
- copy_from_user() from malicious users"
-Message-ID: <YIhCwe+FVtgm0LlD@kroah.com>
-References: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
- <20210421130105.1226686-182-gregkh@linuxfoundation.org>
+        id S238278AbhD0RBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Apr 2021 13:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60340 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237946AbhD0RAy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Apr 2021 13:00:54 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19DAEC061574;
+        Tue, 27 Apr 2021 10:00:10 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id m9so47462146wrx.3;
+        Tue, 27 Apr 2021 10:00:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=p7dGgXSikaYUsY1yMu1X7zpaE+PGIoIuI+9TbGbxFDs=;
+        b=Z+76bRFlmbrOFYVE+awuR0dIFUs+Fr+vYvOgUpbzSPFOCWhz8VXyzUPeD2VtH+gm/8
+         6aYFr9rd6wa3EMx0NHPDSKiN+0xGJDajGNYOajbTMOJo5OZcEVQDNqnn9Rar12lFMKhP
+         DfrzX8KoL1WHwFQdxgUKYOTtAfa14U9HiCIBXUlV7oD2i5i9egeX6SQUqjoVz21VV7I/
+         Q5r4EmANIPAQrS7yyoVXXHUY0ko4bnn2LRzhww/e8i1KaCfrSbjVopJUza3zL0rqhKzG
+         PRWhrPtthinUQ47CkykhegQS16AaQkTDnDTNnzKA1aFdUBxC7pc1PnzQkMknZtGdMLJq
+         Iccg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=p7dGgXSikaYUsY1yMu1X7zpaE+PGIoIuI+9TbGbxFDs=;
+        b=Yf+QmdjAzXO4YGT2u4Og8viITTzzXB0eWJa7tIyIJhZdYHq3Q9U/40E0hKFcxEpMIG
+         XVUBie1Twp/ShiwSU1jy/pjTqaN9RSMYnmRRCeqNkZKDi+5nA0855XZNB18OzeaeI6/e
+         3PyztKfAPbbebHwBxFw/XjNmwU6WyrcXPXZqsOmjqi/ZHUbrJqrdWf04AVL/dK1FJTK5
+         Y97iTVtYWp7f+xhJP3NIVTi7O76L9+32higT5zkKfkT0rIcTTq+hsdn2i4nVejmJaJQQ
+         XR9SgUoUJ1L9QO6S27poALKEPJsu0VwAz44SaShpDrRm43ok3ouyEoJifpYNA7cYywJ8
+         ZSLA==
+X-Gm-Message-State: AOAM533+uVByGIjExIpdqpJ7V0BunNn/ddRunmOwSHDJdk6FCMhzRcEY
+        TT7LpaeU0scri5wPQOwAxbYREWz8mU4=
+X-Google-Smtp-Source: ABdhPJxfKcKDT2v4rajFmcELvVywyaj1JXc+52c7lp2slstb1ViVxljWM4yKzsaxnR4mnmONEe/2BQ==
+X-Received: by 2002:a5d:480b:: with SMTP id l11mr8006864wrq.242.1619542808559;
+        Tue, 27 Apr 2021 10:00:08 -0700 (PDT)
+Received: from [192.168.8.197] ([148.252.129.131])
+        by smtp.gmail.com with ESMTPSA id l12sm5680439wrq.36.2021.04.27.10.00.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Apr 2021 10:00:07 -0700 (PDT)
+Subject: Re: [PATCH 5.13] io_uring: Check current->io_uring in
+ io_uring_cancel_sqpoll
+To:     Jens Axboe <axboe@kernel.dk>, Palash Oswal <hello@oswalpalash.com>
+Cc:     dvyukov@google.com, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, oswalpalash@gmail.com,
+        syzbot+be51ca5a4d97f017cd50@syzkaller.appspotmail.com,
+        syzkaller-bugs@googlegroups.com, stable@vger.kernel.org
+References: <e67b2f55-dd0a-1e1f-e34b-87e8613cd701@gmail.com>
+ <20210427125148.21816-1-hello@oswalpalash.com>
+ <decd444f-701d-6960-0648-b145b6fcccfb@kernel.dk>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Message-ID: <8204f859-7249-580e-9cb1-7e255dbcb982@gmail.com>
+Date:   Tue, 27 Apr 2021 18:00:03 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210421130105.1226686-182-gregkh@linuxfoundation.org>
+In-Reply-To: <decd444f-701d-6960-0648-b145b6fcccfb@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 21, 2021 at 03:00:56PM +0200, Greg Kroah-Hartman wrote:
-> This reverts commit 800a7340ab7dd667edf95e74d8e4f23a17e87076.
+On 4/27/21 2:37 PM, Jens Axboe wrote:
+> On 4/27/21 6:51 AM, Palash Oswal wrote:
+>> syzkaller identified KASAN: null-ptr-deref Write in
+>> io_uring_cancel_sqpoll on v5.12
+>>
+>> io_uring_cancel_sqpoll is called by io_sq_thread before calling
+>> io_uring_alloc_task_context. This leads to current->io_uring being
+>> NULL. io_uring_cancel_sqpoll should not have to deal with threads
+>> where current->io_uring is NULL.
+>>
+>> In order to cast a wider safety net, perform input sanitisation
+>> directly in io_uring_cancel_sqpoll and return for NULL value of
+>> current->io_uring.
 > 
-> Commits from @umn.edu addresses have been found to be submitted in "bad
-> faith" to try to test the kernel community's ability to review "known
-> malicious" changes.  The result of these submissions can be found in a
-> paper published at the 42nd IEEE Symposium on Security and Privacy
-> entitled, "Open Source Insecurity: Stealthily Introducing
-> Vulnerabilities via Hypocrite Commits" written by Qiushi Wu (University
-> of Minnesota) and Kangjie Lu (University of Minnesota).
-> 
-> Because of this, all submissions from this group must be reverted from
-> the kernel tree and will need to be re-reviewed again to determine if
-> they actually are a valid fix.  Until that work is complete, remove this
-> change to ensure that no problems are being introduced into the
-> codebase.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Wenwen Wang <wang6495@umn.edu>
-> Cc: Mike Snitzer <snitzer@redhat.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/md/dm-ioctl.c | 18 ++++++++++++------
->  1 file changed, 12 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
-> index 1ca65b434f1f..820342de92cd 100644
-> --- a/drivers/md/dm-ioctl.c
-> +++ b/drivers/md/dm-ioctl.c
-> @@ -1747,7 +1747,8 @@ static void free_params(struct dm_ioctl *param, size_t param_size, int param_fla
->  }
->  
->  static int copy_params(struct dm_ioctl __user *user, struct dm_ioctl *param_kernel,
-> -		       int ioctl_flags, struct dm_ioctl **param, int *param_flags)
-> +		       int ioctl_flags,
-> +		       struct dm_ioctl **param, int *param_flags)
->  {
->  	struct dm_ioctl *dmi;
->  	int secure_data;
-> @@ -1788,13 +1789,18 @@ static int copy_params(struct dm_ioctl __user *user, struct dm_ioctl *param_kern
->  
->  	*param_flags |= DM_PARAMS_MALLOC;
->  
-> -	/* Copy from param_kernel (which was already copied from user) */
-> -	memcpy(dmi, param_kernel, minimum_data_size);
-> -
-> -	if (copy_from_user(&dmi->data, (char __user *)user + minimum_data_size,
-> -			   param_kernel->data_size - minimum_data_size))
-> +	if (copy_from_user(dmi, user, param_kernel->data_size))
->  		goto bad;
-> +
->  data_copied:
-> +	/*
-> +	 * Abort if something changed the ioctl data while it was being copied.
-> +	 */
-> +	if (dmi->data_size != param_kernel->data_size) {
-> +		DMERR("rejecting ioctl: data size modified while processing parameters");
-> +		goto bad;
-> +	}
-> +
->  	/* Wipe the user buffer so we do not return it to userspace */
->  	if (secure_data && clear_user(user, param_kernel->data_size))
->  		goto bad;
-> -- 
-> 2.31.1
-> 
+> Thanks applied - I augmented the commit message a bit.
 
-Original looks correct, dropping this commit now.
+btw, does it fixes the replied before syz report? Should 
+syz fix or tag it if so.
+Reported-by: syzbot+be51ca5a4d97f017cd50@syzkaller.appspotmail.com
 
-greg k-h
+-- 
+Pavel Begunkov
