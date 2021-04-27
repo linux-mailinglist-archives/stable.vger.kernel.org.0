@@ -2,79 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D89836C8B2
-	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 17:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E7C36C8A8
+	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 17:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235974AbhD0Pej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Apr 2021 11:34:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41020 "EHLO
+        id S237665AbhD0Pc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Apr 2021 11:32:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229571AbhD0Pei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Apr 2021 11:34:38 -0400
-Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7759AC061574
-        for <stable@vger.kernel.org>; Tue, 27 Apr 2021 08:33:55 -0700 (PDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id ED6C6C800D3;
-        Tue, 27 Apr 2021 17:33:50 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
-Received: from srv6.fidu.org ([127.0.0.1])
-        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
-        with LMTP id S_8S2HnoTTiF; Tue, 27 Apr 2021 17:33:46 +0200 (CEST)
-Received: from wsembach-tuxedo.fritz.box (p200300E37f39860059dF2f3DAEe82359.dip0.t-ipconnect.de [IPv6:2003:e3:7f39:8600:59df:2f3d:aee8:2359])
-        (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPA id 11B88C800C4;
-        Tue, 27 Apr 2021 17:33:46 +0200 (CEST)
-From:   Werner Sembach <wse@tuxedocomputers.com>
-To:     wse@tuxedocomputers.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-        alsa-devel@vger.kernel.org
-Cc:     Eckhart Mohr <e.mohr@tuxedocomputers.com>, stable@vger.kernel.org
-Subject: [PATCH] ALSA: hda/realtek: Add quirk for Intel Clevo PCx0Dx
-Date:   Tue, 27 Apr 2021 17:30:25 +0200
-Message-Id: <20210427153025.451118-1-wse@tuxedocomputers.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S237630AbhD0Pc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Apr 2021 11:32:27 -0400
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15CEBC061756
+        for <stable@vger.kernel.org>; Tue, 27 Apr 2021 08:31:43 -0700 (PDT)
+Received: by mail-lf1-x12a.google.com with SMTP id n138so94483646lfa.3
+        for <stable@vger.kernel.org>; Tue, 27 Apr 2021 08:31:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wRPmVW+l8hNmuKSneUNYdhg6EPkPkT9qOMTPIVf8vaQ=;
+        b=WvECQx1Lb6QUA9eLy2mj3gWKTvRi2qlDxWJvxkBthHBDfZ1k6fJ+CL1hGO00/dVrWw
+         wPIWvoBw+wlYADN0Me7iKLqFSjyRkWlX93t/vKXur51a404hExsx0Fi9/arh1Zx8jWgw
+         RyXZ+PeJ9wrOnOw1TFy8SXg+p4uruoka+RSxg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wRPmVW+l8hNmuKSneUNYdhg6EPkPkT9qOMTPIVf8vaQ=;
+        b=DzkeXzYxsq9vLZBj0kNUVwk1gm7USpg37WAjH411wG26wvHdpret/PMa7376vqu3ZK
+         TjcFS8hcGseioXZkT/ZygeArxJpDDuZOqOyfsMZE2pM0WXcFRL+rBiyfw4309sa4KpiR
+         paHLSweXVU/L50EsmkWkRAg2yAOcUBeqxUrubDHXKSz0rjy20RVMsAFV/k1JEo/xJcra
+         hdiSBGnkLwFA0K9xtTrpaROS0ppT5AuYPYV+BadxI1GY6xhmLZEirmgNSPNy6Rnx50/e
+         VPU9yDwPlkZNPldn1x1ZVYhZ47BzQYqlZ1B44OD8V1SAYZBV2ZjMi0S4nD6lEFYDzeih
+         d3JA==
+X-Gm-Message-State: AOAM531nJQ/I6PcJZhxadZCazmH49s3ovXUKBvfQ86Ia253B+ZBCDxxC
+        B+agi6ADQuVK9hZr2Jp4kfOfYlf2/5dcj00P
+X-Google-Smtp-Source: ABdhPJy0C3uKtRtr5hYAwmZlfF9HiPPqlLDTM44+xWLbIcomO0y/rnxmShMNorYNBqVxfrg6CrOu4w==
+X-Received: by 2002:a05:6512:1143:: with SMTP id m3mr16991848lfg.366.1619537501205;
+        Tue, 27 Apr 2021 08:31:41 -0700 (PDT)
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com. [209.85.167.44])
+        by smtp.gmail.com with ESMTPSA id e8sm49719lft.281.2021.04.27.08.31.40
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Apr 2021 08:31:40 -0700 (PDT)
+Received: by mail-lf1-f44.google.com with SMTP id b23so11776931lfv.8
+        for <stable@vger.kernel.org>; Tue, 27 Apr 2021 08:31:40 -0700 (PDT)
+X-Received: by 2002:a05:6512:a90:: with SMTP id m16mr16619989lfu.201.1619537500295;
+ Tue, 27 Apr 2021 08:31:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210427114946.aa0879857e8f.I846942fa5fc6ec92cda98f663df323240c49893a@changeid>
+ <4ae9835c535db4f9c0c78f1615f16d56c7083640.camel@sipsolutions.net>
+In-Reply-To: <4ae9835c535db4f9c0c78f1615f16d56c7083640.camel@sipsolutions.net>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 27 Apr 2021 08:31:24 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whsCHfM2XY_0sbXjFKwS5Zzi76w_cErQHg=yAyPKZYuLA@mail.gmail.com>
+Message-ID: <CAHk-=whsCHfM2XY_0sbXjFKwS5Zzi76w_cErQHg=yAyPKZYuLA@mail.gmail.com>
+Subject: Re: [PATCH] cfg80211: fix locking in netlink owner interface destruction
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
+        Harald Arnesen <harald@skogtun.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eckhart Mohr <e.mohr@tuxedocomputers.com>
+On Tue, Apr 27, 2021 at 2:59 AM Johannes Berg <johannes@sipsolutions.net> wrote:
+>
+> Though then again, I'm not sure I have a good pathway into the tree
+> right now (pre rc1), so if you want to throw it in sooner that's fine
+> too.
 
-This applies a SND_PCI_QUIRK(...) to the Clevo PCx0Dx barebones. This
-fix enables audio output over the headset jack and ensures that a
-microphone connected via the headset combo jack is correctly recognized
-when pluged in.
+Ok, applied with Harald's tested-by added.
 
-Signed-off-by: Eckhart Mohr <e.mohr@tuxedocomputers.com>
-Co-developed-by: Werner Sembach <wse@tuxedocomputers.com>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: <stable@vger.kernel.org>
----
-
-From 7dee2aee3ab045c4dafa9793a4016929a559d9cd Mon Sep 17 00:00:00 2001
-From: Werner Sembach <wse@tuxedocomputers.com>
-Date: Tue, 13 Apr 2021 14:02:08 +0200
-Subject: [PATCH] Add SND_PCI_QUIRK for Clevo PCx0Dx
-
----
- sound/pci/hda/patch_realtek.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index a7544b77d3f7..dba9fd27adec 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2555,6 +2555,8 @@ static const struct snd_pci_quirk alc882_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
- 	SND_PCI_QUIRK(0x161f, 0x2054, "Medion laptop", ALC883_FIXUP_EAPD),
--- 
-2.25.1
-
+Thanks,
+           Linus
