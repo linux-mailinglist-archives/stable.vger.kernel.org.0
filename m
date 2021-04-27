@@ -2,236 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2D3E36C7D5
-	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 16:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD9936C80F
+	for <lists+stable@lfdr.de>; Tue, 27 Apr 2021 16:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236173AbhD0Ohb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 27 Apr 2021 10:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56398 "EHLO
+        id S236943AbhD0Ozo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 27 Apr 2021 10:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236144AbhD0Oha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 27 Apr 2021 10:37:30 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2CC9C061574
-        for <stable@vger.kernel.org>; Tue, 27 Apr 2021 07:36:47 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id u14-20020a17090a1f0eb029014e38011b09so7316874pja.5
-        for <stable@vger.kernel.org>; Tue, 27 Apr 2021 07:36:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9mlY6FGEvBtn48t6wGX+akG0rQ09T4/jfLt4P9ypSu8=;
-        b=zLV3hZNbVfK4vgMze+rFdAfGYUU7S20akMfHm8VJ12kcsoKzaIqTinPd972z6ViMNN
-         azNqsz78kYZSXWlKjxC/G6ZThTi62gyctPnqwcBy8sJhkD8+57RJBz6tNSvPMRCDkGMj
-         EBMGwllbAStAQVLjDcW8e5/bjyfihQv+YjbFrG7m/ktpG+ffK3groeEsbEXYmoRQzgbC
-         4mKMQO+ARUNf4CwJN2HL70HAN67dc5F6Wdj0xN7mYAj57f8dxyJTPNMbOtVfhlbpJLtp
-         vWOqm3r2LpxXZ5XzW/OGQmBO71FodkJh5z/HgSf/P+xxMWQ54wCV7F14/DGapRdJL0c6
-         5FiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9mlY6FGEvBtn48t6wGX+akG0rQ09T4/jfLt4P9ypSu8=;
-        b=Fa814jSdMcUzytcaBhPb04ivtWyKSG7G2CKAUhPBYML2UTsItKVQ0RVsVVXTby85ys
-         lcks6Ra3ku6tbDeqVsjPl/E3uUrQ5rD52btoNWpJst/tK1YimMsqROT3yrSOB7hEJoxr
-         vyz2+jCU2pJHGpZPKMt0TH9k9nYwp4Mh2yqac0dhe0NAoobMIrabYXxStcqnj/SOoLdR
-         ew5zO0u6WmBqZ3NcEp2upp64LGQ8baGQURgepCRlZngVd4C6XGH9SCBs04ZCsLKdDiYW
-         JixmsodR0RAlCCw3uHGCw/9CBveDgkY+UewNDXNTDyL5wBg8AsdCK/ElRj4DbdUESjg7
-         pCog==
-X-Gm-Message-State: AOAM533teo8yKn8FEGDJe2b/6KEvxjs5TfVR7XyCf2AeusF84g0IdLsw
-        YyYcCrLPl0OJSAbMtTpvwqiEASvU/rthQwdG
-X-Google-Smtp-Source: ABdhPJyLGaZVGO//eiNqyBDE7MRS3xbUKXShjuLvlXUh0AZwxGPHZF/UAXyT5WAjPjGBip4EzoKISA==
-X-Received: by 2002:a17:90a:5304:: with SMTP id x4mr26659010pjh.221.1619534207107;
-        Tue, 27 Apr 2021 07:36:47 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h3sm2869735pfo.155.2021.04.27.07.36.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Apr 2021 07:36:46 -0700 (PDT)
-Message-ID: <6088217e.1c69fb81.753ed.87e1@mx.google.com>
-Date:   Tue, 27 Apr 2021 07:36:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        with ESMTP id S236144AbhD0Ozo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 27 Apr 2021 10:55:44 -0400
+X-Greylist: delayed 434 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 27 Apr 2021 07:55:00 PDT
+Received: from mx3.securetransport.de (mx3.securetransport.de [IPv6:2a01:4f8:c0c:92be::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95ADEC061574
+        for <stable@vger.kernel.org>; Tue, 27 Apr 2021 07:55:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dh-electronics.com;
+        s=dhelectronicscom; t=1619534826;
+        bh=w6KyEtLlOhQ+TiRjRc02HMw2v9pd+xaEA9GeEV/oIps=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+        b=JHs9Xje8mylAngTFWp9Qp3mnwoPAM+xPvj0Fw31Sqk11snE+TX/Lmuox4RfeUe9Y7
+         smgUMBxscsFFekNEITVgE9Bi/u+CiDBUhTLumTRPvGlPk9IJMQpaHalmHVzUZ8jsXO
+         b1htH9rkS4eHNk/GOjmgyQQcuEUGsgvWDR/iwwqOg7C4iDgVC2/NXdB0+7/tT0R4oX
+         hmHQZdPxxJx+JEvyyhu9FS3hINqS3N8ZECfWUsdixkxS+TccKgSNL6N59qlyTAURRz
+         GL1j4FkQ9IaGTj/LIr7GPPreGXLl49oN0xZqYoYlwxncLwWjYjvpaCLm9vP7iw6o68
+         OevWy19UW3Paw==
+X-secureTransport-forwarded: yes
+From:   Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Complaints-To: abuse@cubewerk.de
+To:     Marek Vasut <marex@denx.de>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>
+CC:     "arnd@arndb.de" <arnd@arndb.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Ludwig Zenz <lzenz@dh-electronics.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH V3] ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5 regulators
+Thread-Topic: [PATCH V3] ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5
+ regulators
+Thread-Index: AQHXOoZCGOmuc8egpkWTyk5VKo1VPKrIcmGQ
+Date:   Tue, 27 Apr 2021 14:46:55 +0000
+Message-ID: <a5b1890db288453991089c3f3eca9af6@dh-electronics.com>
+References: <20210426102321.5039-1-marex@denx.de>
+In-Reply-To: <20210426102321.5039-1-marex@denx.de>
+Accept-Language: de-DE, en-US
+Content-Language: de-DE
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.231-51-gd9347e37683c0
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 112 runs,
- 4 regressions (v4.14.231-51-gd9347e37683c0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 112 runs, 4 regressions (v4.14.231-51-gd9347=
-e37683c0)
+From: Marek Vasut [mailto:marex@denx.de]
+Sent: Monday, April 26, 2021 12:23 PM
 
-Regressions Summary
--------------------
+> Per schematic, both PU and SOC regulator are supplied from LTC3676 SW1
+> via VDDSOC_IN rail, add the PU input. Both VDD1P1, VDD2P5 are supplied
+> from LTC3676 SW2 via VDDHIGH_IN rail, add both inputs.
+>=20
+> While no instability or problems are currently observed, the regulators
+> should be fully described in DT and that description should fully match
+> the hardware, else this might lead to unforseen issues later. Fix this.
+>=20
+> Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM
+> and PDK2")
+> Reviewed-by: Fabio Estevam <festevam@gmail.com>
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+> Cc: Fabio Estevam <festevam@gmail.com>
+> Cc: Ludwig Zenz <lzenz@dh-electronics.com>
+> Cc: NXP Linux Team <linux-imx@nxp.com>
+> Cc: Shawn Guo <shawnguo@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+> V2: Amend commit message
+> V3: Reinstate the missing SoB line, add RB
+> ---
+>  arch/arm/boot/dts/imx6q-dhcom-som.dtsi | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+>=20
+> diff --git a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+> b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+> index 236fc205c389..d0768ae429fa 100644
+> --- a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+> +++ b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+> @@ -406,6 +406,18 @@ &reg_soc {
+>         vin-supply =3D <&sw1_reg>;
+>  };
+>=20
+> +&reg_pu {
+> +       vin-supply =3D <&sw1_reg>;
+> +};
+> +
+> +&reg_vdd1p1 {
+> +       vin-supply =3D <&sw2_reg>;
+> +};
+> +
+> +&reg_vdd2p5 {
+> +       vin-supply =3D <&sw2_reg>;
+> +};
+> +
+>  &uart1 {
+>         pinctrl-names =3D "default";
+>         pinctrl-0 =3D <&pinctrl_uart1>;
+> --
+> 2.30.2
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.231-51-gd9347e37683c0/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.231-51-gd9347e37683c0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d9347e37683c002c712b578b2e0984ffd077be62 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6087ed2161b30700a39b7816
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
--51-gd9347e37683c0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
--51-gd9347e37683c0/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6087ed2161b30700a39b7=
-817
-        failing since 164 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6087ed0e61b30700a39b77ad
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
--51-gd9347e37683c0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
--51-gd9347e37683c0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6087ed0e61b30700a39b7=
-7ae
-        failing since 164 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6087ed1561b30700a39b7800
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
--51-gd9347e37683c0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
--51-gd9347e37683c0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6087ed1561b30700a39b7=
-801
-        failing since 164 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6087eccf6d6f1edecc9b77a0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
--51-gd9347e37683c0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.231=
--51-gd9347e37683c0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6087eccf6d6f1edecc9b7=
-7a1
-        failing since 164 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =20
+Reviewed-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
