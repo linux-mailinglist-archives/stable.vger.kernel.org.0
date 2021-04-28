@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F8A236D664
-	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 13:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76DF836D6A1
+	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 13:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230080AbhD1LXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Apr 2021 07:23:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48508 "EHLO
+        id S239033AbhD1Lic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Apr 2021 07:38:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229807AbhD1LXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Apr 2021 07:23:21 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B225DC061574
-        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 04:22:36 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id a11so1746349plh.3
-        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 04:22:36 -0700 (PDT)
+        with ESMTP id S234158AbhD1Lic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Apr 2021 07:38:32 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90088C061574
+        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 04:37:46 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id s15so4238846plg.6
+        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 04:37:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=vKgU6XnPuMTH5nTe63ahuQSv/jdYn8aCFPIgmsaxXF0=;
-        b=nM2SQP5NIcE56AdY/+JS+H46zdFn410tSGknzErvybCD4E2bvdMhThWpHSqwp1t0Z0
-         qXy9q1TI5YMQGtRIK6xlU2Y91OhDiLco5abq1Yur9ioTwokC+Ta5BabmAlvDCUvgdpeA
-         HKKOX0LUwGNDS3vQ/JeiZCps7SQR6L3PmxUyz3P26+KEPO4WYe9/Bk8VFHV1caOJ1Qov
-         w3wfJOgfvYP2dCTUPzxg5HsiRsJBz40eCd041X0wnWLdAjs149WZ2PwBK9BXTFKBCWw+
-         HWbzskcE575WD2nN3AyrqrVZ5gNk8crlOR5fZPzYEopFi04qvhnqhbQzdv1dED4bjBSe
-         Grvg==
+        bh=2lQeOJd339YJiNl5I0RBQRGO/K3zcZ6Qt6H4fRGgnW4=;
+        b=mhPVORSYOVL8UiuOPtUKoaJf12EpqjKV0W1jL/4dEbGcDIDxKeh4z+cMeFJ5+Uan8O
+         JihwHZc3bPaO2FI5jsVJVGEdGoSdHx6d7Fc3EPrkeT3UHkhjy9r9RZKsmWIl1puKADt9
+         mkkWRn0xM/hHSaLyiwTLoaCLW4fx2uApeXpZLYaqHZkfmUgNa7/tAAyZyiwdC3DLMFuG
+         5Ay7J4/aL2sKlgxnKHg24yDuTa1+Hy1u46Nx8R3zIpcvwDNPsDxp1kCkR4EPgxqJX6ZS
+         iPH16JRSQ9YKajLPdl/n4rjXLSThppJ+XSiPuITKbUF8c3AMUXN9/+RV6myGsv0xA3Yg
+         0MmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=vKgU6XnPuMTH5nTe63ahuQSv/jdYn8aCFPIgmsaxXF0=;
-        b=JyN/mjWx8NX6iIu+8VSu3lk+Y5hnl9HkihaSWuRwroyXNhUMrIHg+1uzNMxO8AxsAe
-         DdElwV+mC3vt05oueorMmqWqvTIApp8fxNd6zi5uun9DpZxAixQaKD5gZzMEX+arXWlv
-         sRr3E15H1R8R81drIHFCvQ32VNmjlEq5wNGPNcQ9x0ZwHyldtPKoJGoRXPJndwHYckB7
-         gBVZpI5MyxgrPHBFzi1ovqspP2Ew+vCmBtbf19refxnRFzA0KHS4IivDPgAZ9M7k8HLm
-         HTLVmnFmTop4A98cAIX3j2Gogk1aAHut1BeddFAyZHlRg+EVisRqTGz3jAQVRACVoYcn
-         J3gg==
-X-Gm-Message-State: AOAM533QGDBvC4TOU9W6zMzz3j5UVp/7/M+KOl3jQg/RYAVs7HU2kb/Y
-        Sus0+DkMIgy5NiUwZccg55hl5/fSCjcsdhfE
-X-Google-Smtp-Source: ABdhPJwKvbCuPey5Scq6OJVZABygjW2DweB4lo5vSPRxT0V8yd7Bn8C0LRq2bv1yiUoOLshceghixg==
-X-Received: by 2002:a17:902:527:b029:ed:197a:455 with SMTP id 36-20020a1709020527b02900ed197a0455mr18474526plf.75.1619608955297;
-        Wed, 28 Apr 2021 04:22:35 -0700 (PDT)
+        bh=2lQeOJd339YJiNl5I0RBQRGO/K3zcZ6Qt6H4fRGgnW4=;
+        b=A/6HBwbrulQFlDJHSvNUbFTlwJt5xoN/zSoLKHOmTHJxtGI9nUI+1ZHOQvtnHYyz4r
+         XFxyEqDtcj8zr0z82ZQJ8a9UHtYImTGRnUOszH1YwN6u9lujLJZFXCvhCAbiwP45qJRl
+         R90owuFMcw1tXlHTkXi56Osh+H0u4pQ4hVYEW/oQOXK/t/7Ai0W1cfLRY+klljHXEIFv
+         KcCzl6RTrl0OAqOIzB97sI0CElRGODTTX2xXur/bXeeo/FH6Y6QYQHj3Liv0uV54WzGk
+         Svr20ry1z3+rM///OjdiSW+RVQgFai3ydieJFD2TmWDtHxt62f28JOue8FvGQFf1t3MR
+         ZqrA==
+X-Gm-Message-State: AOAM532RXxUNp4bi9l7Et2b034eKi3eNCWjqlhKiLX1k6f28or2EdIWM
+        fdwl3ZPT7EoKsWkzi+5YZAKn6VCeG3oGNko7
+X-Google-Smtp-Source: ABdhPJyWA/0dimjO/daPQ0gXl1MpOPzhzhStTnkEaVQVU96Gx9YllzbiCRbG4tkAY424KrE3c2OUSg==
+X-Received: by 2002:a17:902:4c:b029:ec:a39a:41ad with SMTP id 70-20020a170902004cb02900eca39a41admr29379794pla.52.1619609865485;
+        Wed, 28 Apr 2021 04:37:45 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r127sm5026970pfr.163.2021.04.28.04.22.34
+        by smtp.gmail.com with ESMTPSA id t6sm2080109pjl.57.2021.04.28.04.37.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Apr 2021 04:22:35 -0700 (PDT)
-Message-ID: <6089457b.1c69fb81.720a6.ed1e@mx.google.com>
-Date:   Wed, 28 Apr 2021 04:22:35 -0700 (PDT)
+        Wed, 28 Apr 2021 04:37:45 -0700 (PDT)
+Message-ID: <60894909.1c69fb81.cbc35.4902@mx.google.com>
+Date:   Wed, 28 Apr 2021 04:37:45 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.268
+X-Kernelci-Kernel: v4.9.267-38-g530d28a9e0e9
 X-Kernelci-Report-Type: build
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable/linux-4.9.y build: 197 builds: 0 failed, 197 passed,
- 4 warnings (v4.9.268)
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 build: 197 builds: 0 failed, 197 passed,
+ 4 warnings (v4.9.267-38-g530d28a9e0e9)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,18 +65,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y build: 197 builds: 0 failed, 197 passed, 4 warnings (v4.=
-9.268)
+stable-rc/queue/4.9 build: 197 builds: 0 failed, 197 passed, 4 warnings (v4=
+.9.267-38-g530d28a9e0e9)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.268/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
+/kernel/v4.9.267-38-g530d28a9e0e9/
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.268
-Git Commit: 7eafd3bfea5a367852687cbef3eb1a526704c9b3
+Tree: stable-rc
+Branch: queue/4.9
+Git Describe: v4.9.267-38-g530d28a9e0e9
+Git Commit: 530d28a9e0e96c26ae88f60cd97f9ff243504730
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 6 unique architectures
 
 Warnings Detected:
@@ -131,23 +131,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -158,6 +153,11 @@ smatches
 -----
 allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -998,8 +998,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1008,8 +1008,8 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1018,13 +1018,13 @@ matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
