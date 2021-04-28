@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3096936D631
-	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 13:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B94936D635
+	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 13:13:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239179AbhD1LMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Apr 2021 07:12:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44386 "EHLO mail.kernel.org"
+        id S239662AbhD1LMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Apr 2021 07:12:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239657AbhD1LMe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239637AbhD1LMe (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 28 Apr 2021 07:12:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 000FD61430;
-        Wed, 28 Apr 2021 11:11:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C83C861436;
+        Wed, 28 Apr 2021 11:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619608308;
-        bh=6etONi36FQqglhp+rmX4XQZFYwrLi+rQGeMFsiS16n4=;
+        s=k20201202; t=1619608309;
+        bh=Vv89GRzN62drXvs6Is1v6/nS/XkpaahPEDshAg3+LE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0oUZSt9OdzgTZdJdgabWmOgsh9yFjy8ZUQKl0xw7KyeQoNuozV8ooW3jaY/l1SLY
-         7q3Zobo6D1zl06AzAlHlxuHMG3XXT+0m5176YQKZNwCxB33KvL8lMo6W0YBhljXlvj
-         4SmPelo2eUBGANugBQaqYXBh86HBJf7gcv32yHU8moHyPUf1G3nCzdVQO9Bcs/nLWb
-         QuYqlXjsu5fe/NrRcd35L8m/2b3R5oUSmnwrX9e+q7kGhJnkXPo6KXcRmeeM7sr2wm
-         yZh+Mh7CSPSD4rXaiEMM3NHf/d01+Dc4HB4wWkekvOj4UACty8od0Ea8UwFPI25Ih3
-         B1Mihj6jKK3Pg==
+        b=nJwhQHZh0Hxu1EhqXTsCUZbOERrIDFu4qbrhkkRC3TZ9Xconvst6GniLawBEKzyOu
+         tyY7pFcEuWmILgWGWlJcQKl2qGFjmpPVTPQGW6vBUU1hVCmipCr/KtkaAHWGAV05Pt
+         VyT6aBiJtnjBIqH9Kh1zm6ulCkuSTLd/xqctZhsSQFAk/WVkLNewnXJJzmfwS2rBCY
+         VfXIb6gTDA0NBFv4WBBpLno0BUMQgrX7MRYo6G/uTkvP1pCo5rwrgwzK0OR7yClFx2
+         D2svCnkX359oQvicEx0gAMxHnUcyUqZvGWjwrnNiepo42XHVlTATXhw+C3aBAYkpCH
+         iJSfnddMqa17Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        Alexander Schmidt <alexschm@de.ibm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+Cc:     Vasily Averin <vvs@virtuozzo.com>, Roman Gushchin <guro@fb.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 3/4] perf ftrace: Fix access to pid in array when setting a pid filter
-Date:   Wed, 28 Apr 2021 07:11:40 -0400
-Message-Id: <20210428111141.1343299-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 4/4] tools/cgroup/slabinfo.py: updated to work on current kernel
+Date:   Wed, 28 Apr 2021 07:11:41 -0400
+Message-Id: <20210428111141.1343299-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210428111141.1343299-1-sashal@kernel.org>
 References: <20210428111141.1343299-1-sashal@kernel.org>
@@ -48,62 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 671b60cb6a897a5b3832fe57657152f2c3995e25 ]
+[ Upstream commit 1974c45dd7745e999b9387be3d8fdcb27a5b1721 ]
 
-Command 'perf ftrace -v -- ls' fails in s390 (at least 5.12.0rc6).
+slabinfo.py script does not work with actual kernel version.
 
-The root cause is a missing pointer dereference which causes an
-array element address to be used as PID.
+First, it was unable to recognise SLUB susbsytem, and when I specified
+it manually it failed again with
 
-Fix this by extracting the PID.
+  AttributeError: 'struct page' has no member 'obj_cgroups'
 
-Output before:
-  # ./perf ftrace -v -- ls
-  function_graph tracer is used
-  write '-263732416' to tracing/set_ftrace_pid failed: Invalid argument
-  failed to set ftrace pid
-  #
+.. and then again with
 
-Output after:
-   ./perf ftrace -v -- ls
-   function_graph tracer is used
-   # tracer: function_graph
-   #
-   # CPU  DURATION                  FUNCTION CALLS
-   # |     |   |                     |   |   |   |
-   4)               |  rcu_read_lock_sched_held() {
-   4)   0.552 us    |    rcu_lockdep_current_cpu_online();
-   4)   6.124 us    |  }
+  File "tools/cgroup/memcg_slabinfo.py", line 221, in main
+    memcg.kmem_caches.address_of_(),
+  AttributeError: 'struct mem_cgroup' has no member 'kmem_caches'
 
-Reported-by: Alexander Schmidt <alexschm@de.ibm.com>
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/20210421120400.2126433-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lkml.kernel.org/r/cec1a75e-43b4-3d64-2084-d9f98fda037f@virtuozzo.com
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Tested-by: Roman Gushchin <guro@fb.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-ftrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/cgroup/memcg_slabinfo.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
-index 9366fad591dc..eecc70fc3b19 100644
---- a/tools/perf/builtin-ftrace.c
-+++ b/tools/perf/builtin-ftrace.c
-@@ -289,7 +289,7 @@ static int set_tracing_pid(struct perf_ftrace *ftrace)
+diff --git a/tools/cgroup/memcg_slabinfo.py b/tools/cgroup/memcg_slabinfo.py
+index c4225ed63565..1600b17dbb8a 100644
+--- a/tools/cgroup/memcg_slabinfo.py
++++ b/tools/cgroup/memcg_slabinfo.py
+@@ -128,9 +128,9 @@ def detect_kernel_config():
  
- 	for (i = 0; i < perf_thread_map__nr(ftrace->evlist->core.threads); i++) {
- 		scnprintf(buf, sizeof(buf), "%d",
--			  ftrace->evlist->core.threads->map[i]);
-+			  perf_thread_map__pid(ftrace->evlist->core.threads, i));
- 		if (append_tracing_file("set_ftrace_pid", buf) < 0)
- 			return -1;
- 	}
+     cfg['nr_nodes'] = prog['nr_online_nodes'].value_()
+ 
+-    if prog.type('struct kmem_cache').members[1][1] == 'flags':
++    if prog.type('struct kmem_cache').members[1].name == 'flags':
+         cfg['allocator'] = 'SLUB'
+-    elif prog.type('struct kmem_cache').members[1][1] == 'batchcount':
++    elif prog.type('struct kmem_cache').members[1].name == 'batchcount':
+         cfg['allocator'] = 'SLAB'
+     else:
+         err('Can\'t determine the slab allocator')
+@@ -193,7 +193,7 @@ def main():
+         # look over all slab pages, belonging to non-root memcgs
+         # and look for objects belonging to the given memory cgroup
+         for page in for_each_slab_page(prog):
+-            objcg_vec_raw = page.obj_cgroups.value_()
++            objcg_vec_raw = page.memcg_data.value_()
+             if objcg_vec_raw == 0:
+                 continue
+             cache = page.slab_cache
+@@ -202,7 +202,7 @@ def main():
+             addr = cache.value_()
+             caches[addr] = cache
+             # clear the lowest bit to get the true obj_cgroups
+-            objcg_vec = Object(prog, page.obj_cgroups.type_,
++            objcg_vec = Object(prog, 'struct obj_cgroup **',
+                                value=objcg_vec_raw & ~1)
+ 
+             if addr not in stats:
 -- 
 2.30.2
 
