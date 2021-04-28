@@ -2,127 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D6E436DCC7
-	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 18:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08C5C36DCD3
+	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 18:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239915AbhD1QPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Apr 2021 12:15:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57470 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239984AbhD1QPj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 28 Apr 2021 12:15:39 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4BEC061573
-        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 09:14:53 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id lp8so3014684pjb.1
-        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 09:14:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=b0ns1JhHP79I39HacYp8rKKTLfjr1W+YrAHEoMqZcaI=;
-        b=DJ+fVg6mtkG0w0E0HZ0rXY0Uk67vybaBlIzla/Fx8g8CNn+xZBYIVKK64E1ILoqQ7M
-         7SFtUl1RTBpfFLvpptfWz31tLqIwX4UKaWp5rtgzgguiz07MCS6blkXgburVPWG8sXwv
-         sURV5rqOf0TE1RPYiqy9cznH87bDroWHJ8MwkYtuGQhidk3uysS5M9+FbFUUkA0GaH2R
-         1iucauOvzu/nOEcVeE/gS0eL39rMwqa+4WXpTU3nfLabtzpBGP3mrHxjOGw/Y5TXFqzv
-         ims0BF3kDrJY+5p0bfnxY3GQx7wnK6rAhkmcKZWm4jJNm8dq1wf4AM073mIOvAlymsQr
-         Ni2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=b0ns1JhHP79I39HacYp8rKKTLfjr1W+YrAHEoMqZcaI=;
-        b=PE4wwF/qWu9LRii0t+hcn0rwfsWqduxLUNa8GjZiJymuxXGTYZNmndwgLg/kLMoF1q
-         iFnK8+92aAYM7KMOD2RYTWVxK8t3JY1lb4gdfjL6cEVCzOz+2FQmsTPvDICt1p/0VinR
-         UGUukv/oQXxdG0NXrnoP1sl36OSl7UzYjzluUHeYxSqZTfT/z6FaT+TERY0CogJTqp5z
-         gSkgkYaJaP2XDJtYe/gmrASa92pi5oEzfDgmfiSACaDTaDvJ0A4MVRELb4gLEdCkXIX9
-         2ApAyFlBMGgUbjiusL5BIyCQ+vpvXEs/H9RyeY8WMTgSfEvgy7vNENVY4+QtNKpmPV7v
-         KDNA==
-X-Gm-Message-State: AOAM532grRxcf9pVZeqRJXpRExBu37frVPOD8CtNCiRDXRxjJ+U+48p/
-        LNTbbu2dPvqJRWOLiGXFubcDc80qnYxB4Om5
-X-Google-Smtp-Source: ABdhPJy+F48By1iXIwZaospwOVEJFEvMuypKrP7dUQYcM5ZcupG5BTLYP/FBEKGdd3e2z8DGM7D1gg==
-X-Received: by 2002:a17:90a:150e:: with SMTP id l14mr4920494pja.208.1619626492248;
-        Wed, 28 Apr 2021 09:14:52 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 31sm191168pgw.3.2021.04.28.09.14.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Apr 2021 09:14:51 -0700 (PDT)
-Message-ID: <608989fb.1c69fb81.6297c.0a4f@mx.google.com>
-Date:   Wed, 28 Apr 2021 09:14:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S240469AbhD1QTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Apr 2021 12:19:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240653AbhD1QTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Apr 2021 12:19:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1729613DC;
+        Wed, 28 Apr 2021 16:18:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1619626700;
+        bh=Tq1wZ69jMu/ePLqeuzoDnviyq3W92Tl+i7ykbKFxY2E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Iwp9unrOYK8cXOJvewY4puG6wTnil57d+0L0OWvF/myEauJaUQt74CrJEC5/MRC8n
+         UWPTgxR32N7a4fCKHanjvN4PefESo4+IYvnLgZqSp+yzfcAWs0lQ61avzlx3o4tEVF
+         jpD9c1uxwbSxn3Wl3/go1UDMNwhU5hq2sU+oYeTu2aqNK8h2k5uILn2jGgp5QkStgr
+         AD36j54asvEtIB4AVO0BAYlqX8vGG7GZxi7SCS07pXnrLGSG2k+MC3cMxnwyeK42b+
+         3luWHBSlfaugL9IeOoUhxLu/oSurTqErG6fuAdBPZ/mYeeTuL143vmXZ+2Y5DcsXIV
+         GgLzTD4erW7DA==
+Date:   Wed, 28 Apr 2021 12:18:19 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jianxiong Gao <jxgao@google.com>
+Cc:     Greg KH <greg@kroah.com>, stable@vger.kernel.org,
+        marcorr@google.com
+Subject: Re: [PATCH v5.10 0/8] preserve DMA offsets when using swiotlb
+Message-ID: <YImKy+EW2EzMR7x0@sashalap>
+References: <20210405210230.1707074-1-jxgao@google.com>
+ <YG2q6Tm58tWRBtmK@kroah.com>
+ <CAMGD6P1OEhOXfFV5JpPfTjWPhjjr8KCGTEhVzB74zpnmdLb4sw@mail.gmail.com>
+ <YILkSsR4ejv5CraF@kroah.com>
+ <CAMGD6P2gUpUuX5cdPi1Q0nqRFmsBPctUR+hBt+DnPK+H4jHiiQ@mail.gmail.com>
+ <YIQupJuzbdgif6WA@kroah.com>
+ <CAMGD6P3SY=BeXjKAajCiHXXRXzLMnDiPo8weagJVurY_Ew0T2w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.114-22-gafdc03cb7f7ce
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 123 runs,
- 1 regressions (v5.4.114-22-gafdc03cb7f7ce)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAMGD6P3SY=BeXjKAajCiHXXRXzLMnDiPo8weagJVurY_Ew0T2w@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 123 runs, 1 regressions (v5.4.114-22-gafdc03c=
-b7f7ce)
+On Mon, Apr 26, 2021 at 11:00:56AM -0700, Jianxiong Gao wrote:
+>On Sat, Apr 24, 2021 at 7:43 AM Greg KH <greg@kroah.com> wrote:
+>> Ok, and what prevents you from adding this new feature do your "custom"
+>> kernel, or to use 5.12 instead?
+>>
+>> This is a new feature that Linux has never supported, and these patches
+>> are not "trivial" at all.  I also do not see the maintainer of the
+>> subsystem agreeing that these are needed to be backported, which is not
+>> a good sign.
+>>
+>So this is not about a new feature. This is about an existing bug that
+>we stumbled onto while using SEV virtualization. However SEV is not
+>needed to trigger the bug. We have reproduced the bug with just
+>NVMe + SWIOTLB=force option in Rhel 8 environment. Please note
+>that NVMe and SWIOTLB=force are both existing feature and without
+>the patch they don't work together. This is why we are proposing to merge
+>the patches into the LTS kernels.
 
-Regressions Summary
--------------------
+Could you re-spin this series with the comments around patch formatting
+addressed, and explicitly cc hch on this to get his ack?
 
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 1=
-          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.114-22-gafdc03cb7f7ce/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.114-22-gafdc03cb7f7ce
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      afdc03cb7f7cee49a59df261fc7599da6cc7c36c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6089575e1d4ea861a89b779a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.114-2=
-2-gafdc03cb7f7ce/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.114-2=
-2-gafdc03cb7f7ce/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6089575e1d4ea861a89b7=
-79b
-        new failure (last pass: v5.4.114-22-g6eaa1578d5444) =
-
- =20
+-- 
+Thanks,
+Sasha
