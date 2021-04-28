@@ -2,208 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2BB036DE78
-	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 19:39:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F5C336DF76
+	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 21:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242253AbhD1RkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Apr 2021 13:40:12 -0400
-Received: from srv6.fidu.org ([159.69.62.71]:55662 "EHLO srv6.fidu.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242630AbhD1Rja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Apr 2021 13:39:30 -0400
-X-Greylist: delayed 93891 seconds by postgrey-1.27 at vger.kernel.org; Wed, 28 Apr 2021 13:39:29 EDT
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id BE1A1C800F8;
-        Wed, 28 Apr 2021 19:38:38 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
-Received: from srv6.fidu.org ([127.0.0.1])
-        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
-        with LMTP id Kd_ISh5iUVqZ; Wed, 28 Apr 2021 19:38:38 +0200 (CEST)
-Received: from wsembach-tuxedo.fritz.box (p200300e37f398600C736Fc0acfe84D15.dip0.t-ipconnect.de [IPv6:2003:e3:7f39:8600:c736:fc0a:cfe8:4d15])
-        (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPA id 65199C800F9;
-        Wed, 28 Apr 2021 19:38:38 +0200 (CEST)
-From:   Werner Sembach <wse@tuxedocomputers.com>
-To:     wse@tuxedocomputers.com, airlied@linux.ie, daniel@ffwll.ch,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] drm/i915/display Try YCbCr420 color when RGB fails
-Date:   Wed, 28 Apr 2021 19:38:07 +0200
-Message-Id: <20210428173807.92518-1-wse@tuxedocomputers.com>
-X-Mailer: git-send-email 2.25.1
+        id S231460AbhD1TVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Apr 2021 15:21:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42348 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229794AbhD1TVl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Apr 2021 15:21:41 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD261C061573
+        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 12:20:56 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id md17so5923581pjb.0
+        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 12:20:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fwN8Fd/+TQvM14PFBacAG0a1R+LUhBT6t5B6N6oTB1Q=;
+        b=PTqQNh3FEtbxDs8rwZDJ2oiS9C1zp0+hUCxpYOeyaSFdEvZovYqq6dYPwqaD56+pYm
+         nZszUuxM4/JeDVTyiqO3qgjVYWNw892T2nsZwiGW8rIBRctOI+xfECb6p65nzpFfq0Y4
+         sB/6uZLiYFcCbBVuoq+3EV5y3cEtRR2I00uhHAJ/DPJPHYjMhEWnzvxJz3ExfG/bBKyr
+         OoabPyMws5umthAIjeuVtGJfX3VurzNAmc6V8vY21tytQYJ71FapOhcW+/OUM8A8ZEe7
+         16DW91CHa/McUmkhirA96PIFo9P3GLfeMOwhYNWxSAGgbFDPNLyic0bEwRpEVI2013lK
+         W0Qg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fwN8Fd/+TQvM14PFBacAG0a1R+LUhBT6t5B6N6oTB1Q=;
+        b=BDBSECiPnzaYbtLDJBMJiewlfC7KTqpHXJRFPZvdMn9jRKbKFKLTt1UPsccmeoGvSn
+         xdwG6H35uezbnHYfhX8ZX+y3/q973687QnxEAESA52CMS/VPSbOLqmCDtL8IRFNNjI80
+         kRUUHUUQF/akIICQ8lcLQIg0hLnAbPsmQprgtm61fdMLcfQZo1aZ70e5I/OZYQu+ygc6
+         O3CxQAu+NesE0y+Mj+oXc4UZEaQ4gmkIQqWF09f8GRToaCEIHvLzG2XQEn/AllyIdVFB
+         6I0uD6JTGZp2uUWtFzqaTCesr+GPVT80odvgYzbbG/slPaCApHyarly9aR2hJmyrb1Le
+         V7wg==
+X-Gm-Message-State: AOAM5336ZkELQysLx9EOcT7GGRTw60KBOQ8PHjXZeEgyPZ5Cn7F22oII
+        H6pNDM0GqT2K9AhtsHnqn958Xb53A568x9Qr
+X-Google-Smtp-Source: ABdhPJzKesVmuY3LJVm4VEYvQbdjC+itfR4Cd0uOaE1CebLVtzrLnpUuDGbffKuyZD6yg11yiZb78g==
+X-Received: by 2002:a17:902:264:b029:eb:3d3a:a09c with SMTP id 91-20020a1709020264b02900eb3d3aa09cmr31351459plc.0.1619637656122;
+        Wed, 28 Apr 2021 12:20:56 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y195sm466019pfb.11.2021.04.28.12.20.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Apr 2021 12:20:55 -0700 (PDT)
+Message-ID: <6089b597.1c69fb81.f242e.1d7a@mx.google.com>
+Date:   Wed, 28 Apr 2021 12:20:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.268
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y baseline: 77 runs, 4 regressions (v4.9.268)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When encoder validation of a display mode fails, retry with less bandwidth
-heavy YCbCr420 color mode, if available. This enables some HDMI 1.4 setups
-to support 4k60Hz output, which previously failed silently.
+stable-rc/linux-4.9.y baseline: 77 runs, 4 regressions (v4.9.268)
 
-AMDGPU had nearly the exact same issue. This problem description is
-therefore copied from my commit message of the AMDGPU patch.
+Regressions Summary
+-------------------
 
-On some setups, while the monitor and the gpu support display modes with
-pixel clocks of up to 600MHz, the link encoder might not. This prevents
-YCbCr444 and RGB encoding for 4k60Hz, but YCbCr420 encoding might still be
-possible. However, which color mode is used is decided before the link
-encoder capabilities are checked. This patch fixes the problem by retrying
-to find a display mode with YCbCr420 enforced and using it, if it is
-valid.
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
 
-I'm not entierly sure if the second
-"if (HAS_PCH_SPLIT(dev_priv) && !HAS_DDI(dev_priv))" check in
-intel_hdmi_compute_config(...) after forcing ycbcr420 is necessary. I
-included it to better be safe then sorry.
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: <stable@vger.kernel.org>
----
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
 
-From c7499210af78e15a2aea2178000958f26e0d43a0 Mon Sep 17 00:00:00 2001
-From: Werner Sembach <wse@tuxedocomputers.com>
-Date: Tue, 30 Mar 2021 15:07:34 +0200
-Subject: [PATCH] Retry using YCbCr420 encoding if clock setup for RGB fails
+r8a7795-salvator-x   | arm64 | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
 
----
- drivers/gpu/drm/i915/display/intel_hdmi.c | 78 +++++++++++++++++------
- 1 file changed, 59 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_hdmi.c b/drivers/gpu/drm/i915/display/intel_hdmi.c
-index 95919d325b0b..273685c0e395 100644
---- a/drivers/gpu/drm/i915/display/intel_hdmi.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
-@@ -2233,6 +2233,29 @@ hdmi_port_clock_valid(struct intel_hdmi *hdmi,
- 	return MODE_OK;
- }
- 
-+static enum drm_mode_status
-+intel_hdmi_check_bpc(struct intel_hdmi *hdmi, int clock, bool has_hdmi_sink, struct drm_i915_private *dev_priv)
-+{
-+	enum drm_mode_status status;
-+
-+	/* check if we can do 8bpc */
-+	status = hdmi_port_clock_valid(hdmi, clock, true, has_hdmi_sink);
-+
-+	if (has_hdmi_sink) {
-+		/* if we can't do 8bpc we may still be able to do 12bpc */
-+		if (status != MODE_OK && !HAS_GMCH(dev_priv))
-+			status = hdmi_port_clock_valid(hdmi, clock * 3 / 2,
-+						       true, has_hdmi_sink);
-+
-+		/* if we can't do 8,12bpc we may still be able to do 10bpc */
-+		if (status != MODE_OK && INTEL_GEN(dev_priv) >= 11)
-+			status = hdmi_port_clock_valid(hdmi, clock * 5 / 4,
-+						       true, has_hdmi_sink);
-+	}
-+
-+	return status;
-+}
-+
- static enum drm_mode_status
- intel_hdmi_mode_valid(struct drm_connector *connector,
- 		      struct drm_display_mode *mode)
-@@ -2263,22 +2286,18 @@ intel_hdmi_mode_valid(struct drm_connector *connector,
- 	if (drm_mode_is_420_only(&connector->display_info, mode))
- 		clock /= 2;
- 
--	/* check if we can do 8bpc */
--	status = hdmi_port_clock_valid(hdmi, clock, true, has_hdmi_sink);
-+	status = intel_hdmi_check_bpc(hdmi, clock, has_hdmi_sink, dev_priv);
- 
--	if (has_hdmi_sink) {
--		/* if we can't do 8bpc we may still be able to do 12bpc */
--		if (status != MODE_OK && !HAS_GMCH(dev_priv))
--			status = hdmi_port_clock_valid(hdmi, clock * 3 / 2,
--						       true, has_hdmi_sink);
-+	if (status != MODE_OK) {
-+		if (drm_mode_is_420_also(&connector->display_info, mode)) {
-+			/* if we can't do full color resolution we may still be able to do reduced color resolution */
-+			clock /= 2;
- 
--		/* if we can't do 8,12bpc we may still be able to do 10bpc */
--		if (status != MODE_OK && INTEL_GEN(dev_priv) >= 11)
--			status = hdmi_port_clock_valid(hdmi, clock * 5 / 4,
--						       true, has_hdmi_sink);
-+			status = intel_hdmi_check_bpc(hdmi, clock, has_hdmi_sink, dev_priv);
-+		}
-+		if (status != MODE_OK)
-+			return status;
- 	}
--	if (status != MODE_OK)
--		return status;
- 
- 	return intel_mode_valid_max_plane_size(dev_priv, mode, false);
- }
-@@ -2361,14 +2380,17 @@ static bool hdmi_deep_color_possible(const struct intel_crtc_state *crtc_state,
- 
- static int
- intel_hdmi_ycbcr420_config(struct intel_crtc_state *crtc_state,
--			   const struct drm_connector_state *conn_state)
-+			   const struct drm_connector_state *conn_state,
-+			   const bool force_ycbcr420)
- {
- 	struct drm_connector *connector = conn_state->connector;
- 	struct drm_i915_private *i915 = to_i915(connector->dev);
- 	const struct drm_display_mode *adjusted_mode =
- 		&crtc_state->hw.adjusted_mode;
- 
--	if (!drm_mode_is_420_only(&connector->display_info, adjusted_mode))
-+	if (!(drm_mode_is_420_only(&connector->display_info, adjusted_mode) ||
-+			(force_ycbcr420 &&
-+			drm_mode_is_420_also(&connector->display_info, adjusted_mode))))
- 		return 0;
- 
- 	if (!connector->ycbcr_420_allowed) {
-@@ -2507,7 +2529,7 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
- 	struct drm_display_mode *adjusted_mode = &pipe_config->hw.adjusted_mode;
- 	struct drm_connector *connector = conn_state->connector;
- 	struct drm_scdc *scdc = &connector->display_info.hdmi.scdc;
--	int ret;
-+	int ret, ret_saved;
- 
- 	if (adjusted_mode->flags & DRM_MODE_FLAG_DBLSCAN)
- 		return -EINVAL;
-@@ -2522,7 +2544,7 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
- 	if (adjusted_mode->flags & DRM_MODE_FLAG_DBLCLK)
- 		pipe_config->pixel_multiplier = 2;
- 
--	ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state);
-+	ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state, false);
- 	if (ret)
- 		return ret;
- 
-@@ -2536,8 +2558,26 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
- 		intel_hdmi_has_audio(encoder, pipe_config, conn_state);
- 
- 	ret = intel_hdmi_compute_clock(encoder, pipe_config);
--	if (ret)
--		return ret;
-+	if (ret) {
-+		ret_saved = ret;
-+
-+		ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state, true);
-+		if (ret)
-+			return ret;
-+
-+		if (pipe_config->output_format != INTEL_OUTPUT_FORMAT_YCBCR420)
-+			return ret_saved;
-+
-+		pipe_config->limited_color_range =
-+			intel_hdmi_limited_color_range(pipe_config, conn_state);
-+
-+		if (HAS_PCH_SPLIT(dev_priv) && !HAS_DDI(dev_priv))
-+			pipe_config->has_pch_encoder = true;
-+
-+		ret = intel_hdmi_compute_clock(encoder, pipe_config);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	if (conn_state->picture_aspect_ratio)
- 		adjusted_mode->picture_aspect_ratio =
--- 
-2.25.1
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.268/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.268
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7eafd3bfea5a367852687cbef3eb1a526704c9b3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60897fe422c2a36c429b77b7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.268=
+/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.268=
+/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60897fe422c2a36c429b7=
+7b8
+        failing since 165 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60897fdc0efca98c589b77b9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.268=
+/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.268=
+/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60897fdc0efca98c589b7=
+7ba
+        failing since 165 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/608980099ff2d3a2169b77ac
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.268=
+/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.268=
+/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/608980099ff2d3a2169b7=
+7ad
+        failing since 165 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+r8a7795-salvator-x   | arm64 | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60897f45ca1f4a825a9b77c3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.268=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.268=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60897f45ca1f4a825a9b7=
+7c4
+        failing since 161 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-79-gd3e70b39d31a) =
+
+ =20
