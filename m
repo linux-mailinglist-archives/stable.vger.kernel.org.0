@@ -2,106 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C0436D1CE
-	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 07:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA19336D1EA
+	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 07:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229464AbhD1Fqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Apr 2021 01:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59662 "EHLO mail.kernel.org"
+        id S235964AbhD1GAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Apr 2021 02:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229437AbhD1Fqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Apr 2021 01:46:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C27F961418;
-        Wed, 28 Apr 2021 05:46:08 +0000 (UTC)
+        id S235809AbhD1GAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Apr 2021 02:00:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6EB5613FB;
+        Wed, 28 Apr 2021 05:59:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619588769;
-        bh=/VDtvHwhFQST8D9LLrhTmvCvHyw6KwHubG1UREeHc5c=;
+        s=korg; t=1619589573;
+        bh=PzXRzqyaN0AHEgEDWQ7ORDtLyuOZqfpRHAtszxM+aMo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Oe9Q7A0rcssdeczaKRBxU3+g3xro5V2ZdQreJ6gLsWlIsPSBLzMV43YEag19m7Ygx
-         X8f/pRNct0DmMh9UGsxOyKMBB6TAX/DO81Y9O1p5VQMAv3AeXz3GIKH1J0/Ay/THS4
-         gmtf7aSGbLiwcoXQW9eQ80vvAjYWRD5ZohSoeb98=
-Date:   Wed, 28 Apr 2021 07:46:06 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Guoqing Jiang <gqjiang@suse.com>,
-        Aditya Pakki <pakki001@umn.edu>,
-        Song Liu <songliubraving@fb.com>
-Subject: Re: [PATCH 134/190] Revert "md: Fix failed allocation of
- md_register_thread"
-Message-ID: <YIj2nsovH/+ujHL0@kroah.com>
-References: <20210421130105.1226686-1-gregkh@linuxfoundation.org>
- <20210421130105.1226686-135-gregkh@linuxfoundation.org>
+        b=15ttKwTuuNivW2WUxOzPsphx0FRf9V1T8rt8jHcNnVVId6Lvj5uNEq3xV/c5gCrt8
+         kUKvwWswbZa1rZYStYXr3DoADlotDZXvS1mi3zdsqzkseIBK48Yce+nLvCDqZtFmnq
+         u1wakr7dYWCrxLNgwu1w0kUdlF1b42NPjmrWwnYo=
+Date:   Wed, 28 Apr 2021 07:59:28 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Timo Sigurdsson <public_timo.s@silentcreek.de>
+Cc:     axboe@kernel.dk, mripard@kernel.org, wens@csie.org,
+        jernej.skrabec@siol.net, linux-ide@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+        linux-kernel@vger.kernel.org, oliver@schinagl.nl,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ata: ahci_sunxi: Disable DIPM
+Message-ID: <YIj5wKTdOVWLdD2d@kroah.com>
+References: <20210427230537.21423-1-public_timo.s@silentcreek.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210421130105.1226686-135-gregkh@linuxfoundation.org>
+In-Reply-To: <20210427230537.21423-1-public_timo.s@silentcreek.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 21, 2021 at 03:00:09PM +0200, Greg Kroah-Hartman wrote:
-> This reverts commit e406f12dde1a8375d77ea02d91f313fb1a9c6aec.
+On Wed, Apr 28, 2021 at 01:05:37AM +0200, Timo Sigurdsson wrote:
+> DIPM is unsupported or broken on sunxi. Trying to enable the power
+> management policy med_power_with_dipm on an Allwinner A20 SoC based board
+> leads to immediate I/O errors and the attached SATA disk disappears from
+> the /dev filesystem. A reset (power cycle) is required to make the SATA
+> controller or disk work again. The A10 and A20 SoC data sheets and manuals
+> don't mention DIPM at all [1], so it's fair to assume that it's simply not
+> supported. But even if it were, it should be considered broken and best be
+> disabled in the ahci_sunxi driver.
 > 
-> Commits from @umn.edu addresses have been found to be submitted in "bad
-> faith" to try to test the kernel community's ability to review "known
-> malicious" changes.  The result of these submissions can be found in a
-> paper published at the 42nd IEEE Symposium on Security and Privacy
-> entitled, "Open Source Insecurity: Stealthily Introducing
-> Vulnerabilities via Hypocrite Commits" written by Qiushi Wu (University
-> of Minnesota) and Kangjie Lu (University of Minnesota).
+> Fixes: c5754b5220f0 ("ARM: sunxi: Add support for Allwinner SUNXi SoCs sata to ahci_platform")
 > 
-> Because of this, all submissions from this group must be reverted from
-> the kernel tree and will need to be re-reviewed again to determine if
-> they actually are a valid fix.  Until that work is complete, remove this
-> change to ensure that no problems are being introduced into the
-> codebase.
+> [1] https://github.com/allwinner-zh/documents/tree/master/
 > 
-> Cc: stable@vger.kernel.org # v3.16+
-> Cc: Guoqing Jiang <gqjiang@suse.com>
-> Cc: Aditya Pakki <pakki001@umn.edu>
-> Cc: Song Liu <songliubraving@fb.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
+> Tested-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
 > ---
->  drivers/md/raid10.c | 2 --
->  drivers/md/raid5.c  | 2 --
->  2 files changed, 4 deletions(-)
+>  drivers/ata/ahci_sunxi.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
-> index a9ae7d113492..4fec1cdd4207 100644
-> --- a/drivers/md/raid10.c
-> +++ b/drivers/md/raid10.c
-> @@ -3896,8 +3896,6 @@ static int raid10_run(struct mddev *mddev)
->  		set_bit(MD_RECOVERY_RUNNING, &mddev->recovery);
->  		mddev->sync_thread = md_register_thread(md_do_sync, mddev,
->  							"reshape");
-> -		if (!mddev->sync_thread)
-> -			goto out_free_conf;
->  	}
+> diff --git a/drivers/ata/ahci_sunxi.c b/drivers/ata/ahci_sunxi.c
+> index cb69b737cb49..56b695136977 100644
+> --- a/drivers/ata/ahci_sunxi.c
+> +++ b/drivers/ata/ahci_sunxi.c
+> @@ -200,7 +200,7 @@ static void ahci_sunxi_start_engine(struct ata_port *ap)
+>  }
 >  
->  	return 0;
-> diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-> index 5d57a5bd171f..9b2bd50beee7 100644
-> --- a/drivers/md/raid5.c
-> +++ b/drivers/md/raid5.c
-> @@ -7677,8 +7677,6 @@ static int raid5_run(struct mddev *mddev)
->  		set_bit(MD_RECOVERY_RUNNING, &mddev->recovery);
->  		mddev->sync_thread = md_register_thread(md_do_sync, mddev,
->  							"reshape");
-> -		if (!mddev->sync_thread)
-> -			goto abort;
->  	}
->  
->  	/* Ok, everything is just fine now */
+>  static const struct ata_port_info ahci_sunxi_port_info = {
+> -	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ,
+> +	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ | ATA_FLAG_NO_DIPM,
+>  	.pio_mask	= ATA_PIO4,
+>  	.udma_mask	= ATA_UDMA6,
+>  	.port_ops	= &ahci_platform_ops,
 > -- 
-> 2.31.1
+> 2.26.2
 > 
+<formletter>
 
-These changes look ok, but the error handling logic seems to be freeing
-the incorrect thread, not the one that these functions create.  That's
-independant of this change, but seems odd.  If someone cares about it,
-it should probably be looked at, or if correct, a comment would be nice
-as it's really confusing.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Dropping this revert.
-
-greg k-h
+</formletter>
