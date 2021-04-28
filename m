@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DCB636D62E
-	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 13:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3096936D631
+	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 13:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239683AbhD1LMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Apr 2021 07:12:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44166 "EHLO mail.kernel.org"
+        id S239179AbhD1LMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Apr 2021 07:12:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239656AbhD1LMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Apr 2021 07:12:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A5716142F;
-        Wed, 28 Apr 2021 11:11:45 +0000 (UTC)
+        id S239657AbhD1LMe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Apr 2021 07:12:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 000FD61430;
+        Wed, 28 Apr 2021 11:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619608306;
-        bh=HvDLgNabGCOs+S5SagXeZ4aMTi+wJrhEtYPRjaSVkDU=;
+        s=k20201202; t=1619608308;
+        bh=6etONi36FQqglhp+rmX4XQZFYwrLi+rQGeMFsiS16n4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6wSB3EuE82HhSGkx4KVpcYVG0Ov42M9Lspez3WGXR90twVeL5rtTUH9W1qiPaxAM
-         h9ZgAYuR7Ctf1BPdAcj9HItjLQNQj11AaAJb1D2PLcq20aHGK+rIQnKgLR+HiSUH4s
-         qh2GLHpndmiAS30OHW0G+oQzol8pbgfyP4ucWWHeUmh8wZnNMyeTvCD+HAL1UgLY1r
-         eDOMfxfQBGlOxkd5eBf2fjOHkwHz2Vji8Ntcw9tvb7RSQSpLTl4wearu8/csI7SsU+
-         nzlS7nzLXgHJ0PmO4qG4tBRi1xW84BIYJ9ZWzkDaGzDCfhEBN10V43js9kKgXzc+eY
-         Gk9GNwlOuQcKw==
+        b=e0oUZSt9OdzgTZdJdgabWmOgsh9yFjy8ZUQKl0xw7KyeQoNuozV8ooW3jaY/l1SLY
+         7q3Zobo6D1zl06AzAlHlxuHMG3XXT+0m5176YQKZNwCxB33KvL8lMo6W0YBhljXlvj
+         4SmPelo2eUBGANugBQaqYXBh86HBJf7gcv32yHU8moHyPUf1G3nCzdVQO9Bcs/nLWb
+         QuYqlXjsu5fe/NrRcd35L8m/2b3R5oUSmnwrX9e+q7kGhJnkXPo6KXcRmeeM7sr2wm
+         yZh+Mh7CSPSD4rXaiEMM3NHf/d01+Dc4HB4wWkekvOj4UACty8od0Ea8UwFPI25Ih3
+         B1Mihj6jKK3Pg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Serge E. Hallyn" <serge@hallyn.com>,
-        "Andrew G . Morgan" <morgan@kernel.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 2/4] capabilities: require CAP_SETFCAP to map uid 0
-Date:   Wed, 28 Apr 2021 07:11:39 -0400
-Message-Id: <20210428111141.1343299-2-sashal@kernel.org>
+Cc:     Thomas Richter <tmricht@linux.ibm.com>,
+        Alexander Schmidt <alexschm@de.ibm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 3/4] perf ftrace: Fix access to pid in array when setting a pid filter
+Date:   Wed, 28 Apr 2021 07:11:40 -0400
+Message-Id: <20210428111141.1343299-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210428111141.1343299-1-sashal@kernel.org>
 References: <20210428111141.1343299-1-sashal@kernel.org>
@@ -47,225 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Serge E. Hallyn" <serge@hallyn.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit db2e718a47984b9d71ed890eb2ea36ecf150de18 ]
+[ Upstream commit 671b60cb6a897a5b3832fe57657152f2c3995e25 ]
 
-cap_setfcap is required to create file capabilities.
+Command 'perf ftrace -v -- ls' fails in s390 (at least 5.12.0rc6).
 
-Since commit 8db6c34f1dbc ("Introduce v3 namespaced file capabilities"),
-a process running as uid 0 but without cap_setfcap is able to work
-around this as follows: unshare a new user namespace which maps parent
-uid 0 into the child namespace.
+The root cause is a missing pointer dereference which causes an
+array element address to be used as PID.
 
-While this task will not have new capabilities against the parent
-namespace, there is a loophole due to the way namespaced file
-capabilities are represented as xattrs.  File capabilities valid in
-userns 1 are distinguished from file capabilities valid in userns 2 by
-the kuid which underlies uid 0.  Therefore the restricted root process
-can unshare a new self-mapping namespace, add a namespaced file
-capability onto a file, then use that file capability in the parent
-namespace.
+Fix this by extracting the PID.
 
-To prevent that, do not allow mapping parent uid 0 if the process which
-opened the uid_map file does not have CAP_SETFCAP, which is the
-capability for setting file capabilities.
+Output before:
+  # ./perf ftrace -v -- ls
+  function_graph tracer is used
+  write '-263732416' to tracing/set_ftrace_pid failed: Invalid argument
+  failed to set ftrace pid
+  #
 
-As a further wrinkle: a task can unshare its user namespace, then open
-its uid_map file itself, and map (only) its own uid.  In this case we do
-not have the credential from before unshare, which was potentially more
-restricted.  So, when creating a user namespace, we record whether the
-creator had CAP_SETFCAP.  Then we can use that during map_write().
+Output after:
+   ./perf ftrace -v -- ls
+   function_graph tracer is used
+   # tracer: function_graph
+   #
+   # CPU  DURATION                  FUNCTION CALLS
+   # |     |   |                     |   |   |   |
+   4)               |  rcu_read_lock_sched_held() {
+   4)   0.552 us    |    rcu_lockdep_current_cpu_online();
+   4)   6.124 us    |  }
 
-With this patch:
-
-1. Unprivileged user can still unshare -Ur
-
-   ubuntu@caps:~$ unshare -Ur
-   root@caps:~# logout
-
-2. Root user can still unshare -Ur
-
-   ubuntu@caps:~$ sudo bash
-   root@caps:/home/ubuntu# unshare -Ur
-   root@caps:/home/ubuntu# logout
-
-3. Root user without CAP_SETFCAP cannot unshare -Ur:
-
-   root@caps:/home/ubuntu# /sbin/capsh --drop=cap_setfcap --
-   root@caps:/home/ubuntu# /sbin/setcap cap_setfcap=p /sbin/setcap
-   unable to set CAP_SETFCAP effective capability: Operation not permitted
-   root@caps:/home/ubuntu# unshare -Ur
-   unshare: write failed /proc/self/uid_map: Operation not permitted
-
-Note: an alternative solution would be to allow uid 0 mappings by
-processes without CAP_SETFCAP, but to prevent such a namespace from
-writing any file capabilities.  This approach can be seen at [1].
-
-Background history: commit 95ebabde382 ("capabilities: Don't allow
-writing ambiguous v3 file capabilities") tried to fix the issue by
-preventing v3 fscaps to be written to disk when the root uid would map
-to the same uid in nested user namespaces.  This led to regressions for
-various workloads.  For example, see [2].  Ultimately this is a valid
-use-case we have to support meaning we had to revert this change in
-3b0c2d3eaa83 ("Revert 95ebabde382c ("capabilities: Don't allow writing
-ambiguous v3 file capabilities")").
-
-Link: https://git.kernel.org/pub/scm/linux/kernel/git/sergeh/linux.git/log/?h=2021-04-15/setfcap-nsfscaps-v4 [1]
-Link: https://github.com/containers/buildah/issues/3071 [2]
-Signed-off-by: Serge Hallyn <serge@hallyn.com>
-Reviewed-by: Andrew G. Morgan <morgan@kernel.org>
-Tested-by: Christian Brauner <christian.brauner@ubuntu.com>
-Reviewed-by: Christian Brauner <christian.brauner@ubuntu.com>
-Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Alexander Schmidt <alexschm@de.ibm.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20210421120400.2126433-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/user_namespace.h  |  3 ++
- include/uapi/linux/capability.h |  3 +-
- kernel/user_namespace.c         | 65 +++++++++++++++++++++++++++++++--
- 3 files changed, 67 insertions(+), 4 deletions(-)
+ tools/perf/builtin-ftrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index 6ef1c7109fc4..7616c7bf4b24 100644
---- a/include/linux/user_namespace.h
-+++ b/include/linux/user_namespace.h
-@@ -64,6 +64,9 @@ struct user_namespace {
- 	kgid_t			group;
- 	struct ns_common	ns;
- 	unsigned long		flags;
-+	/* parent_could_setfcap: true if the creator if this ns had CAP_SETFCAP
-+	 * in its effective capability set at the child ns creation time. */
-+	bool			parent_could_setfcap;
+diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
+index 9366fad591dc..eecc70fc3b19 100644
+--- a/tools/perf/builtin-ftrace.c
++++ b/tools/perf/builtin-ftrace.c
+@@ -289,7 +289,7 @@ static int set_tracing_pid(struct perf_ftrace *ftrace)
  
- #ifdef CONFIG_KEYS
- 	/* List of joinable keyrings in this namespace.  Modification access of
-diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
-index c6ca33034147..2ddb4226cd23 100644
---- a/include/uapi/linux/capability.h
-+++ b/include/uapi/linux/capability.h
-@@ -335,7 +335,8 @@ struct vfs_ns_cap_data {
- 
- #define CAP_AUDIT_CONTROL    30
- 
--/* Set or remove capabilities on files */
-+/* Set or remove capabilities on files.
-+   Map uid=0 into a child user namespace. */
- 
- #define CAP_SETFCAP	     31
- 
-diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index e703d5d9cbe8..ce396ea4de60 100644
---- a/kernel/user_namespace.c
-+++ b/kernel/user_namespace.c
-@@ -106,6 +106,7 @@ int create_user_ns(struct cred *new)
- 	if (!ns)
- 		goto fail_dec;
- 
-+	ns->parent_could_setfcap = cap_raised(new->cap_effective, CAP_SETFCAP);
- 	ret = ns_alloc_inum(&ns->ns);
- 	if (ret)
- 		goto fail_free;
-@@ -841,6 +842,60 @@ static int sort_idmaps(struct uid_gid_map *map)
- 	return 0;
- }
- 
-+/**
-+ * verify_root_map() - check the uid 0 mapping
-+ * @file: idmapping file
-+ * @map_ns: user namespace of the target process
-+ * @new_map: requested idmap
-+ *
-+ * If a process requests mapping parent uid 0 into the new ns, verify that the
-+ * process writing the map had the CAP_SETFCAP capability as the target process
-+ * will be able to write fscaps that are valid in ancestor user namespaces.
-+ *
-+ * Return: true if the mapping is allowed, false if not.
-+ */
-+static bool verify_root_map(const struct file *file,
-+			    struct user_namespace *map_ns,
-+			    struct uid_gid_map *new_map)
-+{
-+	int idx;
-+	const struct user_namespace *file_ns = file->f_cred->user_ns;
-+	struct uid_gid_extent *extent0 = NULL;
-+
-+	for (idx = 0; idx < new_map->nr_extents; idx++) {
-+		if (new_map->nr_extents <= UID_GID_MAP_MAX_BASE_EXTENTS)
-+			extent0 = &new_map->extent[idx];
-+		else
-+			extent0 = &new_map->forward[idx];
-+		if (extent0->lower_first == 0)
-+			break;
-+
-+		extent0 = NULL;
-+	}
-+
-+	if (!extent0)
-+		return true;
-+
-+	if (map_ns == file_ns) {
-+		/* The process unshared its ns and is writing to its own
-+		 * /proc/self/uid_map.  User already has full capabilites in
-+		 * the new namespace.  Verify that the parent had CAP_SETFCAP
-+		 * when it unshared.
-+		 * */
-+		if (!file_ns->parent_could_setfcap)
-+			return false;
-+	} else {
-+		/* Process p1 is writing to uid_map of p2, who is in a child
-+		 * user namespace to p1's.  Verify that the opener of the map
-+		 * file has CAP_SETFCAP against the parent of the new map
-+		 * namespace */
-+		if (!file_ns_capable(file, map_ns->parent, CAP_SETFCAP))
-+			return false;
-+	}
-+
-+	return true;
-+}
-+
- static ssize_t map_write(struct file *file, const char __user *buf,
- 			 size_t count, loff_t *ppos,
- 			 int cap_setid,
-@@ -848,7 +903,7 @@ static ssize_t map_write(struct file *file, const char __user *buf,
- 			 struct uid_gid_map *parent_map)
- {
- 	struct seq_file *seq = file->private_data;
--	struct user_namespace *ns = seq->private;
-+	struct user_namespace *map_ns = seq->private;
- 	struct uid_gid_map new_map;
- 	unsigned idx;
- 	struct uid_gid_extent extent;
-@@ -895,7 +950,7 @@ static ssize_t map_write(struct file *file, const char __user *buf,
- 	/*
- 	 * Adjusting namespace settings requires capabilities on the target.
- 	 */
--	if (cap_valid(cap_setid) && !file_ns_capable(file, ns, CAP_SYS_ADMIN))
-+	if (cap_valid(cap_setid) && !file_ns_capable(file, map_ns, CAP_SYS_ADMIN))
- 		goto out;
- 
- 	/* Parse the user data */
-@@ -965,7 +1020,7 @@ static ssize_t map_write(struct file *file, const char __user *buf,
- 
- 	ret = -EPERM;
- 	/* Validate the user is allowed to use user id's mapped to. */
--	if (!new_idmap_permitted(file, ns, cap_setid, &new_map))
-+	if (!new_idmap_permitted(file, map_ns, cap_setid, &new_map))
- 		goto out;
- 
- 	ret = -EPERM;
-@@ -1086,6 +1141,10 @@ static bool new_idmap_permitted(const struct file *file,
- 				struct uid_gid_map *new_map)
- {
- 	const struct cred *cred = file->f_cred;
-+
-+	if (cap_setid == CAP_SETUID && !verify_root_map(file, ns, new_map))
-+		return false;
-+
- 	/* Don't allow mappings that would allow anything that wouldn't
- 	 * be allowed without the establishment of unprivileged mappings.
- 	 */
+ 	for (i = 0; i < perf_thread_map__nr(ftrace->evlist->core.threads); i++) {
+ 		scnprintf(buf, sizeof(buf), "%d",
+-			  ftrace->evlist->core.threads->map[i]);
++			  perf_thread_map__pid(ftrace->evlist->core.threads, i));
+ 		if (append_tracing_file("set_ftrace_pid", buf) < 0)
+ 			return -1;
+ 	}
 -- 
 2.30.2
 
