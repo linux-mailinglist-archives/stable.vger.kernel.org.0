@@ -2,84 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA19336D1EA
-	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 07:59:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7AF36D242
+	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 08:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235964AbhD1GAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Apr 2021 02:00:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39324 "EHLO mail.kernel.org"
+        id S232966AbhD1GgD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Apr 2021 02:36:03 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52006 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235809AbhD1GAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Apr 2021 02:00:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6EB5613FB;
-        Wed, 28 Apr 2021 05:59:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619589573;
-        bh=PzXRzqyaN0AHEgEDWQ7ORDtLyuOZqfpRHAtszxM+aMo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=15ttKwTuuNivW2WUxOzPsphx0FRf9V1T8rt8jHcNnVVId6Lvj5uNEq3xV/c5gCrt8
-         kUKvwWswbZa1rZYStYXr3DoADlotDZXvS1mi3zdsqzkseIBK48Yce+nLvCDqZtFmnq
-         u1wakr7dYWCrxLNgwu1w0kUdlF1b42NPjmrWwnYo=
-Date:   Wed, 28 Apr 2021 07:59:28 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Timo Sigurdsson <public_timo.s@silentcreek.de>
-Cc:     axboe@kernel.dk, mripard@kernel.org, wens@csie.org,
-        jernej.skrabec@siol.net, linux-ide@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-        linux-kernel@vger.kernel.org, oliver@schinagl.nl,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ata: ahci_sunxi: Disable DIPM
-Message-ID: <YIj5wKTdOVWLdD2d@kroah.com>
-References: <20210427230537.21423-1-public_timo.s@silentcreek.de>
+        id S231578AbhD1GgC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 28 Apr 2021 02:36:02 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 78641AF3B;
+        Wed, 28 Apr 2021 06:35:17 +0000 (UTC)
+To:     Martin Wilck <mwilck@suse.com>, Christoph Hellwig <hch@lst.de>
+Cc:     Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
+        Chao Leng <lengchao@huawei.com>,
+        Daniel Wagner <dwagner@suse.de>,
+        linux-nvme@lists.infradead.org, stable@vger.kernel.org
+References: <20210427085246.13728-1-mwilck@suse.com>
+ <0ff2dbc0-0182-f54d-b750-084feac53601@suse.de>
+ <20210427162521.GA26528@lst.de>
+ <f82b7f7c-ef12-27bb-1349-d23ea22e50a9@suse.de>
+ <3a0b10f45ac75df3f744dd04ac874021488f42b1.camel@suse.com>
+From:   Hannes Reinecke <hare@suse.de>
+Organization: SUSE Linux GmbH
+Subject: Re: [PATCH v3] nvme: rdma/tcp: fix list corruption with anatt timer
+Message-ID: <8b61d0f8-f47f-8e03-5385-c48b0e7be187@suse.de>
+Date:   Wed, 28 Apr 2021 08:35:15 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210427230537.21423-1-public_timo.s@silentcreek.de>
+In-Reply-To: <3a0b10f45ac75df3f744dd04ac874021488f42b1.camel@suse.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 28, 2021 at 01:05:37AM +0200, Timo Sigurdsson wrote:
-> DIPM is unsupported or broken on sunxi. Trying to enable the power
-> management policy med_power_with_dipm on an Allwinner A20 SoC based board
-> leads to immediate I/O errors and the attached SATA disk disappears from
-> the /dev filesystem. A reset (power cycle) is required to make the SATA
-> controller or disk work again. The A10 and A20 SoC data sheets and manuals
-> don't mention DIPM at all [1], so it's fair to assume that it's simply not
-> supported. But even if it were, it should be considered broken and best be
-> disabled in the ahci_sunxi driver.
+On 4/27/21 9:54 PM, Martin Wilck wrote:
+> On Tue, 2021-04-27 at 20:05 +0200, Hannes Reinecke wrote:
+>> On 4/27/21 6:25 PM, Christoph Hellwig wrote:
+>>> On Tue, Apr 27, 2021 at 11:33:04AM +0200, Hannes Reinecke wrote:
+>>>> As indicated in my previous mail, please change the description.
+>>>> We have
+>>>> since established a actual reason (duplicate calls to
+>>>> add_timer()), so
+>>>> please list it here.
+>>>
+>>> So what happens if the offending add_timer is changed to mod_timer?
+>>>
+>> I guess that should be fine, as the boilerplate said it can act
+>> as a safe version of add_timer.
+>>
+>> But that would just solve the crash upon add_timer().
 > 
-> Fixes: c5754b5220f0 ("ARM: sunxi: Add support for Allwinner SUNXi SoCs sata to ahci_platform")
+> The code doesn't use add_timer(), only mod_timer() and
+> del_timer_sync(). And we didn't observe a crash upon add_timer(). What
+> we observed was that a timer had been enqueued multiple times, and the
+> kernel crashes in expire_timers()->detach_timer(), when it encounters
+> an already detached entry in the timer list.
 > 
-> [1] https://github.com/allwinner-zh/documents/tree/master/
-> 
-> Signed-off-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
-> Tested-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
-> ---
->  drivers/ata/ahci_sunxi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/ata/ahci_sunxi.c b/drivers/ata/ahci_sunxi.c
-> index cb69b737cb49..56b695136977 100644
-> --- a/drivers/ata/ahci_sunxi.c
-> +++ b/drivers/ata/ahci_sunxi.c
-> @@ -200,7 +200,7 @@ static void ahci_sunxi_start_engine(struct ata_port *ap)
->  }
->  
->  static const struct ata_port_info ahci_sunxi_port_info = {
-> -	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ,
-> +	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ | ATA_FLAG_NO_DIPM,
->  	.pio_mask	= ATA_PIO4,
->  	.udma_mask	= ATA_UDMA6,
->  	.port_ops	= &ahci_platform_ops,
-> -- 
-> 2.26.2
-> 
-<formletter>
+nvme_mpath_init() doesn't use add_timer, but it uses timer_setup(). And
+calling that on an already pending timer is even worse :-)
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+And my point is that the anatt timer is not stopped at the end of
+nvme_init_identify() if any of the calls to
 
-</formletter>
+nvme_configure_apst()
+nvme_configure_timestamp()
+nvme_configure_directives()
+nvme_configure_acre()
+
+returns with an error. If they do the controller is reset, causing
+eg nvme_tcp_configure_admin_queue() to be called, which will be
+calling timer_setup() with the original timer still running.
+If the (original) timer triggers _after_ that time we have the crash.
+
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke		        Kernel Storage Architect
+hare@suse.de			               +49 911 74053 688
+SUSE Software Solutions Germany GmbH, 90409 Nürnberg
+GF: F. Imendörffer, HRB 36809 (AG Nürnberg)
