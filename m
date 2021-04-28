@@ -2,1306 +2,1457 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7323336D650
-	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 13:17:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBFB36D65E
+	for <lists+stable@lfdr.de>; Wed, 28 Apr 2021 13:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238444AbhD1LRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 28 Apr 2021 07:17:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52180 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238599AbhD1LR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 28 Apr 2021 07:17:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24F0861432;
-        Wed, 28 Apr 2021 11:16:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619608602;
-        bh=BMmm9NJ3QrX4QRSyIpVUBCWCceHXYr6rUU79k2YoDUU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuNlsZG8Snx0HcGVoRtkVDt3QEn+rq91NweP1+C+VbfcY5KY0ERxGWQ9gGPQtsx7Y
-         WQvhOZn45Ra3QfUwB1SO4nRHxup6aA6CwZB5KUV7N4bplAukklNQDmsHHaI7qn71+3
-         ove1RvAx0Uh4m7cZrI2It3rR8sqemG58lMrkllHY=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.14.232
-Date:   Wed, 28 Apr 2021 13:16:33 +0200
-Message-Id: <1619608592219175@kroah.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <16196085924920@kroah.com>
-References: <16196085924920@kroah.com>
+        id S230420AbhD1LVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 28 Apr 2021 07:21:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48006 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230248AbhD1LVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 28 Apr 2021 07:21:02 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3FE7C061574
+        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 04:20:17 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id m6-20020a17090a8586b02901507e1acf0fso8953585pjn.3
+        for <stable@vger.kernel.org>; Wed, 28 Apr 2021 04:20:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=M9Urh1JWQCvcFmf+EplTsDAQdw47CZx+13MhIoFjd6Y=;
+        b=wms4bGv+GumBA6i46rDCikCvqMI/QNMmQZCx6vX82sQPrH0CNa36huvKrF7vajZMU+
+         7j87nCYVwaLX1tIgS67yPUyrKLODJ7AawfFqk8WQ4KKjUU+Nb+YyIZhrKw627Eb2b4D/
+         xuI31kft+V4i6R0U5KutOh4vt1TMWGi/IiszMDCpgghcCZrMagRMzfHAfLF3ukK4N6z2
+         PM98XRMY0+dWK8FhTAwD8MilHjIPImdIMMFIcS3vLjz2Z2AovfubbXO0dEPbkev/Nv70
+         H+EvcrTqHaGYpKq9siY3LWW4NRewgsTH637w7rUYYXsqnWf0TOgq0tTjkZIK2N1/LWhb
+         ih6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=M9Urh1JWQCvcFmf+EplTsDAQdw47CZx+13MhIoFjd6Y=;
+        b=G+IHIATAgWo60CAm4Y2J43Zx1LDCr6NPOSVPlZTknrTJP31I0KwBQQELbViB9duoKY
+         nBn7zOvEzy1lNS++aI/B0wB1f+Kb+cU5LJpINVTrl1fgUo/c8YhMCvQ/aKTVn9Xs9Hu0
+         f1HlJb9yBVYDAv2RHDr3BJuxrS7Tc6Y35q6hQvxRMQHbmK3hzZeK1PQoOvhn+wZDzwB2
+         dcqgmJn564tpDTCrk8259iOX9FZrFpv4ZpRd9d2EA6iCxmfxB7b5KYfnn4ftS2tb0VPp
+         p83mK2Ll/E4oB0F/WuXXLJmeZiuqQsYVxIrYq0+OTqP2/4Dpm9aLwCenDyUGAyRozToE
+         MrNw==
+X-Gm-Message-State: AOAM5320Acqu4CGiBMdluiZXKXFkamQdzn++Xl4aXTORMoo3EPI0yo75
+        jzioOT1ZJgfOc1MNLu2d6Rqlt7kjlpFaq2Sz
+X-Google-Smtp-Source: ABdhPJyJNVrWNV9Td9YVaMYdfEu2YjfEAjy4Pj56FiyaZx8yPKCIMu696s8i6HoiMSuBjzUR9I3Ztw==
+X-Received: by 2002:a17:90b:915:: with SMTP id bo21mr18502973pjb.27.1619608816621;
+        Wed, 28 Apr 2021 04:20:16 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h20sm4651055pfh.192.2021.04.28.04.20.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Apr 2021 04:20:16 -0700 (PDT)
+Message-ID: <608944f0.1c69fb81.5552d.e360@mx.google.com>
+Date:   Wed, 28 Apr 2021 04:20:16 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.232
+X-Kernelci-Report-Type: build
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable/linux-4.14.y build: 201 builds: 0 failed, 201 passed,
+ 69 warnings (v4.14.232)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index cee830aea284..52dcd6596184 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 14
--SUBLEVEL = 231
-+SUBLEVEL = 232
- EXTRAVERSION =
- NAME = Petit Gorille
- 
-diff --git a/arch/arc/kernel/signal.c b/arch/arc/kernel/signal.c
-index 48685445002e..da243420bcb5 100644
---- a/arch/arc/kernel/signal.c
-+++ b/arch/arc/kernel/signal.c
-@@ -99,7 +99,7 @@ stash_usr_regs(struct rt_sigframe __user *sf, struct pt_regs *regs,
- 			     sizeof(sf->uc.uc_mcontext.regs.scratch));
- 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(sigset_t));
- 
--	return err;
-+	return err ? -EFAULT : 0;
- }
- 
- static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
-@@ -113,7 +113,7 @@ static int restore_usr_regs(struct pt_regs *regs, struct rt_sigframe __user *sf)
- 				&(sf->uc.uc_mcontext.regs.scratch),
- 				sizeof(sf->uc.uc_mcontext.regs.scratch));
- 	if (err)
--		return err;
-+		return -EFAULT;
- 
- 	set_current_blocked(&set);
- 	regs->bta	= uregs.scratch.bta;
-diff --git a/arch/arm/boot/dts/omap3.dtsi b/arch/arm/boot/dts/omap3.dtsi
-index bdaf30c8c405..21eef1679d08 100644
---- a/arch/arm/boot/dts/omap3.dtsi
-+++ b/arch/arm/boot/dts/omap3.dtsi
-@@ -23,6 +23,9 @@
- 		i2c0 = &i2c1;
- 		i2c1 = &i2c2;
- 		i2c2 = &i2c3;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
-diff --git a/arch/arm/boot/dts/omap4.dtsi b/arch/arm/boot/dts/omap4.dtsi
-index 28d10abd8b04..09129365c0e1 100644
---- a/arch/arm/boot/dts/omap4.dtsi
-+++ b/arch/arm/boot/dts/omap4.dtsi
-@@ -22,6 +22,11 @@
- 		i2c1 = &i2c2;
- 		i2c2 = &i2c3;
- 		i2c3 = &i2c4;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
-+		mmc3 = &mmc4;
-+		mmc4 = &mmc5;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
-diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
-index bc3f53c79e9d..9786baf7f9c4 100644
---- a/arch/arm/boot/dts/omap5.dtsi
-+++ b/arch/arm/boot/dts/omap5.dtsi
-@@ -25,6 +25,11 @@
- 		i2c2 = &i2c3;
- 		i2c3 = &i2c4;
- 		i2c4 = &i2c5;
-+		mmc0 = &mmc1;
-+		mmc1 = &mmc2;
-+		mmc2 = &mmc3;
-+		mmc3 = &mmc4;
-+		mmc4 = &mmc5;
- 		serial0 = &uart1;
- 		serial1 = &uart2;
- 		serial2 = &uart3;
-diff --git a/arch/arm/mach-footbridge/cats-pci.c b/arch/arm/mach-footbridge/cats-pci.c
-index 0b2fd7e2e9b4..90b1e9be430e 100644
---- a/arch/arm/mach-footbridge/cats-pci.c
-+++ b/arch/arm/mach-footbridge/cats-pci.c
-@@ -15,14 +15,14 @@
- #include <asm/mach-types.h>
- 
- /* cats host-specific stuff */
--static int irqmap_cats[] __initdata = { IRQ_PCI, IRQ_IN0, IRQ_IN1, IRQ_IN3 };
-+static int irqmap_cats[] = { IRQ_PCI, IRQ_IN0, IRQ_IN1, IRQ_IN3 };
- 
- static u8 cats_no_swizzle(struct pci_dev *dev, u8 *pin)
- {
- 	return 0;
- }
- 
--static int __init cats_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int cats_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	if (dev->irq >= 255)
- 		return -1;	/* not a valid interrupt. */
-diff --git a/arch/arm/mach-footbridge/ebsa285-pci.c b/arch/arm/mach-footbridge/ebsa285-pci.c
-index 6f28aaa9ca79..c3f280d08fa7 100644
---- a/arch/arm/mach-footbridge/ebsa285-pci.c
-+++ b/arch/arm/mach-footbridge/ebsa285-pci.c
-@@ -14,9 +14,9 @@
- #include <asm/mach/pci.h>
- #include <asm/mach-types.h>
- 
--static int irqmap_ebsa285[] __initdata = { IRQ_IN3, IRQ_IN1, IRQ_IN0, IRQ_PCI };
-+static int irqmap_ebsa285[] = { IRQ_IN3, IRQ_IN1, IRQ_IN0, IRQ_PCI };
- 
--static int __init ebsa285_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int ebsa285_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	if (dev->vendor == PCI_VENDOR_ID_CONTAQ &&
- 	    dev->device == PCI_DEVICE_ID_CONTAQ_82C693)
-diff --git a/arch/arm/mach-footbridge/netwinder-pci.c b/arch/arm/mach-footbridge/netwinder-pci.c
-index 9473aa0305e5..e8304392074b 100644
---- a/arch/arm/mach-footbridge/netwinder-pci.c
-+++ b/arch/arm/mach-footbridge/netwinder-pci.c
-@@ -18,7 +18,7 @@
-  * We now use the slot ID instead of the device identifiers to select
-  * which interrupt is routed where.
-  */
--static int __init netwinder_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-+static int netwinder_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	switch (slot) {
- 	case 0:  /* host bridge */
-diff --git a/arch/arm/mach-footbridge/personal-pci.c b/arch/arm/mach-footbridge/personal-pci.c
-index 4391e433a4b2..9d19aa98a663 100644
---- a/arch/arm/mach-footbridge/personal-pci.c
-+++ b/arch/arm/mach-footbridge/personal-pci.c
-@@ -14,13 +14,12 @@
- #include <asm/mach/pci.h>
- #include <asm/mach-types.h>
- 
--static int irqmap_personal_server[] __initdata = {
-+static int irqmap_personal_server[] = {
- 	IRQ_IN0, IRQ_IN1, IRQ_IN2, IRQ_IN3, 0, 0, 0,
- 	IRQ_DOORBELLHOST, IRQ_DMA1, IRQ_DMA2, IRQ_PCI
- };
- 
--static int __init personal_server_map_irq(const struct pci_dev *dev, u8 slot,
--	u8 pin)
-+static int personal_server_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
- 	unsigned char line;
- 
-diff --git a/arch/arm/mach-keystone/keystone.c b/arch/arm/mach-keystone/keystone.c
-index 84613abf35a3..79ff5b953431 100644
---- a/arch/arm/mach-keystone/keystone.c
-+++ b/arch/arm/mach-keystone/keystone.c
-@@ -65,7 +65,7 @@ static void __init keystone_init(void)
- static long long __init keystone_pv_fixup(void)
- {
- 	long long offset;
--	phys_addr_t mem_start, mem_end;
-+	u64 mem_start, mem_end;
- 
- 	mem_start = memblock_start_of_DRAM();
- 	mem_end = memblock_end_of_DRAM();
-@@ -78,7 +78,7 @@ static long long __init keystone_pv_fixup(void)
- 	if (mem_start < KEYSTONE_HIGH_PHYS_START ||
- 	    mem_end   > KEYSTONE_HIGH_PHYS_END) {
- 		pr_crit("Invalid address space for memory (%08llx-%08llx)\n",
--		        (u64)mem_start, (u64)mem_end);
-+		        mem_start, mem_end);
- 		return 0;
- 	}
- 
-diff --git a/arch/arm/probes/uprobes/core.c b/arch/arm/probes/uprobes/core.c
-index d1329f1ba4e4..b97230704b74 100644
---- a/arch/arm/probes/uprobes/core.c
-+++ b/arch/arm/probes/uprobes/core.c
-@@ -207,7 +207,7 @@ unsigned long uprobe_get_swbp_addr(struct pt_regs *regs)
- static struct undef_hook uprobes_arm_break_hook = {
- 	.instr_mask	= 0x0fffffff,
- 	.instr_val	= (UPROBE_SWBP_ARM_INSN & 0x0fffffff),
--	.cpsr_mask	= MODE_MASK,
-+	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
- 	.cpsr_val	= USR_MODE,
- 	.fn		= uprobe_trap_handler,
- };
-@@ -215,7 +215,7 @@ static struct undef_hook uprobes_arm_break_hook = {
- static struct undef_hook uprobes_arm_ss_hook = {
- 	.instr_mask	= 0x0fffffff,
- 	.instr_val	= (UPROBE_SS_ARM_INSN & 0x0fffffff),
--	.cpsr_mask	= MODE_MASK,
-+	.cpsr_mask	= (PSR_T_BIT | MODE_MASK),
- 	.cpsr_val	= USR_MODE,
- 	.fn		= uprobe_trap_handler,
- };
-diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
-index 3abb2dacb43f..ad986cfa592d 100644
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -114,9 +114,9 @@ void apply_alternatives(void *start, size_t length);
- 	.popsection
- 	.subsection 1
- 663:	\insn2
--664:	.previous
--	.org	. - (664b-663b) + (662b-661b)
-+664:	.org	. - (664b-663b) + (662b-661b)
- 	.org	. - (662b-661b) + (664b-663b)
-+	.previous
- 	.endif
- .endm
- 
-@@ -186,11 +186,11 @@ void apply_alternatives(void *start, size_t length);
-  */
- .macro alternative_endif
- 664:
-+	.org	. - (664b-663b) + (662b-661b)
-+	.org	. - (662b-661b) + (664b-663b)
- 	.if .Lasm_alt_mode==0
- 	.previous
- 	.endif
--	.org	. - (664b-663b) + (662b-661b)
--	.org	. - (662b-661b) + (664b-663b)
- .endm
- 
- /*
-diff --git a/arch/arm64/include/asm/word-at-a-time.h b/arch/arm64/include/asm/word-at-a-time.h
-index b0d708ff7f4e..a2601c1ccf43 100644
---- a/arch/arm64/include/asm/word-at-a-time.h
-+++ b/arch/arm64/include/asm/word-at-a-time.h
-@@ -64,7 +64,7 @@ static inline unsigned long find_zero(unsigned long mask)
-  */
- static inline unsigned long load_unaligned_zeropad(const void *addr)
- {
--	unsigned long ret, offset;
-+	unsigned long ret, tmp;
- 
- 	/* Load word from unaligned pointer addr */
- 	asm(
-@@ -72,9 +72,9 @@ static inline unsigned long load_unaligned_zeropad(const void *addr)
- 	"2:\n"
- 	"	.pushsection .fixup,\"ax\"\n"
- 	"	.align 2\n"
--	"3:	and	%1, %2, #0x7\n"
--	"	bic	%2, %2, #0x7\n"
--	"	ldr	%0, [%2]\n"
-+	"3:	bic	%1, %2, #0x7\n"
-+	"	ldr	%0, [%1]\n"
-+	"	and	%1, %2, #0x7\n"
- 	"	lsl	%1, %1, #0x3\n"
- #ifndef __AARCH64EB__
- 	"	lsr	%0, %0, %1\n"
-@@ -84,7 +84,7 @@ static inline unsigned long load_unaligned_zeropad(const void *addr)
- 	"	b	2b\n"
- 	"	.popsection\n"
- 	_ASM_EXTABLE(1b, 3b)
--	: "=&r" (ret), "=&r" (offset)
-+	: "=&r" (ret), "=&r" (tmp)
- 	: "r" (addr), "Q" (*(unsigned long *)addr));
- 
- 	return ret;
-diff --git a/arch/ia64/mm/discontig.c b/arch/ia64/mm/discontig.c
-index 9b2d994cddf6..99b59a7ec187 100644
---- a/arch/ia64/mm/discontig.c
-+++ b/arch/ia64/mm/discontig.c
-@@ -100,7 +100,7 @@ static int __init build_node_maps(unsigned long start, unsigned long len,
-  * acpi_boot_init() (which builds the node_to_cpu_mask array) hasn't been
-  * called yet.  Note that node 0 will also count all non-existent cpus.
-  */
--static int __meminit early_nr_cpus_node(int node)
-+static int early_nr_cpus_node(int node)
- {
- 	int cpu, n = 0;
- 
-@@ -115,7 +115,7 @@ static int __meminit early_nr_cpus_node(int node)
-  * compute_pernodesize - compute size of pernode data
-  * @node: the node id.
-  */
--static unsigned long __meminit compute_pernodesize(int node)
-+static unsigned long compute_pernodesize(int node)
- {
- 	unsigned long pernodesize = 0, cpus;
- 
-@@ -412,7 +412,7 @@ static void __init reserve_pernode_space(void)
- 	}
- }
- 
--static void __meminit scatter_node_data(void)
-+static void scatter_node_data(void)
- {
- 	pg_data_t **dst;
- 	int node;
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index e928c2af6a10..dd470f45c4b9 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -967,6 +967,7 @@ ENTRY(ext_int_handler)
-  * Load idle PSW. The second "half" of this function is in .Lcleanup_idle.
-  */
- ENTRY(psw_idle)
-+	stg	%r14,(__SF_GPRS+8*8)(%r15)
- 	stg	%r3,__SF_EMPTY(%r15)
- 	larl	%r1,.Lpsw_idle_lpsw+4
- 	stg	%r1,__SF_EMPTY+8(%r15)
-diff --git a/arch/x86/kernel/crash.c b/arch/x86/kernel/crash.c
-index 44404e2307bb..ce5f8e25f70d 100644
---- a/arch/x86/kernel/crash.c
-+++ b/arch/x86/kernel/crash.c
-@@ -23,6 +23,7 @@
- #include <linux/export.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
-+#include <linux/overflow.h>
- 
- #include <asm/processor.h>
- #include <asm/hardirq.h>
-@@ -565,7 +566,7 @@ int crash_setup_memmap_entries(struct kimage *image, struct boot_params *params)
- 	struct crash_memmap_data cmd;
- 	struct crash_mem *cmem;
- 
--	cmem = vzalloc(sizeof(struct crash_mem));
-+	cmem = vzalloc(struct_size(cmem, ranges, 1));
- 	if (!cmem)
- 		return -ENOMEM;
- 
-diff --git a/drivers/dma/dw/Kconfig b/drivers/dma/dw/Kconfig
-index 04b9728c1d26..070860ec0ef1 100644
---- a/drivers/dma/dw/Kconfig
-+++ b/drivers/dma/dw/Kconfig
-@@ -8,6 +8,7 @@ config DW_DMAC_CORE
- 
- config DW_DMAC
- 	tristate "Synopsys DesignWare AHB DMA platform driver"
-+	depends on HAS_IOMEM
- 	select DW_DMAC_CORE
- 	help
- 	  Support the Synopsys DesignWare AHB DMA controller. This
-@@ -16,6 +17,7 @@ config DW_DMAC
- config DW_DMAC_PCI
- 	tristate "Synopsys DesignWare AHB DMA PCI driver"
- 	depends on PCI
-+	depends on HAS_IOMEM
- 	select DW_DMAC_CORE
- 	help
- 	  Support the Synopsys DesignWare AHB DMA controller on the
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index ed9c0ea5b026..1bc6ad0339d2 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -429,6 +429,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 		ret = input_register_device(data->input2);
- 		if (ret) {
- 			input_free_device(input2);
-+			ret = -ENOENT;
- 			goto exit;
- 		}
- 	}
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 8c0718b3754e..df89f490e552 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2391,7 +2391,7 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
- 	    !wacom_wac->shared->is_touch_on) {
- 		if (!wacom_wac->shared->touch_down)
- 			return;
--		prox = 0;
-+		prox = false;
- 	}
- 
- 	wacom_wac->hid_data.num_received++;
-@@ -3346,8 +3346,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
- {
- 	struct wacom_features *features = &wacom_wac->features;
- 
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
- 		return -ENODEV;
- 
-@@ -3360,6 +3358,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
- 		/* setup has already been done */
- 		return 0;
- 
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	__set_bit(ABS_MISC, input_dev->absbit);
- 
-@@ -3508,8 +3507,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
- {
- 	struct wacom_features *features = &wacom_wac->features;
- 
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--
- 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
- 		return -ENODEV;
- 
-@@ -3522,6 +3519,7 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
- 		/* setup has already been done */
- 		return 0;
- 
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 
- 	if (features->touch_max == 1) {
-diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
-index c7f26fa3034c..cf138d836eec 100644
---- a/drivers/input/keyboard/nspire-keypad.c
-+++ b/drivers/input/keyboard/nspire-keypad.c
-@@ -96,9 +96,15 @@ static irqreturn_t nspire_keypad_irq(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
-+static int nspire_keypad_open(struct input_dev *input)
- {
-+	struct nspire_keypad *keypad = input_get_drvdata(input);
- 	unsigned long val = 0, cycles_per_us, delay_cycles, row_delay_cycles;
-+	int error;
-+
-+	error = clk_prepare_enable(keypad->clk);
-+	if (error)
-+		return error;
- 
- 	cycles_per_us = (clk_get_rate(keypad->clk) / 1000000);
- 	if (cycles_per_us == 0)
-@@ -124,30 +130,6 @@ static int nspire_keypad_chip_init(struct nspire_keypad *keypad)
- 	keypad->int_mask = 1 << 1;
- 	writel(keypad->int_mask, keypad->reg_base + KEYPAD_INTMSK);
- 
--	/* Disable GPIO interrupts to prevent hanging on touchpad */
--	/* Possibly used to detect touchpad events */
--	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
--	/* Acknowledge existing interrupts */
--	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
--
--	return 0;
--}
--
--static int nspire_keypad_open(struct input_dev *input)
--{
--	struct nspire_keypad *keypad = input_get_drvdata(input);
--	int error;
--
--	error = clk_prepare_enable(keypad->clk);
--	if (error)
--		return error;
--
--	error = nspire_keypad_chip_init(keypad);
--	if (error) {
--		clk_disable_unprepare(keypad->clk);
--		return error;
--	}
--
- 	return 0;
- }
- 
-@@ -155,6 +137,11 @@ static void nspire_keypad_close(struct input_dev *input)
- {
- 	struct nspire_keypad *keypad = input_get_drvdata(input);
- 
-+	/* Disable interrupts */
-+	writel(0, keypad->reg_base + KEYPAD_INTMSK);
-+	/* Acknowledge existing interrupts */
-+	writel(~0, keypad->reg_base + KEYPAD_INT);
-+
- 	clk_disable_unprepare(keypad->clk);
- }
- 
-@@ -215,6 +202,25 @@ static int nspire_keypad_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
-+	error = clk_prepare_enable(keypad->clk);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to enable clock\n");
-+		return error;
-+	}
-+
-+	/* Disable interrupts */
-+	writel(0, keypad->reg_base + KEYPAD_INTMSK);
-+	/* Acknowledge existing interrupts */
-+	writel(~0, keypad->reg_base + KEYPAD_INT);
-+
-+	/* Disable GPIO interrupts to prevent hanging on touchpad */
-+	/* Possibly used to detect touchpad events */
-+	writel(0, keypad->reg_base + KEYPAD_UNKNOWN_INT);
-+	/* Acknowledge existing GPIO interrupts */
-+	writel(~0, keypad->reg_base + KEYPAD_UNKNOWN_INT_STS);
-+
-+	clk_disable_unprepare(keypad->clk);
-+
- 	input_set_drvdata(input, keypad);
- 
- 	input->id.bustype = BUS_HOST;
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 0463ab79160b..f20e54f41dde 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -592,6 +592,7 @@ static const struct dmi_system_id i8042_dmi_noselftest_table[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
- 		},
-+	}, {
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
-diff --git a/drivers/net/ethernet/amd/pcnet32.c b/drivers/net/ethernet/amd/pcnet32.c
-index 7f60d17819ce..073184f15c64 100644
---- a/drivers/net/ethernet/amd/pcnet32.c
-+++ b/drivers/net/ethernet/amd/pcnet32.c
-@@ -1548,8 +1548,7 @@ pcnet32_probe_pci(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	}
- 	pci_set_master(pdev);
- 
--	ioaddr = pci_resource_start(pdev, 0);
--	if (!ioaddr) {
-+	if (!pci_resource_len(pdev, 0)) {
- 		if (pcnet32_debug & NETIF_MSG_PROBE)
- 			pr_err("card has no PCI IO resources, aborting\n");
- 		return -ENODEV;
-@@ -1561,6 +1560,8 @@ pcnet32_probe_pci(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			pr_err("architecture does not support 32bit PCI busmaster DMA\n");
- 		return err;
- 	}
-+
-+	ioaddr = pci_resource_start(pdev, 0);
- 	if (!request_region(ioaddr, PCNET32_TOTAL_SIZE, "pcnet32_probe_pci")) {
- 		if (pcnet32_debug & NETIF_MSG_PROBE)
- 			pr_err("io address range already allocated\n");
-diff --git a/drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h b/drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h
-index b248966837b4..7aad40b2aa73 100644
---- a/drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h
-+++ b/drivers/net/ethernet/cavium/liquidio/cn66xx_regs.h
-@@ -412,7 +412,7 @@
- 	   | CN6XXX_INTR_M0UNWI_ERR             \
- 	   | CN6XXX_INTR_M1UPB0_ERR             \
- 	   | CN6XXX_INTR_M1UPWI_ERR             \
--	   | CN6XXX_INTR_M1UPB0_ERR             \
-+	   | CN6XXX_INTR_M1UNB0_ERR             \
- 	   | CN6XXX_INTR_M1UNWI_ERR             \
- 	   | CN6XXX_INTR_INSTR_DB_OF_ERR        \
- 	   | CN6XXX_INTR_SLIST_DB_OF_ERR        \
-diff --git a/drivers/net/ethernet/davicom/dm9000.c b/drivers/net/ethernet/davicom/dm9000.c
-index a339ea2fd496..8b07890b0b23 100644
---- a/drivers/net/ethernet/davicom/dm9000.c
-+++ b/drivers/net/ethernet/davicom/dm9000.c
-@@ -1482,8 +1482,10 @@ dm9000_probe(struct platform_device *pdev)
- 
- 	/* Init network device */
- 	ndev = alloc_etherdev(sizeof(struct board_info));
--	if (!ndev)
--		return -ENOMEM;
-+	if (!ndev) {
-+		ret = -ENOMEM;
-+		goto out_regulator_disable;
-+	}
- 
- 	SET_NETDEV_DEV(ndev, &pdev->dev);
- 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 4771dbee9681..66fddc4ba56b 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -891,19 +891,13 @@ static int __ibmvnic_open(struct net_device *netdev)
- 
- 	rc = set_link_state(adapter, IBMVNIC_LOGICAL_LNK_UP);
- 	if (rc) {
--		for (i = 0; i < adapter->req_rx_queues; i++)
--			napi_disable(&adapter->napi[i]);
-+		ibmvnic_napi_disable(adapter);
- 		release_resources(adapter);
- 		return rc;
- 	}
- 
- 	netif_tx_start_all_queues(netdev);
- 
--	if (prev_state == VNIC_CLOSED) {
--		for (i = 0; i < adapter->req_rx_queues; i++)
--			napi_schedule(&adapter->napi[i]);
--	}
--
- 	adapter->state = VNIC_OPEN;
- 	return rc;
- }
-@@ -1432,7 +1426,7 @@ static int do_reset(struct ibmvnic_adapter *adapter,
- 		    struct ibmvnic_rwi *rwi, u32 reset_state)
- {
- 	struct net_device *netdev = adapter->netdev;
--	int i, rc;
-+	int rc;
- 
- 	netdev_dbg(adapter->netdev, "Re-setting driver (%d)\n",
- 		   rwi->reset_reason);
-@@ -1497,10 +1491,6 @@ static int do_reset(struct ibmvnic_adapter *adapter,
- 	/* refresh device's multicast list */
- 	ibmvnic_set_multi(netdev);
- 
--	/* kick napi */
--	for (i = 0; i < adapter->req_rx_queues; i++)
--		napi_schedule(&adapter->napi[i]);
--
- 	if (adapter->reset_reason != VNIC_RESET_FAILOVER)
- 		netdev_notify_peers(netdev);
- 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 3f43e4f0d3b1..e25bb667fb59 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -8941,6 +8941,7 @@ static int i40e_sw_init(struct i40e_pf *pf)
- {
- 	int err = 0;
- 	int size;
-+	u16 pow;
- 
- 	/* Set default capability flags */
- 	pf->flags = I40E_FLAG_RX_CSUM_ENABLED |
-@@ -8959,6 +8960,11 @@ static int i40e_sw_init(struct i40e_pf *pf)
- 	pf->rss_table_size = pf->hw.func_caps.rss_table_size;
- 	pf->rss_size_max = min_t(int, pf->rss_size_max,
- 				 pf->hw.func_caps.num_tx_qp);
-+
-+	/* find the next higher power-of-2 of num cpus */
-+	pow = roundup_pow_of_two(num_online_cpus());
-+	pf->rss_size_max = min_t(int, pf->rss_size_max, pow);
-+
- 	if (pf->hw.func_caps.rss) {
- 		pf->flags |= I40E_FLAG_RSS_ENABLED;
- 		pf->alloc_rss_size = min_t(int, pf->rss_size_max,
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index f48006c22a8a..2a9bb13ecb54 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -835,6 +835,9 @@ static int geneve_xmit_skb(struct sk_buff *skb, struct net_device *dev,
- 	__be16 df;
- 	int err;
- 
-+	if (!pskb_network_may_pull(skb, sizeof(struct iphdr)))
-+		return -EINVAL;
-+
- 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
- 			      geneve->info.key.tp_dst, sport);
-@@ -882,6 +885,9 @@ static int geneve6_xmit_skb(struct sk_buff *skb, struct net_device *dev,
- 	__be16 sport;
- 	int err;
- 
-+	if (!pskb_network_may_pull(skb, sizeof(struct ipv6hdr)))
-+		return -EINVAL;
-+
- 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
- 				geneve->info.key.tp_dst, sport);
-diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
-index 0e3d13e192e3..9ae6a1ccfbe1 100644
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -626,7 +626,7 @@ static struct hso_serial *get_serial_by_index(unsigned index)
- 	return serial;
- }
- 
--static int get_free_serial_index(void)
-+static int obtain_minor(struct hso_serial *serial)
- {
- 	int index;
- 	unsigned long flags;
-@@ -634,8 +634,10 @@ static int get_free_serial_index(void)
- 	spin_lock_irqsave(&serial_table_lock, flags);
- 	for (index = 0; index < HSO_SERIAL_TTY_MINORS; index++) {
- 		if (serial_table[index] == NULL) {
-+			serial_table[index] = serial->parent;
-+			serial->minor = index;
- 			spin_unlock_irqrestore(&serial_table_lock, flags);
--			return index;
-+			return 0;
- 		}
- 	}
- 	spin_unlock_irqrestore(&serial_table_lock, flags);
-@@ -644,15 +646,12 @@ static int get_free_serial_index(void)
- 	return -1;
- }
- 
--static void set_serial_by_index(unsigned index, struct hso_serial *serial)
-+static void release_minor(struct hso_serial *serial)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&serial_table_lock, flags);
--	if (serial)
--		serial_table[index] = serial->parent;
--	else
--		serial_table[index] = NULL;
-+	serial_table[serial->minor] = NULL;
- 	spin_unlock_irqrestore(&serial_table_lock, flags);
- }
- 
-@@ -2241,6 +2240,7 @@ static int hso_stop_serial_device(struct hso_device *hso_dev)
- static void hso_serial_tty_unregister(struct hso_serial *serial)
- {
- 	tty_unregister_device(tty_drv, serial->minor);
-+	release_minor(serial);
- }
- 
- static void hso_serial_common_free(struct hso_serial *serial)
-@@ -2265,25 +2265,23 @@ static int hso_serial_common_create(struct hso_serial *serial, int num_urbs,
- 				    int rx_size, int tx_size)
- {
- 	struct device *dev;
--	int minor;
- 	int i;
- 
- 	tty_port_init(&serial->port);
- 
--	minor = get_free_serial_index();
--	if (minor < 0)
-+	if (obtain_minor(serial))
- 		goto exit2;
- 
- 	/* register our minor number */
- 	serial->parent->dev = tty_port_register_device_attr(&serial->port,
--			tty_drv, minor, &serial->parent->interface->dev,
-+			tty_drv, serial->minor, &serial->parent->interface->dev,
- 			serial->parent, hso_serial_dev_groups);
--	if (IS_ERR(serial->parent->dev))
-+	if (IS_ERR(serial->parent->dev)) {
-+		release_minor(serial);
- 		goto exit2;
-+	}
- 	dev = serial->parent->dev;
- 
--	/* fill in specific data for later use */
--	serial->minor = minor;
- 	serial->magic = HSO_SERIAL_MAGIC;
- 	spin_lock_init(&serial->serial_lock);
- 	serial->num_rx_urbs = num_urbs;
-@@ -2676,9 +2674,6 @@ static struct hso_device *hso_create_bulk_serial_device(
- 
- 	serial->write_data = hso_std_serial_write_data;
- 
--	/* and record this serial */
--	set_serial_by_index(serial->minor, serial);
--
- 	/* setup the proc dirs and files if needed */
- 	hso_log_port(hso_dev);
- 
-@@ -2735,9 +2730,6 @@ struct hso_device *hso_create_mux_serial_device(struct usb_interface *interface,
- 	serial->shared_int->ref_count++;
- 	mutex_unlock(&serial->shared_int->shared_int_lock);
- 
--	/* and record this serial */
--	set_serial_by_index(serial->minor, serial);
--
- 	/* setup the proc dirs and files if needed */
- 	hso_log_port(hso_dev);
- 
-@@ -3121,8 +3113,7 @@ static void hso_free_interface(struct usb_interface *interface)
- 			cancel_work_sync(&serial_table[i]->async_put_intf);
- 			cancel_work_sync(&serial_table[i]->async_get_intf);
- 			hso_serial_tty_unregister(serial);
--			kref_put(&serial_table[i]->ref, hso_serial_ref_free);
--			set_serial_by_index(i, NULL);
-+			kref_put(&serial->parent->ref, hso_serial_ref_free);
- 		}
- 	}
- 
-diff --git a/drivers/net/xen-netback/xenbus.c b/drivers/net/xen-netback/xenbus.c
-index 910322b442bd..9092b55e087f 100644
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -1043,11 +1043,15 @@ static void connect(struct backend_info *be)
- 	xenvif_carrier_on(be->vif);
- 
- 	unregister_hotplug_status_watch(be);
--	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
--				   hotplug_status_changed,
--				   "%s/%s", dev->nodename, "hotplug-status");
--	if (!err)
-+	if (xenbus_exists(XBT_NIL, dev->nodename, "hotplug-status")) {
-+		err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
-+					   NULL, hotplug_status_changed,
-+					   "%s/%s", dev->nodename,
-+					   "hotplug-status");
-+		if (err)
-+			goto err;
- 		be->have_hotplug_status_watch = 1;
-+	}
- 
- 	netif_tx_wake_all_queues(be->vif->dev);
- 
-diff --git a/drivers/pinctrl/intel/pinctrl-lewisburg.c b/drivers/pinctrl/intel/pinctrl-lewisburg.c
-index c2164db14e9c..9fdcae3260e8 100644
---- a/drivers/pinctrl/intel/pinctrl-lewisburg.c
-+++ b/drivers/pinctrl/intel/pinctrl-lewisburg.c
-@@ -300,9 +300,9 @@ static const struct pinctrl_pin_desc lbg_pins[] = {
- static const struct intel_community lbg_communities[] = {
- 	LBG_COMMUNITY(0, 0, 71),
- 	LBG_COMMUNITY(1, 72, 132),
--	LBG_COMMUNITY(3, 133, 144),
--	LBG_COMMUNITY(4, 145, 180),
--	LBG_COMMUNITY(5, 181, 246),
-+	LBG_COMMUNITY(3, 133, 143),
-+	LBG_COMMUNITY(4, 144, 178),
-+	LBG_COMMUNITY(5, 179, 246),
- };
- 
- static const struct intel_pinctrl_soc_data lbg_soc_data = {
-diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
-index 470e11b42820..9eb61a41be24 100644
---- a/drivers/scsi/libsas/sas_ata.c
-+++ b/drivers/scsi/libsas/sas_ata.c
-@@ -219,18 +219,17 @@ static unsigned int sas_ata_qc_issue(struct ata_queued_cmd *qc)
- 		memcpy(task->ata_task.atapi_packet, qc->cdb, qc->dev->cdb_len);
- 		task->total_xfer_len = qc->nbytes;
- 		task->num_scatter = qc->n_elem;
-+		task->data_dir = qc->dma_dir;
-+	} else if (qc->tf.protocol == ATA_PROT_NODATA) {
-+		task->data_dir = DMA_NONE;
- 	} else {
- 		for_each_sg(qc->sg, sg, qc->n_elem, si)
- 			xfer += sg_dma_len(sg);
- 
- 		task->total_xfer_len = xfer;
- 		task->num_scatter = si;
--	}
--
--	if (qc->tf.protocol == ATA_PROT_NODATA)
--		task->data_dir = DMA_NONE;
--	else
- 		task->data_dir = qc->dma_dir;
-+	}
- 	task->scatter = qc->sg;
- 	task->ata_task.retry_count = 1;
- 	task->task_state_flags = SAS_TASK_STATE_PENDING;
-diff --git a/drivers/scsi/scsi_transport_srp.c b/drivers/scsi/scsi_transport_srp.c
-index a0e35028ebda..118e764108f7 100644
---- a/drivers/scsi/scsi_transport_srp.c
-+++ b/drivers/scsi/scsi_transport_srp.c
-@@ -555,7 +555,7 @@ int srp_reconnect_rport(struct srp_rport *rport)
- 	res = mutex_lock_interruptible(&rport->mutex);
- 	if (res)
- 		goto out;
--	if (rport->state != SRP_RPORT_FAIL_FAST)
-+	if (rport->state != SRP_RPORT_FAIL_FAST && rport->state != SRP_RPORT_LOST)
- 		/*
- 		 * sdev state must be SDEV_TRANSPORT_OFFLINE, transition
- 		 * to SDEV_BLOCK is illegal. Calling scsi_target_unblock()
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index b2f67d7ace6d..22a7f67e70e7 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1696,12 +1696,13 @@ static int acm_resume(struct usb_interface *intf)
- 	struct urb *urb;
- 	int rv = 0;
- 
--	acm_unpoison_urbs(acm);
- 	spin_lock_irq(&acm->write_lock);
- 
- 	if (--acm->susp_count)
- 		goto out;
- 
-+	acm_unpoison_urbs(acm);
-+
- 	if (tty_port_initialized(&acm->port)) {
- 		rv = usb_submit_urb(acm->ctrlurb, GFP_ATOMIC);
- 
-diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
-index f44d98eeb36a..51cc5258b63e 100644
---- a/drivers/usb/usbip/vudc_sysfs.c
-+++ b/drivers/usb/usbip/vudc_sysfs.c
-@@ -187,7 +187,7 @@ static ssize_t store_sockfd(struct device *dev,
- 
- 		udc->ud.tcp_socket = socket;
- 		udc->ud.tcp_rx = tcp_rx;
--		udc->ud.tcp_rx = tcp_tx;
-+		udc->ud.tcp_tx = tcp_tx;
- 		udc->ud.status = SDEV_ST_USED;
- 
- 		spin_unlock_irq(&udc->ud.lock);
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index b4ec5a41797b..83bdae81721d 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3641,7 +3641,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	    ext4_encrypted_inode(new.dir) &&
- 	    !fscrypt_has_permitted_context(new.dir, old.inode)) {
- 		retval = -EXDEV;
--		goto end_rename;
-+		goto release_bh;
- 	}
- 
- 	new.bh = ext4_find_entry(new.dir, &new.dentry->d_name,
-diff --git a/fs/readdir.c b/fs/readdir.c
-index 0c357663e33a..e6f4c7b8884b 100644
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -133,6 +133,9 @@ static int fillonedir(struct dir_context *ctx, const char *name, int namlen,
- 
- 	if (buf->result)
- 		return -EINVAL;
-+	buf->result = verify_dirent_name(name, namlen);
-+	if (buf->result < 0)
-+		return buf->result;
- 	d_ino = ino;
- 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
- 		buf->result = -EOVERFLOW;
-@@ -392,6 +395,9 @@ static int compat_fillonedir(struct dir_context *ctx, const char *name,
- 
- 	if (buf->result)
- 		return -EINVAL;
-+	buf->result = verify_dirent_name(name, namlen);
-+	if (buf->result < 0)
-+		return buf->result;
- 	d_ino = ino;
- 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
- 		buf->result = -EOVERFLOW;
-diff --git a/mm/gup.c b/mm/gup.c
-index 12b9626b1a9e..cfe0a56f8e27 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -61,13 +61,22 @@ static int follow_pfn_pte(struct vm_area_struct *vma, unsigned long address,
- }
- 
- /*
-- * FOLL_FORCE can write to even unwritable pte's, but only
-- * after we've gone through a COW cycle and they are dirty.
-+ * FOLL_FORCE or a forced COW break can write even to unwritable pte's,
-+ * but only after we've gone through a COW cycle and they are dirty.
-  */
- static inline bool can_follow_write_pte(pte_t pte, unsigned int flags)
- {
--	return pte_write(pte) ||
--		((flags & FOLL_FORCE) && (flags & FOLL_COW) && pte_dirty(pte));
-+	return pte_write(pte) || ((flags & FOLL_COW) && pte_dirty(pte));
-+}
-+
-+/*
-+ * A (separate) COW fault might break the page the other way and
-+ * get_user_pages() would return the page from what is now the wrong
-+ * VM. So we need to force a COW break at GUP time even for reads.
-+ */
-+static inline bool should_force_cow_break(struct vm_area_struct *vma, unsigned int flags)
-+{
-+	return is_cow_mapping(vma->vm_flags) && (flags & FOLL_GET);
- }
- 
- static struct page *follow_page_pte(struct vm_area_struct *vma,
-@@ -694,12 +703,18 @@ static long __get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
- 			if (!vma || check_vma_flags(vma, gup_flags))
- 				return i ? : -EFAULT;
- 			if (is_vm_hugetlb_page(vma)) {
-+				if (should_force_cow_break(vma, foll_flags))
-+					foll_flags |= FOLL_WRITE;
- 				i = follow_hugetlb_page(mm, vma, pages, vmas,
- 						&start, &nr_pages, i,
--						gup_flags, nonblocking);
-+						foll_flags, nonblocking);
- 				continue;
- 			}
- 		}
-+
-+		if (should_force_cow_break(vma, foll_flags))
-+			foll_flags |= FOLL_WRITE;
-+
- retry:
- 		/*
- 		 * If we have a pending SIGKILL, don't keep faulting pages and
-@@ -1796,6 +1811,10 @@ bool gup_fast_permitted(unsigned long start, int nr_pages, int write)
- /*
-  * Like get_user_pages_fast() except it's IRQ-safe in that it won't fall back to
-  * the regular GUP. It will only return non-negative values.
-+ *
-+ * Careful, careful! COW breaking can go either way, so a non-write
-+ * access can get ambiguous page results. If you call this function without
-+ * 'write' set, you'd better be sure that you're ok with that ambiguity.
-  */
- int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
- 			  struct page **pages)
-@@ -1823,6 +1842,12 @@ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
- 	 *
- 	 * We do not adopt an rcu_read_lock(.) here as we also want to
- 	 * block IPIs that come from THPs splitting.
-+	 *
-+	 * NOTE! We allow read-only gup_fast() here, but you'd better be
-+	 * careful about possible COW pages. You'll get _a_ COW page, but
-+	 * not necessarily the one you intended to get depending on what
-+	 * COW event happens after this. COW may break the page copy in a
-+	 * random direction.
- 	 */
- 
- 	if (gup_fast_permitted(start, nr_pages, write)) {
-@@ -1868,9 +1893,16 @@ int get_user_pages_fast(unsigned long start, int nr_pages, int write,
- 					(void __user *)start, len)))
- 		return -EFAULT;
- 
-+	/*
-+	 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+	 * because get_user_pages() may need to cause an early COW in
-+	 * order to avoid confusing the normal COW routines. So only
-+	 * targets that are already writable are safe to do by just
-+	 * looking at the page tables.
-+	 */
- 	if (gup_fast_permitted(start, nr_pages, write)) {
- 		local_irq_disable();
--		gup_pgd_range(addr, end, write, pages, &nr);
-+		gup_pgd_range(addr, end, 1, pages, &nr);
- 		local_irq_enable();
- 		ret = nr;
- 	}
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 9dbfa7286c61..513f0cf173ad 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1367,13 +1367,12 @@ int do_huge_pmd_wp_page(struct vm_fault *vmf, pmd_t orig_pmd)
- }
- 
- /*
-- * FOLL_FORCE can write to even unwritable pmd's, but only
-- * after we've gone through a COW cycle and they are dirty.
-+ * FOLL_FORCE or a forced COW break can write even to unwritable pmd's,
-+ * but only after we've gone through a COW cycle and they are dirty.
-  */
- static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
- {
--	return pmd_write(pmd) ||
--	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
-+	return pmd_write(pmd) || ((flags & FOLL_COW) && pmd_dirty(pmd));
- }
- 
- struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 20f6c634ad68..f9aa9912f940 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1266,7 +1266,7 @@ int neigh_update(struct neighbour *neigh, const u8 *lladdr, u8 new,
- 			 * we can reinject the packet there.
- 			 */
- 			n2 = NULL;
--			if (dst) {
-+			if (dst && dst->obsolete != DST_OBSOLETE_DEAD) {
- 				n2 = dst_neigh_lookup_skb(dst, skb);
- 				if (n2)
- 					n1 = n2;
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index b10b297e76b7..b1c55db73764 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1516,6 +1516,11 @@ nl802154_dump_llsec_key(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (err)
- 		return err;
- 
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
-+		err = skb->len;
-+		goto out_err;
-+	}
-+
- 	if (!wpan_dev->netdev) {
- 		err = -EINVAL;
- 		goto out_err;
-@@ -1688,6 +1693,11 @@ nl802154_dump_llsec_dev(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (err)
- 		return err;
- 
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
-+		err = skb->len;
-+		goto out_err;
-+	}
-+
- 	if (!wpan_dev->netdev) {
- 		err = -EINVAL;
- 		goto out_err;
-@@ -1775,6 +1785,9 @@ static int nl802154_add_llsec_dev(struct sk_buff *skb, struct genl_info *info)
- 	struct wpan_dev *wpan_dev = dev->ieee802154_ptr;
- 	struct ieee802154_llsec_device dev_desc;
- 
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
-+		return -EOPNOTSUPP;
-+
- 	if (ieee802154_llsec_parse_device(info->attrs[NL802154_ATTR_SEC_DEVICE],
- 					  &dev_desc) < 0)
- 		return -EINVAL;
-@@ -1861,6 +1874,11 @@ nl802154_dump_llsec_devkey(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (err)
- 		return err;
- 
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
-+		err = skb->len;
-+		goto out_err;
-+	}
-+
- 	if (!wpan_dev->netdev) {
- 		err = -EINVAL;
- 		goto out_err;
-@@ -1918,6 +1936,9 @@ static int nl802154_add_llsec_devkey(struct sk_buff *skb, struct genl_info *info
- 	struct ieee802154_llsec_device_key key;
- 	__le64 extended_addr;
- 
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
-+		return -EOPNOTSUPP;
-+
- 	if (!info->attrs[NL802154_ATTR_SEC_DEVKEY] ||
- 	    nla_parse_nested(attrs, NL802154_DEVKEY_ATTR_MAX,
- 			     info->attrs[NL802154_ATTR_SEC_DEVKEY],
-@@ -2027,6 +2048,11 @@ nl802154_dump_llsec_seclevel(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (err)
- 		return err;
- 
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR) {
-+		err = skb->len;
-+		goto out_err;
-+	}
-+
- 	if (!wpan_dev->netdev) {
- 		err = -EINVAL;
- 		goto out_err;
-@@ -2112,6 +2138,9 @@ static int nl802154_add_llsec_seclevel(struct sk_buff *skb,
- 	struct wpan_dev *wpan_dev = dev->ieee802154_ptr;
- 	struct ieee802154_llsec_seclevel sl;
- 
-+	if (wpan_dev->iftype == NL802154_IFTYPE_MONITOR)
-+		return -EOPNOTSUPP;
-+
- 	if (llsec_parse_seclevel(info->attrs[NL802154_ATTR_SEC_LEVEL],
- 				 &sl) < 0)
- 		return -EINVAL;
-diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-index a598bb2080ef..6d85d995b942 100644
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1804,9 +1804,9 @@ static void __net_exit sit_destroy_tunnels(struct net *net,
- 		if (dev->rtnl_link_ops == &sit_link_ops)
- 			unregister_netdevice_queue(dev, head);
- 
--	for (prio = 1; prio < 4; prio++) {
-+	for (prio = 0; prio < 4; prio++) {
- 		int h;
--		for (h = 0; h < IP6_SIT_HASH_SIZE; h++) {
-+		for (h = 0; h < (prio ? IP6_SIT_HASH_SIZE : 1); h++) {
- 			struct ip_tunnel *t;
- 
- 			t = rtnl_dereference(sitn->tunnels[prio][h]);
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 0563bde0c285..3b3ed96c19e5 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -1536,8 +1536,10 @@ static int ieee80211_change_station(struct wiphy *wiphy,
- 		}
- 
- 		if (sta->sdata->vif.type == NL80211_IFTYPE_AP_VLAN &&
--		    sta->sdata->u.vlan.sta)
-+		    sta->sdata->u.vlan.sta) {
-+			ieee80211_clear_fast_rx(sta);
- 			RCU_INIT_POINTER(sta->sdata->u.vlan.sta, NULL);
-+		}
- 
- 		if (test_sta_flag(sta, WLAN_STA_AUTHORIZED))
- 			ieee80211_vif_dec_num_mcast(sta->sdata);
-diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
-index a519c4a06c18..c0be39bcd638 100644
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -272,6 +272,7 @@ static const char* l4proto_name(u16 proto)
- 	case IPPROTO_GRE: return "gre";
- 	case IPPROTO_SCTP: return "sctp";
- 	case IPPROTO_UDPLITE: return "udplite";
-+	case IPPROTO_ICMPV6: return "icmpv6";
- 	}
- 
- 	return "unknown";
-diff --git a/net/netfilter/nft_limit.c b/net/netfilter/nft_limit.c
-index 72f13a1144dd..a7bdc532479a 100644
---- a/net/netfilter/nft_limit.c
-+++ b/net/netfilter/nft_limit.c
-@@ -79,13 +79,13 @@ static int nft_limit_init(struct nft_limit *limit,
- 		return -EOVERFLOW;
- 
- 	if (pkts) {
--		tokens = div_u64(limit->nsecs, limit->rate) * limit->burst;
-+		tokens = div64_u64(limit->nsecs, limit->rate) * limit->burst;
- 	} else {
- 		/* The token bucket size limits the number of tokens can be
- 		 * accumulated. tokens_max specifies the bucket size.
- 		 * tokens_max = unit * (rate + burst) / rate.
- 		 */
--		tokens = div_u64(limit->nsecs * (limit->rate + limit->burst),
-+		tokens = div64_u64(limit->nsecs * (limit->rate + limit->burst),
- 				 limit->rate);
- 	}
- 
-diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-index 1f154276a681..5df93a00fda2 100644
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1586,11 +1586,9 @@ static void sctp_close(struct sock *sk, long timeout)
- 
- 	/* Supposedly, no process has access to the socket, but
- 	 * the net layers still may.
--	 * Also, sctp_destroy_sock() needs to be called with addr_wq_lock
--	 * held and that should be grabbed before socket lock.
- 	 */
--	spin_lock_bh(&net->sctp.addr_wq_lock);
--	bh_lock_sock_nested(sk);
-+	local_bh_disable();
-+	bh_lock_sock(sk);
- 
- 	/* Hold the sock, since sk_common_release() will put sock_put()
- 	 * and we have just a little more cleanup.
-@@ -1599,7 +1597,7 @@ static void sctp_close(struct sock *sk, long timeout)
- 	sk_common_release(sk);
- 
- 	bh_unlock_sock(sk);
--	spin_unlock_bh(&net->sctp.addr_wq_lock);
-+	local_bh_enable();
- 
- 	sock_put(sk);
- 
-@@ -4449,9 +4447,6 @@ static int sctp_init_sock(struct sock *sk)
- 	sk_sockets_allocated_inc(sk);
- 	sock_prot_inuse_add(net, sk->sk_prot, 1);
- 
--	/* Nothing can fail after this block, otherwise
--	 * sctp_destroy_sock() will be called without addr_wq_lock held
--	 */
- 	if (net->sctp.default_auto_asconf) {
- 		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_add_tail(&sp->auto_asconf_list,
-@@ -4486,7 +4481,9 @@ static void sctp_destroy_sock(struct sock *sk)
- 
- 	if (sp->do_auto_asconf) {
- 		sp->do_auto_asconf = 0;
-+		spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_del(&sp->auto_asconf_list);
-+		spin_unlock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 	}
- 	sctp_endpoint_free(sp->ep);
- 	local_bh_disable();
-diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
-index 6152ae24772b..3ac87f7843f6 100644
---- a/sound/soc/fsl/fsl_esai.c
-+++ b/sound/soc/fsl/fsl_esai.c
-@@ -494,11 +494,13 @@ static int fsl_esai_startup(struct snd_pcm_substream *substream,
- 				   ESAI_SAICR_SYNC, esai_priv->synchronous ?
- 				   ESAI_SAICR_SYNC : 0);
- 
--		/* Set a default slot number -- 2 */
-+		/* Set slots count */
- 		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCCR,
--				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
-+				   ESAI_xCCR_xDC_MASK,
-+				   ESAI_xCCR_xDC(esai_priv->slots));
- 		regmap_update_bits(esai_priv->regmap, REG_ESAI_RCCR,
--				   ESAI_xCCR_xDC_MASK, ESAI_xCCR_xDC(2));
-+				   ESAI_xCCR_xDC_MASK,
-+				   ESAI_xCCR_xDC(esai_priv->slots));
- 	}
- 
- 	return 0;
-diff --git a/tools/arch/ia64/include/asm/barrier.h b/tools/arch/ia64/include/asm/barrier.h
-index d808ee0e77b5..90f8bbd9aede 100644
---- a/tools/arch/ia64/include/asm/barrier.h
-+++ b/tools/arch/ia64/include/asm/barrier.h
-@@ -39,9 +39,6 @@
-  * sequential memory pages only.
-  */
- 
--/* XXX From arch/ia64/include/uapi/asm/gcc_intrin.h */
--#define ia64_mf()       asm volatile ("mf" ::: "memory")
--
- #define mb()		ia64_mf()
- #define rmb()		mb()
- #define wmb()		mb()
+stable/linux-4.14.y build: 201 builds: 0 failed, 201 passed, 69 warnings (v=
+4.14.232)
+
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.232/
+
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.232
+Git Commit: 7d7d1c0ab3eb7c8d8f63a126535018007823b207
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Built: 6 unique architectures
+
+Warnings Detected:
+
+arc:
+    allnoconfig (gcc-8): 1 warning
+    axs103_defconfig (gcc-8): 1 warning
+    axs103_smp_defconfig (gcc-8): 1 warning
+    haps_hs_defconfig (gcc-8): 1 warning
+    haps_hs_smp_defconfig (gcc-8): 1 warning
+    hsdk_defconfig (gcc-8): 1 warning
+    nsim_hs_defconfig (gcc-8): 1 warning
+    nsim_hs_smp_defconfig (gcc-8): 1 warning
+    nsimosci_hs_defconfig (gcc-8): 1 warning
+    nsimosci_hs_smp_defconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
+    vdk_hs38_defconfig (gcc-8): 1 warning
+    vdk_hs38_smp_defconfig (gcc-8): 1 warning
+
+arm64:
+    allnoconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
+
+arm:
+    allnoconfig (gcc-8): 1 warning
+    am200epdkit_defconfig (gcc-8): 1 warning
+    clps711x_defconfig (gcc-8): 1 warning
+    cm_x2xx_defconfig (gcc-8): 1 warning
+    colibri_pxa300_defconfig (gcc-8): 1 warning
+    corgi_defconfig (gcc-8): 1 warning
+    efm32_defconfig (gcc-8): 1 warning
+    eseries_pxa_defconfig (gcc-8): 1 warning
+    h5000_defconfig (gcc-8): 1 warning
+    integrator_defconfig (gcc-8): 1 warning
+    lpc32xx_defconfig (gcc-8): 1 warning
+    lpd270_defconfig (gcc-8): 1 warning
+    lubbock_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    mainstone_defconfig (gcc-8): 1 warning
+    multi_v4t_defconfig (gcc-8): 1 warning
+    palmz72_defconfig (gcc-8): 1 warning
+    pcm027_defconfig (gcc-8): 1 warning
+    prima2_defconfig (gcc-8): 1 warning
+    pxa168_defconfig (gcc-8): 1 warning
+    pxa255-idp_defconfig (gcc-8): 1 warning
+    pxa3xx_defconfig (gcc-8): 1 warning
+    pxa910_defconfig (gcc-8): 1 warning
+    raumfeld_defconfig (gcc-8): 1 warning
+    s3c2410_defconfig (gcc-8): 1 warning
+    s3c6400_defconfig (gcc-8): 1 warning
+    s5pv210_defconfig (gcc-8): 1 warning
+    spitz_defconfig (gcc-8): 1 warning
+    stm32_defconfig (gcc-8): 1 warning
+    tango4_defconfig (gcc-8): 1 warning
+    tct_hammer_defconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
+    versatile_defconfig (gcc-8): 1 warning
+    viper_defconfig (gcc-8): 1 warning
+    vt8500_v6_v7_defconfig (gcc-8): 1 warning
+    xcep_defconfig (gcc-8): 1 warning
+    zeus_defconfig (gcc-8): 1 warning
+
+i386:
+
+mips:
+    db1xxx_defconfig (gcc-8): 1 warning
+    jmr3927_defconfig (gcc-8): 1 warning
+    malta_defconfig (gcc-8): 1 warning
+    malta_kvm_guest_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 2 warnings
+    maltaaprp_defconfig (gcc-8): 1 warning
+    maltasmvp_defconfig (gcc-8): 1 warning
+    maltasmvp_eva_defconfig (gcc-8): 1 warning
+    maltaup_defconfig (gcc-8): 1 warning
+    maltaup_xpa_defconfig (gcc-8): 1 warning
+    pic32mzda_defconfig (gcc-8): 1 warning
+    xilfpga_defconfig (gcc-8): 1 warning
+
+x86_64:
+    allnoconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 2 warnings
+    x86_64_defconfig (gcc-8): 1 warning
+
+
+Warnings summary:
+
+    64   drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 de=
+fined but not used [-Wunused-variable]
+    3    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
+' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
+    1    {standard input}:29: Warning: macro instruction expanded into mult=
+iple instructions
+    1    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warning=
+s, 0 section mismatches
+
+Warnings:
+    {standard input}:29: Warning: macro instruction expanded into multiple =
+instructions
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
+ 0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
+mismatches
+
+Warnings:
+    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
