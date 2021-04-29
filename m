@@ -2,123 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4465D36EEF4
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C724036EEF5
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233695AbhD2Rf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 13:35:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53462 "EHLO
+        id S233706AbhD2Rfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 13:35:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232991AbhD2Rf1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:35:27 -0400
-Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 025F1C06138B
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:41 -0700 (PDT)
-Received: by mail-pf1-x449.google.com with SMTP id 198-20020a6218cf0000b029026162e35700so19947520pfy.10
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:40 -0700 (PDT)
+        with ESMTP id S232991AbhD2Rfa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:35:30 -0400
+Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E43EC06138B
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:42 -0700 (PDT)
+Received: by mail-pj1-x104a.google.com with SMTP id w9-20020a17090a4609b0290150d07df879so15334431pjg.9
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=d9Ug1vJdGwT7JEpa/Q1lrf3n1XthbZHDTFGnEVZVuEo=;
-        b=l5r2t2QKf4Qmldlj6gP8bbKWzONteI/TtfTUQJQtlqyhbELiuWyP60oEPZCKoYYfvS
-         op1wD8M5SJPZGienblXzYr7kNZl7KJW3akIB1dvAA1e0tBxieiW+3dpatPVLosit3mwr
-         bJV970pM5awt22ucvF8cA4pO4CMK1AIS+fANHHP7RV16cTGWCrZgSEj0a2/ZwQ8ne/KC
-         cmbtZkjvrMgVQE4v1Jt1pH1wwJjOlqLzalL43OJeB65C+5xBI5n+saZXh6IjWlMMiO4F
-         RkTlatx4G2Zz+YO8F79m0kQuRATWXzfR0J41rSu+O/tpWP8bKfSTQc7NiZeIMbp8ZuJY
-         5hrg==
+        bh=gUujUgkguLuTeeJSnMWCbPSuzJnLLvExvqc94TrwfjA=;
+        b=ZxHHriHCwdMbqE0BtqCzyqooUbIpuy88X3ppS3mPgzpZ7i2tdo/VQIrnB/HgkT8XS/
+         xwjjZK5c12AwvWysw1AAVXZIYTk4fqUy+xPdAVF60tI4DkvChnvM9FukBONHVQ0yX/sN
+         2lFT4CTeGvirWJoLfrh7WBfGitmHBuIBVGu4qj4XruxTibsd5hXbBMCwgYKwo1vcMLuZ
+         Z6U+KwfoQ6ToZpWHLVrhX17Ie9daXA7KQfjgQ6CH06qdTWaFAepjbEZW5B8TVDgChlrK
+         JxzZcher/cehQnjvldxwg62TQQU0PjkJ8TPVSdb9QuD1CKHBth+ZPwI7Ll5EeHw+cmpv
+         ukxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=d9Ug1vJdGwT7JEpa/Q1lrf3n1XthbZHDTFGnEVZVuEo=;
-        b=IeOlDrSVg7fa+L66PyAUH3hGmy+seAYbcq+mr6cSKsCLJ5v4bEdiwAu9Gpo9I+XWrh
-         CWeqtH74UZ406RRojHrMPHu2RgliJX4FrS+zHMt0qNpmLbzrf0onkVUzpoDCuv6N1Z5D
-         Svg8jRQDn8IGTmGI9s/75SB1OIqIdoCXA95YKw/9IwSMLT4yKrkwOni5+xHxHXRcWfFB
-         XLPxhCdjV9eSB7kBXOj21uRHRITZq8C5jr0SyT9kXuPh5iUGdQ7HuZueo9m7CqAQR4NV
-         dqmD/1pSYALAr+Lc+ZAGXMdvehB92N1ekUqTiVYY0u93j3VOviBnQW4LFw7+CV2DEaEJ
-         Zm5w==
-X-Gm-Message-State: AOAM531P806sxTfw9TfaxW7o27vW7/8vrygaYrJhsKAq7o0Fj9iGYjNn
-        qMPEVyJA9jVLQSrz9xdwZklkRMLNilvaMHMY6RL3NgB9HaBtJ5hjGXCLusCsz/Lp22AgDyFvbDh
-        C30zmEdT/184oXJfuwCkktRRZ4LkHSp9WdLwxQagfWIj8QSPXbLVx7Mki6+g=
-X-Google-Smtp-Source: ABdhPJw8du8nqTXUu01/xF1RzEU1XCuoZ3oMYKOhM5rZA2URx1HksnjrfrLJuqrysKi9X9cfehtQE6WLMA==
+        bh=gUujUgkguLuTeeJSnMWCbPSuzJnLLvExvqc94TrwfjA=;
+        b=pbZ0OEceRitA/ejZLRGnLmoPsFuY7U4vBtmg8GMABataW91wU1MU9831zBeJSOICHr
+         qhB7GEJc1y+fQQW5lcvWJWUmZn5P9f2RbQYEOPlh2a5uS+qj5SsXMpdIVJGPz2Fx9IF9
+         R31gNqmgQKqu3HZWzDPTV0PnCisZcrlB2yq9r8yHanBsPfXIN1+vUEECGHAxTkWjliJC
+         Y9yFOeQPf/0QaWC3JFDWJb/TsOIyvxxvwC+FpgoxcqungFg+QZo96cFHsRGPzKVzW6Qs
+         tzI3q7zY0qG1+Mv9eVCJYUMZFjf6nxGzeMrBh0COkcHdJFckOjxV4sIanoXAiqyWuf/O
+         MtFA==
+X-Gm-Message-State: AOAM531M4fck62t5Yy7zkJOYq2MA5PWLUBoQwt7kT02RAXMQ2WabacXw
+        lt88i7+7js4pAD4HKPWMijJjPbXSTXylGOipmMX+gjGpK7fsy+5fA6FV4+Vx/6yL6GTHWohqp7z
+        vGnKWcSKvB60eEd6gr6RY4cBzrCLFcFhtfnntfk4oTuOxoinxZmyEK+q1MlA=
+X-Google-Smtp-Source: ABdhPJzZ+Pf1fRJJ0k7/6FxkwEAju+10bQgVyTr6eOAQxX4Vc6G8Ybb/N3DMX7V0UMzwNpVrvdtpIheR9Q==
 X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
  (user=jxgao job=sendgmr) by 2002:a17:90a:174c:: with SMTP id
- 12mr812783pjm.1.1619717679088; Thu, 29 Apr 2021 10:34:39 -0700 (PDT)
-Date:   Thu, 29 Apr 2021 17:33:07 +0000
+ 12mr812800pjm.1.1619717681057; Thu, 29 Apr 2021 10:34:41 -0700 (PDT)
+Date:   Thu, 29 Apr 2021 17:33:08 +0000
 In-Reply-To: <20210429173315.1252465-1-jxgao@google.com>
-Message-Id: <20210429173315.1252465-2-jxgao@google.com>
+Message-Id: <20210429173315.1252465-3-jxgao@google.com>
 Mime-Version: 1.0
 References: <20210429173315.1252465-1-jxgao@google.com>
 X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
-Subject: [PATCH v2 5.10 1/9] driver core: add a min_align_mask field to struct device_dma_parameters
+Subject: [PATCH v2 5.10 2/9] swiotlb: add a IO_TLB_SIZE define
 From:   Jianxiong Gao <jxgao@google.com>
 To:     stable@vger.kernel.org, hch@lst.de, marcorr@google.com,
         sashal@kernel.org
 Cc:     Jianxiong Gao <jxgao@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit: 36950f2da1ea4cb683be174f6f581e25b2d33e71
+commit: b5d7ccb7aac3895c2138fe0980a109116ce15eff
 
-Some devices rely on the address offset in a page to function
-correctly (NVMe driver as an example). These devices may use
-a different page size than the Linux kernel. The address offset
-has to be preserved upon mapping, and in order to do so, we
-need to record the page_offset_mask first.
+Add a new IO_TLB_SIZE define instead open coding it using
+IO_TLB_SHIFT all over.
 
-Signed-off-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Jianxiong Gao <jxgao@google.com>
+Tested-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Jianxiong Gao <jxgao@google.com>
 ---
- include/linux/device.h      |  1 +
- include/linux/dma-mapping.h | 16 ++++++++++++++++
- 2 files changed, 17 insertions(+)
+ include/linux/swiotlb.h |  1 +
+ kernel/dma/swiotlb.c    | 12 ++++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 2b39de35525a..75a24b32fee8 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -291,6 +291,7 @@ struct device_dma_parameters {
- 	 * sg limitations.
- 	 */
- 	unsigned int max_segment_size;
-+	unsigned int min_align_mask;
- 	unsigned long segment_boundary_mask;
- };
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index fbdc65782195..5d2dbe7e04c3 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -29,6 +29,7 @@ enum swiotlb_force {
+  * controllable.
+  */
+ #define IO_TLB_SHIFT 11
++#define IO_TLB_SIZE (1 << IO_TLB_SHIFT)
  
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index 956151052d45..a7d70cdee25e 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -500,6 +500,22 @@ static inline int dma_set_seg_boundary(struct device *dev, unsigned long mask)
- 	return -EIO;
+ extern void swiotlb_init(int verbose);
+ int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose);
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 781b9dca197c..fb88c2982645 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -475,20 +475,20 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t orig_addr,
+ 
+ 	tbl_dma_addr &= mask;
+ 
+-	offset_slots = ALIGN(tbl_dma_addr, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
++	offset_slots = ALIGN(tbl_dma_addr, IO_TLB_SIZE) >> IO_TLB_SHIFT;
+ 
+ 	/*
+ 	 * Carefully handle integer overflow which can occur when mask == ~0UL.
+ 	 */
+ 	max_slots = mask + 1
+-		    ? ALIGN(mask + 1, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT
++		    ? ALIGN(mask + 1, IO_TLB_SIZE) >> IO_TLB_SHIFT
+ 		    : 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
+ 
+ 	/*
+ 	 * For mappings greater than or equal to a page, we limit the stride
+ 	 * (and hence alignment) to a page size.
+ 	 */
+-	nslots = ALIGN(alloc_size, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
++	nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
+ 	if (alloc_size >= PAGE_SIZE)
+ 		stride = (1 << (PAGE_SHIFT - IO_TLB_SHIFT));
+ 	else
+@@ -582,7 +582,7 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
+ 			      enum dma_data_direction dir, unsigned long attrs)
+ {
+ 	unsigned long flags;
+-	int i, count, nslots = ALIGN(alloc_size, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
++	int i, count, nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
+ 	int index = (tlb_addr - io_tlb_start) >> IO_TLB_SHIFT;
+ 	phys_addr_t orig_addr = io_tlb_orig_addr[index];
+ 
+@@ -633,7 +633,7 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
+ 
+ 	if (orig_addr == INVALID_PHYS_ADDR)
+ 		return;
+-	orig_addr += (unsigned long)tlb_addr & ((1 << IO_TLB_SHIFT) - 1);
++	orig_addr += (unsigned long)tlb_addr & (IO_TLB_SIZE - 1);
+ 
+ 	switch (target) {
+ 	case SYNC_FOR_CPU:
+@@ -691,7 +691,7 @@ dma_addr_t swiotlb_map(struct device *dev, phys_addr_t paddr, size_t size,
+ 
+ size_t swiotlb_max_mapping_size(struct device *dev)
+ {
+-	return ((size_t)1 << IO_TLB_SHIFT) * IO_TLB_SEGSIZE;
++	return ((size_t)IO_TLB_SIZE) * IO_TLB_SEGSIZE;
  }
  
-+static inline unsigned int dma_get_min_align_mask(struct device *dev)
-+{
-+	if (dev->dma_parms)
-+		return dev->dma_parms->min_align_mask;
-+	return 0;
-+}
-+
-+static inline int dma_set_min_align_mask(struct device *dev,
-+		unsigned int min_align_mask)
-+{
-+	if (WARN_ON_ONCE(!dev->dma_parms))
-+		return -EIO;
-+	dev->dma_parms->min_align_mask = min_align_mask;
-+	return 0;
-+}
-+
- static inline int dma_get_cache_alignment(void)
- {
- #ifdef ARCH_DMA_MINALIGN
+ bool is_swiotlb_active(void)
 -- 
 2.31.1.498.g6c1eba8ee3d-goog
 
