@@ -2,95 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A525836EEFC
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B29636F10E
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 22:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240884AbhD2Rfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 13:35:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53520 "EHLO
+        id S234077AbhD2UbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 16:31:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236036AbhD2Rfk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:35:40 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A369BC06138B
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:53 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id i201-20020a25d1d20000b02904ed4c01f82bso24567222ybg.20
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:53 -0700 (PDT)
+        with ESMTP id S234621AbhD2UbK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 16:31:10 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9FF5C06138B;
+        Thu, 29 Apr 2021 13:30:19 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id l4so101789808ejc.10;
+        Thu, 29 Apr 2021 13:30:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=aB9XBjTwrLlZovCpaC+C7umNB8F9B5TesXO6MUwGNrw=;
-        b=r6odUMBLeTeEEQcPF2gnHzSCktqiR3GpcUJjpnFsxnBC291w+AlNCstJ7yQCeWyd/j
-         qphfYAREJpOEywZAW29Nwx3FrcIDbGl7TXdsAzy+OOHQzLbxYXEOOFzUHHMbZrIPGnaw
-         8GwNXZ4CyIhPzetkz9HqCvMYbSayE0mmsx+bAGY8jOP+Cy8Kf2MX4E/oJVDxB1FcEWPg
-         0gr3sLwe8JabBXXAVdLtKVfRoFKkeNgWG/vMbggk4kTCqEcd5pcRmCn6ZckBXWurl/EJ
-         55u51PPZgVK/hXtFIQf7c/gWdoOaF1gHpPr6mmBwbcFlM6KpiRAtYv0YmnS7X0sEtFoe
-         orDQ==
+        d=gmail.com; s=20161025;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=OIk730EvbvFGRHoO6yMqeh9AReblTvmdaGxbR4h3GhY=;
+        b=gw+Ba7LAD4c/2uZV2gWLmMKrztksAdAZX/t/jx/YtCYPTMuV/cNCIfov7qSl821JoT
+         Rlco4GBJhK0uUrQVdmN+T6hGQ8G1bfo4jmH0Jv68jwIl6xV5IvkUi93FeLNQhqLQG3T3
+         MQbjmeXeau7QVelXOuvmFOtS7qqNJ7av/4NB5R7OyYSSeDzN2ArR2mhdTpGKw7bW7E6X
+         f3tO8pDr7BeRcgzmUgp9/gyEk3f9mZJQN6KVfZ/G/e3lpbLHlQOWHKvjM6yyknkXJ1NZ
+         g6mhiR4wqM9jnKufsa4RTkGRNsnGXhVVw94ERANnywjMgwZ+PH/jAVFiC9ywxdoCgBBN
+         QZ4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=aB9XBjTwrLlZovCpaC+C7umNB8F9B5TesXO6MUwGNrw=;
-        b=C7F002jpzxBpo5GfFNlJ/LtJFkCtvQwzrBzPLTZZNxwG/bJLdUgaUiJXGGSL+1uKRc
-         aghKt6MQgp6w6PJhlY/7lcNma/wWCbI8xCKowSbPY/mIQ1ClrT/Nwhuk0D/c78YWMG+o
-         I+rb2/2jVX4FCNKIQ4SeIPyMq++JhV+otMo5UD5iOE0UFqZpgGicOioOOSXYz45oxlpZ
-         2tEyUNUhJl9pg2rRpvKBYfCVJDjaaQd7Torg5yVSXfiYPEC0P3J7e07vWv2+Q55gEn1o
-         0xZxbF9ujWaT91vttHOTr7XHeYHRjQSdQzfAt2Qsmu0k7Khw9FouVrOdpUqZXLyLE0de
-         XOXQ==
-X-Gm-Message-State: AOAM530aNcVYEMiGTielld6MOAqZWk8mfV7Qx1K0IlWJsMMMEF/W39WG
-        XY4MBwFfix9bFWg8XifqeHm/KrHFajEKc+DyBRVWv9v2bgcmHIkSbIirGYgg4xUxzh6XFa/8uVY
-        goTChLbDOC4x+3kKrkb1E54ILhXSPrLczCBkOd1+eqa6+1HTTBmRoqJzm3MQ=
-X-Google-Smtp-Source: ABdhPJxiq/TMhJJumHudoh6WOgrvt2itKoBVZ4ZX/cz4x9Askj2+8qypAeahdjwbF9qaHNkxoCvnVcpvYg==
-X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:a25:af06:: with SMTP id a6mr975696ybh.255.1619717692892;
- Thu, 29 Apr 2021 10:34:52 -0700 (PDT)
-Date:   Thu, 29 Apr 2021 17:33:15 +0000
-In-Reply-To: <20210429173315.1252465-1-jxgao@google.com>
-Message-Id: <20210429173315.1252465-10-jxgao@google.com>
-Mime-Version: 1.0
-References: <20210429173315.1252465-1-jxgao@google.com>
-X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
-Subject: [PATCH v2 5.10 9/9] nvme-pci: set min_align_mask
-From:   Jianxiong Gao <jxgao@google.com>
-To:     stable@vger.kernel.org, hch@lst.de, marcorr@google.com,
-        sashal@kernel.org
-Cc:     Jianxiong Gao <jxgao@google.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=OIk730EvbvFGRHoO6yMqeh9AReblTvmdaGxbR4h3GhY=;
+        b=WCQo7MJcelbfPLtzu4L3Y1QTEALw5To4/ZqIJosiaEuma1fkWLABqEeASU3yX4uDCI
+         Wg/Jp8dkwUR0gGBWxxm3pczGWVFau0p1F1U509Vc+pHs1ynp6HiFtx3axU+VL5tshKxD
+         uCi2tWEGfW5B8xNJl0EUlSQ5mS/dm+p40JtdNTfeL430l0+/M7xDsq809z+ap2TwXxPv
+         fsExziwF1sDrFAkH552oVchJE3Z1Wxa6ih5IK5r9aBYX60rFsvJp0GLLOfikUCYHf8tl
+         W1J1eN+lNOs+hw/GUiwfrxYCpeeI0kXFfvTzkp/YZd2zFvRShpDnCkmnUv2Y4i1su8YL
+         SfMg==
+X-Gm-Message-State: AOAM533ZC/dtkosBJp83K5ZI+r9Bec9bLzL19Yj/mxR/iBUWSPpKliIP
+        qrvnRGhOKW33dkdS36YFEeY=
+X-Google-Smtp-Source: ABdhPJzbpXYfaISf1Ln+2syhXmsv2TN/i7540aJihl9b/aMClGODWSMeb6iJHakSRLxlX/2R9QsC3Q==
+X-Received: by 2002:a17:906:4a55:: with SMTP id a21mr317108ejv.215.1619728218547;
+        Thu, 29 Apr 2021 13:30:18 -0700 (PDT)
+Received: from ubuntu-laptop (ip5f5bec5d.dynamic.kabel-deutschland.de. [95.91.236.93])
+        by smtp.googlemail.com with ESMTPSA id x9sm3099123edv.22.2021.04.29.13.30.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Apr 2021 13:30:18 -0700 (PDT)
+Message-ID: <9b7ecf8a74e7e04174181aed0c5f0e356d0ed280.camel@gmail.com>
+Subject: Re: [PATCH v1 2/2] mmc: cavium: Remove redundant if-statement
+ checkup
+From:   Bean Huo <huobean@gmail.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     rric@kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Bean Huo (beanhuo)" <beanhuo@micron.com>,
+        "# 4.0+" <stable@vger.kernel.org>
+Date:   Thu, 29 Apr 2021 22:30:17 +0200
+In-Reply-To: <79ec60974875d4ac17589ea4575e36ec1204f881.camel@gmail.com>
+References: <20210319121357.255176-1-huobean@gmail.com>
+         <20210319121357.255176-3-huobean@gmail.com>
+         <CAPDyKFrU591aeH5GyuuQW8tPeNc9wav=t8wqF1EdTBbCc9xheg@mail.gmail.com>
+         <79ec60974875d4ac17589ea4575e36ec1204f881.camel@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.4-0ubuntu1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit: 3d2d861eb03e8ee96dc430a54361c900cbe28afd
+On Fri, 2021-03-19 at 16:42 +0100, Bean Huo wrote:
+> On Fri, 2021-03-19 at 15:09 +0100, Ulf Hansson wrote:
+> 
+> > On Fri, 19 Mar 2021 at 13:14, Bean Huo <huobean@gmail.com> wrote:
+> > > From: Bean Huo <beanhuo@micron.com>
+> > > Currently, we have two ways to issue multiple-block read/write
+> > > the
+> > > command to the eMMC. One is by normal IO request path fs->block-
+> > > > mmc.
+> > > Another one is that we can issue multiple-block read/write
+> > > through
+> > > MMC ioctl interface. For the first path, mrq->stop, and mrq-
+> > > >stop-
+> > > > opcode
+> > > will be initialized in mmc_blk_data_prep(). However, for the
+> > > second
+> > > IO
+> > > path, mrq->stop is not initialized since it is a pre-defined
+> > > multiple
+> > > blocks read/write.
+> > As a matter of fact this way is also supported for the regular
+> > block
+> > I/O path. To make the mmc block driver to use it, mmc host drivers
+> > need to announce that it's supported by setting MMC_CAP_CMD23.
+> > It looks like that is what your patch should be targeted towards,
+> > can
+> > you have a look at this instead?
+> 
+> 
+> Hi Ulf,
+> 
+> Thanks for your comments. I will look at that as your suggestion.
+> 
+> The patch [1/2] is accepted, so I will just update this patch to
+> 
+> the next version.
+> 
+> 
+> 
+> Kind regards,
+> 
+> Bean
 
-The PRP addressing scheme requires all PRP entries except for the
-first one to have a zero offset into the NVMe controller pages (which
-can be different from the Linux PAGE_SIZE).  Use the min_align_mask
-device parameter to ensure that swiotlb does not change the address
-of the buffer modulo the device page size to ensure that the PRPs
-won't be malformed.
 
-Signed-off-by: Jianxiong Gao <jxgao@google.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Jianxiong Gao <jxgao@google.com>
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
----
- drivers/nvme/host/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+Hi Uffe,
+Could you please firstly accept this patch? let the customer update
+their kernel. As I tried to develop the next version of the patch
+according to your suggestion, more changes will be involved. Also, no
+matter how to make the change general, below mrq->stop checkup should
+be deleted since it is obsolete. In the data transmission completion
+interrupt, mrq->stop will be checked again.
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 4dca58f4afdf..716039ea4450 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2634,6 +2634,7 @@ static void nvme_reset_work(struct work_struct *work)
- 	 * Don't limit the IOMMU merged segment size.
- 	 */
- 	dma_set_max_seg_size(dev->dev, 0xffffffff);
-+	dma_set_min_align_mask(dev->dev, NVME_CTRL_PAGE_SIZE - 1);
- 
- 	mutex_unlock(&dev->shutdown_lock);
- 
--- 
-2.31.1.498.g6c1eba8ee3d-goog
+-	if (!mrq->data || !mrq->data->sg || !mrq->data->sg_len ||
+-	    !mrq->stop || mrq->stop->opcode != MMC_STOP_TRANSMISSION) {
++	if (!mrq->data || !mrq->data->sg || !mrq->data->sg_len) {
+
+
+Kind regards
+Bean
 
