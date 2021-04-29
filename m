@@ -2,120 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0911C36EA43
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 14:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80A0636EAE8
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 14:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231490AbhD2MZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 08:25:24 -0400
-Received: from verein.lst.de ([213.95.11.211]:52899 "EHLO verein.lst.de"
+        id S234863AbhD2MyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 08:54:16 -0400
+Received: from mga09.intel.com ([134.134.136.24]:11855 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230148AbhD2MZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Apr 2021 08:25:23 -0400
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 4A8E767373; Thu, 29 Apr 2021 14:24:34 +0200 (CEST)
-Date:   Thu, 29 Apr 2021 14:24:33 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     mwilck@suse.com
-Cc:     Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
-        Chao Leng <lengchao@huawei.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Daniel Wagner <dwagner@suse.de>,
-        linux-nvme@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH v4] nvme: rdma/tcp: fix list corruption with anatt timer
-Message-ID: <20210429122433.GA27567@lst.de>
-References: <20210427093110.16461-1-mwilck@suse.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210427093110.16461-1-mwilck@suse.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+        id S234525AbhD2MyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Apr 2021 08:54:15 -0400
+IronPort-SDR: 0hwqmv5Hi/0vCIlos3YlnFLNj6Yojgn1QF6c015l/FhZ+cKD7/7fsFW/hx2I5COhstg46fTgSo
+ MCYl4VgWfMwA==
+X-IronPort-AV: E=McAfee;i="6200,9189,9969"; a="197095517"
+X-IronPort-AV: E=Sophos;i="5.82,259,1613462400"; 
+   d="scan'208";a="197095517"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2021 05:53:28 -0700
+IronPort-SDR: thExY5aU6hQgRe8YyBeSi1f7Z1iT70remflRSPWIgCnsDbJ0X9W2a5x5fmgOSvHbah5qNrxBXA
+ nfmsNyuiXoKQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.82,259,1613462400"; 
+   d="scan'208";a="526931258"
+Received: from otc-lr-04.jf.intel.com ([10.54.39.41])
+  by fmsmga001.fm.intel.com with ESMTP; 29 Apr 2021 05:53:28 -0700
+From:   kan.liang@linux.intel.com
+To:     peterz@infradead.org, mingo@redhat.com,
+        linux-kernel@vger.kernel.org
+Cc:     ak@linux.intel.com, yao.jin@linux.intel.com,
+        Kan Liang <kan.liang@linux.intel.com>, stable@vger.kernel.org
+Subject: [PATCH] perf/x86/intel/uncore: Fix M2M event umask for Ice Lake server
+Date:   Thu, 29 Apr 2021 05:45:28 -0700
+Message-Id: <1619700328-142999-1-git-send-email-kan.liang@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Martin,
+From: Kan Liang <kan.liang@linux.intel.com>
 
-can you give this patch a spin and check if this solves your issue?
+Perf tool errors out with the latest event list for the Ice Lake server.
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 0d0de3433f37..68f4d9d0ce58 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -780,6 +780,8 @@ void nvme_mpath_remove_disk(struct nvme_ns_head *head)
+event syntax error: 'unc_m2m_imc_reads.to_pmm'
+                           \___ value too big for format, maximum is 255
+
+The same as the Snow Ridge server, the M2M uncore unit in the Ice Lake
+server has the unit mask extension field as well.
+
+Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
+Reported-by: Jin Yao <yao.jin@linux.intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
+ arch/x86/events/intel/uncore_snbep.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index acc3c0e5..06c055d 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -5106,9 +5106,10 @@ static struct intel_uncore_type icx_uncore_m2m = {
+ 	.perf_ctr	= SNR_M2M_PCI_PMON_CTR0,
+ 	.event_ctl	= SNR_M2M_PCI_PMON_CTL0,
+ 	.event_mask	= SNBEP_PMON_RAW_EVENT_MASK,
++	.event_mask_ext	= SNR_M2M_PCI_PMON_UMASK_EXT,
+ 	.box_ctl	= SNR_M2M_PCI_PMON_BOX_CTL,
+ 	.ops		= &snr_m2m_uncore_pci_ops,
+-	.format_group	= &skx_uncore_format_group,
++	.format_group	= &snr_m2m_uncore_format_group,
+ };
  
- int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
- {
-+	size_t max_transfer_size = ctrl->max_hw_sectors << SECTOR_SHIFT;
-+	size_t ana_log_size;
- 	int error;
- 
- 	/* check if multipath is enabled and we have the capability */
-@@ -787,47 +789,45 @@ int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
- 	    !(ctrl->subsys->cmic & NVME_CTRL_CMIC_ANA))
- 		return 0;
- 
-+	if (!ctrl->identified) {
-+		mutex_init(&ctrl->ana_lock);
-+		timer_setup(&ctrl->anatt_timer, nvme_anatt_timeout, 0);
-+		INIT_WORK(&ctrl->ana_work, nvme_ana_work);
-+	}
-+
- 	ctrl->anacap = id->anacap;
- 	ctrl->anatt = id->anatt;
- 	ctrl->nanagrpid = le32_to_cpu(id->nanagrpid);
- 	ctrl->anagrpmax = le32_to_cpu(id->anagrpmax);
- 
--	mutex_init(&ctrl->ana_lock);
--	timer_setup(&ctrl->anatt_timer, nvme_anatt_timeout, 0);
--	ctrl->ana_log_size = sizeof(struct nvme_ana_rsp_hdr) +
--		ctrl->nanagrpid * sizeof(struct nvme_ana_group_desc);
--	ctrl->ana_log_size += ctrl->max_namespaces * sizeof(__le32);
--
--	if (ctrl->ana_log_size > ctrl->max_hw_sectors << SECTOR_SHIFT) {
-+	ana_log_size = sizeof(struct nvme_ana_rsp_hdr) +
-+		ctrl->nanagrpid * sizeof(struct nvme_ana_group_desc) +
-+		ctrl->max_namespaces * sizeof(__le32);
-+	if (ana_log_size > max_transfer_size) {
- 		dev_err(ctrl->device,
--			"ANA log page size (%zd) larger than MDTS (%d).\n",
--			ctrl->ana_log_size,
--			ctrl->max_hw_sectors << SECTOR_SHIFT);
-+			"ANA log page size (%zd) larger than MDTS (%zd).\n",
-+			ana_log_size, max_transfer_size);
- 		dev_err(ctrl->device, "disabling ANA support.\n");
- 		return 0;
- 	}
- 
--	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
--	kfree(ctrl->ana_log_buf);
--	ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
--	if (!ctrl->ana_log_buf) {
--		error = -ENOMEM;
--		goto out;
-+	if (ana_log_size > ctrl->ana_log_size) {
-+		nvme_mpath_uninit(ctrl);
-+		ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
-+		if (!ctrl->ana_log_buf)
-+			return -ENOMEM;
-+		ctrl->ana_log_size = ana_log_size;
- 	}
- 
- 	error = nvme_read_ana_log(ctrl);
- 	if (error)
--		goto out_free_ana_log_buf;
--	return 0;
--out_free_ana_log_buf:
--	kfree(ctrl->ana_log_buf);
--	ctrl->ana_log_buf = NULL;
--out:
-+		nvme_mpath_uninit(ctrl);
- 	return error;
- }
- 
- void nvme_mpath_uninit(struct nvme_ctrl *ctrl)
- {
-+	nvme_mpath_stop(ctrl);
- 	kfree(ctrl->ana_log_buf);
- 	ctrl->ana_log_buf = NULL;
- }
+ static struct attribute *icx_upi_uncore_formats_attr[] = {
+-- 
+2.7.4
+
