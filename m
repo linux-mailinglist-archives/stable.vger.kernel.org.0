@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAC1436EEF7
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4764936EEF8
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237244AbhD2Rfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 13:35:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53482 "EHLO
+        id S232991AbhD2Rfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 13:35:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232991AbhD2Rfc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:35:32 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96633C06138B
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:45 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id n129-20020a2527870000b02904ed02e1aab5so34989839ybn.21
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:45 -0700 (PDT)
+        with ESMTP id S236036AbhD2Rfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:35:33 -0400
+Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002B9C06138B
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:46 -0700 (PDT)
+Received: by mail-pj1-x104a.google.com with SMTP id h8-20020a17090a7108b029015020b35657so170124pjk.5
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=ADgLt44c5UjxWVqp7l4awTjeHsx68ICN3sgpsWTgLCM=;
-        b=fmFkVaaTEj9oqCMFYeK3hEkaOggf9AohCYtKb5BFA0nTXhopx9nsvN/tFtlWcCPfOU
-         BRSkM5/EzVkCK9P7slYto0Kb85fjgOQ/ZgYZXo5dCViL3zUZp+kBjY8NR+y9G/OPiSWX
-         DQpnPrWrOHp2OsSinTIEdKv+ON/8y+zvkiyE1lhqpou9ZiL4sLRbMoHyApR9KHrMsm2x
-         Qv10gq1R1/sFkUrkMyfmg8M/DsuwEn51tiTDCxPfprrhFSUARF3PhRXRCjW7GCFovpSn
-         JGaZflgKq2TO49mMuW2Yg7d56axyHHXjE5fdANVRL4sl27H6cmCD9CkYJRgM1gYVQ32+
-         b9nQ==
+        bh=sVoQxSp0O/jg17euvb7RqUbOFP+TIto1W0UV5QhxAso=;
+        b=t0KgdrI3KeA7y77vkRQ6Wg5PRtchan2x7RzQsiOd43z4ie9jEhhgv8URR3ipzP1451
+         9KTbje6NmyuzSY/Fxp+KJjC5OhjgnUoI8arotKIucQlwTOsXrLRwPmfTt94EHLyshMgr
+         yIUYGrPdAqrY0Set1K1qCm1iubiaD2sJrj8YiwUTVGM5EXS0lt0V3rwU5GXJEkDVb+Jh
+         tfQ7ClTIAY+HTLfrF+xSMuYanYxgpAekSxOYshljEHX0XaKOTvZmgs1zvyetwT67jz5i
+         otrqx4Tj+PZbbOmLYFYTkbN5BfP5Zt3MyrinqNcwoaBX2HCJ4IqifBtwnrvlZeg8I3z5
+         CrVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=ADgLt44c5UjxWVqp7l4awTjeHsx68ICN3sgpsWTgLCM=;
-        b=YwQxfDDecIsig3UD4f2GXDd+nrvzhGhZRNZjtd5NBDiCjsj0Q311kqwq1ICrwK06+A
-         ltFGhumbR0XmUrGFo0JWZpFodZMWjc3AzuyL7egL+JZ/TkmDRa9eAPmo+M58jM6XehbR
-         fFgI9qLqCNzwT/uZGDTW+qQoFguBXHaF9LoyGn5a40ZpDREsxna3cbnvZceEvriSV52D
-         UDpyJ/P9TgkXzJY+w4Hn9a//KKS88FpztnN8xroktqRxvcmW9VLrftJo+BSWZ7EBGDNc
-         gC7kbu/mnili/nKFYngLz4smCF7uRXNqd43R73+dBB9RL1SC6ntN3+Y2sn/OGkEXjQT8
-         rj9w==
-X-Gm-Message-State: AOAM532vfd7+q9kWiLln234FTZ+xuSBdX1APvWh7GYsVWarn6L3Nr03Q
-        Ygs9x65WtkvRYHC7AtQ64zJEHEvYMT+D/g72FoJ8WHG9Rb8LJboFM5HHHz6wUYgTXWFx/NfojB1
-        1X7ouM8KLHy/Q5a4J9jmdELaXCRLBLKfBYrZ5X/SFZ8FNSD00S08Vz1gynF0=
-X-Google-Smtp-Source: ABdhPJxXvGOXvp1D1l4PNaSv33kPclxOBWr7ZpskG7x5zsgZVBAEmqzu18NMvDi3tvMXwQ4UCZVAeHFDwg==
+        bh=sVoQxSp0O/jg17euvb7RqUbOFP+TIto1W0UV5QhxAso=;
+        b=B/IQGb5UeepY0UaIRvlz8IIj1k6u1d8CP2BYZht7Ojb5rH2Y+dITh6MRSXlWVwMeu9
+         3dLOwgGu29V2adTAYUqftPWCb5/GZkCuA1w5wfzLtluGRL9lAPotb61pH58xJmeWloGQ
+         dSELmaOrWZkkfHYMWJjUx16axEPvxBxLxez4bnn13kyh2cr+OByl5bhzEWRKyT7oPYiP
+         HYjKTSB1vgLFCoqZtx9gadPM1KoWpbDzmVroXp5R9+S6IL9FuUFjbukTZqByCI4b5BeQ
+         CCAtkIXTs99utJbIPSl1ZIBtKH3fMlAJ8YG+UDSNGOqbKx9qUXvLWFM4XH1jXXv0Ofg9
+         MMIQ==
+X-Gm-Message-State: AOAM533HEkHMr6FuJN+z7N9jqhQ6S1CygojQSpBnbLhhbMUpQB/bXo6y
+        WrJCIBqXu5z3A5hxxO1qW2JVno8Wyjq0CBBPytZ+IlGkLe2MsiwfVgFeoYgAeZtBmLVU4h8NY7E
+        H1CNW/dwU3qJBwT34A/CfwrAWK3l2jQ0OAsDhQ6L9C0BEy0IJmyFjzoxc8Os=
+X-Google-Smtp-Source: ABdhPJwWdR/1xJoiCz0ByKGcXpjCrnTxY544v6uOnud20axy5ShkyI8mkGWvlWfHStRHIhxJDoqSNdxXTQ==
 X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:a5b:191:: with SMTP id r17mr892679ybl.297.1619717684666;
- Thu, 29 Apr 2021 10:34:44 -0700 (PDT)
-Date:   Thu, 29 Apr 2021 17:33:10 +0000
+ (user=jxgao job=sendgmr) by 2002:aa7:82ce:0:b029:242:deb4:9442 with SMTP id
+ f14-20020aa782ce0000b0290242deb49442mr784661pfn.73.1619717686431; Thu, 29 Apr
+ 2021 10:34:46 -0700 (PDT)
+Date:   Thu, 29 Apr 2021 17:33:11 +0000
 In-Reply-To: <20210429173315.1252465-1-jxgao@google.com>
-Message-Id: <20210429173315.1252465-5-jxgao@google.com>
+Message-Id: <20210429173315.1252465-6-jxgao@google.com>
 Mime-Version: 1.0
 References: <20210429173315.1252465-1-jxgao@google.com>
 X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
-Subject: [PATCH v2 5.10 4/9] swiotlb: factor out a nr_slots helper
+Subject: [PATCH v2 5.10 5/9] swiotlb: clean up swiotlb_tbl_unmap_single
 From:   Jianxiong Gao <jxgao@google.com>
 To:     stable@vger.kernel.org, hch@lst.de, marcorr@google.com,
         sashal@kernel.org
@@ -62,9 +63,12 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit: c32a77fd18780a5192dfb6eec69f239faebf28fd
+commit: ca10d0f8e530600ec63c603dbace2c30927d70b7
 
-Factor out a helper to find the number of slots for a given size.
+swiotlb: clean up swiotlb_tbl_unmap_single
+
+Remove a layer of pointless indentation, replace a hard to follow
+ternary expression with a plain if/else.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Jianxiong Gao <jxgao@google.com>
@@ -72,57 +76,62 @@ Tested-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Jianxiong Gao <jxgao@google.com>
 ---
- kernel/dma/swiotlb.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ kernel/dma/swiotlb.c | 41 +++++++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 20 deletions(-)
 
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index f55248f16366..f0be199da527 100644
+index f0be199da527..f5530336d7ca 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -178,6 +178,11 @@ static inline unsigned long io_tlb_offset(unsigned long val)
- 	return val & (IO_TLB_SEGSIZE - 1);
- }
+@@ -610,28 +610,29 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
+ 	 * with slots below and above the pool being returned.
+ 	 */
+ 	spin_lock_irqsave(&io_tlb_lock, flags);
+-	{
+-		count = ((index + nslots) < ALIGN(index + 1, IO_TLB_SEGSIZE) ?
+-			 io_tlb_list[index + nslots] : 0);
+-		/*
+-		 * Step 1: return the slots to the free list, merging the
+-		 * slots with superceeding slots
+-		 */
+-		for (i = index + nslots - 1; i >= index; i--) {
+-			io_tlb_list[i] = ++count;
+-			io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+-		}
+-		/*
+-		 * Step 2: merge the returned slots with the preceding slots,
+-		 * if available (non zero)
+-		 */
+-		for (i = index - 1;
+-		     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
+-		     io_tlb_list[i]; i--)
+-			io_tlb_list[i] = ++count;
++	if (index + nslots < ALIGN(index + 1, IO_TLB_SEGSIZE))
++		count = io_tlb_list[index + nslots];
++	else
++		count = 0;
  
-+static inline unsigned long nr_slots(u64 val)
-+{
-+	return DIV_ROUND_UP(val, IO_TLB_SIZE);
-+}
+-		io_tlb_used -= nslots;
++	/*
++	 * Step 1: return the slots to the free list, merging the slots with
++	 * superceeding slots
++	 */
++	for (i = index + nslots - 1; i >= index; i--) {
++		io_tlb_list[i] = ++count;
++		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
 +
- /*
-  * Early SWIOTLB allocation may be too early to allow an architecture to
-  * perform the desired operations.  This function allows the architecture to
-@@ -477,20 +482,20 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t orig_addr,
- 
- 	tbl_dma_addr &= mask;
- 
--	offset_slots = ALIGN(tbl_dma_addr, IO_TLB_SIZE) >> IO_TLB_SHIFT;
-+	offset_slots = nr_slots(tbl_dma_addr);
- 
- 	/*
- 	 * Carefully handle integer overflow which can occur when mask == ~0UL.
- 	 */
- 	max_slots = mask + 1
--		    ? ALIGN(mask + 1, IO_TLB_SIZE) >> IO_TLB_SHIFT
-+		    ? nr_slots(mask + 1)
- 		    : 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
- 
- 	/*
- 	 * For mappings greater than or equal to a page, we limit the stride
- 	 * (and hence alignment) to a page size.
- 	 */
--	nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
-+	nslots = nr_slots(alloc_size);
- 	if (alloc_size >= PAGE_SIZE)
- 		stride = (1 << (PAGE_SHIFT - IO_TLB_SHIFT));
- 	else
-@@ -586,7 +591,7 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
- 			      enum dma_data_direction dir, unsigned long attrs)
- {
- 	unsigned long flags;
--	int i, count, nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
-+	int i, count, nslots = nr_slots(alloc_size);
- 	int index = (tlb_addr - io_tlb_start) >> IO_TLB_SHIFT;
- 	phys_addr_t orig_addr = io_tlb_orig_addr[index];
++	/*
++	 * Step 2: merge the returned slots with the preceding slots, if
++	 * available (non zero)
++	 */
++	for (i = index - 1;
++	     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 && io_tlb_list[i];
++	     i--)
++		io_tlb_list[i] = ++count;
++	io_tlb_used -= nslots;
+ 	spin_unlock_irqrestore(&io_tlb_lock, flags);
+ }
  
 -- 
 2.31.1.498.g6c1eba8ee3d-goog
