@@ -2,213 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67E1036E9FB
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 14:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0911C36EA43
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 14:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233643AbhD2MGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 08:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36714 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233337AbhD2MGu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 08:06:50 -0400
-Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60F8CC06138B;
-        Thu, 29 Apr 2021 05:06:03 -0700 (PDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id 9CE22C800F9;
-        Thu, 29 Apr 2021 14:06:00 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
-Received: from srv6.fidu.org ([127.0.0.1])
-        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
-        with LMTP id zStg9Uz8oNy5; Thu, 29 Apr 2021 14:06:00 +0200 (CEST)
-Received: from wsembach-tuxedo.fritz.box (p200300e37F398600fDb5850719dbc945.dip0.t-ipconnect.de [IPv6:2003:e3:7f39:8600:fdb5:8507:19db:c945])
-        (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPA id 3B7FAC800F8;
-        Thu, 29 Apr 2021 14:06:00 +0200 (CEST)
-From:   Werner Sembach <wse@tuxedocomputers.com>
-To:     wse@tuxedocomputers.com, airlied@linux.ie, daniel@ffwll.ch,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] drm/i915/display Try YCbCr420 color when RGB fails
-Date:   Thu, 29 Apr 2021 14:05:53 +0200
-Message-Id: <20210429120553.7823-1-wse@tuxedocomputers.com>
-X-Mailer: git-send-email 2.25.1
+        id S231490AbhD2MZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 08:25:24 -0400
+Received: from verein.lst.de ([213.95.11.211]:52899 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230148AbhD2MZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Apr 2021 08:25:23 -0400
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 4A8E767373; Thu, 29 Apr 2021 14:24:34 +0200 (CEST)
+Date:   Thu, 29 Apr 2021 14:24:33 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     mwilck@suse.com
+Cc:     Keith Busch <kbusch@kernel.org>, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Chao Leng <lengchao@huawei.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Daniel Wagner <dwagner@suse.de>,
+        linux-nvme@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH v4] nvme: rdma/tcp: fix list corruption with anatt timer
+Message-ID: <20210429122433.GA27567@lst.de>
+References: <20210427093110.16461-1-mwilck@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210427093110.16461-1-mwilck@suse.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When encoder validation of a display mode fails, retry with less bandwidth
-heavy YCbCr420 color mode, if available. This enables some HDMI 1.4 setups
-to support 4k60Hz output, which previously failed silently.
+Martin,
 
-AMDGPU had nearly the exact same issue. This problem description is
-therefore copied from my commit message of the AMDGPU patch.
+can you give this patch a spin and check if this solves your issue?
 
-On some setups, while the monitor and the gpu support display modes with
-pixel clocks of up to 600MHz, the link encoder might not. This prevents
-YCbCr444 and RGB encoding for 4k60Hz, but YCbCr420 encoding might still be
-possible. However, which color mode is used is decided before the link
-encoder capabilities are checked. This patch fixes the problem by retrying
-to find a display mode with YCbCr420 enforced and using it, if it is
-valid.
-
-I'm not entierly sure if the second
-"if (HAS_PCH_SPLIT(dev_priv) && !HAS_DDI(dev_priv))" check in
-intel_hdmi_compute_config(...) after forcing ycbcr420 is necessary. I
-included it to better be safe then sorry.
-
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: <stable@vger.kernel.org>
----
-Rebased from 5.12 to drm-tip and resend to resolve merge conflict.
-
-From 876c1c8d970ff2a411ee8d08651bd4edbe9ecb3d Mon Sep 17 00:00:00 2001
-From: Werner Sembach <wse@tuxedocomputers.com>
-Date: Thu, 29 Apr 2021 13:59:30 +0200
-Subject: [PATCH] Retry using YCbCr420 encoding if clock setup for RGB fails
-
----
- drivers/gpu/drm/i915/display/intel_hdmi.c | 80 +++++++++++++++++------
- 1 file changed, 60 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/display/intel_hdmi.c b/drivers/gpu/drm/i915/display/intel_hdmi.c
-index 46de56af33db..c9b5a7d7f9c6 100644
---- a/drivers/gpu/drm/i915/display/intel_hdmi.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
-@@ -1861,6 +1861,30 @@ static int intel_hdmi_port_clock(int clock, int bpc)
- 	return clock * bpc / 8;
- }
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 0d0de3433f37..68f4d9d0ce58 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -780,6 +780,8 @@ void nvme_mpath_remove_disk(struct nvme_ns_head *head)
  
-+static enum drm_mode_status
-+intel_hdmi_check_bpc(struct intel_hdmi *hdmi, int clock, bool has_hdmi_sink, struct drm_i915_private *dev_priv)
-+{
-+	enum drm_mode_status status;
-+
-+	/* check if we can do 8bpc */
-+	status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 8),
-+				       true, has_hdmi_sink);
-+
-+	if (has_hdmi_sink) {
-+		/* if we can't do 8bpc we may still be able to do 12bpc */
-+		if (status != MODE_OK && !HAS_GMCH(dev_priv))
-+			status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 12),
-+						       true, has_hdmi_sink);
-+
-+		/* if we can't do 8,12bpc we may still be able to do 10bpc */
-+		if (status != MODE_OK && DISPLAY_VER(dev_priv) >= 11)
-+			status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 10),
-+						       true, has_hdmi_sink);
-+	}
-+
-+	return status;
-+}
-+
- static enum drm_mode_status
- intel_hdmi_mode_valid(struct drm_connector *connector,
- 		      struct drm_display_mode *mode)
-@@ -1891,23 +1915,18 @@ intel_hdmi_mode_valid(struct drm_connector *connector,
- 	if (drm_mode_is_420_only(&connector->display_info, mode))
- 		clock /= 2;
- 
--	/* check if we can do 8bpc */
--	status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 8),
--				       true, has_hdmi_sink);
-+	status = intel_hdmi_check_bpc(hdmi, clock, has_hdmi_sink, dev_priv);
- 
--	if (has_hdmi_sink) {
--		/* if we can't do 8bpc we may still be able to do 12bpc */
--		if (status != MODE_OK && !HAS_GMCH(dev_priv))
--			status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 12),
--						       true, has_hdmi_sink);
-+	if (status != MODE_OK) {
-+		if (drm_mode_is_420_also(&connector->display_info, mode)) {
-+			/* if we can't do full color resolution we may still be able to do reduced color resolution */
-+			clock /= 2;
- 
--		/* if we can't do 8,12bpc we may still be able to do 10bpc */
--		if (status != MODE_OK && DISPLAY_VER(dev_priv) >= 11)
--			status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 10),
--						       true, has_hdmi_sink);
-+			status = intel_hdmi_check_bpc(hdmi, clock, has_hdmi_sink, dev_priv);
-+		}
-+		if (status != MODE_OK)
-+			return status;
- 	}
--	if (status != MODE_OK)
--		return status;
- 
- 	return intel_mode_valid_max_plane_size(dev_priv, mode, false);
- }
-@@ -1990,14 +2009,17 @@ static bool hdmi_deep_color_possible(const struct intel_crtc_state *crtc_state,
- 
- static int
- intel_hdmi_ycbcr420_config(struct intel_crtc_state *crtc_state,
--			   const struct drm_connector_state *conn_state)
-+			   const struct drm_connector_state *conn_state,
-+			   const bool force_ycbcr420)
+ int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
  {
- 	struct drm_connector *connector = conn_state->connector;
- 	struct drm_i915_private *i915 = to_i915(connector->dev);
- 	const struct drm_display_mode *adjusted_mode =
- 		&crtc_state->hw.adjusted_mode;
++	size_t max_transfer_size = ctrl->max_hw_sectors << SECTOR_SHIFT;
++	size_t ana_log_size;
+ 	int error;
  
--	if (!drm_mode_is_420_only(&connector->display_info, adjusted_mode))
-+	if (!(drm_mode_is_420_only(&connector->display_info, adjusted_mode) ||
-+			(force_ycbcr420 &&
-+			drm_mode_is_420_also(&connector->display_info, adjusted_mode))))
+ 	/* check if multipath is enabled and we have the capability */
+@@ -787,47 +789,45 @@ int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
+ 	    !(ctrl->subsys->cmic & NVME_CTRL_CMIC_ANA))
  		return 0;
  
- 	if (!connector->ycbcr_420_allowed) {
-@@ -2126,7 +2148,7 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
- 	struct drm_display_mode *adjusted_mode = &pipe_config->hw.adjusted_mode;
- 	struct drm_connector *connector = conn_state->connector;
- 	struct drm_scdc *scdc = &connector->display_info.hdmi.scdc;
--	int ret;
-+	int ret, ret_saved;
- 
- 	if (adjusted_mode->flags & DRM_MODE_FLAG_DBLSCAN)
- 		return -EINVAL;
-@@ -2141,7 +2163,7 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
- 	if (adjusted_mode->flags & DRM_MODE_FLAG_DBLCLK)
- 		pipe_config->pixel_multiplier = 2;
- 
--	ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state);
-+	ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state, false);
- 	if (ret)
- 		return ret;
- 
-@@ -2155,8 +2177,26 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
- 		intel_hdmi_has_audio(encoder, pipe_config, conn_state);
- 
- 	ret = intel_hdmi_compute_clock(encoder, pipe_config);
--	if (ret)
--		return ret;
-+	if (ret) {
-+		ret_saved = ret;
-+
-+		ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state, true);
-+		if (ret)
-+			return ret;
-+
-+		if (pipe_config->output_format != INTEL_OUTPUT_FORMAT_YCBCR420)
-+			return ret_saved;
-+
-+		pipe_config->limited_color_range =
-+			intel_hdmi_limited_color_range(pipe_config, conn_state);
-+
-+		if (HAS_PCH_SPLIT(dev_priv) && !HAS_DDI(dev_priv))
-+			pipe_config->has_pch_encoder = true;
-+
-+		ret = intel_hdmi_compute_clock(encoder, pipe_config);
-+		if (ret)
-+			return ret;
++	if (!ctrl->identified) {
++		mutex_init(&ctrl->ana_lock);
++		timer_setup(&ctrl->anatt_timer, nvme_anatt_timeout, 0);
++		INIT_WORK(&ctrl->ana_work, nvme_ana_work);
 +	}
++
+ 	ctrl->anacap = id->anacap;
+ 	ctrl->anatt = id->anatt;
+ 	ctrl->nanagrpid = le32_to_cpu(id->nanagrpid);
+ 	ctrl->anagrpmax = le32_to_cpu(id->anagrpmax);
  
- 	if (conn_state->picture_aspect_ratio)
- 		adjusted_mode->picture_aspect_ratio =
--- 
-2.25.1
-
+-	mutex_init(&ctrl->ana_lock);
+-	timer_setup(&ctrl->anatt_timer, nvme_anatt_timeout, 0);
+-	ctrl->ana_log_size = sizeof(struct nvme_ana_rsp_hdr) +
+-		ctrl->nanagrpid * sizeof(struct nvme_ana_group_desc);
+-	ctrl->ana_log_size += ctrl->max_namespaces * sizeof(__le32);
+-
+-	if (ctrl->ana_log_size > ctrl->max_hw_sectors << SECTOR_SHIFT) {
++	ana_log_size = sizeof(struct nvme_ana_rsp_hdr) +
++		ctrl->nanagrpid * sizeof(struct nvme_ana_group_desc) +
++		ctrl->max_namespaces * sizeof(__le32);
++	if (ana_log_size > max_transfer_size) {
+ 		dev_err(ctrl->device,
+-			"ANA log page size (%zd) larger than MDTS (%d).\n",
+-			ctrl->ana_log_size,
+-			ctrl->max_hw_sectors << SECTOR_SHIFT);
++			"ANA log page size (%zd) larger than MDTS (%zd).\n",
++			ana_log_size, max_transfer_size);
+ 		dev_err(ctrl->device, "disabling ANA support.\n");
+ 		return 0;
+ 	}
+ 
+-	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
+-	kfree(ctrl->ana_log_buf);
+-	ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
+-	if (!ctrl->ana_log_buf) {
+-		error = -ENOMEM;
+-		goto out;
++	if (ana_log_size > ctrl->ana_log_size) {
++		nvme_mpath_uninit(ctrl);
++		ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
++		if (!ctrl->ana_log_buf)
++			return -ENOMEM;
++		ctrl->ana_log_size = ana_log_size;
+ 	}
+ 
+ 	error = nvme_read_ana_log(ctrl);
+ 	if (error)
+-		goto out_free_ana_log_buf;
+-	return 0;
+-out_free_ana_log_buf:
+-	kfree(ctrl->ana_log_buf);
+-	ctrl->ana_log_buf = NULL;
+-out:
++		nvme_mpath_uninit(ctrl);
+ 	return error;
+ }
+ 
+ void nvme_mpath_uninit(struct nvme_ctrl *ctrl)
+ {
++	nvme_mpath_stop(ctrl);
+ 	kfree(ctrl->ana_log_buf);
+ 	ctrl->ana_log_buf = NULL;
+ }
