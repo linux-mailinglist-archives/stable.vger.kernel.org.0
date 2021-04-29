@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C724036EEF5
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2765636EEF6
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233706AbhD2Rfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 13:35:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53464 "EHLO
+        id S235685AbhD2Rfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 13:35:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
         with ESMTP id S232991AbhD2Rfa (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:35:30 -0400
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E43EC06138B
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:42 -0700 (PDT)
-Received: by mail-pj1-x104a.google.com with SMTP id w9-20020a17090a4609b0290150d07df879so15334431pjg.9
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:42 -0700 (PDT)
+Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286F5C06138B
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:44 -0700 (PDT)
+Received: by mail-pg1-x54a.google.com with SMTP id l25-20020a6357190000b02901f6df0d646eso23531896pgb.23
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=gUujUgkguLuTeeJSnMWCbPSuzJnLLvExvqc94TrwfjA=;
-        b=ZxHHriHCwdMbqE0BtqCzyqooUbIpuy88X3ppS3mPgzpZ7i2tdo/VQIrnB/HgkT8XS/
-         xwjjZK5c12AwvWysw1AAVXZIYTk4fqUy+xPdAVF60tI4DkvChnvM9FukBONHVQ0yX/sN
-         2lFT4CTeGvirWJoLfrh7WBfGitmHBuIBVGu4qj4XruxTibsd5hXbBMCwgYKwo1vcMLuZ
-         Z6U+KwfoQ6ToZpWHLVrhX17Ie9daXA7KQfjgQ6CH06qdTWaFAepjbEZW5B8TVDgChlrK
-         JxzZcher/cehQnjvldxwg62TQQU0PjkJ8TPVSdb9QuD1CKHBth+ZPwI7Ll5EeHw+cmpv
-         ukxA==
+        bh=JV76XCsz4e0gc+MazEk+b5X8PU6g1+7xiAXJkY2kbxE=;
+        b=YpiCUg9sKs+kadrjpiWkTcct/WTkU9xy8UNgpG3gJeI2PXNXoRDuETv7P4S1mghljp
+         AZ48Yeg6UpUkh4NMsI0D7hfeBjM3y7XTgx92tf4Y6/ugFA9sBCURdqvkN4XK3TlBusK4
+         k0dLrENVDuBVV6+zz5ywVj1PgMa3FIHzNJdHFjbuOahQpLphnKFhqFpSka7Q+FRbaEjt
+         FcAIDAHKcuwLRafjrX2g47Ci2PjrW3O2vvCxQl+lzohfHQnW8jwKt4gpw5vqB5bpDTcY
+         n4TnWLdiU6xCAzotmDZgCpuVEABKY4qI9KR7VOoyTokRuD1O+PHTWSJIVStRnxCIOX+O
+         QxYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=gUujUgkguLuTeeJSnMWCbPSuzJnLLvExvqc94TrwfjA=;
-        b=pbZ0OEceRitA/ejZLRGnLmoPsFuY7U4vBtmg8GMABataW91wU1MU9831zBeJSOICHr
-         qhB7GEJc1y+fQQW5lcvWJWUmZn5P9f2RbQYEOPlh2a5uS+qj5SsXMpdIVJGPz2Fx9IF9
-         R31gNqmgQKqu3HZWzDPTV0PnCisZcrlB2yq9r8yHanBsPfXIN1+vUEECGHAxTkWjliJC
-         Y9yFOeQPf/0QaWC3JFDWJb/TsOIyvxxvwC+FpgoxcqungFg+QZo96cFHsRGPzKVzW6Qs
-         tzI3q7zY0qG1+Mv9eVCJYUMZFjf6nxGzeMrBh0COkcHdJFckOjxV4sIanoXAiqyWuf/O
-         MtFA==
-X-Gm-Message-State: AOAM531M4fck62t5Yy7zkJOYq2MA5PWLUBoQwt7kT02RAXMQ2WabacXw
-        lt88i7+7js4pAD4HKPWMijJjPbXSTXylGOipmMX+gjGpK7fsy+5fA6FV4+Vx/6yL6GTHWohqp7z
-        vGnKWcSKvB60eEd6gr6RY4cBzrCLFcFhtfnntfk4oTuOxoinxZmyEK+q1MlA=
-X-Google-Smtp-Source: ABdhPJzZ+Pf1fRJJ0k7/6FxkwEAju+10bQgVyTr6eOAQxX4Vc6G8Ybb/N3DMX7V0UMzwNpVrvdtpIheR9Q==
+        bh=JV76XCsz4e0gc+MazEk+b5X8PU6g1+7xiAXJkY2kbxE=;
+        b=LJ548THD5HtRZQF6NxfCUaVSRzA/s6HUU5tTkO+LV3EivbxV0mJdOd3XZfT2dtdmmo
+         AojAJ0EsHZJ+CuINXw8+9PdXV414V4yH0ljQvsAzjDv8RR8uVIDNhgTHeg4VapTr6c92
+         IfhRkZ3tU+9Ug/yRXbjZk5xJ4nsqNQ5jrjWu5QxqFIFtJiXgZcAlLiWCkPblBrD5mEAQ
+         +Ad2AcCOZ9f5xRMf2cMi7jOWj8grhkSHWKNxM+TjavwL0k7Ew5bOcyzDHutaFrYNbb/C
+         9N2MseMndLkwurG9aBVE278B0d6fin6ni/k1kfGb5jfGvCX9oE22hEU9T/d3xv+J1ium
+         4vjQ==
+X-Gm-Message-State: AOAM533eKGIhD2wLvullCO8exvcd3fGB8EZxVrsSOM0ShJsv9tZO5j8B
+        N1naQEc+xVo6hNs3foLYga+1BPkxs+xC1cnE7q0h5qFC3e+4juQssFju5VAcbXVGyqVWkWxbusr
+        7ZxtmtNKWHsy7LJPrwTlEt/oYFIzp8STOn3sTd2F8EbPEmVC0kTHYSIhahxs=
+X-Google-Smtp-Source: ABdhPJxZOg8mOWjsJyDC63w6Bj74tdWGj8xQ+hNclAyDbb4fhRxKQDWkspkZIVI3IXQYUzlMThSsQCkcVw==
 X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:a17:90a:174c:: with SMTP id
- 12mr812800pjm.1.1619717681057; Thu, 29 Apr 2021 10:34:41 -0700 (PDT)
-Date:   Thu, 29 Apr 2021 17:33:08 +0000
+ (user=jxgao job=sendgmr) by 2002:a17:90a:390d:: with SMTP id
+ y13mr813480pjb.0.1619717682916; Thu, 29 Apr 2021 10:34:42 -0700 (PDT)
+Date:   Thu, 29 Apr 2021 17:33:09 +0000
 In-Reply-To: <20210429173315.1252465-1-jxgao@google.com>
-Message-Id: <20210429173315.1252465-3-jxgao@google.com>
+Message-Id: <20210429173315.1252465-4-jxgao@google.com>
 Mime-Version: 1.0
 References: <20210429173315.1252465-1-jxgao@google.com>
 X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
-Subject: [PATCH v2 5.10 2/9] swiotlb: add a IO_TLB_SIZE define
+Subject: [PATCH v2 5.10 3/9] swiotlb: factor out an io_tlb_offset helper
 From:   Jianxiong Gao <jxgao@google.com>
 To:     stable@vger.kernel.org, hch@lst.de, marcorr@google.com,
         sashal@kernel.org
@@ -62,10 +62,10 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit: b5d7ccb7aac3895c2138fe0980a109116ce15eff
+commit: c7fbeca757fe74135d8b6a4c8ddaef76f5775d68
 
-Add a new IO_TLB_SIZE define instead open coding it using
-IO_TLB_SHIFT all over.
+Replace the very genericly named OFFSET macro with a little inline
+helper that hardcodes the alignment to the only value ever passed.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Jianxiong Gao <jxgao@google.com>
@@ -73,77 +73,75 @@ Tested-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Jianxiong Gao <jxgao@google.com>
 ---
- include/linux/swiotlb.h |  1 +
- kernel/dma/swiotlb.c    | 12 ++++++------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ kernel/dma/swiotlb.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index fbdc65782195..5d2dbe7e04c3 100644
---- a/include/linux/swiotlb.h
-+++ b/include/linux/swiotlb.h
-@@ -29,6 +29,7 @@ enum swiotlb_force {
-  * controllable.
-  */
- #define IO_TLB_SHIFT 11
-+#define IO_TLB_SIZE (1 << IO_TLB_SHIFT)
- 
- extern void swiotlb_init(int verbose);
- int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose);
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 781b9dca197c..fb88c2982645 100644
+index fb88c2982645..f55248f16366 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -475,20 +475,20 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t orig_addr,
+@@ -50,9 +50,6 @@
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/swiotlb.h>
  
- 	tbl_dma_addr &= mask;
+-#define OFFSET(val,align) ((unsigned long)	\
+-	                   ( (val) & ( (align) - 1)))
+-
+ #define SLABS_PER_PAGE (1 << (PAGE_SHIFT - IO_TLB_SHIFT))
  
--	offset_slots = ALIGN(tbl_dma_addr, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
-+	offset_slots = ALIGN(tbl_dma_addr, IO_TLB_SIZE) >> IO_TLB_SHIFT;
- 
- 	/*
- 	 * Carefully handle integer overflow which can occur when mask == ~0UL.
- 	 */
- 	max_slots = mask + 1
--		    ? ALIGN(mask + 1, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT
-+		    ? ALIGN(mask + 1, IO_TLB_SIZE) >> IO_TLB_SHIFT
- 		    : 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
- 
- 	/*
- 	 * For mappings greater than or equal to a page, we limit the stride
- 	 * (and hence alignment) to a page size.
- 	 */
--	nslots = ALIGN(alloc_size, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
-+	nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
- 	if (alloc_size >= PAGE_SIZE)
- 		stride = (1 << (PAGE_SHIFT - IO_TLB_SHIFT));
- 	else
-@@ -582,7 +582,7 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
- 			      enum dma_data_direction dir, unsigned long attrs)
- {
- 	unsigned long flags;
--	int i, count, nslots = ALIGN(alloc_size, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
-+	int i, count, nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
- 	int index = (tlb_addr - io_tlb_start) >> IO_TLB_SHIFT;
- 	phys_addr_t orig_addr = io_tlb_orig_addr[index];
- 
-@@ -633,7 +633,7 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
- 
- 	if (orig_addr == INVALID_PHYS_ADDR)
- 		return;
--	orig_addr += (unsigned long)tlb_addr & ((1 << IO_TLB_SHIFT) - 1);
-+	orig_addr += (unsigned long)tlb_addr & (IO_TLB_SIZE - 1);
- 
- 	switch (target) {
- 	case SYNC_FOR_CPU:
-@@ -691,7 +691,7 @@ dma_addr_t swiotlb_map(struct device *dev, phys_addr_t paddr, size_t size,
- 
- size_t swiotlb_max_mapping_size(struct device *dev)
- {
--	return ((size_t)1 << IO_TLB_SHIFT) * IO_TLB_SEGSIZE;
-+	return ((size_t)IO_TLB_SIZE) * IO_TLB_SEGSIZE;
+ /*
+@@ -176,6 +173,11 @@ void swiotlb_print_info(void)
+ 	       bytes >> 20);
  }
  
- bool is_swiotlb_active(void)
++static inline unsigned long io_tlb_offset(unsigned long val)
++{
++	return val & (IO_TLB_SEGSIZE - 1);
++}
++
+ /*
+  * Early SWIOTLB allocation may be too early to allow an architecture to
+  * perform the desired operations.  This function allows the architecture to
+@@ -225,7 +227,7 @@ int __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose)
+ 		      __func__, alloc_size, PAGE_SIZE);
+ 
+ 	for (i = 0; i < io_tlb_nslabs; i++) {
+-		io_tlb_list[i] = IO_TLB_SEGSIZE - OFFSET(i, IO_TLB_SEGSIZE);
++		io_tlb_list[i] = IO_TLB_SEGSIZE - io_tlb_offset(i);
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
+ 	io_tlb_index = 0;
+@@ -359,7 +361,7 @@ swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs)
+ 		goto cleanup4;
+ 
+ 	for (i = 0; i < io_tlb_nslabs; i++) {
+-		io_tlb_list[i] = IO_TLB_SEGSIZE - OFFSET(i, IO_TLB_SEGSIZE);
++		io_tlb_list[i] = IO_TLB_SEGSIZE - io_tlb_offset(i);
+ 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+ 	}
+ 	io_tlb_index = 0;
+@@ -530,7 +532,9 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t orig_addr,
+ 
+ 			for (i = index; i < (int) (index + nslots); i++)
+ 				io_tlb_list[i] = 0;
+-			for (i = index - 1; (OFFSET(i, IO_TLB_SEGSIZE) != IO_TLB_SEGSIZE - 1) && io_tlb_list[i]; i--)
++			for (i = index - 1;
++			     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
++			     io_tlb_list[i]; i--)
+ 				io_tlb_list[i] = ++count;
+ 			tlb_addr = io_tlb_start + (index << IO_TLB_SHIFT);
+ 
+@@ -616,7 +620,9 @@ void swiotlb_tbl_unmap_single(struct device *hwdev, phys_addr_t tlb_addr,
+ 		 * Step 2: merge the returned slots with the preceding slots,
+ 		 * if available (non zero)
+ 		 */
+-		for (i = index - 1; (OFFSET(i, IO_TLB_SEGSIZE) != IO_TLB_SEGSIZE -1) && io_tlb_list[i]; i--)
++		for (i = index - 1;
++		     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
++		     io_tlb_list[i]; i--)
+ 			io_tlb_list[i] = ++count;
+ 
+ 		io_tlb_used -= nslots;
 -- 
 2.31.1.498.g6c1eba8ee3d-goog
 
