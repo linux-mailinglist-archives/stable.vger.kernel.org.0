@@ -2,106 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F9DD36ECF2
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 17:04:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C9D36EE77
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbhD2PFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 11:05:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48500 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233290AbhD2PFm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 11:05:42 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66392C06138B;
-        Thu, 29 Apr 2021 08:04:54 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id n4-20020a05600c4f84b029013151278decso11014043wmq.4;
-        Thu, 29 Apr 2021 08:04:54 -0700 (PDT)
+        id S233420AbhD2RAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 13:00:48 -0400
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:19104 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233099AbhD2RAr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:00:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=3d76vX4kuWTUOcufdr1MTpnOOHbzBsWhZKuDv7dL6z0=;
-        b=WSs6V71w5Kv4cPLzq5kagQMkJyOQtS9DvfjL7k1+OsXVK1njQeiO7ylw1EG/7s4jiY
-         GTBpn6AEOIApk+9ZutVXgHEnjVBQ2cXJJ3ed6ZEVX6c7Dgm/bTT+N3AdTCEKsgF3+SIq
-         qA+SPPVR0nR9bT4K/coa3qoclC0iiB11hwp3nzmMEMbEf2e2HVtYtZquCgwzHnvs/uWj
-         Y9KXyuAmXpMng91RDA1judcuQeroqc5r8jQKTnl7iW5MXyuKsWK+ejXd8D51epkbvTAh
-         fNA3EjjOl4or+FZsWu/KQNqFOqpHG/6JBmRpeDVzdEHGwWgXa2pxNE0+Fl14spdz6wSv
-         1d8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=3d76vX4kuWTUOcufdr1MTpnOOHbzBsWhZKuDv7dL6z0=;
-        b=PclqrAI4ZFn+L+sWwdtGBtKNpVLzOKqg3lMYhTDPnhGLwi9d26AiegyR0BH4ihjuJW
-         i12V4W+6qSxJRuvcmvM54v+hoo7qF3G/dCisD5KpyHZU087XDYBeZVsYKs0YU2VBZT0W
-         s7yOUxP7lRwKOdG3VA42g+R+dVYajob/8KvuWvS4YO1tU0q74jckFlds1642XpB6dnuD
-         YfK1ZZC6JFcPEezv2fvz7r1rqyNK3vUHrdGldmso9mtnSJA16i7Lk9HlHYXp4tNC6NLT
-         HRXek1QImFqJnVEiILOGFc/lJRFfpvhrSwhE3KNJ4jLWIzlnlO4OjkBv/g5PPSDrK3yS
-         UFgg==
-X-Gm-Message-State: AOAM530cuTcbSqSX6zMTx0hTdqp0AVKvp2+5ybYk0SLfvwaOuQic5lo4
-        bAEXFVbTwPHlg6FKmmOuoqXq0nUyGDCmmw==
-X-Google-Smtp-Source: ABdhPJwcUymh02+33Kvx4H86bFTO0juehMkFrKkfU0qMI7cgMR+xMKbHkmP8f1oApNvi9N/JpYhhtQ==
-X-Received: by 2002:a05:600c:b4b:: with SMTP id k11mr503864wmr.180.1619708693183;
-        Thu, 29 Apr 2021 08:04:53 -0700 (PDT)
-Received: from [192.168.1.122] (cpc159425-cmbg20-2-0-cust403.5-4.cable.virginm.net. [86.7.189.148])
-        by smtp.gmail.com with ESMTPSA id c8sm986314wrx.4.2021.04.29.08.04.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Apr 2021 08:04:52 -0700 (PDT)
-Subject: Re: [PATCH] sfc: adjust efx->xdp_tx_queue_count with the real number
- of initialized queues
-To:     Ignat Korchagin <ignat@cloudflare.com>
-Cc:     habetsm.xilinx@gmail.com, "David S. Miller" <davem@davemloft.net>,
-        kuba@kernel.org, netdev@vger.kernel.org,
-        kernel-team <kernel-team@cloudflare.com>, stable@vger.kernel.org
-References: <20210427210938.661700-1-ignat@cloudflare.com>
- <a56546ee-87a1-f13d-8b2f-25497828f299@gmail.com>
- <CALrw=nF+rD+GdWAZndKGxTW4cpao+x2W0dvDfUacXjD=A5mCKA@mail.gmail.com>
-From:   Edward Cree <ecree.xilinx@gmail.com>
-Message-ID: <f7951d69-0c67-7455-2b0c-530cb959bff5@gmail.com>
-Date:   Thu, 29 Apr 2021 16:04:51 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1619715601; x=1651251601;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=pwWACMutRRf/vENNfq16JaVK0svpWCRPXO5OfA+s6Ls=;
+  b=ULKiEI3gER9wBnWZcA93JaOIxE6+p3AnPRA286i15oLh9MxcTREmQBD/
+   hpQo33c5Lb17nj0uZTGjHtvHMbusZcZYVWKqJhez0cdZF7cP1pXhMIOge
+   tqWoFyMwLYkSOoe2dQ7gympcpwT/3nvloctILMEPgNy2FcxchlAKkGxjj
+   g=;
+X-IronPort-AV: E=Sophos;i="5.82,259,1613433600"; 
+   d="scan'208";a="106325076"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1a-821c648d.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-2101.iad2.amazon.com with ESMTP; 29 Apr 2021 16:59:53 +0000
+Received: from EX13D16EUB003.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-1a-821c648d.us-east-1.amazon.com (Postfix) with ESMTPS id A676DA2019;
+        Thu, 29 Apr 2021 16:59:52 +0000 (UTC)
+Received: from 38f9d34ed3b1.ant.amazon.com (10.43.161.85) by
+ EX13D16EUB003.ant.amazon.com (10.43.166.99) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Thu, 29 Apr 2021 16:59:47 +0000
+From:   Andra Paraschiv <andraprs@amazon.com>
+To:     linux-kernel <linux-kernel@vger.kernel.org>
+CC:     Greg KH <gregkh@linuxfoundation.org>,
+        Mathias Krause <minipli@grsecurity.net>,
+        ne-devel-upstream <ne-devel-upstream@amazon.com>,
+        stable <stable@vger.kernel.org>,
+        Andra Paraschiv <andraprs@amazon.com>
+Subject: [PATCH v1 0/1] Nitro Enclaves kernel driver issue fix
+Date:   Thu, 29 Apr 2021 19:59:40 +0300
+Message-ID: <20210429165941.27020-1-andraprs@amazon.com>
+X-Mailer: git-send-email 2.20.1 (Apple Git-117)
 MIME-Version: 1.0
-In-Reply-To: <CALrw=nF+rD+GdWAZndKGxTW4cpao+x2W0dvDfUacXjD=A5mCKA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
+X-Originating-IP: [10.43.161.85]
+X-ClientProxiedBy: EX13D11UWC003.ant.amazon.com (10.43.162.162) To
+ EX13D16EUB003.ant.amazon.com (10.43.166.99)
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29/04/2021 15:49, Ignat Korchagin wrote:
-> On Thu, Apr 29, 2021 at 3:22 PM Edward Cree <ecree.xilinx@gmail.com> wrote:
->>
->> On 27/04/2021 22:09, Ignat Korchagin wrote:
->>> +     if (xdp_queue_number)
->> Wait, why is this guard condition needed?
->> What happens if we had nonzero efx->xdp_tx_queue_count initially, but we end up
->>  with no TXQs available for XDP at all (so xdp_queue_number == 0)?
->>
->> -ed
-> 
-> My thoughts were: efx->xdp_tx_queue_count is originally used to
-> allocate efx->xdp_tx_queues.
-> So, if xdp_queue_number ends up being 0, we should keep
-> efx->xdp_tx_queue_count positive not
-> to forget to release efx->xdp_tx_queues (because most checks are
-> efx->xdp_tx_queue_count && efx->xdp_tx_queues).
-Well, we allocated it in this function, so could we not just free it
- (and NULL it) if we get here with xdp_queue_number == 0?
-Assuming it even makes sense for those checks to be that conjunction,
- and not just efx->xdp_tx_queues.
+An issue was found in the Nitro Enclaves kernel driver codebase [1] included in
+the v5.10 upstream Linux kernel. The fix for it has been tested on the AWS side.
+The issue does not break the isolation or security of what is running inside the
+enclave. Nitro Enclaves already assumes that the instance running the Nitro
+Enclaves kernel driver is untrusted.
 
-> I'm not familiar enough with SFC internals to definitely say if it is
-> even possible to have
-> xdp_queue_number == 0 while having efx->xdp_tx_queue_count > 0
-If it's possible for us to get xdp_queue_number != efx->xdp_tx_queue_count
- at all (which I can't remember exactly how it happens, but I think it's a
- case of not getting as many VIs back from firmware as we wanted, which
- happens after the initial determination of numbers of queues & channels),
- then it's possible that our number of available TXQs is reduced far
- enough that we don't have any left for XDP.
-At least, I think so; this part of the driver confuses me too :S
+We would like to thank Mathias Krause from Open Source Security, Inc. for
+reporting and providing a fix for this issue directly to AWS.
 
--ed
+The patch will be merged into the latest upstream Linux kernel release and into
+the v5.10+ stable kernel releases.
+
+Thanks,
+Andra
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/virt/nitro_enclaves
+
+Mathias Krause (1):
+  nitro_enclaves: Fix stale file descriptors on failed usercopy
+
+ drivers/virt/nitro_enclaves/ne_misc_dev.c | 43 +++++++++--------------
+ 1 file changed, 17 insertions(+), 26 deletions(-)
+
+-- 
+2.20.1 (Apple Git-117)
+
+
+
+
+Amazon Development Center (Romania) S.R.L. registered office: 27A Sf. Lazar Street, UBC5, floor 2, Iasi, Iasi County, 700045, Romania. Registered in Romania. Registration number J22/2621/2005.
+
