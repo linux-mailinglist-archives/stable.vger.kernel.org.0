@@ -2,131 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB5B036EEBE
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:19:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF0136EE9A
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233333AbhD2RUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 13:20:13 -0400
-Received: from mgw-01.mpynet.fi ([82.197.21.90]:58430 "EHLO mgw-01.mpynet.fi"
+        id S236036AbhD2RH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 13:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233329AbhD2RUM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 29 Apr 2021 13:20:12 -0400
-X-Greylist: delayed 1595 seconds by postgrey-1.27 at vger.kernel.org; Thu, 29 Apr 2021 13:20:11 EDT
-Received: from pps.filterd (mgw-01.mpynet.fi [127.0.0.1])
-        by mgw-01.mpynet.fi (8.16.0.43/8.16.0.43) with SMTP id 13TGpR4P073769;
-        Thu, 29 Apr 2021 19:52:46 +0300
-Received: from ex13.tuxera.com (ex13.tuxera.com [178.16.184.72])
-        by mgw-01.mpynet.fi with ESMTP id 387nwygmk8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Thu, 29 Apr 2021 19:52:46 +0300
-Received: from localhost (84.253.226.89) by tuxera-exch.ad.tuxera.com
- (10.20.48.11) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 29 Apr
- 2021 19:52:46 +0300
-From:   Jouni Roivas <jouni.roivas@tuxera.com>
-CC:     Andrew Morton <akpm@linux-foundation.org>,
-        <stable@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        Anton Altaparmakov <anton@tuxera.com>
-Subject: [PATCH] hfsplus: Prevent corruption in shrinking truncate
-Date:   Thu, 29 Apr 2021 19:51:39 +0300
-Message-ID: <20210429165139.3082828-1-jouni.roivas@tuxera.com>
-X-Mailer: git-send-email 2.25.1
+        id S233329AbhD2RH4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 29 Apr 2021 13:07:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC257613CC;
+        Thu, 29 Apr 2021 17:07:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1619716028;
+        bh=Im2BTs+NZ9MgErAVLdzpSEJvmzepTd8kdbdul4j8C3U=;
+        h=Subject:To:From:Date:From;
+        b=yYwEVRCJUquD0RWdSLYguA1vHubKEWVkPg04Sq0kfOAhRuJg14Z+z/mG3TOvpjUHk
+         PX/9rqc2RqpYQOBm3AaEPZDchrt3lGoR7GK0eccTTmaBIRFeXNUmcZFFOSK/rCTY66
+         yKh9+qWdvao0w4mqYmxuXG7avsj6Slz4hcttKKU8=
+Subject: patch "nitro_enclaves: Fix stale file descriptors on failed usercopy" added to char-misc-linus
+To:     minipli@grsecurity.net, andraprs@amazon.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 29 Apr 2021 19:07:05 +0200
+Message-ID: <16197160251621@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [84.253.226.89]
-X-ClientProxiedBy: tuxera-exch.ad.tuxera.com (10.20.48.11) To
- tuxera-exch.ad.tuxera.com (10.20.48.11)
-X-Proofpoint-GUID: 3BXjuyDZVuC5qxI6x6dF34kaALyxk-nq
-X-Proofpoint-ORIG-GUID: 3BXjuyDZVuC5qxI6x6dF34kaALyxk-nq
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-04-29_08:2021-04-28,2021-04-29 signatures=0
-X-Proofpoint-Spam-Details: rule=mpy_notspam policy=mpy score=0 bulkscore=0 adultscore=0 spamscore=0
- mlxlogscore=999 suspectscore=0 malwarescore=0 mlxscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
- definitions=main-2104290105
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I believe there are some issues introduced by
-commit 31651c607151 ("hfsplus: avoid deadlock on file truncation")
 
-HFS+ has extent records which always contains 8 extents. In case the
-first extent record in catalog file gets full, new ones are allocated
-from extents overflow file.
+This is a note to let you know that I've just added the patch titled
 
-In case shrinking truncate happens to middle of an extent record which
-locates in extents overflow file, the logic in hfsplus_file_truncate()
-was changed so that call to hfs_brec_remove() is not guarded any more.
+    nitro_enclaves: Fix stale file descriptors on failed usercopy
 
-Right action would be just freeing the extents that exceed the new
-size inside extent record by calling hfsplus_free_extents(), and then
-check if the whole extent record should be removed. However since the
-guard (blk_cnt > start) is now after the call to hfs_brec_remove(),
-this has unfortunate effect that the last matching extent record is
-removed unconditionally.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-To reproduce this issue, create a file which has at least 10 extents,
-and then perform shrinking truncate into middle of the last extent
-record, so that the number of remaining extents is not under or
-divisible by 8. This causes the last extent record (8 extents) to be
-removed totally instead of truncating into middle of it. Thus this
-causes corruption, and lost data.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Fix for this is simply checking if the new truncated end is below the
-start of this extent record, making it safe to remove the full extent
-record. However call to hfs_brec_remove() can't be moved to it's
-previous place since we're dropping ->tree_lock and it can cause a race
-condition and the cached info being invalidated possibly corrupting the
-node data.
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-Another issue is related to this one. When entering into the block
-(blk_cnt > start) we are not holding the ->tree_lock. We break out from
-the loop not holding the lock, but hfs_find_exit() does unlock it. Not
-sure if it's possible for someone else to take the lock under our feet,
-but it can cause hard to debug errors and premature unlocking. Even if
-there's no real risk of it, the locking should still always be kept in
-balance. Thus taking the lock now just before the check.
+If you have any questions about this process, please let me know.
 
-Cc: <stable@vger.kernel.org>
-Cc: <linux-fsdevel@vger.kernel.org>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Signed-off-by: Jouni Roivas <jouni.roivas@tuxera.com>
+
+From f1ce3986baa62cffc3c5be156994de87524bab99 Mon Sep 17 00:00:00 2001
+From: Mathias Krause <minipli@grsecurity.net>
+Date: Thu, 29 Apr 2021 19:59:41 +0300
+Subject: nitro_enclaves: Fix stale file descriptors on failed usercopy
+
+A failing usercopy of the slot uid will lead to a stale entry in the
+file descriptor table as put_unused_fd() won't release it. This enables
+userland to refer to a dangling 'file' object through that still valid
+file descriptor, leading to all kinds of use-after-free exploitation
+scenarios.
+
+Exchanging put_unused_fd() for close_fd(), ksys_close() or alike won't
+solve the underlying issue, as the file descriptor might have been
+replaced in the meantime, e.g. via userland calling close() on it
+(leading to a NULL pointer dereference in the error handling code as
+'fget(enclave_fd)' will return a NULL pointer) or by dup2()'ing a
+completely different file object to that very file descriptor, leading
+to the same situation: a dangling file descriptor pointing to a freed
+object -- just in this case to a file object of user's choosing.
+
+Generally speaking, after the call to fd_install() the file descriptor
+is live and userland is free to do whatever with it. We cannot rely on
+it to still refer to our enclave object afterwards. In fact, by abusing
+userfaultfd() userland can hit the condition without any racing and
+abuse the error handling in the nitro code as it pleases.
+
+To fix the above issues, defer the call to fd_install() until all
+possible errors are handled. In this case it's just the usercopy, so do
+it directly in ne_create_vm_ioctl() itself.
+
+Signed-off-by: Mathias Krause <minipli@grsecurity.net>
+Signed-off-by: Andra Paraschiv <andraprs@amazon.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210429165941.27020-2-andraprs@amazon.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfsplus/extents.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/virt/nitro_enclaves/ne_misc_dev.c | 43 +++++++++--------------
+ 1 file changed, 17 insertions(+), 26 deletions(-)
 
-diff --git a/fs/hfsplus/extents.c b/fs/hfsplus/extents.c
-index a930ddd15681..7054a542689f 100644
---- a/fs/hfsplus/extents.c
-+++ b/fs/hfsplus/extents.c
-@@ -598,13 +598,15 @@ void hfsplus_file_truncate(struct inode *inode)
- 		res = __hfsplus_ext_cache_extent(&fd, inode, alloc_cnt);
- 		if (res)
- 			break;
--		hfs_brec_remove(&fd);
+diff --git a/drivers/virt/nitro_enclaves/ne_misc_dev.c b/drivers/virt/nitro_enclaves/ne_misc_dev.c
+index f1964ea4b826..e21e1e86ad15 100644
+--- a/drivers/virt/nitro_enclaves/ne_misc_dev.c
++++ b/drivers/virt/nitro_enclaves/ne_misc_dev.c
+@@ -1524,7 +1524,8 @@ static const struct file_operations ne_enclave_fops = {
+  *			  enclave file descriptor to be further used for enclave
+  *			  resources handling e.g. memory regions and CPUs.
+  * @ne_pci_dev :	Private data associated with the PCI device.
+- * @slot_uid:		Generated unique slot id associated with an enclave.
++ * @slot_uid:		User pointer to store the generated unique slot id
++ *			associated with an enclave to.
+  *
+  * Context: Process context. This function is called with the ne_pci_dev enclave
+  *	    mutex held.
+@@ -1532,7 +1533,7 @@ static const struct file_operations ne_enclave_fops = {
+  * * Enclave fd on success.
+  * * Negative return value on failure.
+  */
+-static int ne_create_vm_ioctl(struct ne_pci_dev *ne_pci_dev, u64 *slot_uid)
++static int ne_create_vm_ioctl(struct ne_pci_dev *ne_pci_dev, u64 __user *slot_uid)
+ {
+ 	struct ne_pci_dev_cmd_reply cmd_reply = {};
+ 	int enclave_fd = -1;
+@@ -1634,7 +1635,18 @@ static int ne_create_vm_ioctl(struct ne_pci_dev *ne_pci_dev, u64 *slot_uid)
  
--		mutex_unlock(&fd.tree->tree_lock);
- 		start = hip->cached_start;
-+		if (blk_cnt <= start)
-+			hfs_brec_remove(&fd);
-+		mutex_unlock(&fd.tree->tree_lock);
- 		hfsplus_free_extents(sb, hip->cached_extents,
- 				     alloc_cnt - start, alloc_cnt - blk_cnt);
- 		hfsplus_dump_extent(hip->cached_extents);
-+		mutex_lock(&fd.tree->tree_lock);
- 		if (blk_cnt > start) {
- 			hip->extent_state |= HFSPLUS_EXT_DIRTY;
- 			break;
-@@ -612,7 +614,6 @@ void hfsplus_file_truncate(struct inode *inode)
- 		alloc_cnt = start;
- 		hip->cached_start = hip->cached_blocks = 0;
- 		hip->extent_state &= ~(HFSPLUS_EXT_DIRTY | HFSPLUS_EXT_NEW);
--		mutex_lock(&fd.tree->tree_lock);
+ 	list_add(&ne_enclave->enclave_list_entry, &ne_pci_dev->enclaves_list);
+ 
+-	*slot_uid = ne_enclave->slot_uid;
++	if (copy_to_user(slot_uid, &ne_enclave->slot_uid, sizeof(ne_enclave->slot_uid))) {
++		/*
++		 * As we're holding the only reference to 'enclave_file', fput()
++		 * will call ne_enclave_release() which will do a proper cleanup
++		 * of all so far allocated resources, leaving only the unused fd
++		 * for us to free.
++		 */
++		fput(enclave_file);
++		put_unused_fd(enclave_fd);
++
++		return -EFAULT;
++	}
+ 
+ 	fd_install(enclave_fd, enclave_file);
+ 
+@@ -1671,34 +1683,13 @@ static long ne_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	switch (cmd) {
+ 	case NE_CREATE_VM: {
+ 		int enclave_fd = -1;
+-		struct file *enclave_file = NULL;
+ 		struct ne_pci_dev *ne_pci_dev = ne_devs.ne_pci_dev;
+-		int rc = -EINVAL;
+-		u64 slot_uid = 0;
++		u64 __user *slot_uid = (void __user *)arg;
+ 
+ 		mutex_lock(&ne_pci_dev->enclaves_list_mutex);
+-
+-		enclave_fd = ne_create_vm_ioctl(ne_pci_dev, &slot_uid);
+-		if (enclave_fd < 0) {
+-			rc = enclave_fd;
+-
+-			mutex_unlock(&ne_pci_dev->enclaves_list_mutex);
+-
+-			return rc;
+-		}
+-
++		enclave_fd = ne_create_vm_ioctl(ne_pci_dev, slot_uid);
+ 		mutex_unlock(&ne_pci_dev->enclaves_list_mutex);
+ 
+-		if (copy_to_user((void __user *)arg, &slot_uid, sizeof(slot_uid))) {
+-			enclave_file = fget(enclave_fd);
+-			/* Decrement file refs to have release() called. */
+-			fput(enclave_file);
+-			fput(enclave_file);
+-			put_unused_fd(enclave_fd);
+-
+-			return -EFAULT;
+-		}
+-
+ 		return enclave_fd;
  	}
- 	hfs_find_exit(&fd);
  
 -- 
-2.25.1
+2.31.1
+
 
