@@ -2,176 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 657C536EE79
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A61D236EE7F
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240803AbhD2RAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 13:00:51 -0400
-Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:10516 "EHLO
-        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233099AbhD2RAv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:00:51 -0400
+        id S240912AbhD2RBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 13:01:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240918AbhD2RB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:01:26 -0400
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4398AC06138B
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:00:39 -0700 (PDT)
+Received: by mail-yb1-xb2d.google.com with SMTP id 15so2170626ybc.0
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:00:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1619715604; x=1651251604;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=36NT0ag+PSZSNAfEleywXJUlZYv9YutgKNtt3fuQsnM=;
-  b=SQr1Q4EQxhuA8YWdxnCLLw3rrpDax4+fvo5mVKMVtyV63VPn0+fLXKua
-   0EcXlOT52zlDD1pYPeJX2QpShuhwQFPpeu4ivEi6UMKTZO6i6tZjjORCl
-   ESjwAzzf2n1zhrgqHiz+dpR+J1PDPa6jrUovmF+X3h+6fBEEy1aQw1nmk
-   8=;
-X-IronPort-AV: E=Sophos;i="5.82,259,1613433600"; 
-   d="scan'208";a="930133175"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-1d-e69428c4.us-east-1.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-9103.sea19.amazon.com with ESMTP; 29 Apr 2021 16:59:56 +0000
-Received: from EX13D16EUB003.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-1d-e69428c4.us-east-1.amazon.com (Postfix) with ESMTPS id 6478EC42CB;
-        Thu, 29 Apr 2021 16:59:55 +0000 (UTC)
-Received: from 38f9d34ed3b1.ant.amazon.com (10.43.161.85) by
- EX13D16EUB003.ant.amazon.com (10.43.166.99) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 29 Apr 2021 16:59:51 +0000
-From:   Andra Paraschiv <andraprs@amazon.com>
-To:     linux-kernel <linux-kernel@vger.kernel.org>
-CC:     Greg KH <gregkh@linuxfoundation.org>,
-        Mathias Krause <minipli@grsecurity.net>,
-        ne-devel-upstream <ne-devel-upstream@amazon.com>,
-        stable <stable@vger.kernel.org>,
-        Andra Paraschiv <andraprs@amazon.com>
-Subject: [PATCH v1 1/1] nitro_enclaves: Fix stale file descriptors on failed usercopy
-Date:   Thu, 29 Apr 2021 19:59:41 +0300
-Message-ID: <20210429165941.27020-2-andraprs@amazon.com>
-X-Mailer: git-send-email 2.20.1 (Apple Git-117)
-In-Reply-To: <20210429165941.27020-1-andraprs@amazon.com>
-References: <20210429165941.27020-1-andraprs@amazon.com>
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=mod5t8JqyccnKesUrFPHAr6mvaZVC7eVIvcMr/V5pPM=;
+        b=o8ArYQ5WjRiFO1LqEV2clnAkK/aEHRxrPfbGCeGYWwDZ7oDRybAQ0YRFIWR3mkZJTw
+         aBc/wTs1zxrBQootngDk9Lyk1QMdF9KBLRcj0IanV5o2TjrFeFUjSpA5POCWG8C3J6dM
+         q1+a6pzVUsXwAQ530uXwbJpmA2WFQsLNNyHOwEGDVp9erRAEEBOJN9LzTX1R2fZVAeX7
+         Yc0kPFBmeby1amJ3ydFXMAtwcPBqrKcTGnJ8s3gchv9FB8K+iYKe/3Auwm3P37XqyVJs
+         T3svRuJtHrkEtnv0F79dyT8nvXUAt1PlDohMRcFdGtPtOJnbHoi/Adxe6KkBWt3Zcsey
+         PpLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=mod5t8JqyccnKesUrFPHAr6mvaZVC7eVIvcMr/V5pPM=;
+        b=Gd6V96M6dX3xZCkExg5KxpNhFb58UnKTU2sylKfgJBeGIwPn1ceXxakGtMfx0UlR4C
+         FMchyOYYCKsK4rxe0syVuvVfOYMibR9gp5oOHFs4r+y43+YtpgHG2AWTp9mgZiCmxvcX
+         J1DKGD2J4hC2ghadYuIvhEMIgwNbfkATD5bAxc9GPwvMv4Uww7HmNlWFM5DJPwNtJK9T
+         2DpQDKWia8IzOVszJ7z/lmDCZ4Urg7o+RPPsUgu9JL+uepXK3HpKgSr8dXyWqcndhfIm
+         8fXDqbBQTbr6c8gsnsXk0PenhM/sNMbH76a+4RWCcnymVSGdpVx2g4y136BVRpd1ivTl
+         5t4g==
+X-Gm-Message-State: AOAM532zahRLSN+1OFHJ9nZRykosD6SaNHREzwMlT69ZxsXuprDYCw31
+        95hhaO9g74ltfoso+U9Vbd6M/nx9mW+a4dSNeQ0=
+X-Google-Smtp-Source: ABdhPJwt0w3CF6WpIdCwHPO37jiqw+ZE1HFNXkayFtVDhhm73nAVfKqcc2l49EEv7NH+bpNG8GEFj02QQe5nP4pSB3s=
+X-Received: by 2002:a25:9d86:: with SMTP id v6mr745613ybp.366.1619715638582;
+ Thu, 29 Apr 2021 10:00:38 -0700 (PDT)
 MIME-Version: 1.0
-X-Originating-IP: [10.43.161.85]
-X-ClientProxiedBy: EX13D11UWC003.ant.amazon.com (10.43.162.162) To
- EX13D16EUB003.ant.amazon.com (10.43.166.99)
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a05:6900:589:0:0:0:0 with HTTP; Thu, 29 Apr 2021 10:00:38
+ -0700 (PDT)
+From:   amidal serge <amidalserge@gmail.com>
+Date:   Thu, 29 Apr 2021 10:00:38 -0700
+Message-ID: <CAEuaMX_Lqq2KB49s_yxWhndLg7wsZ3rpHdGtaxSgGdHEsr7esw@mail.gmail.com>
+Subject: message
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Krause <minipli@grsecurity.net>
-
-A failing usercopy of the slot uid will lead to a stale entry in the
-file descriptor table as put_unused_fd() won't release it. This enables
-userland to refer to a dangling 'file' object through that still valid
-file descriptor, leading to all kinds of use-after-free exploitation
-scenarios.
-
-Exchanging put_unused_fd() for close_fd(), ksys_close() or alike won't
-solve the underlying issue, as the file descriptor might have been
-replaced in the meantime, e.g. via userland calling close() on it
-(leading to a NULL pointer dereference in the error handling code as
-'fget(enclave_fd)' will return a NULL pointer) or by dup2()'ing a
-completely different file object to that very file descriptor, leading
-to the same situation: a dangling file descriptor pointing to a freed
-object -- just in this case to a file object of user's choosing.
-
-Generally speaking, after the call to fd_install() the file descriptor
-is live and userland is free to do whatever with it. We cannot rely on
-it to still refer to our enclave object afterwards. In fact, by abusing
-userfaultfd() userland can hit the condition without any racing and
-abuse the error handling in the nitro code as it pleases.
-
-To fix the above issues, defer the call to fd_install() until all
-possible errors are handled. In this case it's just the usercopy, so do
-it directly in ne_create_vm_ioctl() itself.
-
-Signed-off-by: Mathias Krause <minipli@grsecurity.net>
-Signed-off-by: Andra Paraschiv <andraprs@amazon.com>
----
- drivers/virt/nitro_enclaves/ne_misc_dev.c | 43 +++++++++--------------
- 1 file changed, 17 insertions(+), 26 deletions(-)
-
-diff --git a/drivers/virt/nitro_enclaves/ne_misc_dev.c b/drivers/virt/nitro_enclaves/ne_misc_dev.c
-index f1964ea4b8269..e21e1e86ad15f 100644
---- a/drivers/virt/nitro_enclaves/ne_misc_dev.c
-+++ b/drivers/virt/nitro_enclaves/ne_misc_dev.c
-@@ -1524,7 +1524,8 @@ static const struct file_operations ne_enclave_fops = {
-  *			  enclave file descriptor to be further used for enclave
-  *			  resources handling e.g. memory regions and CPUs.
-  * @ne_pci_dev :	Private data associated with the PCI device.
-- * @slot_uid:		Generated unique slot id associated with an enclave.
-+ * @slot_uid:		User pointer to store the generated unique slot id
-+ *			associated with an enclave to.
-  *
-  * Context: Process context. This function is called with the ne_pci_dev enclave
-  *	    mutex held.
-@@ -1532,7 +1533,7 @@ static const struct file_operations ne_enclave_fops = {
-  * * Enclave fd on success.
-  * * Negative return value on failure.
-  */
--static int ne_create_vm_ioctl(struct ne_pci_dev *ne_pci_dev, u64 *slot_uid)
-+static int ne_create_vm_ioctl(struct ne_pci_dev *ne_pci_dev, u64 __user *slot_uid)
- {
- 	struct ne_pci_dev_cmd_reply cmd_reply = {};
- 	int enclave_fd = -1;
-@@ -1634,7 +1635,18 @@ static int ne_create_vm_ioctl(struct ne_pci_dev *ne_pci_dev, u64 *slot_uid)
- 
- 	list_add(&ne_enclave->enclave_list_entry, &ne_pci_dev->enclaves_list);
- 
--	*slot_uid = ne_enclave->slot_uid;
-+	if (copy_to_user(slot_uid, &ne_enclave->slot_uid, sizeof(ne_enclave->slot_uid))) {
-+		/*
-+		 * As we're holding the only reference to 'enclave_file', fput()
-+		 * will call ne_enclave_release() which will do a proper cleanup
-+		 * of all so far allocated resources, leaving only the unused fd
-+		 * for us to free.
-+		 */
-+		fput(enclave_file);
-+		put_unused_fd(enclave_fd);
-+
-+		return -EFAULT;
-+	}
- 
- 	fd_install(enclave_fd, enclave_file);
- 
-@@ -1671,34 +1683,13 @@ static long ne_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	switch (cmd) {
- 	case NE_CREATE_VM: {
- 		int enclave_fd = -1;
--		struct file *enclave_file = NULL;
- 		struct ne_pci_dev *ne_pci_dev = ne_devs.ne_pci_dev;
--		int rc = -EINVAL;
--		u64 slot_uid = 0;
-+		u64 __user *slot_uid = (void __user *)arg;
- 
- 		mutex_lock(&ne_pci_dev->enclaves_list_mutex);
--
--		enclave_fd = ne_create_vm_ioctl(ne_pci_dev, &slot_uid);
--		if (enclave_fd < 0) {
--			rc = enclave_fd;
--
--			mutex_unlock(&ne_pci_dev->enclaves_list_mutex);
--
--			return rc;
--		}
--
-+		enclave_fd = ne_create_vm_ioctl(ne_pci_dev, slot_uid);
- 		mutex_unlock(&ne_pci_dev->enclaves_list_mutex);
- 
--		if (copy_to_user((void __user *)arg, &slot_uid, sizeof(slot_uid))) {
--			enclave_file = fget(enclave_fd);
--			/* Decrement file refs to have release() called. */
--			fput(enclave_file);
--			fput(enclave_file);
--			put_unused_fd(enclave_fd);
--
--			return -EFAULT;
--		}
--
- 		return enclave_fd;
- 	}
- 
--- 
-2.20.1 (Apple Git-117)
-
-
-
-
-Amazon Development Center (Romania) S.R.L. registered office: 27A Sf. Lazar Street, UBC5, floor 2, Iasi, Iasi County, 700045, Romania. Registered in Romania. Registration number J22/2621/2005.
-
+--=20
+Salut
+J=E2=80=99ai besoin de votre aide urgente dans le transfert d=E2=80=99un fo=
+nds abandonn=C3=A9s
+ sur votre compte dans les 10-14 jours si l'on souhaite r=C3=A9pondre =C3=
+=A0 moi
+avec vos informations pour plus de d=C3=A9tails.
+votre nom et pr=C3=A9nom :-.
+votre pays :-.
+votre num=C3=A9ro de t=C3=A9l=C3=A9phone. :-
+.
+Vous devez r=C3=A9pondre =C3=A0 ce email adresse (sergeamidal@gmail.com)
+Sinceres salutations
+Amidal
