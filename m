@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9371936EEF9
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF4736EEFA
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 19:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240832AbhD2Rfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 13:35:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53500 "EHLO
+        id S240843AbhD2Rfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 13:35:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236036AbhD2Rfg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:35:36 -0400
-Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7E9EC06138B
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:48 -0700 (PDT)
-Received: by mail-pl1-x649.google.com with SMTP id t6-20020a170902a5c6b02900e8dfb1a5d7so29191368plq.3
-        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:48 -0700 (PDT)
+        with ESMTP id S236036AbhD2Rfh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 13:35:37 -0400
+Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A16C06138B
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:50 -0700 (PDT)
+Received: by mail-qv1-xf49.google.com with SMTP id l19-20020a0ce5130000b02901b6795e3304so11535845qvm.2
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 10:34:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=0GNrkxT81z5oKYj/AtWk+Mm49meVhMgZxhQBU3MwaSs=;
-        b=ahVR4fKlkdXsEmaOs6tBkSbUHE3zQ3WUCNWc4Fy2Sm/nFfmFGg7js72OtIlcu/yDwc
-         BV86gkdY1b9E/tiSL1PIzFIl1j8w7FMGXQdj0sP+fl3wn1Nj0jgww4WRZJrZV+m0+P3U
-         DY7QUuhf4D3Qn+rcWTiMn8lpbDQyPcuDEyaRRjY+14k+pafW3gt5vo8lSYYTS97PcHdx
-         rB97GrCEfSoOjqJm/wSTLT/s/t4I1Ca4LxBZelGrPWHrL2qvRvRpUs143z2MP7rJ99J8
-         6+gUEJlS7X63PH0T3Hq8lm+ksYVEecf0QAxZfhv7WvZb+qFSlwUAtLKjPvuVThG1GCqx
-         zIHA==
+        bh=dbAxom2rQb6936aTMluWKUPn84POTBBVC0n1eM73Twc=;
+        b=UWoumohzdz5eNlOHJbNfrNpbztlg5CQciTvSQor72RykdYyYqmuUzseACz59WI6UVA
+         V6xyTO5vdzsbDmX/U8emKzytEaK/0mKNpDQFaJhQRgH+dO3hkUbSK3SjRNnMAm9+Dbq7
+         Oj30KI9iqDWcoMzWThIP5TT+J8x1fAOYjnDccS1K6f9xbSFlOOexABURz8Rn4/Te9E5W
+         jmsSo223yxoikiPE8CnBU0+3PfuBryf7JrkavYZ83zkydJNHjkOJvfUyTA7dDdgzPUOU
+         EfwTAOU+5SRX1miuM/RgC03BS4QJPWIt7H2uM1BWRbTbRmNQLmGGMRMu4EbPRbI/ieUB
+         DmtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=0GNrkxT81z5oKYj/AtWk+Mm49meVhMgZxhQBU3MwaSs=;
-        b=j3JTtnD8CxdIdrAj7rQOgeEd4HR2po/NTNoaCRoZVEPBzM+sGemmmTpWQcrIPt4LXM
-         tU2Eup9ssIdLLT+oDN70dlsOh8CyR4ehegQiD5F4pWETrohWa95dqpciXnyRREevXU7W
-         Cfb4Fs1F9LhuwO44px0YkRVGcLFB5ggXbCeM0RoE7qMvDCkUlY0aSqwpHWO/anHyHQar
-         e4e8rgjwfYzhkstwKZguYKENReNww6+6O/PTFjAvA65w0LuJebfOKQK7a6LD/tBBN8Sq
-         BGg1iUjTRQCoQPv9jZjL8QoujenFu9UozPZ2xKU9c2R6ukUYlfPfxRiIDz/hUZ5QLaQy
-         WHjw==
-X-Gm-Message-State: AOAM530YEnVbRmBAeUGomOlJzvUzIqJqjZsuBskVwk5/RmyJlnRD0N0A
-        voBkIRm3XI3b+7DtBCTkV5+0UQc7t29Q0WW5oWqL131vGCElRpFIFv88SJFsufu4NgREHKXFUp+
-        YDleSDvBFOvnBjocTSimiVZ+D7Ye1FEmWVFCtLBb34pfZge0pv3DtEgIcit4=
-X-Google-Smtp-Source: ABdhPJz/srN3TWvb+hyGXA/lB9FX2/FgP/e6U7LdXoD29aXvO3Hlrf+SoWRpbn+YFux5kRV/mZwMbbhwoA==
+        bh=dbAxom2rQb6936aTMluWKUPn84POTBBVC0n1eM73Twc=;
+        b=Jm5GW7oeXWHf8khgF5cvgIm33VhV4g+cXt9rmYb5uXmD4PERtzKz4J3BqKwWlCBj38
+         7ev5h0utJmtxiPah2E1ZjTVyCCM+/B7QHBVHHaION+tPoThoIrGu66c9LuPkw5K8FdnJ
+         w3pzvrLcwgd/G5t454lhkglaZqSxsI7UiG0Q5zsENAZTtxFStHayTmX7cy5sNqhlXzYP
+         ecFj9ZBCg2QV/Nxx8OJSbC7mbpkhtcgVdiJSYuTyVhOkgvq4AdvQE8qbJa1SIthX0IVJ
+         2ErJIzy8V/DJ2/lYH9zMVBG/h4tcBtsnmpeykOtaWmUFs59u265j4kPdAvJe2FauJIMG
+         OC8w==
+X-Gm-Message-State: AOAM5306QZ6/9inmMr/NgLB3kYB5yOXUbW8J5cpHSPiCREsjV8zxB8bo
+        hwtGD/9+mClueXMKVHj9okQtr3og9RT2qrGxNgMm+rlhiwrKNIih2cTTGN8FdN8KgkeBWQXddqU
+        bRIbWu03zl+Cn5tLjkVcat1evu/ApV67gz99nYam/T22d0Mpig3mEZe+alNE=
+X-Google-Smtp-Source: ABdhPJzpk3Ge1y8u7qc02nH4dHiO6+OQRbutXxcQj2DG6aIREACUEfAcVv6ZjLCGfOXniMwBMb54iH7WlA==
 X-Received: from jxgao-snp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:1373])
- (user=jxgao job=sendgmr) by 2002:aa7:80c9:0:b029:249:cac5:e368 with SMTP id
- a9-20020aa780c90000b0290249cac5e368mr792703pfn.12.1619717688101; Thu, 29 Apr
- 2021 10:34:48 -0700 (PDT)
-Date:   Thu, 29 Apr 2021 17:33:12 +0000
+ (user=jxgao job=sendgmr) by 2002:ad4:5747:: with SMTP id q7mr604575qvx.51.1619717689653;
+ Thu, 29 Apr 2021 10:34:49 -0700 (PDT)
+Date:   Thu, 29 Apr 2021 17:33:13 +0000
 In-Reply-To: <20210429173315.1252465-1-jxgao@google.com>
-Message-Id: <20210429173315.1252465-7-jxgao@google.com>
+Message-Id: <20210429173315.1252465-8-jxgao@google.com>
 Mime-Version: 1.0
 References: <20210429173315.1252465-1-jxgao@google.com>
 X-Mailer: git-send-email 2.31.1.498.g6c1eba8ee3d-goog
-Subject: [PATCH v2 5.10 6/9] swiotlb: refactor swiotlb_tbl_map_single
+Subject: [PATCH v2 5.10 7/9] swiotlb: don't modify orig_addr in swiotlb_tbl_sync_single
 From:   Jianxiong Gao <jxgao@google.com>
 To:     stable@vger.kernel.org, hch@lst.de, marcorr@google.com,
         sashal@kernel.org
@@ -63,10 +62,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit: 26a7e094783d482f3e125f09945a5bb1d867b2e6
+commit: 16fc3cef33a04632ab6b31758abdd77563a20759
 
-Split out a bunch of a self-contained helpers to make the function easier
-to follow.
+swiotlb_tbl_map_single currently nevers sets a tlb_addr that is not
+aligned to the tlb bucket size.  But we're going to add such a case
+soon, for which this adjustment would be bogus.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Jianxiong Gao <jxgao@google.com>
@@ -74,237 +74,21 @@ Tested-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Jianxiong Gao <jxgao@google.com>
 ---
- kernel/dma/swiotlb.c | 179 +++++++++++++++++++++----------------------
- 1 file changed, 89 insertions(+), 90 deletions(-)
+ kernel/dma/swiotlb.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index f5530336d7ca..243750453b3d 100644
+index 243750453b3d..b8f82f96c4c2 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -452,134 +452,133 @@ static void swiotlb_bounce(phys_addr_t orig_addr, phys_addr_t tlb_addr,
- 	}
- }
+@@ -644,7 +644,6 @@ void swiotlb_tbl_sync_single(struct device *hwdev, phys_addr_t tlb_addr,
  
--phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t orig_addr,
--		size_t mapping_size, size_t alloc_size,
--		enum dma_data_direction dir, unsigned long attrs)
--{
--	dma_addr_t tbl_dma_addr = phys_to_dma_unencrypted(hwdev, io_tlb_start);
--	unsigned long flags;
--	phys_addr_t tlb_addr;
--	unsigned int nslots, stride, index, wrap;
--	int i;
--	unsigned long mask;
--	unsigned long offset_slots;
--	unsigned long max_slots;
--	unsigned long tmp_io_tlb_used;
--
--	if (no_iotlb_memory)
--		panic("Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer");
--
--	if (mem_encrypt_active())
--		pr_warn_once("Memory encryption is active and system is using DMA bounce buffers\n");
-+#define slot_addr(start, idx)	((start) + ((idx) << IO_TLB_SHIFT))
+ 	if (orig_addr == INVALID_PHYS_ADDR)
+ 		return;
+-	orig_addr += (unsigned long)tlb_addr & (IO_TLB_SIZE - 1);
  
--	if (mapping_size > alloc_size) {
--		dev_warn_once(hwdev, "Invalid sizes (mapping: %zd bytes, alloc: %zd bytes)",
--			      mapping_size, alloc_size);
--		return (phys_addr_t)DMA_MAPPING_ERROR;
--	}
--
--	mask = dma_get_seg_boundary(hwdev);
-+/*
-+ * Carefully handle integer overflow which can occur when boundary_mask == ~0UL.
-+ */
-+static inline unsigned long get_max_slots(unsigned long boundary_mask)
-+{
-+	if (boundary_mask == ~0UL)
-+		return 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
-+	return nr_slots(boundary_mask + 1);
-+}
- 
--	tbl_dma_addr &= mask;
-+static unsigned int wrap_index(unsigned int index)
-+{
-+	if (index >= io_tlb_nslabs)
-+		return 0;
-+	return index;
-+}
- 
--	offset_slots = nr_slots(tbl_dma_addr);
-+/*
-+ * Find a suitable number of IO TLB entries size that will fit this request and
-+ * allocate a buffer from that IO TLB pool.
-+ */
-+static int find_slots(struct device *dev, size_t alloc_size)
-+{
-+	unsigned long boundary_mask = dma_get_seg_boundary(dev);
-+	dma_addr_t tbl_dma_addr =
-+		phys_to_dma_unencrypted(dev, io_tlb_start) & boundary_mask;
-+	unsigned long max_slots = get_max_slots(boundary_mask);
-+	unsigned int nslots = nr_slots(alloc_size), stride = 1;
-+	unsigned int index, wrap, count = 0, i;
-+	unsigned long flags;
- 
--	/*
--	 * Carefully handle integer overflow which can occur when mask == ~0UL.
--	 */
--	max_slots = mask + 1
--		    ? nr_slots(mask + 1)
--		    : 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
-+	BUG_ON(!nslots);
- 
- 	/*
- 	 * For mappings greater than or equal to a page, we limit the stride
- 	 * (and hence alignment) to a page size.
- 	 */
--	nslots = nr_slots(alloc_size);
- 	if (alloc_size >= PAGE_SIZE)
--		stride = (1 << (PAGE_SHIFT - IO_TLB_SHIFT));
--	else
--		stride = 1;
-+		stride <<= (PAGE_SHIFT - IO_TLB_SHIFT);
- 
--	BUG_ON(!nslots);
--
--	/*
--	 * Find suitable number of IO TLB entries size that will fit this
--	 * request and allocate a buffer from that IO TLB pool.
--	 */
- 	spin_lock_irqsave(&io_tlb_lock, flags);
--
- 	if (unlikely(nslots > io_tlb_nslabs - io_tlb_used))
- 		goto not_found;
- 
--	index = ALIGN(io_tlb_index, stride);
--	if (index >= io_tlb_nslabs)
--		index = 0;
--	wrap = index;
--
-+	index = wrap = wrap_index(ALIGN(io_tlb_index, stride));
- 	do {
--		while (iommu_is_span_boundary(index, nslots, offset_slots,
--					      max_slots)) {
--			index += stride;
--			if (index >= io_tlb_nslabs)
--				index = 0;
--			if (index == wrap)
--				goto not_found;
--		}
--
- 		/*
- 		 * If we find a slot that indicates we have 'nslots' number of
- 		 * contiguous buffers, we allocate the buffers from that slot
- 		 * and mark the entries as '0' indicating unavailable.
- 		 */
--		if (io_tlb_list[index] >= nslots) {
--			int count = 0;
--
--			for (i = index; i < (int) (index + nslots); i++)
--				io_tlb_list[i] = 0;
--			for (i = index - 1;
--			     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
--			     io_tlb_list[i]; i--)
--				io_tlb_list[i] = ++count;
--			tlb_addr = io_tlb_start + (index << IO_TLB_SHIFT);
--
--			/*
--			 * Update the indices to avoid searching in the next
--			 * round.
--			 */
--			io_tlb_index = ((index + nslots) < io_tlb_nslabs
--					? (index + nslots) : 0);
--
--			goto found;
-+		if (!iommu_is_span_boundary(index, nslots,
-+					    nr_slots(tbl_dma_addr),
-+					    max_slots)) {
-+			if (io_tlb_list[index] >= nslots)
-+				goto found;
- 		}
--		index += stride;
--		if (index >= io_tlb_nslabs)
--			index = 0;
-+		index = wrap_index(index + stride);
- 	} while (index != wrap);
- 
- not_found:
--	tmp_io_tlb_used = io_tlb_used;
--
- 	spin_unlock_irqrestore(&io_tlb_lock, flags);
--	if (!(attrs & DMA_ATTR_NO_WARN) && printk_ratelimit())
--		dev_warn(hwdev, "swiotlb buffer is full (sz: %zd bytes), total %lu (slots), used %lu (slots)\n",
--			 alloc_size, io_tlb_nslabs, tmp_io_tlb_used);
--	return (phys_addr_t)DMA_MAPPING_ERROR;
-+	return -1;
-+
- found:
-+	for (i = index; i < index + nslots; i++)
-+		io_tlb_list[i] = 0;
-+	for (i = index - 1;
-+	     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
-+	     io_tlb_list[i]; i--)
-+		io_tlb_list[i] = ++count;
-+
-+	/*
-+	 * Update the indices to avoid searching in the next round.
-+	 */
-+	if (index + nslots < io_tlb_nslabs)
-+		io_tlb_index = index + nslots;
-+	else
-+		io_tlb_index = 0;
- 	io_tlb_used += nslots;
-+
- 	spin_unlock_irqrestore(&io_tlb_lock, flags);
-+	return index;
-+}
-+
-+phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
-+		size_t mapping_size, size_t alloc_size,
-+		enum dma_data_direction dir, unsigned long attrs)
-+{
-+	unsigned int index, i;
-+	phys_addr_t tlb_addr;
-+
-+	if (no_iotlb_memory)
-+		panic("Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer");
-+
-+	if (mem_encrypt_active())
-+		pr_warn_once("Memory encryption is active and system is using DMA bounce buffers\n");
-+
-+	if (mapping_size > alloc_size) {
-+		dev_warn_once(dev, "Invalid sizes (mapping: %zd bytes, alloc: %zd bytes)",
-+			      mapping_size, alloc_size);
-+		return (phys_addr_t)DMA_MAPPING_ERROR;
-+	}
-+
-+	index = find_slots(dev, alloc_size);
-+	if (index == -1) {
-+		if (!(attrs & DMA_ATTR_NO_WARN))
-+			dev_warn_ratelimited(dev,
-+	"swiotlb buffer is full (sz: %zd bytes), total %lu (slots), used %lu (slots)\n",
-+				 alloc_size, io_tlb_nslabs, io_tlb_used);
-+		return (phys_addr_t)DMA_MAPPING_ERROR;
-+	}
- 
- 	/*
- 	 * Save away the mapping from the original address to the DMA address.
- 	 * This is needed when we sync the memory.  Then we sync the buffer if
- 	 * needed.
- 	 */
--	for (i = 0; i < nslots; i++)
--		io_tlb_orig_addr[index+i] = orig_addr + (i << IO_TLB_SHIFT);
-+	for (i = 0; i < nr_slots(alloc_size); i++)
-+		io_tlb_orig_addr[index + i] = slot_addr(orig_addr, i);
-+
-+	tlb_addr = slot_addr(io_tlb_start, index);
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
- 	    (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
- 		swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
--
- 	return tlb_addr;
- }
- 
+ 	switch (target) {
+ 	case SYNC_FOR_CPU:
 -- 
 2.31.1.498.g6c1eba8ee3d-goog
 
