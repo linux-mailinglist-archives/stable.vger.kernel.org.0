@@ -2,96 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FDFB36EC47
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 16:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E02A36ECBD
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 16:50:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239829AbhD2OW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 10:22:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38790 "EHLO
+        id S233073AbhD2Ouo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 10:50:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235277AbhD2OWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 10:22:55 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5843CC06138B;
-        Thu, 29 Apr 2021 07:22:09 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id k14so17214120wrv.5;
-        Thu, 29 Apr 2021 07:22:09 -0700 (PDT)
+        with ESMTP id S240791AbhD2Oun (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 10:50:43 -0400
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 833E4C06138B
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 07:49:56 -0700 (PDT)
+Received: by mail-il1-x130.google.com with SMTP id p15so18593713iln.3
+        for <stable@vger.kernel.org>; Thu, 29 Apr 2021 07:49:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=qDWlTWZN3YRYxgpxukOp3NqceBd1We39+J5PingM1kw=;
-        b=V3GKt1Y2QrlJVQqxNA27KIVl/j9xHN51tKLu1hVtuTo/97E8TnGBanQiq35H5PmpbX
-         UW+IV242Bi3McG8gOfuYhdZjy1jl9YwgPH4MMzlRsgZAoBTMsWl89zFbADvSO6Nlrpgx
-         mYJBP7PlxCEFCi9XxiyS2l+JwlVXkP8yzErGRFGv9+yAS2AB7owF332pEqr9P6qeAezo
-         /kaCHYRQ2UqT3mUstWFHkqwk7er19ijvbuJsb30yKTmfcf8F3ntk7IiucBIKrgqfr7p6
-         cMuTY5iSrX9dFx0WBPIurzg39PWkzXrTlkOCinKxS9RVl3LeVrrfg9fJV6wpyxKZByg6
-         0EMA==
+        d=cloudflare.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=BMXBB0mtowmIq4BfuFowr4lSHLcPlY4SXVjJUp3YxqQ=;
+        b=ptZl9o/GsGvjfGcKd+/unVlMS8Pp/LPv4ZnMUa7VuQSr0U97ajQTl207BKj8muGCSg
+         yVZM/oq/aVXLeV5FIJHZMYLBpiHgMmTrXNDphaiLHFQpoxa0lWlLEBkdW6+QjJ/d765Z
+         hy7s2LOoVHA5iyk4J4Yes27UHQtPYA1UXmzko=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=qDWlTWZN3YRYxgpxukOp3NqceBd1We39+J5PingM1kw=;
-        b=bxODPCrkVovnEvXNCRrwL3n5qQT76Rhoy3YL0QNCyAKP1kky61y4SyWcXKUBZAcOxH
-         nmjoTlFWoZxXBQ8M+YXYujIrxdlCRB1aIqXRL472/+RBrC0C0Lm2b70ZzuAdyGFUMmVf
-         HRQ5tBlp3UQpUGdfUjI5y1muUfM5C916gZ3NCwJUVBqnHl1NQdHMsJ8LFXX4Ia0rba7p
-         nKtCgmPE+bjR/2afLsgBdAhwCN5rcQt5Vg3lRZrkC0YJTMvCreWOcwSEcaQFyF/QrUnF
-         MEXEUE+YSYGKEMJgU6El7+e/onUPJEtWbHK2z3l7Ag3k+QN5zzDPx8f821kHegw7LigG
-         meVQ==
-X-Gm-Message-State: AOAM531+dgS0R9ReoEIoFo6aXktVXaFhpCMe3NAQCxgpz2WaqCQ/3qVG
-        SK9QSI/AJtctLTUXTVkljrZSExr5bbCcAA==
-X-Google-Smtp-Source: ABdhPJw2A1vmsqY0F3Yn3gwmSWt4UmANo+G+jd0yB9Y/p7/rWIyJ+UIDVp8/gaFchABkQQMljDTxlA==
-X-Received: by 2002:a5d:53c9:: with SMTP id a9mr70098wrw.108.1619706128110;
-        Thu, 29 Apr 2021 07:22:08 -0700 (PDT)
-Received: from [192.168.1.122] (cpc159425-cmbg20-2-0-cust403.5-4.cable.virginm.net. [86.7.189.148])
-        by smtp.gmail.com with ESMTPSA id v4sm192184wme.14.2021.04.29.07.22.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Apr 2021 07:22:07 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=BMXBB0mtowmIq4BfuFowr4lSHLcPlY4SXVjJUp3YxqQ=;
+        b=LQHUvodQ2Zo1QhNffQ+zgSxLQsgnKmwv4/Dq1Mkj9aIxcMP0w0CHAWt/YhmLqrmz2b
+         9MnDJHsnzoKfL560NLZnj3/6jbfS4apMMUkmWen+LVHKq5Zss2Z0tnZOc9XND4NpWBpb
+         8BmDPwFxE5NpSHsrhe1tf5wcahmmBpHzFvTc7CysARsBNTtbTZcFMwyjZmrN4yAcxE7n
+         88VHbsywhXWwxuGHrIXeg3IJP1E8aGt8Lh7jr7zj+Y2dc2ipS0vUWUbLU8AU614vcq+N
+         Zs9ChwDoz3aeBzYxpb9qe8pJr7Ztf3PssQWl1FbEOwrwquVnxNFxahoq4I1H/xHbCjNu
+         mQxg==
+X-Gm-Message-State: AOAM53218cg/+9FM9PSWkvIU3Oc6F8mzaZnO6mDUdOBJIJjiAKvQQaLw
+        Cm0kkeigAT9Im6GBrNVBTSv0N930XoRDiAaxg9dxbQ==
+X-Google-Smtp-Source: ABdhPJwqvsA9WigFaKV6yePTdN9B5ArhsIWzBY55CUmGufPYQQx32uxU8AkpdYJ4ex0PyE34V5vunqkeGTKc5iaBCi4=
+X-Received: by 2002:a92:320f:: with SMTP id z15mr55885ile.231.1619707795874;
+ Thu, 29 Apr 2021 07:49:55 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210427210938.661700-1-ignat@cloudflare.com> <a56546ee-87a1-f13d-8b2f-25497828f299@gmail.com>
+In-Reply-To: <a56546ee-87a1-f13d-8b2f-25497828f299@gmail.com>
+From:   Ignat Korchagin <ignat@cloudflare.com>
+Date:   Thu, 29 Apr 2021 15:49:45 +0100
+Message-ID: <CALrw=nF+rD+GdWAZndKGxTW4cpao+x2W0dvDfUacXjD=A5mCKA@mail.gmail.com>
 Subject: Re: [PATCH] sfc: adjust efx->xdp_tx_queue_count with the real number
  of initialized queues
-To:     Ignat Korchagin <ignat@cloudflare.com>, habetsm.xilinx@gmail.com,
-        davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org
-Cc:     kernel-team@cloudflare.com, stable@vger.kernel.org
-References: <20210427210938.661700-1-ignat@cloudflare.com>
-From:   Edward Cree <ecree.xilinx@gmail.com>
-Message-ID: <a56546ee-87a1-f13d-8b2f-25497828f299@gmail.com>
-Date:   Thu, 29 Apr 2021 15:22:06 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
-MIME-Version: 1.0
-In-Reply-To: <20210427210938.661700-1-ignat@cloudflare.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+To:     Edward Cree <ecree.xilinx@gmail.com>
+Cc:     habetsm.xilinx@gmail.com, "David S. Miller" <davem@davemloft.net>,
+        kuba@kernel.org, netdev@vger.kernel.org,
+        kernel-team <kernel-team@cloudflare.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 27/04/2021 22:09, Ignat Korchagin wrote:
-> efx->xdp_tx_queue_count is initially initialized to num_possible_cpus() and is
-> later used to allocate and traverse efx->xdp_tx_queues lookup array. However,
-> we may end up not initializing all the array slots with real queues during
-> probing. This results, for example, in a NULL pointer dereference, when running
-> "# ethtool -S <iface>", similar to below
-...
-> diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
-> index 1bfeee283ea9..a3ca406a3561 100644
-> --- a/drivers/net/ethernet/sfc/efx_channels.c
-> +++ b/drivers/net/ethernet/sfc/efx_channels.c
-> @@ -914,6 +914,8 @@ int efx_set_channels(struct efx_nic *efx)
->  			}
->  		}
->  	}
-> +	if (xdp_queue_number)
-Wait, why is this guard condition needed?
-What happens if we had nonzero efx->xdp_tx_queue_count initially, but we end up
- with no TXQs available for XDP at all (so xdp_queue_number == 0)?
+On Thu, Apr 29, 2021 at 3:22 PM Edward Cree <ecree.xilinx@gmail.com> wrote:
+>
+> On 27/04/2021 22:09, Ignat Korchagin wrote:
+> > efx->xdp_tx_queue_count is initially initialized to num_possible_cpus() and is
+> > later used to allocate and traverse efx->xdp_tx_queues lookup array. However,
+> > we may end up not initializing all the array slots with real queues during
+> > probing. This results, for example, in a NULL pointer dereference, when running
+> > "# ethtool -S <iface>", similar to below
+> ...
+> > diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+> > index 1bfeee283ea9..a3ca406a3561 100644
+> > --- a/drivers/net/ethernet/sfc/efx_channels.c
+> > +++ b/drivers/net/ethernet/sfc/efx_channels.c
+> > @@ -914,6 +914,8 @@ int efx_set_channels(struct efx_nic *efx)
+> >                       }
+> >               }
+> >       }
+> > +     if (xdp_queue_number)
+> Wait, why is this guard condition needed?
+> What happens if we had nonzero efx->xdp_tx_queue_count initially, but we end up
+>  with no TXQs available for XDP at all (so xdp_queue_number == 0)?
+>
+> -ed
 
--ed
-> +		efx->xdp_tx_queue_count = xdp_queue_number;
->  
->  	rc = netif_set_real_num_tx_queues(efx->net_dev, efx->n_tx_channels);
->  	if (rc)
-> 
+My thoughts were: efx->xdp_tx_queue_count is originally used to
+allocate efx->xdp_tx_queues.
+So, if xdp_queue_number ends up being 0, we should keep
+efx->xdp_tx_queue_count positive not
+to forget to release efx->xdp_tx_queues (because most checks are
+efx->xdp_tx_queue_count && efx->xdp_tx_queues).
 
+I'm not familiar enough with SFC internals to definitely say if it is
+even possible to have
+xdp_queue_number == 0 while having efx->xdp_tx_queue_count > 0, but my
+understanding is that
+it should not be possible due to the checks in the driver init path,
+when we actually determine the number
+of queues, channels, events per channel etc.
+
+Ignat
+
+> > +             efx->xdp_tx_queue_count = xdp_queue_number;
+> >
+> >       rc = netif_set_real_num_tx_queues(efx->net_dev, efx->n_tx_channels);
+> >       if (rc)
+> >
+>
