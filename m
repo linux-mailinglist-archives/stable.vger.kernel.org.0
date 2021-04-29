@@ -2,181 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0955036E77F
-	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 11:01:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E1036E9FB
+	for <lists+stable@lfdr.de>; Thu, 29 Apr 2021 14:06:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233500AbhD2JCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 29 Apr 2021 05:02:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:29751 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233188AbhD2JCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 05:02:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1619686914;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kQOF619k4uT4LXlOihlAZEz2vekNUOeGvs7MqvhRVBQ=;
-        b=QHPGzNp/FqgM3i3Yzcr9wssKNzc7Chq6woD+Z9utb9SnRgVq2lAwuSxSRHwXvSIljaNLf0
-        QSRFhRoaa+NtsCGmAAnP0d9KA33zzerADkuJDCvjIxWKGLbBnqspsRl6nLtuqeXX5OIB0M
-        M5nhVByF0QH81EVG/CIGQs4W0TTRICY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-570-IAF3hkB6Oxi3-4hxcjAccA-1; Thu, 29 Apr 2021 05:01:49 -0400
-X-MC-Unique: IAF3hkB6Oxi3-4hxcjAccA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06AEB8049CC;
-        Thu, 29 Apr 2021 09:01:48 +0000 (UTC)
-Received: from bnemeth.users.ipa.redhat.com (ovpn-113-199.ams2.redhat.com [10.36.113.199])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 67B9D101E663;
-        Thu, 29 Apr 2021 09:01:46 +0000 (UTC)
-Message-ID: <a4c76679564036a03127d451e29fee03984be59a.camel@redhat.com>
-Subject: Re: [PATCH 4.14 16/68] net: ensure mac header is set in
- virtio_net_hdr_to_skb()
-From:   Balazs Nemeth <bnemeth@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Willem de Bruijn <willemb@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>
-Date:   Thu, 29 Apr 2021 11:01:45 +0200
-In-Reply-To: <CANn89i+uktnBRcKXY8+uFZ0S3KJEgBhJUjOafs-3UH5f6++wQw@mail.gmail.com>
-References: <20210415144414.464797272@linuxfoundation.org>
-         <20210415144414.998180483@linuxfoundation.org>
-         <7c0e6a19291e32eaa2e5d31d8d90f4c500392666.camel@redhat.com>
-         <CANn89i+uktnBRcKXY8+uFZ0S3KJEgBhJUjOafs-3UH5f6++wQw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
+        id S233643AbhD2MGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 29 Apr 2021 08:06:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36714 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233337AbhD2MGu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 29 Apr 2021 08:06:50 -0400
+Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60F8CC06138B;
+        Thu, 29 Apr 2021 05:06:03 -0700 (PDT)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by srv6.fidu.org (Postfix) with ESMTP id 9CE22C800F9;
+        Thu, 29 Apr 2021 14:06:00 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
+Received: from srv6.fidu.org ([127.0.0.1])
+        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
+        with LMTP id zStg9Uz8oNy5; Thu, 29 Apr 2021 14:06:00 +0200 (CEST)
+Received: from wsembach-tuxedo.fritz.box (p200300e37F398600fDb5850719dbc945.dip0.t-ipconnect.de [IPv6:2003:e3:7f39:8600:fdb5:8507:19db:c945])
+        (Authenticated sender: wse@tuxedocomputers.com)
+        by srv6.fidu.org (Postfix) with ESMTPA id 3B7FAC800F8;
+        Thu, 29 Apr 2021 14:06:00 +0200 (CEST)
+From:   Werner Sembach <wse@tuxedocomputers.com>
+To:     wse@tuxedocomputers.com, airlied@linux.ie, daniel@ffwll.ch,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] drm/i915/display Try YCbCr420 color when RGB fails
+Date:   Thu, 29 Apr 2021 14:05:53 +0200
+Message-Id: <20210429120553.7823-1-wse@tuxedocomputers.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2021-04-16 at 11:32 +0200, Eric Dumazet wrote:
-> On Fri, Apr 16, 2021 at 10:49 AM Balazs Nemeth <bnemeth@redhat.com>
-> wrote:
-> > 
-> > On Thu, 2021-04-15 at 16:46 +0200, Greg Kroah-Hartman wrote:
-> > > From: Eric Dumazet <edumazet@google.com>
-> > > 
-> > > commit 61431a5907fc36d0738e9a547c7e1556349a03e9 upstream.
-> > > 
-> > > Commit 924a9bc362a5 ("net: check if protocol extracted by
-> > > virtio_net_hdr_set_proto is correct")
-> > > added a call to dev_parse_header_protocol() but mac_header is not
-> > > yet
-> > > set.
-> > > 
-> > > This means that eth_hdr() reads complete garbage, and syzbot
-> > > complained about it [1]
-> > > 
-> > > This patch resets mac_header earlier, to get more coverage about
-> > > this
-> > > change.
-> > > 
-> > > Audit of virtio_net_hdr_to_skb() callers shows that this change
-> > > should be safe.
-> > > 
-> > > [1]
-> > > 
-> > > BUG: KASAN: use-after-free in eth_header_parse_protocol+0xdc/0xe0
-> > > net/ethernet/eth.c:282
-> > > Read of size 2 at addr ffff888017a6200b by task syz-
-> > > executor313/8409
-> > > 
-> > > CPU: 1 PID: 8409 Comm: syz-executor313 Not tainted 5.12.0-rc2-
-> > > syzkaller #0
-> > > Hardware name: Google Google Compute Engine/Google Compute Engine,
-> > > BIOS Google 01/01/2011
-> > > Call Trace:
-> > >  __dump_stack lib/dump_stack.c:79 [inline]
-> > >  dump_stack+0x141/0x1d7 lib/dump_stack.c:120
-> > >  print_address_description.constprop.0.cold+0x5b/0x2f8
-> > > mm/kasan/report.c:232
-> > >  __kasan_report mm/kasan/report.c:399 [inline]
-> > >  kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
-> > >  eth_header_parse_protocol+0xdc/0xe0 net/ethernet/eth.c:282
-> > >  dev_parse_header_protocol include/linux/netdevice.h:3177 [inline]
-> > >  virtio_net_hdr_to_skb.constprop.0+0x99d/0xcd0
-> > > include/linux/virtio_net.h:83
-> > >  packet_snd net/packet/af_packet.c:2994 [inline]
-> > >  packet_sendmsg+0x2325/0x52b0 net/packet/af_packet.c:3031
-> > >  sock_sendmsg_nosec net/socket.c:654 [inline]
-> > >  sock_sendmsg+0xcf/0x120 net/socket.c:674
-> > >  sock_no_sendpage+0xf3/0x130 net/core/sock.c:2860
-> > >  kernel_sendpage.part.0+0x1ab/0x350 net/socket.c:3631
-> > >  kernel_sendpage net/socket.c:3628 [inline]
-> > >  sock_sendpage+0xe5/0x140 net/socket.c:947
-> > >  pipe_to_sendpage+0x2ad/0x380 fs/splice.c:364
-> > >  splice_from_pipe_feed fs/splice.c:418 [inline]
-> > >  __splice_from_pipe+0x43e/0x8a0 fs/splice.c:562
-> > >  splice_from_pipe fs/splice.c:597 [inline]
-> > >  generic_splice_sendpage+0xd4/0x140 fs/splice.c:746
-> > >  do_splice_from fs/splice.c:767 [inline]
-> > >  do_splice+0xb7e/0x1940 fs/splice.c:1079
-> > >  __do_splice+0x134/0x250 fs/splice.c:1144
-> > >  __do_sys_splice fs/splice.c:1350 [inline]
-> > >  __se_sys_splice fs/splice.c:1332 [inline]
-> > >  __x64_sys_splice+0x198/0x250 fs/splice.c:1332
-> > >  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-> > > 
-> > > Fixes: 924a9bc362a5 ("net: check if protocol extracted by
-> > > virtio_net_hdr_set_proto is correct")
-> > > Signed-off-by: Eric Dumazet <edumazet@google.com>
-> > > Cc: Balazs Nemeth <bnemeth@redhat.com>
-> > > Cc: Willem de Bruijn <willemb@google.com>
-> > > Reported-by: syzbot <syzkaller@googlegroups.com>
-> > > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > ---
-> > >  include/linux/virtio_net.h |    2 ++
-> > >  1 file changed, 2 insertions(+)
-> > > 
-> > > --- a/include/linux/virtio_net.h
-> > > +++ b/include/linux/virtio_net.h
-> > > @@ -62,6 +62,8 @@ static inline int virtio_net_hdr_to_skb(
-> > >                         return -EINVAL;
-> > >         }
-> > > 
-> > > +       skb_reset_mac_header(skb);
-> > > +
-> > >         if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
-> > >                 u16 start = __virtio16_to_cpu(little_endian, hdr-
-> > > > csum_start);
-> > >                 u16 off = __virtio16_to_cpu(little_endian, hdr-
-> > > > csum_offset);
-> > > 
-> > > 
-> > 
-> > Hi,
-> > 
-> > Since the call to dev_parse_header_protocol is only made for gso
-> > packets where skb->protocol is not set, we could move
-> > skb_reset_mac_header down closer to that call. Is there another
-> > reason
-> > to reset mac_header earlier (and affect handling of other packets as
-> > well)? In any case, thanks for spotting this!
-> > 
-> 
-> The answer to your question was in the changelog
-> 
-> "This patch resets mac_header earlier, to get more coverage about this
-> change."
-> 
-> We want to detect if such a reset is going to hurt in general, not
-> only for GSO packets.
-> 
+When encoder validation of a display mode fails, retry with less bandwidth
+heavy YCbCr420 color mode, if available. This enables some HDMI 1.4 setups
+to support 4k60Hz output, which previously failed silently.
 
+AMDGPU had nearly the exact same issue. This problem description is
+therefore copied from my commit message of the AMDGPU patch.
 
-Acked-by: Balazs Nemeth <bnemeth@redhat.com>
+On some setups, while the monitor and the gpu support display modes with
+pixel clocks of up to 600MHz, the link encoder might not. This prevents
+YCbCr444 and RGB encoding for 4k60Hz, but YCbCr420 encoding might still be
+possible. However, which color mode is used is decided before the link
+encoder capabilities are checked. This patch fixes the problem by retrying
+to find a display mode with YCbCr420 enforced and using it, if it is
+valid.
 
-I can't spot any issues caused by resetting the mac header early on.
+I'm not entierly sure if the second
+"if (HAS_PCH_SPLIT(dev_priv) && !HAS_DDI(dev_priv))" check in
+intel_hdmi_compute_config(...) after forcing ycbcr420 is necessary. I
+included it to better be safe then sorry.
 
-Thanks!
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: <stable@vger.kernel.org>
+---
+Rebased from 5.12 to drm-tip and resend to resolve merge conflict.
+
+From 876c1c8d970ff2a411ee8d08651bd4edbe9ecb3d Mon Sep 17 00:00:00 2001
+From: Werner Sembach <wse@tuxedocomputers.com>
+Date: Thu, 29 Apr 2021 13:59:30 +0200
+Subject: [PATCH] Retry using YCbCr420 encoding if clock setup for RGB fails
+
+---
+ drivers/gpu/drm/i915/display/intel_hdmi.c | 80 +++++++++++++++++------
+ 1 file changed, 60 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_hdmi.c b/drivers/gpu/drm/i915/display/intel_hdmi.c
+index 46de56af33db..c9b5a7d7f9c6 100644
+--- a/drivers/gpu/drm/i915/display/intel_hdmi.c
++++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
+@@ -1861,6 +1861,30 @@ static int intel_hdmi_port_clock(int clock, int bpc)
+ 	return clock * bpc / 8;
+ }
+ 
++static enum drm_mode_status
++intel_hdmi_check_bpc(struct intel_hdmi *hdmi, int clock, bool has_hdmi_sink, struct drm_i915_private *dev_priv)
++{
++	enum drm_mode_status status;
++
++	/* check if we can do 8bpc */
++	status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 8),
++				       true, has_hdmi_sink);
++
++	if (has_hdmi_sink) {
++		/* if we can't do 8bpc we may still be able to do 12bpc */
++		if (status != MODE_OK && !HAS_GMCH(dev_priv))
++			status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 12),
++						       true, has_hdmi_sink);
++
++		/* if we can't do 8,12bpc we may still be able to do 10bpc */
++		if (status != MODE_OK && DISPLAY_VER(dev_priv) >= 11)
++			status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 10),
++						       true, has_hdmi_sink);
++	}
++
++	return status;
++}
++
+ static enum drm_mode_status
+ intel_hdmi_mode_valid(struct drm_connector *connector,
+ 		      struct drm_display_mode *mode)
+@@ -1891,23 +1915,18 @@ intel_hdmi_mode_valid(struct drm_connector *connector,
+ 	if (drm_mode_is_420_only(&connector->display_info, mode))
+ 		clock /= 2;
+ 
+-	/* check if we can do 8bpc */
+-	status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 8),
+-				       true, has_hdmi_sink);
++	status = intel_hdmi_check_bpc(hdmi, clock, has_hdmi_sink, dev_priv);
+ 
+-	if (has_hdmi_sink) {
+-		/* if we can't do 8bpc we may still be able to do 12bpc */
+-		if (status != MODE_OK && !HAS_GMCH(dev_priv))
+-			status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 12),
+-						       true, has_hdmi_sink);
++	if (status != MODE_OK) {
++		if (drm_mode_is_420_also(&connector->display_info, mode)) {
++			/* if we can't do full color resolution we may still be able to do reduced color resolution */
++			clock /= 2;
+ 
+-		/* if we can't do 8,12bpc we may still be able to do 10bpc */
+-		if (status != MODE_OK && DISPLAY_VER(dev_priv) >= 11)
+-			status = hdmi_port_clock_valid(hdmi, intel_hdmi_port_clock(clock, 10),
+-						       true, has_hdmi_sink);
++			status = intel_hdmi_check_bpc(hdmi, clock, has_hdmi_sink, dev_priv);
++		}
++		if (status != MODE_OK)
++			return status;
+ 	}
+-	if (status != MODE_OK)
+-		return status;
+ 
+ 	return intel_mode_valid_max_plane_size(dev_priv, mode, false);
+ }
+@@ -1990,14 +2009,17 @@ static bool hdmi_deep_color_possible(const struct intel_crtc_state *crtc_state,
+ 
+ static int
+ intel_hdmi_ycbcr420_config(struct intel_crtc_state *crtc_state,
+-			   const struct drm_connector_state *conn_state)
++			   const struct drm_connector_state *conn_state,
++			   const bool force_ycbcr420)
+ {
+ 	struct drm_connector *connector = conn_state->connector;
+ 	struct drm_i915_private *i915 = to_i915(connector->dev);
+ 	const struct drm_display_mode *adjusted_mode =
+ 		&crtc_state->hw.adjusted_mode;
+ 
+-	if (!drm_mode_is_420_only(&connector->display_info, adjusted_mode))
++	if (!(drm_mode_is_420_only(&connector->display_info, adjusted_mode) ||
++			(force_ycbcr420 &&
++			drm_mode_is_420_also(&connector->display_info, adjusted_mode))))
+ 		return 0;
+ 
+ 	if (!connector->ycbcr_420_allowed) {
+@@ -2126,7 +2148,7 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
+ 	struct drm_display_mode *adjusted_mode = &pipe_config->hw.adjusted_mode;
+ 	struct drm_connector *connector = conn_state->connector;
+ 	struct drm_scdc *scdc = &connector->display_info.hdmi.scdc;
+-	int ret;
++	int ret, ret_saved;
+ 
+ 	if (adjusted_mode->flags & DRM_MODE_FLAG_DBLSCAN)
+ 		return -EINVAL;
+@@ -2141,7 +2163,7 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
+ 	if (adjusted_mode->flags & DRM_MODE_FLAG_DBLCLK)
+ 		pipe_config->pixel_multiplier = 2;
+ 
+-	ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state);
++	ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state, false);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -2155,8 +2177,26 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
+ 		intel_hdmi_has_audio(encoder, pipe_config, conn_state);
+ 
+ 	ret = intel_hdmi_compute_clock(encoder, pipe_config);
+-	if (ret)
+-		return ret;
++	if (ret) {
++		ret_saved = ret;
++
++		ret = intel_hdmi_ycbcr420_config(pipe_config, conn_state, true);
++		if (ret)
++			return ret;
++
++		if (pipe_config->output_format != INTEL_OUTPUT_FORMAT_YCBCR420)
++			return ret_saved;
++
++		pipe_config->limited_color_range =
++			intel_hdmi_limited_color_range(pipe_config, conn_state);
++
++		if (HAS_PCH_SPLIT(dev_priv) && !HAS_DDI(dev_priv))
++			pipe_config->has_pch_encoder = true;
++
++		ret = intel_hdmi_compute_clock(encoder, pipe_config);
++		if (ret)
++			return ret;
++	}
+ 
+ 	if (conn_state->picture_aspect_ratio)
+ 		adjusted_mode->picture_aspect_ratio =
+-- 
+2.25.1
 
