@@ -2,62 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7070F36F577
-	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 07:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD8A36F587
+	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 08:02:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229834AbhD3Fqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Apr 2021 01:46:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43706 "EHLO mail.kernel.org"
+        id S230315AbhD3GDD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Apr 2021 02:03:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229482AbhD3Fqr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Apr 2021 01:46:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DBFC613E1;
-        Fri, 30 Apr 2021 05:45:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619761558;
-        bh=HCY6rgMAQL0Jmq5O361EYartF2zDgEk2xO1zcef/Rgs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hik4YkqyCQqVNhXImbR8GYGuYGRQL5sIDTSPPLf4aReAmNNHQ4Oj0S1XbNgCpQbVt
-         D2KMPjS75fPkCuELOgn/vjle0xtGjtmfG0CMrGQfFIQiTfuwcOjoqon96eTANQZRTr
-         V/9lQkPqVp1Jal8KmX0R4inz/XCKhckrs0np6LA0=
-Date:   Fri, 30 Apr 2021 07:45:56 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [PATCH 5.12 -stable] iwlwifi: Fix softirq/hardirq disabling in
- iwl_pcie_gen2_enqueue_hcmd()
-Message-ID: <YIuZlLFR/bISKQe8@kroah.com>
-References: <nycvar.YFH.7.76.2104292345080.18270@cbobk.fhfr.pm>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.2104292345080.18270@cbobk.fhfr.pm>
+        id S230182AbhD3GDB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Apr 2021 02:03:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55926613AD;
+        Fri, 30 Apr 2021 06:02:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1619762531;
+        bh=/zhml40MSgqcO95kEwJDoLdufgultqBegVTlGYgtcPE=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=0ykcbTwqOamNieNO8rjdBPO8kSFBfkDdrdsqsS1LP+6o0QMFI4d1vp6kI5BbsWGGj
+         5JwZCYpgJ0TzGpMbX+KiukP6KuShk7+8GOydg0hLVfTr+kGSc4wNYr0M8O2EwCm1gF
+         GKoPUlSbN7dISQR2lnVTQ3Ephaw0DX4xoBlQa1IY=
+Date:   Thu, 29 Apr 2021 23:02:11 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, andreyknvl@gmail.com, david@redhat.com,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org, slyfox@gentoo.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        vbabka@suse.cz
+Subject:  [patch 175/178] mm: page_alloc: ignore init_on_free=1 for
+ debug_pagealloc=1
+Message-ID: <20210430060211.frs1WAzi_%akpm@linux-foundation.org>
+In-Reply-To: <20210429225251.02b6386d21b69255b4f6c163@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 29, 2021 at 11:46:56PM +0200, Jiri Kosina wrote:
-> 
-> [ commit e7020bb068d8be50a92f48e36b236a1a1ef9282e upstream ]
-> 
-> From: Jiri Kosina <jkosina@suse.cz>
-> 
-> Analogically to what we did in 2800aadc18a6 ("iwlwifi: Fix softirq/hardirq 
-> disabling in iwl_pcie_enqueue_hcmd()"), we must apply the same fix to 
-> iwl_pcie_gen2_enqueue_hcmd(), as it's being called from exactly the same 
-> contexts.
-> 
-> Reported-by: Heiner Kallweit <hkallweit1@gmail.com
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-> Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2104171112390.18270@cbobk.fhfr.pm
-> ---
-> 
-> This fix unfortunately didn't make it upstream in time.
+From: Sergei Trofimovich <slyfox@gentoo.org>
+Subject: mm: page_alloc: ignore init_on_free=1 for debug_pagealloc=1
 
-Thanks, also added to 5.10.y and 5.11.y as I think it is needed there
-too, right?
+On !ARCH_SUPPORTS_DEBUG_PAGEALLOC (like ia64) debug_pagealloc=1 implies
+page_poison=on:
 
-greg k-h
+    if (page_poisoning_enabled() ||
+         (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+          debug_pagealloc_enabled()))
+            static_branch_enable(&_page_poisoning_enabled);
+
+page_poison=on needs to override init_on_free=1.
+
+Before the change it did not work as expected for the following case:
+- have PAGE_POISONING=y
+- have page_poison unset
+- have !ARCH_SUPPORTS_DEBUG_PAGEALLOC arch (like ia64)
+- have init_on_free=1
+- have debug_pagealloc=1
+
+That way we get both keys enabled:
+- static_branch_enable(&init_on_free);
+- static_branch_enable(&_page_poisoning_enabled);
+
+which leads to poisoned pages returned for __GFP_ZERO pages.
+
+After the change we execute only:
+- static_branch_enable(&_page_poisoning_enabled);
+  and ignore init_on_free=1.
+
+Link: https://lkml.kernel.org/r/20210329222555.3077928-1-slyfox@gentoo.org
+Link: https://lkml.org/lkml/2021/3/26/443
+Fixes: 8db26a3d4735 ("mm, page_poison: use static key more efficiently")
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/page_alloc.c |   30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
+
+--- a/mm/page_alloc.c~mm-page_alloc-ignore-init_on_free=1-for-debug_pagealloc=1
++++ a/mm/page_alloc.c
+@@ -786,32 +786,36 @@ static inline void clear_page_guard(stru
+  */
+ void init_mem_debugging_and_hardening(void)
+ {
++	bool page_poisoning_requested = false;
++
++#ifdef CONFIG_PAGE_POISONING
++	/*
++	 * Page poisoning is debug page alloc for some arches. If
++	 * either of those options are enabled, enable poisoning.
++	 */
++	if (page_poisoning_enabled() ||
++	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
++	      debug_pagealloc_enabled())) {
++		static_branch_enable(&_page_poisoning_enabled);
++		page_poisoning_requested = true;
++	}
++#endif
++
+ 	if (_init_on_alloc_enabled_early) {
+-		if (page_poisoning_enabled())
++		if (page_poisoning_requested)
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_alloc\n");
+ 		else
+ 			static_branch_enable(&init_on_alloc);
+ 	}
+ 	if (_init_on_free_enabled_early) {
+-		if (page_poisoning_enabled())
++		if (page_poisoning_requested)
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_free\n");
+ 		else
+ 			static_branch_enable(&init_on_free);
+ 	}
+ 
+-#ifdef CONFIG_PAGE_POISONING
+-	/*
+-	 * Page poisoning is debug page alloc for some arches. If
+-	 * either of those options are enabled, enable poisoning.
+-	 */
+-	if (page_poisoning_enabled() ||
+-	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+-	      debug_pagealloc_enabled()))
+-		static_branch_enable(&_page_poisoning_enabled);
+-#endif
+-
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+ 	if (!debug_pagealloc_enabled())
+ 		return;
+_
