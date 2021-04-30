@@ -2,76 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4D336FC24
-	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 16:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E40736FC2B
+	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 16:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233018AbhD3OVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Apr 2021 10:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
+        id S233146AbhD3OV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Apr 2021 10:21:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233029AbhD3OVj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Apr 2021 10:21:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3A54613A9;
-        Fri, 30 Apr 2021 14:20:50 +0000 (UTC)
+        id S232996AbhD3OVu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Apr 2021 10:21:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A064F61450;
+        Fri, 30 Apr 2021 14:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619792451;
-        bh=tpdLc4WQkUvcuQNKlcZnaDSVARBfAAiL2iJHmhS5k3Y=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGH4JYywW+Qj6SsCAA+ll89l0sSUEVXQezzDiMvnDiWH7lu16mR1fIiLlf8kdKOVF
-         ptLCY8an8xo0YZ4BL2HowyK32AybPvu0XBPwpvEy56iB2u+McZq0TNlcHEmW9dlCZZ
-         vBbop6duXXu+Me8su/AQIlfHAgMEAdOrfuYxip6g=
+        s=korg; t=1619792462;
+        bh=6G+pLgjYTHGSJy2+4tTEXtRGPYz0bm6Tb6DhitxL+hc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jBmyGKDX1Yg6jkEhns6TelJqDtz949m+8FhBWK3TSoXJr2nBUcu0pPkWr2XkMGzKg
+         16UK2W20LyzCPriz0mQLMQfFL0CK/ArELxEtc6/G8MusalhBIeIB7oMPvrtxGeIcQP
+         dhkwYKSOTGMnCX56Y0ftyOLGZymtDMbrTHP/yMNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.10 2/2] mei: me: add Alder Lake P device id.
-Date:   Fri, 30 Apr 2021 16:20:43 +0200
-Message-Id: <20210430141910.551444898@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.11 0/3] 5.11.18-rc1 review
+Date:   Fri, 30 Apr 2021 16:20:49 +0200
+Message-Id: <20210430141910.693887691@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210430141910.473289618@linuxfoundation.org>
-References: <20210430141910.473289618@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.18-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.11.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.11.18-rc1
+X-KernelTest-Deadline: 2021-05-02T14:19+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Winkler <tomas.winkler@intel.com>
+This is the start of the stable review cycle for the 5.11.18 release.
+There are 3 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 0df74278faedf20f9696bf2755cf0ce34afa4c3a upstream.
+Responses should be made by Sun, 02 May 2021 14:19:04 +0000.
+Anything received after that time might be too late.
 
-Add Alder Lake P device ID.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.18-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
+and the diffstat can be found below.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20210414045200.3498241-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/misc/mei/hw-me-regs.h |    1 +
- drivers/misc/mei/pci-me.c     |    1 +
- 2 files changed, 2 insertions(+)
+thanks,
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -105,6 +105,7 @@
- 
- #define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
- #define MEI_DEV_ID_ADP_LP     0x7A60  /* Alder Lake Point LP */
-+#define MEI_DEV_ID_ADP_P      0x51E0  /* Alder Lake Point P */
- 
- /*
-  * MEI HW Section
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -111,6 +111,7 @@ static const struct pci_device_id mei_me
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_S, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_LP, MEI_ME_PCH15_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_P, MEI_ME_PCH15_CFG)},
- 
- 	/* required last entry */
- 	{0, }
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.11.18-rc1
+
+Tomas Winkler <tomas.winkler@intel.com>
+    mei: me: add Alder Lake P device id.
+
+Qingqing Zhuo <qingqing.zhuo@amd.com>
+    drm/amd/display: Update modifier list for gfx10_3
+
+Jiri Kosina <jkosina@suse.cz>
+    iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_gen2_enqueue_hcmd()
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                          | 4 ++--
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++--
+ drivers/misc/mei/hw-me-regs.h                     | 1 +
+ drivers/misc/mei/pci-me.c                         | 1 +
+ drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c | 7 ++++---
+ 5 files changed, 10 insertions(+), 7 deletions(-)
 
 
