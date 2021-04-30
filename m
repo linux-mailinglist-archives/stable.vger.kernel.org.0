@@ -2,89 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 348C23703AA
-	for <lists+stable@lfdr.de>; Sat,  1 May 2021 00:45:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5AE3703AF
+	for <lists+stable@lfdr.de>; Sat,  1 May 2021 00:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230508AbhD3Wqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Apr 2021 18:46:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43990 "EHLO
+        id S231300AbhD3WuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Apr 2021 18:50:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231909AbhD3Wqc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Apr 2021 18:46:32 -0400
-Received: from mail-vk1-xa43.google.com (mail-vk1-xa43.google.com [IPv6:2607:f8b0:4864:20::a43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89362C06174A
-        for <stable@vger.kernel.org>; Fri, 30 Apr 2021 15:45:43 -0700 (PDT)
-Received: by mail-vk1-xa43.google.com with SMTP id a11so55729vkl.0
-        for <stable@vger.kernel.org>; Fri, 30 Apr 2021 15:45:43 -0700 (PDT)
+        with ESMTP id S230508AbhD3WuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Apr 2021 18:50:03 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90305C06138B
+        for <stable@vger.kernel.org>; Fri, 30 Apr 2021 15:49:14 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id z13so31431172lft.1
+        for <stable@vger.kernel.org>; Fri, 30 Apr 2021 15:49:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=K2eXGVRtyfecAMpxcnYjBZ0lhVQ2zQPpN5BszVwThuA=;
-        b=dpxeQbDHdRK2W2pdKm30LsTmyqfkIu9wWyggLVQwWPss81iwEpnaRWKS3Wi7bUOMmf
-         g0QHP7kswrniZHqC+rfZ0hjEWJkTumHEbKvvJo6g4ssEvRvwxQhig4HiAGOFR9tu1T1B
-         9y7xkuSegGZpq4mzDbch7Xhp7ROpoXVii99UfM3oUkAxKhnyJLG6DwOJ/TthU4ic1oXG
-         yPlvBUZIijLp5fWJOYWoNXoToVYrc5roZihWETlRy79eNIqeEvjgCH2G+yZkMRtl158O
-         xHvx1CUWvvQoB3YRsLW6buO78os0auMUrrDKTfigEghBxo8rOXDXusAI5ngQ63mm2Nag
-         uhTA==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iDj/KqljFidoYmUB3JwJD5XIMfVHo2ILy+QB0Z4+7eY=;
+        b=Hdkd+OSzAEW5kG/LYPVp9EWvvnwA2RN6Zcf57KQxFF0bLBLXPESKJS049xblm7jeMT
+         P9ad+q7y1qPiqnStuvGV02DOckOp2WORBpSUYodQ5FUg+S/bj2AIRvQMtJ6GqHPh1lOc
+         8WHv7ObX+EvIy/BAkLgIcbEoDj/DcCZ0/yHq3g7WqTJORopr6+IOwEwylce/YkEwrQ/e
+         KqwoDBr4d6QCwGoVs02Bon9aBUaRh2fhFJrBYoo0guOrgodpRUEzt9PK/gECsDMy8IxA
+         wxRYTIXbDLb+8HwzUilL5s1OkZyJw9FfEeFL3PAM1MhGr93iUtBGTHocxGWlEpvp85OB
+         4Yjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=K2eXGVRtyfecAMpxcnYjBZ0lhVQ2zQPpN5BszVwThuA=;
-        b=TUPSGKezv4YKzJQhnYrNreX1qj+SSGzdF39N8p/E6frAD5hs1SIdWM/qvDCrj+cxsj
-         DNl28Ps69KCwnOJik2iyadgnzva2ctZB4/929gg//nHYt/z2WBNERiQ4HGv4igVjrEMm
-         zG08s1qMmKO2b3IGJVBEO5x1bF52UbpZpkS24tFyfn92G8h8DumGWStWEASz+riN7MAB
-         FbMpfQiy0PcARVFVErV+peCW9DMQfviI8ZkjZzPAFhJXmoJiJozm3b6vyAts7x6gkK97
-         o/IoQtBzoKUMpWcae68N6mRuLDj8819ihBcjt3SAuuWCwASa+MSaVmeuzDu/agf5zEO7
-         gNbQ==
-X-Gm-Message-State: AOAM532Hv62sD3S/FuR5BJls6nN2kzI+d8huamPGKc3S8HCdQ1rJyCFK
-        yLzHdnkXctgyufsOFOE15E1HkDYooa82bvxg2Js=
-X-Google-Smtp-Source: ABdhPJw2L+x2WpzhCq0LEX/SRFmJBHTAkE3kB1OOHR4G4PI3JhIaswmW+3YjGolJi2vihQA8AP7b903cVXAmTORjwEY=
-X-Received: by 2002:a1f:bf83:: with SMTP id p125mr5350485vkf.14.1619822742781;
- Fri, 30 Apr 2021 15:45:42 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iDj/KqljFidoYmUB3JwJD5XIMfVHo2ILy+QB0Z4+7eY=;
+        b=TO+D346Jcgwo/P74VHbqc7laoP14GoOb1Hi3UVFMPbZLekugUn2pnkaLsxfovZ7zAo
+         35GJo1731+eonmcHFKCe0MfkmCuFEy0NlcsKSFVWNlM5kHjyN7yROt2CHG0k64/98jgm
+         9AyU3SeFBXtWMQHSLHgk0XfOHjdkC8xAhuZoOANzxCFAiS2UeN1KvbK1m1ZjNqJEKdFy
+         Ll/nkdSh2u9izI/H8WLH5Fu2lFyGOvKAxqQ6EKzfzE3no63dPXAvciXmDd44Ld1cVz85
+         ULIehjujKu4mlH4uLLlW0qVs0M7GQPQ/IENCdB8Vt1IDIbn8E3wJDizs5Lv1/vgldzgI
+         vH0w==
+X-Gm-Message-State: AOAM531b/zow0FTC13Mclb+WiDyC4eU3mAyZF8Yaw++oJmg0595dhRKg
+        GZQmOD90uHaSremHWl5onkXDt4g4+blt5Xkgo2ZEiQ==
+X-Google-Smtp-Source: ABdhPJywWmeJ2QmLmmKiD5eZ7WjRzX8EqYzEBw8K21R8QXzgYftmJURNZ0tjHvWjnKYgivNjQo7Z1wuvpbmKD0HDKHA=
+X-Received: by 2002:a05:6512:2190:: with SMTP id b16mr4831831lft.122.1619822952803;
+ Fri, 30 Apr 2021 15:49:12 -0700 (PDT)
 MIME-Version: 1.0
-Sender: gaddafi.m.aisha01@gmail.com
-Received: by 2002:ab0:3244:0:0:0:0:0 with HTTP; Fri, 30 Apr 2021 15:45:42
- -0700 (PDT)
-From:   "mrs.alima jonnathan" <mrs.alimajonnathan00000@gmail.com>
-Date:   Sat, 1 May 2021 00:45:42 +0200
-X-Google-Sender-Auth: 8dyPqNgQyEYEK6fQeSA1Xs3oLXU
-Message-ID: <CAAF2=j3WBFs9J134x_4SB_iLYLRyrLGEXa3_VubjLt_wL_0+pA@mail.gmail.com>
-Subject: Hello God Bless You As You Read This Massage ,
-To:     undisclosed-recipients:;
+References: <20210429012350.600951-1-nathan@kernel.org>
+In-Reply-To: <20210429012350.600951-1-nathan@kernel.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Fri, 30 Apr 2021 15:49:00 -0700
+Message-ID: <CAKwvOdkXBY_5goFo_DvbuaDNE=vcXxXYsw6tJGy4ZBRySW9_oA@mail.gmail.com>
+Subject: Re: [PATCH] Makefile: Move -Wno-unused-but-set-variable out of GCC
+ only block
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        "# 3.4.x" <stable@vger.kernel.org>, Jian Cai <jiancai@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear
+On Wed, Apr 28, 2021 at 6:24 PM Nathan Chancellor <nathan@kernel.org> wrote:
+>
+> Currently, -Wunused-but-set-variable is only supported by GCC so it is
+> disabled unconditionally in a GCC only block (it is enabled with W=1).
+> clang currently has its implementation for this warning in review so
+> preemptively move this statement out of the GCC only block and wrap it
+> with cc-disable-warning so that both compilers function the same.
+>
+> Cc: stable@vger.kernel.org
+> Link: https://reviews.llvm.org/D100581
 
-Am a dying woman here in the hospital, i was diagnose as a cancer
-patient 2 years ago. I am A business woman
-dealing with Gold Exportation. I have a charitable and unfufilment
+Thanks for the patch.
 
-project that am about to handover to you, if you now noting to worry about
-my fund we be transfer to you by online banking system please do what
-I ask you to do with my fund (eg) help the poor and also help the less
-privilege and make Sure You build the Charity Home In MY name.
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
 
-With the Sum of 7.5 Million dollars that i deposited in my bank in Spain
+(That's actually one of Jian's teammates working on implementing that
+warning).  Tested with https://reviews.llvm.org/D100581 applied, which
+I do fully expect to land in LLVM soon.
 
-I beg You in the name of Almighty God so that you do not get
-discouraged, I will always be with you in spirit while you realize my
-dreams, keep in mind that you are my hope of having the opportunity to
-be with GOD.
-Now my dear I need you to provide me with below information so that i
-can Forward it to my bank for Direct Transfer of my Fund into your
-bank Account
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> ---
+>  Makefile | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/Makefile b/Makefile
+> index f03888cdba4e..911d839cfea8 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -775,16 +775,16 @@ KBUILD_CFLAGS += -Wno-gnu
+>  KBUILD_CFLAGS += -mno-global-merge
+>  else
+>
+> -# These warnings generated too much noise in a regular build.
+> -# Use make W=1 to enable them (see scripts/Makefile.extrawarn)
+> -KBUILD_CFLAGS += -Wno-unused-but-set-variable
+> -
+>  # Warn about unmarked fall-throughs in switch statement.
+>  # Disabled for clang while comment to attribute conversion happens and
+>  # https://github.com/ClangBuiltLinux/linux/issues/636 is discussed.
+>  KBUILD_CFLAGS += $(call cc-option,-Wimplicit-fallthrough,)
+>  endif
+>
+> +# These warnings generated too much noise in a regular build.
+> +# Use make W=1 to enable them (see scripts/Makefile.extrawarn)
+> +KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
+> +
+>  KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
+>  ifdef CONFIG_FRAME_POINTER
+>  KBUILD_CFLAGS  += -fno-omit-frame-pointer -fno-optimize-sibling-calls
+>
+> base-commit: d8201efe75e13146ebde433745c7920e15593baf
+> --
+> 2.31.1.362.g311531c9de
+>
+> --
 
-Your full name:
-Your age:
-Marital Status:
-Your Nationality
-Your Occupation:
-Your Direct Mobile phone numbers to be reached:
-Your Direct contact home Address:
-**************************************************************
-
-Mrs. Alima Jonnathan
+-- 
+Thanks,
+~Nick Desaulniers
