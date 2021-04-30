@@ -2,70 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0C936F921
-	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 13:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 787D536F978
+	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 13:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229874AbhD3LUq convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 30 Apr 2021 07:20:46 -0400
-Received: from y230.enginsoft.it ([213.21.147.230]:60900 "EHLO
-        cellmail.enginsoft.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229543AbhD3LUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Apr 2021 07:20:46 -0400
-X-Greylist: delayed 3762 seconds by postgrey-1.27 at vger.kernel.org; Fri, 30 Apr 2021 07:20:46 EDT
-Received: from johnlewis.co.uk (ec2-54-183-249-251.us-west-1.compute.amazonaws.com [54.183.249.251])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by cellmail.enginsoft.it (Postfix) with ESMTPSA id 43F88630A9
-        for <stable@vger.kernel.org>; Fri, 30 Apr 2021 11:43:18 +0200 (CEST)
-Reply-To: robturner.procurement@johnlewis-trade.com, rob76295@gmail.com
-From:   John Lewis Partnersip <robert.turner044@johnlewis.co.uk>
-To:     stable@vger.kernel.org
-Subject: 4/30/2021-Purchase Inquiry ,[JL] 
-Date:   30 Apr 2021 09:43:15 +0000
-Message-ID: <20210430060312.63BE9DBF1570201F@johnlewis.co.uk>
+        id S229911AbhD3Lk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Apr 2021 07:40:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59918 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229875AbhD3Lkz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Apr 2021 07:40:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42967613E7;
+        Fri, 30 Apr 2021 11:40:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1619782807;
+        bh=OjYzE8T7BuqxJ1VhQlAFv+4eubSMW/QGjcutTf6y2+I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=V/ToOwGejOhOwWuf9hwzPC0G7hrYeEhLuLxfWAgEx3gMHULOEBQaiikDtkd4k6t7/
+         fQn+u69UszqWaRtIWG8s/Ax7q9vkkl4Z/OcNt8o9z6wAgY1FcP8b3bxwwWZOTgsYQX
+         +b4y7b4wRrbQvr4eoONRzKRm1VTgwP2aYvFTOkPQ=
+Date:   Fri, 30 Apr 2021 13:40:05 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Kasper Zwijsen <Kasper.Zwijsen@ugent.be>
+Cc:     "tglx@linutronix.de" <tglx@linutronix.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "security@kernel.org" <security@kernel.org>, stable@vger.kernel.org
+Subject: Re: Semantic Bug: Privilege Bypass in timerfd for 4.4.y
+Message-ID: <YIvslbdvfnwANjge@kroah.com>
+References: <PR2PR09MB3180C560FF0F6CAEE9654A47F85E9@PR2PR09MB3180.eurprd09.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <PR2PR09MB3180C560FF0F6CAEE9654A47F85E9@PR2PR09MB3180.eurprd09.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear stable
+On Fri, Apr 30, 2021 at 10:57:59AM +0000, Kasper Zwijsen wrote:
+> Dear Thomas Gleixner,
+> 
+> 
+> I believe I have found a semantic security bug in the form of a missing capability check in the timerfd_create and timerfd_settime system calls for the 4.4.y LTS kernel.
+> 
+> In this commit: https://github.com/torvalds/linux/commit/2895a5e5b3ae78d9923a91fce405d4a2f32c4309,
+> capability checks for CAP_WAKE_ALARM were added for creating and setting a CLOCK_BOOTTIME_ALARM and CLOCK_REALTIME_ALARM.
+> This security patch was applied to all but one LTS kernel, namely 4.4.y.
 
-The famous brand John Lewis Partnership, is UK's largest multi-
-channel retailer with over 126 shops and multiple expansion in 
-Africa furnished by European/Asian/American products. We are 
-sourcing
-new products to attract new customers and also retain our 
-existing ones, create new partnerships with companies dealing 
-with different kinds of goods globally.
+That is because it showed up in the 4.8 release, there was nothing to
+"apply" to any newer kernels :)
 
-Your company's products are of interest to our market as we have 
-an amazing market for your products.
+> It is therefore still possible for a user process without any privileges to create and set such a timer, resulting in the process being able to wake up the system.
+> 
+> The man pages state that creating or setting such a timer requires privileges. Similarly, the timer_create system call does check the correct permissions.
+> I therefore believe this is unintended and a semantic bug.
+> I have tested the original patch and found that it can simply be applied to the latest 4.4.y kernel (4.4.268 as of right now) without any issues.
+> The patch: https://lore.kernel.org/patchwork/patch/686888/
 
-Provide us your current catalog through email to review more. We 
-hope to be able to order with you and start a long-term friendly,
-respectable and solid business partnership. Please we would 
-appreciate it if you could send us your stock availability via 
-email if any.
 
-Our payment terms are 15 days net in Europe, 30 days Net in UK 
-and 30 days net in Asia/USA as we operate with over 5297 
-suppliers around the globe for the past 50 years now. For 
-immediate response Send your reply to 
-robturner.procurement@johnlewis-trade.com for us to be able to 
-treat with care and urgency.
+I've now queued this up for the next 4.4.y release.  In the future, you
+should just email the stable@vger.kernel.org address any git commit ids
+that you feel need to be backported.
 
-On behalf of our entire team, we wish you a fruitful 2021. 
+thanks!
 
-Best Regards
-
-Rob Turner
-Head Of Procurement Operations
-John Lewis Partnership.
-robturner.procurement@johnlewis-trade.com
-Tel: +44-7451-274090
-WhatsApp: +447497483925
-www.johnlewis.com
-REGISTERED OFFICE: 171 VICTORIA STREET, LONDON SW1E 5NN  
+greg k-h
