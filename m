@@ -2,160 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E618D370361
-	for <lists+stable@lfdr.de>; Sat,  1 May 2021 00:16:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53D40370385
+	for <lists+stable@lfdr.de>; Sat,  1 May 2021 00:34:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230378AbhD3WRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Apr 2021 18:17:25 -0400
-Received: from mx.cjr.nz ([51.158.111.142]:11344 "EHLO mx.cjr.nz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230298AbhD3WRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Apr 2021 18:17:24 -0400
-Received: from authenticated-user (mx.cjr.nz [51.158.111.142])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: pc)
-        by mx.cjr.nz (Postfix) with ESMTPSA id 3E4727FC03;
-        Fri, 30 Apr 2021 22:16:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cjr.nz; s=dkim;
-        t=1619820993;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=vgCbg8yg8pJUcxbgFE85sgAyIsJIA3lKphHFYuueFo4=;
-        b=s1piMF443Svc1Wz4Y2asef6wnjbvJXeebJsfDbG1+yD1mkhAIlRD/ogjRAqp2KCBWIntnF
-        706rR2hKEYMONedZFYscBDdsnItVHv1VgIN0SbSa+2ksHvBhQO/SSsMpVClBlhDBs5putG
-        ZT/6HdNTDAaDTexsIVNLLcR+HSgyRB7Wz77gvumHd53LUoY+VZ9YbL1EDsjqlGIJhYGK7m
-        BQN1x0toKGVVM4mWGo6U/fyv2NwIKnc7HoLWw0DSGk4PBPSPKfisA7Ppc5EAzRGufZaKSN
-        tH/r/URvB5VitZe4kp0juE7Uhf7MdciyTFIge6HLF3VTLZCLRx3tKKHpznKMeg==
-From:   Paulo Alcantara <pc@cjr.nz>
-To:     linux-cifs@vger.kernel.org, smfrench@gmail.com
-Cc:     ddiss@suse.de, aaptel@suse.com, Paulo Alcantara <pc@cjr.nz>,
-        stable@vger.kernel.org
-Subject: [PATCH] cifs: fix regression when mounting shares with prefix paths
-Date:   Fri, 30 Apr 2021 19:16:21 -0300
-Message-Id: <20210430221621.7497-1-pc@cjr.nz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S230290AbhD3WfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Apr 2021 18:35:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41466 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230226AbhD3WfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Apr 2021 18:35:07 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21ADEC06174A;
+        Fri, 30 Apr 2021 15:34:18 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id r12so107460252ejr.5;
+        Fri, 30 Apr 2021 15:34:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=hiUWyFqlJdRwXooAQ25d93+ugrINarVaEPoxy9k6sZY=;
+        b=o7fI9649WOSdBxRzmWL6eg3WfbF3n4v3mV8DKNDEuOgbn2LNYMh8jT3MCubl/aiLPE
+         UB9+0cI3iYDtmjY3LZpzqjLQTGuJ+d1j95ylNHI0ZihCSxdMFhQ4QnLnT7Gc0IHyOpRk
+         YJBrYT6BPkYrIIx6qsiC3LvHTgn0gvFF2EwB6HtNlyZ3BPHQuMNFK1hvHfZ/y79DViiF
+         MyLnX3SMWFZ7tcQs6oqKMOF/lQNHdrPvrfpPsvpPrH0gsnmXDUVmmM7DenhBux6GuBtz
+         6iLe64YeIcoj2VpNVPrETMCnXHbH05a6+xKWkSFaVlFKRYRTmca9NW1eFW51vkt1dlet
+         X7SA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=hiUWyFqlJdRwXooAQ25d93+ugrINarVaEPoxy9k6sZY=;
+        b=EXHMMCAYkNKeZWXa0VNVfdk7Ztm4LRENoOykwqpAFS3WN/Sx1V5YKdasnjjqVt6LmF
+         Qg4msn+Cm5FfmPe2dzPj3T1V9GzSzjnLRBc4yzwRNQlE/hfnXmvibOZYxpDS6u1cJmfn
+         foxqa3b07Dn2pNHkrtr50fqlVvSlN8tiOzvPnFPkzzeIkj/N316v2cAAVwa1uVZk0nQq
+         VcSrhGXAQHz476XW9KMvuTvul8D601iidH1dFjRB3o2/chlGwHpmLoeHMyr6i4rIeWnu
+         3IjUl7ISoUXcXGvZifh6VeTUatv+BMdHTRLx3RC2VY6Cjwzuy4H7iR1nkY/hR2OsKbkH
+         ecng==
+X-Gm-Message-State: AOAM5328DMv8cSVxu3xCSHTxvCqq59fQHKTYMedZAtTEtrAisWzN+/YI
+        uCU8xd+PQVaNagmQTaPa/bbdfbA/KgVJqp5aFeb51Q==
+X-Google-Smtp-Source: ABdhPJzJNF/bw7xzI+qqPUxkrtLLVbS5pSocMcxmcTOA9wPJrBPgao08DYg5esNfCkl3LBWcwMegXA==
+X-Received: by 2002:a17:906:7714:: with SMTP id q20mr6853170ejm.167.1619822056541;
+        Fri, 30 Apr 2021 15:34:16 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id g4sm2770343edq.0.2021.04.30.15.34.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Apr 2021 15:34:16 -0700 (PDT)
+Message-ID: <608c85e8.1c69fb81.18a89.7996@mx.google.com>
+Date:   Fri, 30 Apr 2021 15:34:16 -0700 (PDT)
+X-Google-Original-Date: Fri, 30 Apr 2021 22:34:12 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210430141910.899518186@linuxfoundation.org>
+Subject: RE: [PATCH 5.12 0/5] 5.12.1-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit 315db9a05b7a ("cifs: fix leak in cifs_smb3_do_mount() ctx")
-revealed an existing bug when mounting shares that contain a prefix
-path or DFS links.
+On Fri, 30 Apr 2021 16:20:55 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.12.1 release.
+> There are 5 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 02 May 2021 14:19:04 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.1-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-cifs_setup_volume_info() requires the @devname to contain the full
-path (UNC + prefix) to update the fs context with the new UNC and
-prepath values, however we were passing only the UNC
-path (old_ctx->UNC) in @device thus discarding any prefix paths.
-
-Instead of concatenating both old_ctx->{UNC,prepath} and pass it in
-@devname, just keep the dup'ed values of UNC and prepath in
-cifs_sb->ctx after calling smb3_fs_context_dup(), and fix
-smb3_parse_devname() to correctly parse and not leak the new UNC and
-prefix paths.
-
-Cc: <stable@vger.kernel.org> # v5.11+
-Fixes: 315db9a05b7a ("cifs: fix leak in cifs_smb3_do_mount() ctx")
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
----
- fs/cifs/cifsfs.c     |  8 +-------
- fs/cifs/connect.c    | 25 +++++++++++++++++--------
- fs/cifs/fs_context.c |  4 ++++
- 3 files changed, 22 insertions(+), 15 deletions(-)
-
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index 8a6894577697..d7ea9c5fe0f8 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -863,13 +863,7 @@ cifs_smb3_do_mount(struct file_system_type *fs_type,
- 		goto out;
- 	}
- 
--	/* cifs_setup_volume_info->smb3_parse_devname() redups UNC & prepath */
--	kfree(cifs_sb->ctx->UNC);
--	cifs_sb->ctx->UNC = NULL;
--	kfree(cifs_sb->ctx->prepath);
--	cifs_sb->ctx->prepath = NULL;
--
--	rc = cifs_setup_volume_info(cifs_sb->ctx, NULL, old_ctx->UNC);
-+	rc = cifs_setup_volume_info(cifs_sb->ctx, NULL, NULL);
- 	if (rc) {
- 		root = ERR_PTR(rc);
- 		goto out;
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index becd5f807787..04a06e22e715 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3159,19 +3159,28 @@ static int do_dfs_failover(const char *path, const char *full_path, struct cifs_
- int
- cifs_setup_volume_info(struct smb3_fs_context *ctx, const char *mntopts, const char *devname)
- {
--	int rc = 0;
-+	int rc;
- 
--	smb3_parse_devname(devname, ctx);
-+	if (devname) {
-+		cifs_dbg(FYI, "%s: devname=%s\n", __func__, devname);
-+		rc = smb3_parse_devname(devname, ctx);
-+		if (rc) {
-+			cifs_dbg(VFS, "%s: failed to parse %s: %d\n", __func__, devname, rc);
-+			return rc;
-+		}
-+	}
- 
- 	if (mntopts) {
- 		char *ip;
- 
--		cifs_dbg(FYI, "%s: mntopts=%s\n", __func__, mntopts);
- 		rc = smb3_parse_opt(mntopts, "ip", &ip);
--		if (!rc && !cifs_convert_address((struct sockaddr *)&ctx->dstaddr, ip,
--						 strlen(ip))) {
--			cifs_dbg(VFS, "%s: failed to convert ip address\n", __func__);
--			return -EINVAL;
-+		if (!rc) {
-+			rc = cifs_convert_address((struct sockaddr *)&ctx->dstaddr, ip, strlen(ip));
-+			kfree(ip);
-+			if (!rc) {
-+				cifs_dbg(VFS, "%s: failed to convert ip address\n", __func__);
-+				return -EINVAL;
-+			}
- 		}
- 	}
- 
-@@ -3189,7 +3198,7 @@ cifs_setup_volume_info(struct smb3_fs_context *ctx, const char *mntopts, const c
- 		return -EINVAL;
- 	}
- 
--	return rc;
-+	return 0;
- }
- 
- static int
-diff --git a/fs/cifs/fs_context.c b/fs/cifs/fs_context.c
-index 1d6e0e15b034..3bcf881c3ae9 100644
---- a/fs/cifs/fs_context.c
-+++ b/fs/cifs/fs_context.c
-@@ -476,6 +476,7 @@ smb3_parse_devname(const char *devname, struct smb3_fs_context *ctx)
- 
- 	/* move "pos" up to delimiter or NULL */
- 	pos += len;
-+	kfree(ctx->UNC);
- 	ctx->UNC = kstrndup(devname, pos - devname, GFP_KERNEL);
- 	if (!ctx->UNC)
- 		return -ENOMEM;
-@@ -486,6 +487,9 @@ smb3_parse_devname(const char *devname, struct smb3_fs_context *ctx)
- 	if (*pos == '/' || *pos == '\\')
- 		pos++;
- 
-+	kfree(ctx->prepath);
-+	ctx->prepath = NULL;
-+
- 	/* If pos is NULL then no prepath */
- 	if (!*pos)
- 		return 0;
--- 
-2.31.1
+5.12.1-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
