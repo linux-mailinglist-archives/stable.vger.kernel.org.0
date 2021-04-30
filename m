@@ -2,159 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A0D370163
-	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 21:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33AA737016F
+	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 21:44:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233226AbhD3TlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Apr 2021 15:41:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59756 "EHLO
+        id S232301AbhD3Tpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Apr 2021 15:45:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233188AbhD3TlN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Apr 2021 15:41:13 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB04C06174A;
-        Fri, 30 Apr 2021 12:40:24 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id 12so111446891lfq.13;
-        Fri, 30 Apr 2021 12:40:24 -0700 (PDT)
+        with ESMTP id S232965AbhD3Tpb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Apr 2021 15:45:31 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB4CC06138B
+        for <stable@vger.kernel.org>; Fri, 30 Apr 2021 12:44:41 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id i190so9610254pfc.12
+        for <stable@vger.kernel.org>; Fri, 30 Apr 2021 12:44:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wr3TJWjpkmXIK0mmqtUjTMHf0hJ6LevoMO/vPiujiS0=;
-        b=C9xke+WVC4FuSBch1oqd9Eay6aIRdFjN9thDN8ixRLOBbVsp4TfjhVOOsAUIwYB4nq
-         iv1y0TLHWgCApwlWBhI91eCPAtbqgJB+xsbCl0NT//WZcFcEkbnwB/QGT9ahQcTldMus
-         11N0rY7jqGdbHZzZupLuSdhKwWNFUWZDttaO6ocTtxphVh1diB5CnNQj3Y4VZONjLQc2
-         ELlDgBqPzdmC3tErOTQgFZSoUFChExt75nP2aoyw4lI/wWf4AsaZHFBC/b3Lx+O5pvC3
-         og6lphaMpf/zW+6IDps+5gULMHEGljpwz2UunaLLTLoQLyGXFq/vtsS7X3pf7ooZNJPa
-         li/w==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VnAMZCjJeha4Q4TlD43nzYSnUVyC6eQq01vmoceibJY=;
+        b=tb/fK29CHE+Sv35sE7+JyllJWazZW4TfyGsZF1+hAbLG14I0zW7zaFp01AZlra5/6a
+         Iu1AKAQMMxIKrDaN5cTCqzuLbxCBJ0s7HgizFCE0NvO0V0uU3/DBfO7rcprYJEyse/9g
+         bVBievueL++n55VVUkE46Tvx41jQIeZlmP7UzNhb34hY65i2AZXFizQkcPYAFmo6/ElN
+         +ugjCf+hlrlUzqwWIHxc8H2bwv/T/4b0zVbN0F6eeZrjou85knRVf91N/eEDMlunqefB
+         U2eWKvWJ126cOaLPEiXQOn5c+3CzcUCMP8V9aMu4/x9qDp7f4NuMorS8PW6Y4IQTAeZq
+         1I7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wr3TJWjpkmXIK0mmqtUjTMHf0hJ6LevoMO/vPiujiS0=;
-        b=lYWfkKtnlLx4Fp+mtB/nmZrRBz8Qqthi3hAs/ASOnyOGGpRD8fYlgtA86HG5ny1qd0
-         gsbcRP+PpDBnOpHAkazKsmwdqrkAMZi1T9ldE60o+UsQyM93XAQoClD2p0vQq5Qhy9kg
-         Jsa/EfK6Y++gAfvsAvxLToMIOB7NXGpqm8M/bq0C6gVRCfKiX3RToE/pUEceFYJ1qyvu
-         qMG1lMclDFxaJiyNYdhB0loUydNpwXn+dVn8fsuitDAXCmwe9Nak85+PTJaKaqPNmdvc
-         g2sfk9TK7Fld4EV8VxyLKZj95CxmBJlN61ZIvVFBj384In6lYurXgIwPE24FgiIs96lr
-         Mm9A==
-X-Gm-Message-State: AOAM5310QrrD/4rpueHLN0bbX4A7HepHxN/ruXSAzhZzhmDqynXuZSYl
-        PDCZPltZihS6ufUUaY0BfbYh8kzsxml65Ied19Q=
-X-Google-Smtp-Source: ABdhPJxWGNF8Xm6C0xc8l5hJbd6xKA3cSO7mn7M2P/EQse0eMG7C4Vb1cXfVh142rpyy2KX3m1xTgMj2ftZeC42+lK8=
-X-Received: by 2002:a19:614e:: with SMTP id m14mr4249766lfk.395.1619811623256;
- Fri, 30 Apr 2021 12:40:23 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VnAMZCjJeha4Q4TlD43nzYSnUVyC6eQq01vmoceibJY=;
+        b=O9cTuD/tVzvRSKdZNgDA3OiB410TU7GLql3Sfgv0BKSUadRV7Q0LbYm5JMxeXiyh50
+         EvrHzUqC4/+04ikE0dVx/LRINiV7e8RnVQdXZnm7T9UR8m6dYIYfe72kftvxB5zr75Gf
+         ezcZonmj5Zl78jW4AOkkCuX3hPBPLljQYF6HRE/Jdl3yrRWVq758+tde0GkjuQF/0Hg5
+         NAR287unZSjM96+4rtBQFU86bvq+8yvUoaqp5SxrMonEnQL9JSLy6okidhKP75FQpUE7
+         QcQ3c+SF4529NaJDEYwpzjFzXQ4RYQsRrF5RrIqZUQmIhh6HtEEhkqkYEAFGrZytdiEC
+         HLYg==
+X-Gm-Message-State: AOAM532sqNdtG+p6I60XejERqllkXO+aiH43piN31ph5n7NdCHBEkqXK
+        SDNQh8ASawSkY3YIJzAVTKcSiZ344ydGPHa+
+X-Google-Smtp-Source: ABdhPJywDOfvvPlfjm3+KAkPIEQMbBUSxgXmhaf0rW9AScCRwGxbygELowy0qnVYTSmxcSUBgCRvBw==
+X-Received: by 2002:a05:6a00:b4b:b029:276:6388:a3ac with SMTP id p11-20020a056a000b4bb02902766388a3acmr6079156pfo.80.1619811880980;
+        Fri, 30 Apr 2021 12:44:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i22sm3769375pgj.90.2021.04.30.12.44.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Apr 2021 12:44:40 -0700 (PDT)
+Message-ID: <608c5e28.1c69fb81.31bdb.964a@mx.google.com>
+Date:   Fri, 30 Apr 2021 12:44:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210430180843.16920-1-pc@cjr.nz>
-In-Reply-To: <20210430180843.16920-1-pc@cjr.nz>
-From:   Steve French <smfrench@gmail.com>
-Date:   Fri, 30 Apr 2021 14:40:12 -0500
-Message-ID: <CAH2r5mvfj8Q9rKZjOBv1tyzeKAemRf41nnQKxCD3wJWGofro3w@mail.gmail.com>
-Subject: Re: [PATCH] cifs: fix automount regression of dfs links
-To:     Paulo Alcantara <pc@cjr.nz>
-Cc:     CIFS <linux-cifs@vger.kernel.org>,
-        David Disseldorp <ddiss@suse.de>,
-        =?UTF-8?Q?Aur=C3=A9lien_Aptel?= <aaptel@suse.com>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.115-9-g4f9e765c943d8
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 151 runs,
+ 5 regressions (v5.4.115-9-g4f9e765c943d8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-FYI - Running the DFS tests now
+stable-rc/linux-5.4.y baseline: 151 runs, 5 regressions (v5.4.115-9-g4f9e76=
+5c943d8)
 
-http://smb3-test-rhel-75.southcentralus.cloudapp.azure.com/#/builders/3/builds/99
+Regressions Summary
+-------------------
 
-On Fri, Apr 30, 2021 at 1:10 PM Paulo Alcantara <pc@cjr.nz> wrote:
->
-> Unfortunately we can't kfree() the UNC and prefix paths in
-> cifs_smb3_do_mount() because they could have come from a chased DFS
-> referral (automount) and we rely on the new values set in cifs_sb->ctx
-> prior to calling cifs_mount().
->
-> Instead, fix smb3_parse_devname() to not leak the UNC and prefix paths
-> when parsing new share paths.
->
-> Cc: <stable@vger.kernel.org> # v5.11+
-> Fixes: 315db9a05b7a ("cifs: fix leak in cifs_smb3_do_mount() ctx")
-> Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-> ---
->  fs/cifs/cifsfs.c     |  6 ------
->  fs/cifs/connect.c    | 10 +++++++---
->  fs/cifs/fs_context.c |  2 ++
->  3 files changed, 9 insertions(+), 9 deletions(-)
->
-> diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-> index 8a6894577697..bfe98136f9c1 100644
-> --- a/fs/cifs/cifsfs.c
-> +++ b/fs/cifs/cifsfs.c
-> @@ -863,12 +863,6 @@ cifs_smb3_do_mount(struct file_system_type *fs_type,
->                 goto out;
->         }
->
-> -       /* cifs_setup_volume_info->smb3_parse_devname() redups UNC & prepath */
-> -       kfree(cifs_sb->ctx->UNC);
-> -       cifs_sb->ctx->UNC = NULL;
-> -       kfree(cifs_sb->ctx->prepath);
-> -       cifs_sb->ctx->prepath = NULL;
-> -
->         rc = cifs_setup_volume_info(cifs_sb->ctx, NULL, old_ctx->UNC);
->         if (rc) {
->                 root = ERR_PTR(rc);
-> diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-> index becd5f807787..ee4a92cbcb29 100644
-> --- a/fs/cifs/connect.c
-> +++ b/fs/cifs/connect.c
-> @@ -3159,9 +3159,13 @@ static int do_dfs_failover(const char *path, const char *full_path, struct cifs_
->  int
->  cifs_setup_volume_info(struct smb3_fs_context *ctx, const char *mntopts, const char *devname)
->  {
-> -       int rc = 0;
-> +       int rc;
->
-> -       smb3_parse_devname(devname, ctx);
-> +       rc = smb3_parse_devname(devname, ctx);
-> +       if (rc) {
-> +               cifs_dbg(VFS, "%s: failed to parse %s: %d\n", __func__, devname, rc);
-> +               return rc;
-> +       }
->
->         if (mntopts) {
->                 char *ip;
-> @@ -3189,7 +3193,7 @@ cifs_setup_volume_info(struct smb3_fs_context *ctx, const char *mntopts, const c
->                 return -EINVAL;
->         }
->
-> -       return rc;
-> +       return 0;
->  }
->
->  static int
-> diff --git a/fs/cifs/fs_context.c b/fs/cifs/fs_context.c
-> index 1d6e0e15b034..b502a44e15a1 100644
-> --- a/fs/cifs/fs_context.c
-> +++ b/fs/cifs/fs_context.c
-> @@ -476,6 +476,7 @@ smb3_parse_devname(const char *devname, struct smb3_fs_context *ctx)
->
->         /* move "pos" up to delimiter or NULL */
->         pos += len;
-> +       kfree(ctx->UNC);
->         ctx->UNC = kstrndup(devname, pos - devname, GFP_KERNEL);
->         if (!ctx->UNC)
->                 return -ENOMEM;
-> @@ -490,6 +491,7 @@ smb3_parse_devname(const char *devname, struct smb3_fs_context *ctx)
->         if (!*pos)
->                 return 0;
->
-> +       kfree(ctx->prepath);
->         ctx->prepath = kstrdup(pos, GFP_KERNEL);
->         if (!ctx->prepath)
->                 return -ENOMEM;
-> --
-> 2.31.1
->
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
 
 
--- 
-Thanks,
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.115-9-g4f9e765c943d8/plan/baseline/
 
-Steve
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.115-9-g4f9e765c943d8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4f9e765c943d89435e58094c616a044b84fb55ef =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/608c27f6738a7802239b77a4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
+hed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
+hed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/608c27f6738a7802239b7=
+7a5
+        failing since 161 days (last pass: v5.4.77-152-ga3746663c3479, firs=
+t fail: v5.4.78) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/608c28a92132caf4a69b779b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/608c28a92132caf4a69b7=
+79c
+        failing since 166 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/608c28a77d9619e0959b779a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/608c28a77d9619e0959b7=
+79b
+        failing since 166 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/608c28b22132caf4a69b77b0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/608c28b22132caf4a69b7=
+7b1
+        failing since 166 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/608c31c194f9f75efd9b77bb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.115=
+-9-g4f9e765c943d8/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/608c31c194f9f75efd9b7=
+7bc
+        failing since 166 days (last pass: v5.4.77-44-g28fe0e171c204, first=
+ fail: v5.4.77-46-ga3e34830d912) =
+
+ =20
