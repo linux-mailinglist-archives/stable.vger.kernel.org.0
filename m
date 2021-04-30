@@ -2,82 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A74370417
-	for <lists+stable@lfdr.de>; Sat,  1 May 2021 01:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1863937041B
+	for <lists+stable@lfdr.de>; Sat,  1 May 2021 01:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230508AbhD3X26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Apr 2021 19:28:58 -0400
-Received: from mail-wm1-f43.google.com ([209.85.128.43]:37472 "EHLO
-        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232743AbhD3X26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 30 Apr 2021 19:28:58 -0400
-Received: by mail-wm1-f43.google.com with SMTP id l189-20020a1cbbc60000b0290140319ad207so2489332wmf.2;
-        Fri, 30 Apr 2021 16:28:08 -0700 (PDT)
+        id S231462AbhD3Xar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Apr 2021 19:30:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53612 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231443AbhD3Xar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 30 Apr 2021 19:30:47 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865C4C06174A;
+        Fri, 30 Apr 2021 16:29:57 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id u14-20020a17090a1f0eb029014e38011b09so138617pja.5;
+        Fri, 30 Apr 2021 16:29:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=LJfespKOV8EcdHi0bNMCGGznRrQpjhS0/lq88pDhCjI=;
+        b=nqbEgoB9dsGytX7N7HSVmhAwgdOq5NT7ZFnBR4+NPVB5prWXJPFEyvxFbM0Bbpe376
+         X5FRm87Ne8+ePs/iYfCB6XQiLHnz1SAMYDMsBelShajJ9cA78hE8T4RyflJDWGWD1/1z
+         QpCGSW3zPlznWDqmok12b1jvSS2k0WI8AExzToGTfAdBkhSZWc7yk3TGW4aqc16sTh0+
+         EKa8Q3RtgezBKGUbpcZkqSeBWvSPYqEhkC9+9DlUikUBNbDGxEXPHjys4q4oN9RX//ub
+         EpOOQNlDNOsJQWoRZsrX6yTr87NQutqGf5vU5rEf2r75SH1HAm5033Ur4pJNlxnfSKcV
+         i81Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=e7M7J9ueTHYRqRSdos1354dv+7ox/fMvVKVag0BPtGI=;
-        b=QC+q69+PwCN7LOMpwQYX0i2pft/1AtSulH7ktLjJOJbneIeTKNXTY39lMj4okkDCH8
-         A5bMSxBx9YOYh/SKYCYgxtyWgtDek4jyBhzfvMs8w5WLi5wtyYdQSNV1DCf+9q2pb+51
-         OqbiceNryJ37x2RlQvPzJMw3lqDmTuvUQjssrRuvalNP4RgcTFA69k9UF4sTTFQ7wUl2
-         NeEaHN4jfcun2ZyuiOuZ0NKLFCm9ysVoqIgHwuXFJxCvd4rBvG5MU6DyccFMuvVxhj1A
-         jieISOCvHqALoAE0xccop0pRf28mvSl0dg6upf2+Ve2+HpACmVK5LXKU8quqF6k80gT4
-         +Uog==
-X-Gm-Message-State: AOAM532mURp53sH238y949nuaET45WA1HrMq/k4ZNo/+QVJcrZAdZNwm
-        1RL20IiMWeyGkjCOmnKQy7VqZ7aCKWvIuA==
-X-Google-Smtp-Source: ABdhPJza0ln1bOMwbl3+CbiKmncgMLNYniqPu6H3H43cNxhWIs2J+qDnXMm0ftzVY7jVSwLLzzojTQ==
-X-Received: by 2002:a7b:cc06:: with SMTP id f6mr18804461wmh.178.1619825287332;
-        Fri, 30 Apr 2021 16:28:07 -0700 (PDT)
-Received: from localhost.localdomain ([82.213.255.95])
-        by smtp.gmail.com with ESMTPSA id f4sm3967378wrz.33.2021.04.30.16.28.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Apr 2021 16:28:06 -0700 (PDT)
-From:   Andrew Zaborowski <andrew.zaborowski@intel.com>
-To:     keyrings@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org
-Subject: [RESEND][PATCH 1/2] keys: crypto: Replace BUG_ON() with WARN() in find_asymmetric_key()
-Date:   Sat,  1 May 2021 01:27:53 +0200
-Message-Id: <20210430232754.3017358-1-andrew.zaborowski@intel.com>
-X-Mailer: git-send-email 2.27.0
+        bh=LJfespKOV8EcdHi0bNMCGGznRrQpjhS0/lq88pDhCjI=;
+        b=tpWGynP49KkNiB/DOfU4tE1rSFaIRkQ1KM7DbLVJLEEbc6ane0/AqmjT8i1mnKcMVQ
+         McJ5Ga3AuVi2HGd82dsXlI9ySBuwy1+IZrfH0z4PvrgX12bdR6tK3ZB1BIFWqJ6/yV7p
+         aGvgI59Lh5OLxXkx45F2UZOZEzkw3ED+t06IbMFSeMiwcxkf4g6EShmuAk+Lg3nETqUH
+         Jeox3qIhdlu+/TcR2hevScV3iKJjHTIih/jfddg8wEqy3+ZumGkF5wIgeOYMF7NGcLCU
+         4al3UcpqQyQ1rxG+prQhdIJfx7in6xfJJ2Y1Xhk3TW1zD64tgEPGiHF6VgqID8TZi2pi
+         g8MA==
+X-Gm-Message-State: AOAM531AIIBfoH6jaIa3eom+cplY84EXiKUAMuug7ctVDCxr7U4YPzo1
+        d7u4kgXcSer5OViWqPcL3bpMAWSYWus=
+X-Google-Smtp-Source: ABdhPJw3aUEqgFiSOYdCozCsGHygve6o3nDDRIE7RE4xixkm3VBUUe4/cIQ0N+r6MPQXpIUn+5YAjQ==
+X-Received: by 2002:a17:902:b095:b029:ed:46af:e33f with SMTP id p21-20020a170902b095b02900ed46afe33fmr7660346plr.23.1619825396671;
+        Fri, 30 Apr 2021 16:29:56 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id pc17sm2883626pjb.19.2021.04.30.16.29.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 30 Apr 2021 16:29:56 -0700 (PDT)
+Subject: Re: [PATCH 5.10 0/2] 5.10.34-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210430141910.473289618@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <93b3cb4b-596d-f209-850b-2113145805ba@gmail.com>
+Date:   Fri, 30 Apr 2021 16:29:45 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.10.0
 MIME-Version: 1.0
+In-Reply-To: <20210430141910.473289618@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
 
-BUG_ON() should not be used in the kernel code, unless there are
-exceptional reasons to do so. Replace BUG_ON() with WARN() and
-return.
 
-Cc: stable@vger.kernel.org
-Fixes: b3811d36a3e7 ("KEYS: checking the input id parameters before finding asymmetric key")
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
----
-No changes from original submission by Jarkko.
+On 4/30/2021 7:20 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.34 release.
+> There are 2 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 02 May 2021 14:19:04 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.34-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 
- crypto/asymmetric_keys/asymmetric_type.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-diff --git a/crypto/asymmetric_keys/asymmetric_type.c b/crypto/asymmetric_keys/asymmetric_type.c
-index ad8af3d70ac..a00bed3e04d 100644
---- a/crypto/asymmetric_keys/asymmetric_type.c
-+++ b/crypto/asymmetric_keys/asymmetric_type.c
-@@ -54,7 +54,10 @@ struct key *find_asymmetric_key(struct key *keyring,
- 	char *req, *p;
- 	int len;
- 
--	BUG_ON(!id_0 && !id_1);
-+	if (!id_0 && !id_1) {
-+		WARN(1, "All ID's are NULL\n");
-+		return ERR_PTR(-EINVAL);
-+	}
- 
- 	if (id_0) {
- 		lookup = id_0->data;
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.27.0
-
+Florian
