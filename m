@@ -2,93 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C212B36F573
-	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 07:43:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7070F36F577
+	for <lists+stable@lfdr.de>; Fri, 30 Apr 2021 07:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229508AbhD3Foi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 30 Apr 2021 01:44:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43314 "EHLO mail.kernel.org"
+        id S229834AbhD3Fqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 30 Apr 2021 01:46:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229482AbhD3Foh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 30 Apr 2021 01:44:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF172613E1;
-        Fri, 30 Apr 2021 05:43:49 +0000 (UTC)
+        id S229482AbhD3Fqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 30 Apr 2021 01:46:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DBFC613E1;
+        Fri, 30 Apr 2021 05:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1619761430;
-        bh=Cxb6f0NFeIXoTIzOwIzoIyf/7gzBsPSQZxWmBcfnH8I=;
-        h=Subject:To:From:Date:From;
-        b=YZLL+v2V9yLQz/6UqMxyNp8F8eaJuCViX+RWeIMkLx6Ej9aT2cHuVlfmS66xgrdp1
-         RgRyX/+Ug0wKojBNByQd+hVI1ZJtAapMb4BWBsdwIkcEdrsGJpeaDsEBJuY3UGyw+y
-         Cmd0FmM8VkZ/zPV+fqB1hgni3XEO9grkeeTgNWs4=
-Subject: patch "dyndbg: fix parsing file query without a line-range suffix" added to char-misc-linus
-To:     shuochen@google.com, edumazet@google.com,
-        gregkh@linuxfoundation.org, jbaron@akamai.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 30 Apr 2021 07:43:48 +0200
-Message-ID: <161976142825259@kroah.com>
+        s=korg; t=1619761558;
+        bh=HCY6rgMAQL0Jmq5O361EYartF2zDgEk2xO1zcef/Rgs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hik4YkqyCQqVNhXImbR8GYGuYGRQL5sIDTSPPLf4aReAmNNHQ4Oj0S1XbNgCpQbVt
+         D2KMPjS75fPkCuELOgn/vjle0xtGjtmfG0CMrGQfFIQiTfuwcOjoqon96eTANQZRTr
+         V/9lQkPqVp1Jal8KmX0R4inz/XCKhckrs0np6LA0=
+Date:   Fri, 30 Apr 2021 07:45:56 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH 5.12 -stable] iwlwifi: Fix softirq/hardirq disabling in
+ iwl_pcie_gen2_enqueue_hcmd()
+Message-ID: <YIuZlLFR/bISKQe8@kroah.com>
+References: <nycvar.YFH.7.76.2104292345080.18270@cbobk.fhfr.pm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <nycvar.YFH.7.76.2104292345080.18270@cbobk.fhfr.pm>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Apr 29, 2021 at 11:46:56PM +0200, Jiri Kosina wrote:
+> 
+> [ commit e7020bb068d8be50a92f48e36b236a1a1ef9282e upstream ]
+> 
+> From: Jiri Kosina <jkosina@suse.cz>
+> 
+> Analogically to what we did in 2800aadc18a6 ("iwlwifi: Fix softirq/hardirq 
+> disabling in iwl_pcie_enqueue_hcmd()"), we must apply the same fix to 
+> iwl_pcie_gen2_enqueue_hcmd(), as it's being called from exactly the same 
+> contexts.
+> 
+> Reported-by: Heiner Kallweit <hkallweit1@gmail.com
+> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2104171112390.18270@cbobk.fhfr.pm
+> ---
+> 
+> This fix unfortunately didn't make it upstream in time.
 
-This is a note to let you know that I've just added the patch titled
+Thanks, also added to 5.10.y and 5.11.y as I think it is needed there
+too, right?
 
-    dyndbg: fix parsing file query without a line-range suffix
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 7b1ae248279bea33af9e797a93c35f49601cb8a0 Mon Sep 17 00:00:00 2001
-From: Shuo Chen <shuochen@google.com>
-Date: Wed, 14 Apr 2021 14:24:00 -0700
-Subject: dyndbg: fix parsing file query without a line-range suffix
-
-Query like 'file tcp_input.c line 1234 +p' was broken by
-commit aaebe329bff0 ("dyndbg: accept 'file foo.c:func1' and 'file
-foo.c:10-100'") because a file name without a ':' now makes the loop in
-ddebug_parse_query() exits early before parsing the 'line 1234' part.
-As a result, all pr_debug() in tcp_input.c will be enabled, instead of only
-the one on line 1234.  Changing 'break' to 'continue' fixes this.
-
-Fixes: aaebe329bff0 ("dyndbg: accept 'file foo.c:func1' and 'file foo.c:10-100'")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Shuo Chen <shuochen@google.com>
-Acked-by: Jason Baron <jbaron@akamai.com>
-Link: https://lore.kernel.org/r/20210414212400.2927281-1-giantchen@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- lib/dynamic_debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
-index c70d6347afa2..921d0a654243 100644
---- a/lib/dynamic_debug.c
-+++ b/lib/dynamic_debug.c
-@@ -396,7 +396,7 @@ static int ddebug_parse_query(char *words[], int nwords,
- 			/* tail :$info is function or line-range */
- 			fline = strchr(query->filename, ':');
- 			if (!fline)
--				break;
-+				continue;
- 			*fline++ = '\0';
- 			if (isalpha(*fline) || *fline == '*' || *fline == '?') {
- 				/* take as function name */
--- 
-2.31.1
-
-
+greg k-h
