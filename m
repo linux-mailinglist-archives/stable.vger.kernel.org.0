@@ -2,88 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4648B37084E
-	for <lists+stable@lfdr.de>; Sat,  1 May 2021 19:54:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FCFA370856
+	for <lists+stable@lfdr.de>; Sat,  1 May 2021 20:05:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231556AbhEARz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 May 2021 13:55:29 -0400
-Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:11558 "EHLO
-        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230450AbhEARz3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 May 2021 13:55:29 -0400
+        id S230522AbhEASGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 May 2021 14:06:01 -0400
+Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:16286 "EHLO
+        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231603AbhEASGA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 May 2021 14:06:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1619891679; x=1651427679;
-  h=from:to:cc:date:message-id:references:in-reply-to:
-   content-id:content-transfer-encoding:mime-version:subject;
-  bh=vYzlsLsafZsT2f+P/qHzBl3cDiuePRZPFVQIgCtULm4=;
-  b=vYX/VSbxND2avjQzP0pZ+n78bP+ZAsvCA3GhiTlWsQmShUTdtRxbx9hb
-   0SPUdU40OFePQ1zByq84hxPvAnH4zsJ/8bzIz4l9vGr44ofZVx7WIJKsu
-   HotrkrTxmZTJxaPoyJnVIZnsgS0LxT2cvl1Okvo62c+8gV/pzNkvL0R7B
-   4=;
+  t=1619892311; x=1651428311;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=zO583Op+nxsi5F+dNCQ8H2aI7hYSqo8uIwOIw2iXZhE=;
+  b=imd3eN6msLGUByohn7Xo3I8Q4AUKyBcw4yGyhhD3ji2f2DJozn+9YKCb
+   QrB8+m6pBEGsgW6eB8q1jMCCEVDNWzcf/pbB031P7GucYY2pKEjCzaPVy
+   F8/1y+KtMZyBVxhg7gAAWN8G7P7s0j83EFoUqE9zpv7LmphAgTEwZ5QHT
+   c=;
 X-IronPort-AV: E=Sophos;i="5.82,266,1613433600"; 
-   d="scan'208";a="930594499"
-Subject: Re: [PATCH 5.4 0/8] BPF backports for CVE-2021-29155
-Thread-Topic: [PATCH 5.4 0/8] BPF backports for CVE-2021-29155
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-2b-8cc5d68b.us-west-2.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-9103.sea19.amazon.com with ESMTP; 01 May 2021 17:54:38 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2b-8cc5d68b.us-west-2.amazon.com (Postfix) with ESMTPS id 8901DA014B;
-        Sat,  1 May 2021 17:54:38 +0000 (UTC)
-Received: from EX13D13UWB003.ant.amazon.com (10.43.161.233) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Sat, 1 May 2021 17:54:38 +0000
-Received: from EX13D13UWB003.ant.amazon.com (10.43.161.233) by
- EX13D13UWB003.ant.amazon.com (10.43.161.233) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Sat, 1 May 2021 17:54:37 +0000
-Received: from EX13D13UWB003.ant.amazon.com ([10.43.161.233]) by
- EX13D13UWB003.ant.amazon.com ([10.43.161.233]) with mapi id 15.00.1497.015;
- Sat, 1 May 2021 17:54:37 +0000
-From:   "van der Linden, Frank" <fllinden@amazon.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "bpf@vger.kernel.org" <bpf@vger.kernel.org>
-Thread-Index: AQHXPcZG0+zluwfS4Ui0HteGWjdqGKrMzZkAgAFWsoCAAFDpgA==
-Date:   Sat, 1 May 2021 17:54:37 +0000
-Message-ID: <E91B1B83-B606-4342-B273-B0990EF54B94@amazon.com>
-References: <20210429220839.15667-1-fllinden@amazon.com>
- <YIwIX2mB/+tR0AuG@kroah.com>
- <275977B4-72C4-4B86-9B94-47054AAA8067@amazon.com>
- <YIzvjSU6xAHsNOkd@kroah.com>
-In-Reply-To: <YIzvjSU6xAHsNOkd@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.43.161.253]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <05324E7490688C4A914A40AC6C73BE93@amazon.com>
-Content-Transfer-Encoding: base64
+   d="scan'208";a="111013691"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1d-16425a8d.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-6001.iad6.amazon.com with ESMTP; 01 May 2021 18:05:10 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-1d-16425a8d.us-east-1.amazon.com (Postfix) with ESMTPS id 6B471100AB0;
+        Sat,  1 May 2021 18:05:09 +0000 (UTC)
+Received: from EX13D01UWA003.ant.amazon.com (10.43.160.107) by
+ EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Sat, 1 May 2021 18:05:09 +0000
+Received: from EX13MTAUEB002.ant.amazon.com (10.43.60.12) by
+ EX13d01UWA003.ant.amazon.com (10.43.160.107) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Sat, 1 May 2021 18:05:08 +0000
+Received: from dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com
+ (172.19.206.175) by mail-relay.amazon.com (10.43.60.234) with Microsoft SMTP
+ Server id 15.0.1497.2 via Frontend Transport; Sat, 1 May 2021 18:05:07 +0000
+Received: by dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com (Postfix, from userid 6262777)
+        id 25A98978; Sat,  1 May 2021 18:05:06 +0000 (UTC)
+From:   Frank van der Linden <fllinden@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     <bpf@vger.kernel.org>, <samjonas@amazon.com>
+Subject: [PATCH 4.14 0/2] fix BPF backports
+Date:   Sat, 1 May 2021 18:05:04 +0000
+Message-ID: <20210501180506.19154-1-fllinden@amazon.com>
+X-Mailer: git-send-email 2.23.4
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T2ssIHRoYXQncyBmaW5lLiBJIGNhbid0IHJlYWxseSBkbyA0LjE5IHJpZ2h0IG5vdywgc29tZW9u
-ZSBlbHNlIHdpbGwgaGF2ZSB0byB0YWtlIGNhcmUgb2YgdGhhdCBvbmUuDQoNCkluIHRoZSBtZWFu
-dGltZSwgSSdsbCByZS1zZW5kIG15IDQuMTQgc2VyaWVzIHdpdGgganVzdCB0aGUgZmlyc3QgdHdv
-IHBhdGNoZXMsIHRoYXQgZml4IGEgNC4xNC1zcGVjaWZpYyBiYWNrcG9ydCBlcnJvci4NCg0KRnJh
-bmsNCg0K77u/T24gNC8zMC8yMSwgMTE6MDUgUE0sICJHcmVnIEtIIiA8Z3JlZ2toQGxpbnV4Zm91
-bmRhdGlvbi5vcmc+IHdyb3RlOg0KDQogICAgQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5hdGVk
-IGZyb20gb3V0c2lkZSBvZiB0aGUgb3JnYW5pemF0aW9uLiBEbyBub3QgY2xpY2sgbGlua3Mgb3Ig
-b3BlbiBhdHRhY2htZW50cyB1bmxlc3MgeW91IGNhbiBjb25maXJtIHRoZSBzZW5kZXIgYW5kIGtu
-b3cgdGhlIGNvbnRlbnQgaXMgc2FmZS4NCg0KDQoNCiAgICBPbiBGcmksIEFwciAzMCwgMjAyMSBh
-dCAwNDozODoyOVBNICswMDAwLCB2YW4gZGVyIExpbmRlbiwgRnJhbmsgd3JvdGU6DQogICAgPiBT
-dXJlLiBJIGhhdmUgYSA0LjE0IG9uZSBjb21pbmcgdXAgdG9vLCBidXQgdGhhdCBvbmUgd2FzIGp1
-c3QgYSBsaXR0bGUgaGFyZGVyLCBhbmQgaXQgYWxzbyBjb3JyZWN0cyBhIHByZXZpb3VzIGJhY2tw
-b3J0IGVycm9yIHRoYXQgd2FzIG1hZGUgKGNvcnJlY3Rpb24gd2FzIGFscmVhZHkgYWNrZWQpLCBh
-bmQgcGlja3Mgc29tZSBvdGhlciBjb21taXRzIHRvIGdldCBzZWxmdGVzdHMgY2xlYW4uIFNvIEkn
-bGwgcHJvYmFibHkgc2VuZCBpdCB0byBqdXN0IGJwZkAgZmlyc3QuDQogICAgPg0KICAgID4gT3Ro
-ZXJzIHdpbGwgaGF2ZSB0byB0YWtlIGNhcmUgb2YgNC4xOSBvciBvbGRlciBrZXJuZWxzLCB0aG91
-Z2gsIGp1c3QgZmxhZ2dpbmcgdGhhdCBJIGhhdmUgZG9uZSB0aGUgNC4xNCBiYWNrcG9ydCBmb3Ig
-dGhlc2UuDQoNCiAgICBJIGNhbiBub3QgdGFrZSBmaXhlcyBmb3IgNC4xNCB0aGF0IGFyZSBub3Qg
-YWxzbyBpbiA0LjE5LCBzb3JyeSwgYXMgd2UNCiAgICBjYW4gbm90IGhhdmUgcGVvcGxlIHVwZ3Jh
-ZGluZyB0byBuZXdlciBrZXJuZWxzIGFuZCBoYXZlIHJlZ3Jlc3Npb25zLg0KDQogICAgdGhhbmtz
-LA0KDQogICAgZ3JlZyBrLWgNCg0K
+These are the first two patches in https://lore.kernel.org/stable/20210501043014.33300-1-fllinden@amazon.com/
+
+I will re-send the rest of that series as soon as the other bpf backports
+hit the 4.19 branch.
+
+This fixes errors in earlier bpf 4.14 backports. The verifier fix was
+sent in earlier to bpf@ by Sam, and acked. I added the selftests
+fix.
+
+Essentially, together with the previous backports that had errors,
+this produces correct backports of:
+
+9d7eceede76 ("bpf: restrict unknown scalars of mixed signed bounds for
+unprivileged")
+80c9b2fae87b ("bpf: add various test cases to selftests")
+
+Commits:
+
+<4.14 only> ("bpf: Fix backport of "bpf: restrict unknown scalars of mixed signed bounds for unprivileged")
+	This was sent in by Sam to bpf@ earlier, and acked by Yonghong Song,
+	https://lore.kernel.org/bpf/20210419235641.5442-1-samjonas@amazon.com/T/#u
+
+	I am including it so that it is 'formally' submitted it
+	to -stable.
+
+<4.14 only> ("bpf: fix up selftests after backports were fixed")
+	This is a follow-up to the previous by me, to fix selftests. It's
+	from 80c9b2fae87b ("bpf: add various test cases to selftests"), but
+	since that one was already partially added to the 4.14 branch
+	in 03f11a51a196 ("bpf: Fix selftests are changes for CVE 2019-7308"),
+	it's not a "backport" as such. To avoid confusion, I created a
+	separate commit for it, referencing the original commit
+	in the message. I examined each individual changed test, and
+	went through the history to see that the error message was indeed
+	as expected.
