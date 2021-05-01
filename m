@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FCFA370856
-	for <lists+stable@lfdr.de>; Sat,  1 May 2021 20:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8228A370853
+	for <lists+stable@lfdr.de>; Sat,  1 May 2021 20:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230522AbhEASGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 May 2021 14:06:01 -0400
-Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:16286 "EHLO
-        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231603AbhEASGA (ORCPT
+        id S231655AbhEASGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 May 2021 14:06:00 -0400
+Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:64919 "EHLO
+        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230250AbhEASGA (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 1 May 2021 14:06:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
   t=1619892311; x=1651428311;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=zO583Op+nxsi5F+dNCQ8H2aI7hYSqo8uIwOIw2iXZhE=;
-  b=imd3eN6msLGUByohn7Xo3I8Q4AUKyBcw4yGyhhD3ji2f2DJozn+9YKCb
-   QrB8+m6pBEGsgW6eB8q1jMCCEVDNWzcf/pbB031P7GucYY2pKEjCzaPVy
-   F8/1y+KtMZyBVxhg7gAAWN8G7P7s0j83EFoUqE9zpv7LmphAgTEwZ5QHT
-   c=;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=t6qP31dHq7cwVWiw5AC1ZP43G5sk5RdS6EK1+Ijr4WQ=;
+  b=PJIt+3gz3AQEvkLnuNy1nOEJz1NFoHvI/QvzBcX6I7ZiEyN8Z7LXlecI
+   qaR9P7lC5jnkalGBrXPHH55dzI17DMRRzI21CO8ckba5BBo82lhaMSAK2
+   5WAWaUU+ShjNfTlXObgkNteqRFC3Z9/BozK6A9CSxy6bBRFWxWUm0pJxB
+   s=;
 X-IronPort-AV: E=Sophos;i="5.82,266,1613433600"; 
-   d="scan'208";a="111013691"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1d-16425a8d.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-6001.iad6.amazon.com with ESMTP; 01 May 2021 18:05:10 +0000
-Received: from EX13MTAUWA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-1d-16425a8d.us-east-1.amazon.com (Postfix) with ESMTPS id 6B471100AB0;
-        Sat,  1 May 2021 18:05:09 +0000 (UTC)
-Received: from EX13D01UWA003.ant.amazon.com (10.43.160.107) by
- EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Sat, 1 May 2021 18:05:09 +0000
-Received: from EX13MTAUEB002.ant.amazon.com (10.43.60.12) by
- EX13d01UWA003.ant.amazon.com (10.43.160.107) with Microsoft SMTP Server (TLS)
+   d="scan'208";a="123142071"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-1e-28209b7b.us-east-1.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-33001.sea14.amazon.com with ESMTP; 01 May 2021 18:05:11 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-1e-28209b7b.us-east-1.amazon.com (Postfix) with ESMTPS id 33765EF31D;
+        Sat,  1 May 2021 18:05:08 +0000 (UTC)
+Received: from EX13D01UWA004.ant.amazon.com (10.43.160.99) by
+ EX13MTAUWA001.ant.amazon.com (10.43.160.58) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Sat, 1 May 2021 18:05:08 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (10.43.61.77) by
+ EX13d01UWA004.ant.amazon.com (10.43.160.99) with Microsoft SMTP Server (TLS)
  id 15.0.1497.2; Sat, 1 May 2021 18:05:08 +0000
 Received: from dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com
- (172.19.206.175) by mail-relay.amazon.com (10.43.60.234) with Microsoft SMTP
+ (172.19.206.175) by mail-relay.amazon.com (10.43.61.169) with Microsoft SMTP
  Server id 15.0.1497.2 via Frontend Transport; Sat, 1 May 2021 18:05:07 +0000
 Received: by dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com (Postfix, from userid 6262777)
-        id 25A98978; Sat,  1 May 2021 18:05:06 +0000 (UTC)
+        id 2793D94F; Sat,  1 May 2021 18:05:06 +0000 (UTC)
 From:   Frank van der Linden <fllinden@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     <bpf@vger.kernel.org>, <samjonas@amazon.com>
-Subject: [PATCH 4.14 0/2] fix BPF backports
-Date:   Sat, 1 May 2021 18:05:04 +0000
-Message-ID: <20210501180506.19154-1-fllinden@amazon.com>
+Subject: [PATCH 4.14 1/2] bpf: Fix backport of "bpf: restrict unknown scalars of mixed signed bounds for unprivileged"
+Date:   Sat, 1 May 2021 18:05:05 +0000
+Message-ID: <20210501180506.19154-2-fllinden@amazon.com>
 X-Mailer: git-send-email 2.23.4
+In-Reply-To: <20210501180506.19154-1-fllinden@amazon.com>
+References: <20210501180506.19154-1-fllinden@amazon.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -53,38 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These are the first two patches in https://lore.kernel.org/stable/20210501043014.33300-1-fllinden@amazon.com/
+From: Samuel Mendoza-Jonas <samjonas@amazon.com>
 
-I will re-send the rest of that series as soon as the other bpf backports
-hit the 4.19 branch.
+The 4.14 backport of 9d7eceede ("bpf: restrict unknown scalars of mixed
+signed bounds for unprivileged") adds the PTR_TO_MAP_VALUE check to the
+wrong location in adjust_ptr_min_max_vals(), most likely because 4.14
+doesn't include the commit that updates the if-statement to a
+switch-statement (aad2eeaf4 "bpf: Simplify ptr_min_max_vals adjustment").
 
-This fixes errors in earlier bpf 4.14 backports. The verifier fix was
-sent in earlier to bpf@ by Sam, and acked. I added the selftests
-fix.
+Move the check to the proper location in adjust_ptr_min_max_vals().
 
-Essentially, together with the previous backports that had errors,
-this produces correct backports of:
+Fixes: 17efa65350c5a ("bpf: restrict unknown scalars of mixed signed bounds for unprivileged")
+Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
+Reviewed-by: Frank van der Linden <fllinden@amazon.com>
+Reviewed-by: Ethan Chen <yishache@amazon.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+---
+ kernel/bpf/verifier.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-9d7eceede76 ("bpf: restrict unknown scalars of mixed signed bounds for
-unprivileged")
-80c9b2fae87b ("bpf: add various test cases to selftests")
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 0c3a9302be93..9e9b7c076bcb 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2204,6 +2204,13 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
+ 				dst);
+ 		return -EACCES;
+ 	}
++	if (ptr_reg->type == PTR_TO_MAP_VALUE) {
++		if (!env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
++			verbose("R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
++				off_reg == dst_reg ? dst : src);
++			return -EACCES;
++		}
++	}
+ 
+ 	/* In case of 'scalar += pointer', dst_reg inherits pointer type and id.
+ 	 * The id may be overwritten later if we create a new variable offset.
+@@ -2349,13 +2356,6 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
+ 			verbose("R%d bitwise operator %s on pointer prohibited\n",
+ 				dst, bpf_alu_string[opcode >> 4]);
+ 		return -EACCES;
+-	case PTR_TO_MAP_VALUE:
+-		if (!env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
+-			verbose("R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
+-				off_reg == dst_reg ? dst : src);
+-			return -EACCES;
+-		}
+-		/* fall-through */
+ 	default:
+ 		/* other operators (e.g. MUL,LSH) produce non-pointer results */
+ 		if (!env->allow_ptr_leaks)
+-- 
+2.23.3
 
-Commits:
-
-<4.14 only> ("bpf: Fix backport of "bpf: restrict unknown scalars of mixed signed bounds for unprivileged")
-	This was sent in by Sam to bpf@ earlier, and acked by Yonghong Song,
-	https://lore.kernel.org/bpf/20210419235641.5442-1-samjonas@amazon.com/T/#u
-
-	I am including it so that it is 'formally' submitted it
-	to -stable.
-
-<4.14 only> ("bpf: fix up selftests after backports were fixed")
-	This is a follow-up to the previous by me, to fix selftests. It's
-	from 80c9b2fae87b ("bpf: add various test cases to selftests"), but
-	since that one was already partially added to the 4.14 branch
-	in 03f11a51a196 ("bpf: Fix selftests are changes for CVE 2019-7308"),
-	it's not a "backport" as such. To avoid confusion, I created a
-	separate commit for it, referencing the original commit
-	in the message. I examined each individual changed test, and
-	went through the history to see that the error message was indeed
-	as expected.
