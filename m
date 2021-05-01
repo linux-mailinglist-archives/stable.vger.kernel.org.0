@@ -2,93 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ECF93707ED
-	for <lists+stable@lfdr.de>; Sat,  1 May 2021 18:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4648B37084E
+	for <lists+stable@lfdr.de>; Sat,  1 May 2021 19:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbhEAQnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 May 2021 12:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49198 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230195AbhEAQm6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 May 2021 12:42:58 -0400
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E95EC06174A
-        for <stable@vger.kernel.org>; Sat,  1 May 2021 09:42:07 -0700 (PDT)
-Received: by mail-ed1-x544.google.com with SMTP id g14so1575109edy.6
-        for <stable@vger.kernel.org>; Sat, 01 May 2021 09:42:06 -0700 (PDT)
+        id S231556AbhEARz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 May 2021 13:55:29 -0400
+Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:11558 "EHLO
+        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230450AbhEARz3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 May 2021 13:55:29 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=46h6y1U9lpEMNAjbHxrHxJP6ZoIveb+oJxvMmCfJiOM=;
-        b=LEwhsQQTuAC3EP83G8rgcHMfHCHrBi6XMoRfE40RUmLpnPmLlGd1WkLJxmWRTJgcGx
-         b8PSsMZ0mRj2X1flRoJMXx65yM+w6VPLsqBkMVB4YH66wGoogpk5zYZIxQRZoodfCANe
-         gbAeqgtD5RScZWWWcm+m4Xb3gR5Tria/Ll1AvcYIfULS9SrM0DETSFUMvqtblIHpqWJv
-         5aHBXtNXjmhlherCz2MLyxeTOgruI0m+PCYMSscLY2J/sCtu0RAcAEh/0wOUXNFvzehg
-         /niaSnhJzsnqAJYssOwo/MEgPIEZJ4ULho4mbqDd7xLzC5Wo0z85KZZ3r8bwNMhp4Cqv
-         l+4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=46h6y1U9lpEMNAjbHxrHxJP6ZoIveb+oJxvMmCfJiOM=;
-        b=n6D+uMHGE2nB8gQMRUUHPRoh2Ie7AUayVns1SViIxFNMN/j9W0lciSd0R5Ypfczg6k
-         /JfF4bPD8TCW93xObKwFllHcKNPkmTZM7XkL9+oJgbIhuqM+VdTqnUeUX4AWm/AapXDX
-         8oDHTIU7NDE3vzewDLATIXP4yr/RRpvQ0tfIY3ZIQtwflSkJcEmxGwJHeXNBN3aLSEF/
-         UaP3LWH8MfaMYvApdJapdLNx/G5I9tf6YrVlco5Dl1+Qdf7SDQVj89jVN9v+bja8+7+z
-         cwFpFFZtlrFIC8DeG87kBj/g7469XFVBtzzoIEuxARfogcvF+x4k1g7BSVMeiAT6jmz2
-         pXDA==
-X-Gm-Message-State: AOAM533aJlWiPP0a6tbS8Tq3UsKnwwoDiH1TQNhcyzK1tMIvZ3UcfZTw
-        9F8FMsn7wMmkM7R1mcNGhACBTmOOe5Smue2kg8Q=
-X-Google-Smtp-Source: ABdhPJw7kDp3xxl5DE0TjYw1OFjteDOIWC5rcnDCypmGfr2FfNmY4xyfTWgHqh3WlVHMMF8i/b5Mwh8YCjSND5urYBE=
-X-Received: by 2002:a05:6402:1a:: with SMTP id d26mr12021799edu.99.1619887325798;
- Sat, 01 May 2021 09:42:05 -0700 (PDT)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1619891679; x=1651427679;
+  h=from:to:cc:date:message-id:references:in-reply-to:
+   content-id:content-transfer-encoding:mime-version:subject;
+  bh=vYzlsLsafZsT2f+P/qHzBl3cDiuePRZPFVQIgCtULm4=;
+  b=vYX/VSbxND2avjQzP0pZ+n78bP+ZAsvCA3GhiTlWsQmShUTdtRxbx9hb
+   0SPUdU40OFePQ1zByq84hxPvAnH4zsJ/8bzIz4l9vGr44ofZVx7WIJKsu
+   HotrkrTxmZTJxaPoyJnVIZnsgS0LxT2cvl1Okvo62c+8gV/pzNkvL0R7B
+   4=;
+X-IronPort-AV: E=Sophos;i="5.82,266,1613433600"; 
+   d="scan'208";a="930594499"
+Subject: Re: [PATCH 5.4 0/8] BPF backports for CVE-2021-29155
+Thread-Topic: [PATCH 5.4 0/8] BPF backports for CVE-2021-29155
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-2b-8cc5d68b.us-west-2.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-9103.sea19.amazon.com with ESMTP; 01 May 2021 17:54:38 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
+        by email-inbound-relay-2b-8cc5d68b.us-west-2.amazon.com (Postfix) with ESMTPS id 8901DA014B;
+        Sat,  1 May 2021 17:54:38 +0000 (UTC)
+Received: from EX13D13UWB003.ant.amazon.com (10.43.161.233) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Sat, 1 May 2021 17:54:38 +0000
+Received: from EX13D13UWB003.ant.amazon.com (10.43.161.233) by
+ EX13D13UWB003.ant.amazon.com (10.43.161.233) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Sat, 1 May 2021 17:54:37 +0000
+Received: from EX13D13UWB003.ant.amazon.com ([10.43.161.233]) by
+ EX13D13UWB003.ant.amazon.com ([10.43.161.233]) with mapi id 15.00.1497.015;
+ Sat, 1 May 2021 17:54:37 +0000
+From:   "van der Linden, Frank" <fllinden@amazon.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>
+Thread-Index: AQHXPcZG0+zluwfS4Ui0HteGWjdqGKrMzZkAgAFWsoCAAFDpgA==
+Date:   Sat, 1 May 2021 17:54:37 +0000
+Message-ID: <E91B1B83-B606-4342-B273-B0990EF54B94@amazon.com>
+References: <20210429220839.15667-1-fllinden@amazon.com>
+ <YIwIX2mB/+tR0AuG@kroah.com>
+ <275977B4-72C4-4B86-9B94-47054AAA8067@amazon.com>
+ <YIzvjSU6xAHsNOkd@kroah.com>
+In-Reply-To: <YIzvjSU6xAHsNOkd@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.43.161.253]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <05324E7490688C4A914A40AC6C73BE93@amazon.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Received: by 2002:aa7:d349:0:0:0:0:0 with HTTP; Sat, 1 May 2021 09:42:05 -0700 (PDT)
-From:   "Mrs. Judith Moris" <mrsjudithmoris@gmail.com>
-Date:   Sat, 1 May 2021 16:42:05 +0000
-Message-ID: <CAMP+kx5JaYnGkRrLS9aYCEF1RR7j8ot_3gWTooj2THZeXy0rEQ@mail.gmail.com>
-Subject: UNITED NATION COVID-19 DONATION FUND.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ATTENTION: BENEFICIARY,
-
-IN THE WAKE OF THE GLOBAL COVID-19 PANDEMIC, I WISH TO BRING YOU THE
-GOOD NEWS OF HOPE. I AM MRS JUDITH MORRIS, DIRECTOR OF THE CENTERS FOR
-DISEASE CONTROL AND PREVENTION. I WRITE TO OFFICIALLY INFORM YOU THAT
-YOU HAVE BEEN SELECTED TO RECEIVE THE UN COVID-19 STIMULUS PACKAGE
-WORTH $150,000.00 USD. THE SELECTION PROCESS WAS CARRIED OUT THROUGH
-THE UNITED NATIONS (UN) COMPUTERIZED EMAIL SELECTION SYSTEM, FROM A
-DATABASE OF OVER 79,980,000 EMAIL ADDRESSES OBTAINED FROM ALL
-CONTINENTS OF THE WORLD, WHICH YOUR EMAIL ADDRESS WAS SELECTED AMONG.
-
-WE ARE DELIGHTED TO INFORM YOU THAT DUE TO MIXED UP OF NAMES AND
-NUMBERS, YOUR EMAIL ATTACHED TO APPROVED NUMBER UN6MM020/COVID-19,
-WHICH CONSEQUENTLY FALL ON OUR INTERNATIONAL CHAPTER, THEREFORE, YOU
-ARE ADVISED TO CONTACT THE UNITED NATIONS COVID-19 COORDINATOR AND
-GRANTS MANAGER ( HON. BARR. HENRY ), WITH HIS CONTACT INFORMATION
-BELOW, TO CLAIM YOUR $150,000.00 USD WITHOUT ANY DELAY.
-
-CONTACT PERSON: HON. BARR. HENRY
-E-MAIL: (henrylawchambers1@gmail.com)
-TEL:       (+228) 986 222 15
-
-REMEMBER TO FORWARD HIM YOUR FULL INFORMATION AS REQUIRED BELOW TO
-ENABLE HIM LOCATE YOUR PAYMENT FILE AND ATTEND TO YOU IMMEDIATELY.
-
-1. YOUR FULL NAME:
-2. ADDRESS:
-3. AGE:
-4. OCCUPATION:
-5. MOBIL NUMBER:
-6. CITY/COUNTRY:
-
-NOTE: THAT THE AMOUNT TO BE PAID TO YOU IS (USD150, 000.00), WE EXPECT
-YOUR URGENT RESPONSE TO THIS EMAIL TO ENABLE US MONITOR THE
-TRANSACTION EFFECTIVELY.
-
-BEST REGARDS
-MRS JUDITH MORRIS
-UNITED NATION CORDINATOR.
+T2ssIHRoYXQncyBmaW5lLiBJIGNhbid0IHJlYWxseSBkbyA0LjE5IHJpZ2h0IG5vdywgc29tZW9u
+ZSBlbHNlIHdpbGwgaGF2ZSB0byB0YWtlIGNhcmUgb2YgdGhhdCBvbmUuDQoNCkluIHRoZSBtZWFu
+dGltZSwgSSdsbCByZS1zZW5kIG15IDQuMTQgc2VyaWVzIHdpdGgganVzdCB0aGUgZmlyc3QgdHdv
+IHBhdGNoZXMsIHRoYXQgZml4IGEgNC4xNC1zcGVjaWZpYyBiYWNrcG9ydCBlcnJvci4NCg0KRnJh
+bmsNCg0K77u/T24gNC8zMC8yMSwgMTE6MDUgUE0sICJHcmVnIEtIIiA8Z3JlZ2toQGxpbnV4Zm91
+bmRhdGlvbi5vcmc+IHdyb3RlOg0KDQogICAgQ0FVVElPTjogVGhpcyBlbWFpbCBvcmlnaW5hdGVk
+IGZyb20gb3V0c2lkZSBvZiB0aGUgb3JnYW5pemF0aW9uLiBEbyBub3QgY2xpY2sgbGlua3Mgb3Ig
+b3BlbiBhdHRhY2htZW50cyB1bmxlc3MgeW91IGNhbiBjb25maXJtIHRoZSBzZW5kZXIgYW5kIGtu
+b3cgdGhlIGNvbnRlbnQgaXMgc2FmZS4NCg0KDQoNCiAgICBPbiBGcmksIEFwciAzMCwgMjAyMSBh
+dCAwNDozODoyOVBNICswMDAwLCB2YW4gZGVyIExpbmRlbiwgRnJhbmsgd3JvdGU6DQogICAgPiBT
+dXJlLiBJIGhhdmUgYSA0LjE0IG9uZSBjb21pbmcgdXAgdG9vLCBidXQgdGhhdCBvbmUgd2FzIGp1
+c3QgYSBsaXR0bGUgaGFyZGVyLCBhbmQgaXQgYWxzbyBjb3JyZWN0cyBhIHByZXZpb3VzIGJhY2tw
+b3J0IGVycm9yIHRoYXQgd2FzIG1hZGUgKGNvcnJlY3Rpb24gd2FzIGFscmVhZHkgYWNrZWQpLCBh
+bmQgcGlja3Mgc29tZSBvdGhlciBjb21taXRzIHRvIGdldCBzZWxmdGVzdHMgY2xlYW4uIFNvIEkn
+bGwgcHJvYmFibHkgc2VuZCBpdCB0byBqdXN0IGJwZkAgZmlyc3QuDQogICAgPg0KICAgID4gT3Ro
+ZXJzIHdpbGwgaGF2ZSB0byB0YWtlIGNhcmUgb2YgNC4xOSBvciBvbGRlciBrZXJuZWxzLCB0aG91
+Z2gsIGp1c3QgZmxhZ2dpbmcgdGhhdCBJIGhhdmUgZG9uZSB0aGUgNC4xNCBiYWNrcG9ydCBmb3Ig
+dGhlc2UuDQoNCiAgICBJIGNhbiBub3QgdGFrZSBmaXhlcyBmb3IgNC4xNCB0aGF0IGFyZSBub3Qg
+YWxzbyBpbiA0LjE5LCBzb3JyeSwgYXMgd2UNCiAgICBjYW4gbm90IGhhdmUgcGVvcGxlIHVwZ3Jh
+ZGluZyB0byBuZXdlciBrZXJuZWxzIGFuZCBoYXZlIHJlZ3Jlc3Npb25zLg0KDQogICAgdGhhbmtz
+LA0KDQogICAgZ3JlZyBrLWgNCg0K
