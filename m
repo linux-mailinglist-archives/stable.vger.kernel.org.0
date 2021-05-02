@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F2A370C35
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C94370C33
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232813AbhEBOFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:05:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50382 "EHLO mail.kernel.org"
+        id S232418AbhEBOFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232783AbhEBOFT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:05:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0A45613DF;
-        Sun,  2 May 2021 14:04:27 +0000 (UTC)
+        id S232798AbhEBOFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:05:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCA2B6102A;
+        Sun,  2 May 2021 14:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964268;
-        bh=s4bEDhrcdO7IwratN3VIoVQJwBOVOaLx+cy+meq0g8w=;
+        s=k20201202; t=1619964269;
+        bh=gHK9z7jQUHKGMyq9Dk1nA6jlE7fCAzl1NO77XE5WdZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDcSIi+7UcoUeDKTg1pDB1EXTRjcyI9dhWhAYSvA3Yrd8EOP8zdeXis3OCJhbAKar
-         nc4lvtLuSQVotAkxg6wUBhsEOdVAz5ARqT4RFnbzI8sAyhrIOIIH/BlJ+sbe0ypY9e
-         eczQj/CLyuHSMrUslS/flC+dy4HnpyR+DL4bUd+yEyuNQaThGL2jFcKMXWuHd4hRqq
-         YQC5R98eHYgSK4kOmlgaezx0hgkmBZ5pqWjRxwsBCRWhImaB1iG3N9XqV6OkXFx4zA
-         oLTIuwEFops/s2xCzT+vVw5IWV1mIVQwjXKUb2ycSRxFW5M8funisrnOKpWhJzPmSu
-         HslKSytnKQyxg==
+        b=K+khP9x81fOKfTIgHknvKKWWhS8AUjvkNYyLPYv/riDT88nnkJCgNbHDeS4lIWc/X
+         VmiTvujNiy7KmIl87W4R2VUXiFvZ6w0VglrGblgkYju8wVBKTVTefqW5agb+KuPtC3
+         E8cA30r7FkalqtolCI2EFlZgHEyiT7zTCKzJeKEAWCbomB7zEE3ZKCV4V84oMgdWdG
+         B0WFxPCm3DsbWn7BAclq8X3zh6+oKF3lZUW4X6VLDxgPTMK/bySinKmug0gLrI0ti4
+         2xxgM3GP+8UgBVdGcj0Ghmsc15dd4aHUVd71qwS5z0P0s42Vbi8UFXdIIUIdscVU4f
+         XuIy92DW+JOSA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 13/66] genirq/matrix: Prevent allocation counter corruption
-Date:   Sun,  2 May 2021 10:03:18 -0400
-Message-Id: <20210502140411.2719301-13-sashal@kernel.org>
+Cc:     Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 14/66] usb: gadget: f_uac2: validate input parameters
+Date:   Sun,  2 May 2021 10:03:19 -0400
+Message-Id: <20210502140411.2719301-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140411.2719301-1-sashal@kernel.org>
 References: <20210502140411.2719301-1-sashal@kernel.org>
@@ -42,49 +42,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-[ Upstream commit c93a5e20c3c2dabef8ea360a3d3f18c6f68233ab ]
+[ Upstream commit 3713d5ceb04d5ab6a5e2b86dfca49170053f3a5e ]
 
-When irq_matrix_free() is called for an unallocated vector the
-managed_allocated and total_allocated counters get out of sync with the
-real state of the matrix. Later, when the last interrupt is freed, these
-counters will underflow resulting in UINTMAX because the counters are
-unsigned.
+Currently user can configure UAC2 function with
+parameters that violate UAC2 spec or are not supported
+by UAC2 gadget implementation.
 
-While this is certainly a problem of the calling code, this can be catched
-in the allocator by checking the allocation bit for the to be freed vector
-which simplifies debugging.
+This can lead to incorrect behavior if such gadget
+is connected to the host - like enumeration failure
+or other issues depending on host's UAC2 driver
+implementation, bringing user to a long hours
+of debugging the issue.
 
-An example of the problem described above:
-https://lore.kernel.org/lkml/20210318192819.636943062@linutronix.de/
+Instead of silently accept these parameters, throw
+an error if they are not valid.
 
-Add the missing sanity check and emit a warning when it triggers.
-
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20210319111823.1105248-1-vkuznets@redhat.com
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/1614599375-8803-4-git-send-email-ruslan.bilovol@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/matrix.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_uac2.c | 39 ++++++++++++++++++++++++++--
+ 1 file changed, 37 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/irq/matrix.c b/kernel/irq/matrix.c
-index 651a4ad6d711..8e586858bcf4 100644
---- a/kernel/irq/matrix.c
-+++ b/kernel/irq/matrix.c
-@@ -423,7 +423,9 @@ void irq_matrix_free(struct irq_matrix *m, unsigned int cpu,
- 	if (WARN_ON_ONCE(bit < m->alloc_start || bit >= m->alloc_end))
- 		return;
+diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
+index 6f03e944e0e3..dd960cea642f 100644
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -14,6 +14,9 @@
+ #include "u_audio.h"
+ #include "u_uac2.h"
  
--	clear_bit(bit, cm->alloc_map);
-+	if (WARN_ON_ONCE(!test_and_clear_bit(bit, cm->alloc_map)))
-+		return;
++/* UAC2 spec: 4.1 Audio Channel Cluster Descriptor */
++#define UAC2_CHANNEL_MASK 0x07FFFFFF
 +
- 	cm->allocated--;
- 	if(managed)
- 		cm->managed_allocated--;
+ /*
+  * The driver implements a simple UAC_2 topology.
+  * USB-OUT -> IT_1 -> OT_3 -> ALSA_Capture
+@@ -604,6 +607,36 @@ static void setup_descriptor(struct f_uac2_opts *opts)
+ 	hs_audio_desc[i] = NULL;
+ }
+ 
++static int afunc_validate_opts(struct g_audio *agdev, struct device *dev)
++{
++	struct f_uac2_opts *opts = g_audio_to_uac2_opts(agdev);
++
++	if (!opts->p_chmask && !opts->c_chmask) {
++		dev_err(dev, "Error: no playback and capture channels\n");
++		return -EINVAL;
++	} else if (opts->p_chmask & ~UAC2_CHANNEL_MASK) {
++		dev_err(dev, "Error: unsupported playback channels mask\n");
++		return -EINVAL;
++	} else if (opts->c_chmask & ~UAC2_CHANNEL_MASK) {
++		dev_err(dev, "Error: unsupported capture channels mask\n");
++		return -EINVAL;
++	} else if ((opts->p_ssize < 1) || (opts->p_ssize > 4)) {
++		dev_err(dev, "Error: incorrect playback sample size\n");
++		return -EINVAL;
++	} else if ((opts->c_ssize < 1) || (opts->c_ssize > 4)) {
++		dev_err(dev, "Error: incorrect capture sample size\n");
++		return -EINVAL;
++	} else if (!opts->p_srate) {
++		dev_err(dev, "Error: incorrect playback sampling rate\n");
++		return -EINVAL;
++	} else if (!opts->c_srate) {
++		dev_err(dev, "Error: incorrect capture sampling rate\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ static int
+ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
+ {
+@@ -612,11 +645,13 @@ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
+ 	struct usb_composite_dev *cdev = cfg->cdev;
+ 	struct usb_gadget *gadget = cdev->gadget;
+ 	struct device *dev = &gadget->dev;
+-	struct f_uac2_opts *uac2_opts;
++	struct f_uac2_opts *uac2_opts = g_audio_to_uac2_opts(agdev);
+ 	struct usb_string *us;
+ 	int ret;
+ 
+-	uac2_opts = container_of(fn->fi, struct f_uac2_opts, func_inst);
++	ret = afunc_validate_opts(agdev, dev);
++	if (ret)
++		return ret;
+ 
+ 	us = usb_gstrings_attach(cdev, fn_strings, ARRAY_SIZE(strings_fn));
+ 	if (IS_ERR(us))
 -- 
 2.30.2
 
