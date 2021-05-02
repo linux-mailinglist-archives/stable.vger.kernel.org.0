@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4AF370BFB
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A0F370BD1
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbhEBOE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:04:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49390 "EHLO mail.kernel.org"
+        id S232377AbhEBOEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:04:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232176AbhEBOEa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:04:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDBE7613CA;
-        Sun,  2 May 2021 14:03:32 +0000 (UTC)
+        id S232174AbhEBOEb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:04:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FCBD613CD;
+        Sun,  2 May 2021 14:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964213;
-        bh=ILEpy1J7TlHfivPJPRaTe2nxOeUCInHvx8q4MVLUlIc=;
+        s=k20201202; t=1619964214;
+        bh=wbS8Xf2o4Ei2vLxDEjjSNudBZQmQFnzLSKFgv8/Tk/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Co/OfgDiOHSXn8k8ZToCV/5uEd24ZxQLkb1hbihje6fAkQ1U5E8oge+m895dpgBZ3
-         Qaa8+L6Z5Ba7Xj8D0LD0PhM3MYChkrnpyxfZxbRz6DyoPUp3p6DUU0h1hdz18vatDg
-         s5yH/ju2kekGIJFOM7detuJBTdmqDl/bV3Q/7b2dsrWw3Gnlj7PkyOrTslM/dsUKtt
-         /MpQA4hbdEw97lC1A1bIgt0/obttBTYhb3eDY5uOMgP82XaC3ZYR0kpOVKLLFYZ6mv
-         8kNgEuYPzmRkaf3w/fr5i2UOccGpRPP0uZvCemZq0EbXccWEn6/bEMvHXQBZHUWJvG
-         JvIvfiJY6uXYg==
+        b=gzPaSEKMRY7OzZAyLBfXJ81i2hRu0b6LNMlvXAaN5yyc4pBnXS1QgI6R/FkntFHau
+         3ttVStUVnfb5P27WzfKEzGlzzgS2d2rb85PX94vg7cHFmp2WmgGGvAAEd+/fr4JJrg
+         mlvIyzrZQb13rAGmoUrg7k18FoShfxO5GYJFHwagBd+wEl9owsNVJfz0vaIZk3jn02
+         zOU9mda+ki6xUR+HC/5QI/Yxn1eIomEyCcDbXrDXmFLbl+Usyl9kxohQFbuu9JlkSy
+         ihJPK3dW037BHtqGIIffUw3n6Ad+qxtzNKG3Px/8JG8YfmbWMrLmI/zQ3mn8ryU7ac
+         HzOmKCPDYAhJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 12/79] x86/sev: Do not require Hypervisor CPUID bit for SEV guests
-Date:   Sun,  2 May 2021 10:02:09 -0400
-Message-Id: <20210502140316.2718705-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 13/79] x86/boot/compressed/64: Check SEV encryption in the 32-bit boot-path
+Date:   Sun,  2 May 2021 10:02:10 -0400
+Message-Id: <20210502140316.2718705-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140316.2718705-1-sashal@kernel.org>
 References: <20210502140316.2718705-1-sashal@kernel.org>
@@ -44,150 +43,133 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit eab696d8e8b9c9d600be6fad8dd8dfdfaca6ca7c ]
+[ Upstream commit fef81c86262879d4b1176ef51a834c15b805ebb9 ]
 
-A malicious hypervisor could disable the CPUID intercept for an SEV or
-SEV-ES guest and trick it into the no-SEV boot path, where it could
-potentially reveal secrets. This is not an issue for SEV-SNP guests,
-as the CPUID intercept can't be disabled for those.
-
-Remove the Hypervisor CPUID bit check from the SEV detection code to
-protect against this kind of attack and add a Hypervisor bit equals zero
-check to the SME detection path to prevent non-encrypted guests from
-trying to enable SME.
-
-This handles the following cases:
-
-	1) SEV(-ES) guest where CPUID intercept is disabled. The guest
-	   will still see leaf 0x8000001f and the SEV bit. It can
-	   retrieve the C-bit and boot normally.
-
-	2) Non-encrypted guests with intercepted CPUID will check
-	   the SEV_STATUS MSR and find it 0 and will try to enable SME.
-	   This will fail when the guest finds MSR_K8_SYSCFG to be zero,
-	   as it is emulated by KVM. But we can't rely on that, as there
-	   might be other hypervisors which return this MSR with bit
-	   23 set. The Hypervisor bit check will prevent that the guest
-	   tries to enable SME in this case.
-
-	3) Non-encrypted guests on SEV capable hosts with CPUID intercept
-	   disabled (by a malicious hypervisor) will try to boot into
-	   the SME path. This will fail, but it is also not considered
-	   a problem because non-encrypted guests have no protection
-	   against the hypervisor anyway.
-
- [ bp: s/non-SEV/non-encrypted/g ]
+Check whether the hypervisor reported the correct C-bit when running
+as an SEV guest. Using a wrong C-bit position could be used to leak
+sensitive data from the guest to the hypervisor.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lkml.kernel.org/r/20210312123824.306-3-joro@8bytes.org
+Link: https://lkml.kernel.org/r/20210312123824.306-8-joro@8bytes.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/mem_encrypt.S |  6 -----
- arch/x86/kernel/sev-es-shared.c        |  6 +----
- arch/x86/mm/mem_encrypt_identity.c     | 35 ++++++++++++++------------
- 3 files changed, 20 insertions(+), 27 deletions(-)
+ arch/x86/boot/compressed/head_64.S | 83 ++++++++++++++++++++++++++++++
+ 1 file changed, 83 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/mem_encrypt.S b/arch/x86/boot/compressed/mem_encrypt.S
-index aa561795efd1..a6dea4e8a082 100644
---- a/arch/x86/boot/compressed/mem_encrypt.S
-+++ b/arch/x86/boot/compressed/mem_encrypt.S
-@@ -23,12 +23,6 @@ SYM_FUNC_START(get_sev_encryption_bit)
- 	push	%ecx
- 	push	%edx
- 
--	/* Check if running under a hypervisor */
--	movl	$1, %eax
--	cpuid
--	bt	$31, %ecx		/* Check the hypervisor bit */
--	jnc	.Lno_sev
--
- 	movl	$0x80000000, %eax	/* CPUID to check the highest leaf */
- 	cpuid
- 	cmpl	$0x8000001f, %eax	/* See if 0x8000001f is available */
-diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-index cdc04d091242..387b71669818 100644
---- a/arch/x86/kernel/sev-es-shared.c
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -186,7 +186,6 @@ void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
- 	 * make it accessible to the hypervisor.
- 	 *
- 	 * In particular, check for:
--	 *	- Hypervisor CPUID bit
- 	 *	- Availability of CPUID leaf 0x8000001f
- 	 *	- SEV CPUID bit.
- 	 *
-@@ -194,10 +193,7 @@ void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
- 	 * can't be checked here.
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index e94874f4bbc1..f670e0579a3b 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -172,11 +172,21 @@ SYM_FUNC_START(startup_32)
  	 */
+ 	call	get_sev_encryption_bit
+ 	xorl	%edx, %edx
++#ifdef	CONFIG_AMD_MEM_ENCRYPT
+ 	testl	%eax, %eax
+ 	jz	1f
+ 	subl	$32, %eax	/* Encryption bit is always above bit 31 */
+ 	bts	%eax, %edx	/* Set encryption mask for page tables */
++	/*
++	 * Mark SEV as active in sev_status so that startup32_check_sev_cbit()
++	 * will do a check. The sev_status memory will be fully initialized
++	 * with the contents of MSR_AMD_SEV_STATUS later in
++	 * set_sev_encryption_mask(). For now it is sufficient to know that SEV
++	 * is active.
++	 */
++	movl	$1, rva(sev_status)(%ebp)
+ 1:
++#endif
  
--	if ((fn == 1 && !(regs->cx & BIT(31))))
--		/* Hypervisor bit */
--		goto fail;
--	else if (fn == 0x80000000 && (regs->ax < 0x8000001f))
-+	if (fn == 0x80000000 && (regs->ax < 0x8000001f))
- 		/* SEV leaf check */
- 		goto fail;
- 	else if ((fn == 0x8000001f && !(regs->ax & BIT(1))))
-diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-index 6c5eb6f3f14f..a19374d26101 100644
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -503,14 +503,10 @@ void __init sme_enable(struct boot_params *bp)
- 
- #define AMD_SME_BIT	BIT(0)
- #define AMD_SEV_BIT	BIT(1)
--	/*
--	 * Set the feature mask (SME or SEV) based on whether we are
--	 * running under a hypervisor.
--	 */
--	eax = 1;
--	ecx = 0;
--	native_cpuid(&eax, &ebx, &ecx, &edx);
--	feature_mask = (ecx & BIT(31)) ? AMD_SEV_BIT : AMD_SME_BIT;
+ 	/* Initialize Page tables to 0 */
+ 	leal	rva(pgtable)(%ebx), %edi
+@@ -261,6 +271,9 @@ SYM_FUNC_START(startup_32)
+ 	movl	%esi, %edx
+ 1:
+ #endif
++	/* Check if the C-bit position is correct when SEV is active */
++	call	startup32_check_sev_cbit
 +
-+	/* Check the SEV MSR whether SEV or SME is enabled */
-+	sev_status   = __rdmsr(MSR_AMD64_SEV);
-+	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
+ 	pushl	$__KERNEL_CS
+ 	pushl	%eax
  
- 	/*
- 	 * Check for the SME/SEV feature:
-@@ -530,19 +526,26 @@ void __init sme_enable(struct boot_params *bp)
+@@ -786,6 +799,76 @@ SYM_DATA_START_LOCAL(loaded_image_proto)
+ SYM_DATA_END(loaded_image_proto)
+ #endif
  
- 	/* Check if memory encryption is enabled */
- 	if (feature_mask == AMD_SME_BIT) {
-+		/*
-+		 * No SME if Hypervisor bit is set. This check is here to
-+		 * prevent a guest from trying to enable SME. For running as a
-+		 * KVM guest the MSR_K8_SYSCFG will be sufficient, but there
-+		 * might be other hypervisors which emulate that MSR as non-zero
-+		 * or even pass it through to the guest.
-+		 * A malicious hypervisor can still trick a guest into this
-+		 * path, but there is no way to protect against that.
-+		 */
-+		eax = 1;
-+		ecx = 0;
-+		native_cpuid(&eax, &ebx, &ecx, &edx);
-+		if (ecx & BIT(31))
-+			return;
++/*
++ * Check for the correct C-bit position when the startup_32 boot-path is used.
++ *
++ * The check makes use of the fact that all memory is encrypted when paging is
++ * disabled. The function creates 64 bits of random data using the RDRAND
++ * instruction. RDRAND is mandatory for SEV guests, so always available. If the
++ * hypervisor violates that the kernel will crash right here.
++ *
++ * The 64 bits of random data are stored to a memory location and at the same
++ * time kept in the %eax and %ebx registers. Since encryption is always active
++ * when paging is off the random data will be stored encrypted in main memory.
++ *
++ * Then paging is enabled. When the C-bit position is correct all memory is
++ * still mapped encrypted and comparing the register values with memory will
++ * succeed. An incorrect C-bit position will map all memory unencrypted, so that
++ * the compare will use the encrypted random data and fail.
++ */
++SYM_FUNC_START(startup32_check_sev_cbit)
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	pushl	%eax
++	pushl	%ebx
++	pushl	%ecx
++	pushl	%edx
 +
- 		/* For SME, check the SYSCFG MSR */
- 		msr = __rdmsr(MSR_K8_SYSCFG);
- 		if (!(msr & MSR_K8_SYSCFG_MEM_ENCRYPT))
- 			return;
- 	} else {
--		/* For SEV, check the SEV MSR */
--		msr = __rdmsr(MSR_AMD64_SEV);
--		if (!(msr & MSR_AMD64_SEV_ENABLED))
--			return;
--
--		/* Save SEV_STATUS to avoid reading MSR again */
--		sev_status = msr;
--
- 		/* SEV state cannot be controlled by a command line option */
- 		sme_me_mask = me_mask;
- 		sev_enabled = true;
++	/* Check for non-zero sev_status */
++	movl	rva(sev_status)(%ebp), %eax
++	testl	%eax, %eax
++	jz	4f
++
++	/*
++	 * Get two 32-bit random values - Don't bail out if RDRAND fails
++	 * because it is better to prevent forward progress if no random value
++	 * can be gathered.
++	 */
++1:	rdrand	%eax
++	jnc	1b
++2:	rdrand	%ebx
++	jnc	2b
++
++	/* Store to memory and keep it in the registers */
++	movl	%eax, rva(sev_check_data)(%ebp)
++	movl	%ebx, rva(sev_check_data+4)(%ebp)
++
++	/* Enable paging to see if encryption is active */
++	movl	%cr0, %edx			 /* Backup %cr0 in %edx */
++	movl	$(X86_CR0_PG | X86_CR0_PE), %ecx /* Enable Paging and Protected mode */
++	movl	%ecx, %cr0
++
++	cmpl	%eax, rva(sev_check_data)(%ebp)
++	jne	3f
++	cmpl	%ebx, rva(sev_check_data+4)(%ebp)
++	jne	3f
++
++	movl	%edx, %cr0	/* Restore previous %cr0 */
++
++	jmp	4f
++
++3:	/* Check failed - hlt the machine */
++	hlt
++	jmp	3b
++
++4:
++	popl	%edx
++	popl	%ecx
++	popl	%ebx
++	popl	%eax
++#endif
++	ret
++SYM_FUNC_END(startup32_check_sev_cbit)
++
+ /*
+  * Stack and heap for uncompression
+  */
 -- 
 2.30.2
 
