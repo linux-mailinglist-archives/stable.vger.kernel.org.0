@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECBB9370C87
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:06:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6D1370C82
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233259AbhEBOGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:06:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51736 "EHLO mail.kernel.org"
+        id S233207AbhEBOGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:06:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233186AbhEBOF7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233202AbhEBOF7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 2 May 2021 10:05:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28B1E613DB;
-        Sun,  2 May 2021 14:05:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6458F613C1;
+        Sun,  2 May 2021 14:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964306;
-        bh=M59DDWMkkjrDrfUs+vPXxpzJ6DUdUvHGlO5UzDFjP7c=;
+        s=k20201202; t=1619964308;
+        bh=I/n9PoSx55KDiaivv3SZ/kwDuKmVfhtXa6dPR98VnEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWVaxYV/E42yoCI8r/ED1UOmegg3FQotk7yoYhPSSKWlsOARsgVgi00iqFFOZd/aW
-         dNoU1Ypt5jCZ5HVD7PbMDsGpxg95E+JEsdV19SqpM6xlQOy+ZFl/5bUOB/ImLEbCiu
-         UUkciBAcCXxTSD6VRiadz7FnjmhMBd5KPm4JH2eXuTtt8VyR4Ew3Rj/4AKjVvYFbko
-         BAoaatrP3rW0R49ilB9X5qGJ7zmkbqMAgCXme2LqmuhD965pZtZ2Eh+5GViAEFdIqd
-         osmspGXt46KXVXxthoc092VxwGj3XTki3YdrgGdVQqY7dlS2yIzuxkzoY9JymuPdJI
-         GLZR1Hb3zenXQ==
+        b=rYiu7IbE3b0AzIfHZqrMTGOMzqE7hTRPREAfEyDzVwnoJEV9HbkC/ZjjY5/FvfsSR
+         gKKdROLxv3k9oS+nlNwGicbor6P/R4P85ir28n2c8wO65zyuFwNuZO53x8LO99mHwA
+         G/0/3lXp2+576SSh8PicLnLXhT5ZPRv8DF/0/Ih7eQ9DZ8oXwxo1jqXUpPGR8pGXT8
+         nHn0Ctfj46gMLwgJYGhax/w0aUFGYoMqQCVS2P6W0PNZPAuWXvmmfaR85QzK5dQc5u
+         TS1EdX0nVl34n8vnGGzvNCwuN7XsEU6ZFQiLyQjGJN8j1uH+6gQR/oHAo0llY3kmeH
+         6Gj84Gh4d6DMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Pearson <markpearson@lenovo.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        ibm-acpi-devel@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 26/34] platform/x86: thinkpad_acpi: Correct thermal sensor allocation
-Date:   Sun,  2 May 2021 10:04:26 -0400
-Message-Id: <20210502140434.2719553-26-sashal@kernel.org>
+Cc:     Hillf Danton <hdanton@sina.com>,
+        syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com,
+        Hao Sun <sunhao.th@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 27/34] tty: n_gsm: check error while registering tty devices
+Date:   Sun,  2 May 2021 10:04:27 -0400
+Message-Id: <20210502140434.2719553-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140434.2719553-1-sashal@kernel.org>
 References: <20210502140434.2719553-1-sashal@kernel.org>
@@ -44,105 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <markpearson@lenovo.com>
+From: Hillf Danton <hdanton@sina.com>
 
-[ Upstream commit 6759e18e5cd8745a5dfc5726e4a3db5281ec1639 ]
+[ Upstream commit 0a360e8b65d62fe1a994f0a8da4f8d20877b2100 ]
 
-On recent Thinkpad platforms it was reported that temp sensor 11 was
-always incorrectly displaying 66C. It turns out the reason for this is
-that this location in EC RAM is not a temperature sensor but is the
-power supply ID (offset 0xC2).
+Add the error path for registering tty devices and roll back in case of error
+in bid to avoid the UAF like the below one reported.
 
-Based on feedback from the Lenovo firmware team the EC RAM version can
-be determined and for the current version (3) only the 0x78 to 0x7F
-range is used for temp sensors. I don't have any details for earlier
-versions so I have left the implementation unaltered there.
+Plus syzbot reported general protection fault in cdev_del() on Sep 24, 2020
+and both cases are down to the kobject_put() in tty_cdev_add().
 
-Note - in this block only 0x78 and 0x79 are officially designated (CPU &
-GPU sensors). The use of the other locations in the block will vary from
-platform to platform; but the existing logic to detect a sensor presence
-holds.
+ ------------[ cut here ]------------
+ refcount_t: underflow; use-after-free.
+ WARNING: CPU: 1 PID: 8923 at lib/refcount.c:28
+ refcount_warn_saturate+0x1cf/0x210 -origin/lib/refcount.c:28
+ Modules linked in:
+ CPU: 1 PID: 8923 Comm: executor Not tainted 5.12.0-rc5+ #8
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+ 1.13.0-1ubuntu1.1 04/01/2014
+ RIP: 0010:refcount_warn_saturate+0x1cf/0x210 -origin/lib/refcount.c:28
+ Code: 4f ff ff ff e8 32 fa b5 fe 48 c7 c7 3d f8 f6 86 e8 d6 ab c6 fe
+ c6 05 7c 34 67 04 01 48 c7 c7 68 f8 6d 86 31 c0 e8 81 2e 9d fe <0f> 0b
+ e9 22 ff ff ff e8 05 fa b5 fe 48 c7 c7 3e f8 f6 86 e8 a9 ab
+ RSP: 0018:ffffc90001633c60 EFLAGS: 00010246
+ RAX: 15d08b2e34b77800 RBX: 0000000000000003 RCX: ffff88804c056c80
+ RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+ RBP: 0000000000000003 R08: ffffffff813767aa R09: 0001ffffffffffff
+ R10: 0001ffffffffffff R11: ffff88804c056c80 R12: ffff888040b7d000
+ R13: ffff88804c206938 R14: ffff88804c206900 R15: ffff888041b18488
+ FS:  00000000022c9940(0000) GS:ffff88807ec00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f9f9b122008 CR3: 0000000044b4b000 CR4: 0000000000750ee0
+ PKRU: 55555554
+ Call Trace:
+  __refcount_sub_and_test -origin/./include/linux/refcount.h:283 [inline]
+  __refcount_dec_and_test -origin/./include/linux/refcount.h:315 [inline]
+  refcount_dec_and_test -origin/./include/linux/refcount.h:333 [inline]
+  kref_put -origin/./include/linux/kref.h:64 [inline]
+  kobject_put+0x17b/0x180 -origin/lib/kobject.c:753
+  cdev_del+0x4b/0x50 -origin/fs/char_dev.c:597
+  tty_unregister_device+0x99/0xd0 -origin/drivers/tty/tty_io.c:3343
+  gsmld_detach_gsm -origin/drivers/tty/n_gsm.c:2409 [inline]
+  gsmld_close+0x6c/0x140 -origin/drivers/tty/n_gsm.c:2478
+  tty_ldisc_close -origin/drivers/tty/tty_ldisc.c:488 [inline]
+  tty_ldisc_kill -origin/drivers/tty/tty_ldisc.c:636 [inline]
+  tty_ldisc_release+0x1b6/0x400 -origin/drivers/tty/tty_ldisc.c:809
+  tty_release_struct+0x19/0xb0 -origin/drivers/tty/tty_io.c:1714
+  tty_release+0x9ad/0xa00 -origin/drivers/tty/tty_io.c:1885
+  __fput+0x260/0x4e0 -origin/fs/file_table.c:280
+  ____fput+0x11/0x20 -origin/fs/file_table.c:313
+  task_work_run+0x8e/0x110 -origin/kernel/task_work.c:140
+  tracehook_notify_resume -origin/./include/linux/tracehook.h:189 [inline]
+  exit_to_user_mode_loop -origin/kernel/entry/common.c:174 [inline]
+  exit_to_user_mode_prepare+0x16b/0x1a0 -origin/kernel/entry/common.c:208
+  __syscall_exit_to_user_mode_work -origin/kernel/entry/common.c:290 [inline]
+  syscall_exit_to_user_mode+0x20/0x40 -origin/kernel/entry/common.c:301
+  do_syscall_64+0x45/0x80 -origin/arch/x86/entry/common.c:56
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Signed-off-by: Mark Pearson <markpearson@lenovo.com>
-Link: https://lore.kernel.org/r/20210407212015.298222-1-markpearson@lenovo.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: syzbot+c49fe6089f295a05e6f8@syzkaller.appspotmail.com
+Reported-and-tested-by: Hao Sun <sunhao.th@gmail.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Link: https://lore.kernel.org/r/20210412035758.1974-1-hdanton@sina.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 31 ++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ drivers/tty/n_gsm.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index e8257de495fd..f027609fdab6 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -6284,6 +6284,7 @@ enum thermal_access_mode {
- enum { /* TPACPI_THERMAL_TPEC_* */
- 	TP_EC_THERMAL_TMP0 = 0x78,	/* ACPI EC regs TMP 0..7 */
- 	TP_EC_THERMAL_TMP8 = 0xC0,	/* ACPI EC regs TMP 8..15 */
-+	TP_EC_FUNCREV      = 0xEF,      /* ACPI EC Functional revision */
- 	TP_EC_THERMAL_TMP_NA = -128,	/* ACPI EC sensor not available */
- 
- 	TPACPI_THERMAL_SENSOR_NA = -128000, /* Sensor not available */
-@@ -6482,7 +6483,7 @@ static const struct attribute_group thermal_temp_input8_group = {
- 
- static int __init thermal_init(struct ibm_init_struct *iibm)
- {
--	u8 t, ta1, ta2;
-+	u8 t, ta1, ta2, ver = 0;
- 	int i;
- 	int acpi_tmp7;
- 	int res;
-@@ -6497,7 +6498,14 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
- 		 * 0x78-0x7F, 0xC0-0xC7.  Registers return 0x00 for
- 		 * non-implemented, thermal sensors return 0x80 when
- 		 * not available
-+		 * The above rule is unfortunately flawed. This has been seen with
-+		 * 0xC2 (power supply ID) causing thermal control problems.
-+		 * The EC version can be determined by offset 0xEF and at least for
-+		 * version 3 the Lenovo firmware team confirmed that registers 0xC0-0xC7
-+		 * are not thermal registers.
- 		 */
-+		if (!acpi_ec_read(TP_EC_FUNCREV, &ver))
-+			pr_warn("Thinkpad ACPI EC unable to access EC version\n");
- 
- 		ta1 = ta2 = 0;
- 		for (i = 0; i < 8; i++) {
-@@ -6507,11 +6515,13 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
- 				ta1 = 0;
- 				break;
- 			}
--			if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
--				ta2 |= t;
--			} else {
--				ta1 = 0;
--				break;
-+			if (ver < 3) {
-+				if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
-+					ta2 |= t;
-+				} else {
-+					ta1 = 0;
-+					break;
-+				}
- 			}
- 		}
- 		if (ta1 == 0) {
-@@ -6524,9 +6534,12 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
- 				thermal_read_mode = TPACPI_THERMAL_NONE;
- 			}
- 		} else {
--			thermal_read_mode =
--			    (ta2 != 0) ?
--			    TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
-+			if (ver >= 3)
-+				thermal_read_mode = TPACPI_THERMAL_TPEC_8;
-+			else
-+				thermal_read_mode =
-+					(ta2 != 0) ?
-+					TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
- 		}
- 	} else if (acpi_tmp7) {
- 		if (tpacpi_is_ibm() &&
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 75408b9f232d..38eb49ba361f 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2377,8 +2377,18 @@ static int gsmld_attach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
+ 		/* Don't register device 0 - this is the control channel and not
+ 		   a usable tty interface */
+ 		base = mux_num_to_base(gsm); /* Base for this MUX */
+-		for (i = 1; i < NUM_DLCI; i++)
+-			tty_register_device(gsm_tty_driver, base + i, NULL);
++		for (i = 1; i < NUM_DLCI; i++) {
++			struct device *dev;
++
++			dev = tty_register_device(gsm_tty_driver,
++							base + i, NULL);
++			if (IS_ERR(dev)) {
++				for (i--; i >= 1; i--)
++					tty_unregister_device(gsm_tty_driver,
++								base + i);
++				return PTR_ERR(dev);
++			}
++		}
+ 	}
+ 	return ret;
+ }
 -- 
 2.30.2
 
