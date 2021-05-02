@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C7E0370CEF
+	by mail.lfdr.de (Postfix) with ESMTP id 69978370CF0
 	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233492AbhEBOIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:08:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51334 "EHLO mail.kernel.org"
+        id S233889AbhEBOIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:08:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233762AbhEBOHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:07:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59D79613AA;
-        Sun,  2 May 2021 14:06:03 +0000 (UTC)
+        id S233178AbhEBOHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:07:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2AC2614A7;
+        Sun,  2 May 2021 14:06:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964364;
-        bh=QAT7/DpyHeJMZMdN80nWXT2iJv4L2bS1nhzR0FOK+k8=;
+        s=k20201202; t=1619964365;
+        bh=/4OKuc2h/XwrurRmvCYHqa216Pl+UMPBlgZzmVDIm0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q8nQkyX+QsqAqH1V5mpG6yC/uax31vrS4xE3f2znQJUz29EeG4WWIY5HC10ahobKP
-         ExPlmCfSnz9xsvkLD7Bqo7g0cr0Hy7nIxyazmay7Er/Xp8Q50kEWncnoDlESLcCTGE
-         xuueZdaI+Zs06sShaK+gJcAsuUyDmL5JOYB64aaoHHvqhcekM0swsIWOSpu1EDyMJX
-         BBPGakd72U32D50ZVNECwxf4LstCfrjiNDSEQ52hvSLrRTFJvBLvch/qYTCuoYKkFI
-         Ly8eWmpqt+VAXnS2i4L0gMFnu+MqyY19rByzYCnaTzeoCcj24+xZViix6s33i8NqkO
-         c80vL4+7agPSA==
+        b=Lb+Fhk/XOIc5mDU6dYRHXlyNrofk0ojqt5bdiVuEYqujgmxonWxJIWqyrbkJAa/dF
+         c/M81eqULKJkKzRR83dlUksYDE0xEeQex3DGknwV27mc6+35HluEoXp0tDV4ose5eL
+         9n6vazgYzII5dTLlRCh7c4sGK+475EtZ8+SHZvHRP7S4NYLCW9TBATFGSL3HH/wwLw
+         HI7LKdFotlLM+X+HDFU2Kp+/a6gPTtCb9XyX+jzDVS0R+G36oA0LqGZ0fAVT5Kb4Cz
+         Rd+OEI7cN62gMQ9dXZqxa7AGtmD6RmlsczHliE/nupfjXOdGRWKhkW3wf3mQr/HNWO
+         1KgIOuFLTJHDg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>, Vinod Koul <vkoul@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-phy@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 15/16] phy: phy-twl4030-usb: Fix possible use-after-free in twl4030_usb_remove()
-Date:   Sun,  2 May 2021 10:05:43 -0400
-Message-Id: <20210502140544.2720138-15-sashal@kernel.org>
+Cc:     Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 16/16] btrfs: convert logic BUG_ON()'s in replace_path to ASSERT()'s
+Date:   Sun,  2 May 2021 10:05:44 -0400
+Message-Id: <20210502140544.2720138-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140544.2720138-1-sashal@kernel.org>
 References: <20210502140544.2720138-1-sashal@kernel.org>
@@ -43,42 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit e1723d8b87b73ab363256e7ca3af3ddb75855680 ]
+[ Upstream commit 7a9213a93546e7eaef90e6e153af6b8fc7553f10 ]
 
-This driver's remove path calls cancel_delayed_work(). However, that
-function does not wait until the work function finishes. This means
-that the callback function may still be running after the driver's
-remove function has finished, which would result in a use-after-free.
+A few BUG_ON()'s in replace_path are purely to keep us from making
+logical mistakes, so replace them with ASSERT()'s.
 
-Fix by calling cancel_delayed_work_sync(), which ensures that
-the work is properly cancelled, no longer running, and unable
-to re-schedule itself.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210407092716.3270248-1-yangyingliang@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/ti/phy-twl4030-usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/relocation.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/phy/ti/phy-twl4030-usb.c b/drivers/phy/ti/phy-twl4030-usb.c
-index c267afb68f07..ea7564392108 100644
---- a/drivers/phy/ti/phy-twl4030-usb.c
-+++ b/drivers/phy/ti/phy-twl4030-usb.c
-@@ -801,7 +801,7 @@ static int twl4030_usb_remove(struct platform_device *pdev)
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index c01239d1f1e6..313547442a6e 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1808,8 +1808,8 @@ int replace_path(struct btrfs_trans_handle *trans,
+ 	int ret;
+ 	int slot;
  
- 	usb_remove_phy(&twl->phy);
- 	pm_runtime_get_sync(twl->dev);
--	cancel_delayed_work(&twl->id_workaround_work);
-+	cancel_delayed_work_sync(&twl->id_workaround_work);
- 	device_remove_file(twl->dev, &dev_attr_vbus);
+-	BUG_ON(src->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
+-	BUG_ON(dest->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
++	ASSERT(src->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
++	ASSERT(dest->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
  
- 	/* set transceiver mode to power on defaults */
+ 	last_snapshot = btrfs_root_last_snapshot(&src->root_item);
+ again:
+@@ -1841,7 +1841,7 @@ int replace_path(struct btrfs_trans_handle *trans,
+ 	parent = eb;
+ 	while (1) {
+ 		level = btrfs_header_level(parent);
+-		BUG_ON(level < lowest_level);
++		ASSERT(level >= lowest_level);
+ 
+ 		ret = btrfs_bin_search(parent, &key, level, &slot);
+ 		if (ret && slot > 0)
 -- 
 2.30.2
 
