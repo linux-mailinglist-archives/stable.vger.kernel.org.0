@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E656370BF6
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:04:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A01F370BD5
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232562AbhEBOE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:04:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49376 "EHLO mail.kernel.org"
+        id S232396AbhEBOEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232167AbhEBOEa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:04:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84AEE613CB;
-        Sun,  2 May 2021 14:03:37 +0000 (UTC)
+        id S232201AbhEBOEb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:04:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E58C613D3;
+        Sun,  2 May 2021 14:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964218;
-        bh=ghJ82DARUY6O9i1fuSNoLym3W4oLNzpszz+gqBXV0YA=;
+        s=k20201202; t=1619964219;
+        bh=gHK9z7jQUHKGMyq9Dk1nA6jlE7fCAzl1NO77XE5WdZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mF82UU18/rYTTHegBJJhTtOStGePN2+Y7YEefzOtslhqTeHCXxS6IKhaHIW4Lg1n8
-         pwxgkEJ9cx9eDcGL4yKvnDeUy9+3OrGvyJxV296V2IQf68K71jgQlaaoCr9+9wy127
-         irUiZN2TYL+zraHJiRgJTQaI1AKnjCIrF9j9lf4dxATuPGWTjiPgdicZovXDIQ7Fw2
-         BlN1DZq20+Vey9pTjJH1RB0EfwlSsM0+8clgTpq4GnOiCGdTQAePJ4It0wwhzQAwv+
-         EYuxyRiLA5ioFXl/xPDtOFi1s1t+IVjrJiCx0GeifjSthWdBUoYbCMg4DpuZikfo4E
-         zhrf3V21NyJOw==
+        b=CtCFvjjbqc3IICUzv263AzRJAm6fG6vmFnspmNamvXW8iNUtXAlqZ2zZh5Qj8krZv
+         21LrfR0gpUknzn51nMpH6Iv90lUc4+h9ijNLkTRJDZ5gzIL7264vUIDvWZGGGqCjjp
+         U6uCLgHhIadLfAWXLoELA/ke8uKCLc/BOdMsS8q+eOb+q8NBvBoBSoLZs8GSBxBCDu
+         J9K+xLJ9ha7u3kK1LSIf33OVwHG4HH4cmAdWh/wyYGF7bQmiBG1FSPLpLbbgCHKAAQ
+         C18CO8nxYwUQiBeWTe8KAEAA09biWXcMoitBYLCDG7pT2UN+JCsCEcJi3q6yoPmkjx
+         frX8CDSYDC8YQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+Cc:     Ruslan Bilovol <ruslan.bilovol@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 16/79] usb: dwc3: gadget: Remove invalid low-speed setting
-Date:   Sun,  2 May 2021 10:02:13 -0400
-Message-Id: <20210502140316.2718705-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 17/79] usb: gadget: f_uac2: validate input parameters
+Date:   Sun,  2 May 2021 10:02:14 -0400
+Message-Id: <20210502140316.2718705-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140316.2718705-1-sashal@kernel.org>
 References: <20210502140316.2718705-1-sashal@kernel.org>
@@ -42,84 +42,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-[ Upstream commit 0c59f678fcfc6dd53ba493915794636a230bc4cc ]
+[ Upstream commit 3713d5ceb04d5ab6a5e2b86dfca49170053f3a5e ]
 
-None of the DWC_usb3x IPs (and all their versions) supports low-speed
-setting in device mode. In the early days, our "Early Adopter Edition"
-DWC_usb3 databook shows that the controller may be configured to operate
-in low-speed, but it was revised on release. Let's remove this invalid
-speed setting to avoid any confusion.
+Currently user can configure UAC2 function with
+parameters that violate UAC2 spec or are not supported
+by UAC2 gadget implementation.
 
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/258b1c7fbb966454f4c4c2c1367508998498fc30.1615509438.git.Thinh.Nguyen@synopsys.com
+This can lead to incorrect behavior if such gadget
+is connected to the host - like enumeration failure
+or other issues depending on host's UAC2 driver
+implementation, bringing user to a long hours
+of debugging the issue.
+
+Instead of silently accept these parameters, throw
+an error if they are not valid.
+
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/1614599375-8803-4-git-send-email-ruslan.bilovol@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c   | 1 -
- drivers/usb/dwc3/core.h   | 2 --
- drivers/usb/dwc3/gadget.c | 8 --------
- 3 files changed, 11 deletions(-)
+ drivers/usb/gadget/function/f_uac2.c | 39 ++++++++++++++++++++++++++--
+ 1 file changed, 37 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index f2448d0a9d39..677a9778c49a 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1385,7 +1385,6 @@ static void dwc3_check_params(struct dwc3 *dwc)
+diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
+index 6f03e944e0e3..dd960cea642f 100644
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -14,6 +14,9 @@
+ #include "u_audio.h"
+ #include "u_uac2.h"
  
- 	/* Check the maximum_speed parameter */
- 	switch (dwc->maximum_speed) {
--	case USB_SPEED_LOW:
- 	case USB_SPEED_FULL:
- 	case USB_SPEED_HIGH:
- 		break;
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 052b20d52651..19ffab828d9c 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -396,7 +396,6 @@
- #define DWC3_DCFG_SUPERSPEED	(4 << 0)
- #define DWC3_DCFG_HIGHSPEED	(0 << 0)
- #define DWC3_DCFG_FULLSPEED	BIT(0)
--#define DWC3_DCFG_LOWSPEED	(2 << 0)
++/* UAC2 spec: 4.1 Audio Channel Cluster Descriptor */
++#define UAC2_CHANNEL_MASK 0x07FFFFFF
++
+ /*
+  * The driver implements a simple UAC_2 topology.
+  * USB-OUT -> IT_1 -> OT_3 -> ALSA_Capture
+@@ -604,6 +607,36 @@ static void setup_descriptor(struct f_uac2_opts *opts)
+ 	hs_audio_desc[i] = NULL;
+ }
  
- #define DWC3_DCFG_NUMP_SHIFT	17
- #define DWC3_DCFG_NUMP(n)	(((n) >> DWC3_DCFG_NUMP_SHIFT) & 0x1f)
-@@ -490,7 +489,6 @@
- #define DWC3_DSTS_SUPERSPEED		(4 << 0)
- #define DWC3_DSTS_HIGHSPEED		(0 << 0)
- #define DWC3_DSTS_FULLSPEED		BIT(0)
--#define DWC3_DSTS_LOWSPEED		(2 << 0)
++static int afunc_validate_opts(struct g_audio *agdev, struct device *dev)
++{
++	struct f_uac2_opts *opts = g_audio_to_uac2_opts(agdev);
++
++	if (!opts->p_chmask && !opts->c_chmask) {
++		dev_err(dev, "Error: no playback and capture channels\n");
++		return -EINVAL;
++	} else if (opts->p_chmask & ~UAC2_CHANNEL_MASK) {
++		dev_err(dev, "Error: unsupported playback channels mask\n");
++		return -EINVAL;
++	} else if (opts->c_chmask & ~UAC2_CHANNEL_MASK) {
++		dev_err(dev, "Error: unsupported capture channels mask\n");
++		return -EINVAL;
++	} else if ((opts->p_ssize < 1) || (opts->p_ssize > 4)) {
++		dev_err(dev, "Error: incorrect playback sample size\n");
++		return -EINVAL;
++	} else if ((opts->c_ssize < 1) || (opts->c_ssize > 4)) {
++		dev_err(dev, "Error: incorrect capture sample size\n");
++		return -EINVAL;
++	} else if (!opts->p_srate) {
++		dev_err(dev, "Error: incorrect playback sampling rate\n");
++		return -EINVAL;
++	} else if (!opts->c_srate) {
++		dev_err(dev, "Error: incorrect capture sampling rate\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ static int
+ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
+ {
+@@ -612,11 +645,13 @@ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
+ 	struct usb_composite_dev *cdev = cfg->cdev;
+ 	struct usb_gadget *gadget = cdev->gadget;
+ 	struct device *dev = &gadget->dev;
+-	struct f_uac2_opts *uac2_opts;
++	struct f_uac2_opts *uac2_opts = g_audio_to_uac2_opts(agdev);
+ 	struct usb_string *us;
+ 	int ret;
  
- /* Device Generic Command Register */
- #define DWC3_DGCMD_SET_LMP		0x01
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index c7ef218e7a8c..04950ac0704b 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2113,9 +2113,6 @@ static void __dwc3_gadget_set_speed(struct dwc3 *dwc)
- 		reg |= DWC3_DCFG_SUPERSPEED;
- 	} else {
- 		switch (speed) {
--		case USB_SPEED_LOW:
--			reg |= DWC3_DCFG_LOWSPEED;
--			break;
- 		case USB_SPEED_FULL:
- 			reg |= DWC3_DCFG_FULLSPEED;
- 			break;
-@@ -3448,11 +3445,6 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
- 		dwc->gadget->ep0->maxpacket = 64;
- 		dwc->gadget->speed = USB_SPEED_FULL;
- 		break;
--	case DWC3_DSTS_LOWSPEED:
--		dwc3_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(8);
--		dwc->gadget->ep0->maxpacket = 8;
--		dwc->gadget->speed = USB_SPEED_LOW;
--		break;
- 	}
+-	uac2_opts = container_of(fn->fi, struct f_uac2_opts, func_inst);
++	ret = afunc_validate_opts(agdev, dev);
++	if (ret)
++		return ret;
  
- 	dwc->eps[1]->endpoint.maxpacket = dwc->gadget->ep0->maxpacket;
+ 	us = usb_gstrings_attach(cdev, fn_strings, ARRAY_SIZE(strings_fn));
+ 	if (IS_ERR(us))
 -- 
 2.30.2
 
