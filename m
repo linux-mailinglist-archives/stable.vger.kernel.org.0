@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69978370CF0
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8156D370CF3
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233889AbhEBOIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:08:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51352 "EHLO mail.kernel.org"
+        id S233293AbhEBOIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233178AbhEBOHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232724AbhEBOHT (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 2 May 2021 10:07:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2AC2614A7;
-        Sun,  2 May 2021 14:06:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73751613F0;
+        Sun,  2 May 2021 14:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964365;
-        bh=/4OKuc2h/XwrurRmvCYHqa216Pl+UMPBlgZzmVDIm0s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lb+Fhk/XOIc5mDU6dYRHXlyNrofk0ojqt5bdiVuEYqujgmxonWxJIWqyrbkJAa/dF
-         c/M81eqULKJkKzRR83dlUksYDE0xEeQex3DGknwV27mc6+35HluEoXp0tDV4ose5eL
-         9n6vazgYzII5dTLlRCh7c4sGK+475EtZ8+SHZvHRP7S4NYLCW9TBATFGSL3HH/wwLw
-         HI7LKdFotlLM+X+HDFU2Kp+/a6gPTtCb9XyX+jzDVS0R+G36oA0LqGZ0fAVT5Kb4Cz
-         Rd+OEI7cN62gMQ9dXZqxa7AGtmD6RmlsczHliE/nupfjXOdGRWKhkW3wf3mQr/HNWO
-         1KgIOuFLTJHDg==
+        s=k20201202; t=1619964368;
+        bh=i6nxWaGnI13Ya4iWXKJbLda0atge26fqRNEacbktChY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qj2103Egyq5iEHEphZvShYxxC2x6xov0VahYi4tBVyW+gjEOdZ+lJ5Dyc6eX2x0qr
+         5Q82Nz9Gydya7o2JInAMDuOCPbAwDBMyMyyOs3kxTNtJ6dujlOBLhsxgPE1z8fJzpB
+         GHhXurSyRgelw5PT+bZIInLXvcGH6GUAzGbNX4rE3QZCzY3w+2eFVtsxfCT+d5Dc1w
+         B8W6hZqs+GPy6jhOVrdKMVDSbE7qgNqkabYDP3mmM3Ap9hLtACY9ehvK1tGH/NO26T
+         xjgKK+60ECQdC2o92n5PpJCpvcNIspgVfDUdWfd4RCXgbOlTX6+VowTR7BQNMVeQWr
+         gv4noZkXUQ2pg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 16/16] btrfs: convert logic BUG_ON()'s in replace_path to ASSERT()'s
-Date:   Sun,  2 May 2021 10:05:44 -0400
-Message-Id: <20210502140544.2720138-16-sashal@kernel.org>
+Cc:     karthik alapati <mail@karthek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/12] staging: wimax/i2400m: fix byte-order issue
+Date:   Sun,  2 May 2021 10:05:55 -0400
+Message-Id: <20210502140606.2720323-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210502140544.2720138-1-sashal@kernel.org>
-References: <20210502140544.2720138-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,46 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: karthik alapati <mail@karthek.com>
 
-[ Upstream commit 7a9213a93546e7eaef90e6e153af6b8fc7553f10 ]
+[ Upstream commit 0c37baae130df39b19979bba88bde2ee70a33355 ]
 
-A few BUG_ON()'s in replace_path are purely to keep us from making
-logical mistakes, so replace them with ASSERT()'s.
+fix sparse byte-order warnings by converting host byte-order
+type to __le16 byte-order types before assigning to hdr.length
 
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: karthik alapati <mail@karthek.com>
+Link: https://lore.kernel.org/r/0ae5c5c4c646506d8be871e7be5705542671a1d5.1613921277.git.mail@karthek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wimax/i2400m/op-rfkill.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index c01239d1f1e6..313547442a6e 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1808,8 +1808,8 @@ int replace_path(struct btrfs_trans_handle *trans,
- 	int ret;
- 	int slot;
- 
--	BUG_ON(src->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
--	BUG_ON(dest->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
-+	ASSERT(src->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
-+	ASSERT(dest->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
- 
- 	last_snapshot = btrfs_root_last_snapshot(&src->root_item);
- again:
-@@ -1841,7 +1841,7 @@ int replace_path(struct btrfs_trans_handle *trans,
- 	parent = eb;
- 	while (1) {
- 		level = btrfs_header_level(parent);
--		BUG_ON(level < lowest_level);
-+		ASSERT(level >= lowest_level);
- 
- 		ret = btrfs_bin_search(parent, &key, level, &slot);
- 		if (ret && slot > 0)
+diff --git a/drivers/net/wimax/i2400m/op-rfkill.c b/drivers/net/wimax/i2400m/op-rfkill.c
+index dc6fe93ce71f..e8473047b2d1 100644
+--- a/drivers/net/wimax/i2400m/op-rfkill.c
++++ b/drivers/net/wimax/i2400m/op-rfkill.c
+@@ -101,7 +101,7 @@ int i2400m_op_rfkill_sw_toggle(struct wimax_dev *wimax_dev,
+ 	if (cmd == NULL)
+ 		goto error_alloc;
+ 	cmd->hdr.type = cpu_to_le16(I2400M_MT_CMD_RF_CONTROL);
+-	cmd->hdr.length = sizeof(cmd->sw_rf);
++	cmd->hdr.length = cpu_to_le16(sizeof(cmd->sw_rf));
+ 	cmd->hdr.version = cpu_to_le16(I2400M_L3L4_VERSION);
+ 	cmd->sw_rf.hdr.type = cpu_to_le16(I2400M_TLV_RF_OPERATION);
+ 	cmd->sw_rf.hdr.length = cpu_to_le16(sizeof(cmd->sw_rf.status));
 -- 
 2.30.2
 
