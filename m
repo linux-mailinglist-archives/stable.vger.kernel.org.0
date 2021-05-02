@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D52370CAD
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B730E370CB0
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:06:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233722AbhEBOHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:07:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50872 "EHLO mail.kernel.org"
+        id S233119AbhEBOHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:07:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233127AbhEBOG0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233116AbhEBOG0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 2 May 2021 10:06:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DADE861423;
-        Sun,  2 May 2021 14:05:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49737613C5;
+        Sun,  2 May 2021 14:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964329;
-        bh=DTWH8NVoZWx4rVhmqGlYuLjfmdZbDkg5InMe1IXTpgU=;
+        s=k20201202; t=1619964331;
+        bh=jjYT6PyU7yG8aquzb9tT0Ra7w/2baInNjO74QmhVsss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pixoANdd9/K2rA7y/anQvKUD2oSCsAxu28I0Hp1YSrT3HNRSQOtFlHmgaVdj6dxjC
-         yWwQ8f0nUb3a/QFW/SuPS11vw/x67CAo40rLlC7PALW/dONEvph95B7VVgGCgZYpTi
-         UjZFeQ3Gkc/9nkZKjnMYRipFedSHyMHQnJuCr7lcDrEo57LmP45IKQQdNRqWfKBXA7
-         SVLm9w4YbvtBDNlHpqNTaPojInBSXlS+7yOdHO7fDLUIc698eFj4ioZ8c3mYc4yndb
-         AfuGVLxT811KEIRU3pZ4Fn72aOKk4CtXTRAFGArhjpqaoCgJBW53SdmqFG7ENmauXG
-         0SWWb04GrSgYg==
+        b=g8vEmINJQxfOEQ5RvKZZ4iKvAb3B5/bJCJ+Jwpeq4HUlIbnCge42XQ3pVX/WVXjGr
+         0z0su99f6PUXQxZ688Yeirdu7kwYSgrIoMMVN7sOXovjo/WInr8uhnXS1bpqpqcpSE
+         j8G9p62CXrsFbMqGauSThCRPkhHrqcmLI56gcMUpwqVqzrHBfZMEki46xo6NKlQSu5
+         YmqzlxVfz6dfzom2XCcA9WU63m+WcfKu0oO3AhT8xvj+I8gbPQ67+6dhJHn/DW5QVe
+         MwWs6TJZrV1g+TJY7W78blbO/havOUb0mOJqV03JqmxwGE9+2i1/G80MZHDZrWjR3H
+         QCeG1xZ61sFEQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Millikin <john@john-millikin.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Ard Biesheuvel <ardb@kernel.org>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
+Cc:     Jerome Forissier <jerome@forissier.org>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 09/21] x86/build: Propagate $(CLANG_FLAGS) to $(REALMODE_FLAGS)
-Date:   Sun,  2 May 2021 10:05:05 -0400
-Message-Id: <20210502140517.2719912-9-sashal@kernel.org>
+        op-tee@lists.trustedfirmware.org
+Subject: [PATCH AUTOSEL 4.19 10/21] tee: optee: do not check memref size on return from Secure World
+Date:   Sun,  2 May 2021 10:05:06 -0400
+Message-Id: <20210502140517.2719912-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140517.2719912-1-sashal@kernel.org>
 References: <20210502140517.2719912-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,61 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Millikin <john@john-millikin.com>
+From: Jerome Forissier <jerome@forissier.org>
 
-[ Upstream commit 8abe7fc26ad8f28bfdf78adbed56acd1fa93f82d ]
+[ Upstream commit c650b8dc7a7910eb25af0aac1720f778b29e679d ]
 
-When cross-compiling with Clang, the `$(CLANG_FLAGS)' variable
-contains additional flags needed to build C and assembly sources
-for the target platform. Normally this variable is automatically
-included in `$(KBUILD_CFLAGS)' via the top-level Makefile.
+When Secure World returns, it may have changed the size attribute of the
+memory references passed as [in/out] parameters. The GlobalPlatform TEE
+Internal Core API specification does not restrict the values that this
+size can take. In particular, Secure World may increase the value to be
+larger than the size of the input buffer to indicate that it needs more.
 
-The x86 real-mode makefile builds `$(REALMODE_CFLAGS)' from a
-plain assignment and therefore drops the Clang flags. This causes
-Clang to not recognize x86-specific assembler directives:
+Therefore, the size check in optee_from_msg_param() is incorrect and
+needs to be removed. This fixes a number of failed test cases in the
+GlobalPlatform TEE Initial Configuratiom Test Suite v2_0_0_0-2017_06_09
+when OP-TEE is compiled without dynamic shared memory support
+(CFG_CORE_DYN_SHM=n).
 
-  arch/x86/realmode/rm/header.S:36:1: error: unknown directive
-  .type real_mode_header STT_OBJECT ; .size real_mode_header, .-real_mode_header
-  ^
-
-Explicit propagation of `$(CLANG_FLAGS)' to `$(REALMODE_CFLAGS)',
-which is inherited by real-mode make rules, fixes cross-compilation
-with Clang for x86 targets.
-
-Relevant flags:
-
-* `--target' sets the target architecture when cross-compiling. This
-  flag must be set for both compilation and assembly (`KBUILD_AFLAGS')
-  to support architecture-specific assembler directives.
-
-* `-no-integrated-as' tells clang to assemble with GNU Assembler
-  instead of its built-in LLVM assembler. This flag is set by default
-  unless `LLVM_IAS=1' is set, because the LLVM assembler can't yet
-  parse certain GNU extensions.
-
-Signed-off-by: John Millikin <john@john-millikin.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Link: https://lkml.kernel.org/r/20210326000435.4785-2-nathan@kernel.org
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Suggested-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Jerome Forissier <jerome@forissier.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tee/optee/core.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 6ebdbad21fb2..65a8722e784c 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -40,6 +40,7 @@ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
-+REALMODE_CFLAGS += $(CLANG_FLAGS)
- export REALMODE_CFLAGS
- 
- # BITS is used as extension for files which are available in a 32 bit
+diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
+index 2f254f957b0a..1d71fcb13dba 100644
+--- a/drivers/tee/optee/core.c
++++ b/drivers/tee/optee/core.c
+@@ -87,16 +87,6 @@ int optee_from_msg_param(struct tee_param *params, size_t num_params,
+ 				return rc;
+ 			p->u.memref.shm_offs = mp->u.tmem.buf_ptr - pa;
+ 			p->u.memref.shm = shm;
+-
+-			/* Check that the memref is covered by the shm object */
+-			if (p->u.memref.size) {
+-				size_t o = p->u.memref.shm_offs +
+-					   p->u.memref.size - 1;
+-
+-				rc = tee_shm_get_pa(shm, o, NULL);
+-				if (rc)
+-					return rc;
+-			}
+ 			break;
+ 		case OPTEE_MSG_ATTR_TYPE_RMEM_INPUT:
+ 		case OPTEE_MSG_ATTR_TYPE_RMEM_OUTPUT:
 -- 
 2.30.2
 
