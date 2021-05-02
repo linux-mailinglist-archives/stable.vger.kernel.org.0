@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C173370C83
+	by mail.lfdr.de (Postfix) with ESMTP id E8907370C85
 	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:06:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233241AbhEBOGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
+        id S233003AbhEBOGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:06:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233244AbhEBOGC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:06:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4ADF613D8;
-        Sun,  2 May 2021 14:05:09 +0000 (UTC)
+        id S233257AbhEBOGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:06:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EAB4613E4;
+        Sun,  2 May 2021 14:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964310;
-        bh=s++pOuEuj5uVGNpgdbWGjOD4K3Kud/91J//OAfiA/aw=;
+        s=k20201202; t=1619964312;
+        bh=1ZR2hGCVxl/AUz/DPdg4lR6EqMKap5Sr4BtBZj9BvF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrBZK327T7bTeu3CRgojME+D3kFHTItuTDfbIFcNk2w8cuP6KL31AknQmNgx99Sac
-         2UhNhA7Vr1aSnaCebTbw9Y4CuqjzRaCpSH3vevuwtynrioXgJ6uxVo//5L674lDhs5
-         z8CRWHWmh/FML/Wp2bD/HWQL+ys0LlwnXeqOzhz9HWae7g+Fx/PzAP8XBXYRq2/49K
-         PihmA3Y2JUptveK368+bh8w48TNbragt4A/P50Xs9M/mQgsG9M933/iSlQ8l3h5orD
-         QjD94DSGbHuwNAj4Kfg+KV0ZX6gIPrcJoRMfdacKDlstt6HgQRgc1kDJ5T/zR8MHQG
-         9g7zt9M8YoXWw==
+        b=oFVib25LXxUmVygEkyQazzfwdGmDOiBvDTFwbN7c/4fGMtL8Vs21i7NbNU7qc2wkK
+         CH45N4bpwaSI92o+Q4vCSsb5Y+6O2dcADIxLCzlYdmrOXsRhkovLjtju9AdrqW0ama
+         Yj0RgXBkeR3zoRMLdYwN3/VbFv3hwRLz8IXfaFouse5Xlqq8pH/s6foPulvbXPT8/x
+         /+vlhRUreHT4fekV8BRUQoP1A5R5fpymgk+TZryY8kT/sj/+JzglZO8lWcgaw5bpVk
+         pNOcPVZIFuQkto6EzdcAu1BfI66m12c8qO+5KCYJdxH7v8DmKmyDGiG4p0khmPO737
+         sI/oxq9d0FAAA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>, Vinod Koul <vkoul@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-phy@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 29/34] phy: phy-twl4030-usb: Fix possible use-after-free in twl4030_usb_remove()
-Date:   Sun,  2 May 2021 10:04:29 -0400
-Message-Id: <20210502140434.2719553-29-sashal@kernel.org>
+Cc:     Shixin Liu <liushixin2@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 30/34] crypto: stm32/hash - Fix PM reference leak on stm32-hash.c
+Date:   Sun,  2 May 2021 10:04:30 -0400
+Message-Id: <20210502140434.2719553-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140434.2719553-1-sashal@kernel.org>
 References: <20210502140434.2719553-1-sashal@kernel.org>
@@ -43,42 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Shixin Liu <liushixin2@huawei.com>
 
-[ Upstream commit e1723d8b87b73ab363256e7ca3af3ddb75855680 ]
+[ Upstream commit 1cb3ad701970e68f18a9e5d090baf2b1b703d729 ]
 
-This driver's remove path calls cancel_delayed_work(). However, that
-function does not wait until the work function finishes. This means
-that the callback function may still be running after the driver's
-remove function has finished, which would result in a use-after-free.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-Fix by calling cancel_delayed_work_sync(), which ensures that
-the work is properly cancelled, no longer running, and unable
-to re-schedule itself.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210407092716.3270248-1-yangyingliang@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shixin Liu <liushixin2@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/ti/phy-twl4030-usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/stm32/stm32-hash.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/phy/ti/phy-twl4030-usb.c b/drivers/phy/ti/phy-twl4030-usb.c
-index 9887f908f540..812e5409d359 100644
---- a/drivers/phy/ti/phy-twl4030-usb.c
-+++ b/drivers/phy/ti/phy-twl4030-usb.c
-@@ -779,7 +779,7 @@ static int twl4030_usb_remove(struct platform_device *pdev)
+diff --git a/drivers/crypto/stm32/stm32-hash.c b/drivers/crypto/stm32/stm32-hash.c
+index cfc8e0e37bee..dcce15b55809 100644
+--- a/drivers/crypto/stm32/stm32-hash.c
++++ b/drivers/crypto/stm32/stm32-hash.c
+@@ -810,7 +810,7 @@ static void stm32_hash_finish_req(struct ahash_request *req, int err)
+ static int stm32_hash_hw_init(struct stm32_hash_dev *hdev,
+ 			      struct stm32_hash_request_ctx *rctx)
+ {
+-	pm_runtime_get_sync(hdev->dev);
++	pm_runtime_resume_and_get(hdev->dev);
  
- 	usb_remove_phy(&twl->phy);
- 	pm_runtime_get_sync(twl->dev);
--	cancel_delayed_work(&twl->id_workaround_work);
-+	cancel_delayed_work_sync(&twl->id_workaround_work);
- 	device_remove_file(twl->dev, &dev_attr_vbus);
+ 	if (!(HASH_FLAGS_INIT & hdev->flags)) {
+ 		stm32_hash_write(hdev, HASH_CR, HASH_CR_INIT);
+@@ -959,7 +959,7 @@ static int stm32_hash_export(struct ahash_request *req, void *out)
+ 	u32 *preg;
+ 	unsigned int i;
  
- 	/* set transceiver mode to power on defaults */
+-	pm_runtime_get_sync(hdev->dev);
++	pm_runtime_resume_and_get(hdev->dev);
+ 
+ 	while ((stm32_hash_read(hdev, HASH_SR) & HASH_SR_BUSY))
+ 		cpu_relax();
+@@ -997,7 +997,7 @@ static int stm32_hash_import(struct ahash_request *req, const void *in)
+ 
+ 	preg = rctx->hw_context;
+ 
+-	pm_runtime_get_sync(hdev->dev);
++	pm_runtime_resume_and_get(hdev->dev);
+ 
+ 	stm32_hash_write(hdev, HASH_IMR, *preg++);
+ 	stm32_hash_write(hdev, HASH_STR, *preg++);
+@@ -1553,7 +1553,7 @@ static int stm32_hash_remove(struct platform_device *pdev)
+ 	if (!hdev)
+ 		return -ENODEV;
+ 
+-	ret = pm_runtime_get_sync(hdev->dev);
++	ret = pm_runtime_resume_and_get(hdev->dev);
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.30.2
 
