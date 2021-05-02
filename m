@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B857370D04
+	by mail.lfdr.de (Postfix) with ESMTP id ED8C1370D06
 	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232536AbhEBOIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:08:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51048 "EHLO mail.kernel.org"
+        id S232824AbhEBOIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:08:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232777AbhEBOHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232269AbhEBOHg (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 2 May 2021 10:07:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A40061476;
-        Sun,  2 May 2021 14:06:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6948961622;
+        Sun,  2 May 2021 14:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964376;
-        bh=v3Vd59VNV4GZOB3OwVKyYi0vtm3tkcdj3lsakjlC4Ug=;
+        s=k20201202; t=1619964378;
+        bh=ihITsMKzyZHQ13wze/xzMzcuEGqmYB3pLiUv0FCio4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZ5+ZmZXofg5F/KgK20VPjg3SBrsQVuQGkVYGuDDlYDPPMk1bC8BgiFShPaNAzQM5
-         n3UinsDJ9FtKmCx372HWmHpa/OfUdkNfwqCBzTR2CAOQ4VOVyBU74B2BnZFGnl5PeN
-         E0mpIGsTWs/0oylOizekYvhCpXTSC0+oW8m2u/l7p6V7rP+VOuHDH6gx1MRNgr8Cx7
-         6KvoqUZsIKm+zmCgC/qUSbc7H3C3oXpFGOagW6wf1CHC+NO7uQ4hYKsRkPzDpHt7xf
-         rM/jjszS340M7T5ZpWOsuG/v4Hlr6EDUQnbB4fduV/FH05sYkGekTJGVxhD3fWmoEE
-         X4GzfYBuALjQw==
+        b=UEUdrn2fLXktVTr70wefxDczoufuMGK2AxDD/BBEBviuLQxGGkTNaA1jQU8QhS4bn
+         XYQHITh9Bu1P0yeqW7lkem7HqR1tFckkrF+6lxbJ3oLsTF29IhaP2jmQZd4C102FBL
+         VP6LbTYGEsT9NDQslFRFGZDAzelQGrFHVAN/YCV/nKtgiQyKDzDIwG2UFLvT3TWaHc
+         QHCE27Hr4d5pNWn3EYTnckbjrFatmN7WwTmYn51bxpfSKdly/lUaLsHGFKtRqm3mnd
+         4OQAZN9iRiKsHvk+8fs58APqVsuCynG4mU+79uyO9/1GL5MJQECTqgvOzJMY87RHZi
+         5yq5LI4YNeEYA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 08/12] spi: omap-100k: Fix reference leak to master
-Date:   Sun,  2 May 2021 10:06:02 -0400
-Message-Id: <20210502140606.2720323-8-sashal@kernel.org>
+Cc:     Mark Pearson <markpearson@lenovo.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 09/12] platform/x86: thinkpad_acpi: Correct thermal sensor allocation
+Date:   Sun,  2 May 2021 10:06:03 -0400
+Message-Id: <20210502140606.2720323-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140606.2720323-1-sashal@kernel.org>
 References: <20210502140606.2720323-1-sashal@kernel.org>
@@ -43,56 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Mark Pearson <markpearson@lenovo.com>
 
-[ Upstream commit a23faea76d4cf5f75decb574491e66f9ecd707e7 ]
+[ Upstream commit 6759e18e5cd8745a5dfc5726e4a3db5281ec1639 ]
 
-Call spi_master_get() holds the reference count to master device, thus
-we need an additional spi_master_put() call to reduce the reference
-count, otherwise we will leak a reference to master.
+On recent Thinkpad platforms it was reported that temp sensor 11 was
+always incorrectly displaying 66C. It turns out the reason for this is
+that this location in EC RAM is not a temperature sensor but is the
+power supply ID (offset 0xC2).
 
-This commit fix it by removing the unnecessary spi_master_get().
+Based on feedback from the Lenovo firmware team the EC RAM version can
+be determined and for the current version (3) only the 0x78 to 0x7F
+range is used for temp sensors. I don't have any details for earlier
+versions so I have left the implementation unaltered there.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20210409082954.2906933-1-weiyongjun1@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Note - in this block only 0x78 and 0x79 are officially designated (CPU &
+GPU sensors). The use of the other locations in the block will vary from
+platform to platform; but the existing logic to detect a sensor presence
+holds.
+
+Signed-off-by: Mark Pearson <markpearson@lenovo.com>
+Link: https://lore.kernel.org/r/20210407212015.298222-1-markpearson@lenovo.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-omap-100k.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 31 ++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/spi/spi-omap-100k.c b/drivers/spi/spi-omap-100k.c
-index 76a8425be227..1eccdc4a4581 100644
---- a/drivers/spi/spi-omap-100k.c
-+++ b/drivers/spi/spi-omap-100k.c
-@@ -435,7 +435,7 @@ static int omap1_spi100k_probe(struct platform_device *pdev)
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 379f9633f78e..84bfecded84d 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -6044,6 +6044,7 @@ enum thermal_access_mode {
+ enum { /* TPACPI_THERMAL_TPEC_* */
+ 	TP_EC_THERMAL_TMP0 = 0x78,	/* ACPI EC regs TMP 0..7 */
+ 	TP_EC_THERMAL_TMP8 = 0xC0,	/* ACPI EC regs TMP 8..15 */
++	TP_EC_FUNCREV      = 0xEF,      /* ACPI EC Functional revision */
+ 	TP_EC_THERMAL_TMP_NA = -128,	/* ACPI EC sensor not available */
  
- static int omap1_spi100k_remove(struct platform_device *pdev)
+ 	TPACPI_THERMAL_SENSOR_NA = -128000, /* Sensor not available */
+@@ -6242,7 +6243,7 @@ static const struct attribute_group thermal_temp_input8_group = {
+ 
+ static int __init thermal_init(struct ibm_init_struct *iibm)
  {
--	struct spi_master *master = spi_master_get(platform_get_drvdata(pdev));
-+	struct spi_master *master = platform_get_drvdata(pdev);
- 	struct omap1_spi100k *spi100k = spi_master_get_devdata(master);
+-	u8 t, ta1, ta2;
++	u8 t, ta1, ta2, ver = 0;
+ 	int i;
+ 	int acpi_tmp7;
+ 	int res;
+@@ -6257,7 +6258,14 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
+ 		 * 0x78-0x7F, 0xC0-0xC7.  Registers return 0x00 for
+ 		 * non-implemented, thermal sensors return 0x80 when
+ 		 * not available
++		 * The above rule is unfortunately flawed. This has been seen with
++		 * 0xC2 (power supply ID) causing thermal control problems.
++		 * The EC version can be determined by offset 0xEF and at least for
++		 * version 3 the Lenovo firmware team confirmed that registers 0xC0-0xC7
++		 * are not thermal registers.
+ 		 */
++		if (!acpi_ec_read(TP_EC_FUNCREV, &ver))
++			pr_warn("Thinkpad ACPI EC unable to access EC version\n");
  
- 	pm_runtime_disable(&pdev->dev);
-@@ -449,7 +449,7 @@ static int omap1_spi100k_remove(struct platform_device *pdev)
- #ifdef CONFIG_PM
- static int omap1_spi100k_runtime_suspend(struct device *dev)
- {
--	struct spi_master *master = spi_master_get(dev_get_drvdata(dev));
-+	struct spi_master *master = dev_get_drvdata(dev);
- 	struct omap1_spi100k *spi100k = spi_master_get_devdata(master);
- 
- 	clk_disable_unprepare(spi100k->ick);
-@@ -460,7 +460,7 @@ static int omap1_spi100k_runtime_suspend(struct device *dev)
- 
- static int omap1_spi100k_runtime_resume(struct device *dev)
- {
--	struct spi_master *master = spi_master_get(dev_get_drvdata(dev));
-+	struct spi_master *master = dev_get_drvdata(dev);
- 	struct omap1_spi100k *spi100k = spi_master_get_devdata(master);
- 	int ret;
- 
+ 		ta1 = ta2 = 0;
+ 		for (i = 0; i < 8; i++) {
+@@ -6267,11 +6275,13 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
+ 				ta1 = 0;
+ 				break;
+ 			}
+-			if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
+-				ta2 |= t;
+-			} else {
+-				ta1 = 0;
+-				break;
++			if (ver < 3) {
++				if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
++					ta2 |= t;
++				} else {
++					ta1 = 0;
++					break;
++				}
+ 			}
+ 		}
+ 		if (ta1 == 0) {
+@@ -6287,9 +6297,12 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
+ 				thermal_read_mode = TPACPI_THERMAL_NONE;
+ 			}
+ 		} else {
+-			thermal_read_mode =
+-			    (ta2 != 0) ?
+-			    TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
++			if (ver >= 3)
++				thermal_read_mode = TPACPI_THERMAL_TPEC_8;
++			else
++				thermal_read_mode =
++					(ta2 != 0) ?
++					TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
+ 		}
+ 	} else if (acpi_tmp7) {
+ 		if (tpacpi_is_ibm() &&
 -- 
 2.30.2
 
