@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A172C370CE2
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFD9370CE8
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233834AbhEBOH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:07:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51726 "EHLO mail.kernel.org"
+        id S233850AbhEBOH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:07:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233712AbhEBOHK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:07:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AD24613EA;
-        Sun,  2 May 2021 14:05:57 +0000 (UTC)
+        id S233440AbhEBOHM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:07:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67085613E4;
+        Sun,  2 May 2021 14:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964358;
-        bh=lC97Tj1ehvcUuFVzxczscYEkaTHn/Mum0iWhRqdNedE=;
+        s=k20201202; t=1619964359;
+        bh=OLJOTzW1FsSNMsOn5GPJtnZwbeOeAm854hzNbQlR3GQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kGQgmrVI7RolCCJS3lTfC0X6BCUOnhaR5QMpaL7o5pSp1N2GNjnSPUfmELZ81CvTN
-         PYxSRvX5/+eiI8TPhzmsLHbzl1GjH+8e63Tsqw76ziqFWUKD/G5zOXMzkVLYDhD1vU
-         Z9yiD5x2/vObLlA+22IU68SuReUF5cvlFF/kJiPgIWHJ9blrTf+FX5BdgJYFtECelh
-         eu4HZc9Az0tiR/NiIAHfFHoE9sNGaEHszKGIjIOqx7ekXtaQvikKCa2kp9K+xbhAiI
-         5/kZKm2w4ZTP1qWzLGACWb32yEFK1lsh09R3NNYyzc68K6YYijSZACiHRND4Spn8HA
-         Gy6/0s9XbfTIQ==
+        b=a5NkbhAgj+tjx6gkHuiR0ZC7DCK7iz1JHWcTLBXEhvQ2R4JiTuxg6kmiMKtf0iggC
+         5KiHxR4kkJmJw0Ic8DY7FTjzxs4+NF48ScRjRngnypCEHjWZpqgMR5Pb7FxJz1Ohoa
+         BXWRprWuUKB92btdlNV9WyhKaSrFzAlDsuVmA/ZaU0v0XyEludedtE6my0m6mF4As1
+         ATCJMt5+HUhKe6LVKvXWRprVpbglrJ1yfrje0RVfDqhR3qU2SAr3lZbN96HHGI27wD
+         xLv5UTvD7dwjMRgzHLE2BMrMLNh5rIsA0DJhQha1eTE3gln128zbafTReNglB7fe+u
+         eH7xYrpZIFBUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 10/16] perf/arm_pmu_platform: Fix error handling
-Date:   Sun,  2 May 2021 10:05:38 -0400
-Message-Id: <20210502140544.2720138-10-sashal@kernel.org>
+Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 11/16] spi: dln2: Fix reference leak to master
+Date:   Sun,  2 May 2021 10:05:39 -0400
+Message-Id: <20210502140544.2720138-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140544.2720138-1-sashal@kernel.org>
 References: <20210502140544.2720138-1-sashal@kernel.org>
@@ -42,34 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit e338cb6bef254821a8c095018fd27254d74bfd6a ]
+[ Upstream commit 9b844b087124c1538d05f40fda8a4fec75af55be ]
 
-If we're aborting after failing to register the PMU device,
-we probably don't want to leak the IRQs that we've claimed.
+Call spi_master_get() holds the reference count to master device, thus
+we need an additional spi_master_put() call to reduce the reference
+count, otherwise we will leak a reference to master.
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/53031a607fc8412a60024bfb3bb8cd7141f998f5.1616774562.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+This commit fix it by removing the unnecessary spi_master_get().
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20210409082955.2907950-1-weiyongjun1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_pmu_platform.c | 2 +-
+ drivers/spi/spi-dln2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/perf/arm_pmu_platform.c b/drivers/perf/arm_pmu_platform.c
-index 4428852e1da1..bd5af219ca9b 100644
---- a/drivers/perf/arm_pmu_platform.c
-+++ b/drivers/perf/arm_pmu_platform.c
-@@ -222,7 +222,7 @@ int arm_pmu_device_probe(struct platform_device *pdev,
+diff --git a/drivers/spi/spi-dln2.c b/drivers/spi/spi-dln2.c
+index b62a99caacc0..a41adea48618 100644
+--- a/drivers/spi/spi-dln2.c
++++ b/drivers/spi/spi-dln2.c
+@@ -783,7 +783,7 @@ static int dln2_spi_probe(struct platform_device *pdev)
  
- 	ret = armpmu_register(pmu);
- 	if (ret)
--		goto out_free;
-+		goto out_free_irqs;
+ static int dln2_spi_remove(struct platform_device *pdev)
+ {
+-	struct spi_master *master = spi_master_get(platform_get_drvdata(pdev));
++	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct dln2_spi *dln2 = spi_master_get_devdata(master);
  
- 	return 0;
- 
+ 	pm_runtime_disable(&pdev->dev);
 -- 
 2.30.2
 
