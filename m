@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CDC4370C02
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03925370C06
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232683AbhEBOFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:05:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50100 "EHLO mail.kernel.org"
+        id S232604AbhEBOFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:05:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232592AbhEBOE7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:04:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8303A613B0;
-        Sun,  2 May 2021 14:04:07 +0000 (UTC)
+        id S232616AbhEBOFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:05:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A95DA613AF;
+        Sun,  2 May 2021 14:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964248;
-        bh=KqrtwADJFNLccYKBQbyAelZdQv0NXjhVMJ5uSbf8zRg=;
+        s=k20201202; t=1619964249;
+        bh=P9TeRjrI8IGCsBC1Gz7dTdV/iTVBA6MWxnwm2F32KfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfxAZnM9it1Z1prmpKs1vSOhsxVx5moRK74YhqTzFqYYeYGt709geS1LI6E+pV5EA
-         kcyeztvrCXfxcoPHe7x63J0BymIaC5YFaHYoByUCvH0Au6cv8LjWk5H8x8XPmDDNmg
-         zjWQZhejdELxqobp1HfKl19RkG3dUeu6VBx38YokE12pI1Qs4S11qWGcdH1rP6FDPA
-         UVkZrXEHPWNi74sG9rqos9EcmYjP+naMMweRv/Shg/F1AUuLQAIU7ksbARXP5jTYMI
-         sJqeD9dej4y1pg2oOZQkBhQIffoSO1gPXmigVnoeUSI4e7DZEZwIHDAK4EALZJiFXl
-         L9jgkLdnGUmpA==
+        b=S7snqAgrwlZATrg1tHXxm6J44raSvA5qi+pQIrUcCzL+vlULX21Kk1Cst6VHFjRIT
+         N0ulyEZaSUtp5cSOuJmnAEJl3OWIr55AolriyrV8SASDIX8xR/aTF0hs3mR7qCm7KY
+         mDyVyljjqBWN5LWuXO5SlZGXxxY6RXoIBALhKBCaf3bvRyVMYmAbur7BtlManVdvS7
+         57xi/+7Fm+7L3MzrHeaPwP6552NOWmB/b/KaEyfcMp380H91fYuD7nLaLVq8oCyzAb
+         b8X8tpTGE9SAaxnnijlfWT7qI5/3ZRjYtSjNrWihVFusRV8wb2i3g1/UUUNBgtWPpy
+         NhfqW4RXAmLzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wesley Cheng <wcheng@codeaurora.org>,
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 17/70] usb: dwc3: gadget: Ignore EP queue requests during bus reset
-Date:   Sun,  2 May 2021 10:02:51 -0400
-Message-Id: <20210502140344.2719040-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 18/70] usb: xhci: Fix port minor revision
+Date:   Sun,  2 May 2021 10:02:52 -0400
+Message-Id: <20210502140344.2719040-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140344.2719040-1-sashal@kernel.org>
 References: <20210502140344.2719040-1-sashal@kernel.org>
@@ -42,46 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 71ca43f30df9c642970f9dc9b2d6f463f4967e7b ]
+[ Upstream commit 64364bc912c01b33bba6c22e3ccb849bfca96398 ]
 
-The current dwc3_gadget_reset_interrupt() will stop any active
-transfers, but only addresses blocking of EP queuing for while we are
-coming from a disconnected scenario, i.e. after receiving the disconnect
-event.  If the host decides to issue a bus reset on the device, the
-connected parameter will still be set to true, allowing for EP queuing
-to continue while we are disabling the functions.  To avoid this, set the
-connected flag to false until the stop active transfers is complete.
+Some hosts incorrectly use sub-minor version for minor version (i.e.
+0x02 instead of 0x20 for bcdUSB 0x320 and 0x01 for bcdUSB 0x310).
+Currently the xHCI driver works around this by just checking for minor
+revision > 0x01 for USB 3.1 everywhere. With the addition of USB 3.2,
+checking this gets a bit cumbersome. Since there is no USB release with
+bcdUSB 0x301 to 0x309, we can assume that sub-minor version 01 to 09 is
+incorrect. Let's try to fix this and use the minor revision that matches
+with the USB/xHCI spec to help with the version checking within the
+driver.
 
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1616146285-19149-3-git-send-email-wcheng@codeaurora.org
+Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/ed330e95a19dc367819c5b4d78bf7a541c35aa0a.1615432770.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 9 +++++++++
+ drivers/usb/host/xhci-mem.c | 9 +++++++++
  1 file changed, 9 insertions(+)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 65ff41e3a18e..5b5520286eff 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3267,6 +3267,15 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
- {
- 	u32			reg;
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index 3589b49b6c8b..412a83f8055f 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -2142,6 +2142,15 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
  
-+	/*
-+	 * Ideally, dwc3_reset_gadget() would trigger the function
-+	 * drivers to stop any active transfers through ep disable.
-+	 * However, for functions which defer ep disable, such as mass
-+	 * storage, we will need to rely on the call to stop active
-+	 * transfers here, and avoid allowing of request queuing.
-+	 */
-+	dwc->connected = false;
-+
- 	/*
- 	 * WORKAROUND: DWC3 revisions <1.88a have an issue which
- 	 * would cause a missing Disconnect Event if there's a
+ 	if (major_revision == 0x03) {
+ 		rhub = &xhci->usb3_rhub;
++		/*
++		 * Some hosts incorrectly use sub-minor version for minor
++		 * version (i.e. 0x02 instead of 0x20 for bcdUSB 0x320 and 0x01
++		 * for bcdUSB 0x310). Since there is no USB release with sub
++		 * minor version 0x301 to 0x309, we can assume that they are
++		 * incorrect and fix it here.
++		 */
++		if (minor_revision > 0x00 && minor_revision < 0x10)
++			minor_revision <<= 4;
+ 	} else if (major_revision <= 0x02) {
+ 		rhub = &xhci->usb2_rhub;
+ 	} else {
 -- 
 2.30.2
 
