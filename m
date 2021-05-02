@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A696D370D0A
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96B00370D0C
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233298AbhEBOI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:08:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51596 "EHLO mail.kernel.org"
+        id S232545AbhEBOIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:08:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232550AbhEBOHv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:07:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9BCC613C6;
-        Sun,  2 May 2021 14:06:18 +0000 (UTC)
+        id S233822AbhEBOHz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:07:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17993613E1;
+        Sun,  2 May 2021 14:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964379;
-        bh=otsNbOf+UoUa3xCignqeT4Unam+HuKTLKhROowQ1Itw=;
+        s=k20201202; t=1619964380;
+        bh=XXiP8hIl8j9SfARZKtshWyoRYEFRCqGySqGCWLow8yU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cY6gQ9vixJdO6zb/a17lgg2oaJy1xbAR9oJcAZLlLpsUF8q3CvZWZPoPAEZfFiPXZ
-         JfnFdpqdrcE/x32M6q+cpuabQPFM0uxjeRzmN0wEPtxCNuO7OSSvTvSwZWznjpm+rd
-         cO6fWABnPk7+UBkkOUidaes6jZUJvhwuyoRfizeG0NBvNYGTNB//eNvwZc1XUdzAoO
-         ziuX76Q+PK9H9NC80oSP6Zumk5LTee2SGpJwUPK3Zf2IuDQ7QOhnBS95qfNRCqbeOT
-         bXDofl55ieCWdGBCMSq1FSW4vcuxO1g2lzcgsuvzC+DEn9DihZgXdcmcpE4gjH/WEi
-         ybWHGPlgKxtZA==
+        b=h2p83LnFoBHJanBcS96OC2EirFnXccHj1U9JYfyaQU+Gw7Xm/003QfpbZlbcH3/DQ
+         yYS4l5vD1xWNIIbHeulVLe+lfndSGmLwXshQTdqCq5RkkKnQBcNnW6bjxLRKCJhK2Y
+         nfyOB744daGJVIQy5w25Skrdbb5nzV7BZm0aI+ydybZShTN7nMtBR3Dzyjm2eWucHk
+         un4QQFHw6YaCFvEpek9hMXu/nRqNAjZdLPLC1hty1v1+LVBdg/H5POA3ptFfh1VVnI
+         taA14cpvICMuLELgSEAuBC97ZujdrSdaazqMkSqXO6d/085Z6VZhaFFpscrIUEcSHf
+         /sRfIiC4oygLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Machek <pavel@ucw.cz>, Pavel Machek <pavel@denx.de>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>, Vinod Koul <vkoul@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 10/12] intel_th: Consistency and off-by-one fix
-Date:   Sun,  2 May 2021 10:06:04 -0400
-Message-Id: <20210502140606.2720323-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-phy@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 11/12] phy: phy-twl4030-usb: Fix possible use-after-free in twl4030_usb_remove()
+Date:   Sun,  2 May 2021 10:06:05 -0400
+Message-Id: <20210502140606.2720323-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140606.2720323-1-sashal@kernel.org>
 References: <20210502140606.2720323-1-sashal@kernel.org>
@@ -44,47 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@ucw.cz>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 18ffbc47d45a1489b664dd68fb3a7610a6e1dea3 ]
+[ Upstream commit e1723d8b87b73ab363256e7ca3af3ddb75855680 ]
 
-Consistently use "< ... +1" in for loops.
+This driver's remove path calls cancel_delayed_work(). However, that
+function does not wait until the work function finishes. This means
+that the callback function may still be running after the driver's
+remove function has finished, which would result in a use-after-free.
 
-Fix of-by-one in for_each_set_bit().
+Fix by calling cancel_delayed_work_sync(), which ensures that
+the work is properly cancelled, no longer running, and unable
+to re-schedule itself.
 
-Signed-off-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lore.kernel.org/lkml/20190724095841.GA6952@amd/
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210414171251.14672-6-alexander.shishkin@linux.intel.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210407092716.3270248-1-yangyingliang@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/gth.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/phy/phy-twl4030-usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwtracing/intel_th/gth.c b/drivers/hwtracing/intel_th/gth.c
-index 98a4cb5d4993..9c236c88bc7b 100644
---- a/drivers/hwtracing/intel_th/gth.c
-+++ b/drivers/hwtracing/intel_th/gth.c
-@@ -485,7 +485,7 @@ static void intel_th_gth_disable(struct intel_th_device *thdev,
- 	output->active = false;
+diff --git a/drivers/phy/phy-twl4030-usb.c b/drivers/phy/phy-twl4030-usb.c
+index ddb530ee2255..9d57695e1f21 100644
+--- a/drivers/phy/phy-twl4030-usb.c
++++ b/drivers/phy/phy-twl4030-usb.c
+@@ -798,7 +798,7 @@ static int twl4030_usb_remove(struct platform_device *pdev)
  
- 	for_each_set_bit(master, gth->output[output->port].master,
--			 TH_CONFIGURABLE_MASTERS) {
-+			 TH_CONFIGURABLE_MASTERS + 1) {
- 		gth_master_set(gth, master, -1);
- 	}
- 	spin_unlock(&gth->gth_lock);
-@@ -605,7 +605,7 @@ static void intel_th_gth_unassign(struct intel_th_device *thdev,
- 	othdev->output.port = -1;
- 	othdev->output.active = false;
- 	gth->output[port].output = NULL;
--	for (master = 0; master <= TH_CONFIGURABLE_MASTERS; master++)
-+	for (master = 0; master < TH_CONFIGURABLE_MASTERS + 1; master++)
- 		if (gth->master[master] == port)
- 			gth->master[master] = -1;
- 	spin_unlock(&gth->gth_lock);
+ 	usb_remove_phy(&twl->phy);
+ 	pm_runtime_get_sync(twl->dev);
+-	cancel_delayed_work(&twl->id_workaround_work);
++	cancel_delayed_work_sync(&twl->id_workaround_work);
+ 	device_remove_file(twl->dev, &dev_attr_vbus);
+ 
+ 	/* set transceiver mode to power on defaults */
 -- 
 2.30.2
 
