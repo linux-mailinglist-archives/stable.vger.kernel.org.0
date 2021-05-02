@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD2A370C7A
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B16370C7D
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233159AbhEBOG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233462AbhEBOG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 2 May 2021 10:06:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233156AbhEBOF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:05:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8B45613D4;
-        Sun,  2 May 2021 14:05:03 +0000 (UTC)
+        id S233167AbhEBOF5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:05:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8EB3613CB;
+        Sun,  2 May 2021 14:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964304;
-        bh=jmHrcJkeLpaMF2gfUFLZ3/4K7LZ0sMd5TJntExn0exY=;
+        s=k20201202; t=1619964305;
+        bh=Rxx7QQiEMwx5ectBXmoX2TNIsjxxoayW2YdY6kOtLZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdzeZmPIBO+eLSw9U/UA2AjAZbPDEWUwPjJIiOA1R4bAMtHa1YPoPaYwBoJ97MEhL
-         q8jTUjqGf/q/471+rV5Ep7C2amv7JR+/aGcr1UfSKUyWLJc9Ow0cuYHBYJ4QqZckRo
-         N/sP5TQUW3syzu4elFaWOcRYJBJRg8VEXciZXH6U+H4EiL/wfxI6ryf5gIhyAr9+aD
-         e7nZBoDDj9o2Bj7lPCb/5oPxgYfzkAq8MObd8FRVp1zM2I5Btjs6zh3HnzR1Bk2n1v
-         mujCSpd9psHAgHTEjpN6T570jreeJdB12IOX1gxDeAD9HuWYBl/bY7QSRhtIs4Hw9F
-         swc9JMqjf8JTQ==
+        b=WPiboLbv2AUvP7spaxYkgbL5yeeX6O79qyNi8+HWDXxDRoDlc5jTYY0ORQizWRh3B
+         MjzrpLZdpILe455cRB6wddc9EGoD1WgbsX8gCM0c3dVp3F7NcgbI73s1QsU+TGtRw1
+         3cLb+m8TTLZ5MttpN9Z2CfKzNSxTcmYx6vwJeoiCQ1hfuwxslrAbdk1H7gPj36G/y3
+         uDpLe9K7OcpQm13ygvxYk2Nyrq1z+gveLs3p7Z3ePf6JA24cDVd0pO8E6W4hA/CtZg
+         UVKkyUvLRQMgsxYyI1LaJ5WgvD29rENOoaz6Dya0w5DonS148qKvLpnSwPUxHfjAJH
+         irlsl9igaGWDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 24/34] usb: musb: fix PM reference leak in musb_irq_work()
-Date:   Sun,  2 May 2021 10:04:24 -0400
-Message-Id: <20210502140434.2719553-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 25/34] usb: core: hub: Fix PM reference leak in usb_port_resume()
+Date:   Sun,  2 May 2021 10:04:25 -0400
+Message-Id: <20210502140434.2719553-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140434.2719553-1-sashal@kernel.org>
 References: <20210502140434.2719553-1-sashal@kernel.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 9535b99533904e9bc1607575aa8e9539a55435d7 ]
+[ Upstream commit 025f97d188006eeee4417bb475a6878d1e0eed3f ]
 
 pm_runtime_get_sync will increment pm usage counter even it failed.
 thus a pairing decrement is needed.
@@ -53,26 +53,26 @@ counter balanced.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Link: https://lore.kernel.org/r/20210408091836.55227-1-cuibixuan@huawei.com
+Link: https://lore.kernel.org/r/20210408130831.56239-1-cuibixuan@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/musb_core.c | 2 +-
+ drivers/usb/core/hub.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
-index 166f68f639c2..70ef603f7bb9 100644
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -1932,7 +1932,7 @@ static void musb_irq_work(struct work_struct *data)
- 	struct musb *musb = container_of(data, struct musb, irq_work.work);
- 	int error;
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 4d3de33885ff..cd61860cada5 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3537,7 +3537,7 @@ int usb_port_resume(struct usb_device *udev, pm_message_t msg)
+ 	u16		portchange, portstatus;
  
--	error = pm_runtime_get_sync(musb->controller);
-+	error = pm_runtime_resume_and_get(musb->controller);
- 	if (error < 0) {
- 		dev_err(musb->controller, "Could not enable: %i\n", error);
- 
+ 	if (!test_and_set_bit(port1, hub->child_usage_bits)) {
+-		status = pm_runtime_get_sync(&port_dev->dev);
++		status = pm_runtime_resume_and_get(&port_dev->dev);
+ 		if (status < 0) {
+ 			dev_dbg(&udev->dev, "can't resume usb port, status %d\n",
+ 					status);
 -- 
 2.30.2
 
