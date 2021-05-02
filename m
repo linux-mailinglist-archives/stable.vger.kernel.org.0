@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77091370BDA
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E656370BF6
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232416AbhEBOEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:04:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49374 "EHLO mail.kernel.org"
+        id S232562AbhEBOE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:04:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232198AbhEBOEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:04:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66C63613D2;
-        Sun,  2 May 2021 14:03:36 +0000 (UTC)
+        id S232167AbhEBOEa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:04:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84AEE613CB;
+        Sun,  2 May 2021 14:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964217;
-        bh=s4bEDhrcdO7IwratN3VIoVQJwBOVOaLx+cy+meq0g8w=;
+        s=k20201202; t=1619964218;
+        bh=ghJ82DARUY6O9i1fuSNoLym3W4oLNzpszz+gqBXV0YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQygdp4CYK1guXyR/Ps/Zrv3K13dPkwFZoZ5iJMh+PrBAeVP3TRbBLPSmaFjxeeMh
-         PR8L7mM5KPPMcLFvpTojXdedGj8FFeop8Av0Ef8PXpXtdT3MNzT/o7Zt54MM2swvpu
-         X1JVKgdMRuTazH/ogn7NoFgJqYzSfapGOwMhayrlAP01IYngJ1CrRp/K64cw8XhM9A
-         j9xJAEQhdnOiccx+AZyOacETNgmRrGjL/GSwRl5zKgnlylli39fKXl/rCaY1wijOg6
-         HFeU+FbxzG4wOHar9fiRETeGGVGmpJ59lmQrrx5JrDmfkzfS1Ud8E4imjAz3UoiHdu
-         JV990J7ZTF2gw==
+        b=mF82UU18/rYTTHegBJJhTtOStGePN2+Y7YEefzOtslhqTeHCXxS6IKhaHIW4Lg1n8
+         pwxgkEJ9cx9eDcGL4yKvnDeUy9+3OrGvyJxV296V2IQf68K71jgQlaaoCr9+9wy127
+         irUiZN2TYL+zraHJiRgJTQaI1AKnjCIrF9j9lf4dxATuPGWTjiPgdicZovXDIQ7Fw2
+         BlN1DZq20+Vey9pTjJH1RB0EfwlSsM0+8clgTpq4GnOiCGdTQAePJ4It0wwhzQAwv+
+         EYuxyRiLA5ioFXl/xPDtOFi1s1t+IVjrJiCx0GeifjSthWdBUoYbCMg4DpuZikfo4E
+         zhrf3V21NyJOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 15/79] genirq/matrix: Prevent allocation counter corruption
-Date:   Sun,  2 May 2021 10:02:12 -0400
-Message-Id: <20210502140316.2718705-15-sashal@kernel.org>
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 16/79] usb: dwc3: gadget: Remove invalid low-speed setting
+Date:   Sun,  2 May 2021 10:02:13 -0400
+Message-Id: <20210502140316.2718705-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140316.2718705-1-sashal@kernel.org>
 References: <20210502140316.2718705-1-sashal@kernel.org>
@@ -42,49 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit c93a5e20c3c2dabef8ea360a3d3f18c6f68233ab ]
+[ Upstream commit 0c59f678fcfc6dd53ba493915794636a230bc4cc ]
 
-When irq_matrix_free() is called for an unallocated vector the
-managed_allocated and total_allocated counters get out of sync with the
-real state of the matrix. Later, when the last interrupt is freed, these
-counters will underflow resulting in UINTMAX because the counters are
-unsigned.
+None of the DWC_usb3x IPs (and all their versions) supports low-speed
+setting in device mode. In the early days, our "Early Adopter Edition"
+DWC_usb3 databook shows that the controller may be configured to operate
+in low-speed, but it was revised on release. Let's remove this invalid
+speed setting to avoid any confusion.
 
-While this is certainly a problem of the calling code, this can be catched
-in the allocator by checking the allocation bit for the to be freed vector
-which simplifies debugging.
-
-An example of the problem described above:
-https://lore.kernel.org/lkml/20210318192819.636943062@linutronix.de/
-
-Add the missing sanity check and emit a warning when it triggers.
-
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20210319111823.1105248-1-vkuznets@redhat.com
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/258b1c7fbb966454f4c4c2c1367508998498fc30.1615509438.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/matrix.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c   | 1 -
+ drivers/usb/dwc3/core.h   | 2 --
+ drivers/usb/dwc3/gadget.c | 8 --------
+ 3 files changed, 11 deletions(-)
 
-diff --git a/kernel/irq/matrix.c b/kernel/irq/matrix.c
-index 651a4ad6d711..8e586858bcf4 100644
---- a/kernel/irq/matrix.c
-+++ b/kernel/irq/matrix.c
-@@ -423,7 +423,9 @@ void irq_matrix_free(struct irq_matrix *m, unsigned int cpu,
- 	if (WARN_ON_ONCE(bit < m->alloc_start || bit >= m->alloc_end))
- 		return;
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index f2448d0a9d39..677a9778c49a 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1385,7 +1385,6 @@ static void dwc3_check_params(struct dwc3 *dwc)
  
--	clear_bit(bit, cm->alloc_map);
-+	if (WARN_ON_ONCE(!test_and_clear_bit(bit, cm->alloc_map)))
-+		return;
-+
- 	cm->allocated--;
- 	if(managed)
- 		cm->managed_allocated--;
+ 	/* Check the maximum_speed parameter */
+ 	switch (dwc->maximum_speed) {
+-	case USB_SPEED_LOW:
+ 	case USB_SPEED_FULL:
+ 	case USB_SPEED_HIGH:
+ 		break;
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 052b20d52651..19ffab828d9c 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -396,7 +396,6 @@
+ #define DWC3_DCFG_SUPERSPEED	(4 << 0)
+ #define DWC3_DCFG_HIGHSPEED	(0 << 0)
+ #define DWC3_DCFG_FULLSPEED	BIT(0)
+-#define DWC3_DCFG_LOWSPEED	(2 << 0)
+ 
+ #define DWC3_DCFG_NUMP_SHIFT	17
+ #define DWC3_DCFG_NUMP(n)	(((n) >> DWC3_DCFG_NUMP_SHIFT) & 0x1f)
+@@ -490,7 +489,6 @@
+ #define DWC3_DSTS_SUPERSPEED		(4 << 0)
+ #define DWC3_DSTS_HIGHSPEED		(0 << 0)
+ #define DWC3_DSTS_FULLSPEED		BIT(0)
+-#define DWC3_DSTS_LOWSPEED		(2 << 0)
+ 
+ /* Device Generic Command Register */
+ #define DWC3_DGCMD_SET_LMP		0x01
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index c7ef218e7a8c..04950ac0704b 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2113,9 +2113,6 @@ static void __dwc3_gadget_set_speed(struct dwc3 *dwc)
+ 		reg |= DWC3_DCFG_SUPERSPEED;
+ 	} else {
+ 		switch (speed) {
+-		case USB_SPEED_LOW:
+-			reg |= DWC3_DCFG_LOWSPEED;
+-			break;
+ 		case USB_SPEED_FULL:
+ 			reg |= DWC3_DCFG_FULLSPEED;
+ 			break;
+@@ -3448,11 +3445,6 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
+ 		dwc->gadget->ep0->maxpacket = 64;
+ 		dwc->gadget->speed = USB_SPEED_FULL;
+ 		break;
+-	case DWC3_DSTS_LOWSPEED:
+-		dwc3_gadget_ep0_desc.wMaxPacketSize = cpu_to_le16(8);
+-		dwc->gadget->ep0->maxpacket = 8;
+-		dwc->gadget->speed = USB_SPEED_LOW;
+-		break;
+ 	}
+ 
+ 	dwc->eps[1]->endpoint.maxpacket = dwc->gadget->ep0->maxpacket;
 -- 
 2.30.2
 
