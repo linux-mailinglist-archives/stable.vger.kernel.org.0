@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F70E370C30
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33F2A370C35
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232812AbhEBOFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50390 "EHLO mail.kernel.org"
+        id S232813AbhEBOFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232769AbhEBOFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232783AbhEBOFT (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 2 May 2021 10:05:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A20FB613D7;
-        Sun,  2 May 2021 14:04:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0A45613DF;
+        Sun,  2 May 2021 14:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964267;
-        bh=qvepuzUd2M5/wOW1s57kH7TsdtEDE4yT+qZGWuCSelg=;
+        s=k20201202; t=1619964268;
+        bh=s4bEDhrcdO7IwratN3VIoVQJwBOVOaLx+cy+meq0g8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0EJTuDNcF183wyyhk1hRwa87Abc3tqN841uuqiV3sXgxvK1+TVfw/rUCRZavbRA/
-         KeoeNXzq9LcTQIggxTPqK2qvgPmudhXUZTN8ITmsoPZN6pmKmsFrgL37Iu+WkOpGPa
-         YG8+Ig1v9S/MO3MTpdms90kPfUBGI39QHODxxro5SxupvC+4XwFkBbchNOp0UZm3DK
-         nbbuYCzlGhSfsmAAgJKUEdQEGqB+nauNNm6eMq/OZmeucZnoPaWUyjyBZnmtQ1hymT
-         UiuYH9wgEC86+6XjeHsM7huV6tX84eCQEr07FIUFaChdYPkP7/zBTIQhNRh6zTdzF0
-         M5oEvh4OpPUtQ==
+        b=pDcSIi+7UcoUeDKTg1pDB1EXTRjcyI9dhWhAYSvA3Yrd8EOP8zdeXis3OCJhbAKar
+         nc4lvtLuSQVotAkxg6wUBhsEOdVAz5ARqT4RFnbzI8sAyhrIOIIH/BlJ+sbe0ypY9e
+         eczQj/CLyuHSMrUslS/flC+dy4HnpyR+DL4bUd+yEyuNQaThGL2jFcKMXWuHd4hRqq
+         YQC5R98eHYgSK4kOmlgaezx0hgkmBZ5pqWjRxwsBCRWhImaB1iG3N9XqV6OkXFx4zA
+         oLTIuwEFops/s2xCzT+vVw5IWV1mIVQwjXKUb2ycSRxFW5M8funisrnOKpWhJzPmSu
+         HslKSytnKQyxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Longfang Liu <liulongfang@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 12/66] crypto: hisilicon/sec - fixes a printing error
-Date:   Sun,  2 May 2021 10:03:17 -0400
-Message-Id: <20210502140411.2719301-12-sashal@kernel.org>
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 13/66] genirq/matrix: Prevent allocation counter corruption
+Date:   Sun,  2 May 2021 10:03:18 -0400
+Message-Id: <20210502140411.2719301-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140411.2719301-1-sashal@kernel.org>
 References: <20210502140411.2719301-1-sashal@kernel.org>
@@ -42,33 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longfang Liu <liulongfang@huawei.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 4b7aef0230418345be1fb77abbb1592801869901 ]
+[ Upstream commit c93a5e20c3c2dabef8ea360a3d3f18c6f68233ab ]
 
-When the log is output here, the device has not
-been initialized yet.
+When irq_matrix_free() is called for an unallocated vector the
+managed_allocated and total_allocated counters get out of sync with the
+real state of the matrix. Later, when the last interrupt is freed, these
+counters will underflow resulting in UINTMAX because the counters are
+unsigned.
 
-Signed-off-by: Longfang Liu <liulongfang@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+While this is certainly a problem of the calling code, this can be catched
+in the allocator by checking the allocation bit for the to be freed vector
+which simplifies debugging.
+
+An example of the problem described above:
+https://lore.kernel.org/lkml/20210318192819.636943062@linutronix.de/
+
+Add the missing sanity check and emit a warning when it triggers.
+
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20210319111823.1105248-1-vkuznets@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sec2/sec_crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/irq/matrix.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/hisilicon/sec2/sec_crypto.c b/drivers/crypto/hisilicon/sec2/sec_crypto.c
-index bb493423668c..41f1fcacb280 100644
---- a/drivers/crypto/hisilicon/sec2/sec_crypto.c
-+++ b/drivers/crypto/hisilicon/sec2/sec_crypto.c
-@@ -544,7 +544,7 @@ static int sec_skcipher_init(struct crypto_skcipher *tfm)
- 	crypto_skcipher_set_reqsize(tfm, sizeof(struct sec_req));
- 	ctx->c_ctx.ivsize = crypto_skcipher_ivsize(tfm);
- 	if (ctx->c_ctx.ivsize > SEC_IV_SIZE) {
--		dev_err(SEC_CTX_DEV(ctx), "get error skcipher iv size!\n");
-+		pr_err("get error skcipher iv size!\n");
- 		return -EINVAL;
- 	}
+diff --git a/kernel/irq/matrix.c b/kernel/irq/matrix.c
+index 651a4ad6d711..8e586858bcf4 100644
+--- a/kernel/irq/matrix.c
++++ b/kernel/irq/matrix.c
+@@ -423,7 +423,9 @@ void irq_matrix_free(struct irq_matrix *m, unsigned int cpu,
+ 	if (WARN_ON_ONCE(bit < m->alloc_start || bit >= m->alloc_end))
+ 		return;
  
+-	clear_bit(bit, cm->alloc_map);
++	if (WARN_ON_ONCE(!test_and_clear_bit(bit, cm->alloc_map)))
++		return;
++
+ 	cm->allocated--;
+ 	if(managed)
+ 		cm->managed_allocated--;
 -- 
 2.30.2
 
