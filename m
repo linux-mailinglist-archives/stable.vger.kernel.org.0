@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B0F370C68
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4CCD370C6A
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233022AbhEBOGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:06:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50986 "EHLO mail.kernel.org"
+        id S233068AbhEBOGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:06:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232931AbhEBOFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233051AbhEBOFs (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 2 May 2021 10:05:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 400C3613AA;
-        Sun,  2 May 2021 14:04:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5424C613C6;
+        Sun,  2 May 2021 14:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964295;
-        bh=pRWQTNa7zbL1/pzwcPx3kyuHU2n1W3cd+i3yqgWC/zQ=;
+        s=k20201202; t=1619964297;
+        bh=/LzrbPktzhyQ1nIou3ef3Jihzk5fClU2jPJvhIfDLUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NLW66OaKBLmBQZjCZ8guIcxlaka52w9wk6wTZ3kGydII3ihqsmn01H4u3UJHITuo1
-         EHrnaPHfPGPPpvWlyewwhS2775Trv0eouUcJEphK59TR+M4xsUWCUk26Tyaw3hSRTV
-         UlWZ09Yb5bL+vRzv496fgEHWlMbDLQrwiXFZMzjodxGG3xcNrGI9PxEfA3Xt1WvExD
-         0tZbf+IBMR1sJ8CnWu1xMkTn2lNdYd9Gdn9GNneNfAH180SlcXFEBcGAsGl/wKetgM
-         7FwYn0w3OfpcO61zqXs26LpT3625F6bY+tLN2k0siUqnMQDUDQEgbVYzUM8XkAIVz1
-         IhlyCXGMXpNxQ==
+        b=tJV1gkGSLPW7Pd4ZdxB4bBygqSn011DcELbG7byeU2TXIVvq4R16mIfyr6iIDX56e
+         fEV2bHMlW/k6Rsvp/dBeu+dQHPdgLdchzqpaKmfv/ZN087T2MLcFglJbaRJvPxuKGJ
+         C/xlA+WLm3bTVBS1Y6uZGsNS8AbSTp1ng7U1dQbjQncuHcpZo8iZCAD+AyMnVQdelT
+         f8O+yM4QkCjrZ67ztkDRxlm/cdfAAaTUdxlQUKsOYIE2+3tBxoV48xWSGQysEpIXgq
+         r3mXlIsiWXgsnWananKY5IM+v1dU4Px5tU6h4Ivzm7dAqcLK4SDaOYsl44NB8O3gpj
+         ImUNCkGf6eHTQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 17/34] perf/arm_pmu_platform: Fix error handling
-Date:   Sun,  2 May 2021 10:04:17 -0400
-Message-Id: <20210502140434.2719553-17-sashal@kernel.org>
+Cc:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 18/34] usb: xhci-mtk: support quirk to disable usb2 lpm
+Date:   Sun,  2 May 2021 10:04:18 -0400
+Message-Id: <20210502140434.2719553-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140434.2719553-1-sashal@kernel.org>
 References: <20210502140434.2719553-1-sashal@kernel.org>
@@ -42,34 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit e338cb6bef254821a8c095018fd27254d74bfd6a ]
+[ Upstream commit bee1f89aad2a51cd3339571bc8eadbb0dc88a683 ]
 
-If we're aborting after failing to register the PMU device,
-we probably don't want to leak the IRQs that we've claimed.
+The xHCI driver support usb2 HW LPM by default, here add support
+XHCI_HW_LPM_DISABLE quirk, then we can disable usb2 lpm when
+need it.
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/53031a607fc8412a60024bfb3bb8cd7141f998f5.1616774562.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1617181553-3503-4-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_pmu_platform.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-mtk.c | 3 +++
+ drivers/usb/host/xhci-mtk.h | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/perf/arm_pmu_platform.c b/drivers/perf/arm_pmu_platform.c
-index 933bd8410fc2..e35cb76c8d10 100644
---- a/drivers/perf/arm_pmu_platform.c
-+++ b/drivers/perf/arm_pmu_platform.c
-@@ -236,7 +236,7 @@ int arm_pmu_device_probe(struct platform_device *pdev,
+diff --git a/drivers/usb/host/xhci-mtk.c b/drivers/usb/host/xhci-mtk.c
+index 5fc3ea6d46c5..5c0eb35cd007 100644
+--- a/drivers/usb/host/xhci-mtk.c
++++ b/drivers/usb/host/xhci-mtk.c
+@@ -397,6 +397,8 @@ static void xhci_mtk_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
+ 	if (mtk->lpm_support)
+ 		xhci->quirks |= XHCI_LPM_SUPPORT;
++	if (mtk->u2_lpm_disable)
++		xhci->quirks |= XHCI_HW_LPM_DISABLE;
  
- 	ret = armpmu_register(pmu);
- 	if (ret)
--		goto out_free;
-+		goto out_free_irqs;
+ 	/*
+ 	 * MTK xHCI 0.96: PSA is 1 by default even if doesn't support stream,
+@@ -469,6 +471,7 @@ static int xhci_mtk_probe(struct platform_device *pdev)
+ 		return ret;
  
- 	return 0;
- 
+ 	mtk->lpm_support = of_property_read_bool(node, "usb3-lpm-capable");
++	mtk->u2_lpm_disable = of_property_read_bool(node, "usb2-lpm-disable");
+ 	/* optional property, ignore the error if it does not exist */
+ 	of_property_read_u32(node, "mediatek,u3p-dis-msk",
+ 			     &mtk->u3p_dis_msk);
+diff --git a/drivers/usb/host/xhci-mtk.h b/drivers/usb/host/xhci-mtk.h
+index 734c5513aa1b..d9f438d078da 100644
+--- a/drivers/usb/host/xhci-mtk.h
++++ b/drivers/usb/host/xhci-mtk.h
+@@ -150,6 +150,7 @@ struct xhci_hcd_mtk {
+ 	struct phy **phys;
+ 	int num_phys;
+ 	bool lpm_support;
++	bool u2_lpm_disable;
+ 	/* usb remote wakeup */
+ 	bool uwk_en;
+ 	struct regmap *uwk;
 -- 
 2.30.2
 
