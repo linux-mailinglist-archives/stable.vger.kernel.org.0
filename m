@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 319A4370C04
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDC4370C02
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232538AbhEBOFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:05:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50208 "EHLO mail.kernel.org"
+        id S232683AbhEBOFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:05:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232587AbhEBOE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:04:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1199A6102A;
-        Sun,  2 May 2021 14:04:05 +0000 (UTC)
+        id S232592AbhEBOE7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:04:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8303A613B0;
+        Sun,  2 May 2021 14:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964247;
-        bh=4lQy9e8dkXC93bot0YqUtqhnEIMxfdIuRsAE80tMiwo=;
+        s=k20201202; t=1619964248;
+        bh=KqrtwADJFNLccYKBQbyAelZdQv0NXjhVMJ5uSbf8zRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQWxoios/r6fMcIPTLPhm31hwuPYPdKKAZ9Oe38ft2mDDxDBJf1CF8lRTV1k7Yx9H
-         O9J3NWmNp7pySwnLOTH+n0obKR8mmPBXXqxCs28oBXsvNzRT9FCDrfPPb3rwDxxSni
-         i0MSTuPdYtvx1NrC6qDJ0xpevkhzfWXg1j3xS0zYIqXQMfE0QYZ++RahSVnV6RyW+7
-         jy2mx915Rw8XHPEeIsgDb8YMrLMZ/BccWhneRkftlqT8LfHh3ib0dIqM0op+vh4z2J
-         FZoJShDa4mLsZ97hPGOCkJQ0/KNR2lcfArvF7wnuVHqa83mwlbFPYYPIXhzSuzNcdl
-         Y+fyK2mR/lCOQ==
+        b=nfxAZnM9it1Z1prmpKs1vSOhsxVx5moRK74YhqTzFqYYeYGt709geS1LI6E+pV5EA
+         kcyeztvrCXfxcoPHe7x63J0BymIaC5YFaHYoByUCvH0Au6cv8LjWk5H8x8XPmDDNmg
+         zjWQZhejdELxqobp1HfKl19RkG3dUeu6VBx38YokE12pI1Qs4S11qWGcdH1rP6FDPA
+         UVkZrXEHPWNi74sG9rqos9EcmYjP+naMMweRv/Shg/F1AUuLQAIU7ksbARXP5jTYMI
+         sJqeD9dej4y1pg2oOZQkBhQIffoSO1gPXmigVnoeUSI4e7DZEZwIHDAK4EALZJiFXl
+         L9jgkLdnGUmpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+Cc:     Wesley Cheng <wcheng@codeaurora.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 16/70] usb: gadget: f_uac1: validate input parameters
-Date:   Sun,  2 May 2021 10:02:50 -0400
-Message-Id: <20210502140344.2719040-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 17/70] usb: dwc3: gadget: Ignore EP queue requests during bus reset
+Date:   Sun,  2 May 2021 10:02:51 -0400
+Message-Id: <20210502140344.2719040-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140344.2719040-1-sashal@kernel.org>
 References: <20210502140344.2719040-1-sashal@kernel.org>
@@ -42,111 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: Wesley Cheng <wcheng@codeaurora.org>
 
-[ Upstream commit a59c68a6a3d1b18e2494f526eb19893a34fa6ec6 ]
+[ Upstream commit 71ca43f30df9c642970f9dc9b2d6f463f4967e7b ]
 
-Currently user can configure UAC1 function with
-parameters that violate UAC1 spec or are not supported
-by UAC1 gadget implementation.
+The current dwc3_gadget_reset_interrupt() will stop any active
+transfers, but only addresses blocking of EP queuing for while we are
+coming from a disconnected scenario, i.e. after receiving the disconnect
+event.  If the host decides to issue a bus reset on the device, the
+connected parameter will still be set to true, allowing for EP queuing
+to continue while we are disabling the functions.  To avoid this, set the
+connected flag to false until the stop active transfers is complete.
 
-This can lead to incorrect behavior if such gadget
-is connected to the host - like enumeration failure
-or other issues depending on host's UAC1 driver
-implementation, bringing user to a long hours
-of debugging the issue.
-
-Instead of silently accept these parameters, throw
-an error if they are not valid.
-
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/1614599375-8803-5-git-send-email-ruslan.bilovol@gmail.com
+Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
+Link: https://lore.kernel.org/r/1616146285-19149-3-git-send-email-wcheng@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_uac1.c | 43 ++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ drivers/usb/dwc3/gadget.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_uac1.c b/drivers/usb/gadget/function/f_uac1.c
-index 560382e0a8f3..e65f474ad7b3 100644
---- a/drivers/usb/gadget/function/f_uac1.c
-+++ b/drivers/usb/gadget/function/f_uac1.c
-@@ -19,6 +19,9 @@
- #include "u_audio.h"
- #include "u_uac1.h"
- 
-+/* UAC1 spec: 3.7.2.3 Audio Channel Cluster Format */
-+#define UAC1_CHANNEL_MASK 0x0FFF
-+
- struct f_uac1 {
- 	struct g_audio g_audio;
- 	u8 ac_intf, as_in_intf, as_out_intf;
-@@ -30,6 +33,11 @@ static inline struct f_uac1 *func_to_uac1(struct usb_function *f)
- 	return container_of(f, struct f_uac1, g_audio.func);
- }
- 
-+static inline struct f_uac1_opts *g_audio_to_uac1_opts(struct g_audio *audio)
-+{
-+	return container_of(audio->func.fi, struct f_uac1_opts, func_inst);
-+}
-+
- /*
-  * DESCRIPTORS ... most are static, but strings and full
-  * configuration descriptors are built on demand.
-@@ -505,11 +513,42 @@ static void f_audio_disable(struct usb_function *f)
- 
- /*-------------------------------------------------------------------------*/
- 
-+static int f_audio_validate_opts(struct g_audio *audio, struct device *dev)
-+{
-+	struct f_uac1_opts *opts = g_audio_to_uac1_opts(audio);
-+
-+	if (!opts->p_chmask && !opts->c_chmask) {
-+		dev_err(dev, "Error: no playback and capture channels\n");
-+		return -EINVAL;
-+	} else if (opts->p_chmask & ~UAC1_CHANNEL_MASK) {
-+		dev_err(dev, "Error: unsupported playback channels mask\n");
-+		return -EINVAL;
-+	} else if (opts->c_chmask & ~UAC1_CHANNEL_MASK) {
-+		dev_err(dev, "Error: unsupported capture channels mask\n");
-+		return -EINVAL;
-+	} else if ((opts->p_ssize < 1) || (opts->p_ssize > 4)) {
-+		dev_err(dev, "Error: incorrect playback sample size\n");
-+		return -EINVAL;
-+	} else if ((opts->c_ssize < 1) || (opts->c_ssize > 4)) {
-+		dev_err(dev, "Error: incorrect capture sample size\n");
-+		return -EINVAL;
-+	} else if (!opts->p_srate) {
-+		dev_err(dev, "Error: incorrect playback sampling rate\n");
-+		return -EINVAL;
-+	} else if (!opts->c_srate) {
-+		dev_err(dev, "Error: incorrect capture sampling rate\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- /* audio function driver setup/binding */
- static int f_audio_bind(struct usb_configuration *c, struct usb_function *f)
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 65ff41e3a18e..5b5520286eff 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3267,6 +3267,15 @@ static void dwc3_gadget_reset_interrupt(struct dwc3 *dwc)
  {
- 	struct usb_composite_dev	*cdev = c->cdev;
- 	struct usb_gadget		*gadget = cdev->gadget;
-+	struct device			*dev = &gadget->dev;
- 	struct f_uac1			*uac1 = func_to_uac1(f);
- 	struct g_audio			*audio = func_to_g_audio(f);
- 	struct f_uac1_opts		*audio_opts;
-@@ -519,6 +558,10 @@ static int f_audio_bind(struct usb_configuration *c, struct usb_function *f)
- 	int				rate;
- 	int				status;
+ 	u32			reg;
  
-+	status = f_audio_validate_opts(audio, dev);
-+	if (status)
-+		return status;
++	/*
++	 * Ideally, dwc3_reset_gadget() would trigger the function
++	 * drivers to stop any active transfers through ep disable.
++	 * However, for functions which defer ep disable, such as mass
++	 * storage, we will need to rely on the call to stop active
++	 * transfers here, and avoid allowing of request queuing.
++	 */
++	dwc->connected = false;
 +
- 	audio_opts = container_of(f->fi, struct f_uac1_opts, func_inst);
- 
- 	us = usb_gstrings_attach(cdev, uac1_strings, ARRAY_SIZE(strings_uac1));
+ 	/*
+ 	 * WORKAROUND: DWC3 revisions <1.88a have an issue which
+ 	 * would cause a missing Disconnect Event if there's a
 -- 
 2.30.2
 
