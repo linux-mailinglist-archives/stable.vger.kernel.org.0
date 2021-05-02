@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A4D370BE6
+	by mail.lfdr.de (Postfix) with ESMTP id 87F33370BE5
 	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232460AbhEBOEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232469AbhEBOEo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 2 May 2021 10:04:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232431AbhEBOEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:04:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FBF4613AC;
-        Sun,  2 May 2021 14:03:50 +0000 (UTC)
+        id S232456AbhEBOEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:04:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88F28613AA;
+        Sun,  2 May 2021 14:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964231;
-        bh=t6uuShaQBFm1A+tFPwZuHJ2zxR2QAMsD2HA7eO5/v58=;
+        s=k20201202; t=1619964232;
+        bh=NrUQCm2dYvtfhwypFVuofuEA0ayOQuXVBc+NZpTJNio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VxuxGc61WHBwPJj59rwn173EZNOtXVuo4auTtUjB0+YKELr/CsnkI82CUx8Q7raJd
-         UHy41zfW5QrEYJtGflVYZDFNgOcn6ArNI8/cJbsKL636pbArfzCNOkmD9BMwiHs2E5
-         l/dNOPX7zg3QEjfgTa6OJZsZEQQh8AObKudmQUClKLvo61aWr3dWk9jJ2CTDxW0lL2
-         a/PHUPn9ADmIm7zR0eqK0P16erkyJs4grZ1eTrQ/b/ZHEzHeaEl3zGDIOh29b56K0y
-         ZYEzitj1bwWn6YWcluHatsRMvFh9/YQTbRieAwx/RTrlf/5lJVoUyUb+mXzqwVOA+S
-         Mzgl2SjGNR3jg==
+        b=JDmuIjRsZbHO7wHuf1CxPPC9sO6UrQQJKO3CRsVD409Lc7TU6ap67GR9IqHgchyiG
+         TS+APZ2kZ8AQ2p6QRIZRbj1PusMaTeFa3fjdz3DUaxz1ri6bGfafPdgw4wOsoK8aQw
+         gJ8dEj4a/GLWP1DGvNxY68AvFtGhS/brtEZa3Nz9aEc2iW5nY9TCbu0ZwZ7NCWWBva
+         oOvRfgzntmnFH3eyyuHR5lQLiTwgtVJip524ZNeKHpvzHog5hJ/wowHD0KWFW/vzz3
+         1iMZfkkKxejGueEXOJqzs7P6lqAsH/Vnj/iiy1IiGWNGsn2Lzwxv+xw7TtVK5b06AU
+         9t1dETGmrXHCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Bauer <mail@david-bauer.net>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 04/70] spi: ath79: remove spi-master setup and cleanup assignment
-Date:   Sun,  2 May 2021 10:02:38 -0400
-Message-Id: <20210502140344.2719040-4-sashal@kernel.org>
+Cc:     Bhaumik Bhatt <bbhatt@codeaurora.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Hemant Kumar <hemantk@codeaurora.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 05/70] bus: mhi: core: Destroy SBL devices when moving to mission mode
+Date:   Sun,  2 May 2021 10:02:39 -0400
+Message-Id: <20210502140344.2719040-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140344.2719040-1-sashal@kernel.org>
 References: <20210502140344.2719040-1-sashal@kernel.org>
@@ -42,39 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Bauer <mail@david-bauer.net>
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
 
-[ Upstream commit ffb597b2bd3cd78b9bfb68f536743cd46dbb2cc4 ]
+[ Upstream commit 925089c1900f588615db5bf4e1d9064a5f2c18c7 ]
 
-This removes the assignment of setup and cleanup functions for the ath79
-target. Assigning the setup-method will lead to 'setup_transfer' not
-being assigned in spi_bitbang_init. Because of this, performing any
-TX/RX operation will lead to a kernel oops.
+Currently, client devices are created in SBL or AMSS (mission
+mode) and only destroyed after power down or SYS ERROR. When
+moving between certain execution environments, such as from SBL
+to AMSS, no clean-up is required. This presents an issue where
+SBL-specific channels are left open and client drivers now run in
+an execution environment where they cannot operate. Fix this by
+expanding the mhi_destroy_device() to do an execution environment
+specific clean-up if one is requested. Close the gap and destroy
+devices in such scenarios that allow SBL client drivers to clean
+up once device enters mission mode.
 
-Also drop the redundant cleanup assignment, as it's also assigned in
-spi_bitbang_init.
-
-Signed-off-by: David Bauer <mail@david-bauer.net>
-Link: https://lore.kernel.org/r/20210303160837.165771-2-mail@david-bauer.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/1614208985-20851-2-git-send-email-bbhatt@codeaurora.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-ath79.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/bus/mhi/core/main.c | 29 +++++++++++++++++++++++++----
+ drivers/bus/mhi/core/pm.c   |  3 +++
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi-ath79.c b/drivers/spi/spi-ath79.c
-index 436327fb58de..98ace748cd98 100644
---- a/drivers/spi/spi-ath79.c
-+++ b/drivers/spi/spi-ath79.c
-@@ -156,8 +156,6 @@ static int ath79_spi_probe(struct platform_device *pdev)
+diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
+index d34d7e90e38d..ac60f74043e8 100644
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -224,8 +224,10 @@ static void mhi_del_ring_element(struct mhi_controller *mhi_cntrl,
  
- 	master->use_gpio_descriptors = true;
- 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(1, 32);
--	master->setup = spi_bitbang_setup;
--	master->cleanup = spi_bitbang_cleanup;
- 	master->flags = SPI_MASTER_GPIO_SS;
- 	if (pdata) {
- 		master->bus_num = pdata->bus_num;
+ int mhi_destroy_device(struct device *dev, void *data)
+ {
++	struct mhi_chan *ul_chan, *dl_chan;
+ 	struct mhi_device *mhi_dev;
+ 	struct mhi_controller *mhi_cntrl;
++	enum mhi_ee_type ee = MHI_EE_MAX;
+ 
+ 	if (dev->bus != &mhi_bus_type)
+ 		return 0;
+@@ -237,6 +239,17 @@ int mhi_destroy_device(struct device *dev, void *data)
+ 	if (mhi_dev->dev_type == MHI_DEVICE_CONTROLLER)
+ 		return 0;
+ 
++	ul_chan = mhi_dev->ul_chan;
++	dl_chan = mhi_dev->dl_chan;
++
++	/*
++	 * If execution environment is specified, remove only those devices that
++	 * started in them based on ee_mask for the channels as we move on to a
++	 * different execution environment
++	 */
++	if (data)
++		ee = *(enum mhi_ee_type *)data;
++
+ 	/*
+ 	 * For the suspend and resume case, this function will get called
+ 	 * without mhi_unregister_controller(). Hence, we need to drop the
+@@ -244,11 +257,19 @@ int mhi_destroy_device(struct device *dev, void *data)
+ 	 * be sure that there will be no instances of mhi_dev left after
+ 	 * this.
+ 	 */
+-	if (mhi_dev->ul_chan)
+-		put_device(&mhi_dev->ul_chan->mhi_dev->dev);
++	if (ul_chan) {
++		if (ee != MHI_EE_MAX && !(ul_chan->ee_mask & BIT(ee)))
++			return 0;
+ 
+-	if (mhi_dev->dl_chan)
+-		put_device(&mhi_dev->dl_chan->mhi_dev->dev);
++		put_device(&ul_chan->mhi_dev->dev);
++	}
++
++	if (dl_chan) {
++		if (ee != MHI_EE_MAX && !(dl_chan->ee_mask & BIT(ee)))
++			return 0;
++
++		put_device(&dl_chan->mhi_dev->dev);
++	}
+ 
+ 	dev_dbg(&mhi_cntrl->mhi_dev->dev, "destroy device for chan:%s\n",
+ 		 mhi_dev->name);
+diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+index 681960c72d2a..3bd81d040380 100644
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -377,6 +377,7 @@ static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
+ {
+ 	struct mhi_event *mhi_event;
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
++	enum mhi_ee_type current_ee = mhi_cntrl->ee;
+ 	int i, ret;
+ 
+ 	dev_dbg(dev, "Processing Mission Mode transition\n");
+@@ -395,6 +396,8 @@ static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
+ 
+ 	wake_up_all(&mhi_cntrl->state_event);
+ 
++	device_for_each_child(&mhi_cntrl->mhi_dev->dev, &current_ee,
++			      mhi_destroy_device);
+ 	mhi_cntrl->status_cb(mhi_cntrl, MHI_CB_EE_MISSION_MODE);
+ 
+ 	/* Force MHI to be in M0 state before continuing */
 -- 
 2.30.2
 
