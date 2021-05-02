@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B33DA370C40
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E646D370C43
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232908AbhEBOFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233019AbhEBOFq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 2 May 2021 10:05:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50698 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232912AbhEBOF2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:05:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEA00613AA;
-        Sun,  2 May 2021 14:04:35 +0000 (UTC)
+        id S232335AbhEBOF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:05:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6EDC613C1;
+        Sun,  2 May 2021 14:04:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964276;
-        bh=tlHZhou9pIZjDdRAMKf2IlxrQt7MAyrnT5XDdz31yjM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=C6QifSDzlY71lA3ytUkZjlJlpp95YCKPTi5llwU3MuCSmFxH/Zxb4Q1fww1LmxLfy
-         fHpcJMmXlVcA+boGS8phbxJ1RloeJKkyd6F1FyiyPUwZNfCP/nx5BQVfBIPn+ilahK
-         EhTScf7PcIpLw7BhmR42MzePrGBYN9KeZmrgDJNgxSeOTU7SPL+HFbxmyasHwNkfR6
-         jE0eWnG84ovb7lJJqY/8hVAMXHsaIuEprU8qc40Th+lBPQT1LgosEtOJmfuaSixhIp
-         1b6bJvlrLlgzsW72jvL/HSYX6K/WQ2ZdsmA15OUPBVWIxM/Tmt7WURRaPrhQIwppq9
-         mgULQl5hs2/cQ==
+        s=k20201202; t=1619964277;
+        bh=hmda4udHlhfXRGvjMOV2Sxko/NrL1F2an3CsQ1mgtCQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=kY348sDWK4tWN4+YiNw+oNTXwT63hcrwe4C9ftg/TFULTBZlOdxsJ8C6qQVvwIbQX
+         bGbLGQWKTJ7NeOz5X3EJX2RvAPWEppoWLKRNDcXhkmwexZdvfcD67cWB3KTJbh6VK7
+         RxKFlHq9d/iSCJDQKUV1oN9Ky9kn0qkcbU7bJ43lVZVxvAN2Extzh7B5qp2BfTJunt
+         KNuuR9dVgrsJmqBq6gKRF/GmsbhK/GH+h++XKKRbjL8JPN/tGGu3sQ7ElsO2XzoS3q
+         lo8yTuMpgcSgWRlz9D/hKQfumFPM0RX8wiI3ch6NptJj0CpROUBeq7+PWkK3ZVdyHz
+         FTaK3xigIYVEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
-        linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 01/34] bus: ti-sysc: Probe for l4_wkup and l4_cfg interconnect devices first
-Date:   Sun,  2 May 2021 10:04:01 -0400
-Message-Id: <20210502140434.2719553-1-sashal@kernel.org>
+Cc:     karthik alapati <mail@karthek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/34] staging: wimax/i2400m: fix byte-order issue
+Date:   Sun,  2 May 2021 10:04:02 -0400
+Message-Id: <20210502140434.2719553-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210502140434.2719553-1-sashal@kernel.org>
+References: <20210502140434.2719553-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -39,88 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: karthik alapati <mail@karthek.com>
 
-[ Upstream commit 4700a00755fb5a4bb5109128297d6fd2d1272ee6 ]
+[ Upstream commit 0c37baae130df39b19979bba88bde2ee70a33355 ]
 
-We want to probe l4_wkup and l4_cfg interconnect devices first to avoid
-issues with missing resources. Otherwise we attempt to probe l4_per
-devices first causing pointless deferred probe and also annoyingh
-renumbering of the MMC devices for example.
+fix sparse byte-order warnings by converting host byte-order
+type to __le16 byte-order types before assigning to hdr.length
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: karthik alapati <mail@karthek.com>
+Link: https://lore.kernel.org/r/0ae5c5c4c646506d8be871e7be5705542671a1d5.1613921277.git.mail@karthek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 49 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ drivers/net/wimax/i2400m/op-rfkill.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index f9ff6d433dfe..d59e1ca9990b 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -602,6 +602,51 @@ static int sysc_parse_and_check_child_range(struct sysc *ddata)
- 	return 0;
- }
- 
-+/* Interconnect instances to probe before l4_per instances */
-+static struct resource early_bus_ranges[] = {
-+	/* am3/4 l4_wkup */
-+	{ .start = 0x44c00000, .end = 0x44c00000 + 0x300000, },
-+	/* omap4/5 and dra7 l4_cfg */
-+	{ .start = 0x4a000000, .end = 0x4a000000 + 0x300000, },
-+	/* omap4 l4_wkup */
-+	{ .start = 0x4a300000, .end = 0x4a300000 + 0x30000,  },
-+	/* omap5 and dra7 l4_wkup without dra7 dcan segment */
-+	{ .start = 0x4ae00000, .end = 0x4ae00000 + 0x30000,  },
-+};
-+
-+static atomic_t sysc_defer = ATOMIC_INIT(10);
-+
-+/**
-+ * sysc_defer_non_critical - defer non_critical interconnect probing
-+ * @ddata: device driver data
-+ *
-+ * We want to probe l4_cfg and l4_wkup interconnect instances before any
-+ * l4_per instances as l4_per instances depend on resources on l4_cfg and
-+ * l4_wkup interconnects.
-+ */
-+static int sysc_defer_non_critical(struct sysc *ddata)
-+{
-+	struct resource *res;
-+	int i;
-+
-+	if (!atomic_read(&sysc_defer))
-+		return 0;
-+
-+	for (i = 0; i < ARRAY_SIZE(early_bus_ranges); i++) {
-+		res = &early_bus_ranges[i];
-+		if (ddata->module_pa >= res->start &&
-+		    ddata->module_pa <= res->end) {
-+			atomic_set(&sysc_defer, 0);
-+
-+			return 0;
-+		}
-+	}
-+
-+	atomic_dec_if_positive(&sysc_defer);
-+
-+	return -EPROBE_DEFER;
-+}
-+
- static struct device_node *stdout_path;
- 
- static void sysc_init_stdout_path(struct sysc *ddata)
-@@ -826,6 +871,10 @@ static int sysc_map_and_check_registers(struct sysc *ddata)
- 	if (error)
- 		return error;
- 
-+	error = sysc_defer_non_critical(ddata);
-+	if (error)
-+		return error;
-+
- 	sysc_check_children(ddata);
- 
- 	error = sysc_parse_registers(ddata);
+diff --git a/drivers/net/wimax/i2400m/op-rfkill.c b/drivers/net/wimax/i2400m/op-rfkill.c
+index 5c79f052cad2..34f81f16b5a0 100644
+--- a/drivers/net/wimax/i2400m/op-rfkill.c
++++ b/drivers/net/wimax/i2400m/op-rfkill.c
+@@ -86,7 +86,7 @@ int i2400m_op_rfkill_sw_toggle(struct wimax_dev *wimax_dev,
+ 	if (cmd == NULL)
+ 		goto error_alloc;
+ 	cmd->hdr.type = cpu_to_le16(I2400M_MT_CMD_RF_CONTROL);
+-	cmd->hdr.length = sizeof(cmd->sw_rf);
++	cmd->hdr.length = cpu_to_le16(sizeof(cmd->sw_rf));
+ 	cmd->hdr.version = cpu_to_le16(I2400M_L3L4_VERSION);
+ 	cmd->sw_rf.hdr.type = cpu_to_le16(I2400M_TLV_RF_OPERATION);
+ 	cmd->sw_rf.hdr.length = cpu_to_le16(sizeof(cmd->sw_rf.status));
 -- 
 2.30.2
 
