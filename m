@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03925370C06
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8976370C1F
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232604AbhEBOFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50118 "EHLO mail.kernel.org"
+        id S232841AbhEBOFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:05:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232616AbhEBOFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:05:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A95DA613AF;
-        Sun,  2 May 2021 14:04:08 +0000 (UTC)
+        id S232688AbhEBOFJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:05:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D7A6613DC;
+        Sun,  2 May 2021 14:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964249;
-        bh=P9TeRjrI8IGCsBC1Gz7dTdV/iTVBA6MWxnwm2F32KfM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7snqAgrwlZATrg1tHXxm6J44raSvA5qi+pQIrUcCzL+vlULX21Kk1Cst6VHFjRIT
-         N0ulyEZaSUtp5cSOuJmnAEJl3OWIr55AolriyrV8SASDIX8xR/aTF0hs3mR7qCm7KY
-         mDyVyljjqBWN5LWuXO5SlZGXxxY6RXoIBALhKBCaf3bvRyVMYmAbur7BtlManVdvS7
-         57xi/+7Fm+7L3MzrHeaPwP6552NOWmB/b/KaEyfcMp380H91fYuD7nLaLVq8oCyzAb
-         b8X8tpTGE9SAaxnnijlfWT7qI5/3ZRjYtSjNrWihVFusRV8wb2i3g1/UUUNBgtWPpy
-         NhfqW4RXAmLzw==
+        s=k20201202; t=1619964253;
+        bh=v5XGusImn6QmKPp8HJBTBjOXUorUWO8M4g+OdsIfnys=;
+        h=From:To:Cc:Subject:Date:From;
+        b=m31Wm482daOYmFVCWSlWyInU8ZbiFqhdmGMUf9tNmEZmDVKfxo6iKjjRg8IZ4XXVd
+         GUlsgXUKx+7sqZpkdCxaLPw9kB5Rva0WqeyYV4kwYioxWNcVdWC519brvSC6VeEIht
+         BvG9dMH+wqZZw5gGzA84xNUGmE5Qo8cxwjQWVTk+oMx803NVCtk+YY4/Yl+edGI8yv
+         qJ8MlCbLz6CNKT/SEwEypLfT0b02OP6KAgv7wc4TQC97vTwj+lZeGYdESeMFCqhrzw
+         r12Mey/DKxrntTuSdG3vDIdldNVT64QW2VfeOsYluor59YTCYgwOt2HeKEdY6N7GsZ
+         lvxqXL/V8CBag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 18/70] usb: xhci: Fix port minor revision
-Date:   Sun,  2 May 2021 10:02:52 -0400
-Message-Id: <20210502140344.2719040-18-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/66] bus: ti-sysc: Probe for l4_wkup and l4_cfg interconnect devices first
+Date:   Sun,  2 May 2021 10:03:06 -0400
+Message-Id: <20210502140411.2719301-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210502140344.2719040-1-sashal@kernel.org>
-References: <20210502140344.2719040-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,49 +39,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 64364bc912c01b33bba6c22e3ccb849bfca96398 ]
+[ Upstream commit 4700a00755fb5a4bb5109128297d6fd2d1272ee6 ]
 
-Some hosts incorrectly use sub-minor version for minor version (i.e.
-0x02 instead of 0x20 for bcdUSB 0x320 and 0x01 for bcdUSB 0x310).
-Currently the xHCI driver works around this by just checking for minor
-revision > 0x01 for USB 3.1 everywhere. With the addition of USB 3.2,
-checking this gets a bit cumbersome. Since there is no USB release with
-bcdUSB 0x301 to 0x309, we can assume that sub-minor version 01 to 09 is
-incorrect. Let's try to fix this and use the minor revision that matches
-with the USB/xHCI spec to help with the version checking within the
-driver.
+We want to probe l4_wkup and l4_cfg interconnect devices first to avoid
+issues with missing resources. Otherwise we attempt to probe l4_per
+devices first causing pointless deferred probe and also annoyingh
+renumbering of the MMC devices for example.
 
-Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/ed330e95a19dc367819c5b4d78bf7a541c35aa0a.1615432770.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mem.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/bus/ti-sysc.c | 49 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index 3589b49b6c8b..412a83f8055f 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -2142,6 +2142,15 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 16e389dce111..9afbe4992a1d 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -635,6 +635,51 @@ static int sysc_parse_and_check_child_range(struct sysc *ddata)
+ 	return 0;
+ }
  
- 	if (major_revision == 0x03) {
- 		rhub = &xhci->usb3_rhub;
-+		/*
-+		 * Some hosts incorrectly use sub-minor version for minor
-+		 * version (i.e. 0x02 instead of 0x20 for bcdUSB 0x320 and 0x01
-+		 * for bcdUSB 0x310). Since there is no USB release with sub
-+		 * minor version 0x301 to 0x309, we can assume that they are
-+		 * incorrect and fix it here.
-+		 */
-+		if (minor_revision > 0x00 && minor_revision < 0x10)
-+			minor_revision <<= 4;
- 	} else if (major_revision <= 0x02) {
- 		rhub = &xhci->usb2_rhub;
- 	} else {
++/* Interconnect instances to probe before l4_per instances */
++static struct resource early_bus_ranges[] = {
++	/* am3/4 l4_wkup */
++	{ .start = 0x44c00000, .end = 0x44c00000 + 0x300000, },
++	/* omap4/5 and dra7 l4_cfg */
++	{ .start = 0x4a000000, .end = 0x4a000000 + 0x300000, },
++	/* omap4 l4_wkup */
++	{ .start = 0x4a300000, .end = 0x4a300000 + 0x30000,  },
++	/* omap5 and dra7 l4_wkup without dra7 dcan segment */
++	{ .start = 0x4ae00000, .end = 0x4ae00000 + 0x30000,  },
++};
++
++static atomic_t sysc_defer = ATOMIC_INIT(10);
++
++/**
++ * sysc_defer_non_critical - defer non_critical interconnect probing
++ * @ddata: device driver data
++ *
++ * We want to probe l4_cfg and l4_wkup interconnect instances before any
++ * l4_per instances as l4_per instances depend on resources on l4_cfg and
++ * l4_wkup interconnects.
++ */
++static int sysc_defer_non_critical(struct sysc *ddata)
++{
++	struct resource *res;
++	int i;
++
++	if (!atomic_read(&sysc_defer))
++		return 0;
++
++	for (i = 0; i < ARRAY_SIZE(early_bus_ranges); i++) {
++		res = &early_bus_ranges[i];
++		if (ddata->module_pa >= res->start &&
++		    ddata->module_pa <= res->end) {
++			atomic_set(&sysc_defer, 0);
++
++			return 0;
++		}
++	}
++
++	atomic_dec_if_positive(&sysc_defer);
++
++	return -EPROBE_DEFER;
++}
++
+ static struct device_node *stdout_path;
+ 
+ static void sysc_init_stdout_path(struct sysc *ddata)
+@@ -859,6 +904,10 @@ static int sysc_map_and_check_registers(struct sysc *ddata)
+ 	if (error)
+ 		return error;
+ 
++	error = sysc_defer_non_critical(ddata);
++	if (error)
++		return error;
++
+ 	sysc_check_children(ddata);
+ 
+ 	error = sysc_parse_registers(ddata);
 -- 
 2.30.2
 
