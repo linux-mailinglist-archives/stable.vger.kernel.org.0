@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EBDD370BCA
+	by mail.lfdr.de (Postfix) with ESMTP id F1AAC370BCF
 	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:03:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232354AbhEBOEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232372AbhEBOEf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 2 May 2021 10:04:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49376 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231598AbhEBOEa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232158AbhEBOEa (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 2 May 2021 10:04:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AAE6613C5;
-        Sun,  2 May 2021 14:03:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 135F2613C1;
+        Sun,  2 May 2021 14:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964206;
-        bh=VYqVHENKzI0m4EoNGnhYIbn4L0n7MlrYiCdxIge+C7g=;
+        s=k20201202; t=1619964208;
+        bh=YjU7PaGwya6XzVnzlKwuFGwUC9sGvGdGbjgj7zMktO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BG+0uQOTicx8cquy9Uk7VNm+WGuv/JPCWEKceUySxAvFVQM+pJQREiBfBvM496Git
-         a/S8fXTLBji5ZN8nSpON9cLDlSl1QB9/xhRWpDE9PYyDlt5s4U/o+A/0C/xuisdCB2
-         CgeEkJ1y44T5JX6xDE0bNBD/s+yPVKEL2UC6boxVzFvkpb0Ghv9yJzKosZPBUyFHzG
-         HAAROecR4DMjs0R3h6zGFr09VDDuUf2ZUAD25eJL7IQZkFVYsJxVpUlGMyd94i0bcS
-         lrVzimZsEvZCr8zEf6JvFSADCdIPyuhuO3WfujHDZNYXZ7TgzMnd+irFh0Rr+PGL3s
-         zbyVYNHiFV+NQ==
+        b=aJ8UOBfIso+2WvasRpfekvVlx4hUtCUaE5T0QZ6ZSKLbXvMsHgKP/JsGl9m7F5jDm
+         unPwOfBNbiV70eL0gQhbt48QMncmXo/54Kv1AM9G8i0UJdwAgEVuOPUrlnW8lprjkw
+         LajZlx5S+Xt9v7LE2HBKWnlyzN+dDkwg86g3EUKc04x4BCjsfEdD7bvurIRvr5CqJF
+         0eo0QQ4x7WeyRwgWDqbcFGBDx3bqIggo/wruSBXDBnoDKdiTLGofbo2CbQZRafBmr8
+         R7UcbNwB5ZtP+azvgRPzgi268/47TgkJ7tapgxF2kfnvOhj8Cg37tNb+4nLLLfibOf
+         xnbRUqp5TFCJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bhaumik Bhatt <bbhatt@codeaurora.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 07/79] bus: mhi: core: Process execution environment changes serially
-Date:   Sun,  2 May 2021 10:02:04 -0400
-Message-Id: <20210502140316.2718705-7-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        syzbot+12cf5fbfdeba210a89dd@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 08/79] crypto: api - check for ERR pointers in crypto_destroy_tfm()
+Date:   Sun,  2 May 2021 10:02:05 -0400
+Message-Id: <20210502140316.2718705-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140316.2718705-1-sashal@kernel.org>
 References: <20210502140316.2718705-1-sashal@kernel.org>
@@ -43,142 +44,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bhaumik Bhatt <bbhatt@codeaurora.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit ef2126c4e2ea2b92f543fae00a2a0332e4573c48 ]
+[ Upstream commit 83681f2bebb34dbb3f03fecd8f570308ab8b7c2c ]
 
-In current design, whenever the BHI interrupt is fired, the
-execution environment is updated. This can cause race conditions
-and impede ongoing power up/down processing. For example, if a
-power down is in progress, MHI host updates to a local "disabled"
-execution environment. If a BHI interrupt fires later, that value
-gets replaced with one from the BHI EE register. This impacts the
-controller as it does not expect multiple RDDM execution
-environment change status callbacks as an example. Another issue
-would be that the device can enter mission mode and the execution
-environment is updated, while device creation for SBL channels is
-still going on due to slower PM state worker thread run, leading
-to multiple attempts at opening the same channel.
+Given that crypto_alloc_tfm() may return ERR pointers, and to avoid
+crashes on obscure error paths where such pointers are presented to
+crypto_destroy_tfm() (such as [0]), add an ERR_PTR check there
+before dereferencing the second argument as a struct crypto_tfm
+pointer.
 
-Ensure that EE changes are handled only from appropriate places
-and occur one after another and handle only PBL modes or RDDM EE
-changes as critical events directly from the interrupt handler.
-Simplify handling by waiting for SYS ERROR before handling RDDM.
-This also makes sure that we use the correct execution environment
-to notify the controller driver when the device resets to one of
-the PBL execution environments.
+[0] https://lore.kernel.org/linux-crypto/000000000000de949705bc59e0f6@google.com/
 
-Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
-Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/1614208985-20851-4-git-send-email-bbhatt@codeaurora.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reported-by: syzbot+12cf5fbfdeba210a89dd@syzkaller.appspotmail.com
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mhi/core/main.c | 40 +++++++++++++++++++------------------
- drivers/bus/mhi/core/pm.c   |  7 ++++---
- 2 files changed, 25 insertions(+), 22 deletions(-)
+ crypto/api.c               | 2 +-
+ include/crypto/acompress.h | 2 ++
+ include/crypto/aead.h      | 2 ++
+ include/crypto/akcipher.h  | 2 ++
+ include/crypto/hash.h      | 4 ++++
+ include/crypto/kpp.h       | 2 ++
+ include/crypto/rng.h       | 2 ++
+ include/crypto/skcipher.h  | 2 ++
+ 8 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
-index 7a2e98cc51d1..9715f51b40d3 100644
---- a/drivers/bus/mhi/core/main.c
-+++ b/drivers/bus/mhi/core/main.c
-@@ -430,7 +430,7 @@ irqreturn_t mhi_intvec_threaded_handler(int irq_number, void *priv)
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
- 	enum mhi_state state = MHI_STATE_MAX;
- 	enum mhi_pm_state pm_state = 0;
--	enum mhi_ee_type ee = 0;
-+	enum mhi_ee_type ee = MHI_EE_MAX;
- 
- 	write_lock_irq(&mhi_cntrl->pm_lock);
- 	if (!MHI_REG_ACCESS_VALID(mhi_cntrl->pm_state)) {
-@@ -439,8 +439,7 @@ irqreturn_t mhi_intvec_threaded_handler(int irq_number, void *priv)
- 	}
- 
- 	state = mhi_get_mhi_state(mhi_cntrl);
--	ee = mhi_cntrl->ee;
--	mhi_cntrl->ee = mhi_get_exec_env(mhi_cntrl);
-+	ee = mhi_get_exec_env(mhi_cntrl);
- 	dev_dbg(dev, "local ee:%s device ee:%s dev_state:%s\n",
- 		TO_MHI_EXEC_STR(mhi_cntrl->ee), TO_MHI_EXEC_STR(ee),
- 		TO_MHI_STATE_STR(state));
-@@ -452,27 +451,30 @@ irqreturn_t mhi_intvec_threaded_handler(int irq_number, void *priv)
- 	}
- 	write_unlock_irq(&mhi_cntrl->pm_lock);
- 
--	 /* If device supports RDDM don't bother processing SYS error */
--	if (mhi_cntrl->rddm_image) {
--		/* host may be performing a device power down already */
--		if (!mhi_is_active(mhi_cntrl))
--			goto exit_intvec;
-+	if (pm_state != MHI_PM_SYS_ERR_DETECT || ee == mhi_cntrl->ee)
-+		goto exit_intvec;
- 
--		if (mhi_cntrl->ee == MHI_EE_RDDM && mhi_cntrl->ee != ee) {
-+	switch (ee) {
-+	case MHI_EE_RDDM:
-+		/* proceed if power down is not already in progress */
-+		if (mhi_cntrl->rddm_image && mhi_is_active(mhi_cntrl)) {
- 			mhi_cntrl->status_cb(mhi_cntrl, MHI_CB_EE_RDDM);
-+			mhi_cntrl->ee = ee;
- 			wake_up_all(&mhi_cntrl->state_event);
- 		}
--		goto exit_intvec;
--	}
--
--	if (pm_state == MHI_PM_SYS_ERR_DETECT) {
-+		break;
-+	case MHI_EE_PBL:
-+	case MHI_EE_EDL:
-+	case MHI_EE_PTHRU:
-+		mhi_cntrl->status_cb(mhi_cntrl, MHI_CB_FATAL_ERROR);
-+		mhi_cntrl->ee = ee;
- 		wake_up_all(&mhi_cntrl->state_event);
--
--		/* For fatal errors, we let controller decide next step */
--		if (MHI_IN_PBL(ee))
--			mhi_cntrl->status_cb(mhi_cntrl, MHI_CB_FATAL_ERROR);
--		else
--			mhi_pm_sys_err_handler(mhi_cntrl);
-+		mhi_pm_sys_err_handler(mhi_cntrl);
-+		break;
-+	default:
-+		wake_up_all(&mhi_cntrl->state_event);
-+		mhi_pm_sys_err_handler(mhi_cntrl);
-+		break;
- 	}
- 
- exit_intvec:
-diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index 3bd81d040380..596ff6400f17 100644
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -377,21 +377,22 @@ static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
+diff --git a/crypto/api.c b/crypto/api.c
+index ed08cbd5b9d3..c4eda56cff89 100644
+--- a/crypto/api.c
++++ b/crypto/api.c
+@@ -562,7 +562,7 @@ void crypto_destroy_tfm(void *mem, struct crypto_tfm *tfm)
  {
- 	struct mhi_event *mhi_event;
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
--	enum mhi_ee_type current_ee = mhi_cntrl->ee;
-+	enum mhi_ee_type ee = MHI_EE_MAX, current_ee = mhi_cntrl->ee;
- 	int i, ret;
+ 	struct crypto_alg *alg;
  
- 	dev_dbg(dev, "Processing Mission Mode transition\n");
+-	if (unlikely(!mem))
++	if (IS_ERR_OR_NULL(mem))
+ 		return;
  
- 	write_lock_irq(&mhi_cntrl->pm_lock);
- 	if (MHI_REG_ACCESS_VALID(mhi_cntrl->pm_state))
--		mhi_cntrl->ee = mhi_get_exec_env(mhi_cntrl);
-+		ee = mhi_get_exec_env(mhi_cntrl);
- 
--	if (!MHI_IN_MISSION_MODE(mhi_cntrl->ee)) {
-+	if (!MHI_IN_MISSION_MODE(ee)) {
- 		mhi_cntrl->pm_state = MHI_PM_LD_ERR_FATAL_DETECT;
- 		write_unlock_irq(&mhi_cntrl->pm_lock);
- 		wake_up_all(&mhi_cntrl->state_event);
- 		return -EIO;
- 	}
-+	mhi_cntrl->ee = ee;
- 	write_unlock_irq(&mhi_cntrl->pm_lock);
- 
- 	wake_up_all(&mhi_cntrl->state_event);
+ 	alg = tfm->__crt_alg;
+diff --git a/include/crypto/acompress.h b/include/crypto/acompress.h
+index fcde59c65a81..cb3d6b1c655d 100644
+--- a/include/crypto/acompress.h
++++ b/include/crypto/acompress.h
+@@ -165,6 +165,8 @@ static inline struct crypto_acomp *crypto_acomp_reqtfm(struct acomp_req *req)
+  * crypto_free_acomp() -- free ACOMPRESS tfm handle
+  *
+  * @tfm:	ACOMPRESS tfm handle allocated with crypto_alloc_acomp()
++ *
++ * If @tfm is a NULL or error pointer, this function does nothing.
+  */
+ static inline void crypto_free_acomp(struct crypto_acomp *tfm)
+ {
+diff --git a/include/crypto/aead.h b/include/crypto/aead.h
+index fcc12c593ef8..e728469c4ccc 100644
+--- a/include/crypto/aead.h
++++ b/include/crypto/aead.h
+@@ -185,6 +185,8 @@ static inline struct crypto_tfm *crypto_aead_tfm(struct crypto_aead *tfm)
+ /**
+  * crypto_free_aead() - zeroize and free aead handle
+  * @tfm: cipher handle to be freed
++ *
++ * If @tfm is a NULL or error pointer, this function does nothing.
+  */
+ static inline void crypto_free_aead(struct crypto_aead *tfm)
+ {
+diff --git a/include/crypto/akcipher.h b/include/crypto/akcipher.h
+index 1d3aa252caba..5764b46bd1ec 100644
+--- a/include/crypto/akcipher.h
++++ b/include/crypto/akcipher.h
+@@ -174,6 +174,8 @@ static inline struct crypto_akcipher *crypto_akcipher_reqtfm(
+  * crypto_free_akcipher() - free AKCIPHER tfm handle
+  *
+  * @tfm: AKCIPHER tfm handle allocated with crypto_alloc_akcipher()
++ *
++ * If @tfm is a NULL or error pointer, this function does nothing.
+  */
+ static inline void crypto_free_akcipher(struct crypto_akcipher *tfm)
+ {
+diff --git a/include/crypto/hash.h b/include/crypto/hash.h
+index 13f8a6a54ca8..b2bc1e46e86a 100644
+--- a/include/crypto/hash.h
++++ b/include/crypto/hash.h
+@@ -281,6 +281,8 @@ static inline struct crypto_tfm *crypto_ahash_tfm(struct crypto_ahash *tfm)
+ /**
+  * crypto_free_ahash() - zeroize and free the ahash handle
+  * @tfm: cipher handle to be freed
++ *
++ * If @tfm is a NULL or error pointer, this function does nothing.
+  */
+ static inline void crypto_free_ahash(struct crypto_ahash *tfm)
+ {
+@@ -724,6 +726,8 @@ static inline struct crypto_tfm *crypto_shash_tfm(struct crypto_shash *tfm)
+ /**
+  * crypto_free_shash() - zeroize and free the message digest handle
+  * @tfm: cipher handle to be freed
++ *
++ * If @tfm is a NULL or error pointer, this function does nothing.
+  */
+ static inline void crypto_free_shash(struct crypto_shash *tfm)
+ {
+diff --git a/include/crypto/kpp.h b/include/crypto/kpp.h
+index 88b591215d5c..cccceadc164b 100644
+--- a/include/crypto/kpp.h
++++ b/include/crypto/kpp.h
+@@ -154,6 +154,8 @@ static inline void crypto_kpp_set_flags(struct crypto_kpp *tfm, u32 flags)
+  * crypto_free_kpp() - free KPP tfm handle
+  *
+  * @tfm: KPP tfm handle allocated with crypto_alloc_kpp()
++ *
++ * If @tfm is a NULL or error pointer, this function does nothing.
+  */
+ static inline void crypto_free_kpp(struct crypto_kpp *tfm)
+ {
+diff --git a/include/crypto/rng.h b/include/crypto/rng.h
+index 8b4b844b4eef..17bb3673d3c1 100644
+--- a/include/crypto/rng.h
++++ b/include/crypto/rng.h
+@@ -111,6 +111,8 @@ static inline struct rng_alg *crypto_rng_alg(struct crypto_rng *tfm)
+ /**
+  * crypto_free_rng() - zeroize and free RNG handle
+  * @tfm: cipher handle to be freed
++ *
++ * If @tfm is a NULL or error pointer, this function does nothing.
+  */
+ static inline void crypto_free_rng(struct crypto_rng *tfm)
+ {
+diff --git a/include/crypto/skcipher.h b/include/crypto/skcipher.h
+index 6a733b171a5d..ef0fc9ed4342 100644
+--- a/include/crypto/skcipher.h
++++ b/include/crypto/skcipher.h
+@@ -196,6 +196,8 @@ static inline struct crypto_tfm *crypto_skcipher_tfm(
+ /**
+  * crypto_free_skcipher() - zeroize and free cipher handle
+  * @tfm: cipher handle to be freed
++ *
++ * If @tfm is a NULL or error pointer, this function does nothing.
+  */
+ static inline void crypto_free_skcipher(struct crypto_skcipher *tfm)
+ {
 -- 
 2.30.2
 
