@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D4D4370C97
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD2A370C7A
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232952AbhEBOGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:06:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50872 "EHLO mail.kernel.org"
+        id S233159AbhEBOG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:06:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232953AbhEBOFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:05:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56979613D7;
-        Sun,  2 May 2021 14:05:02 +0000 (UTC)
+        id S233156AbhEBOF4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:05:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8B45613D4;
+        Sun,  2 May 2021 14:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964303;
-        bh=gx7YaaLG+/q2NLR1sJdc6IOzuJlWAKa4fh2qkLtGoMw=;
+        s=k20201202; t=1619964304;
+        bh=jmHrcJkeLpaMF2gfUFLZ3/4K7LZ0sMd5TJntExn0exY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uW2RBULYgPgeWPTRo2sS/54zifl41CBAMzBu1ZYOGnTE2ZWQhpd60/U2QIWddHn9N
-         guwzreR5SvTwd7sMwHlGcJaLPEg3NheR753haO6kNSdgTsQAFikUYFhyeutPDwj4yS
-         1Gn07zL0F8mpvqD5/sbcKMO+8s/Q7qYHeuA/nEYdLIUVut+6xN0ZyePFL2eV2ZgCck
-         IKUs8v6ogmginV6Nuc5ytCAM2rtIp89u7thFv/rvZO0YlLn7lzKl76zwPrPbqDMD6h
-         vaBv4rpY4BpKj8yMZqfHr/q9Al4x/vAUni6fflU8e/YvHeUfHzca77jHTDM2oep5LJ
-         +TD+ho7HmL/7Q==
+        b=ZdzeZmPIBO+eLSw9U/UA2AjAZbPDEWUwPjJIiOA1R4bAMtHa1YPoPaYwBoJ97MEhL
+         q8jTUjqGf/q/471+rV5Ep7C2amv7JR+/aGcr1UfSKUyWLJc9Ow0cuYHBYJ4QqZckRo
+         N/sP5TQUW3syzu4elFaWOcRYJBJRg8VEXciZXH6U+H4EiL/wfxI6ryf5gIhyAr9+aD
+         e7nZBoDDj9o2Bj7lPCb/5oPxgYfzkAq8MObd8FRVp1zM2I5Btjs6zh3HnzR1Bk2n1v
+         mujCSpd9psHAgHTEjpN6T570jreeJdB12IOX1gxDeAD9HuWYBl/bY7QSRhtIs4Hw9F
+         swc9JMqjf8JTQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Li <wangli74@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 23/34] spi: qup: fix PM reference leak in spi_qup_remove()
-Date:   Sun,  2 May 2021 10:04:23 -0400
-Message-Id: <20210502140434.2719553-23-sashal@kernel.org>
+Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 24/34] usb: musb: fix PM reference leak in musb_irq_work()
+Date:   Sun,  2 May 2021 10:04:24 -0400
+Message-Id: <20210502140434.2719553-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140434.2719553-1-sashal@kernel.org>
 References: <20210502140434.2719553-1-sashal@kernel.org>
@@ -44,37 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Li <wangli74@huawei.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit cec77e0a249892ceb10061bf17b63f9fb111d870 ]
+[ Upstream commit 9535b99533904e9bc1607575aa8e9539a55435d7 ]
 
 pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
+thus a pairing decrement is needed.
 Fix it by replacing it with pm_runtime_resume_and_get to keep usage
 counter balanced.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Li <wangli74@huawei.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20210409095458.29921-1-wangli74@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Link: https://lore.kernel.org/r/20210408091836.55227-1-cuibixuan@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-qup.c | 2 +-
+ drivers/usb/musb/musb_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
-index fa8079fbea77..d1dfb52008b4 100644
---- a/drivers/spi/spi-qup.c
-+++ b/drivers/spi/spi-qup.c
-@@ -1263,7 +1263,7 @@ static int spi_qup_remove(struct platform_device *pdev)
- 	struct spi_qup *controller = spi_master_get_devdata(master);
- 	int ret;
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index 166f68f639c2..70ef603f7bb9 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -1932,7 +1932,7 @@ static void musb_irq_work(struct work_struct *data)
+ 	struct musb *musb = container_of(data, struct musb, irq_work.work);
+ 	int error;
  
--	ret = pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
- 	if (ret < 0)
- 		return ret;
+-	error = pm_runtime_get_sync(musb->controller);
++	error = pm_runtime_resume_and_get(musb->controller);
+ 	if (error < 0) {
+ 		dev_err(musb->controller, "Could not enable: %i\n", error);
  
 -- 
 2.30.2
