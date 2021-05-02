@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FCE5370CDD
-	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B390370CE5
+	for <lists+stable@lfdr.de>; Sun,  2 May 2021 16:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233682AbhEBOHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 May 2021 10:07:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51596 "EHLO mail.kernel.org"
+        id S233717AbhEBOH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 May 2021 10:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233697AbhEBOHH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 2 May 2021 10:07:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B82613E3;
-        Sun,  2 May 2021 14:05:52 +0000 (UTC)
+        id S233711AbhEBOHK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 2 May 2021 10:07:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 704E1613EC;
+        Sun,  2 May 2021 14:05:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1619964353;
-        bh=YBlSG0CxKZJRXO2zFQtplCOnG9ojUjbFXr2qEAn/B6g=;
+        s=k20201202; t=1619964354;
+        bh=4q4WXgQpxslCDm8odIVHaktlQpsw94D33YTaF26M3Vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lw5ImBz66LoiyedawtzuEO7TL47jYZk+uBpK4vdf0iAv5U7RRDxv/FumX+HvJqc7F
-         bjxR2giI05nMz5VuKJCr5G9PS0SdgQOz8RVupH1fd24ILGURcdLQO4WTPatGxJjCLP
-         9v9b8xIqqX2jS5NrEeEUlyLpQZ/qMk93qX42aMjsWmThSkY7L4TrpB5BEQEq71knxR
-         k5kIRSEiqqnAUtlDumpa4g+COPpKW8EKWjGWutGdJoUfI1oReG1TC2xd/KbWZA18PM
-         BPXRk+B1dQNrt2pnhviWTAweoexA+aIQwRmfkDoTCtAkjjxY3EGuiPldXZUbMbGaU/
-         GaTwl0ib/Sqnw==
+        b=TIm1KOdqLkep3QmrhV5KDqng1EGUzTOJSjxLoJsQTmpVwJOVcQAro2HerdhGE+936
+         7HM2vWVgHvZj85auj257ubgCK8DMFaLA16MhzU2lV/zh0gTMC74DZZHg+QQR8T4eU7
+         8r1xNYJVol8V/fb9mTSVJo2Hr9tD9QOxUxJG4UM0qv9xBSH9mGR2h3eYqjsDfLtTv3
+         j9BFR0FtTNJ45ErnY7wzM1ZCKnUM01HPJ5wTelOS3FtChbSyY8KDtDz9r8OrsH6+7u
+         ITHTFhu0xV17tuUDS++YN3qKIAfjdDphgxZQ4pAC4732MKWCoGz95t/VKFC9tKn7NR
+         Y+FMcMhOmAKSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 06/16] usb: xhci: Fix port minor revision
-Date:   Sun,  2 May 2021 10:05:34 -0400
-Message-Id: <20210502140544.2720138-6-sashal@kernel.org>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 07/16] PCI: PM: Do not read power state in pci_enable_device_flags()
+Date:   Sun,  2 May 2021 10:05:35 -0400
+Message-Id: <20210502140544.2720138-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210502140544.2720138-1-sashal@kernel.org>
 References: <20210502140544.2720138-1-sashal@kernel.org>
@@ -43,49 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 64364bc912c01b33bba6c22e3ccb849bfca96398 ]
+[ Upstream commit 4514d991d99211f225d83b7e640285f29f0755d0 ]
 
-Some hosts incorrectly use sub-minor version for minor version (i.e.
-0x02 instead of 0x20 for bcdUSB 0x320 and 0x01 for bcdUSB 0x310).
-Currently the xHCI driver works around this by just checking for minor
-revision > 0x01 for USB 3.1 everywhere. With the addition of USB 3.2,
-checking this gets a bit cumbersome. Since there is no USB release with
-bcdUSB 0x301 to 0x309, we can assume that sub-minor version 01 to 09 is
-incorrect. Let's try to fix this and use the minor revision that matches
-with the USB/xHCI spec to help with the version checking within the
-driver.
+It should not be necessary to update the current_state field of
+struct pci_dev in pci_enable_device_flags() before calling
+do_pci_enable_device() for the device, because none of the
+code between that point and the pci_set_power_state() call in
+do_pci_enable_device() invoked later depends on it.
 
-Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/ed330e95a19dc367819c5b4d78bf7a541c35aa0a.1615432770.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Moreover, doing that is actively harmful in some cases.  For example,
+if the given PCI device depends on an ACPI power resource whose _STA
+method initially returns 0 ("off"), but the config space of the PCI
+device is accessible and the power state retrieved from the
+PCI_PM_CTRL register is D0, the current_state field in the struct
+pci_dev representing that device will get out of sync with the
+power.state of its ACPI companion object and that will lead to
+power management issues going forward.
+
+To avoid such issues it is better to leave the current_state value
+as is until it is changed to PCI_D0 by do_pci_enable_device() as
+appropriate.  However, the power state of the device is not changed
+to PCI_D0 if it is already enabled when pci_enable_device_flags()
+gets called for it, so update its current_state in that case, but
+use pci_update_current_state() covering platform PM too for that.
+
+Link: https://lore.kernel.org/lkml/20210314000439.3138941-1-luzmaximilian@gmail.com/
+Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
+Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mem.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pci/pci.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index 70452c881e56..5fd1e95f5400 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -2085,6 +2085,15 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index c847b5554db6..1993e5e28ea7 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1378,20 +1378,10 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
+ 	int err;
+ 	int i, bars = 0;
  
- 	if (major_revision == 0x03) {
- 		rhub = &xhci->usb3_rhub;
-+		/*
-+		 * Some hosts incorrectly use sub-minor version for minor
-+		 * version (i.e. 0x02 instead of 0x20 for bcdUSB 0x320 and 0x01
-+		 * for bcdUSB 0x310). Since there is no USB release with sub
-+		 * minor version 0x301 to 0x309, we can assume that they are
-+		 * incorrect and fix it here.
-+		 */
-+		if (minor_revision > 0x00 && minor_revision < 0x10)
-+			minor_revision <<= 4;
- 	} else if (major_revision <= 0x02) {
- 		rhub = &xhci->usb2_rhub;
- 	} else {
+-	/*
+-	 * Power state could be unknown at this point, either due to a fresh
+-	 * boot or a device removal call.  So get the current power state
+-	 * so that things like MSI message writing will behave as expected
+-	 * (e.g. if the device really is in D0 at enable time).
+-	 */
+-	if (dev->pm_cap) {
+-		u16 pmcsr;
+-		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
+-		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
+-	}
+-
+-	if (atomic_inc_return(&dev->enable_cnt) > 1)
++	if (atomic_inc_return(&dev->enable_cnt) > 1) {
++		pci_update_current_state(dev, dev->current_state);
+ 		return 0;		/* already enabled */
++	}
+ 
+ 	bridge = pci_upstream_bridge(dev);
+ 	if (bridge)
 -- 
 2.30.2
 
