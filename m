@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 944C3371AD8
+	by mail.lfdr.de (Postfix) with ESMTP id E06EA371AD9
 	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232058AbhECQlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231809AbhECQlp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 3 May 2021 12:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37292 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231974AbhECQjy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:39:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21B41613CD;
-        Mon,  3 May 2021 16:37:26 +0000 (UTC)
+        id S232230AbhECQjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:39:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92839613C0;
+        Mon,  3 May 2021 16:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059847;
-        bh=r18eagK+TWWaSO464JTLqmWqludixdPBwKpeMcvU/ww=;
+        s=k20201202; t=1620059848;
+        bh=zisYVwtsztPK++A8xWpmSiF6PmP6FZtwWVHSHAkye+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CUlYSIw9f7c2+ZOn2DIU5Rn/EZkfIlgi6x8/i4rnEwkFTuNs1Z8VRE3aYLdbbF4XQ
-         D0/14MdXf9XUldAP9K9JjUA/ekxxxCXxOS1xl+Hjw5zOLP2pExi3pAH9r+6JTwG1qK
-         H2xM6CZZVPl6ZJCYHzTSDaD0rhS2cRawGjwXlDldSmjTBGgZurE0osWO9jQ+iIfwnK
-         WorfNBTkbzQcejyZWaKh8qBGBGLqd2f0E3VuzVUHTaGvneNCizAMfX2kDNwnZViAk9
-         z8KMlUu/y3z7Eo9R9M5Q+FA7Kfeh1rxyvXnM9C1xGhPjNYufNAMd7xfwd3Jddka9G6
-         978m+h4BAWGMw==
+        b=kj2bTcVYKOWIVL2kNzaDHZyTm1qILbbOVEaNIPUJfMyG3RmfQrDhqqDNw9JZlP1dN
+         ck4P2Vsi7e1IpB49Qdrsxbm82vMnKF7ssYLGoDEoZQKEogUsXIiPN/DRcBApaAp3e7
+         nTIU2pXim9SmZIz7SpK7TDglzIqo9eMfVeBvzAXtobQ1JJiEksmei3NixY/Xwcf2EQ
+         onsgZlyEnsqPKHCoXFgq2205VThshaO1R5nhiBJ6lflIeq1ho9zUWJM7aZVURWQBI5
+         S5RVKlNX7hasT+nSC4Kq4ieHAQgAy6l8r5/Pv3nxN3MjcQaefILG7HFgjhpAVKaTqF
+         GORTWGNdekBSg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 017/115] scsi: lpfc: Fix ADISC handling that never frees nodes
-Date:   Mon,  3 May 2021 12:35:21 -0400
-Message-Id: <20210503163700.2852194-17-sashal@kernel.org>
+Cc:     Emily Deng <Emily.Deng@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.11 018/115] drm/amdgpu: Fix some unload driver issues
+Date:   Mon,  3 May 2021 12:35:22 -0400
+Message-Id: <20210503163700.2852194-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163700.2852194-1-sashal@kernel.org>
 References: <20210503163700.2852194-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,95 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Emily Deng <Emily.Deng@amd.com>
 
-[ Upstream commit 309b477462df7542355ac984674a6e89c01c89aa ]
+[ Upstream commit bb0cd09be45ea457f25fdcbcb3d6cf2230f26c46 ]
 
-While testing target port swap test with ADISC enabled, several nodes
-remain in UNUSED state. These nodes are never freed and rmmod hangs for
-long time before finising with "0233 Nodelist not empty" error.
+When unloading driver after killing some applications, it will hit sdma
+flush tlb job timeout which is called by ttm_bo_delay_delete. So
+to avoid the job submit after fence driver fini, call ttm_bo_lock_delayed_workqueue
+before fence driver fini. And also put drm_sched_fini before waiting fence.
 
-During PLOGI completion lpfc_plogi_confirm_nport() looks for existing nodes
-with same WWPN. If found, the existing node is used to continue discovery.
-The node on which plogi was performed is freed.  When ADISC is enabled, an
-ADISC els request is triggered in response to an RSCN.  It's possible that
-the ADISC may be rejected by the remote port causing the ADISC completion
-handler to clear the port and node name in the node.  If this occurs, if a
-PLOGI is received it causes a node lookup based on wwpn to now fail,
-causing the port swap logic to kick in which allocates a new node and swaps
-to it. This effectively orphans the original node structure.
-
-Fix the situation by detecting when the lookup fails and forgo the node
-swap and node allocation by using the node on which the PLOGI was issued.
-
-Link: https://lore.kernel.org/r/20210301171821.3427-15-jsmart2021@gmail.com
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Emily Deng <Emily.Deng@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 33 +++++++--------------------------
- 1 file changed, 7 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 1 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c  | 5 +++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 20f3b21ef05c..69e8a127b44f 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1597,7 +1597,7 @@ lpfc_plogi_confirm_nport(struct lpfc_hba *phba, uint32_t *prsp,
- 	struct lpfc_nodelist *new_ndlp;
- 	struct serv_parm *sp;
- 	uint8_t  name[sizeof(struct lpfc_name)];
--	uint32_t rc, keepDID = 0, keep_nlp_flag = 0;
-+	uint32_t keepDID = 0, keep_nlp_flag = 0;
- 	uint32_t keep_new_nlp_flag = 0;
- 	uint16_t keep_nlp_state;
- 	u32 keep_nlp_fc4_type = 0;
-@@ -1619,7 +1619,7 @@ lpfc_plogi_confirm_nport(struct lpfc_hba *phba, uint32_t *prsp,
- 	new_ndlp = lpfc_findnode_wwpn(vport, &sp->portName);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index eacfca776249..ccf30782e491 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -3579,6 +3579,7 @@ void amdgpu_device_fini(struct amdgpu_device *adev)
+ {
+ 	dev_info(adev->dev, "amdgpu: finishing device.\n");
+ 	flush_delayed_work(&adev->delayed_init_work);
++	ttm_bo_lock_delayed_workqueue(&adev->mman.bdev);
+ 	adev->shutdown = true;
  
- 	/* return immediately if the WWPN matches ndlp */
--	if (new_ndlp == ndlp)
-+	if (!new_ndlp || (new_ndlp == ndlp))
- 		return ndlp;
+ 	kfree(adev->pci_state);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index d56f4023ebb3..7e8e46c39dbd 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -533,6 +533,8 @@ void amdgpu_fence_driver_fini(struct amdgpu_device *adev)
  
- 	if (phba->sli_rev == LPFC_SLI_REV4) {
-@@ -1638,30 +1638,11 @@ lpfc_plogi_confirm_nport(struct lpfc_hba *phba, uint32_t *prsp,
- 			 (new_ndlp ? new_ndlp->nlp_flag : 0),
- 			 (new_ndlp ? new_ndlp->nlp_fc4_type : 0));
- 
--	if (!new_ndlp) {
--		rc = memcmp(&ndlp->nlp_portname, name,
--			    sizeof(struct lpfc_name));
--		if (!rc) {
--			if (active_rrqs_xri_bitmap)
--				mempool_free(active_rrqs_xri_bitmap,
--					     phba->active_rrq_pool);
--			return ndlp;
--		}
--		new_ndlp = lpfc_nlp_init(vport, ndlp->nlp_DID);
--		if (!new_ndlp) {
--			if (active_rrqs_xri_bitmap)
--				mempool_free(active_rrqs_xri_bitmap,
--					     phba->active_rrq_pool);
--			return ndlp;
--		}
--	} else {
--		keepDID = new_ndlp->nlp_DID;
--		if (phba->sli_rev == LPFC_SLI_REV4 &&
--		    active_rrqs_xri_bitmap)
--			memcpy(active_rrqs_xri_bitmap,
--			       new_ndlp->active_rrqs_xri_bitmap,
--			       phba->cfg_rrq_xri_bitmap_sz);
--	}
-+	keepDID = new_ndlp->nlp_DID;
+ 		if (!ring || !ring->fence_drv.initialized)
+ 			continue;
++		if (!ring->no_scheduler)
++			drm_sched_fini(&ring->sched);
+ 		r = amdgpu_fence_wait_empty(ring);
+ 		if (r) {
+ 			/* no need to trigger GPU reset as we are unloading */
+@@ -541,8 +543,7 @@ void amdgpu_fence_driver_fini(struct amdgpu_device *adev)
+ 		if (ring->fence_drv.irq_src)
+ 			amdgpu_irq_put(adev, ring->fence_drv.irq_src,
+ 				       ring->fence_drv.irq_type);
+-		if (!ring->no_scheduler)
+-			drm_sched_fini(&ring->sched);
 +
-+	if (phba->sli_rev == LPFC_SLI_REV4 && active_rrqs_xri_bitmap)
-+		memcpy(active_rrqs_xri_bitmap, new_ndlp->active_rrqs_xri_bitmap,
-+		       phba->cfg_rrq_xri_bitmap_sz);
- 
- 	/* At this point in this routine, we know new_ndlp will be
- 	 * returned. however, any previous GID_FTs that were done
+ 		del_timer_sync(&ring->fence_drv.fallback_timer);
+ 		for (j = 0; j <= ring->fence_drv.num_fences_mask; ++j)
+ 			dma_fence_put(ring->fence_drv.fences[j]);
 -- 
 2.30.2
 
