@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAF6D371BF1
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C21D371BF2
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232502AbhECQux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:50:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60624 "EHLO mail.kernel.org"
+        id S232675AbhECQu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:50:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232606AbhECQrk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:47:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00A176141A;
-        Mon,  3 May 2021 16:39:37 +0000 (UTC)
+        id S232267AbhECQrp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:47:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69E646162D;
+        Mon,  3 May 2021 16:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059979;
-        bh=2NP5te+jZbVJI9Ngj88cWMuWA5RVvd7pvJ2s2BY2Bss=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bruVSVTEznzukhtEDLhJGvrab44J41Ppa377Ij/GN+76cINSAYEdtfPIIO6WWAEDI
-         ZAAkK/yquaaJfC+NSbXmTzi5ACIHy47U26K2zHhNckBqLqpISk017sdgrRGDwF83Ml
-         6XLvpZWfMM6emUyrLLqgxVDIP0P2WuZBXdG7Fw0CfBB4g5RCvA2th7GJij6+ExpH8B
-         oKhjTqykghmXzfLAqHFV4qsAhDh/5Kr6SbZN49BIDEBCDsY4ZT9gTbPqSlDFPMsEtS
-         te94xL+EgEnm2uF5sJLdbtfiKoZDq49rS1GaZYb48aXl+DVgg0hGm+IkEqMxtazo5M
-         yyeKppfRaFgGA==
+        s=k20201202; t=1620059984;
+        bh=GECd6ZWGOLxXk6I6RpW1NsCGUbeOBhdBjmOBiu+231s=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XH42oCXmHdWcoOy1Im77xDZfHcHtqLKTWqEzjw3ryI4cIgBN9u5tHZTmLiOSeKdCN
+         zkt9AODXgmxeGz5zDtxqsBybXKdesNFlzeVtejefARvgVgYP6eJsaXL/ojJlzePVdi
+         1f6XJ3Cz2d6hoMp5QVDKiOH9S1In1j3Ky/pSxQei28VVuLezytaUXAiAcJbFR6z6sQ
+         ywqWsXICyLrT9V8KZm5oWtjUcB1tCJehSTSAoIVrhVRZRlze1sxpbBjIMw8xJn/5gs
+         EzUKtcJ0QO/Ad7pgl2jNwMTvlAhL1e/aHqcOo5jUGzwcTEm/CxFHQvLR7xIgSC9lq3
+         WhBcyexyaiTfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xingui Yang <yangxingui@huawei.com>,
-        Luo Jiaxing <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 045/100] ata: ahci: Disable SXS for Hisilicon Kunpeng920
-Date:   Mon,  3 May 2021 12:37:34 -0400
-Message-Id: <20210503163829.2852775-45-sashal@kernel.org>
+Cc:     Jared Baldridge <jrb@expunge.us>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 01/57] drm: Added orientation quirk for OneGX1 Pro
+Date:   Mon,  3 May 2021 12:38:45 -0400
+Message-Id: <20210503163941.2853291-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210503163829.2852775-1-sashal@kernel.org>
-References: <20210503163829.2852775-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,73 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xingui Yang <yangxingui@huawei.com>
+From: Jared Baldridge <jrb@expunge.us>
 
-[ Upstream commit 234e6d2c18f5b080cde874483c4c361f3ae7cffe ]
+[ Upstream commit 81ad7f9f78e4ff80e95be8282423f511b84f1166 ]
 
-On Hisilicon Kunpeng920, ESP is set to 1 by default for all ports of
-SATA controller. In some scenarios, some ports are not external SATA ports,
-and it cause disks connected to these ports to be identified as removable
-disks. So disable the SXS capability on the software side to prevent users
-from mistakenly considering non-removable disks as removable disks and
-performing related operations.
+The OneGX1 Pro has a fairly unique combination of generic strings,
+but we additionally match on the BIOS date just to be safe.
 
-Signed-off-by: Xingui Yang <yangxingui@huawei.com>
-Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Link: https://lore.kernel.org/r/1615544676-61926-1-git-send-email-luojiaxing@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jared Baldridge <jrb@expunge.us>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/41288ccb-1012-486b-81c1-a24c31850c91@www.fastmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci.c    | 5 +++++
- drivers/ata/ahci.h    | 1 +
- drivers/ata/libahci.c | 5 +++++
- 3 files changed, 11 insertions(+)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 00ba8e5a1ccc..33192a8f687d 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -1772,6 +1772,11 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		hpriv->flags |= AHCI_HFLAG_NO_DEVSLP;
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 58f5dc2f6dd5..f6bdec7fa925 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -84,6 +84,13 @@ static const struct drm_dmi_panel_orientation_data itworks_tw891 = {
+ 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+ };
  
- #ifdef CONFIG_ARM64
-+	if (pdev->vendor == PCI_VENDOR_ID_HUAWEI &&
-+	    pdev->device == 0xa235 &&
-+	    pdev->revision < 0x30)
-+		hpriv->flags |= AHCI_HFLAG_NO_SXS;
++static const struct drm_dmi_panel_orientation_data onegx1_pro = {
++	.width = 1200,
++	.height = 1920,
++	.bios_dates = (const char * const []){ "12/17/2020", NULL },
++	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
++};
 +
- 	if (pdev->vendor == 0x177d && pdev->device == 0xa01c)
- 		hpriv->irq_handler = ahci_thunderx_irq_handler;
- #endif
-diff --git a/drivers/ata/ahci.h b/drivers/ata/ahci.h
-index 98b8baa47dc5..d1f284f0c83d 100644
---- a/drivers/ata/ahci.h
-+++ b/drivers/ata/ahci.h
-@@ -242,6 +242,7 @@ enum {
- 							suspend/resume */
- 	AHCI_HFLAG_IGN_NOTSUPP_POWER_ON	= (1 << 27), /* ignore -EOPNOTSUPP
- 							from phy_power_on() */
-+	AHCI_HFLAG_NO_SXS		= (1 << 28), /* SXS not supported */
- 
- 	/* ap->flags bits */
- 
-diff --git a/drivers/ata/libahci.c b/drivers/ata/libahci.c
-index ea5bf5f4cbed..fec2e9754aed 100644
---- a/drivers/ata/libahci.c
-+++ b/drivers/ata/libahci.c
-@@ -493,6 +493,11 @@ void ahci_save_initial_config(struct device *dev, struct ahci_host_priv *hpriv)
- 		cap |= HOST_CAP_ALPM;
- 	}
- 
-+	if ((cap & HOST_CAP_SXS) && (hpriv->flags & AHCI_HFLAG_NO_SXS)) {
-+		dev_info(dev, "controller does not support SXS, disabling CAP_SXS\n");
-+		cap &= ~HOST_CAP_SXS;
-+	}
-+
- 	if (hpriv->force_port_map && port_map != hpriv->force_port_map) {
- 		dev_info(dev, "forcing port_map 0x%x -> 0x%x\n",
- 			 port_map, hpriv->force_port_map);
+ static const struct drm_dmi_panel_orientation_data lcd720x1280_rightside_up = {
+ 	.width = 720,
+ 	.height = 1280,
+@@ -211,6 +218,13 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
+ 		},
+ 		.driver_data = (void *)&lcd1200x1920_rightside_up,
++	}, {	/* OneGX1 Pro */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SYSTEM_MANUFACTURER"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SYSTEM_PRODUCT_NAME"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Default string"),
++		},
++		.driver_data = (void *)&onegx1_pro,
+ 	}, {	/* VIOS LTH17 */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VIOS"),
 -- 
 2.30.2
 
