@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C8633719F7
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:37:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 196663719F8
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231902AbhECQiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:38:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38652 "EHLO mail.kernel.org"
+        id S231910AbhECQiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231637AbhECQhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:37:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86662613D1;
-        Mon,  3 May 2021 16:36:07 +0000 (UTC)
+        id S231638AbhECQhM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:37:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B32F61369;
+        Mon,  3 May 2021 16:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059768;
-        bh=68IAiojGTqdlEEmbV+6OLViD4ckdZJ2dRbHFp8ldvfY=;
+        s=k20201202; t=1620059770;
+        bh=3kZjXW1laOxEUEgIYpfll/ZB6Np2D/rhndRahFin3Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=puVNIvNXbeDfy94v7ThTjBnl8rVqjXuD0r/ETIeZDqoxdyuPNe0vQRysmH9UElsM+
-         I+IbWIsMTJPbGb8YCWvPdAtCsojT9KpY6Nii4qg7D4hB88P/+v0b+5rKxbQVe8Gzvz
-         /v5XGwgfrJ91XNIEO5KRZEy7ktD5W1Yd0HSn/bdYYx0w7wDzuqvS6u7cqPnsEoHE9j
-         7WGBcCTdUGq8qw7ngFrqgQCXa2IGJ4BWPglmPMhsI8F50ZhdepSPi43UFoCw0JGwZs
-         oAJBe9hA8TewH2t0FjUAudS075ZgeKIl5Wo+u20ARCeQPgIx2jH8FcPVHVr7syKN1X
-         HWHcNH72DvJiQ==
+        b=ZtOsAVTZWS+skKRxHEvA54hjxZcvTYgkc717uuYJNPzFdsEvtCofqcuw0bGAaWPO9
+         JRjIxA/V3TAViDm4CglFOdq9KSnIRGSCrLX4GxxXbyTW7GdjUl3YNxrpROQRlrEJuF
+         /3mGiTu6+3pfPaRudHVLU7ORnmAArkWo1c4jJxPJw1+k97zlKOusvXJl1TjG5YNRN1
+         /rwQTJEBA03UynNwWyO4Qt/TqxKQXCTfJcByzHU03DqygE3uPd0AYETjOBwfIOt7cO
+         0IwfnsGADkkt1MiK788R/neZ9IR/9UIfUIqKF3CqzM4GAuv+QDTX+vuHjwa7sm5pue
+         NAHfz7ZewW9sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 035/134] extcon: arizona: Fix various races on driver unbind
-Date:   Mon,  3 May 2021 12:33:34 -0400
-Message-Id: <20210503163513.2851510-35-sashal@kernel.org>
+Cc:     Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 036/134] media: venus: core, venc, vdec: Fix probe dependency error
+Date:   Mon,  3 May 2021 12:33:35 -0400
+Message-Id: <20210503163513.2851510-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
@@ -45,130 +45,344 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit e5b499f6fb17bc95a813e85d0796522280203806 ]
+[ Upstream commit 08b1cf474b7f72750adebe0f0a35f8e9a3eb75f6 ]
 
-We must free/disable all interrupts and cancel all pending works
-before doing further cleanup.
+Commit aaaa93eda64b ("media] media: venus: venc: add video encoder files")
+is the last in a series of three commits to add core.c vdec.c and venc.c
+adding core, encoder and decoder.
 
-Before this commit arizona_extcon_remove() was doing several
-register writes to shut things down before disabling the IRQs
-and it was cancelling only 1 of the 3 different works used.
+The encoder and decoder check for core drvdata as set and return -EPROBE_DEFER
+if it has not been set, however both the encoder and decoder rely on
+core.v4l2_dev as valid.
 
-Move all the register-writes shutting things down to after
-the disabling of the IRQs and add the 2 missing
-cancel_delayed_work_sync() calls.
+core.v4l2_dev will not be valid until v4l2_device_register() has completed
+in core.c's probe().
 
-This fixes various possible races on driver unbind. One of which
-would always trigger on devices using the mic-clamp feature for
-jack detection. The ARIZONA_MICD_CLAMP_MODE_MASK update was
-done before disabling the IRQs, causing:
-1. arizona_jackdet() to run
-2. detect a jack being inserted (clamp disabled means jack inserted)
-3. call arizona_start_mic() which:
-3.1 Enables the MICVDD regulator
-3.2 takes a pm_runtime_reference
+Normally this is never seen however, Dmitry reported the following
+backtrace when compiling drivers and firmware directly into a kernel image.
 
-And this was all happening after the ARIZONA_MICD_ENA bit clearing,
-which would undo 3.1 and 3.2 because the ARIZONA_MICD_CLAMP_MODE_MASK
-update was being done after the ARIZONA_MICD_ENA bit clearing.
+[    5.259968] Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
+[    5.269850] sd 0:0:0:3: [sdd] Optimal transfer size 524288 bytes
+[    5.275505] Workqueue: events deferred_probe_work_func
+[    5.275513] pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+[    5.441211] usb 2-1: new SuperSpeedPlus Gen 2 USB device number 2 using xhci-hcd
+[    5.442486] pc : refcount_warn_saturate+0x140/0x148
+[    5.493756] hub 2-1:1.0: USB hub found
+[    5.496266] lr : refcount_warn_saturate+0x140/0x148
+[    5.500982] hub 2-1:1.0: 4 ports detected
+[    5.503440] sp : ffff80001067b730
+[    5.503442] x29: ffff80001067b730
+[    5.592660] usb 1-1: new high-speed USB device number 2 using xhci-hcd
+[    5.598478] x28: ffff6c6bc1c379b8
+[    5.598480] x27: ffffa5c673852960 x26: ffffa5c673852000
+[    5.598484] x25: ffff6c6bc1c37800 x24: 0000000000000001
+[    5.810652] x23: 0000000000000000 x22: ffffa5c673bc7118
+[    5.813777] hub 1-1:1.0: USB hub found
+[    5.816108] x21: ffffa5c674440000 x20: 0000000000000001
+[    5.820846] hub 1-1:1.0: 4 ports detected
+[    5.825415] x19: ffffa5c6744f4000 x18: ffffffffffffffff
+[    5.825418] x17: 0000000000000000 x16: 0000000000000000
+[    5.825421] x15: 00000a4810c193ba x14: 0000000000000000
+[    5.825424] x13: 00000000000002b8 x12: 000000000000f20a
+[    5.825427] x11: 000000000000f20a x10: 0000000000000038
+[    5.845447] usb 2-1.1: new SuperSpeed Gen 1 USB device number 3 using xhci-hcd
+[    5.845904]
+[    5.845905] x9 : 0000000000000000 x8 : ffff6c6d36fae780
+[    5.871208] x7 : ffff6c6d36faf240 x6 : 0000000000000000
+[    5.876664] x5 : 0000000000000004 x4 : 0000000000000085
+[    5.882121] x3 : 0000000000000119 x2 : ffffa5c6741ef478
+[    5.887578] x1 : 3acbb3926faf5f00 x0 : 0000000000000000
+[    5.893036] Call trace:
+[    5.895551]  refcount_warn_saturate+0x140/0x148
+[    5.900202]  __video_register_device+0x64c/0xd10
+[    5.904944]  venc_probe+0xc4/0x148
+[    5.908444]  platform_probe+0x68/0xe0
+[    5.912210]  really_probe+0x118/0x3e0
+[    5.915977]  driver_probe_device+0x5c/0xc0
+[    5.920187]  __device_attach_driver+0x98/0xb8
+[    5.924661]  bus_for_each_drv+0x68/0xd0
+[    5.928604]  __device_attach+0xec/0x148
+[    5.932547]  device_initial_probe+0x14/0x20
+[    5.936845]  bus_probe_device+0x9c/0xa8
+[    5.940788]  device_add+0x3e8/0x7c8
+[    5.944376]  of_device_add+0x4c/0x60
+[    5.948056]  of_platform_device_create_pdata+0xbc/0x140
+[    5.953425]  of_platform_bus_create+0x17c/0x3c0
+[    5.958078]  of_platform_populate+0x80/0x110
+[    5.962463]  venus_probe+0x2ec/0x4d8
+[    5.966143]  platform_probe+0x68/0xe0
+[    5.969907]  really_probe+0x118/0x3e0
+[    5.973674]  driver_probe_device+0x5c/0xc0
+[    5.977882]  __device_attach_driver+0x98/0xb8
+[    5.982356]  bus_for_each_drv+0x68/0xd0
+[    5.986298]  __device_attach+0xec/0x148
+[    5.990242]  device_initial_probe+0x14/0x20
+[    5.994539]  bus_probe_device+0x9c/0xa8
+[    5.998481]  deferred_probe_work_func+0x74/0xb0
+[    6.003132]  process_one_work+0x1e8/0x360
+[    6.007254]  worker_thread+0x208/0x478
+[    6.011106]  kthread+0x150/0x158
+[    6.014431]  ret_from_fork+0x10/0x30
+[    6.018111] ---[ end trace f074246b1ecdb466 ]---
 
-So this means that arizona_extcon_remove() would exit with
-1. MICVDD enabled and 2. The pm_runtime_reference being unbalanced.
+This patch fixes by
 
-MICVDD still being enabled caused the following oops when the
-regulator is released by the devm framework:
+- Only setting drvdata after v4l2_device_register() completes
+- Moving v4l2_device_register() so that suspend/reume in core::probe()
+  stays as-is
+- Changes pm_ops->core_function() to take struct venus_core not struct
+  device
+- Minimal rework of v4l2_device_*register in probe/remove
 
-[ 2850.745757] ------------[ cut here ]------------
-[ 2850.745827] WARNING: CPU: 2 PID: 2098 at drivers/regulator/core.c:2123 _regulator_put.part.0+0x19f/0x1b0
-[ 2850.745835] Modules linked in: extcon_arizona ...
-...
-[ 2850.746909] Call Trace:
-[ 2850.746932]  regulator_put+0x2d/0x40
-[ 2850.746946]  release_nodes+0x22a/0x260
-[ 2850.746984]  __device_release_driver+0x190/0x240
-[ 2850.747002]  driver_detach+0xd4/0x120
-...
-[ 2850.747337] ---[ end trace f455dfd7abd9781f ]---
-
-Note this oops is just one of various theoretically possible races caused
-by the wrong ordering inside arizona_extcon_remove(), this fixes the
-ordering fixing all possible races, including the reported oops.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Tested-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reported-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-arizona.c | 40 +++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 19 deletions(-)
+ drivers/media/platform/qcom/venus/core.c      | 30 +++++++++++--------
+ .../media/platform/qcom/venus/pm_helpers.c    | 30 ++++++++-----------
+ .../media/platform/qcom/venus/pm_helpers.h    |  7 +++--
+ 3 files changed, 34 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/extcon/extcon-arizona.c b/drivers/extcon/extcon-arizona.c
-index f7ef247de46a..76aacbac5869 100644
---- a/drivers/extcon/extcon-arizona.c
-+++ b/drivers/extcon/extcon-arizona.c
-@@ -1760,25 +1760,6 @@ static int arizona_extcon_remove(struct platform_device *pdev)
- 	bool change;
- 	int ret;
+diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
+index f9896c121fd8..d2842f496b47 100644
+--- a/drivers/media/platform/qcom/venus/core.c
++++ b/drivers/media/platform/qcom/venus/core.c
+@@ -218,7 +218,6 @@ static int venus_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
--	ret = regmap_update_bits_check(arizona->regmap, ARIZONA_MIC_DETECT_1,
--				       ARIZONA_MICD_ENA, 0,
--				       &change);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "Failed to disable micd on remove: %d\n",
--			ret);
--	} else if (change) {
--		regulator_disable(info->micvdd);
--		pm_runtime_put(info->dev);
--	}
--
--	gpiod_put(info->micd_pol_gpio);
--
--	pm_runtime_disable(&pdev->dev);
--
--	regmap_update_bits(arizona->regmap,
--			   ARIZONA_MICD_CLAMP_CONTROL,
--			   ARIZONA_MICD_CLAMP_MODE_MASK, 0);
--
- 	if (info->micd_clamp) {
- 		jack_irq_rise = ARIZONA_IRQ_MICD_CLAMP_RISE;
- 		jack_irq_fall = ARIZONA_IRQ_MICD_CLAMP_FALL;
-@@ -1794,10 +1775,31 @@ static int arizona_extcon_remove(struct platform_device *pdev)
- 	arizona_free_irq(arizona, jack_irq_rise, info);
- 	arizona_free_irq(arizona, jack_irq_fall, info);
- 	cancel_delayed_work_sync(&info->hpdet_work);
-+	cancel_delayed_work_sync(&info->micd_detect_work);
-+	cancel_delayed_work_sync(&info->micd_timeout_work);
-+
-+	ret = regmap_update_bits_check(arizona->regmap, ARIZONA_MIC_DETECT_1,
-+				       ARIZONA_MICD_ENA, 0,
-+				       &change);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to disable micd on remove: %d\n",
-+			ret);
-+	} else if (change) {
-+		regulator_disable(info->micvdd);
-+		pm_runtime_put(info->dev);
-+	}
-+
-+	regmap_update_bits(arizona->regmap,
-+			   ARIZONA_MICD_CLAMP_CONTROL,
-+			   ARIZONA_MICD_CLAMP_MODE_MASK, 0);
- 	regmap_update_bits(arizona->regmap, ARIZONA_JACK_DETECT_ANALOGUE,
- 			   ARIZONA_JD1_ENA, 0);
- 	arizona_clk32k_disable(arizona);
+ 	core->dev = dev;
+-	platform_set_drvdata(pdev, core);
  
-+	gpiod_put(info->micd_pol_gpio);
+ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	core->base = devm_ioremap_resource(dev, r);
+@@ -248,7 +247,7 @@ static int venus_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 
+ 	if (core->pm_ops->core_get) {
+-		ret = core->pm_ops->core_get(dev);
++		ret = core->pm_ops->core_get(core);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -273,6 +272,12 @@ static int venus_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_core_put;
+ 
++	ret = v4l2_device_register(dev, &core->v4l2_dev);
++	if (ret)
++		goto err_core_deinit;
 +
-+	pm_runtime_disable(&pdev->dev);
++	platform_set_drvdata(pdev, core);
 +
+ 	pm_runtime_enable(dev);
+ 
+ 	ret = pm_runtime_get_sync(dev);
+@@ -307,10 +312,6 @@ static int venus_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_venus_shutdown;
+ 
+-	ret = v4l2_device_register(dev, &core->v4l2_dev);
+-	if (ret)
+-		goto err_core_deinit;
+-
+ 	ret = pm_runtime_put_sync(dev);
+ 	if (ret) {
+ 		pm_runtime_get_noresume(dev);
+@@ -323,8 +324,6 @@ static int venus_probe(struct platform_device *pdev)
+ 
+ err_dev_unregister:
+ 	v4l2_device_unregister(&core->v4l2_dev);
+-err_core_deinit:
+-	hfi_core_deinit(core, false);
+ err_venus_shutdown:
+ 	venus_shutdown(core);
+ err_runtime_disable:
+@@ -332,9 +331,11 @@ static int venus_probe(struct platform_device *pdev)
+ 	pm_runtime_set_suspended(dev);
+ 	pm_runtime_disable(dev);
+ 	hfi_destroy(core);
++err_core_deinit:
++	hfi_core_deinit(core, false);
+ err_core_put:
+ 	if (core->pm_ops->core_put)
+-		core->pm_ops->core_put(dev);
++		core->pm_ops->core_put(core);
+ 	return ret;
+ }
+ 
+@@ -360,7 +361,9 @@ static int venus_remove(struct platform_device *pdev)
+ 	pm_runtime_disable(dev);
+ 
+ 	if (pm_ops->core_put)
+-		pm_ops->core_put(dev);
++		pm_ops->core_put(core);
++
++	v4l2_device_unregister(&core->v4l2_dev);
+ 
+ 	hfi_destroy(core);
+ 
+@@ -368,6 +371,7 @@ static int venus_remove(struct platform_device *pdev)
+ 	icc_put(core->cpucfg_path);
+ 
+ 	v4l2_device_unregister(&core->v4l2_dev);
++
+ 	mutex_destroy(&core->pm_lock);
+ 	mutex_destroy(&core->lock);
+ 	venus_dbgfs_deinit(core);
+@@ -396,7 +400,7 @@ static __maybe_unused int venus_runtime_suspend(struct device *dev)
+ 		return ret;
+ 
+ 	if (pm_ops->core_power) {
+-		ret = pm_ops->core_power(dev, POWER_OFF);
++		ret = pm_ops->core_power(core, POWER_OFF);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -414,7 +418,7 @@ static __maybe_unused int venus_runtime_suspend(struct device *dev)
+ err_video_path:
+ 	icc_set_bw(core->cpucfg_path, kbps_to_icc(1000), 0);
+ err_cpucfg_path:
+-	pm_ops->core_power(dev, POWER_ON);
++	pm_ops->core_power(core, POWER_ON);
+ 
+ 	return ret;
+ }
+@@ -434,7 +438,7 @@ static __maybe_unused int venus_runtime_resume(struct device *dev)
+ 		return ret;
+ 
+ 	if (pm_ops->core_power) {
+-		ret = pm_ops->core_power(dev, POWER_ON);
++		ret = pm_ops->core_power(core, POWER_ON);
+ 		if (ret)
+ 			return ret;
+ 	}
+diff --git a/drivers/media/platform/qcom/venus/pm_helpers.c b/drivers/media/platform/qcom/venus/pm_helpers.c
+index 43c4e3d9e281..e349d01422c5 100644
+--- a/drivers/media/platform/qcom/venus/pm_helpers.c
++++ b/drivers/media/platform/qcom/venus/pm_helpers.c
+@@ -277,16 +277,13 @@ static int load_scale_v1(struct venus_inst *inst)
  	return 0;
  }
  
+-static int core_get_v1(struct device *dev)
++static int core_get_v1(struct venus_core *core)
+ {
+-	struct venus_core *core = dev_get_drvdata(dev);
+-
+ 	return core_clks_get(core);
+ }
+ 
+-static int core_power_v1(struct device *dev, int on)
++static int core_power_v1(struct venus_core *core, int on)
+ {
+-	struct venus_core *core = dev_get_drvdata(dev);
+ 	int ret = 0;
+ 
+ 	if (on == POWER_ON)
+@@ -753,12 +750,12 @@ static int venc_power_v4(struct device *dev, int on)
+ 	return ret;
+ }
+ 
+-static int vcodec_domains_get(struct device *dev)
++static int vcodec_domains_get(struct venus_core *core)
+ {
+ 	int ret;
+ 	struct opp_table *opp_table;
+ 	struct device **opp_virt_dev;
+-	struct venus_core *core = dev_get_drvdata(dev);
++	struct device *dev = core->dev;
+ 	const struct venus_resources *res = core->res;
+ 	struct device *pd;
+ 	unsigned int i;
+@@ -809,9 +806,8 @@ static int vcodec_domains_get(struct device *dev)
+ 	return ret;
+ }
+ 
+-static void vcodec_domains_put(struct device *dev)
++static void vcodec_domains_put(struct venus_core *core)
+ {
+-	struct venus_core *core = dev_get_drvdata(dev);
+ 	const struct venus_resources *res = core->res;
+ 	unsigned int i;
+ 
+@@ -834,9 +830,9 @@ static void vcodec_domains_put(struct device *dev)
+ 	dev_pm_opp_detach_genpd(core->opp_table);
+ }
+ 
+-static int core_get_v4(struct device *dev)
++static int core_get_v4(struct venus_core *core)
+ {
+-	struct venus_core *core = dev_get_drvdata(dev);
++	struct device *dev = core->dev;
+ 	const struct venus_resources *res = core->res;
+ 	int ret;
+ 
+@@ -875,7 +871,7 @@ static int core_get_v4(struct device *dev)
+ 		}
+ 	}
+ 
+-	ret = vcodec_domains_get(dev);
++	ret = vcodec_domains_get(core);
+ 	if (ret) {
+ 		if (core->has_opp_table)
+ 			dev_pm_opp_of_remove_table(dev);
+@@ -886,14 +882,14 @@ static int core_get_v4(struct device *dev)
+ 	return 0;
+ }
+ 
+-static void core_put_v4(struct device *dev)
++static void core_put_v4(struct venus_core *core)
+ {
+-	struct venus_core *core = dev_get_drvdata(dev);
++	struct device *dev = core->dev;
+ 
+ 	if (legacy_binding)
+ 		return;
+ 
+-	vcodec_domains_put(dev);
++	vcodec_domains_put(core);
+ 
+ 	if (core->has_opp_table)
+ 		dev_pm_opp_of_remove_table(dev);
+@@ -901,9 +897,9 @@ static void core_put_v4(struct device *dev)
+ 
+ }
+ 
+-static int core_power_v4(struct device *dev, int on)
++static int core_power_v4(struct venus_core *core, int on)
+ {
+-	struct venus_core *core = dev_get_drvdata(dev);
++	struct device *dev = core->dev;
+ 	struct device *pmctrl = core->pmdomains[0];
+ 	int ret = 0;
+ 
+diff --git a/drivers/media/platform/qcom/venus/pm_helpers.h b/drivers/media/platform/qcom/venus/pm_helpers.h
+index aa2f6afa2354..a492c50c5543 100644
+--- a/drivers/media/platform/qcom/venus/pm_helpers.h
++++ b/drivers/media/platform/qcom/venus/pm_helpers.h
+@@ -4,14 +4,15 @@
+ #define __VENUS_PM_HELPERS_H__
+ 
+ struct device;
++struct venus_core;
+ 
+ #define POWER_ON	1
+ #define POWER_OFF	0
+ 
+ struct venus_pm_ops {
+-	int (*core_get)(struct device *dev);
+-	void (*core_put)(struct device *dev);
+-	int (*core_power)(struct device *dev, int on);
++	int (*core_get)(struct venus_core *core);
++	void (*core_put)(struct venus_core *core);
++	int (*core_power)(struct venus_core *core, int on);
+ 
+ 	int (*vdec_get)(struct device *dev);
+ 	void (*vdec_put)(struct device *dev);
 -- 
 2.30.2
 
