@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E06EA371AD9
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4063E371ADC
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231809AbhECQlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39896 "EHLO mail.kernel.org"
+        id S232265AbhECQls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232230AbhECQjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231977AbhECQjz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 3 May 2021 12:39:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92839613C0;
-        Mon,  3 May 2021 16:37:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D4C961244;
+        Mon,  3 May 2021 16:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059848;
-        bh=zisYVwtsztPK++A8xWpmSiF6PmP6FZtwWVHSHAkye+o=;
+        s=k20201202; t=1620059850;
+        bh=C7Ea8EweC2yH0pB/nsXtw6r08gM32NeMA84SYNa7jF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kj2bTcVYKOWIVL2kNzaDHZyTm1qILbbOVEaNIPUJfMyG3RmfQrDhqqDNw9JZlP1dN
-         ck4P2Vsi7e1IpB49Qdrsxbm82vMnKF7ssYLGoDEoZQKEogUsXIiPN/DRcBApaAp3e7
-         nTIU2pXim9SmZIz7SpK7TDglzIqo9eMfVeBvzAXtobQ1JJiEksmei3NixY/Xwcf2EQ
-         onsgZlyEnsqPKHCoXFgq2205VThshaO1R5nhiBJ6lflIeq1ho9zUWJM7aZVURWQBI5
-         S5RVKlNX7hasT+nSC4Kq4ieHAQgAy6l8r5/Pv3nxN3MjcQaefILG7HFgjhpAVKaTqF
-         GORTWGNdekBSg==
+        b=sccuT0VtjMI82raue1N/evVNqgrk8pnBk0oYnOay0n8lYRWlSwqZcon6TjH1vuilQ
+         +T6PamG6vi4KbAklP7dpQLa3htzwLCsK/9wNfiwQ55EgyAS9YMGghwKUhqlUiIrUi/
+         FnozrkP5rTob6s+xZA+Cwle3AUSUkI5/Ep/rxH4hpdYbn4iQ94E+ArYk8mjcqSnb/8
+         b00inTt5zqrRmjwtOSx2RQy/nBinLZ/AW6LsErCw0emxPmJq9wkdvNDl5jVn2xm+Cy
+         sShIGWXhsM8k08AfOH+eyh0wj+cmRrmQl7ugzowbVGGidb+6/0KPBVsMcSaXv9lJtM
+         BVgEn7NrcP95w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Emily Deng <Emily.Deng@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.11 018/115] drm/amdgpu: Fix some unload driver issues
-Date:   Mon,  3 May 2021 12:35:22 -0400
-Message-Id: <20210503163700.2852194-18-sashal@kernel.org>
+Cc:     Vincent Donnefort <vincent.donnefort@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 019/115] sched/pelt: Fix task util_est update filtering
+Date:   Mon,  3 May 2021 12:35:23 -0400
+Message-Id: <20210503163700.2852194-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163700.2852194-1-sashal@kernel.org>
 References: <20210503163700.2852194-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,59 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emily Deng <Emily.Deng@amd.com>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit bb0cd09be45ea457f25fdcbcb3d6cf2230f26c46 ]
+[ Upstream commit b89997aa88f0b07d8a6414c908af75062103b8c9 ]
 
-When unloading driver after killing some applications, it will hit sdma
-flush tlb job timeout which is called by ttm_bo_delay_delete. So
-to avoid the job submit after fence driver fini, call ttm_bo_lock_delayed_workqueue
-before fence driver fini. And also put drm_sched_fini before waiting fence.
+Being called for each dequeue, util_est reduces the number of its updates
+by filtering out when the EWMA signal is different from the task util_avg
+by less than 1%. It is a problem for a sudden util_avg ramp-up. Due to the
+decay from a previous high util_avg, EWMA might now be close enough to
+the new util_avg. No update would then happen while it would leave
+ue.enqueued with an out-of-date value.
 
-Signed-off-by: Emily Deng <Emily.Deng@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Taking into consideration the two util_est members, EWMA and enqueued for
+the filtering, ensures, for both, an up-to-date value.
+
+This is for now an issue only for the trace probe that might return the
+stale value. Functional-wise, it isn't a problem, as the value is always
+accessed through max(enqueued, ewma).
+
+This problem has been observed using LISA's UtilConvergence:test_means on
+the sd845c board.
+
+No regression observed with Hackbench on sd845c and Perf-bench sched pipe
+on hikey/hikey960.
+
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/20210225165820.1377125-1-vincent.donnefort@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 1 +
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c  | 5 +++--
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index eacfca776249..ccf30782e491 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3579,6 +3579,7 @@ void amdgpu_device_fini(struct amdgpu_device *adev)
- {
- 	dev_info(adev->dev, "amdgpu: finishing device.\n");
- 	flush_delayed_work(&adev->delayed_init_work);
-+	ttm_bo_lock_delayed_workqueue(&adev->mman.bdev);
- 	adev->shutdown = true;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index bbc78794224a..dfb65140eb2d 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3959,6 +3959,8 @@ static inline void util_est_dequeue(struct cfs_rq *cfs_rq,
+ 	trace_sched_util_est_cfs_tp(cfs_rq);
+ }
  
- 	kfree(adev->pci_state);
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-index d56f4023ebb3..7e8e46c39dbd 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-@@ -533,6 +533,8 @@ void amdgpu_fence_driver_fini(struct amdgpu_device *adev)
- 
- 		if (!ring || !ring->fence_drv.initialized)
- 			continue;
-+		if (!ring->no_scheduler)
-+			drm_sched_fini(&ring->sched);
- 		r = amdgpu_fence_wait_empty(ring);
- 		if (r) {
- 			/* no need to trigger GPU reset as we are unloading */
-@@ -541,8 +543,7 @@ void amdgpu_fence_driver_fini(struct amdgpu_device *adev)
- 		if (ring->fence_drv.irq_src)
- 			amdgpu_irq_put(adev, ring->fence_drv.irq_src,
- 				       ring->fence_drv.irq_type);
--		if (!ring->no_scheduler)
--			drm_sched_fini(&ring->sched);
++#define UTIL_EST_MARGIN (SCHED_CAPACITY_SCALE / 100)
 +
- 		del_timer_sync(&ring->fence_drv.fallback_timer);
- 		for (j = 0; j <= ring->fence_drv.num_fences_mask; ++j)
- 			dma_fence_put(ring->fence_drv.fences[j]);
+ /*
+  * Check if a (signed) value is within a specified (unsigned) margin,
+  * based on the observation that:
+@@ -3976,7 +3978,7 @@ static inline void util_est_update(struct cfs_rq *cfs_rq,
+ 				   struct task_struct *p,
+ 				   bool task_sleep)
+ {
+-	long last_ewma_diff;
++	long last_ewma_diff, last_enqueued_diff;
+ 	struct util_est ue;
+ 
+ 	if (!sched_feat(UTIL_EST))
+@@ -3997,6 +3999,8 @@ static inline void util_est_update(struct cfs_rq *cfs_rq,
+ 	if (ue.enqueued & UTIL_AVG_UNCHANGED)
+ 		return;
+ 
++	last_enqueued_diff = ue.enqueued;
++
+ 	/*
+ 	 * Reset EWMA on utilization increases, the moving average is used only
+ 	 * to smooth utilization decreases.
+@@ -4010,12 +4014,17 @@ static inline void util_est_update(struct cfs_rq *cfs_rq,
+ 	}
+ 
+ 	/*
+-	 * Skip update of task's estimated utilization when its EWMA is
++	 * Skip update of task's estimated utilization when its members are
+ 	 * already ~1% close to its last activation value.
+ 	 */
+ 	last_ewma_diff = ue.enqueued - ue.ewma;
+-	if (within_margin(last_ewma_diff, (SCHED_CAPACITY_SCALE / 100)))
++	last_enqueued_diff -= ue.enqueued;
++	if (within_margin(last_ewma_diff, UTIL_EST_MARGIN)) {
++		if (!within_margin(last_enqueued_diff, UTIL_EST_MARGIN))
++			goto done;
++
+ 		return;
++	}
+ 
+ 	/*
+ 	 * To avoid overestimation of actual task utilization, skip updates if
 -- 
 2.30.2
 
