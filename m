@@ -2,229 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 015733713B5
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 12:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFD3371440
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 13:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbhECKjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 06:39:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54648 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230246AbhECKjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 May 2021 06:39:23 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39847C06174A
-        for <stable@vger.kernel.org>; Mon,  3 May 2021 03:38:28 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id i13so3844843pfu.2
-        for <stable@vger.kernel.org>; Mon, 03 May 2021 03:38:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SRBdNp947pymjmshsl6HVBb5DBBY4NXbbFx0e6wKrSE=;
-        b=F7lAxagEuXMfEDabK9loXtjTO01npysJPVd15Hud7qkh5/hfBdlxTaBEl80fPZ1Zb5
-         40JhIy0t+0fonUe/+7O7w877SPTM7xUMPOPSiX3D+K3Wuse8hY/4wsFwromsF1vACxFd
-         VyVuTixAmqq5spukx9kmqbi6T/0gfTRQqDcQteHfN0irdTGvaOFGOQn2Uhcn3+dDQuwP
-         xaW+wP9lIwt8JNtWHNgm/JB6LVTlz/nePXPETHJ0ArtQPeUd8QupujeOojZy+bQTS6ez
-         0N/lAmbB4raVYkXw2KOAZnN0zmJl9x3OwiUF7QemOhhpt2566yGP6y9vKn/bSCBjiidS
-         T4lA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SRBdNp947pymjmshsl6HVBb5DBBY4NXbbFx0e6wKrSE=;
-        b=pIT4IEk+R50QNQC9stN0L4nKt2+fJrIhYTEqMHYMuwNFVGXNemBrX+rqdu8pN68Y74
-         fF51onKaoeDJmjEjwALZk0xV0RWBIVZKAbkZA84CTJuc3oDTgroYTLVpJtPzcCFfHJZY
-         FuWhTOsL9BQdTlEdX4SZ/0zwADd/7dS5F6RfuGsU0wfWhsaPSKfo5aDwyHV94zetrztw
-         H/Zlz4eE7Jzzoh87Ux0Y7uW/9R8FiUrhE/bHzckomJlg5oPEZpwSZuq+y4C/oEajpQvG
-         +XYip+IVLZ3xIJyWnNVvKjswYqvWaQ5+csUSQnXuUMsrOfHOtejtVa8FzOc+u0LuWqxJ
-         OckA==
-X-Gm-Message-State: AOAM532FRBTWGABCDF2i1wlb7B+Vqusrr4RBjUiD0Gaz6PJdM8WGogEV
-        2mS++GfTITe2bb4Y181nbLwGq2LqgP4pJVLa
-X-Google-Smtp-Source: ABdhPJzi+DVW9lZtvsYXxaVLDR9YdWu9UDui8mqqonRhaUVa/8GKdQEWUBBfVG8LbV8WWQWRl9M41g==
-X-Received: by 2002:a63:ea04:: with SMTP id c4mr17232753pgi.243.1620038308071;
-        Mon, 03 May 2021 03:38:28 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 206sm9550543pga.44.2021.05.03.03.38.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 May 2021 03:38:27 -0700 (PDT)
-Message-ID: <608fd2a3.1c69fb81.e01dc.a0ec@mx.google.com>
-Date:   Mon, 03 May 2021 03:38:27 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S233485AbhECL2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 07:28:48 -0400
+Received: from mail-41104.protonmail.ch ([185.70.41.104]:56896 "EHLO
+        mail-41104.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233460AbhECL2s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 May 2021 07:28:48 -0400
+X-Greylist: delayed 423 seconds by postgrey-1.27 at vger.kernel.org; Mon, 03 May 2021 07:28:47 EDT
+Received: from mail-02.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (No client certificate requested)
+        by mail-41104.protonmail.ch (Postfix) with ESMTPS id 4FYgWk2zB9z4x778
+        for <stable@vger.kernel.org>; Mon,  3 May 2021 11:20:50 +0000 (UTC)
+Authentication-Results: mail-41104.protonmail.ch;
+        dkim=pass (1024-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="O869RQ1Y"
+Date:   Mon, 03 May 2021 11:20:40 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1620040846;
+        bh=rrcJr6SHky9qwolfSD/uvxO1zmBQLEYyXaaRXq0xJMM=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=O869RQ1Y8p0efGFoCzzyAoZ7P3+j0wCaD8Uaete2hUpvlnLyghIuy/scmvCBdSPiy
+         ZeIYYOItlr/v/ptlhrN5OOF0g0fhzaA8aES8YvjvRcsmuKkj9jrzwLN7oFVY9nbJw/
+         K6Byhq4U2OlivPeZytmge4N+gIH1xeDSFlTRlx0c=
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Jari Ruusu <jariruusu@protonmail.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Kalle Valo <kvalo@codeaurora.org>
+Reply-To: Jari Ruusu <jariruusu@protonmail.com>
+Subject: Re: [PATCH 5.10 1/2] iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_gen2_enqueue_hcmd()
+Message-ID: <d-jJSpscDSj6GA3x0-9RE6fw-WaW7STDw46NzOgJ684IokIkyXNoZsR5xqNHZA7cpS81_MFvhvBzIoI_QGTbT5Im-CKI_AAp6fNzVfc8LX8=@protonmail.com>
+In-Reply-To: <YI6HFNNvzuHnv5VU@kroah.com>
+References: <20210430141910.473289618@linuxfoundation.org> <20210430141910.521897363@linuxfoundation.org> <608CFF6A.4BC054A3@users.sourceforge.net> <YI6HFNNvzuHnv5VU@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.116
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y baseline: 131 runs, 4 regressions (v5.4.116)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 131 runs, 4 regressions (v5.4.116)
+On Sunday, May 2, 2021 2:03 PM, Greg Kroah-Hartman <gregkh@linuxfoundation.=
+org> wrote:
+> If you could provide backported patches to those kernels you think this
+> is needed to, I can take them directly. Otherwise running sed isn't
+> always the easiest thing to do on my end :)
 
-Regressions Summary
--------------------
+iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_enqueue_hcmd()
+upstream commit 2800aadc18a64c96b051bcb7da8a7df7d505db3f,
+backport for linux-5.4.y and linux-4.19.y (booted and ping tested)
+Signed-off-by: Jari Ruusu <jariruusu@protonmail.com>
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
+@@ -1544,6 +1544,7 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *tr=
+ans,
+ =09u32 cmd_pos;
+ =09const u8 *cmddata[IWL_MAX_CMD_TBS_PER_TFD];
+ =09u16 cmdlen[IWL_MAX_CMD_TBS_PER_TFD];
++=09unsigned long flags2;
 
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+ =09if (WARN(!trans->wide_cmd_header &&
+ =09=09 group_id > IWL_ALWAYS_LONG_GROUP,
+@@ -1627,10 +1628,10 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *=
+trans,
+ =09=09goto free_dup_buf;
+ =09}
 
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
+-=09spin_lock_bh(&txq->lock);
++=09spin_lock_irqsave(&txq->lock, flags2);
 
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
+ =09if (iwl_queue_space(trans, txq) < ((cmd->flags & CMD_ASYNC) ? 2 : 1)) {
+-=09=09spin_unlock_bh(&txq->lock);
++=09=09spin_unlock_irqrestore(&txq->lock, flags2);
 
+ =09=09IWL_ERR(trans, "No space in command queue\n");
+ =09=09iwl_op_mode_cmd_queue_full(trans->op_mode);
+@@ -1791,7 +1792,7 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *tr=
+ans,
+ =09spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.116/plan/baseline/
+  out:
+-=09spin_unlock_bh(&txq->lock);
++=09spin_unlock_irqrestore(&txq->lock, flags2);
+  free_dup_buf:
+ =09if (idx < 0)
+ =09=09kfree(dup_buf);
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.116
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      370636ffbb8695e6af549011ad91a048c8cab267 =
+--
+Jari Ruusu=C2=A0 4096R/8132F189 12D6 4C3A DCDA 0AA4 27BD=C2=A0 ACDF F073 3C=
+80 8132 F189
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/608f9c9c4eb49879289b779e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.116=
-/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.116=
-/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/608f9c9c4eb49879289b7=
-79f
-        failing since 163 days (last pass: v5.4.77-152-ga3746663c3479, firs=
-t fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/608f9a4586b9daf3759b779a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.116=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.116=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/608f9a4586b9daf3759b7=
-79b
-        failing since 169 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/608f9a4b7d4c83e25f9b7799
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.116=
-/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.116=
-/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/608f9a4b7d4c83e25f9b7=
-79a
-        failing since 169 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/608f9a33f365eed8cd9b7796
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.116=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.116=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/608f9a33f365eed8cd9b7=
-797
-        failing since 169 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =20
