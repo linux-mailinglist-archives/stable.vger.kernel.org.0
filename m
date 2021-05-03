@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23448371C22
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 411DB371C25
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbhECQvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:51:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32774 "EHLO mail.kernel.org"
+        id S233452AbhECQvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:51:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233816AbhECQta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:49:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EEE661490;
-        Mon,  3 May 2021 16:40:22 +0000 (UTC)
+        id S233826AbhECQtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:49:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A39061625;
+        Mon,  3 May 2021 16:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060023;
-        bh=V6IcefS3Qw2+t7XZ7CSQUKs6/0wm+jf+MuAfSO+MeqY=;
+        s=k20201202; t=1620060025;
+        bh=mXsDBeuUMPBFRFVJrs9IFZVcnbArBC21XvWEUdKywGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFtDQu39CpY4O9HWuhwjrHUAQ/Osop/LbuYJ315h5X9hkiNGGbwjnpqQlreLACcBp
-         mhjA/ZmZJtdpt7+Lu419poihFE9Lni4DH1VModhrt6W6biBPa/vzHyQJ3mDE7oD9VC
-         LYWu6nMOn2DxDIANRj0dSVfTSGsz10QyDjhrKmfJLkfsxJZ0ldAUkEVQST/uAqfRQP
-         df8o1IThU1AFTIx/EMDIQG87AfP7W6QbdCNr5CYjGL/K2kTlaYGqIf/QYqVVdX5R6i
-         sjWIA+mz0Vj3LcUL92OEKxC0lbhtY7gFnt7yc+v9YwJhXlgip2Gft6nXZEspPryEOU
-         zEkC3xpm4RcXA==
+        b=VJ4Sp457wMfBgOa5zABk9MIBBIuvS2IVpPMuROFh2cIB7masPWSIT7EUMsrytWUpz
+         zY0vesQ38hhMYm4oGmSzWveUa+YpoecoZP4yseUzpcyyOlFPQC6cnZP9r7NZOiGpW+
+         W+qNZOuRRDf2gZrM1N1ceA4o6Zo/WubwX/fbruDqA3R+n/y9wHI1n7G35+mLznDIHl
+         N9yCa8W4Y2hMSSxNfkWO7Fi4exflgujjgQ9EXXzl9CkrQzq7GPecpQr+MBeGXv2iYx
+         wQ8F/x7rpBc/NxjXvVTd5LLjvQE/e7ilUXHN1PxsK9PCeNmYJj7Qocoo09kBO7fQce
+         otUoCyUhqYGRQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 27/57] scsi: qla2xxx: Fix use after free in bsg
-Date:   Mon,  3 May 2021 12:39:11 -0400
-Message-Id: <20210503163941.2853291-27-sashal@kernel.org>
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 28/57] mmc: sdhci-pci: Add PCI IDs for Intel LKF
+Date:   Mon,  3 May 2021 12:39:12 -0400
+Message-Id: <20210503163941.2853291-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163941.2853291-1-sashal@kernel.org>
 References: <20210503163941.2853291-1-sashal@kernel.org>
@@ -45,59 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 2ce35c0821afc2acd5ee1c3f60d149f8b2520ce8 ]
+[ Upstream commit ee629112be8b4eff71d4d3d108a28bc7dc877e13 ]
 
-On bsg command completion, bsg_job_done() was called while qla driver
-continued to access the bsg_job buffer. bsg_job_done() would free up
-resources that ended up being reused by other task while the driver
-continued to access the buffers. As a result, driver was reading garbage
-data.
+Add PCI IDs for Intel LKF eMMC and SD card host controllers.
 
-localhost kernel: BUG: KASAN: use-after-free in sg_next+0x64/0x80
-localhost kernel: Read of size 8 at addr ffff8883228a3330 by task swapper/26/0
-localhost kernel:
-localhost kernel: CPU: 26 PID: 0 Comm: swapper/26 Kdump:
-loaded Tainted: G          OE    --------- -  - 4.18.0-193.el8.x86_64+debug #1
-localhost kernel: Hardware name: HP ProLiant DL360
-Gen9/ProLiant DL360 Gen9, BIOS P89 08/12/2016
-localhost kernel: Call Trace:
-localhost kernel: <IRQ>
-localhost kernel: dump_stack+0x9a/0xf0
-localhost kernel: print_address_description.cold.3+0x9/0x23b
-localhost kernel: kasan_report.cold.4+0x65/0x95
-localhost kernel: debug_dma_unmap_sg.part.12+0x10d/0x2d0
-localhost kernel: qla2x00_bsg_sp_free+0xaf6/0x1010 [qla2xxx]
-
-Link: https://lore.kernel.org/r/20210329085229.4367-6-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20210322055356.24923-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-core.c | 2 ++
+ drivers/mmc/host/sdhci-pci.h      | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
-index cbaf178fc979..ce55121910e8 100644
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -17,10 +17,11 @@ void qla2x00_bsg_job_done(srb_t *sp, int res)
- 	struct bsg_job *bsg_job = sp->u.bsg_job;
- 	struct fc_bsg_reply *bsg_reply = bsg_job->reply;
+diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
+index afbccfceaaf8..3bfe5406a686 100644
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -1907,6 +1907,8 @@ static const struct pci_device_id pci_ids[] = {
+ 	SDHCI_PCI_DEVICE(INTEL, CMLH_SD,   intel_byt_sd),
+ 	SDHCI_PCI_DEVICE(INTEL, JSL_EMMC,  intel_glk_emmc),
+ 	SDHCI_PCI_DEVICE(INTEL, JSL_SD,    intel_byt_sd),
++	SDHCI_PCI_DEVICE(INTEL, LKF_EMMC,  intel_glk_emmc),
++	SDHCI_PCI_DEVICE(INTEL, LKF_SD,    intel_byt_sd),
+ 	SDHCI_PCI_DEVICE(O2, 8120,     o2),
+ 	SDHCI_PCI_DEVICE(O2, 8220,     o2),
+ 	SDHCI_PCI_DEVICE(O2, 8221,     o2),
+diff --git a/drivers/mmc/host/sdhci-pci.h b/drivers/mmc/host/sdhci-pci.h
+index 981bbbe63aff..779156ce1ee1 100644
+--- a/drivers/mmc/host/sdhci-pci.h
++++ b/drivers/mmc/host/sdhci-pci.h
+@@ -57,6 +57,8 @@
+ #define PCI_DEVICE_ID_INTEL_CMLH_SD	0x06f5
+ #define PCI_DEVICE_ID_INTEL_JSL_EMMC	0x4dc4
+ #define PCI_DEVICE_ID_INTEL_JSL_SD	0x4df8
++#define PCI_DEVICE_ID_INTEL_LKF_EMMC	0x98c4
++#define PCI_DEVICE_ID_INTEL_LKF_SD	0x98f8
  
-+	sp->free(sp);
-+
- 	bsg_reply->result = res;
- 	bsg_job_done(bsg_job, bsg_reply->result,
- 		       bsg_reply->reply_payload_rcv_len);
--	sp->free(sp);
- }
- 
- void qla2x00_bsg_sp_free(srb_t *sp)
+ #define PCI_DEVICE_ID_SYSKONNECT_8000	0x8000
+ #define PCI_DEVICE_ID_VIA_95D0		0x95d0
 -- 
 2.30.2
 
