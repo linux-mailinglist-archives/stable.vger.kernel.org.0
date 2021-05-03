@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A036371C87
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8E8371C84
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234133AbhECQxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32912 "EHLO mail.kernel.org"
+        id S232544AbhECQxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232199AbhECQvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6E0761931;
-        Mon,  3 May 2021 16:41:29 +0000 (UTC)
+        id S232412AbhECQvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:51:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1698C61939;
+        Mon,  3 May 2021 16:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060090;
-        bh=DMPfJLhMJ1dY0RoG7NKxrjmH+LGy7NrejNLEePArhVk=;
+        s=k20201202; t=1620060092;
+        bh=+2PqsMbt1OO7ePqfSQb4d+qn1YLMvEYmk7VdMXbtj7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uu8UJ7lkVImHfNMdaiCpHo2vu0hLi97xjvYdGWrc1Is4b8sGLJMvJsaZT3ckjfi0N
-         hB+evXIQ6VHFWkv1TP81lVmw1I6zX+Ymu96IiZdw+YccOxajTtEqGWMiqh0UGY5x9v
-         a+Tk6spmGOsuTajLRPUAlBll6O7Kkwo1mxp5i2s+b04FPNJSvnbcCi2JUrxYXmue71
-         FeMmc2eeowcMSlwp+qR/Uc63F1lJ7m3dk8sVC4tj0/ZI0l/sh/kJ74UxJ7d0R3Pxtb
-         zp0EmoEwAHgu2Q3hF1RDbI5t+3ayhl2OPXbxuVJgkGb9E8x2rCsUuJgi1lhvtMm55C
-         QpO1hztNrQa4Q==
+        b=dCkcYKDbbBXPzPWF52tO9nwGhVQK+XbXIbF9ccNBaCgRIU3n6SBECAqD569Y0omUb
+         cGrl5pTcPwDDWrsdhfcNiy/yf3/dgFvewwYOqZjT8tDeoRozwzdmowc070qByhqpnr
+         ZSD181QtSHqc4BUvlDEU+kRX7f+8oKRg3IgI7GWKcEOa1NsNtgbox9gxjpRS20dYMv
+         oB9bBn8HueHQXbqbgp95B+EAaQISxesXmpYP3w1GVg4ivyEOzO/Sp+H56p6hsBWti/
+         WE6nEFkHXpSjr2uyDpfxa9uFMYG8nTdkeSL1toh5ICjVt5K6qyg+GZ5Pa/Pi3suOWn
+         5Spvyy8Q0CTEQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     shaoyunl <shaoyun.liu@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 14/35] drm/amdgpu : Fix asic reset regression issue introduce by 8f211fe8ac7c4f
-Date:   Mon,  3 May 2021 12:40:48 -0400
-Message-Id: <20210503164109.2853838-14-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Quinn Tran <qutran@marvell.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Daniel Wagner <dwagner@suse.de>, Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 15/35] scsi: qla2xxx: Always check the return value of qla24xx_get_isp_stats()
+Date:   Mon,  3 May 2021 12:40:49 -0400
+Message-Id: <20210503164109.2853838-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503164109.2853838-1-sashal@kernel.org>
 References: <20210503164109.2853838-1-sashal@kernel.org>
@@ -44,34 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: shaoyunl <shaoyun.liu@amd.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit c8941550aa66b2a90f4b32c45d59e8571e33336e ]
+[ Upstream commit a2b2cc660822cae08c351c7f6b452bfd1330a4f7 ]
 
-This recent change introduce SDMA interrupt info printing with irq->process function.
-These functions do not require a set function to enable/disable the irq
+This patch fixes the following Coverity warning:
 
-Signed-off-by: shaoyunl <shaoyun.liu@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+    CID 361199 (#1 of 1): Unchecked return value (CHECKED_RETURN)
+    3. check_return: Calling qla24xx_get_isp_stats without checking return
+    value (as is done elsewhere 4 out of 5 times).
+
+Link: https://lore.kernel.org/r/20210320232359.941-7-bvanassche@acm.org
+Cc: Quinn Tran <qutran@marvell.com>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_attr.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-index 1abf5b5bac9e..18402a6ba8fe 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-@@ -447,7 +447,7 @@ void amdgpu_irq_gpu_reset_resume_helper(struct amdgpu_device *adev)
- 		for (j = 0; j < AMDGPU_MAX_IRQ_SRC_ID; ++j) {
- 			struct amdgpu_irq_src *src = adev->irq.client[i].sources[j];
+diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
+index 0ab9d2fd4a14..d46a10d24ed4 100644
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -1934,6 +1934,8 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
+ 	vha->qla_stats.jiffies_at_last_reset = get_jiffies_64();
  
--			if (!src)
-+			if (!src || !src->funcs || !src->funcs->set)
- 				continue;
- 			for (k = 0; k < src->num_types; k++)
- 				amdgpu_irq_update(adev, src, k);
+ 	if (IS_FWI2_CAPABLE(ha)) {
++		int rval;
++
+ 		stats = dma_alloc_coherent(&ha->pdev->dev,
+ 		    sizeof(*stats), &stats_dma, GFP_KERNEL);
+ 		if (!stats) {
+@@ -1943,7 +1945,11 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
+ 		}
+ 
+ 		/* reset firmware statistics */
+-		qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
++		rval = qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
++		if (rval != QLA_SUCCESS)
++			ql_log(ql_log_warn, vha, 0x70de,
++			       "Resetting ISP statistics failed: rval = %d\n",
++			       rval);
+ 
+ 		dma_free_coherent(&ha->pdev->dev, sizeof(*stats),
+ 		    stats, stats_dma);
 -- 
 2.30.2
 
