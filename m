@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1E6B371CF2
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A453B371CEE
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234293AbhECQ5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:57:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43312 "EHLO mail.kernel.org"
+        id S234263AbhECQ53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:57:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43305 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234822AbhECQzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234821AbhECQzC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 3 May 2021 12:55:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85D246194F;
-        Mon,  3 May 2021 16:42:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02DFA6194D;
+        Mon,  3 May 2021 16:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060150;
-        bh=J/Qb51465F1XtX5UgShoqG2tvTIPI3ggTby3Y1SsA5o=;
+        s=k20201202; t=1620060151;
+        bh=rDITWcHQR7WEXYie3ztrYHP2UAh7XPB22lNRAsSJRhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qj262mpctl3KaOFS1+ZGh7UpsWgb5RFXU63mTFTb3nxoSS14IbajJQBsrdUsOPRu7
-         FMBI9YST0gv5JfN8Wjr9yi2thHlAC3x55l/mEXmn2WY00xKEMnfKxVH3eC340bM34Q
-         f+2o3i/eDIgHUf6qzkMT1E7vZliSpSziaFTLFykNaVtr4ZFL/YL0HN/oFXumAQxP8o
-         P9+becgbGjjjCPopC39N8PJ+NKrITvrSUnub5fxXBmr86ZrX8W+ROJBrCy9OpanGWh
-         DFjrEOStVXlkSki03HgUDj1QZoM1IotjF503s1wWWxCUstSaL6hnFiYnMmdTr+2nkT
-         srkQk/0B4qSeg==
+        b=P4HLYmv4p202Ku1HIHDONdplslhuBD2ugj9jijXBAAwOY9RIH7/got5198A3EQwGN
+         6rGPtY/ope5xyuuhi42KksnX5Rocj9IkUWtDqVYQtIrYfBiQbylHdivJCF2aAq39De
+         qyJ8/B/2+A0GVO+V/F5WEa4MYeBsU4qXuq5IaLv14PLfZUQhpLmB1dMF+em3YmBFSG
+         udx/cx/HjrIUYB88yZUNVGm07INx1M1SjtJWU7uwNkUJM2Lp5v1AYkFoOehd/jGwn+
+         DWYibujesRavkM/WEeMTPvRVPeoMei0LiAv3HSO7Q9DROkyI8H5uaqicqEGmCIVOwq
+         Mjz5Kd18nT+Wg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Muhammad Usama Anjum <musamaanjum@gmail.com>,
-        syzbot+889397c820fa56adf25d@syzkaller.appspotmail.com,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 17/31] media: em28xx: fix memory leak
-Date:   Mon,  3 May 2021 12:41:50 -0400
-Message-Id: <20210503164204.2854178-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 18/31] media: vivid: update EDID
+Date:   Mon,  3 May 2021 12:41:51 -0400
+Message-Id: <20210503164204.2854178-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503164204.2854178-1-sashal@kernel.org>
 References: <20210503164204.2854178-1-sashal@kernel.org>
@@ -44,39 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <musamaanjum@gmail.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 0ae10a7dc8992ee682ff0b1752ff7c83d472eef1 ]
+[ Upstream commit 443ec4bbc6116f6f492a7a1282bfd8422c862158 ]
 
-If some error occurs, URB buffers should also be freed. If they aren't
-freed with the dvb here, the em28xx_dvb_fini call doesn't frees the URB
-buffers as dvb is set to NULL. The function in which error occurs should
-do all the cleanup for the allocations it had done.
+The EDID had a few mistakes as reported by edid-decode:
 
-Tested the patch with the reproducer provided by syzbot. This patch
-fixes the memleak.
+Block 1, CTA-861 Extension Block:
+  Video Data Block: For improved preferred timing interoperability, set 'Native detailed modes' to 1.
+  Video Capability Data Block: S_PT is equal to S_IT and S_CE, so should be set to 0 instead.
 
-Reported-by: syzbot+889397c820fa56adf25d@syzkaller.appspotmail.com
-Signed-off-by: Muhammad Usama Anjum <musamaanjum@gmail.com>
+Fixed those.
+
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-dvb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/vivid/vivid-core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-dvb.c b/drivers/media/usb/em28xx/em28xx-dvb.c
-index 29cdaaf1ed90..3667373f14d2 100644
---- a/drivers/media/usb/em28xx/em28xx-dvb.c
-+++ b/drivers/media/usb/em28xx/em28xx-dvb.c
-@@ -2056,6 +2056,7 @@ static int em28xx_dvb_init(struct em28xx *dev)
- 	return result;
+diff --git a/drivers/media/platform/vivid/vivid-core.c b/drivers/media/platform/vivid/vivid-core.c
+index 5f316a5e38db..6754e5fcc4c4 100644
+--- a/drivers/media/platform/vivid/vivid-core.c
++++ b/drivers/media/platform/vivid/vivid-core.c
+@@ -186,13 +186,13 @@ static const u8 vivid_hdmi_edid[256] = {
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x7b,
  
- out_free:
-+	em28xx_uninit_usb_xfer(dev, EM28XX_DIGITAL_MODE);
- 	kfree(dvb);
- 	dev->dvb = NULL;
- 	goto ret;
+-	0x02, 0x03, 0x3f, 0xf0, 0x51, 0x61, 0x60, 0x5f,
++	0x02, 0x03, 0x3f, 0xf1, 0x51, 0x61, 0x60, 0x5f,
+ 	0x5e, 0x5d, 0x10, 0x1f, 0x04, 0x13, 0x22, 0x21,
+ 	0x20, 0x05, 0x14, 0x02, 0x11, 0x01, 0x23, 0x09,
+ 	0x07, 0x07, 0x83, 0x01, 0x00, 0x00, 0x6d, 0x03,
+ 	0x0c, 0x00, 0x10, 0x00, 0x00, 0x3c, 0x21, 0x00,
+ 	0x60, 0x01, 0x02, 0x03, 0x67, 0xd8, 0x5d, 0xc4,
+-	0x01, 0x78, 0x00, 0x00, 0xe2, 0x00, 0xea, 0xe3,
++	0x01, 0x78, 0x00, 0x00, 0xe2, 0x00, 0xca, 0xe3,
+ 	0x05, 0x00, 0x00, 0xe3, 0x06, 0x01, 0x00, 0x4d,
+ 	0xd0, 0x00, 0xa0, 0xf0, 0x70, 0x3e, 0x80, 0x30,
+ 	0x20, 0x35, 0x00, 0xc0, 0x1c, 0x32, 0x00, 0x00,
+@@ -201,7 +201,7 @@ static const u8 vivid_hdmi_edid[256] = {
+ 	0x00, 0x00, 0x1a, 0x1a, 0x1d, 0x00, 0x80, 0x51,
+ 	0xd0, 0x1c, 0x20, 0x40, 0x80, 0x35, 0x00, 0xc0,
+ 	0x1c, 0x32, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x82,
+ };
+ 
+ static int vidioc_querycap(struct file *file, void  *priv,
 -- 
 2.30.2
 
