@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F713714D4
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 14:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A543714A7
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 14:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233787AbhECMBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 08:01:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35650 "EHLO mail.kernel.org"
+        id S233406AbhECL7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 07:59:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233884AbhECMBF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 08:01:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1928361249;
-        Mon,  3 May 2021 12:00:09 +0000 (UTC)
+        id S233353AbhECL7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 07:59:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C54B36121D;
+        Mon,  3 May 2021 11:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620043210;
-        bh=z4jA2YSG6DY4IEYnUj3gPzy8Xzv+I2pFPoHTbThNSVs=;
+        s=korg; t=1620043135;
+        bh=NoTJ2dDv/dnZ5GRln63k7sv1ipMxuv8TWhW4jn1pHdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1/WZhe1Ht+rh7cKNR+eb9m3ldvEyRW2n/kOXxbk97SUYOUcHL0dbAX7ttU3qU+Tt
-         eh9fkMjDq9yl9E0lKOTs23WB28ZHtogBJF2JyX0aCnw7iSJsIuOAT/BdN7Xvj6lgQh
-         GialgzMZHvKD+yhTbwMC97+J9h47W0v5/suGK/bk=
+        b=btt/7h+9MEsrAgixegmXx6lzyoH+gzMlcmaQ7Gzjx5eJg+3juH5NT5Q4n6lmSc9xe
+         ePCeCPbw4jtsr69DJDEnDEOISN85O+7J9L9HhNHo2bYLZaD5u/XyG1yA0TXEixtc+N
+         vsC697IVcr3Y4XIjbHfJqJaGN1NDSxTSLREInLKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, Wenwen Wang <wenwen@cs.uga.edu>,
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kangjie Lu <kjlu@umn.edu>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 02/69] Revert "ACPI: custom_method: fix memory leaks"
-Date:   Mon,  3 May 2021 13:56:29 +0200
-Message-Id: <20210503115736.2104747-3-gregkh@linuxfoundation.org>
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Fabrizio Castro <fabrizio.castro.jz@renesas.com>
+Subject: [PATCH 03/69] Revert "media: rcar_drif: fix a memory disclosure"
+Date:   Mon,  3 May 2021 13:56:30 +0200
+Message-Id: <20210503115736.2104747-4-gregkh@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
 References: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
@@ -37,56 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+This reverts commit d39083234c60519724c6ed59509a2129fd2aed41.
 
-This reverts commit 03d1571d9513369c17e6848476763ebbd10ec2cb.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-While /sys/kernel/debug/acpi/custom_method is already a privileged-only
-API providing proxied arbitrary write access to kernel memory[1][2],
-with existing race conditions[3] in buffer allocation and use that could
-lead to memory leaks and use-after-free conditions, the above commit
-appears to accidentally make the use-after-free conditions even easier
-to accomplish. ("buf" is a global variable and prior kfree()s would set
-buf back to NULL.)
+Upon review, it was determined that this commit is not needed at all as
+the media core already prevents memory disclosure on this codepath, so
+just drop the extra memset happening here.
 
-This entire interface needs to be reworked (if not entirely removed).
-
-[1] https://lore.kernel.org/lkml/20110222193250.GA23913@outflux.net/
-[2] https://lore.kernel.org/lkml/201906221659.B618D83@keescook/
-[3] https://lore.kernel.org/lkml/20170109231323.GA89642@beast/
-
-Cc: Wenwen Wang <wenwen@cs.uga.edu>
-Fixes: 03d1571d9513 ("ACPI: custom_method: fix memory leaks")
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: d39083234c60 ("media: rcar_drif: fix a memory disclosure")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reviewed-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/custom_method.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/media/platform/rcar_drif.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/acpi/custom_method.c b/drivers/acpi/custom_method.c
-index 443fdf62dd22..72469a49837d 100644
---- a/drivers/acpi/custom_method.c
-+++ b/drivers/acpi/custom_method.c
-@@ -53,10 +53,8 @@ static ssize_t cm_write(struct file *file, const char __user *user_buf,
- 	if ((*ppos > max_size) ||
- 	    (*ppos + count > max_size) ||
- 	    (*ppos + count < count) ||
--	    (count > uncopied_bytes)) {
--		kfree(buf);
-+	    (count > uncopied_bytes))
- 		return -EINVAL;
--	}
+diff --git a/drivers/media/platform/rcar_drif.c b/drivers/media/platform/rcar_drif.c
+index 83bd9a412a56..1e3b68a8743a 100644
+--- a/drivers/media/platform/rcar_drif.c
++++ b/drivers/media/platform/rcar_drif.c
+@@ -915,7 +915,6 @@ static int rcar_drif_g_fmt_sdr_cap(struct file *file, void *priv,
+ {
+ 	struct rcar_drif_sdr *sdr = video_drvdata(file);
  
- 	if (copy_from_user(buf + (*ppos), user_buf, count)) {
- 		kfree(buf);
-@@ -76,7 +74,6 @@ static ssize_t cm_write(struct file *file, const char __user *user_buf,
- 		add_taint(TAINT_OVERRIDDEN_ACPI_TABLE, LOCKDEP_NOW_UNRELIABLE);
- 	}
- 
--	kfree(buf);
- 	return count;
- }
+-	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+ 	f->fmt.sdr.pixelformat = sdr->fmt->pixelformat;
+ 	f->fmt.sdr.buffersize = sdr->fmt->buffersize;
  
 -- 
 2.31.1
