@@ -2,93 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40250371CDB
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F618371D47
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 19:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234054AbhECQ5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:57:16 -0400
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:50911 "EHLO
-        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234702AbhECQyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 May 2021 12:54:41 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id B2F67580552;
-        Mon,  3 May 2021 12:53:46 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 03 May 2021 12:53:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=M
-        sqyRimXY3XqCOEklJF7m9X85ugMYqBbaG8HDHYoI44=; b=gBqu4QfUbh04ILRSn
-        3yCeS87M1JDw2hIzK4kEHDRC8KtcVA0m1Se9c1mRHCbeIEcUx0xdGatUzInAw3h3
-        XCtsqSOZ4CKGyc6VUZMTydPFITS/KjZbCgLCEaqArGhCBAw0KvmnU1V8igGtabV8
-        t6x1uWW609qnbxCKcc5maXyJ0s1M5PeAvacRO9UEvydUXLB4kUCHZ4k/RBz4y1fe
-        DpxPWVKyyADiERUd5VX1kX2798DdzZlm46KKzSMXxCHidWrUkFssWeYeiwprfyYF
-        NXQDuT83IakUhcq/RtoZP7Pr86wZWMpldRljczQS1WyCrfapdcEIE9eBW1GtciHb
-        KM/Kw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=MsqyRimXY3XqCOEklJF7m9X85ugMYqBbaG8HDHYoI
-        44=; b=aiKqP5zwxStOyvmTf96V84t7QaEoyMP63zFgbFuoRY1u32LQVpoqkCvSJ
-        sQb8oU/0JVL05lLi6Szx/0BN83Yen/AgdlQe9LjOFT77ZW4E0YSuVCqruHaVJoVu
-        OpMy5YtS7mQLr3heRMa+l+h2GBr5TQ4nkSwOWChEl/vDD+FBdzoqcX2E6BfMmAcm
-        OTh8op4cBxCb8bzOsWgo72dLSuR3PAJf731oNexmXzmE4RcQNWqN/64EyQ6UVoA0
-        hNvIZTMuv21iWHOSQR5+Wb5OYjoGuPleiDWR5RuxUkIUSgau1siOWoNXxOdld2DO
-        nL+nmerySJQ35QYDTCuX4Wl3TD0Og==
-X-ME-Sender: <xms:mSqQYFfe53HHBwkwYiatYFvxVo3V4GsxE4SjulTfkGVx14OYv9tSAQ>
-    <xme:mSqQYDPxpYMrsDQKz4Bs6Bdjn1YbRfihFR0DLJ0b_xG8JZSUj5LvXat4NUZLgReeC
-    hbZIkuhj3l5Zg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefgedguddtlecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpedvff
-    fgueeiuefhheevheetgfehvdefgeekfeevueejfeeftdetudetiefhheffvdenucffohhm
-    rghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluh
-    hsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhho
-    rghhrdgtohhm
-X-ME-Proxy: <xmx:mSqQYOjcv7B7N5B6pp3hvzCsUJQPv0P79PhhLqbNUQh3J8aXqWw7aA>
-    <xmx:mSqQYO_q7LxFV8Ii6XPuPr2Ck0KZ3k1q4yZPrq5zeONoTj1QryI2mw>
-    <xmx:mSqQYBuGil4ogjAp1gTbCuz5SdQzLPSt_Asfz_xz3wCQHG3Uwjw48g>
-    <xmx:miqQYHKlXgOmY--MMFOxU-8xt2xFkpaaSHwK9_C1T_ouvPtIxxl6ZQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon,  3 May 2021 12:53:45 -0400 (EDT)
-Date:   Mon, 3 May 2021 18:53:43 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Imre Deak <imre.deak@intel.com>
-Cc:     stable@vger.kernel.org,
-        Mario =?iso-8859-1?Q?H=FCttel?= <mario.huettel@gmx.net>,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        intel-gfx@lists.freedesktop.org
-Subject: Re: drm/i915: v5.11 stable backport request
-Message-ID: <YJAql6Vstj7wY5Wg@kroah.com>
-References: <20210503164001.GE4190280@ideak-desk.fi.intel.com>
+        id S232553AbhECQ6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:58:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44504 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235368AbhECQ4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:56:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 130B06142C;
+        Mon,  3 May 2021 16:43:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1620060219;
+        bh=QtrTKay1ajT/LKJmg8N/4yTTMxUhtwIbpfISVZoFGt8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rHxw4GwQ8CE2fmfkcQCXZ5TWVL9FRlGh2JKYyIIHcGTYxe3fEesIvHjQcb4dF+z5n
+         XDbLvMydHbJoOeRb6pl6VEgpFPq30ZTv8zClFYqKgcyxjqOJ56lxJm8D42CiMe7t3k
+         Ye7z6XZ5QQXQpVCG0zGp/9AKZln9zgAmAiL39DyZgYsUP2fXSfr0VOLTtEKkIds+Eq
+         H7W5a3IKm5VpXxl9hJ/Y+hFHAhLsSg5UmoqOy2OoUY9PL5hU4xp7wIVUwqYjVDtKDU
+         Kd/RhyvvyMD3kI8pcCagCD75ty0KOO70vXGlqcwNpE450cWtc6Iv87IGDe4AgL29xb
+         jNcFdtN22VF7w==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Muhammad Usama Anjum <musamaanjum@gmail.com>,
+        syzbot+889397c820fa56adf25d@syzkaller.appspotmail.com,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 06/16] media: em28xx: fix memory leak
+Date:   Mon,  3 May 2021 12:43:19 -0400
+Message-Id: <20210503164329.2854739-6-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210503164329.2854739-1-sashal@kernel.org>
+References: <20210503164329.2854739-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210503164001.GE4190280@ideak-desk.fi.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 03, 2021 at 07:40:01PM +0300, Imre Deak wrote:
-> Stable team, please backport the upstream commits
-> 
-> 7962893ecb85 ("drm/i915: Disable runtime power management during shutdown")
-> 
-> to the v5.11 stable kernel, they fix a system shutdown failure.
-> 
-> References: https://lore.kernel.org/intel-gfx/042237f49ed1fd719126a3407d7c909e49addbea.camel@gmx.net
-> Reported-and-tested-by: Mario Hüttel <mario.huettel@gmx.net>
+From: Muhammad Usama Anjum <musamaanjum@gmail.com>
 
-You also need this in 5.12.y, right?
+[ Upstream commit 0ae10a7dc8992ee682ff0b1752ff7c83d472eef1 ]
 
-thanks,
+If some error occurs, URB buffers should also be freed. If they aren't
+freed with the dvb here, the em28xx_dvb_fini call doesn't frees the URB
+buffers as dvb is set to NULL. The function in which error occurs should
+do all the cleanup for the allocations it had done.
 
-greg k-h
+Tested the patch with the reproducer provided by syzbot. This patch
+fixes the memleak.
+
+Reported-by: syzbot+889397c820fa56adf25d@syzkaller.appspotmail.com
+Signed-off-by: Muhammad Usama Anjum <musamaanjum@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/media/usb/em28xx/em28xx-dvb.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/media/usb/em28xx/em28xx-dvb.c b/drivers/media/usb/em28xx/em28xx-dvb.c
+index 5502a0fb94fd..a19c89009bf3 100644
+--- a/drivers/media/usb/em28xx/em28xx-dvb.c
++++ b/drivers/media/usb/em28xx/em28xx-dvb.c
+@@ -1757,6 +1757,7 @@ static int em28xx_dvb_init(struct em28xx *dev)
+ 	return result;
+ 
+ out_free:
++	em28xx_uninit_usb_xfer(dev, EM28XX_DIGITAL_MODE);
+ 	kfree(dvb);
+ 	dev->dvb = NULL;
+ 	goto ret;
+-- 
+2.30.2
+
