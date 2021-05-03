@@ -2,85 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6A9371DA0
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 19:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 221B9371E2B
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 19:12:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232364AbhECRBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 13:01:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
+        id S232231AbhECRNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 13:13:43 -0400
+Received: from mga09.intel.com ([134.134.136.24]:16785 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234042AbhECQ5P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:57:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE63861972;
-        Mon,  3 May 2021 16:43:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060233;
-        bh=hZvv2NqKUI4KZS94mjZPDWYNClj7uCjaJrTt6DLLZ4I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBTTQpxAfZIo7LQSQsPNTaEfKiCdAr7eYwL9Ot2j+g31NkxI33LpcKxh1CnpApX7h
-         uXIqEesu3Kxg2oBQlNhLQIlf/EQjmx7srUV7xODJ9VEPYwSJGHey1A/z3S25DpdOE1
-         ny5LORriZoYoMxA8oWwpLzr7D/zsnBVQyCy/LOWvnPPSatw2HmISPIGLYONnrf+t9d
-         R7sx0IXi5iNAxhrdOkcU1Vi3ZKO1HkC3OH9CDYoiBI8YYTnteFJyqEG1hjsuoe5N9K
-         b3yyKHNd/0i/UsumQxI1GMoDi+bz6cljQUjXkDGV+DdnXUMa+L3grjUgFqbYjN70dv
-         8hFQKU4CzncPQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.de>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.4 16/16] scsi: libfc: Fix a format specifier
-Date:   Mon,  3 May 2021 12:43:29 -0400
-Message-Id: <20210503164329.2854739-16-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210503164329.2854739-1-sashal@kernel.org>
-References: <20210503164329.2854739-1-sashal@kernel.org>
+        id S231538AbhECRLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 13:11:40 -0400
+IronPort-SDR: JKfXG9gyUbyRBbYoh7T4pF0zvUAUd5In4HPwiNdsjAqJK5FYdjKTYqez5LYSU3pYkqg6/s1LW5
+ l4htbvj9cO6w==
+X-IronPort-AV: E=McAfee;i="6200,9189,9973"; a="197885518"
+X-IronPort-AV: E=Sophos;i="5.82,270,1613462400"; 
+   d="scan'208";a="197885518"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 May 2021 10:10:45 -0700
+IronPort-SDR: Y15+UH0xaptjRshlfWgFjPSrOaBx6o6rnFL0BOe6Rbkt92AMPEP5bZ1Mh49uGhfl6X7BRDg5Wb
+ dno2OF5b+FTQ==
+X-IronPort-AV: E=Sophos;i="5.82,270,1613462400"; 
+   d="scan'208";a="468140585"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 May 2021 10:10:42 -0700
+Date:   Mon, 3 May 2021 20:10:38 +0300
+From:   Imre Deak <imre.deak@intel.com>
+To:     Greg KH <greg@kroah.com>
+Cc:     stable@vger.kernel.org,
+        Mario =?iso-8859-1?Q?H=FCttel?= <mario.huettel@gmx.net>,
+        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        intel-gfx@lists.freedesktop.org
+Subject: Re: drm/i915: v5.11 stable backport request
+Message-ID: <20210503171038.GF4190280@ideak-desk.fi.intel.com>
+References: <20210503164001.GE4190280@ideak-desk.fi.intel.com>
+ <YJAql6Vstj7wY5Wg@kroah.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <YJAql6Vstj7wY5Wg@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+On Mon, May 03, 2021 at 06:53:43PM +0200, Greg KH wrote:
+> On Mon, May 03, 2021 at 07:40:01PM +0300, Imre Deak wrote:
+> > Stable team, please backport the upstream commits
+> > 
+> > 7962893ecb85 ("drm/i915: Disable runtime power management during shutdown")
+> > 
+> > to the v5.11 stable kernel, they fix a system shutdown failure.
+> > 
+> > References: https://lore.kernel.org/intel-gfx/042237f49ed1fd719126a3407d7c909e49addbea.camel@gmx.net
+> > Reported-and-tested-by: Mario Hüttel <mario.huettel@gmx.net>
+> 
+> You also need this in 5.12.y, right?
 
-[ Upstream commit 90d6697810f06aceea9de71ad836a8c7669789cd ]
+Yes missed that, thanks for catching it.
 
-Since the 'mfs' member has been declared as 'u32' in include/scsi/libfc.h,
-use the %u format specifier instead of %hu. This patch fixes the following
-clang compiler warning:
-
-warning: format specifies type
-      'unsigned short' but the argument has type 'u32' (aka 'unsigned int')
-      [-Wformat]
-                             "lport->mfs:%hu\n", mfs, lport->mfs);
-                                         ~~~          ^~~~~~~~~~
-                                         %u
-
-Link: https://lore.kernel.org/r/20210415220826.29438-8-bvanassche@acm.org
-Cc: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/scsi/libfc/fc_lport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/scsi/libfc/fc_lport.c b/drivers/scsi/libfc/fc_lport.c
-index 867fc036d6ef..815d224b9ff8 100644
---- a/drivers/scsi/libfc/fc_lport.c
-+++ b/drivers/scsi/libfc/fc_lport.c
-@@ -1754,7 +1754,7 @@ void fc_lport_flogi_resp(struct fc_seq *sp, struct fc_frame *fp,
- 
- 	if (mfs < FC_SP_MIN_MAX_PAYLOAD || mfs > FC_SP_MAX_MAX_PAYLOAD) {
- 		FC_LPORT_DBG(lport, "FLOGI bad mfs:%hu response, "
--			     "lport->mfs:%hu\n", mfs, lport->mfs);
-+			     "lport->mfs:%u\n", mfs, lport->mfs);
- 		fc_lport_error(lport, fp);
- 		goto out;
- 	}
--- 
-2.30.2
-
+> thanks,
+> 
+> greg k-h
