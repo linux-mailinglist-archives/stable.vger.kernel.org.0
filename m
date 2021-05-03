@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72FC6371A7E
+	by mail.lfdr.de (Postfix) with ESMTP id 0197E371A7D
 	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231496AbhECQjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:39:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39896 "EHLO mail.kernel.org"
+        id S232253AbhECQjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:39:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231975AbhECQif (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231976AbhECQif (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 3 May 2021 12:38:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D96F613B3;
-        Mon,  3 May 2021 16:36:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1211D613E9;
+        Mon,  3 May 2021 16:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059812;
-        bh=fh8NTrcVEp7XEynMX0wepwrZy+rJKZt3MliX/P9XDEE=;
+        s=k20201202; t=1620059813;
+        bh=ZN2qy5cMyzSe9YDw617ZLhB/+iq6NUKQkvsHc1nt9ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCBpXsKMKNmzWfh/GCR+5Haci9uCINm6Lahldm4U3rV0fxCRtqt25oENQu22PKj9r
-         HY/dJbNmICn9zUcQf4JyBMjq2VZxLbCBYovIXSLyfpysHWtYHmkkE5/N5qwL3VlddT
-         Nl3+gKW+f9VSmQBXeTIUZRKs+yx0Qa4rN0lK5tFRPKrKTNLt1sE+JSWxjghhkCBanJ
-         RC+ZYDJi5MAutQPMLFuCbbyT0PrRxDg5nMZ0je6wmKsMPRxMpbLdZis3E7qkdCUXBf
-         4HHm4Utjg6vgt0iIh6+BXPfcbmsc1db1NRFufwKs55ug1Gmdp19DGevUdnymQLLpk0
-         52gjO6XEGTzVA==
+        b=UBnoUN2o3Q1jMXUngSWznM3oJ3BvwAQEoJUuTvWx2ZZZSg1vwP6//mr4jRyT8bjnP
+         Q2+mnJMp3MDZOVbuZHHnpDMi2k9JfTzRO/KbFumP/kVVy4Z+JN1NvZwqMFLxC1YICP
+         AqW78kgLo8M2b/FrNdnRHSq2FdNH429fOywhOv0Spp5312swniWHvPTNRHUCRd88YY
+         MG6MKXWQ9QcwA3JQnFYMvC479z/IFWTzTp0yWL62imeS15qCYAzoqFr/cP9Ln+e5x8
+         w8UkSO7wjcR3ifhvkX7XhLFFSFqp71mtkKYJPuSho3WNF7MEMrYgIK9q1wf736ZwCP
+         vuDKzi1IbrJKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Fan <peng.fan@nxp.com>, Bough Chen <haobo.chen@nxp.com>,
-        Alice Guo <alice.guo@nxp.com>,
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 063/134] mmc: sdhci-esdhc-imx: validate pinctrl before use it
-Date:   Mon,  3 May 2021 12:34:02 -0400
-Message-Id: <20210503163513.2851510-63-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 064/134] mmc: sdhci-pci: Add PCI IDs for Intel LKF
+Date:   Mon,  3 May 2021 12:34:03 -0400
+Message-Id: <20210503163513.2851510-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
@@ -44,42 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit f410ee0aa2df050a9505f5c261953e9b18e21206 ]
+[ Upstream commit ee629112be8b4eff71d4d3d108a28bc7dc877e13 ]
 
-When imx_data->pinctrl is not a valid pointer, pinctrl_lookup_state
-will trigger kernel panic.
+Add PCI IDs for Intel LKF eMMC and SD card host controllers.
 
-When we boot Dual OS on Jailhouse hypervisor, we let the 1st Linux to
-configure pinmux ready for the 2nd OS, so the 2nd OS not have pinctrl
-settings.
-
-Similar to this commit b62eee9f804e ("mmc: sdhci-esdhc-imx: no fail when no pinctrl available").
-
-Reviewed-by: Bough Chen <haobo.chen@nxp.com>
-Reviewed-by: Alice Guo <alice.guo@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1614222604-27066-6-git-send-email-peng.fan@oss.nxp.com
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20210322055356.24923-1-adrian.hunter@intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-core.c | 2 ++
+ drivers/mmc/host/sdhci-pci.h      | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index a20459744d21..94327988da91 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1488,7 +1488,7 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
+diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
+index 9552708846ca..393e6251b3c3 100644
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -1903,6 +1903,8 @@ static const struct pci_device_id pci_ids[] = {
+ 	SDHCI_PCI_DEVICE(INTEL, CMLH_SD,   intel_byt_sd),
+ 	SDHCI_PCI_DEVICE(INTEL, JSL_EMMC,  intel_glk_emmc),
+ 	SDHCI_PCI_DEVICE(INTEL, JSL_SD,    intel_byt_sd),
++	SDHCI_PCI_DEVICE(INTEL, LKF_EMMC,  intel_glk_emmc),
++	SDHCI_PCI_DEVICE(INTEL, LKF_SD,    intel_byt_sd),
+ 	SDHCI_PCI_DEVICE(O2, 8120,     o2),
+ 	SDHCI_PCI_DEVICE(O2, 8220,     o2),
+ 	SDHCI_PCI_DEVICE(O2, 8221,     o2),
+diff --git a/drivers/mmc/host/sdhci-pci.h b/drivers/mmc/host/sdhci-pci.h
+index d0ed232af0eb..8f90c4163bb5 100644
+--- a/drivers/mmc/host/sdhci-pci.h
++++ b/drivers/mmc/host/sdhci-pci.h
+@@ -57,6 +57,8 @@
+ #define PCI_DEVICE_ID_INTEL_CMLH_SD	0x06f5
+ #define PCI_DEVICE_ID_INTEL_JSL_EMMC	0x4dc4
+ #define PCI_DEVICE_ID_INTEL_JSL_SD	0x4df8
++#define PCI_DEVICE_ID_INTEL_LKF_EMMC	0x98c4
++#define PCI_DEVICE_ID_INTEL_LKF_SD	0x98f8
  
- 	mmc_of_parse_voltage(np, &host->ocr_mask);
- 
--	if (esdhc_is_usdhc(imx_data)) {
-+	if (esdhc_is_usdhc(imx_data) && !IS_ERR(imx_data->pinctrl)) {
- 		imx_data->pins_100mhz = pinctrl_lookup_state(imx_data->pinctrl,
- 						ESDHC_PINCTRL_STATE_100MHZ);
- 		imx_data->pins_200mhz = pinctrl_lookup_state(imx_data->pinctrl,
+ #define PCI_DEVICE_ID_SYSKONNECT_8000	0x8000
+ #define PCI_DEVICE_ID_VIA_95D0		0x95d0
 -- 
 2.30.2
 
