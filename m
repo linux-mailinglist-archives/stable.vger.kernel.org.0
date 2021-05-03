@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 196663719F8
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5744B3719FD
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231910AbhECQiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38656 "EHLO mail.kernel.org"
+        id S231665AbhECQiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:38:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231638AbhECQhM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231643AbhECQhM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 3 May 2021 12:37:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B32F61369;
-        Mon,  3 May 2021 16:36:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3240B613BB;
+        Mon,  3 May 2021 16:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059770;
-        bh=3kZjXW1laOxEUEgIYpfll/ZB6Np2D/rhndRahFin3Aw=;
+        s=k20201202; t=1620059772;
+        bh=V3uoYQKr7JclUE68QD7X+JQPU+Lnz7c78PFE5P320bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZtOsAVTZWS+skKRxHEvA54hjxZcvTYgkc717uuYJNPzFdsEvtCofqcuw0bGAaWPO9
-         JRjIxA/V3TAViDm4CglFOdq9KSnIRGSCrLX4GxxXbyTW7GdjUl3YNxrpROQRlrEJuF
-         /3mGiTu6+3pfPaRudHVLU7ORnmAArkWo1c4jJxPJw1+k97zlKOusvXJl1TjG5YNRN1
-         /rwQTJEBA03UynNwWyO4Qt/TqxKQXCTfJcByzHU03DqygE3uPd0AYETjOBwfIOt7cO
-         0IwfnsGADkkt1MiK788R/neZ9IR/9UIfUIqKF3CqzM4GAuv+QDTX+vuHjwa7sm5pue
-         NAHfz7ZewW9sw==
+        b=EgEOKpSqwxx+8g6uc3l71zok2JZbLm7/5Z8PWow/MZUThVMqKwIJpccUEstqK/kiF
+         vLXd5r0i5G5w6ueDnPUkqxdkD5DTki84tXnZvsrUp8O5NPKSPMZm6zM1GNIL03bdvO
+         K56sVJhzRQQcI/7f6ECAge2iztqQFOJe0C1wpMJG4ILMlaUti7PbQB5/SKpXxRhgKB
+         tEApn1DeYry30dn5pdRBqkCh8L1SgZ2Fa9z7GVLJRpvD1V9fMynYDH4X/GA3HoHeiS
+         nk017O3WVM1uld68+nxBuIiQVEVdYxd2n52RZ/jrLWiX/s7ZgN/44bEpBkfWDebH8c
+         g/b7KtV2k/qhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 036/134] media: venus: core, venc, vdec: Fix probe dependency error
-Date:   Mon,  3 May 2021 12:33:35 -0400
-Message-Id: <20210503163513.2851510-36-sashal@kernel.org>
+Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 037/134] s390/qdio: let driver manage the QAOB
+Date:   Mon,  3 May 2021 12:33:36 -0400
+Message-Id: <20210503163513.2851510-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
@@ -45,344 +43,675 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 08b1cf474b7f72750adebe0f0a35f8e9a3eb75f6 ]
+[ Upstream commit 396c100472dd63bb1a5389d9dfb25a94943c41c9 ]
 
-Commit aaaa93eda64b ("media] media: venus: venc: add video encoder files")
-is the last in a series of three commits to add core.c vdec.c and venc.c
-adding core, encoder and decoder.
+We are spending way too much effort on qdio-internal bookkeeping for
+QAOB management & caching, and it's still not robust. Once qdio's
+TX path has detached the QAOB from a PENDING buffer, we lost all
+track of it until it shows up in a CQ notification again. So if the
+device is torn down before that notification arrives, we leak the QAOB.
 
-The encoder and decoder check for core drvdata as set and return -EPROBE_DEFER
-if it has not been set, however both the encoder and decoder rely on
-core.v4l2_dev as valid.
+Just have the driver take care of it, and simply pass down a QAOB if
+they want a TX with async-completion capability. For a buffer in PENDING
+state that requires the QAOB for final completion, qeth can now also try
+to recycle the buffer's QAOB rather than unconditionally freeing it.
 
-core.v4l2_dev will not be valid until v4l2_device_register() has completed
-in core.c's probe().
+This also eliminates the qdio_outbuf_state array, which was only needed
+to transfer the aob->user1 tag from the driver to the qdio layer.
 
-Normally this is never seen however, Dmitry reported the following
-backtrace when compiling drivers and firmware directly into a kernel image.
-
-[    5.259968] Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
-[    5.269850] sd 0:0:0:3: [sdd] Optimal transfer size 524288 bytes
-[    5.275505] Workqueue: events deferred_probe_work_func
-[    5.275513] pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-[    5.441211] usb 2-1: new SuperSpeedPlus Gen 2 USB device number 2 using xhci-hcd
-[    5.442486] pc : refcount_warn_saturate+0x140/0x148
-[    5.493756] hub 2-1:1.0: USB hub found
-[    5.496266] lr : refcount_warn_saturate+0x140/0x148
-[    5.500982] hub 2-1:1.0: 4 ports detected
-[    5.503440] sp : ffff80001067b730
-[    5.503442] x29: ffff80001067b730
-[    5.592660] usb 1-1: new high-speed USB device number 2 using xhci-hcd
-[    5.598478] x28: ffff6c6bc1c379b8
-[    5.598480] x27: ffffa5c673852960 x26: ffffa5c673852000
-[    5.598484] x25: ffff6c6bc1c37800 x24: 0000000000000001
-[    5.810652] x23: 0000000000000000 x22: ffffa5c673bc7118
-[    5.813777] hub 1-1:1.0: USB hub found
-[    5.816108] x21: ffffa5c674440000 x20: 0000000000000001
-[    5.820846] hub 1-1:1.0: 4 ports detected
-[    5.825415] x19: ffffa5c6744f4000 x18: ffffffffffffffff
-[    5.825418] x17: 0000000000000000 x16: 0000000000000000
-[    5.825421] x15: 00000a4810c193ba x14: 0000000000000000
-[    5.825424] x13: 00000000000002b8 x12: 000000000000f20a
-[    5.825427] x11: 000000000000f20a x10: 0000000000000038
-[    5.845447] usb 2-1.1: new SuperSpeed Gen 1 USB device number 3 using xhci-hcd
-[    5.845904]
-[    5.845905] x9 : 0000000000000000 x8 : ffff6c6d36fae780
-[    5.871208] x7 : ffff6c6d36faf240 x6 : 0000000000000000
-[    5.876664] x5 : 0000000000000004 x4 : 0000000000000085
-[    5.882121] x3 : 0000000000000119 x2 : ffffa5c6741ef478
-[    5.887578] x1 : 3acbb3926faf5f00 x0 : 0000000000000000
-[    5.893036] Call trace:
-[    5.895551]  refcount_warn_saturate+0x140/0x148
-[    5.900202]  __video_register_device+0x64c/0xd10
-[    5.904944]  venc_probe+0xc4/0x148
-[    5.908444]  platform_probe+0x68/0xe0
-[    5.912210]  really_probe+0x118/0x3e0
-[    5.915977]  driver_probe_device+0x5c/0xc0
-[    5.920187]  __device_attach_driver+0x98/0xb8
-[    5.924661]  bus_for_each_drv+0x68/0xd0
-[    5.928604]  __device_attach+0xec/0x148
-[    5.932547]  device_initial_probe+0x14/0x20
-[    5.936845]  bus_probe_device+0x9c/0xa8
-[    5.940788]  device_add+0x3e8/0x7c8
-[    5.944376]  of_device_add+0x4c/0x60
-[    5.948056]  of_platform_device_create_pdata+0xbc/0x140
-[    5.953425]  of_platform_bus_create+0x17c/0x3c0
-[    5.958078]  of_platform_populate+0x80/0x110
-[    5.962463]  venus_probe+0x2ec/0x4d8
-[    5.966143]  platform_probe+0x68/0xe0
-[    5.969907]  really_probe+0x118/0x3e0
-[    5.973674]  driver_probe_device+0x5c/0xc0
-[    5.977882]  __device_attach_driver+0x98/0xb8
-[    5.982356]  bus_for_each_drv+0x68/0xd0
-[    5.986298]  __device_attach+0xec/0x148
-[    5.990242]  device_initial_probe+0x14/0x20
-[    5.994539]  bus_probe_device+0x9c/0xa8
-[    5.998481]  deferred_probe_work_func+0x74/0xb0
-[    6.003132]  process_one_work+0x1e8/0x360
-[    6.007254]  worker_thread+0x208/0x478
-[    6.011106]  kthread+0x150/0x158
-[    6.014431]  ret_from_fork+0x10/0x30
-[    6.018111] ---[ end trace f074246b1ecdb466 ]---
-
-This patch fixes by
-
-- Only setting drvdata after v4l2_device_register() completes
-- Moving v4l2_device_register() so that suspend/reume in core::probe()
-  stays as-is
-- Changes pm_ops->core_function() to take struct venus_core not struct
-  device
-- Minimal rework of v4l2_device_*register in probe/remove
-
-Reported-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Acked-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/core.c      | 30 +++++++++++--------
- .../media/platform/qcom/venus/pm_helpers.c    | 30 ++++++++-----------
- .../media/platform/qcom/venus/pm_helpers.h    |  7 +++--
- 3 files changed, 34 insertions(+), 33 deletions(-)
+ arch/s390/include/asm/qdio.h      |  22 ++-----
+ drivers/s390/cio/qdio.h           |  10 ---
+ drivers/s390/cio/qdio_main.c      |  63 +++---------------
+ drivers/s390/cio/qdio_setup.c     |  49 +-------------
+ drivers/s390/net/qeth_core.h      |   3 +-
+ drivers/s390/net/qeth_core_main.c | 102 ++++++++++++++----------------
+ drivers/s390/scsi/zfcp_qdio.c     |   7 +-
+ 7 files changed, 66 insertions(+), 190 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
-index f9896c121fd8..d2842f496b47 100644
---- a/drivers/media/platform/qcom/venus/core.c
-+++ b/drivers/media/platform/qcom/venus/core.c
-@@ -218,7 +218,6 @@ static int venus_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+diff --git a/arch/s390/include/asm/qdio.h b/arch/s390/include/asm/qdio.h
+index d9215c7106f0..8fc52679543d 100644
+--- a/arch/s390/include/asm/qdio.h
++++ b/arch/s390/include/asm/qdio.h
+@@ -246,21 +246,8 @@ struct slsb {
+ 	u8 val[QDIO_MAX_BUFFERS_PER_Q];
+ } __attribute__ ((packed, aligned(256)));
  
- 	core->dev = dev;
--	platform_set_drvdata(pdev, core);
- 
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	core->base = devm_ioremap_resource(dev, r);
-@@ -248,7 +247,7 @@ static int venus_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 
- 	if (core->pm_ops->core_get) {
--		ret = core->pm_ops->core_get(dev);
-+		ret = core->pm_ops->core_get(core);
- 		if (ret)
- 			return ret;
- 	}
-@@ -273,6 +272,12 @@ static int venus_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_core_put;
- 
-+	ret = v4l2_device_register(dev, &core->v4l2_dev);
-+	if (ret)
-+		goto err_core_deinit;
-+
-+	platform_set_drvdata(pdev, core);
-+
- 	pm_runtime_enable(dev);
- 
- 	ret = pm_runtime_get_sync(dev);
-@@ -307,10 +312,6 @@ static int venus_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_venus_shutdown;
- 
--	ret = v4l2_device_register(dev, &core->v4l2_dev);
--	if (ret)
--		goto err_core_deinit;
+-/**
+- * struct qdio_outbuf_state - SBAL related asynchronous operation information
+- *   (for communication with upper layer programs)
+- *   (only required for use with completion queues)
+- * @user: pointer to upper layer program's state information related to SBAL
+- *        (stored in user1 data of QAOB)
+- */
+-struct qdio_outbuf_state {
+-	void *user;
+-};
 -
- 	ret = pm_runtime_put_sync(dev);
- 	if (ret) {
- 		pm_runtime_get_noresume(dev);
-@@ -323,8 +324,6 @@ static int venus_probe(struct platform_device *pdev)
- 
- err_dev_unregister:
- 	v4l2_device_unregister(&core->v4l2_dev);
--err_core_deinit:
--	hfi_core_deinit(core, false);
- err_venus_shutdown:
- 	venus_shutdown(core);
- err_runtime_disable:
-@@ -332,9 +331,11 @@ static int venus_probe(struct platform_device *pdev)
- 	pm_runtime_set_suspended(dev);
- 	pm_runtime_disable(dev);
- 	hfi_destroy(core);
-+err_core_deinit:
-+	hfi_core_deinit(core, false);
- err_core_put:
- 	if (core->pm_ops->core_put)
--		core->pm_ops->core_put(dev);
-+		core->pm_ops->core_put(core);
- 	return ret;
- }
- 
-@@ -360,7 +361,9 @@ static int venus_remove(struct platform_device *pdev)
- 	pm_runtime_disable(dev);
- 
- 	if (pm_ops->core_put)
--		pm_ops->core_put(dev);
-+		pm_ops->core_put(core);
-+
-+	v4l2_device_unregister(&core->v4l2_dev);
- 
- 	hfi_destroy(core);
- 
-@@ -368,6 +371,7 @@ static int venus_remove(struct platform_device *pdev)
- 	icc_put(core->cpucfg_path);
- 
- 	v4l2_device_unregister(&core->v4l2_dev);
-+
- 	mutex_destroy(&core->pm_lock);
- 	mutex_destroy(&core->lock);
- 	venus_dbgfs_deinit(core);
-@@ -396,7 +400,7 @@ static __maybe_unused int venus_runtime_suspend(struct device *dev)
- 		return ret;
- 
- 	if (pm_ops->core_power) {
--		ret = pm_ops->core_power(dev, POWER_OFF);
-+		ret = pm_ops->core_power(core, POWER_OFF);
- 		if (ret)
- 			return ret;
- 	}
-@@ -414,7 +418,7 @@ static __maybe_unused int venus_runtime_suspend(struct device *dev)
- err_video_path:
- 	icc_set_bw(core->cpucfg_path, kbps_to_icc(1000), 0);
- err_cpucfg_path:
--	pm_ops->core_power(dev, POWER_ON);
-+	pm_ops->core_power(core, POWER_ON);
- 
- 	return ret;
- }
-@@ -434,7 +438,7 @@ static __maybe_unused int venus_runtime_resume(struct device *dev)
- 		return ret;
- 
- 	if (pm_ops->core_power) {
--		ret = pm_ops->core_power(dev, POWER_ON);
-+		ret = pm_ops->core_power(core, POWER_ON);
- 		if (ret)
- 			return ret;
- 	}
-diff --git a/drivers/media/platform/qcom/venus/pm_helpers.c b/drivers/media/platform/qcom/venus/pm_helpers.c
-index 43c4e3d9e281..e349d01422c5 100644
---- a/drivers/media/platform/qcom/venus/pm_helpers.c
-+++ b/drivers/media/platform/qcom/venus/pm_helpers.c
-@@ -277,16 +277,13 @@ static int load_scale_v1(struct venus_inst *inst)
- 	return 0;
- }
- 
--static int core_get_v1(struct device *dev)
-+static int core_get_v1(struct venus_core *core)
- {
--	struct venus_core *core = dev_get_drvdata(dev);
+-#define CHSC_AC1_INITIATE_INPUTQ	0x80
 -
- 	return core_clks_get(core);
+-
+ /* qdio adapter-characteristics-1 flag */
++#define CHSC_AC1_INITIATE_INPUTQ	0x80
+ #define AC1_SIGA_INPUT_NEEDED		0x40	/* process input queues */
+ #define AC1_SIGA_OUTPUT_NEEDED		0x20	/* process output queues */
+ #define AC1_SIGA_SYNC_NEEDED		0x10	/* ask hypervisor to sync */
+@@ -338,7 +325,6 @@ typedef void qdio_handler_t(struct ccw_device *, unsigned int, int,
+  * @int_parm: interruption parameter
+  * @input_sbal_addr_array:  per-queue array, each element points to 128 SBALs
+  * @output_sbal_addr_array: per-queue array, each element points to 128 SBALs
+- * @output_sbal_state_array: no_output_qs * 128 state info (for CQ or NULL)
+  */
+ struct qdio_initialize {
+ 	unsigned char q_format;
+@@ -357,7 +343,6 @@ struct qdio_initialize {
+ 	unsigned long int_parm;
+ 	struct qdio_buffer ***input_sbal_addr_array;
+ 	struct qdio_buffer ***output_sbal_addr_array;
+-	struct qdio_outbuf_state *output_sbal_state_array;
+ };
+ 
+ #define QDIO_STATE_INACTIVE		0x00000002 /* after qdio_cleanup */
+@@ -378,9 +363,10 @@ extern int qdio_allocate(struct ccw_device *cdev, unsigned int no_input_qs,
+ extern int qdio_establish(struct ccw_device *cdev,
+ 			  struct qdio_initialize *init_data);
+ extern int qdio_activate(struct ccw_device *);
++extern struct qaob *qdio_allocate_aob(void);
+ extern void qdio_release_aob(struct qaob *);
+-extern int do_QDIO(struct ccw_device *, unsigned int, int, unsigned int,
+-		   unsigned int);
++extern int do_QDIO(struct ccw_device *cdev, unsigned int callflags, int q_nr,
++		   unsigned int bufnr, unsigned int count, struct qaob *aob);
+ extern int qdio_start_irq(struct ccw_device *cdev);
+ extern int qdio_stop_irq(struct ccw_device *cdev);
+ extern int qdio_get_next_buffers(struct ccw_device *, int, int *, int *);
+diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
+index 34bf2f197c71..0e0044d70844 100644
+--- a/drivers/s390/cio/qdio.h
++++ b/drivers/s390/cio/qdio.h
+@@ -181,12 +181,6 @@ struct qdio_input_q {
+ struct qdio_output_q {
+ 	/* PCIs are enabled for the queue */
+ 	int pci_out_enabled;
+-	/* cq: use asynchronous output buffers */
+-	int use_cq;
+-	/* cq: aobs used for particual SBAL */
+-	struct qaob **aobs;
+-	/* cq: sbal state related to asynchronous operation */
+-	struct qdio_outbuf_state *sbal_state;
+ 	/* timer to check for more outbound work */
+ 	struct timer_list timer;
+ 	/* tasklet to check for completions */
+@@ -379,12 +373,8 @@ int qdio_setup_irq(struct qdio_irq *irq_ptr, struct qdio_initialize *init_data);
+ void qdio_shutdown_irq(struct qdio_irq *irq);
+ void qdio_print_subchannel_info(struct qdio_irq *irq_ptr);
+ void qdio_free_queues(struct qdio_irq *irq_ptr);
+-void qdio_free_async_data(struct qdio_irq *irq_ptr);
+ int qdio_setup_init(void);
+ void qdio_setup_exit(void);
+-int qdio_enable_async_operation(struct qdio_output_q *q);
+-void qdio_disable_async_operation(struct qdio_output_q *q);
+-struct qaob *qdio_allocate_aob(void);
+ 
+ int debug_get_buf_state(struct qdio_q *q, unsigned int bufnr,
+ 			unsigned char *state);
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index 03a011619908..307ce7ff5ca4 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -517,24 +517,6 @@ static inline int qdio_inbound_q_done(struct qdio_q *q, unsigned int start)
+ 	return 1;
  }
  
--static int core_power_v1(struct device *dev, int on)
-+static int core_power_v1(struct venus_core *core, int on)
+-static inline unsigned long qdio_aob_for_buffer(struct qdio_output_q *q,
+-					int bufnr)
+-{
+-	unsigned long phys_aob = 0;
+-
+-	if (!q->aobs[bufnr]) {
+-		struct qaob *aob = qdio_allocate_aob();
+-		q->aobs[bufnr] = aob;
+-	}
+-	if (q->aobs[bufnr]) {
+-		q->aobs[bufnr]->user1 = (u64) q->sbal_state[bufnr].user;
+-		phys_aob = virt_to_phys(q->aobs[bufnr]);
+-		WARN_ON_ONCE(phys_aob & 0xFF);
+-	}
+-
+-	return phys_aob;
+-}
+-
+ static inline int qdio_tasklet_schedule(struct qdio_q *q)
  {
--	struct venus_core *core = dev_get_drvdata(dev);
- 	int ret = 0;
+ 	if (likely(q->irq_ptr->state == QDIO_IRQ_STATE_ACTIVE)) {
+@@ -548,7 +530,6 @@ static int get_outbound_buffer_frontier(struct qdio_q *q, unsigned int start,
+ 					unsigned int *error)
+ {
+ 	unsigned char state = 0;
+-	unsigned int i;
+ 	int count;
  
- 	if (on == POWER_ON)
-@@ -753,12 +750,12 @@ static int venc_power_v4(struct device *dev, int on)
- 	return ret;
+ 	q->timestamp = get_tod_clock_fast();
+@@ -570,10 +551,6 @@ static int get_outbound_buffer_frontier(struct qdio_q *q, unsigned int start,
+ 
+ 	switch (state) {
+ 	case SLSB_P_OUTPUT_PENDING:
+-		/* detach the utilized QAOBs: */
+-		for (i = 0; i < count; i++)
+-			q->u.out.aobs[QDIO_BUFNR(start + i)] = NULL;
+-
+ 		*error = QDIO_ERROR_SLSB_PENDING;
+ 		fallthrough;
+ 	case SLSB_P_OUTPUT_EMPTY:
+@@ -999,7 +976,6 @@ int qdio_free(struct ccw_device *cdev)
+ 	cdev->private->qdio_data = NULL;
+ 	mutex_unlock(&irq_ptr->setup_mutex);
+ 
+-	qdio_free_async_data(irq_ptr);
+ 	qdio_free_queues(irq_ptr);
+ 	free_page((unsigned long) irq_ptr->qdr);
+ 	free_page(irq_ptr->chsc_page);
+@@ -1075,28 +1051,6 @@ int qdio_allocate(struct ccw_device *cdev, unsigned int no_input_qs,
+ }
+ EXPORT_SYMBOL_GPL(qdio_allocate);
+ 
+-static void qdio_detect_hsicq(struct qdio_irq *irq_ptr)
+-{
+-	struct qdio_q *q = irq_ptr->input_qs[0];
+-	int i, use_cq = 0;
+-
+-	if (irq_ptr->nr_input_qs > 1 && queue_type(q) == QDIO_IQDIO_QFMT)
+-		use_cq = 1;
+-
+-	for_each_output_queue(irq_ptr, q, i) {
+-		if (use_cq) {
+-			if (multicast_outbound(q))
+-				continue;
+-			if (qdio_enable_async_operation(&q->u.out) < 0) {
+-				use_cq = 0;
+-				continue;
+-			}
+-		} else
+-			qdio_disable_async_operation(&q->u.out);
+-	}
+-	DBF_EVENT("use_cq:%d", use_cq);
+-}
+-
+ static void qdio_trace_init_data(struct qdio_irq *irq,
+ 				 struct qdio_initialize *data)
+ {
+@@ -1191,8 +1145,6 @@ int qdio_establish(struct ccw_device *cdev,
+ 
+ 	qdio_setup_ssqd_info(irq_ptr);
+ 
+-	qdio_detect_hsicq(irq_ptr);
+-
+ 	/* qebsm is now setup if available, initialize buffer states */
+ 	qdio_init_buf_states(irq_ptr);
+ 
+@@ -1297,9 +1249,11 @@ static int handle_inbound(struct qdio_q *q, unsigned int callflags,
+  * @callflags: flags
+  * @bufnr: first buffer to process
+  * @count: how many buffers are filled
++ * @aob: asynchronous operation block
+  */
+ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
+-			   unsigned int bufnr, unsigned int count)
++			   unsigned int bufnr, unsigned int count,
++			   struct qaob *aob)
+ {
+ 	const unsigned int scan_threshold = q->irq_ptr->scan_threshold;
+ 	unsigned char state = 0;
+@@ -1320,11 +1274,9 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
+ 		q->u.out.pci_out_enabled = 0;
+ 
+ 	if (queue_type(q) == QDIO_IQDIO_QFMT) {
+-		unsigned long phys_aob = 0;
+-
+-		if (q->u.out.use_cq && count == 1)
+-			phys_aob = qdio_aob_for_buffer(&q->u.out, bufnr);
++		unsigned long phys_aob = aob ? virt_to_phys(aob) : 0;
+ 
++		WARN_ON_ONCE(!IS_ALIGNED(phys_aob, 256));
+ 		rc = qdio_kick_outbound_q(q, count, phys_aob);
+ 	} else if (need_siga_sync(q)) {
+ 		rc = qdio_siga_sync_q(q);
+@@ -1359,9 +1311,10 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
+  * @q_nr: queue number
+  * @bufnr: buffer number
+  * @count: how many buffers to process
++ * @aob: asynchronous operation block (outbound only)
+  */
+ int do_QDIO(struct ccw_device *cdev, unsigned int callflags,
+-	    int q_nr, unsigned int bufnr, unsigned int count)
++	    int q_nr, unsigned int bufnr, unsigned int count, struct qaob *aob)
+ {
+ 	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
+ 
+@@ -1383,7 +1336,7 @@ int do_QDIO(struct ccw_device *cdev, unsigned int callflags,
+ 				      callflags, bufnr, count);
+ 	else if (callflags & QDIO_FLAG_SYNC_OUTPUT)
+ 		return handle_outbound(irq_ptr->output_qs[q_nr],
+-				       callflags, bufnr, count);
++				       callflags, bufnr, count, aob);
+ 	return -EINVAL;
+ }
+ EXPORT_SYMBOL_GPL(do_QDIO);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index c8b9620bc688..da67e4979402 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -30,6 +30,7 @@ struct qaob *qdio_allocate_aob(void)
+ {
+ 	return kmem_cache_zalloc(qdio_aob_cache, GFP_ATOMIC);
+ }
++EXPORT_SYMBOL_GPL(qdio_allocate_aob);
+ 
+ void qdio_release_aob(struct qaob *aob)
+ {
+@@ -247,8 +248,6 @@ static void setup_queues(struct qdio_irq *irq_ptr,
+ 			 struct qdio_initialize *qdio_init)
+ {
+ 	struct qdio_q *q;
+-	struct qdio_outbuf_state *output_sbal_state_array =
+-				  qdio_init->output_sbal_state_array;
+ 	int i;
+ 
+ 	for_each_input_queue(irq_ptr, q, i) {
+@@ -265,9 +264,6 @@ static void setup_queues(struct qdio_irq *irq_ptr,
+ 		DBF_EVENT("outq:%1d", i);
+ 		setup_queues_misc(q, irq_ptr, qdio_init->output_handler, i);
+ 
+-		q->u.out.sbal_state = output_sbal_state_array;
+-		output_sbal_state_array += QDIO_MAX_BUFFERS_PER_Q;
+-
+ 		q->is_input_q = 0;
+ 		setup_storage_lists(q, irq_ptr,
+ 				    qdio_init->output_sbal_addr_array[i], i);
+@@ -372,30 +368,6 @@ void qdio_setup_ssqd_info(struct qdio_irq *irq_ptr)
+ 	DBF_EVENT("3:%4x qib:%4x", irq_ptr->ssqd_desc.qdioac3, irq_ptr->qib.ac);
  }
  
--static int vcodec_domains_get(struct device *dev)
-+static int vcodec_domains_get(struct venus_core *core)
+-void qdio_free_async_data(struct qdio_irq *irq_ptr)
+-{
+-	struct qdio_q *q;
+-	int i;
+-
+-	for (i = 0; i < irq_ptr->max_output_qs; i++) {
+-		q = irq_ptr->output_qs[i];
+-		if (q->u.out.use_cq) {
+-			unsigned int n;
+-
+-			for (n = 0; n < QDIO_MAX_BUFFERS_PER_Q; n++) {
+-				struct qaob *aob = q->u.out.aobs[n];
+-
+-				if (aob) {
+-					qdio_release_aob(aob);
+-					q->u.out.aobs[n] = NULL;
+-				}
+-			}
+-
+-			qdio_disable_async_operation(&q->u.out);
+-		}
+-	}
+-}
+-
+ static void qdio_fill_qdr_desc(struct qdesfmt0 *desc, struct qdio_q *queue)
  {
- 	int ret;
- 	struct opp_table *opp_table;
- 	struct device **opp_virt_dev;
--	struct venus_core *core = dev_get_drvdata(dev);
-+	struct device *dev = core->dev;
- 	const struct venus_resources *res = core->res;
- 	struct device *pd;
- 	unsigned int i;
-@@ -809,9 +806,8 @@ static int vcodec_domains_get(struct device *dev)
- 	return ret;
+ 	desc->sliba = virt_to_phys(queue->slib);
+@@ -545,25 +517,6 @@ void qdio_print_subchannel_info(struct qdio_irq *irq_ptr)
+ 	printk(KERN_INFO "%s", s);
  }
  
--static void vcodec_domains_put(struct device *dev)
-+static void vcodec_domains_put(struct venus_core *core)
+-int qdio_enable_async_operation(struct qdio_output_q *outq)
+-{
+-	outq->aobs = kcalloc(QDIO_MAX_BUFFERS_PER_Q, sizeof(struct qaob *),
+-			     GFP_KERNEL);
+-	if (!outq->aobs) {
+-		outq->use_cq = 0;
+-		return -ENOMEM;
+-	}
+-	outq->use_cq = 1;
+-	return 0;
+-}
+-
+-void qdio_disable_async_operation(struct qdio_output_q *q)
+-{
+-	kfree(q->aobs);
+-	q->aobs = NULL;
+-	q->use_cq = 0;
+-}
+-
+ int __init qdio_setup_init(void)
  {
--	struct venus_core *core = dev_get_drvdata(dev);
- 	const struct venus_resources *res = core->res;
- 	unsigned int i;
+ 	int rc;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 91acff493612..fd9b869d278e 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -437,6 +437,7 @@ struct qeth_qdio_out_buffer {
  
-@@ -834,9 +830,9 @@ static void vcodec_domains_put(struct device *dev)
- 	dev_pm_opp_detach_genpd(core->opp_table);
+ 	struct qeth_qdio_out_q *q;
+ 	struct list_head list_entry;
++	struct qaob *aob;
+ };
+ 
+ struct qeth_card;
+@@ -499,7 +500,6 @@ struct qeth_out_q_stats {
+ struct qeth_qdio_out_q {
+ 	struct qdio_buffer *qdio_bufs[QDIO_MAX_BUFFERS_PER_Q];
+ 	struct qeth_qdio_out_buffer *bufs[QDIO_MAX_BUFFERS_PER_Q];
+-	struct qdio_outbuf_state *bufstates; /* convenience pointer */
+ 	struct list_head pending_bufs;
+ 	struct qeth_out_q_stats stats;
+ 	spinlock_t lock;
+@@ -563,7 +563,6 @@ struct qeth_qdio_info {
+ 	/* output */
+ 	unsigned int no_out_queues;
+ 	struct qeth_qdio_out_q *out_qs[QETH_MAX_OUT_QUEUES];
+-	struct qdio_outbuf_state *out_bufstates;
+ 
+ 	/* priority queueing */
+ 	int do_prio_queueing;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index a814698387bc..175b82b98f36 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -369,8 +369,7 @@ static int qeth_cq_init(struct qeth_card *card)
+ 				   QDIO_MAX_BUFFERS_PER_Q);
+ 		card->qdio.c_q->next_buf_to_init = 127;
+ 		rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT,
+-			     card->qdio.no_in_queues - 1, 0,
+-			     127);
++			     card->qdio.no_in_queues - 1, 0, 127, NULL);
+ 		if (rc) {
+ 			QETH_CARD_TEXT_(card, 2, "1err%d", rc);
+ 			goto out;
+@@ -383,48 +382,22 @@ static int qeth_cq_init(struct qeth_card *card)
+ 
+ static int qeth_alloc_cq(struct qeth_card *card)
+ {
+-	int rc;
+-
+ 	if (card->options.cq == QETH_CQ_ENABLED) {
+-		int i;
+-		struct qdio_outbuf_state *outbuf_states;
+-
+ 		QETH_CARD_TEXT(card, 2, "cqon");
+ 		card->qdio.c_q = qeth_alloc_qdio_queue();
+ 		if (!card->qdio.c_q) {
+-			rc = -1;
+-			goto kmsg_out;
++			dev_err(&card->gdev->dev, "Failed to create completion queue\n");
++			return -ENOMEM;
+ 		}
++
+ 		card->qdio.no_in_queues = 2;
+-		card->qdio.out_bufstates =
+-			kcalloc(card->qdio.no_out_queues *
+-					QDIO_MAX_BUFFERS_PER_Q,
+-				sizeof(struct qdio_outbuf_state),
+-				GFP_KERNEL);
+-		outbuf_states = card->qdio.out_bufstates;
+-		if (outbuf_states == NULL) {
+-			rc = -1;
+-			goto free_cq_out;
+-		}
+-		for (i = 0; i < card->qdio.no_out_queues; ++i) {
+-			card->qdio.out_qs[i]->bufstates = outbuf_states;
+-			outbuf_states += QDIO_MAX_BUFFERS_PER_Q;
+-		}
+ 	} else {
+ 		QETH_CARD_TEXT(card, 2, "nocq");
+ 		card->qdio.c_q = NULL;
+ 		card->qdio.no_in_queues = 1;
+ 	}
+ 	QETH_CARD_TEXT_(card, 2, "iqc%d", card->qdio.no_in_queues);
+-	rc = 0;
+-out:
+-	return rc;
+-free_cq_out:
+-	qeth_free_qdio_queue(card->qdio.c_q);
+-	card->qdio.c_q = NULL;
+-kmsg_out:
+-	dev_err(&card->gdev->dev, "Failed to create completion queue\n");
+-	goto out;
++	return 0;
  }
  
--static int core_get_v4(struct device *dev)
-+static int core_get_v4(struct venus_core *core)
- {
--	struct venus_core *core = dev_get_drvdata(dev);
-+	struct device *dev = core->dev;
- 	const struct venus_resources *res = core->res;
- 	int ret;
+ static void qeth_free_cq(struct qeth_card *card)
+@@ -434,8 +407,6 @@ static void qeth_free_cq(struct qeth_card *card)
+ 		qeth_free_qdio_queue(card->qdio.c_q);
+ 		card->qdio.c_q = NULL;
+ 	}
+-	kfree(card->qdio.out_bufstates);
+-	card->qdio.out_bufstates = NULL;
+ }
  
-@@ -875,7 +871,7 @@ static int core_get_v4(struct device *dev)
+ static enum iucv_tx_notify qeth_compute_cq_notification(int sbalf15,
+@@ -487,12 +458,12 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 	switch (atomic_xchg(&buffer->state, new_state)) {
+ 	case QETH_QDIO_BUF_PRIMED:
+ 		/* Faster than TX completion code, let it handle the async
+-		 * completion for us.
++		 * completion for us. It will also recycle the QAOB.
+ 		 */
+ 		break;
+ 	case QETH_QDIO_BUF_PENDING:
+ 		/* TX completion code is active and will handle the async
+-		 * completion for us.
++		 * completion for us. It will also recycle the QAOB.
+ 		 */
+ 		break;
+ 	case QETH_QDIO_BUF_NEED_QAOB:
+@@ -501,7 +472,7 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 		qeth_notify_skbs(buffer->q, buffer, notification);
+ 
+ 		/* Free dangling allocations. The attached skbs are handled by
+-		 * qeth_tx_complete_pending_bufs().
++		 * qeth_tx_complete_pending_bufs(), and so is the QAOB.
+ 		 */
+ 		for (i = 0;
+ 		     i < aob->sb_count && i < QETH_MAX_BUFFER_ELEMENTS(card);
+@@ -520,8 +491,6 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 	default:
+ 		WARN_ON_ONCE(1);
+ 	}
+-
+-	qdio_release_aob(aob);
+ }
+ 
+ static void qeth_setup_ccw(struct ccw1 *ccw, u8 cmd_code, u8 flags, u32 len,
+@@ -1451,6 +1420,13 @@ static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
+ 	atomic_set(&buf->state, QETH_QDIO_BUF_EMPTY);
+ }
+ 
++static void qeth_free_out_buf(struct qeth_qdio_out_buffer *buf)
++{
++	if (buf->aob)
++		qdio_release_aob(buf->aob);
++	kmem_cache_free(qeth_qdio_outbuf_cache, buf);
++}
++
+ static void qeth_tx_complete_pending_bufs(struct qeth_card *card,
+ 					  struct qeth_qdio_out_q *queue,
+ 					  bool drain)
+@@ -1468,7 +1444,7 @@ static void qeth_tx_complete_pending_bufs(struct qeth_card *card,
+ 			qeth_tx_complete_buf(buf, drain, 0);
+ 
+ 			list_del(&buf->list_entry);
+-			kmem_cache_free(qeth_qdio_outbuf_cache, buf);
++			qeth_free_out_buf(buf);
+ 		}
+ 	}
+ }
+@@ -1485,7 +1461,7 @@ static void qeth_drain_output_queue(struct qeth_qdio_out_q *q, bool free)
+ 
+ 		qeth_clear_output_buffer(q, q->bufs[j], true, 0);
+ 		if (free) {
+-			kmem_cache_free(qeth_qdio_outbuf_cache, q->bufs[j]);
++			qeth_free_out_buf(q->bufs[j]);
+ 			q->bufs[j] = NULL;
+ 		}
+ 	}
+@@ -2637,7 +2613,7 @@ static struct qeth_qdio_out_q *qeth_alloc_output_queue(void)
+ 
+ err_out_bufs:
+ 	while (i > 0)
+-		kmem_cache_free(qeth_qdio_outbuf_cache, q->bufs[--i]);
++		qeth_free_out_buf(q->bufs[--i]);
+ 	qdio_free_buffers(q->qdio_bufs, QDIO_MAX_BUFFERS_PER_Q);
+ err_qdio_bufs:
+ 	kfree(q);
+@@ -3024,7 +3000,8 @@ static int qeth_init_qdio_queues(struct qeth_card *card)
+ 	}
+ 
+ 	card->qdio.in_q->next_buf_to_init = QDIO_BUFNR(rx_bufs);
+-	rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT, 0, 0, rx_bufs);
++	rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT, 0, 0, rx_bufs,
++		     NULL);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "1err%d", rc);
+ 		return rc;
+@@ -3516,7 +3493,7 @@ static unsigned int qeth_rx_refill_queue(struct qeth_card *card,
+ 		}
+ 
+ 		rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT, 0,
+-			     queue->next_buf_to_init, count);
++			     queue->next_buf_to_init, count, NULL);
+ 		if (rc) {
+ 			QETH_CARD_TEXT(card, 2, "qinberr");
+ 		}
+@@ -3625,6 +3602,7 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 	struct qeth_qdio_out_buffer *buf = queue->bufs[index];
+ 	unsigned int qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
+ 	struct qeth_card *card = queue->card;
++	struct qaob *aob = NULL;
+ 	int rc;
+ 	int i;
+ 
+@@ -3637,16 +3615,24 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 				SBAL_EFLAGS_LAST_ENTRY;
+ 		queue->coalesced_frames += buf->frames;
+ 
+-		if (queue->bufstates)
+-			queue->bufstates[bidx].user = buf;
+-
+ 		if (IS_IQD(card)) {
+ 			skb_queue_walk(&buf->skb_list, skb)
+ 				skb_tx_timestamp(skb);
  		}
  	}
  
--	ret = vcodec_domains_get(dev);
-+	ret = vcodec_domains_get(core);
- 	if (ret) {
- 		if (core->has_opp_table)
- 			dev_pm_opp_of_remove_table(dev);
-@@ -886,14 +882,14 @@ static int core_get_v4(struct device *dev)
- 	return 0;
+-	if (!IS_IQD(card)) {
++	if (IS_IQD(card)) {
++		if (card->options.cq == QETH_CQ_ENABLED &&
++		    !qeth_iqd_is_mcast_queue(card, queue) &&
++		    count == 1) {
++			if (!buf->aob)
++				buf->aob = qdio_allocate_aob();
++			if (buf->aob) {
++				aob = buf->aob;
++				aob->user1 = (u64) buf;
++			}
++		}
++	} else {
+ 		if (!queue->do_pack) {
+ 			if ((atomic_read(&queue->used_buffers) >=
+ 				(QETH_HIGH_WATERMARK_PACK -
+@@ -3677,8 +3663,8 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 	}
+ 
+ 	QETH_TXQ_STAT_INC(queue, doorbell);
+-	rc = do_QDIO(CARD_DDEV(queue->card), qdio_flags,
+-		     queue->queue_no, index, count);
++	rc = do_QDIO(CARD_DDEV(card), qdio_flags, queue->queue_no, index, count,
++		     aob);
+ 
+ 	switch (rc) {
+ 	case 0:
+@@ -3814,8 +3800,7 @@ static void qeth_qdio_cq_handler(struct qeth_card *card, unsigned int qdio_err,
+ 		qeth_scrub_qdio_buffer(buffer, QDIO_MAX_ELEMENTS_PER_BUFFER);
+ 	}
+ 	rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT, queue,
+-		    card->qdio.c_q->next_buf_to_init,
+-		    count);
++		     cq->next_buf_to_init, count, NULL);
+ 	if (rc) {
+ 		dev_warn(&card->gdev->dev,
+ 			"QDIO reported an error, rc=%i\n", rc);
+@@ -5270,7 +5255,6 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ 	init_data.int_parm               = (unsigned long) card;
+ 	init_data.input_sbal_addr_array  = in_sbal_ptrs;
+ 	init_data.output_sbal_addr_array = out_sbal_ptrs;
+-	init_data.output_sbal_state_array = card->qdio.out_bufstates;
+ 	init_data.scan_threshold	 = IS_IQD(card) ? 0 : 32;
+ 
+ 	if (atomic_cmpxchg(&card->qdio.state, QETH_QDIO_ALLOCATED,
+@@ -6069,7 +6053,15 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
+ 	bool error = !!qdio_error;
+ 
+ 	if (qdio_error == QDIO_ERROR_SLSB_PENDING) {
+-		WARN_ON_ONCE(card->options.cq != QETH_CQ_ENABLED);
++		struct qaob *aob = buffer->aob;
++
++		if (!aob) {
++			netdev_WARN_ONCE(card->dev,
++					 "Pending TX buffer %#x without QAOB on TX queue %u\n",
++					 bidx, queue->queue_no);
++			qeth_schedule_recovery(card);
++			return;
++		}
+ 
+ 		QETH_CARD_TEXT_(card, 5, "pel%u", bidx);
+ 
+@@ -6125,6 +6117,8 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
+ 		default:
+ 			WARN_ON_ONCE(1);
+ 		}
++
++		memset(aob, 0, sizeof(*aob));
+ 	} else if (card->options.cq == QETH_CQ_ENABLED) {
+ 		qeth_notify_skbs(queue, buffer,
+ 				 qeth_compute_cq_notification(sflags, 0));
+diff --git a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
+index 23ab16d65f2a..049596cbfb5d 100644
+--- a/drivers/s390/scsi/zfcp_qdio.c
++++ b/drivers/s390/scsi/zfcp_qdio.c
+@@ -128,7 +128,7 @@ static void zfcp_qdio_int_resp(struct ccw_device *cdev, unsigned int qdio_err,
+ 	/*
+ 	 * put SBALs back to response queue
+ 	 */
+-	if (do_QDIO(cdev, QDIO_FLAG_SYNC_INPUT, 0, idx, count))
++	if (do_QDIO(cdev, QDIO_FLAG_SYNC_INPUT, 0, idx, count, NULL))
+ 		zfcp_erp_adapter_reopen(qdio->adapter, 0, "qdires2");
  }
  
--static void core_put_v4(struct device *dev)
-+static void core_put_v4(struct venus_core *core)
- {
--	struct venus_core *core = dev_get_drvdata(dev);
-+	struct device *dev = core->dev;
+@@ -298,7 +298,7 @@ int zfcp_qdio_send(struct zfcp_qdio *qdio, struct zfcp_qdio_req *q_req)
+ 	atomic_sub(sbal_number, &qdio->req_q_free);
  
- 	if (legacy_binding)
- 		return;
+ 	retval = do_QDIO(qdio->adapter->ccw_device, QDIO_FLAG_SYNC_OUTPUT, 0,
+-			 q_req->sbal_first, sbal_number);
++			 q_req->sbal_first, sbal_number, NULL);
  
--	vcodec_domains_put(dev);
-+	vcodec_domains_put(core);
+ 	if (unlikely(retval)) {
+ 		/* Failed to submit the IO, roll back our modifications. */
+@@ -463,7 +463,8 @@ int zfcp_qdio_open(struct zfcp_qdio *qdio)
+ 		sbale->addr = 0;
+ 	}
  
- 	if (core->has_opp_table)
- 		dev_pm_opp_of_remove_table(dev);
-@@ -901,9 +897,9 @@ static void core_put_v4(struct device *dev)
+-	if (do_QDIO(cdev, QDIO_FLAG_SYNC_INPUT, 0, 0, QDIO_MAX_BUFFERS_PER_Q))
++	if (do_QDIO(cdev, QDIO_FLAG_SYNC_INPUT, 0, 0, QDIO_MAX_BUFFERS_PER_Q,
++		    NULL))
+ 		goto failed_qdio;
  
- }
- 
--static int core_power_v4(struct device *dev, int on)
-+static int core_power_v4(struct venus_core *core, int on)
- {
--	struct venus_core *core = dev_get_drvdata(dev);
-+	struct device *dev = core->dev;
- 	struct device *pmctrl = core->pmdomains[0];
- 	int ret = 0;
- 
-diff --git a/drivers/media/platform/qcom/venus/pm_helpers.h b/drivers/media/platform/qcom/venus/pm_helpers.h
-index aa2f6afa2354..a492c50c5543 100644
---- a/drivers/media/platform/qcom/venus/pm_helpers.h
-+++ b/drivers/media/platform/qcom/venus/pm_helpers.h
-@@ -4,14 +4,15 @@
- #define __VENUS_PM_HELPERS_H__
- 
- struct device;
-+struct venus_core;
- 
- #define POWER_ON	1
- #define POWER_OFF	0
- 
- struct venus_pm_ops {
--	int (*core_get)(struct device *dev);
--	void (*core_put)(struct device *dev);
--	int (*core_power)(struct device *dev, int on);
-+	int (*core_get)(struct venus_core *core);
-+	void (*core_put)(struct venus_core *core);
-+	int (*core_power)(struct venus_core *core, int on);
- 
- 	int (*vdec_get)(struct device *dev);
- 	void (*vdec_put)(struct device *dev);
+ 	/* set index of first available SBALS / number of available SBALS */
 -- 
 2.30.2
 
