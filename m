@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC8A371A3C
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7D08371A4E
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:38:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232196AbhECQjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:39:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38488 "EHLO mail.kernel.org"
+        id S231685AbhECQj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:39:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231789AbhECQiC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:38:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 579C0613C5;
-        Mon,  3 May 2021 16:36:30 +0000 (UTC)
+        id S231835AbhECQiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:38:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE5A7613D0;
+        Mon,  3 May 2021 16:36:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059791;
-        bh=6SZ9VbDmdYWkxPim/GHW/e26KKZS/got/wGz+DLlaDs=;
+        s=k20201202; t=1620059793;
+        bh=cm2ZjP+nxhlFxgOpMS2UzryGqdVadZ3ecCcGZd1vV4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TxKTCeEz7eGU+dWh4CAZC42CZYWq0t50QiEs2vmKniWUh9cPeu9aBZnkump/CsZDx
-         0bKxqHtfC3wqyE5m4EO0jJgHFuURMITkzfdNwoDJTwyvpw6rUcwxm0H//237wExmWR
-         bUrYwk9ey4na3HNRJ34uUe3FwqdcLb20/GkKLI7GDlzXlUCMUT9C4yxzR0adjsgD4S
-         rR2BXxXTeRCYh0DV+2PqCMJQHUwE/1/fe0rfxXwdBPdUOTdgocSlR2wjYPWP6fb6ZA
-         dueEWIr2KWcpb989Qvke1U3lxYw4nnhEhHX1zlGgXVFx6Q7l34X87vKMYy6ECfKBtN
-         CHnhduVB36s3Q==
+        b=iw1385ctlDbwpXNo1VSdR6MHk5jxLr3nOrw6cq33kH2O7LSCXiuFTLj9qYQ0PURLv
+         zUj3djmtZW3wu7AxVmpPWIKbpMvIIV/E81dGPk5Nn5/3wvn+aiR+mg+G6vveR/CyWG
+         QkmDhuwwLe5rqE8EzQvTW9UuLBYOB7HbOeVatUQ8eIW92v311FDtzTO+JbTwbgaOow
+         +nOIyVEmqvHmV2kwmd3i9/IsymWYIg8zPPIyJPfftoU7zahq6R+NFqLhEzTdlihGe0
+         SbeIpZynAzdLBL0lJ1OVW8+KDVXDudXI5gBW5xOmlpQnp+Biie7iutfSplwXzCLQmB
+         Gv5PN8Bfrzj/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Jacob <Anson.Jacob@amd.com>, Lyude Paul <lyude@redhat.com>,
+Cc:     Joshua Aberback <joshua.aberback@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Jun Lei <Jun.Lei@amd.com>, Eryk Brol <eryk.brol@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 050/134] drm/amdkfd: Fix UBSAN shift-out-of-bounds warning
-Date:   Mon,  3 May 2021 12:33:49 -0400
-Message-Id: <20210503163513.2851510-50-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 051/134] drm/amd/display: Align cursor cache address to 2KB
+Date:   Mon,  3 May 2021 12:33:50 -0400
+Message-Id: <20210503163513.2851510-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
@@ -44,64 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Jacob <Anson.Jacob@amd.com>
+From: Joshua Aberback <joshua.aberback@amd.com>
 
-[ Upstream commit 50e2fc36e72d4ad672032ebf646cecb48656efe0 ]
+[ Upstream commit 554ba183b135ef09250b61a202d88512b5bbd03a ]
 
-If get_num_sdma_queues or get_num_xgmi_sdma_queues is 0, we end up
-doing a shift operation where the number of bits shifted equals
-number of bits in the operand. This behaviour is undefined.
+[Why]
+The registers for the address of the cursor are aligned to 2KB, so all
+cursor surfaces also need to be aligned to 2KB. Currently, the
+provided cursor cache surface is not aligned, so we need a workaround
+until alignment is enforced by the surface provider.
 
-Set num_sdma_queues or num_xgmi_sdma_queues to ULLONG_MAX, if the
-count is >= number of bits in the operand.
+[How]
+ - round up surface address to nearest multiple of 2048
+ - current policy is to provide a much bigger cache size than
+   necessary,so this operation is safe
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1472
-
-Reported-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Tested-by: Lyude Paul <lyude@redhat.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Joshua Aberback <joshua.aberback@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Eryk Brol <eryk.brol@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/amdkfd/kfd_device_queue_manager.c   | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index 4598a9a58125..a4266c4bca13 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -1128,6 +1128,9 @@ static int set_sched_resources(struct device_queue_manager *dqm)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+index 06dc1e2e8383..07c8d2e2c09c 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+@@ -848,7 +848,7 @@ bool dcn30_apply_idle_power_optimizations(struct dc *dc, bool enable)
  
- static int initialize_cpsch(struct device_queue_manager *dqm)
- {
-+	uint64_t num_sdma_queues;
-+	uint64_t num_xgmi_sdma_queues;
-+
- 	pr_debug("num of pipes: %d\n", get_pipes_per_mec(dqm));
+ 					cmd.mall.cursor_copy_src.quad_part = cursor_attr.address.quad_part;
+ 					cmd.mall.cursor_copy_dst.quad_part =
+-							plane->address.grph.cursor_cache_addr.quad_part;
++							(plane->address.grph.cursor_cache_addr.quad_part + 2047) & ~2047;
+ 					cmd.mall.cursor_width = cursor_attr.width;
+ 					cmd.mall.cursor_height = cursor_attr.height;
+ 					cmd.mall.cursor_pitch = cursor_attr.pitch;
+@@ -858,8 +858,7 @@ bool dcn30_apply_idle_power_optimizations(struct dc *dc, bool enable)
+ 					dc_dmub_srv_wait_idle(dc->ctx->dmub_srv);
  
- 	mutex_init(&dqm->lock_hidden);
-@@ -1136,8 +1139,18 @@ static int initialize_cpsch(struct device_queue_manager *dqm)
- 	dqm->active_cp_queue_count = 0;
- 	dqm->gws_queue_count = 0;
- 	dqm->active_runlist = false;
--	dqm->sdma_bitmap = ~0ULL >> (64 - get_num_sdma_queues(dqm));
--	dqm->xgmi_sdma_bitmap = ~0ULL >> (64 - get_num_xgmi_sdma_queues(dqm));
-+
-+	num_sdma_queues = get_num_sdma_queues(dqm);
-+	if (num_sdma_queues >= BITS_PER_TYPE(dqm->sdma_bitmap))
-+		dqm->sdma_bitmap = ULLONG_MAX;
-+	else
-+		dqm->sdma_bitmap = (BIT_ULL(num_sdma_queues) - 1);
-+
-+	num_xgmi_sdma_queues = get_num_xgmi_sdma_queues(dqm);
-+	if (num_xgmi_sdma_queues >= BITS_PER_TYPE(dqm->xgmi_sdma_bitmap))
-+		dqm->xgmi_sdma_bitmap = ULLONG_MAX;
-+	else
-+		dqm->xgmi_sdma_bitmap = (BIT_ULL(num_xgmi_sdma_queues) - 1);
- 
- 	INIT_WORK(&dqm->hw_exception_work, kfd_process_hw_exception);
+ 					/* Use copied cursor, and it's okay to not switch back */
+-					cursor_attr.address.quad_part =
+-							plane->address.grph.cursor_cache_addr.quad_part;
++					cursor_attr.address.quad_part = cmd.mall.cursor_copy_dst.quad_part;
+ 					dc_stream_set_cursor_attributes(stream, &cursor_attr);
+ 				}
  
 -- 
 2.30.2
