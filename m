@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48B3C37196C
+	by mail.lfdr.de (Postfix) with ESMTP id 93DB837196E
 	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231400AbhECQgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231402AbhECQgU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 3 May 2021 12:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36578 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231352AbhECQgP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:36:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1AC060D07;
-        Mon,  3 May 2021 16:35:20 +0000 (UTC)
+        id S231381AbhECQgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:36:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DBEB61369;
+        Mon,  3 May 2021 16:35:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059721;
-        bh=l++XYtZtJ70mk4ZhI+OUoCT6J6N26BdalDtg7D1/Kkg=;
+        s=k20201202; t=1620059723;
+        bh=9PNRs/NqtnqsZodPRpjt5A1cV1aiyd4RkqOemCQ4w8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1FTRV8uyEJ2kD+cyWQAGLOQlAySUEqYWyw7fowL9MeTFx5feWZ9QQQz+r6gN9UhC
-         dmPyvsfgbmA6R4jA7CzuRCNyS7Qo2x8t47z7Wz4nv2QmwiSq4s+1zLh6d6L/zNNzJo
-         2O63GTRwQqnfnLoYxaiUC0bDG7+NuLQjSiSBtWEDzSemZTfq3Nf6fqjcI42cGre7h2
-         wyyKiGki6yKUq64FQYjj6E6A8T4KEwMSEqW0AmkmbkIcwagodRySfSEln0HjNiZEBx
-         wwDTLbc7dyJNyt/XVcQjN3j4nhWauw5BtQV8K6Mqr7USwIBYp1wX+hf5h60QQpIVdv
-         +jwvdKCLn85dw==
+        b=Js1tGTsXSdsQPgoP3uO3xtgZXTAK00nah3bEviTyh3qgcxDez2BimWDpInhD+OScN
+         t9F0C1RVE4G+0fqIUKfIy8N2Qwmw+iQNvEJ3f4PIJtN2sLdNWLyRPtuTQqvW4ocTSY
+         3VeF8VdsRByYkbWZlgTeoGIpQe2Vy/KcZ5vB5A7+HFvvrczRkcsXpgxaypQXKRG1+j
+         3mVsxF2fV9T4VR96lQmiQ5ZvUXg4FIL2/lkV3Ctms4UtOWEBaWZ/gygIfASRUJlj2h
+         w4lL/YZKscjESVg06w/4IQJk5Dw8Mma+qz/wi+LZHmY2WmMbXAdY1RUqLagEzGsVkn
+         +GKLxnAMBLNDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Leung <martin.leung@amd.com>,
-        Alvin Lee <Alvin.Lee2@amd.com>,
+Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Eric Yang <eric.yang2@amd.com>,
         Qingqing Zhuo <Qingqing.Zhuo@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 005/134] drm/amd/display: changing sr exit latency
-Date:   Mon,  3 May 2021 12:33:04 -0400
-Message-Id: <20210503163513.2851510-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 006/134] drm/amd/display: Fix MPC OGAM power on/off sequence
+Date:   Mon,  3 May 2021 12:33:05 -0400
+Message-Id: <20210503163513.2851510-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
@@ -46,41 +46,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Leung <martin.leung@amd.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit efe213e5a57e0cd92fa4f328dc1963d330549982 ]
+[ Upstream commit 737b2b536a30a467c405d75f2287e17828838a13 ]
 
 [Why]
-Hardware team remeasured, need to update timings
-to increase latency slightly and avoid intermittent
-underflows.
+Color corruption can occur on bootup into a login
+manager that applies a non-linear gamma LUT because
+the LUT may not actually be powered on before writing.
+
+It's cleared on the next full pipe reprogramming as
+we switch to LUTB from LUTA and the pipe accessing
+the LUT has taken it out of light sleep mode.
 
 [How]
-sr exit latency update.
+The MPCC_OGAM_MEM_PWR_FORCE register does not force
+the current power mode when set to 0. It only forces
+when set light sleep, deep sleep or shutdown.
 
-Signed-off-by: Martin Leung <martin.leung@amd.com>
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+The register to actually force power on and ignore
+sleep modes is MPCC_OGAM_MEM_PWR_DIS - a value of 0
+will enable power requests and a value of 1 will
+disable them.
+
+When PWR_FORCE!=0 is combined with PWR_DIS=0 then
+MPCC OGAM memory is forced into the state specified
+by the force bits.
+
+If PWR_FORCE is 0 then it respects the mode specified
+by MPCC_OGAM_MEM_LOW_PWR_MODE if the RAM LUT is not
+in use.
+
+We set that bit to shutdown on low power, but otherwise
+it inherits from bootup defaults.
+
+So for the fix:
+
+1. Update the sequence to "force" power on when needed
+
+We can use MPCC_OGAM_MEM_PWR_DIS for this to turn on the
+memory even when the block is in bypass and pending to be
+enabled for the next frame.
+
+We need this for both low power enabled or disabled.
+
+If we don't set this then we can run into issues when we
+first program the LUT from bootup.
+
+2. Don't apply FORCE_SEL
+
+Once we enable power requests with DIS=0 we run into the
+issue of the RAM being forced into light sleep and being
+unusable for display output. Leave this 0 like we used to
+for DCN20.
+
+3. Rely on MPCC OGAM init to determine light sleep/deep sleep
+
+MPC low power debug mode isn't enabled on any ASIC currently
+but we'll respect the setting determined during init if it
+is.
+
+Lightly tested as working with IGT tests and desktop color
+adjustment.
+
+4. Change the MPC resource default for DCN30
+
+It was interleaving the dcn20 and dcn30 versions before
+depending on the sequence.
+
+5. REG_WAIT for it to be on whenever we're powering up the
+memory
+
+Otherwise we can write register values too early and we'll
+get corruption.
+
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Eric Yang <eric.yang2@amd.com>
 Acked-by: Qingqing Zhuo <Qingqing.Zhuo@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c  | 24 ++++++++++---------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-index fb7f1dea3c46..71e2d5e02571 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-@@ -181,7 +181,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn3_0_soc = {
- 		},
- 	.min_dcfclk = 500.0, /* TODO: set this to actual min DCFCLK */
- 	.num_states = 1,
--	.sr_exit_time_us = 12,
-+	.sr_exit_time_us = 15.5,
- 	.sr_enter_plus_exit_time_us = 20,
- 	.urgent_latency_us = 4.0,
- 	.urgent_latency_pixel_data_only_us = 4.0,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
+index 3e6f76096119..a7598356f37d 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
+@@ -143,16 +143,18 @@ static void mpc3_power_on_ogam_lut(
+ {
+ 	struct dcn30_mpc *mpc30 = TO_DCN30_MPC(mpc);
+ 
+-	if (mpc->ctx->dc->debug.enable_mem_low_power.bits.mpc) {
+-		// Force power on
+-		REG_UPDATE(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_DIS, power_on == true ? 1:0);
+-		// Wait for confirmation when powering on
+-		if (power_on)
+-			REG_WAIT(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_STATE, 0, 10, 10);
+-	} else {
+-		REG_SET(MPCC_MEM_PWR_CTRL[mpcc_id], 0,
+-				MPCC_OGAM_MEM_PWR_FORCE, power_on == true ? 0 : 1);
+-	}
++	/*
++	 * Powering on: force memory active so the LUT can be updated.
++	 * Powering off: allow entering memory low power mode
++	 *
++	 * Memory low power mode is controlled during MPC OGAM LUT init.
++	 */
++	REG_UPDATE(MPCC_MEM_PWR_CTRL[mpcc_id],
++		   MPCC_OGAM_MEM_PWR_DIS, power_on != 0);
++
++	/* Wait for memory to be powered on - we won't be able to write to it otherwise. */
++	if (power_on)
++		REG_WAIT(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_STATE, 0, 10, 10);
+ }
+ 
+ static void mpc3_configure_ogam_lut(
+@@ -1427,7 +1429,7 @@ const struct mpc_funcs dcn30_mpc_funcs = {
+ 	.acquire_rmu = mpcc3_acquire_rmu,
+ 	.program_3dlut = mpc3_program_3dlut,
+ 	.release_rmu = mpcc3_release_rmu,
+-	.power_on_mpc_mem_pwr = mpc20_power_on_ogam_lut,
++	.power_on_mpc_mem_pwr = mpc3_power_on_ogam_lut,
+ 	.get_mpc_out_mux = mpc1_get_mpc_out_mux,
+ 
+ };
 -- 
 2.30.2
 
