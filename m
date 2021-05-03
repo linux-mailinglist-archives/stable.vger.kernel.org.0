@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C644A371D4C
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 19:01:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF28371D4F
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 19:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234675AbhECQ6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:58:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45140 "EHLO mail.kernel.org"
+        id S234682AbhECQ6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:58:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235380AbhECQ4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:56:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 662196157E;
-        Mon,  3 May 2021 16:43:42 +0000 (UTC)
+        id S233619AbhECQ43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:56:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2BC86140E;
+        Mon,  3 May 2021 16:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060223;
-        bh=zIV/X3RDGm+3ThlybYosjhW5l3vnZrve28LxP00O7n4=;
+        s=k20201202; t=1620060224;
+        bh=o2t2W2YyIFJIlQucS6TNKdg6QFtpsMeIboeh/CYstVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DfrK2NAyBwC62wQiJrbIXXVgf9T+X5LK4ecBhE28WJ/CajHodOLdZlP8d7JdIxuXp
-         R1X6AjmqH3HzukeUFydP4BHCwY7Ll+d806E6KcGjo6zZhMu10+/i2XG+Wp7yLyGcrR
-         gr4V8JUwuMeJAJqxR58OA51jtQYI5SMNlN4AEX0LEya8SPdlJt2cQQXoiZyPkyfTkA
-         J4EljVhx9zQXdz34RGLSV81jhKaalBQ1IZETAVdLSsDO1DAR6hvChfB8TojDLiNvOT
-         Zs7cpeQCm/tNNOAXEZy4cqxdngtwwyxq2ucweHK9N9pk/lPFTsbvnXCIboevlcm+35
-         PbGLq7x1LMEvg==
+        b=WgBrIn22PlZCpT6AIqDEHj8lKzhSdTjy1aHgWt4K6G5vfIpbJJbEF0ojy3Yy24JGk
+         vBXi/LmLoIh5SC3qyeo9y44p4Z0aZ5UlrPnXbVIBZh+fL+wAx1FqTUNkn8Ku2w5Wem
+         t8hmUY0pcHhJUcU1kwRrrg1GBMLNEfcReXXj4cn7KXsMRkcxYHXVWCoP4avFudfFcG
+         mOkkt2PYOoxaRQbXJFRaKFR8WpdEMma1018zmhraiW7mOynkqV8SkW+ANxYuVUN/Tg
+         cblru5ZLtGmn/VElr90xdu5HNsaOVmP94F/3xWM655nT3xmpHawwHXAUfr0gt/9pAp
+         +Q86w2CbXXK1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Yang Yingliang <yangyingliang@huawei.com>,
         Hulk Robot <hulkci@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 09/16] power: supply: s3c_adc_battery: fix possible use-after-free in s3c_adc_bat_remove()
-Date:   Mon,  3 May 2021 12:43:22 -0400
-Message-Id: <20210503164329.2854739-9-sashal@kernel.org>
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 10/16] media: i2c: adv7511-v4l2: fix possible use-after-free in adv7511_remove()
+Date:   Mon,  3 May 2021 12:43:23 -0400
+Message-Id: <20210503164329.2854739-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503164329.2854739-1-sashal@kernel.org>
 References: <20210503164329.2854739-1-sashal@kernel.org>
@@ -46,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 68ae256945d2abe9036a7b68af4cc65aff79d5b7 ]
+[ Upstream commit 2c9541720c66899adf6f3600984cf3ef151295ad ]
 
 This driver's remove path calls cancel_delayed_work(). However, that
 function does not wait until the work function finishes. This means
@@ -59,26 +59,26 @@ to re-schedule itself.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/s3c_adc_battery.c | 2 +-
+ drivers/media/i2c/adv7511-v4l2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/s3c_adc_battery.c b/drivers/power/s3c_adc_battery.c
-index 0ffe5cd3abf6..06b412c43aa7 100644
---- a/drivers/power/s3c_adc_battery.c
-+++ b/drivers/power/s3c_adc_battery.c
-@@ -392,7 +392,7 @@ static int s3c_adc_bat_remove(struct platform_device *pdev)
- 		gpio_free(pdata->gpio_charge_finished);
- 	}
+diff --git a/drivers/media/i2c/adv7511-v4l2.c b/drivers/media/i2c/adv7511-v4l2.c
+index b35400e4e9af..e85777dfe81d 100644
+--- a/drivers/media/i2c/adv7511-v4l2.c
++++ b/drivers/media/i2c/adv7511-v4l2.c
+@@ -1570,7 +1570,7 @@ static int adv7511_remove(struct i2c_client *client)
+ 		 client->addr << 1, client->adapter->name);
  
--	cancel_delayed_work(&bat_work);
-+	cancel_delayed_work_sync(&bat_work);
- 
- 	if (pdata->exit)
- 		pdata->exit();
+ 	adv7511_init_setup(sd);
+-	cancel_delayed_work(&state->edid_handler);
++	cancel_delayed_work_sync(&state->edid_handler);
+ 	i2c_unregister_device(state->i2c_edid);
+ 	i2c_unregister_device(state->i2c_pktmem);
+ 	destroy_workqueue(state->work_queue);
 -- 
 2.30.2
 
