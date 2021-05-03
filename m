@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 006A2371D3D
+	by mail.lfdr.de (Postfix) with ESMTP id 66708371D3E
 	for <lists+stable@lfdr.de>; Mon,  3 May 2021 19:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbhECQ60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231959AbhECQ60 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 3 May 2021 12:58:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43308 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235309AbhECQ4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235317AbhECQ4K (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 3 May 2021 12:56:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EDEB6147E;
-        Mon,  3 May 2021 16:43:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C06BD6197C;
+        Mon,  3 May 2021 16:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060208;
-        bh=+cvWOBDRyKf73Q+EhkDcGsJYeQvFlO0OC/pPuxYSEHM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smlg39YndpE+Dy/dAnuTTyqHcMiy3Z5fMHey2VzyqK8LqvTgTAxrAq2Wn8bu5PiuT
-         cgNS2hYF2P4zLfwofBoeL3eYFRydba+duxg7b/LDU0Q+WZ5KNu8ombUDHHue4pTDUy
-         q9QjMX91cevoEgOzjqL6BtiLMySGP2y0si/3HwMnaJl8rQwKREdBINHsEs58z/Pcvt
-         cGhvckOZhMJUi/KHALHLcBqZw7hQuF2L03NNEgNbd7+mEvjJ67187fDLAqsBkhbmQv
-         D/uuD3AZE4VjX6gw84J+t8d15jtP+VkTBgYF1/PjBoiDVJLAcfbJzAokpkUpHNJk8V
-         edkl3ZHW3PvIA==
+        s=k20201202; t=1620060211;
+        bh=oda4eqHRVFvsClBa5OXXc3KjLxo1xhYRA+i0CkL0TGM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jyc+Bhvgp8WRlV5awzPbfUPhAoLA8+g+jfcdee4iJUWomZOd7BxtScHBaaUVlrSMc
+         NpVrfTeo4n8xI+yVuAAAtwkvvdE8LQewS6unDCPsrt23tYNDIpVZBhkj6AG3awLMws
+         kY7w4TUXdLh6Vcdhpy4Pjy+y1D4O1KUW21J+eqSIKk8NOZFf3xAoFAV9HLDObSKYIa
+         LhR0CthMXomJvZAfGPmAqw/NrQfy7Con9MdSuOeymCnpzhsNUjGGayWiXRyGf9N6NV
+         1TyrihvxYH2ODRZYdvexy0bVtiOz7jQljvoif6ZaYgzhW5NuiXrkQwfqx2VH3a6x0A
+         31S2jibbQsfdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.de>,
+Cc:     Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 24/24] scsi: libfc: Fix a format specifier
-Date:   Mon,  3 May 2021 12:42:52 -0400
-Message-Id: <20210503164252.2854487-24-sashal@kernel.org>
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 01/16] scsi: target: pscsi: Fix warning in pscsi_complete_cmd()
+Date:   Mon,  3 May 2021 12:43:14 -0400
+Message-Id: <20210503164329.2854739-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210503164252.2854487-1-sashal@kernel.org>
-References: <20210503164252.2854487-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,43 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit 90d6697810f06aceea9de71ad836a8c7669789cd ]
+[ Upstream commit fd48c056a32ed6e7754c7c475490f3bed54ed378 ]
 
-Since the 'mfs' member has been declared as 'u32' in include/scsi/libfc.h,
-use the %u format specifier instead of %hu. This patch fixes the following
-clang compiler warning:
+This fixes a compilation warning in pscsi_complete_cmd():
 
-warning: format specifies type
-      'unsigned short' but the argument has type 'u32' (aka 'unsigned int')
-      [-Wformat]
-                             "lport->mfs:%hu\n", mfs, lport->mfs);
-                                         ~~~          ^~~~~~~~~~
-                                         %u
+     drivers/target/target_core_pscsi.c: In function ‘pscsi_complete_cmd’:
+     drivers/target/target_core_pscsi.c:624:5: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+     ; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
 
-Link: https://lore.kernel.org/r/20210415220826.29438-8-bvanassche@acm.org
-Cc: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20210228055645.22253-5-chaitanya.kulkarni@wdc.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libfc/fc_lport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/target/target_core_pscsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libfc/fc_lport.c b/drivers/scsi/libfc/fc_lport.c
-index ae93f45f9cd8..a36817fb0673 100644
---- a/drivers/scsi/libfc/fc_lport.c
-+++ b/drivers/scsi/libfc/fc_lport.c
-@@ -1751,7 +1751,7 @@ void fc_lport_flogi_resp(struct fc_seq *sp, struct fc_frame *fp,
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index d72a4058fd08..0ce3697ecbd7 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -629,8 +629,9 @@ static void pscsi_transport_complete(struct se_cmd *cmd, struct scatterlist *sg,
+ 			unsigned char *buf;
  
- 	if (mfs < FC_SP_MIN_MAX_PAYLOAD || mfs > FC_SP_MAX_MAX_PAYLOAD) {
- 		FC_LPORT_DBG(lport, "FLOGI bad mfs:%hu response, "
--			     "lport->mfs:%hu\n", mfs, lport->mfs);
-+			     "lport->mfs:%u\n", mfs, lport->mfs);
- 		fc_lport_error(lport, fp);
- 		goto out;
- 	}
+ 			buf = transport_kmap_data_sg(cmd);
+-			if (!buf)
++			if (!buf) {
+ 				; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
++			}
+ 
+ 			if (cdb[0] == MODE_SENSE_10) {
+ 				if (!(buf[3] & 0x80))
 -- 
 2.30.2
 
