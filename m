@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5100371C17
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8949371C16
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233242AbhECQvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233263AbhECQvN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 3 May 2021 12:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35394 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233135AbhECQtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:49:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F697616EB;
-        Mon,  3 May 2021 16:40:09 +0000 (UTC)
+        id S233684AbhECQtX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:49:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B53226162E;
+        Mon,  3 May 2021 16:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060010;
-        bh=N4Is+K2p0kwejxQBZnAf2tk+XHiNxnIvQ7kV3g9fcwA=;
+        s=k20201202; t=1620060011;
+        bh=U0vtZbOtbv/37FXM9sZyIvdfbCrAXZDCzwUYtGaShgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U9IlPujYi4t9WcGe/F2vwhqXCS0bUcJog8XQIAeHSZyDF/y/fHogcb1suqJCLobwt
-         qfdtUg9aA+jIKSMa32XRxENRUhAqHC8+ihi0l8PDpIJVBWc9wyYpk0kEhrPUha5lHe
-         3HUf5P61LOc8+cabWxQfDJ95cdyp+SClKe2rJlpv/9Ea2njRUhcCfHN/vcnkxSVM+z
-         Z+aqk3YWB6I9c1IUhJRMYyPn8r/l21l1Zv0K7ijFzlidTjmCwsdWdrQDT6+IW+1vYz
-         7x/RwwlPVaE0KYTSKHUnIx9ieAqob0+EziAgeOOSxvGDhm3OtVeJgVBFsYydOwRiuD
-         soRVLGE8d4vag==
+        b=LX9QEzRblCBjpqb5bg1WGy+BJZx0rgZiBK7mSuw1jzVy+huth+tGkMkwjq5RqblFk
+         RqxzbjgSNnsyZbJwHTSE9gpwR94yztRiu40QniMRqqSdJJtgORN0lM7MLRZqwRoepl
+         1HRZA/y8JHTys55oi2l+hmFKYv+MgK66pOauUsCXdQT8uYVMX/NfXx6Ju7l9TLbBi1
+         bNxguCPiWxrwDjGGqTsvweO/mYt04x6R4FlnhFzDVqnyuVy19u3ZszDZ46tYDjT5hY
+         qkkCTyN99YF0lTgJ9WBk6xBhrwxmvtvZrxweFYdqqYlXDqSilV+Ug5ekWgb7rW769d
+         QnCOqSZmSScKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lyude Paul <lyude@redhat.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Jonathan Kim <jonathan.kim@amd.com>, Amber Lin <amber.lin@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 19/57] drm/bridge/analogix/anx78xx: Cleanup on error in anx78xx_bridge_attach()
-Date:   Mon,  3 May 2021 12:39:03 -0400
-Message-Id: <20210503163941.2853291-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 20/57] drm/amdgpu: mask the xgmi number of hops reported from psp to kfd
+Date:   Mon,  3 May 2021 12:39:04 -0400
+Message-Id: <20210503163941.2853291-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163941.2853291-1-sashal@kernel.org>
 References: <20210503163941.2853291-1-sashal@kernel.org>
@@ -43,61 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Jonathan Kim <jonathan.kim@amd.com>
 
-[ Upstream commit 212ee8db84600f7b279b8645c62a112bff310995 ]
+[ Upstream commit 4ac5617c4b7d0f0a8f879997f8ceaa14636d7554 ]
 
-Just another issue I noticed while correcting usages of
-drm_dp_aux_init()/drm_dp_aux_register() around the tree. If any of the
-steps in anx78xx_bridge_attach() fail, we end up leaking resources. So,
-let's fix that (and fix leaking a DP AUX adapter in the process) by
-unrolling on errors.
+The psp supplies the link type in the upper 2 bits of the psp xgmi node
+information num_hops field.  With a new link type, Aldebaran has these
+bits set to a non-zero value (1 = xGMI3) so the KFD topology will report
+the incorrect IO link weights without proper masking.
+The actual number of hops is located in the 3 least significant bits of
+this field so mask if off accordingly before passing it to the KFD.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210219215326.2227596-10-lyude@redhat.com
+Signed-off-by: Jonathan Kim <jonathan.kim@amd.com>
+Reviewed-by: Amber Lin <amber.lin@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix-anx78xx.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-index fcbad1ed865a..3ddeee3cc5a2 100644
---- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
-+++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-@@ -1026,7 +1026,7 @@ static int anx78xx_bridge_attach(struct drm_bridge *bridge)
- 				 DRM_MODE_CONNECTOR_DisplayPort);
- 	if (err) {
- 		DRM_ERROR("Failed to initialize connector: %d\n", err);
--		return err;
-+		goto aux_unregister;
- 	}
- 
- 	drm_connector_helper_add(&anx78xx->connector,
-@@ -1038,16 +1038,21 @@ static int anx78xx_bridge_attach(struct drm_bridge *bridge)
- 					   bridge->encoder);
- 	if (err) {
- 		DRM_ERROR("Failed to link up connector to encoder: %d\n", err);
--		return err;
-+		goto connector_cleanup;
- 	}
- 
- 	err = drm_connector_register(&anx78xx->connector);
- 	if (err) {
- 		DRM_ERROR("Failed to register connector: %d\n", err);
--		return err;
-+		goto connector_cleanup;
- 	}
- 
- 	return 0;
-+connector_cleanup:
-+	drm_connector_cleanup(&anx78xx->connector);
-+aux_unregister:
-+	drm_dp_aux_unregister(&anx78xx->aux);
-+	return err;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+index 65aae75f80fd..ce1048bad158 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+@@ -311,15 +311,22 @@ int amdgpu_xgmi_update_topology(struct amdgpu_hive_info *hive, struct amdgpu_dev
  }
  
- static enum drm_mode_status
+ 
++/*
++ * NOTE psp_xgmi_node_info.num_hops layout is as follows:
++ * num_hops[7:6] = link type (0 = xGMI2, 1 = xGMI3, 2/3 = reserved)
++ * num_hops[5:3] = reserved
++ * num_hops[2:0] = number of hops
++ */
+ int amdgpu_xgmi_get_hops_count(struct amdgpu_device *adev,
+ 		struct amdgpu_device *peer_adev)
+ {
+ 	struct psp_xgmi_topology_info *top = &adev->psp.xgmi_context.top_info;
++	uint8_t num_hops_mask = 0x7;
+ 	int i;
+ 
+ 	for (i = 0 ; i < top->num_nodes; ++i)
+ 		if (top->nodes[i].node_id == peer_adev->gmc.xgmi.node_id)
+-			return top->nodes[i].num_hops;
++			return top->nodes[i].num_hops & num_hops_mask;
+ 	return	-EINVAL;
+ }
+ 
 -- 
 2.30.2
 
