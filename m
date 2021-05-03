@@ -2,90 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0ED23714E9
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 14:02:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21B19371553
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 14:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234043AbhECMCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 08:02:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37066 "EHLO mail.kernel.org"
+        id S233277AbhECMmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 08:42:08 -0400
+Received: from mx.cjr.nz ([51.158.111.142]:15190 "EHLO mx.cjr.nz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233869AbhECMCG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 08:02:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDD8C6135C;
-        Mon,  3 May 2021 12:01:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620043273;
-        bh=KcV3atBkyaamldW6+LBiV4kpn3j58jfa6Pt0wZ6TVDU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kD75+WhQumA4j6priBMUCGx0nMCeSnO+/QkzbXsNSbsxyIpAB9KKkyK6yaLw3pfy7
-         dqyekchbjOBDVlqlkbFGcJQyuGCpvmuqbMjC0jiZ8OM9fWrQhskbfJnGNPkyRrOsln
-         R3jyekW5YAnQYWChvaJnQWdQUOmT1k0Y4AEiuOk0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kangjie Lu <kjlu@umn.edu>, Aditya Pakki <pakki001@umn.edu>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Rob Herring <robh@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH 66/69] Revert "video: imsttfb: fix potential NULL pointer dereferences"
-Date:   Mon,  3 May 2021 13:57:33 +0200
-Message-Id: <20210503115736.2104747-67-gregkh@linuxfoundation.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
-References: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
+        id S232213AbhECMmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 08:42:08 -0400
+Received: from authenticated-user (mx.cjr.nz [51.158.111.142])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: pc)
+        by mx.cjr.nz (Postfix) with ESMTPSA id 97B727FC03;
+        Mon,  3 May 2021 12:41:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cjr.nz; s=dkim;
+        t=1620045673;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=9BkUUc/YwddJxTjYulvJEs1Njtdob0Y85AYgQernRLw=;
+        b=J8bJ56Xtl6krlDV5GuXYF9Zc0SvGzv7VTKjl9cERszQqkRo2R/3uqup2BNaP3IrqTL1HHw
+        zPvbEICwehftVGYK/emwXUVV8tKuzNje68rzkJHSypH+/RvksAxgwU/RCntcXqq+871CjU
+        ip23vJYN0twy+ItIx5vqJx2juOIcI0n/8b3A7EvhCJSKhQHgUGxUI3ciWZmz2neALbAevU
+        si2QWvxAPvxdv7Iu+LUfuEOXHz6gHCe4S62zfAjGeE/6Xu873quOISmvzPX8NlHrCEHhDB
+        aqtBfjziBBIRnAeUKnEhrbsP1s7IyhfALR1TDBUzQswl5CPYb7dwWZfEzQF1iQ==
+From:   Paulo Alcantara <pc@cjr.nz>
+To:     David Disseldorp <ddiss@suse.de>
+Cc:     linux-cifs@vger.kernel.org, smfrench@gmail.com, aaptel@suse.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] cifs: fix regression when mounting shares with prefix
+ paths
+In-Reply-To: <20210501014005.41545d44@suse.de>
+References: <20210430221621.7497-1-pc@cjr.nz> <20210501014005.41545d44@suse.de>
+Date:   Mon, 03 May 2021 09:41:08 -0300
+Message-ID: <87wnsg2dnf.fsf@cjr.nz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 1d84353d205a953e2381044953b7fa31c8c9702d.
+David Disseldorp <ddiss@suse.de> writes:
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+> On Fri, 30 Apr 2021 19:16:21 -0300, Paulo Alcantara wrote:
+>
+>> The commit 315db9a05b7a ("cifs: fix leak in cifs_smb3_do_mount() ctx")
+>> revealed an existing bug when mounting shares that contain a prefix
+>> path or DFS links.
+>
+> Sorry for the mess. One question...
+>
+> ...
+>>  	if (mntopts) {
+>>  		char *ip;
+>>  
+>> -		cifs_dbg(FYI, "%s: mntopts=%s\n", __func__, mntopts);
+>>  		rc = smb3_parse_opt(mntopts, "ip", &ip);
+>> -		if (!rc && !cifs_convert_address((struct sockaddr *)&ctx->dstaddr, ip,
+>> -						 strlen(ip))) {
+>> -			cifs_dbg(VFS, "%s: failed to convert ip address\n", __func__);
+>> -			return -EINVAL;
+>> +		if (!rc) {
+>> +			rc = cifs_convert_address((struct sockaddr *)&ctx->dstaddr, ip, strlen(ip));
+>> +			kfree(ip);
+>> +			if (!rc) {
+>> +				cifs_dbg(VFS, "%s: failed to convert ip address\n", __func__);
+>> +				return -EINVAL;
+>> +			}
+>>  		}
+>>  	}
+>>  
+>> @@ -3189,7 +3198,7 @@ cifs_setup_volume_info(struct smb3_fs_context *ctx, const char *mntopts, const c
+>>  		return -EINVAL;
+>>  	}
+>>  
+>> -	return rc;
+>> +	return 0;
+>>  }
+>
+> It seems that smb3_parse_opt() errors will no longer be propagated here.
+> Is that intentional?
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit here, while technically correct, did not fully
-handle all of the reported issues that the commit stated it was fixing,
-so revert it until it can be "fixed" fully.
-
-Note, ioremap() probably will never fail for old hardware like this, and
-if anyone actually used this hardware (a PowerMac era PCI display card),
-they would not be using fbdev anymore.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: Finn Thain <fthain@telegraphics.com.au>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Fixes: 1d84353d205a ("video: imsttfb: fix potential NULL pointer dereferences")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/video/fbdev/imsttfb.c | 5 -----
- 1 file changed, 5 deletions(-)
-
-diff --git a/drivers/video/fbdev/imsttfb.c b/drivers/video/fbdev/imsttfb.c
-index 3ac053b88495..e04411701ec8 100644
---- a/drivers/video/fbdev/imsttfb.c
-+++ b/drivers/video/fbdev/imsttfb.c
-@@ -1512,11 +1512,6 @@ static int imsttfb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	info->fix.smem_start = addr;
- 	info->screen_base = (__u8 *)ioremap(addr, par->ramdac == IBM ?
- 					    0x400000 : 0x800000);
--	if (!info->screen_base) {
--		release_mem_region(addr, size);
--		framebuffer_release(info);
--		return -ENOMEM;
--	}
- 	info->fix.mmio_start = addr + 0x800000;
- 	par->dc_regs = ioremap(addr + 0x800000, 0x1000);
- 	par->cmap_regs_phys = addr + 0x840000;
--- 
-2.31.1
-
+That was a mistake, actually.  Will fix it in v2.  Thanks!
