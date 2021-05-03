@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E49E371AAE
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:40:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 950D1371AAC
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:40:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231836AbhECQkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37204 "EHLO mail.kernel.org"
+        id S232392AbhECQkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231834AbhECQjR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231750AbhECQjR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 3 May 2021 12:39:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63AF561408;
-        Mon,  3 May 2021 16:37:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2671613F5;
+        Mon,  3 May 2021 16:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059841;
-        bh=k9ChT4BgUSBEEY477nIRp8U+YSJQjA/6ihvjRNoeAUI=;
+        s=k20201202; t=1620059842;
+        bh=C9z5N3g4ySrxTC569ZgQfCkCsuh6AL1rRLSsEnFNzJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwCy3WhOckjLVZAh2PbodORcyMh26iK9tSZq27VZ41jPOV2N8FQswZAL9kvBFa97J
-         X38nBb3tHf/EA+zyJupInDsMm1HxhmralrR4X/2WTZLcDrE787R2nadxhOujFcToaw
-         78aSCIJVQ+OVjatnRJ8oH5t/mIoWmAigXk+ZXypiINfsaZYwXwxwXsqHGTJuIUYiNC
-         cZPD1/oxev71c84cht++kQCda1+O7s+ISJdg2QO7vPdJ1uNlAM9m7VrwtNgYPBMbYb
-         cRnfZegifkbpuePkqtQwXDbBdYhbGGQo8jbKexlBSY+qg9mSM3rPs0Fo+wEGrmYiau
-         XcaiG7m7Nhm5A==
+        b=MoCJSCePmohNI8/al6fzz0Ly8l4GLe5WHGKiTv1/6Rzl/T4uTOiEpugj7PIf+ZQFx
+         sUQCOFroyo8zkixZhvf3dU9oqNCee/ibL4RcofmvosZKWlVRLc6+TWMQh/f0Bzy/Sg
+         kNmgif8yv/p3m8Z6vtUvr4sAapOHDGtJFIca7hpU7zW8NNOgA9pEkeTOFUGoLGH2KM
+         FraBEkxt3SxgWoBaJJ88v84Kk0GFjxglEbOAEl+f4qSvQtiU1Nk2AodmcC9eHPAD0A
+         9JSISozlfqRkj++zDJ/gX/GFQBBAAsZywopgBR0UTWjekhNzkdeWqIFwSjt0WVf9Xg
+         AxdbI3B4ivp1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Smart <jsmart2021@gmail.com>,
         Dick Kennedy <dick.kennedy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 013/115] scsi: lpfc: Fix incorrect dbde assignment when building target abts wqe
-Date:   Mon,  3 May 2021 12:35:17 -0400
-Message-Id: <20210503163700.2852194-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 014/115] scsi: lpfc: Fix pt2pt connection does not recover after LOGO
+Date:   Mon,  3 May 2021 12:35:18 -0400
+Message-Id: <20210503163700.2852194-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163700.2852194-1-sashal@kernel.org>
 References: <20210503163700.2852194-1-sashal@kernel.org>
@@ -45,36 +45,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 9302154c07bff4e7f7f43c506a1ac84540303d06 ]
+[ Upstream commit bd4f5100424d17d4e560d6653902ef8e49b2fc1f ]
 
-The wqe_dbde field indicates whether a Data BDE is present in Words 0:2 and
-should therefore should be clear in the abts request wqe. By setting the
-bit we can be misleading fw into error cases.
+On a pt2pt setup, between 2 initiators, if one side issues a a LOGO, there
+is no relogin attempt. The FC specs are grey in this area on which port
+(higher wwn or not) is to re-login.
 
-Clear the wqe_dbde field.
+As there is no spec guidance, unconditionally re-PLOGI after the logout to
+ensure a login is re-established.
 
-Link: https://lore.kernel.org/r/20210301171821.3427-2-jsmart2021@gmail.com
+Link: https://lore.kernel.org/r/20210301171821.3427-8-jsmart2021@gmail.com
 Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvmet.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_nportdisc.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
-index a71df8788fff..0dbe1d399378 100644
---- a/drivers/scsi/lpfc/lpfc_nvmet.c
-+++ b/drivers/scsi/lpfc/lpfc_nvmet.c
-@@ -3299,7 +3299,6 @@ lpfc_nvmet_unsol_issue_abort(struct lpfc_hba *phba,
- 	bf_set(wqe_rcvoxid, &wqe_abts->xmit_sequence.wqe_com, xri);
- 
- 	/* Word 10 */
--	bf_set(wqe_dbde, &wqe_abts->xmit_sequence.wqe_com, 1);
- 	bf_set(wqe_iod, &wqe_abts->xmit_sequence.wqe_com, LPFC_WQE_IOD_WRITE);
- 	bf_set(wqe_lenloc, &wqe_abts->xmit_sequence.wqe_com,
- 	       LPFC_WQE_LENLOC_WORD12);
+diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
+index 1ac855640fc5..cc9b3eba0746 100644
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -901,9 +901,14 @@ lpfc_rcv_logo(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 		}
+ 	} else if ((!(ndlp->nlp_type & NLP_FABRIC) &&
+ 		((ndlp->nlp_type & NLP_FCP_TARGET) ||
+-		!(ndlp->nlp_type & NLP_FCP_INITIATOR))) ||
++		(ndlp->nlp_type & NLP_NVME_TARGET) ||
++		(vport->fc_flag & FC_PT2PT))) ||
+ 		(ndlp->nlp_state == NLP_STE_ADISC_ISSUE)) {
+-		/* Only try to re-login if this is NOT a Fabric Node */
++		/* Only try to re-login if this is NOT a Fabric Node
++		 * AND the remote NPORT is a FCP/NVME Target or we
++		 * are in pt2pt mode. NLP_STE_ADISC_ISSUE is a special
++		 * case for LOGO as a response to ADISC behavior.
++		 */
+ 		mod_timer(&ndlp->nlp_delayfunc,
+ 			  jiffies + msecs_to_jiffies(1000 * 1));
+ 		spin_lock_irq(&ndlp->lock);
 -- 
 2.30.2
 
