@@ -2,88 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F5037203E
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 21:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ED7D37208D
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 21:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229497AbhECTSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 15:18:23 -0400
-Received: from mout.kundenserver.de ([212.227.17.13]:60277 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229472AbhECTSX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 May 2021 15:18:23 -0400
-Received: from mail-wr1-f42.google.com ([209.85.221.42]) by
- mrelayeu.kundenserver.de (mreue108 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1N95qT-1lSUUJ0vw7-016BEv for <stable@vger.kernel.org>; Mon, 03 May 2021
- 21:17:28 +0200
-Received: by mail-wr1-f42.google.com with SMTP id z6so6752631wrm.4
-        for <stable@vger.kernel.org>; Mon, 03 May 2021 12:17:28 -0700 (PDT)
-X-Gm-Message-State: AOAM530Tt9MUyZI9jzJyX0qxsnWp2eVnsNnNNUWoIqbMFpVCm/sIgzNa
-        rnhtDjqYxSxlMMScA9jKFBOAVrPacs7ZG1cS8cI=
-X-Google-Smtp-Source: ABdhPJxeaqynZXoeue3wCqk5dBIDSGPfaE+Td6YHgoCDhLjegY+5XAYM20GsGHL9RWdcvPLDt8OFuABmzWT6FQFKFIg=
-X-Received: by 2002:a5d:4452:: with SMTP id x18mr27443363wrr.286.1620069447928;
- Mon, 03 May 2021 12:17:27 -0700 (PDT)
+        id S229646AbhECThL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 15:37:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229570AbhECThK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 May 2021 15:37:10 -0400
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC68C06174A;
+        Mon,  3 May 2021 12:36:16 -0700 (PDT)
+Received: by mail-lj1-x22f.google.com with SMTP id o16so8265969ljp.3;
+        Mon, 03 May 2021 12:36:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=/15ZZgVs4HWwrQnoXkLDtTe4rR3G5xM3bzUg9TCb5gA=;
+        b=mhwZUQ+Wna2bTzVcsyO/hJn7zgi/eLCeH+k76NUpMWmcIUA0AeuMrubne0kmeVoBAP
+         x0sqhLptrE4+IzSI06xEanCrLQTTqczVfQlS7Q9xolDG2pmQPfd5z6fv6Jya5PkkspRh
+         6z/uSvyVUSPj7D+aY/+fKKXtAA020AeeowfW563Ug2mx6/86YL3z4eEvyKBT9MDw3Q+B
+         hV8kOzDUzE5j+U/9ehHMGl950IiBSrLrafBE5bl/N5NQSRaulUFmjW3uP6YtK939m1xD
+         UXXkk2fwH/gKS1QG7o4oJhycMOgAQoQO9++RGjCDrZmqUYg39rkSL9c73qPhZxtIhN69
+         Ayhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=/15ZZgVs4HWwrQnoXkLDtTe4rR3G5xM3bzUg9TCb5gA=;
+        b=Fq7a3MF8X1ZS/PluFVbKozV/CahwTybIMgkvPQslJE/OfnzEW5VtXWpm5hP8hrlXVZ
+         e6CRW/ddBe8DXjppZbPVt7B/+0PcAeJDq2Gs8EXedK/nleOVPt8DMfvt55or9N04U4WL
+         PBV3yjo440yYPxiRiZtD0wmoXsJAcQDPqcGMzBHwqBtXUnwpRuxS0iK8O6K/3Wdwcwse
+         RGrNEjWdnC9O5pJxEvlGSB67FTRDjaUxl5N24cQGy2F+r5uogkZjada99N+0VSwFtuFp
+         5ZQkWSwskpiMbkHherRz3gBZ09tKNcAshmypxsysCcxGCSMH+2KmSTGYeB9AJHJv/C/r
+         6tlg==
+X-Gm-Message-State: AOAM532UYb9XRyWY5tHQfebEdtBVcN1BE7JV8tgAWdBUjnbmx+6U5vbM
+        QKBqFM/4qdPGNbkh20XP7P0=
+X-Google-Smtp-Source: ABdhPJzw1/XziLbg3TWRGUzEJJVGmqP7rmnq2JuXtgbEJAC/YSMWJ0prNTEqoTdphM31RidqYbhexw==
+X-Received: by 2002:a2e:97c3:: with SMTP id m3mr1029889ljj.231.1620070575377;
+        Mon, 03 May 2021 12:36:15 -0700 (PDT)
+Received: from [192.168.0.131] ([194.183.54.57])
+        by smtp.gmail.com with ESMTPSA id q27sm402397ljm.127.2021.05.03.12.36.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 May 2021 12:36:14 -0700 (PDT)
+Subject: Re: [PATCH 09/69] leds: lp5523: check return value of lp5xx_read and
+ jump to cleanup code
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     Phillip Potter <phil@philpotter.co.uk>,
+        stable <stable@vger.kernel.org>,
+        Linux LED Subsystem <linux-leds@vger.kernel.org>,
+        Pavel Machek <pavel@ucw.cz>
+References: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
+ <20210503115736.2104747-10-gregkh@linuxfoundation.org>
+From:   Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Message-ID: <f821d2a3-3801-66a6-3c5b-0e00a8289ec1@gmail.com>
+Date:   Mon, 3 May 2021 21:36:14 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-References: <202105030311.xWwkyV9z-lkp@intel.com> <CAK8P3a0ZdZY94KVwF-C_t+7rx=iHC60ty52AQAmc1VDZwsn9Rw@mail.gmail.com>
- <CAKwvOdmCmvHNpyjNtNU1OeSzK_E_9n9T4CPiFGD7K_JuJDOj-w@mail.gmail.com>
-In-Reply-To: <CAKwvOdmCmvHNpyjNtNU1OeSzK_E_9n9T4CPiFGD7K_JuJDOj-w@mail.gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 3 May 2021 21:16:42 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a3KLasm-CdcM3HCP6EZO1Vr0ay17jw7zSy0btqPr32WRg@mail.gmail.com>
-Message-ID: <CAK8P3a3KLasm-CdcM3HCP6EZO1Vr0ay17jw7zSy0btqPr32WRg@mail.gmail.com>
-Subject: Re: [stable:linux-5.4.y 5541/6083] ERROR: "__memcat_p"
- [drivers/hwtracing/stm/stm_core.ko] undefined!
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     kernel test robot <lkp@intel.com>, kbuild-all@lists.01.org,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:LetEelgOooX/rHr2DOT/78bMtKxcCmdnh/75dIybhTBZNZl6v6J
- oLy8fVhdyMdWRWlny+gUg5UdP1mtzzBa4MsbpfTp+RDfm1PBeko8Z6SVv+iQ7xyUpM4JjYk
- whxG8tCvkzJJb7gq0wMmR1L8pG7uhMhe/Q2i6ssUMwKdpf0O8Ruf7dMnxTHEwd06//P1u/I
- zkpk/SNtfYUkz2HUATH1g==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:HDEONmb/fb0=:fvGiR+bIYVss9PuNt6X1SN
- krKe45GgTBl7HsL3tzHFbk21C7lZC8r9fb+xIB+tS2TUcbI3I99F6iRQdlPvc+0BVel1mZzr6
- iTI5Sypn2Bs0Fo4NDrZm0IDmcCwAz683YXdRLan4rZCbn0IcO4RcFFrl04Xld1m4ZlFVlC4Rt
- 0jNEecBC1+PwA6wNglBBnB3wkMJnBEZk81QEQeaMAimU46v1Ku6EPDBfL+xwJN1MU/VmHEXEI
- Zqo7/NB7JZstj++/kJtTfn7mBUdEr6hKkKXzzpF0dcMsffiE/9mA3Vq/Kx1z+hqy+KohKgXST
- ESEETOpiPXMCx+KcaVKw9bIDNpN39JXuhu/UtJU+GI3mK0etc260U5/Bk9S1tEmmQQX4tpSOK
- 6W8Cpn/fxZIM89xcVdCIO7/bj+VcCut65uLBa22nwcKD7uLPtnUSdvmCCjNGef/ncLlf1QmSO
- 2kofhEA71923JctceAivfrEumH1zk0hRoiqRfLGX5vGgKMRckERGzlFlMhspBFbgJZtjamoZg
- A0gmq7Qr68L3knB6RALsNt7qwPm2CTxLKOgfV2+HqU006RwsLM7XkE9hbN583araFAtFyfOFp
- v8W3IKz2J+cepianD7n4jDM8zgt64tg0v5hH9Uisac7bwiz7RBpcN43o8PpPhzTNViv4Hm+2p
- Bt2o=
+In-Reply-To: <20210503115736.2104747-10-gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 3, 2021 at 7:00 PM 'Nick Desaulniers' via Clang Built
-Linux <clang-built-linux@googlegroups.com> wrote:
-> > > >> ERROR: "__memcat_p" [drivers/hwtracing/stm/stm_core.ko] undefined!
-> >
-> > I'm fairly sure this is unrelated to my patch, but I don't see what
-> > happened here.
->
-> It's unrelated to your patch. It was fixed in 5.7 by
-> 7273ad2b08f8ac9563579d16a3cf528857b26f49 and a few other dependencies
-> according to https://github.com/ClangBuiltLinux/linux/issues/515.
->
+On 5/3/21 1:56 PM, Greg Kroah-Hartman wrote:
+> From: Phillip Potter <phil@philpotter.co.uk>
+> 
+> Check return value of lp5xx_read and if non-zero, jump to code at end of
+> the function, causing lp5523_stop_all_engines to be executed before
+> returning the error value up the call chain. This fixes the original
+> commit (248b57015f35) which was reverted due to the University of Minnesota
+> problems.
+> 
+> Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>   drivers/leds/leds-lp5523.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/leds/leds-lp5523.c b/drivers/leds/leds-lp5523.c
+> index 5036d7d5f3d4..b1590cb4a188 100644
+> --- a/drivers/leds/leds-lp5523.c
+> +++ b/drivers/leds/leds-lp5523.c
+> @@ -305,7 +305,9 @@ static int lp5523_init_program_engine(struct lp55xx_chip *chip)
+>   
+>   	/* Let the programs run for couple of ms and check the engine status */
+>   	usleep_range(3000, 6000);
+> -	lp55xx_read(chip, LP5523_REG_STATUS, &status);
+> +	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
+> +	if (ret)
+> +		goto out;
+>   	status &= LP5523_ENG_STATUS_MASK;
+>   
+>   	if (status != LP5523_ENG_STATUS_MASK) {
+> 
 
-Ah right, the big hammer.
+Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 
-Greg, not sure what we want to do here. Backporting
+Cc: Pavel Machek <pavel@ucw.cz>, linux-leds@vger.kernel.org
 
-7273ad2b08f8 ("kbuild: link lib-y objects to vmlinux forcibly when
-CONFIG_MODULES=y")
-
-to v5.4 and earlier would be an easy workaround, but it has the potential
-of adding extra bloat to the kernel image since it links in all other
-library objects as well.
-
-        Arnd
+-- 
+Best regards,
+Jacek Anaszewski
