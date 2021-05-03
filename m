@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2AC371BF8
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:50:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70DF6371BFC
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231951AbhECQvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60834 "EHLO mail.kernel.org"
+        id S232753AbhECQvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233034AbhECQrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232740AbhECQrr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 3 May 2021 12:47:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB0061364;
-        Mon,  3 May 2021 16:39:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E518613BB;
+        Mon,  3 May 2021 16:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059988;
-        bh=gN9GJmqlsrU4t32+jfOOugZd3Z8iZ5ZBvoL4PeSYVpw=;
+        s=k20201202; t=1620059990;
+        bh=q/2oukRTFOFWSFMQUgsHi6++FUsD3ZZUSPntQvGqV4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBlI2Lj1aFIhSN+Es6zyYCYd3ybXMq3YMXaXlELiDW9/Y4lpQ5xo3pYKOjYQVWUB5
-         hHGdF3lRPwZVZVZ+VIYbfVpw1oTraB+hyJA11XYDKYpoEAGTFbX2Ab+uAhhqUztVQF
-         mYBkvugPCFlEQWKf5nLE0ZppQoTEjdh9HJpyewBFEM9j73lHKGn0Nkfnyd2fUL9asV
-         /raKCMVttNt/Km9wVtan3FBHiia+HrtCtr08MjRdmqPwlx3MRY0zR9UivsfpNBkm5o
-         jEFEmyyQ5ridHYjT15EpRyAqSGDr8DQtxvidkI8O1gcGvefeD97hrcpaYDM+OEsJXX
-         OfuHNFoovb9mg==
+        b=J42oZ7ChCCz2FWiFbsgxXqhJtwB38nicm0FocmCDvkAZL0Wv5XsxItCWXV70MUduz
+         IVbcSdxLby/MjDTsDSIKtvZfTISGLXlq4UeGNQvg9S3NUebNvXLPnPRTqc5/CBAC77
+         kRgiaQylSriqVXPYh+2R8DsdO7/UxYewXrOXlpbT6zA3GrZ2PAlZ5vv69VcpczoV6J
+         nZjSmx4/rbhDx5ojcfc4NA6L+GzbE4mowHhicoYSZOqMLRDXRcVqCgtQu1ZDMZdtnX
+         8owYN6JmbNlJCRsiNwe6O1He7UDghGLjN07ejUggrfzfimh5sQNfFqae5hZ26ky7+h
+         6iKmDgpj3wPDA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aric Cyr <aric.cyr@amd.com>, Bindu Ramamurthy <bindu.r@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 04/57] drm/amd/display: Don't optimize bandwidth before disabling planes
-Date:   Mon,  3 May 2021 12:38:48 -0400
-Message-Id: <20210503163941.2853291-4-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 05/57] scsi: lpfc: Fix incorrect dbde assignment when building target abts wqe
+Date:   Mon,  3 May 2021 12:38:49 -0400
+Message-Id: <20210503163941.2853291-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163941.2853291-1-sashal@kernel.org>
 References: <20210503163941.2853291-1-sashal@kernel.org>
@@ -44,42 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aric Cyr <aric.cyr@amd.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 6ad98e8aeb0106f453bb154933e8355849244990 ]
+[ Upstream commit 9302154c07bff4e7f7f43c506a1ac84540303d06 ]
 
-[Why]
-There is a window of time where we optimize bandwidth due to no streams
-enabled will enable PSTATE changing but HUBPs are not disabled yet.
-This results in underflow counter increasing in some hotplug scenarios.
+The wqe_dbde field indicates whether a Data BDE is present in Words 0:2 and
+should therefore should be clear in the abts request wqe. By setting the
+bit we can be misleading fw into error cases.
 
-[How]
-Set the optimize-bandwidth flag for later processing once all the HUBPs
-are properly disabled.
+Clear the wqe_dbde field.
 
-Signed-off-by: Aric Cyr <aric.cyr@amd.com>
-Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20210301171821.3427-2-jsmart2021@gmail.com
+Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_nvmet.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 68d56a91d44b..092db590087c 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -1961,7 +1961,8 @@ static void commit_planes_do_stream_update(struct dc *dc,
- 					if (pipe_ctx->stream_res.audio && !dc->debug.az_endpoint_mute_only)
- 						pipe_ctx->stream_res.audio->funcs->az_disable(pipe_ctx->stream_res.audio);
+diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
+index f14394ab0e03..ce2e2b58fa7e 100644
+--- a/drivers/scsi/lpfc/lpfc_nvmet.c
++++ b/drivers/scsi/lpfc/lpfc_nvmet.c
+@@ -3204,7 +3204,6 @@ lpfc_nvmet_unsol_issue_abort(struct lpfc_hba *phba,
+ 	bf_set(wqe_rcvoxid, &wqe_abts->xmit_sequence.wqe_com, xri);
  
--					dc->hwss.optimize_bandwidth(dc, dc->current_state);
-+					dc->optimized_required = true;
-+
- 				} else {
- 					if (!dc->optimize_seamless_boot)
- 						dc->hwss.prepare_bandwidth(dc, dc->current_state);
+ 	/* Word 10 */
+-	bf_set(wqe_dbde, &wqe_abts->xmit_sequence.wqe_com, 1);
+ 	bf_set(wqe_iod, &wqe_abts->xmit_sequence.wqe_com, LPFC_WQE_IOD_WRITE);
+ 	bf_set(wqe_lenloc, &wqe_abts->xmit_sequence.wqe_com,
+ 	       LPFC_WQE_LENLOC_WORD12);
 -- 
 2.30.2
 
