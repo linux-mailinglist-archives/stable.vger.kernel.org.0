@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D34C371CE9
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC94371CF0
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234182AbhECQ5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:57:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43308 "EHLO mail.kernel.org"
+        id S234287AbhECQ53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:57:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234814AbhECQy7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:54:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0C6A6194C;
-        Mon,  3 May 2021 16:42:26 +0000 (UTC)
+        id S234820AbhECQzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:55:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AD5761954;
+        Mon,  3 May 2021 16:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060147;
-        bh=kI+rkmKsoWNvP+diRQEDMpeuHF2yYZ5MJaNw0LmznwA=;
+        s=k20201202; t=1620060149;
+        bh=3Qtkq3OoeZGNQEuCvvaZiKOFn4jy2VcAcLXyZRnIjZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEuEiaNIzTIWTcN4LYvnsTUKdXtpUdorDYcWJ29t7KcO3A60uCA8CX/21js4BhdAm
-         TUyKEfm7I9xD0+nUz/ghRVCoA/eUxSB4fLR7v75WTx8VZnDrifJKwEQe/I+3qplpjH
-         PEaoa6YeRHrxWGRLourk7b/cv6nMvSAF0XyAOQlizhGpITAOc0BUgYxUyrZND/9y5z
-         4gJgSv6mCD0e+EdCPRpOHM8wf/mkn88uFN6NrxNb0ITEvFSbtnw5husugLPbyKxzXS
-         80HtSUp0wxfAp/WF9QOqmZMx/PYwWsQysv/ItGeIqLQWswEr8hdE70k6RK5bnMS6VO
-         073Ewbn72HMzg==
+        b=ha3Ii+ea2iuYytPb975ku0cfHp7ezWDyP1yv862q17WMJ4whzXggoVmv0juvNZY3/
+         MTchUGezl6Y0Mri8wqn1L0A0k/d74Q/OmNRfQXU2B//e9Z1XiqDhKop9CSsDOax3Ud
+         0MDdUcW1ri6jbo/0g5x7lB72DM7Cnas5cjATj7E1DK+7AniniDozk3m13Knqkptxsc
+         x+E27uGvuATTNN3clpt7lCZDYjVMDK2c9H/Cj7dkAJ6PbJCJtJXuTSFkpOCDBQ9VJH
+         J6yMStKtS04hH+CCbtLkD8IAYTzyMx8xYtBPSqa1mvYQx8G2LLl7qQW1Y3d3bstwiz
+         g0CsWyhIHuGwg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
+Cc:     "Ewan D. Milne" <emilne@redhat.com>,
+        Hannes Reinecke <hare@suse.de>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 15/31] scsi: qla2xxx: Fix use after free in bsg
-Date:   Mon,  3 May 2021 12:41:48 -0400
-Message-Id: <20210503164204.2854178-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 16/31] scsi: scsi_dh_alua: Remove check for ASC 24h in alua_rtpg()
+Date:   Mon,  3 May 2021 12:41:49 -0400
+Message-Id: <20210503164204.2854178-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503164204.2854178-1-sashal@kernel.org>
 References: <20210503164204.2854178-1-sashal@kernel.org>
@@ -45,59 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: "Ewan D. Milne" <emilne@redhat.com>
 
-[ Upstream commit 2ce35c0821afc2acd5ee1c3f60d149f8b2520ce8 ]
+[ Upstream commit bc3f2b42b70eb1b8576e753e7d0e117bbb674496 ]
 
-On bsg command completion, bsg_job_done() was called while qla driver
-continued to access the bsg_job buffer. bsg_job_done() would free up
-resources that ended up being reused by other task while the driver
-continued to access the buffers. As a result, driver was reading garbage
-data.
+Some arrays return ILLEGAL_REQUEST with ASC 00h if they don't support the
+RTPG extended header so remove the check for INVALID FIELD IN CDB.
 
-localhost kernel: BUG: KASAN: use-after-free in sg_next+0x64/0x80
-localhost kernel: Read of size 8 at addr ffff8883228a3330 by task swapper/26/0
-localhost kernel:
-localhost kernel: CPU: 26 PID: 0 Comm: swapper/26 Kdump:
-loaded Tainted: G          OE    --------- -  - 4.18.0-193.el8.x86_64+debug #1
-localhost kernel: Hardware name: HP ProLiant DL360
-Gen9/ProLiant DL360 Gen9, BIOS P89 08/12/2016
-localhost kernel: Call Trace:
-localhost kernel: <IRQ>
-localhost kernel: dump_stack+0x9a/0xf0
-localhost kernel: print_address_description.cold.3+0x9/0x23b
-localhost kernel: kasan_report.cold.4+0x65/0x95
-localhost kernel: debug_dma_unmap_sg.part.12+0x10d/0x2d0
-localhost kernel: qla2x00_bsg_sp_free+0xaf6/0x1010 [qla2xxx]
-
-Link: https://lore.kernel.org/r/20210329085229.4367-6-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Link: https://lore.kernel.org/r/20210331201154.20348-1-emilne@redhat.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
-index c1ca21a88a09..06063a841726 100644
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -19,10 +19,11 @@ qla2x00_bsg_job_done(void *ptr, int res)
- 	struct bsg_job *bsg_job = sp->u.bsg_job;
- 	struct fc_bsg_reply *bsg_reply = bsg_job->reply;
- 
-+	sp->free(sp);
-+
- 	bsg_reply->result = res;
- 	bsg_job_done(bsg_job, bsg_reply->result,
- 		       bsg_reply->reply_payload_rcv_len);
--	sp->free(sp);
- }
- 
- void
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index ba68454109ba..2cf5579a9ad9 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -560,10 +560,11 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 		 * even though it shouldn't according to T10.
+ 		 * The retry without rtpg_ext_hdr_req set
+ 		 * handles this.
++		 * Note:  some arrays return a sense key of ILLEGAL_REQUEST
++		 * with ASC 00h if they don't support the extended header.
+ 		 */
+ 		if (!(pg->flags & ALUA_RTPG_EXT_HDR_UNSUPP) &&
+-		    sense_hdr.sense_key == ILLEGAL_REQUEST &&
+-		    sense_hdr.asc == 0x24 && sense_hdr.ascq == 0) {
++		    sense_hdr.sense_key == ILLEGAL_REQUEST) {
+ 			pg->flags |= ALUA_RTPG_EXT_HDR_UNSUPP;
+ 			goto retry;
+ 		}
 -- 
 2.30.2
 
