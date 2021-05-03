@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB17F371A58
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37ADC371A5B
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:38:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231929AbhECQj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:39:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37694 "EHLO mail.kernel.org"
+        id S232149AbhECQjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:39:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231872AbhECQiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:38:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32676613ED;
-        Mon,  3 May 2021 16:36:43 +0000 (UTC)
+        id S231920AbhECQiQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:38:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D385606A5;
+        Mon,  3 May 2021 16:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059804;
-        bh=jJoZfNgcmrjq0dzD8/7bLHCGeb9OPT43dG8fjCAdG9A=;
+        s=k20201202; t=1620059805;
+        bh=OjEsC7nwO76QX4cEi4gE+xKpmuI3zCRQ3htNueby2TQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1e32pEAKDwoLkurKLgPO+q32EMHUUKfhN5ySa0D6WcQxIlpcxQndjjznv2A7F9FJ
-         69kz+qVqTK6HdsRcsTsivXfOsRgcHm4UwN8iwgL1mBCZlxjqGrm984NIyeHOTNZ312
-         Z93UL5cd+DRP/9Bkve8+RFIpeMDmHhGxmUXvkZlscT/fEs37rjhgRl/9BJSzMNVThS
-         WXhPNRPYL5Uihu00QwpDbCc+qeAYsZZCw/ZS9wJX210Tjn1vSOaIVUI/CfTP0bI7Me
-         x1bXa29CvkNhevZGXZQzcQjX7axfefWRKhb6V5wmpPmtRv5gjy4zHY85SKBErzVWzK
-         FtJpZM2qxusrQ==
+        b=gmflKIAIwdAphe6In64cGF3rccHUjala42c1+96g7E57HCGKVbqxPs5k5t7uNSeb+
+         4xIN8vxxu+jZLO56EJcKMWUWmOUtYzZk3G4dUxTsV4Y+I19hDdVpewAW+Ngsaerxhb
+         Q73F0pqUnCGQ3TQQ1HewIyPE6z4Nb3kFbUMeBvFIStRy3s1sqZmNPru1HTvu+BktWd
+         FLejbj0wUoCvsRcPbtPgfRmcy/isz/eWDitGHVnIM4xqBOga6YEDWSkVPgvQv2XOYE
+         GltEUv2iTrCZV7pbBWB3LE+0tx3GkM9jQzNZu919GWbrCyEvcM3/xTOILCeOuROi/x
+         ovR+trUn08ynw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     xinhui pan <xinhui.pan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 058/134] drm/amdgpu: Fix memory leak
-Date:   Mon,  3 May 2021 12:33:57 -0400
-Message-Id: <20210503163513.2851510-58-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Quinn Tran <qutran@marvell.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Daniel Wagner <dwagner@suse.de>, Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 059/134] scsi: qla2xxx: Always check the return value of qla24xx_get_isp_stats()
+Date:   Mon,  3 May 2021 12:33:58 -0400
+Message-Id: <20210503163513.2851510-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
@@ -43,49 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 79fcd446e7e182c52c2c808c76f8de3eb6714349 ]
+[ Upstream commit a2b2cc660822cae08c351c7f6b452bfd1330a4f7 ]
 
-drm_gem_object_put() should be paired with drm_gem_object_lookup().
+This patch fixes the following Coverity warning:
 
-All gem objs are saved in fb->base.obj[]. Need put the old first before
-assign a new obj.
+    CID 361199 (#1 of 1): Unchecked return value (CHECKED_RETURN)
+    3. check_return: Calling qla24xx_get_isp_stats without checking return
+    value (as is done elsewhere 4 out of 5 times).
 
-Trigger VRAM leak by running command below
-$ service gdm restart
-
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20210320232359.941-7-bvanassche@acm.org
+Cc: Quinn Tran <qutran@marvell.com>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_attr.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-index f753e04fee99..cbe050436c7b 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -910,8 +910,9 @@ int amdgpu_display_framebuffer_init(struct drm_device *dev,
- 	}
+diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
+index 63391c9be05d..3aa9869f6fae 100644
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -2864,6 +2864,8 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
+ 	vha->qla_stats.jiffies_at_last_reset = get_jiffies_64();
  
- 	for (i = 1; i < rfb->base.format->num_planes; ++i) {
-+		drm_gem_object_get(rfb->base.obj[0]);
-+		drm_gem_object_put(rfb->base.obj[i]);
- 		rfb->base.obj[i] = rfb->base.obj[0];
--		drm_gem_object_get(rfb->base.obj[i]);
- 	}
+ 	if (IS_FWI2_CAPABLE(ha)) {
++		int rval;
++
+ 		stats = dma_alloc_coherent(&ha->pdev->dev,
+ 		    sizeof(*stats), &stats_dma, GFP_KERNEL);
+ 		if (!stats) {
+@@ -2873,7 +2875,11 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
+ 		}
  
- 	return 0;
-@@ -960,6 +961,7 @@ amdgpu_display_user_framebuffer_create(struct drm_device *dev,
- 		return ERR_PTR(ret);
- 	}
+ 		/* reset firmware statistics */
+-		qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
++		rval = qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
++		if (rval != QLA_SUCCESS)
++			ql_log(ql_log_warn, vha, 0x70de,
++			       "Resetting ISP statistics failed: rval = %d\n",
++			       rval);
  
-+	drm_gem_object_put(obj);
- 	return &amdgpu_fb->base;
- }
- 
+ 		dma_free_coherent(&ha->pdev->dev, sizeof(*stats),
+ 		    stats, stats_dma);
 -- 
 2.30.2
 
