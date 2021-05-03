@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 805353714C8
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 14:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5183714FB
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 14:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbhECMA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 08:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
+        id S233689AbhECMDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 08:03:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233772AbhECMAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 08:00:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D43EC6137D;
-        Mon,  3 May 2021 11:59:45 +0000 (UTC)
+        id S233565AbhECMCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 08:02:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0D5F6052B;
+        Mon,  3 May 2021 12:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620043186;
-        bh=wfsFA25XsbVBnHxmi5OXy/ID3/WfsBshOQDopwQfVBk=;
+        s=korg; t=1620043297;
+        bh=zrOtkaLm/l9X1+AuJwyMlhA0lTPTEdWoV8nT0VsgEzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HQFGlRG+XB02PulDxlV5emqgM/cSH3/R7Jiwa2mydzIiui1sggZYA7e23EmntV6e+
-         QuqAftgeQX3fBrSd5RsTVHvE9TiMOS70znvfq6ZHUBBE5YFLaUjVf6adLaUo6ZAYaM
-         /sYatmvwaojbcnOqdMT9qWF2zyiCrCa4CKmSrn1c=
+        b=iWMd+beix5N8MNUJXo9Zs50LqX6wiCevwUfFXSbyPu8Q1m7A3ySg1qo1NTN+cISTq
+         UDkT2L1JMTgUXOlUDO3BmTPwgQNuax0q+34ZUPajWsjsFOkQVXD96Tl3hMdrk02dT9
+         K1qwd8hkDZEcTOdGIl7ERFufs7vdyB+wepANQQV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
-Cc:     Phillip Potter <phil@philpotter.co.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kangjie Lu <kjlu@umn.edu>, Takashi Iwai <tiwai@suse.de>,
         stable <stable@vger.kernel.org>
-Subject: [PATCH 31/69] scsi: ufs: handle cleanup correctly on devm_reset_control_get error
-Date:   Mon,  3 May 2021 13:56:58 +0200
-Message-Id: <20210503115736.2104747-32-gregkh@linuxfoundation.org>
+Subject: [PATCH 34/69] Revert "ALSA: sb8: add a check for request_region"
+Date:   Mon,  3 May 2021 13:57:01 +0200
+Message-Id: <20210503115736.2104747-35-gregkh@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
 References: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
@@ -39,58 +37,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+This reverts commit dcd0feac9bab901d5739de51b3f69840851f8919.
 
-Move ufshcd_set_variant call in ufs_hisi_init_common to common error
-section at end of the function, and then jump to this from the error
-checking statements for both devm_reset_control_get and
-ufs_hisi_get_resource. This fixes the original commit (63a06181d7ce)
-which was reverted due to the University of Minnesota problems.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Avri Altman <avri.altman@wdc.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit message for this change was incorrect as the code
+path can never result in a NULL dereference, alluding to the fact that
+whatever tool was used to "find this" is broken.  It's just an optional
+resource reservation, so removing this check is fine.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Acked-by: Takashi Iwai <tiwai@suse.de>
+Fixes: dcd0feac9bab ("ALSA: sb8: add a check for request_region")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufs-hisi.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ sound/isa/sb/sb8.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufs-hisi.c b/drivers/scsi/ufs/ufs-hisi.c
-index 7d1e07a9d9dd..d0626773eb38 100644
---- a/drivers/scsi/ufs/ufs-hisi.c
-+++ b/drivers/scsi/ufs/ufs-hisi.c
-@@ -467,17 +467,24 @@ static int ufs_hisi_init_common(struct ufs_hba *hba)
- 	host->hba = hba;
- 	ufshcd_set_variant(hba, host);
+diff --git a/sound/isa/sb/sb8.c b/sound/isa/sb/sb8.c
+index 6c9d534ce8b6..95290ffe5c6e 100644
+--- a/sound/isa/sb/sb8.c
++++ b/sound/isa/sb/sb8.c
+@@ -95,10 +95,6 @@ static int snd_sb8_probe(struct device *pdev, unsigned int dev)
  
--	host->rst  = devm_reset_control_get(dev, "rst");
-+	host->rst = devm_reset_control_get(dev, "rst");
-+	if (IS_ERR(host->rst)) {
-+		dev_err(dev, "%s: failed to get reset control\n", __func__);
-+		err = PTR_ERR(host->rst);
-+		goto error;
-+	}
- 
- 	ufs_hisi_set_pm_lvl(hba);
- 
- 	err = ufs_hisi_get_resource(host);
--	if (err) {
--		ufshcd_set_variant(hba, NULL);
--		return err;
+ 	/* block the 0x388 port to avoid PnP conflicts */
+ 	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
+-	if (!acard->fm_res) {
+-		err = -EBUSY;
+-		goto _err;
 -	}
-+	if (err)
-+		goto error;
  
- 	return 0;
-+
-+error:
-+	ufshcd_set_variant(hba, NULL);
-+	return err;
- }
- 
- static int ufs_hi3660_init(struct ufs_hba *hba)
+ 	if (port[dev] != SNDRV_AUTO_PORT) {
+ 		if ((err = snd_sbdsp_create(card, port[dev], irq[dev],
 -- 
 2.31.1
 
