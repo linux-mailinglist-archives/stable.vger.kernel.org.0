@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E773C371BB8
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:47:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CD42371BBA
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232064AbhECQrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:47:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50704 "EHLO mail.kernel.org"
+        id S233401AbhECQry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:47:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231789AbhECQpy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:45:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D08B6162B;
-        Mon,  3 May 2021 16:39:19 +0000 (UTC)
+        id S231636AbhECQp4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:45:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BFD5615FF;
+        Mon,  3 May 2021 16:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059961;
-        bh=o/l0lSsczpZLxrZMv/NdxfFKve3qOYESAWe0kB0foAU=;
+        s=k20201202; t=1620059962;
+        bh=Qz5Vk2Lrm8UtrZT+Y8M+F8gOAo823C+dZKCArcdc4Rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRFRzKFXFv2zUO9FPcVWYBrrngzM7p41TKJYI7ftLx692m5w0gfHACpP7Z/ohXBcQ
-         vTI2mpuY2mJr4gQ9xkaj/nXxT+Ei9kTp9Bwh+heeppQ0wXx1A4OSxXnMCcnvp6S6ri
-         EwGSr/qWcgicT0r4wT0QhhccfIuO/ga49zr+TuitTGAcgJLoPWapQ/F08lYAIMrPI0
-         +8GrzHb31dvkAJajGbRqJkaSIcW50D0GJeJolfKAzFfglX6o8w5eMt6CoHy4vDV/Ko
-         f/tVqey3awZMG0DhWFuMMyvQtA2HHFMq110a06pzWHp11WTpI2c5u8UnWmUVx84I2m
-         B1N8omRsraWzw==
+        b=QwYZcMWu8kZRZC1c3b1dPgJjeOxkaCHH5beHtpktARIhEbz3Dukk1hHjYhxfrE2d8
+         JQ2xkAUU9DGJgba9xvVCo4lxVo7AEz18Z2zd1eAeyd3rJVbYERsDqffotOQlxN980R
+         EDGnAU19ImC2QcXOtM+fI5I9WUirtfA+8XelBLtgX45bxBO3axhR76/OMGbRYk44B2
+         JxWraU/WlbOzYr7FyD3PhgeykI4AmT6gndBx/hdb8AUG3/8ZyOQcrep6tK9oSP7TFe
+         xaOMBvVGV5kVohele2JYhUp2SOm+tmuGARLpIbIOQsANekM50fZAebJlQZLwc6KanZ
+         og6iUuXujYPsA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     shaoyunl <shaoyun.liu@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
+Cc:     Kenneth Feng <kenneth.feng@amd.com>,
+        Kevin Wang <kevin1.wang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 034/100] drm/amdgpu : Fix asic reset regression issue introduce by 8f211fe8ac7c4f
-Date:   Mon,  3 May 2021 12:37:23 -0400
-Message-Id: <20210503163829.2852775-34-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 035/100] drm/amd/pm: fix workload mismatch on vega10
+Date:   Mon,  3 May 2021 12:37:24 -0400
+Message-Id: <20210503163829.2852775-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163829.2852775-1-sashal@kernel.org>
 References: <20210503163829.2852775-1-sashal@kernel.org>
@@ -44,34 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: shaoyunl <shaoyun.liu@amd.com>
+From: Kenneth Feng <kenneth.feng@amd.com>
 
-[ Upstream commit c8941550aa66b2a90f4b32c45d59e8571e33336e ]
+[ Upstream commit 0979d43259e13846d86ba17e451e17fec185d240 ]
 
-This recent change introduce SDMA interrupt info printing with irq->process function.
-These functions do not require a set function to enable/disable the irq
+Workload number mapped to the correct one.
+This issue is only on vega10.
 
-Signed-off-by: shaoyunl <shaoyun.liu@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
+Reviewed-by: Kevin Wang <kevin1.wang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c | 2 +-
+ drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-index 300ac73b4738..2f70fdd6104f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-@@ -499,7 +499,7 @@ void amdgpu_irq_gpu_reset_resume_helper(struct amdgpu_device *adev)
- 		for (j = 0; j < AMDGPU_MAX_IRQ_SRC_ID; ++j) {
- 			struct amdgpu_irq_src *src = adev->irq.client[i].sources[j];
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
+index ed4eafc744d3..132c269c7c89 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
+@@ -5159,7 +5159,7 @@ static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, ui
  
--			if (!src)
-+			if (!src || !src->funcs || !src->funcs->set)
- 				continue;
- 			for (k = 0; k < src->num_types; k++)
- 				amdgpu_irq_update(adev, src, k);
+ out:
+ 	smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
+-						1 << power_profile_mode,
++						(!power_profile_mode) ? 0 : 1 << (power_profile_mode - 1),
+ 						NULL);
+ 	hwmgr->power_profile_mode = power_profile_mode;
+ 
 -- 
 2.30.2
 
