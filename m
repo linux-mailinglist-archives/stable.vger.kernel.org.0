@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A955E371967
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:35:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C57371968
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbhECQgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:36:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36488 "EHLO mail.kernel.org"
+        id S231365AbhECQgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231347AbhECQgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:36:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFFF8611AE;
-        Mon,  3 May 2021 16:35:17 +0000 (UTC)
+        id S231351AbhECQgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:36:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DA7A611C9;
+        Mon,  3 May 2021 16:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059718;
-        bh=qzBd5KFoOot3ymsfol1NFk7ANSu/74D3rjHu6RHVPIg=;
+        s=k20201202; t=1620059720;
+        bh=lcLTBbFZFEDQeaX4tpMxan+cIzmRDKYfF01nWDkZIAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dAn7YxtKdPBrcs9+YJfal4I9UZrfD2SiScAIYnaPZHv+9KDgi2VL4zb+PPk1WT9iZ
-         dtI4BbMLz7yQVI+5NwhIzXSK8xMCS4HPoHdqWFpqoqJw0nlTb/D644Wpolnp6RZ53J
-         MDnINpjqCnLGP7QXjlwarMN3cu7O6OGI9Jr+kaDCQfwJ0Lq6k2o5Or00xkW4ucrJzu
-         fblzzCFaHFo71GgjPIqpHlZ9an/rm+tpCEEZGkYX53fy7YIfrFeDVcRMLYwYXEfp3x
-         xmuloAMPb63LCIlAbxIbYZeSJyy+hkvnG3+TShHxD5xtilBwdOyIMqeTH9xUuDJyFV
-         Z4IvoMFOZe9ig==
+        b=QnTJqetrnXynKzdu1WUmq2GF7RjnynyGzzW69q/Z38pFc1gZHBCVvhbMvp/1HB0+O
+         2jSeESpfnZe+gVnvLkL3cWxjhf6rLnVSMrZ4NBMwyQ2R3xb9cFvm+AVFSeEJmCOPrh
+         vhyw4/SzpYlfQ9PDmlEQpNlK2slvfTAeBvavhmzjNWrhGbOfcyM0UHMUxl8K8kReIR
+         URUkv3tqZBAt+yYofR/9m0LPUyj6BXmCuPWIVdqTz1EDULZqe/LIf5ObL6lQGxismt
+         f0ePZKAFxTgvhlOvWZrmpXolaAyzmhKAE4eX2LuqFdSM//SFihjGW0O2z/H56r3NH9
+         +RMvQ8o3bLf6g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gerd Hoffmann <kraxel@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+Cc:     Thomas Zimmermann <tzimmermann@suse.de>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 003/134] drm/qxl: release shadow on shutdown
-Date:   Mon,  3 May 2021 12:33:02 -0400
-Message-Id: <20210503163513.2851510-3-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.12 004/134] drm/ast: Fix invalid usage of AST_MAX_HWC_WIDTH in cursor atomic_check
+Date:   Mon,  3 May 2021 12:33:03 -0400
+Message-Id: <20210503163513.2851510-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
@@ -44,36 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 4ca77c513537700d3fae69030879f781dde1904c ]
+[ Upstream commit ee4a92d690f30f3793df942939726bec0338e65b ]
 
-In case we have a shadow surface on shutdown release
-it so it doesn't leak.
+Use AST_MAX_HWC_HEIGHT for setting offset_y in the cursor plane's
+atomic_check. The code used AST_MAX_HWC_WIDTH instead. This worked
+because both constants has the same value.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210204145712.1531203-6-kraxel@redhat.com
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210209134632.12157-3-tzimmermann@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/ast/ast_mode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 10738e04c09b..56e0c6c625e9 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1228,6 +1228,10 @@ int qxl_modeset_init(struct qxl_device *qdev)
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index 988b270fea5e..758c69aa7232 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -688,7 +688,7 @@ ast_cursor_plane_helper_atomic_update(struct drm_plane *plane,
+ 	unsigned int offset_x, offset_y;
  
- void qxl_modeset_fini(struct qxl_device *qdev)
- {
-+	if (qdev->dumb_shadow_bo) {
-+		drm_gem_object_put(&qdev->dumb_shadow_bo->tbo.base);
-+		qdev->dumb_shadow_bo = NULL;
-+	}
- 	qxl_destroy_monitors_object(qdev);
- 	drm_mode_config_cleanup(&qdev->ddev);
- }
+ 	offset_x = AST_MAX_HWC_WIDTH - fb->width;
+-	offset_y = AST_MAX_HWC_WIDTH - fb->height;
++	offset_y = AST_MAX_HWC_HEIGHT - fb->height;
+ 
+ 	if (state->fb != old_state->fb) {
+ 		/* A new cursor image was installed. */
 -- 
 2.30.2
 
