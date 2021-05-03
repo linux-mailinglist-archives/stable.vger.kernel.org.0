@@ -2,54 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2196E371B9E
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EEC0371C6C
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233299AbhECQrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:47:22 -0400
-Received: from mga11.intel.com ([192.55.52.93]:56337 "EHLO mga11.intel.com"
+        id S234213AbhECQwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:52:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232183AbhECQpZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:45:25 -0400
-IronPort-SDR: 4kpmS/G1CZVtbZvnkFqN2n9DRTb0DIxVOaQr1zjjZck7r0HNnm6e+OCDFY1wjVYiCkWa5PsT0V
- d1JDAEQu0iew==
-X-IronPort-AV: E=McAfee;i="6200,9189,9973"; a="194640783"
-X-IronPort-AV: E=Sophos;i="5.82,270,1613462400"; 
-   d="scan'208";a="194640783"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 May 2021 09:40:09 -0700
-IronPort-SDR: xBsDkAyaoWbRm842wB27FPNqfPS4uUWYgxd73dIG1CrG2r74wT7YyOrqOR5cv9s09jfItlugZa
- rSYOOD67BwaQ==
-X-IronPort-AV: E=Sophos;i="5.82,270,1613462400"; 
-   d="scan'208";a="432824697"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 May 2021 09:40:05 -0700
-Date:   Mon, 3 May 2021 19:40:01 +0300
-From:   Imre Deak <imre.deak@intel.com>
-To:     stable@vger.kernel.org
-Cc:     Mario =?iso-8859-1?Q?H=FCttel?= <mario.huettel@gmx.net>,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        intel-gfx@lists.freedesktop.org
-Subject: drm/i915: v5.11 stable backport request
-Message-ID: <20210503164001.GE4190280@ideak-desk.fi.intel.com>
+        id S234678AbhECQun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:50:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 303686192A;
+        Mon,  3 May 2021 16:41:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1620060072;
+        bh=VpicjMrC7wIbSeScJ//MRPXRuxWp5cOb6PXgVW05iAw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=dvyoaKLZAugbZs0E8mC14tbLB7DrFkZDSCExQkiwVvR4nckDhufzQjfZ0wjloL0By
+         BVh9jNuYU8bg2PvqvByR8+z+tsd8WiLnkPqzLtMmKu7ixKADmhYsFNxNRy98J8g1dS
+         LnE4hFaVT9q/atGYSkwbw0YN4+4hzvJxXg1LJcCt6fHyGgRd0IR5kYDzhASRUuQEhz
+         SP9bSj9ljmat2so+PLDHFVdggviMUao16k6cfv6bGmqwDxkxHoCoXSHqqE/BQUAT42
+         L7gT8I4xwxVGG1NbTqNkSkDsufY7VVsQ2XBR8umknGj74nJc94eLzPjPqtwkooOexJ
+         0Nyd/Tq4KcGCQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/35] scsi: lpfc: Fix incorrect dbde assignment when building target abts wqe
+Date:   Mon,  3 May 2021 12:40:35 -0400
+Message-Id: <20210503164109.2853838-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Stable team, please backport the upstream commits
+From: James Smart <jsmart2021@gmail.com>
 
-7962893ecb85 ("drm/i915: Disable runtime power management during shutdown")
+[ Upstream commit 9302154c07bff4e7f7f43c506a1ac84540303d06 ]
 
-to the v5.11 stable kernel, they fix a system shutdown failure.
+The wqe_dbde field indicates whether a Data BDE is present in Words 0:2 and
+should therefore should be clear in the abts request wqe. By setting the
+bit we can be misleading fw into error cases.
 
-References: https://lore.kernel.org/intel-gfx/042237f49ed1fd719126a3407d7c909e49addbea.camel@gmx.net
-Reported-and-tested-by: Mario Hüttel <mario.huettel@gmx.net>
+Clear the wqe_dbde field.
 
-Thanks,
-Imre
+Link: https://lore.kernel.org/r/20210301171821.3427-2-jsmart2021@gmail.com
+Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/scsi/lpfc/lpfc_nvmet.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
+index 5bc33817568e..23ead17e60fe 100644
+--- a/drivers/scsi/lpfc/lpfc_nvmet.c
++++ b/drivers/scsi/lpfc/lpfc_nvmet.c
+@@ -2912,7 +2912,6 @@ lpfc_nvmet_unsol_issue_abort(struct lpfc_hba *phba,
+ 	bf_set(wqe_rcvoxid, &wqe_abts->xmit_sequence.wqe_com, xri);
+ 
+ 	/* Word 10 */
+-	bf_set(wqe_dbde, &wqe_abts->xmit_sequence.wqe_com, 1);
+ 	bf_set(wqe_iod, &wqe_abts->xmit_sequence.wqe_com, LPFC_WQE_IOD_WRITE);
+ 	bf_set(wqe_lenloc, &wqe_abts->xmit_sequence.wqe_com,
+ 	       LPFC_WQE_LENLOC_WORD12);
+-- 
+2.30.2
+
