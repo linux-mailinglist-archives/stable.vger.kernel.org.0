@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93DB837196E
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C31E371971
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:35:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231402AbhECQgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36668 "EHLO mail.kernel.org"
+        id S231394AbhECQgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:36:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231381AbhECQgR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:36:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DBEB61369;
-        Mon,  3 May 2021 16:35:22 +0000 (UTC)
+        id S231388AbhECQgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:36:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D92A613B3;
+        Mon,  3 May 2021 16:35:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620059723;
-        bh=9PNRs/NqtnqsZodPRpjt5A1cV1aiyd4RkqOemCQ4w8c=;
+        s=k20201202; t=1620059725;
+        bh=Foo0oml7Ot69CzxMUT/sNgkbu3oPVJHm19/WvKVEHpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Js1tGTsXSdsQPgoP3uO3xtgZXTAK00nah3bEviTyh3qgcxDez2BimWDpInhD+OScN
-         t9F0C1RVE4G+0fqIUKfIy8N2Qwmw+iQNvEJ3f4PIJtN2sLdNWLyRPtuTQqvW4ocTSY
-         3VeF8VdsRByYkbWZlgTeoGIpQe2Vy/KcZ5vB5A7+HFvvrczRkcsXpgxaypQXKRG1+j
-         3mVsxF2fV9T4VR96lQmiQ5ZvUXg4FIL2/lkV3Ctms4UtOWEBaWZ/gygIfASRUJlj2h
-         w4lL/YZKscjESVg06w/4IQJk5Dw8Mma+qz/wi+LZHmY2WmMbXAdY1RUqLagEzGsVkn
-         +GKLxnAMBLNDw==
+        b=d72XY55qKUm3unWsvAeA2ziI30x50Nm0V1R8KF2YluxqRViRsP1g7R8WypeuOJXUf
+         4ZgcsWrOclIHp5E1p8Wig3bY6CU5F3ww/8z3csxR7b7ZoGBERziC9NOwmk91WH6/mU
+         3v7CR+A9FKwrNzVjj85C6rCZBKRUH/5nd+9Qi95BQXrvY29SHwNffW2WqHtJP9FvaE
+         BOwffCPOU2+vu+vJEneNzdHuOLmN13fUJJDlTFBPEatS8N740Dj2LZvspqxOsYS3zf
+         7wFjX6Uzs2tZ2ncgQPcpSfuSIWxEn/wSqEPBYAT1qbJLqUuNjE1Cg0K8ajJHDJCScx
+         eA1OxiBC5GvVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Eric Yang <eric.yang2@amd.com>,
-        Qingqing Zhuo <Qingqing.Zhuo@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
+Cc:     Huang Rui <ray.huang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 006/134] drm/amd/display: Fix MPC OGAM power on/off sequence
-Date:   Mon,  3 May 2021 12:33:05 -0400
-Message-Id: <20210503163513.2851510-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 007/134] drm/amd/pm: do not issue message while write "r" into pp_od_clk_voltage
+Date:   Mon,  3 May 2021 12:33:06 -0400
+Message-Id: <20210503163513.2851510-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
@@ -46,132 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Huang Rui <ray.huang@amd.com>
 
-[ Upstream commit 737b2b536a30a467c405d75f2287e17828838a13 ]
+[ Upstream commit ca1203d7d7295c49e5707d7def457bdc524a8edb ]
 
-[Why]
-Color corruption can occur on bootup into a login
-manager that applies a non-linear gamma LUT because
-the LUT may not actually be powered on before writing.
+We should commit the value after restore them back to default as well.
 
-It's cleared on the next full pipe reprogramming as
-we switch to LUTB from LUTA and the pipe accessing
-the LUT has taken it out of light sleep mode.
+$ echo "r" > pp_od_clk_voltage
+$ echo "c" > pp_od_clk_voltage
 
-[How]
-The MPCC_OGAM_MEM_PWR_FORCE register does not force
-the current power mode when set to 0. It only forces
-when set light sleep, deep sleep or shutdown.
-
-The register to actually force power on and ignore
-sleep modes is MPCC_OGAM_MEM_PWR_DIS - a value of 0
-will enable power requests and a value of 1 will
-disable them.
-
-When PWR_FORCE!=0 is combined with PWR_DIS=0 then
-MPCC OGAM memory is forced into the state specified
-by the force bits.
-
-If PWR_FORCE is 0 then it respects the mode specified
-by MPCC_OGAM_MEM_LOW_PWR_MODE if the RAM LUT is not
-in use.
-
-We set that bit to shutdown on low power, but otherwise
-it inherits from bootup defaults.
-
-So for the fix:
-
-1. Update the sequence to "force" power on when needed
-
-We can use MPCC_OGAM_MEM_PWR_DIS for this to turn on the
-memory even when the block is in bypass and pending to be
-enabled for the next frame.
-
-We need this for both low power enabled or disabled.
-
-If we don't set this then we can run into issues when we
-first program the LUT from bootup.
-
-2. Don't apply FORCE_SEL
-
-Once we enable power requests with DIS=0 we run into the
-issue of the RAM being forced into light sleep and being
-unusable for display output. Leave this 0 like we used to
-for DCN20.
-
-3. Rely on MPCC OGAM init to determine light sleep/deep sleep
-
-MPC low power debug mode isn't enabled on any ASIC currently
-but we'll respect the setting determined during init if it
-is.
-
-Lightly tested as working with IGT tests and desktop color
-adjustment.
-
-4. Change the MPC resource default for DCN30
-
-It was interleaving the dcn20 and dcn30 versions before
-depending on the sequence.
-
-5. REG_WAIT for it to be on whenever we're powering up the
-memory
-
-Otherwise we can write register values too early and we'll
-get corruption.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Eric Yang <eric.yang2@amd.com>
-Acked-by: Qingqing Zhuo <Qingqing.Zhuo@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c  | 24 ++++++++++---------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ .../drm/amd/pm/powerplay/hwmgr/smu10_hwmgr.c  | 14 -------
+ .../gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c  | 38 -------------------
+ .../gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c   | 18 ---------
+ 3 files changed, 70 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
-index 3e6f76096119..a7598356f37d 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
-@@ -143,16 +143,18 @@ static void mpc3_power_on_ogam_lut(
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu10_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu10_hwmgr.c
+index ed05a30d1139..e2a56a7f3d7a 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu10_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu10_hwmgr.c
+@@ -1526,20 +1526,6 @@ static int smu10_set_fine_grain_clk_vol(struct pp_hwmgr *hwmgr,
+ 
+ 		smu10_data->gfx_actual_soft_min_freq = min_freq;
+ 		smu10_data->gfx_actual_soft_max_freq = max_freq;
+-
+-		ret = smum_send_msg_to_smc_with_parameter(hwmgr,
+-					PPSMC_MSG_SetHardMinGfxClk,
+-					min_freq,
+-					NULL);
+-		if (ret)
+-			return ret;
+-
+-		ret = smum_send_msg_to_smc_with_parameter(hwmgr,
+-					PPSMC_MSG_SetSoftMaxGfxClk,
+-					max_freq,
+-					NULL);
+-		if (ret)
+-			return ret;
+ 	} else if (type == PP_OD_COMMIT_DPM_TABLE) {
+ 		if (size != 0) {
+ 			pr_err("Input parameter number not correct\n");
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
+index 101eaa20db9b..a80f551771b9 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
+@@ -1462,7 +1462,6 @@ static int vangogh_od_edit_dpm_table(struct smu_context *smu, enum PP_OD_DPM_TAB
+ 					long input[], uint32_t size)
  {
- 	struct dcn30_mpc *mpc30 = TO_DCN30_MPC(mpc);
+ 	int ret = 0;
+-	int i;
+ 	struct smu_dpm_context *smu_dpm_ctx = &(smu->smu_dpm);
  
--	if (mpc->ctx->dc->debug.enable_mem_low_power.bits.mpc) {
--		// Force power on
--		REG_UPDATE(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_DIS, power_on == true ? 1:0);
--		// Wait for confirmation when powering on
--		if (power_on)
--			REG_WAIT(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_STATE, 0, 10, 10);
--	} else {
--		REG_SET(MPCC_MEM_PWR_CTRL[mpcc_id], 0,
--				MPCC_OGAM_MEM_PWR_FORCE, power_on == true ? 0 : 1);
--	}
-+	/*
-+	 * Powering on: force memory active so the LUT can be updated.
-+	 * Powering off: allow entering memory low power mode
-+	 *
-+	 * Memory low power mode is controlled during MPC OGAM LUT init.
-+	 */
-+	REG_UPDATE(MPCC_MEM_PWR_CTRL[mpcc_id],
-+		   MPCC_OGAM_MEM_PWR_DIS, power_on != 0);
-+
-+	/* Wait for memory to be powered on - we won't be able to write to it otherwise. */
-+	if (power_on)
-+		REG_WAIT(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_STATE, 0, 10, 10);
- }
- 
- static void mpc3_configure_ogam_lut(
-@@ -1427,7 +1429,7 @@ const struct mpc_funcs dcn30_mpc_funcs = {
- 	.acquire_rmu = mpcc3_acquire_rmu,
- 	.program_3dlut = mpc3_program_3dlut,
- 	.release_rmu = mpcc3_release_rmu,
--	.power_on_mpc_mem_pwr = mpc20_power_on_ogam_lut,
-+	.power_on_mpc_mem_pwr = mpc3_power_on_ogam_lut,
- 	.get_mpc_out_mux = mpc1_get_mpc_out_mux,
- 
- };
+ 	if (!(smu_dpm_ctx->dpm_level == AMD_DPM_FORCED_LEVEL_MANUAL)) {
+@@ -1535,43 +1534,6 @@ static int vangogh_od_edit_dpm_table(struct smu_context *smu, enum PP_OD_DPM_TAB
+ 			smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
+ 			smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
+ 			smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
+-
+-			ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetHardMinGfxClk,
+-									smu->gfx_actual_hard_min_freq, NULL);
+-			if (ret) {
+-				dev_err(smu->adev->dev, "Restore the default hard min sclk failed!");
+-				return ret;
+-			}
+-
+-			ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetSoftMaxGfxClk,
+-									smu->gfx_actual_soft_max_freq, NULL);
+-			if (ret) {
+-				dev_err(smu->adev->dev, "Restore the default soft max sclk failed!");
+-				return ret;
+-			}
+-
+-			if (smu->adev->pm.fw_version < 0x43f1b00) {
+-				dev_warn(smu->adev->dev, "CPUSoftMax/CPUSoftMin are not supported, please update SBIOS!\n");
+-				break;
+-			}
+-
+-			for (i = 0; i < smu->cpu_core_num; i++) {
+-				ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetSoftMinCclk,
+-								      (i << 20) | smu->cpu_actual_soft_min_freq,
+-								      NULL);
+-				if (ret) {
+-					dev_err(smu->adev->dev, "Set hard min cclk failed!");
+-					return ret;
+-				}
+-
+-				ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetSoftMaxCclk,
+-								      (i << 20) | smu->cpu_actual_soft_max_freq,
+-								      NULL);
+-				if (ret) {
+-					dev_err(smu->adev->dev, "Set soft max cclk failed!");
+-					return ret;
+-				}
+-			}
+ 		}
+ 		break;
+ 	case PP_OD_COMMIT_DPM_TABLE:
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
+index 5493388fcb10..dbe6d0caddb7 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
+@@ -389,24 +389,6 @@ static int renoir_od_edit_dpm_table(struct smu_context *smu,
+ 		}
+ 		smu->gfx_actual_hard_min_freq = smu->gfx_default_hard_min_freq;
+ 		smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
+-
+-		ret = smu_cmn_send_smc_msg_with_param(smu,
+-								SMU_MSG_SetHardMinGfxClk,
+-								smu->gfx_actual_hard_min_freq,
+-								NULL);
+-		if (ret) {
+-			dev_err(smu->adev->dev, "Restore the default hard min sclk failed!");
+-			return ret;
+-		}
+-
+-		ret = smu_cmn_send_smc_msg_with_param(smu,
+-								SMU_MSG_SetSoftMaxGfxClk,
+-								smu->gfx_actual_soft_max_freq,
+-								NULL);
+-		if (ret) {
+-			dev_err(smu->adev->dev, "Restore the default soft max sclk failed!");
+-			return ret;
+-		}
+ 		break;
+ 	case PP_OD_COMMIT_DPM_TABLE:
+ 		if (size != 0) {
 -- 
 2.30.2
 
