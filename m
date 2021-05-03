@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87555371C76
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E8EB371C7C
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232943AbhECQwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:52:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60760 "EHLO mail.kernel.org"
+        id S233729AbhECQwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231906AbhECQuv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:50:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A01216192D;
-        Mon,  3 May 2021 16:41:15 +0000 (UTC)
+        id S232284AbhECQuw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:50:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C580F61932;
+        Mon,  3 May 2021 16:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060076;
-        bh=KkJLWJR/icDzq06kTCIfwSPB4B9uo9pQ4NbCczthCE0=;
+        s=k20201202; t=1620060077;
+        bh=u66FIXdXARSGJ8HRvj9RJQ+WZzYTz1VHCYjoJliyteg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdQO0k7djXKbOx7tf480GkhrxP8w+ZIyvivrJMjWxKkd7pDKtISi2RYME6s5SdIwQ
-         8fR+Wy+50nnqSTEpiBB+HAF0W1pwPSN7oSelry739dD4+UZxtf+t6VYMiT61jXJPez
-         w7hIMi2Xe6RfU3JnBDPdh2G1r1vV191lzUIbd6i+eRDMyj8QsUVPcqrKibogC1kluE
-         SBrGef7GgWdMrzOd9vVXxZ70ChYg7r8+qbcxdaz0b9RXqGgUzg3Dh6CLlFuarkKeAh
-         e7EIfukyHwuHNrMOvwTcVpiwTuj1nMI10nLgPHOwEnIMz34ubXihUUv0czTlSV4vvG
-         YRu+KmiawdHIQ==
+        b=B438Z62U7NxKzeZMdaRHmrnFYLTJorFpMzyBnhJiw5yYL/uCiDKjPvFxQkLNz+PSv
+         Go2wkLCHPVQw9pd0TyuTgeA1qGx1DXp9I1mUMxfTbR7CixYgf5+JdL2FqaFJZyDY+j
+         BdcbmP/sl4Y8Ie9D0lpmP/pC+rQ3eWfKaZCOxEEYpPm7SPCNUXIK4ts2uNu7/12kVW
+         CiBpHYkE8XS+OvicNJAD9NZfdbCzJ0X5yGxg46RqbgT4TQlgY82oB9ylkV7zvIPHHj
+         iSsMP5k0HDrEZ2COre/ICxN3yU6yhloE7OsCa1Z1xXGJYaV6zmqdudg6G0xCqBpX/V
+         i/PPaKjY5pftA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Young <sean@mess.org>,
+Cc:     Julian Braha <julianbraha@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/35] media: ite-cir: check for receive overflow
-Date:   Mon,  3 May 2021 12:40:38 -0400
-Message-Id: <20210503164109.2853838-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 05/35] media: drivers: media: pci: sta2x11: fix Kconfig dependency on GPIOLIB
+Date:   Mon,  3 May 2021 12:40:39 -0400
+Message-Id: <20210503164109.2853838-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503164109.2853838-1-sashal@kernel.org>
 References: <20210503164109.2853838-1-sashal@kernel.org>
@@ -42,39 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Julian Braha <julianbraha@gmail.com>
 
-[ Upstream commit 28c7afb07ccfc0a939bb06ac1e7afe669901c65a ]
+[ Upstream commit 24df8b74c8b2fb42c49ffe8585562da0c96446ff ]
 
-It's best if this condition is reported.
+When STA2X11_VIP is enabled, and GPIOLIB is disabled,
+Kbuild gives the following warning:
 
-Signed-off-by: Sean Young <sean@mess.org>
+WARNING: unmet direct dependencies detected for VIDEO_ADV7180
+  Depends on [n]: MEDIA_SUPPORT [=y] && GPIOLIB [=n] && VIDEO_V4L2 [=y] && I2C [=y]
+  Selected by [y]:
+  - STA2X11_VIP [=y] && MEDIA_SUPPORT [=y] && MEDIA_PCI_SUPPORT [=y] && MEDIA_CAMERA_SUPPORT [=y] && PCI [=y] && VIDEO_V4L2 [=y] && VIRT_TO_BUS [=y] && I2C [=y] && (STA2X11 [=n] || COMPILE_TEST [=y]) && MEDIA_SUBDRV_AUTOSELECT [=y]
+
+This is because STA2X11_VIP selects VIDEO_ADV7180
+without selecting or depending on GPIOLIB,
+despite VIDEO_ADV7180 depending on GPIOLIB.
+
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/ite-cir.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/media/pci/sta2x11/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/rc/ite-cir.c b/drivers/media/rc/ite-cir.c
-index de77d22c30a7..18f3718315a8 100644
---- a/drivers/media/rc/ite-cir.c
-+++ b/drivers/media/rc/ite-cir.c
-@@ -285,8 +285,14 @@ static irqreturn_t ite_cir_isr(int irq, void *data)
- 	/* read the interrupt flags */
- 	iflags = dev->params.get_irq_causes(dev);
- 
-+	/* Check for RX overflow */
-+	if (iflags & ITE_IRQ_RX_FIFO_OVERRUN) {
-+		dev_warn(&dev->rdev->dev, "receive overflow\n");
-+		ir_raw_event_reset(dev->rdev);
-+	}
-+
- 	/* check for the receive interrupt */
--	if (iflags & (ITE_IRQ_RX_FIFO | ITE_IRQ_RX_FIFO_OVERRUN)) {
-+	if (iflags & ITE_IRQ_RX_FIFO) {
- 		/* read the FIFO bytes */
- 		rx_bytes =
- 			dev->params.get_rx_bytes(dev, rx_buf,
+diff --git a/drivers/media/pci/sta2x11/Kconfig b/drivers/media/pci/sta2x11/Kconfig
+index 4407b9f881e4..bd690613fe68 100644
+--- a/drivers/media/pci/sta2x11/Kconfig
++++ b/drivers/media/pci/sta2x11/Kconfig
+@@ -1,6 +1,7 @@
+ config STA2X11_VIP
+ 	tristate "STA2X11 VIP Video For Linux"
+ 	depends on STA2X11 || COMPILE_TEST
++	select GPIOLIB if MEDIA_SUBDRV_AUTOSELECT
+ 	select VIDEO_ADV7180 if MEDIA_SUBDRV_AUTOSELECT
+ 	select VIDEOBUF2_DMA_CONTIG
+ 	depends on PCI && VIDEO_V4L2 && VIRT_TO_BUS
 -- 
 2.30.2
 
