@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA8E371CE4
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13E4371CEA
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233861AbhECQ5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:57:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43246 "EHLO mail.kernel.org"
+        id S234253AbhECQ52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:57:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234808AbhECQy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:54:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 165D56194B;
-        Mon,  3 May 2021 16:42:21 +0000 (UTC)
+        id S234810AbhECQy7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:54:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6771B6194A;
+        Mon,  3 May 2021 16:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060142;
-        bh=T/BvDwoZpQY0GmXYsh1qNJ/JP9je+BpWPB9PItA6alc=;
+        s=k20201202; t=1620060144;
+        bh=7phCiXG70k8Vy5fS7iCF8xyE7KMcVO3FDONY75Fz7D4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kd3SEJdlAFRFHqIczFWRd7B9UZSpsBzB4m6KI6TZK6rqL+nmJ8BIzJn32QUo7cyRQ
-         2fNsy3VqfHR8JFOlQo2ofoC1q9yD+XfCarQSzgLk9HQo5O5BXauc5hKd4wUydRryCG
-         7w2prFxmy3YxhD5BXwxZLDhzUfgfYa2ylPY7GwAbfEflR0sqM1PtJZ/y7uKeRP5JtQ
-         in/l/hN7o7zDPse+icywrQ/aUuxHVt6K0QzwtOnGITC9iveI8VZpfZEwNmeQVAZzJy
-         XbQQTX/NK5PXThtTF9Go7vA4nBQTJ4PZF1HJDeLiU5Gaa5R5g5YuyR6HhW6kOuEDq7
-         4n53mFIXAU/8Q==
+        b=UD5IfwFmGf4CRNQd5YarEq+e1sdP3opGi3TUuMthCGiDg13YYvaSXlFZIM0A/2dmq
+         XbkCkhzQlWwhFPeVyaHCnsKSQEReKaYVZX0zr4bu0UuuaTVi/XvMTMZYboneaHGRpE
+         rxjShqZcNuTWv7Xu1agiRpbyaVvBXjtw8Gbk/nXMrdEswRNr2POO8nPnmEkV/kIq5c
+         Q6xvSjQ6eZuyaNR7T+RLnlUcsR/FPbHhZUNjJ9xqjnNuRqXYP0bEnISy0UGukHKqEc
+         pg1X7NTE7g+suYJVUVNDQQxboXGlJwVCfIoUsgJcnDZsBJF/FrgNtkdLGTYT8xc8eo
+         NZYwqwOyY3UOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lyude Paul <lyude@redhat.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     shaoyunl <shaoyun.liu@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 12/31] drm/bridge/analogix/anx78xx: Cleanup on error in anx78xx_bridge_attach()
-Date:   Mon,  3 May 2021 12:41:45 -0400
-Message-Id: <20210503164204.2854178-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 13/31] drm/amdgpu : Fix asic reset regression issue introduce by 8f211fe8ac7c4f
+Date:   Mon,  3 May 2021 12:41:46 -0400
+Message-Id: <20210503164204.2854178-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503164204.2854178-1-sashal@kernel.org>
 References: <20210503164204.2854178-1-sashal@kernel.org>
@@ -43,61 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: shaoyunl <shaoyun.liu@amd.com>
 
-[ Upstream commit 212ee8db84600f7b279b8645c62a112bff310995 ]
+[ Upstream commit c8941550aa66b2a90f4b32c45d59e8571e33336e ]
 
-Just another issue I noticed while correcting usages of
-drm_dp_aux_init()/drm_dp_aux_register() around the tree. If any of the
-steps in anx78xx_bridge_attach() fail, we end up leaking resources. So,
-let's fix that (and fix leaking a DP AUX adapter in the process) by
-unrolling on errors.
+This recent change introduce SDMA interrupt info printing with irq->process function.
+These functions do not require a set function to enable/disable the irq
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210219215326.2227596-10-lyude@redhat.com
+Signed-off-by: shaoyunl <shaoyun.liu@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix-anx78xx.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-index a5a690dd44c2..176ad7a7756e 100644
---- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
-+++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-@@ -1038,7 +1038,7 @@ static int anx78xx_bridge_attach(struct drm_bridge *bridge)
- 				 DRM_MODE_CONNECTOR_DisplayPort);
- 	if (err) {
- 		DRM_ERROR("Failed to initialize connector: %d\n", err);
--		return err;
-+		goto aux_unregister;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
+index 538e5f27d120..fb9361590754 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
+@@ -437,7 +437,7 @@ void amdgpu_irq_gpu_reset_resume_helper(struct amdgpu_device *adev)
+ 		for (j = 0; j < AMDGPU_MAX_IRQ_SRC_ID; ++j) {
+ 			struct amdgpu_irq_src *src = adev->irq.client[i].sources[j];
  
- 	drm_connector_helper_add(&anx78xx->connector,
-@@ -1050,16 +1050,21 @@ static int anx78xx_bridge_attach(struct drm_bridge *bridge)
- 						bridge->encoder);
- 	if (err) {
- 		DRM_ERROR("Failed to link up connector to encoder: %d\n", err);
--		return err;
-+		goto connector_cleanup;
- 	}
- 
- 	err = drm_connector_register(&anx78xx->connector);
- 	if (err) {
- 		DRM_ERROR("Failed to register connector: %d\n", err);
--		return err;
-+		goto connector_cleanup;
- 	}
- 
- 	return 0;
-+connector_cleanup:
-+	drm_connector_cleanup(&anx78xx->connector);
-+aux_unregister:
-+	drm_dp_aux_unregister(&anx78xx->aux);
-+	return err;
- }
- 
- static enum drm_mode_status
+-			if (!src)
++			if (!src || !src->funcs || !src->funcs->set)
+ 				continue;
+ 			for (k = 0; k < src->num_types; k++)
+ 				amdgpu_irq_update(adev, src, k);
 -- 
 2.30.2
 
