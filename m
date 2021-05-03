@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 139D5371CC4
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 423EC371CC8
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232139AbhECQ4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:56:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
+        id S232907AbhECQ4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:56:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234112AbhECQxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234382AbhECQxB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 3 May 2021 12:53:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 873CE613C7;
-        Mon,  3 May 2021 16:41:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF9F5613BE;
+        Mon,  3 May 2021 16:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060112;
-        bh=Mh0jLuMpRlj7PT8ujy5fCajKV/bIs9e6tDZFhVfAW38=;
+        s=k20201202; t=1620060114;
+        bh=GUuwPRS25/hSbTMEzHhJqZfAL2S4pxnwiFQnNoemKhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDGJLhQwWyGU7P3LeE1ZDlc5sgb05GsfDgXNtzphRMX4p3Iik3H0jp/Ubqzmk7lhK
-         mJLAGkpvSJZbPn3cBJT5oSS9kj2a3fVopGxvoYSO9etSrPxH3DYSxe4viuFkuPcEC4
-         eC3BM7e9IsdIU1nItcQ2YO0P85XEQImJ6Ofp7IbfTlSyG2y/y2vOugWF2wZMGAhnUo
-         zZVsThMbA6NaFFpWPToX9o2lrlxiHHhjherUhkpM97CkeOyPVBRDGElRrQzNso5rx7
-         3EqQ5g7gyjKgQJU3pgSBuTY0NDaVvne/w2hI+6e/RnVvmkh79lm3BEGfi12MDFHdtF
-         g5rixIR4LoYRw==
+        b=i5gFLpijNmt66ArheA7vd2aq1RbQph2V5OiSLTheNyGw1XhuiU7AvAoxxDVkSzgro
+         LsB1y+vkIvOyrZ2PJJLN4ljBRAXDkZywDrDhWTt9wwEe1YKOzhMq60bD1tk8dFR4Fr
+         kDbXNTC3EmIk9eRKHvw3HZz4gTjduytcAEuy1cof4JZO2My01SppHGL2ekKShEq8Y3
+         9bFZiJf9y5ldaa/iRXHYCROUBIVAq94BTKjrg/7rctlvYDbhZ4DD6xlnyM5odswGVr
+         4zWLEDZFKE7JqObY0Loj4SZLMcCTpdNCoGjpPmdHCB68LlhD9gS6sCrv6HkUrjuW0L
+         70L5++Td+0dRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        syzbot+e7f4c64a4248a0340c37@syzkaller.appspotmail.com,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 28/35] media: gscpa/stv06xx: fix memory leak
-Date:   Mon,  3 May 2021 12:41:02 -0400
-Message-Id: <20210503164109.2853838-28-sashal@kernel.org>
+Cc:     Marijn Suijten <marijn.suijten@somainline.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 29/35] drm/msm/mdp5: Configure PP_SYNC_HEIGHT to double the vtotal
+Date:   Mon,  3 May 2021 12:41:03 -0400
+Message-Id: <20210503164109.2853838-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503164109.2853838-1-sashal@kernel.org>
 References: <20210503164109.2853838-1-sashal@kernel.org>
@@ -43,82 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 4f4e6644cd876c844cdb3bea2dd7051787d5ae25 ]
+[ Upstream commit 2ad52bdb220de5ab348098e3482b01235d15a842 ]
 
-For two of the supported sensors the stv06xx driver allocates memory which
-is stored in sd->sensor_priv. This memory is freed on a disconnect, but if
-the probe() fails, then it isn't freed and so this leaks memory.
+Leaving this at a close-to-maximum register value 0xFFF0 means it takes
+very long for the MDSS to generate a software vsync interrupt when the
+hardware TE interrupt doesn't arrive.  Configuring this to double the
+vtotal (like some downstream kernels) leads to a frame to take at most
+twice before the vsync signal, until hardware TE comes up.
 
-Add a new probe_error() op that drivers can use to free any allocated
-memory in case there was a probe failure.
+In this case the hardware interrupt responsible for providing this
+signal - "disp-te" gpio - is not hooked up to the mdp5 vsync/pp logic at
+all.  This solves severe panel update issues observed on at least the
+Xperia Loire and Tone series, until said gpio is properly hooked up to
+an irq.
 
-Thanks to Pavel Skripkin <paskripkin@gmail.com> for discovering the cause
-of the memory leak.
-
-Reported-and-tested-by: syzbot+e7f4c64a4248a0340c37@syzkaller.appspotmail.com
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Suggested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Link: https://lore.kernel.org/r/20210406214726.131534-2-marijn.suijten@somainline.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/gspca.c           | 2 ++
- drivers/media/usb/gspca/gspca.h           | 1 +
- drivers/media/usb/gspca/stv06xx/stv06xx.c | 9 +++++++++
- 3 files changed, 12 insertions(+)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/gspca/gspca.c b/drivers/media/usb/gspca/gspca.c
-index 93212ed80bf8..f0562b8eef56 100644
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -1586,6 +1586,8 @@ int gspca_dev_probe2(struct usb_interface *intf,
- #endif
- 	v4l2_ctrl_handler_free(gspca_dev->vdev.ctrl_handler);
- 	v4l2_device_unregister(&gspca_dev->v4l2_dev);
-+	if (sd_desc->probe_error)
-+		sd_desc->probe_error(gspca_dev);
- 	kfree(gspca_dev->usb_buf);
- 	kfree(gspca_dev);
- 	return ret;
-diff --git a/drivers/media/usb/gspca/gspca.h b/drivers/media/usb/gspca/gspca.h
-index b0ced2e14006..a6554d5e9e1a 100644
---- a/drivers/media/usb/gspca/gspca.h
-+++ b/drivers/media/usb/gspca/gspca.h
-@@ -105,6 +105,7 @@ struct sd_desc {
- 	cam_cf_op config;	/* called on probe */
- 	cam_op init;		/* called on probe and resume */
- 	cam_op init_controls;	/* called on probe */
-+	cam_v_op probe_error;	/* called if probe failed, do cleanup here */
- 	cam_op start;		/* called on stream on after URBs creation */
- 	cam_pkt_op pkt_scan;
- /* optional operations */
-diff --git a/drivers/media/usb/gspca/stv06xx/stv06xx.c b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-index b7ea4f982964..ccec6138f678 100644
---- a/drivers/media/usb/gspca/stv06xx/stv06xx.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-@@ -538,12 +538,21 @@ static int sd_int_pkt_scan(struct gspca_dev *gspca_dev,
- static int stv06xx_config(struct gspca_dev *gspca_dev,
- 			  const struct usb_device_id *id);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
+index d6f79dc755b4..14e2ce87bab1 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
+@@ -78,9 +78,17 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
+ 		| MDP5_PP_SYNC_CONFIG_VSYNC_IN_EN;
+ 	cfg |= MDP5_PP_SYNC_CONFIG_VSYNC_COUNT(vclks_line);
  
-+static void stv06xx_probe_error(struct gspca_dev *gspca_dev)
-+{
-+	struct sd *sd = (struct sd *)gspca_dev;
++	/*
++	 * Tearcheck emits a blanking signal every vclks_line * vtotal * 2 ticks on
++	 * the vsync_clk equating to roughly half the desired panel refresh rate.
++	 * This is only necessary as stability fallback if interrupts from the
++	 * panel arrive too late or not at all, but is currently used by default
++	 * because these panel interrupts are not wired up yet.
++	 */
+ 	mdp5_write(mdp5_kms, REG_MDP5_PP_SYNC_CONFIG_VSYNC(pp_id), cfg);
+ 	mdp5_write(mdp5_kms,
+-		REG_MDP5_PP_SYNC_CONFIG_HEIGHT(pp_id), 0xfff0);
++		REG_MDP5_PP_SYNC_CONFIG_HEIGHT(pp_id), (2 * mode->vtotal));
 +
-+	kfree(sd->sensor_priv);
-+	sd->sensor_priv = NULL;
-+}
-+
- /* sub-driver description */
- static const struct sd_desc sd_desc = {
- 	.name = MODULE_NAME,
- 	.config = stv06xx_config,
- 	.init = stv06xx_init,
- 	.init_controls = stv06xx_init_controls,
-+	.probe_error = stv06xx_probe_error,
- 	.start = stv06xx_start,
- 	.stopN = stv06xx_stopN,
- 	.pkt_scan = stv06xx_pkt_scan,
+ 	mdp5_write(mdp5_kms,
+ 		REG_MDP5_PP_VSYNC_INIT_VAL(pp_id), mode->vdisplay);
+ 	mdp5_write(mdp5_kms, REG_MDP5_PP_RD_PTR_IRQ(pp_id), mode->vdisplay + 1);
 -- 
 2.30.2
 
