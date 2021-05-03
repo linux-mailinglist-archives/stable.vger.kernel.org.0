@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F848371D19
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E93E5371D1D
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:57:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234565AbhECQ6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 12:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43554 "EHLO mail.kernel.org"
+        id S234294AbhECQ6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:58:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235144AbhECQzv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 12:55:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1FDB61968;
-        Mon,  3 May 2021 16:43:04 +0000 (UTC)
+        id S235177AbhECQzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:55:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2968E61964;
+        Mon,  3 May 2021 16:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620060185;
-        bh=Jfb5JeDNXq6MV6xxiZm35fU9ECYIkOD6TvYYV7P1sFM=;
+        s=k20201202; t=1620060187;
+        bh=I4ry09Znr5ak66+cQSdF/fA+BuoUFvRfYRYVxZAWi2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E42aGjpWUzvpc795+n77zPX7btmeCRrn+ShRmEn/asElUSYscQ4/qarL1cXHLDUhy
-         NS5bhAzd38LcUYT0Vkk0E+dtrGNEpijUlo4rpN1Cx2Ef2g4W766KQxAMkoyuUj1sOO
-         1zXC5t52qn9/wqupR/yoBtR7dXxyrPKj4OLjHHi8Zg5QMasxZEWaXYhrM2NH1Zb/7q
-         ZYZMDv9YIwJC3WrXBuUJz4mgeSjJz02xgSKFY+uLz9Uyz9ZcoO70iEjcUBIMVsmX/Y
-         jap8BdafONLZqVLtlUh1oBKR7OY+q3a5/22EU2RPTpSbn8dVa3JcR993u89dQJOxz7
-         1YlNuFhmYVrtw==
+        b=aKCBiUaRHL7OGkccEuTcmMaaWsirDwUdH55C1TN6KIxDoyiMVbabf8BVufucDbg5J
+         czHHQdEE6rQNWxTnbMWV5TRUz4KBddyaEf1iKBfyOAZrYMve4413LI+ymY9UeabsFW
+         L6pZ6NF++Yx43HxJZvLTh3l1QMvoWQJUawPSAGs5GaH2VaowDBikMkKa8TsCtblWW5
+         aAlcKG6rxxxFUncJfLjOE2uGoC5JYya+la7G76liSXKY2ql5qxw1UIVuR6c8VYZkDp
+         XUcEtnCqEML1ks1jV6Q7KJNURvx1iqWZQhHyByhoj0/RrRkufxD5k6BnJO9ruSJckl
+         zfVTCmcHi1jtw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lyude Paul <lyude@redhat.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 09/24] drm/bridge/analogix/anx78xx: Cleanup on error in anx78xx_bridge_attach()
-Date:   Mon,  3 May 2021 12:42:37 -0400
-Message-Id: <20210503164252.2854487-9-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Quinn Tran <qutran@marvell.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Daniel Wagner <dwagner@suse.de>, Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 10/24] scsi: qla2xxx: Always check the return value of qla24xx_get_isp_stats()
+Date:   Mon,  3 May 2021 12:42:38 -0400
+Message-Id: <20210503164252.2854487-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503164252.2854487-1-sashal@kernel.org>
 References: <20210503164252.2854487-1-sashal@kernel.org>
@@ -43,61 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 212ee8db84600f7b279b8645c62a112bff310995 ]
+[ Upstream commit a2b2cc660822cae08c351c7f6b452bfd1330a4f7 ]
 
-Just another issue I noticed while correcting usages of
-drm_dp_aux_init()/drm_dp_aux_register() around the tree. If any of the
-steps in anx78xx_bridge_attach() fail, we end up leaking resources. So,
-let's fix that (and fix leaking a DP AUX adapter in the process) by
-unrolling on errors.
+This patch fixes the following Coverity warning:
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210219215326.2227596-10-lyude@redhat.com
+    CID 361199 (#1 of 1): Unchecked return value (CHECKED_RETURN)
+    3. check_return: Calling qla24xx_get_isp_stats without checking return
+    value (as is done elsewhere 4 out of 5 times).
+
+Link: https://lore.kernel.org/r/20210320232359.941-7-bvanassche@acm.org
+Cc: Quinn Tran <qutran@marvell.com>
+Cc: Mike Christie <michael.christie@oracle.com>
+Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix-anx78xx.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-index 16babacb7cf0..5a1121af6664 100644
---- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
-+++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-@@ -1039,7 +1039,7 @@ static int anx78xx_bridge_attach(struct drm_bridge *bridge)
- 				 DRM_MODE_CONNECTOR_DisplayPort);
- 	if (err) {
- 		DRM_ERROR("Failed to initialize connector: %d\n", err);
--		return err;
-+		goto aux_unregister;
- 	}
+diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
+index 33f4181ba9f7..591e2e89ae9f 100644
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -1909,6 +1909,8 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
+ 	vha->qla_stats.jiffies_at_last_reset = get_jiffies_64();
  
- 	drm_connector_helper_add(&anx78xx->connector,
-@@ -1051,16 +1051,21 @@ static int anx78xx_bridge_attach(struct drm_bridge *bridge)
- 						bridge->encoder);
- 	if (err) {
- 		DRM_ERROR("Failed to link up connector to encoder: %d\n", err);
--		return err;
-+		goto connector_cleanup;
- 	}
+ 	if (IS_FWI2_CAPABLE(ha)) {
++		int rval;
++
+ 		stats = dma_alloc_coherent(&ha->pdev->dev,
+ 		    sizeof(*stats), &stats_dma, GFP_KERNEL);
+ 		if (!stats) {
+@@ -1918,7 +1920,11 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
+ 		}
  
- 	err = drm_connector_register(&anx78xx->connector);
- 	if (err) {
- 		DRM_ERROR("Failed to register connector: %d\n", err);
--		return err;
-+		goto connector_cleanup;
- 	}
+ 		/* reset firmware statistics */
+-		qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
++		rval = qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
++		if (rval != QLA_SUCCESS)
++			ql_log(ql_log_warn, vha, 0x70de,
++			       "Resetting ISP statistics failed: rval = %d\n",
++			       rval);
  
- 	return 0;
-+connector_cleanup:
-+	drm_connector_cleanup(&anx78xx->connector);
-+aux_unregister:
-+	drm_dp_aux_unregister(&anx78xx->aux);
-+	return err;
- }
- 
- static bool anx78xx_bridge_mode_fixup(struct drm_bridge *bridge,
+ 		dma_free_coherent(&ha->pdev->dev, sizeof(*stats),
+ 		    stats, stats_dma);
 -- 
 2.30.2
 
