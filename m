@@ -2,114 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ED7D37208D
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 21:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28709372100
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 21:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbhECThL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 15:37:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
+        id S229577AbhECTzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 15:55:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229570AbhECThK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 May 2021 15:37:10 -0400
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC68C06174A;
-        Mon,  3 May 2021 12:36:16 -0700 (PDT)
-Received: by mail-lj1-x22f.google.com with SMTP id o16so8265969ljp.3;
-        Mon, 03 May 2021 12:36:16 -0700 (PDT)
+        with ESMTP id S229570AbhECTy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 May 2021 15:54:59 -0400
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 385DFC06174A;
+        Mon,  3 May 2021 12:54:06 -0700 (PDT)
+Received: by mail-wm1-x32a.google.com with SMTP id b11-20020a7bc24b0000b0290148da0694ffso3949980wmj.2;
+        Mon, 03 May 2021 12:54:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=/15ZZgVs4HWwrQnoXkLDtTe4rR3G5xM3bzUg9TCb5gA=;
-        b=mhwZUQ+Wna2bTzVcsyO/hJn7zgi/eLCeH+k76NUpMWmcIUA0AeuMrubne0kmeVoBAP
-         x0sqhLptrE4+IzSI06xEanCrLQTTqczVfQlS7Q9xolDG2pmQPfd5z6fv6Jya5PkkspRh
-         6z/uSvyVUSPj7D+aY/+fKKXtAA020AeeowfW563Ug2mx6/86YL3z4eEvyKBT9MDw3Q+B
-         hV8kOzDUzE5j+U/9ehHMGl950IiBSrLrafBE5bl/N5NQSRaulUFmjW3uP6YtK939m1xD
-         UXXkk2fwH/gKS1QG7o4oJhycMOgAQoQO9++RGjCDrZmqUYg39rkSL9c73qPhZxtIhN69
-         Ayhw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=gA/wVI9R9iPR4MgFePi+U5PCvMoPg9SjYuV764rxhq0=;
+        b=R4gAYZ6y6bD+z2WnwIpcXHEV+bwB6chVdzqggeErY7PBraERfOk2c9EIEks65vyd3X
+         mpOWME7cQSfxK8QhdmHI6ec1nKTfDk6M14T/m3xTjOEeD5ws1eKe9dJc96jLbTWecCcT
+         tn1LZoc+pEgjY7Ey/EsViylq+LEIsU4+03R4zo4QG5fc1TI92WK2sY5dsFg36nBpAD9i
+         YLr/f0ab9L/Vvf0/vmNX9MYE5P4z0cf94G+JIiNzA7YB0dc4Tu8ynk6JIHbM9uy4Tkgu
+         zJwW2goQ/s25M0AlVpkuPfEMUNT94oR/4wDw5cPlihhjhHj6Ac2KIYn9dgLtYMgPf5vN
+         Or8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/15ZZgVs4HWwrQnoXkLDtTe4rR3G5xM3bzUg9TCb5gA=;
-        b=Fq7a3MF8X1ZS/PluFVbKozV/CahwTybIMgkvPQslJE/OfnzEW5VtXWpm5hP8hrlXVZ
-         e6CRW/ddBe8DXjppZbPVt7B/+0PcAeJDq2Gs8EXedK/nleOVPt8DMfvt55or9N04U4WL
-         PBV3yjo440yYPxiRiZtD0wmoXsJAcQDPqcGMzBHwqBtXUnwpRuxS0iK8O6K/3Wdwcwse
-         RGrNEjWdnC9O5pJxEvlGSB67FTRDjaUxl5N24cQGy2F+r5uogkZjada99N+0VSwFtuFp
-         5ZQkWSwskpiMbkHherRz3gBZ09tKNcAshmypxsysCcxGCSMH+2KmSTGYeB9AJHJv/C/r
-         6tlg==
-X-Gm-Message-State: AOAM532UYb9XRyWY5tHQfebEdtBVcN1BE7JV8tgAWdBUjnbmx+6U5vbM
-        QKBqFM/4qdPGNbkh20XP7P0=
-X-Google-Smtp-Source: ABdhPJzw1/XziLbg3TWRGUzEJJVGmqP7rmnq2JuXtgbEJAC/YSMWJ0prNTEqoTdphM31RidqYbhexw==
-X-Received: by 2002:a2e:97c3:: with SMTP id m3mr1029889ljj.231.1620070575377;
-        Mon, 03 May 2021 12:36:15 -0700 (PDT)
-Received: from [192.168.0.131] ([194.183.54.57])
-        by smtp.gmail.com with ESMTPSA id q27sm402397ljm.127.2021.05.03.12.36.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 May 2021 12:36:14 -0700 (PDT)
-Subject: Re: [PATCH 09/69] leds: lp5523: check return value of lp5xx_read and
- jump to cleanup code
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     Phillip Potter <phil@philpotter.co.uk>,
-        stable <stable@vger.kernel.org>,
-        Linux LED Subsystem <linux-leds@vger.kernel.org>,
-        Pavel Machek <pavel@ucw.cz>
-References: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
- <20210503115736.2104747-10-gregkh@linuxfoundation.org>
-From:   Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Message-ID: <f821d2a3-3801-66a6-3c5b-0e00a8289ec1@gmail.com>
-Date:   Mon, 3 May 2021 21:36:14 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=gA/wVI9R9iPR4MgFePi+U5PCvMoPg9SjYuV764rxhq0=;
+        b=AKq2P16uOWfxGWIKoSJuq+gzC+pVZVvd+83vG6pmy4R6+n1+kr/tqmL55x+KpLxRuS
+         x7nkPj3Z++WMN8oCWmDLA74mXWkAzkOepTHrODjghElBhGTianAvadyR8T4QXOgk7FBP
+         zbOQaQulSNdBo36tDYSAyrgbHZ5fAhHj6QLwfm6InPUWbuQem7eoYQVSsmT5HgbeMaT6
+         BRKA5UzQ44hbuvdLD02LdqEaeoichI+Ubrjdr5jv8bwlmhP7/hd5zdcLvOBmwQ/U3IJJ
+         lFnLEBud/GvDWUlKvWpkXs70VP6fUZrnBMGEj27Y4eNZthjFjTjYTUNdF0NX8l2/ocZR
+         6EBA==
+X-Gm-Message-State: AOAM530wvtdYZm+y9ARdvgC/6sKjxKQU6qT2zwLvHtGUrEn9+LiCu+tJ
+        o8zhbbAPRCCbzX4uo7X+mS3uyIJJ+m56dJbYvUXeM4mgSjBmXA==
+X-Google-Smtp-Source: ABdhPJwnrDfaJe9oy4G23qHlGaNvrBgvYYNBFrBHmkZ5kp7kyDlk/tO4l6eancb92Lp+gdmupAPjhPP32Bd380Ggnuo=
+X-Received: by 2002:a1c:401:: with SMTP id 1mr219288wme.138.1620071644737;
+ Mon, 03 May 2021 12:54:04 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210503115736.2104747-10-gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20201221222502.1706-1-nick.lowe@gmail.com> <379d4ef3-02e5-f08a-1b04-21848e11a365@bluematt.me>
+ <20210201084747.2cb64c3f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <a7a89e90bf6c3f383fa236b1128db8d012223da0.camel@intel.com>
+ <20210201114545.6278ae5c@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <69e92a09-d597-2385-2391-fee100464c59@bluematt.me> <CADSoG1vn-T3ZL0uZSR-=TnGDdcqYDXjuAxqPaHb0HjKYSuQwXg@mail.gmail.com>
+ <20210201123350.159feabd@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <CADSoG1sf9zXj9CQfJ3kQ1_CUapmZDa6ZeKtbspUsm34c7TSKqw@mail.gmail.com> <20210503113010.774e4ca6@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20210503113010.774e4ca6@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From:   Nick Lowe <nick.lowe@gmail.com>
+Date:   Mon, 3 May 2021 20:53:48 +0100
+Message-ID: <CADSoG1stdPVOE2N0dg10T6tgTUN1nqafY_m+K1CLwB6z2Y9j5Q@mail.gmail.com>
+Subject: Stable inclusion request - igb: Enable RSS for Intel I211 Ethernet Controller
+To:     stable@vger.kernel.org,
+        Matt Corallo <linux-wired-list@bluematt.me>,
+        netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        intel-wired-lan@lists.osuosl.org,
+        "Nguyen, Anthony L" <anthony.l.nguyen@intel.com>,
+        "Brandeburg, Jesse" <jesse.brandeburg@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/3/21 1:56 PM, Greg Kroah-Hartman wrote:
-> From: Phillip Potter <phil@philpotter.co.uk>
-> 
-> Check return value of lp5xx_read and if non-zero, jump to code at end of
-> the function, causing lp5523_stop_all_engines to be executed before
-> returning the error value up the call chain. This fixes the original
-> commit (248b57015f35) which was reverted due to the University of Minnesota
-> problems.
-> 
-> Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->   drivers/leds/leds-lp5523.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/leds/leds-lp5523.c b/drivers/leds/leds-lp5523.c
-> index 5036d7d5f3d4..b1590cb4a188 100644
-> --- a/drivers/leds/leds-lp5523.c
-> +++ b/drivers/leds/leds-lp5523.c
-> @@ -305,7 +305,9 @@ static int lp5523_init_program_engine(struct lp55xx_chip *chip)
->   
->   	/* Let the programs run for couple of ms and check the engine status */
->   	usleep_range(3000, 6000);
-> -	lp55xx_read(chip, LP5523_REG_STATUS, &status);
-> +	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
-> +	if (ret)
-> +		goto out;
->   	status &= LP5523_ENG_STATUS_MASK;
->   
->   	if (status != LP5523_ENG_STATUS_MASK) {
-> 
+Hi,
 
-Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Please may we request that commit 6e6026f2dd20 ("igb: Enable RSS for
+Intel I211 Ethernet Controller") be backported to the 5.4 and 5.10 LTS
+kernels?
 
-Cc: Pavel Machek <pavel@ucw.cz>, linux-leds@vger.kernel.org
+The Intel i211 Ethernet Controller supports 2 Receive Side Scaling
+(RSS) queues, the patch corrects the issue that the i211 should not be
+excluded from having this feature enabled.
 
--- 
 Best regards,
-Jacek Anaszewski
+
+Nick
+
+---------- Forwarded message ---------
+From: Jakub Kicinski <kuba@kernel.org>
+Date: Mon, 3 May 2021 at 19:30
+Subject: Re: [PATCH net] igb: Enable RSS for Intel I211 Ethernet Controller
+To: Nick Lowe <nick.lowe@gmail.com>
+Cc: Matt Corallo <linux-wired-list@bluematt.me>, Nguyen, Anthony L
+<anthony.l.nguyen@intel.com>, netdev@vger.kernel.org
+<netdev@vger.kernel.org>, davem@davemloft.net <davem@davemloft.net>,
+Brandeburg, Jesse <jesse.brandeburg@intel.com>,
+intel-wired-lan@lists.osuosl.org <intel-wired-lan@lists.osuosl.org>
+
+
+On Mon, 3 May 2021 13:32:24 +0100 Nick Lowe wrote:
+> Hi all,
+>
+> Now that the 5.12 kernel has released, please may we consider
+> backporting commit 6e6026f2dd2005844fb35c3911e8083c09952c6c to both
+> the 5.4 and 5.10 LTS kernels so that RSS starts to function with the
+> i211?
+
+No objections here. Please submit the backport request to stable@.
+https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html#option-2
