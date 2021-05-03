@@ -2,65 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0333B37186F
-	for <lists+stable@lfdr.de>; Mon,  3 May 2021 17:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D91A5371955
+	for <lists+stable@lfdr.de>; Mon,  3 May 2021 18:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230236AbhECPvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 May 2021 11:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35696 "EHLO mail.kernel.org"
+        id S231223AbhECQgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 May 2021 12:36:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230481AbhECPvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 May 2021 11:51:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DAF2610C8;
-        Mon,  3 May 2021 15:50:20 +0000 (UTC)
+        id S231250AbhECQgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 May 2021 12:36:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1315460D07;
+        Mon,  3 May 2021 16:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620057020;
-        bh=BMJrILOMBNPtSPtdylpuDTW4a8a4Um/NZx8UjOidZsY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=fGpmG54cqQxDYjdTM4gMFA2C8/nqtmc6LNjSnoTyLcMsf8s9WJAzMAulU0xqVoLmV
-         wPsS6P+ac0Yhy2hJ6zQe3zO8xRWRqTOpdUJelTM5bXTKZbMzM2hgUBFfJSFIGLT8vq
-         KBQushaeP/LcdkOal0PB0z3GHhEJziTewTYZwBwWdiA2Wmj/gOZjhWf1uMKRRXMqWy
-         l0H6BoBt8bqOgXfqiXPd6IlE7q7kqrZ2hMMmQvAxLeY17JQf2MaEdtmAbMSgnda9cs
-         85h0P10mh3Bx3TM3wfLChaCl39q+K+62/UH4R5R7VPr9HcnCDFg2AOwHleJlB58vIu
-         x+aiUzyIVWy1w==
-Date:   Mon, 3 May 2021 10:50:18 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Keith Busch <kbusch@kernel.org>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Prike Liang <Prike.Liang@amd.com>,
-        linux-nvme@lists.infradead.org, Chaitanya.Kulkarni@wdc.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        Alexander.Deucher@amd.com,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        linux-pci@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v4 1/2] PCI: add AMD PCIe quirk for nvme shutdown opt
-Message-ID: <20210503155018.GA910672@bjorn-Precision-5520>
+        s=k20201202; t=1620059715;
+        bh=GECd6ZWGOLxXk6I6RpW1NsCGUbeOBhdBjmOBiu+231s=;
+        h=From:To:Cc:Subject:Date:From;
+        b=j3HH7rCXdNfJZc0UqsTLD8wc6PsH4zGSpG7ve+/6DfFFJgDDIGz4fC8NVGH1ja1UU
+         sSMJwXmiHG1I8UCGUoC/Or/i818WaDb02bjVm3zJuwTW6pG4K1wBLs5RW9btPHlZWw
+         aGFvN9r6cKVPznvrflH9aVTemHodt90ia94ClcTNiaz2qh1TRmEE+41B6NgbY/Hbkk
+         vFSTcacog0LGbjlU8R85voqqAQv76siEMZ4KCuTly8Q58YJnblGuPt0RbxADnSQQFU
+         Rk0bckGWQxMgZzIOGqJEuAvD/bU9C29shOyg/oXu8ZX9CBJ+zwtDetJJ6Q2MmBjciK
+         iuYpzyL+isdSw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Jared Baldridge <jrb@expunge.us>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.12 001/134] drm: Added orientation quirk for OneGX1 Pro
+Date:   Mon,  3 May 2021 12:33:00 -0400
+Message-Id: <20210503163513.2851510-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210503145702.GC910137@dhcp-10-100-145-180.wdc.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 03, 2021 at 07:57:02AM -0700, Keith Busch wrote:
-> On Mon, May 03, 2021 at 08:14:07AM +0100, Christoph Hellwig wrote:
-> > On Fri, Apr 30, 2021 at 12:50:49PM -0500, Bjorn Helgaas wrote:
-> > > Patch 2/2 only uses PCI_DEV_FLAGS_AMD_NVME_SIMPLE_SUSPEND in the nvme
-> > > driver, so AFAICT there is no reason for the PCI core to keep track of
-> > > the flag for you.
-> > > 
-> > > I see below that Christoph suggests it needs to be in the PCI core,
-> > > but the reason needs to be explained in the commit log.
-> > 
-> > As far as I can tell this has nothing to do with NVMe except for the
-> > fact that right now it mostly hits NVMe as the nvme drivers is one of
-> > the few drivers not always doing a full device shutdown when the
-> > system goes into the S3 power state.  But various x86 platforms now
-> > randomly power done the link in that case.
-> 
-> Right, and the v5 of this series uses a generic name for the PCI quirk
-> without mentioning "NVME".
+From: Jared Baldridge <jrb@expunge.us>
 
-It'd be nice if somebody would figure out how to cc: linux-pci on
-these patches.
+[ Upstream commit 81ad7f9f78e4ff80e95be8282423f511b84f1166 ]
+
+The OneGX1 Pro has a fairly unique combination of generic strings,
+but we additionally match on the BIOS date just to be safe.
+
+Signed-off-by: Jared Baldridge <jrb@expunge.us>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/41288ccb-1012-486b-81c1-a24c31850c91@www.fastmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 58f5dc2f6dd5..f6bdec7fa925 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -84,6 +84,13 @@ static const struct drm_dmi_panel_orientation_data itworks_tw891 = {
+ 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+ };
+ 
++static const struct drm_dmi_panel_orientation_data onegx1_pro = {
++	.width = 1200,
++	.height = 1920,
++	.bios_dates = (const char * const []){ "12/17/2020", NULL },
++	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
++};
++
+ static const struct drm_dmi_panel_orientation_data lcd720x1280_rightside_up = {
+ 	.width = 720,
+ 	.height = 1280,
+@@ -211,6 +218,13 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
+ 		},
+ 		.driver_data = (void *)&lcd1200x1920_rightside_up,
++	}, {	/* OneGX1 Pro */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SYSTEM_MANUFACTURER"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SYSTEM_PRODUCT_NAME"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Default string"),
++		},
++		.driver_data = (void *)&onegx1_pro,
+ 	}, {	/* VIOS LTH17 */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VIOS"),
+-- 
+2.30.2
+
