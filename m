@@ -2,102 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ABB3372FEF
-	for <lists+stable@lfdr.de>; Tue,  4 May 2021 20:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D91D372FF7
+	for <lists+stable@lfdr.de>; Tue,  4 May 2021 20:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231739AbhEDSuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 May 2021 14:50:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60200 "EHLO
+        id S231432AbhEDSvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 May 2021 14:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231724AbhEDSuF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 May 2021 14:50:05 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24DCEC061574
-        for <stable@vger.kernel.org>; Tue,  4 May 2021 11:49:10 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1le06N-0001tO-A3; Tue, 04 May 2021 20:48:59 +0200
-Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:4880:7cee:6dec:c8f9])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id 5BC2E61BEE7;
-        Tue,  4 May 2021 18:48:55 +0000 (UTC)
-Date:   Tue, 4 May 2021 20:48:54 +0200
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     Schrempf Frieder <frieder.schrempf@kontron.de>
-Cc:     Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Timo =?utf-8?B?U2NobMO8w59sZXI=?= <schluessler@krause.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Tim Harvey <tharvey@gateworks.com>, stable@vger.kernel.org,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] can: mcp251x: Fix resume from sleep before interface was
- brought up
-Message-ID: <20210504184854.urgotqioxtjwbqqs@pengutronix.de>
-References: <bd466d82-db03-38b1-0a13-86aa124680ea@kontron.de>
+        with ESMTP id S230480AbhEDSvR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 May 2021 14:51:17 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B2C6C061574
+        for <stable@vger.kernel.org>; Tue,  4 May 2021 11:50:22 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id m190so1075450pga.2
+        for <stable@vger.kernel.org>; Tue, 04 May 2021 11:50:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=83edrlcxbaGPN2VVbYTFcGXHviphJd4yyg7sJ78rFRs=;
+        b=cHw6gUFCBbrM61NYOT8oEfhMs6aHZscrBbDlrr8ooGaX0SQJNzTIoI+o11w73y8sQM
+         Je/3qUK1QSb00qCx0RmM+ynaHgkt13Fof3X0eP2hXTkLDJO2nT+LMGUOdHstw17jZhTN
+         TRC46dNQ7BQLY8WhcLmiwsQXdVy+jg3quaxI896lJ3c4rsaSBuNmLwzklnkgsZ3gQvHI
+         7PIBG4sAd4Ygv07yX3kYGvS95lCGRWkcxfiizg/tb9Htnr6hNY1AH6vjGNFE2cAMO9IH
+         CVOU7hHheRhO90raO1NJ9mFzLJoTDkqOGQRG27ATyvbJWNvkB4KsQkIHqwuYrs+S4nx3
+         tEYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=83edrlcxbaGPN2VVbYTFcGXHviphJd4yyg7sJ78rFRs=;
+        b=s2knQKJ6qqgbwop+ejBHBibH1DFLJ8G4cgNSJbGopz8mzQWO1r6fO2uwXzsp7kJBfz
+         Nt8lOtnXgaF5MCjYXy9z4buxBJmfjolzFXp7rTuLRrz+TrMyWjyKey25F4xywHwukB7D
+         oFQYI9hZh32cJZ5BT43igVz/crzNGDRsO8e9GwDZ/NZMyZ4o7aGZm8Fip1ydlhEGK0he
+         VW/m2dKcIDrRyNKDsfS0ONAixglhWR8G9M7VF2G9fFuiTshxPKpbA0NtZRtnWADlBwaT
+         eOuydecDr6gXOOSKgNFbeNmOEwDPYsNK6Cr7ZzVqMat0RQ2BgqQYNTHuhfmfkmf20zMm
+         1HDg==
+X-Gm-Message-State: AOAM533k56FgG9g2Pj4Oj/OOth3lemYqrTA0m0RDMkJ3K4oSgdCGd7Fr
+        mcYr9p6CWzBRfjDD6FOqTleXYVfpr1OCJ9JE
+X-Google-Smtp-Source: ABdhPJwhcCvUPIOR2cOAVZP7UQUU6KMkeir6MYIm6QpbKRxjSReSggzUTdbtQav8q7ZehpP1DCkxFg==
+X-Received: by 2002:a17:90a:5806:: with SMTP id h6mr29229468pji.14.1620154221760;
+        Tue, 04 May 2021 11:50:21 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ch14sm14128256pjb.55.2021.05.04.11.50.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 May 2021 11:50:21 -0700 (PDT)
+Message-ID: <6091976d.1c69fb81.ef34e.3077@mx.google.com>
+Date:   Tue, 04 May 2021 11:50:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="v3vthzpowlfzvmol"
-Content-Disposition: inline
-In-Reply-To: <bd466d82-db03-38b1-0a13-86aa124680ea@kontron.de>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.34-6-g4912ffb397b5d
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 90 runs,
+ 1 regressions (v5.10.34-6-g4912ffb397b5d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 90 runs, 1 regressions (v5.10.34-6-g4912ffb3=
+97b5d)
 
---v3vthzpowlfzvmol
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-On 04.05.2021 18:01:48, Schrempf Frieder wrote:
-> Since 8ce8c0abcba3 the driver queues work via priv->restart_work when
-> resuming after suspend, even when the interface was not previously
-> enabled. This causes a null dereference error as the workqueue is
-> only allocated and initialized in mcp251x_open().
->=20
-> To fix this we move the workqueue init to mcp251x_can_probe() as
-> there is no reason to do it later and repeat it whenever
-> mcp251x_open() is called.
->=20
-> Fixes: 8ce8c0abcba3 ("can: mcp251x: only reset hardware as required")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+platform                     | arch  | lab          | compiler | defconfig =
+| regressions
+-----------------------------+-------+--------------+----------+-----------=
++------------
+meson-g12b-a311d-khadas-vim3 | arm64 | lab-baylibre | gcc-8    | defconfig =
+| 1          =
 
-Added to linux-can/testing.
 
-Thanks,
-Marc
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.34-6-g4912ffb397b5d/plan/baseline/
 
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.34-6-g4912ffb397b5d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4912ffb397b5d309f384248354cc2fbc3bf07b2b =
 
---v3vthzpowlfzvmol
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmCRlxMACgkQqclaivrt
-76nZFQf9EALD3jMJEXRfahZ9zzZjCS+oJe2TkoDOtMQx/TPnhe//XQfoRoRfvstv
-e6AiN8Ir407VR6BSQaTTq6LaBd6VaoviRlywrUzbnKBzv4w2nvriWy250ML5KcST
-8N+6lgvPhNOQP190kAUvYzy98mzWEbEMTIkknMnvz+wEz2JV70zD/AZAiTGUpQmE
-fX+lc6RPC10zyX3QIXP6Um2yRit63INe4OFlzLv1dhfSeG89NTM+FcDnI2Nqeoqc
-v4eTX2gC+k5kFNkI1xYdilv6w93gAB/YE10K0SwdjVxe7QdHsqVUy8eMpi+cDabH
-9kZM4iWDNmeE4ayU2C3VZ+1hX/ANOw==
-=thfL
------END PGP SIGNATURE-----
+Test Regressions
+---------------- =
 
---v3vthzpowlfzvmol--
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+| regressions
+-----------------------------+-------+--------------+----------+-----------=
++------------
+meson-g12b-a311d-khadas-vim3 | arm64 | lab-baylibre | gcc-8    | defconfig =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60915e09372de4476a843f32
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.34-=
+6-g4912ffb397b5d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-g12b-a31=
+1d-khadas-vim3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.34-=
+6-g4912ffb397b5d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-g12b-a31=
+1d-khadas-vim3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60915e09372de4476a843=
+f33
+        new failure (last pass: v5.10.34-4-g409a7a0c5b5ee) =
+
+ =20
