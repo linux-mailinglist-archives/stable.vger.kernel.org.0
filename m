@@ -2,86 +2,280 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 870E9372F5D
-	for <lists+stable@lfdr.de>; Tue,  4 May 2021 20:07:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E87372F94
+	for <lists+stable@lfdr.de>; Tue,  4 May 2021 20:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232045AbhEDSIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 May 2021 14:08:32 -0400
-Received: from mga07.intel.com ([134.134.136.100]:41025 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230285AbhEDSIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 May 2021 14:08:31 -0400
-IronPort-SDR: BiIH4urrVSraUtXIsyspY5cgaxUtSyPJm6EpiWGNdvO/pq2lqOiaiYKOngQs76Mh1iAgP2fBaR
- 5O/MDYJAupow==
-X-IronPort-AV: E=McAfee;i="6200,9189,9974"; a="261993687"
-X-IronPort-AV: E=Sophos;i="5.82,272,1613462400"; 
-   d="scan'208";a="261993687"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 May 2021 11:07:35 -0700
-IronPort-SDR: H4xP5zq1wc0ooroGB2dP6HLOJTRL0VRaba5LoIV7loEKUV1hRVL3/f7ctBfkW8P2P+39RhIl0i
- 6ayyVD7et48A==
-X-IronPort-AV: E=Sophos;i="5.82,272,1613462400"; 
-   d="scan'208";a="433399915"
-Received: from agluck-desk2.sc.intel.com (HELO agluck-desk2.amr.corp.intel.com) ([10.3.52.146])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 May 2021 11:07:35 -0700
-Date:   Tue, 4 May 2021 11:07:34 -0700
-From:   "Luck, Tony" <tony.luck@intel.com>
-To:     Yazen Ghannam <Yazen.Ghannam@amd.com>
-Cc:     linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
-        x86@kernel.org, Smita.KoralahalliChannabasappa@amd.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] x86/MCE: Don't call kill_me_now() directly
-Message-ID: <20210504180734.GA721714@agluck-desk2.amr.corp.intel.com>
-References: <20210504174712.27675-1-Yazen.Ghannam@amd.com>
- <20210504174712.27675-3-Yazen.Ghannam@amd.com>
+        id S232065AbhEDSNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 May 2021 14:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51938 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231635AbhEDSNE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 May 2021 14:13:04 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CF2C061574
+        for <stable@vger.kernel.org>; Tue,  4 May 2021 11:12:09 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id q2so8648568pfh.13
+        for <stable@vger.kernel.org>; Tue, 04 May 2021 11:12:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=0GcPw8ZoRzHBNdcJ2RYTpyyem06ZdrcS137qPp8aBik=;
+        b=QsjKR/q/QRHvVbzcsVrCXd1FEb/pqM07lO9qfpvcuINFpOX2G4OyBdRAtvr3d6sfXC
+         /ussg7tIeNqUJRKX2ZqiCdOz5Z0TMHEGtd4pplXfZlCrttbB/Z++w5aj7B5v17ref5k0
+         96zHyNHSYwJvVVzANzToybg+tiNvwysm+wE4pK/MdNLfK47roHOE2Xo+mmFo79RdjhX4
+         UyjptKQQH+yK2uWWAlqUQpS47MIk2XP0fl8bk0XaXiGIsiF7YoHn23hB3t+INeoAzxoR
+         E7ZMJZl63G08ylWO/TTT3cTD1Fe8KabLwjDuhd/i7WIKG86fDGcXFLjLjYtxlqfPxQHH
+         s/Xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=0GcPw8ZoRzHBNdcJ2RYTpyyem06ZdrcS137qPp8aBik=;
+        b=ENlXzkXnpK33ibc+ICfP6Awu301PW6QyOtlJ7PxPfMGe23xaYiHRUuRLeLJ7NzDXLn
+         UP7bNQwohln2xRTojMenh8+gjnVuIacgJQynLGE9pRIN52sUIpMEySInfirdrZCS4aHG
+         7ZqFzFWObfMsm5g0fROKUuNDXb+iNaDyYI/B1SuB5g72mIAxfIN+vo+u73ZBXWUnSOgT
+         e7dg6YD0SGqNXn1T8y/ZOrZcTgH0WhaAmeu/fjnq+kafGyRPP8rLFWFsK79bJACj4TiO
+         vXxRievyKt/0fQsLtuRzP4yEEl6rHVdAtS0/fNu1Wy/+m9TT6mxZJox+khSAuTez1Klk
+         STKA==
+X-Gm-Message-State: AOAM532yN+Vm1EvfZVfIam1zTB+Inef4HvKuwn4iEvr2kaaI2IxTvGla
+        wN8MAioaJxgciiEvEf7YHa9fOVasa5ywI/hx
+X-Google-Smtp-Source: ABdhPJy41A0ZmOyluEhwmEHO2XUL7dhNmQevi2/JJC7HxHVKMoOSIqrqTTTL3I578CN/OJ9+NHO5XQ==
+X-Received: by 2002:a17:90b:347:: with SMTP id fh7mr6572418pjb.183.1620151929024;
+        Tue, 04 May 2021 11:12:09 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p22sm4893426pjg.39.2021.05.04.11.12.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 May 2021 11:12:08 -0700 (PDT)
+Message-ID: <60918e78.1c69fb81.6271c.a13a@mx.google.com>
+Date:   Tue, 04 May 2021 11:12:08 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210504174712.27675-3-Yazen.Ghannam@amd.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.189-7-gb2a67041e4ea9
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 98 runs,
+ 5 regressions (v4.19.189-7-gb2a67041e4ea9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 04, 2021 at 05:47:12PM +0000, Yazen Ghannam wrote:
-> From: Yazen Ghannam <yazen.ghannam@amd.com>
-> 
-> Always call kill_me_maybe() in order to attempt memory recovery. This
-> ensures that any memory associated with the error is properly marked as
-> poison.
-> 
-> This is needed for errors that occur on memory, but that do not have
-> MCG_STATUS[RIPV] set. One example is data poison consumption through the
-> instruction fetch units on AMD Zen-based systems.
-> 
-> The MF_MUST_KILL flag is passed to memory_failure() when
-> MCG_STATUS[RIPV] is not set. So the associated process will still be
-> killed.
-> 
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-> ---
->  arch/x86/kernel/cpu/mce/core.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-> index 308fb644b94a..9040d45ed997 100644
-> --- a/arch/x86/kernel/cpu/mce/core.c
-> +++ b/arch/x86/kernel/cpu/mce/core.c
-> @@ -1285,10 +1285,7 @@ static void queue_task_work(struct mce *m, int kill_current_task)
->  	current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
->  	current->mce_whole_page = whole_page(m);
->  
-> -	if (kill_current_task)
-> -		current->mce_kill_me.func = kill_me_now;
-> -	else
-> -		current->mce_kill_me.func = kill_me_maybe;
-> +	current->mce_kill_me.func = kill_me_maybe;
->  
->  	task_work_add(current, &current->mce_kill_me, TWA_RESUME);
->  }
+stable-rc/queue/4.19 baseline: 98 runs, 5 regressions (v4.19.189-7-gb2a6704=
+1e4ea9)
 
-Could we just get rid of kill_me_now() at the same time? It's only
-one line, and with this change only called in one place (from
-kill_me_maybe()) ... just put the force_sig(SIGBUS); inline?
+Regressions Summary
+-------------------
 
--Tony
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.189-7-gb2a67041e4ea9/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.189-7-gb2a67041e4ea9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      b2a67041e4ea97acc1252ea60a729bbbb280c510 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60916474ca68a02aeb843f1e
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60916474ca68a02=
+aeb843f23
+        failing since 0 day (last pass: v4.19.189-1-gbab36f93665a6, first f=
+ail: v4.19.189-4-g87f39fb5050ad)
+        2 lines
+
+    2021-05-04 15:12:47.805000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/109
+    2021-05-04 15:12:47.814000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-05-04 15:12:47.830000+00:00  <8>[   22.844940] <LAVA_SIGNAL_TESTCA=
+SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609153e6f40d912e63843f49
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609153e6f40d912e63843=
+f4a
+        failing since 171 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609153ddcc4b52bfec843f1b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609153ddcc4b52bfec843=
+f1c
+        failing since 171 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6091540fa8f48dc6e4843f20
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6091540fa8f48dc6e4843=
+f21
+        failing since 171 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609153795e5bab6d47843f23
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-7-gb2a67041e4ea9/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609153795e5bab6d47843=
+f24
+        failing since 171 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
