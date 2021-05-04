@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85DD8372F2F
-	for <lists+stable@lfdr.de>; Tue,  4 May 2021 19:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F024372F31
+	for <lists+stable@lfdr.de>; Tue,  4 May 2021 19:48:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232034AbhEDRtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 May 2021 13:49:45 -0400
-Received: from mail-dm6nam11on2083.outbound.protection.outlook.com ([40.107.223.83]:57148
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        id S232051AbhEDRtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 May 2021 13:49:52 -0400
+Received: from mail-co1nam11on2062.outbound.protection.outlook.com ([40.107.220.62]:58177
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231610AbhEDRto (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 May 2021 13:49:44 -0400
+        id S231959AbhEDRtv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 May 2021 13:49:51 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LHZWovRWEcodqFxF5CpjejGFp88ZvfI9SuphjE4VhqFhT6GJisAQ7uGhiU31ibh0ORz9+39duw4FQyL/KoeVEdGinEL+hT2BJaaLEqQ7GURb2KeBHjYH84ij94nLl5zCbEecWo6U1PVe2dxm+r+sVUxHT8EelmToYe3rwDn4jRfX6aRspS2o4+loLrbn7j0VOrluCQ4kSSIvh9jZuTj/akSStIHOp7sJLUBYizOAP692F5R137hDbLaGhyIbsI8u46qJEvsU+xxpLeJ+lNMYLTyjPoThJOEX0J4fpum2USXaMDUAOE6pOnMhtIZhdyZyxVF/OC172Lln1StNn/4VqQ==
+ b=NJkregKztfn8vYyU0HZy3ooSo+pjDr3G9/COWHfM4X2vkdpaG7Y87hkUL5rH45rt0C8oYa5Tt8IKhkORXsCHim2TygkRL/Z0FMcCIZq8Y17rXqyUy4x89vCtld03fE0ZFJHsFJzhBNJSkxRVQX+rA1WSssreFHmVjWIw4zb7jbq8nkSfM1pDlKBDRn/k9RylHYCuiTTYOfmQf9pUNkB7Ta7lcKvlYZDq9Ni3t+IWmAmiWcV91NgqxYmQxGWe5rXJX/YPO+hE5n6BeUnZ6YwF/lVu+mJFN0NKshj/zIxFGvscl8CkjOxiQVWJ6x2tB5tZYvT1nfXPzCTEFTen+lHdFg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=map332Wg5jJCMMaFOcrhFNqee0OloY6iwr5EoYa8o5o=;
- b=V5CpCfhfR7q0EL+0PEvtw8vJlRVbQKL7vDrNNwkqETukoftN3sugxA8Yld8W7trxM718X+tRVv1n68QvhsHi4+V5q3NHygX2N5VGShfudq3GYGKfxgMKxCXpUanU5t6xnGPWGpGo9nKKudFRRTCHK5NGIkDuIzL5Ez2mWiagMHLtFDFrOu62v/bfFtoELx+i4iH+uGomMTWx5d/zu00j2jZ3JcZ4qEgfsdXglEP86Z+YO0zCslVzloYlJsjbDReUSBNOn5+SgL6pIOW72sxTo9oJWiXe2TbXRsKLM4i1T4C+D4RZh8XsQf/3Wt+RSIctqcSXUGGqunbOflbuxOZQgg==
+ bh=sRNOiCEMgFUijmFNOyob22PGIttd602OVu1SEJeZldI=;
+ b=iRvg6FV/YgDk2w17FawS7E0G8hW4MIX/ELZb9ySCh38Myr0RIBs87ryxEAFWcEXZc7qfEpFW4pIMkF9FuH9/EGi2lGzQmI6Ss6q1628s2h0QQ6IjigUIje2qSHz9PUeUpgSklA1v9FwL+Env6G66jE/QrxqqVPax0LGrKO0li55AiKVq4ugScrPuX3NyEJQ6OB1fDBSjof7+2SMGIe9nLqiHBb7Pp+Mzk/RlDBKxLqA1h1neJePYjCbdc5yilftEj0xrAcl/AeCjL8PwvIWm0Q1UmyYWA8kuvFdQtZCFdef0OYP1Ev3X4XUb65d2a/RO2t2lT1W9iDrW6LTwW7TQtQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
  header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=map332Wg5jJCMMaFOcrhFNqee0OloY6iwr5EoYa8o5o=;
- b=5lm5el+mrmt7GOYMkByrJ52mb6cuCUaBwKKoPzEKByNTcRmumUtnDFkI8cR74cEXanMTxcCU52MLTdthfJr6wWhe3zv4erxPb4XEQXFiM3b+FXDmmitxX3/zmYjRkcVNtIKwGRAiK2LG8APfC7R7Kpy/idf0bGrjALJSmbRT4Nk=
+ bh=sRNOiCEMgFUijmFNOyob22PGIttd602OVu1SEJeZldI=;
+ b=p5j01bm+twR/6lpmzBEqnKN8henFDwanEfBK3h7xYF1uJgHTS8eTodu3WIh8KvMOVP4PV4O7k2gWyTW4IAeYtOtjdIQ4dlyql3IInUwFtgU2brxGVbKuucp2GfL+Lt9QCUE1x8SPbN8LP3enwHchKPaB7moRaR7k+11GvH4Lm84=
 Authentication-Results: vger.kernel.org; dkim=none (message not signed)
  header.d=none;vger.kernel.org; dmarc=none action=none header.from=amd.com;
 Received: from BN8PR12MB3108.namprd12.prod.outlook.com (2603:10b6:408:40::20)
- by BN6PR1201MB0212.namprd12.prod.outlook.com (2603:10b6:405:56::20) with
+ by BN8PR12MB4770.namprd12.prod.outlook.com (2603:10b6:408:a1::30) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.42; Tue, 4 May
- 2021 17:48:47 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.26; Tue, 4 May
+ 2021 17:48:51 +0000
 Received: from BN8PR12MB3108.namprd12.prod.outlook.com
  ([fe80::418b:8ea0:dc4b:d211]) by BN8PR12MB3108.namprd12.prod.outlook.com
  ([fe80::418b:8ea0:dc4b:d211%6]) with mapi id 15.20.4065.039; Tue, 4 May 2021
- 17:48:47 +0000
+ 17:48:51 +0000
 From:   Yazen Ghannam <Yazen.Ghannam@amd.com>
 To:     linux-edac@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, tony.luck@intel.com, x86@kernel.org,
         Smita.KoralahalliChannabasappa@amd.com,
         Yazen Ghannam <yazen.ghannam@amd.com>, stable@vger.kernel.org
-Subject: [PATCH 1/2] x86/MCE: Always save CS register on AMD Zen IF errors
-Date:   Tue,  4 May 2021 17:47:11 +0000
-Message-Id: <20210504174712.27675-2-Yazen.Ghannam@amd.com>
+Subject: [PATCH 2/2] x86/MCE: Don't call kill_me_now() directly
+Date:   Tue,  4 May 2021 17:47:12 +0000
+Message-Id: <20210504174712.27675-3-Yazen.Ghannam@amd.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210504174712.27675-1-Yazen.Ghannam@amd.com>
 References: <20210504174712.27675-1-Yazen.Ghannam@amd.com>
@@ -56,146 +56,91 @@ X-ClientProxiedBy: BN6PR18CA0013.namprd18.prod.outlook.com
  (2603:10b6:408:40::20)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from ethanolx80b6host.amd.com (165.204.184.1) by BN6PR18CA0013.namprd18.prod.outlook.com (2603:10b6:404:121::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend Transport; Tue, 4 May 2021 17:48:46 +0000
+Received: from ethanolx80b6host.amd.com (165.204.184.1) by BN6PR18CA0013.namprd18.prod.outlook.com (2603:10b6:404:121::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend Transport; Tue, 4 May 2021 17:48:50 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8bc65849-0fd5-43fa-9365-08d90f24de53
-X-MS-TrafficTypeDiagnostic: BN6PR1201MB0212:
+X-MS-Office365-Filtering-Correlation-Id: 513a4c69-e0dd-4e93-a0bf-08d90f24e0af
+X-MS-TrafficTypeDiagnostic: BN8PR12MB4770:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BN6PR1201MB021273A93B267AB84D125F24F85A9@BN6PR1201MB0212.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Microsoft-Antispam-PRVS: <BN8PR12MB4770E4AA3582C5D94A4C1426F85A9@BN8PR12MB4770.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:478;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: k6ACh7HPl5npTkEeAA48jmGOy99y1PbnCagOPlTD4IISOrPlER1b8ajaa3t2aULNliq58uH+1Q9tgiLTg36dhxxCaEQWc1GNcqI/5UqHNtWHfzqtEjvvjS12NYBUlyn7grQMS16VbHoSgL7RAKa76Bn6OS+r9pTNGi4QoFYUt44Fpz2AdE7+st/TXH0VpCmR+zFHnYCEvhjWjb09eDg8IYcvEUGsSzUffgCSPqhrSwHG9p4w+j7Y+QA6OPArcSNj2j26notTCJ+kDnGaQ04kK/SIsC5hD2le/Yb7PpXfGMfKgwBDgUPVr9qptSbSEID1My1K/QSLWb/ebH6rgZXVKla9kKvvZOmL+SwwKOtBXBSrcJNSF70pS1EdrwexgRW68lBdkHoBegDn33QV1RSdld7rlJNt1W7pr0TDeJ9mgRfVeElkjeLOQil/sYz2bBdKoCYJi51HgwqCW7lXErGl4jpuBuAv0yZ0Y+ievgYM6caZHrjg4QMj0F9cc8yk4mlEhRRCesCX39LhwB9OJ/S0Feo3rboxn3I7ZlrUTKr7Vq9D/nhIKQp1fZBzMTUSaUY0JljnewIFucAVE3+gZuFNLg5TOGsDPqsmN/hNV7r4TWDgBSWEseFWW1ScG2xE9xC4yL+YaI7SwUo+lveDnExe85NW/Q7dzNYXtJRgDoYL0Ck=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR12MB3108.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(346002)(396003)(136003)(376002)(366004)(66476007)(66946007)(8676002)(5660300002)(26005)(2906002)(38100700002)(38350700002)(6916009)(6486002)(478600001)(66556008)(86362001)(1076003)(4326008)(186003)(36756003)(8936002)(316002)(956004)(6666004)(16526019)(7696005)(83380400001)(52116002)(2616005);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?6PtglVkSYS5M87hflk0Q54y+melWrVZ/hEsrqrpHGfwYs4c/03GDE3swcygx?=
- =?us-ascii?Q?QoH9vX0nFw18CPwdVI4ePuFbFBXQmxeVqBtzc2TjrERVrvmiG9rQSSp7ha3l?=
- =?us-ascii?Q?u4+bBHZqi5moLXacmS603l7Bc6GgGI1wxDbJfQrzwqk1bUZvDnzsJziba3M5?=
- =?us-ascii?Q?l/2YBS9udq3LOseYQowmvcJD2RPLEVYZw0LvLhbpnZAneEg/6vtmmxTpW6Jw?=
- =?us-ascii?Q?vQrv0xWPFq/wX+c/z/+EkKea7ra9MEWFESm1C6PhcajrsbAvlwR3zHrlbZK3?=
- =?us-ascii?Q?aFBy96GGlsg0DoLqCQqy6h5HSVXf5Oej5jzO3GkQ7/8sumcTcZCt1vY1Jwzd?=
- =?us-ascii?Q?JQuM8RgPkQCveQyhST3R9BzzwNIq9OdrcCaKEdjlam5Y73uEzrwkKD1tLcN7?=
- =?us-ascii?Q?fX1B9rPfnvZ5ONSIYU82BjwEjIdFqwcY9r52QhBQvUAj5J7UiudoGRpF/sfr?=
- =?us-ascii?Q?l5/1HBjR9MXJWBSVnPgABxkbrI78dg6LvgfVPJpeO+EtJo1NGCHYo3SffOoQ?=
- =?us-ascii?Q?T6TPc3zKKoe0eSE4NxnyVSsoWw3zO1ApFRrQPsy1vHZsnH7rtJk08k73c8bt?=
- =?us-ascii?Q?08bAog5aaoB1Cf0xQD/uV72k8uzYWXEAfbAxys8H/toqOupxkV7Dnuh1IkgP?=
- =?us-ascii?Q?Qn1nlmU/VcBTYBJP2e28zejdoafc+7R25PzTyvIWrfPKZv9TJZ5kobSlnB7R?=
- =?us-ascii?Q?Sy7oAnKrhyF+cbvKrpJOE0itN03dbMTf2DWYo+BCwNqsreuVUZphM+eOyetY?=
- =?us-ascii?Q?A9100lFccC8unfLv0e2fdw7enOc4GfFnKk8ZD6J/xhgCQLDSatukLPzA6QTI?=
- =?us-ascii?Q?5ggKKDOgCobyrLFNryYBN8T+8efLnZfJLn72x4Qk0L2yi1J436409dqAouqm?=
- =?us-ascii?Q?V/sKSEamTgP+lu4qUvsONY4lG4FGnx8uu0to3sS0j/6s9L+6ltuyfsQ93CTc?=
- =?us-ascii?Q?phJ2gPOhEDnYt/vvXO7ie2AAHy9fFa8nyw5MN99nraMnxZrNX6s5aSZLHzO8?=
- =?us-ascii?Q?YhnK9IBB6KBBMLWoutrEZhk9If6cAeawgLlJZ4idtMEZqC6mCQ9T0IZpNxeF?=
- =?us-ascii?Q?JJFryo6BWnXxI0OgEXQAO7d68zjRc9NheGcV95dCWZqLeeIMS3iaeTq2tB1q?=
- =?us-ascii?Q?pAUXNZtE6rxeHAfbKreLUw9KCLcdFaXAKz5r1A352MpQmShPsP6HGGfqCwQg?=
- =?us-ascii?Q?XfdibBQuj5kH2M+FwoK3FozvtPdiKH/AqDHf+R+WVZ+2DpwgGX9FYlzzkKsL?=
- =?us-ascii?Q?dgcgv7ESvBuUHIZ7Uf1+13OlKdn5pDNbI/yYcNgvx7CyN7Ma7s0gq/1lKMaL?=
- =?us-ascii?Q?UZ3THrV06H8l+1vYcWvtqNH0?=
+X-Microsoft-Antispam-Message-Info: R3/hCEVkSyOtYLpRoMLg9Hwv6BQ8WBMd5Q9XtDJnAbcV2g8LYGyzCEeDWqAueNJhTMGkyVybYbgeiuAZmLUVa6Lft2e450QY3pd3REW5O9HosZPyag2MLkRBl03OQKecdk5Cgh8c4cZFghtof8isZaphehQ8YbLYLKBTNEJfdyzs5xMhNU1KbwY4WNhuVL6t6Ofl5zXlgMGnIPXGmzVcHqYYCAXHwrIcvhiU6x7ShKh540pP5lr+t+FYSxTEiM5KBV7XPg8q+l5Wx6qnQiqCYcQvUf1vQNBJ9I9MuSVWMj8jlvLkNHRYE/sOphauWw+31lRpKSZnISstTN4AbwIcLjc1gR8nXWMyV5I3T+brn3B3eDU3hVnNbNf1e/mttPMFV1+haQXxwPXxeGc7mDqET99QjrGoiqfs5H4YfjpborpaIn1ZUINixc5pvC1wxEevCX5HqAdYAQ9i01g3P+O/6AP9dnRzcT8N1Lg4tmQvhEfft34IOUSPaNJ2gW1Tzor0Ps323N+ho/b3+Y9fxzukVT1yE6sIlpb3WV/qejqkdvo0WgFrqgPQqumB3fFDw1VyOJJjWZK/2qGJE1agUB6b7SKycbZVQebK50DQOzfOXKRgbFAKQkOZTHiREd6AcwchPdg/c8eANASQX1FF3wX3oqZFSSza8C5jQ3Efnz+Tezc=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR12MB3108.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(346002)(396003)(136003)(366004)(39860400002)(2616005)(8676002)(186003)(478600001)(956004)(316002)(16526019)(4326008)(8936002)(6486002)(66946007)(38350700002)(38100700002)(83380400001)(7696005)(1076003)(86362001)(6666004)(2906002)(66556008)(6916009)(36756003)(5660300002)(26005)(52116002)(66476007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?7YTIeKyRjrxuhQz8F0/iGPA2PwMu4kstOOq4GHKn9PM8VhzxKu8zVp2xFDXK?=
+ =?us-ascii?Q?IndBsxA7yVAOkgYadADj0G6/w03f5xowdOY/w83IEdjZOdtTf07xNfVX3e4t?=
+ =?us-ascii?Q?ny05uwiW/W93J28aCJ4ECmmaNzfeCcxOJAZRqdZJrCTnx9nuWvQXEXhYohL/?=
+ =?us-ascii?Q?Nm7xw1GAsJLAMOJuR+WnQ2t8C5SKZUGe6twFEgCMQ9MKGbnUUJJtpxrOdeVX?=
+ =?us-ascii?Q?Y6nldR9uzd3ApWjxIlo0MpPyaJ6pE/az5YCWvsJ1hlq0SmDHGtKUKUJ3vU0j?=
+ =?us-ascii?Q?v3Y8DnjU7aeLTPcwVWZhay/i4ovcq3vmz4ybtHvMzg5irveSNPsYtLblnQQq?=
+ =?us-ascii?Q?a9nZ4QAAwMCHkjvuGSvH/IpvTne8da7mhfFCBHLKPA+A/gEtfwWlHlQ4X37a?=
+ =?us-ascii?Q?e77nDHIA61uU2+MWak4GjvSczUdXTFVM28+kH+giRdbszZaeVwKeXI5BTL9o?=
+ =?us-ascii?Q?2XVljvzRTVz3KHscTUPfwIMylvV0wK36UWMQksgaNF60fFwkxrA01+el9gIu?=
+ =?us-ascii?Q?xS1tVEIt3aNwmmieFJYdHiDaelnjEz9PhJHAhkx8qIf+zzkAekAqIKocG5dV?=
+ =?us-ascii?Q?1YnxXKguITK8BWE+cF+NkI14KjG6gkPnhVF9R3SxPbcGjqYe/+eQPJ6sRV3K?=
+ =?us-ascii?Q?41CujoPOVXgrSvWp3aMHm2E65XHne8SsJOVXdsNU5QDbivw98mpAuzisy8co?=
+ =?us-ascii?Q?Ge+utzGDENqkHWp1XmUmUDpi0aEAJU1eCZ1RjkHB71fQjqZZ7U9QZlwfbQNa?=
+ =?us-ascii?Q?xp+31k2qRIgj+txRX9dQ4LDyesYqRC8f3s7UMo4saDzOECkcARGtSlq5Rknw?=
+ =?us-ascii?Q?K3lUgKQrwZEFGdQvuXhTGYIaxiy1p53sririPKRhq3ncaZylLci45Y3130QU?=
+ =?us-ascii?Q?h0nMuwW/2y4gA7tr0p79n1pBrazC3gdotS2gdjJkRbG8bmjy8v2kb4EMcM0e?=
+ =?us-ascii?Q?3JqwaGaQho03zzMt6mLdMmwprrG8Qm9wcYMaxU6a3z9Buu2bvgIRGbScAfUA?=
+ =?us-ascii?Q?mvpOi7Ckq1Nu4rN/+eU7kSQfFu19jkc9rAqGH7Ie990dYnXrISSxTx0KRFRQ?=
+ =?us-ascii?Q?HTsIMiVmknKjGyv0drse8GaTZF9lhe46xBrmL7KB51BYp1bSGG2OuEU3h94b?=
+ =?us-ascii?Q?8nPA5PKd33w7YL85Xz/XSiJsWigQUdOqH4VRycLRZjXIxLEEIdpDlhJzwXCX?=
+ =?us-ascii?Q?7wQoEkG1ByQdRT+rbIQ29U47+6AzqrEnAKKBbbmA++3mI/FswxQxMjqTm/az?=
+ =?us-ascii?Q?SrKtO4Nw1OqeKQqH/2o/H0x3NKZ2YHpuXw5iFy+3N0uwaf64F4V2WX0fRN9H?=
+ =?us-ascii?Q?HFTg26Mnbq4Xt7h+LPEAfDLg?=
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8bc65849-0fd5-43fa-9365-08d90f24de53
+X-MS-Exchange-CrossTenant-Network-Message-Id: 513a4c69-e0dd-4e93-a0bf-08d90f24e0af
 X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3108.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 May 2021 17:48:47.4363
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 May 2021 17:48:51.4020
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 05hKP3Nd4YcHYpfSHIEqenKY2aBcXsxIiPqOUCYrp5mlWrLXg3NboWBwbVVX/sMBnAxgpxt02vf6RLpuRSbuFA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR1201MB0212
+X-MS-Exchange-CrossTenant-UserPrincipalName: 1HJ2xCwMzuFKF2fWwrJ42kxWFvxh3xnCOwkCxOnB2QpgocdLiMHYXJghjWWDWsv3ukvHd6QFwNTKtDuUlbjDEg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB4770
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-The Instruction Fetch (IF) units on AMD Zen-based systems do not
-guarantee a synchronous #MC is delivered. Therefore, MCG_STATUS[EIPV|RIPV]
-will not be set. However, the microarchitecture does guarantee that the
-exception is delivered within the same context. In other words, the
-exact rIP is not known, but the context is known to not have changed.
+Always call kill_me_maybe() in order to attempt memory recovery. This
+ensures that any memory associated with the error is properly marked as
+poison.
 
-There is no architecturally-defined method to determine this behavior.
+This is needed for errors that occur on memory, but that do not have
+MCG_STATUS[RIPV] set. One example is data poison consumption through the
+instruction fetch units on AMD Zen-based systems.
 
-The Code Segment (CS) register is always valid on AMD Zen-based IF units
-regardless of the value of MCG_STATUS[EIPV|RIPV].
-
-Add a quirk for all current Zen-based systems to save the CS register
-for the IF banks.
-
-This is needed to properly determine the context of the error.
-Otherwise, the severity grading function will assume the context is
-IN_KERNEL due to the m->cs value being 0 (the initialized value). This
-leads to unnecessary kernel panics on data poison errors due to the
-kernel believing the poison consumption occurred in kernel context.
+The MF_MUST_KILL flag is passed to memory_failure() when
+MCG_STATUS[RIPV] is not set. So the associated process will still be
+killed.
 
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
 ---
- arch/x86/kernel/cpu/mce/amd.c      | 17 +++++++++++++++++
- arch/x86/kernel/cpu/mce/core.c     |  7 +++++++
- arch/x86/kernel/cpu/mce/internal.h |  2 ++
- 3 files changed, 26 insertions(+)
+ arch/x86/kernel/cpu/mce/core.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/amd.c b/arch/x86/kernel/cpu/mce/amd.c
-index e486f96b3cb3..141dcdd857b5 100644
---- a/arch/x86/kernel/cpu/mce/amd.c
-+++ b/arch/x86/kernel/cpu/mce/amd.c
-@@ -180,6 +180,23 @@ static struct smca_hwid smca_hwid_mcatypes[] = {
- struct smca_bank smca_banks[MAX_NR_BANKS];
- EXPORT_SYMBOL_GPL(smca_banks);
- 
-+/*
-+ * Zen-based Instruction Fetch Units set EIPV=RIPV=0 on poison consumption
-+ * errors (XEC = 12). However, the context is still valid, so save the CS
-+ * register for later use.
-+ */
-+void quirk_zen_ifu(int bank, struct mce *m, struct pt_regs *regs)
-+{
-+	if (smca_get_bank_type(bank) != SMCA_IF)
-+		return;
-+	if ((m->mcgstatus & (MCG_STATUS_EIPV|MCG_STATUS_RIPV)) != 0)
-+		return;
-+	if (((m->status >> 16) & 0x1F) != 12)
-+		return;
-+
-+	m->cs = regs->cs;
-+}
-+
- /*
-  * In SMCA enabled processors, we can have multiple banks for a given IP type.
-  * So to define a unique name for each bank, we use a temp c-string to append
 diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index bf7fe87a7e88..308fb644b94a 100644
+index 308fb644b94a..9040d45ed997 100644
 --- a/arch/x86/kernel/cpu/mce/core.c
 +++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -1754,6 +1754,13 @@ static int __mcheck_cpu_apply_quirks(struct cpuinfo_x86 *c)
- 		if (c->x86 == 0x15 && c->x86_model <= 0xf)
- 			mce_flags.overflow_recov = 1;
+@@ -1285,10 +1285,7 @@ static void queue_task_work(struct mce *m, int kill_current_task)
+ 	current->mce_ripv = !!(m->mcgstatus & MCG_STATUS_RIPV);
+ 	current->mce_whole_page = whole_page(m);
  
-+		if (c->x86 == 0x17 || c->x86 == 0x19)
-+			quirk_no_way_out = quirk_zen_ifu;
-+	}
-+
-+	if (c->x86_vendor == X86_VENDOR_HYGON) {
-+		if (c->x86 == 0x18)
-+			quirk_no_way_out = quirk_zen_ifu;
- 	}
+-	if (kill_current_task)
+-		current->mce_kill_me.func = kill_me_now;
+-	else
+-		current->mce_kill_me.func = kill_me_maybe;
++	current->mce_kill_me.func = kill_me_maybe;
  
- 	if (c->x86_vendor == X86_VENDOR_INTEL) {
-diff --git a/arch/x86/kernel/cpu/mce/internal.h b/arch/x86/kernel/cpu/mce/internal.h
-index 88dcc79cfb07..656d5d6c9783 100644
---- a/arch/x86/kernel/cpu/mce/internal.h
-+++ b/arch/x86/kernel/cpu/mce/internal.h
-@@ -181,8 +181,10 @@ extern struct mca_msr_regs msr_ops;
- extern bool filter_mce(struct mce *m);
- 
- #ifdef CONFIG_X86_MCE_AMD
-+extern void quirk_zen_ifu(int bank, struct mce *m, struct pt_regs *regs);
- extern bool amd_filter_mce(struct mce *m);
- #else
-+#define quirk_zen_ifu							NULL
- static inline bool amd_filter_mce(struct mce *m)			{ return false; };
- #endif
- 
+ 	task_work_add(current, &current->mce_kill_me, TWA_RESUME);
+ }
 -- 
 2.25.1
 
