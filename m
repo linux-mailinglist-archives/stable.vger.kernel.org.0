@@ -2,106 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B596D373245
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 00:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80AFF373297
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 00:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232611AbhEDWWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 May 2021 18:22:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44842 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232456AbhEDWWa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 May 2021 18:22:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B929B613DD;
-        Tue,  4 May 2021 22:21:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1620166895;
-        bh=X7Ht3HoHp6+OxEyPcAFA0l0DoNTSFJeRWwwbsQlUYxA=;
-        h=Date:From:To:Subject:From;
-        b=uVC7sGJcm+sY9BN1nK3gVUcUcpJH3/cTFAliLguAPxUzyMm5EBtzGhL+s8VFB7Bcb
-         hfstNJwMdnira036WL45FXf7tv+aSnNCUAWfNSWd7ugAuGnpywc7ELEjq6lti3klZh
-         5j8HHfmhQ0WpWmqt+s7N3GleR3e4QGgvNxA+qsq8=
-Date:   Tue, 04 May 2021 15:21:34 -0700
-From:   akpm@linux-foundation.org
-To:     hughd@google.com, joel@joelfernandes.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, peterx@redhat.com,
-        stable@vger.kernel.org
-Subject:  + mm-hugetlb-fix-cow-where-page-writtable-in-child.patch
- added to -mm tree
-Message-ID: <20210504222134.OVXQ7jyUz%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S232058AbhEDXAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 May 2021 19:00:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59360 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232016AbhEDXAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 May 2021 19:00:40 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374EAC061574
+        for <stable@vger.kernel.org>; Tue,  4 May 2021 15:59:44 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id s22so341132pgk.6
+        for <stable@vger.kernel.org>; Tue, 04 May 2021 15:59:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=cy3+CeHSZ5IPDJXUyPG2HiDQlRBVTuOb39av2bXikJU=;
+        b=soTFOqUgLXmz+ep7Z3+TF56yn+7dKN/mdcf1OJyGCyUlBUr2admk2hgXm5zSCYId8U
+         hQKlyVE69dtyzsUUpzfG0f62QK5PX0R3jfRuiUIh4XwgXwMOKEUhWh0aRCt3GF0QLJY0
+         o+LXfne03fB0/abvO+7SCckMGGrkVDB1PhrjTxff5VIPpRSi4Lvd6SveiZmHqNp9sHis
+         PixxDe6/uPJlBTkSNeV9LRjLbVFq/j+WrDI0965stDe3mwKtc/Ld/Yw4NCHpqDTGq/9z
+         pzHmKXU3lx0Fv1FGC017g1DQ6E7coR7Pj7FUxXP30tvqfNAm4AvIfQ2Ijwv2d+tIp4aY
+         cEtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=cy3+CeHSZ5IPDJXUyPG2HiDQlRBVTuOb39av2bXikJU=;
+        b=WIbUcrh78ei07RshSHA6cuVeI/v5+RRVp/TNPiHVVPht18aEFWG8RW+xwhFsZRr6Tn
+         x6qor0CM3PO0GXltYE99n+tBEIcfV702mpNlBUKOhlvRYujCX8faqgkyz1G1/HjP4kM4
+         PQQbDER2IrLhssNXaqXddx9qo1ZNT/KwL7P8ZfPN/pdL8soD6QrrZTmetwjj+sHPMKdf
+         64v1Zhlf0PFkx1L0bkJruAKN1zzdam/5xh3CRE0R79lFgJnZKo+u9FXyC0TxOSsqLf8A
+         sbpJ3ANeoX1l+GgJGB4a4NxU5TV9YslNNO0PR/oGsH9djui+poEmZH++IP/TCi74gGCh
+         x2bg==
+X-Gm-Message-State: AOAM532evcE/QWV4zV7aMKVaI0eafBqGyNYI+iYEk8Y603HL7iUnDkGA
+        nA7D+4db+hi38ShTFuLzQwDhA3+S8+izVByv
+X-Google-Smtp-Source: ABdhPJxZlfSp2U5W7VEue34YCcP5PHLdUsht5KvErZV5KXCdTZTg/qjnmmCr6erJ5F3VB/h+rUKL0Q==
+X-Received: by 2002:a17:90a:dac1:: with SMTP id g1mr7819762pjx.199.1620169183488;
+        Tue, 04 May 2021 15:59:43 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q23sm4643047pgt.42.2021.05.04.15.59.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 May 2021 15:59:43 -0700 (PDT)
+Message-ID: <6091d1df.1c69fb81.5e98d.9218@mx.google.com>
+Date:   Tue, 04 May 2021 15:59:43 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.12.1-7-g47de21d5d220e
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.12
+Subject: stable-rc/queue/5.12 baseline: 88 runs,
+ 1 regressions (v5.12.1-7-g47de21d5d220e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.12 baseline: 88 runs, 1 regressions (v5.12.1-7-g47de21d5d=
+220e)
 
-The patch titled
-     Subject: mm/hugetlb: fix cow where page writtable in child
-has been added to the -mm tree.  Its filename is
-     mm-hugetlb-fix-cow-where-page-writtable-in-child.patch
+Regressions Summary
+-------------------
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-fix-cow-where-page-writtable-in-child.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-fix-cow-where-page-writtable-in-child.patch
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
+nel/v5.12.1-7-g47de21d5d220e/plan/baseline/
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.12
+  Describe: v5.12.1-7-g47de21d5d220e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      47de21d5d220ed2809caef4940ce6d1c346b28cd =
 
-------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/hugetlb: fix cow where page writtable in child
 
-When rework early cow of pinned hugetlb pages, we moved huge_ptep_get()
-upper but overlooked a side effect that the huge_ptep_get() will fetch the
-pte after wr-protection.  After moving it upwards, we need explicit
-wr-protect of child pte or we will keep the write bit set in the child
-process, which could cause data corrution where the child can write to the
-original page directly.
 
-This issue can also be exposed by "memfd_test hugetlbfs" kselftest.
+Test Regressions
+---------------- =
 
-Link: https://lkml.kernel.org/r/20210503234356.9097-3-peterx@redhat.com
-Fixes: 4eae4efa2c299 ("hugetlb: do early cow when page pinned on src mm")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
 
- mm/hugetlb.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/mm/hugetlb.c~mm-hugetlb-fix-cow-where-page-writtable-in-child
-+++ a/mm/hugetlb.c
-@@ -3898,6 +3898,7 @@ again:
- 				 * See Documentation/vm/mmu_notifier.rst
- 				 */
- 				huge_ptep_set_wrprotect(src, addr, src_pte);
-+				entry = huge_pte_wrprotect(entry);
- 			}
- 
- 			page_dup_rmap(ptepage, true);
-_
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-Patches currently in -mm which might be from peterx@redhat.com are
 
-mm-hugetlb-fix-f_seal_future_write.patch
-mm-hugetlb-fix-cow-where-page-writtable-in-child.patch
-hugetlb-pass-vma-into-huge_pte_alloc-and-huge_pmd_share.patch
-hugetlb-pass-vma-into-huge_pte_alloc-and-huge_pmd_share-fix.patch
-hugetlb-userfaultfd-forbid-huge-pmd-sharing-when-uffd-enabled.patch
-hugetlb-userfaultfd-forbid-huge-pmd-sharing-when-uffd-enabled-fix.patch
-mm-hugetlb-move-flush_hugetlb_tlb_range-into-hugetlbh.patch
-hugetlb-userfaultfd-unshare-all-pmds-for-hugetlbfs-when-register-wp.patch
-userfaultfd-add-minor-fault-registration-mode-fix.patch
+  Details:     https://kernelci.org/test/plan/id/60919978cd9ed561cc843f22
 
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.1-7=
+-g47de21d5d220e/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.1-7=
+-g47de21d5d220e/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60919978cd9ed561cc843=
+f23
+        new failure (last pass: v5.12.1-6-gcc8057a398c24) =
+
+ =20
