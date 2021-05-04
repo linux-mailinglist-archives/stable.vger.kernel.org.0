@@ -2,96 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B191372FE9
-	for <lists+stable@lfdr.de>; Tue,  4 May 2021 20:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABB3372FEF
+	for <lists+stable@lfdr.de>; Tue,  4 May 2021 20:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231147AbhEDSro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 May 2021 14:47:44 -0400
-Received: from aserp2130.oracle.com ([141.146.126.79]:53288 "EHLO
-        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231339AbhEDSrn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 May 2021 14:47:43 -0400
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
-        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 144IU48j062279;
-        Tue, 4 May 2021 18:46:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
- bh=jITkOCAYtWc/1On6+2heG+5B/3MUI5lKIGqkE3uQvrk=;
- b=UG0bOy5WCE4JDtF5rWr/qa9d2HiFJ+jE9pEmssfoVxTivFcbYAMjPNaOp4AzJcKpCCTH
- pnF3mZFV0HPCblKEpbkGtHh6DWzbRJVgo9ZmkeJT7lKZ9EVgfZLrR1lQW2FyQPN7WBB3
- HAyP1798f5lzymrUK7WO7HlgD5RKjWVmVRVu4w6Gts0TZ62XAfaF8cJlVDyAssXcUg4a
- PYBL2kIjhfvdnm1dmtcVLLflPmTwDbAettS3YY2iUkNNTX6FJD1IJF0Anj11pKELddsG
- 22gh4Eat3HBpkcXW7c3ZU0/IdIY/zTRngRh2uEyQxOBfjGHXEtA5Ih59tg6r8dGIkRPX 5Q== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2130.oracle.com with ESMTP id 388vgbr5m8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 04 May 2021 18:46:44 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 144IVOmW055213;
-        Tue, 4 May 2021 18:46:44 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by aserp3030.oracle.com with ESMTP id 388w1edaaf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 04 May 2021 18:46:44 +0000
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 144Iivbd126698;
-        Tue, 4 May 2021 18:46:43 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3030.oracle.com with ESMTP id 388w1eda9n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 04 May 2021 18:46:43 +0000
-Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 144IkfrS011699;
-        Tue, 4 May 2021 18:46:41 GMT
-Received: from kadam (/102.36.221.92)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 04 May 2021 18:46:41 +0000
-Date:   Tue, 4 May 2021 21:46:35 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     stable@vger.kernel.org
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Bart Van Assche <bvanassche@acm.org>
-Subject: need to back port ("scsi: ufs: Unlock on a couple error paths")
-Message-ID: <20210504184635.GT21598@kadam>
+        id S231739AbhEDSuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 May 2021 14:50:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231724AbhEDSuF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 May 2021 14:50:05 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24DCEC061574
+        for <stable@vger.kernel.org>; Tue,  4 May 2021 11:49:10 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1le06N-0001tO-A3; Tue, 04 May 2021 20:48:59 +0200
+Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:4880:7cee:6dec:c8f9])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 5BC2E61BEE7;
+        Tue,  4 May 2021 18:48:55 +0000 (UTC)
+Date:   Tue, 4 May 2021 20:48:54 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     Schrempf Frieder <frieder.schrempf@kontron.de>
+Cc:     Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Timo =?utf-8?B?U2NobMO8w59sZXI=?= <schluessler@krause.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tim Harvey <tharvey@gateworks.com>, stable@vger.kernel.org,
+        linux-can@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] can: mcp251x: Fix resume from sleep before interface was
+ brought up
+Message-ID: <20210504184854.urgotqioxtjwbqqs@pengutronix.de>
+References: <bd466d82-db03-38b1-0a13-86aa124680ea@kontron.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="v3vthzpowlfzvmol"
 Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Proofpoint-GUID: yF2f6ZUuLm2_mNtEYfdLN_iS12GE6Jmi
-X-Proofpoint-ORIG-GUID: yF2f6ZUuLm2_mNtEYfdLN_iS12GE6Jmi
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9974 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 lowpriorityscore=0 mlxlogscore=999
- suspectscore=0 priorityscore=1501 phishscore=0 malwarescore=0
- impostorscore=0 clxscore=1015 bulkscore=0 spamscore=0 adultscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104060000 definitions=main-2105040122
+In-Reply-To: <bd466d82-db03-38b1-0a13-86aa124680ea@kontron.de>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-I ran Smatch on 5.4.116 and I found that we were missing commit
-bb14dd1564c9 ("scsi: ufs: Unlock on a couple error paths").
+--v3vthzpowlfzvmol
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The problem was caused because somehow my Fixes tag did not match the
-upstream commit that stable used.  I have both hashes in my git tree and
-the patches are identical except for the hash.  I don't know git well
-enough to say what went wrong.  I don't think the SCSI tree rebases?
+On 04.05.2021 18:01:48, Schrempf Frieder wrote:
+> Since 8ce8c0abcba3 the driver queues work via priv->restart_work when
+> resuming after suspend, even when the interface was not previously
+> enabled. This causes a null dereference error as the workqueue is
+> only allocated and initialized in mcp251x_open().
+>=20
+> To fix this we move the workqueue init to mcp251x_can_probe() as
+> there is no reason to do it later and repeat it whenever
+> mcp251x_open() is called.
+>=20
+> Fixes: 8ce8c0abcba3 ("can: mcp251x: only reset hardware as required")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-My fixes tag:
-Fixes: a276c19e3e98 ("scsi: ufs: Avoid busy-waiting by eliminating tag conflicts")
-       ^^^^^^^^^^^^
+Added to linux-can/testing.
 
-Stable hash:
-commit a8d2d45c70c7391386baf7863674f156da56a3d5
-Author: Bart Van Assche <bvanassche@acm.org>
-Date:   Mon Dec 9 10:13:08 2019 -0800
+Thanks,
+Marc
 
-    scsi: ufs: Avoid busy-waiting by eliminating tag conflicts
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
 
-    [ Upstream commit 7252a3603015f1fd04363956f4b72a537c9f9c42 ]
-                      ^^^^^^^^^^^^
-regards,
-dan carpenter
+--v3vthzpowlfzvmol
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmCRlxMACgkQqclaivrt
+76nZFQf9EALD3jMJEXRfahZ9zzZjCS+oJe2TkoDOtMQx/TPnhe//XQfoRoRfvstv
+e6AiN8Ir407VR6BSQaTTq6LaBd6VaoviRlywrUzbnKBzv4w2nvriWy250ML5KcST
+8N+6lgvPhNOQP190kAUvYzy98mzWEbEMTIkknMnvz+wEz2JV70zD/AZAiTGUpQmE
+fX+lc6RPC10zyX3QIXP6Um2yRit63INe4OFlzLv1dhfSeG89NTM+FcDnI2Nqeoqc
+v4eTX2gC+k5kFNkI1xYdilv6w93gAB/YE10K0SwdjVxe7QdHsqVUy8eMpi+cDabH
+9kZM4iWDNmeE4ayU2C3VZ+1hX/ANOw==
+=thfL
+-----END PGP SIGNATURE-----
+
+--v3vthzpowlfzvmol--
