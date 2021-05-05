@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A926A3744F4
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67EAB3744F6
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236591AbhEERDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:03:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45068 "EHLO mail.kernel.org"
+        id S236628AbhEERDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:03:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237128AbhEEQ5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:57:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F10D96199C;
-        Wed,  5 May 2021 16:39:28 +0000 (UTC)
+        id S236288AbhEEQ6B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:58:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62EE4619AD;
+        Wed,  5 May 2021 16:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232769;
-        bh=+ot4lMWqUX257JwO3GAOUxyrX4ItBLZ8PY+M32gOzHw=;
+        s=k20201202; t=1620232771;
+        bh=TlW828ly46jTTIUlPqwNRPDzw9XVkdGxE839ceIld94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDPMnvpqWPxQvUy/2+Mvw39UPOCKJ6wI8MpXeY7vmu8RByPQSPHl9ypQxyEjqUu8N
-         lG3uM8o4NpKa3DY7zkC4o7w2RF16giugRb3Dy7fSV44+RVxYw3cTEQs5esTGMjhbJQ
-         quG00Nzpa/U8e9F49h9H6BwmHEYh9RMCAIKUskm5x/zFqSmURmMoKOueFYjBpOr9G4
-         q5DDLRKjLvs19thEv0eJHgfH06aM6n69fIWPUl7XR6ssxAsyv1L6AZiXt51hWfRvi+
-         1A18OT4vEZwxz/MVTcQZWon2Fa07VlbjbQhpm8co2i/AmHoV93n7SeIUZayOAF5GTk
-         dNRXEPSRZD07Q==
+        b=TsjShGjcZ5tsEi7T82aJVlkOXrWmEOoNUm3htWBCUwDBG+DtKsIiOF3IgMchiyOHB
+         AR6GaxEBoDtM8M9PK46uN/nwYpP+8dV9Yalr3qThB7cya1hcpo0IokT0K5SVSImO8h
+         YRN2hpxpY1w4mQG6LaQuD00VpfNXzrvwF6dBFWA8ykBZsZyGJ4parOU1qpiHVNVbxJ
+         XtIkzut3QvEZPqlaX8rtULuvW3ILywSTTgTAbR3E8Eco9aI1m/3A70HiD8+xt4XDta
+         JtYsPB4l9P0fHPxkvSHdRUK3Ut+DVZOR9j6rgAjtRIKOBeDrPuDuppNyxzPwr5ihhF
+         VWiIjNC4Q1uSg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        "Linh Phung T . Y ." <linh.phung.jy@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 23/46] ASoC: rsnd: call rsnd_ssi_master_clk_start() from rsnd_ssi_init()
-Date:   Wed,  5 May 2021 12:38:33 -0400
-Message-Id: <20210505163856.3463279-23-sashal@kernel.org>
+Cc:     Paul Menzel <pmenzel@molgen.mpg.de>, Tj <ml.linux@elloe.vision>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Alexander Monakov <amonakov@ispras.ru>,
+        David Coe <david.coe@live.co.uk>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.4 24/46] Revert "iommu/amd: Fix performance counter initialization"
+Date:   Wed,  5 May 2021 12:38:34 -0400
+Message-Id: <20210505163856.3463279-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
 References: <20210505163856.3463279-1-sashal@kernel.org>
@@ -43,114 +47,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Paul Menzel <pmenzel@molgen.mpg.de>
 
-[ Upstream commit a122a116fc6d8fcf2f202dcd185173a54268f239 ]
+[ Upstream commit 715601e4e36903a653cd4294dfd3ed0019101991 ]
 
-Current rsnd needs to call .prepare (P) for clock settings,
-.trigger for playback start (S) and stop (E).
-It should be called as below from SSI point of view.
+This reverts commit 6778ff5b21bd8e78c8bd547fd66437cf2657fd9b.
 
-	P -> S -> E -> P -> S -> E -> ...
+The original commit tries to address an issue, where PMC power-gating
+causing the IOMMU PMC pre-init test to fail on certain desktop/mobile
+platforms where the power-gating is normally enabled.
 
-But, if you used MIXer, below case might happen
+There have been several reports that the workaround still does not
+guarantee to work, and can add up to 100 ms (on the worst case)
+to the boot process on certain platforms such as the MSI B350M MORTAR
+with AMD Ryzen 3 2200G.
 
-	              (2)
-	1: P -> S ---> E -> ...
-	2:         P ----> S -> ...
-	          (1)     (3)
+Therefore, revert this commit as a prelude to removing the pre-init
+test.
 
-P(1) setups clock, but E(2) resets it. and starts playback (3).
-In such case, it will reports "SSI parent/child should use same rate".
-
-rsnd_ssi_master_clk_start() which is the main function at (P)
-was called from rsnd_ssi_init() (= S) before,
-but was moved by below patch to rsnd_soc_dai_prepare() (= P) to avoid
-using clk_get_rate() which shouldn't be used under atomic context.
-
-	commit 4d230d1271064 ("ASoC: rsnd: fixup not to call clk_get/set
-				under non-atomic")
-
-Because of above patch, rsnd_ssi_master_clk_start() is now called at (P)
-which is for non atomic context. But (P) is assuming that spin lock is
-*not* used.
-One issue now is rsnd_ssi_master_clk_start() is checking ssi->xxx
-which should be protected by spin lock.
-
-After above patch, adg.c had below patch for other reasons.
-
-	commit 06e8f5c842f2d ("ASoC: rsnd: don't call clk_get_rate()
-				under atomic context")
-
-clk_get_rate() is used at probe() timing by this patch.
-In other words, rsnd_ssi_master_clk_start() is no longer using
-clk_get_rate() any more.
-
-This means we can call it from rsnd_ssi_init() (= S) again which is
-protected by spin lock.
-This patch re-move it to under spin lock, and solves
-1. checking ssi->xxx without spin lock issue.
-2. clk setting / device start / device stop race condition.
-
-Reported-by: Linh Phung T. Y. <linh.phung.jy@renesas.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/875z0x1jt5.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/linux-iommu/alpine.LNX.3.20.13.2006030935570.3181@monopod.intra.ispras.ru/
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=201753
+Cc: Tj (Elloe Linux) <ml.linux@elloe.vision>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Alexander Monakov <amonakov@ispras.ru>
+Cc: David Coe <david.coe@live.co.uk>
+Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20210409085848.3908-2-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/ssi.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ drivers/iommu/amd_iommu_init.c | 45 +++++++++-------------------------
+ 1 file changed, 11 insertions(+), 34 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index 47d5ddb526f2..8926dd69e8b8 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -507,10 +507,15 @@ static int rsnd_ssi_init(struct rsnd_mod *mod,
- 			 struct rsnd_priv *priv)
- {
- 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
-+	int ret;
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index ad714ff375f8..31d7e2d4f304 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -12,7 +12,6 @@
+ #include <linux/acpi.h>
+ #include <linux/list.h>
+ #include <linux/bitmap.h>
+-#include <linux/delay.h>
+ #include <linux/slab.h>
+ #include <linux/syscore_ops.h>
+ #include <linux/interrupt.h>
+@@ -254,8 +253,6 @@ static enum iommu_init_state init_state = IOMMU_START_STATE;
+ static int amd_iommu_enable_interrupts(void);
+ static int __init iommu_go_to_state(enum iommu_init_state state);
+ static void init_device_table_dma(void);
+-static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
+-				u8 fxn, u64 *value, bool is_write);
  
- 	if (!rsnd_ssi_is_run_mods(mod, io))
- 		return 0;
+ static bool amd_iommu_pre_enabled = true;
  
-+	ret = rsnd_ssi_master_clk_start(mod, io);
-+	if (ret < 0)
-+		return ret;
-+
- 	ssi->usrcnt++;
- 
- 	rsnd_mod_power_on(mod);
-@@ -1060,13 +1065,6 @@ static int rsnd_ssi_pio_pointer(struct rsnd_mod *mod,
+@@ -1675,11 +1672,13 @@ static int __init init_iommu_all(struct acpi_table_header *table)
  	return 0;
  }
  
--static int rsnd_ssi_prepare(struct rsnd_mod *mod,
--			    struct rsnd_dai_stream *io,
--			    struct rsnd_priv *priv)
--{
--	return rsnd_ssi_master_clk_start(mod, io);
--}
+-static void __init init_iommu_perf_ctr(struct amd_iommu *iommu)
++static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
++				u8 fxn, u64 *value, bool is_write);
++
++static void init_iommu_perf_ctr(struct amd_iommu *iommu)
+ {
+-	int retry;
+ 	struct pci_dev *pdev = iommu->dev;
+-	u64 val = 0xabcd, val2 = 0, save_reg, save_src;
++	u64 val = 0xabcd, val2 = 0, save_reg = 0;
+ 
+ 	if (!iommu_feature(iommu, FEATURE_PC))
+ 		return;
+@@ -1687,39 +1686,17 @@ static void __init init_iommu_perf_ctr(struct amd_iommu *iommu)
+ 	amd_iommu_pc_present = true;
+ 
+ 	/* save the value to restore, if writable */
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false) ||
+-	    iommu_pc_get_set_reg(iommu, 0, 0, 8, &save_src, false))
+-		goto pc_false;
 -
- static struct rsnd_mod_ops rsnd_ssi_pio_ops = {
- 	.name		= SSI_NAME,
- 	.probe		= rsnd_ssi_common_probe,
-@@ -1079,7 +1077,6 @@ static struct rsnd_mod_ops rsnd_ssi_pio_ops = {
- 	.pointer	= rsnd_ssi_pio_pointer,
- 	.pcm_new	= rsnd_ssi_pcm_new,
- 	.hw_params	= rsnd_ssi_hw_params,
--	.prepare	= rsnd_ssi_prepare,
- 	.get_status	= rsnd_ssi_get_status,
- };
+-	/*
+-	 * Disable power gating by programing the performance counter
+-	 * source to 20 (i.e. counts the reads and writes from/to IOMMU
+-	 * Reserved Register [MMIO Offset 1FF8h] that are ignored.),
+-	 * which never get incremented during this init phase.
+-	 * (Note: The event is also deprecated.)
+-	 */
+-	val = 20;
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 8, &val, true))
++	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false))
+ 		goto pc_false;
  
-@@ -1166,7 +1163,6 @@ static struct rsnd_mod_ops rsnd_ssi_dma_ops = {
- 	.pcm_new	= rsnd_ssi_pcm_new,
- 	.fallback	= rsnd_ssi_fallback,
- 	.hw_params	= rsnd_ssi_hw_params,
--	.prepare	= rsnd_ssi_prepare,
- 	.get_status	= rsnd_ssi_get_status,
- };
+ 	/* Check if the performance counters can be written to */
+-	val = 0xabcd;
+-	for (retry = 5; retry; retry--) {
+-		if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true) ||
+-		    iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false) ||
+-		    val2)
+-			break;
+-
+-		/* Wait about 20 msec for power gating to disable and retry. */
+-		msleep(20);
+-	}
+-
+-	/* restore */
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true) ||
+-	    iommu_pc_get_set_reg(iommu, 0, 0, 8, &save_src, true))
++	if ((iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true)) ||
++	    (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false)) ||
++	    (val != val2))
+ 		goto pc_false;
  
+-	if (val != val2)
++	/* restore */
++	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true))
+ 		goto pc_false;
+ 
+ 	pci_info(pdev, "IOMMU performance counters supported\n");
 -- 
 2.30.2
 
