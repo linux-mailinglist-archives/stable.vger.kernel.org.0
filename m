@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B45053741F9
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AC8F3741FA
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233982AbhEEQnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:43:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39568 "EHLO mail.kernel.org"
+        id S235019AbhEEQnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:43:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234135AbhEEQlI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:41:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5610661582;
-        Wed,  5 May 2021 16:34:27 +0000 (UTC)
+        id S235150AbhEEQlL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:41:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9580D6161C;
+        Wed,  5 May 2021 16:34:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232468;
-        bh=89H+1QCobhQV1R+GCVcMQNn7HgbVkF4AnWBdOg+RgHY=;
+        s=k20201202; t=1620232469;
+        bh=tYasmsVH0Piz6byNcOMr5ONyvpW8tVB6xO4yCUZpBes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfrMcU5BT11+6fQwKTVwXV+UkPp8wAMGDBnC6dhbCMQNcmTrbHtm032y2QV0/gKMA
-         NW/dFh8pHUI8gnNCzLOxoYwKMXfJgh5Cq9pbu4triIUNDnCFK3vhwFu/pYHA4U8si+
-         44dwz+x2QPk9VcBjM/cA4woSW6hNUeALHLA/ZT7Y+Y+s5I/sh0TLFMxfKB44zK3fQF
-         npE7JMrkOc+sJVpDHJ8pPhBvp2ebZKO6vHFU3JKwbJQdcQ9XA0+C4NzfkS+OrLAzf4
-         3mlNzEs9ynxqcWg2z92U30Qaj3G+sfghA0V7sJhdqqv3WmaxpnvvOu8AD2NWu6Xyzb
-         sn9iwWV5ng7Gw==
+        b=D70SHp0vGEGofAuLuqoJwx17+yAm1kao2jqBzYT64xgcLLNQ+aBzYrVWqpWqIEgK5
+         8Erje43IIlkiIypgyBdZ5QMr/Lap7C3xq6SAc9g1n1rzx5TpRQ3OKwg+wDyBzDX+oc
+         kdP0Ku8LPKfO+l0eFrH5nioULl+d7b5DIYmnGTA/8gUeUysIOq8vCBThq3oJwKuluR
+         e8cIDhUYTK7csQi+8AFhOJ4jKBS4QRFYbUJ45kpEHbzbdlRydODpefJZrw0txtkWj9
+         yuiVDIPFXDNlqFaDXnlYjAx63/WeOaZuzl9t48KxputVX/WwndgCceo5MSMA2t4CPm
+         fnNOrIMZ0w10A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.11 010/104] fs: dlm: add shutdown hook
-Date:   Wed,  5 May 2021 12:32:39 -0400
-Message-Id: <20210505163413.3461611-10-sashal@kernel.org>
+Cc:     Hoang Le <hoang.h.le@dektech.com.au>,
+        Jon Maloy <jmaloy@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.11 011/104] tipc: convert dest node's address to network order
+Date:   Wed,  5 May 2021 12:32:40 -0400
+Message-Id: <20210505163413.3461611-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163413.3461611-1-sashal@kernel.org>
 References: <20210505163413.3461611-1-sashal@kernel.org>
@@ -42,195 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit 9d232469bcd772dbedb9e75a165c681b920524ee ]
+[ Upstream commit 1980d37565061ab44bdc2f9e4da477d3b9752e81 ]
 
-This patch fixes issues which occurs when dlm lowcomms synchronize their
-workqueues but dlm application layer already released the lockspace. In
-such cases messages like:
+(struct tipc_link_info)->dest is in network order (__be32), so we must
+convert the value to network order before assigning. The problem detected
+by sparse:
 
-dlm: gfs2: release_lockspace final free
-dlm: invalid lockspace 3841231384 from 1 cmd 1 type 11
+net/tipc/netlink_compat.c:699:24: warning: incorrect type in assignment (different base types)
+net/tipc/netlink_compat.c:699:24:    expected restricted __be32 [usertype] dest
+net/tipc/netlink_compat.c:699:24:    got int
 
-are printed on the kernel log. This patch is solving this issue by
-introducing a new "shutdown" hook before calling "stop" hook when the
-lockspace is going to be released finally. This should pretend any
-dlm messages sitting in the workqueues during or after lockspace
-removal.
-
-It's necessary to call dlm_scand_stop() as I instrumented
-dlm_lowcomms_get_buffer() code to report a warning after it's called after
-dlm_midcomms_shutdown() functionality, see below:
-
-WARNING: CPU: 1 PID: 3794 at fs/dlm/midcomms.c:1003 dlm_midcomms_get_buffer+0x167/0x180
-Modules linked in: joydev iTCO_wdt intel_pmc_bxt iTCO_vendor_support drm_ttm_helper ttm pcspkr serio_raw i2c_i801 i2c_smbus drm_kms_helper virtio_scsi lpc_ich virtio_balloon virtio_console xhci_pci xhci_pci_renesas cec qemu_fw_cfg drm [last unloaded: qxl]
-CPU: 1 PID: 3794 Comm: dlm_scand Tainted: G        W         5.11.0+ #26
-Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.13.0-2.module+el8.3.0+7353+9de0a3cc 04/01/2014
-RIP: 0010:dlm_midcomms_get_buffer+0x167/0x180
-Code: 5d 41 5c 41 5d 41 5e 41 5f c3 0f 0b 45 31 e4 5b 5d 4c 89 e0 41 5c 41 5d 41 5e 41 5f c3 4c 89 e7 45 31 e4 e8 3b f1 ec ff eb 86 <0f> 0b 4c 89 e7 45 31 e4 e8 2c f1 ec ff e9 74 ff ff ff 0f 1f 80 00
-RSP: 0018:ffffa81503f8fe60 EFLAGS: 00010202
-RAX: 0000000000000008 RBX: ffff8f969827f200 RCX: 0000000000000001
-RDX: 0000000000000000 RSI: ffffffffad1e89a0 RDI: ffff8f96a5294160
-RBP: 0000000000000001 R08: 0000000000000000 R09: ffff8f96a250bc60
-R10: 00000000000045d3 R11: 0000000000000000 R12: ffff8f96a250bc60
-R13: ffffa81503f8fec8 R14: 0000000000000070 R15: 0000000000000c40
-FS:  0000000000000000(0000) GS:ffff8f96fbc00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055aa3351c000 CR3: 000000010bf22000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- dlm_scan_rsbs+0x420/0x670
- ? dlm_uevent+0x20/0x20
- dlm_scand+0xbf/0xe0
- kthread+0x13a/0x150
- ? __kthread_bind_mask+0x60/0x60
- ret_from_fork+0x22/0x30
-
-To synchronize all dlm scand messages we stop it right before shutdown
-hook.
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lockspace.c | 20 +++++++++++---------
- fs/dlm/lowcomms.c  | 42 +++++++++++++++++++++++-------------------
- fs/dlm/lowcomms.h  |  1 +
- 3 files changed, 35 insertions(+), 28 deletions(-)
+ net/tipc/netlink_compat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
-index 561dcad08ad6..c14cf2b7faab 100644
---- a/fs/dlm/lockspace.c
-+++ b/fs/dlm/lockspace.c
-@@ -404,12 +404,6 @@ static int threads_start(void)
- 	return error;
- }
+diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
+index 5a1ce64039f7..0749df80454d 100644
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -696,7 +696,7 @@ static int tipc_nl_compat_link_dump(struct tipc_nl_compat_msg *msg,
+ 	if (err)
+ 		return err;
  
--static void threads_stop(void)
--{
--	dlm_scand_stop();
--	dlm_lowcomms_stop();
--}
--
- static int new_lockspace(const char *name, const char *cluster,
- 			 uint32_t flags, int lvblen,
- 			 const struct dlm_lockspace_ops *ops, void *ops_arg,
-@@ -702,8 +696,11 @@ int dlm_new_lockspace(const char *name, const char *cluster,
- 		ls_count++;
- 	if (error > 0)
- 		error = 0;
--	if (!ls_count)
--		threads_stop();
-+	if (!ls_count) {
-+		dlm_scand_stop();
-+		dlm_lowcomms_shutdown();
-+		dlm_lowcomms_stop();
-+	}
-  out:
- 	mutex_unlock(&ls_lock);
- 	return error;
-@@ -788,6 +785,11 @@ static int release_lockspace(struct dlm_ls *ls, int force)
- 
- 	dlm_recoverd_stop(ls);
- 
-+	if (ls_count == 1) {
-+		dlm_scand_stop();
-+		dlm_lowcomms_shutdown();
-+	}
-+
- 	dlm_callback_stop(ls);
- 
- 	remove_lockspace(ls);
-@@ -880,7 +882,7 @@ int dlm_release_lockspace(void *lockspace, int force)
- 	if (!error)
- 		ls_count--;
- 	if (!ls_count)
--		threads_stop();
-+		dlm_lowcomms_stop();
- 	mutex_unlock(&ls_lock);
- 
- 	return error;
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 2ab2a38cb3b7..6a3660bdbb46 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1607,6 +1607,29 @@ static int work_start(void)
- 	return 0;
- }
- 
-+static void shutdown_conn(struct connection *con)
-+{
-+	if (con->shutdown_action)
-+		con->shutdown_action(con);
-+}
-+
-+void dlm_lowcomms_shutdown(void)
-+{
-+	/* Set all the flags to prevent any
-+	 * socket activity.
-+	 */
-+	dlm_allow_conn = 0;
-+
-+	if (recv_workqueue)
-+		flush_workqueue(recv_workqueue);
-+	if (send_workqueue)
-+		flush_workqueue(send_workqueue);
-+
-+	dlm_close_sock(&listen_con.sock);
-+
-+	foreach_conn(shutdown_conn);
-+}
-+
- static void _stop_conn(struct connection *con, bool and_other)
- {
- 	mutex_lock(&con->sock_mutex);
-@@ -1628,12 +1651,6 @@ static void stop_conn(struct connection *con)
- 	_stop_conn(con, true);
- }
- 
--static void shutdown_conn(struct connection *con)
--{
--	if (con->shutdown_action)
--		con->shutdown_action(con);
--}
--
- static void connection_release(struct rcu_head *rcu)
- {
- 	struct connection *con = container_of(rcu, struct connection, rcu);
-@@ -1690,19 +1707,6 @@ static void work_flush(void)
- 
- void dlm_lowcomms_stop(void)
- {
--	/* Set all the flags to prevent any
--	   socket activity.
--	*/
--	dlm_allow_conn = 0;
--
--	if (recv_workqueue)
--		flush_workqueue(recv_workqueue);
--	if (send_workqueue)
--		flush_workqueue(send_workqueue);
--
--	dlm_close_sock(&listen_con.sock);
--
--	foreach_conn(shutdown_conn);
- 	work_flush();
- 	foreach_conn(free_conn);
- 	work_stop();
-diff --git a/fs/dlm/lowcomms.h b/fs/dlm/lowcomms.h
-index bcd4dbd1dc98..48bbc4e18761 100644
---- a/fs/dlm/lowcomms.h
-+++ b/fs/dlm/lowcomms.h
-@@ -18,6 +18,7 @@
- extern int dlm_allow_conn;
- 
- int dlm_lowcomms_start(void);
-+void dlm_lowcomms_shutdown(void);
- void dlm_lowcomms_stop(void);
- void dlm_lowcomms_exit(void);
- int dlm_lowcomms_close(int nodeid);
+-	link_info.dest = nla_get_flag(link[TIPC_NLA_LINK_DEST]);
++	link_info.dest = htonl(nla_get_flag(link[TIPC_NLA_LINK_DEST]));
+ 	link_info.up = htonl(nla_get_flag(link[TIPC_NLA_LINK_UP]));
+ 	nla_strscpy(link_info.str, link[TIPC_NLA_LINK_NAME],
+ 		    TIPC_MAX_LINK_NAME);
 -- 
 2.30.2
 
