@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 374ED373A0F
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B86373A1F
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232503AbhEEMHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46576 "EHLO mail.kernel.org"
+        id S232885AbhEEMHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:07:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233397AbhEEMG7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:06:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E294D61182;
-        Wed,  5 May 2021 12:06:01 +0000 (UTC)
+        id S233477AbhEEMHS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:07:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64199613BA;
+        Wed,  5 May 2021 12:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216362;
-        bh=1hGp4kA4a7tsmU+WWStd65XODnOBngFtfKRtI4lHdwk=;
+        s=korg; t=1620216380;
+        bh=Yf0zVo/dlPirZVH2nGeno4UG/jo8lP2Tgi6DLoz+/rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MK/BI1b4E6dFr/YEyLwhlWiGVBQwUmdmtxz0AePP3cPsDXo+lzd8BoTcI0NhwvlmQ
-         509cXPrKZvg2U2tYT4/fGWDye7VGt/5VldvqN9iHdGlx7Ph02WHnlF9UYpcvaQUa70
-         gmbwgsUCz2AyeRyiJrcvp1xNvlX4gxo1Zm9jt1xw=
+        b=OqT4xRZVPiiOrcAXLNepxMupgkMNCRswuOG4Z3MufidYQOS6fBw6bMRmL2xkl4SrE
+         8XPUrjL1CgM8yUNlLHY9rFw1SdTeoLzQWm8DizWWWIfuMMNak9HMUfyWQqeZN5fO9b
+         S2Wk19gG7GAc/0/gkH6FlPaCFvnIEY1fRFjRFcnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 09/15] ALSA: usb-audio: Add MIDI quirk for Vox ToneLab EX
-Date:   Wed,  5 May 2021 14:05:14 +0200
-Message-Id: <20210505120504.077735697@linuxfoundation.org>
+        stable@vger.kernel.org, Jianxiong Gao <jxgao@google.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 5.10 12/29] driver core: add a min_align_mask field to struct device_dma_parameters
+Date:   Wed,  5 May 2021 14:05:15 +0200
+Message-Id: <20210505112326.603370965@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
-References: <20210505120503.781531508@linuxfoundation.org>
+In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
+References: <20210505112326.195493232@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,40 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jianxiong Gao <jxgao@google.com>
 
-commit 64f40f9be14106e7df0098c427cb60be645bddb7 upstream.
+commit: 36950f2da1ea4cb683be174f6f581e25b2d33e71
 
-ToneLab EX guitar pedal device requires the same quirk like ToneLab ST
-for supporting the MIDI.
+Some devices rely on the address offset in a page to function
+correctly (NVMe driver as an example). These devices may use
+a different page size than the Linux kernel. The address offset
+has to be preserved upon mapping, and in order to do so, we
+need to record the page_offset_mask first.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212593
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210407144549.1530-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Jianxiong Gao <jxgao@google.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks-table.h |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ include/linux/device.h      |    1 +
+ include/linux/dma-mapping.h |   16 ++++++++++++++++
+ 2 files changed, 17 insertions(+)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -2499,6 +2499,16 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 	}
- },
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -291,6 +291,7 @@ struct device_dma_parameters {
+ 	 * sg limitations.
+ 	 */
+ 	unsigned int max_segment_size;
++	unsigned int min_align_mask;
+ 	unsigned long segment_boundary_mask;
+ };
  
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -500,6 +500,22 @@ static inline int dma_set_seg_boundary(s
+ 	return -EIO;
+ }
+ 
++static inline unsigned int dma_get_min_align_mask(struct device *dev)
 +{
-+	USB_DEVICE_VENDOR_SPEC(0x0944, 0x0204),
-+	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
-+		.vendor_name = "KORG, Inc.",
-+		/* .product_name = "ToneLab EX", */
-+		.ifnum = 3,
-+		.type = QUIRK_MIDI_STANDARD_INTERFACE,
-+	}
-+},
++	if (dev->dma_parms)
++		return dev->dma_parms->min_align_mask;
++	return 0;
++}
 +
- /* AKAI devices */
++static inline int dma_set_min_align_mask(struct device *dev,
++		unsigned int min_align_mask)
++{
++	if (WARN_ON_ONCE(!dev->dma_parms))
++		return -EIO;
++	dev->dma_parms->min_align_mask = min_align_mask;
++	return 0;
++}
++
+ static inline int dma_get_cache_alignment(void)
  {
- 	USB_DEVICE(0x09e8, 0x0062),
+ #ifdef ARCH_DMA_MINALIGN
 
 
