@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA963735DD
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 09:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA3E3735E1
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 09:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229752AbhEEHy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 03:54:57 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:40637 "EHLO
+        id S231300AbhEEH4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 03:56:12 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:56903 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229741AbhEEHy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 May 2021 03:54:57 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id A9BDE170D;
-        Wed,  5 May 2021 03:54:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Wed, 05 May 2021 03:54:00 -0400
+        by vger.kernel.org with ESMTP id S229741AbhEEH4M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 May 2021 03:56:12 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id A2DDE177D;
+        Wed,  5 May 2021 03:55:15 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 05 May 2021 03:55:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=tqjX2G6Zwz7EUAGtwKEhtdrTfdV
-        eUGH2mRVc2RmleHM=; b=TSTj/MZKkwT0BIUHYcwlHBUJvwtdl9cTqA7t9MFMTWw
-        ic/q/O76ATMOqo6cvu7JON69Hw+B8M31PJPKxKdvb2Z1IkbA3Wsqiqau2e6DIyTp
-        NIrtttg2A+lEpDc7ApFbyefbaXkFBCWenh1QWmhwLkIvXASWjVKDVy9oHyfK+pGu
-        wg3jyYn7kvF3nR26251bCCRN8sy5n2CO3pMnD23GER+lZ4tgrqvoEczLBoCRxmgC
-        3wAwUWp51g2H3k2TO8jdnrCTb/4aBTENz+OFyEVeUZwCvUyeddsPHK/G3DpjFic8
-        0Son+pqlqQiW19QbOl8LR5kgLl23CxswKWVZWiXCyZw==
+        :content-type:in-reply-to; s=fm3; bh=T6l1811bPixoEfPRmGE/mAV3M4s
+        mRpxxFKmb6HeVRps=; b=GGxtExQw+Bt1MwZtovDteBA8CTtGcd2Th4F/slzc1Eg
+        Kq5yKIQe4ReXTm+sUxlLZwb+vTSsM7VF+nr5C47BtbSYnqTADORWaRflQzncthjF
+        YYNQ0P9tKLSmC3F9F+C09bSVntBWzRs0euQDn6GSKv12UgvLAL28JTvwIkq+Xp08
+        3TN9pJyHPzHDPFET/z+pCGCGGrHoVwnnF9JTsmaOY0WIduyMNL44MBvELBMvoPD5
+        /bRbgqEaVFfPmTAFjQyC7G/K2mtHRqQ/tNZKHPDCfshWajlzu2ZOlj0H14JGCa7P
+        MIVX9cg/+PLjNSrEEdggc+OFNnrrkJv0lLRRAy2ly/Q==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tqjX2G
-        6Zwz7EUAGtwKEhtdrTfdVeUGH2mRVc2RmleHM=; b=HXnyTvCcq1E8G4U0A3VEoU
-        v5h749zUyo2Vz7OR3Ll+RBswgAHCFuQjQeaIVchCFcnb97X414Xl5PMfL+4irx3E
-        9klF72pq2EXkyMBbKzyucvqPgbL6SS/GV0/cToxEL5dp8f8kBW3hM8RrGGPsmnqG
-        ehWc0aZxKFWRVhhKTroZSX1JmNrMG4Y3ioHh5sh7M/eS7+pXkDHIqtKmjs0kUNFd
-        uMfQS9gHhgg14jg4kj6na208crHae9p7moqXjF4posrAtlhmDq99DzP3KU4lZvhL
-        Be3j2rD7YlaOD8Ahp5hu7T0enlamLdu0TBzSAMDubTSXkq7a7YB5AjIEBB4+Sizw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=T6l181
+        1bPixoEfPRmGE/mAV3M4smRpxxFKmb6HeVRps=; b=Pmb0iuLrh2Fo8TzGpCnjXm
+        JH2/R1k3rYYVcDkFF74cGN5r2c2x5ywUyI4FxbM2ovbfIEl4YOJFgfNp2/9jpaVw
+        19KQWwgaVYc8gZH6Fs2Ibpz7ANaM1cbA7W49xPNMT1D6O3gDS2xi/Pz6i7GA3FKA
+        5rr+IwgsXyiZcQkRoQ3hcUwVNNk8L3kz0Zjyd/+7mX/mWTvU7PSRiPS3DWYf+MEK
+        puL7vEGqlG50uPvcrzu1O1Q7tTSA0ZAuruFJXMx8S/rdLVbPDJMIFyE7IJ09vXMX
+        0hGPJNRK/izFE/fBw1/Epg/AFXlbIqEB3Qt4pnrpdevnryJpC9KRGvB4UESEv+Pw
         ==
-X-ME-Sender: <xms:F0-SYFiWCVTslhdmeIHXUI5RuNjTVpgg9lLIyQMEpiTy_7BpzvhTxg>
-    <xme:F0-SYKAvPpbwNPZetb4m7gX0N3vMiCfJsP5ubBPohLNCn4KHLMKDWKWJhbzQol5Mi
-    xDNUWqAp7aqQQ>
+X-ME-Sender: <xms:Yk-SYPboC4rcJn9Oe6tRTXPrFpsAQnHOILwW_sVO1MyFtx6Tmi6aKg>
+    <xme:Yk-SYOZQHdnlImQQ86tWh6xN4phxZwFdWM3eVExdClX7ZGRAXabn9tal2jqGxbLC_
+    oRorfSAKUlf4Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefjedguddvtdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
@@ -47,54 +47,58 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefjedguddvtdcutefuodetgg
     ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:F0-SYFFfJHYiqGKnxiRysPsU3FbbBlTS_tdCkuBovZfXErxPUtKxeA>
-    <xmx:F0-SYKTHrlx3eUKVgRtb98r3HSIpSIfmMR0dsYNwgY9W_khdPKxgvw>
-    <xmx:F0-SYCwdPP3wBCWsZNXZgDWLakVDk8dLBdkRBbpZm_W2tyhRZ1QJiA>
-    <xmx:GE-SYHqjkVIoX6V0D7jHIEHvPakyP6DTem8DPdeEe348TWvmRKFljQ>
+X-ME-Proxy: <xmx:Yk-SYB9ukseKqqGgQkOKx1KF-elXiATBus6knWrHI8D6vvKRWpUgig>
+    <xmx:Yk-SYFopwDNfkh5_Hc79ks1UF9W6rKWx4ffAcxVFhgJV8LMi1scwgg>
+    <xmx:Yk-SYKo7NBW_E1XWhtaXDKkdundMrMfGBNGnziMr-mCSPS17Ox1bUQ>
+    <xmx:Y0-SYKLgtDW65rGzymuJHpg_VNgdjQfGTv3bxZMNdnFI-kerCGmV7Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed,  5 May 2021 03:53:59 -0400 (EDT)
-Date:   Wed, 5 May 2021 09:53:57 +0200
+        Wed,  5 May 2021 03:55:14 -0400 (EDT)
+Date:   Wed, 5 May 2021 09:55:12 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Mark Pearson <markpearson@lenovo.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: stable tree request - [PATCH] platform/x86: thinkpad_acpi:
- Correct thermal sensor allocation
-Message-ID: <YJJPFfpsiMDhHBR2@kroah.com>
-References: <ea996e9f-3727-fdb9-3c04-53898fa7655c@lenovo.com>
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     stable@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Bart Van Assche <bvanassche@acm.org>
+Subject: Re: need to back port ("scsi: ufs: Unlock on a couple error paths")
+Message-ID: <YJJPYNE1azQ49ocv@kroah.com>
+References: <20210504184635.GT21598@kadam>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ea996e9f-3727-fdb9-3c04-53898fa7655c@lenovo.com>
+In-Reply-To: <20210504184635.GT21598@kadam>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 30, 2021 at 02:46:18PM -0400, Mark Pearson wrote:
-> Hi maintainer,
+On Tue, May 04, 2021 at 09:46:35PM +0300, Dan Carpenter wrote:
+> Hi,
 > 
-> I'm fairly new to contributing to the kernel and didn't know about the
-> stable tree procedure so missed setting the CC:stable@vger.kernel.org in
-> my patch submission; I'm following option 2 on the stable-kernel-rules
-> guide.
+> I ran Smatch on 5.4.116 and I found that we were missing commit
+> bb14dd1564c9 ("scsi: ufs: Unlock on a couple error paths").
 > 
-> Subject: [PATCH] platform/x86: thinkpad_acpi: Correct thermal sensor
-> allocation
+> The problem was caused because somehow my Fixes tag did not match the
+> upstream commit that stable used.  I have both hashes in my git tree and
+> the patches are identical except for the hash.  I don't know git well
+> enough to say what went wrong.  I don't think the SCSI tree rebases?
 > 
-> Upstream Commit ID: 6759e18e5cd8745a5dfc5726e4a3db5281ec1639
+> My fixes tag:
+> Fixes: a276c19e3e98 ("scsi: ufs: Avoid busy-waiting by eliminating tag conflicts")
+>        ^^^^^^^^^^^^
 > 
-> Reason: Some EC registers on Thinkpad machines were being incorrectly
-> used as temperature sensors. One in particular was fooling thermald into
-> thinking the system was hot when it wasn't, and keeping fans ramped up
-> unnecessarily.
+> Stable hash:
+> commit a8d2d45c70c7391386baf7863674f156da56a3d5
+> Author: Bart Van Assche <bvanassche@acm.org>
+> Date:   Mon Dec 9 10:13:08 2019 -0800
 > 
-> I've been requested by some distro's to get this fix into the stable
-> tree to make it easier for them to then pull into their releases.
-> If it's possible to add this to 5.11 and maybe 5.10 that would be
-> appreciated.
+>     scsi: ufs: Avoid busy-waiting by eliminating tag conflicts
 > 
-> Please let me know if you need anything or have any questions
+>     [ Upstream commit 7252a3603015f1fd04363956f4b72a537c9f9c42 ]
+>                       ^^^^^^^^^^^^
+> regards,
+> dan carpenter
 
-Looks good, now queued up everywhere, thanks.
+Thanks for catching this, now queued up.
 
 greg k-h
