@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC7DA373A1A
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42995373A0D
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233471AbhEEMHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47264 "EHLO mail.kernel.org"
+        id S233423AbhEEMHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:07:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233473AbhEEMHM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:07:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B73F861176;
-        Wed,  5 May 2021 12:06:15 +0000 (UTC)
+        id S233346AbhEEMG5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:06:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86AD661166;
+        Wed,  5 May 2021 12:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216376;
-        bh=6etONi36FQqglhp+rmX4XQZFYwrLi+rQGeMFsiS16n4=;
+        s=korg; t=1620216360;
+        bh=8a/Nq+o/z/szoQm/8T1Ct2tJF7BkjuqGep885HC3o3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yp6qYrlso5tf7RO1xtCc6PFahxjVjEeZtq3B/+d6y2IqHu0UHBCCvP3083bgCSCSK
-         aEbAcBQ9gl1Mmr1AYRugCPR7c5eDYImSdHllbPic/kaR445c/rg8LBdrvFn62B/xcf
-         1CvxYan3whiGVbnSbDviOzR6kGVaFlzDUY68/GyM=
+        b=i4lAZjNtjpXmyhLYg3RSHlKEh1JP+q4hZBXaG1bTmB72EAp8HyONcV8Zs+paAK1Kv
+         KwS7FN086H5RgrfpD7UPmxNHe09YWfPnmXGVCTBJUDbl+v1JFDNRnBVdNMfm6A8x6K
+         eq5pr1gs8xXUXgJa0EumITXFLXtuHY0LrGL6/Qkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Schmidt <alexschm@de.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/29] perf ftrace: Fix access to pid in array when setting a pid filter
+        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Jari Ruusu <jariruusu@protonmail.com>
+Subject: [PATCH 4.19 08/15] iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_gen2_enqueue_hcmd()
 Date:   Wed,  5 May 2021 14:05:13 +0200
-Message-Id: <20210505112326.539842162@linuxfoundation.org>
+Message-Id: <20210505120504.046744954@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
-References: <20210505112326.195493232@linuxfoundation.org>
+In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
+References: <20210505120503.781531508@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,64 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit 671b60cb6a897a5b3832fe57657152f2c3995e25 ]
+commit e7020bb068d8be50a92f48e36b236a1a1ef9282e upstream.
 
-Command 'perf ftrace -v -- ls' fails in s390 (at least 5.12.0rc6).
+Analogically to what we did in 2800aadc18a6 ("iwlwifi: Fix softirq/hardirq
+disabling in iwl_pcie_enqueue_hcmd()"), we must apply the same fix to
+iwl_pcie_gen2_enqueue_hcmd(), as it's being called from exactly the same
+contexts.
 
-The root cause is a missing pointer dereference which causes an
-array element address to be used as PID.
+Reported-by: Heiner Kallweit <hkallweit1@gmail.com
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2104171112390.18270@cbobk.fhfr.pm
+Signed-off-by: Jari Ruusu <jariruusu@protonmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix this by extracting the PID.
-
-Output before:
-  # ./perf ftrace -v -- ls
-  function_graph tracer is used
-  write '-263732416' to tracing/set_ftrace_pid failed: Invalid argument
-  failed to set ftrace pid
-  #
-
-Output after:
-   ./perf ftrace -v -- ls
-   function_graph tracer is used
-   # tracer: function_graph
-   #
-   # CPU  DURATION                  FUNCTION CALLS
-   # |     |   |                     |   |   |   |
-   4)               |  rcu_read_lock_sched_held() {
-   4)   0.552 us    |    rcu_lockdep_current_cpu_online();
-   4)   6.124 us    |  }
-
-Reported-by: Alexander Schmidt <alexschm@de.ibm.com>
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/20210421120400.2126433-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-ftrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
-index 9366fad591dc..eecc70fc3b19 100644
---- a/tools/perf/builtin-ftrace.c
-+++ b/tools/perf/builtin-ftrace.c
-@@ -289,7 +289,7 @@ static int set_tracing_pid(struct perf_ftrace *ftrace)
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
+@@ -654,6 +654,7 @@ static int iwl_pcie_gen2_enqueue_hcmd(st
+ 	const u8 *cmddata[IWL_MAX_CMD_TBS_PER_TFD];
+ 	u16 cmdlen[IWL_MAX_CMD_TBS_PER_TFD];
+ 	struct iwl_tfh_tfd *tfd;
++	unsigned long flags2;
  
- 	for (i = 0; i < perf_thread_map__nr(ftrace->evlist->core.threads); i++) {
- 		scnprintf(buf, sizeof(buf), "%d",
--			  ftrace->evlist->core.threads->map[i]);
-+			  perf_thread_map__pid(ftrace->evlist->core.threads, i));
- 		if (append_tracing_file("set_ftrace_pid", buf) < 0)
- 			return -1;
+ 	copy_size = sizeof(struct iwl_cmd_header_wide);
+ 	cmd_size = sizeof(struct iwl_cmd_header_wide);
+@@ -722,14 +723,14 @@ static int iwl_pcie_gen2_enqueue_hcmd(st
+ 		goto free_dup_buf;
  	}
--- 
-2.30.2
-
+ 
+-	spin_lock_bh(&txq->lock);
++	spin_lock_irqsave(&txq->lock, flags2);
+ 
+ 	idx = iwl_pcie_get_cmd_index(txq, txq->write_ptr);
+ 	tfd = iwl_pcie_get_tfd(trans, txq, txq->write_ptr);
+ 	memset(tfd, 0, sizeof(*tfd));
+ 
+ 	if (iwl_queue_space(trans, txq) < ((cmd->flags & CMD_ASYNC) ? 2 : 1)) {
+-		spin_unlock_bh(&txq->lock);
++		spin_unlock_irqrestore(&txq->lock, flags2);
+ 
+ 		IWL_ERR(trans, "No space in command queue\n");
+ 		iwl_op_mode_cmd_queue_full(trans->op_mode);
+@@ -870,7 +871,7 @@ static int iwl_pcie_gen2_enqueue_hcmd(st
+ 	spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
+ 
+ out:
+-	spin_unlock_bh(&txq->lock);
++	spin_unlock_irqrestore(&txq->lock, flags2);
+ free_dup_buf:
+ 	if (idx < 0)
+ 		kfree(dup_buf);
 
 
