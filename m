@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1EE37402A
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C03CD374028
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234247AbhEEQdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:33:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52900 "EHLO mail.kernel.org"
+        id S234250AbhEEQdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:33:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234258AbhEEQcs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:32:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 677E9613FC;
-        Wed,  5 May 2021 16:31:51 +0000 (UTC)
+        id S234265AbhEEQcu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:32:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 934CB613F6;
+        Wed,  5 May 2021 16:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232312;
-        bh=wioNhMzppS8WG30UBK94WGWL04I2LjgQaWPOFepXexs=;
+        s=k20201202; t=1620232313;
+        bh=1wfURT9zmqs91sKt7fkJZ39sFRMSJnSbKetAtpigyw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GuBZdFODxbW00PutKra5iLQw19cT0u8x+MrfQbltccBtntAohxkzuTq/xbrr6L8te
-         DnrnIV+n0mJd8P/bobmtjRKvEjnzYcZtc8tCtQ4WsA5Z6xKaeAMWsv8lsRpNlB+Q2j
-         SXItCuQRaC5hWTyQRw5XpQj/fwEZPCUuAHV/shKH0B/uF8GekkzPDNELFVNZe1vL2f
-         WNK35Dwl5mfzyQEEkD2rUccGqxZpkbBZUGrHw98R/I7LYYcV0owRU/xib529KYtm7b
-         Xhlhloq5sj8VMweaWeKOe4IB0de25NeWaynxeQ3zjc+xu/q/guQN65lmcMkTzpOell
-         +UBeQmaav3VcA==
+        b=FHhyiewuN7G3FS8DUKEW5V+5re4sOp86FeXCNGNrVgiF2I3UetuBW7bebqOVFofyb
+         aT0OpkL4icN1YGdZSExet4Ffs4hHzvhRuen+NLFL5zj3S/X9YPuGBB5yuXM7ATiOxD
+         OLF7ij4ruRsrsNBufXhDXq1rdSd5j15IahTl8u8QoYWx8PoRZu/G1dprKI4kkWCMK5
+         0O68fnDAv014zZzQw+95ggsbqU892ujzfSBI4kQxRiVwcTBY0lUrYDtrV0VseJO31b
+         jl9FTiM4YuSis5ED/RSZV2VpLxLe6J6ssFcYIuMFQXF/qol3MroPs9pgrjqkE0RS+4
+         RmyMJCXtv/xPQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Tong Zhang <ztong0001@gmail.com>, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.12 020/116] ALSA: hdspm: don't disable if not enabled
-Date:   Wed,  5 May 2021 12:29:48 -0400
-Message-Id: <20210505163125.3460440-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 021/116] ALSA: rme9652: don't disable if not enabled
+Date:   Wed,  5 May 2021 12:29:49 -0400
+Message-Id: <20210505163125.3460440-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -43,42 +43,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 790f5719b85e12e10c41753b864e74249585ed08 ]
+[ Upstream commit f57a741874bb6995089020e97a1dcdf9b165dcbe ]
 
-hdspm wants to disable a not enabled pci device, which makes kernel
+rme9652 wants to disable a not enabled pci device, which makes kernel
 throw a warning. Make sure the device is enabled before calling disable.
 
-[    1.786391] snd_hdspm 0000:00:03.0: disabling already-disabled device
-[    1.786400] WARNING: CPU: 0 PID: 182 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.795181] Call Trace:
-[    1.795320]  snd_hdspm_card_free+0x58/0xa0 [snd_hdspm]
-[    1.795595]  release_card_device+0x4b/0x80 [snd]
-[    1.795860]  device_release+0x3b/0xa0
-[    1.796072]  kobject_put+0x94/0x1b0
-[    1.796260]  put_device+0x13/0x20
-[    1.796438]  snd_card_free+0x61/0x90 [snd]
-[    1.796659]  snd_hdspm_probe+0x97b/0x1440 [snd_hdspm]
+[    1.751595] snd_rme9652 0000:00:03.0: disabling already-disabled device
+[    1.751605] WARNING: CPU: 0 PID: 174 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
+[    1.759968] Call Trace:
+[    1.760145]  snd_rme9652_card_free+0x76/0xa0 [snd_rme9652]
+[    1.760434]  release_card_device+0x4b/0x80 [snd]
+[    1.760679]  device_release+0x3b/0xa0
+[    1.760874]  kobject_put+0x94/0x1b0
+[    1.761059]  put_device+0x13/0x20
+[    1.761235]  snd_card_free+0x61/0x90 [snd]
+[    1.761454]  snd_rme9652_probe+0x3be/0x700 [snd_rme9652]
 
 Suggested-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-3-ztong0001@gmail.com
+Link: https://lore.kernel.org/r/20210321153840.378226-4-ztong0001@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme9652/hdspm.c | 3 ++-
+ sound/pci/rme9652/rme9652.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/rme9652/hdspm.c b/sound/pci/rme9652/hdspm.c
-index 8d900c132f0f..97a0bff96b28 100644
---- a/sound/pci/rme9652/hdspm.c
-+++ b/sound/pci/rme9652/hdspm.c
-@@ -6883,7 +6883,8 @@ static int snd_hdspm_free(struct hdspm * hdspm)
- 	if (hdspm->port)
- 		pci_release_regions(hdspm->pci);
+diff --git a/sound/pci/rme9652/rme9652.c b/sound/pci/rme9652/rme9652.c
+index 4df992e846f2..7a4d395abcee 100644
+--- a/sound/pci/rme9652/rme9652.c
++++ b/sound/pci/rme9652/rme9652.c
+@@ -1731,7 +1731,8 @@ static int snd_rme9652_free(struct snd_rme9652 *rme9652)
+ 	if (rme9652->port)
+ 		pci_release_regions(rme9652->pci);
  
--	pci_disable_device(hdspm->pci);
-+	if (pci_is_enabled(hdspm->pci))
-+		pci_disable_device(hdspm->pci);
+-	pci_disable_device(rme9652->pci);
++	if (pci_is_enabled(rme9652->pci))
++		pci_disable_device(rme9652->pci);
  	return 0;
  }
  
