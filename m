@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E4C37416F
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26735374171
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234564AbhEEQiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:38:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
+        id S234955AbhEEQiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:38:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234934AbhEEQgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:36:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66A836142E;
-        Wed,  5 May 2021 16:33:06 +0000 (UTC)
+        id S234939AbhEEQgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:36:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9FD56143F;
+        Wed,  5 May 2021 16:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232387;
-        bh=crQZifefxFB5zTrNmQ8E/W5S9724KgP2XqK90+Y+VD0=;
+        s=k20201202; t=1620232388;
+        bh=sYQnTL6GCFz0oLjAuXPZLL+u10MJ9CI1uhBeuN9bM2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPsHG2o8SZ4TEsf+59LimFdmNa0qXq3EKnCAJCk2GY2Ddb1oqK9YpkYxpkQ0LUv+a
-         TFygUiwuV9hyF7zWFmCn5N8ITGOhPipTvNJmxA/sfU24Sh2iyKFxm97xL0kDUPsqzL
-         kGw8uyBYPTr2qn1Yr5/oc1JQBsh5rzLYFsb221bQkd/BHUmK2gN1QDduzrHDhHLwev
-         dhSF17BgER53WEOLerMV12aPqu0cUicNuc7xjyMDX8OUdFPyD6/ybrTrx/qFSYEC/I
-         rxFZjmr+uT42+DEaVWUHfIn8adhQXxrK49tvi5Fimn91d7/k0sNICHTkLujHqgGF7w
-         aUxWbKFO+BQ6Q==
+        b=O1ArtVXy/rgrTV4TuCJ5vL6u6NaLpoNDVk7hl4nb6tWxw+SSQyW5HRQEPbZtvBSYy
+         lsn09bf/RJRPH6fL4BbD88kOFDrdNtsak4oGQRBO7SgRjuoy7MJ+huXaJZ5eLhYGd0
+         jAFa9u7gfhxzQgeLTwMGpAxK5k66dZyr+B26wLcgpmS3ZweMaShKuLeUool+QGtKhg
+         jnDCFAxLj1BPFVFdpysLqNUL5p/l+U6fQVKpeyrWF97UeXXWWnqwb6P8+HluSmtNwG
+         TRDivhHwcvViz9kLm1b6KbrSAr8dlUoKqqcb+a/P2xUUosaueCKYM3s9DpfaV0CY25
+         pSwIFUieK9Ixw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        "Linh Phung T . Y ." <linh.phung.jy@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.12 073/116] ASoC: rsnd: call rsnd_ssi_master_clk_start() from rsnd_ssi_init()
-Date:   Wed,  5 May 2021 12:30:41 -0400
-Message-Id: <20210505163125.3460440-73-sashal@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 074/116] net: bridge: propagate error code and extack from br_mc_disabled_update
+Date:   Wed,  5 May 2021 12:30:42 -0400
+Message-Id: <20210505163125.3460440-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -43,113 +44,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit a122a116fc6d8fcf2f202dcd185173a54268f239 ]
+[ Upstream commit ae1ea84b33dab45c7b6c1754231ebda5959b504c ]
 
-Current rsnd needs to call .prepare (P) for clock settings,
-.trigger for playback start (S) and stop (E).
-It should be called as below from SSI point of view.
+Some Ethernet switches might only be able to support disabling multicast
+snooping globally, which is an issue for example when several bridges
+span the same physical device and request contradictory settings.
 
-	P -> S -> E -> P -> S -> E -> ...
+Propagate the return value of br_mc_disabled_update() such that this
+limitation is transmitted correctly to user-space.
 
-But, if you used MIXer, below case might happen
-
-	              (2)
-	1: P -> S ---> E -> ...
-	2:         P ----> S -> ...
-	          (1)     (3)
-
-P(1) setups clock, but E(2) resets it. and starts playback (3).
-In such case, it will reports "SSI parent/child should use same rate".
-
-rsnd_ssi_master_clk_start() which is the main function at (P)
-was called from rsnd_ssi_init() (= S) before,
-but was moved by below patch to rsnd_soc_dai_prepare() (= P) to avoid
-using clk_get_rate() which shouldn't be used under atomic context.
-
-	commit 4d230d1271064 ("ASoC: rsnd: fixup not to call clk_get/set
-				under non-atomic")
-
-Because of above patch, rsnd_ssi_master_clk_start() is now called at (P)
-which is for non atomic context. But (P) is assuming that spin lock is
-*not* used.
-One issue now is rsnd_ssi_master_clk_start() is checking ssi->xxx
-which should be protected by spin lock.
-
-After above patch, adg.c had below patch for other reasons.
-
-	commit 06e8f5c842f2d ("ASoC: rsnd: don't call clk_get_rate()
-				under atomic context")
-
-clk_get_rate() is used at probe() timing by this patch.
-In other words, rsnd_ssi_master_clk_start() is no longer using
-clk_get_rate() any more.
-
-This means we can call it from rsnd_ssi_init() (= S) again which is
-protected by spin lock.
-This patch re-move it to under spin lock, and solves
-1. checking ssi->xxx without spin lock issue.
-2. clk setting / device start / device stop race condition.
-
-Reported-by: Linh Phung T. Y. <linh.phung.jy@renesas.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/875z0x1jt5.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/ssi.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ net/bridge/br_multicast.c | 28 +++++++++++++++++++++-------
+ net/bridge/br_netlink.c   |  4 +++-
+ net/bridge/br_private.h   |  3 ++-
+ net/bridge/br_sysfs_br.c  |  8 +-------
+ 4 files changed, 27 insertions(+), 16 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index d0ded427a836..a2f8138d40c7 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -507,10 +507,15 @@ static int rsnd_ssi_init(struct rsnd_mod *mod,
- 			 struct rsnd_priv *priv)
- {
- 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
-+	int ret;
- 
- 	if (!rsnd_ssi_is_run_mods(mod, io))
- 		return 0;
- 
-+	ret = rsnd_ssi_master_clk_start(mod, io);
-+	if (ret < 0)
-+		return ret;
-+
- 	ssi->usrcnt++;
- 
- 	rsnd_mod_power_on(mod);
-@@ -1060,13 +1065,6 @@ static int rsnd_ssi_pio_pointer(struct rsnd_mod *mod,
- 	return 0;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 9d265447d654..4daa95c913d0 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1593,7 +1593,8 @@ static void br_multicast_port_group_rexmit(struct timer_list *t)
+ 	spin_unlock(&br->multicast_lock);
  }
  
--static int rsnd_ssi_prepare(struct rsnd_mod *mod,
--			    struct rsnd_dai_stream *io,
--			    struct rsnd_priv *priv)
+-static void br_mc_disabled_update(struct net_device *dev, bool value)
++static int br_mc_disabled_update(struct net_device *dev, bool value,
++				 struct netlink_ext_ack *extack)
+ {
+ 	struct switchdev_attr attr = {
+ 		.orig_dev = dev,
+@@ -1602,11 +1603,13 @@ static void br_mc_disabled_update(struct net_device *dev, bool value)
+ 		.u.mc_disabled = !value,
+ 	};
+ 
+-	switchdev_port_attr_set(dev, &attr, NULL);
++	return switchdev_port_attr_set(dev, &attr, extack);
+ }
+ 
+ int br_multicast_add_port(struct net_bridge_port *port)
+ {
++	int err;
++
+ 	port->multicast_router = MDB_RTR_TYPE_TEMP_QUERY;
+ 	port->multicast_eht_hosts_limit = BR_MCAST_DEFAULT_EHT_HOSTS_LIMIT;
+ 
+@@ -1618,8 +1621,12 @@ int br_multicast_add_port(struct net_bridge_port *port)
+ 	timer_setup(&port->ip6_own_query.timer,
+ 		    br_ip6_multicast_port_query_expired, 0);
+ #endif
+-	br_mc_disabled_update(port->dev,
+-			      br_opt_get(port->br, BROPT_MULTICAST_ENABLED));
++	err = br_mc_disabled_update(port->dev,
++				    br_opt_get(port->br,
++					       BROPT_MULTICAST_ENABLED),
++				    NULL);
++	if (err)
++		return err;
+ 
+ 	port->mcast_stats = netdev_alloc_pcpu_stats(struct bridge_mcast_stats);
+ 	if (!port->mcast_stats)
+@@ -3560,16 +3567,23 @@ static void br_multicast_start_querier(struct net_bridge *br,
+ 	rcu_read_unlock();
+ }
+ 
+-int br_multicast_toggle(struct net_bridge *br, unsigned long val)
++int br_multicast_toggle(struct net_bridge *br, unsigned long val,
++			struct netlink_ext_ack *extack)
+ {
+ 	struct net_bridge_port *port;
+ 	bool change_snoopers = false;
++	int err = 0;
+ 
+ 	spin_lock_bh(&br->multicast_lock);
+ 	if (!!br_opt_get(br, BROPT_MULTICAST_ENABLED) == !!val)
+ 		goto unlock;
+ 
+-	br_mc_disabled_update(br->dev, val);
++	err = br_mc_disabled_update(br->dev, val, extack);
++	if (err == -EOPNOTSUPP)
++		err = 0;
++	if (err)
++		goto unlock;
++
+ 	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, !!val);
+ 	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED)) {
+ 		change_snoopers = true;
+@@ -3607,7 +3621,7 @@ int br_multicast_toggle(struct net_bridge *br, unsigned long val)
+ 			br_multicast_leave_snoopers(br);
+ 	}
+ 
+-	return 0;
++	return err;
+ }
+ 
+ bool br_multicast_enabled(const struct net_device *dev)
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index f2b1343f8332..0456593aceec 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1293,7 +1293,9 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 	if (data[IFLA_BR_MCAST_SNOOPING]) {
+ 		u8 mcast_snooping = nla_get_u8(data[IFLA_BR_MCAST_SNOOPING]);
+ 
+-		br_multicast_toggle(br, mcast_snooping);
++		err = br_multicast_toggle(br, mcast_snooping, extack);
++		if (err)
++			return err;
+ 	}
+ 
+ 	if (data[IFLA_BR_MCAST_QUERY_USE_IFADDR]) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index d7d167e10b70..af3430c2d6ea 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -810,7 +810,8 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+ 			struct sk_buff *skb, bool local_rcv, bool local_orig);
+ int br_multicast_set_router(struct net_bridge *br, unsigned long val);
+ int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val);
+-int br_multicast_toggle(struct net_bridge *br, unsigned long val);
++int br_multicast_toggle(struct net_bridge *br, unsigned long val,
++			struct netlink_ext_ack *extack);
+ int br_multicast_set_querier(struct net_bridge *br, unsigned long val);
+ int br_multicast_set_hash_max(struct net_bridge *br, unsigned long val);
+ int br_multicast_set_igmp_version(struct net_bridge *br, unsigned long val);
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 072e29840082..381467b691d5 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -409,17 +409,11 @@ static ssize_t multicast_snooping_show(struct device *d,
+ 	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_MULTICAST_ENABLED));
+ }
+ 
+-static int toggle_multicast(struct net_bridge *br, unsigned long val,
+-			    struct netlink_ext_ack *extack)
 -{
--	return rsnd_ssi_master_clk_start(mod, io);
+-	return br_multicast_toggle(br, val);
 -}
 -
- static struct rsnd_mod_ops rsnd_ssi_pio_ops = {
- 	.name		= SSI_NAME,
- 	.probe		= rsnd_ssi_common_probe,
-@@ -1079,7 +1077,6 @@ static struct rsnd_mod_ops rsnd_ssi_pio_ops = {
- 	.pointer	= rsnd_ssi_pio_pointer,
- 	.pcm_new	= rsnd_ssi_pcm_new,
- 	.hw_params	= rsnd_ssi_hw_params,
--	.prepare	= rsnd_ssi_prepare,
- 	.get_status	= rsnd_ssi_get_status,
- };
- 
-@@ -1166,7 +1163,6 @@ static struct rsnd_mod_ops rsnd_ssi_dma_ops = {
- 	.pcm_new	= rsnd_ssi_pcm_new,
- 	.fallback	= rsnd_ssi_fallback,
- 	.hw_params	= rsnd_ssi_hw_params,
--	.prepare	= rsnd_ssi_prepare,
- 	.get_status	= rsnd_ssi_get_status,
- };
+ static ssize_t multicast_snooping_store(struct device *d,
+ 					struct device_attribute *attr,
+ 					const char *buf, size_t len)
+ {
+-	return store_bridge_parm(d, buf, len, toggle_multicast);
++	return store_bridge_parm(d, buf, len, br_multicast_toggle);
+ }
+ static DEVICE_ATTR_RW(multicast_snooping);
  
 -- 
 2.30.2
