@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A453374477
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:48:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55C3337447A
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235126AbhEEQ5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:57:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60398 "EHLO mail.kernel.org"
+        id S235867AbhEEQ54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:57:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236460AbhEEQyO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:54:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E302461979;
-        Wed,  5 May 2021 16:38:30 +0000 (UTC)
+        id S236473AbhEEQyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:54:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7674E6198C;
+        Wed,  5 May 2021 16:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232711;
-        bh=0Bk3nstHtjG3V4hoyPoe7jruEuZv2r2/30Mm86m3eM0=;
+        s=k20201202; t=1620232713;
+        bh=DntDYlhTprQok/dUuFWQqMopGwF3LQAAnQmON0phVLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SOGgNIDu+/Cl5Voe3aq3RwacBvdQuhQFt2N0/l/URbDhmpM93Y4tYqE4dba1AQbRo
-         Oz83gLrUtWBgmmh/wqTafCRlh67Vu/GFAhV0TIx1VkLXTXYZ9WGwbrQfaHciH1Kzaf
-         AWviaA6fM22S/xUVjAIhPDiSf2gcUJOXtGDWEPISGT+ddOCIkVVtusPDT19JmPHOFl
-         5snKKcS8FhvLFGL4/8hQN5F2Wko9cQ+qC4KGzdUVmm0pfftb6v3pWOK13zbymgscV8
-         a8oKU4I5w1xCfmOPXD6NWLlhucqVyZVEhCBsr4hbikfw9k6XJPOM3Oua7MIfO/klGk
-         cAZlKacg8S46w==
+        b=Gfd3GYoobr0p4udpMPOz+yzAv1j8QTj0RNn8XFZok/htsEhhXD4f9V+eUhfBEuDuB
+         6n3ur5EQoDFIUMd1W9YYj7PQTks4lZldrLabj0AM95j2PS7xA9A36XXGwQrJXCVIod
+         SeW5AI5HCdmI7nEdWdijLd5euEg5OuShwOUjZxWV91J3KxxPU8XVjGq0Z9NpcME5Ha
+         z8y3nbFL4bRQ2wHO+e386UjoxeVgTdG4QaddeSJOBGOn4oPjr2df+AwzFH43KfMrsg
+         iBiJSHIY23AgB6jdJ+tAGszzKyxDDUlVVvWTu1TZqQA1tIici1bl9CBbT0eFD5QE15
+         lJ0eTscfr+Q2g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 70/85] crypto: ccp: Free SEV device if SEV init fails
-Date:   Wed,  5 May 2021 12:36:33 -0400
-Message-Id: <20210505163648.3462507-70-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 71/85] wl3501_cs: Fix out-of-bounds warnings in wl3501_send_pkt
+Date:   Wed,  5 May 2021 12:36:34 -0400
+Message-Id: <20210505163648.3462507-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163648.3462507-1-sashal@kernel.org>
 References: <20210505163648.3462507-1-sashal@kernel.org>
@@ -44,47 +45,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 
-[ Upstream commit b61a9071dc72a3c709192c0c00ab87c2b3de1d94 ]
+[ Upstream commit 820aa37638a252b57967bdf4038a514b1ab85d45 ]
 
-Free the SEV device if later initialization fails.  The memory isn't
-technically leaked as it's tracked in the top-level device's devres
-list, but unless the top-level device is removed, the memory won't be
-freed and is effectively leaked.
+Fix the following out-of-bounds warnings by enclosing structure members
+daddr and saddr into new struct addr, in structures wl3501_md_req and
+wl3501_md_ind:
 
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210406224952.4177376-2-seanjc@google.com>
-Reviewed-by: Brijesh Singh <brijesh.singh@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
+
+Refactor the code, accordingly:
+
+$ pahole -C wl3501_md_req drivers/net/wireless/wl3501_cs.o
+struct wl3501_md_req {
+	u16                        next_blk;             /*     0     2 */
+	u8                         sig_id;               /*     2     1 */
+	u8                         routing;              /*     3     1 */
+	u16                        data;                 /*     4     2 */
+	u16                        size;                 /*     6     2 */
+	u8                         pri;                  /*     8     1 */
+	u8                         service_class;        /*     9     1 */
+	struct {
+		u8                 daddr[6];             /*    10     6 */
+		u8                 saddr[6];             /*    16     6 */
+	} addr;                                          /*    10    12 */
+
+	/* size: 22, cachelines: 1, members: 8 */
+	/* last cacheline: 22 bytes */
+};
+
+$ pahole -C wl3501_md_ind drivers/net/wireless/wl3501_cs.o
+struct wl3501_md_ind {
+	u16                        next_blk;             /*     0     2 */
+	u8                         sig_id;               /*     2     1 */
+	u8                         routing;              /*     3     1 */
+	u16                        data;                 /*     4     2 */
+	u16                        size;                 /*     6     2 */
+	u8                         reception;            /*     8     1 */
+	u8                         pri;                  /*     9     1 */
+	u8                         service_class;        /*    10     1 */
+	struct {
+		u8                 daddr[6];             /*    11     6 */
+		u8                 saddr[6];             /*    17     6 */
+	} addr;                                          /*    11    12 */
+
+	/* size: 24, cachelines: 1, members: 9 */
+	/* padding: 1 */
+	/* last cacheline: 24 bytes */
+};
+
+The problem is that the original code is trying to copy data into a
+couple of arrays adjacent to each other in a single call to memcpy().
+Now that a new struct _addr_ enclosing those two adjacent arrays
+is introduced, memcpy() doesn't overrun the length of &sig.daddr[0]
+and &sig.daddr, because the address of the new struct object _addr_
+is used, instead.
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/d260fe56aed7112bff2be5b4d152d03ad7b78e78.1618442265.git.gustavoars@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sev-dev.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/wl3501.h    | 12 ++++++++----
+ drivers/net/wireless/wl3501_cs.c | 10 ++++++----
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index 476113e12489..d0eb07afc526 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -986,7 +986,7 @@ int sev_dev_init(struct psp_device *psp)
- 	if (!sev->vdata) {
- 		ret = -ENODEV;
- 		dev_err(dev, "sev: missing driver data\n");
--		goto e_err;
-+		goto e_sev;
- 	}
+diff --git a/drivers/net/wireless/wl3501.h b/drivers/net/wireless/wl3501.h
+index b446cb369557..31ebef3e7ed4 100644
+--- a/drivers/net/wireless/wl3501.h
++++ b/drivers/net/wireless/wl3501.h
+@@ -471,8 +471,10 @@ struct wl3501_md_req {
+ 	u16	size;
+ 	u8	pri;
+ 	u8	service_class;
+-	u8	daddr[ETH_ALEN];
+-	u8	saddr[ETH_ALEN];
++	struct {
++		u8	daddr[ETH_ALEN];
++		u8	saddr[ETH_ALEN];
++	} addr;
+ };
  
- 	psp_set_sev_irq_handler(psp, sev_irq_handler, sev);
-@@ -1001,6 +1001,8 @@ int sev_dev_init(struct psp_device *psp)
+ struct wl3501_md_ind {
+@@ -484,8 +486,10 @@ struct wl3501_md_ind {
+ 	u8	reception;
+ 	u8	pri;
+ 	u8	service_class;
+-	u8	daddr[ETH_ALEN];
+-	u8	saddr[ETH_ALEN];
++	struct {
++		u8	daddr[ETH_ALEN];
++		u8	saddr[ETH_ALEN];
++	} addr;
+ };
  
- e_irq:
- 	psp_clear_sev_irq_handler(psp);
-+e_sev:
-+	devm_kfree(dev, sev);
- e_err:
- 	psp->sev_data = NULL;
+ struct wl3501_md_confirm {
+diff --git a/drivers/net/wireless/wl3501_cs.c b/drivers/net/wireless/wl3501_cs.c
+index 026e88b80bfc..c3c859c4b2c7 100644
+--- a/drivers/net/wireless/wl3501_cs.c
++++ b/drivers/net/wireless/wl3501_cs.c
+@@ -471,6 +471,7 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
+ 	struct wl3501_md_req sig = {
+ 		.sig_id = WL3501_SIG_MD_REQ,
+ 	};
++	size_t sig_addr_len = sizeof(sig.addr);
+ 	u8 *pdata = (char *)data;
+ 	int rc = -EIO;
  
+@@ -486,9 +487,9 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
+ 			goto out;
+ 		}
+ 		rc = 0;
+-		memcpy(&sig.daddr[0], pdata, 12);
+-		pktlen = len - 12;
+-		pdata += 12;
++		memcpy(&sig.addr, pdata, sig_addr_len);
++		pktlen = len - sig_addr_len;
++		pdata += sig_addr_len;
+ 		sig.data = bf;
+ 		if (((*pdata) * 256 + (*(pdata + 1))) > 1500) {
+ 			u8 addr4[ETH_ALEN] = {
+@@ -982,7 +983,8 @@ static inline void wl3501_md_ind_interrupt(struct net_device *dev,
+ 	} else {
+ 		skb->dev = dev;
+ 		skb_reserve(skb, 2); /* IP headers on 16 bytes boundaries */
+-		skb_copy_to_linear_data(skb, (unsigned char *)&sig.daddr, 12);
++		skb_copy_to_linear_data(skb, (unsigned char *)&sig.addr,
++					sizeof(sig.addr));
+ 		wl3501_receive(this, skb->data, pkt_len);
+ 		skb_put(skb, pkt_len);
+ 		skb->protocol	= eth_type_trans(skb, dev);
 -- 
 2.30.2
 
