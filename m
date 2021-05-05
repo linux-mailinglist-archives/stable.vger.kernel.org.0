@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 361143742C9
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:48:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D13363742B2
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236239AbhEEQsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:48:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50342 "EHLO mail.kernel.org"
+        id S236187AbhEEQrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:47:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236042AbhEEQp2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:45:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7783D61950;
-        Wed,  5 May 2021 16:36:21 +0000 (UTC)
+        id S236051AbhEEQpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:45:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE9736193F;
+        Wed,  5 May 2021 16:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232582;
-        bh=9mVVTIyO3GoraZ4daLg8NQq3Rb1A6AFtHrKHAh7LU78=;
+        s=k20201202; t=1620232583;
+        bh=0Bk3nstHtjG3V4hoyPoe7jruEuZv2r2/30Mm86m3eM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oPi9HIbwX+3x1gZBeE0ljFIt857SyvWaY6OliNDPoPvf6mWcpoYXhFIuvPees+ENe
-         bY/ClVxVVv93nNCcg/p6aAXpoTAjTuLSFjUInQSItX5DHw1AXZsRKfYdyUhVGCxQTe
-         qe4pY3CD6i6ej61ZeNp0+2HBUnCg4iWqfWwiX+RILMNjjdHtdK9vWjD3V0fSoa7S0b
-         uRWYP5lSNK4FV1uVCL3eEE297GwIoLQD1VGjqwXiDl90g1vWnhjAJv0wDieRS3WHTX
-         WR72SrC5xdwUH+FdDO71v3iU+93JdH2Y1ZG7PyW39YnSu3OUOIrYVOZ9gv3ANZa4eW
-         MvJVtCxwz4BXQ==
+        b=I2RsiHxYN0kNjXeIVz2mGvOVSLM20J6qLrZPRvOaWMn3ETmh8wSxXZfLkTxsk7Lng
+         IP/LeaBHSWH9NJIyZxGOdNnaeffy+79m157r/jydJHHqCOfeZluKWr/3b7r9XlRw52
+         jW+6MyfMMdDwbC4ZYyrfKdT20ZhnHq2Z2W4lSJ9cbsUJAlDE6BC6SyHstb4jbCa/6V
+         P0sJFQf/VcIOUBiZtJjsIi5ChYNwyzOY4Nq9CgPRwI2CjtRk324aZcEKXKDh7l56iD
+         dQF8SfWqxhUUjnRDbH3y0UmoMo27afoWCfuiAD7kZrqbBo8Jq5RfxckuvvKsNhO7SB
+         Y4u/0in1RWeHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.11 088/104] mt76: mt7615: fix entering driver-own state on mt7663
-Date:   Wed,  5 May 2021 12:33:57 -0400
-Message-Id: <20210505163413.3461611-88-sashal@kernel.org>
+Cc:     Sean Christopherson <seanjc@google.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 089/104] crypto: ccp: Free SEV device if SEV init fails
+Date:   Wed,  5 May 2021 12:33:58 -0400
+Message-Id: <20210505163413.3461611-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163413.3461611-1-sashal@kernel.org>
 References: <20210505163413.3461611-1-sashal@kernel.org>
@@ -43,45 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 5c7d374444afdeb9dd534a37c4f6c13af032da0c ]
+[ Upstream commit b61a9071dc72a3c709192c0c00ab87c2b3de1d94 ]
 
-Fixes hardware wakeup issues
+Free the SEV device if later initialization fails.  The memory isn't
+technically leaked as it's tracked in the top-level device's devres
+list, but unless the top-level device is removed, the memory won't be
+freed and is effectively leaked.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210406224952.4177376-2-seanjc@google.com>
+Reviewed-by: Brijesh Singh <brijesh.singh@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mcu.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/crypto/ccp/sev-dev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-index c13547841a4e..4c7083d17418 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-@@ -291,12 +291,20 @@ static int mt7615_mcu_drv_pmctrl(struct mt7615_dev *dev)
- 	u32 addr;
- 	int err;
+diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
+index 476113e12489..d0eb07afc526 100644
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -986,7 +986,7 @@ int sev_dev_init(struct psp_device *psp)
+ 	if (!sev->vdata) {
+ 		ret = -ENODEV;
+ 		dev_err(dev, "sev: missing driver data\n");
+-		goto e_err;
++		goto e_sev;
+ 	}
  
--	addr = is_mt7663(mdev) ? MT_PCIE_DOORBELL_PUSH : MT_CFG_LPCR_HOST;
-+	if (is_mt7663(mdev)) {
-+		/* Clear firmware own via N9 eint */
-+		mt76_wr(dev, MT_PCIE_DOORBELL_PUSH, MT_CFG_LPCR_HOST_DRV_OWN);
-+		mt76_poll(dev, MT_CONN_ON_MISC, MT_CFG_LPCR_HOST_FW_OWN, 0, 3000);
-+
-+		addr = MT_CONN_HIF_ON_LPCTL;
-+	} else {
-+		addr = MT_CFG_LPCR_HOST;
-+	}
-+
- 	mt76_wr(dev, addr, MT_CFG_LPCR_HOST_DRV_OWN);
+ 	psp_set_sev_irq_handler(psp, sev_irq_handler, sev);
+@@ -1001,6 +1001,8 @@ int sev_dev_init(struct psp_device *psp)
  
- 	mt7622_trigger_hif_int(dev, true);
+ e_irq:
+ 	psp_clear_sev_irq_handler(psp);
++e_sev:
++	devm_kfree(dev, sev);
+ e_err:
+ 	psp->sev_data = NULL;
  
--	addr = is_mt7663(mdev) ? MT_CONN_HIF_ON_LPCTL : MT_CFG_LPCR_HOST;
- 	err = !mt76_poll_msec(dev, addr, MT_CFG_LPCR_HOST_FW_OWN, 0, 3000);
- 
- 	mt7622_trigger_hif_int(dev, false);
 -- 
 2.30.2
 
