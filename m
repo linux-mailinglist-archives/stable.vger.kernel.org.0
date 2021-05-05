@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E7B373A25
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0172373A2A
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbhEEMHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47908 "EHLO mail.kernel.org"
+        id S233525AbhEEMHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232696AbhEEMH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:07:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8DF661222;
-        Wed,  5 May 2021 12:06:29 +0000 (UTC)
+        id S233483AbhEEMH3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:07:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 393F66044F;
+        Wed,  5 May 2021 12:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216390;
-        bh=1FcZrEB44rUuVDj+zgYgtimyrX5KZE9rkoRnh73W/nk=;
+        s=korg; t=1620216392;
+        bh=mJBEZcCFlqlxZBalN96M9xqsgWKBLCWrOvh5X0aKBtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6Opf1M7soIPf8lvvt7V9JMMOyaDPp15GDh/uWKSY1uxaevjMWwijL+m/Q0XlQTpY
-         XYlOKWJhCuVwQjfpNsNnVVbcbesWRo67b0l7kHdbqp48Uq6XrTf5DZk6KspJsYWIE2
-         BF+pz7wm36VDWHuwJQf7xhP1nWFd6LJUDcgxS2Rk=
+        b=ZKbi+oI+MSKYuAm+bbp7i9pZAXbvhe7sIlt8juYdH1w1O0QsrMc8bncUkJTDI/7XU
+         SkgtyEqv9Kos/D+Vh6z66cKpWFX8mGXsexX7a1VNhwr08OIVckvHTe6d/J+yi3++ip
+         Q5BtqZPD2bi5+wgx/1Vso+Locj4hEAVzKXps6lIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
         Jianxiong Gao <jxgao@google.com>,
         Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: [PATCH 5.10 16/29] swiotlb: clean up swiotlb_tbl_unmap_single
-Date:   Wed,  5 May 2021 14:05:19 +0200
-Message-Id: <20210505112326.736640995@linuxfoundation.org>
+Subject: [PATCH 5.10 17/29] swiotlb: refactor swiotlb_tbl_map_single
+Date:   Wed,  5 May 2021 14:05:20 +0200
+Message-Id: <20210505112326.768975426@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
 References: <20210505112326.195493232@linuxfoundation.org>
@@ -42,12 +42,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jianxiong Gao <jxgao@google.com>
 
-commit: ca10d0f8e530600ec63c603dbace2c30927d70b7
+commit: 26a7e094783d482f3e125f09945a5bb1d867b2e6
 
-swiotlb: clean up swiotlb_tbl_unmap_single
-
-Remove a layer of pointless indentation, replace a hard to follow
-ternary expression with a plain if/else.
+Split out a bunch of a self-contained helpers to make the function easier
+to follow.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Jianxiong Gao <jxgao@google.com>
@@ -56,59 +54,233 @@ Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/swiotlb.c |   41 +++++++++++++++++++++--------------------
- 1 file changed, 21 insertions(+), 20 deletions(-)
+ kernel/dma/swiotlb.c |  179 +++++++++++++++++++++++++--------------------------
+ 1 file changed, 89 insertions(+), 90 deletions(-)
 
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -610,28 +610,29 @@ void swiotlb_tbl_unmap_single(struct dev
- 	 * with slots below and above the pool being returned.
- 	 */
- 	spin_lock_irqsave(&io_tlb_lock, flags);
--	{
--		count = ((index + nslots) < ALIGN(index + 1, IO_TLB_SEGSIZE) ?
--			 io_tlb_list[index + nslots] : 0);
--		/*
--		 * Step 1: return the slots to the free list, merging the
--		 * slots with superceeding slots
--		 */
--		for (i = index + nslots - 1; i >= index; i--) {
--			io_tlb_list[i] = ++count;
--			io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
--		}
--		/*
--		 * Step 2: merge the returned slots with the preceding slots,
--		 * if available (non zero)
--		 */
--		for (i = index - 1;
--		     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
--		     io_tlb_list[i]; i--)
--			io_tlb_list[i] = ++count;
-+	if (index + nslots < ALIGN(index + 1, IO_TLB_SEGSIZE))
-+		count = io_tlb_list[index + nslots];
-+	else
-+		count = 0;
- 
--		io_tlb_used -= nslots;
-+	/*
-+	 * Step 1: return the slots to the free list, merging the slots with
-+	 * superceeding slots
-+	 */
-+	for (i = index + nslots - 1; i >= index; i--) {
-+		io_tlb_list[i] = ++count;
-+		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
+@@ -452,134 +452,133 @@ static void swiotlb_bounce(phys_addr_t o
  	}
+ }
+ 
+-phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t orig_addr,
+-		size_t mapping_size, size_t alloc_size,
+-		enum dma_data_direction dir, unsigned long attrs)
+-{
+-	dma_addr_t tbl_dma_addr = phys_to_dma_unencrypted(hwdev, io_tlb_start);
+-	unsigned long flags;
+-	phys_addr_t tlb_addr;
+-	unsigned int nslots, stride, index, wrap;
+-	int i;
+-	unsigned long mask;
+-	unsigned long offset_slots;
+-	unsigned long max_slots;
+-	unsigned long tmp_io_tlb_used;
++#define slot_addr(start, idx)	((start) + ((idx) << IO_TLB_SHIFT))
+ 
+-	if (no_iotlb_memory)
+-		panic("Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer");
+-
+-	if (mem_encrypt_active())
+-		pr_warn_once("Memory encryption is active and system is using DMA bounce buffers\n");
+-
+-	if (mapping_size > alloc_size) {
+-		dev_warn_once(hwdev, "Invalid sizes (mapping: %zd bytes, alloc: %zd bytes)",
+-			      mapping_size, alloc_size);
+-		return (phys_addr_t)DMA_MAPPING_ERROR;
+-	}
+-
+-	mask = dma_get_seg_boundary(hwdev);
++/*
++ * Carefully handle integer overflow which can occur when boundary_mask == ~0UL.
++ */
++static inline unsigned long get_max_slots(unsigned long boundary_mask)
++{
++	if (boundary_mask == ~0UL)
++		return 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
++	return nr_slots(boundary_mask + 1);
++}
+ 
+-	tbl_dma_addr &= mask;
++static unsigned int wrap_index(unsigned int index)
++{
++	if (index >= io_tlb_nslabs)
++		return 0;
++	return index;
++}
+ 
+-	offset_slots = nr_slots(tbl_dma_addr);
++/*
++ * Find a suitable number of IO TLB entries size that will fit this request and
++ * allocate a buffer from that IO TLB pool.
++ */
++static int find_slots(struct device *dev, size_t alloc_size)
++{
++	unsigned long boundary_mask = dma_get_seg_boundary(dev);
++	dma_addr_t tbl_dma_addr =
++		phys_to_dma_unencrypted(dev, io_tlb_start) & boundary_mask;
++	unsigned long max_slots = get_max_slots(boundary_mask);
++	unsigned int nslots = nr_slots(alloc_size), stride = 1;
++	unsigned int index, wrap, count = 0, i;
++	unsigned long flags;
+ 
+-	/*
+-	 * Carefully handle integer overflow which can occur when mask == ~0UL.
+-	 */
+-	max_slots = mask + 1
+-		    ? nr_slots(mask + 1)
+-		    : 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
++	BUG_ON(!nslots);
+ 
+ 	/*
+ 	 * For mappings greater than or equal to a page, we limit the stride
+ 	 * (and hence alignment) to a page size.
+ 	 */
+-	nslots = nr_slots(alloc_size);
+ 	if (alloc_size >= PAGE_SIZE)
+-		stride = (1 << (PAGE_SHIFT - IO_TLB_SHIFT));
+-	else
+-		stride = 1;
+-
+-	BUG_ON(!nslots);
++		stride <<= (PAGE_SHIFT - IO_TLB_SHIFT);
+ 
+-	/*
+-	 * Find suitable number of IO TLB entries size that will fit this
+-	 * request and allocate a buffer from that IO TLB pool.
+-	 */
+ 	spin_lock_irqsave(&io_tlb_lock, flags);
+-
+ 	if (unlikely(nslots > io_tlb_nslabs - io_tlb_used))
+ 		goto not_found;
+ 
+-	index = ALIGN(io_tlb_index, stride);
+-	if (index >= io_tlb_nslabs)
+-		index = 0;
+-	wrap = index;
+-
++	index = wrap = wrap_index(ALIGN(io_tlb_index, stride));
+ 	do {
+-		while (iommu_is_span_boundary(index, nslots, offset_slots,
+-					      max_slots)) {
+-			index += stride;
+-			if (index >= io_tlb_nslabs)
+-				index = 0;
+-			if (index == wrap)
+-				goto not_found;
+-		}
+-
+ 		/*
+ 		 * If we find a slot that indicates we have 'nslots' number of
+ 		 * contiguous buffers, we allocate the buffers from that slot
+ 		 * and mark the entries as '0' indicating unavailable.
+ 		 */
+-		if (io_tlb_list[index] >= nslots) {
+-			int count = 0;
+-
+-			for (i = index; i < (int) (index + nslots); i++)
+-				io_tlb_list[i] = 0;
+-			for (i = index - 1;
+-			     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
+-			     io_tlb_list[i]; i--)
+-				io_tlb_list[i] = ++count;
+-			tlb_addr = io_tlb_start + (index << IO_TLB_SHIFT);
+-
+-			/*
+-			 * Update the indices to avoid searching in the next
+-			 * round.
+-			 */
+-			io_tlb_index = ((index + nslots) < io_tlb_nslabs
+-					? (index + nslots) : 0);
+-
+-			goto found;
++		if (!iommu_is_span_boundary(index, nslots,
++					    nr_slots(tbl_dma_addr),
++					    max_slots)) {
++			if (io_tlb_list[index] >= nslots)
++				goto found;
+ 		}
+-		index += stride;
+-		if (index >= io_tlb_nslabs)
+-			index = 0;
++		index = wrap_index(index + stride);
+ 	} while (index != wrap);
+ 
+ not_found:
+-	tmp_io_tlb_used = io_tlb_used;
+-
+ 	spin_unlock_irqrestore(&io_tlb_lock, flags);
+-	if (!(attrs & DMA_ATTR_NO_WARN) && printk_ratelimit())
+-		dev_warn(hwdev, "swiotlb buffer is full (sz: %zd bytes), total %lu (slots), used %lu (slots)\n",
+-			 alloc_size, io_tlb_nslabs, tmp_io_tlb_used);
+-	return (phys_addr_t)DMA_MAPPING_ERROR;
++	return -1;
++
+ found:
++	for (i = index; i < index + nslots; i++)
++		io_tlb_list[i] = 0;
++	for (i = index - 1;
++	     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
++	     io_tlb_list[i]; i--)
++		io_tlb_list[i] = ++count;
 +
 +	/*
-+	 * Step 2: merge the returned slots with the preceding slots, if
-+	 * available (non zero)
++	 * Update the indices to avoid searching in the next round.
 +	 */
-+	for (i = index - 1;
-+	     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 && io_tlb_list[i];
-+	     i--)
-+		io_tlb_list[i] = ++count;
-+	io_tlb_used -= nslots;
++	if (index + nslots < io_tlb_nslabs)
++		io_tlb_index = index + nslots;
++	else
++		io_tlb_index = 0;
+ 	io_tlb_used += nslots;
++
  	spin_unlock_irqrestore(&io_tlb_lock, flags);
++	return index;
++}
++
++phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
++		size_t mapping_size, size_t alloc_size,
++		enum dma_data_direction dir, unsigned long attrs)
++{
++	unsigned int index, i;
++	phys_addr_t tlb_addr;
++
++	if (no_iotlb_memory)
++		panic("Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer");
++
++	if (mem_encrypt_active())
++		pr_warn_once("Memory encryption is active and system is using DMA bounce buffers\n");
++
++	if (mapping_size > alloc_size) {
++		dev_warn_once(dev, "Invalid sizes (mapping: %zd bytes, alloc: %zd bytes)",
++			      mapping_size, alloc_size);
++		return (phys_addr_t)DMA_MAPPING_ERROR;
++	}
++
++	index = find_slots(dev, alloc_size);
++	if (index == -1) {
++		if (!(attrs & DMA_ATTR_NO_WARN))
++			dev_warn_ratelimited(dev,
++	"swiotlb buffer is full (sz: %zd bytes), total %lu (slots), used %lu (slots)\n",
++				 alloc_size, io_tlb_nslabs, io_tlb_used);
++		return (phys_addr_t)DMA_MAPPING_ERROR;
++	}
+ 
+ 	/*
+ 	 * Save away the mapping from the original address to the DMA address.
+ 	 * This is needed when we sync the memory.  Then we sync the buffer if
+ 	 * needed.
+ 	 */
+-	for (i = 0; i < nslots; i++)
+-		io_tlb_orig_addr[index+i] = orig_addr + (i << IO_TLB_SHIFT);
++	for (i = 0; i < nr_slots(alloc_size); i++)
++		io_tlb_orig_addr[index + i] = slot_addr(orig_addr, i);
++
++	tlb_addr = slot_addr(io_tlb_start, index);
+ 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+ 	    (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
+ 		swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
+-
+ 	return tlb_addr;
  }
  
 
