@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 395673739CF
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B13AF3739D3
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232355AbhEEMFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:05:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42132 "EHLO mail.kernel.org"
+        id S233055AbhEEMFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:05:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231300AbhEEMFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:05:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B72B861154;
-        Wed,  5 May 2021 12:04:37 +0000 (UTC)
+        id S233049AbhEEMFm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:05:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7096C61154;
+        Wed,  5 May 2021 12:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216278;
-        bh=4Gd08GrUQlZo744reVOwq1co2zM52J3r8/eig9YH4wA=;
+        s=korg; t=1620216286;
+        bh=zv8cpyGCBWmAy358cWi5yNDFsCmq+yjbXr/esoa6Plg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AxpHatG3e8P5w/L842P2eYGdcJM0pREQS5gCo1FUSlVOSmOJ+lcQ/jTSPZOTatoar
-         xt3ARFpB7lwSxTb9NE/J2BqArjkNnuVmWz5MyDirH97go22YFdlEiDvKFTY5XtVNED
-         qQcIci4CvUfi79Hhcv6NvCso0YdLWV0eDkvwGQng=
+        b=zFeshLZeCTbz68Regc+gjuIIchh4uj9AkhAOjLH3x8jIe7MB9ozN0KfBxSNqqLQaR
+         avD01SK9a6JZCPenDEYwXK1O92NJGdPcRAZGGjopQQEkahNAGp7geaRPdFxdzp/nnK
+         /WYdUW4xyRVNKKB4RTbT0Sz9VPadGrnR0UE/qFPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Romain Naour <romain.naour@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.4 01/21] mips: Do not include hi and lo in clobber list for R6
-Date:   Wed,  5 May 2021 14:04:15 +0200
-Message-Id: <20210505112324.778328824@linuxfoundation.org>
+        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Mike Rapoport <rppt@linux.ibm.com>
+Subject: [PATCH 5.4 02/21] ACPI: tables: x86: Reserve memory occupied by ACPI tables
+Date:   Wed,  5 May 2021 14:04:16 +0200
+Message-Id: <20210505112324.809478956@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112324.729798712@linuxfoundation.org>
 References: <20210505112324.729798712@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,106 +40,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Romain Naour <romain.naour@gmail.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 1d7ba0165d8206ac073f7ac3b14fc0836b66eae7 upstream.
+commit 1a1c130ab7575498eed5bcf7220037ae09cd1f8a upstream.
 
->From [1]
-"GCC 10 (PR 91233) won't silently allow registers that are not
-architecturally available to be present in the clobber list anymore,
-resulting in build failure for mips*r6 targets in form of:
-...
-.../sysdep.h:146:2: error: the register ‘lo’ cannot be clobbered in ‘asm’ for the current target
-  146 |  __asm__ volatile (      \
-      |  ^~~~~~~
+The following problem has been reported by George Kennedy:
 
-This is because base R6 ISA doesn't define hi and lo registers w/o DSP
-extension. This patch provides the alternative clobber list for r6 targets
-that won't include those registers."
+ Since commit 7fef431be9c9 ("mm/page_alloc: place pages to tail
+ in __free_pages_core()") the following use after free occurs
+ intermittently when ACPI tables are accessed.
 
-Since kernel 5.4 and mips support for generic vDSO [2], the kernel fail to
-build for mips r6 cpus with gcc 10 for the same reason as glibc.
+ BUG: KASAN: use-after-free in ibft_init+0x134/0xc49
+ Read of size 4 at addr ffff8880be453004 by task swapper/0/1
+ CPU: 3 PID: 1 Comm: swapper/0 Not tainted 5.12.0-rc1-7a7fd0d #1
+ Call Trace:
+  dump_stack+0xf6/0x158
+  print_address_description.constprop.9+0x41/0x60
+  kasan_report.cold.14+0x7b/0xd4
+  __asan_report_load_n_noabort+0xf/0x20
+  ibft_init+0x134/0xc49
+  do_one_initcall+0xc4/0x3e0
+  kernel_init_freeable+0x5af/0x66b
+  kernel_init+0x16/0x1d0
+  ret_from_fork+0x22/0x30
 
-[1] https://sourceware.org/git/?p=glibc.git;a=commit;h=020b2a97bb15f807c0482f0faee2184ed05bcad8
-[2] '24640f233b46 ("mips: Add support for generic vDSO")'
+ ACPI tables mapped via kmap() do not have their mapped pages
+ reserved and the pages can be "stolen" by the buddy allocator.
 
-Signed-off-by: Romain Naour <romain.naour@gmail.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Apparently, on the affected system, the ACPI table in question is
+not located in "reserved" memory, like ACPI NVS or ACPI Data, that
+will not be used by the buddy allocator, so the memory occupied by
+that table has to be explicitly reserved to prevent the buddy
+allocator from using it.
+
+In order to address this problem, rearrange the initialization of the
+ACPI tables on x86 to locate the initial tables earlier and reserve
+the memory occupied by them.
+
+The other architectures using ACPI should not be affected by this
+change.
+
+Link: https://lore.kernel.org/linux-acpi/1614802160-29362-1-git-send-email-george.kennedy@oracle.com/
+Reported-by: George Kennedy <george.kennedy@oracle.com>
+Tested-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/vdso/gettimeofday.h |   26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ arch/x86/kernel/acpi/boot.c |   25 ++++++++++++-------------
+ arch/x86/kernel/setup.c     |    8 +++-----
+ drivers/acpi/tables.c       |   42 +++++++++++++++++++++++++++++++++++++++---
+ include/linux/acpi.h        |    9 ++++++++-
+ 4 files changed, 62 insertions(+), 22 deletions(-)
 
---- a/arch/mips/include/asm/vdso/gettimeofday.h
-+++ b/arch/mips/include/asm/vdso/gettimeofday.h
-@@ -26,6 +26,12 @@
- 
- #define __VDSO_USE_SYSCALL		ULLONG_MAX
- 
-+#if MIPS_ISA_REV < 6
-+#define VDSO_SYSCALL_CLOBBERS "hi", "lo",
-+#else
-+#define VDSO_SYSCALL_CLOBBERS
-+#endif
+--- a/arch/x86/kernel/acpi/boot.c
++++ b/arch/x86/kernel/acpi/boot.c
+@@ -1553,10 +1553,18 @@ void __init acpi_boot_table_init(void)
+ 	/*
+ 	 * Initialize the ACPI boot-time table parser.
+ 	 */
+-	if (acpi_table_init()) {
++	if (acpi_locate_initial_tables())
+ 		disable_acpi();
+-		return;
+-	}
++	else
++		acpi_reserve_initial_tables();
++}
 +
- static __always_inline long gettimeofday_fallback(
- 				struct __kernel_old_timeval *_tv,
- 				struct timezone *_tz)
-@@ -41,7 +47,9 @@ static __always_inline long gettimeofday
- 	: "=r" (ret), "=r" (error)
- 	: "r" (tv), "r" (tz), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
++int __init early_acpi_boot_init(void)
++{
++	if (acpi_disabled)
++		return 1;
++
++	acpi_table_init_complete();
  
- 	return error ? -ret : ret;
- }
-@@ -65,7 +73,9 @@ static __always_inline long clock_gettim
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
+ 	acpi_table_parse(ACPI_SIG_BOOT, acpi_parse_sbf);
  
- 	return error ? -ret : ret;
- }
-@@ -89,7 +99,9 @@ static __always_inline int clock_getres_
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
+@@ -1569,18 +1577,9 @@ void __init acpi_boot_table_init(void)
+ 		} else {
+ 			printk(KERN_WARNING PREFIX "Disabling ACPI support\n");
+ 			disable_acpi();
+-			return;
++			return 1;
+ 		}
+ 	}
+-}
+-
+-int __init early_acpi_boot_init(void)
+-{
+-	/*
+-	 * If acpi_disabled, bail out
+-	 */
+-	if (acpi_disabled)
+-		return 1;
  
- 	return error ? -ret : ret;
- }
-@@ -113,7 +125,9 @@ static __always_inline long clock_gettim
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
+ 	/*
+ 	 * Process the Multiple APIC Description Table (MADT), if present
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -1117,6 +1117,9 @@ void __init setup_arch(char **cmdline_p)
  
- 	return error ? -ret : ret;
- }
-@@ -133,7 +147,9 @@ static __always_inline int clock_getres3
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
+ 	cleanup_highmap();
  
- 	return error ? -ret : ret;
++	/* Look for ACPI tables and reserve memory occupied by them. */
++	acpi_boot_table_init();
++
+ 	memblock_set_current_limit(ISA_END_ADDRESS);
+ 	e820__memblock_setup();
+ 
+@@ -1203,11 +1206,6 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	early_platform_quirks();
+ 
+-	/*
+-	 * Parse the ACPI tables for possible boot-time SMP configuration.
+-	 */
+-	acpi_boot_table_init();
+-
+ 	early_acpi_boot_init();
+ 
+ 	initmem_init();
+--- a/drivers/acpi/tables.c
++++ b/drivers/acpi/tables.c
+@@ -791,7 +791,7 @@ acpi_status acpi_os_table_override(struc
  }
+ 
+ /*
+- * acpi_table_init()
++ * acpi_locate_initial_tables()
+  *
+  * find RSDP, find and checksum SDT/XSDT.
+  * checksum all tables, print SDT/XSDT
+@@ -799,7 +799,7 @@ acpi_status acpi_os_table_override(struc
+  * result: sdt_entry[] is initialized
+  */
+ 
+-int __init acpi_table_init(void)
++int __init acpi_locate_initial_tables(void)
+ {
+ 	acpi_status status;
+ 
+@@ -814,9 +814,45 @@ int __init acpi_table_init(void)
+ 	status = acpi_initialize_tables(initial_tables, ACPI_MAX_TABLES, 0);
+ 	if (ACPI_FAILURE(status))
+ 		return -EINVAL;
+-	acpi_table_initrd_scan();
+ 
++	return 0;
++}
++
++void __init acpi_reserve_initial_tables(void)
++{
++	int i;
++
++	for (i = 0; i < ACPI_MAX_TABLES; i++) {
++		struct acpi_table_desc *table_desc = &initial_tables[i];
++		u64 start = table_desc->address;
++		u64 size = table_desc->length;
++
++		if (!start || !size)
++			break;
++
++		pr_info("Reserving %4s table memory at [mem 0x%llx-0x%llx]\n",
++			table_desc->signature.ascii, start, start + size - 1);
++
++		memblock_reserve(start, size);
++	}
++}
++
++void __init acpi_table_init_complete(void)
++{
++	acpi_table_initrd_scan();
+ 	check_multiple_madt();
++}
++
++int __init acpi_table_init(void)
++{
++	int ret;
++
++	ret = acpi_locate_initial_tables();
++	if (ret)
++		return ret;
++
++	acpi_table_init_complete();
++
+ 	return 0;
+ }
+ 
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -222,10 +222,14 @@ void __iomem *__acpi_map_table(unsigned
+ void __acpi_unmap_table(void __iomem *map, unsigned long size);
+ int early_acpi_boot_init(void);
+ int acpi_boot_init (void);
++void acpi_boot_table_prepare (void);
+ void acpi_boot_table_init (void);
+ int acpi_mps_check (void);
+ int acpi_numa_init (void);
+ 
++int acpi_locate_initial_tables (void);
++void acpi_reserve_initial_tables (void);
++void acpi_table_init_complete (void);
+ int acpi_table_init (void);
+ int acpi_table_parse(char *id, acpi_tbl_table_handler handler);
+ int __init acpi_table_parse_entries(char *id, unsigned long table_size,
+@@ -759,9 +763,12 @@ static inline int acpi_boot_init(void)
+ 	return 0;
+ }
+ 
++static inline void acpi_boot_table_prepare(void)
++{
++}
++
+ static inline void acpi_boot_table_init(void)
+ {
+-	return;
+ }
+ 
+ static inline int acpi_mps_check(void)
 
 
