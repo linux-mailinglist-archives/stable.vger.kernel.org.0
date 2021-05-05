@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84A62374543
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C734A374549
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237942AbhEEREe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:04:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49692 "EHLO mail.kernel.org"
+        id S238002AbhEEREg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:04:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237886AbhEERBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:01:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 788F461A33;
-        Wed,  5 May 2021 16:40:48 +0000 (UTC)
+        id S237903AbhEERBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:01:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 218EC61A2D;
+        Wed,  5 May 2021 16:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232849;
-        bh=2OMhfOSE2hc5YlXeGMX+M4+Zqe3M8J8R/W0DHF6u5ok=;
+        s=k20201202; t=1620232851;
+        bh=Y70RnH11d1XJD+3iLneAnjF4aLY0S1a2wNl5ugiGzqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUqRWnRz+bAOXrWpVhUfiZwowItzIFW5gKFpN2HTAU3XyyhHA4956zb8PCBDa3z8q
-         DRUp3LfYB7lr5i9TmdbUq8DUDhaVcGfYzvM9cH8rRNii55zHvDIT0VjIZZCHWn4/Rk
-         s/Se8NMMyI+d9YNd8jCRAg9Sgn9iYmuTVeR6JEtpuGMjSkdzlZE9LzxNa6IYYtvtF5
-         oqmO742FW8aKcE7j1u9G0g/5Qrc3nVMxy16iy660bl9rR8rAherh7DHFh3Gm2P6ZUn
-         lesA+R8hCs9XT3aCujDNx91fhkhyVUIC8tgJwngEP9QHEWpaWtRQCV8zhz0vJ0V6qM
-         p7FnjdKoW74RQ==
+        b=I2Gtsju8Xm8P1ZokxZW8ac24T1wQDBuVRX162EK1svEhwW4OsytuPzVhNvHDZ1lwS
+         Vl16FVkIYfHfj0Sz3habvDWHFrAd5Y7WqaK/33Qb15Ki+DRSkCnQxCVLLndAXobrBv
+         i2N42iD+YOvf2dmxqOgFiZERy5/nVaJqkuYGvlQk6VV1xuAgAMbaqEGOqDmrZhmdi0
+         SfRfvyavTMgsFbFRjs4deck0z/0kFtKSfkwTVIznbknRmmmHTZcVNQo3LFzJk5YwUS
+         khN7TKxJi/FZcjrDborHOrA8bx2HVz17Y3Lzk19nPePa+vtqFnvCoV2ubpVCQnl+gv
+         JL4raCUQGFIkA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 31/32] net: ethernet: mtk_eth_soc: fix RX VLAN offload
-Date:   Wed,  5 May 2021 12:40:03 -0400
-Message-Id: <20210505164004.3463707-31-sashal@kernel.org>
+Cc:     Sergei Trofimovich <slyfox@gentoo.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 32/32] ia64: module: fix symbolizer crash on fdescr
+Date:   Wed,  5 May 2021 12:40:04 -0400
+Message-Id: <20210505164004.3463707-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164004.3463707-1-sashal@kernel.org>
 References: <20210505164004.3463707-1-sashal@kernel.org>
@@ -45,48 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-[ Upstream commit 3f57d8c40fea9b20543cab4da12f4680d2ef182c ]
+[ Upstream commit 99e729bd40fb3272fa4b0140839d5e957b58588a ]
 
-The VLAN ID in the rx descriptor is only valid if the RX_DMA_VTAG bit is
-set. Fixes frames wrongly marked with VLAN tags.
+Noticed failure as a crash on ia64 when tried to symbolize all backtraces
+collected by page_owner=on:
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-[Ilya: fix commit message]
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    $ cat /sys/kernel/debug/page_owner
+    <oops>
+
+    CPU: 1 PID: 2074 Comm: cat Not tainted 5.12.0-rc4 #226
+    Hardware name: hp server rx3600, BIOS 04.03 04/08/2008
+    ip is at dereference_module_function_descriptor+0x41/0x100
+
+Crash happens at dereference_module_function_descriptor() due to
+use-after-free when dereferencing ".opd" section header.
+
+All section headers are already freed after module is laoded successfully.
+
+To keep symbolizer working the change stores ".opd" address and size after
+module is relocated to a new place and before section headers are
+discarded.
+
+To make similar errors less obscure module_finalize() now zeroes out all
+variables relevant to module loading only.
+
+Link: https://lkml.kernel.org/r/20210403074803.3309096-1-slyfox@gentoo.org
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 2 +-
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/ia64/include/asm/module.h |  6 +++++-
+ arch/ia64/kernel/module.c      | 29 +++++++++++++++++++++++++----
+ 2 files changed, 30 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index b72a4fad7bc8..59f3dce3ab1d 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -1041,7 +1041,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 		skb->protocol = eth_type_trans(skb, netdev);
+diff --git a/arch/ia64/include/asm/module.h b/arch/ia64/include/asm/module.h
+index f319144260ce..9fbf32e6e881 100644
+--- a/arch/ia64/include/asm/module.h
++++ b/arch/ia64/include/asm/module.h
+@@ -14,16 +14,20 @@
+ struct elf64_shdr;			/* forward declration */
  
- 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
--		    RX_DMA_VID(trxd.rxd3))
-+		    (trxd.rxd2 & RX_DMA_VTAG))
- 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
- 					       RX_DMA_VID(trxd.rxd3));
- 		skb_record_rx_queue(skb, 0);
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index 46819297fc3e..cb6b27861afa 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -285,6 +285,7 @@
- #define RX_DMA_DONE		BIT(31)
- #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
- #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
-+#define RX_DMA_VTAG		BIT(15)
+ struct mod_arch_specific {
++	/* Used only at module load time. */
+ 	struct elf64_shdr *core_plt;	/* core PLT section */
+ 	struct elf64_shdr *init_plt;	/* init PLT section */
+ 	struct elf64_shdr *got;		/* global offset table */
+ 	struct elf64_shdr *opd;		/* official procedure descriptors */
+ 	struct elf64_shdr *unwind;	/* unwind-table section */
+ 	unsigned long gp;		/* global-pointer for module */
++	unsigned int next_got_entry;	/* index of next available got entry */
  
- /* QDMA descriptor rxd3 */
- #define RX_DMA_VID(_x)		((_x) & 0xfff)
++	/* Used at module run and cleanup time. */
+ 	void *core_unw_table;		/* core unwind-table cookie returned by unwinder */
+ 	void *init_unw_table;		/* init unwind-table cookie returned by unwinder */
+-	unsigned int next_got_entry;	/* index of next available got entry */
++	void *opd_addr;			/* symbolize uses .opd to get to actual function */
++	unsigned long opd_size;
+ };
+ 
+ #define MODULE_PROC_FAMILY	"ia64"
+diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
+index 1a42ba885188..ee693c8cec49 100644
+--- a/arch/ia64/kernel/module.c
++++ b/arch/ia64/kernel/module.c
+@@ -905,9 +905,31 @@ register_unwind_table (struct module *mod)
+ int
+ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mod)
+ {
++	struct mod_arch_specific *mas = &mod->arch;
++
+ 	DEBUGP("%s: init: entry=%p\n", __func__, mod->init);
+-	if (mod->arch.unwind)
++	if (mas->unwind)
+ 		register_unwind_table(mod);
++
++	/*
++	 * ".opd" was already relocated to the final destination. Store
++	 * it's address for use in symbolizer.
++	 */
++	mas->opd_addr = (void *)mas->opd->sh_addr;
++	mas->opd_size = mas->opd->sh_size;
++
++	/*
++	 * Module relocation was already done at this point. Section
++	 * headers are about to be deleted. Wipe out load-time context.
++	 */
++	mas->core_plt = NULL;
++	mas->init_plt = NULL;
++	mas->got = NULL;
++	mas->opd = NULL;
++	mas->unwind = NULL;
++	mas->gp = 0;
++	mas->next_got_entry = 0;
++
+ 	return 0;
+ }
+ 
+@@ -926,10 +948,9 @@ module_arch_cleanup (struct module *mod)
+ 
+ void *dereference_module_function_descriptor(struct module *mod, void *ptr)
+ {
+-	Elf64_Shdr *opd = mod->arch.opd;
++	struct mod_arch_specific *mas = &mod->arch;
+ 
+-	if (ptr < (void *)opd->sh_addr ||
+-			ptr >= (void *)(opd->sh_addr + opd->sh_size))
++	if (ptr < mas->opd_addr || ptr >= mas->opd_addr + mas->opd_size)
+ 		return ptr;
+ 
+ 	return dereference_function_descriptor(ptr);
 -- 
 2.30.2
 
