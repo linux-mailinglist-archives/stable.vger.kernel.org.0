@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B6C374187
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC0CC37418B
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235060AbhEEQi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:38:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54440 "EHLO mail.kernel.org"
+        id S235030AbhEEQjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:39:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234764AbhEEQg6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:36:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D27C1613FE;
-        Wed,  5 May 2021 16:33:21 +0000 (UTC)
+        id S234783AbhEEQhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:37:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11A5661413;
+        Wed,  5 May 2021 16:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232402;
-        bh=7lPYU2+h32CIcM9NYvFnxpmwJr7/yHwrz8ZZlc+O1is=;
+        s=k20201202; t=1620232404;
+        bh=DPhJxbCGTKtKEJllav8XGEl/X87ke2S8d3c5qt4sdl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/2MZocsAn2iXYQXnNlX1qsETvX15fgB+0AVpPX2I2usyDmDio2dJmw2vSBR81zu9
-         X695XgvNWIBxGH9Y6fkcBIJbk8DNsits/UcpHwPIFXsoqikuG09VUbji8wHt82E54g
-         FYRWj3R0PGeY2glMNluP2dXO7qWh3hT7XEypSKxVr8fC+ZupuhWtd7lYj5UO7Cv+9S
-         PBpTcfKMSv83kWu6gglpsaS68Oa/a/qMyK+S6ZR8iFAAq0vTw/DPFuODVWh2Xltc1J
-         dAQ5pY9W7f+97PxosRjZjXhncSidyOIUUODRqpvMiLoq3VehnMwj3TWxANUcQLueAa
-         p0dAgMLwfrJyw==
+        b=kCyAccX6DVbT+DHqjwPvZ28pBCio+VZZm2Qqi34l5oMi4t1qMLczWrlIwD3+z+MJh
+         3xpr9aHUvcUmVuYAIySsn0fetIFHqSvpEVw+n0bYfIPzaDa7pKV10ws2WHwI/3zRVT
+         mBb3kJIYCo0/9Dr9C4v7aYXysfOhy6a9dSkGf1MDql7RNA818BYxpVUIMDpAPcqFRy
+         sL/UFbZGbScHwDvpDoMxdh7CtxqIj4A7rh9qhnbmu9AxKEANk+IlVzCTsAi/L3zlzt
+         uTTSeD06DZPSxxHwVFX/vtwZ+XkbJIwKskouqDG7V6aKmac4UagErf5iSWGltbYnUZ
+         NH+GaUo3okLCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 083/116] i2c: i801: Add support for Intel Alder Lake PCH-M
-Date:   Wed,  5 May 2021 12:30:51 -0400
-Message-Id: <20210505163125.3460440-83-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-sctp@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 084/116] sctp: Fix out-of-bounds warning in sctp_process_asconf_param()
+Date:   Wed,  5 May 2021 12:30:52 -0400
+Message-Id: <20210505163125.3460440-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -42,55 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 
-[ Upstream commit 8f51c1763ae98bb63fc04627ceae383aa0e8ff7b ]
+[ Upstream commit e5272ad4aab347dde5610c0aedb786219e3ff793 ]
 
-Add PCI ID of SMBus controller on Intel Alder Lake PCH-M.
+Fix the following out-of-bounds warning:
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+net/sctp/sm_make_chunk.c:3150:4: warning: 'memcpy' offset [17, 28] from the object at 'addr' is out of the bounds of referenced subobject 'v4' with type 'struct sockaddr_in' at offset 0 [-Warray-bounds]
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/sctp/sm_make_chunk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 4acee6f9e5a3..99d446763530 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -73,6 +73,7 @@
-  * Comet Lake-V (PCH)		0xa3a3	32	hard	yes	yes	yes
-  * Alder Lake-S (PCH)		0x7aa3	32	hard	yes	yes	yes
-  * Alder Lake-P (PCH)		0x51a3	32	hard	yes	yes	yes
-+ * Alder Lake-M (PCH)		0x54a3	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -230,6 +231,7 @@
- #define PCI_DEVICE_ID_INTEL_ELKHART_LAKE_SMBUS		0x4b23
- #define PCI_DEVICE_ID_INTEL_JASPER_LAKE_SMBUS		0x4da3
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_P_SMBUS		0x51a3
-+#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_M_SMBUS		0x54a3
- #define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_S_SMBUS		0x7aa3
- #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS		0x8c22
-@@ -1087,6 +1089,7 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_JASPER_LAKE_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ALDER_LAKE_S_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ALDER_LAKE_P_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ALDER_LAKE_M_SMBUS) },
- 	{ 0, }
- };
+diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
+index f77484df097b..da4ce0947c3a 100644
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -3147,7 +3147,7 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
+ 		 * primary.
+ 		 */
+ 		if (af->is_any(&addr))
+-			memcpy(&addr.v4, sctp_source(asconf), sizeof(addr));
++			memcpy(&addr, sctp_source(asconf), sizeof(addr));
  
-@@ -1771,6 +1774,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	case PCI_DEVICE_ID_INTEL_EBG_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_ALDER_LAKE_S_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_ALDER_LAKE_P_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_ALDER_LAKE_M_SMBUS:
- 		priv->features |= FEATURE_BLOCK_PROC;
- 		priv->features |= FEATURE_I2C_BLOCK_READ;
- 		priv->features |= FEATURE_IRQ;
+ 		if (security_sctp_bind_connect(asoc->ep->base.sk,
+ 					       SCTP_PARAM_SET_PRIMARY,
 -- 
 2.30.2
 
