@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CFC737414D
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E70374159
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235107AbhEEQhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:37:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53294 "EHLO mail.kernel.org"
+        id S234798AbhEEQhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:37:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234786AbhEEQfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:35:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAACE613FC;
-        Wed,  5 May 2021 16:32:55 +0000 (UTC)
+        id S234504AbhEEQfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:35:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 291CF61410;
+        Wed,  5 May 2021 16:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232376;
-        bh=LOY+2umU38duiEhfLe5WxFGdlFE8datgP10oqSVAxp8=;
+        s=k20201202; t=1620232377;
+        bh=iey4tCQW5JeiD6vUoCwVFoz8LR6aKR+s5t6HbTA3be4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Li5a6F50OMrt6XmZpXfQ0N/3Gx3gGi1ym9Il6UfMKXUE5i7DiVs03egEtIwQWBuBB
-         7hSzYUN3LlQfqI/XAINAS1VelPqcJEXWhGUUcyGMEkmN2rtiOkfdBlq4PsoymZZbsD
-         HdjIt9fLXYhxtLwF+cfEe7NstgUshMKGXnLEiBG7vx7xsYb8/lBROKvtZAgRxnKsOK
-         61g8NTYWcW19Bd9hClClokFv5ZVYYPXoxsJOJvbRQ6YZrdV0x8+r7LbtkycPhI310M
-         +s7V02aZDzf6qgLAtYGWKYakjpOf1Q6CLLj6aYpcZ+PRN4wEJUnKqnhQcRLrZyaTGP
-         taLLZ9kvD/5xw==
+        b=oiIaMT60j8vPyAxQdM6qK0kxfk/X318j2XtiixRjmLu5APIllvsanoHJH1qlTyEM3
+         nli+VAnkHGRu54an6HKl/PYh7epS4yfXhPZJeA2roImRbcTfSJ0DyY7GFIqK5Jt+cU
+         jcHGG6aLedBYOtYg+jK9ZWklTy2KycgekJDRZGELuHVV34oz9/iKJVnfXCtjZ2rMxx
+         DRIQCBqVmRgehnYkYdV7EgOcdK4ZCHWsDsWjjS8Az5zDgFYwmDGhRvxTe9qDdiNTid
+         wqR8CNvzV1tJjT3KWXAn61I+mh97M5onOra1VmlZL71uBWj4tsnsxfSf9Gn43hcsYk
+         4BPxKfUoshJtA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Weihua <yeweihua4@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 065/116] i2c: imx: Fix PM reference leak in i2c_imx_reg_slave()
-Date:   Wed,  5 May 2021 12:30:33 -0400
-Message-Id: <20210505163125.3460440-65-sashal@kernel.org>
+Cc:     Vivek Goyal <vgoyal@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 066/116] fuse: invalidate attrs when page writeback completes
+Date:   Wed,  5 May 2021 12:30:34 -0400
+Message-Id: <20210505163125.3460440-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -42,37 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Weihua <yeweihua4@huawei.com>
+From: Vivek Goyal <vgoyal@redhat.com>
 
-[ Upstream commit c4b1fcc310e655fa8414696c38a84d36c00684c8 ]
+[ Upstream commit 3466958beb31a8e9d3a1441a34228ed088b84f3e ]
 
-pm_runtime_get_sync() will increment the PM reference count even on
-failure. Forgetting to put the reference again will result in a leak.
+In fuse when a direct/write-through write happens we invalidate attrs
+because that might have updated mtime/ctime on server and cached
+mtime/ctime will be stale.
 
-Replace it with pm_runtime_resume_and_get() to keep the usage counter
-balanced.
+What about page writeback path.  Looks like we don't invalidate attrs
+there.  To be consistent, invalidate attrs in writeback path as well.  Only
+exception is when writeback_cache is enabled.  In that case we strust local
+mtime/ctime and there is no need to invalidate attrs.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Ye Weihua <yeweihua4@huawei.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Recently users started experiencing failure of xfstests generic/080,
+geneirc/215 and generic/614 on virtiofs.  This happened only newer "stat"
+utility and not older one.  This patch fixes the issue.
+
+So what's the root cause of the issue.  Here is detailed explanation.
+
+generic/080 test does mmap write to a file, closes the file and then checks
+if mtime has been updated or not.  When file is closed, it leads to
+flushing of dirty pages (and that should update mtime/ctime on server).
+But we did not explicitly invalidate attrs after writeback finished.  Still
+generic/080 passed so far and reason being that we invalidated atime in
+fuse_readpages_end().  This is called in fuse_readahead() path and always
+seems to trigger before mmaped write.
+
+So after mmaped write when lstat() is called, it sees that atleast one of
+the fields being asked for is invalid (atime) and that results in
+generating GETATTR to server and mtime/ctime also get updated and test
+passes.
+
+But newer /usr/bin/stat seems to have moved to using statx() syscall now
+(instead of using lstat()).  And statx() allows it to query only ctime or
+mtime (and not rest of the basic stat fields).  That means when querying
+for mtime, fuse_update_get_attr() sees that mtime is not invalid (only
+atime is invalid).  So it does not generate a new GETATTR and fill stat
+with cached mtime/ctime.  And that means updated mtime is not seen by
+xfstest and tests start failing.
+
+Invalidating attrs after writeback completion should solve this problem in
+a generic manner.
+
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/file.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index b80fdc1f0092..5fd8201a14cd 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -801,7 +801,7 @@ static int i2c_imx_reg_slave(struct i2c_client *client)
- 	i2c_imx->last_slave_event = I2C_SLAVE_STOP;
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 8cccecb55fb8..654cccc85c6b 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1759,8 +1759,17 @@ static void fuse_writepage_end(struct fuse_mount *fm, struct fuse_args *args,
+ 		container_of(args, typeof(*wpa), ia.ap.args);
+ 	struct inode *inode = wpa->inode;
+ 	struct fuse_inode *fi = get_fuse_inode(inode);
++	struct fuse_conn *fc = get_fuse_conn(inode);
  
- 	/* Resume */
--	ret = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
-+	ret = pm_runtime_resume_and_get(i2c_imx->adapter.dev.parent);
- 	if (ret < 0) {
- 		dev_err(&i2c_imx->adapter.dev, "failed to resume i2c controller");
- 		return ret;
+ 	mapping_set_error(inode->i_mapping, error);
++	/*
++	 * A writeback finished and this might have updated mtime/ctime on
++	 * server making local mtime/ctime stale.  Hence invalidate attrs.
++	 * Do this only if writeback_cache is not enabled.  If writeback_cache
++	 * is enabled, we trust local ctime/mtime.
++	 */
++	if (!fc->writeback_cache)
++		fuse_invalidate_attr(inode);
+ 	spin_lock(&fi->lock);
+ 	rb_erase(&wpa->writepages_entry, &fi->writepages);
+ 	while (wpa->next) {
 -- 
 2.30.2
 
