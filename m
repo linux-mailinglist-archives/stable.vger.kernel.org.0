@@ -2,92 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31DB0374996
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 22:45:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CB213749A2
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 22:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229601AbhEEUqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 16:46:21 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:55402 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbhEEUqV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 May 2021 16:46:21 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 0E9A41C0B87; Wed,  5 May 2021 22:45:23 +0200 (CEST)
-Date:   Wed, 5 May 2021 22:45:22 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        Jianxiong Gao <jxgao@google.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Yet another way to mark upstream commits was Re: [PATCH 5.10 13/29]
- swiotlb: add a IO_TLB_SIZE define
-Message-ID: <20210505204522.GA3061@amd>
-References: <20210505112326.195493232@linuxfoundation.org>
- <20210505112326.635285720@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-Content-Disposition: inline
-In-Reply-To: <20210505112326.635285720@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+        id S229951AbhEEUuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 16:50:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59392 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229575AbhEEUuM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 16:50:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id B2405613BA;
+        Wed,  5 May 2021 20:49:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1620247755;
+        bh=fIBnzCoLd7WFpaxwVmmrRv7I6zOzGgD4l9SQolYykqw=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=SGV+dXVMsmxu7ZS5APC452PYA81R0UlZ9lE8ZEgbaJ4JzcKvWsTEaH3GEWKyOO23v
+         94NvIGUiXFq0Z2rV7lPpFGnwXkOkCIqZK7fsfOOgnixrW81XOR1LC5agd2nM6DEHFp
+         MSY7iCrQ+iszzeH7lsCUhbVUfW0QLEGHrN1hI99l+FnTY8Px2ytmrVLQ+lf8OO/xXl
+         E3azMDLxbPkbF4onk5bfVoyR2VDdbgfc++jQBH2PCw/Lj2J78iCvM6pwmZ+g6g78XL
+         yfoignsYM3122879hHRGG0lsZX8Xt5o+injOhz8nLSM58maLJqfDjl7V1k6FH+3tzI
+         7hRJgze6IrDFA==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 9CF59609E8;
+        Wed,  5 May 2021 20:49:15 +0000 (UTC)
+Subject: Re: [GIT PULL] virtio,vhost,vdpa: features, fixes
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20210505161135-mutt-send-email-mst@kernel.org>
+References: <20210505161135-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <kvm.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20210505161135-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: d7bce85aa7b92b5de8f69b3bcedfe51d7b1aabe1
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 16bb86b5569cb7489367101f6ed69b25682b47db
+Message-Id: <162024775557.12235.13272630963086835800.pr-tracker-bot@kernel.org>
+Date:   Wed, 05 May 2021 20:49:15 +0000
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        elic@nvidia.com, jasowang@redhat.com, lingshan.zhu@intel.com,
+        liu.xiang@zlingsmart.com, lkp@intel.com, mgurtovoy@nvidia.com,
+        mst@redhat.com, parav@nvidia.com, sgarzare@redhat.com,
+        stable@vger.kernel.org, xieyongji@bytedance.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The pull request you sent on Wed, 5 May 2021 16:11:35 -0400:
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Hi!
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/16bb86b5569cb7489367101f6ed69b25682b47db
 
-> From: Jianxiong Gao <jxgao@google.com>
->=20
-> commit: b5d7ccb7aac3895c2138fe0980a109116ce15eff
+Thank you!
 
-This is 5th variant of marking upstream commits, and I need to update
-my scripts again.
-
-Could we please put this into Signed-off area, where it belongs, so it
-is easy to see who touched the patch for mainline, and stop this
-creativity?
-
-> Add a new IO_TLB_SIZE define instead open coding it using
-> IO_TLB_SHIFT all over.
->=20
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Acked-by: Jianxiong Gao <jxgao@google.com>
-> Tested-by: Jianxiong Gao <jxgao@google.com>
-> Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-
-I'd like to see
-
-Upstream: b5d7ccb7aac3895c2138fe0980a109116ce15eff
-
-here. Probably. Note that it has additional advantage that you can
-easily marked who Acked/Tested the patch for mainline, and who tested
-it in the stable context.
-
-> Signed-off-by: Jianxiong Gao <jxgao@google.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Best regards,
-								Pavel
---=20
-http://www.livejournal.com/~pavelmachek
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmCTA+IACgkQMOfwapXb+vIyegCaAyDNebEFnDhFRikmTxeuWxIL
-tuUAoMBzNUEIigELl1VV1YrogOBZ395t
-=QNb3
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
