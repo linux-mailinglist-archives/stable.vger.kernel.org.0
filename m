@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1919A3744E0
+	by mail.lfdr.de (Postfix) with ESMTP id 883723744E1
 	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235059AbhEERCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46066 "EHLO mail.kernel.org"
+        id S235296AbhEERCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:02:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236218AbhEEQ4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:56:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E89961444;
-        Wed,  5 May 2021 16:39:02 +0000 (UTC)
+        id S236243AbhEEQ4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:56:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8FC761481;
+        Wed,  5 May 2021 16:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232743;
-        bh=vI5LWT6H714BA7fXwBiqMpEcxeof87DXV4W9TPRXmZI=;
+        s=k20201202; t=1620232744;
+        bh=4KpiqIkSPdogFIPBLLg6Z0qN5SzVJxhS+i54j/9U6Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CyK3mkzJCkySCvTdT5nJZ7iEMilhPgbfoBNEcztMQ7JmdpBH8+MDy6yhfpSzZKy5Q
-         LB1w47qP3gqfVPw69vWSNpJpzZrUODB+/ldaXmBmV2GSwiY2Kv3g2aUWb/BFsGEXND
-         VrZ369LRLtuPeZgXPanYhy2d3GKQCkkU0yrdaKHKk1it42EUllP6Ql/XOvB/YWomGC
-         +xNe4v+10AR0K40NmzOtU0BTThru6yk5A66cMhSwNuc2cfC/aui031c370HCwRypuZ
-         NPi760H8FIGSkQQ4bf58fv1povNwxEB46rd9w2Jh8X4tv2bt+4X5VDn/dyGpivztww
-         fNn9apUY0CaLg==
+        b=NRaYmoojdtQgzP/QllZyye8kV3+bEkIQYseWLIzewE3o/pyvRA+A/UVkAbabplML3
+         V+HuzCy+2UNE/CEm+i5bcHyg0xIYXj/MRkIq1243Rk6JwV3ndmpiihdUogCydduj5I
+         A4UPFV5WOdnEdNdwtXv7DZ/gbnRs9q7VIz36F83Ddm1D8sU9JrQyJZcl4Cxvcp+ji4
+         mIo3Nn7T6J2whS49LtC3GqdkYOWEvHp0E2a6Q11bXQ7efq4RClsdLSjOxVYPNr6M6R
+         EC3dKfvm8ShjJYJTFYqb6pJa/94lCQ8IhSgH5Za/98g1jhh+4PFpCHhdLIijbQOIgg
+         /e3cJ8Ol048iw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan McDowell <noodles@earth.li>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 04/46] net: stmmac: Set FIFO sizes for ipq806x
-Date:   Wed,  5 May 2021 12:38:14 -0400
-Message-Id: <20210505163856.3463279-4-sashal@kernel.org>
+Cc:     Mikhail Durnev <mikhail_durnev@mentor.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 05/46] ASoC: rsnd: core: Check convert rate in rsnd_hw_params
+Date:   Wed,  5 May 2021 12:38:15 -0400
+Message-Id: <20210505163856.3463279-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
 References: <20210505163856.3463279-1-sashal@kernel.org>
@@ -44,42 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan McDowell <noodles@earth.li>
+From: Mikhail Durnev <mikhail_durnev@mentor.com>
 
-[ Upstream commit e127906b68b49ddb3ecba39ffa36a329c48197d3 ]
+[ Upstream commit 19c6a63ced5e07e40f3a5255cb1f0fe0d3be7b14 ]
 
-Commit eaf4fac47807 ("net: stmmac: Do not accept invalid MTU values")
-started using the TX FIFO size to verify what counts as a valid MTU
-request for the stmmac driver.  This is unset for the ipq806x variant.
-Looking at older patches for this it seems the RX + TXs buffers can be
-up to 8k, so set appropriately.
+snd_pcm_hw_params_set_rate_near can return incorrect sample rate in
+some cases, e.g. when the backend output rate is set to some value higher
+than 48000 Hz and the input rate is 8000 Hz. So passing the value returned
+by snd_pcm_hw_params_set_rate_near to snd_pcm_hw_params will result in
+"FSO/FSI ratio error" and playing no audio at all while the userland
+is not properly notified about the issue.
 
-(I sent this as an RFC patch in June last year, but received no replies.
-I've been running with this on my hardware (a MikroTik RB3011) since
-then with larger MTUs to support both the internal qca8k switch and
-VLANs with no problems. Without the patch it's impossible to set the
-larger MTU required to support this.)
+If SRC is unable to convert the requested sample rate to the sample rate
+the backend is using, then the requested sample rate should be adjusted in
+rsnd_hw_params. The userland will be notified about that change in the
+returned hw_params structure.
 
-Signed-off-by: Jonathan McDowell <noodles@earth.li>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mikhail Durnev <mikhail_durnev@mentor.com>
+Link: https://lore.kernel.org/r/1615870055-13954-1-git-send-email-mikhail_durnev@mentor.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/sh/rcar/core.c | 69 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 68 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-index 826626e870d5..0f56f8e33691 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-@@ -351,6 +351,8 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 	plat_dat->bsp_priv = gmac;
- 	plat_dat->fix_mac_speed = ipq806x_gmac_fix_mac_speed;
- 	plat_dat->multicast_filter_bins = 0;
-+	plat_dat->tx_fifo_size = 8192;
-+	plat_dat->rx_fifo_size = 8192;
+diff --git a/sound/soc/sh/rcar/core.c b/sound/soc/sh/rcar/core.c
+index a6c1cf987e6e..df8d7b53b760 100644
+--- a/sound/soc/sh/rcar/core.c
++++ b/sound/soc/sh/rcar/core.c
+@@ -1426,8 +1426,75 @@ static int rsnd_hw_params(struct snd_pcm_substream *substream,
+ 		}
+ 		if (io->converted_chan)
+ 			dev_dbg(dev, "convert channels = %d\n", io->converted_chan);
+-		if (io->converted_rate)
++		if (io->converted_rate) {
++			/*
++			 * SRC supports convert rates from params_rate(hw_params)/k_down
++			 * to params_rate(hw_params)*k_up, where k_up is always 6, and
++			 * k_down depends on number of channels and SRC unit.
++			 * So all SRC units can upsample audio up to 6 times regardless
++			 * its number of channels. And all SRC units can downsample
++			 * 2 channel audio up to 6 times too.
++			 */
++			int k_up = 6;
++			int k_down = 6;
++			int channel;
++			struct rsnd_mod *src_mod = rsnd_io_to_mod_src(io);
++
+ 			dev_dbg(dev, "convert rate     = %d\n", io->converted_rate);
++
++			channel = io->converted_chan ? io->converted_chan :
++				  params_channels(hw_params);
++
++			switch (rsnd_mod_id(src_mod)) {
++			/*
++			 * SRC0 can downsample 4, 6 and 8 channel audio up to 4 times.
++			 * SRC1, SRC3 and SRC4 can downsample 4 channel audio
++			 * up to 4 times.
++			 * SRC1, SRC3 and SRC4 can downsample 6 and 8 channel audio
++			 * no more than twice.
++			 */
++			case 1:
++			case 3:
++			case 4:
++				if (channel > 4) {
++					k_down = 2;
++					break;
++				}
++				fallthrough;
++			case 0:
++				if (channel > 2)
++					k_down = 4;
++				break;
++
++			/* Other SRC units do not support more than 2 channels */
++			default:
++				if (channel > 2)
++					return -EINVAL;
++			}
++
++			if (params_rate(hw_params) > io->converted_rate * k_down) {
++				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->min =
++					io->converted_rate * k_down;
++				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->max =
++					io->converted_rate * k_down;
++				hw_params->cmask |= SNDRV_PCM_HW_PARAM_RATE;
++			} else if (params_rate(hw_params) * k_up < io->converted_rate) {
++				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->min =
++					(io->converted_rate + k_up - 1) / k_up;
++				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->max =
++					(io->converted_rate + k_up - 1) / k_up;
++				hw_params->cmask |= SNDRV_PCM_HW_PARAM_RATE;
++			}
++
++			/*
++			 * TBD: Max SRC input and output rates also depend on number
++			 * of channels and SRC unit:
++			 * SRC1, SRC3 and SRC4 do not support more than 128kHz
++			 * for 6 channel and 96kHz for 8 channel audio.
++			 * Perhaps this function should return EINVAL if the input or
++			 * the output rate exceeds the limitation.
++			 */
++		}
+ 	}
  
- 	err = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
- 	if (err)
+ 	ret = rsnd_dai_call(hw_params, io, substream, hw_params);
 -- 
 2.30.2
 
