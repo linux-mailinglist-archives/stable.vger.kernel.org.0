@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 901853742CD
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 275153742C6
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:48:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235311AbhEEQs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:48:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49784 "EHLO mail.kernel.org"
+        id S236248AbhEEQsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:48:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236015AbhEEQp0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236025AbhEEQp0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:45:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74DC06193A;
-        Wed,  5 May 2021 16:36:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6D7E61430;
+        Wed,  5 May 2021 16:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232576;
-        bh=9RnHg4hAxhCZQ4ROytOcGpMWjTxBkjW+LC0fYCtyNnM=;
+        s=k20201202; t=1620232577;
+        bh=avr1jQjmSmWBNg+DmlFQrTEZpkkXShYZB9J6BqOb7Kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vR0y2c23ZsFrkmeDuD1uDcqdnDQoLbDyH8v2e6tmbmGbPqQk6bHtjvnqhiu2ipIFf
-         aEZhTFQraOvxMQvgMX5aaxZ4ZrgDuVzHXZoKL6yeZC9Xx/vm5J6Ice2NbrCOjjjaK9
-         TeLZfTcCLA6uuGCGe6+J3Sw65KDBD38GgK6r/Elkbk/NtTDNPyVpDyy9vv59wY1lCk
-         Vgze3v+litS8oR53tW5LYbqphdj/TRfbYWUEdSzVy50xi/LySFKWsqTXuqdjZTN2bv
-         a3PH4KxZEoDTt94gCAyiB/NstEJrkCg6trtiGk+ccpFf23MfSTEyJsJCBOgMvHziiX
-         CmK2StipIt9Sw==
+        b=PGnASMBsS6HZufexfkgzThj3lQ64gzeZw1eBILNF4m44E8FgjjDScLUVoIiwjWVI0
+         TxURS8VGMvsZ+QrPs387fwoQtsaIK0Aepa0u3zg+EMHt7wJEbsuf5Y4/51Iez0Rv1O
+         Ux3CRO+ECDiSG8Di66MVTOP+Z6GQg56w+NlOOG6xo/GE6JoDMk1PLiD3MOfPzFiFkD
+         tL62jEsPXaX5qU0xuam8FGp8v92Dip+U9bWdMcH3a2CbWWKc/AV3n5pCwdCxj19B/u
+         38Op0vUuch8qJmwjJQd/K0k7U/VS+skZUEOf/O1geIpRVDxrXro43YyQxbM6cqusAg
+         0BlkRW0ldg/Zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.11 084/104] powerpc/pseries: Stop calling printk in rtas_stop_self()
-Date:   Wed,  5 May 2021 12:33:53 -0400
-Message-Id: <20210505163413.3461611-84-sashal@kernel.org>
+Cc:     Robin Singh <robin.singh@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Robin Singh <Robin.Singh@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.11 085/104] drm/amd/display: fixed divide by zero kernel crash during dsc enablement
+Date:   Wed,  5 May 2021 12:33:54 -0400
+Message-Id: <20210505163413.3461611-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163413.3461611-1-sashal@kernel.org>
 References: <20210505163413.3461611-1-sashal@kernel.org>
@@ -41,70 +47,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Robin Singh <robin.singh@amd.com>
 
-[ Upstream commit ed8029d7b472369a010a1901358567ca3b6dbb0d ]
+[ Upstream commit 19cc1f3829567e7dca21c1389ea6407b8f5efab4 ]
 
-RCU complains about us calling printk() from an offline CPU:
+[why]
+During dsc enable, a divide by zero condition triggered the
+kernel crash.
 
-  =============================
-  WARNING: suspicious RCU usage
-  5.12.0-rc7-02874-g7cf90e481cb8 #1 Not tainted
-  -----------------------------
-  kernel/locking/lockdep.c:3568 RCU-list traversed in non-reader section!!
+[how]
+An IGT test, which enable the DSC, was crashing at the time of
+restore the default dsc status, becaue of h_totals value
+becoming 0. So add a check before divide condition. If h_total
+is zero, gracefully ignore and set the default value.
 
-  other info that might help us debug this:
+kernel panic log:
 
-  RCU used illegally from offline CPU!
-  rcu_scheduler_active = 2, debug_locks = 1
-  no locks held by swapper/0/0.
+	[  128.758827] divide error: 0000 [#1] PREEMPT SMP NOPTI
+	[  128.762714] CPU: 5 PID: 4562 Comm: amd_dp_dsc Tainted: G        W         5.4.19-android-x86_64 #1
+	[  128.769728] Hardware name: ADVANCED MICRO DEVICES, INC. Mauna/Mauna, BIOS WMN0B13N Nov 11 2020
+	[  128.777695] RIP: 0010:hubp2_vready_at_or_After_vsync+0x37/0x7a [amdgpu]
+	[  128.785707] Code: 80 02 00 00 48 89 f3 48 8b 7f 08 b ......
+	[  128.805696] RSP: 0018:ffffad8f82d43628 EFLAGS: 00010246
+	......
+	[  128.857707] CR2: 00007106d8465000 CR3: 0000000426530000 CR4: 0000000000140ee0
+	[  128.865695] Call Trace:
+	[  128.869712] hubp3_setup+0x1f/0x7f [amdgpu]
+	[  128.873705] dcn20_update_dchubp_dpp+0xc8/0x54a [amdgpu]
+	[  128.877706] dcn20_program_front_end_for_ctx+0x31d/0x463 [amdgpu]
+	[  128.885706] dc_commit_state+0x3d2/0x658 [amdgpu]
+	[  128.889707] amdgpu_dm_atomic_commit_tail+0x4b3/0x1e7c [amdgpu]
+	[  128.897699] ? dm_read_reg_func+0x41/0xb5 [amdgpu]
+	[  128.901707] ? dm_read_reg_func+0x41/0xb5 [amdgpu]
+	[  128.905706] ? __is_insn_slot_addr+0x43/0x48
+	[  128.909706] ? fill_plane_buffer_attributes+0x29e/0x3dc [amdgpu]
+	[  128.917705] ? dm_plane_helper_prepare_fb+0x255/0x284 [amdgpu]
+	[  128.921700] ? usleep_range+0x7c/0x7c
+	[  128.925705] ? preempt_count_sub+0xf/0x18
+	[  128.929706] ? _raw_spin_unlock_irq+0x13/0x24
+	[  128.933732] ? __wait_for_common+0x11e/0x18f
+	[  128.937705] ? _raw_spin_unlock_irq+0x13/0x24
+	[  128.941706] ? __wait_for_common+0x11e/0x18f
+	[  128.945705] commit_tail+0x8b/0xd2 [drm_kms_helper]
+	[  128.949707] drm_atomic_helper_commit+0xd8/0xf5 [drm_kms_helper]
+	[  128.957706] amdgpu_dm_atomic_commit+0x337/0x360 [amdgpu]
+	[  128.961705] ? drm_atomic_check_only+0x543/0x68d [drm]
+	[  128.969705] ? drm_atomic_set_property+0x760/0x7af [drm]
+	[  128.973704] ? drm_mode_atomic_ioctl+0x6f3/0x85a [drm]
+	[  128.977705] drm_mode_atomic_ioctl+0x6f3/0x85a [drm]
+	[  128.985705] ? drm_atomic_set_property+0x7af/0x7af [drm]
+	[  128.989706] drm_ioctl_kernel+0x82/0xda [drm]
+	[  128.993706] drm_ioctl+0x225/0x319 [drm]
+	[  128.997707] ? drm_atomic_set_property+0x7af/0x7af [drm]
+	[  129.001706] ? preempt_count_sub+0xf/0x18
+	[  129.005713] amdgpu_drm_ioctl+0x4b/0x76 [amdgpu]
+	[  129.009705] vfs_ioctl+0x1d/0x2a
+	[  129.013705] do_vfs_ioctl+0x419/0x43d
+	[  129.017707] ksys_ioctl+0x52/0x71
+	[  129.021707] __x64_sys_ioctl+0x16/0x19
+	[  129.025706] do_syscall_64+0x78/0x85
+	[  129.029705] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-  stack backtrace:
-  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.12.0-rc7-02874-g7cf90e481cb8 #1
-  Call Trace:
-    dump_stack+0xec/0x144 (unreliable)
-    lockdep_rcu_suspicious+0x124/0x144
-    __lock_acquire+0x1098/0x28b0
-    lock_acquire+0x128/0x600
-    _raw_spin_lock_irqsave+0x6c/0xc0
-    down_trylock+0x2c/0x70
-    __down_trylock_console_sem+0x60/0x140
-    vprintk_emit+0x1a8/0x4b0
-    vprintk_func+0xcc/0x200
-    printk+0x40/0x54
-    pseries_cpu_offline_self+0xc0/0x120
-    arch_cpu_idle_dead+0x54/0x70
-    do_idle+0x174/0x4a0
-    cpu_startup_entry+0x38/0x40
-    rest_init+0x268/0x388
-    start_kernel+0x748/0x790
-    start_here_common+0x1c/0x614
-
-Which happens because by the time we get to rtas_stop_self() we are
-already offline. In addition the message can be spammy, and is not that
-helpful for users, so remove it.
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210418135413.1204031-1-mpe@ellerman.id.au
+Signed-off-by: Robin Singh <robin.singh@amd.com>
+Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
+Reviewed-by: Robin Singh <Robin.Singh@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/hotplug-cpu.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-index 12cbffd3c2e3..325f3b220f36 100644
---- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-@@ -47,9 +47,6 @@ static void rtas_stop_self(void)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c
+index bec7059f6d5d..a1318c31bcfa 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2012-17 Advanced Micro Devices, Inc.
++ * Copyright 2012-2021 Advanced Micro Devices, Inc.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a
+  * copy of this software and associated documentation files (the "Software"),
+@@ -181,11 +181,14 @@ void hubp2_vready_at_or_After_vsync(struct hubp *hubp,
+ 	else
+ 		Set HUBP_VREADY_AT_OR_AFTER_VSYNC = 0
+ 	*/
+-	if ((pipe_dest->vstartup_start - (pipe_dest->vready_offset+pipe_dest->vupdate_width
+-		+ pipe_dest->vupdate_offset) / pipe_dest->htotal) <= pipe_dest->vblank_end) {
+-		value = 1;
+-	} else
+-		value = 0;
++	if (pipe_dest->htotal != 0) {
++		if ((pipe_dest->vstartup_start - (pipe_dest->vready_offset+pipe_dest->vupdate_width
++			+ pipe_dest->vupdate_offset) / pipe_dest->htotal) <= pipe_dest->vblank_end) {
++			value = 1;
++		} else
++			value = 0;
++	}
++
+ 	REG_UPDATE(DCHUBP_CNTL, HUBP_VREADY_AT_OR_AFTER_VSYNC, value);
+ }
  
- 	BUG_ON(rtas_stop_self_token == RTAS_UNKNOWN_SERVICE);
- 
--	printk("cpu %u (hwid %u) Ready to die...\n",
--	       smp_processor_id(), hard_smp_processor_id());
--
- 	rtas_call_unlocked(&args, rtas_stop_self_token, 0, 1, NULL);
- 
- 	panic("Alas, I survived.\n");
 -- 
 2.30.2
 
