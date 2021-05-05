@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C850837416D
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E4C37416F
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234177AbhEEQiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:38:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53512 "EHLO mail.kernel.org"
+        id S234564AbhEEQiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:38:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234530AbhEEQgI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:36:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A58961445;
-        Wed,  5 May 2021 16:33:04 +0000 (UTC)
+        id S234934AbhEEQgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:36:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66A836142E;
+        Wed,  5 May 2021 16:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232385;
-        bh=rKtV7bYc0oiLL38uj5apGJL/dmCRWLEYko+isEdXWAY=;
+        s=k20201202; t=1620232387;
+        bh=crQZifefxFB5zTrNmQ8E/W5S9724KgP2XqK90+Y+VD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hWDrRw3+98Fps3mfXOAwa5jsmEOkcrHzRrViqhupeH/nJntesSz13uTPDSlTLuEN/
-         B6YBJjlzICOksmR680Z5Kp+pp2SERjNfch1oxsh5ftFVJpXCkFazuEGoS6O5dS5xFe
-         7A3pO+/cD3oAV/8E5YqeG1KiscMe2UEXjww1nnv+TgNu3tIF4PuegNlTg0epkcN9cJ
-         T+IWxSlFCrJSPx06p7EgQRJED5NqRCpuKXuoPaP3Y/ZbgYFjfZYKE6kNNIUTV5CclM
-         66ww1c08uDi22+s3B943qWgTTMDKSoqRSkkOO+dCMpXt8q0DvhgOyVa2isblUKrvFg
-         edfH12z5VpKsg==
+        b=NPsHG2o8SZ4TEsf+59LimFdmNa0qXq3EKnCAJCk2GY2Ddb1oqK9YpkYxpkQ0LUv+a
+         TFygUiwuV9hyF7zWFmCn5N8ITGOhPipTvNJmxA/sfU24Sh2iyKFxm97xL0kDUPsqzL
+         kGw8uyBYPTr2qn1Yr5/oc1JQBsh5rzLYFsb221bQkd/BHUmK2gN1QDduzrHDhHLwev
+         dhSF17BgER53WEOLerMV12aPqu0cUicNuc7xjyMDX8OUdFPyD6/ybrTrx/qFSYEC/I
+         rxFZjmr+uT42+DEaVWUHfIn8adhQXxrK49tvi5Fimn91d7/k0sNICHTkLujHqgGF7w
+         aUxWbKFO+BQ6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.12 072/116] powerpc/mm: Add cond_resched() while removing hpte mappings
-Date:   Wed,  5 May 2021 12:30:40 -0400
-Message-Id: <20210505163125.3460440-72-sashal@kernel.org>
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        "Linh Phung T . Y ." <linh.phung.jy@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 073/116] ASoC: rsnd: call rsnd_ssi_master_clk_start() from rsnd_ssi_init()
+Date:   Wed,  5 May 2021 12:30:41 -0400
+Message-Id: <20210505163125.3460440-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -44,85 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaibhav Jain <vaibhav@linux.ibm.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit a5d6a3e73acbd619dd5b7b831762b755f9e2db80 ]
+[ Upstream commit a122a116fc6d8fcf2f202dcd185173a54268f239 ]
 
-While removing large number of mappings from hash page tables for
-large memory systems as soft-lockup is reported because of the time
-spent inside htap_remove_mapping() like one below:
+Current rsnd needs to call .prepare (P) for clock settings,
+.trigger for playback start (S) and stop (E).
+It should be called as below from SSI point of view.
 
- watchdog: BUG: soft lockup - CPU#8 stuck for 23s!
- <snip>
- NIP plpar_hcall+0x38/0x58
- LR  pSeries_lpar_hpte_invalidate+0x68/0xb0
- Call Trace:
-  0x1fffffffffff000 (unreliable)
-  pSeries_lpar_hpte_removebolted+0x9c/0x230
-  hash__remove_section_mapping+0xec/0x1c0
-  remove_section_mapping+0x28/0x3c
-  arch_remove_memory+0xfc/0x150
-  devm_memremap_pages_release+0x180/0x2f0
-  devm_action_release+0x30/0x50
-  release_nodes+0x28c/0x300
-  device_release_driver_internal+0x16c/0x280
-  unbind_store+0x124/0x170
-  drv_attr_store+0x44/0x60
-  sysfs_kf_write+0x64/0x90
-  kernfs_fop_write+0x1b0/0x290
-  __vfs_write+0x3c/0x70
-  vfs_write+0xd4/0x270
-  ksys_write+0xdc/0x130
-  system_call+0x5c/0x70
+	P -> S -> E -> P -> S -> E -> ...
 
-Fix this by adding a cond_resched() to the loop in
-htap_remove_mapping() that issues hcall to remove hpte mapping. The
-call to cond_resched() is issued every HZ jiffies which should prevent
-the soft-lockup from being reported.
+But, if you used MIXer, below case might happen
 
-Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210404163148.321346-1-vaibhav@linux.ibm.com
+	              (2)
+	1: P -> S ---> E -> ...
+	2:         P ----> S -> ...
+	          (1)     (3)
+
+P(1) setups clock, but E(2) resets it. and starts playback (3).
+In such case, it will reports "SSI parent/child should use same rate".
+
+rsnd_ssi_master_clk_start() which is the main function at (P)
+was called from rsnd_ssi_init() (= S) before,
+but was moved by below patch to rsnd_soc_dai_prepare() (= P) to avoid
+using clk_get_rate() which shouldn't be used under atomic context.
+
+	commit 4d230d1271064 ("ASoC: rsnd: fixup not to call clk_get/set
+				under non-atomic")
+
+Because of above patch, rsnd_ssi_master_clk_start() is now called at (P)
+which is for non atomic context. But (P) is assuming that spin lock is
+*not* used.
+One issue now is rsnd_ssi_master_clk_start() is checking ssi->xxx
+which should be protected by spin lock.
+
+After above patch, adg.c had below patch for other reasons.
+
+	commit 06e8f5c842f2d ("ASoC: rsnd: don't call clk_get_rate()
+				under atomic context")
+
+clk_get_rate() is used at probe() timing by this patch.
+In other words, rsnd_ssi_master_clk_start() is no longer using
+clk_get_rate() any more.
+
+This means we can call it from rsnd_ssi_init() (= S) again which is
+protected by spin lock.
+This patch re-move it to under spin lock, and solves
+1. checking ssi->xxx without spin lock issue.
+2. clk setting / device start / device stop race condition.
+
+Reported-by: Linh Phung T. Y. <linh.phung.jy@renesas.com>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/875z0x1jt5.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/hash_utils.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ sound/soc/sh/rcar/ssi.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
-index 581b20a2feaf..286e7e8cb919 100644
---- a/arch/powerpc/mm/book3s64/hash_utils.c
-+++ b/arch/powerpc/mm/book3s64/hash_utils.c
-@@ -338,7 +338,7 @@ int htab_bolt_mapping(unsigned long vstart, unsigned long vend,
- int htab_remove_mapping(unsigned long vstart, unsigned long vend,
- 		      int psize, int ssize)
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index d0ded427a836..a2f8138d40c7 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -507,10 +507,15 @@ static int rsnd_ssi_init(struct rsnd_mod *mod,
+ 			 struct rsnd_priv *priv)
  {
--	unsigned long vaddr;
-+	unsigned long vaddr, time_limit;
- 	unsigned int step, shift;
- 	int rc;
- 	int ret = 0;
-@@ -351,8 +351,19 @@ int htab_remove_mapping(unsigned long vstart, unsigned long vend,
+ 	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
++	int ret;
  
- 	/* Unmap the full range specificied */
- 	vaddr = ALIGN_DOWN(vstart, step);
-+	time_limit = jiffies + HZ;
+ 	if (!rsnd_ssi_is_run_mods(mod, io))
+ 		return 0;
+ 
++	ret = rsnd_ssi_master_clk_start(mod, io);
++	if (ret < 0)
++		return ret;
 +
- 	for (;vaddr < vend; vaddr += step) {
- 		rc = mmu_hash_ops.hpte_removebolted(vaddr, psize, ssize);
-+
-+		/*
-+		 * For large number of mappings introduce a cond_resched()
-+		 * to prevent softlockup warnings.
-+		 */
-+		if (time_after(jiffies, time_limit)) {
-+			cond_resched();
-+			time_limit = jiffies + HZ;
-+		}
- 		if (rc == -ENOENT) {
- 			ret = -ENOENT;
- 			continue;
+ 	ssi->usrcnt++;
+ 
+ 	rsnd_mod_power_on(mod);
+@@ -1060,13 +1065,6 @@ static int rsnd_ssi_pio_pointer(struct rsnd_mod *mod,
+ 	return 0;
+ }
+ 
+-static int rsnd_ssi_prepare(struct rsnd_mod *mod,
+-			    struct rsnd_dai_stream *io,
+-			    struct rsnd_priv *priv)
+-{
+-	return rsnd_ssi_master_clk_start(mod, io);
+-}
+-
+ static struct rsnd_mod_ops rsnd_ssi_pio_ops = {
+ 	.name		= SSI_NAME,
+ 	.probe		= rsnd_ssi_common_probe,
+@@ -1079,7 +1077,6 @@ static struct rsnd_mod_ops rsnd_ssi_pio_ops = {
+ 	.pointer	= rsnd_ssi_pio_pointer,
+ 	.pcm_new	= rsnd_ssi_pcm_new,
+ 	.hw_params	= rsnd_ssi_hw_params,
+-	.prepare	= rsnd_ssi_prepare,
+ 	.get_status	= rsnd_ssi_get_status,
+ };
+ 
+@@ -1166,7 +1163,6 @@ static struct rsnd_mod_ops rsnd_ssi_dma_ops = {
+ 	.pcm_new	= rsnd_ssi_pcm_new,
+ 	.fallback	= rsnd_ssi_fallback,
+ 	.hw_params	= rsnd_ssi_hw_params,
+-	.prepare	= rsnd_ssi_prepare,
+ 	.get_status	= rsnd_ssi_get_status,
+ };
+ 
 -- 
 2.30.2
 
