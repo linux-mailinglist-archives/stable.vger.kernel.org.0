@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B86723744E9
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B923744EB
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236407AbhEERCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:02:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
+        id S236454AbhEERC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:02:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237060AbhEEQ5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237115AbhEEQ5T (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:57:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A90761990;
-        Wed,  5 May 2021 16:39:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 705FA619A0;
+        Wed,  5 May 2021 16:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232762;
-        bh=lOLb1U/LFndGyUS9pSV47msKFv/hC0kgXkafKNJFgBg=;
+        s=k20201202; t=1620232764;
+        bh=wm62CXnlQlROjrFU1xBW5vxum5weK+uKY4uM6pJh2/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVYQu6RSZUmKT/edLggMNnDvR/xz4xAbs8KuGiMXCeixPT1UY4XJBG3RCqga3dMeX
-         bmRHoe7FFzciOVNgWThVb10+9KCyn+Nm7xA+Z0S8XuJVEONiDIda+orKbeulCFM2rR
-         744oR1Jbv4Xwj54jfOmuTeUpN/gjcoAt12N9brHxpgXUFDTmFWn6hpOL0qgLVpcJ3m
-         IUNVxa0fpdPKMoKXb/54V+9N9Q6+bHaBn2esIh3dEb4nPi4R8jDcTj3EgLO+MEZuag
-         Fs97BzYM0rtoh7PGjrKwxsyvfZHHLNps9rhOnTZUGX6aFG6ee5/s1y6HejDX43o69U
-         d8DjqRuqCDjzA==
+        b=H5o21YDAU6QursZASpxVnB9g91EyXQC9hkih0XkIinJyA6JumS367l7yo44Dw8Pg8
+         sG4fKBIIy2GBtvN5IRbUe/VGznQLN6KqP9JNaEWRApF9/xIQZLu9aYlB2DptSkUnCx
+         Xh1q7AxWdfuWKyd9GWg/381WJRJP4TNlSL0EWrBW1eOnWlwr66OQz9pvWpWe3rmpOi
+         6se1deD73sPNaUGf8eRmwuaygIkGDJwskJ5dgoAZ7Zo3SNX8y2jfKjnx2xSQBV2D+l
+         wUgPYusV0pIHmUMkAk6YOEalHjMYQihDeQt4PuqdnFIzVMO9pPzaorMhu9LhDrMwz6
+         DOCTV5mQI+GgA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Bence=20Cs=C3=B3k=C3=A1s?= <bence98@sch.bme.hu>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 18/46] i2c: Add I2C_AQ_NO_REP_START adapter quirk
-Date:   Wed,  5 May 2021 12:38:28 -0400
-Message-Id: <20210505163856.3463279-18-sashal@kernel.org>
+Cc:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 19/46] mac80211: clear the beacon's CRC after channel switch
+Date:   Wed,  5 May 2021 12:38:29 -0400
+Message-Id: <20210505163856.3463279-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
 References: <20210505163856.3463279-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,34 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bence Csókás <bence98@sch.bme.hu>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-[ Upstream commit aca01415e076aa96cca0f801f4420ee5c10c660d ]
+[ Upstream commit d6843d1ee283137723b4a8c76244607ce6db1951 ]
 
-This quirk signifies that the adapter cannot do a repeated
-START, it always issues a STOP condition after transfers.
+After channel switch, we should consider any beacon with a
+CSA IE as a new switch. If the CSA IE is a leftover from
+before the switch that the AP forgot to remove, we'll get
+a CSA-to-Self.
 
-Suggested-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Bence Csókás <bence98@sch.bme.hu>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+This caused issues in iwlwifi where the firmware saw a beacon
+with a CSA-to-Self with mode = 1 on the new channel after a
+switch. The firmware considered this a new switch and closed
+its queues. Since the beacon didn't change between before and
+after the switch, we wouldn't handle it (the CRC is the same)
+and we wouldn't let the firmware open its queues again or
+disconnect if the CSA IE stays for too long.
+
+Clear the CRC valid state after we switch to make sure that
+we handle the beacon and handle the CSA IE as required.
+
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Link: https://lore.kernel.org/r/20210408143124.b9e68aa98304.I465afb55ca2c7d59f7bf610c6046a1fd732b4c28@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/i2c.h | 2 ++
- 1 file changed, 2 insertions(+)
+ net/mac80211/mlme.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 1361637c369d..af2b799d7a66 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -677,6 +677,8 @@ struct i2c_adapter_quirks {
- #define I2C_AQ_NO_ZERO_LEN_READ		BIT(5)
- #define I2C_AQ_NO_ZERO_LEN_WRITE	BIT(6)
- #define I2C_AQ_NO_ZERO_LEN		(I2C_AQ_NO_ZERO_LEN_READ | I2C_AQ_NO_ZERO_LEN_WRITE)
-+/* adapter cannot do repeated START */
-+#define I2C_AQ_NO_REP_START		BIT(7)
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 17a3a1c938be..44fd922cc32a 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1215,6 +1215,11 @@ static void ieee80211_chswitch_post_beacon(struct ieee80211_sub_if_data *sdata)
  
- /*
-  * i2c_adapter is the structure used to identify a physical i2c bus along
+ 	sdata->vif.csa_active = false;
+ 	ifmgd->csa_waiting_bcn = false;
++	/*
++	 * If the CSA IE is still present on the beacon after the switch,
++	 * we need to consider it as a new CSA (possibly to self).
++	 */
++	ifmgd->beacon_crc_valid = false;
+ 
+ 	ret = drv_post_channel_switch(sdata);
+ 	if (ret) {
 -- 
 2.30.2
 
