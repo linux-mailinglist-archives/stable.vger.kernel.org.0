@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42995373A0D
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9558373A1C
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233423AbhEEMHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46428 "EHLO mail.kernel.org"
+        id S231959AbhEEMHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:07:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233346AbhEEMG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:06:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86AD661166;
-        Wed,  5 May 2021 12:05:59 +0000 (UTC)
+        id S232822AbhEEMHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:07:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15A566121F;
+        Wed,  5 May 2021 12:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216360;
-        bh=8a/Nq+o/z/szoQm/8T1Ct2tJF7BkjuqGep885HC3o3c=;
+        s=korg; t=1620216378;
+        bh=Vv89GRzN62drXvs6Is1v6/nS/XkpaahPEDshAg3+LE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4lAZjNtjpXmyhLYg3RSHlKEh1JP+q4hZBXaG1bTmB72EAp8HyONcV8Zs+paAK1Kv
-         KwS7FN086H5RgrfpD7UPmxNHe09YWfPnmXGVCTBJUDbl+v1JFDNRnBVdNMfm6A8x6K
-         eq5pr1gs8xXUXgJa0EumITXFLXtuHY0LrGL6/Qkk=
+        b=v0cVfvZCFYPpoB4mBzG6sRF82PdiaAwu5RSiZ3p7KE4F8sImj0NiSpQcMQPEyfj+v
+         0ijqzQ4L2+OdNp0euz05Y8eXoyWyGh8yIyIYorKuSM6apqzq+7ZtD5X6EfNY80I5ki
+         GgisYTMGjs0xT/bAieiwSctU6QipYwhufdix4zXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Jari Ruusu <jariruusu@protonmail.com>
-Subject: [PATCH 4.19 08/15] iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_gen2_enqueue_hcmd()
-Date:   Wed,  5 May 2021 14:05:13 +0200
-Message-Id: <20210505120504.046744954@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 11/29] tools/cgroup/slabinfo.py: updated to work on current kernel
+Date:   Wed,  5 May 2021 14:05:14 +0200
+Message-Id: <20210505112326.573340153@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
-References: <20210505120503.781531508@linuxfoundation.org>
+In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
+References: <20210505112326.195493232@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit e7020bb068d8be50a92f48e36b236a1a1ef9282e upstream.
+[ Upstream commit 1974c45dd7745e999b9387be3d8fdcb27a5b1721 ]
 
-Analogically to what we did in 2800aadc18a6 ("iwlwifi: Fix softirq/hardirq
-disabling in iwl_pcie_enqueue_hcmd()"), we must apply the same fix to
-iwl_pcie_gen2_enqueue_hcmd(), as it's being called from exactly the same
-contexts.
+slabinfo.py script does not work with actual kernel version.
 
-Reported-by: Heiner Kallweit <hkallweit1@gmail.com
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2104171112390.18270@cbobk.fhfr.pm
-Signed-off-by: Jari Ruusu <jariruusu@protonmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+First, it was unable to recognise SLUB susbsytem, and when I specified
+it manually it failed again with
 
+  AttributeError: 'struct page' has no member 'obj_cgroups'
+
+.. and then again with
+
+  File "tools/cgroup/memcg_slabinfo.py", line 221, in main
+    memcg.kmem_caches.address_of_(),
+  AttributeError: 'struct mem_cgroup' has no member 'kmem_caches'
+
+Link: https://lkml.kernel.org/r/cec1a75e-43b4-3d64-2084-d9f98fda037f@virtuozzo.com
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Tested-by: Roman Gushchin <guro@fb.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ tools/cgroup/memcg_slabinfo.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-@@ -654,6 +654,7 @@ static int iwl_pcie_gen2_enqueue_hcmd(st
- 	const u8 *cmddata[IWL_MAX_CMD_TBS_PER_TFD];
- 	u16 cmdlen[IWL_MAX_CMD_TBS_PER_TFD];
- 	struct iwl_tfh_tfd *tfd;
-+	unsigned long flags2;
+diff --git a/tools/cgroup/memcg_slabinfo.py b/tools/cgroup/memcg_slabinfo.py
+index c4225ed63565..1600b17dbb8a 100644
+--- a/tools/cgroup/memcg_slabinfo.py
++++ b/tools/cgroup/memcg_slabinfo.py
+@@ -128,9 +128,9 @@ def detect_kernel_config():
  
- 	copy_size = sizeof(struct iwl_cmd_header_wide);
- 	cmd_size = sizeof(struct iwl_cmd_header_wide);
-@@ -722,14 +723,14 @@ static int iwl_pcie_gen2_enqueue_hcmd(st
- 		goto free_dup_buf;
- 	}
+     cfg['nr_nodes'] = prog['nr_online_nodes'].value_()
  
--	spin_lock_bh(&txq->lock);
-+	spin_lock_irqsave(&txq->lock, flags2);
+-    if prog.type('struct kmem_cache').members[1][1] == 'flags':
++    if prog.type('struct kmem_cache').members[1].name == 'flags':
+         cfg['allocator'] = 'SLUB'
+-    elif prog.type('struct kmem_cache').members[1][1] == 'batchcount':
++    elif prog.type('struct kmem_cache').members[1].name == 'batchcount':
+         cfg['allocator'] = 'SLAB'
+     else:
+         err('Can\'t determine the slab allocator')
+@@ -193,7 +193,7 @@ def main():
+         # look over all slab pages, belonging to non-root memcgs
+         # and look for objects belonging to the given memory cgroup
+         for page in for_each_slab_page(prog):
+-            objcg_vec_raw = page.obj_cgroups.value_()
++            objcg_vec_raw = page.memcg_data.value_()
+             if objcg_vec_raw == 0:
+                 continue
+             cache = page.slab_cache
+@@ -202,7 +202,7 @@ def main():
+             addr = cache.value_()
+             caches[addr] = cache
+             # clear the lowest bit to get the true obj_cgroups
+-            objcg_vec = Object(prog, page.obj_cgroups.type_,
++            objcg_vec = Object(prog, 'struct obj_cgroup **',
+                                value=objcg_vec_raw & ~1)
  
- 	idx = iwl_pcie_get_cmd_index(txq, txq->write_ptr);
- 	tfd = iwl_pcie_get_tfd(trans, txq, txq->write_ptr);
- 	memset(tfd, 0, sizeof(*tfd));
- 
- 	if (iwl_queue_space(trans, txq) < ((cmd->flags & CMD_ASYNC) ? 2 : 1)) {
--		spin_unlock_bh(&txq->lock);
-+		spin_unlock_irqrestore(&txq->lock, flags2);
- 
- 		IWL_ERR(trans, "No space in command queue\n");
- 		iwl_op_mode_cmd_queue_full(trans->op_mode);
-@@ -870,7 +871,7 @@ static int iwl_pcie_gen2_enqueue_hcmd(st
- 	spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
- 
- out:
--	spin_unlock_bh(&txq->lock);
-+	spin_unlock_irqrestore(&txq->lock, flags2);
- free_dup_buf:
- 	if (idx < 0)
- 		kfree(dup_buf);
+             if addr not in stats:
+-- 
+2.30.2
+
 
 
