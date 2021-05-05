@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD314373A22
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F147E3739FE
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbhEEMHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47698 "EHLO mail.kernel.org"
+        id S233368AbhEEMGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:06:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229699AbhEEMHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:07:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1046D613C4;
-        Wed,  5 May 2021 12:06:24 +0000 (UTC)
+        id S233308AbhEEMGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:06:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECE2C613C7;
+        Wed,  5 May 2021 12:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216385;
-        bh=Ql7iDEykfMvIIpEsQFffngjm6a4WUByVYdx2J5aCiKc=;
+        s=korg; t=1620216343;
+        bh=bC3ef4u67Brh5Gfv4jVGl8QIziT3OxuFz7Byly6W42o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJut0KrHhDO2gUEGdPRkhLrgsXMAQppGcwlUPa6UJVQev4rlo69OAYB0LxjDnDsFA
-         lKWFrD91TTXY0qviUdSgQlp+WUZxRBDZsH8Dxc/h9hU+20WtxUL+flgBg4bJpwriWe
-         YQT8yiYaIejKtm/jYMT5trvtqomOLqnJX5WuUulw=
+        b=b3/Qfx2gI7oogcgby/x5QrWwCONpWv+bUcTAOpEI9iSCmHLaQslj5FXXuSuyk+XV1
+         iHXIwVyXw6/IbY1L1hXn5vuv+OP7evhxP02aZgfo2tds2h0GE+F/6JfzZSIOUkSm0X
+         7y6MOGBtOJC4D+Y/p8yZN/Be3B4pYZWJCGup8f1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jianxiong Gao <jxgao@google.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: [PATCH 5.10 14/29] swiotlb: factor out an io_tlb_offset helper
-Date:   Wed,  5 May 2021 14:05:17 +0200
-Message-Id: <20210505112326.666752898@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 13/15] ASoC: ak5558: Add MODULE_DEVICE_TABLE
+Date:   Wed,  5 May 2021 14:05:18 +0200
+Message-Id: <20210505120504.206500486@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
-References: <20210505112326.195493232@linuxfoundation.org>
+In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
+References: <20210505120503.781531508@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,86 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianxiong Gao <jxgao@google.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-commit: c7fbeca757fe74135d8b6a4c8ddaef76f5775d68
+commit 741c8397e5d0b339fb3e614a9ff5cb4bf7ae1a65 upstream.
 
-Replace the very genericly named OFFSET macro with a little inline
-helper that hardcodes the alignment to the only value ever passed.
+Add missed MODULE_DEVICE_TABLE for the driver can be loaded
+automatically at boot.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Jianxiong Gao <jxgao@google.com>
-Tested-by: Jianxiong Gao <jxgao@google.com>
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Jianxiong Gao <jxgao@google.com>
+Fixes: 920884777480 ("ASoC: ak5558: Add support for AK5558 ADC driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1614149872-25510-2-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/swiotlb.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ sound/soc/codecs/ak5558.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -50,9 +50,6 @@
- #define CREATE_TRACE_POINTS
- #include <trace/events/swiotlb.h>
+--- a/sound/soc/codecs/ak5558.c
++++ b/sound/soc/codecs/ak5558.c
+@@ -407,6 +407,7 @@ static struct i2c_driver ak5558_i2c_driv
+ 	.probe_new = ak5558_i2c_probe,
+ 	.remove = ak5558_i2c_remove,
+ };
++MODULE_DEVICE_TABLE(of, ak5558_i2c_dt_ids);
  
--#define OFFSET(val,align) ((unsigned long)	\
--	                   ( (val) & ( (align) - 1)))
--
- #define SLABS_PER_PAGE (1 << (PAGE_SHIFT - IO_TLB_SHIFT))
+ module_i2c_driver(ak5558_i2c_driver);
  
- /*
-@@ -176,6 +173,11 @@ void swiotlb_print_info(void)
- 	       bytes >> 20);
- }
- 
-+static inline unsigned long io_tlb_offset(unsigned long val)
-+{
-+	return val & (IO_TLB_SEGSIZE - 1);
-+}
-+
- /*
-  * Early SWIOTLB allocation may be too early to allow an architecture to
-  * perform the desired operations.  This function allows the architecture to
-@@ -225,7 +227,7 @@ int __init swiotlb_init_with_tbl(char *t
- 		      __func__, alloc_size, PAGE_SIZE);
- 
- 	for (i = 0; i < io_tlb_nslabs; i++) {
--		io_tlb_list[i] = IO_TLB_SEGSIZE - OFFSET(i, IO_TLB_SEGSIZE);
-+		io_tlb_list[i] = IO_TLB_SEGSIZE - io_tlb_offset(i);
- 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
- 	}
- 	io_tlb_index = 0;
-@@ -359,7 +361,7 @@ swiotlb_late_init_with_tbl(char *tlb, un
- 		goto cleanup4;
- 
- 	for (i = 0; i < io_tlb_nslabs; i++) {
--		io_tlb_list[i] = IO_TLB_SEGSIZE - OFFSET(i, IO_TLB_SEGSIZE);
-+		io_tlb_list[i] = IO_TLB_SEGSIZE - io_tlb_offset(i);
- 		io_tlb_orig_addr[i] = INVALID_PHYS_ADDR;
- 	}
- 	io_tlb_index = 0;
-@@ -530,7 +532,9 @@ phys_addr_t swiotlb_tbl_map_single(struc
- 
- 			for (i = index; i < (int) (index + nslots); i++)
- 				io_tlb_list[i] = 0;
--			for (i = index - 1; (OFFSET(i, IO_TLB_SEGSIZE) != IO_TLB_SEGSIZE - 1) && io_tlb_list[i]; i--)
-+			for (i = index - 1;
-+			     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
-+			     io_tlb_list[i]; i--)
- 				io_tlb_list[i] = ++count;
- 			tlb_addr = io_tlb_start + (index << IO_TLB_SHIFT);
- 
-@@ -616,7 +620,9 @@ void swiotlb_tbl_unmap_single(struct dev
- 		 * Step 2: merge the returned slots with the preceding slots,
- 		 * if available (non zero)
- 		 */
--		for (i = index - 1; (OFFSET(i, IO_TLB_SEGSIZE) != IO_TLB_SEGSIZE -1) && io_tlb_list[i]; i--)
-+		for (i = index - 1;
-+		     io_tlb_offset(i) != IO_TLB_SEGSIZE - 1 &&
-+		     io_tlb_list[i]; i--)
- 			io_tlb_list[i] = ++count;
- 
- 		io_tlb_used -= nslots;
 
 
