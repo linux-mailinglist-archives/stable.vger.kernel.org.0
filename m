@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 068F037459A
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0B5F3745D2
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237022AbhEERG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:06:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60728 "EHLO mail.kernel.org"
+        id S236537AbhEERIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:08:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236009AbhEERBw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:01:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E889261C27;
-        Wed,  5 May 2021 16:41:27 +0000 (UTC)
+        id S234636AbhEERCM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:02:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61ED661C1C;
+        Wed,  5 May 2021 16:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232889;
-        bh=dLExIPbUsLELB2mh7d2PwNf7U5Fnt958NIluJdxmVGA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lddCRx7p8uzaLaIjVyLPnMnU1o9ZgVvQ5ZrmKoKGouNZIUB64l1x4Bsai/QEfhCyb
-         OcPVKABtD6PuAQuiY5kKRlhxPh0i+u6WSc83V4zcygbWLhrbaFubF3TAINEUDbu2TR
-         l9i8yQVeZBdlTFFHNQ3Spju7FPmzyiVsbg18Fn2Oqn9Ubt4mAhORmS6fp84Ygy58qT
-         uG5QzQQdoiJOxY8nyuDLWDdZUUYdlw6fZKpJTA/XfTAYTdFQN701sHJG+MU3+VzMA4
-         w69E19Cb7gXcgXUcw4MEdI/LFqaNK79bT3qiZg86W3OGv7n0SqepZXdx5jybW71/2+
-         UjYVpoWSrB4rg==
+        s=k20201202; t=1620232892;
+        bh=rkX6z2dPoS2cqSstGb9735JhgAFXr7gdHa10h8sCZ04=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KLGeeYlHewDDM6ZgIze1SwCWwf3zOUNTj+lQ2+rB2cQ1LKZC1Q9TR3ThYx+CsF3O/
+         UfbLXYF4PT2swE2rEVKf/7me3TY3iApEWoqxixbdIhxHwiJyn/QZihIGzevsfSdz8o
+         HHi8nKyNd3krlDKA9eFIcqYYlN9SR1Uc6SFshvD1gHUqHFjPB7gFlDt7Ty6/QM75x/
+         eRe5pqzLXoTN386ZstXUWjauB56fK0Mr6Pq/GuSkuf5jVbWvClXIO/8ObwM0SjKpFp
+         HvS4obM15LlvI7s1qJvKhkHv1/5PSGcNmR59zm39S7PyJ9zgAIyx0fwIeHgjtEV1FV
+         r6TlpiytG7lrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 25/25] net: ethernet: mtk_eth_soc: fix RX VLAN offload
-Date:   Wed,  5 May 2021 12:40:51 -0400
-Message-Id: <20210505164051.3464020-25-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.9 01/22] fs: dlm: fix debugfs dump
+Date:   Wed,  5 May 2021 12:41:08 -0400
+Message-Id: <20210505164129.3464277-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210505164051.3464020-1-sashal@kernel.org>
-References: <20210505164051.3464020-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,48 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 3f57d8c40fea9b20543cab4da12f4680d2ef182c ]
+[ Upstream commit 92c48950b43f4a767388cf87709d8687151a641f ]
 
-The VLAN ID in the rx descriptor is only valid if the RX_DMA_VTAG bit is
-set. Fixes frames wrongly marked with VLAN tags.
+This patch fixes the following message which randomly pops up during
+glocktop call:
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-[Ilya: fix commit message]
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+seq_file: buggy .next function table_seq_next did not update position index
+
+The issue is that seq_read_iter() in fs/seq_file.c also needs an
+increment of the index in an non next record case as well which this
+patch fixes otherwise seq_read_iter() will print out the above message.
+
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 2 +-
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ fs/dlm/debug_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index a52909db67f6..dbd16dd5aa04 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -1041,7 +1041,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 		skb->protocol = eth_type_trans(skb, netdev);
+diff --git a/fs/dlm/debug_fs.c b/fs/dlm/debug_fs.c
+index 466f7d60edc2..fabce23fdbac 100644
+--- a/fs/dlm/debug_fs.c
++++ b/fs/dlm/debug_fs.c
+@@ -545,6 +545,7 @@ static void *table_seq_next(struct seq_file *seq, void *iter_ptr, loff_t *pos)
  
- 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
--		    RX_DMA_VID(trxd.rxd3))
-+		    (trxd.rxd2 & RX_DMA_VTAG))
- 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
- 					       RX_DMA_VID(trxd.rxd3));
- 		skb_record_rx_queue(skb, 0);
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index 3d3c24a28112..ef82a30b2a0d 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -283,6 +283,7 @@
- #define RX_DMA_DONE		BIT(31)
- #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
- #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
-+#define RX_DMA_VTAG		BIT(15)
- 
- /* QDMA descriptor rxd3 */
- #define RX_DMA_VID(_x)		((_x) & 0xfff)
+ 		if (bucket >= ls->ls_rsbtbl_size) {
+ 			kfree(ri);
++			++*pos;
+ 			return NULL;
+ 		}
+ 		tree = toss ? &ls->ls_rsbtbl[bucket].toss : &ls->ls_rsbtbl[bucket].keep;
 -- 
 2.30.2
 
