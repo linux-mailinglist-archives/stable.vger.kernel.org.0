@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F353745B1
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D9C3745AF
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235798AbhEERH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:07:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33260 "EHLO mail.kernel.org"
+        id S234916AbhEERHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:07:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234553AbhEERCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:02:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFA88613C7;
-        Wed,  5 May 2021 16:41:37 +0000 (UTC)
+        id S236296AbhEERCs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:02:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 307D7613DD;
+        Wed,  5 May 2021 16:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232898;
-        bh=Umgn2PAyD9RUbxja/JXmKFpCaWb1l4D3wphIxd1ySN0=;
+        s=k20201202; t=1620232900;
+        bh=3cUj3yBLF72EvCqc47Y86vCXsukCn6sVkodffvx693o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDuOTlNvDrkQX6DgzcCJ04Tzh7b82vJ3JroZUL6qG/kUAxvaC7mgPuWNM+QV8y+mL
-         A6ZE1VznUvNut7/LpeprTftCRxYEvsmFTocsFTxR2k/RbIHQW7zAhGgVPDets9arvK
-         9OK6ntYVhIWhP+m0OC7wParD/PbD0WbA0jeLwAasjLjK0jbCd2bLAu8skJUMGYtUVJ
-         SOh6emFs01zLPuKp2fyfyZdUr/94QXdFRPn5ts8NVeDjmQuhNcZHOG4jYo5fAY49fi
-         sI1CiOHCVU9pLYB3tVfz6apTIlMQsCjWJPMRDzzUfpC3DqgusBeZMMOIzwDmbXQB3b
-         KZXSPfFVdN6jA==
+        b=Vz0eaHbmIOOU4QvSPR8DFF8umRFtirImsQMZW4GSs/ReTk7ZKncwEhKxRIGClyYFQ
+         Fh4aK46LHUObGGnv2FRy2Rd8ZcgBud4iQn0CN7+SgactLG92/WKgiusxiLpIWX94WN
+         ELB7qFWvkFT1mb901Ik2FmQU8ISpZNaTDv+siZjA1eHUAJHEaIHnnc9Bqw7rOzULPV
+         aY2F/pp4ua/mFA+JjFOwIOcTTgbDjbLhbySJU59Awlcea/QxgLH1qAx8CRsluBBWSC
+         XjsH3UzMKyr3DzMT1i4g86ZKEIEw1A7QOzgYOTV+U0AJ1PcILCu7ksR2BdFo575s1Q
+         n+OnHBlRPOvJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tong Zhang <ztong0001@gmail.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 06/22] ALSA: rme9652: don't disable if not enabled
-Date:   Wed,  5 May 2021 12:41:13 -0400
-Message-Id: <20210505164129.3464277-6-sashal@kernel.org>
+Cc:     Archie Pusaka <apusaka@chromium.org>,
+        syzbot+338f014a98367a08a114@syzkaller.appspotmail.com,
+        Alain Michaud <alainm@chromium.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 07/22] Bluetooth: Set CONF_NOT_COMPLETE as l2cap_chan default
+Date:   Wed,  5 May 2021 12:41:14 -0400
+Message-Id: <20210505164129.3464277-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164129.3464277-1-sashal@kernel.org>
 References: <20210505164129.3464277-1-sashal@kernel.org>
@@ -41,47 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Archie Pusaka <apusaka@chromium.org>
 
-[ Upstream commit f57a741874bb6995089020e97a1dcdf9b165dcbe ]
+[ Upstream commit 3a9d54b1947ecea8eea9a902c0b7eb58a98add8a ]
 
-rme9652 wants to disable a not enabled pci device, which makes kernel
-throw a warning. Make sure the device is enabled before calling disable.
+Currently l2cap_chan_set_defaults() reset chan->conf_state to zero.
+However, there is a flag CONF_NOT_COMPLETE which is set when
+creating the l2cap_chan. It is suggested that the flag should be
+cleared when l2cap_chan is ready, but when l2cap_chan_set_defaults()
+is called, l2cap_chan is not yet ready. Therefore, we must set this
+flag as the default.
 
-[    1.751595] snd_rme9652 0000:00:03.0: disabling already-disabled device
-[    1.751605] WARNING: CPU: 0 PID: 174 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.759968] Call Trace:
-[    1.760145]  snd_rme9652_card_free+0x76/0xa0 [snd_rme9652]
-[    1.760434]  release_card_device+0x4b/0x80 [snd]
-[    1.760679]  device_release+0x3b/0xa0
-[    1.760874]  kobject_put+0x94/0x1b0
-[    1.761059]  put_device+0x13/0x20
-[    1.761235]  snd_card_free+0x61/0x90 [snd]
-[    1.761454]  snd_rme9652_probe+0x3be/0x700 [snd_rme9652]
+Example crash call trace:
+__dump_stack lib/dump_stack.c:15 [inline]
+dump_stack+0xc4/0x118 lib/dump_stack.c:56
+panic+0x1c6/0x38b kernel/panic.c:117
+__warn+0x170/0x1b9 kernel/panic.c:471
+warn_slowpath_fmt+0xc7/0xf8 kernel/panic.c:494
+debug_print_object+0x175/0x193 lib/debugobjects.c:260
+debug_object_assert_init+0x171/0x1bf lib/debugobjects.c:614
+debug_timer_assert_init kernel/time/timer.c:629 [inline]
+debug_assert_init kernel/time/timer.c:677 [inline]
+del_timer+0x7c/0x179 kernel/time/timer.c:1034
+try_to_grab_pending+0x81/0x2e5 kernel/workqueue.c:1230
+cancel_delayed_work+0x7c/0x1c4 kernel/workqueue.c:2929
+l2cap_clear_timer+0x1e/0x41 include/net/bluetooth/l2cap.h:834
+l2cap_chan_del+0x2d8/0x37e net/bluetooth/l2cap_core.c:640
+l2cap_chan_close+0x532/0x5d8 net/bluetooth/l2cap_core.c:756
+l2cap_sock_shutdown+0x806/0x969 net/bluetooth/l2cap_sock.c:1174
+l2cap_sock_release+0x64/0x14d net/bluetooth/l2cap_sock.c:1217
+__sock_release+0xda/0x217 net/socket.c:580
+sock_close+0x1b/0x1f net/socket.c:1039
+__fput+0x322/0x55c fs/file_table.c:208
+____fput+0x17/0x19 fs/file_table.c:244
+task_work_run+0x19b/0x1d3 kernel/task_work.c:115
+exit_task_work include/linux/task_work.h:21 [inline]
+do_exit+0xe4c/0x204a kernel/exit.c:766
+do_group_exit+0x291/0x291 kernel/exit.c:891
+get_signal+0x749/0x1093 kernel/signal.c:2396
+do_signal+0xa5/0xcdb arch/x86/kernel/signal.c:737
+exit_to_usermode_loop arch/x86/entry/common.c:243 [inline]
+prepare_exit_to_usermode+0xed/0x235 arch/x86/entry/common.c:277
+syscall_return_slowpath+0x3a7/0x3b3 arch/x86/entry/common.c:348
+int_ret_from_sys_call+0x25/0xa3
 
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-4-ztong0001@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Archie Pusaka <apusaka@chromium.org>
+Reported-by: syzbot+338f014a98367a08a114@syzkaller.appspotmail.com
+Reviewed-by: Alain Michaud <alainm@chromium.org>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme9652/rme9652.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/pci/rme9652/rme9652.c b/sound/pci/rme9652/rme9652.c
-index a76b1f147660..67bd75fbdc7e 100644
---- a/sound/pci/rme9652/rme9652.c
-+++ b/sound/pci/rme9652/rme9652.c
-@@ -1761,7 +1761,8 @@ static int snd_rme9652_free(struct snd_rme9652 *rme9652)
- 	if (rme9652->port)
- 		pci_release_regions(rme9652->pci);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index b96818cda12d..d586caaa3af4 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -510,7 +510,9 @@ void l2cap_chan_set_defaults(struct l2cap_chan *chan)
+ 	chan->flush_to = L2CAP_DEFAULT_FLUSH_TO;
+ 	chan->retrans_timeout = L2CAP_DEFAULT_RETRANS_TO;
+ 	chan->monitor_timeout = L2CAP_DEFAULT_MONITOR_TO;
++
+ 	chan->conf_state = 0;
++	set_bit(CONF_NOT_COMPLETE, &chan->conf_state);
  
--	pci_disable_device(rme9652->pci);
-+	if (pci_is_enabled(rme9652->pci))
-+		pci_disable_device(rme9652->pci);
- 	return 0;
+ 	set_bit(FLAG_FORCE_ACTIVE, &chan->flags);
  }
- 
 -- 
 2.30.2
 
