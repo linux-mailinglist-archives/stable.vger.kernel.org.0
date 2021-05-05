@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 187CA37426F
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C322237426E
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235603AbhEEQqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49594 "EHLO mail.kernel.org"
+        id S235617AbhEEQqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:46:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235802AbhEEQpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:45:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E66226192C;
-        Wed,  5 May 2021 16:35:43 +0000 (UTC)
+        id S235817AbhEEQpF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:45:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D3DB61925;
+        Wed,  5 May 2021 16:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232544;
-        bh=d0xUgckLeRh1pHbhhDdZ7uq11et2IR+/sjFS+Pl7Ngo=;
+        s=k20201202; t=1620232546;
+        bh=K1Ad5LIEd+gqJ8BD+O00ND/QWNDl+hwMAp3Bhh7hrOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e82pt23uvp1dE4fzSqR/C2XbJcfXV66DXCE+V3SyiGvT9x384r2uPw7zhAizs2TbX
-         IOnZFrTTbl4bsHTxauYoAyfuhFb/owaUZw7Kkgd9QnXWiontZwr/R77K/qJ6NppVvw
-         26NxOQSVML4PIe4w+ksNMZFtbH2nRCe4JjnU3spkWMa/pcuJzcyR/7A490HbK3GYkW
-         PdK0QgEk0xYvcHXhlWOcxmqrdUZrjWQ0cbuxqUrKhZzJHdcfei0mgHWSh3E/olwcCP
-         RsQ8yUpr4dftqedqk9Asw6aIyRIqiY7zXliD6Etp/SOnCYHijNH64wWGWwG14Swl+k
-         sTtX297WD/2TQ==
+        b=Xem00VX2KMb0yrScWYlYZx9TVr/7h6MZlXErZjY4aWKHumGGY0U0QNdQ7mz9tLCwZ
+         UyfoBccksh04Toa8JN4mzrxTfvBdlVAKNgUZ3OUOfWcQaDCGsTo/E4OjPqJyx8MBrL
+         5clkEwVcyD7LYG82ho5mm67c+GTL6gktmiUZRcqK1UVZenxnv7CjFaruTEUFpiScWD
+         jEfLeGgRqxJuc7SyaTVxl4dcbyJ1o8P1Z/7pCPp00BgM8QfwS24OI6anrcMriZSiAL
+         07tcuLLtG1qFWIwj88hjOvb44530fV/Ktg5VLnW3TJgMtt2lgJ792ShH3o2/EVD84V
+         tZoe3iVQeObLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 063/104] iwlwifi: queue: avoid memory leak in reset flow
-Date:   Wed,  5 May 2021 12:33:32 -0400
-Message-Id: <20210505163413.3461611-63-sashal@kernel.org>
+Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.11 064/104] powerpc/mm: Add cond_resched() while removing hpte mappings
+Date:   Wed,  5 May 2021 12:33:33 -0400
+Message-Id: <20210505163413.3461611-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163413.3461611-1-sashal@kernel.org>
 References: <20210505163413.3461611-1-sashal@kernel.org>
@@ -43,119 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit 4cf2f5904d971a461f67825434ae3c31900ff84b ]
+[ Upstream commit a5d6a3e73acbd619dd5b7b831762b755f9e2db80 ]
 
-In case the device is stopped any usage of hw queues needs to be
-reallocated in fw due to fw reset after device stop, so all driver
-internal queue should also be freed, and if we don't free the next usage
-would leak the old memory and get in recover flows
-"iwlwifi 0000:00:03.0: dma_pool_destroy iwlwifi:bc" warning.
+While removing large number of mappings from hash page tables for
+large memory systems as soft-lockup is reported because of the time
+spent inside htap_remove_mapping() like one below:
 
-Also warn about trying to reuse an internal allocated queue.
+ watchdog: BUG: soft lockup - CPU#8 stuck for 23s!
+ <snip>
+ NIP plpar_hcall+0x38/0x58
+ LR  pSeries_lpar_hpte_invalidate+0x68/0xb0
+ Call Trace:
+  0x1fffffffffff000 (unreliable)
+  pSeries_lpar_hpte_removebolted+0x9c/0x230
+  hash__remove_section_mapping+0xec/0x1c0
+  remove_section_mapping+0x28/0x3c
+  arch_remove_memory+0xfc/0x150
+  devm_memremap_pages_release+0x180/0x2f0
+  devm_action_release+0x30/0x50
+  release_nodes+0x28c/0x300
+  device_release_driver_internal+0x16c/0x280
+  unbind_store+0x124/0x170
+  drv_attr_store+0x44/0x60
+  sysfs_kf_write+0x64/0x90
+  kernfs_fop_write+0x1b0/0x290
+  __vfs_write+0x3c/0x70
+  vfs_write+0xd4/0x270
+  ksys_write+0xdc/0x130
+  system_call+0x5c/0x70
 
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210411124417.c72d2f0355c4.Ia3baff633b9b9109f88ab379ef0303aa152c16bf@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fix this by adding a cond_resched() to the loop in
+htap_remove_mapping() that issues hcall to remove hpte mapping. The
+call to cond_resched() is issued every HZ jiffies which should prevent
+the soft-lockup from being reported.
+
+Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210404163148.321346-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/intel/iwlwifi/pcie/trans-gen2.c  |  4 +--
- drivers/net/wireless/intel/iwlwifi/queue/tx.c | 30 ++++---------------
- drivers/net/wireless/intel/iwlwifi/queue/tx.h |  3 +-
- 3 files changed, 9 insertions(+), 28 deletions(-)
+ arch/powerpc/mm/book3s64/hash_utils.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-index 08788bc90683..fd7398daaf65 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
- /*
-  * Copyright (C) 2017 Intel Deutschland GmbH
-- * Copyright (C) 2018-2020 Intel Corporation
-+ * Copyright (C) 2018-2021 Intel Corporation
-  */
- #include "iwl-trans.h"
- #include "iwl-prph.h"
-@@ -141,7 +141,7 @@ void _iwl_trans_pcie_gen2_stop_device(struct iwl_trans *trans)
- 	if (test_and_clear_bit(STATUS_DEVICE_ENABLED, &trans->status)) {
- 		IWL_DEBUG_INFO(trans,
- 			       "DEVICE_ENABLED bit was set and is now cleared\n");
--		iwl_txq_gen2_tx_stop(trans);
-+		iwl_txq_gen2_tx_free(trans);
- 		iwl_pcie_rx_stop(trans);
- 	}
+diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
+index 73b06adb6eeb..f81b09769e0b 100644
+--- a/arch/powerpc/mm/book3s64/hash_utils.c
++++ b/arch/powerpc/mm/book3s64/hash_utils.c
+@@ -337,7 +337,7 @@ int htab_bolt_mapping(unsigned long vstart, unsigned long vend,
+ int htab_remove_mapping(unsigned long vstart, unsigned long vend,
+ 		      int psize, int ssize)
+ {
+-	unsigned long vaddr;
++	unsigned long vaddr, time_limit;
+ 	unsigned int step, shift;
+ 	int rc;
+ 	int ret = 0;
+@@ -350,8 +350,19 @@ int htab_remove_mapping(unsigned long vstart, unsigned long vend,
  
-diff --git a/drivers/net/wireless/intel/iwlwifi/queue/tx.c b/drivers/net/wireless/intel/iwlwifi/queue/tx.c
-index 7ff1bb0ccc9c..cd5b06ce3e9c 100644
---- a/drivers/net/wireless/intel/iwlwifi/queue/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/queue/tx.c
-@@ -13,30 +13,6 @@
- #include "iwl-scd.h"
- #include <linux/dmapool.h>
- 
--/*
-- * iwl_txq_gen2_tx_stop - Stop all Tx DMA channels
-- */
--void iwl_txq_gen2_tx_stop(struct iwl_trans *trans)
--{
--	int txq_id;
--
--	/*
--	 * This function can be called before the op_mode disabled the
--	 * queues. This happens when we have an rfkill interrupt.
--	 * Since we stop Tx altogether - mark the queues as stopped.
--	 */
--	memset(trans->txqs.queue_stopped, 0,
--	       sizeof(trans->txqs.queue_stopped));
--	memset(trans->txqs.queue_used, 0, sizeof(trans->txqs.queue_used));
--
--	/* Unmap DMA from host system and free skb's */
--	for (txq_id = 0; txq_id < ARRAY_SIZE(trans->txqs.txq); txq_id++) {
--		if (!trans->txqs.txq[txq_id])
--			continue;
--		iwl_txq_gen2_unmap(trans, txq_id);
--	}
--}
--
- /*
-  * iwl_txq_update_byte_tbl - Set up entry in Tx byte-count array
-  */
-@@ -1189,6 +1165,12 @@ static int iwl_txq_alloc_response(struct iwl_trans *trans, struct iwl_txq *txq,
- 		goto error_free_resp;
- 	}
- 
-+	if (WARN_ONCE(trans->txqs.txq[qid],
-+		      "queue %d already allocated\n", qid)) {
-+		ret = -EIO;
-+		goto error_free_resp;
-+	}
+ 	/* Unmap the full range specificied */
+ 	vaddr = ALIGN_DOWN(vstart, step);
++	time_limit = jiffies + HZ;
 +
- 	txq->id = qid;
- 	trans->txqs.txq[qid] = txq;
- 	wr_ptr &= (trans->trans_cfg->base_params->max_tfd_queue_size - 1);
-diff --git a/drivers/net/wireless/intel/iwlwifi/queue/tx.h b/drivers/net/wireless/intel/iwlwifi/queue/tx.h
-index cff694c25ccc..d32256d78917 100644
---- a/drivers/net/wireless/intel/iwlwifi/queue/tx.h
-+++ b/drivers/net/wireless/intel/iwlwifi/queue/tx.h
-@@ -1,6 +1,6 @@
- /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
- /*
-- * Copyright (C) 2020 Intel Corporation
-+ * Copyright (C) 2020-2021 Intel Corporation
-  */
- #ifndef __iwl_trans_queue_tx_h__
- #define __iwl_trans_queue_tx_h__
-@@ -123,7 +123,6 @@ int iwl_txq_gen2_tx(struct iwl_trans *trans, struct sk_buff *skb,
- void iwl_txq_dyn_free(struct iwl_trans *trans, int queue);
- void iwl_txq_gen2_free_tfd(struct iwl_trans *trans, struct iwl_txq *txq);
- void iwl_txq_inc_wr_ptr(struct iwl_trans *trans, struct iwl_txq *txq);
--void iwl_txq_gen2_tx_stop(struct iwl_trans *trans);
- void iwl_txq_gen2_tx_free(struct iwl_trans *trans);
- int iwl_txq_init(struct iwl_trans *trans, struct iwl_txq *txq, int slots_num,
- 		 bool cmd_queue);
+ 	for (;vaddr < vend; vaddr += step) {
+ 		rc = mmu_hash_ops.hpte_removebolted(vaddr, psize, ssize);
++
++		/*
++		 * For large number of mappings introduce a cond_resched()
++		 * to prevent softlockup warnings.
++		 */
++		if (time_after(jiffies, time_limit)) {
++			cond_resched();
++			time_limit = jiffies + HZ;
++		}
+ 		if (rc == -ENOENT) {
+ 			ret = -ENOENT;
+ 			continue;
 -- 
 2.30.2
 
