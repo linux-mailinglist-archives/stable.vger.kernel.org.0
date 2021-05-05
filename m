@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BEE73745DE
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:51:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 129F83746CE
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:53:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235997AbhEERIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:08:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32778 "EHLO mail.kernel.org"
+        id S237588AbhEER2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:28:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238622AbhEERGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:06:16 -0400
+        id S235458AbhEERGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:06:19 -0400
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E679D610FB;
-        Wed,  5 May 2021 16:48:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E926B61157;
+        Wed,  5 May 2021 16:49:43 +0000 (UTC)
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
         by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94)
         (envelope-from <maz@kernel.org>)
-        id 1leKhg-00B3AR-80; Wed, 05 May 2021 17:48:52 +0100
-Date:   Wed, 05 May 2021 17:48:51 +0100
-Message-ID: <874kfhnn2k.wl-maz@kernel.org>
+        id 1leKiT-00B3BN-RZ; Wed, 05 May 2021 17:49:41 +0100
+Date:   Wed, 05 May 2021 17:49:41 +0100
+Message-ID: <8735v1nn16.wl-maz@kernel.org>
 From:   Marc Zyngier <maz@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Andrew Scull <ascull@google.com>,
         Will Deacon <will@kernel.org>,
         linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
-Subject: Re: [PATCH AUTOSEL 5.11 036/104] KVM: arm64: Use BUG and BUG_ON in nVHE hyp
-In-Reply-To: <20210505163413.3461611-36-sashal@kernel.org>
-References: <20210505163413.3461611-1-sashal@kernel.org>
-        <20210505163413.3461611-36-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.12 039/116] KVM: arm64: Use BUG and BUG_ON in nVHE hyp
+In-Reply-To: <20210505163125.3460440-39-sashal@kernel.org>
+References: <20210505163125.3460440-1-sashal@kernel.org>
+        <20210505163125.3460440-39-sashal@kernel.org>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
  (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -46,9 +46,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha,
-
-On Wed, 05 May 2021 17:33:05 +0100,
+On Wed, 05 May 2021 17:30:07 +0100,
 Sasha Levin <sashal@kernel.org> wrote:
 > 
 > From: Andrew Scull <ascull@google.com>
@@ -68,12 +66,7 @@ Sasha Levin <sashal@kernel.org> wrote:
 > Link: https://lore.kernel.org/r/20210318143311.839894-5-ascull@google.com
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-This has no chance of working without the patches that enable BUG()
-support at EL2, and *really* isn't stable material.
-
-Please drop this patch.
-
-Thanks,
+Same this for this patch.
 
 	M.
 
