@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23AFE373A9B
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88930373A97
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:10:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233033AbhEEMLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:11:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48308 "EHLO mail.kernel.org"
+        id S233051AbhEEMLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:11:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233299AbhEEMKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232634AbhEEMKe (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 08:10:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8189C613F3;
-        Wed,  5 May 2021 12:09:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA713613FC;
+        Wed,  5 May 2021 12:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216562;
-        bh=iYnhpWZVYHdO4upwoPcSOtF+UPjCwydCeOm4QV8fhLg=;
+        s=korg; t=1620216564;
+        bh=Q8hPrMVY17d+rHA4g4851tvn60S78AymKfwJtlzwMqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZWJqJCLHlPLz+aMwYDAC9uB8hOO/z86YDMFOCysRRxZ4O7PPNmvldWlS6RyylLYD
-         1SDZOoeqKXIWMdzN+kBnNzW3vmeX1SVK0ONsVM3v2FDQ14JWdwXYDQ2zXTQ31ijn54
-         Ia1CjQ8EsByaExdS51sFttO1rtE/NwuCGhmU5cZA=
+        b=AV0zNNAp4ufqH8dWmJ3M1XzSw5f9kCfhuEQkQygEo5GRkrOkAG2DrdOI8C7yJSa/p
+         JrmnrKKTUrIKESVeVzBHeXzK6mjP/f8oja1MosOwAAlFcNHyAveB/NbkF1BjgZZrp3
+         WVqo7dS1xPI6HiF3DADpQ7Q5wdo/1qXP8RtWOpq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Pearson <markpearson@lenovo.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.11 30/31] platform/x86: thinkpad_acpi: Correct thermal sensor allocation
-Date:   Wed,  5 May 2021 14:06:19 +0200
-Message-Id: <20210505112327.661995664@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.11 31/31] perf/core: Fix unconditional security_locked_down() call
+Date:   Wed,  5 May 2021 14:06:20 +0200
+Message-Id: <20210505112327.693881809@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112326.672439569@linuxfoundation.org>
 References: <20210505112326.672439569@linuxfoundation.org>
@@ -39,102 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <markpearson@lenovo.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit 6759e18e5cd8745a5dfc5726e4a3db5281ec1639 upstream.
+commit 08ef1af4de5fe7de9c6d69f1e22e51b66e385d9b upstream.
 
-On recent Thinkpad platforms it was reported that temp sensor 11 was
-always incorrectly displaying 66C. It turns out the reason for this is
-that this location in EC RAM is not a temperature sensor but is the
-power supply ID (offset 0xC2).
+Currently, the lockdown state is queried unconditionally, even though
+its result is used only if the PERF_SAMPLE_REGS_INTR bit is set in
+attr.sample_type. While that doesn't matter in case of the Lockdown LSM,
+it causes trouble with the SELinux's lockdown hook implementation.
 
-Based on feedback from the Lenovo firmware team the EC RAM version can
-be determined and for the current version (3) only the 0x78 to 0x7F
-range is used for temp sensors. I don't have any details for earlier
-versions so I have left the implementation unaltered there.
+SELinux implements the locked_down hook with a check whether the current
+task's type has the corresponding "lockdown" class permission
+("integrity" or "confidentiality") allowed in the policy. This means
+that calling the hook when the access control decision would be ignored
+generates a bogus permission check and audit record.
 
-Note - in this block only 0x78 and 0x79 are officially designated (CPU &
-GPU sensors). The use of the other locations in the block will vary from
-platform to platform; but the existing logic to detect a sensor presence
-holds.
+Fix this by checking sample_type first and only calling the hook when
+its result would be honored.
 
-Signed-off-by: Mark Pearson <markpearson@lenovo.com>
-Link: https://lore.kernel.org/r/20210407212015.298222-1-markpearson@lenovo.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: b0c8fdc7fdb7 ("lockdown: Lock down perf when in confidentiality mode")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Link: https://lkml.kernel.org/r/20210224215628.192519-1-omosnace@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c |   31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ kernel/events/core.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -6259,6 +6259,7 @@ enum thermal_access_mode {
- enum { /* TPACPI_THERMAL_TPEC_* */
- 	TP_EC_THERMAL_TMP0 = 0x78,	/* ACPI EC regs TMP 0..7 */
- 	TP_EC_THERMAL_TMP8 = 0xC0,	/* ACPI EC regs TMP 8..15 */
-+	TP_EC_FUNCREV      = 0xEF,      /* ACPI EC Functional revision */
- 	TP_EC_THERMAL_TMP_NA = -128,	/* ACPI EC sensor not available */
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -11817,12 +11817,12 @@ SYSCALL_DEFINE5(perf_event_open,
+ 			return err;
+ 	}
  
- 	TPACPI_THERMAL_SENSOR_NA = -128000, /* Sensor not available */
-@@ -6457,7 +6458,7 @@ static const struct attribute_group ther
+-	err = security_locked_down(LOCKDOWN_PERF);
+-	if (err && (attr.sample_type & PERF_SAMPLE_REGS_INTR))
+-		/* REGS_INTR can leak data, lockdown must prevent this */
+-		return err;
+-
+-	err = 0;
++	/* REGS_INTR can leak data, lockdown must prevent this */
++	if (attr.sample_type & PERF_SAMPLE_REGS_INTR) {
++		err = security_locked_down(LOCKDOWN_PERF);
++		if (err)
++			return err;
++	}
  
- static int __init thermal_init(struct ibm_init_struct *iibm)
- {
--	u8 t, ta1, ta2;
-+	u8 t, ta1, ta2, ver = 0;
- 	int i;
- 	int acpi_tmp7;
- 	int res;
-@@ -6472,7 +6473,14 @@ static int __init thermal_init(struct ib
- 		 * 0x78-0x7F, 0xC0-0xC7.  Registers return 0x00 for
- 		 * non-implemented, thermal sensors return 0x80 when
- 		 * not available
-+		 * The above rule is unfortunately flawed. This has been seen with
-+		 * 0xC2 (power supply ID) causing thermal control problems.
-+		 * The EC version can be determined by offset 0xEF and at least for
-+		 * version 3 the Lenovo firmware team confirmed that registers 0xC0-0xC7
-+		 * are not thermal registers.
- 		 */
-+		if (!acpi_ec_read(TP_EC_FUNCREV, &ver))
-+			pr_warn("Thinkpad ACPI EC unable to access EC version\n");
- 
- 		ta1 = ta2 = 0;
- 		for (i = 0; i < 8; i++) {
-@@ -6482,11 +6490,13 @@ static int __init thermal_init(struct ib
- 				ta1 = 0;
- 				break;
- 			}
--			if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
--				ta2 |= t;
--			} else {
--				ta1 = 0;
--				break;
-+			if (ver < 3) {
-+				if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
-+					ta2 |= t;
-+				} else {
-+					ta1 = 0;
-+					break;
-+				}
- 			}
- 		}
- 		if (ta1 == 0) {
-@@ -6499,9 +6509,12 @@ static int __init thermal_init(struct ib
- 				thermal_read_mode = TPACPI_THERMAL_NONE;
- 			}
- 		} else {
--			thermal_read_mode =
--			    (ta2 != 0) ?
--			    TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
-+			if (ver >= 3)
-+				thermal_read_mode = TPACPI_THERMAL_TPEC_8;
-+			else
-+				thermal_read_mode =
-+					(ta2 != 0) ?
-+					TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
- 		}
- 	} else if (acpi_tmp7) {
- 		if (tpacpi_is_ibm() &&
+ 	/*
+ 	 * In cgroup mode, the pid argument is used to pass the fd
 
 
