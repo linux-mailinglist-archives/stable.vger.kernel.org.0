@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1A6374245
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B6B8374247
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235329AbhEEQqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:46:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49322 "EHLO mail.kernel.org"
+        id S235366AbhEEQqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:46:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235295AbhEEQnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235289AbhEEQnq (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:43:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D005B61919;
-        Wed,  5 May 2021 16:35:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65CAD6190A;
+        Wed,  5 May 2021 16:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232503;
-        bh=Y8VaKQ/W1YLxBCnWLU7ZSSPoPp+ymXUucgo4S9fjp4Q=;
+        s=k20201202; t=1620232505;
+        bh=XUjM3uzOEodAd8GDaJ/3gful5wE9ZKQwbXWbEv/ZHZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QkeThfLxFtY0GH8pqfrOYsCOTHKVPqeKCsZMjQi9rIKaZri6AbA/o5I4mqIZtKm5A
-         bYhqkBacz7yaRRYIAeG2FcjjGCaCshE92yDqc5s140ho68eSPwSQLcxM+EPTNkhmhn
-         jaKwCeStKX3Vs1AYGLJxRZSNLQYtKdNagRjIRVaSE1fo+EI5D7siO5qCXz74yaNRKL
-         3hIWnrDJhR6OrWEytZiqfYrZFk6V6Ajgrw9n4ul61Gvx+NwL2CbWzSR9SxUKMfEjfr
-         MaIJuAajl7jkqM+RTGXP5AS/kFyY8RoIKH6OZpYsjM9nq5ztojh/6MxNSnWnlf7ZSb
-         i6xv1lxRmwIsA==
+        b=P44MEyT7BdQQKisV/A8INp4AyD4Ii/f18R52Cj6ewBywb4mndqsq2fBYvez951o5a
+         VrttSeEq4nsrZFie/1yUYAyjDGqh/+kWAZdtGu0zmJd6mz0urrR6a+wdPcvFxIHR5X
+         KTZyWzlERzXcrOVZyPHs1+6RzWvIaOtQcwGUpG0TQcNZW0unAKV58ES3UQyl6Qw6jz
+         IxpVlFUyp8j94V5Td95yfS92fndATrkIKOinJdMoAwnQXrRBB0rHS99HYNKntHPGbH
+         FSnY6NCHGyO/Kqz8MMcwXRNzfNSFhY34vV7Rm7sHoEvwZ+Ut/2p5kaiTzBN88KjWGi
+         /8iFUDNT65Sww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 035/104] ice: handle increasing Tx or Rx ring sizes
-Date:   Wed,  5 May 2021 12:33:04 -0400
-Message-Id: <20210505163413.3461611-35-sashal@kernel.org>
+Cc:     Andrew Scull <ascull@google.com>, Will Deacon <will@kernel.org>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 5.11 036/104] KVM: arm64: Use BUG and BUG_ON in nVHE hyp
+Date:   Wed,  5 May 2021 12:33:05 -0400
+Message-Id: <20210505163413.3461611-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163413.3461611-1-sashal@kernel.org>
 References: <20210505163413.3461611-1-sashal@kernel.org>
@@ -44,213 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+From: Andrew Scull <ascull@google.com>
 
-[ Upstream commit 2ec5638559c13b923250eccf495d2a033fccb3e7 ]
+[ Upstream commit f79e616f27ab6cd74deb0995a8eead3d1c9d65af ]
 
-There is an issue when the Tx or Rx ring size increases using
-'ethtool -L ...' where the new rings don't get the correct ITR
-values because when we rebuild the VSI we don't know that some
-of the rings may be new.
+hyp_panic() reports the address of the panic by using ELR_EL2, but this
+isn't a useful address when hyp_panic() is called directly. Replace such
+direct calls with BUG() and BUG_ON() which use BRK to trigger an
+exception that then goes to hyp_panic() with the correct address. Also
+remove the hyp_panic() declaration from the header file to avoid
+accidental misuse.
 
-Fix this by looking at the original number of rings and
-determining if the rings in ice_vsi_rebuild_set_coalesce()
-were not present in the original rings received in
-ice_vsi_rebuild_get_coalesce().
-
-Also change the code to return an error if we can't allocate
-memory for the coalesce data in ice_vsi_rebuild().
-
-Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Andrew Scull <ascull@google.com>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210318143311.839894-5-ascull@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lib.c  | 123 ++++++++++++++++------
- drivers/net/ethernet/intel/ice/ice_txrx.h |   2 +
- 2 files changed, 92 insertions(+), 33 deletions(-)
+ arch/arm64/include/asm/kvm_hyp.h   | 1 -
+ arch/arm64/kvm/hyp/nvhe/hyp-main.c | 2 +-
+ arch/arm64/kvm/hyp/nvhe/hyp-smp.c  | 6 ++----
+ 3 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index 170367eaa95a..e1384503dd4d 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -2684,38 +2684,46 @@ int ice_vsi_release(struct ice_vsi *vsi)
- }
+diff --git a/arch/arm64/include/asm/kvm_hyp.h b/arch/arm64/include/asm/kvm_hyp.h
+index 32ae676236b6..fe5fc814f228 100644
+--- a/arch/arm64/include/asm/kvm_hyp.h
++++ b/arch/arm64/include/asm/kvm_hyp.h
+@@ -100,7 +100,6 @@ u64 __guest_enter(struct kvm_vcpu *vcpu);
  
- /**
-- * ice_vsi_rebuild_update_coalesce - set coalesce for a q_vector
-+ * ice_vsi_rebuild_update_coalesce_intrl - set interrupt rate limit for a q_vector
-  * @q_vector: pointer to q_vector which is being updated
-- * @coalesce: pointer to array of struct with stored coalesce
-+ * @stored_intrl_setting: original INTRL setting
-  *
-  * Set coalesce param in q_vector and update these parameters in HW.
-  */
- static void
--ice_vsi_rebuild_update_coalesce(struct ice_q_vector *q_vector,
--				struct ice_coalesce_stored *coalesce)
-+ice_vsi_rebuild_update_coalesce_intrl(struct ice_q_vector *q_vector,
-+				      u16 stored_intrl_setting)
- {
--	struct ice_ring_container *rx_rc = &q_vector->rx;
--	struct ice_ring_container *tx_rc = &q_vector->tx;
- 	struct ice_hw *hw = &q_vector->vsi->back->hw;
+ bool kvm_host_psci_handler(struct kvm_cpu_context *host_ctxt);
  
--	tx_rc->itr_setting = coalesce->itr_tx;
--	rx_rc->itr_setting = coalesce->itr_rx;
--
--	/* dynamic ITR values will be updated during Tx/Rx */
--	if (!ITR_IS_DYNAMIC(tx_rc->itr_setting))
--		wr32(hw, GLINT_ITR(tx_rc->itr_idx, q_vector->reg_idx),
--		     ITR_REG_ALIGN(tx_rc->itr_setting) >>
--		     ICE_ITR_GRAN_S);
--	if (!ITR_IS_DYNAMIC(rx_rc->itr_setting))
--		wr32(hw, GLINT_ITR(rx_rc->itr_idx, q_vector->reg_idx),
--		     ITR_REG_ALIGN(rx_rc->itr_setting) >>
--		     ICE_ITR_GRAN_S);
--
--	q_vector->intrl = coalesce->intrl;
-+	q_vector->intrl = stored_intrl_setting;
- 	wr32(hw, GLINT_RATE(q_vector->reg_idx),
- 	     ice_intrl_usec_to_reg(q_vector->intrl, hw->intrl_gran));
- }
- 
-+/**
-+ * ice_vsi_rebuild_update_coalesce_itr - set coalesce for a q_vector
-+ * @q_vector: pointer to q_vector which is being updated
-+ * @rc: pointer to ring container
-+ * @stored_itr_setting: original ITR setting
-+ *
-+ * Set coalesce param in q_vector and update these parameters in HW.
-+ */
-+static void
-+ice_vsi_rebuild_update_coalesce_itr(struct ice_q_vector *q_vector,
-+				    struct ice_ring_container *rc,
-+				    u16 stored_itr_setting)
-+{
-+	struct ice_hw *hw = &q_vector->vsi->back->hw;
-+
-+	rc->itr_setting = stored_itr_setting;
-+
-+	/* dynamic ITR values will be updated during Tx/Rx */
-+	if (!ITR_IS_DYNAMIC(rc->itr_setting))
-+		wr32(hw, GLINT_ITR(rc->itr_idx, q_vector->reg_idx),
-+		     ITR_REG_ALIGN(rc->itr_setting) >> ICE_ITR_GRAN_S);
-+}
-+
- /**
-  * ice_vsi_rebuild_get_coalesce - get coalesce from all q_vectors
-  * @vsi: VSI connected with q_vectors
-@@ -2735,6 +2743,11 @@ ice_vsi_rebuild_get_coalesce(struct ice_vsi *vsi,
- 		coalesce[i].itr_tx = q_vector->tx.itr_setting;
- 		coalesce[i].itr_rx = q_vector->rx.itr_setting;
- 		coalesce[i].intrl = q_vector->intrl;
-+
-+		if (i < vsi->num_txq)
-+			coalesce[i].tx_valid = true;
-+		if (i < vsi->num_rxq)
-+			coalesce[i].rx_valid = true;
+-void __noreturn hyp_panic(void);
+ #ifdef __KVM_NVHE_HYPERVISOR__
+ void __noreturn __hyp_do_panic(struct kvm_cpu_context *host_ctxt, u64 spsr,
+ 			       u64 elr, u64 par);
+diff --git a/arch/arm64/kvm/hyp/nvhe/hyp-main.c b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
+index 1b8ef37bf805..2630d3bbae62 100644
+--- a/arch/arm64/kvm/hyp/nvhe/hyp-main.c
++++ b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
+@@ -181,6 +181,6 @@ void handle_trap(struct kvm_cpu_context *host_ctxt)
+ 		handle_host_smc(host_ctxt);
+ 		break;
+ 	default:
+-		hyp_panic();
++		BUG();
  	}
- 
- 	return vsi->num_q_vectors;
-@@ -2759,17 +2772,59 @@ ice_vsi_rebuild_set_coalesce(struct ice_vsi *vsi,
- 	if ((size && !coalesce) || !vsi)
- 		return;
- 
--	for (i = 0; i < size && i < vsi->num_q_vectors; i++)
--		ice_vsi_rebuild_update_coalesce(vsi->q_vectors[i],
--						&coalesce[i]);
--
--	/* number of q_vectors increased, so assume coalesce settings were
--	 * changed globally (i.e. ethtool -C eth0 instead of per-queue) and use
--	 * the previous settings from q_vector 0 for all of the new q_vectors
-+	/* There are a couple of cases that have to be handled here:
-+	 *   1. The case where the number of queue vectors stays the same, but
-+	 *      the number of Tx or Rx rings changes (the first for loop)
-+	 *   2. The case where the number of queue vectors increased (the
-+	 *      second for loop)
- 	 */
--	for (; i < vsi->num_q_vectors; i++)
--		ice_vsi_rebuild_update_coalesce(vsi->q_vectors[i],
--						&coalesce[0]);
-+	for (i = 0; i < size && i < vsi->num_q_vectors; i++) {
-+		/* There are 2 cases to handle here and they are the same for
-+		 * both Tx and Rx:
-+		 *   if the entry was valid previously (coalesce[i].[tr]x_valid
-+		 *   and the loop variable is less than the number of rings
-+		 *   allocated, then write the previous values
-+		 *
-+		 *   if the entry was not valid previously, but the number of
-+		 *   rings is less than are allocated (this means the number of
-+		 *   rings increased from previously), then write out the
-+		 *   values in the first element
-+		 */
-+		if (i < vsi->alloc_rxq && coalesce[i].rx_valid)
-+			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+							    &vsi->q_vectors[i]->rx,
-+							    coalesce[i].itr_rx);
-+		else if (i < vsi->alloc_rxq)
-+			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+							    &vsi->q_vectors[i]->rx,
-+							    coalesce[0].itr_rx);
-+
-+		if (i < vsi->alloc_txq && coalesce[i].tx_valid)
-+			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+							    &vsi->q_vectors[i]->tx,
-+							    coalesce[i].itr_tx);
-+		else if (i < vsi->alloc_txq)
-+			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+							    &vsi->q_vectors[i]->tx,
-+							    coalesce[0].itr_tx);
-+
-+		ice_vsi_rebuild_update_coalesce_intrl(vsi->q_vectors[i],
-+						      coalesce[i].intrl);
-+	}
-+
-+	/* the number of queue vectors increased so write whatever is in
-+	 * the first element
-+	 */
-+	for (; i < vsi->num_q_vectors; i++) {
-+		ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+						    &vsi->q_vectors[i]->tx,
-+						    coalesce[0].itr_tx);
-+		ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+						    &vsi->q_vectors[i]->rx,
-+						    coalesce[0].itr_rx);
-+		ice_vsi_rebuild_update_coalesce_intrl(vsi->q_vectors[i],
-+						      coalesce[0].intrl);
-+	}
  }
+diff --git a/arch/arm64/kvm/hyp/nvhe/hyp-smp.c b/arch/arm64/kvm/hyp/nvhe/hyp-smp.c
+index 2997aa156d8e..4495aed04240 100644
+--- a/arch/arm64/kvm/hyp/nvhe/hyp-smp.c
++++ b/arch/arm64/kvm/hyp/nvhe/hyp-smp.c
+@@ -18,8 +18,7 @@ u64 __ro_after_init hyp_cpu_logical_map[NR_CPUS] = { [0 ... NR_CPUS-1] = INVALID
  
- /**
-@@ -2798,9 +2853,11 @@ int ice_vsi_rebuild(struct ice_vsi *vsi, bool init_vsi)
+ u64 cpu_logical_map(unsigned int cpu)
+ {
+-	if (cpu >= ARRAY_SIZE(hyp_cpu_logical_map))
+-		hyp_panic();
++	BUG_ON(cpu >= ARRAY_SIZE(hyp_cpu_logical_map));
  
- 	coalesce = kcalloc(vsi->num_q_vectors,
- 			   sizeof(struct ice_coalesce_stored), GFP_KERNEL);
--	if (coalesce)
--		prev_num_q_vectors = ice_vsi_rebuild_get_coalesce(vsi,
--								  coalesce);
-+	if (!coalesce)
-+		return -ENOMEM;
-+
-+	prev_num_q_vectors = ice_vsi_rebuild_get_coalesce(vsi, coalesce);
-+
- 	ice_rm_vsi_lan_cfg(vsi->port_info, vsi->idx);
- 	ice_vsi_free_q_vectors(vsi);
+ 	return hyp_cpu_logical_map[cpu];
+ }
+@@ -30,8 +29,7 @@ unsigned long __hyp_per_cpu_offset(unsigned int cpu)
+ 	unsigned long this_cpu_base;
+ 	unsigned long elf_base;
  
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.h b/drivers/net/ethernet/intel/ice/ice_txrx.h
-index ff1a1cbd078e..eab7ceae926b 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.h
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.h
-@@ -351,6 +351,8 @@ struct ice_coalesce_stored {
- 	u16 itr_tx;
- 	u16 itr_rx;
- 	u8 intrl;
-+	u8 tx_valid;
-+	u8 rx_valid;
- };
+-	if (cpu >= ARRAY_SIZE(kvm_arm_hyp_percpu_base))
+-		hyp_panic();
++	BUG_ON(cpu >= ARRAY_SIZE(kvm_arm_hyp_percpu_base));
  
- /* iterator for handling rings in ring container */
+ 	cpu_base_array = (unsigned long *)hyp_symbol_addr(kvm_arm_hyp_percpu_base);
+ 	this_cpu_base = kern_hyp_va(cpu_base_array[cpu]);
 -- 
 2.30.2
 
