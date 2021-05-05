@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00FB8374544
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84A62374543
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237977AbhEEREe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237942AbhEEREe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 5 May 2021 13:04:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60672 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237883AbhEERBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237886AbhEERBh (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 13:01:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 388FD61A30;
-        Wed,  5 May 2021 16:40:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 788F461A33;
+        Wed,  5 May 2021 16:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232847;
-        bh=KOxEcpLIYjCOySdv0hsp70Jj+86Vk7vNIPq0btkVDE0=;
+        s=k20201202; t=1620232849;
+        bh=2OMhfOSE2hc5YlXeGMX+M4+Zqe3M8J8R/W0DHF6u5ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/d6wVnMKl6wABHE8Ahrg6Fvfh5PG637lVyCBExrzQFcwd4mWplMf5YEUSwfEmlc8
-         AUzK2OpQyU4hfl5quk75gaDMW+rw9E/BtAVCVzR9ejhpijEXqkC4B4DOx6Po7dMEHJ
-         soiORyVQF1K8svtG3Ai4c0v7iS+xhLST97Jeue76aSlXQNdv4zhUljgbgeCMDGcw3A
-         bazHujEjjeR50WLU8DmfY0ZP5T4mFz0HUop1ynmKzsblOg1So+cKVocPosLbdbL7eT
-         ckA0IK1upGPZQko7vdtxO9V0CcYEp+iYbFajAOe6UvIdYOc1ueEvqgyvbxk8Eotaox
-         eqPRRiH7jBsnw==
+        b=sUqRWnRz+bAOXrWpVhUfiZwowItzIFW5gKFpN2HTAU3XyyhHA4956zb8PCBDa3z8q
+         DRUp3LfYB7lr5i9TmdbUq8DUDhaVcGfYzvM9cH8rRNii55zHvDIT0VjIZZCHWn4/Rk
+         s/Se8NMMyI+d9YNd8jCRAg9Sgn9iYmuTVeR6JEtpuGMjSkdzlZE9LzxNa6IYYtvtF5
+         oqmO742FW8aKcE7j1u9G0g/5Qrc3nVMxy16iy660bl9rR8rAherh7DHFh3Gm2P6ZUn
+         lesA+R8hCs9XT3aCujDNx91fhkhyVUIC8tgJwngEP9QHEWpaWtRQCV8zhz0vJ0V6qM
+         p7FnjdKoW74RQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 30/32] powerpc/iommu: Annotate nested lock for lockdep
-Date:   Wed,  5 May 2021 12:40:02 -0400
-Message-Id: <20210505164004.3463707-30-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 31/32] net: ethernet: mtk_eth_soc: fix RX VLAN offload
+Date:   Wed,  5 May 2021 12:40:03 -0400
+Message-Id: <20210505164004.3463707-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164004.3463707-1-sashal@kernel.org>
 References: <20210505164004.3463707-1-sashal@kernel.org>
@@ -42,68 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit cc7130bf119add37f36238343a593b71ef6ecc1e ]
+[ Upstream commit 3f57d8c40fea9b20543cab4da12f4680d2ef182c ]
 
-The IOMMU table is divided into pools for concurrent mappings and each
-pool has a separate spinlock. When taking the ownership of an IOMMU group
-to pass through a device to a VM, we lock these spinlocks which triggers
-a false negative warning in lockdep (below).
+The VLAN ID in the rx descriptor is only valid if the RX_DMA_VTAG bit is
+set. Fixes frames wrongly marked with VLAN tags.
 
-This fixes it by annotating the large pool's spinlock as a nest lock
-which makes lockdep not complaining when locking nested locks if
-the nest lock is locked already.
-
-===
-WARNING: possible recursive locking detected
-5.11.0-le_syzkaller_a+fstn1 #100 Not tainted
---------------------------------------------
-qemu-system-ppc/4129 is trying to acquire lock:
-c0000000119bddb0 (&(p->lock)/1){....}-{2:2}, at: iommu_take_ownership+0xac/0x1e0
-
-but task is already holding lock:
-c0000000119bdd30 (&(p->lock)/1){....}-{2:2}, at: iommu_take_ownership+0xac/0x1e0
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&(p->lock)/1);
-  lock(&(p->lock)/1);
-===
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210301063653.51003-1-aik@ozlabs.ru
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+[Ilya: fix commit message]
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/iommu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 2 +-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
-index f0dc680e659a..c3d2d5cd7c10 100644
---- a/arch/powerpc/kernel/iommu.c
-+++ b/arch/powerpc/kernel/iommu.c
-@@ -1030,7 +1030,7 @@ int iommu_take_ownership(struct iommu_table *tbl)
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index b72a4fad7bc8..59f3dce3ab1d 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -1041,7 +1041,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
+ 		skb->protocol = eth_type_trans(skb, netdev);
  
- 	spin_lock_irqsave(&tbl->large_pool.lock, flags);
- 	for (i = 0; i < tbl->nr_pools; i++)
--		spin_lock(&tbl->pools[i].lock);
-+		spin_lock_nest_lock(&tbl->pools[i].lock, &tbl->large_pool.lock);
+ 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
+-		    RX_DMA_VID(trxd.rxd3))
++		    (trxd.rxd2 & RX_DMA_VTAG))
+ 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
+ 					       RX_DMA_VID(trxd.rxd3));
+ 		skb_record_rx_queue(skb, 0);
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 46819297fc3e..cb6b27861afa 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -285,6 +285,7 @@
+ #define RX_DMA_DONE		BIT(31)
+ #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
+ #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
++#define RX_DMA_VTAG		BIT(15)
  
- 	if (tbl->it_offset == 0)
- 		clear_bit(0, tbl->it_map);
-@@ -1059,7 +1059,7 @@ void iommu_release_ownership(struct iommu_table *tbl)
- 
- 	spin_lock_irqsave(&tbl->large_pool.lock, flags);
- 	for (i = 0; i < tbl->nr_pools; i++)
--		spin_lock(&tbl->pools[i].lock);
-+		spin_lock_nest_lock(&tbl->pools[i].lock, &tbl->large_pool.lock);
- 
- 	memset(tbl->it_map, 0, sz);
- 
+ /* QDMA descriptor rxd3 */
+ #define RX_DMA_VID(_x)		((_x) & 0xfff)
 -- 
 2.30.2
 
