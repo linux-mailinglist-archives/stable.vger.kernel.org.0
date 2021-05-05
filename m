@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E9C1374510
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D965337450F
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236878AbhEERDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:03:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
+        id S236865AbhEERDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237184AbhEEQ7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237183AbhEEQ7V (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:59:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34AEF619CE;
-        Wed,  5 May 2021 16:39:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0644161C31;
+        Wed,  5 May 2021 16:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232792;
-        bh=7DUZvs7B2WR8mEeJ41aTwBlwL6oP+yY2xHe2/76/RIw=;
+        s=k20201202; t=1620232794;
+        bh=Bf/MeFNuUNxwZjurwDZzpIk65KDNmw3dJVmDGlNl6Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjUawCHmvEjHhKeVKY2tJ4uUstraf8mN4jkblLm2MHo2RmdVwjBGMASBaKICUAvQA
-         5i9wy+UYcZlQwo1Tw9k2GX1lPbwaxy4JElTyHmTrXMllBsKH1t9YKwzevPn+IkXNhd
-         JbRTufhO3Ii8kl4Q7AxsEkhsuk/7kBtr33SR08bK5zmsPCz7mdV9oq/0ZADxyaX/qS
-         KZYt/jwcQ7mIN80TskF1fLRw0+2xmCtcmBHtUgk+xCqnrM4xqwqSCq8b2TncUIWNTx
-         P3HpCtxGA508TOCKGj6OYjmIq+V/meNlclO40KUFv1wIjgmEjuWSpwjW7vE+NAokrX
-         zgzORVy5U/9vg==
+        b=uEpHUw04UP4mc75iQnNPaeOoSVCkrlerBZ0S+vOrKukl7Wg7qywjva690PFefvBxG
+         Hr55Zmxusg2/LCLP9yxbOyVpnhIJilQZ8IvLgAdLs4/AoXDIj+4HVVyU6v8O86WLxe
+         ZWZu/+IhAsB0L5jCE2eHnFmswJsbna+jFMy4Y2NvjTlTG46D/QM/735TDc+4Hr/4JD
+         pRZvrkFp94mh2wxCPwokCSsWXiIJ+A81HoAfG5QobR6uczaKVgLD7AbuirDynTvrn8
+         2p9QLGAnmx2q0rWC3C5mHpsUm5a14KsjwzODTCrImKOp+GfQAehFMDZpWvZJgIViwS
+         Q8ZyS/hlpE8dA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Singh <robin.singh@amd.com>,
-        Harry Wentland <Harry.Wentland@amd.com>,
-        Robin Singh <Robin.Singh@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 38/46] drm/amd/display: fixed divide by zero kernel crash during dsc enablement
-Date:   Wed,  5 May 2021 12:38:48 -0400
-Message-Id: <20210505163856.3463279-38-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 39/46] wl3501_cs: Fix out-of-bounds warnings in wl3501_send_pkt
+Date:   Wed,  5 May 2021 12:38:49 -0400
+Message-Id: <20210505163856.3463279-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
 References: <20210505163856.3463279-1-sashal@kernel.org>
@@ -47,109 +45,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Singh <robin.singh@amd.com>
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 
-[ Upstream commit 19cc1f3829567e7dca21c1389ea6407b8f5efab4 ]
+[ Upstream commit 820aa37638a252b57967bdf4038a514b1ab85d45 ]
 
-[why]
-During dsc enable, a divide by zero condition triggered the
-kernel crash.
+Fix the following out-of-bounds warnings by enclosing structure members
+daddr and saddr into new struct addr, in structures wl3501_md_req and
+wl3501_md_ind:
 
-[how]
-An IGT test, which enable the DSC, was crashing at the time of
-restore the default dsc status, becaue of h_totals value
-becoming 0. So add a check before divide condition. If h_total
-is zero, gracefully ignore and set the default value.
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
 
-kernel panic log:
+Refactor the code, accordingly:
 
-	[  128.758827] divide error: 0000 [#1] PREEMPT SMP NOPTI
-	[  128.762714] CPU: 5 PID: 4562 Comm: amd_dp_dsc Tainted: G        W         5.4.19-android-x86_64 #1
-	[  128.769728] Hardware name: ADVANCED MICRO DEVICES, INC. Mauna/Mauna, BIOS WMN0B13N Nov 11 2020
-	[  128.777695] RIP: 0010:hubp2_vready_at_or_After_vsync+0x37/0x7a [amdgpu]
-	[  128.785707] Code: 80 02 00 00 48 89 f3 48 8b 7f 08 b ......
-	[  128.805696] RSP: 0018:ffffad8f82d43628 EFLAGS: 00010246
-	......
-	[  128.857707] CR2: 00007106d8465000 CR3: 0000000426530000 CR4: 0000000000140ee0
-	[  128.865695] Call Trace:
-	[  128.869712] hubp3_setup+0x1f/0x7f [amdgpu]
-	[  128.873705] dcn20_update_dchubp_dpp+0xc8/0x54a [amdgpu]
-	[  128.877706] dcn20_program_front_end_for_ctx+0x31d/0x463 [amdgpu]
-	[  128.885706] dc_commit_state+0x3d2/0x658 [amdgpu]
-	[  128.889707] amdgpu_dm_atomic_commit_tail+0x4b3/0x1e7c [amdgpu]
-	[  128.897699] ? dm_read_reg_func+0x41/0xb5 [amdgpu]
-	[  128.901707] ? dm_read_reg_func+0x41/0xb5 [amdgpu]
-	[  128.905706] ? __is_insn_slot_addr+0x43/0x48
-	[  128.909706] ? fill_plane_buffer_attributes+0x29e/0x3dc [amdgpu]
-	[  128.917705] ? dm_plane_helper_prepare_fb+0x255/0x284 [amdgpu]
-	[  128.921700] ? usleep_range+0x7c/0x7c
-	[  128.925705] ? preempt_count_sub+0xf/0x18
-	[  128.929706] ? _raw_spin_unlock_irq+0x13/0x24
-	[  128.933732] ? __wait_for_common+0x11e/0x18f
-	[  128.937705] ? _raw_spin_unlock_irq+0x13/0x24
-	[  128.941706] ? __wait_for_common+0x11e/0x18f
-	[  128.945705] commit_tail+0x8b/0xd2 [drm_kms_helper]
-	[  128.949707] drm_atomic_helper_commit+0xd8/0xf5 [drm_kms_helper]
-	[  128.957706] amdgpu_dm_atomic_commit+0x337/0x360 [amdgpu]
-	[  128.961705] ? drm_atomic_check_only+0x543/0x68d [drm]
-	[  128.969705] ? drm_atomic_set_property+0x760/0x7af [drm]
-	[  128.973704] ? drm_mode_atomic_ioctl+0x6f3/0x85a [drm]
-	[  128.977705] drm_mode_atomic_ioctl+0x6f3/0x85a [drm]
-	[  128.985705] ? drm_atomic_set_property+0x7af/0x7af [drm]
-	[  128.989706] drm_ioctl_kernel+0x82/0xda [drm]
-	[  128.993706] drm_ioctl+0x225/0x319 [drm]
-	[  128.997707] ? drm_atomic_set_property+0x7af/0x7af [drm]
-	[  129.001706] ? preempt_count_sub+0xf/0x18
-	[  129.005713] amdgpu_drm_ioctl+0x4b/0x76 [amdgpu]
-	[  129.009705] vfs_ioctl+0x1d/0x2a
-	[  129.013705] do_vfs_ioctl+0x419/0x43d
-	[  129.017707] ksys_ioctl+0x52/0x71
-	[  129.021707] __x64_sys_ioctl+0x16/0x19
-	[  129.025706] do_syscall_64+0x78/0x85
-	[  129.029705] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+$ pahole -C wl3501_md_req drivers/net/wireless/wl3501_cs.o
+struct wl3501_md_req {
+	u16                        next_blk;             /*     0     2 */
+	u8                         sig_id;               /*     2     1 */
+	u8                         routing;              /*     3     1 */
+	u16                        data;                 /*     4     2 */
+	u16                        size;                 /*     6     2 */
+	u8                         pri;                  /*     8     1 */
+	u8                         service_class;        /*     9     1 */
+	struct {
+		u8                 daddr[6];             /*    10     6 */
+		u8                 saddr[6];             /*    16     6 */
+	} addr;                                          /*    10    12 */
 
-Signed-off-by: Robin Singh <robin.singh@amd.com>
-Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
-Reviewed-by: Robin Singh <Robin.Singh@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+	/* size: 22, cachelines: 1, members: 8 */
+	/* last cacheline: 22 bytes */
+};
+
+$ pahole -C wl3501_md_ind drivers/net/wireless/wl3501_cs.o
+struct wl3501_md_ind {
+	u16                        next_blk;             /*     0     2 */
+	u8                         sig_id;               /*     2     1 */
+	u8                         routing;              /*     3     1 */
+	u16                        data;                 /*     4     2 */
+	u16                        size;                 /*     6     2 */
+	u8                         reception;            /*     8     1 */
+	u8                         pri;                  /*     9     1 */
+	u8                         service_class;        /*    10     1 */
+	struct {
+		u8                 daddr[6];             /*    11     6 */
+		u8                 saddr[6];             /*    17     6 */
+	} addr;                                          /*    11    12 */
+
+	/* size: 24, cachelines: 1, members: 9 */
+	/* padding: 1 */
+	/* last cacheline: 24 bytes */
+};
+
+The problem is that the original code is trying to copy data into a
+couple of arrays adjacent to each other in a single call to memcpy().
+Now that a new struct _addr_ enclosing those two adjacent arrays
+is introduced, memcpy() doesn't overrun the length of &sig.daddr[0]
+and &sig.daddr, because the address of the new struct object _addr_
+is used, instead.
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/d260fe56aed7112bff2be5b4d152d03ad7b78e78.1618442265.git.gustavoars@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/wireless/wl3501.h    | 12 ++++++++----
+ drivers/net/wireless/wl3501_cs.c | 10 ++++++----
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c
-index 69e2aae42394..b250ef75c163 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hubp.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright 2012-17 Advanced Micro Devices, Inc.
-+ * Copyright 2012-2021 Advanced Micro Devices, Inc.
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a
-  * copy of this software and associated documentation files (the "Software"),
-@@ -179,11 +179,14 @@ void hubp2_vready_at_or_After_vsync(struct hubp *hubp,
- 	else
- 		Set HUBP_VREADY_AT_OR_AFTER_VSYNC = 0
- 	*/
--	if ((pipe_dest->vstartup_start - (pipe_dest->vready_offset+pipe_dest->vupdate_width
--		+ pipe_dest->vupdate_offset) / pipe_dest->htotal) <= pipe_dest->vblank_end) {
--		value = 1;
--	} else
--		value = 0;
-+	if (pipe_dest->htotal != 0) {
-+		if ((pipe_dest->vstartup_start - (pipe_dest->vready_offset+pipe_dest->vupdate_width
-+			+ pipe_dest->vupdate_offset) / pipe_dest->htotal) <= pipe_dest->vblank_end) {
-+			value = 1;
-+		} else
-+			value = 0;
-+	}
-+
- 	REG_UPDATE(DCHUBP_CNTL, HUBP_VREADY_AT_OR_AFTER_VSYNC, value);
- }
+diff --git a/drivers/net/wireless/wl3501.h b/drivers/net/wireless/wl3501.h
+index efdce9ae36ea..077a934ae3b5 100644
+--- a/drivers/net/wireless/wl3501.h
++++ b/drivers/net/wireless/wl3501.h
+@@ -471,8 +471,10 @@ struct wl3501_md_req {
+ 	u16	size;
+ 	u8	pri;
+ 	u8	service_class;
+-	u8	daddr[ETH_ALEN];
+-	u8	saddr[ETH_ALEN];
++	struct {
++		u8	daddr[ETH_ALEN];
++		u8	saddr[ETH_ALEN];
++	} addr;
+ };
  
+ struct wl3501_md_ind {
+@@ -484,8 +486,10 @@ struct wl3501_md_ind {
+ 	u8	reception;
+ 	u8	pri;
+ 	u8	service_class;
+-	u8	daddr[ETH_ALEN];
+-	u8	saddr[ETH_ALEN];
++	struct {
++		u8	daddr[ETH_ALEN];
++		u8	saddr[ETH_ALEN];
++	} addr;
+ };
+ 
+ struct wl3501_md_confirm {
+diff --git a/drivers/net/wireless/wl3501_cs.c b/drivers/net/wireless/wl3501_cs.c
+index 007bf6803293..96eb69678855 100644
+--- a/drivers/net/wireless/wl3501_cs.c
++++ b/drivers/net/wireless/wl3501_cs.c
+@@ -469,6 +469,7 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
+ 	struct wl3501_md_req sig = {
+ 		.sig_id = WL3501_SIG_MD_REQ,
+ 	};
++	size_t sig_addr_len = sizeof(sig.addr);
+ 	u8 *pdata = (char *)data;
+ 	int rc = -EIO;
+ 
+@@ -484,9 +485,9 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
+ 			goto out;
+ 		}
+ 		rc = 0;
+-		memcpy(&sig.daddr[0], pdata, 12);
+-		pktlen = len - 12;
+-		pdata += 12;
++		memcpy(&sig.addr, pdata, sig_addr_len);
++		pktlen = len - sig_addr_len;
++		pdata += sig_addr_len;
+ 		sig.data = bf;
+ 		if (((*pdata) * 256 + (*(pdata + 1))) > 1500) {
+ 			u8 addr4[ETH_ALEN] = {
+@@ -980,7 +981,8 @@ static inline void wl3501_md_ind_interrupt(struct net_device *dev,
+ 	} else {
+ 		skb->dev = dev;
+ 		skb_reserve(skb, 2); /* IP headers on 16 bytes boundaries */
+-		skb_copy_to_linear_data(skb, (unsigned char *)&sig.daddr, 12);
++		skb_copy_to_linear_data(skb, (unsigned char *)&sig.addr,
++					sizeof(sig.addr));
+ 		wl3501_receive(this, skb->data, pkt_len);
+ 		skb_put(skb, pkt_len);
+ 		skb->protocol	= eth_type_trans(skb, dev);
 -- 
 2.30.2
 
