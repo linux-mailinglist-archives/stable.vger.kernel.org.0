@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 625C5373A9A
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:11:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23AFE373A9B
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233520AbhEEMLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53540 "EHLO mail.kernel.org"
+        id S233033AbhEEMLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233147AbhEEMKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233299AbhEEMKe (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 08:10:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29638610A2;
-        Wed,  5 May 2021 12:09:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8189C613F3;
+        Wed,  5 May 2021 12:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216559;
-        bh=sLXzNJfNNAwUVZkwkW/4vZLgIZ1OoV+SFmCkcbn/5F0=;
+        s=korg; t=1620216562;
+        bh=iYnhpWZVYHdO4upwoPcSOtF+UPjCwydCeOm4QV8fhLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hgp7k9vDndw+s52MiFvFkpSskTwRJmNoSYM2lmdUiJVOz9efvm+oA9+pnKobahp2S
-         +MkbUX4qLF2ymh8uBpxBzRpFZBdp1bZu6/oUvK3313WTEyfKFlQQe2caJrS4N5lMcT
-         9uVJ3M+u7pOlwXsu2R3NaFhTbUmU5eRTkoXrjLxg=
+        b=nZWJqJCLHlPLz+aMwYDAC9uB8hOO/z86YDMFOCysRRxZ4O7PPNmvldWlS6RyylLYD
+         1SDZOoeqKXIWMdzN+kBnNzW3vmeX1SVK0ONsVM3v2FDQ14JWdwXYDQ2zXTQ31ijn54
+         Ia1CjQ8EsByaExdS51sFttO1rtE/NwuCGhmU5cZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.11 29/31] ASoC: ak5558: Add MODULE_DEVICE_TABLE
-Date:   Wed,  5 May 2021 14:06:18 +0200
-Message-Id: <20210505112327.631503757@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Pearson <markpearson@lenovo.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.11 30/31] platform/x86: thinkpad_acpi: Correct thermal sensor allocation
+Date:   Wed,  5 May 2021 14:06:19 +0200
+Message-Id: <20210505112327.661995664@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112326.672439569@linuxfoundation.org>
 References: <20210505112326.672439569@linuxfoundation.org>
@@ -39,32 +39,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Mark Pearson <markpearson@lenovo.com>
 
-commit 741c8397e5d0b339fb3e614a9ff5cb4bf7ae1a65 upstream.
+commit 6759e18e5cd8745a5dfc5726e4a3db5281ec1639 upstream.
 
-Add missed MODULE_DEVICE_TABLE for the driver can be loaded
-automatically at boot.
+On recent Thinkpad platforms it was reported that temp sensor 11 was
+always incorrectly displaying 66C. It turns out the reason for this is
+that this location in EC RAM is not a temperature sensor but is the
+power supply ID (offset 0xC2).
 
-Fixes: 920884777480 ("ASoC: ak5558: Add support for AK5558 ADC driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1614149872-25510-2-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Based on feedback from the Lenovo firmware team the EC RAM version can
+be determined and for the current version (3) only the 0x78 to 0x7F
+range is used for temp sensors. I don't have any details for earlier
+versions so I have left the implementation unaltered there.
+
+Note - in this block only 0x78 and 0x79 are officially designated (CPU &
+GPU sensors). The use of the other locations in the block will vary from
+platform to platform; but the existing logic to detect a sensor presence
+holds.
+
+Signed-off-by: Mark Pearson <markpearson@lenovo.com>
+Link: https://lore.kernel.org/r/20210407212015.298222-1-markpearson@lenovo.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/ak5558.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/thinkpad_acpi.c |   31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
---- a/sound/soc/codecs/ak5558.c
-+++ b/sound/soc/codecs/ak5558.c
-@@ -430,6 +430,7 @@ static struct i2c_driver ak5558_i2c_driv
- 	.probe_new = ak5558_i2c_probe,
- 	.remove = ak5558_i2c_remove,
- };
-+MODULE_DEVICE_TABLE(of, ak5558_i2c_dt_ids);
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -6259,6 +6259,7 @@ enum thermal_access_mode {
+ enum { /* TPACPI_THERMAL_TPEC_* */
+ 	TP_EC_THERMAL_TMP0 = 0x78,	/* ACPI EC regs TMP 0..7 */
+ 	TP_EC_THERMAL_TMP8 = 0xC0,	/* ACPI EC regs TMP 8..15 */
++	TP_EC_FUNCREV      = 0xEF,      /* ACPI EC Functional revision */
+ 	TP_EC_THERMAL_TMP_NA = -128,	/* ACPI EC sensor not available */
  
- module_i2c_driver(ak5558_i2c_driver);
+ 	TPACPI_THERMAL_SENSOR_NA = -128000, /* Sensor not available */
+@@ -6457,7 +6458,7 @@ static const struct attribute_group ther
  
+ static int __init thermal_init(struct ibm_init_struct *iibm)
+ {
+-	u8 t, ta1, ta2;
++	u8 t, ta1, ta2, ver = 0;
+ 	int i;
+ 	int acpi_tmp7;
+ 	int res;
+@@ -6472,7 +6473,14 @@ static int __init thermal_init(struct ib
+ 		 * 0x78-0x7F, 0xC0-0xC7.  Registers return 0x00 for
+ 		 * non-implemented, thermal sensors return 0x80 when
+ 		 * not available
++		 * The above rule is unfortunately flawed. This has been seen with
++		 * 0xC2 (power supply ID) causing thermal control problems.
++		 * The EC version can be determined by offset 0xEF and at least for
++		 * version 3 the Lenovo firmware team confirmed that registers 0xC0-0xC7
++		 * are not thermal registers.
+ 		 */
++		if (!acpi_ec_read(TP_EC_FUNCREV, &ver))
++			pr_warn("Thinkpad ACPI EC unable to access EC version\n");
+ 
+ 		ta1 = ta2 = 0;
+ 		for (i = 0; i < 8; i++) {
+@@ -6482,11 +6490,13 @@ static int __init thermal_init(struct ib
+ 				ta1 = 0;
+ 				break;
+ 			}
+-			if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
+-				ta2 |= t;
+-			} else {
+-				ta1 = 0;
+-				break;
++			if (ver < 3) {
++				if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
++					ta2 |= t;
++				} else {
++					ta1 = 0;
++					break;
++				}
+ 			}
+ 		}
+ 		if (ta1 == 0) {
+@@ -6499,9 +6509,12 @@ static int __init thermal_init(struct ib
+ 				thermal_read_mode = TPACPI_THERMAL_NONE;
+ 			}
+ 		} else {
+-			thermal_read_mode =
+-			    (ta2 != 0) ?
+-			    TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
++			if (ver >= 3)
++				thermal_read_mode = TPACPI_THERMAL_TPEC_8;
++			else
++				thermal_read_mode =
++					(ta2 != 0) ?
++					TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
+ 		}
+ 	} else if (acpi_tmp7) {
+ 		if (tpacpi_is_ibm() &&
 
 
