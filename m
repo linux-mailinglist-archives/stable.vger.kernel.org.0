@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1D33745C1
+	by mail.lfdr.de (Postfix) with ESMTP id 7520B3745C0
 	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:51:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236706AbhEERHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:07:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
+        id S236309AbhEERHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238049AbhEEREk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:04:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECA8461410;
-        Wed,  5 May 2021 16:42:06 +0000 (UTC)
+        id S238069AbhEEREl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:04:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A81861C2A;
+        Wed,  5 May 2021 16:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232927;
-        bh=UuI6kqth4+CJXrv9i+pQbcCa85wGcLTvm3qUCtZsltg=;
+        s=k20201202; t=1620232929;
+        bh=nTm8LRrpyUZP5X3dXoiOauWMZOqsahfD2+SgGSn6TW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4K6rFB1iBsyGZIN+6t4MMP8XYx4cUr4as5hBreE526cNGEwcuV7wexaflILaJM53
-         z4qptW/qUaShaDfANj1pFWS27mt/NJ4WMpHOz0GXcoXXhOI3hrCQgduXTBcpP0kCA7
-         Zw8+9rHJG/cAcidp/obwWOgUSsQO5M1IDKm9wvTNxIrK1dMOfnuAkDyRPyZXtmbiRc
-         QwynFqGBH12y7mAGoPcusowOJ+lozUs0PdYAPpC2qqr9vfOzn+zfKJcSrQMuaeozUt
-         uCgQERfv7rdcLIScJKwQFfAO2fYVs+Da0pcNq12I5NwDbEYIiaazvLCaYeT2QqUrZ2
-         voNc8e5E9rqsw==
+        b=qKYaovWbLr5R8sTUnIeIwD/zYK1z6TMmu6vAOhZGNNKtW4UPHhZI53HejE6lt+3zh
+         GPkpWpa/sjXjzKg4hsKuoRfRm0I56Qdod1dKya4cOL8KqMgCbKR/eLhUi3lfz9m37B
+         T6P0mp2xI3OMJN4MTawhQ7IeRphbexvg4M+vRP7oQ5E7Eirth/OSNobB3HwAcBGvX6
+         EYg2fKId3Ihtb+6Uvvb9e+Hb1OkEythkqV4o0qKokaFfIBhdpW6d6voUVryHmo59Jy
+         VUC5CfuGNmQn7ccOhCVbhrwDtGmVAI+d5coxKIku8zIh5/+TZFrbH/lWdgUxpgKhb4
+         r2zAHdXeMi6dg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan McDowell <noodles@earth.li>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 03/19] net: stmmac: Set FIFO sizes for ipq806x
-Date:   Wed,  5 May 2021 12:41:46 -0400
-Message-Id: <20210505164203.3464510-3-sashal@kernel.org>
+Cc:     Tong Zhang <ztong0001@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.4 04/19] ALSA: hdsp: don't disable if not enabled
+Date:   Wed,  5 May 2021 12:41:47 -0400
+Message-Id: <20210505164203.3464510-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164203.3464510-1-sashal@kernel.org>
 References: <20210505164203.3464510-1-sashal@kernel.org>
@@ -44,42 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan McDowell <noodles@earth.li>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit e127906b68b49ddb3ecba39ffa36a329c48197d3 ]
+[ Upstream commit 507cdb9adba006a7798c358456426e1aea3d9c4f ]
 
-Commit eaf4fac47807 ("net: stmmac: Do not accept invalid MTU values")
-started using the TX FIFO size to verify what counts as a valid MTU
-request for the stmmac driver.  This is unset for the ipq806x variant.
-Looking at older patches for this it seems the RX + TXs buffers can be
-up to 8k, so set appropriately.
+hdsp wants to disable a not enabled pci device, which makes kernel
+throw a warning. Make sure the device is enabled before calling disable.
 
-(I sent this as an RFC patch in June last year, but received no replies.
-I've been running with this on my hardware (a MikroTik RB3011) since
-then with larger MTUs to support both the internal qca8k switch and
-VLANs with no problems. Without the patch it's impossible to set the
-larger MTU required to support this.)
+[    1.758292] snd_hdsp 0000:00:03.0: disabling already-disabled device
+[    1.758327] WARNING: CPU: 0 PID: 180 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
+[    1.766985] Call Trace:
+[    1.767121]  snd_hdsp_card_free+0x94/0xf0 [snd_hdsp]
+[    1.767388]  release_card_device+0x4b/0x80 [snd]
+[    1.767639]  device_release+0x3b/0xa0
+[    1.767838]  kobject_put+0x94/0x1b0
+[    1.768027]  put_device+0x13/0x20
+[    1.768207]  snd_card_free+0x61/0x90 [snd]
+[    1.768430]  snd_hdsp_probe+0x524/0x5e0 [snd_hdsp]
 
-Signed-off-by: Jonathan McDowell <noodles@earth.li>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210321153840.378226-2-ztong0001@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/rme9652/hdsp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-index ee5a7c05a0e6..f1eb9f99076a 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-@@ -361,6 +361,8 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 	plat_dat->bsp_priv = gmac;
- 	plat_dat->fix_mac_speed = ipq806x_gmac_fix_mac_speed;
- 	plat_dat->multicast_filter_bins = 0;
-+	plat_dat->tx_fifo_size = 8192;
-+	plat_dat->rx_fifo_size = 8192;
+diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+index dd6c9e6a1d53..4128c04fbfde 100644
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -5314,7 +5314,8 @@ static int snd_hdsp_free(struct hdsp *hdsp)
+ 	if (hdsp->port)
+ 		pci_release_regions(hdsp->pci);
  
- 	return stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
+-	pci_disable_device(hdsp->pci);
++	if (pci_is_enabled(hdsp->pci))
++		pci_disable_device(hdsp->pci);
+ 	return 0;
  }
+ 
 -- 
 2.30.2
 
