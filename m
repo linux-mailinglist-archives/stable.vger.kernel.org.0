@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A87B374429
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35FD637442C
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236041AbhEEQzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:55:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58938 "EHLO mail.kernel.org"
+        id S235270AbhEEQzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:55:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230128AbhEEQw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:52:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFBFC61445;
-        Wed,  5 May 2021 16:38:11 +0000 (UTC)
+        id S236121AbhEEQxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:53:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3879F61987;
+        Wed,  5 May 2021 16:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232692;
-        bh=l6UOsSfIwMVHstmtkJIX4n+JtKICvV4bJ/QTOVkiPiM=;
+        s=k20201202; t=1620232694;
+        bh=XzcDXvBSH+R0j5NNcBgl6fxh7SnQzovuacvmy70gLYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=epFjPiUSGAZc5ZuNMyT69RIF0DxemogtE+f87wbjlNVPcbD6PFowl/G3cBrW38N1m
-         opj37OmZxobufndmQZdJGWnh215udYoO5cbELt1+ceSHSeqaYeUvSKyo1Y4pVEPGit
-         H+RJAUmwpajldc2gnbcBYnsi/4magKzqh7kSoiATnTQxVpeYa/Ff8gQdi6LU2FaBeC
-         j2G0zriPWugWUL+HhDeAh0CpJw7Z5FR+Wg+lwFYOBahHaeSwR6ZcVzjyk9I/TbYSHg
-         TUDIHcI6sbwkbtBhLAU3uOYsoQr7xRJqK0v7NNd///uEP0ybpZPif/ezV9l9Aq/pCz
-         OAnWVJfrVZ4lw==
+        b=lA5OKz/d10EWtD0rfvDayN3s5dDsUoZJKVJacdg9mGnFnnBA8gUE2b+7ob2xA8RNf
+         aOpk+5igpiGVuv+sHhxM7d9LOVGVK5VhP5+EM9fPNYhQLocYMniG4oElADReCt1WMY
+         UFYPShhtqkfZRPx+jbA6cICOV3WqRwZ3uWyxjz+750VGbk5nRGOmygO49/HJLXTfrv
+         IlFIRscm8bWNYDFYNRN6GmtD+BuJo/VVJ39CVCTKDD94qcNhnv5sir7offZ1kK55lM
+         SADo6hTuP2eIVChZQpSu1S/6XgFwDBbMBZ7qPPpihW3Ou3D6mE1aPLJ4lO1fsQzndO
+         xCSDQXNFtmypw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 57/85] ALSA: hda/hdmi: fix race in handling acomp ELD notification at resume
-Date:   Wed,  5 May 2021 12:36:20 -0400
-Message-Id: <20210505163648.3462507-57-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-sctp@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 58/85] sctp: Fix out-of-bounds warning in sctp_process_asconf_param()
+Date:   Wed,  5 May 2021 12:36:21 -0400
+Message-Id: <20210505163648.3462507-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163648.3462507-1-sashal@kernel.org>
 References: <20210505163648.3462507-1-sashal@kernel.org>
@@ -42,64 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 
-[ Upstream commit 0c37e2eb6b83e375e8a654d01598292d5591fc65 ]
+[ Upstream commit e5272ad4aab347dde5610c0aedb786219e3ff793 ]
 
-When snd-hda-codec-hdmi is used with ASoC HDA controller like SOF (acomp
-used for ELD notifications), display connection change done during suspend,
-can be lost due to following sequence of events:
+Fix the following out-of-bounds warning:
 
-  1. system in S3 suspend
-  2. DP/HDMI receiver connected
-  3. system resumed
-  4. HDA controller resumed, but card->deferred_resume_work not complete
-  5. acomp eld_notify callback
-  6. eld_notify ignored as power state is not CTL_POWER_D0
-  7. HDA resume deferred work completed, power state set to CTL_POWER_D0
+net/sctp/sm_make_chunk.c:3150:4: warning: 'memcpy' offset [17, 28] from the object at 'addr' is out of the bounds of referenced subobject 'v4' with type 'struct sockaddr_in' at offset 0 [-Warray-bounds]
 
-This results in losing the notification, and the jack state reported to
-user-space is not correct.
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
 
-The check on step 6 was added in commit 8ae743e82f0b ("ALSA: hda - Skip
-ELD notification during system suspend"). It would seem with the deferred
-resume logic in ASoC core, this check is not safe.
-
-Fix the issue by modifying the check to use "dev.power.power_state.event"
-instead of ALSA specific card power state variable.
-
-BugLink: https://github.com/thesofproject/linux/issues/2825
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20210416131157.1881366-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sctp/sm_make_chunk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 8c6f10cbced3..6d2a4dfcfe43 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2653,7 +2653,7 @@ static void generic_acomp_pin_eld_notify(void *audio_ptr, int port, int dev_id)
- 	/* skip notification during system suspend (but not in runtime PM);
- 	 * the state will be updated at resume
- 	 */
--	if (snd_power_get_state(codec->card) != SNDRV_CTL_POWER_D0)
-+	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
- 		return;
- 	/* ditto during suspend/resume process itself */
- 	if (snd_hdac_is_in_pm(&codec->core))
-@@ -2839,7 +2839,7 @@ static void intel_pin_eld_notify(void *audio_ptr, int port, int pipe)
- 	/* skip notification during system suspend (but not in runtime PM);
- 	 * the state will be updated at resume
- 	 */
--	if (snd_power_get_state(codec->card) != SNDRV_CTL_POWER_D0)
-+	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
- 		return;
- 	/* ditto during suspend/resume process itself */
- 	if (snd_hdac_is_in_pm(&codec->core))
+diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
+index 9a56ae2f3651..b9d6babe2870 100644
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -3126,7 +3126,7 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
+ 		 * primary.
+ 		 */
+ 		if (af->is_any(&addr))
+-			memcpy(&addr.v4, sctp_source(asconf), sizeof(addr));
++			memcpy(&addr, sctp_source(asconf), sizeof(addr));
+ 
+ 		if (security_sctp_bind_connect(asoc->ep->base.sk,
+ 					       SCTP_PARAM_SET_PRIMARY,
 -- 
 2.30.2
 
