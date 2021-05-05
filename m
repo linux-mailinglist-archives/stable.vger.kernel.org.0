@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991E837424F
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B377337424D
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235434AbhEEQq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:46:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49544 "EHLO mail.kernel.org"
+        id S235423AbhEEQqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:46:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235344AbhEEQny (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235346AbhEEQny (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:43:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E698261883;
-        Wed,  5 May 2021 16:35:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3483361878;
+        Wed,  5 May 2021 16:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232512;
-        bh=IMJ8hZyHaeaxYIxJ3ChM/Z56gbfXgXe0IxNM/jf0ZWY=;
+        s=k20201202; t=1620232514;
+        bh=whOO/qEGOEz7yoV6ZAmhRiWRqssU/z4LEZFhx831jh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXkfui240w7rQiMSkBVEGStGVIb2PHyhILezE6whZTVdcIivsX7kwcTK22nNi2GU6
-         2UYQ1yKIC9b0TP3x4OK4v232H6rfd1EKSIEXRvi3zC/YtWjp+LxllFIoIPLFWtgElA
-         FeMMXxMMtWMqbSARluxDwGFbXscM0YXWOWMxfqlvD3JKhQHnXxzB1xL9vRUVqjE/HP
-         PNjtej5w8b0jbd+bd8MLMwaIZyhufWXpesXj+NvZr2j2AQdAWepDJ2EWMUzlycVp9E
-         teawpj9sI6MyZnLv0XIfe1cFTeGNmVHKIEg7dwYrzXi6XDPM6UH9qwT//h5xyMoZWP
-         CXIZGu8Kmfung==
+        b=pVq4xfBYgDWzDprwSKXj+ZsSzYb9bol1pvsn7LB+ktJVjgNJwL7bUieWi4vKU8Bz9
+         HxlGtOREAJyQGca0pPxR7VfdgJWPqVdHe8Aq1oWqR7MT3wxoR7maxySO9FLN9ZRTXL
+         ng/Tw6sFNwJa/GRs7UDwF75tsRGl9GRLZ34O6LCDLLBqYIOuU41AAyxIF85Ynsntma
+         qz0G9CAgXgbO51f7sV2Djzo3yobKAUfu0Y/hj2a2c8vjNeTYkZBO0cACULXXhalvDJ
+         Y6R6nRP/sIWXI4IOe9jIrFmZRdmU6sQZeWE8Qb9b2QnPLtZeZ4uv7L/g/FO55WmJpq
+         ZNonoNZUzfNFA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Bence=20Cs=C3=B3k=C3=A1s?= <bence98@sch.bme.hu>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 041/104] i2c: Add I2C_AQ_NO_REP_START adapter quirk
-Date:   Wed,  5 May 2021 12:33:10 -0400
-Message-Id: <20210505163413.3461611-41-sashal@kernel.org>
+Cc:     Daniel Winkler <danielwinkler@google.com>,
+        Miao-chen Chou <mcchou@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 042/104] Bluetooth: Do not set cur_adv_instance in adv param MGMT request
+Date:   Wed,  5 May 2021 12:33:11 -0400
+Message-Id: <20210505163413.3461611-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163413.3461611-1-sashal@kernel.org>
 References: <20210505163413.3461611-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,34 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bence Csókás <bence98@sch.bme.hu>
+From: Daniel Winkler <danielwinkler@google.com>
 
-[ Upstream commit aca01415e076aa96cca0f801f4420ee5c10c660d ]
+[ Upstream commit b6f1b79deabd32f89adbf24ef7b30f82d029808a ]
 
-This quirk signifies that the adapter cannot do a repeated
-START, it always issues a STOP condition after transfers.
+We set hdev->cur_adv_instance in the adv param MGMT request to allow the
+callback to the hci param request to set the tx power to the correct
+instance. Now that the callbacks use the advertising handle from the hci
+request (as they should), this workaround is no longer necessary.
 
-Suggested-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Bence Csókás <bence98@sch.bme.hu>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Furthermore, this change resolves a race condition that is more
+prevalent when using the extended advertising MGMT calls - if
+hdev->cur_adv_instance is set in the params request, then when the data
+request is called, we believe our new instance is already active. This
+treats it as an update and immediately schedules the instance with the
+controller, which has a potential race with the software rotation adv
+update. By not setting hdev->cur_adv_instance too early, the new
+instance is queued as it should be, to be used when the rotation comes
+around again.
+
+This change is tested on harrison peak to confirm that it resolves the
+race condition on registration, and that there is no regression in
+single- and multi-advertising automated tests.
+
+Reviewed-by: Miao-chen Chou <mcchou@chromium.org>
+Signed-off-by: Daniel Winkler <danielwinkler@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/i2c.h | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/mgmt.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 56622658b215..a670ae129f4b 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -687,6 +687,8 @@ struct i2c_adapter_quirks {
- #define I2C_AQ_NO_ZERO_LEN_READ		BIT(5)
- #define I2C_AQ_NO_ZERO_LEN_WRITE	BIT(6)
- #define I2C_AQ_NO_ZERO_LEN		(I2C_AQ_NO_ZERO_LEN_READ | I2C_AQ_NO_ZERO_LEN_WRITE)
-+/* adapter cannot do repeated START */
-+#define I2C_AQ_NO_REP_START		BIT(7)
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index fa0f7a4a1d2f..01e143c2bbc0 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -7768,7 +7768,6 @@ static int add_ext_adv_params(struct sock *sk, struct hci_dev *hdev,
+ 		goto unlock;
+ 	}
  
- /*
-  * i2c_adapter is the structure used to identify a physical i2c bus along
+-	hdev->cur_adv_instance = cp->instance;
+ 	/* Submit request for advertising params if ext adv available */
+ 	if (ext_adv_capable(hdev)) {
+ 		hci_req_init(&req, hdev);
 -- 
 2.30.2
 
