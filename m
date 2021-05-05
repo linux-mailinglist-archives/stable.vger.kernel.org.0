@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3757374547
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B7937454B
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237994AbhEEREf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:04:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60708 "EHLO mail.kernel.org"
+        id S238008AbhEEREh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:04:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237910AbhEERBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:01:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61F2661A13;
-        Wed,  5 May 2021 16:40:53 +0000 (UTC)
+        id S237912AbhEERBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:01:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8F2461A46;
+        Wed,  5 May 2021 16:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232854;
-        bh=lBp3f5LDs3ZwVf5n60dmCuEVqvWqm3314S221/UgQ5I=;
-        h=From:To:Cc:Subject:Date:From;
-        b=axHGQvGe3OdhGpIZi2stUkUb75eDrMuypL9Je9aKWH8wimpQyTu/E3N5XDiDdDl6M
-         4dWkfWNkD2gudfBJIPN6+WQZZKJpdOFS+zlKNXHvVni0lCMTpU259aH8CaS8+aoo7p
-         erCeHGtKOmcSFhNAk+kgFioZdFg+l/wypMXCXVy/a2ZN/u6SR0cAnObTYQ0WNcqprP
-         Zgs2vkVilAnIPEwhtl9g2hA/Wa4LqreKAfLEJuQwVfaaok8InDj5zUcxEwc0SP1QBM
-         L+bh2Vn5l5VjcA/kUtCibkFuQq5uDhIj8XCP0isD5mOp/cJ/J+UtYgwxkztK/YKtXz
-         8OEslrfIjmCiw==
+        s=k20201202; t=1620232855;
+        bh=3Ec7oHhQ5JY1adY4PY5OOnAqLf6BRopmE2HlCmNmsGo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pvBxbmqwcokcRpPslK4H5e6DxHxpjodLwuDgmtdJ0heJLwsP7rYHhFkwubbAMO/oi
+         g0siZxdJcsPCNfIM6DRoAz02eKjXu3D90SpfDaXSNqgFpWp/H10eD/R49trAd6g68e
+         VZzldqvET17+qldK5UdHW0T6MRoemcUlsVJg6kgKDfe+0V3lOyOAdpNqheHY2PhaCD
+         sCnmYGv7VGAfSNqGlwVml3ywGRuXWY3AMqWtXoy6J5t7v2HIro26Z4tYUnzIBF71+o
+         zs32f76eYZL28Fjeg57lkRI/SUIOuGy+kUexv56fL6u2123jIMkeuJo7PcG5coQUae
+         hjrybPyGuHHnw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.14 01/25] fs: dlm: fix debugfs dump
-Date:   Wed,  5 May 2021 12:40:27 -0400
-Message-Id: <20210505164051.3464020-1-sashal@kernel.org>
+Cc:     Hoang Le <hoang.h.le@dektech.com.au>,
+        Jon Maloy <jmaloy@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 02/25] tipc: convert dest node's address to network order
+Date:   Wed,  5 May 2021 12:40:28 -0400
+Message-Id: <20210505164051.3464020-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210505164051.3464020-1-sashal@kernel.org>
+References: <20210505164051.3464020-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,38 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit 92c48950b43f4a767388cf87709d8687151a641f ]
+[ Upstream commit 1980d37565061ab44bdc2f9e4da477d3b9752e81 ]
 
-This patch fixes the following message which randomly pops up during
-glocktop call:
+(struct tipc_link_info)->dest is in network order (__be32), so we must
+convert the value to network order before assigning. The problem detected
+by sparse:
 
-seq_file: buggy .next function table_seq_next did not update position index
+net/tipc/netlink_compat.c:699:24: warning: incorrect type in assignment (different base types)
+net/tipc/netlink_compat.c:699:24:    expected restricted __be32 [usertype] dest
+net/tipc/netlink_compat.c:699:24:    got int
 
-The issue is that seq_read_iter() in fs/seq_file.c also needs an
-increment of the index in an non next record case as well which this
-patch fixes otherwise seq_read_iter() will print out the above message.
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/debug_fs.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/tipc/netlink_compat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/dlm/debug_fs.c b/fs/dlm/debug_fs.c
-index fa08448e35dd..bb87dad03cd4 100644
---- a/fs/dlm/debug_fs.c
-+++ b/fs/dlm/debug_fs.c
-@@ -544,6 +544,7 @@ static void *table_seq_next(struct seq_file *seq, void *iter_ptr, loff_t *pos)
+diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
+index 99c69489bb44..9aa0d789d25e 100644
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -662,7 +662,7 @@ static int tipc_nl_compat_link_dump(struct tipc_nl_compat_msg *msg,
+ 	if (err)
+ 		return err;
  
- 		if (bucket >= ls->ls_rsbtbl_size) {
- 			kfree(ri);
-+			++*pos;
- 			return NULL;
- 		}
- 		tree = toss ? &ls->ls_rsbtbl[bucket].toss : &ls->ls_rsbtbl[bucket].keep;
+-	link_info.dest = nla_get_flag(link[TIPC_NLA_LINK_DEST]);
++	link_info.dest = htonl(nla_get_flag(link[TIPC_NLA_LINK_DEST]));
+ 	link_info.up = htonl(nla_get_flag(link[TIPC_NLA_LINK_UP]));
+ 	nla_strlcpy(link_info.str, link[TIPC_NLA_LINK_NAME],
+ 		    TIPC_MAX_LINK_NAME);
 -- 
 2.30.2
 
