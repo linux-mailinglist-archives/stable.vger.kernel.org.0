@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED17C373A11
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B48B373A20
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233360AbhEEMHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46702 "EHLO mail.kernel.org"
+        id S233379AbhEEMHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:07:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233345AbhEEMHB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:07:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C11461222;
-        Wed,  5 May 2021 12:06:04 +0000 (UTC)
+        id S233464AbhEEMHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:07:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2BCF61182;
+        Wed,  5 May 2021 12:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216364;
-        bh=Xp8BkyYpdA6m2is4Ncl9MO72bgGFjVI0vRmrahfqTOg=;
+        s=korg; t=1620216383;
+        bh=88erwUqYtKf+YqgUa1Oolflux3EyE/1p4VgT11h9OkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eMTIFUT1fiEmp6jrg7bffU+4EuZWgpj4RRy/gpcSlkx0Y/KcycGW0NPHWrriZlM/s
-         sWQp9w/+M8ZbWM5bGt0yCMsvJBgNTHiTktaCoRnAfzl2mV1Hu58tVTyjqPJUNrHKUn
-         JRGHgmyTrTZiaiFHbIG+gTgn6R6SlwEU/O0TlIYk=
+        b=BpaFOLPfai+0I3SqN68fYcldwGl6fNZxFmL1epdmefZCdkAECkspW8yFEYdMdoyLi
+         z4un7R6z1JAQYS75E59/qeDSApKelzHEd6ypFwW+S7dJ8cmFA/Zf+aQ1z/LDzD37w+
+         FPFHovwMCqt8A9msIIjpFVkDsOCoOsZDb04LcdMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 4.19 10/15] USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
-Date:   Wed,  5 May 2021 14:05:15 +0200
-Message-Id: <20210505120504.116167402@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jianxiong Gao <jxgao@google.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 5.10 13/29] swiotlb: add a IO_TLB_SIZE define
+Date:   Wed,  5 May 2021 14:05:16 +0200
+Message-Id: <20210505112326.635285720@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
-References: <20210505120503.781531508@linuxfoundation.org>
+In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
+References: <20210505112326.195493232@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,36 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Jianxiong Gao <jxgao@google.com>
 
-commit 8f23fe35ff1e5491b4d279323a8209a31f03ae65 upstream.
+commit: b5d7ccb7aac3895c2138fe0980a109116ce15eff
 
-This is another branded 8153 device that doesn't work well with LPM
-enabled:
-[ 400.597506] r8152 5-1.1:1.0 enx482ae3a2a6f0: Tx status -71
+Add a new IO_TLB_SIZE define instead open coding it using
+IO_TLB_SHIFT all over.
 
-So disable LPM to resolve the issue.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-BugLink: https://bugs.launchpad.net/bugs/1922651
-Link: https://lore.kernel.org/r/20210412135455.791971-1-kai.heng.feng@canonical.com
-Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Jianxiong Gao <jxgao@google.com>
+Tested-by: Jianxiong Gao <jxgao@google.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/swiotlb.h |    1 +
+ kernel/dma/swiotlb.c    |   12 ++++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -438,6 +438,9 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
- 			USB_QUIRK_DISCONNECT_SUSPEND },
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -29,6 +29,7 @@ enum swiotlb_force {
+  * controllable.
+  */
+ #define IO_TLB_SHIFT 11
++#define IO_TLB_SIZE (1 << IO_TLB_SHIFT)
  
-+	/* Lenovo ThinkPad USB-C Dock Gen2 Ethernet (RTL8153 GigE) */
-+	{ USB_DEVICE(0x17ef, 0xa387), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* BUILDWIN Photo Frame */
- 	{ USB_DEVICE(0x1908, 0x1315), .driver_info =
- 			USB_QUIRK_HONOR_BNUMINTERFACES },
+ extern void swiotlb_init(int verbose);
+ int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose);
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -475,20 +475,20 @@ phys_addr_t swiotlb_tbl_map_single(struc
+ 
+ 	tbl_dma_addr &= mask;
+ 
+-	offset_slots = ALIGN(tbl_dma_addr, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
++	offset_slots = ALIGN(tbl_dma_addr, IO_TLB_SIZE) >> IO_TLB_SHIFT;
+ 
+ 	/*
+ 	 * Carefully handle integer overflow which can occur when mask == ~0UL.
+ 	 */
+ 	max_slots = mask + 1
+-		    ? ALIGN(mask + 1, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT
++		    ? ALIGN(mask + 1, IO_TLB_SIZE) >> IO_TLB_SHIFT
+ 		    : 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
+ 
+ 	/*
+ 	 * For mappings greater than or equal to a page, we limit the stride
+ 	 * (and hence alignment) to a page size.
+ 	 */
+-	nslots = ALIGN(alloc_size, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
++	nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
+ 	if (alloc_size >= PAGE_SIZE)
+ 		stride = (1 << (PAGE_SHIFT - IO_TLB_SHIFT));
+ 	else
+@@ -582,7 +582,7 @@ void swiotlb_tbl_unmap_single(struct dev
+ 			      enum dma_data_direction dir, unsigned long attrs)
+ {
+ 	unsigned long flags;
+-	int i, count, nslots = ALIGN(alloc_size, 1 << IO_TLB_SHIFT) >> IO_TLB_SHIFT;
++	int i, count, nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
+ 	int index = (tlb_addr - io_tlb_start) >> IO_TLB_SHIFT;
+ 	phys_addr_t orig_addr = io_tlb_orig_addr[index];
+ 
+@@ -633,7 +633,7 @@ void swiotlb_tbl_sync_single(struct devi
+ 
+ 	if (orig_addr == INVALID_PHYS_ADDR)
+ 		return;
+-	orig_addr += (unsigned long)tlb_addr & ((1 << IO_TLB_SHIFT) - 1);
++	orig_addr += (unsigned long)tlb_addr & (IO_TLB_SIZE - 1);
+ 
+ 	switch (target) {
+ 	case SYNC_FOR_CPU:
+@@ -691,7 +691,7 @@ dma_addr_t swiotlb_map(struct device *de
+ 
+ size_t swiotlb_max_mapping_size(struct device *dev)
+ {
+-	return ((size_t)1 << IO_TLB_SHIFT) * IO_TLB_SEGSIZE;
++	return ((size_t)IO_TLB_SIZE) * IO_TLB_SEGSIZE;
+ }
+ 
+ bool is_swiotlb_active(void)
 
 
