@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF67137459E
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0C43745A3
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237660AbhEERGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:06:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60302 "EHLO mail.kernel.org"
+        id S237945AbhEERGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:06:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236588AbhEERDF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:03:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76C4B613F0;
-        Wed,  5 May 2021 16:41:45 +0000 (UTC)
+        id S234752AbhEERDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:03:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC171613F5;
+        Wed,  5 May 2021 16:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232906;
-        bh=8nAV+BLngu0fFs8EMp2agqkejTe7TnNMaP+QMkgtdMg=;
+        s=k20201202; t=1620232907;
+        bh=T3kO8RrvNCX8As7P6Z7PFwvA19Yoow54UYuEWBXkQOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OxANLPaAJOZ6lgDF1QjTSV8BQc9DBcc72EQY9EJjx3PQaCjLcGMw/wK0+hGpuNb9G
-         yQ5FcLEUxCmZZQn3b6PiCZ4ghujlmaIF02NXquJT/Xx0oPN4xwA+SfPD9MgMOiNEdI
-         K6JIRL26OCGAOEWkb4gxzz9V1FMRIE/zQIokYjP1IqKJygA3X68vD5z+T3+y5OMR9L
-         Gds0UQLy7SRGno/fOcYt4a6ErO977l40lShffNWPXrTSeYoOZ91uCwMWpQHeOF+Hrx
-         74Ri+ckl7qBgqe3riQ5/fMZSl98605rhbWtSc7Ys9+BDuhlg28v+7rh5yB6EHy9mpK
-         IefaWh9naMxvg==
+        b=QliHd3S27pOvCJFj6ZNcgSoAOCkgGQ+0CqAxnpOsOV5K1zuw9gfgratFBM68OlhFd
+         SwHNw3Ef2Yj63I2V52EYdxdlIgRy3tIIzU8l7sQzY8cN+VsnkO95jYovdMr0e4tWwc
+         dRnmMi3ozIyTONk6iM/tq0AEEII7Rla/C3cYAnMh9EL5qnLx/ssBE4t5iKg7pa/TUi
+         mr66xm4xrwp3VjhDdSc9UzaTBJejm9xBahA8G/5EOQDXLhFgeVwnwCefTYeFYDv+KT
+         KdZPuvBOJi4wKprzH26VmMgELileBtgTviojtMAxRyY55R4X8VZUotzwtq2XrshTns
+         h2GLjjgI3ElMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 11/22] mac80211: clear the beacon's CRC after channel switch
-Date:   Wed,  5 May 2021 12:41:18 -0400
-Message-Id: <20210505164129.3464277-11-sashal@kernel.org>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 12/22] cuse: prevent clone
+Date:   Wed,  5 May 2021 12:41:19 -0400
+Message-Id: <20210505164129.3464277-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164129.3464277-1-sashal@kernel.org>
 References: <20210505164129.3464277-1-sashal@kernel.org>
@@ -43,50 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit d6843d1ee283137723b4a8c76244607ce6db1951 ]
+[ Upstream commit 8217673d07256b22881127bf50dce874d0e51653 ]
 
-After channel switch, we should consider any beacon with a
-CSA IE as a new switch. If the CSA IE is a leftover from
-before the switch that the AP forgot to remove, we'll get
-a CSA-to-Self.
+For cloned connections cuse_channel_release() will be called more than
+once, resulting in use after free.
 
-This caused issues in iwlwifi where the firmware saw a beacon
-with a CSA-to-Self with mode = 1 on the new channel after a
-switch. The firmware considered this a new switch and closed
-its queues. Since the beacon didn't change between before and
-after the switch, we wouldn't handle it (the CRC is the same)
-and we wouldn't let the firmware open its queues again or
-disconnect if the CSA IE stays for too long.
+Prevent device cloning for CUSE, which does not make sense at this point,
+and highly unlikely to be used in real life.
 
-Clear the CRC valid state after we switch to make sure that
-we handle the beacon and handle the CSA IE as required.
-
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Link: https://lore.kernel.org/r/20210408143124.b9e68aa98304.I465afb55ca2c7d59f7bf610c6046a1fd732b4c28@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mlme.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/fuse/cuse.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 58b80270e58c..3217c98f2b5a 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1101,6 +1101,11 @@ static void ieee80211_chswitch_post_beacon(struct ieee80211_sub_if_data *sdata)
+diff --git a/fs/fuse/cuse.c b/fs/fuse/cuse.c
+index d9aba9700726..b83367300f48 100644
+--- a/fs/fuse/cuse.c
++++ b/fs/fuse/cuse.c
+@@ -616,6 +616,8 @@ static int __init cuse_init(void)
+ 	cuse_channel_fops.owner		= THIS_MODULE;
+ 	cuse_channel_fops.open		= cuse_channel_open;
+ 	cuse_channel_fops.release	= cuse_channel_release;
++	/* CUSE is not prepared for FUSE_DEV_IOC_CLONE */
++	cuse_channel_fops.unlocked_ioctl	= NULL;
  
- 	sdata->vif.csa_active = false;
- 	ifmgd->csa_waiting_bcn = false;
-+	/*
-+	 * If the CSA IE is still present on the beacon after the switch,
-+	 * we need to consider it as a new CSA (possibly to self).
-+	 */
-+	ifmgd->beacon_crc_valid = false;
- 
- 	ret = drv_post_channel_switch(sdata);
- 	if (ret) {
+ 	cuse_class = class_create(THIS_MODULE, "cuse");
+ 	if (IS_ERR(cuse_class))
 -- 
 2.30.2
 
