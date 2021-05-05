@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC090374531
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B737C37452E
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237473AbhEEREK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:04:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60720 "EHLO mail.kernel.org"
+        id S237419AbhEEREJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:04:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237737AbhEERBF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237738AbhEERBF (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 13:01:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37D40619CD;
-        Wed,  5 May 2021 16:40:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8591A619E6;
+        Wed,  5 May 2021 16:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232827;
-        bh=k/90kEdCiWPI+kgNODS6pMTMTooSc/4T+UyyVYBtYA8=;
+        s=k20201202; t=1620232828;
+        bh=fE8jg5uAIRl/bt8t+FQsXsgY5X3KlleAIN93G7Ume60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QRxmFaWFAFfumI4NkxqXLSYeytL67F1wVCy9ui/Mmxq49JVs4nVtv3sfa7+sNbYyw
-         IFPFmdSI9Ll6RGBJSNj3SHnFdZRGofgsvAUsbkX0mLHv24DSGhpGdI5fTOY3Fp/frH
-         ozD/Er34lu7v1ncellhh+XB2xL4Z5An5BpK/sH1hRN7RVA39bDYDHAtwnds/Os5Xd/
-         0F1+6ppHTdHp+oep2rXzqlhuL0kXp5pYXmaf90ptKQQXRf4UrSncHSBZmSa8WALKFf
-         V6NofVDnISNZHaGCkThxh4oqlI2kigZmlcLYR/iUfzMt5OQI7Iyo6EUuvL9enrG/lI
-         d2JNU3btb/plA==
+        b=amgc2EP8GfGEPfzpOacA7gE9tX+SEQrh1iAINIyXgjP0jU1mPF7egClWyQ7fPdEfp
+         S6u3BW08wQ1er7eHB2hZ76tmg8jez0sL/VHaKRPUq26pNIFKAYKy1mQK8bh0+0EJvQ
+         Qy+Wzg+MNzDgmfC7IYF0ne9QFohEMwf6lXLiK5f/p7bFmGhehgLn3iVT7+k+z5RR9x
+         j2ap66fgI1k2DYis9GbBEEOAYOq//Q4VcEX5IVwHvpgBHyLT4mb+LZ1UoroYJMIgb4
+         KXhDSG1bRaZ8V8O1noFlTzShxK47I+yE/zPzJBOn42GngaY3jXbvItMEwlQVpi6LGx
+         l6+tXMy2ejSxQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 15/32] ASoC: Intel: bytcr_rt5640: Add quirk for the Chuwi Hi8 tablet
-Date:   Wed,  5 May 2021 12:39:47 -0400
-Message-Id: <20210505164004.3463707-15-sashal@kernel.org>
+Cc:     =?UTF-8?q?Bence=20Cs=C3=B3k=C3=A1s?= <bence98@sch.bme.hu>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 16/32] i2c: Add I2C_AQ_NO_REP_START adapter quirk
+Date:   Wed,  5 May 2021 12:39:48 -0400
+Message-Id: <20210505164004.3463707-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164004.3463707-1-sashal@kernel.org>
 References: <20210505164004.3463707-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,54 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Bence Csókás <bence98@sch.bme.hu>
 
-[ Upstream commit 875c40eadf6ac6644c0f71842a4f30dd9968d281 ]
+[ Upstream commit aca01415e076aa96cca0f801f4420ee5c10c660d ]
 
-The Chuwi Hi8 tablet is using an analog mic on IN1 and has its
-jack-detect connected to JD2_IN4N, instead of using the default
-IN3 for its internal mic and JD1_IN4P for jack-detect.
+This quirk signifies that the adapter cannot do a repeated
+START, it always issues a STOP condition after transfers.
 
-It also only has 1 speaker.
-
-Add a quirk applying the correct settings for this configuration.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210325221054.22714-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Suggested-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Bence Csókás <bence98@sch.bme.hu>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ include/linux/i2c.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 62b4187e9f44..4ebc023f1507 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -509,6 +509,23 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{
-+		/* Chuwi Hi8 (CWI509) */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
-+			DMI_MATCH(DMI_BOARD_NAME, "BYT-PA03C"),
-+			DMI_MATCH(DMI_SYS_VENDOR, "ilife"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "S806"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_MONO_SPEAKER |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Circuitco"),
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 7e748648c7d3..6fda0458745d 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -662,6 +662,8 @@ struct i2c_adapter_quirks {
+ #define I2C_AQ_NO_ZERO_LEN_READ		BIT(5)
+ #define I2C_AQ_NO_ZERO_LEN_WRITE	BIT(6)
+ #define I2C_AQ_NO_ZERO_LEN		(I2C_AQ_NO_ZERO_LEN_READ | I2C_AQ_NO_ZERO_LEN_WRITE)
++/* adapter cannot do repeated START */
++#define I2C_AQ_NO_REP_START		BIT(7)
+ 
+ /*
+  * i2c_adapter is the structure used to identify a physical i2c bus along
 -- 
 2.30.2
 
