@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 763DE37427F
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 869ED374284
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235706AbhEEQrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50934 "EHLO mail.kernel.org"
+        id S235727AbhEEQrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:47:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235926AbhEEQpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235927AbhEEQpR (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:45:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E5366192F;
-        Wed,  5 May 2021 16:35:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB9C361933;
+        Wed,  5 May 2021 16:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232559;
-        bh=HGFtvC083Ni1nBN15WSuKPbVwjoqOSHiN4Am6r8cCdM=;
+        s=k20201202; t=1620232560;
+        bh=RTOEkZRNQ4VOpCbfLqSuqXmv2lqlX9b9uqe/SCvsp8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOQWx+bAaAZQXSIcyoAvJNXjAKHWCvO1T6TF/7UzLkP5cLXkFBzTEz4TzIFI15236
-         p4m09llD5Y2D3oVgNMkKM6XSmYuUGRri+rStsgp7GrFUa2JYCo2jvOb8vK9vzEgvRM
-         A9HhDEJD8ny8xLwSgZCKjNWvCG7GCHHZq1fgeOqJZtvJcXrcrkal7op2MH5dtGuvWZ
-         Hs3A54bDgLGc++ZD3ujPgdB8DoGR/E8nW4H8E2FtJnljHuNUsOeNUi00KoEX5ZaGS/
-         YfR4A94SvnnUhl6Qfh/r36xmPfwakcXM4Jx8Oh1iOT+Bp3RvqedLTNF13jfXp8gNjX
-         Tk0G3w025WtPg==
+        b=Wz8i4NuvO5xPshAVWuE9IFRYqrhsRR5xZ/ug1i2itjj83faIK32nimPx0Wkdp8UpT
+         E4MwZLMfKmwAJyf/h5Mo2nDHhWuuie4JMnmoaPhZDtRfGmBVguK5/urGXjR9Qpp+01
+         GSn7FkgAN9piLapNEzwx/ZqXfXSyHM6nHw9EKkE6aiPwPyBGaVHooiFMcqHEVyLgr/
+         YubZbBDRxGiPmFqE26lCl3gnPbHNO0+UkmewiSjlPLpafbb2nTYbSR5oZ/R3lqvaF6
+         SUGuiCMmw8pmQrxj93IMt3WQg3cegSoXx8hJPWbEawt+QeibzUA63nVLT192jTdAwj
+         R4LCAtWa5Pocg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.11 072/104] ASoC: Intel: sof_sdw: add quirk for new ADL-P Rvp
-Date:   Wed,  5 May 2021 12:33:41 -0400
-Message-Id: <20210505163413.3461611-72-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.11 073/104] ALSA: hda/hdmi: fix race in handling acomp ELD notification at resume
+Date:   Wed,  5 May 2021 12:33:42 -0400
+Message-Id: <20210505163413.3461611-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163413.3461611-1-sashal@kernel.org>
 References: <20210505163413.3461611-1-sashal@kernel.org>
@@ -45,45 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit d25bbe80485f8bcbbeb91a2a6cd8798c124b27b7 ]
+[ Upstream commit 0c37e2eb6b83e375e8a654d01598292d5591fc65 ]
 
-Add quirks for jack detection, rt711 DAI and DMIC
+When snd-hda-codec-hdmi is used with ASoC HDA controller like SOF (acomp
+used for ELD notifications), display connection change done during suspend,
+can be lost due to following sequence of events:
 
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210415175013.192862-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  1. system in S3 suspend
+  2. DP/HDMI receiver connected
+  3. system resumed
+  4. HDA controller resumed, but card->deferred_resume_work not complete
+  5. acomp eld_notify callback
+  6. eld_notify ignored as power state is not CTL_POWER_D0
+  7. HDA resume deferred work completed, power state set to CTL_POWER_D0
+
+This results in losing the notification, and the jack state reported to
+user-space is not correct.
+
+The check on step 6 was added in commit 8ae743e82f0b ("ALSA: hda - Skip
+ELD notification during system suspend"). It would seem with the deferred
+resume logic in ASoC core, this check is not safe.
+
+Fix the issue by modifying the check to use "dev.power.power_state.event"
+instead of ALSA specific card power state variable.
+
+BugLink: https://github.com/thesofproject/linux/issues/2825
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20210416131157.1881366-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/pci/hda/patch_hdmi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 1d7677376e74..9dc982c2c776 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -187,6 +187,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 					SOF_RT715_DAI_ID_FIX |
- 					SOF_SDW_FOUR_SPK),
- 	},
-+	/* AlderLake devices */
-+	{
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Alder Lake Client Platform"),
-+		},
-+		.driver_data = (void *)(SOF_RT711_JD_SRC_JD1 |
-+					SOF_SDW_TGL_HDMI |
-+					SOF_SDW_PCH_DMIC),
-+	},
- 	{}
- };
- 
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index d6387106619f..7b0d9d7a1c38 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2650,7 +2650,7 @@ static void generic_acomp_pin_eld_notify(void *audio_ptr, int port, int dev_id)
+ 	/* skip notification during system suspend (but not in runtime PM);
+ 	 * the state will be updated at resume
+ 	 */
+-	if (snd_power_get_state(codec->card) != SNDRV_CTL_POWER_D0)
++	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
+ 		return;
+ 	/* ditto during suspend/resume process itself */
+ 	if (snd_hdac_is_in_pm(&codec->core))
+@@ -2836,7 +2836,7 @@ static void intel_pin_eld_notify(void *audio_ptr, int port, int pipe)
+ 	/* skip notification during system suspend (but not in runtime PM);
+ 	 * the state will be updated at resume
+ 	 */
+-	if (snd_power_get_state(codec->card) != SNDRV_CTL_POWER_D0)
++	if (codec->core.dev.power.power_state.event == PM_EVENT_SUSPEND)
+ 		return;
+ 	/* ditto during suspend/resume process itself */
+ 	if (snd_hdac_is_in_pm(&codec->core))
 -- 
 2.30.2
 
