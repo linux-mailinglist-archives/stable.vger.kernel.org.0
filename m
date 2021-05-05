@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C350E373A3A
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDB90373A79
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231995AbhEEMIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:08:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48772 "EHLO mail.kernel.org"
+        id S232838AbhEEMK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232350AbhEEMHn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:07:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7526B61182;
-        Wed,  5 May 2021 12:06:46 +0000 (UTC)
+        id S233587AbhEEMIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:08:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C708E61157;
+        Wed,  5 May 2021 12:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216407;
-        bh=NRrxXjeKJiR6mWFg8JtVzqDyqJquzSvRdtS/23183DI=;
+        s=korg; t=1620216433;
+        bh=Ud597iU/8P0D7b52x+XioGu5P2ZyZ8koVkfoMggNh1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJeW4Bz0KS3Uh300ObRutFCH3R7/pMyC+MeUsLDlzAOihwZUxPxuYiWfhgSnCEvhs
-         0LqiUQE3Nx4pvaqlwzIB8cGTezURVuotnz/0Qo0BvuB+Oa0rvVxAWI9GThYoGYkB4g
-         lRTrBl6WliaShG4/L2w/dMWH3tAPdrsk61uE50BA=
+        b=Q7MjJaQDY0vgEMbsmBb2xKaIFFFgAI7N1FFVFuWfrIRCZahI/O9SpqLfC4trpwzQ3
+         dewCkTvUIwf4pDRezPqC7qiUABnl1kdu9LaZQ8Yhg7D5sZCuxjngbsfKkHvvrERJwn
+         I028ZwWns1wdQpuOyrQgjq3saF3P+3r0zva1q5jY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 22/29] ovl: allow upperdir inside lowerdir
-Date:   Wed,  5 May 2021 14:05:25 +0200
-Message-Id: <20210505112326.934351240@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 23/29] ALSA: usb-audio: Add MIDI quirk for Vox ToneLab EX
+Date:   Wed,  5 May 2021 14:05:26 +0200
+Message-Id: <20210505112326.972075365@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
 References: <20210505112326.195493232@linuxfoundation.org>
@@ -38,82 +38,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 708fa01597fa002599756bf56a96d0de1677375c upstream.
+commit 64f40f9be14106e7df0098c427cb60be645bddb7 upstream.
 
-Commit 146d62e5a586 ("ovl: detect overlapping layers") made sure we don't
-have overlapping layers, but it also broke the arguably valid use case of
+ToneLab EX guitar pedal device requires the same quirk like ToneLab ST
+for supporting the MIDI.
 
- mount -olowerdir=/,upperdir=/subdir,..
-
-where upperdir overlaps lowerdir on the same filesystem.  This has been
-causing regressions.
-
-Revert the check, but only for the specific case where upperdir and/or
-workdir are subdirectories of lowerdir.  Any other overlap (e.g. lowerdir
-is subdirectory of upperdir, etc) case is crazy, so leave the check in
-place for those.
-
-Overlaps are detected at lookup time too, so reverting the mount time check
-should be safe.
-
-Fixes: 146d62e5a586 ("ovl: detect overlapping layers")
-Cc: <stable@vger.kernel.org> # v5.2
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212593
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210407144549.1530-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/super.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ sound/usb/quirks-table.h |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -1759,7 +1759,8 @@ out_err:
-  * - upper/work dir of any overlayfs instance
-  */
- static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
--			   struct dentry *dentry, const char *name)
-+			   struct dentry *dentry, const char *name,
-+			   bool is_lower)
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -2376,6 +2376,16 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 	}
+ },
+ 
++{
++	USB_DEVICE_VENDOR_SPEC(0x0944, 0x0204),
++	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
++		.vendor_name = "KORG, Inc.",
++		/* .product_name = "ToneLab EX", */
++		.ifnum = 3,
++		.type = QUIRK_MIDI_STANDARD_INTERFACE,
++	}
++},
++
+ /* AKAI devices */
  {
- 	struct dentry *next = dentry, *parent;
- 	int err = 0;
-@@ -1771,7 +1772,7 @@ static int ovl_check_layer(struct super_
- 
- 	/* Walk back ancestors to root (inclusive) looking for traps */
- 	while (!err && parent != next) {
--		if (ovl_lookup_trap_inode(sb, parent)) {
-+		if (is_lower && ovl_lookup_trap_inode(sb, parent)) {
- 			err = -ELOOP;
- 			pr_err("overlapping %s path\n", name);
- 		} else if (ovl_is_inuse(parent)) {
-@@ -1797,7 +1798,7 @@ static int ovl_check_overlapping_layers(
- 
- 	if (ovl_upper_mnt(ofs)) {
- 		err = ovl_check_layer(sb, ofs, ovl_upper_mnt(ofs)->mnt_root,
--				      "upperdir");
-+				      "upperdir", false);
- 		if (err)
- 			return err;
- 
-@@ -1808,7 +1809,8 @@ static int ovl_check_overlapping_layers(
- 		 * workbasedir.  In that case, we already have their traps in
- 		 * inode cache and we will catch that case on lookup.
- 		 */
--		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir");
-+		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir",
-+				      false);
- 		if (err)
- 			return err;
- 	}
-@@ -1816,7 +1818,7 @@ static int ovl_check_overlapping_layers(
- 	for (i = 1; i < ofs->numlayer; i++) {
- 		err = ovl_check_layer(sb, ofs,
- 				      ofs->layers[i].mnt->mnt_root,
--				      "lowerdir");
-+				      "lowerdir", true);
- 		if (err)
- 			return err;
- 	}
+ 	USB_DEVICE(0x09e8, 0x0062),
 
 
