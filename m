@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 179D13745CD
+	by mail.lfdr.de (Postfix) with ESMTP id DD65C3745CF
 	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236998AbhEERHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:07:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37644 "EHLO mail.kernel.org"
+        id S236127AbhEERH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:07:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238234AbhEERFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:05:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A82CE61C30;
-        Wed,  5 May 2021 16:42:18 +0000 (UTC)
+        id S238308AbhEERFj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:05:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC81961404;
+        Wed,  5 May 2021 16:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232939;
-        bh=T3kO8RrvNCX8As7P6Z7PFwvA19Yoow54UYuEWBXkQOg=;
+        s=k20201202; t=1620232941;
+        bh=dlOQSC78x4g5c0BLYLlpldav7b47UGfJuU1ricOzpn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKslAOAJNKyr3g3abKLZ0NBKig+2yCrOdvc0IguF7twzDFWcjzb2Oq8ghcYlitofK
-         WRBHK21rNA244F+gEGSM1p0i+QBC6LqbBg1A1r7XIn3tBAVHZSGf6ldY9zH1RAlFwk
-         X+Spvje/wqyixR6pMYnIZIo09TP8Gbrn4bqIMnjv3MhF2ae5EVsdvBwtn+wOakpmZX
-         2mLODE8ceEt7XUDscyn/ATETkI7vzJsajWx5TQdilPT30RtPm+oTOA6i5V+Z2ZR4xH
-         EXBvMM1scP4712gfBC2+rAOgVlf8K+7Ufvv9FBMyt9Y/j7ilvfHBSxWrBVPpKHUuSl
-         r1Vxx3Myf6i/A==
+        b=JJglDrdB7/xBpW6hBGVmPh3/b9ZlhiqzUIW5XpeWqJeD+eEgIcExSyf/xvu6BTOb3
+         N4RUoVme3aBgbxOHzWd4thRq16WglGCLNc1hkU2cg7YJKCC2yxyC4aMBu9xjHXz4Pp
+         L/F6O4aN0JnT12PWQ3kycou6E4JsipWOrHekBEyHt/ECz0O8olqobeBykdW3XnEWXh
+         tezuXQ9zAdRPKHjClFBiRVHYUfeMlDNdTtluV7TVRA0qT4SEpAOwZfkwLhymz3OToz
+         vLGimcEIpdieVTeZqegrYy6oN9euma6izSkCTSUtG+XpGzllC7xkL+RIscjmd9AEc1
+         HtY1EFBDZQL5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 12/19] cuse: prevent clone
-Date:   Wed,  5 May 2021 12:41:55 -0400
-Message-Id: <20210505164203.3464510-12-sashal@kernel.org>
+Cc:     Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.4 13/19] selftests: Set CC to clang in lib.mk if LLVM is set
+Date:   Wed,  5 May 2021 12:41:56 -0400
+Message-Id: <20210505164203.3464510-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164203.3464510-1-sashal@kernel.org>
 References: <20210505164203.3464510-1-sashal@kernel.org>
@@ -41,35 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 8217673d07256b22881127bf50dce874d0e51653 ]
+[ Upstream commit 26e6dd1072763cd5696b75994c03982dde952ad9 ]
 
-For cloned connections cuse_channel_release() will be called more than
-once, resulting in use after free.
+selftests/bpf/Makefile includes lib.mk. With the following command
+  make -j60 LLVM=1 LLVM_IAS=1  <=== compile kernel
+  make -j60 -C tools/testing/selftests/bpf LLVM=1 LLVM_IAS=1 V=1
+some files are still compiled with gcc. This patch
+fixed lib.mk issue which sets CC to gcc in all cases.
 
-Prevent device cloning for CUSE, which does not make sense at this point,
-and highly unlikely to be used in real life.
-
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210413153413.3027426-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/cuse.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/lib.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/fuse/cuse.c b/fs/fuse/cuse.c
-index d9aba9700726..b83367300f48 100644
---- a/fs/fuse/cuse.c
-+++ b/fs/fuse/cuse.c
-@@ -616,6 +616,8 @@ static int __init cuse_init(void)
- 	cuse_channel_fops.owner		= THIS_MODULE;
- 	cuse_channel_fops.open		= cuse_channel_open;
- 	cuse_channel_fops.release	= cuse_channel_release;
-+	/* CUSE is not prepared for FUSE_DEV_IOC_CLONE */
-+	cuse_channel_fops.unlocked_ioctl	= NULL;
+diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+index 50a93f5f13d6..d8fa6c72b7ca 100644
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -1,6 +1,10 @@
+ # This mimics the top-level Makefile. We do it explicitly here so that this
+ # Makefile can operate with or without the kbuild infrastructure.
++ifneq ($(LLVM),)
++CC := clang
++else
+ CC := $(CROSS_COMPILE)gcc
++endif
  
- 	cuse_class = class_create(THIS_MODULE, "cuse");
- 	if (IS_ERR(cuse_class))
+ define RUN_TESTS
+ 	@for TEST in $(TEST_PROGS); do \
 -- 
 2.30.2
 
