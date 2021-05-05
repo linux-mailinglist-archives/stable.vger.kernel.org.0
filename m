@@ -2,148 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6FE3735CE
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 09:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F14BB3735ED
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 09:59:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbhEEHrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 03:47:41 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:60497 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229741AbhEEHrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 May 2021 03:47:41 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 3362416FD;
-        Wed,  5 May 2021 03:46:45 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 05 May 2021 03:46:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xhSWER
-        orE34HSi4X4CgujzzXEkUl7D3kqXE9CzlekFc=; b=LbWx3Dlx5llXDk1jKwnMYF
-        tCeO88No/EzLpZwxihAKeRCHk3XiS+y7GL8pPlEs0OJQhPtBY6j6B478oFu0J8Ss
-        57b8e57qevYCsYr3sWm0YAym5DvHQTh55Lmuv3wKeDBKdeRzqinlop+aEruiHJ09
-        nykNVdteJojFXHG8QW2o7/pD9asp3KsWZm2kKY3aqsktUEjJt9nDD41x8rjbE8yH
-        7cv+pHXrYsS/Tjm9+OaQ3n2aExWq5x2hEZI0j67sWGXUtVoRlhgmVZWmZe0Bggpe
-        M1n3RN1z1LO99JLkHjx/7huPFpT3t8pRER5oLhxBTikHR9eDpmJ8XVnPqo10yEFA
-        ==
-X-ME-Sender: <xms:ZE2SYGT7plRf0dbCx4tsF9ZX9ris67THonaWoe5wuXjRKt3NLe_l0A>
-    <xme:ZE2SYLz9GtHfm3P7nKUv1Olb8iv6QKpAPylxiD8u8VY95KgL0lw7Ep0Mv4keOGueJ
-    b6SMcJiMengWg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefjedguddukecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
-    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:ZE2SYD1JJTFXij5rl-gpFglvj4hhVDXqkWnq85j-Om7qyPP-OlIgFA>
-    <xmx:ZE2SYCBpzBuTzdh0E1uUd_otiLIpJE8MZN-lQmQt72T7wGMV5bbfmQ>
-    <xmx:ZE2SYPhGP2KCk0725H08LVfJM320x6YRnK2f5--zcLF2DXK-wirhHQ>
-    <xmx:ZE2SYPJwaR_IjSc6NizuaewqhG-b-8taM-05wZG2lGYLvpKKwELw7iQn7Z0>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed,  5 May 2021 03:46:44 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ovl: allow upperdir inside lowerdir" failed to apply to 4.19-stable tree
-To:     mszeredi@redhat.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 05 May 2021 09:46:35 +0200
-Message-ID: <162020079520641@kroah.com>
+        id S229741AbhEEIAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 04:00:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35618 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231954AbhEEIAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 May 2021 04:00:23 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37184C061574
+        for <stable@vger.kernel.org>; Wed,  5 May 2021 00:59:27 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1leCR9-0003tb-Fo; Wed, 05 May 2021 09:59:15 +0200
+Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:96db:da04:b018:e517])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id D423361CF6D;
+        Wed,  5 May 2021 07:51:28 +0000 (UTC)
+Date:   Wed, 5 May 2021 09:51:27 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     Frieder Schrempf <frieder.schrempf@kontron.de>
+Cc:     Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Timo =?utf-8?B?U2NobMO8w59sZXI=?= <schluessler@krause.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tim Harvey <tharvey@gateworks.com>, stable@vger.kernel.org,
+        linux-can@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] can: mcp251x: Fix resume from sleep before interface
+ was brought up
+Message-ID: <20210505075127.yrx474t5dkpxxdmt@pengutronix.de>
+References: <17d5d714-b468-482f-f37a-482e3d6df84e@kontron.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="yznx7xbbfo6rpzze"
+Content-Disposition: inline
+In-Reply-To: <17d5d714-b468-482f-f37a-482e3d6df84e@kontron.de>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--yznx7xbbfo6rpzze
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+On 05.05.2021 09:14:15, Frieder Schrempf wrote:
+> From: Frieder Schrempf <frieder.schrempf@kontron.de>
+>=20
+> Since 8ce8c0abcba3 the driver queues work via priv->restart_work when
+> resuming after suspend, even when the interface was not previously
+> enabled. This causes a null dereference error as the workqueue is
+> only allocated and initialized in mcp251x_open().
+>=20
+> To fix this we move the workqueue init to mcp251x_can_probe() as
+> there is no reason to do it later and repeat it whenever
+> mcp251x_open() is called.
+>=20
+> Fixes: 8ce8c0abcba3 ("can: mcp251x: only reset hardware as required")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+> Changes in v2:
+>   * Remove the out_clean label in mcp251x_open()
+>   * Add Andy's R-b tag
+>   * Add 'From' tag
+>=20
+> Hi Marc, I'm sending a v2 mainly because I noticed that v1 is missing
+> the 'From' tag and as my company's mailserver always sends my name
+> reversed this causes incorrect author information in git. So if possible
+> you could fix this up. If this is too much work, just leave it as is.
+> Thanks!
 
-greg k-h
+Done.
 
------------------- original commit in Linus's tree ------------------
+I've also squashed this fixup:
 
-From 708fa01597fa002599756bf56a96d0de1677375c Mon Sep 17 00:00:00 2001
-From: Miklos Szeredi <mszeredi@redhat.com>
-Date: Mon, 12 Apr 2021 12:00:37 +0200
-Subject: [PATCH] ovl: allow upperdir inside lowerdir
+| --- a/drivers/net/can/spi/mcp251x.c
+| +++ b/drivers/net/can/spi/mcp251x.c
+| @@ -1224,13 +1224,13 @@ static int mcp251x_open(struct net_device *net)
+| =20
+|         ret =3D mcp251x_hw_wake(spi);
+|         if (ret)
+| -               goto out_free_wq;
+| +               goto out_free_irq;
+|         ret =3D mcp251x_setup(net, spi);
+|         if (ret)
+| -               goto out_free_wq;
+| +               goto out_free_irq;
+|         ret =3D mcp251x_set_normal_mode(spi);
+|         if (ret)
+| -               goto out_free_wq;
+| +               goto out_free_irq;
+| =20
+|         can_led_event(net, CAN_LED_EVENT_OPEN);
+| =20
+| @@ -1239,8 +1239,7 @@ static int mcp251x_open(struct net_device *net)
+| =20
+|         return 0;
+| =20
+| -out_free_wq:
+| -       destroy_workqueue(priv->wq);
+| +out_free_irq:
+|         free_irq(spi->irq, priv);
+|         mcp251x_hw_sleep(spi);
+|  out_close:
 
-Commit 146d62e5a586 ("ovl: detect overlapping layers") made sure we don't
-have overlapping layers, but it also broke the arguably valid use case of
+Marc
 
- mount -olowerdir=/,upperdir=/subdir,..
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
 
-where upperdir overlaps lowerdir on the same filesystem.  This has been
-causing regressions.
+--yznx7xbbfo6rpzze
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Revert the check, but only for the specific case where upperdir and/or
-workdir are subdirectories of lowerdir.  Any other overlap (e.g. lowerdir
-is subdirectory of upperdir, etc) case is crazy, so leave the check in
-place for those.
+-----BEGIN PGP SIGNATURE-----
 
-Overlaps are detected at lookup time too, so reverting the mount time check
-should be safe.
+iQEzBAABCgAdFiEEK3kIWJt9yTYMP3ehqclaivrt76kFAmCSTnwACgkQqclaivrt
+76kv9wf7BAMTVYzAMRMbokLYHE5LYSL7ixmtjQKCiMJLQBD31lk6piZ1ZIvmYW2m
+FR9JeZD1IaatAbLyV3Whw8G6no+qvzVJCrgV8sR5zKuhYmYLHFeHmmAuf1LX7nzq
+wd9uWnlGlkNN6b//r7euI/ccZmHsLYsl3sRVx2deVtBY2ed3/8KU4JhSGQH4U7FO
+Ac66BmV6yGIwoymO5u7zRhx0m+B3eMY/02v+E2L/qXEYcJrNiFjWU7EcEm5lPP9f
+e98fYjC9rwmHk3afaLFKP3XYLOsPYcbo/lSjoArNvqc0KZYV6VD2dEqd89EhCxGB
+d4pDmDGLYg0n8IyI+2XPrF3rw0Xaog==
+=YDVe
+-----END PGP SIGNATURE-----
 
-Fixes: 146d62e5a586 ("ovl: detect overlapping layers")
-Cc: <stable@vger.kernel.org> # v5.2
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-
-diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
-index a33b31bf7e05..b01d4147520d 100644
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -1854,7 +1854,8 @@ static struct ovl_entry *ovl_get_lowerstack(struct super_block *sb,
-  * - upper/work dir of any overlayfs instance
-  */
- static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
--			   struct dentry *dentry, const char *name)
-+			   struct dentry *dentry, const char *name,
-+			   bool is_lower)
- {
- 	struct dentry *next = dentry, *parent;
- 	int err = 0;
-@@ -1866,7 +1867,7 @@ static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
- 
- 	/* Walk back ancestors to root (inclusive) looking for traps */
- 	while (!err && parent != next) {
--		if (ovl_lookup_trap_inode(sb, parent)) {
-+		if (is_lower && ovl_lookup_trap_inode(sb, parent)) {
- 			err = -ELOOP;
- 			pr_err("overlapping %s path\n", name);
- 		} else if (ovl_is_inuse(parent)) {
-@@ -1892,7 +1893,7 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
- 
- 	if (ovl_upper_mnt(ofs)) {
- 		err = ovl_check_layer(sb, ofs, ovl_upper_mnt(ofs)->mnt_root,
--				      "upperdir");
-+				      "upperdir", false);
- 		if (err)
- 			return err;
- 
-@@ -1903,7 +1904,8 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
- 		 * workbasedir.  In that case, we already have their traps in
- 		 * inode cache and we will catch that case on lookup.
- 		 */
--		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir");
-+		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir",
-+				      false);
- 		if (err)
- 			return err;
- 	}
-@@ -1911,7 +1913,7 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
- 	for (i = 1; i < ofs->numlayer; i++) {
- 		err = ovl_check_layer(sb, ofs,
- 				      ofs->layers[i].mnt->mnt_root,
--				      "lowerdir");
-+				      "lowerdir", true);
- 		if (err)
- 			return err;
- 	}
-
+--yznx7xbbfo6rpzze--
