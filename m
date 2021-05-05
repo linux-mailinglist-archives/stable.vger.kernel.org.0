@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7496D373A5B
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B50EE373A6A
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:09:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233143AbhEEMKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:10:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51216 "EHLO mail.kernel.org"
+        id S233680AbhEEMKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:10:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233339AbhEEMJe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:09:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98569613FE;
-        Wed,  5 May 2021 12:08:24 +0000 (UTC)
+        id S233247AbhEEMJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:09:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A6CA613B3;
+        Wed,  5 May 2021 12:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216505;
-        bh=Ud597iU/8P0D7b52x+XioGu5P2ZyZ8koVkfoMggNh1I=;
+        s=korg; t=1620216528;
+        bh=26mePQ+wt1RccbI5sBb0rvFETlyfZAcUQRUIStFj+Lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdUMagAJqKt877qKPC8SuDBkZufyHgfZm6vmNfb8fz1oduLcpNBP4H6qJUwJ75dDD
-         3SOdLWn1nxOsSi7O+AV+bCch8bwqzA0FUEtEbPaxCsKNLlhbhHgIFYl3HnVcXuI1GR
-         rPf5irQraKIx6usss0NbSGlP87pOhI3r29Pv4yEc=
+        b=J/fGDCCnRQu3MUYRcDQtt8pAyZWpQF9z/rDvSAJkj3gYDswHfpMDfkZP1C6BdGgTt
+         litsAklJ176QZ2javS7fCd2nt14Ak/fY1ZQz7nGoBiL6nE4VT0HEhCqdhsdnEvwBeH
+         JmcB2O8ct+sv0vP7J4ja9kMpHu03UXdMkviTPebA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 10/17] ALSA: usb-audio: Add MIDI quirk for Vox ToneLab EX
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jianxiong Gao <jxgao@google.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 5.11 16/31] swiotlb: factor out a nr_slots helper
 Date:   Wed,  5 May 2021 14:06:05 +0200
-Message-Id: <20210505112325.291181532@linuxfoundation.org>
+Message-Id: <20210505112327.190783129@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505112324.956720416@linuxfoundation.org>
-References: <20210505112324.956720416@linuxfoundation.org>
+In-Reply-To: <20210505112326.672439569@linuxfoundation.org>
+References: <20210505112326.672439569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,40 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jianxiong Gao <jxgao@google.com>
 
-commit 64f40f9be14106e7df0098c427cb60be645bddb7 upstream.
+commit: c32a77fd18780a5192dfb6eec69f239faebf28fd
 
-ToneLab EX guitar pedal device requires the same quirk like ToneLab ST
-for supporting the MIDI.
+Factor out a helper to find the number of slots for a given size.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212593
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210407144549.1530-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Jianxiong Gao <jxgao@google.com>
+Tested-by: Jianxiong Gao <jxgao@google.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Jianxiong Gao <jxgao@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks-table.h |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ kernel/dma/swiotlb.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -2376,6 +2376,16 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 	}
- },
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -194,6 +194,11 @@ static inline unsigned long io_tlb_offse
+ 	return val & (IO_TLB_SEGSIZE - 1);
+ }
  
++static inline unsigned long nr_slots(u64 val)
 +{
-+	USB_DEVICE_VENDOR_SPEC(0x0944, 0x0204),
-+	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
-+		.vendor_name = "KORG, Inc.",
-+		/* .product_name = "ToneLab EX", */
-+		.ifnum = 3,
-+		.type = QUIRK_MIDI_STANDARD_INTERFACE,
-+	}
-+},
++	return DIV_ROUND_UP(val, IO_TLB_SIZE);
++}
 +
- /* AKAI devices */
+ /*
+  * Early SWIOTLB allocation may be too early to allow an architecture to
+  * perform the desired operations.  This function allows the architecture to
+@@ -493,20 +498,20 @@ phys_addr_t swiotlb_tbl_map_single(struc
+ 
+ 	tbl_dma_addr &= mask;
+ 
+-	offset_slots = ALIGN(tbl_dma_addr, IO_TLB_SIZE) >> IO_TLB_SHIFT;
++	offset_slots = nr_slots(tbl_dma_addr);
+ 
+ 	/*
+ 	 * Carefully handle integer overflow which can occur when mask == ~0UL.
+ 	 */
+ 	max_slots = mask + 1
+-		    ? ALIGN(mask + 1, IO_TLB_SIZE) >> IO_TLB_SHIFT
++		    ? nr_slots(mask + 1)
+ 		    : 1UL << (BITS_PER_LONG - IO_TLB_SHIFT);
+ 
+ 	/*
+ 	 * For mappings greater than or equal to a page, we limit the stride
+ 	 * (and hence alignment) to a page size.
+ 	 */
+-	nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
++	nslots = nr_slots(alloc_size);
+ 	if (alloc_size >= PAGE_SIZE)
+ 		stride = (1 << (PAGE_SHIFT - IO_TLB_SHIFT));
+ 	else
+@@ -602,7 +607,7 @@ void swiotlb_tbl_unmap_single(struct dev
+ 			      enum dma_data_direction dir, unsigned long attrs)
  {
- 	USB_DEVICE(0x09e8, 0x0062),
+ 	unsigned long flags;
+-	int i, count, nslots = ALIGN(alloc_size, IO_TLB_SIZE) >> IO_TLB_SHIFT;
++	int i, count, nslots = nr_slots(alloc_size);
+ 	int index = (tlb_addr - io_tlb_start) >> IO_TLB_SHIFT;
+ 	phys_addr_t orig_addr = io_tlb_orig_addr[index];
+ 
 
 
