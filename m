@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6B62373A61
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9DFF373A6D
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231494AbhEEMKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51578 "EHLO mail.kernel.org"
+        id S233691AbhEEMKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:10:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233455AbhEEMJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:09:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF09D610A2;
-        Wed,  5 May 2021 12:08:31 +0000 (UTC)
+        id S233378AbhEEMJz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:09:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6B60613BE;
+        Wed,  5 May 2021 12:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216512;
-        bh=7k1L8PUzKyJKHOh6VqW6Qo1vI7Za1rAJKuKget/q4NY=;
+        s=korg; t=1620216533;
+        bh=jfsNba7U9iA8JZj5ycsqVMIeZBeB2IQaEFt7ctlUEek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3MKxRIn/CwTDq+R9WcQfio7yUkK1/OW+ILL376LdkHwDmtv3XRwEXu5o6SYo3jsV
-         6f/KSUmjnEo7J+aBpJUKgsL+ChwnMFNvU3L/bMUC5dKKH1BdQHV5FhKz7EzkNM1nlO
-         BF95DoUZGSOc7Kjvurd1eMwESOR/Qt7qrVqhOrTk=
+        b=huokY62ity3rv3k2WgHKDN+XLXZNaIt0Kc2+Vn2KLUlyfxIRC62jglywFvekUiY3C
+         AmcpRxiPhpkaL6gngD9912uTZFHXGFpQIGkFMBFPGlRtT3q06BUiAtCLd0vml2ovCu
+         S2XilPYdX0WVkCunYnqh8lCMwPX67WO/UWUYmXBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Romain Naour <romain.naour@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.11 01/31] mips: Do not include hi and lo in clobber list for R6
-Date:   Wed,  5 May 2021 14:05:50 +0200
-Message-Id: <20210505112326.721035929@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathon Reinhart <Jonathon.Reinhart@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 02/31] netfilter: conntrack: Make global sysctls readonly in non-init netns
+Date:   Wed,  5 May 2021 14:05:51 +0200
+Message-Id: <20210505112326.751636796@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112326.672439569@linuxfoundation.org>
 References: <20210505112326.672439569@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,106 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Romain Naour <romain.naour@gmail.com>
+From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
 
-commit 1d7ba0165d8206ac073f7ac3b14fc0836b66eae7 upstream.
+commit 2671fa4dc0109d3fb581bc3078fdf17b5d9080f6 upstream.
 
->From [1]
-"GCC 10 (PR 91233) won't silently allow registers that are not
-architecturally available to be present in the clobber list anymore,
-resulting in build failure for mips*r6 targets in form of:
-...
-.../sysdep.h:146:2: error: the register ‘lo’ cannot be clobbered in ‘asm’ for the current target
-  146 |  __asm__ volatile (      \
-      |  ^~~~~~~
+These sysctls point to global variables:
+- NF_SYSCTL_CT_MAX (&nf_conntrack_max)
+- NF_SYSCTL_CT_EXPECT_MAX (&nf_ct_expect_max)
+- NF_SYSCTL_CT_BUCKETS (&nf_conntrack_htable_size_user)
 
-This is because base R6 ISA doesn't define hi and lo registers w/o DSP
-extension. This patch provides the alternative clobber list for r6 targets
-that won't include those registers."
+Because their data pointers are not updated to point to per-netns
+structures, they must be marked read-only in a non-init_net ns.
+Otherwise, changes in any net namespace are reflected in (leaked into)
+all other net namespaces. This problem has existed since the
+introduction of net namespaces.
 
-Since kernel 5.4 and mips support for generic vDSO [2], the kernel fail to
-build for mips r6 cpus with gcc 10 for the same reason as glibc.
+The current logic marks them read-only only if the net namespace is
+owned by an unprivileged user (other than init_user_ns).
 
-[1] https://sourceware.org/git/?p=glibc.git;a=commit;h=020b2a97bb15f807c0482f0faee2184ed05bcad8
-[2] '24640f233b46 ("mips: Add support for generic vDSO")'
+Commit d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in
+unprivileged namespaces") "exposes all sysctls even if the namespace is
+unpriviliged." Since we need to mark them readonly in any case, we can
+forego the unprivileged user check altogether.
 
-Signed-off-by: Romain Naour <romain.naour@gmail.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in unprivileged namespaces")
+Signed-off-by: Jonathon Reinhart <Jonathon.Reinhart@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/vdso/gettimeofday.h |   26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ net/netfilter/nf_conntrack_standalone.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
---- a/arch/mips/include/asm/vdso/gettimeofday.h
-+++ b/arch/mips/include/asm/vdso/gettimeofday.h
-@@ -20,6 +20,12 @@
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -1060,16 +1060,10 @@ static int nf_conntrack_standalone_init_
+ 	nf_conntrack_standalone_init_dccp_sysctl(net, table);
+ 	nf_conntrack_standalone_init_gre_sysctl(net, table);
  
- #define VDSO_HAS_CLOCK_GETRES		1
+-	/* Don't allow unprivileged users to alter certain sysctls */
+-	if (net->user_ns != &init_user_ns) {
++	/* Don't allow non-init_net ns to alter global sysctls */
++	if (!net_eq(&init_net, net)) {
+ 		table[NF_SYSCTL_CT_MAX].mode = 0444;
+ 		table[NF_SYSCTL_CT_EXPECT_MAX].mode = 0444;
+-		table[NF_SYSCTL_CT_HELPER].mode = 0444;
+-#ifdef CONFIG_NF_CONNTRACK_EVENTS
+-		table[NF_SYSCTL_CT_EVENTS].mode = 0444;
+-#endif
+-		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
+-	} else if (!net_eq(&init_net, net)) {
+ 		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
+ 	}
  
-+#if MIPS_ISA_REV < 6
-+#define VDSO_SYSCALL_CLOBBERS "hi", "lo",
-+#else
-+#define VDSO_SYSCALL_CLOBBERS
-+#endif
-+
- static __always_inline long gettimeofday_fallback(
- 				struct __kernel_old_timeval *_tv,
- 				struct timezone *_tz)
-@@ -35,7 +41,9 @@ static __always_inline long gettimeofday
- 	: "=r" (ret), "=r" (error)
- 	: "r" (tv), "r" (tz), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
- 
- 	return error ? -ret : ret;
- }
-@@ -59,7 +67,9 @@ static __always_inline long clock_gettim
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
- 
- 	return error ? -ret : ret;
- }
-@@ -83,7 +93,9 @@ static __always_inline int clock_getres_
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
- 
- 	return error ? -ret : ret;
- }
-@@ -105,7 +117,9 @@ static __always_inline long clock_gettim
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
- 
- 	return error ? -ret : ret;
- }
-@@ -125,7 +139,9 @@ static __always_inline int clock_getres3
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
- 
- 	return error ? -ret : ret;
- }
 
 
