@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AA24373A66
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81CBF373A6C
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233194AbhEEMKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:10:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
+        id S233683AbhEEMKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232450AbhEEMJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:09:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED89161222;
-        Wed,  5 May 2021 12:08:38 +0000 (UTC)
+        id S233321AbhEEMJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:09:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AC8E6139A;
+        Wed,  5 May 2021 12:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216519;
-        bh=Vv89GRzN62drXvs6Is1v6/nS/XkpaahPEDshAg3+LE0=;
+        s=korg; t=1620216521;
+        bh=Yf0zVo/dlPirZVH2nGeno4UG/jo8lP2Tgi6DLoz+/rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bs0r6j87YPcDW2TCHNt+DOMtrC0mmXN4LVwiXuRIRJI/98QR6XxIhi3A309/qVM4I
-         MLoSEnZPGE1lor7J9TtTeXap3bk7o0B79+X80YcwbwLlEbUrHxGgsdmaZtwIj8ZYrv
-         WZxv6Aag1rGROIWo5AHfKyGO7798CPf8be3G3I5o=
+        b=0epiyvyeoc8Beba7TZ7PTZHIQT9m7MmHJO7tH8hzGzkhMOIUe4RswY6a27FBs+9U6
+         JnnMTlhtqy6hfALG2idg/OJus2Hzc3DD2/S/fUzqsrG0RVBb9vc+91BuL8LAbyvA8m
+         4kYUROC1exkzG3ktESnLDvz22bjmEQd6bdZEyHxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 12/31] tools/cgroup/slabinfo.py: updated to work on current kernel
-Date:   Wed,  5 May 2021 14:06:01 +0200
-Message-Id: <20210505112327.066567599@linuxfoundation.org>
+        stable@vger.kernel.org, Jianxiong Gao <jxgao@google.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH 5.11 13/31] driver core: add a min_align_mask field to struct device_dma_parameters
+Date:   Wed,  5 May 2021 14:06:02 +0200
+Message-Id: <20210505112327.097349074@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112326.672439569@linuxfoundation.org>
 References: <20210505112326.672439569@linuxfoundation.org>
@@ -42,71 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Jianxiong Gao <jxgao@google.com>
 
-[ Upstream commit 1974c45dd7745e999b9387be3d8fdcb27a5b1721 ]
+commit: 36950f2da1ea4cb683be174f6f581e25b2d33e71
 
-slabinfo.py script does not work with actual kernel version.
+Some devices rely on the address offset in a page to function
+correctly (NVMe driver as an example). These devices may use
+a different page size than the Linux kernel. The address offset
+has to be preserved upon mapping, and in order to do so, we
+need to record the page_offset_mask first.
 
-First, it was unable to recognise SLUB susbsytem, and when I specified
-it manually it failed again with
-
-  AttributeError: 'struct page' has no member 'obj_cgroups'
-
-.. and then again with
-
-  File "tools/cgroup/memcg_slabinfo.py", line 221, in main
-    memcg.kmem_caches.address_of_(),
-  AttributeError: 'struct mem_cgroup' has no member 'kmem_caches'
-
-Link: https://lkml.kernel.org/r/cec1a75e-43b4-3d64-2084-d9f98fda037f@virtuozzo.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Tested-by: Roman Gushchin <guro@fb.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jianxiong Gao <jxgao@google.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/cgroup/memcg_slabinfo.py | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/linux/device.h      |    1 +
+ include/linux/dma-mapping.h |   16 ++++++++++++++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/tools/cgroup/memcg_slabinfo.py b/tools/cgroup/memcg_slabinfo.py
-index c4225ed63565..1600b17dbb8a 100644
---- a/tools/cgroup/memcg_slabinfo.py
-+++ b/tools/cgroup/memcg_slabinfo.py
-@@ -128,9 +128,9 @@ def detect_kernel_config():
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -291,6 +291,7 @@ struct device_dma_parameters {
+ 	 * sg limitations.
+ 	 */
+ 	unsigned int max_segment_size;
++	unsigned int min_align_mask;
+ 	unsigned long segment_boundary_mask;
+ };
  
-     cfg['nr_nodes'] = prog['nr_online_nodes'].value_()
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -500,6 +500,22 @@ static inline int dma_set_seg_boundary(s
+ 	return -EIO;
+ }
  
--    if prog.type('struct kmem_cache').members[1][1] == 'flags':
-+    if prog.type('struct kmem_cache').members[1].name == 'flags':
-         cfg['allocator'] = 'SLUB'
--    elif prog.type('struct kmem_cache').members[1][1] == 'batchcount':
-+    elif prog.type('struct kmem_cache').members[1].name == 'batchcount':
-         cfg['allocator'] = 'SLAB'
-     else:
-         err('Can\'t determine the slab allocator')
-@@ -193,7 +193,7 @@ def main():
-         # look over all slab pages, belonging to non-root memcgs
-         # and look for objects belonging to the given memory cgroup
-         for page in for_each_slab_page(prog):
--            objcg_vec_raw = page.obj_cgroups.value_()
-+            objcg_vec_raw = page.memcg_data.value_()
-             if objcg_vec_raw == 0:
-                 continue
-             cache = page.slab_cache
-@@ -202,7 +202,7 @@ def main():
-             addr = cache.value_()
-             caches[addr] = cache
-             # clear the lowest bit to get the true obj_cgroups
--            objcg_vec = Object(prog, page.obj_cgroups.type_,
-+            objcg_vec = Object(prog, 'struct obj_cgroup **',
-                                value=objcg_vec_raw & ~1)
- 
-             if addr not in stats:
--- 
-2.30.2
-
++static inline unsigned int dma_get_min_align_mask(struct device *dev)
++{
++	if (dev->dma_parms)
++		return dev->dma_parms->min_align_mask;
++	return 0;
++}
++
++static inline int dma_set_min_align_mask(struct device *dev,
++		unsigned int min_align_mask)
++{
++	if (WARN_ON_ONCE(!dev->dma_parms))
++		return -EIO;
++	dev->dma_parms->min_align_mask = min_align_mask;
++	return 0;
++}
++
+ static inline int dma_get_cache_alignment(void)
+ {
+ #ifdef ARCH_DMA_MINALIGN
 
 
