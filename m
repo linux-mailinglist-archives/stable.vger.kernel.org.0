@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9DFF373A6D
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:09:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFBAC373A72
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233691AbhEEMKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:10:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50558 "EHLO mail.kernel.org"
+        id S233735AbhEEMKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:10:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233378AbhEEMJz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:09:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6B60613BE;
-        Wed,  5 May 2021 12:08:52 +0000 (UTC)
+        id S233545AbhEEMJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:09:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5157613BA;
+        Wed,  5 May 2021 12:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216533;
-        bh=jfsNba7U9iA8JZj5ycsqVMIeZBeB2IQaEFt7ctlUEek=;
+        s=korg; t=1620216536;
+        bh=vZwxj9y87MI0CzeUTtAorS9lYzBHNDZVYh4Iv2vx3kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=huokY62ity3rv3k2WgHKDN+XLXZNaIt0Kc2+Vn2KLUlyfxIRC62jglywFvekUiY3C
-         AmcpRxiPhpkaL6gngD9912uTZFHXGFpQIGkFMBFPGlRtT3q06BUiAtCLd0vml2ovCu
-         S2XilPYdX0WVkCunYnqh8lCMwPX67WO/UWUYmXBg=
+        b=MEBxALdwGXO27jbMN7gHgeEnjVWlIHOKUwWmZ/XLv0xliUzZyXNkcJgZg5db0wwAI
+         QbB6YVOWoW7B26zkG+AXgWgGMGfw4vrdCGJahdPNdDzYf71rnuCuSW9B9IJf0QNV6a
+         rZ1ZTs3etS9egCL9BXWjRQDYklb2ltO1fo8uBhQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathon Reinhart <Jonathon.Reinhart@gmail.com>,
+        syzbot+4993e4a0e237f1b53747@syzkaller.appspotmail.com,
+        Phillip Potter <phil@philpotter.co.uk>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 02/31] netfilter: conntrack: Make global sysctls readonly in non-init netns
-Date:   Wed,  5 May 2021 14:05:51 +0200
-Message-Id: <20210505112326.751636796@linuxfoundation.org>
+Subject: [PATCH 5.11 03/31] net: usb: ax88179_178a: initialize local variables before use
+Date:   Wed,  5 May 2021 14:05:52 +0200
+Message-Id: <20210505112326.782496920@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112326.672439569@linuxfoundation.org>
 References: <20210505112326.672439569@linuxfoundation.org>
@@ -40,57 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit 2671fa4dc0109d3fb581bc3078fdf17b5d9080f6 upstream.
+commit bd78980be1a68d14524c51c4b4170782fada622b upstream.
 
-These sysctls point to global variables:
-- NF_SYSCTL_CT_MAX (&nf_conntrack_max)
-- NF_SYSCTL_CT_EXPECT_MAX (&nf_ct_expect_max)
-- NF_SYSCTL_CT_BUCKETS (&nf_conntrack_htable_size_user)
+Use memset to initialize local array in drivers/net/usb/ax88179_178a.c, and
+also set a local u16 and u32 variable to 0. Fixes a KMSAN found uninit-value bug
+reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=00371c73c72f72487c1d0bfe0cc9d00de339d5aa
 
-Because their data pointers are not updated to point to per-netns
-structures, they must be marked read-only in a non-init_net ns.
-Otherwise, changes in any net namespace are reflected in (leaked into)
-all other net namespaces. This problem has existed since the
-introduction of net namespaces.
-
-The current logic marks them read-only only if the net namespace is
-owned by an unprivileged user (other than init_user_ns).
-
-Commit d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in
-unprivileged namespaces") "exposes all sysctls even if the namespace is
-unpriviliged." Since we need to mark them readonly in any case, we can
-forego the unprivileged user check altogether.
-
-Fixes: d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in unprivileged namespaces")
-Signed-off-by: Jonathon Reinhart <Jonathon.Reinhart@gmail.com>
+Reported-by: syzbot+4993e4a0e237f1b53747@syzkaller.appspotmail.com
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_standalone.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/net/usb/ax88179_178a.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -1060,16 +1060,10 @@ static int nf_conntrack_standalone_init_
- 	nf_conntrack_standalone_init_dccp_sysctl(net, table);
- 	nf_conntrack_standalone_init_gre_sysctl(net, table);
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -296,12 +296,12 @@ static int ax88179_read_cmd(struct usbne
+ 	int ret;
  
--	/* Don't allow unprivileged users to alter certain sysctls */
--	if (net->user_ns != &init_user_ns) {
-+	/* Don't allow non-init_net ns to alter global sysctls */
-+	if (!net_eq(&init_net, net)) {
- 		table[NF_SYSCTL_CT_MAX].mode = 0444;
- 		table[NF_SYSCTL_CT_EXPECT_MAX].mode = 0444;
--		table[NF_SYSCTL_CT_HELPER].mode = 0444;
--#ifdef CONFIG_NF_CONNTRACK_EVENTS
--		table[NF_SYSCTL_CT_EVENTS].mode = 0444;
--#endif
--		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
--	} else if (!net_eq(&init_net, net)) {
- 		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
- 	}
+ 	if (2 == size) {
+-		u16 buf;
++		u16 buf = 0;
+ 		ret = __ax88179_read_cmd(dev, cmd, value, index, size, &buf, 0);
+ 		le16_to_cpus(&buf);
+ 		*((u16 *)data) = buf;
+ 	} else if (4 == size) {
+-		u32 buf;
++		u32 buf = 0;
+ 		ret = __ax88179_read_cmd(dev, cmd, value, index, size, &buf, 0);
+ 		le32_to_cpus(&buf);
+ 		*((u32 *)data) = buf;
+@@ -1296,6 +1296,8 @@ static void ax88179_get_mac_addr(struct
+ {
+ 	u8 mac[ETH_ALEN];
  
++	memset(mac, 0, sizeof(mac));
++
+ 	/* Maybe the boot loader passed the MAC address via device tree */
+ 	if (!eth_platform_get_mac_address(&dev->udev->dev, mac)) {
+ 		netif_dbg(dev, ifup, dev->net,
 
 
