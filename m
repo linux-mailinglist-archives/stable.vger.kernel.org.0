@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0C037402D
+	by mail.lfdr.de (Postfix) with ESMTP id 1633537402C
 	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234348AbhEEQdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234277AbhEEQdD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 5 May 2021 12:33:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234239AbhEEQcq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:32:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E404061413;
-        Wed,  5 May 2021 16:31:48 +0000 (UTC)
+        id S234251AbhEEQcr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:32:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 470E7613CB;
+        Wed,  5 May 2021 16:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232309;
-        bh=fxnDPLlPWYLf9/KzTkxHvikDC9lWN6ga0dBvtKr5d2I=;
+        s=k20201202; t=1620232311;
+        bh=3LQEmK+9k9N4NRabF1WjLdp98igBJaP0SbG2CHkZw1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGqpnvvo0iTE5zlqxjE556fUrlyvMpelaI/2VyCPqh2UAZpST/fI6JKhQTeU3TKHm
-         aVMF1rLpzd5wcRpbkwwYrbbIZmzBnNzvrBap5oAxegmSS/M1Dzs5AcV8hBifEEkTcu
-         JJ398WztdkxDsudacgb8i2Pv1ls6AwQS3qBh+6ROTuOTutjR6OWPciL42rZB1YLCUP
-         IUWAKF1l111KcuvRbuOLEkrOT/2LQod6+/ojn/z5SHdmjN+dP8u9MGL1ZnY4Ujk36Y
-         eJI6oUmYiq9L4klDKRBsRYE0oOk3sC/QnCw+ZQCoZ2L6cAkkkUHWgvDbogMpEZhLUT
-         ut+RMTYHvScOQ==
+        b=CmguIrB2L8/7ONEfI+6eS+XlIuC0p3Qh3w/U+ftnZupn67NWfzTo1K+cAKRRUoL7W
+         YtyZ+ecmTwyxa326CWobemtMEC7SYkzW2mzkVljB22JMNhsX7GdvWGWi5Z94Y+EZh2
+         WcB9iq54dvy7EX5Hai8zmyixdYqtebNfxY7vD78HyrLpk4k6jJwyNNV1SYgUXxFaGC
+         jqvn8N72AT0EZT8ckexh2fMqlXFhZPYAqN35565JwtA29m/jJKRpnI4FotWzL7wwgr
+         9zFQC/p9sbU40XUkh+hRY3zbhfsn7gE93nfKe50ntrHfACzPfXymNtVm/wi1NtzLql
+         FdbXjxSEIIaig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 018/116] i2c: bail out early when RDWR parameters are wrong
-Date:   Wed,  5 May 2021 12:29:46 -0400
-Message-Id: <20210505163125.3460440-18-sashal@kernel.org>
+Cc:     Tong Zhang <ztong0001@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 019/116] ALSA: hdsp: don't disable if not enabled
+Date:   Wed,  5 May 2021 12:29:47 -0400
+Message-Id: <20210505163125.3460440-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -43,43 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 71581562ee36032d2d574a9b23ad4af6d6a64cf7 ]
+[ Upstream commit 507cdb9adba006a7798c358456426e1aea3d9c4f ]
 
-The buggy parameters currently get caught later, but emit a noisy WARN.
-Userspace should not be able to trigger this, so add similar checks much
-earlier. Also avoids some unneeded code paths, of course. Apply kernel
-coding stlye to a comment while here.
+hdsp wants to disable a not enabled pci device, which makes kernel
+throw a warning. Make sure the device is enabled before calling disable.
 
-Reported-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
-Tested-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+[    1.758292] snd_hdsp 0000:00:03.0: disabling already-disabled device
+[    1.758327] WARNING: CPU: 0 PID: 180 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
+[    1.766985] Call Trace:
+[    1.767121]  snd_hdsp_card_free+0x94/0xf0 [snd_hdsp]
+[    1.767388]  release_card_device+0x4b/0x80 [snd]
+[    1.767639]  device_release+0x3b/0xa0
+[    1.767838]  kobject_put+0x94/0x1b0
+[    1.768027]  put_device+0x13/0x20
+[    1.768207]  snd_card_free+0x61/0x90 [snd]
+[    1.768430]  snd_hdsp_probe+0x524/0x5e0 [snd_hdsp]
+
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210321153840.378226-2-ztong0001@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ sound/pci/rme9652/hdsp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 6ceb11cc4be1..6ef38a8ee95c 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -440,8 +440,13 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 				   sizeof(rdwr_arg)))
- 			return -EFAULT;
+diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+index 4cf879c42dc4..720297cbdf87 100644
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -5390,7 +5390,8 @@ static int snd_hdsp_free(struct hdsp *hdsp)
+ 	if (hdsp->port)
+ 		pci_release_regions(hdsp->pci);
  
--		/* Put an arbitrary limit on the number of messages that can
--		 * be sent at once */
-+		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0)
-+			return -EINVAL;
-+
-+		/*
-+		 * Put an arbitrary limit on the number of messages that can
-+		 * be sent at once
-+		 */
- 		if (rdwr_arg.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
- 			return -EINVAL;
+-	pci_disable_device(hdsp->pci);
++	if (pci_is_enabled(hdsp->pci))
++		pci_disable_device(hdsp->pci);
+ 	return 0;
+ }
  
 -- 
 2.30.2
