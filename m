@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F14373A80
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:10:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81879373A9E
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233479AbhEEMLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:11:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50458 "EHLO mail.kernel.org"
+        id S233298AbhEEML5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233762AbhEEMJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:09:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98734613F5;
-        Wed,  5 May 2021 12:08:05 +0000 (UTC)
+        id S233524AbhEEMKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:10:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BDA361402;
+        Wed,  5 May 2021 12:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216486;
-        bh=CekMGGwRHJP4yRbHxEVAdIWtBfPYYAxOrhatrDJNNiw=;
+        s=korg; t=1620216572;
+        bh=C9ke7v72V70s1IdVAQHEb0HbJn+RJXrdfqqY1sv86ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S0fLk5UvNY8MjQxdJ4JyjWFCpamiq1i3TXDjibgekVCvH2DTP31fNl/QUCVJfWuzO
-         hhJFjY5XEyRkEeGPui5gQHvABrPUbEv4PgDsmI/TdGdxmDNjCgcfb+lXYF575jIIrC
-         xl8LF8wuhW14X1VnrgrZVAcElqimHHM21cVki7VM=
+        b=h+Q36sU/QXnrVa6Gp5zDyzC3sE3WhhLVUJKs3M47CFcuCGlVR4IyDSLOsE8BbItNM
+         fFjk2m/BCuUIUPFtDtdQdTJRgotokvyNCi80LxMGuSwW3XMiMyW3VFIZziApfKwJfS
+         A28sQtntPxhL1QYbcr7gd+nU9ij8IK1IpXgePoOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Pearson <markpearson@lenovo.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.12 16/17] platform/x86: thinkpad_acpi: Correct thermal sensor allocation
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.11 22/31] ovl: fix leaked dentry
 Date:   Wed,  5 May 2021 14:06:11 +0200
-Message-Id: <20210505112325.479732835@linuxfoundation.org>
+Message-Id: <20210505112327.401594800@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505112324.956720416@linuxfoundation.org>
-References: <20210505112324.956720416@linuxfoundation.org>
+In-Reply-To: <20210505112326.672439569@linuxfoundation.org>
+References: <20210505112326.672439569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,102 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <markpearson@lenovo.com>
+From: Mickaël Salaün <mic@linux.microsoft.com>
 
-commit 6759e18e5cd8745a5dfc5726e4a3db5281ec1639 upstream.
+commit eaab1d45cdb4bb0c846bd23c3d666d5b90af7b41 upstream.
 
-On recent Thinkpad platforms it was reported that temp sensor 11 was
-always incorrectly displaying 66C. It turns out the reason for this is
-that this location in EC RAM is not a temperature sensor but is the
-power supply ID (offset 0xC2).
+Since commit 6815f479ca90 ("ovl: use only uppermetacopy state in
+ovl_lookup()"), overlayfs doesn't put temporary dentry when there is a
+metacopy error, which leads to dentry leaks when shutting down the related
+superblock:
 
-Based on feedback from the Lenovo firmware team the EC RAM version can
-be determined and for the current version (3) only the 0x78 to 0x7F
-range is used for temp sensors. I don't have any details for earlier
-versions so I have left the implementation unaltered there.
+  overlayfs: refusing to follow metacopy origin for (/file0)
+  ...
+  BUG: Dentry (____ptrval____){i=3f33,n=file3}  still in use (1) [unmount of overlay overlay]
+  ...
+  WARNING: CPU: 1 PID: 432 at umount_check.cold+0x107/0x14d
+  CPU: 1 PID: 432 Comm: unmount-overlay Not tainted 5.12.0-rc5 #1
+  ...
+  RIP: 0010:umount_check.cold+0x107/0x14d
+  ...
+  Call Trace:
+   d_walk+0x28c/0x950
+   ? dentry_lru_isolate+0x2b0/0x2b0
+   ? __kasan_slab_free+0x12/0x20
+   do_one_tree+0x33/0x60
+   shrink_dcache_for_umount+0x78/0x1d0
+   generic_shutdown_super+0x70/0x440
+   kill_anon_super+0x3e/0x70
+   deactivate_locked_super+0xc4/0x160
+   deactivate_super+0xfa/0x140
+   cleanup_mnt+0x22e/0x370
+   __cleanup_mnt+0x1a/0x30
+   task_work_run+0x139/0x210
+   do_exit+0xb0c/0x2820
+   ? __kasan_check_read+0x1d/0x30
+   ? find_held_lock+0x35/0x160
+   ? lock_release+0x1b6/0x660
+   ? mm_update_next_owner+0xa20/0xa20
+   ? reacquire_held_locks+0x3f0/0x3f0
+   ? __sanitizer_cov_trace_const_cmp4+0x22/0x30
+   do_group_exit+0x135/0x380
+   __do_sys_exit_group.isra.0+0x20/0x20
+   __x64_sys_exit_group+0x3c/0x50
+   do_syscall_64+0x45/0x70
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  ...
+  VFS: Busy inodes after unmount of overlay. Self-destruct in 5 seconds.  Have a nice day...
 
-Note - in this block only 0x78 and 0x79 are officially designated (CPU &
-GPU sensors). The use of the other locations in the block will vary from
-platform to platform; but the existing logic to detect a sensor presence
-holds.
+This fix has been tested with a syzkaller reproducer.
 
-Signed-off-by: Mark Pearson <markpearson@lenovo.com>
-Link: https://lore.kernel.org/r/20210407212015.298222-1-markpearson@lenovo.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: Amir Goldstein <amir73il@gmail.com>
+Cc: <stable@vger.kernel.org> # v5.8+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 6815f479ca90 ("ovl: use only uppermetacopy state in ovl_lookup()")
+Signed-off-by: Mickaël Salaün <mic@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20210329164907.2133175-1-mic@digikod.net
+Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c |   31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ fs/overlayfs/namei.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -6260,6 +6260,7 @@ enum thermal_access_mode {
- enum { /* TPACPI_THERMAL_TPEC_* */
- 	TP_EC_THERMAL_TMP0 = 0x78,	/* ACPI EC regs TMP 0..7 */
- 	TP_EC_THERMAL_TMP8 = 0xC0,	/* ACPI EC regs TMP 8..15 */
-+	TP_EC_FUNCREV      = 0xEF,      /* ACPI EC Functional revision */
- 	TP_EC_THERMAL_TMP_NA = -128,	/* ACPI EC sensor not available */
+--- a/fs/overlayfs/namei.c
++++ b/fs/overlayfs/namei.c
+@@ -919,6 +919,7 @@ struct dentry *ovl_lookup(struct inode *
+ 			continue;
  
- 	TPACPI_THERMAL_SENSOR_NA = -128000, /* Sensor not available */
-@@ -6458,7 +6459,7 @@ static const struct attribute_group ther
- 
- static int __init thermal_init(struct ibm_init_struct *iibm)
- {
--	u8 t, ta1, ta2;
-+	u8 t, ta1, ta2, ver = 0;
- 	int i;
- 	int acpi_tmp7;
- 	int res;
-@@ -6473,7 +6474,14 @@ static int __init thermal_init(struct ib
- 		 * 0x78-0x7F, 0xC0-0xC7.  Registers return 0x00 for
- 		 * non-implemented, thermal sensors return 0x80 when
- 		 * not available
-+		 * The above rule is unfortunately flawed. This has been seen with
-+		 * 0xC2 (power supply ID) causing thermal control problems.
-+		 * The EC version can be determined by offset 0xEF and at least for
-+		 * version 3 the Lenovo firmware team confirmed that registers 0xC0-0xC7
-+		 * are not thermal registers.
- 		 */
-+		if (!acpi_ec_read(TP_EC_FUNCREV, &ver))
-+			pr_warn("Thinkpad ACPI EC unable to access EC version\n");
- 
- 		ta1 = ta2 = 0;
- 		for (i = 0; i < 8; i++) {
-@@ -6483,11 +6491,13 @@ static int __init thermal_init(struct ib
- 				ta1 = 0;
- 				break;
- 			}
--			if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
--				ta2 |= t;
--			} else {
--				ta1 = 0;
--				break;
-+			if (ver < 3) {
-+				if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
-+					ta2 |= t;
-+				} else {
-+					ta1 = 0;
-+					break;
-+				}
- 			}
- 		}
- 		if (ta1 == 0) {
-@@ -6500,9 +6510,12 @@ static int __init thermal_init(struct ib
- 				thermal_read_mode = TPACPI_THERMAL_NONE;
- 			}
- 		} else {
--			thermal_read_mode =
--			    (ta2 != 0) ?
--			    TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
-+			if (ver >= 3)
-+				thermal_read_mode = TPACPI_THERMAL_TPEC_8;
-+			else
-+				thermal_read_mode =
-+					(ta2 != 0) ?
-+					TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
- 		}
- 	} else if (acpi_tmp7) {
- 		if (tpacpi_is_ibm() &&
+ 		if ((uppermetacopy || d.metacopy) && !ofs->config.metacopy) {
++			dput(this);
+ 			err = -EPERM;
+ 			pr_warn_ratelimited("refusing to follow metacopy origin for (%pd2)\n", dentry);
+ 			goto out_put;
 
 
