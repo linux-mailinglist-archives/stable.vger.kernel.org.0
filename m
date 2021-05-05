@@ -2,194 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F9FA373606
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 10:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8F437366A
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 10:39:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231958AbhEEIHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 04:07:33 -0400
-Received: from mail-eopbgr20133.outbound.protection.outlook.com ([40.107.2.133]:30619
-        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231829AbhEEIHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 04:07:31 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TG2qD9XVp3PDaLBYNbdLqX3KYSV/riutaH0UXDrQXH0QQ//QT+xpAMEw1UINsqlXVcj7Xb/7z2wviDPw5SOG4NRsFjYPkk4jYxYYrEUD952SqeICZUI/+y0k2p7M+wOMBzSjZ9qE1cPm8NfUQdv3boBCzRLfQZ02I1IffBTVyTAkZTzdzy7pw5+370GHr8GPNmI4xmub8j6zM7bL0KgdDFqd/GBZZ0KhpSzusVmFo3URXJrMcD3esWajFeMYSqmO9rvOHk7LfrRjMoUe6J4/QC1PMsp0ORfyrd4Iy2XPjKpM97FIgFnD/3UzuPIWzzRR9htEIaCQNRzypq9fQj8HsQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PI/UpSOrXbkY3oiFUh544jygI4fK47wyICP2r/0oiOY=;
- b=LuzFALXx35fKc8u/ZtvYsJcqTf7LVeAR9g/2v6Dg/d9bgtXOegkVEuL7bfrOQnEBD7hNz/qgsgLqgSLl5Iz2uqV0v+3MoO1QJVuqWO7DJTloCQjbPRQbht4WdvdvELTN1W1DATHei/j+0LlotLZtJrzNEILSA4u4M4XVAsBIvU/3Np0o418L1nJZWtYGKwvNiduMVfd4TxXqWutN/mt/q7in/XdRFFT9Ns/AX/YDpemXQtZe0yQKN4bbvCCPFx/mJfkLtCoDLrdeARD3C0xf92zPAXJApdt8pnYmwb6gLtyDvzsP4QBsEISIWu99CJVcqHnWgjp2mAFM/tPKuOw2DA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=kontron.de; dmarc=pass action=none header.from=kontron.de;
- dkim=pass header.d=kontron.de; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mysnt.onmicrosoft.com;
- s=selector2-mysnt-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PI/UpSOrXbkY3oiFUh544jygI4fK47wyICP2r/0oiOY=;
- b=NnDkxhajNBKyMr80FsiW5e7us1lz7kxX/EMz5zzNZ8JslsKl61knQUZcNw8Hjk7FhDexhQld+EmpOTfAMapdIpd+bt5OGEq0AC0MOBPjc4lw+J+ZRDOkG0n2qCMzt2lOc4zY5PqxCjWwRVyUQkzyVmoWb/CDUy360sF/TFToayA=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=kontron.de;
-Received: from AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:157::14)
- by AM0PR10MB2354.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:da::29) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.35; Wed, 5 May
- 2021 08:06:33 +0000
-Received: from AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::3d8a:f56b:3a0c:8a87]) by AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM
- ([fe80::3d8a:f56b:3a0c:8a87%7]) with mapi id 15.20.4108.024; Wed, 5 May 2021
- 08:06:33 +0000
-Subject: Re: [PATCH v2] can: mcp251x: Fix resume from sleep before interface
- was brought up
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        =?UTF-8?Q?Timo_Schl=c3=bc=c3=9fler?= <schluessler@krause.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Tim Harvey <tharvey@gateworks.com>, stable@vger.kernel.org,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <17d5d714-b468-482f-f37a-482e3d6df84e@kontron.de>
- <20210505075127.yrx474t5dkpxxdmt@pengutronix.de>
-From:   Frieder Schrempf <frieder.schrempf@kontron.de>
-Message-ID: <96710db4-f330-eb3a-71fa-570dd651aee4@kontron.de>
-Date:   Wed, 5 May 2021 10:06:31 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
-In-Reply-To: <20210505075127.yrx474t5dkpxxdmt@pengutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [46.142.67.208]
-X-ClientProxiedBy: AM0PR02CA0164.eurprd02.prod.outlook.com
- (2603:10a6:20b:28d::31) To AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:208:157::14)
+        id S232091AbhEEIkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 04:40:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44542 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231836AbhEEIkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 May 2021 04:40:23 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68192C06174A
+        for <stable@vger.kernel.org>; Wed,  5 May 2021 01:39:19 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id h10so948414edt.13
+        for <stable@vger.kernel.org>; Wed, 05 May 2021 01:39:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google;
+        h=date:from:to:subject:message-id:mime-version:content-disposition;
+        bh=puFU4esa847OJivKerf1x4LYWy+PHaUER0sIpxgeDEM=;
+        b=a3nMJRgC/03UtsE5kJ7vVSzz91t6IbXBHGILXYLxY0emDNpDe+cJSCufbfNrowXJ/6
+         huJrn944MDM9sm9+oHOuwZ59wFI1cCOZnFl8gBhLGLOmWF56dQyYkEwcqLibK7whhKQ3
+         DYSCPu3bUdA7U4IHI1Jl8SpfKxkVyI4iLg318=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:subject:message-id:mime-version
+         :content-disposition;
+        bh=puFU4esa847OJivKerf1x4LYWy+PHaUER0sIpxgeDEM=;
+        b=JY6SbA2A9Yh+5XyCrJq5gughvqi4Hea/yTP0E6HD3LErK9CaD5PAzZvxJr7/KvLUqO
+         VpUB92QJSSupoV0XsZc50oqILUSR4l3Eki/8Y2+U+vry9AIhbYYx8cU1c/m1cqj3Yc7a
+         AVLEHBwRVl7+9UvSUY9M2Fn7WcyzY0bcdQPoLcS4AMHfe6Z3bJ19zqafNhvWp6RhVUca
+         3p6j5KdM/tSK8PWj9oNBFLUzTGkUvkudOaCi2BxcTvL0oNS0JOIWquewH2XrGy9Y7X32
+         CIzF96/zItXLAWwHI8vXdh42js7e1jSFbm3rVSu1SAc+3/fJ++v5BRWPQ+vcVoZqIfuc
+         //hg==
+X-Gm-Message-State: AOAM5337h3NRvmtxUfvocOztuDEWGSXQxi+OEUXLZ3u4dC34Ez8u3yC5
+        RIJ75UnzRO5GYamUEBqSzTJoWPx1XUdVPg==
+X-Google-Smtp-Source: ABdhPJwSXb5gIbox6wQKlIfyKC5fU1dPZof+EAH/3WIYqUJMOm7mG6Dl5Sc62gAyVtv6eB865KaGcg==
+X-Received: by 2002:a05:6402:4357:: with SMTP id n23mr31821008edc.379.1620203958193;
+        Wed, 05 May 2021 01:39:18 -0700 (PDT)
+Received: from miu.piliscsaba.redhat.com (catv-86-101-169-67.catv.broadband.hu. [86.101.169.67])
+        by smtp.gmail.com with ESMTPSA id h23sm2480351ejx.90.2021.05.05.01.39.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 May 2021 01:39:17 -0700 (PDT)
+Date:   Wed, 5 May 2021 10:39:15 +0200
+From:   Miklos Szeredi <miklos@szeredi.hu>
+To:     stable@vger.kernel.org
+Subject: [PATCH 4.19/5.4 backport] ovl: allow upperdir inside lowerdir
+Message-ID: <YJJZs8vKYDvKo3Db@miu.piliscsaba.redhat.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.10.17] (46.142.67.208) by AM0PR02CA0164.eurprd02.prod.outlook.com (2603:10a6:20b:28d::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend Transport; Wed, 5 May 2021 08:06:32 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 7039707c-8642-411b-6a54-08d90f9cb255
-X-MS-TrafficTypeDiagnostic: AM0PR10MB2354:
-X-Microsoft-Antispam-PRVS: <AM0PR10MB2354E83AA7F6A2387A5684FBE9599@AM0PR10MB2354.EURPRD10.PROD.OUTLOOK.COM>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: vqYjdvP/zkaSTCSU/xdsyCvHNl3K+X6dTs+ilih3tvWZ6qOTDdX3ID/OesduSXqBrjkmKJkOwqEbU28PsTREwj+EOPFUw9dSOvjGlTfxFeDh2EPlXKZwAYnoJXuzSRwLno8x4pGdEvg+HMKX22e1Fztki9xY0fvukjolZsvMmg65NFigjpb8OPGXffADS5HMm9W4aapjqBuDs5ArO2Il6+yKLaBbsKIxytNISfyA5uMr86q+tXmiSP9hj6KCCqx75XJ0IfXSIQ5Pg5iihJ+i6dKqBXyhIBB6FtedCjvj4TrYHjdesB/x9Uh7Crnlc1gctzph+cVFrMQPA+bFIC3cd6C9LRGzVG2zlwhhYjIENwd+pu35j+yUF/hyFi4JpDP1QkjvUsT/IGjODbo25gk8YrrUtCwscnOGFRRd33OiI40PwXXw2n5KWJYJcDSvm1zBvcnBDyS5zHVJe7X7/AJhUvZHlZ3hQb23+GyGEIi2zjVQVyzjSkveZ7VbPmz+nfQ86TZNR/Ya5XVmr7x6U56LxNtSpf9gg4TbLsUQIhAwTdzJr+7EGWctEUpDg2dSCl0YFo8vMCoi8w+eLMVWulQP3Qoa+wtIVkRo4KKdqBM3iNm02dHD+tLwdcRGHYErsK6YP8benrSXmbLTtIN3wteUKv/fIEcewK03wQ1BdUaNvG8tcsstKjQPU9jSPtzxfdED
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(4636009)(346002)(396003)(366004)(376002)(136003)(39850400004)(2616005)(44832011)(7416002)(86362001)(66946007)(6486002)(36756003)(31696002)(4326008)(8676002)(66476007)(66556008)(956004)(5660300002)(2906002)(6916009)(478600001)(316002)(31686004)(16576012)(16526019)(83380400001)(186003)(38100700002)(53546011)(8936002)(26005)(54906003)(45980500001)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?QzNRVmdaMTkydWc1c3U2WWYweEVFR3NpYTBTM3Mzb3ErMFpmeFZpbkNsaGhx?=
- =?utf-8?B?R2tEN1NhRjVBamJIWjFXRXIvRlVHWERwZXFVNCs5S3BuTkRSUmd4eUZKSXZB?=
- =?utf-8?B?eGxLSDlJL2xRU3E3TFI4amxLQTJ2MkYxQVJHTDBuSTFoczRtRXVwZXp1RjR4?=
- =?utf-8?B?WVg5QzBnMmpOeEhwV2NmTTR3UmtNaFJQUExWZC9NeVhWYzJHek9YQ1BFQ0cw?=
- =?utf-8?B?VnN0MVNDdE01dG9leE9RdmpUclRBYnBkT1JqcHRyVjI5bmh1YVNUSmRxWVZi?=
- =?utf-8?B?OTdNZmxpcFNGZ2pmTmcxQlpqaTdQZm5SU0lPaWFYblVMUTRWVWNUT2VtZkVt?=
- =?utf-8?B?YnhuMkRRaUlTNDNVOGt3WDlYdGtpcHNVSzhzKzBPRXp0emtCTUZ5dFdDR2NL?=
- =?utf-8?B?RnVBdzdSTnVtaEtlZldybE5WMkRzc1Y4ZnErd2MvRVkxak9NU1U2d3Qwbnho?=
- =?utf-8?B?TVdRU2hZOHpHSjJZa2JkYThDUkRZWVdmeWlleGMvb2xaWFlub3dmaVNaSVRZ?=
- =?utf-8?B?bXFGT1BvSVFSTFEwbk9KZWN3SUZhN05sdnI4L053YjZSMHpyUEpZVXNGRWdG?=
- =?utf-8?B?R3lGcFFCdTh3dnhqeHo2c2JyTXl1a3lEYmlybEROallwL3d1dDRZaWhsUFE1?=
- =?utf-8?B?SkxmLzBOU3lRVWxpeTdOTm5ic1N5RGtiTkZiQXdSa284cGZkUnZHRXFsajY3?=
- =?utf-8?B?MDI0VU9oWFJOMVVRM0wvRlFjdnozUW51aTlLODJMZVdmVElHUEJDWjdPUStw?=
- =?utf-8?B?VFFLcE5Kbi94cHM5bElpTE5QdDBDUHFtdzZ5eUxGb3pldU4rYjFSOHowWVQ5?=
- =?utf-8?B?OHd6L0RNYkhUZ1YzcHUrTkNlK1Q4aEsweUpnWlBYRG1uaGQ2OHpJUWIwUVBx?=
- =?utf-8?B?ZVlLOTVtMnpQWWJTMnd0UUxBVzg0cG0vczhmcXZUeGFNRGNCZUwrb1E4c1Ey?=
- =?utf-8?B?YS9NS2lWRkxZUExCRlVKV2oyOEM0WHNFWE5TWjh2eEdOQXlTWEE0amNieUVr?=
- =?utf-8?B?a0NJeG1QTDk1cEkzdmhGSW9NUkVtOElMSzErY1ovSnRiRStXLzFwTG56WWJ4?=
- =?utf-8?B?eTRoaDdVUFVSTU1hejJORnlFeGdIYWF0Tm9zbGtwVk9RYVdsc2pNbkZKRFZG?=
- =?utf-8?B?c0dFdncxVWJWeW1zUTdKaGdYUmFrNHJBMGlmVmtXbnFDUHRkcWdQclhCbnR1?=
- =?utf-8?B?OHFaaG5VMEp2Y0pHcnFobmYzdFNoU2ovVXVGQWZxOXdWb0h3TkxyTXBLZkc3?=
- =?utf-8?B?Y01ZNy8rajFidkoybitCTjk5MzFyTFFJZUxvS2hWVUdZZ3hyOU9mSnpoWXFL?=
- =?utf-8?B?TUNobm15NnczWkRrMkNYaWhFb0xRUFllSkJ6V2kreU00eUVFQ1doQWx1Yjd5?=
- =?utf-8?B?ZmhNYWQrdnRuWE9aOURpOFpROFd3QVFaZFllTnNuRHVreFhzeHBlWkxkbVZL?=
- =?utf-8?B?aXhpeGpHY0JmelNwNE1nM1hTbkxTZmdOSEJwektaMG1PQTJhNWJVeXR6V1k4?=
- =?utf-8?B?ZWtwUTRaWUJHdy85TVBjYlA5Nm53MkkvQnZWK0RBdTZxNE1kaWp6cEV0UHA3?=
- =?utf-8?B?d2MvTXFxeS9zdHdnYUNxVjgwMUhyNTNUZFpMcW43dFVDQkMxUU95OFcvaFJB?=
- =?utf-8?B?aTZTOHVrTUJNcXF0RUI1ZkRPdTg4UGxsVkRKeGtEK0hpUUlnMHhma3E2K0Mz?=
- =?utf-8?B?TUZ0NlQ3YkZIT2ZxSGtobUFWaVlUMWxKcG5Bejl6S3NjTThCVktoajNPR3RS?=
- =?utf-8?Q?oPeiEBuoCNSARQY/8heIGZWJxrycmEEGiWR8n9z?=
-X-OriginatorOrg: kontron.de
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7039707c-8642-411b-6a54-08d90f9cb255
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR10MB2963.EURPRD10.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 May 2021 08:06:33.2262
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8c9d3c97-3fd9-41c8-a2b1-646f3942daf1
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: m5rva6/cz4Vrw89xf0O9jouVZfaeYtlMn3FaAWphfc/1VPiMgAO1rKDLfD5vDH/rMPDdMR74bZIIDq9U95YPIqT7Bx8Gj4J/rg1B3p6YYNE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR10MB2354
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05.05.21 09:51, Marc Kleine-Budde wrote:
-> On 05.05.2021 09:14:15, Frieder Schrempf wrote:
->> From: Frieder Schrempf <frieder.schrempf@kontron.de>
->>
->> Since 8ce8c0abcba3 the driver queues work via priv->restart_work when
->> resuming after suspend, even when the interface was not previously
->> enabled. This causes a null dereference error as the workqueue is
->> only allocated and initialized in mcp251x_open().
->>
->> To fix this we move the workqueue init to mcp251x_can_probe() as
->> there is no reason to do it later and repeat it whenever
->> mcp251x_open() is called.
->>
->> Fixes: 8ce8c0abcba3 ("can: mcp251x: only reset hardware as required")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
->> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> ---
->> Changes in v2:
->>   * Remove the out_clean label in mcp251x_open()
->>   * Add Andy's R-b tag
->>   * Add 'From' tag
->>
->> Hi Marc, I'm sending a v2 mainly because I noticed that v1 is missing
->> the 'From' tag and as my company's mailserver always sends my name
->> reversed this causes incorrect author information in git. So if possible
->> you could fix this up. If this is too much work, just leave it as is.
->> Thanks!
-> 
-> Done.
+Hi Greg,
 
-Thanks!
+This is a backport of commit 708fa01597fa ("ovl: allow upperdir inside
+lowerdir").
 
-> 
-> I've also squashed this fixup:
+Thanks,
+Miklos
 
-Oh dear, I really should have looked at this more closely.
-Thanks a lot and sorry for the mess!
+---
+From: Miklos Szeredi <mszeredi@redhat.com>
+Date: Mon, 12 Apr 2021 12:00:37 +0200
+Subject: ovl: allow upperdir inside lowerdir
 
-> 
-> | --- a/drivers/net/can/spi/mcp251x.c
-> | +++ b/drivers/net/can/spi/mcp251x.c
-> | @@ -1224,13 +1224,13 @@ static int mcp251x_open(struct net_device *net)
-> |  
-> |         ret = mcp251x_hw_wake(spi);
-> |         if (ret)
-> | -               goto out_free_wq;
-> | +               goto out_free_irq;
-> |         ret = mcp251x_setup(net, spi);
-> |         if (ret)
-> | -               goto out_free_wq;
-> | +               goto out_free_irq;
-> |         ret = mcp251x_set_normal_mode(spi);
-> |         if (ret)
-> | -               goto out_free_wq;
-> | +               goto out_free_irq;
-> |  
-> |         can_led_event(net, CAN_LED_EVENT_OPEN);
-> |  
-> | @@ -1239,8 +1239,7 @@ static int mcp251x_open(struct net_device *net)
-> |  
-> |         return 0;
-> |  
-> | -out_free_wq:
-> | -       destroy_workqueue(priv->wq);
-> | +out_free_irq:
-> |         free_irq(spi->irq, priv);
-> |         mcp251x_hw_sleep(spi);
-> |  out_close:
-> 
-> Marc
-> 
+commit 708fa01597fa002599756bf56a96d0de1677375c upstream.
+
+Commit 146d62e5a586 ("ovl: detect overlapping layers") made sure we don't
+have overlapping layers, but it also broke the arguably valid use case of
+
+ mount -olowerdir=/,upperdir=/subdir,..
+
+where upperdir overlaps lowerdir on the same filesystem.  This has been
+causing regressions.
+
+Revert the check, but only for the specific case where upperdir and/or
+workdir are subdirectories of lowerdir.  Any other overlap (e.g. lowerdir
+is subdirectory of upperdir, etc) case is crazy, so leave the check in
+place for those.
+
+Overlaps are detected at lookup time too, so reverting the mount time check
+should be safe.
+
+Fixes: 146d62e5a586 ("ovl: detect overlapping layers")
+Cc: <stable@vger.kernel.org> # v5.2
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+---
+ fs/overlayfs/super.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+index 7621ff176d15..1f0503aaf18c 100644
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -1501,7 +1501,8 @@ static struct ovl_entry *ovl_get_lowerstack(struct super_block *sb,
+  * - upper/work dir of any overlayfs instance
+  */
+ static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
+-			   struct dentry *dentry, const char *name)
++			   struct dentry *dentry, const char *name,
++			   bool is_lower)
+ {
+ 	struct dentry *next = dentry, *parent;
+ 	int err = 0;
+@@ -1513,7 +1514,7 @@ static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
+ 
+ 	/* Walk back ancestors to root (inclusive) looking for traps */
+ 	while (!err && parent != next) {
+-		if (ovl_lookup_trap_inode(sb, parent)) {
++		if (is_lower && ovl_lookup_trap_inode(sb, parent)) {
+ 			err = -ELOOP;
+ 			pr_err("overlayfs: overlapping %s path\n", name);
+ 		} else if (ovl_is_inuse(parent)) {
+@@ -1539,7 +1540,7 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
+ 
+ 	if (ofs->upper_mnt) {
+ 		err = ovl_check_layer(sb, ofs, ofs->upper_mnt->mnt_root,
+-				      "upperdir");
++				      "upperdir", false);
+ 		if (err)
+ 			return err;
+ 
+@@ -1550,7 +1551,8 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
+ 		 * workbasedir.  In that case, we already have their traps in
+ 		 * inode cache and we will catch that case on lookup.
+ 		 */
+-		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir");
++		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir",
++				      false);
+ 		if (err)
+ 			return err;
+ 	}
+@@ -1558,7 +1560,7 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
+ 	for (i = 0; i < ofs->numlower; i++) {
+ 		err = ovl_check_layer(sb, ofs,
+ 				      ofs->lower_layers[i].mnt->mnt_root,
+-				      "lowerdir");
++				      "lowerdir", true);
+ 		if (err)
+ 			return err;
+ 	}
+-- 
+2.30.2
+
