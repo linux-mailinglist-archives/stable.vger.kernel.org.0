@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD473741E1
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B373741DC
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:46:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235446AbhEEQlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:41:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37290 "EHLO mail.kernel.org"
+        id S235074AbhEEQlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:41:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235483AbhEEQjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235486AbhEEQjp (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 518FE61626;
-        Wed,  5 May 2021 16:34:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A1446161F;
+        Wed,  5 May 2021 16:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232448;
-        bh=RBWcfw1RZz2E9NFN37PDOoGzijXB5IH++CQHesnZLdU=;
+        s=k20201202; t=1620232450;
+        bh=0OLzhgNg6Yx/Mcmtj6kddngeM0hyvGo6LAnM/BpS5B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFSaqgxo7N7eQGoY7g0TjIkmwz8LVURHNHhzjONtue83kJUDN5q3NXtIJet06m0fc
-         iFW6qk8vDSvnzkweJlMfqB+QbLD2RJWukJTzWPKh3dxEddaaKPRRxQQbAnLtFzMG5I
-         knc5MK85EzC+9KUvGXJ8v6ezVTY4X07/SSPp3d6I02JWDoKmu3fFYieSWm5ejQB+uQ
-         0v1rntKXXmnDX5A6CrWnN4RYvZx4scKFHu/3peM5j4BXsRk60i/uvQMkQOn/d+6gwd
-         7TyHmYuliWNWn/mhtbGkeAbzBPxcnBEg5i0k1orJUF005llRUcQclsky9ywW35CNp/
-         0zVYgslsQqQpw==
+        b=h4jsqK1OMqtZGZMQaWTDraQRSIDC8v535T7ZtbTYND7XgqUTW3vcmEmR0O9xNP3fv
+         n9nI3mKBuw8z403+aNrL4XQTjbMhXLRihd0ZQu3fRyQjrVLms1QIAOlBiAzPW88r2/
+         NMqymNcInJA0ofQgEuEaiSJFvViAOZNOaQ5Jtk6DeC4uX+n/T8lV/D1NC3mNYwTa58
+         Z5EMetXfZ4HIoiN62AovRZLhM7RCW2cKNZDkxC/sH1NOzORliIKlUFpXLe0bgHLaFl
+         DMlozAImB6usEK7RCBYEQ3zQP76MdVOh8GN/6ak/XxxxH1mvpnQGkXA39F6kZotgLx
+         HI9yl5gwcH8fA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Mladek <pmladek@suse.com>, Ingo Molnar <mingo@kernel.org>,
+Cc:     Petr Mladek <pmladek@suse.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
         Laurence Oberman <loberman@redhat.com>,
         Michal Hocko <mhocko@suse.com>,
-        Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Vincent Whitchurch <vincent.whitchurch@axis.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 114/116] watchdog/softlockup: remove logic that tried to prevent repeated reports
-Date:   Wed,  5 May 2021 12:31:22 -0400
-Message-Id: <20210505163125.3460440-114-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 115/116] watchdog: fix barriers when printing backtraces from all CPUs
+Date:   Wed,  5 May 2021 12:31:23 -0400
+Message-Id: <20210505163125.3460440-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -50,105 +51,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Petr Mladek <pmladek@suse.com>
 
-[ Upstream commit 1bc503cb4a2638fb1c57801a7796aca57845ce63 ]
+[ Upstream commit 9f113bf760ca90d709f8f89a733d10abb1f04a83 ]
 
-The softlockup detector does some gymnastic with the variable
-soft_watchdog_warn.  It was added by the commit 58687acba59266735ad
-("lockup_detector: Combine nmi_watchdog and softlockup detector").
+Any parallel softlockup reports are skipped when one CPU is already
+printing backtraces from all CPUs.
 
-The purpose is not completely clear.  There are the following clues.  They
-describe the situation how it looked after the above mentioned commit:
+The exclusive rights are synchronized using one bit in
+soft_lockup_nmi_warn.  There is also one memory barrier that does not make
+much sense.
 
-  1. The variable was checked with a comment "only warn once".
+Use two barriers on the right location to prevent mixing two reports.
 
-  2. The variable was set when softlockup was reported. It was cleared
-     only when the CPU was not longer in the softlockup state.
+[pmladek@suse.com: use bit lock operations to prevent multiple soft-lockup reports]
+  Link: https://lkml.kernel.org/r/YFSVsLGVWMXTvlbk@alley
 
-  3. watchdog_touch_ts was not explicitly updated when the softlockup
-     was reported. Without this variable, the report would normally
-     be printed again during every following watchdog_timer_fn()
-     invocation.
-
-The logic has got even more tangled up by the commit ed235875e2ca98
-("kernel/watchdog.c: print traces for all cpus on lockup detection").
-After this commit, soft_watchdog_warn is set only when
-softlockup_all_cpu_backtrace is enabled.  But multiple reports from all
-CPUs are prevented by a new variable soft_lockup_nmi_warn.
-
-Conclusion:
-
-The variable probably never worked as intended.  In each case, it has not
-worked last many years because the softlockup was reported repeatedly
-after the full period defined by watchdog_thresh.
-
-The reason is that watchdog gets touched in many known slow paths, for
-example, in printk_stack_address().  This code is called also when
-printing the softlockup report.  It means that the watchdog timestamp gets
-updated after each report.
-
-Solution:
-
-Simply remove the logic. People want the periodic report anyway.
-
-Link: https://lkml.kernel.org/r/20210311122130.6788-5-pmladek@suse.com
+Link: https://lkml.kernel.org/r/20210311122130.6788-6-pmladek@suse.com
 Signed-off-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Laurence Oberman <loberman@redhat.com>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Vincent Whitchurch <vincent.whitchurch@axis.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/watchdog.c | 14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+ kernel/watchdog.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
 diff --git a/kernel/watchdog.c b/kernel/watchdog.c
-index 6bc5113d3d74..b8d4182d14cc 100644
+index b8d4182d14cc..8cf0678378d2 100644
 --- a/kernel/watchdog.c
 +++ b/kernel/watchdog.c
-@@ -179,7 +179,6 @@ static DEFINE_PER_CPU(unsigned long, watchdog_touch_ts);
- static DEFINE_PER_CPU(unsigned long, watchdog_report_ts);
- static DEFINE_PER_CPU(struct hrtimer, watchdog_hrtimer);
- static DEFINE_PER_CPU(bool, softlockup_touch_sync);
--static DEFINE_PER_CPU(bool, soft_watchdog_warn);
- static DEFINE_PER_CPU(unsigned long, hrtimer_interrupts);
- static DEFINE_PER_CPU(unsigned long, hrtimer_interrupts_saved);
- static unsigned long soft_lockup_nmi_warn;
-@@ -411,19 +410,12 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
+@@ -410,11 +410,12 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
  		if (kvm_check_and_clear_guest_paused())
  			return HRTIMER_RESTART;
  
--		/* only warn once */
--		if (__this_cpu_read(soft_watchdog_warn) == true)
--			return HRTIMER_RESTART;
--
++		/*
++		 * Prevent multiple soft-lockup reports if one cpu is already
++		 * engaged in dumping all cpu back traces.
++		 */
  		if (softlockup_all_cpu_backtrace) {
- 			/* Prevent multiple soft-lockup reports if one cpu is already
- 			 * engaged in dumping cpu back traces
- 			 */
--			if (test_and_set_bit(0, &soft_lockup_nmi_warn)) {
--				/* Someone else will report us. Let's give up */
--				__this_cpu_write(soft_watchdog_warn, true);
-+			if (test_and_set_bit(0, &soft_lockup_nmi_warn))
+-			/* Prevent multiple soft-lockup reports if one cpu is already
+-			 * engaged in dumping cpu back traces
+-			 */
+-			if (test_and_set_bit(0, &soft_lockup_nmi_warn))
++			if (test_and_set_bit_lock(0, &soft_lockup_nmi_warn))
  				return HRTIMER_RESTART;
--			}
  		}
  
- 		/* Start period for the next softlockup warning. */
-@@ -453,9 +445,7 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
- 		add_taint(TAINT_SOFTLOCKUP, LOCKDEP_STILL_OK);
- 		if (softlockup_panic)
- 			panic("softlockup: hung tasks");
--		__this_cpu_write(soft_watchdog_warn, true);
--	} else
--		__this_cpu_write(soft_watchdog_warn, false);
-+	}
+@@ -432,14 +433,8 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
+ 			dump_stack();
  
- 	return HRTIMER_RESTART;
- }
+ 		if (softlockup_all_cpu_backtrace) {
+-			/* Avoid generating two back traces for current
+-			 * given that one is already made above
+-			 */
+ 			trigger_allbutself_cpu_backtrace();
+-
+-			clear_bit(0, &soft_lockup_nmi_warn);
+-			/* Barrier to sync with other cpus */
+-			smp_mb__after_atomic();
++			clear_bit_unlock(0, &soft_lockup_nmi_warn);
+ 		}
+ 
+ 		add_taint(TAINT_SOFTLOCKUP, LOCKDEP_STILL_OK);
 -- 
 2.30.2
 
