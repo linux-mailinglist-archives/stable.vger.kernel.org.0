@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F270237447E
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47A0537447F
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236033AbhEEQ57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:57:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60436 "EHLO mail.kernel.org"
+        id S236284AbhEEQ6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236510AbhEEQyU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:54:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A44476143E;
-        Wed,  5 May 2021 16:38:35 +0000 (UTC)
+        id S236572AbhEEQya (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:54:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E914761984;
+        Wed,  5 May 2021 16:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232716;
-        bh=lmCl/8+UbLLfBdAII2ABQDwTMsu3Sc1/051k2dkBo2w=;
+        s=k20201202; t=1620232717;
+        bh=w1k4f0i6yOmkScwiFjhzfL8jY/5nHyF4SbdTGYR6oc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVPw82pjtGaIXGdygZYHFS/0sD+jQuuovVe1Be1cRphgIHK8GjVqvjXjp/Xx3CaaA
-         uSKv7cijR0UwoIWmRDDsKenabiuOg7wNuWXMniyLdPmQqe1M4ozDti5ZjELVCqm1uh
-         9Cgr/Dnm/ZhtRF/0S/5VYwZ681pDTg2QCEnSk2/Zmu6DNZifQjcM4aStXNvnj45b0f
-         Csaoo5m/1WsP+aaK3ujz+KE5zfOAMiM8QLV8OS1588GGNuxs2v2javdUzrn4PYQXy0
-         lPq7igiUJGDqrQoqJhvRJOc0lt1pNuUdKn0A6Ak4Wt8L3z4gNva47DMP+co2SG/haE
-         059Bzg2nOxcwA==
+        b=j/pPDOeF046op4iF8LZyc0CCyxYLlOcsokcuB0/wS091ybRDCXyv2kZQ/33bk9RKW
+         tuZC6rv345rvEAdmr+jTAYm5Fqoq5TOD+KbEMqjdpNTRLnAR1vOlLIPHLICfFoV6Jt
+         3whocE8GrjPWd6W22VCnvWTn3w1g+nLFa4KjfAjsj2V24yYYiJzgo0Bjr1ykX5Z0kb
+         StlzIdo69Q/IdoKIHzGuXEK8+iLMcsloNxg+N5yZn8NEk3PkZQ9ZqJ6vIdPHfcf0RE
+         FtEuPCSr8isz0qbwXs/BvSphuN1EYhJO76FgKXOxcT/HjYHw5F/BdzsoplkwIlCf6h
+         RcNhfjtKAwzdA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lee Gibson <leegib@gmail.com>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 73/85] qtnfmac: Fix possible buffer overflow in qtnf_event_handle_external_auth
-Date:   Wed,  5 May 2021 12:36:36 -0400
-Message-Id: <20210505163648.3462507-73-sashal@kernel.org>
+Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 74/85] powerpc/iommu: Annotate nested lock for lockdep
+Date:   Wed,  5 May 2021 12:36:37 -0400
+Message-Id: <20210505163648.3462507-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163648.3462507-1-sashal@kernel.org>
 References: <20210505163648.3462507-1-sashal@kernel.org>
@@ -42,40 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Gibson <leegib@gmail.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit 130f634da1af649205f4a3dd86cbe5c126b57914 ]
+[ Upstream commit cc7130bf119add37f36238343a593b71ef6ecc1e ]
 
-Function qtnf_event_handle_external_auth calls memcpy without
-checking the length.
-A user could control that length and trigger a buffer overflow.
-Fix by checking the length is within the maximum allowed size.
+The IOMMU table is divided into pools for concurrent mappings and each
+pool has a separate spinlock. When taking the ownership of an IOMMU group
+to pass through a device to a VM, we lock these spinlocks which triggers
+a false negative warning in lockdep (below).
 
-Signed-off-by: Lee Gibson <leegib@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210419145842.345787-1-leegib@gmail.com
+This fixes it by annotating the large pool's spinlock as a nest lock
+which makes lockdep not complaining when locking nested locks if
+the nest lock is locked already.
+
+===
+WARNING: possible recursive locking detected
+5.11.0-le_syzkaller_a+fstn1 #100 Not tainted
+--------------------------------------------
+qemu-system-ppc/4129 is trying to acquire lock:
+c0000000119bddb0 (&(p->lock)/1){....}-{2:2}, at: iommu_take_ownership+0xac/0x1e0
+
+but task is already holding lock:
+c0000000119bdd30 (&(p->lock)/1){....}-{2:2}, at: iommu_take_ownership+0xac/0x1e0
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&(p->lock)/1);
+  lock(&(p->lock)/1);
+===
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210301063653.51003-1-aik@ozlabs.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/quantenna/qtnfmac/event.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/iommu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/quantenna/qtnfmac/event.c b/drivers/net/wireless/quantenna/qtnfmac/event.c
-index c775c177933b..8dc80574d08d 100644
---- a/drivers/net/wireless/quantenna/qtnfmac/event.c
-+++ b/drivers/net/wireless/quantenna/qtnfmac/event.c
-@@ -570,8 +570,10 @@ qtnf_event_handle_external_auth(struct qtnf_vif *vif,
- 		return 0;
+diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
+index 5b69a6a72a0e..6806eefa52ce 100644
+--- a/arch/powerpc/kernel/iommu.c
++++ b/arch/powerpc/kernel/iommu.c
+@@ -1050,7 +1050,7 @@ int iommu_take_ownership(struct iommu_table *tbl)
  
- 	if (ev->ssid_len) {
--		memcpy(auth.ssid.ssid, ev->ssid, ev->ssid_len);
--		auth.ssid.ssid_len = ev->ssid_len;
-+		int len = clamp_val(ev->ssid_len, 0, IEEE80211_MAX_SSID_LEN);
-+
-+		memcpy(auth.ssid.ssid, ev->ssid, len);
-+		auth.ssid.ssid_len = len;
- 	}
+ 	spin_lock_irqsave(&tbl->large_pool.lock, flags);
+ 	for (i = 0; i < tbl->nr_pools; i++)
+-		spin_lock(&tbl->pools[i].lock);
++		spin_lock_nest_lock(&tbl->pools[i].lock, &tbl->large_pool.lock);
  
- 	auth.key_mgmt_suite = le32_to_cpu(ev->akm_suite);
+ 	iommu_table_release_pages(tbl);
+ 
+@@ -1078,7 +1078,7 @@ void iommu_release_ownership(struct iommu_table *tbl)
+ 
+ 	spin_lock_irqsave(&tbl->large_pool.lock, flags);
+ 	for (i = 0; i < tbl->nr_pools; i++)
+-		spin_lock(&tbl->pools[i].lock);
++		spin_lock_nest_lock(&tbl->pools[i].lock, &tbl->large_pool.lock);
+ 
+ 	memset(tbl->it_map, 0, sz);
+ 
 -- 
 2.30.2
 
