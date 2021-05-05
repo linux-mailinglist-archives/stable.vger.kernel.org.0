@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE5B3745B0
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90EB93745B6
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235356AbhEERHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:07:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60720 "EHLO mail.kernel.org"
+        id S236129AbhEERH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:07:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236920AbhEERDp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 13:03:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EC0061C33;
-        Wed,  5 May 2021 16:41:55 +0000 (UTC)
+        id S237019AbhEERDy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 13:03:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90F4461411;
+        Wed,  5 May 2021 16:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232915;
-        bh=b0rR+QDRbz59hXUl2qWMphxVF11Th+xrdM4dF47ePNA=;
+        s=k20201202; t=1620232917;
+        bh=AF0LyCzCHcFQbX1LKZxy0SltbwKtyd8cb5B1bo7RJ5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yiezyth78+vkJiQciZ1AuxX2LnEMxHNzPt3JjuWidWqaEQ+5dWpF6I2a5QZIleuZg
-         pGzyMOnceRnvGf67y2y5Y0nOcjiiCE9HcYjYxhwsOs1QMsA11JBvlyUmEt2JN97eJ4
-         28KtxGGVedWRp/rwvVb2C6/V90xoMC0zdfU/ipY578cKu+o9hiUEYd8EBYU0Y+DL4L
-         YCVguLg23E95Bq1SsDconznHAq/OSfPD5KStLZEXnGmQ1XJPAVB+plXi6q+gm16dnH
-         ZReaDDZjgjBE2bsS099TWPiSNOXiIIg3rdhAxoC58+EAjRGSEvo+duQeGEAhI1+KXq
-         lKFkwK+LDqv3g==
+        b=QWV574uxF8V9L45bLW+czXPnNcR7AkQ483yypLsGfUl5wYjKDvXjesxv8Ve6MiCDM
+         GUPpHliwq0D5F31NoXfF9QzqMxSfFoIJK/PQywEVeyWRdJS463j6+le2iexJ/4BQqk
+         yHtRR2QvcutTr5UdjcK1ZC+v9RFqElrQYIEjiIos93E/y2xEw0z2xBjJjUiar+tBTQ
+         N5WOPX4HlbIoUarIGaUJIGlv94mcHU9EHIpoyh9h6+DE10uYnqy2zts0lqlUo1NI16
+         vuecMElRso8PFWX3gM7C2nMeY6llaVrAoSlPMcH8MJP1KbwtY8IAUFCf+xfQWtvDCl
+         Wu6BQLEqzc59g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.9 18/22] powerpc/pseries: Stop calling printk in rtas_stop_self()
-Date:   Wed,  5 May 2021 12:41:25 -0400
-Message-Id: <20210505164129.3464277-18-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 19/22] wl3501_cs: Fix out-of-bounds warnings in wl3501_send_pkt
+Date:   Wed,  5 May 2021 12:41:26 -0400
+Message-Id: <20210505164129.3464277-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164129.3464277-1-sashal@kernel.org>
 References: <20210505164129.3464277-1-sashal@kernel.org>
@@ -41,70 +45,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 
-[ Upstream commit ed8029d7b472369a010a1901358567ca3b6dbb0d ]
+[ Upstream commit 820aa37638a252b57967bdf4038a514b1ab85d45 ]
 
-RCU complains about us calling printk() from an offline CPU:
+Fix the following out-of-bounds warnings by enclosing structure members
+daddr and saddr into new struct addr, in structures wl3501_md_req and
+wl3501_md_ind:
 
-  =============================
-  WARNING: suspicious RCU usage
-  5.12.0-rc7-02874-g7cf90e481cb8 #1 Not tainted
-  -----------------------------
-  kernel/locking/lockdep.c:3568 RCU-list traversed in non-reader section!!
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
 
-  other info that might help us debug this:
+Refactor the code, accordingly:
 
-  RCU used illegally from offline CPU!
-  rcu_scheduler_active = 2, debug_locks = 1
-  no locks held by swapper/0/0.
+$ pahole -C wl3501_md_req drivers/net/wireless/wl3501_cs.o
+struct wl3501_md_req {
+	u16                        next_blk;             /*     0     2 */
+	u8                         sig_id;               /*     2     1 */
+	u8                         routing;              /*     3     1 */
+	u16                        data;                 /*     4     2 */
+	u16                        size;                 /*     6     2 */
+	u8                         pri;                  /*     8     1 */
+	u8                         service_class;        /*     9     1 */
+	struct {
+		u8                 daddr[6];             /*    10     6 */
+		u8                 saddr[6];             /*    16     6 */
+	} addr;                                          /*    10    12 */
 
-  stack backtrace:
-  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.12.0-rc7-02874-g7cf90e481cb8 #1
-  Call Trace:
-    dump_stack+0xec/0x144 (unreliable)
-    lockdep_rcu_suspicious+0x124/0x144
-    __lock_acquire+0x1098/0x28b0
-    lock_acquire+0x128/0x600
-    _raw_spin_lock_irqsave+0x6c/0xc0
-    down_trylock+0x2c/0x70
-    __down_trylock_console_sem+0x60/0x140
-    vprintk_emit+0x1a8/0x4b0
-    vprintk_func+0xcc/0x200
-    printk+0x40/0x54
-    pseries_cpu_offline_self+0xc0/0x120
-    arch_cpu_idle_dead+0x54/0x70
-    do_idle+0x174/0x4a0
-    cpu_startup_entry+0x38/0x40
-    rest_init+0x268/0x388
-    start_kernel+0x748/0x790
-    start_here_common+0x1c/0x614
+	/* size: 22, cachelines: 1, members: 8 */
+	/* last cacheline: 22 bytes */
+};
 
-Which happens because by the time we get to rtas_stop_self() we are
-already offline. In addition the message can be spammy, and is not that
-helpful for users, so remove it.
+$ pahole -C wl3501_md_ind drivers/net/wireless/wl3501_cs.o
+struct wl3501_md_ind {
+	u16                        next_blk;             /*     0     2 */
+	u8                         sig_id;               /*     2     1 */
+	u8                         routing;              /*     3     1 */
+	u16                        data;                 /*     4     2 */
+	u16                        size;                 /*     6     2 */
+	u8                         reception;            /*     8     1 */
+	u8                         pri;                  /*     9     1 */
+	u8                         service_class;        /*    10     1 */
+	struct {
+		u8                 daddr[6];             /*    11     6 */
+		u8                 saddr[6];             /*    17     6 */
+	} addr;                                          /*    11    12 */
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210418135413.1204031-1-mpe@ellerman.id.au
+	/* size: 24, cachelines: 1, members: 9 */
+	/* padding: 1 */
+	/* last cacheline: 24 bytes */
+};
+
+The problem is that the original code is trying to copy data into a
+couple of arrays adjacent to each other in a single call to memcpy().
+Now that a new struct _addr_ enclosing those two adjacent arrays
+is introduced, memcpy() doesn't overrun the length of &sig.daddr[0]
+and &sig.daddr, because the address of the new struct object _addr_
+is used, instead.
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/d260fe56aed7112bff2be5b4d152d03ad7b78e78.1618442265.git.gustavoars@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/hotplug-cpu.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/wireless/wl3501.h    | 12 ++++++++----
+ drivers/net/wireless/wl3501_cs.c | 10 ++++++----
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-index 7a2beedb9740..a7d9dd029850 100644
---- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-@@ -92,9 +92,6 @@ static void rtas_stop_self(void)
+diff --git a/drivers/net/wireless/wl3501.h b/drivers/net/wireless/wl3501.h
+index 3fbfd19818f1..ba2a36cfb1c8 100644
+--- a/drivers/net/wireless/wl3501.h
++++ b/drivers/net/wireless/wl3501.h
+@@ -470,8 +470,10 @@ struct wl3501_md_req {
+ 	u16	size;
+ 	u8	pri;
+ 	u8	service_class;
+-	u8	daddr[ETH_ALEN];
+-	u8	saddr[ETH_ALEN];
++	struct {
++		u8	daddr[ETH_ALEN];
++		u8	saddr[ETH_ALEN];
++	} addr;
+ };
  
- 	BUG_ON(rtas_stop_self_token == RTAS_UNKNOWN_SERVICE);
+ struct wl3501_md_ind {
+@@ -483,8 +485,10 @@ struct wl3501_md_ind {
+ 	u8	reception;
+ 	u8	pri;
+ 	u8	service_class;
+-	u8	daddr[ETH_ALEN];
+-	u8	saddr[ETH_ALEN];
++	struct {
++		u8	daddr[ETH_ALEN];
++		u8	saddr[ETH_ALEN];
++	} addr;
+ };
  
--	printk("cpu %u (hwid %u) Ready to die...\n",
--	       smp_processor_id(), hard_smp_processor_id());
--
- 	rtas_call_unlocked(&args, rtas_stop_self_token, 0, 1, NULL);
+ struct wl3501_md_confirm {
+diff --git a/drivers/net/wireless/wl3501_cs.c b/drivers/net/wireless/wl3501_cs.c
+index 932f3f81e8cf..f49a44581ede 100644
+--- a/drivers/net/wireless/wl3501_cs.c
++++ b/drivers/net/wireless/wl3501_cs.c
+@@ -468,6 +468,7 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
+ 	struct wl3501_md_req sig = {
+ 		.sig_id = WL3501_SIG_MD_REQ,
+ 	};
++	size_t sig_addr_len = sizeof(sig.addr);
+ 	u8 *pdata = (char *)data;
+ 	int rc = -EIO;
  
- 	panic("Alas, I survived.\n");
+@@ -483,9 +484,9 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
+ 			goto out;
+ 		}
+ 		rc = 0;
+-		memcpy(&sig.daddr[0], pdata, 12);
+-		pktlen = len - 12;
+-		pdata += 12;
++		memcpy(&sig.addr, pdata, sig_addr_len);
++		pktlen = len - sig_addr_len;
++		pdata += sig_addr_len;
+ 		sig.data = bf;
+ 		if (((*pdata) * 256 + (*(pdata + 1))) > 1500) {
+ 			u8 addr4[ETH_ALEN] = {
+@@ -979,7 +980,8 @@ static inline void wl3501_md_ind_interrupt(struct net_device *dev,
+ 	} else {
+ 		skb->dev = dev;
+ 		skb_reserve(skb, 2); /* IP headers on 16 bytes boundaries */
+-		skb_copy_to_linear_data(skb, (unsigned char *)&sig.daddr, 12);
++		skb_copy_to_linear_data(skb, (unsigned char *)&sig.addr,
++					sizeof(sig.addr));
+ 		wl3501_receive(this, skb->data, pkt_len);
+ 		skb_put(skb, pkt_len);
+ 		skb->protocol	= eth_type_trans(skb, dev);
 -- 
 2.30.2
 
