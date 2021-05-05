@@ -2,95 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FA8C373A31
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D3E3739F8
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:05:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233505AbhEEMIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:08:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47482 "EHLO mail.kernel.org"
+        id S233278AbhEEMGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:06:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231995AbhEEMHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:07:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 519B1610A2;
-        Wed,  5 May 2021 12:06:39 +0000 (UTC)
+        id S233312AbhEEMGc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:06:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3EA761154;
+        Wed,  5 May 2021 12:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216399;
-        bh=jfsNba7U9iA8JZj5ycsqVMIeZBeB2IQaEFt7ctlUEek=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkBT7OhZ3iCUiG9jJQYEiknRiHXmqOuIshnCHLBV8cprMe1SrXE6ruy4hlvWz7IfU
-         IMqO5MnJeK921l9ci8mnmSkxeTmn4iwX7bgOtIBuoXJb7XihzAV7p+gMYfeeWW+Ixq
-         ZLG1A/8nN+02zkH1kWhSDBlJ9AN0G7kCxq2487xc=
+        s=korg; t=1620216336;
+        bh=DCRVEipV4htkfXERlLw5ak61oGTjOfJrVeTpLoSsH/Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=0CyTdbihStL2/n1BfqDQl105DTLjANwzAteSvMOibxUicJIhJmd3S89ChrapLfSkx
+         XsTHGsY4O+q2JL7FnFo+nN0tPQJQpM3DYzWO9kqMa/D/g3TMDLGlqu1heeEr/9UhD6
+         +cnkC6eGhKNemxtVpIER3Gl5Lw3gqI6qOmjZTDZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathon Reinhart <Jonathon.Reinhart@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 02/29] netfilter: conntrack: Make global sysctls readonly in non-init netns
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.19 00/15] 4.19.190-rc1 review
 Date:   Wed,  5 May 2021 14:05:05 +0200
-Message-Id: <20210505112326.279633427@linuxfoundation.org>
+Message-Id: <20210505120503.781531508@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
-References: <20210505112326.195493232@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.190-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.190-rc1
+X-KernelTest-Deadline: 2021-05-07T12:05+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+This is the start of the stable review cycle for the 4.19.190 release.
+There are 15 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 2671fa4dc0109d3fb581bc3078fdf17b5d9080f6 upstream.
+Responses should be made by Fri, 07 May 2021 12:04:54 +0000.
+Anything received after that time might be too late.
 
-These sysctls point to global variables:
-- NF_SYSCTL_CT_MAX (&nf_conntrack_max)
-- NF_SYSCTL_CT_EXPECT_MAX (&nf_ct_expect_max)
-- NF_SYSCTL_CT_BUCKETS (&nf_conntrack_htable_size_user)
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.190-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-Because their data pointers are not updated to point to per-netns
-structures, they must be marked read-only in a non-init_net ns.
-Otherwise, changes in any net namespace are reflected in (leaked into)
-all other net namespaces. This problem has existed since the
-introduction of net namespaces.
+thanks,
 
-The current logic marks them read-only only if the net namespace is
-owned by an unprivileged user (other than init_user_ns).
+greg k-h
 
-Commit d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in
-unprivileged namespaces") "exposes all sysctls even if the namespace is
-unpriviliged." Since we need to mark them readonly in any case, we can
-forego the unprivileged user check altogether.
+-------------
+Pseudo-Shortlog of commits:
 
-Fixes: d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in unprivileged namespaces")
-Signed-off-by: Jonathon Reinhart <Jonathon.Reinhart@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/netfilter/nf_conntrack_standalone.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.190-rc1
 
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -1060,16 +1060,10 @@ static int nf_conntrack_standalone_init_
- 	nf_conntrack_standalone_init_dccp_sysctl(net, table);
- 	nf_conntrack_standalone_init_gre_sysctl(net, table);
- 
--	/* Don't allow unprivileged users to alter certain sysctls */
--	if (net->user_ns != &init_user_ns) {
-+	/* Don't allow non-init_net ns to alter global sysctls */
-+	if (!net_eq(&init_net, net)) {
- 		table[NF_SYSCTL_CT_MAX].mode = 0444;
- 		table[NF_SYSCTL_CT_EXPECT_MAX].mode = 0444;
--		table[NF_SYSCTL_CT_HELPER].mode = 0444;
--#ifdef CONFIG_NF_CONNTRACK_EVENTS
--		table[NF_SYSCTL_CT_EVENTS].mode = 0444;
--#endif
--		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
--	} else if (!net_eq(&init_net, net)) {
- 		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
- 	}
- 
+Miklos Szeredi <mszeredi@redhat.com>
+    ovl: allow upperdir inside lowerdir
+
+Mark Pearson <markpearson@lenovo.com>
+    platform/x86: thinkpad_acpi: Correct thermal sensor allocation
+
+Shengjiu Wang <shengjiu.wang@nxp.com>
+    ASoC: ak5558: Add MODULE_DEVICE_TABLE
+
+Shengjiu Wang <shengjiu.wang@nxp.com>
+    ASoC: ak4458: Add MODULE_DEVICE_TABLE
+
+Chris Chiu <chris.chiu@canonical.com>
+    USB: Add reset-resume quirk for WD19's Realtek Hub
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Add MIDI quirk for Vox ToneLab EX
+
+Jiri Kosina <jkosina@suse.cz>
+    iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_gen2_enqueue_hcmd()
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Fix masking negation logic upon negative dst register
+
+Romain Naour <romain.naour@gmail.com>
+    mips: Do not include hi and lo in clobber list for R6
+
+Jiri Kosina <jkosina@suse.cz>
+    iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_enqueue_hcmd()
+
+Phillip Potter <phil@philpotter.co.uk>
+    net: usb: ax88179_178a: initialize local variables before use
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ACPI: x86: Call acpi_boot_table_init() after acpi_table_upgrade()
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ACPI: tables: x86: Reserve memory occupied by ACPI tables
+
+Gao Xiang <hsiangkao@redhat.com>
+    erofs: fix extended inode could cross boundary
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                          |   4 +-
+ arch/mips/vdso/gettimeofday.c                     |  14 ++-
+ arch/x86/kernel/acpi/boot.c                       |  25 ++--
+ arch/x86/kernel/setup.c                           |   7 +-
+ drivers/acpi/tables.c                             |  42 ++++++-
+ drivers/net/usb/ax88179_178a.c                    |   4 +-
+ drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c |   7 +-
+ drivers/net/wireless/intel/iwlwifi/pcie/tx.c      |   7 +-
+ drivers/platform/x86/thinkpad_acpi.c              |  31 +++--
+ drivers/staging/erofs/inode.c                     | 135 ++++++++++++++--------
+ drivers/usb/core/quirks.c                         |   4 +
+ fs/overlayfs/super.c                              |  12 +-
+ include/linux/acpi.h                              |   9 +-
+ kernel/bpf/verifier.c                             |  12 +-
+ sound/soc/codecs/ak4458.c                         |   1 +
+ sound/soc/codecs/ak5558.c                         |   1 +
+ sound/usb/quirks-table.h                          |  10 ++
+ 17 files changed, 224 insertions(+), 101 deletions(-)
 
 
