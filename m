@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C10373A08
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE34D373A4C
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233301AbhEEMHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46016 "EHLO mail.kernel.org"
+        id S233228AbhEEMJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233270AbhEEMGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:06:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69FC4613BF;
-        Wed,  5 May 2021 12:05:52 +0000 (UTC)
+        id S233014AbhEEMIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:08:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EEF4613BA;
+        Wed,  5 May 2021 12:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216352;
-        bh=rJFDFSMyDSToUGjfi1Aq6c83Jekwd3gPGvpPExT0BaY=;
+        s=korg; t=1620216459;
+        bh=Igo1WVPFrmwofjl9l41M+rRDy5nT8Cc3Jia6nEkAyMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kn/GeVOeY1ZV3tAc0u+/yqTwKYU7cAjeRHAfVTZtCAC3fuAzItnfcL8TNwb3+iDXY
-         LD0FGM2c2owJlVko/vxJReskb0EwazpVwWIRblyPd4EfUs8pBFIilogBCeBM7uyYae
-         oHGYO/rBDFLlHijFUkxJH6dYijVkWfpsYd9/psVg=
+        b=2EI0OAT3TWDETk5jyJakRe2WMD3wTYYB5SSpnCR9ar6CcqeFAimItTyEgb79C99fE
+         Y+TPS1RoGWe4hYQ7F7M7QOiYjP3JdZaarv95EXSyE0Jht0WwxYYaHfbzvuFq5rAkPU
+         ZGBLgsEIbz0vMnl+GuAwCRzyqBbbocLs3TebaAuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Jari Ruusu <jariruusu@protonmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>
-Subject: [PATCH 4.19 05/15] iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_enqueue_hcmd()
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 07/29] net: qrtr: Avoid potential use after free in MHI send
 Date:   Wed,  5 May 2021 14:05:10 +0200
-Message-Id: <20210505120503.955602638@linuxfoundation.org>
+Message-Id: <20210505112326.440209461@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
-References: <20210505120503.781531508@linuxfoundation.org>
+In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
+References: <20210505112326.195493232@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,138 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-commit 2800aadc18a64c96b051bcb7da8a7df7d505db3f upstream.
+commit 47a017f33943278570c072bc71681809b2567b3a upstream.
 
-It's possible for iwl_pcie_enqueue_hcmd() to be called with hard IRQs
-disabled (e.g. from LED core). We can't enable BHs in such a situation.
+It is possible that the MHI ul_callback will be invoked immediately
+following the queueing of the skb for transmission, leading to the
+callback decrementing the refcount of the associated sk and freeing the
+skb.
 
-Turn the unconditional BH-enable/BH-disable code into
-hardirq-disable/conditional-enable.
+As such the dereference of skb and the increment of the sk refcount must
+happen before the skb is queued, to avoid the skb to be used after free
+and potentially the sk to drop its last refcount..
 
-This fixes the warning below.
-
- WARNING: CPU: 1 PID: 1139 at kernel/softirq.c:178 __local_bh_enable_ip+0xa5/0xf0
- CPU: 1 PID: 1139 Comm: NetworkManager Not tainted 5.12.0-rc1-00004-gb4ded168af79 #7
- Hardware name: LENOVO 20K5S22R00/20K5S22R00, BIOS R0IET38W (1.16 ) 05/31/2017
- RIP: 0010:__local_bh_enable_ip+0xa5/0xf0
- Code: f7 69 e8 ee 23 14 00 fb 66 0f 1f 44 00 00 65 8b 05 f0 f4 f7 69 85 c0 74 3f 48 83 c4 08 5b c3 65 8b 05 9b fe f7 69 85 c0 75 8e <0f> 0b eb 8a 48 89 3c 24 e8 4e 20 14 00 48 8b 3c 24 eb 91 e8 13 4e
- RSP: 0018:ffffafd580b13298 EFLAGS: 00010046
- RAX: 0000000000000000 RBX: 0000000000000201 RCX: 0000000000000000
- RDX: 0000000000000003 RSI: 0000000000000201 RDI: ffffffffc1272389
- RBP: ffff96517ae4c018 R08: 0000000000000001 R09: 0000000000000000
- R10: ffffafd580b13178 R11: 0000000000000001 R12: ffff96517b060000
- R13: 0000000000000000 R14: ffffffff80000000 R15: 0000000000000001
- FS:  00007fc604ebefc0(0000) GS:ffff965267480000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 000055fb3fef13b2 CR3: 0000000109112004 CR4: 00000000003706e0
- Call Trace:
-  ? _raw_spin_unlock_bh+0x1f/0x30
-  iwl_pcie_enqueue_hcmd+0x5d9/0xa00 [iwlwifi]
-  iwl_trans_txq_send_hcmd+0x6c/0x430 [iwlwifi]
-  iwl_trans_send_cmd+0x88/0x170 [iwlwifi]
-  ? lock_acquire+0x277/0x3d0
-  iwl_mvm_send_cmd+0x32/0x80 [iwlmvm]
-  iwl_mvm_led_set+0xc2/0xe0 [iwlmvm]
-  ? led_trigger_event+0x46/0x70
-  led_trigger_event+0x46/0x70
-  ieee80211_do_open+0x5c5/0xa20 [mac80211]
-  ieee80211_open+0x67/0x90 [mac80211]
-  __dev_open+0xd4/0x150
-  __dev_change_flags+0x19e/0x1f0
-  dev_change_flags+0x23/0x60
-  do_setlink+0x30d/0x1230
-  ? lock_is_held_type+0xb4/0x120
-  ? __nla_validate_parse.part.7+0x57/0xcb0
-  ? __lock_acquire+0x2e1/0x1a50
-  __rtnl_newlink+0x560/0x910
-  ? __lock_acquire+0x2e1/0x1a50
-  ? __lock_acquire+0x2e1/0x1a50
-  ? lock_acquire+0x277/0x3d0
-  ? sock_def_readable+0x5/0x290
-  ? lock_is_held_type+0xb4/0x120
-  ? find_held_lock+0x2d/0x90
-  ? sock_def_readable+0xb3/0x290
-  ? lock_release+0x166/0x2a0
-  ? lock_is_held_type+0x90/0x120
-  rtnl_newlink+0x47/0x70
-  rtnetlink_rcv_msg+0x25c/0x470
-  ? netlink_deliver_tap+0x97/0x3e0
-  ? validate_linkmsg+0x350/0x350
-  netlink_rcv_skb+0x50/0x100
-  netlink_unicast+0x1b2/0x280
-  netlink_sendmsg+0x336/0x450
-  sock_sendmsg+0x5b/0x60
-  ____sys_sendmsg+0x1ed/0x250
-  ? copy_msghdr_from_user+0x5c/0x90
-  ___sys_sendmsg+0x88/0xd0
-  ? lock_is_held_type+0xb4/0x120
-  ? find_held_lock+0x2d/0x90
-  ? lock_release+0x166/0x2a0
-  ? __fget_files+0xfe/0x1d0
-  ? __sys_sendmsg+0x5e/0xa0
-  __sys_sendmsg+0x5e/0xa0
-  ? lockdep_hardirqs_on_prepare+0xd9/0x170
-  do_syscall_64+0x33/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7fc605c9572d
- Code: 28 89 54 24 1c 48 89 74 24 10 89 7c 24 08 e8 da ee ff ff 8b 54 24 1c 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 33 44 89 c7 48 89 44 24 08 e8 2e ef ff ff 48
- RSP: 002b:00007fffc83789f0 EFLAGS: 00000293 ORIG_RAX: 000000000000002e
- RAX: ffffffffffffffda RBX: 000055ef468570c0 RCX: 00007fc605c9572d
- RDX: 0000000000000000 RSI: 00007fffc8378a30 RDI: 000000000000000c
- RBP: 0000000000000010 R08: 0000000000000000 R09: 0000000000000000
- R10: 0000000000000000 R11: 0000000000000293 R12: 0000000000000000
- R13: 00007fffc8378b80 R14: 00007fffc8378b7c R15: 0000000000000000
- irq event stamp: 170785
- hardirqs last  enabled at (170783): [<ffffffff9609a8c2>] __local_bh_enable_ip+0x82/0xf0
- hardirqs last disabled at (170784): [<ffffffff96a8613d>] _raw_read_lock_irqsave+0x8d/0x90
- softirqs last  enabled at (170782): [<ffffffffc1272389>] iwl_pcie_enqueue_hcmd+0x5d9/0xa00 [iwlwifi]
- softirqs last disabled at (170785): [<ffffffffc1271ec6>] iwl_pcie_enqueue_hcmd+0x116/0xa00 [iwlwifi]
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # LLVM/Clang v12.0.0-rc3
-Acked-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2103021125430.12405@cbobk.fhfr.pm
-Signed-off-by: Jari Ruusu <jariruusu@protonmail.com>
+Fixes: 6e728f321393 ("net: qrtr: Add MHI transport layer")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/tx.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/qrtr/mhi.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-@@ -1495,6 +1495,7 @@ static int iwl_pcie_enqueue_hcmd(struct
- 	u32 cmd_pos;
- 	const u8 *cmddata[IWL_MAX_CMD_TBS_PER_TFD];
- 	u16 cmdlen[IWL_MAX_CMD_TBS_PER_TFD];
-+	unsigned long flags2;
+--- a/net/qrtr/mhi.c
++++ b/net/qrtr/mhi.c
+@@ -50,6 +50,9 @@ static int qcom_mhi_qrtr_send(struct qrt
+ 	struct qrtr_mhi_dev *qdev = container_of(ep, struct qrtr_mhi_dev, ep);
+ 	int rc;
  
- 	if (WARN(!trans->wide_cmd_header &&
- 		 group_id > IWL_ALWAYS_LONG_GROUP,
-@@ -1578,10 +1579,10 @@ static int iwl_pcie_enqueue_hcmd(struct
- 		goto free_dup_buf;
- 	}
++	if (skb->sk)
++		sock_hold(skb->sk);
++
+ 	rc = skb_linearize(skb);
+ 	if (rc)
+ 		goto free_skb;
+@@ -59,12 +62,11 @@ static int qcom_mhi_qrtr_send(struct qrt
+ 	if (rc)
+ 		goto free_skb;
  
--	spin_lock_bh(&txq->lock);
-+	spin_lock_irqsave(&txq->lock, flags2);
+-	if (skb->sk)
+-		sock_hold(skb->sk);
+-
+ 	return rc;
  
- 	if (iwl_queue_space(trans, txq) < ((cmd->flags & CMD_ASYNC) ? 2 : 1)) {
--		spin_unlock_bh(&txq->lock);
-+		spin_unlock_irqrestore(&txq->lock, flags2);
+ free_skb:
++	if (skb->sk)
++		sock_put(skb->sk);
+ 	kfree_skb(skb);
  
- 		IWL_ERR(trans, "No space in command queue\n");
- 		iwl_op_mode_cmd_queue_full(trans->op_mode);
-@@ -1742,7 +1743,7 @@ static int iwl_pcie_enqueue_hcmd(struct
- 	spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
- 
-  out:
--	spin_unlock_bh(&txq->lock);
-+	spin_unlock_irqrestore(&txq->lock, flags2);
-  free_dup_buf:
- 	if (idx < 0)
- 		kfree(dup_buf);
+ 	return rc;
 
 
