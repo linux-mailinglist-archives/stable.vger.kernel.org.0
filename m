@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A406D37419B
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:46:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04EFB3741BB
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234185AbhEEQkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
+        id S234421AbhEEQks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:40:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235154AbhEEQhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:37:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3230E61460;
-        Wed,  5 May 2021 16:33:26 +0000 (UTC)
+        id S234130AbhEEQhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:37:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7738961461;
+        Wed,  5 May 2021 16:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232407;
-        bh=AVW9KZQZQ/6kb1WJZhlXCTs6EReUWd4bDpcgMXxWuCs=;
+        s=k20201202; t=1620232408;
+        bh=g3PU3Oxu6Cvw3xP0ruetBqXnUUTSs2HmkNdeBD50uxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQdTS6Za3SIPsktbZ3WSbBr1tgaiLKYaaWIHd+ZgG0c1Y2FSXeKs8qRF+1dnXVxyM
-         OAO5fI4R6P4BuPmmqWJa0zQEqCo9mWgg73jeroUcj3NHiMK1uelK6FQjvp74qtBHUe
-         Mbrih3R195OL+COwDsY6zGtEYnZRQJIeSIF0GCGEpe/NFITrRNBzenUlheXKyYffnJ
-         2WaXXp4K55DwEvz78iKZv98JMVfKM/4+vaNvMob6DoXJoOPi3xWxDtcMXIF8Gfj9Wx
-         ibMUmf5T67yOzEMBxhogmjO8NnJeFSc3u25xLZr+m6zeGxD8y7cm13U7mtGzFZeFbV
-         ySEpCB5D+UIlw==
+        b=FbywuMgDXuZp9fZVUq9Act02SdIKM1amSfcLE76Svrb6p9accCo9PLIt9Dg4xA4bd
+         hmLuT5WaGRNQ8d6r4bN5MHy1iukdkt1JVIFQBHUZl/f4lNtNA1i9n+9pVF7RVgsrZw
+         8+4kAQUSXCPquPxIgEl0iWBbRp1bffpgZA13zoJPWqw854H4Cfc4QE5IKnem2EwTpB
+         S/bBa8ChUJW6tZiZsKkbebexvgdn/Y/n7OGHOccrSkIre8UYUa1RHh2ms4QP9rCvor
+         BVmxpjCrXqi/aqt+/Uxn7sbAWop6RClTf7RWy58przTyPbKyo8sM8dZibxC/O/9jft
+         ZHYqECTfBLzvA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+Cc:     Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.12 086/116] powerpc/xive: Use the "ibm, chip-id" property only under PowerNV
-Date:   Wed,  5 May 2021 12:30:54 -0400
-Message-Id: <20210505163125.3460440-86-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 087/116] powerpc/smp: Set numa node before updating mask
+Date:   Wed,  5 May 2021 12:30:55 -0400
+Message-Id: <20210505163125.3460440-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,96 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit e9e16917bc388846163b8566a298a291d71e44c9 ]
+[ Upstream commit 6980d13f0dd189846887bbbfa43793d9a41768d3 ]
 
-The 'chip_id' field of the XIVE CPU structure is used to choose a
-target for a source located on the same chip. For that, the XIVE
-driver queries the chip identifier from the "ibm,chip-id" property
-and compares it to a 'src_chip' field identifying the chip of a
-source. This information is only available on the PowerNV platform,
-'src_chip' being assigned to XIVE_INVALID_CHIP_ID under pSeries.
+Geethika reported a trace when doing a dlpar CPU add.
 
-The "ibm,chip-id" property is also not available on all platforms. It
-was first introduced on PowerNV and later, under QEMU for pSeries/KVM.
-However, the property is not part of PAPR and does not exist under
-pSeries/PowerVM.
+------------[ cut here ]------------
+WARNING: CPU: 152 PID: 1134 at kernel/sched/topology.c:2057
+CPU: 152 PID: 1134 Comm: kworker/152:1 Not tainted 5.12.0-rc5-master #5
+Workqueue: events cpuset_hotplug_workfn
+NIP:  c0000000001cfc14 LR: c0000000001cfc10 CTR: c0000000007e3420
+REGS: c0000034a08eb260 TRAP: 0700   Not tainted  (5.12.0-rc5-master+)
+MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28828422  XER: 00000020
+CFAR: c0000000001fd888 IRQMASK: 0 #012GPR00: c0000000001cfc10
+c0000034a08eb500 c000000001f35400 0000000000000027 #012GPR04:
+c0000035abaa8010 c0000035abb30a00 0000000000000027 c0000035abaa8018
+#012GPR08: 0000000000000023 c0000035abaaef48 00000035aa540000
+c0000035a49dffe8 #012GPR12: 0000000028828424 c0000035bf1a1c80
+0000000000000497 0000000000000004 #012GPR16: c00000000347a258
+0000000000000140 c00000000203d468 c000000001a1a490 #012GPR20:
+c000000001f9c160 c0000034adf70920 c0000034aec9fd20 0000000100087bd3
+#012GPR24: 0000000100087bd3 c0000035b3de09f8 0000000000000030
+c0000035b3de09f8 #012GPR28: 0000000000000028 c00000000347a280
+c0000034aefe0b00 c0000000010a2a68
+NIP [c0000000001cfc14] build_sched_domains+0x6a4/0x1500
+LR [c0000000001cfc10] build_sched_domains+0x6a0/0x1500
+Call Trace:
+[c0000034a08eb500] [c0000000001cfc10] build_sched_domains+0x6a0/0x1500 (unreliable)
+[c0000034a08eb640] [c0000000001d1e6c] partition_sched_domains_locked+0x3ec/0x530
+[c0000034a08eb6e0] [c0000000002936d4] rebuild_sched_domains_locked+0x524/0xbf0
+[c0000034a08eb7e0] [c000000000296bb0] rebuild_sched_domains+0x40/0x70
+[c0000034a08eb810] [c000000000296e74] cpuset_hotplug_workfn+0x294/0xe20
+[c0000034a08ebc30] [c000000000178dd0] process_one_work+0x300/0x670
+[c0000034a08ebd10] [c0000000001791b8] worker_thread+0x78/0x520
+[c0000034a08ebda0] [c000000000185090] kthread+0x1a0/0x1b0
+[c0000034a08ebe10] [c00000000000ccec] ret_from_kernel_thread+0x5c/0x70
+Instruction dump:
+7d2903a6 4e800421 e8410018 7f67db78 7fe6fb78 7f45d378 7f84e378 7c681b78
+3c62ff1a 3863c6f8 4802dc35 60000000 <0fe00000> 3920fff4 f9210070 e86100a0
+---[ end trace 532d9066d3d4d7ec ]---
 
-Assign 'chip_id' to XIVE_INVALID_CHIP_ID by default and let the
-PowerNV platform override the value with the "ibm,chip-id" property.
+Some of the per-CPU masks use cpu_cpu_mask as a filter to limit the search
+for related CPUs. On a dlpar add of a CPU, update cpu_cpu_mask before
+updating the per-CPU masks. This will ensure the cpu_cpu_mask is updated
+correctly before its used in setting the masks. Setting the numa_node will
+ensure that when cpu_cpu_mask() gets called, the correct node number is
+used. This code movement helped fix the above call trace.
 
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210413130352.1183267-1-clg@kaod.org
+Link: https://lore.kernel.org/r/20210401154200.150077-1-srikar@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/common.c        | 9 +++------
- arch/powerpc/sysdev/xive/native.c        | 6 ++++++
- arch/powerpc/sysdev/xive/xive-internal.h | 1 +
- 3 files changed, 10 insertions(+), 6 deletions(-)
+ arch/powerpc/kernel/smp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
-index 595310e056f4..e897c3bab371 100644
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -1335,17 +1335,14 @@ static int xive_prepare_cpu(unsigned int cpu)
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 5a4d59a1070d..1a99d75679a8 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -1521,6 +1521,9 @@ void start_secondary(void *unused)
  
- 	xc = per_cpu(xive_cpu, cpu);
- 	if (!xc) {
--		struct device_node *np;
--
- 		xc = kzalloc_node(sizeof(struct xive_cpu),
- 				  GFP_KERNEL, cpu_to_node(cpu));
- 		if (!xc)
- 			return -ENOMEM;
--		np = of_get_cpu_node(cpu, NULL);
--		if (np)
--			xc->chip_id = of_get_ibm_chip_id(np);
--		of_node_put(np);
- 		xc->hw_ipi = XIVE_BAD_IRQ;
-+		xc->chip_id = XIVE_INVALID_CHIP_ID;
-+		if (xive_ops->prepare_cpu)
-+			xive_ops->prepare_cpu(cpu, xc);
- 
- 		per_cpu(xive_cpu, cpu) = xc;
- 	}
-diff --git a/arch/powerpc/sysdev/xive/native.c b/arch/powerpc/sysdev/xive/native.c
-index 05a800a3104e..57e3f1540435 100644
---- a/arch/powerpc/sysdev/xive/native.c
-+++ b/arch/powerpc/sysdev/xive/native.c
-@@ -380,6 +380,11 @@ static void xive_native_update_pending(struct xive_cpu *xc)
- 	}
- }
- 
-+static void xive_native_prepare_cpu(unsigned int cpu, struct xive_cpu *xc)
-+{
-+	xc->chip_id = cpu_to_chip_id(cpu);
-+}
+ 	vdso_getcpu_init();
+ #endif
++	set_numa_node(numa_cpu_lookup_table[cpu]);
++	set_numa_mem(local_memory_node(numa_cpu_lookup_table[cpu]));
 +
- static void xive_native_setup_cpu(unsigned int cpu, struct xive_cpu *xc)
- {
- 	s64 rc;
-@@ -462,6 +467,7 @@ static const struct xive_ops xive_native_ops = {
- 	.match			= xive_native_match,
- 	.shutdown		= xive_native_shutdown,
- 	.update_pending		= xive_native_update_pending,
-+	.prepare_cpu		= xive_native_prepare_cpu,
- 	.setup_cpu		= xive_native_setup_cpu,
- 	.teardown_cpu		= xive_native_teardown_cpu,
- 	.sync_source		= xive_native_sync_source,
-diff --git a/arch/powerpc/sysdev/xive/xive-internal.h b/arch/powerpc/sysdev/xive/xive-internal.h
-index 9cf57c722faa..6478be19b4d3 100644
---- a/arch/powerpc/sysdev/xive/xive-internal.h
-+++ b/arch/powerpc/sysdev/xive/xive-internal.h
-@@ -46,6 +46,7 @@ struct xive_ops {
- 				  u32 *sw_irq);
- 	int	(*setup_queue)(unsigned int cpu, struct xive_cpu *xc, u8 prio);
- 	void	(*cleanup_queue)(unsigned int cpu, struct xive_cpu *xc, u8 prio);
-+	void	(*prepare_cpu)(unsigned int cpu, struct xive_cpu *xc);
- 	void	(*setup_cpu)(unsigned int cpu, struct xive_cpu *xc);
- 	void	(*teardown_cpu)(unsigned int cpu, struct xive_cpu *xc);
- 	bool	(*match)(struct device_node *np);
+ 	/* Update topology CPU masks */
+ 	add_cpu_to_masks(cpu);
+ 
+@@ -1539,9 +1542,6 @@ void start_secondary(void *unused)
+ 			shared_caches = true;
+ 	}
+ 
+-	set_numa_node(numa_cpu_lookup_table[cpu]);
+-	set_numa_mem(local_memory_node(numa_cpu_lookup_table[cpu]));
+-
+ 	smp_wmb();
+ 	notify_cpu_starting(cpu);
+ 	set_cpu_online(cpu, true);
 -- 
 2.30.2
 
