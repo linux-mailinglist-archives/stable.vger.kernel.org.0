@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2527373A0C
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7DA373A1A
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbhEEMHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46304 "EHLO mail.kernel.org"
+        id S233471AbhEEMHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:07:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233383AbhEEMGy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:06:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29FD3613D8;
-        Wed,  5 May 2021 12:05:57 +0000 (UTC)
+        id S233473AbhEEMHM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:07:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B73F861176;
+        Wed,  5 May 2021 12:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216357;
-        bh=7oa022Jfyd3u6Fh5ErzdA5kuhNB8T5+6oov5Pli7f0E=;
+        s=korg; t=1620216376;
+        bh=6etONi36FQqglhp+rmX4XQZFYwrLi+rQGeMFsiS16n4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zB7i7RZLEvbQT0AMlF7uG++lHHVoCcGXQtheLPZfrTFSkn2D/UDv5doAs/ZecXt7S
-         nVWcOVkTcJUziuIhOXiXMc8d02GEBmvepotBJTZ9XUMX96HYrfgfFud/m0G0W1N5TE
-         pOfH1czSCVQx00Sk0OJJFtlqA1pVnb472tKpiatQ=
+        b=yp6qYrlso5tf7RO1xtCc6PFahxjVjEeZtq3B/+d6y2IqHu0UHBCCvP3083bgCSCSK
+         aEbAcBQ9gl1Mmr1AYRugCPR7c5eDYImSdHllbPic/kaR445c/rg8LBdrvFn62B/xcf
+         1CvxYan3whiGVbnSbDviOzR6kGVaFlzDUY68/GyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Piotr Krysiuk <piotras@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.19 07/15] bpf: Fix masking negation logic upon negative dst register
-Date:   Wed,  5 May 2021 14:05:12 +0200
-Message-Id: <20210505120504.015714232@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Schmidt <alexschm@de.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 10/29] perf ftrace: Fix access to pid in array when setting a pid filter
+Date:   Wed,  5 May 2021 14:05:13 +0200
+Message-Id: <20210505112326.539842162@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
-References: <20210505120503.781531508@linuxfoundation.org>
+In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
+References: <20210505112326.195493232@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-commit b9b34ddbe2076ade359cd5ce7537d5ed019e9807 upstream.
+[ Upstream commit 671b60cb6a897a5b3832fe57657152f2c3995e25 ]
 
-The negation logic for the case where the off_reg is sitting in the
-dst register is not correct given then we cannot just invert the add
-to a sub or vice versa. As a fix, perform the final bitwise and-op
-unconditionally into AX from the off_reg, then move the pointer from
-the src to dst and finally use AX as the source for the original
-pointer arithmetic operation such that the inversion yields a correct
-result. The single non-AX mov in between is possible given constant
-blinding is retaining it as it's not an immediate based operation.
+Command 'perf ftrace -v -- ls' fails in s390 (at least 5.12.0rc6).
 
-Fixes: 979d63d50c0c ("bpf: prevent out of bounds speculation on pointer arithmetic")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Piotr Krysiuk <piotras@gmail.com>
-Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The root cause is a missing pointer dereference which causes an
+array element address to be used as PID.
+
+Fix this by extracting the PID.
+
+Output before:
+  # ./perf ftrace -v -- ls
+  function_graph tracer is used
+  write '-263732416' to tracing/set_ftrace_pid failed: Invalid argument
+  failed to set ftrace pid
+  #
+
+Output after:
+   ./perf ftrace -v -- ls
+   function_graph tracer is used
+   # tracer: function_graph
+   #
+   # CPU  DURATION                  FUNCTION CALLS
+   # |     |   |                     |   |   |   |
+   4)               |  rcu_read_lock_sched_held() {
+   4)   0.552 us    |    rcu_lockdep_current_cpu_online();
+   4)   6.124 us    |  }
+
+Reported-by: Alexander Schmidt <alexschm@de.ibm.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20210421120400.2126433-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ tools/perf/builtin-ftrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6099,14 +6099,10 @@ static int fixup_bpf_calls(struct bpf_ve
- 			*patch++ = BPF_ALU64_REG(BPF_OR, BPF_REG_AX, off_reg);
- 			*patch++ = BPF_ALU64_IMM(BPF_NEG, BPF_REG_AX, 0);
- 			*patch++ = BPF_ALU64_IMM(BPF_ARSH, BPF_REG_AX, 63);
--			if (issrc) {
--				*patch++ = BPF_ALU64_REG(BPF_AND, BPF_REG_AX,
--							 off_reg);
--				insn->src_reg = BPF_REG_AX;
--			} else {
--				*patch++ = BPF_ALU64_REG(BPF_AND, off_reg,
--							 BPF_REG_AX);
--			}
-+			*patch++ = BPF_ALU64_REG(BPF_AND, BPF_REG_AX, off_reg);
-+			if (!issrc)
-+				*patch++ = BPF_MOV64_REG(insn->dst_reg, insn->src_reg);
-+			insn->src_reg = BPF_REG_AX;
- 			if (isneg)
- 				insn->code = insn->code == code_add ?
- 					     code_sub : code_add;
+diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
+index 9366fad591dc..eecc70fc3b19 100644
+--- a/tools/perf/builtin-ftrace.c
++++ b/tools/perf/builtin-ftrace.c
+@@ -289,7 +289,7 @@ static int set_tracing_pid(struct perf_ftrace *ftrace)
+ 
+ 	for (i = 0; i < perf_thread_map__nr(ftrace->evlist->core.threads); i++) {
+ 		scnprintf(buf, sizeof(buf), "%d",
+-			  ftrace->evlist->core.threads->map[i]);
++			  perf_thread_map__pid(ftrace->evlist->core.threads, i));
+ 		if (append_tracing_file("set_ftrace_pid", buf) < 0)
+ 			return -1;
+ 	}
+-- 
+2.30.2
+
 
 
