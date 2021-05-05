@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD25737442B
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FFE374469
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235432AbhEEQzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:55:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59044 "EHLO mail.kernel.org"
+        id S234268AbhEEQ5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:57:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236129AbhEEQxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:53:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E13B461972;
-        Wed,  5 May 2021 16:38:14 +0000 (UTC)
+        id S236263AbhEEQxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:53:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 530F361976;
+        Wed,  5 May 2021 16:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232695;
-        bh=MHX19WAHbLzaRZFBWGDMmRbsAykwhBoPuGz5Uz0sLLM=;
+        s=k20201202; t=1620232697;
+        bh=a8OnDeZAFFz7ubJpjcjMdhRe4VR5bbHqxjDper2nd44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UhjXhrOKMvuG+Alqi9LyM3rHwQ/9kwx5tqwMnT2e+CisLECfQ4c9hB4YnROGeTy4n
-         iQzQVHzvGklSpcIXkJcRoG2FsNK2U39DcGaE+o4peicuFJs4j3Fnh2LBwqg34Ss42E
-         S+OmbzAcm/xVFeDlfLaKYQWqZNFEODKz78dkzyWQnPYr/Jf637o4ftP7iI19uO/Wzh
-         Z06eHGhBqXHey3bFV6knbV58dBB9utgYDmFrhtwSMY1Tvjnpz63bWvCgVlRaYwJqk0
-         8rGlq/Rrf4OXq2cMwo6nYSaoFbpf+1nFUVcIru9aolMIdwxYY9bHvGd90wbzNltESO
-         lzFjwFG/w7hYQ==
+        b=ndg+Ybs2vXhWHhRkxTcL+ytzxOZR/K8g/sAkklNVOJ8R5q0OXi9YX3yPmwV5gF7GB
+         96Pn7N8sCqWtm09mwgp9loL1L4cFq0cuhvAMt86E1fYjSRblTg0byFCGerlpLZgJAm
+         9Bp5XqPY8BRtRm3Yx5BY0N1Yp3bNWVc1VPdZ/N/iPEt3O1zNy2z55NrrXlnY0vwyHb
+         bvEgnlmKTsnbY5oImVMARr94bqeF1A53gjk2Ip6Yf9oQ3WjeqjAGDaW39768Khgm3C
+         8ainqceCPCdChHBpwi14I4Vw3rU6SjgaqqfKQKhjrUIqLT9cWF5MAhxHDGFmsCWo3+
+         B5c8eWlY2sGiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 59/85] flow_dissector: Fix out-of-bounds warning in __skb_flow_bpf_to_target()
-Date:   Wed,  5 May 2021 12:36:22 -0400
-Message-Id: <20210505163648.3462507-59-sashal@kernel.org>
+Cc:     Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 60/85] powerpc/smp: Set numa node before updating mask
+Date:   Wed,  5 May 2021 12:36:23 -0400
+Message-Id: <20210505163648.3462507-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163648.3462507-1-sashal@kernel.org>
 References: <20210505163648.3462507-1-sashal@kernel.org>
@@ -44,50 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit 1e3d976dbb23b3fce544752b434bdc32ce64aabc ]
+[ Upstream commit 6980d13f0dd189846887bbbfa43793d9a41768d3 ]
 
-Fix the following out-of-bounds warning:
+Geethika reported a trace when doing a dlpar CPU add.
 
-net/core/flow_dissector.c:835:3: warning: 'memcpy' offset [33, 48] from the object at 'flow_keys' is out of the bounds of referenced subobject 'ipv6_src' with type '__u32[4]' {aka 'unsigned int[4]'} at offset 16 [-Warray-bounds]
+------------[ cut here ]------------
+WARNING: CPU: 152 PID: 1134 at kernel/sched/topology.c:2057
+CPU: 152 PID: 1134 Comm: kworker/152:1 Not tainted 5.12.0-rc5-master #5
+Workqueue: events cpuset_hotplug_workfn
+NIP:  c0000000001cfc14 LR: c0000000001cfc10 CTR: c0000000007e3420
+REGS: c0000034a08eb260 TRAP: 0700   Not tainted  (5.12.0-rc5-master+)
+MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28828422  XER: 00000020
+CFAR: c0000000001fd888 IRQMASK: 0 #012GPR00: c0000000001cfc10
+c0000034a08eb500 c000000001f35400 0000000000000027 #012GPR04:
+c0000035abaa8010 c0000035abb30a00 0000000000000027 c0000035abaa8018
+#012GPR08: 0000000000000023 c0000035abaaef48 00000035aa540000
+c0000035a49dffe8 #012GPR12: 0000000028828424 c0000035bf1a1c80
+0000000000000497 0000000000000004 #012GPR16: c00000000347a258
+0000000000000140 c00000000203d468 c000000001a1a490 #012GPR20:
+c000000001f9c160 c0000034adf70920 c0000034aec9fd20 0000000100087bd3
+#012GPR24: 0000000100087bd3 c0000035b3de09f8 0000000000000030
+c0000035b3de09f8 #012GPR28: 0000000000000028 c00000000347a280
+c0000034aefe0b00 c0000000010a2a68
+NIP [c0000000001cfc14] build_sched_domains+0x6a4/0x1500
+LR [c0000000001cfc10] build_sched_domains+0x6a0/0x1500
+Call Trace:
+[c0000034a08eb500] [c0000000001cfc10] build_sched_domains+0x6a0/0x1500 (unreliable)
+[c0000034a08eb640] [c0000000001d1e6c] partition_sched_domains_locked+0x3ec/0x530
+[c0000034a08eb6e0] [c0000000002936d4] rebuild_sched_domains_locked+0x524/0xbf0
+[c0000034a08eb7e0] [c000000000296bb0] rebuild_sched_domains+0x40/0x70
+[c0000034a08eb810] [c000000000296e74] cpuset_hotplug_workfn+0x294/0xe20
+[c0000034a08ebc30] [c000000000178dd0] process_one_work+0x300/0x670
+[c0000034a08ebd10] [c0000000001791b8] worker_thread+0x78/0x520
+[c0000034a08ebda0] [c000000000185090] kthread+0x1a0/0x1b0
+[c0000034a08ebe10] [c00000000000ccec] ret_from_kernel_thread+0x5c/0x70
+Instruction dump:
+7d2903a6 4e800421 e8410018 7f67db78 7fe6fb78 7f45d378 7f84e378 7c681b78
+3c62ff1a 3863c6f8 4802dc35 60000000 <0fe00000> 3920fff4 f9210070 e86100a0
+---[ end trace 532d9066d3d4d7ec ]---
 
-The problem is that the original code is trying to copy data into a
-couple of struct members adjacent to each other in a single call to
-memcpy().  So, the compiler legitimately complains about it. As these
-are just a couple of members, fix this by copying each one of them in
-separate calls to memcpy().
+Some of the per-CPU masks use cpu_cpu_mask as a filter to limit the search
+for related CPUs. On a dlpar add of a CPU, update cpu_cpu_mask before
+updating the per-CPU masks. This will ensure the cpu_cpu_mask is updated
+correctly before its used in setting the masks. Setting the numa_node will
+ensure that when cpu_cpu_mask() gets called, the correct node number is
+used. This code movement helped fix the above call trace.
 
-This helps with the ongoing efforts to globally enable -Warray-bounds
-and get us closer to being able to tighten the FORTIFY_SOURCE routines
-on memcpy().
-
-Link: https://github.com/KSPP/linux/issues/109
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210401154200.150077-1-srikar@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/flow_dissector.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/smp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index d48b37b15b27..c52e5ea654e9 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -822,8 +822,10 @@ static void __skb_flow_bpf_to_target(const struct bpf_flow_keys *flow_keys,
- 		key_addrs = skb_flow_dissector_target(flow_dissector,
- 						      FLOW_DISSECTOR_KEY_IPV6_ADDRS,
- 						      target_container);
--		memcpy(&key_addrs->v6addrs, &flow_keys->ipv6_src,
--		       sizeof(key_addrs->v6addrs));
-+		memcpy(&key_addrs->v6addrs.src, &flow_keys->ipv6_src,
-+		       sizeof(key_addrs->v6addrs.src));
-+		memcpy(&key_addrs->v6addrs.dst, &flow_keys->ipv6_dst,
-+		       sizeof(key_addrs->v6addrs.dst));
- 		key_control->addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 7d6cf75a7fd8..85a1a2a9d8ed 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -1417,6 +1417,9 @@ void start_secondary(void *unused)
+ 
+ 	vdso_getcpu_init();
+ #endif
++	set_numa_node(numa_cpu_lookup_table[cpu]);
++	set_numa_mem(local_memory_node(numa_cpu_lookup_table[cpu]));
++
+ 	/* Update topology CPU masks */
+ 	add_cpu_to_masks(cpu);
+ 
+@@ -1435,9 +1438,6 @@ void start_secondary(void *unused)
+ 			shared_caches = true;
  	}
  
+-	set_numa_node(numa_cpu_lookup_table[cpu]);
+-	set_numa_mem(local_memory_node(numa_cpu_lookup_table[cpu]));
+-
+ 	smp_wmb();
+ 	notify_cpu_starting(cpu);
+ 	set_cpu_online(cpu, true);
 -- 
 2.30.2
 
