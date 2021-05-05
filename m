@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5010A373A12
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 373483739FB
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232400AbhEEMHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:07:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46816 "EHLO mail.kernel.org"
+        id S233328AbhEEMGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:06:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232860AbhEEMHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:07:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B45B61176;
-        Wed,  5 May 2021 12:06:06 +0000 (UTC)
+        id S233335AbhEEMGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:06:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9000E61222;
+        Wed,  5 May 2021 12:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216367;
-        bh=ryVuvcylrMncOwfY2GCp0ucBsFelKyl9UYalyNNpH2A=;
+        s=korg; t=1620216341;
+        bh=D43CEFh8/2XTryuk4LBNw5hHX7BGGzaJdt4gIQk39sY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x26vujEStOg8aNqeeuQ5FwfNxytTHPR3rMfYaSLnpWVfZvYP+zh5wRU2gf8CxZ5XH
-         /WaC3zNj5KFtQ4wxz5Eh6K+Q0LJ9/EPr53lW4wegclfe9qtpeljNQMxVNqo0h0xJD8
-         1EMCIfwXyRh/XBnS5wIrlwQZZoNZeS9xAYZwNoxo=
+        b=D4wNxY6/mrO/JJrsqrxNm+q0ruW4kq889Ls7NnV0dBEpneRV329xVSQWo7PbEQ/kE
+         XDOEPSbe6TxfhyNL3ySqrnEG1eSv4NL40zfMH0XV7R8IdPm2fmn+k8agHronHqpKCm
+         7xwK9V0S1EqKcEWqN6L8HNyZuNxCJlHx7tchkgv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Chris Chiu <chris.chiu@canonical.com>
-Subject: [PATCH 4.19 11/15] USB: Add reset-resume quirk for WD19s Realtek Hub
-Date:   Wed,  5 May 2021 14:05:16 +0200
-Message-Id: <20210505120504.146290053@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 12/15] ASoC: ak4458: Add MODULE_DEVICE_TABLE
+Date:   Wed,  5 May 2021 14:05:17 +0200
+Message-Id: <20210505120504.176996279@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
 References: <20210505120503.781531508@linuxfoundation.org>
@@ -39,55 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chris.chiu@canonical.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-commit ca91fd8c7643d93bfc18a6fec1a0d3972a46a18a upstream.
+commit f84b4524005238fc9fd5cf615bb426fa40a99494 upstream.
 
-Realtek Hub (0bda:5487) in Dell Dock WD19 sometimes fails to work
-after the system resumes from suspend with remote wakeup enabled
-device connected:
-[ 1947.640907] hub 5-2.3:1.0: hub_ext_port_status failed (err = -71)
-[ 1947.641208] usb 5-2.3-port5: cannot disable (err = -71)
-[ 1947.641401] hub 5-2.3:1.0: hub_ext_port_status failed (err = -71)
-[ 1947.641450] usb 5-2.3-port4: cannot reset (err = -71)
+Add missed MODULE_DEVICE_TABLE for the driver can be loaded
+automatically at boot.
 
-Information of this hub:
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 10 Spd=480  MxCh= 5
-D:  Ver= 2.10 Cls=09(hub  ) Sub=00 Prot=02 MxPS=64 #Cfgs=  1
-P:  Vendor=0bda ProdID=5487 Rev= 1.47
-S:  Manufacturer=Dell Inc.
-S:  Product=Dell dock
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=01 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
-I:* If#= 0 Alt= 1 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=02 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
-
-The failure results from the ETIMEDOUT by chance when turning on
-the suspend feature for the specified port of the hub. The port
-seems to be in an unknown state so the hub_activate during resume
-fails the hub_port_status, then the hub will fail to work.
-
-The quirky hub needs the reset-resume quirk to function correctly.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210420174651.6202-1-chris.chiu@canonical.com
+Fixes: 08660086eff9 ("ASoC: ak4458: Add support for AK4458 DAC driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1614149872-25510-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    1 +
+ sound/soc/codecs/ak4458.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -406,6 +406,7 @@ static const struct usb_device_id usb_qu
+--- a/sound/soc/codecs/ak4458.c
++++ b/sound/soc/codecs/ak4458.c
+@@ -653,6 +653,7 @@ static struct i2c_driver ak4458_i2c_driv
+ 	.probe_new = ak4458_i2c_probe,
+ 	.remove = ak4458_i2c_remove,
+ };
++MODULE_DEVICE_TABLE(of, ak4458_of_match);
  
- 	/* Realtek hub in Dell WD19 (Type-C) */
- 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
-+	{ USB_DEVICE(0x0bda, 0x5487), .driver_info = USB_QUIRK_RESET_RESUME },
+ module_i2c_driver(ak4458_i2c_driver);
  
- 	/* Generic RTL8153 based ethernet adapters */
- 	{ USB_DEVICE(0x0bda, 0x8153), .driver_info = USB_QUIRK_NO_LPM },
 
 
