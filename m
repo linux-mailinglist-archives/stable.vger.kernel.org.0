@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26735374171
+	by mail.lfdr.de (Postfix) with ESMTP id DE781374173
 	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234955AbhEEQiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:38:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53084 "EHLO mail.kernel.org"
+        id S234625AbhEEQiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:38:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234939AbhEEQgK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:36:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9FD56143F;
-        Wed,  5 May 2021 16:33:07 +0000 (UTC)
+        id S234621AbhEEQgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:36:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 685FD61440;
+        Wed,  5 May 2021 16:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232388;
-        bh=sYQnTL6GCFz0oLjAuXPZLL+u10MJ9CI1uhBeuN9bM2k=;
+        s=k20201202; t=1620232390;
+        bh=TI/NkKvomSev1pw5roJMP0GXP1lACqMo9lIpHZd1S0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1ArtVXy/rgrTV4TuCJ5vL6u6NaLpoNDVk7hl4nb6tWxw+SSQyW5HRQEPbZtvBSYy
-         lsn09bf/RJRPH6fL4BbD88kOFDrdNtsak4oGQRBO7SgRjuoy7MJ+huXaJZ5eLhYGd0
-         jAFa9u7gfhxzQgeLTwMGpAxK5k66dZyr+B26wLcgpmS3ZweMaShKuLeUool+QGtKhg
-         jnDCFAxLj1BPFVFdpysLqNUL5p/l+U6fQVKpeyrWF97UeXXWWnqwb6P8+HluSmtNwG
-         TRDivhHwcvViz9kLm1b6KbrSAr8dlUoKqqcb+a/P2xUUosaueCKYM3s9DpfaV0CY25
-         pSwIFUieK9Ixw==
+        b=afLHsdnlUMT+nUpMvaLNWf7SOH6UCyeR27YHzJmQ1o5USjezWGbIne7lDQjGlZR16
+         g2zEALbvP751NQINp8Ozmik7/roV9He4oKoosO94jaSxd1LEXKl91BA+kGXjlzir3N
+         NUDwuqe7MSMN2wPAARXiuF5zXG0a/NhP3v7WLYuVa/MvyX48n22+MTyAsUDkeeoMZc
+         z70PkPXKd/lEz+9we5WNp+iOZabGs/VjI8ez75p1dLhmcDPqJ3Cm73+9KfClJ/Od2e
+         tnMeb9zSHeieQthCURwtNndmUabCsS5Q+SUODavld+ZH5W0qgHvoaoQb0hvDnkitoG
+         ZTlHX5lu0fW7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Paul Menzel <pmenzel@molgen.mpg.de>, Tj <ml.linux@elloe.vision>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Alexander Monakov <amonakov@ispras.ru>,
+        David Coe <david.coe@live.co.uk>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>,
-        bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 074/116] net: bridge: propagate error code and extack from br_mc_disabled_update
-Date:   Wed,  5 May 2021 12:30:42 -0400
-Message-Id: <20210505163125.3460440-74-sashal@kernel.org>
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.12 075/116] Revert "iommu/amd: Fix performance counter initialization"
+Date:   Wed,  5 May 2021 12:30:43 -0400
+Message-Id: <20210505163125.3460440-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -44,159 +47,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Paul Menzel <pmenzel@molgen.mpg.de>
 
-[ Upstream commit ae1ea84b33dab45c7b6c1754231ebda5959b504c ]
+[ Upstream commit 715601e4e36903a653cd4294dfd3ed0019101991 ]
 
-Some Ethernet switches might only be able to support disabling multicast
-snooping globally, which is an issue for example when several bridges
-span the same physical device and request contradictory settings.
+This reverts commit 6778ff5b21bd8e78c8bd547fd66437cf2657fd9b.
 
-Propagate the return value of br_mc_disabled_update() such that this
-limitation is transmitted correctly to user-space.
+The original commit tries to address an issue, where PMC power-gating
+causing the IOMMU PMC pre-init test to fail on certain desktop/mobile
+platforms where the power-gating is normally enabled.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+There have been several reports that the workaround still does not
+guarantee to work, and can add up to 100 ms (on the worst case)
+to the boot process on certain platforms such as the MSI B350M MORTAR
+with AMD Ryzen 3 2200G.
+
+Therefore, revert this commit as a prelude to removing the pre-init
+test.
+
+Link: https://lore.kernel.org/linux-iommu/alpine.LNX.3.20.13.2006030935570.3181@monopod.intra.ispras.ru/
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=201753
+Cc: Tj (Elloe Linux) <ml.linux@elloe.vision>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Alexander Monakov <amonakov@ispras.ru>
+Cc: David Coe <david.coe@live.co.uk>
+Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20210409085848.3908-2-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_multicast.c | 28 +++++++++++++++++++++-------
- net/bridge/br_netlink.c   |  4 +++-
- net/bridge/br_private.h   |  3 ++-
- net/bridge/br_sysfs_br.c  |  8 +-------
- 4 files changed, 27 insertions(+), 16 deletions(-)
+ drivers/iommu/amd/init.c | 45 ++++++++++------------------------------
+ 1 file changed, 11 insertions(+), 34 deletions(-)
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 9d265447d654..4daa95c913d0 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1593,7 +1593,8 @@ static void br_multicast_port_group_rexmit(struct timer_list *t)
- 	spin_unlock(&br->multicast_lock);
+diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
+index 321f5906e6ed..648cdfd03074 100644
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -12,7 +12,6 @@
+ #include <linux/acpi.h>
+ #include <linux/list.h>
+ #include <linux/bitmap.h>
+-#include <linux/delay.h>
+ #include <linux/slab.h>
+ #include <linux/syscore_ops.h>
+ #include <linux/interrupt.h>
+@@ -257,8 +256,6 @@ static enum iommu_init_state init_state = IOMMU_START_STATE;
+ static int amd_iommu_enable_interrupts(void);
+ static int __init iommu_go_to_state(enum iommu_init_state state);
+ static void init_device_table_dma(void);
+-static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
+-				u8 fxn, u64 *value, bool is_write);
+ 
+ static bool amd_iommu_pre_enabled = true;
+ 
+@@ -1717,11 +1714,13 @@ static int __init init_iommu_all(struct acpi_table_header *table)
+ 	return 0;
  }
  
--static void br_mc_disabled_update(struct net_device *dev, bool value)
-+static int br_mc_disabled_update(struct net_device *dev, bool value,
-+				 struct netlink_ext_ack *extack)
- {
- 	struct switchdev_attr attr = {
- 		.orig_dev = dev,
-@@ -1602,11 +1603,13 @@ static void br_mc_disabled_update(struct net_device *dev, bool value)
- 		.u.mc_disabled = !value,
- 	};
- 
--	switchdev_port_attr_set(dev, &attr, NULL);
-+	return switchdev_port_attr_set(dev, &attr, extack);
- }
- 
- int br_multicast_add_port(struct net_bridge_port *port)
- {
-+	int err;
+-static void __init init_iommu_perf_ctr(struct amd_iommu *iommu)
++static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
++				u8 fxn, u64 *value, bool is_write);
 +
- 	port->multicast_router = MDB_RTR_TYPE_TEMP_QUERY;
- 	port->multicast_eht_hosts_limit = BR_MCAST_DEFAULT_EHT_HOSTS_LIMIT;
- 
-@@ -1618,8 +1621,12 @@ int br_multicast_add_port(struct net_bridge_port *port)
- 	timer_setup(&port->ip6_own_query.timer,
- 		    br_ip6_multicast_port_query_expired, 0);
- #endif
--	br_mc_disabled_update(port->dev,
--			      br_opt_get(port->br, BROPT_MULTICAST_ENABLED));
-+	err = br_mc_disabled_update(port->dev,
-+				    br_opt_get(port->br,
-+					       BROPT_MULTICAST_ENABLED),
-+				    NULL);
-+	if (err)
-+		return err;
- 
- 	port->mcast_stats = netdev_alloc_pcpu_stats(struct bridge_mcast_stats);
- 	if (!port->mcast_stats)
-@@ -3560,16 +3567,23 @@ static void br_multicast_start_querier(struct net_bridge *br,
- 	rcu_read_unlock();
- }
- 
--int br_multicast_toggle(struct net_bridge *br, unsigned long val)
-+int br_multicast_toggle(struct net_bridge *br, unsigned long val,
-+			struct netlink_ext_ack *extack)
++static void init_iommu_perf_ctr(struct amd_iommu *iommu)
  {
- 	struct net_bridge_port *port;
- 	bool change_snoopers = false;
-+	int err = 0;
+-	int retry;
+ 	struct pci_dev *pdev = iommu->dev;
+-	u64 val = 0xabcd, val2 = 0, save_reg, save_src;
++	u64 val = 0xabcd, val2 = 0, save_reg = 0;
  
- 	spin_lock_bh(&br->multicast_lock);
- 	if (!!br_opt_get(br, BROPT_MULTICAST_ENABLED) == !!val)
- 		goto unlock;
+ 	if (!iommu_feature(iommu, FEATURE_PC))
+ 		return;
+@@ -1729,39 +1728,17 @@ static void __init init_iommu_perf_ctr(struct amd_iommu *iommu)
+ 	amd_iommu_pc_present = true;
  
--	br_mc_disabled_update(br->dev, val);
-+	err = br_mc_disabled_update(br->dev, val, extack);
-+	if (err == -EOPNOTSUPP)
-+		err = 0;
-+	if (err)
-+		goto unlock;
-+
- 	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, !!val);
- 	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED)) {
- 		change_snoopers = true;
-@@ -3607,7 +3621,7 @@ int br_multicast_toggle(struct net_bridge *br, unsigned long val)
- 			br_multicast_leave_snoopers(br);
- 	}
- 
--	return 0;
-+	return err;
- }
- 
- bool br_multicast_enabled(const struct net_device *dev)
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index f2b1343f8332..0456593aceec 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1293,7 +1293,9 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 	if (data[IFLA_BR_MCAST_SNOOPING]) {
- 		u8 mcast_snooping = nla_get_u8(data[IFLA_BR_MCAST_SNOOPING]);
- 
--		br_multicast_toggle(br, mcast_snooping);
-+		err = br_multicast_toggle(br, mcast_snooping, extack);
-+		if (err)
-+			return err;
- 	}
- 
- 	if (data[IFLA_BR_MCAST_QUERY_USE_IFADDR]) {
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index d7d167e10b70..af3430c2d6ea 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -810,7 +810,8 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
- 			struct sk_buff *skb, bool local_rcv, bool local_orig);
- int br_multicast_set_router(struct net_bridge *br, unsigned long val);
- int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val);
--int br_multicast_toggle(struct net_bridge *br, unsigned long val);
-+int br_multicast_toggle(struct net_bridge *br, unsigned long val,
-+			struct netlink_ext_ack *extack);
- int br_multicast_set_querier(struct net_bridge *br, unsigned long val);
- int br_multicast_set_hash_max(struct net_bridge *br, unsigned long val);
- int br_multicast_set_igmp_version(struct net_bridge *br, unsigned long val);
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 072e29840082..381467b691d5 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -409,17 +409,11 @@ static ssize_t multicast_snooping_show(struct device *d,
- 	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_MULTICAST_ENABLED));
- }
- 
--static int toggle_multicast(struct net_bridge *br, unsigned long val,
--			    struct netlink_ext_ack *extack)
--{
--	return br_multicast_toggle(br, val);
--}
+ 	/* save the value to restore, if writable */
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false) ||
+-	    iommu_pc_get_set_reg(iommu, 0, 0, 8, &save_src, false))
+-		goto pc_false;
 -
- static ssize_t multicast_snooping_store(struct device *d,
- 					struct device_attribute *attr,
- 					const char *buf, size_t len)
- {
--	return store_bridge_parm(d, buf, len, toggle_multicast);
-+	return store_bridge_parm(d, buf, len, br_multicast_toggle);
- }
- static DEVICE_ATTR_RW(multicast_snooping);
+-	/*
+-	 * Disable power gating by programing the performance counter
+-	 * source to 20 (i.e. counts the reads and writes from/to IOMMU
+-	 * Reserved Register [MMIO Offset 1FF8h] that are ignored.),
+-	 * which never get incremented during this init phase.
+-	 * (Note: The event is also deprecated.)
+-	 */
+-	val = 20;
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 8, &val, true))
++	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false))
+ 		goto pc_false;
  
+ 	/* Check if the performance counters can be written to */
+-	val = 0xabcd;
+-	for (retry = 5; retry; retry--) {
+-		if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true) ||
+-		    iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false) ||
+-		    val2)
+-			break;
+-
+-		/* Wait about 20 msec for power gating to disable and retry. */
+-		msleep(20);
+-	}
+-
+-	/* restore */
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true) ||
+-	    iommu_pc_get_set_reg(iommu, 0, 0, 8, &save_src, true))
++	if ((iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true)) ||
++	    (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false)) ||
++	    (val != val2))
+ 		goto pc_false;
+ 
+-	if (val != val2)
++	/* restore */
++	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true))
+ 		goto pc_false;
+ 
+ 	pci_info(pdev, "IOMMU performance counters supported\n");
 -- 
 2.30.2
 
