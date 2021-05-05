@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2ABF374508
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1818F374509
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236821AbhEERDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:03:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43526 "EHLO mail.kernel.org"
+        id S236836AbhEERDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:03:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236493AbhEEQ7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236497AbhEEQ7H (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:59:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA0C4619B2;
-        Wed,  5 May 2021 16:39:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6290C61457;
+        Wed,  5 May 2021 16:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232783;
-        bh=byXudzPcATVaf19KfyA9vcbW285hb40G/t66SVxVDAo=;
+        s=k20201202; t=1620232785;
+        bh=fJN5beqb6iISSyqwkK88FGN7aSMtTjvVNkDNeKpLloQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t752fYDk+GFMED1bxUGUctvkcIECmNpzICgt911YsCXput9hU6mtYLUHtDarsioX8
-         M7ZLyofaRVWObYC5uzYMnSwZWo/lXPOARDS/GAIbM/9Pe8vUrh3LFKzwQxIr3vVZ6Z
-         gi00YOq/kUBh7U3cIQ3UkdrirqBJpgkO/HI3rlLKM3/fsaIekQHTmwVUmtdeHW5yYD
-         M25ermNPf9j85SzC5bOkUOekvrABzUVXKjHL2AWD+cbeIfdHy3nND9rQnI+GljV3DT
-         fp4mr1JA4/kO+hnV0Y3aC8al1Tp6r8ShGOmjMF2DKKOx/SVor1F6Yvr5rlJcr+AChd
-         5W1knQz36XzCQ==
+        b=daFp6f7W/wi/yLNQzhapXgdpSMwNNDSHVBsh1tXuLl68/F3Bq+EVutug/hu9JJS6g
+         BNQXs2tHgsMPn+T0KpqI7wb5acSxVVv3jT2rwVuYYY3vFCizVzcirVhFfvjvyh3QY9
+         HyeDqQ84AkLKKwL/+GwGhmq4nV+cfjkSwWNjE1rFqy4TbtzeiVzyVaIP2nHJOFW03X
+         E9bPcebY5HlohT43aaEsYlJVnoA1sUZSgphqYAMZ37isWmULzlIsiCQhoXxxJA69Kk
+         A6Nsm/wsdrvbP26ObtdLEfyPnW0bpJClbJGECVwU4/wN5BfhGhRrmBXJZElXIIqR2Z
+         dmsR3l+T71Liw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 32/46] powerpc/smp: Set numa node before updating mask
-Date:   Wed,  5 May 2021 12:38:42 -0400
-Message-Id: <20210505163856.3463279-32-sashal@kernel.org>
+Cc:     David Ward <david.ward@gatech.edu>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 33/46] ASoC: rt286: Generalize support for ALC3263 codec
+Date:   Wed,  5 May 2021 12:38:43 -0400
+Message-Id: <20210505163856.3463279-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
 References: <20210505163856.3463279-1-sashal@kernel.org>
@@ -44,88 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+From: David Ward <david.ward@gatech.edu>
 
-[ Upstream commit 6980d13f0dd189846887bbbfa43793d9a41768d3 ]
+[ Upstream commit aa2f9c12821e6a4ba1df4fb34a3dbc6a2a1ee7fe ]
 
-Geethika reported a trace when doing a dlpar CPU add.
+The ALC3263 codec on the XPS 13 9343 is also found on the Latitude 13 7350
+and Venue 11 Pro 7140. They require the same handling for the combo jack to
+work with a headset: GPIO pin 6 must be set.
 
-------------[ cut here ]------------
-WARNING: CPU: 152 PID: 1134 at kernel/sched/topology.c:2057
-CPU: 152 PID: 1134 Comm: kworker/152:1 Not tainted 5.12.0-rc5-master #5
-Workqueue: events cpuset_hotplug_workfn
-NIP:  c0000000001cfc14 LR: c0000000001cfc10 CTR: c0000000007e3420
-REGS: c0000034a08eb260 TRAP: 0700   Not tainted  (5.12.0-rc5-master+)
-MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28828422  XER: 00000020
-CFAR: c0000000001fd888 IRQMASK: 0 #012GPR00: c0000000001cfc10
-c0000034a08eb500 c000000001f35400 0000000000000027 #012GPR04:
-c0000035abaa8010 c0000035abb30a00 0000000000000027 c0000035abaa8018
-#012GPR08: 0000000000000023 c0000035abaaef48 00000035aa540000
-c0000035a49dffe8 #012GPR12: 0000000028828424 c0000035bf1a1c80
-0000000000000497 0000000000000004 #012GPR16: c00000000347a258
-0000000000000140 c00000000203d468 c000000001a1a490 #012GPR20:
-c000000001f9c160 c0000034adf70920 c0000034aec9fd20 0000000100087bd3
-#012GPR24: 0000000100087bd3 c0000035b3de09f8 0000000000000030
-c0000035b3de09f8 #012GPR28: 0000000000000028 c00000000347a280
-c0000034aefe0b00 c0000000010a2a68
-NIP [c0000000001cfc14] build_sched_domains+0x6a4/0x1500
-LR [c0000000001cfc10] build_sched_domains+0x6a0/0x1500
-Call Trace:
-[c0000034a08eb500] [c0000000001cfc10] build_sched_domains+0x6a0/0x1500 (unreliable)
-[c0000034a08eb640] [c0000000001d1e6c] partition_sched_domains_locked+0x3ec/0x530
-[c0000034a08eb6e0] [c0000000002936d4] rebuild_sched_domains_locked+0x524/0xbf0
-[c0000034a08eb7e0] [c000000000296bb0] rebuild_sched_domains+0x40/0x70
-[c0000034a08eb810] [c000000000296e74] cpuset_hotplug_workfn+0x294/0xe20
-[c0000034a08ebc30] [c000000000178dd0] process_one_work+0x300/0x670
-[c0000034a08ebd10] [c0000000001791b8] worker_thread+0x78/0x520
-[c0000034a08ebda0] [c000000000185090] kthread+0x1a0/0x1b0
-[c0000034a08ebe10] [c00000000000ccec] ret_from_kernel_thread+0x5c/0x70
-Instruction dump:
-7d2903a6 4e800421 e8410018 7f67db78 7fe6fb78 7f45d378 7f84e378 7c681b78
-3c62ff1a 3863c6f8 4802dc35 60000000 <0fe00000> 3920fff4 f9210070 e86100a0
----[ end trace 532d9066d3d4d7ec ]---
+The HDA driver always sets this pin on the ALC3263, which it distinguishes
+by the codec vendor/device ID 0x10ec0288 and PCI subsystem vendor ID 0x1028
+(Dell). The ASoC driver does not use PCI, so adapt this check to use DMI to
+determine if Dell is the system vendor.
 
-Some of the per-CPU masks use cpu_cpu_mask as a filter to limit the search
-for related CPUs. On a dlpar add of a CPU, update cpu_cpu_mask before
-updating the per-CPU masks. This will ensure the cpu_cpu_mask is updated
-correctly before its used in setting the masks. Setting the numa_node will
-ensure that when cpu_cpu_mask() gets called, the correct node number is
-used. This code movement helped fix the above call trace.
-
-Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
-Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Reviewed-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210401154200.150077-1-srikar@linux.vnet.ibm.com
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=150601
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205961
+Signed-off-by: David Ward <david.ward@gatech.edu>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210418134658.4333-6-david.ward@gatech.edu
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/smp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/codecs/rt286.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index ea6adbf6a221..b24d860bbab9 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -1254,6 +1254,9 @@ void start_secondary(void *unused)
+diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
+index 9593a9a27bf8..03e3e0aa25a2 100644
+--- a/sound/soc/codecs/rt286.c
++++ b/sound/soc/codecs/rt286.c
+@@ -1115,12 +1115,11 @@ static const struct dmi_system_id force_combo_jack_table[] = {
+ 	{ }
+ };
  
- 	vdso_getcpu_init();
- #endif
-+	set_numa_node(numa_cpu_lookup_table[cpu]);
-+	set_numa_mem(local_memory_node(numa_cpu_lookup_table[cpu]));
-+
- 	/* Update topology CPU masks */
- 	add_cpu_to_masks(cpu);
+-static const struct dmi_system_id dmi_dell_dino[] = {
++static const struct dmi_system_id dmi_dell[] = {
+ 	{
+-		.ident = "Dell Dino",
++		.ident = "Dell",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 9343")
+ 		}
+ 	},
+ 	{ }
+@@ -1131,7 +1130,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ {
+ 	struct rt286_platform_data *pdata = dev_get_platdata(&i2c->dev);
+ 	struct rt286_priv *rt286;
+-	int i, ret, val;
++	int i, ret, vendor_id;
  
-@@ -1266,9 +1269,6 @@ void start_secondary(void *unused)
- 	if (!cpumask_equal(cpu_l2_cache_mask(cpu), sibling_mask(cpu)))
- 		shared_caches = true;
+ 	rt286 = devm_kzalloc(&i2c->dev,	sizeof(*rt286),
+ 				GFP_KERNEL);
+@@ -1147,14 +1146,15 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	}
  
--	set_numa_node(numa_cpu_lookup_table[cpu]);
--	set_numa_mem(local_memory_node(numa_cpu_lookup_table[cpu]));
--
- 	smp_wmb();
- 	notify_cpu_starting(cpu);
- 	set_cpu_online(cpu, true);
+ 	ret = regmap_read(rt286->regmap,
+-		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &val);
++		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &vendor_id);
+ 	if (ret != 0) {
+ 		dev_err(&i2c->dev, "I2C error %d\n", ret);
+ 		return ret;
+ 	}
+-	if (val != RT286_VENDOR_ID && val != RT288_VENDOR_ID) {
++	if (vendor_id != RT286_VENDOR_ID && vendor_id != RT288_VENDOR_ID) {
+ 		dev_err(&i2c->dev,
+-			"Device with ID register %#x is not rt286\n", val);
++			"Device with ID register %#x is not rt286\n",
++			vendor_id);
+ 		return -ENODEV;
+ 	}
+ 
+@@ -1178,8 +1178,8 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	if (pdata)
+ 		rt286->pdata = *pdata;
+ 
+-	if (dmi_check_system(force_combo_jack_table) ||
+-		dmi_check_system(dmi_dell_dino))
++	if ((vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) ||
++		dmi_check_system(force_combo_jack_table))
+ 		rt286->pdata.cbj_en = true;
+ 
+ 	regmap_write(rt286->regmap, RT286_SET_AUDIO_POWER, AC_PWRST_D3);
+@@ -1218,7 +1218,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL3, 0xf777, 0x4737);
+ 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL4, 0x00ff, 0x003f);
+ 
+-	if (dmi_check_system(dmi_dell_dino)) {
++	if (vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) {
+ 		regmap_update_bits(rt286->regmap,
+ 			RT286_SET_GPIO_MASK, 0x40, 0x40);
+ 		regmap_update_bits(rt286->regmap,
 -- 
 2.30.2
 
