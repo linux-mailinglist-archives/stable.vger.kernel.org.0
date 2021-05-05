@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D12374534
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72BF3374538
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237639AbhEEREM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237616AbhEEREM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 5 May 2021 13:04:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60882 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237779AbhEERBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237782AbhEERBL (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 13:01:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECCBE619D2;
-        Wed,  5 May 2021 16:40:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85CF5619D5;
+        Wed,  5 May 2021 16:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232831;
-        bh=lRWOFZZdFcXJHZioD0M718stWo9ko2E+ZUUFumUjtZQ=;
+        s=k20201202; t=1620232832;
+        bh=3L1CmHKeh51fexmnpwdHomXdngQC/duxMdMR4iWCr84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4C+LINtdAXkKKxHNdw3Il+3KURqtSUWv99oXkZZIHnaRc8JmACEjJixvUveVVL7F
-         161kzzSCOMrrOujR2iRTTiPPMxyfmk4r9jsAkI+K2lFKklEit5wIAn4OiyMup0rFNo
-         0GkJGOZm6iSDvVR3LDc8tLyd/VGDl5BKYIzlkvzAT8ueZh1wqXj+uflwHBkWXDOss+
-         pqQr1j/wyRwO8JAhOB1afXZIi8V/qU8pKZ6RARkcvUnry5sxGauFOlTeKJ2bLjkBiP
-         w3DM46mlZ4XAgY9VCnBA0ugaSvv5Ztbo4cMSfRXVNQRSo8HAgcs/8eJpSeJN8HzF+P
-         TaFZrgsLGuNEA==
+        b=QWs1ticXeVPoSvegDavVWEU9LVc3cEf/04uS8QhHklsrEcLPyn/FrhTNwZU5RzF/E
+         JAg29QSCpu4ttROP9eakodafCFV9m9eOqIBaHPpQjw80ZcM2Hir0HWxrmipRqMH0Kc
+         ZPl84N7ODjEEd2srzRjCZisBG8bCKo9+a44nX43pey88WveWkqIQ8pbN0CsG/Eeqes
+         S/L6s3oNlaoDphuQsaN4CzNGFTWvEJGaxAbBbJCPyag2747vukLgXki4LOKJ7HXM3a
+         tvyFJgDJvpGBxBmcYwxzrHsr4ZjZO1IyDfoJEjooqBGcgjq4DIKClkoeVF+Ae3ff68
+         eT3wtlxr/Nf7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 18/32] pinctrl: samsung: use 'int' for register masks in Exynos
-Date:   Wed,  5 May 2021 12:39:50 -0400
-Message-Id: <20210505164004.3463707-18-sashal@kernel.org>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 19/32] cuse: prevent clone
+Date:   Wed,  5 May 2021 12:39:51 -0400
+Message-Id: <20210505164004.3463707-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505164004.3463707-1-sashal@kernel.org>
 References: <20210505164004.3463707-1-sashal@kernel.org>
@@ -45,70 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit fa0c10a5f3a49130dd11281aa27e7e1c8654abc7 ]
+[ Upstream commit 8217673d07256b22881127bf50dce874d0e51653 ]
 
-The Special Function Registers on all Exynos SoC, including ARM64, are
-32-bit wide, so entire driver uses matching functions like readl() or
-writel().  On 64-bit ARM using unsigned long for register masks:
-1. makes little sense as immediately after bitwise operation it will be
-   cast to 32-bit value when calling writel(),
-2. is actually error-prone because it might promote other operands to
-   64-bit.
+For cloned connections cuse_channel_release() will be called more than
+once, resulting in use after free.
 
-Addresses-Coverity: Unintentional integer overflow
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Link: https://lore.kernel.org/r/20210408195029.69974-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Prevent device cloning for CUSE, which does not make sense at this point,
+and highly unlikely to be used in real life.
+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/samsung/pinctrl-exynos.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/fuse/cuse.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/samsung/pinctrl-exynos.c b/drivers/pinctrl/samsung/pinctrl-exynos.c
-index 24956f6c6324..7f764f751c4f 100644
---- a/drivers/pinctrl/samsung/pinctrl-exynos.c
-+++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
-@@ -55,7 +55,7 @@ static void exynos_irq_mask(struct irq_data *irqd)
- 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
- 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
- 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
--	unsigned long mask;
-+	unsigned int mask;
- 	unsigned long flags;
+diff --git a/fs/fuse/cuse.c b/fs/fuse/cuse.c
+index f057c213c453..e10e2b62ccf4 100644
+--- a/fs/fuse/cuse.c
++++ b/fs/fuse/cuse.c
+@@ -621,6 +621,8 @@ static int __init cuse_init(void)
+ 	cuse_channel_fops.owner		= THIS_MODULE;
+ 	cuse_channel_fops.open		= cuse_channel_open;
+ 	cuse_channel_fops.release	= cuse_channel_release;
++	/* CUSE is not prepared for FUSE_DEV_IOC_CLONE */
++	cuse_channel_fops.unlocked_ioctl	= NULL;
  
- 	spin_lock_irqsave(&bank->slock, flags);
-@@ -83,7 +83,7 @@ static void exynos_irq_unmask(struct irq_data *irqd)
- 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
- 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
- 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
--	unsigned long mask;
-+	unsigned int mask;
- 	unsigned long flags;
- 
- 	/*
-@@ -482,7 +482,7 @@ static void exynos_irq_eint0_15(struct irq_desc *desc)
- 	chained_irq_exit(chip, desc);
- }
- 
--static inline void exynos_irq_demux_eint(unsigned long pend,
-+static inline void exynos_irq_demux_eint(unsigned int pend,
- 						struct irq_domain *domain)
- {
- 	unsigned int irq;
-@@ -499,8 +499,8 @@ static void exynos_irq_demux_eint16_31(struct irq_desc *desc)
- {
- 	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	struct exynos_muxed_weint_data *eintd = irq_desc_get_handler_data(desc);
--	unsigned long pend;
--	unsigned long mask;
-+	unsigned int pend;
-+	unsigned int mask;
- 	int i;
- 
- 	chained_irq_enter(chip, desc);
+ 	cuse_class = class_create(THIS_MODULE, "cuse");
+ 	if (IS_ERR(cuse_class))
 -- 
 2.30.2
 
