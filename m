@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBEFE374420
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0D2374422
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235485AbhEEQzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:55:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60420 "EHLO mail.kernel.org"
+        id S235508AbhEEQzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:55:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235909AbhEEQw3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:52:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 408286196A;
-        Wed,  5 May 2021 16:38:04 +0000 (UTC)
+        id S235931AbhEEQwa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:52:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE62B6197C;
+        Wed,  5 May 2021 16:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232685;
-        bh=mt2R+8JS1xLAN56xbzwOwags2O8P8O8k/TJCfgL04mw=;
+        s=k20201202; t=1620232687;
+        bh=JghHOZ/QVxtM6PX80Rval0YJBlOJPo9HT4NMQynXkL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLH+Y/djmswn9NV5JhLd8h5IL1ApwjQVQdR9rTSrNizvZEgm9su17Rv0rip9WQf5Z
-         3Zg4+QNyydaJ4JnxPiFZth8UocjXMdTEtiQBdfWP2mwO0yMAuQVBlU+ajfHMemigAD
-         0+tG8ldAmomzwvLzPqlJByDitOfFLK5dwxAhIiUsp3zIQ+61gE4De/tU/NWvJ+2ZOb
-         RVRtSbtg8GxCAnDZ+mA0hEGcSxJ3Blgz2jnuQchSSRE7Ha6kb8+2+BKrKtxNLerSTL
-         CN7t3KSepNJ0kF7/557IqNaPBSXVRWnN/iUV2HDVsmgWUBnNeDOymGhjWEtvqWNupp
-         6l/2wr8JWQo+w==
+        b=m/QRNR5bAxxv2GtvEDM2SRlWxn2oo1ioU5UnrIlpm5QEnL7R+tmdkoNB+5uFRkPAM
+         YBBh9TiSyAao8ZS1oWmq9A3ry2S2L2QF+t/dDw+DCS4mArYEpI+LGqbxylCVmzPc6s
+         S0YBvvp8vADAt47nNr4irXUmo2r1GynYU4z0PBYuVYXfTDJQNl+T8Mmr27yXavmWoi
+         qgV3/jKP9XyIaKHFubPDugV8Ij718fKMm+H4Wi9/QcHi7sfAWCIaIgOjs3TXBb3Kv2
+         DiZmH0M4rryTOHsygYcDyKSs7eYrgsuvuMgyotqPotK414WhxfAuckMHBHAn97dV9J
+         heVIKivYImi7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Wang <anthony1.wang@amd.com>,
-        Bindu Ramamurthy <bindur12@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 52/85] drm/amd/display: Force vsync flip when reconfiguring MPCC
-Date:   Wed,  5 May 2021 12:36:15 -0400
-Message-Id: <20210505163648.3462507-52-sashal@kernel.org>
+Cc:     Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.10 53/85] selftests: Set CC to clang in lib.mk if LLVM is set
+Date:   Wed,  5 May 2021 12:36:16 -0400
+Message-Id: <20210505163648.3462507-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163648.3462507-1-sashal@kernel.org>
 References: <20210505163648.3462507-1-sashal@kernel.org>
@@ -45,43 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Wang <anthony1.wang@amd.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 56d63782af9bbd1271bff1422a6a013123eade4d ]
+[ Upstream commit 26e6dd1072763cd5696b75994c03982dde952ad9 ]
 
-[Why]
-Underflow observed when disabling PIP overlay in-game when
-vsync is disabled, due to OTC master lock not working with
-game pipe which is immediate flip.
+selftests/bpf/Makefile includes lib.mk. With the following command
+  make -j60 LLVM=1 LLVM_IAS=1  <=== compile kernel
+  make -j60 -C tools/testing/selftests/bpf LLVM=1 LLVM_IAS=1 V=1
+some files are still compiled with gcc. This patch
+fixed lib.mk issue which sets CC to gcc in all cases.
 
-[How]
-When performing a full update, override flip_immediate value
-to false for all planes, so that flip occurs on vsync.
-
-Signed-off-by: Anthony Wang <anthony1.wang@amd.com>
-Acked-by: Bindu Ramamurthy <bindur12@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210413153413.3027426-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 4 ++++
+ tools/testing/selftests/lib.mk | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index ffb21196bf59..b82c6f2cd986 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -2503,6 +2503,10 @@ static void commit_planes_for_stream(struct dc *dc,
- 						plane_state->triplebuffer_flips = true;
- 				}
- 			}
-+			if (update_type == UPDATE_TYPE_FULL) {
-+				/* force vsync flip when reconfiguring pipes to prevent underflow */
-+				plane_state->flip_immediate = false;
-+			}
- 		}
- 	}
+diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+index a5ce26d548e4..9a41d8bb9ff1 100644
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -1,6 +1,10 @@
+ # This mimics the top-level Makefile. We do it explicitly here so that this
+ # Makefile can operate with or without the kbuild infrastructure.
++ifneq ($(LLVM),)
++CC := clang
++else
+ CC := $(CROSS_COMPILE)gcc
++endif
  
+ ifeq (0,$(MAKELEVEL))
+     ifeq ($(OUTPUT),)
 -- 
 2.30.2
 
