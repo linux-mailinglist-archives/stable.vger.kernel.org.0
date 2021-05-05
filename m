@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37578374205
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F100737420B
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235004AbhEEQn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:43:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39956 "EHLO mail.kernel.org"
+        id S235313AbhEEQns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:43:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235247AbhEEQlZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:41:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D3C76162D;
-        Wed,  5 May 2021 16:34:34 +0000 (UTC)
+        id S235375AbhEEQlq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:41:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A761F6162E;
+        Wed,  5 May 2021 16:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232475;
-        bh=BMgVRc07yMdSNpu4EtODLQluJHjs8aTrZ8NbIbKt+d4=;
+        s=k20201202; t=1620232476;
+        bh=DNyrzPIYnIKT/yacSx+rHOBrxPl3lZ0BfgEYN9f/8NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDW0fgvPPbQWSyQ9l8TvQpsgnxNgk17WA7kTWcAPTppH68VByiXEXvP/0N3VNMQ2L
-         yj3K/MJi9AFxuEvRElomvd+0MbFO8N9XBqOfAbPoOvUdh5KAfk0pCKA0L1d+AjQYIy
-         wtGcjd90cUqZJRfKbLi7EPCM67KtdEthMHVT1zcOOGzpmQl7cZrDIA8AhGalr7FXP3
-         KH9/MiaaNW+Py2HGGVDuitkuzpmEsF/XGJR9tIzc+9GfkFqeGMyy/pThthhQzmJzP4
-         5c4B9CZTiiQAo5ftrhuwQJfxIupHyiVsWU6dz0YGo+kI2RQ8IFNEDI9rlv88Dq7oA+
-         XugxekGMnV6Ng==
+        b=ry5eK3u8YkypB0E2Qa+SVEU047np5oONWopS/hP9OpH8F5wcijS2zmZFzpXJfunHu
+         ThrqAnKWZb7luw5OIbawJsmELWbqNTdRyoGS35X0zYh8x6Q07JZERTH8hcqfq+u3D6
+         dbqkcGUFJDWHLgyTIY19wIEiX9MBw3qM6Gp3OhjmfsCKPV5OtMyziEsDBXin5NTDya
+         GaAhDMeAOqwN4Q7QEbBs42vLB5RCZKRbcuUbMPYn3TUgSjohNzmcJldEHJ/yTvDwpx
+         R7b5OWUXc7NJltmO5FQ5HVFJtF5r80Nx72ymKSL53/6t9KhNimcszWBaJknlmKQIVt
+         8NiqeIAswALGw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikhail Durnev <mikhail_durnev@mentor.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.11 015/104] ASoC: rsnd: core: Check convert rate in rsnd_hw_params
-Date:   Wed,  5 May 2021 12:32:44 -0400
-Message-Id: <20210505163413.3461611-15-sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 016/104] Documentation: networking: switchdev: fix command for static FDB entries
+Date:   Wed,  5 May 2021 12:32:45 -0400
+Message-Id: <20210505163413.3461611-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163413.3461611-1-sashal@kernel.org>
 References: <20210505163413.3461611-1-sashal@kernel.org>
@@ -42,111 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikhail Durnev <mikhail_durnev@mentor.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 19c6a63ced5e07e40f3a5255cb1f0fe0d3be7b14 ]
+[ Upstream commit 787a4109f46847975ffae7d528a55c6b768ef0aa ]
 
-snd_pcm_hw_params_set_rate_near can return incorrect sample rate in
-some cases, e.g. when the backend output rate is set to some value higher
-than 48000 Hz and the input rate is 8000 Hz. So passing the value returned
-by snd_pcm_hw_params_set_rate_near to snd_pcm_hw_params will result in
-"FSO/FSI ratio error" and playing no audio at all while the userland
-is not properly notified about the issue.
+The "bridge fdb add" command provided in the switchdev documentation is
+junk now, not only because it is syntactically incorrect and rejected by
+the iproute2 bridge program, but also because it was not updated in
+light of Arkadi Sharshevsky's radical switchdev refactoring in commit
+29ab586c3d83 ("net: switchdev: Remove bridge bypass support from
+switchdev"). Try to explain what the intended usage pattern is with the
+new kernel implementation.
 
-If SRC is unable to convert the requested sample rate to the sample rate
-the backend is using, then the requested sample rate should be adjusted in
-rsnd_hw_params. The userland will be notified about that change in the
-returned hw_params structure.
-
-Signed-off-by: Mikhail Durnev <mikhail_durnev@mentor.com>
-Link: https://lore.kernel.org/r/1615870055-13954-1-git-send-email-mikhail_durnev@mentor.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/core.c | 69 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 68 insertions(+), 1 deletion(-)
+ Documentation/networking/switchdev.rst | 47 +++++++++++++++++++-------
+ 1 file changed, 35 insertions(+), 12 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/core.c b/sound/soc/sh/rcar/core.c
-index 6e670b3e92a0..289928d4c0c9 100644
---- a/sound/soc/sh/rcar/core.c
-+++ b/sound/soc/sh/rcar/core.c
-@@ -1428,8 +1428,75 @@ static int rsnd_hw_params(struct snd_soc_component *component,
- 		}
- 		if (io->converted_chan)
- 			dev_dbg(dev, "convert channels = %d\n", io->converted_chan);
--		if (io->converted_rate)
-+		if (io->converted_rate) {
-+			/*
-+			 * SRC supports convert rates from params_rate(hw_params)/k_down
-+			 * to params_rate(hw_params)*k_up, where k_up is always 6, and
-+			 * k_down depends on number of channels and SRC unit.
-+			 * So all SRC units can upsample audio up to 6 times regardless
-+			 * its number of channels. And all SRC units can downsample
-+			 * 2 channel audio up to 6 times too.
-+			 */
-+			int k_up = 6;
-+			int k_down = 6;
-+			int channel;
-+			struct rsnd_mod *src_mod = rsnd_io_to_mod_src(io);
-+
- 			dev_dbg(dev, "convert rate     = %d\n", io->converted_rate);
-+
-+			channel = io->converted_chan ? io->converted_chan :
-+				  params_channels(hw_params);
-+
-+			switch (rsnd_mod_id(src_mod)) {
-+			/*
-+			 * SRC0 can downsample 4, 6 and 8 channel audio up to 4 times.
-+			 * SRC1, SRC3 and SRC4 can downsample 4 channel audio
-+			 * up to 4 times.
-+			 * SRC1, SRC3 and SRC4 can downsample 6 and 8 channel audio
-+			 * no more than twice.
-+			 */
-+			case 1:
-+			case 3:
-+			case 4:
-+				if (channel > 4) {
-+					k_down = 2;
-+					break;
-+				}
-+				fallthrough;
-+			case 0:
-+				if (channel > 2)
-+					k_down = 4;
-+				break;
-+
-+			/* Other SRC units do not support more than 2 channels */
-+			default:
-+				if (channel > 2)
-+					return -EINVAL;
-+			}
-+
-+			if (params_rate(hw_params) > io->converted_rate * k_down) {
-+				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->min =
-+					io->converted_rate * k_down;
-+				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->max =
-+					io->converted_rate * k_down;
-+				hw_params->cmask |= SNDRV_PCM_HW_PARAM_RATE;
-+			} else if (params_rate(hw_params) * k_up < io->converted_rate) {
-+				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->min =
-+					(io->converted_rate + k_up - 1) / k_up;
-+				hw_param_interval(hw_params, SNDRV_PCM_HW_PARAM_RATE)->max =
-+					(io->converted_rate + k_up - 1) / k_up;
-+				hw_params->cmask |= SNDRV_PCM_HW_PARAM_RATE;
-+			}
-+
-+			/*
-+			 * TBD: Max SRC input and output rates also depend on number
-+			 * of channels and SRC unit:
-+			 * SRC1, SRC3 and SRC4 do not support more than 128kHz
-+			 * for 6 channel and 96kHz for 8 channel audio.
-+			 * Perhaps this function should return EINVAL if the input or
-+			 * the output rate exceeds the limitation.
-+			 */
-+		}
- 	}
+diff --git a/Documentation/networking/switchdev.rst b/Documentation/networking/switchdev.rst
+index ddc3f35775dc..650553cdec79 100644
+--- a/Documentation/networking/switchdev.rst
++++ b/Documentation/networking/switchdev.rst
+@@ -181,18 +181,41 @@ To offloading L2 bridging, the switchdev driver/device should support:
+ Static FDB Entries
+ ^^^^^^^^^^^^^^^^^^
  
- 	return rsnd_dai_call(hw_params, io, substream, hw_params);
+-The switchdev driver should implement ndo_fdb_add, ndo_fdb_del and ndo_fdb_dump
+-to support static FDB entries installed to the device.  Static bridge FDB
+-entries are installed, for example, using iproute2 bridge cmd::
+-
+-	bridge fdb add ADDR dev DEV [vlan VID] [self]
+-
+-The driver should use the helper switchdev_port_fdb_xxx ops for ndo_fdb_xxx
+-ops, and handle add/delete/dump of SWITCHDEV_OBJ_ID_PORT_FDB object using
+-switchdev_port_obj_xxx ops.
+-
+-XXX: what should be done if offloading this rule to hardware fails (for
+-example, due to full capacity in hardware tables) ?
++A driver which implements the ``ndo_fdb_add``, ``ndo_fdb_del`` and
++``ndo_fdb_dump`` operations is able to support the command below, which adds a
++static bridge FDB entry::
++
++        bridge fdb add dev DEV ADDRESS [vlan VID] [self] static
++
++(the "static" keyword is non-optional: if not specified, the entry defaults to
++being "local", which means that it should not be forwarded)
++
++The "self" keyword (optional because it is implicit) has the role of
++instructing the kernel to fulfill the operation through the ``ndo_fdb_add``
++implementation of the ``DEV`` device itself. If ``DEV`` is a bridge port, this
++will bypass the bridge and therefore leave the software database out of sync
++with the hardware one.
++
++To avoid this, the "master" keyword can be used::
++
++        bridge fdb add dev DEV ADDRESS [vlan VID] master static
++
++The above command instructs the kernel to search for a master interface of
++``DEV`` and fulfill the operation through the ``ndo_fdb_add`` method of that.
++This time, the bridge generates a ``SWITCHDEV_FDB_ADD_TO_DEVICE`` notification
++which the port driver can handle and use it to program its hardware table. This
++way, the software and the hardware database will both contain this static FDB
++entry.
++
++Note: for new switchdev drivers that offload the Linux bridge, implementing the
++``ndo_fdb_add`` and ``ndo_fdb_del`` bridge bypass methods is strongly
++discouraged: all static FDB entries should be added on a bridge port using the
++"master" flag. The ``ndo_fdb_dump`` is an exception and can be implemented to
++visualize the hardware tables, if the device does not have an interrupt for
++notifying the operating system of newly learned/forgotten dynamic FDB
++addresses. In that case, the hardware FDB might end up having entries that the
++software FDB does not, and implementing ``ndo_fdb_dump`` is the only way to see
++them.
+ 
+ Note: by default, the bridge does not filter on VLAN and only bridges untagged
+ traffic.  To enable VLAN support, turn on VLAN filtering::
 -- 
 2.30.2
 
