@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56B923744EB
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 464443744F1
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236454AbhEERC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 13:02:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44946 "EHLO mail.kernel.org"
+        id S236521AbhEERDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:03:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237115AbhEEQ5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:57:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 705FA619A0;
-        Wed,  5 May 2021 16:39:23 +0000 (UTC)
+        id S237121AbhEEQ5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:57:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF90D619A5;
+        Wed,  5 May 2021 16:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232764;
-        bh=wm62CXnlQlROjrFU1xBW5vxum5weK+uKY4uM6pJh2/I=;
+        s=k20201202; t=1620232765;
+        bh=diepQ4xIh+5/x+btqUtYJL380QapuwxQy0qfdc/3hc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5o21YDAU6QursZASpxVnB9g91EyXQC9hkih0XkIinJyA6JumS367l7yo44Dw8Pg8
-         sG4fKBIIy2GBtvN5IRbUe/VGznQLN6KqP9JNaEWRApF9/xIQZLu9aYlB2DptSkUnCx
-         Xh1q7AxWdfuWKyd9GWg/381WJRJP4TNlSL0EWrBW1eOnWlwr66OQz9pvWpWe3rmpOi
-         6se1deD73sPNaUGf8eRmwuaygIkGDJwskJ5dgoAZ7Zo3SNX8y2jfKjnx2xSQBV2D+l
-         wUgPYusV0pIHmUMkAk6YOEalHjMYQihDeQt4PuqdnFIzVMO9pPzaorMhu9LhDrMwz6
-         DOCTV5mQI+GgA==
+        b=IvT7X6Icxk+LTDQvWtHp1Wl091VmhEM9JGzNTN0golsrJTEr/GZCG6RHVx8SnkR+4
+         6UFoxSN8qgvnGBHEjY+qkgIRNNMKfhcnM1mmi86oX1fRjqEMH5jFZCDBIwRQs+sa/3
+         nUn9depesSkEswprwpZZYYVSJzNZPdqxSt4eJvR8i+WB5uYKbMciE+vEbI8JC7RWgi
+         yO3UTDK0TxIfFnGlIgsmamqiWolgkECqDopIwRifN3W4IX5ZkZ2Sl+jTLxd+DM4pJu
+         CyDMgFEkcNjkXP1ph1rdVhwMbBMuaqKDazrN/TwEy411C8BJfBbLuEfnaxLfba7yfb
+         hIwjAJjUo3sIg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 19/46] mac80211: clear the beacon's CRC after channel switch
-Date:   Wed,  5 May 2021 12:38:29 -0400
-Message-Id: <20210505163856.3463279-19-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 20/46] pinctrl: samsung: use 'int' for register masks in Exynos
+Date:   Wed,  5 May 2021 12:38:30 -0400
+Message-Id: <20210505163856.3463279-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
 References: <20210505163856.3463279-1-sashal@kernel.org>
@@ -43,50 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit d6843d1ee283137723b4a8c76244607ce6db1951 ]
+[ Upstream commit fa0c10a5f3a49130dd11281aa27e7e1c8654abc7 ]
 
-After channel switch, we should consider any beacon with a
-CSA IE as a new switch. If the CSA IE is a leftover from
-before the switch that the AP forgot to remove, we'll get
-a CSA-to-Self.
+The Special Function Registers on all Exynos SoC, including ARM64, are
+32-bit wide, so entire driver uses matching functions like readl() or
+writel().  On 64-bit ARM using unsigned long for register masks:
+1. makes little sense as immediately after bitwise operation it will be
+   cast to 32-bit value when calling writel(),
+2. is actually error-prone because it might promote other operands to
+   64-bit.
 
-This caused issues in iwlwifi where the firmware saw a beacon
-with a CSA-to-Self with mode = 1 on the new channel after a
-switch. The firmware considered this a new switch and closed
-its queues. Since the beacon didn't change between before and
-after the switch, we wouldn't handle it (the CRC is the same)
-and we wouldn't let the firmware open its queues again or
-disconnect if the CSA IE stays for too long.
-
-Clear the CRC valid state after we switch to make sure that
-we handle the beacon and handle the CSA IE as required.
-
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Link: https://lore.kernel.org/r/20210408143124.b9e68aa98304.I465afb55ca2c7d59f7bf610c6046a1fd732b4c28@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Addresses-Coverity: Unintentional integer overflow
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Link: https://lore.kernel.org/r/20210408195029.69974-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mlme.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/pinctrl/samsung/pinctrl-exynos.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 17a3a1c938be..44fd922cc32a 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1215,6 +1215,11 @@ static void ieee80211_chswitch_post_beacon(struct ieee80211_sub_if_data *sdata)
+diff --git a/drivers/pinctrl/samsung/pinctrl-exynos.c b/drivers/pinctrl/samsung/pinctrl-exynos.c
+index 84501c785473..1cf31fe2674d 100644
+--- a/drivers/pinctrl/samsung/pinctrl-exynos.c
++++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
+@@ -55,7 +55,7 @@ static void exynos_irq_mask(struct irq_data *irqd)
+ 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
+ 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
+ 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
+-	unsigned long mask;
++	unsigned int mask;
+ 	unsigned long flags;
  
- 	sdata->vif.csa_active = false;
- 	ifmgd->csa_waiting_bcn = false;
-+	/*
-+	 * If the CSA IE is still present on the beacon after the switch,
-+	 * we need to consider it as a new CSA (possibly to self).
-+	 */
-+	ifmgd->beacon_crc_valid = false;
+ 	spin_lock_irqsave(&bank->slock, flags);
+@@ -83,7 +83,7 @@ static void exynos_irq_unmask(struct irq_data *irqd)
+ 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
+ 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
+ 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
+-	unsigned long mask;
++	unsigned int mask;
+ 	unsigned long flags;
  
- 	ret = drv_post_channel_switch(sdata);
- 	if (ret) {
+ 	/*
+@@ -474,7 +474,7 @@ static void exynos_irq_eint0_15(struct irq_desc *desc)
+ 	chained_irq_exit(chip, desc);
+ }
+ 
+-static inline void exynos_irq_demux_eint(unsigned long pend,
++static inline void exynos_irq_demux_eint(unsigned int pend,
+ 						struct irq_domain *domain)
+ {
+ 	unsigned int irq;
+@@ -491,8 +491,8 @@ static void exynos_irq_demux_eint16_31(struct irq_desc *desc)
+ {
+ 	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	struct exynos_muxed_weint_data *eintd = irq_desc_get_handler_data(desc);
+-	unsigned long pend;
+-	unsigned long mask;
++	unsigned int pend;
++	unsigned int mask;
+ 	int i;
+ 
+ 	chained_irq_enter(chip, desc);
 -- 
 2.30.2
 
