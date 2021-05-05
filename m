@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F773739E9
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 581413739EB
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:05:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233236AbhEEMGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:06:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44066 "EHLO mail.kernel.org"
+        id S233235AbhEEMGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:06:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233250AbhEEMGM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:06:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E0B0611EE;
-        Wed,  5 May 2021 12:05:15 +0000 (UTC)
+        id S233254AbhEEMGP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:06:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2F0961154;
+        Wed,  5 May 2021 12:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216316;
-        bh=MRevBN2xh5xxjB2iqX4P6X5KJEVH66ROP2JYUgDKy6Y=;
+        s=korg; t=1620216318;
+        bh=NU8pi9tWxbyoTgtDphp6v9veLbNPSyG4BwdgHUO8NeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FP0tBrIL9hses5kawoDDkPTLdFWvloLLy5oCFlH3Zs8ta+A8CSTUvY2Q/alcxugbw
-         iI+UnuMmrbobkKchwH5+tvXJIgEex6LyD5VdQ2KEiqwg8YIRdruPCnaGPHYAWWOkoa
-         r+hjOz/8jKxy7ZhSKNAT4Zmvs0hiwzLnYPG9CMCA=
+        b=RwgcOY2DxU15X357hY3nDVJn2/cE0rgsYIZtmaxyQm1E7UPDlLNgJ8VMfoVpuMH2i
+         xiQtJvhhPM64G4nGhMwX0igk/Q0BXjMUM+JlF/Su0hjuO6xvVc37yXxp4mgnXU03gb
+         5nmQgLl/xbkW/3PxNwpwD6Ux5aCcB+RFbRBDvrvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
+        stable@vger.kernel.org, Alexander Schmidt <alexschm@de.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
         Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/21] perf data: Fix error return code in perf_data__create_dir()
-Date:   Wed,  5 May 2021 14:04:25 +0200
-Message-Id: <20210505112325.095603347@linuxfoundation.org>
+Subject: [PATCH 5.4 12/21] perf ftrace: Fix access to pid in array when setting a pid filter
+Date:   Wed,  5 May 2021 14:04:26 +0200
+Message-Id: <20210505112325.131333159@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112324.729798712@linuxfoundation.org>
 References: <20210505112324.729798712@linuxfoundation.org>
@@ -46,51 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit f2211881e737cade55e0ee07cf6a26d91a35a6fe ]
+[ Upstream commit 671b60cb6a897a5b3832fe57657152f2c3995e25 ]
 
-Although 'ret' has been initialized to -1, but it will be reassigned by
-the "ret = open(...)" statement in the for loop. So that, the value of
-'ret' is unknown when asprintf() failed.
+Command 'perf ftrace -v -- ls' fails in s390 (at least 5.12.0rc6).
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210415083417.3740-1-thunder.leizhen@huawei.com
+The root cause is a missing pointer dereference which causes an
+array element address to be used as PID.
+
+Fix this by extracting the PID.
+
+Output before:
+  # ./perf ftrace -v -- ls
+  function_graph tracer is used
+  write '-263732416' to tracing/set_ftrace_pid failed: Invalid argument
+  failed to set ftrace pid
+  #
+
+Output after:
+   ./perf ftrace -v -- ls
+   function_graph tracer is used
+   # tracer: function_graph
+   #
+   # CPU  DURATION                  FUNCTION CALLS
+   # |     |   |                     |   |   |   |
+   4)               |  rcu_read_lock_sched_held() {
+   4)   0.552 us    |    rcu_lockdep_current_cpu_online();
+   4)   6.124 us    |  }
+
+Reported-by: Alexander Schmidt <alexschm@de.ibm.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20210421120400.2126433-1-tmricht@linux.ibm.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/data.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/perf/builtin-ftrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/data.c b/tools/perf/util/data.c
-index 88fba2ba549f..7534455ffc6a 100644
---- a/tools/perf/util/data.c
-+++ b/tools/perf/util/data.c
-@@ -35,7 +35,7 @@ void perf_data__close_dir(struct perf_data *data)
- int perf_data__create_dir(struct perf_data *data, int nr)
- {
- 	struct perf_data_file *files = NULL;
--	int i, ret = -1;
-+	int i, ret;
+diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
+index d5adc417a4ca..40b179f54428 100644
+--- a/tools/perf/builtin-ftrace.c
++++ b/tools/perf/builtin-ftrace.c
+@@ -161,7 +161,7 @@ static int set_tracing_pid(struct perf_ftrace *ftrace)
  
- 	if (WARN_ON(!data->is_dir))
- 		return -EINVAL;
-@@ -51,7 +51,8 @@ int perf_data__create_dir(struct perf_data *data, int nr)
- 	for (i = 0; i < nr; i++) {
- 		struct perf_data_file *file = &files[i];
- 
--		if (asprintf(&file->path, "%s/data.%d", data->path, i) < 0)
-+		ret = asprintf(&file->path, "%s/data.%d", data->path, i);
-+		if (ret < 0)
- 			goto out_err;
- 
- 		ret = open(file->path, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
+ 	for (i = 0; i < perf_thread_map__nr(ftrace->evlist->core.threads); i++) {
+ 		scnprintf(buf, sizeof(buf), "%d",
+-			  ftrace->evlist->core.threads->map[i]);
++			  perf_thread_map__pid(ftrace->evlist->core.threads, i));
+ 		if (append_tracing_file("set_ftrace_pid", buf) < 0)
+ 			return -1;
+ 	}
 -- 
 2.30.2
 
