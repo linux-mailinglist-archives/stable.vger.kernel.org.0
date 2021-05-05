@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C8C373A3C
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEAE9373A41
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:08:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233430AbhEEMI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:08:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48922 "EHLO mail.kernel.org"
+        id S233269AbhEEMJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233473AbhEEMHp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:07:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5DB361222;
-        Wed,  5 May 2021 12:06:48 +0000 (UTC)
+        id S233622AbhEEMIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:08:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 301196044F;
+        Wed,  5 May 2021 12:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216409;
-        bh=Ud597iU/8P0D7b52x+XioGu5P2ZyZ8koVkfoMggNh1I=;
+        s=korg; t=1620216435;
+        bh=Xp8BkyYpdA6m2is4Ncl9MO72bgGFjVI0vRmrahfqTOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQMKTFDpgKIbVatQfoS+2hS8NEiQQ0nxm4A2GtqDWEbZxKCwH3gJO5YVdRgz4MSnx
-         jrLtJefsAA+E8VvfoqHZNRVDNqVFnxp36ZfrSvG59kd1CUMdoKSf85SaUBrtEZfkfV
-         iP+5mE3jihPsqhT57JzbQArvSOacnrg0Vhj5efJk=
+        b=vsvuM1fDCmZrXziKxSgsV8AUg7gpR8WCAF0Xqn4NQl+NBzsiBATkY4ZuuIZfcfbGY
+         vTDcHhYIqNFk6zIGccYORNvdPrH7gHQAPtNHIPZSkl47YkVIXZ68rH7oxz1PxjJueS
+         yD5lD7cpeajeNhzA6ntekMOdtubCx6dhh3H3Sqa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 23/29] ALSA: usb-audio: Add MIDI quirk for Vox ToneLab EX
-Date:   Wed,  5 May 2021 14:05:26 +0200
-Message-Id: <20210505112326.972075365@linuxfoundation.org>
+        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 5.10 24/29] USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
+Date:   Wed,  5 May 2021 14:05:27 +0200
+Message-Id: <20210505112327.001414812@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
 References: <20210505112326.195493232@linuxfoundation.org>
@@ -38,40 +38,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 64f40f9be14106e7df0098c427cb60be645bddb7 upstream.
+commit 8f23fe35ff1e5491b4d279323a8209a31f03ae65 upstream.
 
-ToneLab EX guitar pedal device requires the same quirk like ToneLab ST
-for supporting the MIDI.
+This is another branded 8153 device that doesn't work well with LPM
+enabled:
+[ 400.597506] r8152 5-1.1:1.0 enx482ae3a2a6f0: Tx status -71
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212593
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210407144549.1530-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+So disable LPM to resolve the issue.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+BugLink: https://bugs.launchpad.net/bugs/1922651
+Link: https://lore.kernel.org/r/20210412135455.791971-1-kai.heng.feng@canonical.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks-table.h |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -2376,6 +2376,16 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 	}
- },
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -438,6 +438,9 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
+ 			USB_QUIRK_DISCONNECT_SUSPEND },
  
-+{
-+	USB_DEVICE_VENDOR_SPEC(0x0944, 0x0204),
-+	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
-+		.vendor_name = "KORG, Inc.",
-+		/* .product_name = "ToneLab EX", */
-+		.ifnum = 3,
-+		.type = QUIRK_MIDI_STANDARD_INTERFACE,
-+	}
-+},
++	/* Lenovo ThinkPad USB-C Dock Gen2 Ethernet (RTL8153 GigE) */
++	{ USB_DEVICE(0x17ef, 0xa387), .driver_info = USB_QUIRK_NO_LPM },
 +
- /* AKAI devices */
- {
- 	USB_DEVICE(0x09e8, 0x0062),
+ 	/* BUILDWIN Photo Frame */
+ 	{ USB_DEVICE(0x1908, 0x1315), .driver_info =
+ 			USB_QUIRK_HONOR_BNUMINTERFACES },
 
 
