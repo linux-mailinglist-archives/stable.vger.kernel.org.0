@@ -2,39 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 581413739EB
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:05:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CC703739F0
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:05:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233235AbhEEMGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:06:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44222 "EHLO mail.kernel.org"
+        id S232464AbhEEMGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233254AbhEEMGP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:06:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2F0961154;
-        Wed,  5 May 2021 12:05:17 +0000 (UTC)
+        id S233268AbhEEMGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:06:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45B5061176;
+        Wed,  5 May 2021 12:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216318;
-        bh=NU8pi9tWxbyoTgtDphp6v9veLbNPSyG4BwdgHUO8NeI=;
+        s=korg; t=1620216320;
+        bh=ce2aPwXK/Sf681A9HEDKJa41MkHVsXy9xbtYAN6ZLeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwgcOY2DxU15X357hY3nDVJn2/cE0rgsYIZtmaxyQm1E7UPDlLNgJ8VMfoVpuMH2i
-         xiQtJvhhPM64G4nGhMwX0igk/Q0BXjMUM+JlF/Su0hjuO6xvVc37yXxp4mgnXU03gb
-         5nmQgLl/xbkW/3PxNwpwD6Ux5aCcB+RFbRBDvrvk=
+        b=JRqdCkDOTfHX20mqrqOxzYyHKoHTw6nYPt9tb0nFFm0QWSiE/WCbttqnKaDbx//Oq
+         8D5NAEtPuPXaes2rvECBScB/Ruuyqg7fKNPrUbdDFQSJ4c1WW6URtkc+IoPcZiAmbX
+         r1NtZll5TtRHzHloslw9mfXJj43g3ezXBVIc0Z3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Schmidt <alexschm@de.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/21] perf ftrace: Fix access to pid in array when setting a pid filter
-Date:   Wed,  5 May 2021 14:04:26 +0200
-Message-Id: <20210505112325.131333159@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 13/21] ALSA: usb-audio: Add MIDI quirk for Vox ToneLab EX
+Date:   Wed,  5 May 2021 14:04:27 +0200
+Message-Id: <20210505112325.170726670@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210505112324.729798712@linuxfoundation.org>
 References: <20210505112324.729798712@linuxfoundation.org>
@@ -46,64 +38,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 671b60cb6a897a5b3832fe57657152f2c3995e25 ]
+commit 64f40f9be14106e7df0098c427cb60be645bddb7 upstream.
 
-Command 'perf ftrace -v -- ls' fails in s390 (at least 5.12.0rc6).
+ToneLab EX guitar pedal device requires the same quirk like ToneLab ST
+for supporting the MIDI.
 
-The root cause is a missing pointer dereference which causes an
-array element address to be used as PID.
-
-Fix this by extracting the PID.
-
-Output before:
-  # ./perf ftrace -v -- ls
-  function_graph tracer is used
-  write '-263732416' to tracing/set_ftrace_pid failed: Invalid argument
-  failed to set ftrace pid
-  #
-
-Output after:
-   ./perf ftrace -v -- ls
-   function_graph tracer is used
-   # tracer: function_graph
-   #
-   # CPU  DURATION                  FUNCTION CALLS
-   # |     |   |                     |   |   |   |
-   4)               |  rcu_read_lock_sched_held() {
-   4)   0.552 us    |    rcu_lockdep_current_cpu_online();
-   4)   6.124 us    |  }
-
-Reported-by: Alexander Schmidt <alexschm@de.ibm.com>
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/20210421120400.2126433-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212593
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210407144549.1530-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-ftrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/quirks-table.h |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
-index d5adc417a4ca..40b179f54428 100644
---- a/tools/perf/builtin-ftrace.c
-+++ b/tools/perf/builtin-ftrace.c
-@@ -161,7 +161,7 @@ static int set_tracing_pid(struct perf_ftrace *ftrace)
- 
- 	for (i = 0; i < perf_thread_map__nr(ftrace->evlist->core.threads); i++) {
- 		scnprintf(buf, sizeof(buf), "%d",
--			  ftrace->evlist->core.threads->map[i]);
-+			  perf_thread_map__pid(ftrace->evlist->core.threads, i));
- 		if (append_tracing_file("set_ftrace_pid", buf) < 0)
- 			return -1;
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -2485,6 +2485,16 @@ YAMAHA_DEVICE(0x7010, "UB99"),
  	}
--- 
-2.30.2
-
+ },
+ 
++{
++	USB_DEVICE_VENDOR_SPEC(0x0944, 0x0204),
++	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
++		.vendor_name = "KORG, Inc.",
++		/* .product_name = "ToneLab EX", */
++		.ifnum = 3,
++		.type = QUIRK_MIDI_STANDARD_INTERFACE,
++	}
++},
++
+ /* AKAI devices */
+ {
+ 	USB_DEVICE(0x09e8, 0x0062),
 
 
