@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FB8837439A
+	by mail.lfdr.de (Postfix) with ESMTP id 163FF374399
 	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235184AbhEEQvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49994 "EHLO mail.kernel.org"
+        id S234974AbhEEQvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235767AbhEEQrs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:47:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76E3B61441;
-        Wed,  5 May 2021 16:36:50 +0000 (UTC)
+        id S236110AbhEEQrk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:47:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0404F61946;
+        Wed,  5 May 2021 16:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232611;
-        bh=dKodwKUoJASrAFlw1LNyG9ld/2oU3AxtzmUdjccQb24=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nnoiQJsfSdiTQcNbBKui2/jr3mJQA8/BW8YXyning5Fbw3Mk/1Umpm0jAHxiv4e0j
-         NqofQEX+XNOi4owo1MiiaDb+Ts3V+QgprVTT3Ve+wQOmdUDaZqGEHWb11j3qgar9Is
-         Uf50SrSac3ELWV62eWUGsvuXSAXsMpoc/YdAOrlS3yp8vc4p2opm6PrTTYGm+SdD9F
-         GYtFqnWI7+Ch3fISvSCCSU14cxgl3+XKgElrhpi0xPjI02TIIcCSosm5wU5TSZAmD0
-         9WBcBPQ5YZ0PZKqqproHz8sbkdL8bu0CpmR8Yn4Nn6xlhQmV/a4K+QENj0FmTc8EUT
-         0up4tZ6sXM2Rw==
+        s=k20201202; t=1620232612;
+        bh=enR9fvpoMci803EPJsInd9Zej7fSXQVmWoPu6wDqnOw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=h+LS8p4+yls1dxTtCQjZb8gr3Rk5tlR7OCuMZxQOQBoqbpE7/2l+HpE/1cM+2EEgf
+         jiOeslvLOhDjuDwHMuG4DG8BAe0WclzzIdC+8ST/LyG3dH94cJPsjhjuU7UH/XvM6/
+         79sjfmGU75WRvflzGQChdqw1+ExWlPP0/ezc39SN7/bRFhu32ewxst+QlA5PX1Yv7g
+         1fIlBbq0f6wx8PBOgmhLzDzB4nL/Xg3JyeXykisHJfxAvCGGxLt8z7gYcVqowthkok
+         XgYDxpxFDHy7So4DRWSLnCkKQ3JogcGiqyGyvMj0wCAFBGSJYT8zQ9BixQkYyPtiq5
+         iTNKeA0lSzleA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath11k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/85] ath11k: fix thermal temperature read
-Date:   Wed,  5 May 2021 12:35:24 -0400
-Message-Id: <20210505163648.3462507-1-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 02/85] fs: dlm: fix debugfs dump
+Date:   Wed,  5 May 2021 12:35:25 -0400
+Message-Id: <20210505163648.3462507-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210505163648.3462507-1-sashal@kernel.org>
+References: <20210505163648.3462507-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,104 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit e3de5bb7ac1a4cb262f8768924fd3ef6182b10bb ]
+[ Upstream commit 92c48950b43f4a767388cf87709d8687151a641f ]
 
-Fix dangling pointer in thermal temperature event which causes
-incorrect temperature read.
+This patch fixes the following message which randomly pops up during
+glocktop call:
 
-Tested-on: IPQ8074 AHB WLAN.HK.2.4.0.1-00041-QCAHKSWPL_SILICONZ-1
+seq_file: buggy .next function table_seq_next did not update position index
 
-Signed-off-by: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210218182708.8844-1-pradeepc@codeaurora.org
+The issue is that seq_read_iter() in fs/seq_file.c also needs an
+increment of the index in an non next record case as well which this
+patch fixes otherwise seq_read_iter() will print out the above message.
+
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/wmi.c | 53 +++++++++++----------------
- 1 file changed, 21 insertions(+), 32 deletions(-)
+ fs/dlm/debug_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index 173ab6ceed1f..eca86225a341 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -4986,31 +4986,6 @@ int ath11k_wmi_pull_fw_stats(struct ath11k_base *ab, struct sk_buff *skb,
- 	return 0;
- }
+diff --git a/fs/dlm/debug_fs.c b/fs/dlm/debug_fs.c
+index d6bbccb0ed15..d5bd990bcab8 100644
+--- a/fs/dlm/debug_fs.c
++++ b/fs/dlm/debug_fs.c
+@@ -542,6 +542,7 @@ static void *table_seq_next(struct seq_file *seq, void *iter_ptr, loff_t *pos)
  
--static int
--ath11k_pull_pdev_temp_ev(struct ath11k_base *ab, u8 *evt_buf,
--			 u32 len, const struct wmi_pdev_temperature_event *ev)
--{
--	const void **tb;
--	int ret;
--
--	tb = ath11k_wmi_tlv_parse_alloc(ab, evt_buf, len, GFP_ATOMIC);
--	if (IS_ERR(tb)) {
--		ret = PTR_ERR(tb);
--		ath11k_warn(ab, "failed to parse tlv: %d\n", ret);
--		return ret;
--	}
--
--	ev = tb[WMI_TAG_PDEV_TEMPERATURE_EVENT];
--	if (!ev) {
--		ath11k_warn(ab, "failed to fetch pdev temp ev");
--		kfree(tb);
--		return -EPROTO;
--	}
--
--	kfree(tb);
--	return 0;
--}
--
- size_t ath11k_wmi_fw_stats_num_vdevs(struct list_head *head)
- {
- 	struct ath11k_fw_stats_vdev *i;
-@@ -6390,23 +6365,37 @@ ath11k_wmi_pdev_temperature_event(struct ath11k_base *ab,
- 				  struct sk_buff *skb)
- {
- 	struct ath11k *ar;
--	struct wmi_pdev_temperature_event ev = {0};
-+	const void **tb;
-+	const struct wmi_pdev_temperature_event *ev;
-+	int ret;
-+
-+	tb = ath11k_wmi_tlv_parse_alloc(ab, skb->data, skb->len, GFP_ATOMIC);
-+	if (IS_ERR(tb)) {
-+		ret = PTR_ERR(tb);
-+		ath11k_warn(ab, "failed to parse tlv: %d\n", ret);
-+		return;
-+	}
- 
--	if (ath11k_pull_pdev_temp_ev(ab, skb->data, skb->len, &ev) != 0) {
--		ath11k_warn(ab, "failed to extract pdev temperature event");
-+	ev = tb[WMI_TAG_PDEV_TEMPERATURE_EVENT];
-+	if (!ev) {
-+		ath11k_warn(ab, "failed to fetch pdev temp ev");
-+		kfree(tb);
- 		return;
- 	}
- 
- 	ath11k_dbg(ab, ATH11K_DBG_WMI,
--		   "pdev temperature ev temp %d pdev_id %d\n", ev.temp, ev.pdev_id);
-+		   "pdev temperature ev temp %d pdev_id %d\n", ev->temp, ev->pdev_id);
- 
--	ar = ath11k_mac_get_ar_by_pdev_id(ab, ev.pdev_id);
-+	ar = ath11k_mac_get_ar_by_pdev_id(ab, ev->pdev_id);
- 	if (!ar) {
--		ath11k_warn(ab, "invalid pdev id in pdev temperature ev %d", ev.pdev_id);
-+		ath11k_warn(ab, "invalid pdev id in pdev temperature ev %d", ev->pdev_id);
-+		kfree(tb);
- 		return;
- 	}
- 
--	ath11k_thermal_event_temperature(ar, ev.temp);
-+	ath11k_thermal_event_temperature(ar, ev->temp);
-+
-+	kfree(tb);
- }
- 
- static void ath11k_wmi_tlv_op_rx(struct ath11k_base *ab, struct sk_buff *skb)
+ 		if (bucket >= ls->ls_rsbtbl_size) {
+ 			kfree(ri);
++			++*pos;
+ 			return NULL;
+ 		}
+ 		tree = toss ? &ls->ls_rsbtbl[bucket].toss : &ls->ls_rsbtbl[bucket].keep;
 -- 
 2.30.2
 
