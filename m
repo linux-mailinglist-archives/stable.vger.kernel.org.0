@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B08374492
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1919A3744E0
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236946AbhEEQ6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:58:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36350 "EHLO mail.kernel.org"
+        id S235059AbhEERCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 13:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236716AbhEEQzn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:55:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF25361464;
-        Wed,  5 May 2021 16:39:00 +0000 (UTC)
+        id S236218AbhEEQ4A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:56:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E89961444;
+        Wed,  5 May 2021 16:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232741;
-        bh=fOH8+Z1NGNGOEwSqzcjBU9mOjbTRyXHml1vP4tn/58Y=;
+        s=k20201202; t=1620232743;
+        bh=vI5LWT6H714BA7fXwBiqMpEcxeof87DXV4W9TPRXmZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijTaDwzzBUgaPG4Zh/UShnTIi5mYVLDOU1pmgLKKHe0bpB5meWM7wDFCBLo8gBcm6
-         6bFvyQF24i2iXmNu2ORzTdlV5eW/KHLyWYaFp7JoEY/biFwVHnalKohhkCpdZa8V5E
-         zRq3C3Q/Nwjag7QotllkKaE61arRqMudJ5oYSG8PwFx1zZeT/sNZxUvAYdy/xTieqj
-         SU/Xa7b509T7MQY+Sk52d6SF92zwaThLnQ33ZVbftZFoqtPbVIIK4fZiNn+PfelsU9
-         j36WEd3I5Yi+ko76mj3+/atFMRcmIq31Kxoy0une6sU8aRQGhafJaBNmaC8MwHoY4w
-         gdeOq6uPj+dvA==
+        b=CyK3mkzJCkySCvTdT5nJZ7iEMilhPgbfoBNEcztMQ7JmdpBH8+MDy6yhfpSzZKy5Q
+         LB1w47qP3gqfVPw69vWSNpJpzZrUODB+/ldaXmBmV2GSwiY2Kv3g2aUWb/BFsGEXND
+         VrZ369LRLtuPeZgXPanYhy2d3GKQCkkU0yrdaKHKk1it42EUllP6Ql/XOvB/YWomGC
+         +xNe4v+10AR0K40NmzOtU0BTThru6yk5A66cMhSwNuc2cfC/aui031c370HCwRypuZ
+         NPi760H8FIGSkQQ4bf58fv1povNwxEB46rd9w2Jh8X4tv2bt+4X5VDn/dyGpivztww
+         fNn9apUY0CaLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 03/46] ASoC: Intel: bytcr_rt5640: Enable jack-detect support on Asus T100TAF
-Date:   Wed,  5 May 2021 12:38:13 -0400
-Message-Id: <20210505163856.3463279-3-sashal@kernel.org>
+Cc:     Jonathan McDowell <noodles@earth.li>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 04/46] net: stmmac: Set FIFO sizes for ipq806x
+Date:   Wed,  5 May 2021 12:38:14 -0400
+Message-Id: <20210505163856.3463279-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
 References: <20210505163856.3463279-1-sashal@kernel.org>
@@ -43,39 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jonathan McDowell <noodles@earth.li>
 
-[ Upstream commit b7c7203a1f751348f35fc4bcb157572d303f7573 ]
+[ Upstream commit e127906b68b49ddb3ecba39ffa36a329c48197d3 ]
 
-The Asus T100TAF uses the same jack-detect settings as the T100TA,
-this has been confirmed on actual hardware.
+Commit eaf4fac47807 ("net: stmmac: Do not accept invalid MTU values")
+started using the TX FIFO size to verify what counts as a valid MTU
+request for the stmmac driver.  This is unset for the ipq806x variant.
+Looking at older patches for this it seems the RX + TXs buffers can be
+up to 8k, so set appropriately.
 
-Add these settings to the T100TAF quirks to enable jack-detect support
-on the T100TAF.
+(I sent this as an RFC patch in June last year, but received no replies.
+I've been running with this on my hardware (a MikroTik RB3011) since
+then with larger MTUs to support both the internal qca8k switch and
+VLANs with no problems. Without the patch it's impossible to set the
+larger MTU required to support this.)
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210312114850.13832-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jonathan McDowell <noodles@earth.li>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index cfd307717473..006cf1e8b602 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -476,6 +476,9 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100TAF"),
- 		},
- 		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
- 					BYT_RT5640_MONO_SPEAKER |
- 					BYT_RT5640_DIFF_MIC |
- 					BYT_RT5640_SSP0_AIF2 |
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+index 826626e870d5..0f56f8e33691 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+@@ -351,6 +351,8 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ 	plat_dat->bsp_priv = gmac;
+ 	plat_dat->fix_mac_speed = ipq806x_gmac_fix_mac_speed;
+ 	plat_dat->multicast_filter_bins = 0;
++	plat_dat->tx_fifo_size = 8192;
++	plat_dat->rx_fifo_size = 8192;
+ 
+ 	err = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
+ 	if (err)
 -- 
 2.30.2
 
