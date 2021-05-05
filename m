@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DBF4374496
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B08374492
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:48:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234128AbhEEQ6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:58:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45068 "EHLO mail.kernel.org"
+        id S236946AbhEEQ6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:58:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235183AbhEEQzn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236716AbhEEQzn (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:55:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B6E461466;
-        Wed,  5 May 2021 16:38:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF25361464;
+        Wed,  5 May 2021 16:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232740;
-        bh=KxTA4Pe5ZqmmeTFkVKxLQ/p2oFd3clQegf7PnmWxRNk=;
+        s=k20201202; t=1620232741;
+        bh=fOH8+Z1NGNGOEwSqzcjBU9mOjbTRyXHml1vP4tn/58Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZK6bFKD85Wy7jhugUObXhsiazxAnao/7H6R1EaTRFR2JnsUunsjXsOkFaB5fvQIP
-         mLzENgjINXsoPjdgOz9bF3usFzK1Y1Klo1q4ELg1UJCV78X1phd6VadQlnY3a4l0Zr
-         Rgk6pi2o1Te9PwBvrxpFlGLFGDOX474jdJ0d0gSNSexyP4nrX4rtuS2iesZw00xK2G
-         s1LP/a4hzyYCxEMVOhZlvHbXlIsyqPx2VO6zVG0zU+g8gdmUSd8Ww3q98sUwJ+dkMs
-         RXbvb17d+fEjypSdl2hNnaD8DOTo/xLxGX1d/xcyM3FnEJAcEMA3yK41e50rw/q8Xj
-         0ywhGQq5MhoXg==
+        b=ijTaDwzzBUgaPG4Zh/UShnTIi5mYVLDOU1pmgLKKHe0bpB5meWM7wDFCBLo8gBcm6
+         6bFvyQF24i2iXmNu2ORzTdlV5eW/KHLyWYaFp7JoEY/biFwVHnalKohhkCpdZa8V5E
+         zRq3C3Q/Nwjag7QotllkKaE61arRqMudJ5oYSG8PwFx1zZeT/sNZxUvAYdy/xTieqj
+         SU/Xa7b509T7MQY+Sk52d6SF92zwaThLnQ33ZVbftZFoqtPbVIIK4fZiNn+PfelsU9
+         j36WEd3I5Yi+ko76mj3+/atFMRcmIq31Kxoy0une6sU8aRQGhafJaBNmaC8MwHoY4w
+         gdeOq6uPj+dvA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hoang Le <hoang.h.le@dektech.com.au>,
-        Jon Maloy <jmaloy@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 02/46] tipc: convert dest node's address to network order
-Date:   Wed,  5 May 2021 12:38:12 -0400
-Message-Id: <20210505163856.3463279-2-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 03/46] ASoC: Intel: bytcr_rt5640: Enable jack-detect support on Asus T100TAF
+Date:   Wed,  5 May 2021 12:38:13 -0400
+Message-Id: <20210505163856.3463279-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
 References: <20210505163856.3463279-1-sashal@kernel.org>
@@ -44,39 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 1980d37565061ab44bdc2f9e4da477d3b9752e81 ]
+[ Upstream commit b7c7203a1f751348f35fc4bcb157572d303f7573 ]
 
-(struct tipc_link_info)->dest is in network order (__be32), so we must
-convert the value to network order before assigning. The problem detected
-by sparse:
+The Asus T100TAF uses the same jack-detect settings as the T100TA,
+this has been confirmed on actual hardware.
 
-net/tipc/netlink_compat.c:699:24: warning: incorrect type in assignment (different base types)
-net/tipc/netlink_compat.c:699:24:    expected restricted __be32 [usertype] dest
-net/tipc/netlink_compat.c:699:24:    got int
+Add these settings to the T100TAF quirks to enable jack-detect support
+on the T100TAF.
 
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210312114850.13832-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/netlink_compat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
-index 11be9a84f8de..561ea834f732 100644
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -673,7 +673,7 @@ static int tipc_nl_compat_link_dump(struct tipc_nl_compat_msg *msg,
- 	if (err)
- 		return err;
- 
--	link_info.dest = nla_get_flag(link[TIPC_NLA_LINK_DEST]);
-+	link_info.dest = htonl(nla_get_flag(link[TIPC_NLA_LINK_DEST]));
- 	link_info.up = htonl(nla_get_flag(link[TIPC_NLA_LINK_UP]));
- 	nla_strlcpy(link_info.str, link[TIPC_NLA_LINK_NAME],
- 		    TIPC_MAX_LINK_NAME);
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index cfd307717473..006cf1e8b602 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -476,6 +476,9 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100TAF"),
+ 		},
+ 		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
++					BYT_RT5640_JD_SRC_JD2_IN4N |
++					BYT_RT5640_OVCD_TH_2000UA |
++					BYT_RT5640_OVCD_SF_0P75 |
+ 					BYT_RT5640_MONO_SPEAKER |
+ 					BYT_RT5640_DIFF_MIC |
+ 					BYT_RT5640_SSP0_AIF2 |
 -- 
 2.30.2
 
