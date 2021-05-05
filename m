@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40BDC37411B
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23A7C374120
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 18:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234901AbhEEQfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55176 "EHLO mail.kernel.org"
+        id S234269AbhEEQgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:36:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234566AbhEEQdx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 12:33:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A265561429;
-        Wed,  5 May 2021 16:32:34 +0000 (UTC)
+        id S234162AbhEEQeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 12:34:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 021B561423;
+        Wed,  5 May 2021 16:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232355;
-        bh=slT+Q2dWhK/Pdvc0JkBxSi4ZYL05dsOo7M1WRdImxtA=;
+        s=k20201202; t=1620232356;
+        bh=SZH2iEu/9UXu1MA/l2N2zkqcul96f+NDS4x1UCqNgog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBBtAuDgfiJmYtKS2pHaBVYQUWOWiam5JTT1xw3ZxkIksk5tPcWAJhPMOjfzsKE+j
-         qfMZfJ4E7nwn4ovOhrdYY4foW0AVqVSeL0jIcAu/hksorDFRm0O164beSQYtZ7IrCP
-         irSsbp5AVfjIpKEwZdGD144ukyAY7LWDu7AsFnMW6N5XEMJ2VPJ9l37kxEQ2B471ny
-         yRrzMhFwF8gedK4xcj8lisHu6HBzps2lvYQHLW9kjgxNCR+aFSoqVbiDFmSpb7t8G4
-         7/9PkMryQEC4ppYCg45CUFgIWXfgwOOh8iapjm890bsX2VSWcW3n7aLNdxhrWg6VZO
-         vhSF8ioeLrovg==
+        b=jVH/HugtYcZmn2mAOmcRAsTmr7pjqRUcBdTOdcGe4u7sl+afokM4lU98pEKPtMHnB
+         t2KEO8ZI9LEcxdJpOwaMVRP/3ukVeH6bxGoohj7DNuVEFN8y2gbcKjK/SYRn1naAp6
+         uNcJ98Ku6dI7RZ/pgpxaqi+ptUgE5C/QLILU568Xiroi43ne7lQW3PuqQMK3VjOqWY
+         xpY78JUdHcEjy15OzpXo072qIY9dxzD42/Xoa+5Shn+NvvFrYqlfPjhXMXR1Oc5ZfA
+         u7ul8mOcxR9V3SF8VW+CR/zZzJdJ2CsdS4roQXbApf9EbryTdkeXrTOF5/eiJScxsU
+         Rl3EibUwaEfpg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gyeongtaek Lee <gt82.lee@samsung.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.12 051/116] ASoC: soc-compress: lock pcm_mutex to resolve lockdep error
-Date:   Wed,  5 May 2021 12:30:19 -0400
-Message-Id: <20210505163125.3460440-51-sashal@kernel.org>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 052/116] net: phy: make PHY PM ops a no-op if MAC driver manages PHY PM
+Date:   Wed,  5 May 2021 12:30:20 -0400
+Message-Id: <20210505163125.3460440-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163125.3460440-1-sashal@kernel.org>
 References: <20210505163125.3460440-1-sashal@kernel.org>
@@ -42,59 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gyeongtaek Lee <gt82.lee@samsung.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 45475bf60cc1d42da229a0aa757180c88bab8d22 ]
+[ Upstream commit fba863b816049b03f3fbb07b10ebdcfe5c4141f7 ]
 
-If panic_on_warn=1 is added in bootargs and compress offload playback with
-DPCM is started, kernel panic would be occurred because rtd->card->pcm_mutex
-isn't held in soc_compr_open_fe() and soc_compr_free_fe() and it generates
-lockdep warning in the following code.
+Resume callback of the PHY driver is called after the one for the MAC
+driver. The PHY driver resume callback calls phy_init_hw(), and this is
+potentially problematic if the MAC driver calls phy_start() in its resume
+callback. One issue was reported with the fec driver and a KSZ8081 PHY
+which seems to become unstable if a soft reset is triggered during aneg.
 
-void snd_soc_runtime_action(struct snd_soc_pcm_runtime *rtd,
-			    int stream, int action)
-{
-	struct snd_soc_dai *dai;
-	int i;
+The new flag allows MAC drivers to indicate that they take care of
+suspending/resuming the PHY. Then the MAC PM callbacks can handle
+any dependency between MAC and PHY PM.
 
-	lockdep_assert_held(&rtd->card->pcm_mutex);
-
-To prevent lockdep warning but minimize side effect by adding mutex,
-pcm_mutex is held just before snd_soc_runtime_activate() and
-snd_soc_runtime_deactivate() and is released right after them.
-
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
-Link: https://lore.kernel.org/r/1891546521.01617772502282.JavaMail.epsvc@epcpadp3
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-compress.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/phy/phy_device.c | 6 ++++++
+ include/linux/phy.h          | 2 ++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
-index 246a5e32e22a..b4810266f5e5 100644
---- a/sound/soc/soc-compress.c
-+++ b/sound/soc/soc-compress.c
-@@ -153,7 +153,9 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
- 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_OPEN;
- 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_NO;
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index cc38e326405a..af2e1759b523 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -273,6 +273,9 @@ static __maybe_unused int mdio_bus_phy_suspend(struct device *dev)
+ {
+ 	struct phy_device *phydev = to_phy_device(dev);
  
-+	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
- 	snd_soc_runtime_activate(fe, stream);
-+	mutex_unlock(&fe->card->pcm_mutex);
++	if (phydev->mac_managed_pm)
++		return 0;
++
+ 	/* We must stop the state machine manually, otherwise it stops out of
+ 	 * control, possibly with the phydev->lock held. Upon resume, netdev
+ 	 * may call phy routines that try to grab the same lock, and that may
+@@ -294,6 +297,9 @@ static __maybe_unused int mdio_bus_phy_resume(struct device *dev)
+ 	struct phy_device *phydev = to_phy_device(dev);
+ 	int ret;
  
- 	mutex_unlock(&fe->card->mutex);
++	if (phydev->mac_managed_pm)
++		return 0;
++
+ 	if (!phydev->suspended_by_mdio_bus)
+ 		goto no_resume;
  
-@@ -181,7 +183,9 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
+diff --git a/include/linux/phy.h b/include/linux/phy.h
+index 1a12e4436b5b..8644b097dea3 100644
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -493,6 +493,7 @@ struct macsec_ops;
+  * @loopback_enabled: Set true if this PHY has been loopbacked successfully.
+  * @downshifted_rate: Set true if link speed has been downshifted.
+  * @is_on_sfp_module: Set true if PHY is located on an SFP module.
++ * @mac_managed_pm: Set true if MAC driver takes of suspending/resuming PHY
+  * @state: State of the PHY for management purposes
+  * @dev_flags: Device-specific flags used by the PHY driver.
+  * @irq: IRQ number of the PHY's interrupt (-1 if none)
+@@ -567,6 +568,7 @@ struct phy_device {
+ 	unsigned loopback_enabled:1;
+ 	unsigned downshifted_rate:1;
+ 	unsigned is_on_sfp_module:1;
++	unsigned mac_managed_pm:1;
  
- 	mutex_lock_nested(&fe->card->mutex, SND_SOC_CARD_CLASS_RUNTIME);
- 
-+	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
- 	snd_soc_runtime_deactivate(fe, stream);
-+	mutex_unlock(&fe->card->pcm_mutex);
- 
- 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_FE;
- 
+ 	unsigned autoneg:1;
+ 	/* The most recently read link state */
 -- 
 2.30.2
 
