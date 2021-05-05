@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 129AE3743E7
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 663123743EA
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 19:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236143AbhEEQxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 12:53:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50842 "EHLO mail.kernel.org"
+        id S236180AbhEEQxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 12:53:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236453AbhEEQts (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236455AbhEEQts (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 5 May 2021 12:49:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA7AB61971;
-        Wed,  5 May 2021 16:37:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25BE761943;
+        Wed,  5 May 2021 16:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620232645;
-        bh=NwISA0bDAB8Zj1wl7St5NVLpEslQf6oo/F2m7/RVcZg=;
+        s=k20201202; t=1620232647;
+        bh=VKeAXufu+JKwURS07EgCNsjOOr56TVTihAdZ+HK1ZI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LeqPNzv7jO4HnFFw0xI9qMyoGwbCu3OK6fcnFfx5KIeQKF5j+FjyU2zRGrG+c2ee/
-         q//xynRwg/E4vtHzZMemWFjWQmOLsQL+6Dn0/KOFz7Fe6IOAW4KygAt4oo92cpP7FT
-         yZ6vr1mmbhPtUElvy/W6LsjHLhcGym2wjfKEh6chm7b8dIyGoWDeA+XrnNw1/0yaFZ
-         /R1DyYLy8x6m8WPsUhfzBR4TUV1ptoi/WSYt8IdWnJuu/l5zCXjX2MAprk5HKz2FdM
-         apb0dHYQYLr2g7cF5Zzgg3VyViMa86HHdEHLFza3rR5PSPmseg6phqxTdzBkVjgzPm
-         ml2YTBtwaIZwg==
+        b=Brvc0ZqawMarUviwrwVLuokoyW+GgeLqI2xEUKi/4DSWIRg8G1CWt6bG12BIeA5aL
+         eVJ8cRgG4ImniSSVl28MsKQvHq5iZS2p4GVaGyD+7k8L4VQ0Z8XfR3pDWOYHmmz6Ze
+         gmlRHU8MehLG5Op8sMWxKpMLBvKw1/hLrJ7vraJWtKjZ83FPtgnygxgsIV6ltp+PYt
+         OxJ4F9u00oA5R1MvFCk/fPLezo8obWCY5UtJc3IhUTUv/62Zbs9jnOKcB2wkznL39G
+         dE8XQoWmvgK5qfhlHfzsRuTw4baLyT+ROGnoGxzOmmS+Gl7ngBA5wn04hS7V8qIloo
+         E13wlYPKHZgfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 25/85] powerpc/32: Statically initialise first emergency context
-Date:   Wed,  5 May 2021 12:35:48 -0400
-Message-Id: <20210505163648.3462507-25-sashal@kernel.org>
+Cc:     Guangbin Huang <huangguangbin2@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 26/85] net: hns3: remediate a potential overflow risk of bd_num_list
+Date:   Wed,  5 May 2021 12:35:49 -0400
+Message-Id: <20210505163648.3462507-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210505163648.3462507-1-sashal@kernel.org>
 References: <20210505163648.3462507-1-sashal@kernel.org>
@@ -42,57 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-[ Upstream commit a4719f5bb6d7dc220bffdc1b9f5ce5eaa5543581 ]
+[ Upstream commit a2ee6fd28a190588e142ad8ea9d40069cd3c9f98 ]
 
-The check of the emergency context initialisation in
-vmap_stack_overflow is buggy for the SMP case, as it
-compares r1 with 0 while in the SMP case r1 is offseted
-by the CPU id.
+The array size of bd_num_list is a fixed value, it may have potential
+overflow risk when array size of hclge_dfx_bd_offset_list is greater
+than that fixed value. So modify bd_num_list as a pointer and allocate
+memory for it according to array size of hclge_dfx_bd_offset_list.
 
-Instead of fixing it, just perform static initialisation
-of the first emergency context.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4a67ba422be75713286dca0c86ee0d3df2eb6dfa.1615552867.git.christophe.leroy@csgroup.eu
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/head_32.h  | 6 +-----
- arch/powerpc/kernel/setup_32.c | 2 +-
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ .../hisilicon/hns3/hns3pf/hclge_main.c        | 27 ++++++++++++++-----
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/kernel/head_32.h b/arch/powerpc/kernel/head_32.h
-index fef0b34a77c9..f8e3d15ddf69 100644
---- a/arch/powerpc/kernel/head_32.h
-+++ b/arch/powerpc/kernel/head_32.h
-@@ -338,11 +338,7 @@
- 	lis	r1, emergency_ctx@ha
- #endif
- 	lwz	r1, emergency_ctx@l(r1)
--	cmpwi	cr1, r1, 0
--	bne	cr1, 1f
--	lis	r1, init_thread_union@ha
--	addi	r1, r1, init_thread_union@l
--1:	addi	r1, r1, THREAD_SIZE - INT_FRAME_SIZE
-+	addi	r1, r1, THREAD_SIZE - INT_FRAME_SIZE
- 	EXCEPTION_PROLOG_2
- 	SAVE_NVGPRS(r11)
- 	addi	r3, r1, STACK_FRAME_OVERHEAD
-diff --git a/arch/powerpc/kernel/setup_32.c b/arch/powerpc/kernel/setup_32.c
-index 057d6b8e9bb0..e7f2eb7837fc 100644
---- a/arch/powerpc/kernel/setup_32.c
-+++ b/arch/powerpc/kernel/setup_32.c
-@@ -164,7 +164,7 @@ void __init irqstack_early_init(void)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index b856dbe4db73..98190aa90781 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -10845,7 +10845,6 @@ static int hclge_get_64_bit_regs(struct hclge_dev *hdev, u32 regs_num,
+ #define REG_LEN_PER_LINE	(REG_NUM_PER_LINE * sizeof(u32))
+ #define REG_SEPARATOR_LINE	1
+ #define REG_NUM_REMAIN_MASK	3
+-#define BD_LIST_MAX_NUM		30
+ 
+ int hclge_query_bd_num_cmd_send(struct hclge_dev *hdev, struct hclge_desc *desc)
+ {
+@@ -10939,15 +10938,19 @@ static int hclge_get_dfx_reg_len(struct hclge_dev *hdev, int *len)
+ {
+ 	u32 dfx_reg_type_num = ARRAY_SIZE(hclge_dfx_bd_offset_list);
+ 	int data_len_per_desc, bd_num, i;
+-	int bd_num_list[BD_LIST_MAX_NUM];
++	int *bd_num_list;
+ 	u32 data_len;
+ 	int ret;
+ 
++	bd_num_list = kcalloc(dfx_reg_type_num, sizeof(int), GFP_KERNEL);
++	if (!bd_num_list)
++		return -ENOMEM;
++
+ 	ret = hclge_get_dfx_reg_bd_num(hdev, bd_num_list, dfx_reg_type_num);
+ 	if (ret) {
+ 		dev_err(&hdev->pdev->dev,
+ 			"Get dfx reg bd num fail, status is %d.\n", ret);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	data_len_per_desc = sizeof_field(struct hclge_desc, data);
+@@ -10958,6 +10961,8 @@ static int hclge_get_dfx_reg_len(struct hclge_dev *hdev, int *len)
+ 		*len += (data_len / REG_LEN_PER_LINE + 1) * REG_LEN_PER_LINE;
+ 	}
+ 
++out:
++	kfree(bd_num_list);
+ 	return ret;
  }
  
- #ifdef CONFIG_VMAP_STACK
--void *emergency_ctx[NR_CPUS] __ro_after_init;
-+void *emergency_ctx[NR_CPUS] __ro_after_init = {[0] = &init_stack};
- 
- void __init emergency_stack_init(void)
+@@ -10965,16 +10970,20 @@ static int hclge_get_dfx_reg(struct hclge_dev *hdev, void *data)
  {
+ 	u32 dfx_reg_type_num = ARRAY_SIZE(hclge_dfx_bd_offset_list);
+ 	int bd_num, bd_num_max, buf_len, i;
+-	int bd_num_list[BD_LIST_MAX_NUM];
+ 	struct hclge_desc *desc_src;
++	int *bd_num_list;
+ 	u32 *reg = data;
+ 	int ret;
+ 
++	bd_num_list = kcalloc(dfx_reg_type_num, sizeof(int), GFP_KERNEL);
++	if (!bd_num_list)
++		return -ENOMEM;
++
+ 	ret = hclge_get_dfx_reg_bd_num(hdev, bd_num_list, dfx_reg_type_num);
+ 	if (ret) {
+ 		dev_err(&hdev->pdev->dev,
+ 			"Get dfx reg bd num fail, status is %d.\n", ret);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	bd_num_max = bd_num_list[0];
+@@ -10983,8 +10992,10 @@ static int hclge_get_dfx_reg(struct hclge_dev *hdev, void *data)
+ 
+ 	buf_len = sizeof(*desc_src) * bd_num_max;
+ 	desc_src = kzalloc(buf_len, GFP_KERNEL);
+-	if (!desc_src)
+-		return -ENOMEM;
++	if (!desc_src) {
++		ret = -ENOMEM;
++		goto out;
++	}
+ 
+ 	for (i = 0; i < dfx_reg_type_num; i++) {
+ 		bd_num = bd_num_list[i];
+@@ -11000,6 +11011,8 @@ static int hclge_get_dfx_reg(struct hclge_dev *hdev, void *data)
+ 	}
+ 
+ 	kfree(desc_src);
++out:
++	kfree(bd_num_list);
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
