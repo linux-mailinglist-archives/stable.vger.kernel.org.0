@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C7A373A5E
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28BAE373A90
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 14:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232949AbhEEMKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 08:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51444 "EHLO mail.kernel.org"
+        id S232954AbhEEML3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 08:11:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233440AbhEEMJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 May 2021 08:09:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5569461402;
-        Wed,  5 May 2021 12:08:29 +0000 (UTC)
+        id S233643AbhEEMKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 May 2021 08:10:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF3E2613E9;
+        Wed,  5 May 2021 12:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620216509;
-        bh=jfsNba7U9iA8JZj5ycsqVMIeZBeB2IQaEFt7ctlUEek=;
+        s=korg; t=1620216550;
+        bh=yetJWZI/4SeKAzlNurgrNqGisuj0/ptJ3O0xha7tzzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8cloEkYU5Fpic4p29kXUwP/EmDxCH9e4u9mQvVlfPBL1p5bEq2ClgZD/EaZ+cirS
-         RJpUI375cdMUOkTJ2ykOidp5QZyrhXolb3uvjfYU/024GNaYWaI9aKvz1yQXhN21lY
-         ea9qDiAOmR/rumBdVs/TN0gjtfel3+gzQotn193Q=
+        b=TIQotM2OVecQIV94y1jSfgzLLeuMFBm7l0NUJ9J/6GcgrRxduBOXKmWPM2+MF8xj1
+         ZmsB5543ZfsS1of/c7jVvJgqoiOSOLcN9kRo6mgG/2W0udHvZ424pD+8O92L41jiqr
+         avhYcFw9ruta/hMWXV5b7ZBwHJImr2UIjgAM7Tn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathon Reinhart <Jonathon.Reinhart@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 02/17] netfilter: conntrack: Make global sysctls readonly in non-init netns
-Date:   Wed,  5 May 2021 14:05:57 +0200
-Message-Id: <20210505112325.034188957@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 09/31] perf data: Fix error return code in perf_data__create_dir()
+Date:   Wed,  5 May 2021 14:05:58 +0200
+Message-Id: <20210505112326.975755673@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210505112324.956720416@linuxfoundation.org>
-References: <20210505112324.956720416@linuxfoundation.org>
+In-Reply-To: <20210505112326.672439569@linuxfoundation.org>
+References: <20210505112326.672439569@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-commit 2671fa4dc0109d3fb581bc3078fdf17b5d9080f6 upstream.
+[ Upstream commit f2211881e737cade55e0ee07cf6a26d91a35a6fe ]
 
-These sysctls point to global variables:
-- NF_SYSCTL_CT_MAX (&nf_conntrack_max)
-- NF_SYSCTL_CT_EXPECT_MAX (&nf_ct_expect_max)
-- NF_SYSCTL_CT_BUCKETS (&nf_conntrack_htable_size_user)
+Although 'ret' has been initialized to -1, but it will be reassigned by
+the "ret = open(...)" statement in the for loop. So that, the value of
+'ret' is unknown when asprintf() failed.
 
-Because their data pointers are not updated to point to per-netns
-structures, they must be marked read-only in a non-init_net ns.
-Otherwise, changes in any net namespace are reflected in (leaked into)
-all other net namespaces. This problem has existed since the
-introduction of net namespaces.
-
-The current logic marks them read-only only if the net namespace is
-owned by an unprivileged user (other than init_user_ns).
-
-Commit d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in
-unprivileged namespaces") "exposes all sysctls even if the namespace is
-unpriviliged." Since we need to mark them readonly in any case, we can
-forego the unprivileged user check altogether.
-
-Fixes: d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in unprivileged namespaces")
-Signed-off-by: Jonathon Reinhart <Jonathon.Reinhart@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210415083417.3740-1-thunder.leizhen@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_standalone.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ tools/perf/util/data.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -1060,16 +1060,10 @@ static int nf_conntrack_standalone_init_
- 	nf_conntrack_standalone_init_dccp_sysctl(net, table);
- 	nf_conntrack_standalone_init_gre_sysctl(net, table);
+diff --git a/tools/perf/util/data.c b/tools/perf/util/data.c
+index f29af4fc3d09..8fca4779ae6a 100644
+--- a/tools/perf/util/data.c
++++ b/tools/perf/util/data.c
+@@ -35,7 +35,7 @@ void perf_data__close_dir(struct perf_data *data)
+ int perf_data__create_dir(struct perf_data *data, int nr)
+ {
+ 	struct perf_data_file *files = NULL;
+-	int i, ret = -1;
++	int i, ret;
  
--	/* Don't allow unprivileged users to alter certain sysctls */
--	if (net->user_ns != &init_user_ns) {
-+	/* Don't allow non-init_net ns to alter global sysctls */
-+	if (!net_eq(&init_net, net)) {
- 		table[NF_SYSCTL_CT_MAX].mode = 0444;
- 		table[NF_SYSCTL_CT_EXPECT_MAX].mode = 0444;
--		table[NF_SYSCTL_CT_HELPER].mode = 0444;
--#ifdef CONFIG_NF_CONNTRACK_EVENTS
--		table[NF_SYSCTL_CT_EVENTS].mode = 0444;
--#endif
--		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
--	} else if (!net_eq(&init_net, net)) {
- 		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
- 	}
+ 	if (WARN_ON(!data->is_dir))
+ 		return -EINVAL;
+@@ -51,7 +51,8 @@ int perf_data__create_dir(struct perf_data *data, int nr)
+ 	for (i = 0; i < nr; i++) {
+ 		struct perf_data_file *file = &files[i];
  
+-		if (asprintf(&file->path, "%s/data.%d", data->path, i) < 0)
++		ret = asprintf(&file->path, "%s/data.%d", data->path, i);
++		if (ret < 0)
+ 			goto out_err;
+ 
+ 		ret = open(file->path, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
+-- 
+2.30.2
+
 
 
