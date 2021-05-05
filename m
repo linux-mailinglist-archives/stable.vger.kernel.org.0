@@ -2,100 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2AC3735CC
-	for <lists+stable@lfdr.de>; Wed,  5 May 2021 09:44:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D0173735CD
+	for <lists+stable@lfdr.de>; Wed,  5 May 2021 09:46:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231826AbhEEHpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 May 2021 03:45:31 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:44155 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231738AbhEEHpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 May 2021 03:45:30 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 0D6A616A9;
-        Wed,  5 May 2021 03:44:33 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 05 May 2021 03:44:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=NIJRvX73HAM9U/xkGlUE0U5q5XT
-        djlZGyFP5AM6s+YM=; b=UKYjwy1BfO8tP9+q5gakvqX6/ldVS9lkyjGmbmiy3Cy
-        cswJGDroB/GoNIUwyljpaks33+uLZRBOOcQFyIPMymernLx9KPImzS6DWe50RLup
-        BzBqk1tFdl7/b5fzELbxOm9T8BOkZ8pnXYfyzkUEZFKZJurbITYTy5XJAlAfnVrQ
-        fc+ZYtpD1xjcAo7Xa/B4s6ABq1Wl18L+AW4RcFQkk5ZlCGW7kg/EDkYRrEtlPhCr
-        V0H3rEs7Duv39s20ftNJV7clFo48rsSXY72/m+G5f/+SI9dol3OzqXzRtnwpEV4p
-        kNFYDRjDDm+qDqIZn2JnwQU2ynvMviiSvFx9mr0w3cA==
+        id S230045AbhEEHre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 May 2021 03:47:34 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:42297 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229741AbhEEHre (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 May 2021 03:47:34 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 1C3411434;
+        Wed,  5 May 2021 03:46:36 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Wed, 05 May 2021 03:46:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=NIJRvX
-        73HAM9U/xkGlUE0U5q5XTdjlZGyFP5AM6s+YM=; b=Uxn+urrA1leyBPtFfHxpR5
-        3kQIHOVZBZ8ulFxNOq2GQvAfSnQ00tTarEVT06BAniJ3q787fOOzNlV4gT+pqwNa
-        9wxwsIWkMYFBGcb0MRn14hyFlGlT7qwcs8ydCCbdf8AaH8ejkJZIjMDpfJjyqNgb
-        qQpWDw9xdHoPWjMS/SSE973yaarkA6f6lKqk4rgwRhb6m/wmWmFDLXC3rICLE/iG
-        Yipl2u/MO0EwmVaQvnTNz2pREa580eYMHu4a2hUDmnEyzgcaOeWmAhVULZDrQ3Lz
-        Wr52CqAfAbp5b14TDEPhR4xCZpJIN1NB5xD5iim0j7NhfaVmeQu8N/bkjVX/uRIA
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xKUkPU
+        OzkFM6bPHWEcDbSXN0id57+Vlyrl4wY68KLYg=; b=io733hjoqr16kPeMropitJ
+        p5UahcLvNWNno3aviJ2b56AKtNdrZFVXN8+9nFxGJ6/5Y069ML81OZ7lDBwMmjdp
+        2JrZ18thvhQNcig2jHyE02nipPjgMqNS0OHAOrOWuCKwNElJ9nLRmWa4Zj/ZMIJY
+        hJTpOr8cCOLErDymkztEmKwCIyiI1/u94+kOu/vBCXQcpct5PEl//6ryAJEztx5B
+        uKWATww+W+aOhqJEVBCOF/U+zNY00gW7i0ZLhclpcmQbNxxyZww1zLBOivxzG1jx
+        XeDbarlSubXK+K1pjA8rHzH1VCW4Y6bNNJrfIZu5rn4WqtIBqSizbjclLk2p6kkA
         ==
-X-ME-Sender: <xms:4UySYMcbxh8fl3bRMaarkdpQ-nqKlwxe7bjfpQQkv-sjzAlS2ioz9g>
-    <xme:4UySYOO5uPne7HdKSUG3RLSV5w5yiT3TAbrc1a4NgHbvqSR6SnFwjyFgrCUp_7hIU
-    jZePnPxVmxSdg>
+X-ME-Sender: <xms:XE2SYC_B-PIkmbO66dQSpdaMABkprwVkPxxkq6lFqq2rWpn0w2fYVA>
+    <xme:XE2SYCuXxBLOotPp1yGR8m4UkttftXd2WKUUvcm54SHZDCqBUqfXegkAskdZLJOHr
+    g36SkoDcBUzFg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefjedguddukecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtrodttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveehgf
-    ejiedtffefhfdvgeelieegjeegieffkeeiffejfeelhfeigeethfdujeeunecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:4UySYNhvTXlJjhE6ckRjEpk8jZ-Igaei7DOWmXUPaGp1P0NB3S2RLQ>
-    <xmx:4UySYB8beOg5KlUf-Sf9tvKVoJQhIglurnn8YwHlUIHO0sDa1rwq6A>
-    <xmx:4UySYIsqWQJ2lO_WdtRd-gtYpgskTNnv8YT1LW1YZzpYy0ZU-chyFQ>
-    <xmx:4UySYN-CoCb8XoGpUZwh0BUq5dt0RzRwXvr9heEIlT8dn1cw1_f9sA>
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
+    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:XE2SYIBXiToGD3cUfsRS88MHZ9IWeZvrtHnF32MBk03lhL_L4g_D4A>
+    <xmx:XE2SYKet-j9OUGZpyQgYpYiLO-LUkqt3Bzs1Oqe8V7UrV_lwkoExcQ>
+    <xmx:XE2SYHO-95lYseGbvQ-ZW9ckdZqA70qsqSm6kAfmBCipHoOspWd3Iw>
+    <xmx:XE2SYJXk2SZDjfp_-5jxw4ckYQifSsbWu_AZicXZocRRFSHMKfAgp59QhjE>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed,  5 May 2021 03:44:32 -0400 (EDT)
-Date:   Wed, 5 May 2021 09:44:15 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Jianxiong Gao <jxgao@google.com>
-Cc:     stable@vger.kernel.org, hch@lst.de, marcorr@google.com,
-        sashal@kernel.org
-Subject: Re: [PATCH v2 5.10 0/9] preserve DMA offsets when using swiotlb
-Message-ID: <YJJMzzADYcapNsMq@kroah.com>
-References: <20210429173315.1252465-1-jxgao@google.com>
- <YJJH8Jy8VjFmR2AL@kroah.com>
+        Wed,  5 May 2021 03:46:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ovl: allow upperdir inside lowerdir" failed to apply to 5.4-stable tree
+To:     mszeredi@redhat.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 05 May 2021 09:46:34 +0200
+Message-ID: <1620200794827@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YJJH8Jy8VjFmR2AL@kroah.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 05, 2021 at 09:23:28AM +0200, Greg KH wrote:
-> On Thu, Apr 29, 2021 at 05:33:06PM +0000, Jianxiong Gao wrote:
-> > We observed several NVMe failures when running with SWIOTLB. The root
-> > cause of the issue is that when data is mapped via SWIOTLB, the address
-> > offset is not preserved. Several device drivers including the NVMe
-> > driver relies on this offset to function correctly.
-> > 
-> > Even though we discovered the error when running using AMD SEV, we have
-> > reproduced the same error in Rhel 8 without SEV. By adding swiotlb=force
-> > option to the boot command line parameter, NVMe funcionality is
-> > impacted. For example formatting a disk into xfs format returns an
-> > error.
-> > 
-> > 
-> > ----
-> > Changes in v2:
-> > Rebased patches to 5.10.33
-> 
-> It looks like if I were to take these now, we need to also have a
-> version for 5.11.y because you can not upgrade from an older kernel and
-> have a "regression" like this, right?
-> 
-> 5.11.y will still be alive for at least a week or so, let me see if your
-> backports work there or not...
 
-Ok, looks like it worked, now queued up.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 708fa01597fa002599756bf56a96d0de1677375c Mon Sep 17 00:00:00 2001
+From: Miklos Szeredi <mszeredi@redhat.com>
+Date: Mon, 12 Apr 2021 12:00:37 +0200
+Subject: [PATCH] ovl: allow upperdir inside lowerdir
+
+Commit 146d62e5a586 ("ovl: detect overlapping layers") made sure we don't
+have overlapping layers, but it also broke the arguably valid use case of
+
+ mount -olowerdir=/,upperdir=/subdir,..
+
+where upperdir overlaps lowerdir on the same filesystem.  This has been
+causing regressions.
+
+Revert the check, but only for the specific case where upperdir and/or
+workdir are subdirectories of lowerdir.  Any other overlap (e.g. lowerdir
+is subdirectory of upperdir, etc) case is crazy, so leave the check in
+place for those.
+
+Overlaps are detected at lookup time too, so reverting the mount time check
+should be safe.
+
+Fixes: 146d62e5a586 ("ovl: detect overlapping layers")
+Cc: <stable@vger.kernel.org> # v5.2
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+
+diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+index a33b31bf7e05..b01d4147520d 100644
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -1854,7 +1854,8 @@ static struct ovl_entry *ovl_get_lowerstack(struct super_block *sb,
+  * - upper/work dir of any overlayfs instance
+  */
+ static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
+-			   struct dentry *dentry, const char *name)
++			   struct dentry *dentry, const char *name,
++			   bool is_lower)
+ {
+ 	struct dentry *next = dentry, *parent;
+ 	int err = 0;
+@@ -1866,7 +1867,7 @@ static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
+ 
+ 	/* Walk back ancestors to root (inclusive) looking for traps */
+ 	while (!err && parent != next) {
+-		if (ovl_lookup_trap_inode(sb, parent)) {
++		if (is_lower && ovl_lookup_trap_inode(sb, parent)) {
+ 			err = -ELOOP;
+ 			pr_err("overlapping %s path\n", name);
+ 		} else if (ovl_is_inuse(parent)) {
+@@ -1892,7 +1893,7 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
+ 
+ 	if (ovl_upper_mnt(ofs)) {
+ 		err = ovl_check_layer(sb, ofs, ovl_upper_mnt(ofs)->mnt_root,
+-				      "upperdir");
++				      "upperdir", false);
+ 		if (err)
+ 			return err;
+ 
+@@ -1903,7 +1904,8 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
+ 		 * workbasedir.  In that case, we already have their traps in
+ 		 * inode cache and we will catch that case on lookup.
+ 		 */
+-		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir");
++		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir",
++				      false);
+ 		if (err)
+ 			return err;
+ 	}
+@@ -1911,7 +1913,7 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
+ 	for (i = 1; i < ofs->numlayer; i++) {
+ 		err = ovl_check_layer(sb, ofs,
+ 				      ofs->layers[i].mnt->mnt_root,
+-				      "lowerdir");
++				      "lowerdir", true);
+ 		if (err)
+ 			return err;
+ 	}
+
