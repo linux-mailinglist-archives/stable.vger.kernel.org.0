@@ -2,61 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A557A375B60
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 21:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F18A375C54
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 22:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234525AbhEFTGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 15:06:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233217AbhEFTGm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 15:06:42 -0400
-Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 272D4C061574
-        for <stable@vger.kernel.org>; Thu,  6 May 2021 12:05:43 -0700 (PDT)
-Received: by mail-qt1-x82d.google.com with SMTP id h21so1094985qtu.5
-        for <stable@vger.kernel.org>; Thu, 06 May 2021 12:05:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=OZ70WJa9mGErr85X//4YAOg/ak0GZ/NMXfjUXcs1ADo=;
-        b=JpbihN8KcOsUjqgHi5Ko62tTYQLf8OlB5AnhVwsXrUVq+MBlpsr96MJdSCWLByrEOJ
-         JRtrx6GQsnmERzVjkFuT5Gm8PRMn+bSmW9kmhy7JzKf5HTmi6qMCm6Zw7inoGQGr/YPR
-         5imWkez8Aw+OXWRGZBX0IWeQAnY2UAE1jw5bXUwkb32JSwNfrlXWfRDhDesa2AgJtO7v
-         Vs/y5l/GeMP3v+HLS+KYISeijtAUj/SZ451Ie2Ty6RcNjBLY3zBCstBCbWuaKZNKnaqP
-         SAGSziIAVlPV9YBzY/4y18+UzccNRaWRQ3gz6GrEomJ3ztEFnh7fd4hWe0YeOR7O86UI
-         0DfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=OZ70WJa9mGErr85X//4YAOg/ak0GZ/NMXfjUXcs1ADo=;
-        b=CA3juI3od4waIHiWQjyd6RXDzRpi7rgK0Rt814SfY30mOJb6Qtog5RD8KJcN72c0RG
-         H3hLdhMtBJTed657UCSGj8eWiEQGhWqgkBINE8t0+N0bSu2WZlQ18uhmM5Zx90EOM8Fs
-         OUUg0ylFBHC5s2fa3yDqWo7tQR4npR/I4exlJacJIAIHxN1/rrqraeVprZ46CEPLdDJx
-         o0bQC244MckQAyjMXaKM0526Mp7pLp3WVwRKxBldv1J3YMTbJWThfG7GKUsPzUZ5n5yL
-         1YtZyAmYRJUnD7evBfvlf2YVn4vcKDZOCcG5ucmGLgJ7fDZQnxXdAjK+B1WsBnzeyQcu
-         zjrg==
-X-Gm-Message-State: AOAM530DWs0nKpMyMRtQo+aR66I6n+XwIjH02HrROmhQGhOFRN/HjLi2
-        eTy1jJ/DOM4V3BJE0Q0d+shyJLu1Zg9kbp8Z1Uo=
-X-Google-Smtp-Source: ABdhPJwL+Mqeeb4c58lElZYnZmmO25ngFXU1OhhmFStC4fdwntbiSUUk8gIjyT6i3IQucCrQU0M5aNO+JXdKtDv3tLw=
-X-Received: by 2002:ac8:5894:: with SMTP id t20mr5800326qta.134.1620327942355;
- Thu, 06 May 2021 12:05:42 -0700 (PDT)
+        id S231405AbhEFUmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 16:42:08 -0400
+Received: from 8bytes.org ([81.169.241.247]:37800 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231200AbhEFUmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 May 2021 16:42:07 -0400
+Received: by theia.8bytes.org (Postfix, from userid 1000)
+        id E58A0312; Thu,  6 May 2021 22:41:07 +0200 (CEST)
+Date:   Thu, 6 May 2021 22:41:05 +0200
+From:   Joerg Roedel <joro@8bytes.org>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Joerg Roedel <jroedel@suse.de>, x86@kernel.org,
+        kexec@lists.infradead.org, stable@vger.kernel.org, hpa@zytor.com,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH 2/2] x86/kexec/64: Forbid kexec when running as an SEV-ES
+ guest
+Message-ID: <YJRUYWRItEziB2eP@8bytes.org>
+References: <20210506093122.28607-1-joro@8bytes.org>
+ <20210506093122.28607-3-joro@8bytes.org>
+ <m17dkb4v4k.fsf@fess.ebiederm.org>
+ <YJQ4QTtvG76WpcNf@suse.de>
+ <m1o8dn1ye9.fsf@fess.ebiederm.org>
 MIME-Version: 1.0
-Received: by 2002:ad4:4e72:0:0:0:0:0 with HTTP; Thu, 6 May 2021 12:05:42 -0700 (PDT)
-Reply-To: ghekbabi@gmail.com
-From:   David F <3345sa1@gmail.com>
-Date:   Thu, 6 May 2021 21:05:42 +0200
-Message-ID: <CACuhYxrgNmwWZTFS3p=4hE9XEvRs19kme_WN=JAmtQ64BM=n7g@mail.gmail.com>
-Subject: PLEASE READ CAREFULLY
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1o8dn1ye9.fsf@fess.ebiederm.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Your email address has been selected for a donation of =C2=A32,500,000.
-Reply to this email now for more information on how you can get this
-donation
+On Thu, May 06, 2021 at 01:59:42PM -0500, Eric W. Biederman wrote:
+> Joerg Roedel <jroedel@suse.de> writes:
+
+> Why does it need that?
+> 
+> Would it not make sense to instead teach kexec how to pass a cpu from
+> one kernel to another.  We could use that everywhere.
+> 
+> Even the kexec-on-panic case should work as even in that case we have
+> to touch the cpus as they go down.
+> 
+> The hardware simply worked well enough that it hasn't mattered enough
+> for us to do something like that, but given that we need to do something
+> anyway.  It seems like it would make most sense do something that
+> will work everywhere, and does not introduce unnecessary dependencies
+> on hypervisors.
+
+Well, I guess we could implement something that even works for non
+SEV-ES guests and bare-metal. The question is what benefit we get from
+that. Is the SIPI sequence currently used not reliable enough?
+
+The benefit of being able to rely on the SIPI sequence is that the
+kexec'ed kernel can use the same method to bring up APs as the first
+kernel did.
+
+Btw, the same is true for SEV-ES guests, The goal is bring the APs of
+an SEV-ES guest into a state where they will use the SEV-ES method of
+AP-bringup when they wake up again. This method involves a
+firmware-owned page called the AP-jump-table, which contains the reset
+vector for the AP in its first 4 bytes.
+
+> > As I said above, for protocol version 1 it will stay disabled, so it is
+> > not only a temporary hack.
+> 
+> Why does bringing up a cpu need hypervisor support?
+
+When a CPU is taken offline under SEV-ES it will do a special hypercall
+named AP-reset-hold. The hypervisor will put the CPU into a halt state
+until the next SIPI arrives. In protocol version 1 this hypercall
+requires a GHCB shared page to be set up for the CPU doing the hypercall
+and upon CPU wakeup the HV will write to that shared page. Problem with
+that is that the page which contains the GHCB is already owned by the
+new kernel then and is probably not shared anymore, which can cause data
+corruption in the new kernel.
+
+Version 2 of the protocol adds a purely MSR based version of the
+AP-reset-hold hypercall. This one does not need a GHCB page and has to
+be used to bring the APs offline before doing the kexec. That is the
+reason I plan to only support kexec when the hypervisor provides version
+2 of the protocol.
+
+Regards,
+
+	Joerg
