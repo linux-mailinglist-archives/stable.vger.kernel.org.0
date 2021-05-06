@@ -2,229 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BF503751AA
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 11:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8433E3751AB
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 11:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231206AbhEFJkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 05:40:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38546 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234089AbhEFJke (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 05:40:34 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0125C061574
-        for <stable@vger.kernel.org>; Thu,  6 May 2021 02:39:34 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id r9so7314175ejj.3
-        for <stable@vger.kernel.org>; Thu, 06 May 2021 02:39:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=lSJfukBNYGaR57fjMkjDjV2hADrBhZIekKAIeFVmjPU=;
-        b=UxhNagcdu2V+GDeis2IeCglIznQHfqWoSqZkH+jUJ9BR/cEL+qNvR121e1xvnOVJi5
-         NSXjpZ5PY8lMdZtHyX8yRIuEZP8OktJVSJP95m9WI8o3gbmPvxCh9T8xkAUUcudkwRPp
-         863q08U3Xqrhwmk0lbh6iijnKy5si28jLuTKs6zvYorjd3HMWqjikHL6Xf9e7mzwgWoq
-         4xwE6nX5L/w67AaZcEo18poyzYfdZx4ZRdNxVIWUDHRcFdvTkhGA6EjoRQfvoXMK+9Mt
-         FS0TJ1ulkmGlGy8URPLNcHre1g0vM+cKMYbk1wFGCw0iB1j/FtrkG+aT8SDFrPN72Z3B
-         ysCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=lSJfukBNYGaR57fjMkjDjV2hADrBhZIekKAIeFVmjPU=;
-        b=PU58OoYsDUBRjfhFvp7BbfLmK//65XTXr/PvihXbebUKwSCo7POBX95sXRIMztUXjV
-         5U97/9JLI3/g4rCyBWVRJoAE3A50og54FPxftvN+JuhaI++xBXJ6V4dHtwDcmwayU/Hl
-         /vNyqdXfLDEierTKxzY1i+Z0cvw6s4voqJszAhrcUEdk2DzH1Ph4nsjvZVP9Sg+Bh/Xj
-         ZoOSy6cGVHc3Y2I5FSsglJl6PtnmbZC4XSNed6QnJiDwcEwj3w+qWl1sDLtjAWdP1dhn
-         LZzA+xKl4YgQ2cZ9rFv4w4zIGlna4jNCvT2eSpxzQ0anytxlUM0Mi+SmOLqZs5pcC/cb
-         WL8g==
-X-Gm-Message-State: AOAM5317fbGH3ANILbJVpz0/HnaKNWno08Po7uEA0q8CUagWp22c8+fD
-        XfeNjLiPdaZndFMkoeBLRdv1WG3LxcvsDoXYHHEUQw==
-X-Google-Smtp-Source: ABdhPJxsy3zOr7hbZSdPe1CwK0WxFZh1IZfDCLdBcZvEIJDfPe4vkfrj6tpGplne1z26QvlF73VQKaAYtl4bU/usmV8=
-X-Received: by 2002:a17:906:4a8c:: with SMTP id x12mr3375585eju.133.1620293973119;
- Thu, 06 May 2021 02:39:33 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210505120503.781531508@linuxfoundation.org>
-In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 6 May 2021 15:09:21 +0530
-Message-ID: <CA+G9fYtROOt8A4hbcrm_s=pkS8s_=aEMEXhYaJVwbYjCW-AzhQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/15] 4.19.190-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
+        id S233491AbhEFJlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 05:41:15 -0400
+Received: from aserp2130.oracle.com ([141.146.126.79]:56066 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233365AbhEFJlO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 05:41:14 -0400
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1469Nv35144833;
+        Thu, 6 May 2021 09:39:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=5irk9gSaHYvOafywfiaQ6O0umB/nPBxDjaFdRajuYDU=;
+ b=A+akp7mDTpAw4Lqf1hIJU4NAciwDVJfqpQGqDy8Y+jfZRehv1jYZHZBqRHYu+47zkqaE
+ 4yOvUpr4Bk7FZIw2VHchDBRuAwdOtnMgX1JBzb3Y5cAatsqKNwajIMM2V+bywJT9at6R
+ 6aKRG1+89pJjNSub5B/CG8JsDlgNuhN/x3X2qdjkmW9gmp4n3NpkvE8b3yvcPZIbR0Rx
+ 7uVi1d6Yj70Fm4+GoesDWvFRUYI94jlbTiml+RqzCt0vgHHRSCHjY6SA0+iG6zA5hHgP
+ uv3Sxn8Qajn9gVNdC218THA+RziUuHjJRIhZ6Tp0vrgRuPeiNnYQ+yeMqrH/bhUKZlr3 nw== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2130.oracle.com with ESMTP id 38begjcc9q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 06 May 2021 09:39:50 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1469QaiK002604;
+        Thu, 6 May 2021 09:39:50 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by aserp3020.oracle.com with ESMTP id 38bebkyncc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 06 May 2021 09:39:50 +0000
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 1469doGp056382;
+        Thu, 6 May 2021 09:39:50 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3020.oracle.com with ESMTP id 38bebkync5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 06 May 2021 09:39:50 +0000
+Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 1469dmdG006037;
+        Thu, 6 May 2021 09:39:48 GMT
+Received: from kadam (/102.36.221.92)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 06 May 2021 02:39:47 -0700
+Date:   Thu, 6 May 2021 12:39:41 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        linux-kernel@vger.kernel.org
+Subject: handling Fixes tags on rebased trees
+Message-ID: <20210506083905.GB1922@kadam>
+References: <20210504184635.GT21598@kadam>
+ <yq1h7jijnxu.fsf@ca-mkp.ca.oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq1h7jijnxu.fsf@ca-mkp.ca.oracle.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-GUID: ugBN8cNEYjLTb2DhBcF1MJYhU7fK0aeE
+X-Proofpoint-ORIG-GUID: ugBN8cNEYjLTb2DhBcF1MJYhU7fK0aeE
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9975 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1011 malwarescore=0
+ mlxlogscore=999 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
+ impostorscore=0 priorityscore=1501 suspectscore=0 mlxscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
+ definitions=main-2105060065
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 5 May 2021 at 17:35, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.190 release.
-> There are 15 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 07 May 2021 12:04:54 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.190-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+It turns that rebasing without updating the Fixes tag is sort of common.
+I wrote a script to find the invalid tags from the last month and have
+include the output below.  Two of the patches are in -mm and presumably
+Andrew is going fold the Fixes commit into the original commit when
+these are sent upstream so those aren't a real issue.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+We could probably try catching rebased trees when they are merged in
+linux-next?  I'll play with this and see if it works.  But we're going
+to end up missing some.  Maybe we need a file with a mapping of rebased
+hashes which has something like:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+28252e08649f 0df68ce4c26a ("iscv: Prepare ptdump for vm layout dynamic addresses")
+42ae341756da d338ae6ff2d8 ("userfaultfd: add minor fault registration mode")
 
-## Build
-* kernel: 4.19.190-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.19.y
-* git commit: 5a3ba2f90f8789162a03e07a37224bab4c643d1d
-* git describe: v4.19.189-16-g5a3ba2f90f87
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.189-16-g5a3ba2f90f87
+regards,
+dan carpenter
 
-## No regressions (compared to v4.19.189-2-g1bd8f1c8ad2f)
+#!/usr/bin/perl
 
-## No fixes (compared to v4.19.189-2-g1bd8f1c8ad2f)
+open HASHES, '-|', 'git log --since="1 month ago" --grep="Fixes:" --pretty=format:"%h"' or die $@;
 
-## Test result summary
- total: 68631, pass: 54812, fail: 2758, skip: 10808, xfail: 253,
+my $hash;
+while (defined($hash = <HASHES>)) {
+    chomp($hash);
+    my @commit_msg=`git show --pretty="%b" -s $hash`;
 
-## Build Summary
-* arm: 96 total, 96 passed, 0 failed
-* arm64: 24 total, 24 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 13 total, 13 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 39 total, 39 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 14 total, 14 passed, 0 failed
+    foreach my $line (@commit_msg) {
+        if ($line =~ /^Fixes: ([0-9a-f]*?) /) {
+            my $fix_hash = $1;
+            if (system("git merge-base --is-ancestor $fix_hash linux-next")) {
+                print "$hash $line";
+            }
+        }
+    }
+}
+close HASHES;
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+Here is the output, of invalid fixes tag in the last month.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+28252e08649f Fixes: e9efb21fe352 ("riscv: Prepare ptdump for vm layout dynamic addresses")
+42ae341756da Fixes: f2bf15fb0969 ("userfaultfd: add minor fault registration mode")
+eda5613016da Fixes: 5b109cc1cdcc ("hugetlb/userfaultfd: forbid huge pmd sharing when uffd enabled")
+85021fe9d800 Fixes: 1ace37b873c2 ("drm/amdgpu/display: Implement functions to let DC allocate GPU memory")
+caa93d9bd2d7 Fixes: 855b35ea96c4 ("usb: common: move function's kerneldoc next to its definition")
+0f66f043d0dc Fixes: cabcebc31de4 ("cifsd: introduce SMB3 kernel server")
+3ada5c1c27ca Fixes: 788b6f45c1d2 ("cifsd: add server-side procedures for SMB3")
+0e672f306a28 Fixes: 6788fa154546 ("veth: allow enabling NAPI even without XDP")
+aec00aa04b11 Fixes: 830027e2cb55 ("KEYS: trusted: Add generic trusted keys framework")
+ef32e0513a13 Fixes: 67982dfa59de ("usb: cdns3: imx: add power lost support for system resume")
+
