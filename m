@@ -2,193 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E9123754FE
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 15:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F41C37550C
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 15:47:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234160AbhEFNoM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 09:44:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49978 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234072AbhEFNoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 May 2021 09:44:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29903610FC;
-        Thu,  6 May 2021 13:43:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620308593;
-        bh=OYpxcOggYx63k10dSDJieTJURALlTSmR6/wTmA0hY24=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AlXO6q4RNjT4/PuBH8FKEMx4eSHHq8h0qUvZqbdOP3l95nS7rgnBwh3SSOSeOBY7I
-         SGqwlbPez1b46fkWlVPf+qKrN4NYk1f3lhO7QCdqlng6/PwMOeNWURpwHiw/uf+DyZ
-         LTcgUpCM9qxldONQaaLJ/k4Gnk0HNi7iMls4JGBg=
-Date:   Thu, 6 May 2021 15:43:10 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Peter Rosin <peda@axentia.se>
-Cc:     linux-kernel@vger.kernel.org,
-        Atul Gopinathan <atulgopinathan@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 27/69] cdrom: gdrom: deallocate struct gdrom_unit fields
- in remove_gdrom
-Message-ID: <YJPybgcWYKLpyBdK@kroah.com>
-References: <20210503115736.2104747-1-gregkh@linuxfoundation.org>
- <20210503115736.2104747-28-gregkh@linuxfoundation.org>
- <223d5bda-bf02-a4a8-ab1d-de25e32b8d47@axentia.se>
- <YJPDzqAAnP0jDRDF@kroah.com>
- <dd716d04-b9fa-986a-50dd-5c385ea745b2@axentia.se>
+        id S233918AbhEFNs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 09:48:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37850 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233854AbhEFNs3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 09:48:29 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55DA8C061574
+        for <stable@vger.kernel.org>; Thu,  6 May 2021 06:47:31 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id ge1so3369141pjb.2
+        for <stable@vger.kernel.org>; Thu, 06 May 2021 06:47:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=R+9c2lirX/g1Vtdv1LQwtmgQHf2mHZWxpFGZzTdCqGc=;
+        b=R2bm4V5KDa0+sP2RwR0auF8CTC2z5NJrlObmeEEaIK5h54RujmvKUw3IBD1rLaXE3G
+         O7WKYh0iWvXu+IMXA5u0SOVU+O3BM1bXqiHpQRksgFNAWxab74IY9BfX8FRl5r/ceq+K
+         V02GE+60X/VqmWvDNGM1jkLZiduqikpvIIss+vlipAw32J68mj/WS/F/hD9eOAoMlwUs
+         CjqxIkG8fQTzq8DslhGRBlxmWK/P3nb9azvmuUemupxQmuBvFcMjW38G6medorjy5Lqf
+         cfsuzMrl/75Y+asjEAkPNIfvtNG3cY9c82bfhnlgvNiWAYRfCuFwkReJZceLbz5fjALD
+         1WPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=R+9c2lirX/g1Vtdv1LQwtmgQHf2mHZWxpFGZzTdCqGc=;
+        b=Ax7td5W+UfDNwMeUgOiUHcH47+dtpzw2xBfzsrNnZkZdCLepP2IiqxpdM/TWjlX21t
+         OF8yh9NHS/dJaQMaAfrGCQGKIxwp3SXZ5Z97HikVNsJJi4EtTCMrAFRACgLWdr1La+yf
+         JN7nbIbIIEWoh9CInuYWkb27VAX6701H/c4hWXaHA0a03Et4XOakOetsPJ9+5UBj0wCa
+         xAGqVimAp/ADHD5CfZj2i9rJj159S1bO3nrdf2aafbQWc4VIgqEh1r/jmt19F8G0aAr4
+         AeOp6JVyKUbN7FkMbgsIAZ2xrC92r7aU9obnrdkHls9/78de4Ixil7sLOpOz6bJIykvo
+         +UJg==
+X-Gm-Message-State: AOAM530helQFLCfW0O9Yep4vNmuun3vqufxOshIB79LC1quKSZw+w37n
+        jbiuNPoEKOzMmqQdIFhJP13C25qIj3GfUTML
+X-Google-Smtp-Source: ABdhPJyA01hZ9/iMv+v3MznMMXH33omN0mc4sRNiPAPW7JtLw/wbFfAK/PJoUYVRt1m3dmoabPJlJg==
+X-Received: by 2002:a17:902:aa4c:b029:ee:ec17:89f with SMTP id c12-20020a170902aa4cb02900eeec17089fmr4787325plr.11.1620308850513;
+        Thu, 06 May 2021 06:47:30 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b15sm2104398pjg.15.2021.05.06.06.47.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 May 2021 06:47:30 -0700 (PDT)
+Message-ID: <6093f372.1c69fb81.8b1fc.6056@mx.google.com>
+Date:   Thu, 06 May 2021 06:47:30 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dd716d04-b9fa-986a-50dd-5c385ea745b2@axentia.se>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.232-16-gde17eaf4e1904
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 43 runs,
+ 4 regressions (v4.14.232-16-gde17eaf4e1904)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 06, 2021 at 03:08:08PM +0200, Peter Rosin wrote:
-> Hi!
-> 
-> On 2021-05-06 12:24, Greg Kroah-Hartman wrote:
-> > On Mon, May 03, 2021 at 04:13:18PM +0200, Peter Rosin wrote:
-> >> Hi!
-> >>
-> >> On 2021-05-03 13:56, Greg Kroah-Hartman wrote:
-> >>> From: Atul Gopinathan <atulgopinathan@gmail.com>
-> >>>
-> >>> The fields, "toc" and "cd_info", of "struct gdrom_unit gd" are allocated
-> >>> in "probe_gdrom()". Prevent a memory leak by making sure "gd.cd_info" is
-> >>> deallocated in the "remove_gdrom()" function.
-> >>>
-> >>> Also prevent double free of the field "gd.toc" by moving it from the
-> >>> module's exit function to "remove_gdrom()". This is because, in
-> >>> "probe_gdrom()", the function makes sure to deallocate "gd.toc" in case
-> >>> of any errors, so the exit function invoked later would again free
-> >>> "gd.toc".
-> >>>
-> >>> The patch also maintains consistency by deallocating the above mentioned
-> >>> fields in "remove_gdrom()" along with another memory allocated field
-> >>> "gd.disk".
-> >>>
-> >>> Suggested-by: Jens Axboe <axboe@kernel.dk>
-> >>> Cc: Peter Rosin <peda@axentia.se>
-> >>> Cc: stable <stable@vger.kernel.org>
-> >>> Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-> >>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >>> ---
-> >>>  drivers/cdrom/gdrom.c | 3 ++-
-> >>>  1 file changed, 2 insertions(+), 1 deletion(-)
-> >>>
-> >>> diff --git a/drivers/cdrom/gdrom.c b/drivers/cdrom/gdrom.c
-> >>> index 7f681320c7d3..6c4f6139f853 100644
-> >>> --- a/drivers/cdrom/gdrom.c
-> >>> +++ b/drivers/cdrom/gdrom.c
-> >>> @@ -830,6 +830,8 @@ static int remove_gdrom(struct platform_device *devptr)
-> >>>  	if (gdrom_major)
-> >>>  		unregister_blkdev(gdrom_major, GDROM_DEV_NAME);
-> >>>  	unregister_cdrom(gd.cd_info);
-> >>> +	kfree(gd.cd_info);
-> >>> +	kfree(gd.toc);
-> >>>  
-> >>>  	return 0;
-> >>>  }
-> >>> @@ -861,7 +863,6 @@ static void __exit exit_gdrom(void)
-> >>>  {
-> >>>  	platform_device_unregister(pd);
-> >>>  	platform_driver_unregister(&gdrom_driver);
-> >>> -	kfree(gd.toc);
-> >>>  }
-> >>>  
-> >>>  module_init(init_gdrom);
-> >>>
-> >>
-> >> I worry about the gd.toc = NULL; statement in init_gdrom(). It sets off
-> >> all kinds of warnings with me. It looks completely bogus, but the fact
-> >> that it's there at all makes me go hmmmm.
-> > 
-> > Yeah, that's bogus.
-> > 
-> >> probe_gdrom_setupcd() will arrange for gdrom_ops to be used, including
-> >> .get_last_session pointing to gdrom_get_last_session() 
-> >>
-> >> gdrom_get_last_session() will use gd.toc, if it is non-NULL.
-> >>
-> >> The above will all be registered externally to the driver with the call
-> >> to register_cdrom() in probe_gdrom(), before a possible stale gd.toc is
-> >> overwritten with a new one at the end of probe_gdrom().
-> > 
-> > But can that really happen given that it hasn't ever happened before in
-> > a real system?  :)
-> > 
-> >> Side note, .get_last_session is an interesting name in this context, but
-> >> I have no idea if it might be called in the "bad" window (but relying on
-> >> that to not be the case would be ... subtle).
-> >>
-> >> So, by simply freeing gd.toc in remove_gdrom() without also setting
-> >> it to NULL, it looks like a potential use after free of gd.toc is
-> >> introduced, replacing a potential leak. Not good.
-> > 
-> > So should we set it to NULL after freeing it?  Is that really going to
-> > help here given that the probe failed?  Nothing can use it after
-> > remove_gdrom() is called because unregiser_* is called already.
-> > 
-> > I don't see the race here, sorry.
-> > 
-> >> The same is not true for gd.cd_info as far as I can tell, but it's a bit
-> >> subtle. gdrom_probe() calls gdrom_execute_diagnostics() before the stale
-> >> gd.cd_info is overwritten, and gdrom_execute_diagnostic() passes the
-> >> stale pointer to gdrom_hardreset(), which luckily doesn't use it. But
-> >> this is - as hinted - a bit too subtle for me. I would prefer to have
-> >> remove_gdrom() also clear out the gd.cd_info pointer.
-> > 
-> > Ok, but again, how can that be used after remove_gdrom() is called?
-> > 
-> >> In addition to adding these clears of gd.toc and gd.cd_info to
-> >> remove_gdrom(), they also need to be cleared in case probe fails.
-> >>
-> >> Or instead, maybe add a big fat
-> >> 	memset(&gd, 0, sizeof(gd));
-> >> at the top of probe?
-> > 
-> > Really, that's what is happening today as there is only 1 device here,
-> > and the whole structure was zeroed out already.  So that would be a
-> > no-op.
-> > 
-> >> Or maybe the struct gdrom_unit should simply be kzalloc:ed? But that
-> >> triggers some . to -> churn...
-> > 
-> > Yes, ideally that would be the correct change, but given that you can
-> > only have 1 device in the system at a time of this type, it's not going
-> > to make much difference at all here.
-> > 
-> >> Anyway, the patch as proposed gets a NACK from me.
-> > 
-> > Why?  It fixes the obvious memory leak, right?  Worst case you are
-> > saying we should also set to NULL these pointers, but I can not see how
-> > they are accessed as we have already torn everything down.
-> 
-> I'm thinking this:
-> 
-> 1. init_gdrom() is called. gd.toc is NULL and is bogusly re-set to NULL.
-> 2. probe_gdrom() is called and succeeds. gd.toc is allocted.
-> 3. device is used, etc etc, whatever
-> 4. remove_gdrom() is called. gd.toc is freed (but not set to NULL).
-> 5. probe_gdrom() is called again. Boom.
+stable-rc/queue/4.14 baseline: 43 runs, 4 regressions (v4.14.232-16-gde17ea=
+f4e1904)
 
-Ah.  Well, adding/removing platform devices is a hard thing, and if you
-do it, you deserve the pieces you get :)
+Regressions Summary
+-------------------
 
-It would be trivial to fix this by setting all of &gd to 0 as you
-mention above, so yes, that would be good.  But that's an add-on patch
-and not relevant to this "fix" here.
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-> In 5, gd.toc is not NULL, and is pointing to whatever. It is
-> potentially used by probe_gdrom() before it is (re-)allocated.
-> 
-> I suppose the above can only happen if the module is compiled in.
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-You can add/remove platform devices through sysfs if the code is a
-module as well.
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-I'll go make a new commit that zeros everything at probe_gdrom() that
-goes on top of this one.
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-thanks,
 
-greg k-h
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.232-16-gde17eaf4e1904/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.232-16-gde17eaf4e1904
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      de17eaf4e19044468a3fcd2a0deda0bc240a06a2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6093ecffc0a8fe0aa06f546a
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-16-gde17eaf4e1904/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-16-gde17eaf4e1904/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6093ecffc0a8fe0=
+aa06f546f
+        new failure (last pass: v4.14.232-12-g29a7f2233e906)
+        2 lines
+
+    2021-05-06 13:19:55.542000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/96
+    2021-05-06 13:19:55.551000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6093ba9698822a98146f5479
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-16-gde17eaf4e1904/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-16-gde17eaf4e1904/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6093ba9698822a98146f5=
+47a
+        failing since 173 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6093c0dd9166b7d4946f546e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-16-gde17eaf4e1904/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-16-gde17eaf4e1904/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6093c0dd9166b7d4946f5=
+46f
+        failing since 173 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6093c57212f7f80c996f5475
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-16-gde17eaf4e1904/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-16-gde17eaf4e1904/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6093c57212f7f80c996f5=
+476
+        failing since 173 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
