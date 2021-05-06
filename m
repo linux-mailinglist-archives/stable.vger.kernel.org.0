@@ -2,107 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECF0F37537C
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 14:14:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23A703753E1
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 14:31:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232428AbhEFMPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 08:15:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44858 "EHLO
+        id S229854AbhEFMci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 08:32:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233027AbhEFMPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 08:15:08 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105F9C061574;
-        Thu,  6 May 2021 05:14:09 -0700 (PDT)
-Date:   Thu, 06 May 2021 12:14:07 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1620303247;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=VfaRVv9h09XjjotgGmtiMgoAExs38y2tyZnER+tyaQM=;
-        b=xvE83celZF9Yd+LmMGD3jkQaaB7UulTun6c/9kHfprJYxxJm7Xay+mJBnjZ/ojmMr6/dJN
-        1WPxUbyjSxEYMBNIMHE8JjEjYwdzX+AjcjIvuRZZKozPPCYz6ijX2I/4MMX/bHMLYAvqa1
-        htlVpcJWwtYEQViWyfQbKLjQT6sjLqoYmhoFsEXbGWfiX4LCK0VKhDX/S1lsqFHnF57ZS6
-        +adpUEe8ceNoJh409MT8fpQjIHsOVG+gChta2GAZrReLsQ0OjtI+Evv8s6D8iZaCUxNzcL
-        cGTWwFph30yDiCmkX01eXXd55jTSPReDPkgHF12+KSW0KPlidx1zFjSC7n0R2g==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1620303247;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=VfaRVv9h09XjjotgGmtiMgoAExs38y2tyZnER+tyaQM=;
-        b=tBhIbH+tiVc20ne/oINww30o2QSLmGM0RTzoW7/ML5wIQs72hoNjwn2pWzJo5e65dUQQRK
-        YnDRY4ddfTB0MhBQ==
-From:   "tip-bot2 for Sean Christopherson" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/cpu: Initialize MSR_TSC_AUX if RDTSCP *or*
- RDPID is supported
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210504225632.1532621-2-seanjc@google.com>
-References: <20210504225632.1532621-2-seanjc@google.com>
-MIME-Version: 1.0
-Message-ID: <162030324711.29796.18380824416576531617.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        with ESMTP id S229777AbhEFMch (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 08:32:37 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0DEEC061574
+        for <stable@vger.kernel.org>; Thu,  6 May 2021 05:31:38 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id h20so3319920plr.4
+        for <stable@vger.kernel.org>; Thu, 06 May 2021 05:31:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=9cWLYC5qOPu9oj0k6433PGP53ZwOzDzLsLIHv3m07Tc=;
+        b=KtL7Ctp9LYPYgngCZ5JM92HUm7BP/7U7JHc9C0sVpg92dlw6YhgM+hf72SUBlc6HUx
+         07QP7DUDR/Zm9j0PBA5E9W/vzpp7bHTJjNpe9jkd5OKCDTKw2E/5CDcvew7uE30SB2BM
+         fU8xfz5AtdbJThSq+s211zarX0e5yu/Fl+hCmQXcNpuq79U0NB8tQd6ozrX9hQScn5ox
+         Udenftjcp7y9y7tDKcBgIz56u5+m1UPl/uOv8P3EEjaXvuyPKrIDWcXjp1PtQC0M5ALY
+         Cqx4gymH0gknek/cOdyrh6M63RSg2kajIOaojM0LxFxo11ZU74uul1cZ5biOLetsy1yM
+         P+dg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=9cWLYC5qOPu9oj0k6433PGP53ZwOzDzLsLIHv3m07Tc=;
+        b=kVblpz6ozdzzeba5orX1YmhEaFceag9+06skI6lEix+4MBOgr2glrKanuE2bpkvSNq
+         cD5vSoiasBl371O0HrNblY2V/BE47IO48PcGDNbSzhH3lp2gS/Bh0Fj5+dWGhoRkQmCo
+         OgYJAwAQkoZFiiG54pbTgkLWzJxJx2BC2Q2GEseYh3AGO4JaTr4sSnyawk6FEeDluo+t
+         tOCZm6gUMvfljGMheTmqibgiHiUxtzx7Flvzz+AgbeqrKyBjnEjpvers71HCoRonk5xF
+         pDGRwYizea7qjwJzeRjMzr8gzko7eBvmdhuFj8iIjXBup7DgABpXcbU6JgoR+gzl16Wa
+         HiAw==
+X-Gm-Message-State: AOAM532+FVXpKI5AEpShCLbsgtj/SDVvq4803J8pj2y9lHZYJNynUY8y
+        neDmqwxIF/D3OMQ7NMDnvZP4gUN48/UqyxUY
+X-Google-Smtp-Source: ABdhPJxB0cNfjUYbvWYzILDSo6UrEUYMvuarC9rUGpuU8VaEGFjSUUVwlXhg03TF1FJtMN1eQpH7Xw==
+X-Received: by 2002:a17:90a:1389:: with SMTP id i9mr795144pja.232.1620304297964;
+        Thu, 06 May 2021 05:31:37 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w74sm2160641pfc.173.2021.05.06.05.31.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 May 2021 05:31:37 -0700 (PDT)
+Message-ID: <6093e1a9.1c69fb81.b5e31.608f@mx.google.com>
+Date:   Thu, 06 May 2021 05:31:37 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.189-13-g55525aad8171
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 77 runs,
+ 4 regressions (v4.19.189-13-g55525aad8171)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+stable-rc/queue/4.19 baseline: 77 runs, 4 regressions (v4.19.189-13-g55525a=
+ad8171)
 
-Commit-ID:     b6b4fbd90b155a0025223df2c137af8a701d53b3
-Gitweb:        https://git.kernel.org/tip/b6b4fbd90b155a0025223df2c137af8a701d53b3
-Author:        Sean Christopherson <seanjc@google.com>
-AuthorDate:    Tue, 04 May 2021 15:56:31 -07:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Wed, 05 May 2021 21:50:14 +02:00
+Regressions Summary
+-------------------
 
-x86/cpu: Initialize MSR_TSC_AUX if RDTSCP *or* RDPID is supported
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-Initialize MSR_TSC_AUX with CPU node information if RDTSCP or RDPID is
-supported.  This fixes a bug where vdso_read_cpunode() will read garbage
-via RDPID if RDPID is supported but RDTSCP is not.  While no known CPU
-supports RDPID but not RDTSCP, both Intel's SDM and AMD's APM allow for
-RDPID to exist without RDTSCP, e.g. it's technically a legal CPU model
-for a virtual machine.
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Note, technically MSR_TSC_AUX could be initialized if and only if RDPID
-is supported since RDTSCP is currently not used to retrieve the CPU node.
-But, the cost of the superfluous WRMSR is negigible, whereas leaving
-MSR_TSC_AUX uninitialized is just asking for future breakage if someone
-decides to utilize RDTSCP.
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Fixes: a582c540ac1b ("x86/vdso: Use RDPID in preference to LSL when available")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210504225632.1532621-2-seanjc@google.com
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
----
- arch/x86/kernel/cpu/common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 6bdb69a..490bed0 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1851,7 +1851,7 @@ static inline void setup_getcpu(int cpu)
- 	unsigned long cpudata = vdso_encode_cpunode(cpu, early_cpu_to_node(cpu));
- 	struct desc_struct d = { };
- 
--	if (boot_cpu_has(X86_FEATURE_RDTSCP))
-+	if (boot_cpu_has(X86_FEATURE_RDTSCP) || boot_cpu_has(X86_FEATURE_RDPID))
- 		write_rdtscp_aux(cpudata);
- 
- 	/* Store CPU and node number in limit. */
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.189-13-g55525aad8171/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.189-13-g55525aad8171
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      55525aad817171f58e24da52bb87c0b4f147a9b6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6093c16f3473c863086f546d
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-13-g55525aad8171/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-13-g55525aad8171/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6093c16f3473c86=
+3086f5472
+        failing since 1 day (last pass: v4.19.189-7-ge7f760cab9781, first f=
+ail: v4.19.189-8-g29354ef37e26)
+        2 lines
+
+    2021-05-06 10:14:03.282000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6093abb9d0e3290f9c6f5475
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-13-g55525aad8171/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-13-g55525aad8171/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6093abb9d0e3290f9c6f5=
+476
+        failing since 173 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6093abd9ca5fad66e26f5475
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-13-g55525aad8171/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-13-g55525aad8171/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6093abd9ca5fad66e26f5=
+476
+        failing since 173 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6093ab815efb4ff0406f5469
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-13-g55525aad8171/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.189=
+-13-g55525aad8171/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6093ab815efb4ff0406f5=
+46a
+        failing since 173 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
