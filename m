@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12CB9374EE0
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 07:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA1C5374EE2
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 07:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229956AbhEFFdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 01:33:14 -0400
+        id S230019AbhEFFdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 01:33:17 -0400
 Received: from avas10dua.indosat.net.id ([219.83.54.102]:59936 "EHLO
         avas10dua.indosat.net.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbhEFFdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 01:33:13 -0400
-IronPort-SDR: UgnY9npG0PVImMsZBbyq5gDEYBsKCXD1eIkJ9oeHiSQWFCutPvLLOyhxodqIbOOd14YueahmVv
- LhKpSYlSY+K8uGpqvC/ImP1OnKBicRoalydTZZ/46OhYkWUch07EkU6Rg5kJnMGKP0BLVfNyZh
- ZSDWs8AcqMCF37VoPq0n0hGMmDOvIKVNStKxmZ6fz3mJJLM8YEdCVLhzpd6h0RqAoB2aN/q9Tb
- 3/A1a7vPPjYc24qwU46lij84R3PHzRPQ4RL30WuUN8HVh88fXCJhVs5as7jcis/Quxnnm19hvr
- K3M=
-IronPort-HdrOrdr: A9a23:l/rSkaFiY9txc7PopLqEh8eALOsnbusQ8zAXPiFKKSC9Hfb0qy
- nDppgmPHzP6Qr5OktLpTnoAsDpKk80k6Qb3WB7B9mfYDU=
+        with ESMTP id S229986AbhEFFdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 01:33:15 -0400
+IronPort-SDR: ypWC3Y7W4XFbtB8cSee7aYNTZdax11E/344wZ30gLcwsC1DtrdDrLP8bUph90E1tPV4fQFLAvY
+ fu0CF0bkaBu0YaAJpJgxsyKy6vc8+WCZMo4uItujgJQmN/rsCJfDDACYOx8LHe8W/FObB3Us2X
+ 0YT5+g+iKNW8WHAj9OafxI02OvZl9OSgEMbtxncr8z7Pp3VDsbZx6XnvsI1ZZVzx/Jv4lmGP/3
+ z2Yz+51U0JYJ0EaDkuC1lgVVkQAZ52ycI52Xj+c9i+yAc3jnAYYIuuSZ/go0dl3JGQk3uxhOA2
+ c68=
+IronPort-HdrOrdr: A9a23:NLN4r68C+nS5O93fbdduk+C3I+orL9Y04lQ7vn2ZKCY0TiX2ra
+ 2TdZgguSMc6wxxZJhDo7q90cC7KBu2yXcS2+Ys1NyZMjXbhA==
 X-IronPort-Anti-Spam-Filtered: true
 X-IronPort-Anti-Spam-Result: =?us-ascii?q?A2CrBAC3fpNg/5cym8qIB7QjhlhyBgE?=
  =?us-ascii?q?BAQMCEAEBAQEFBIEEhRdGulKbS4HZeBkO?=
 X-IPAS-Result: =?us-ascii?q?A2CrBAC3fpNg/5cym8qIB7QjhlhyBgEBAQMCEAEBAQEFB?=
  =?us-ascii?q?IEEhRdGulKbS4HZeBkO?=
 X-IronPort-AV: E=Sophos;i="5.82,276,1613408400"; 
-   d="pdf'?jpg'145?scan'145,208,145";a="182769897"
+   d="pdf'?jpg'145?scan'145,208,145";a="182769896"
 Received: from im2mailps01.indosat.net.id ([202.155.50.151])
   by avas11dua.indosat.net.id with ESMTP; 06 May 2021 12:29:17 +0700
 Received: from (117.102.97.130) by webmail.indosat.net.id;  Thu, 6 May 2021 12:31:29 +0700
-Message-ID: <17208977.44081620279089877.JavaMail.defaultUser@defaultHost>
+Message-ID: <18824904.44061620279089877.JavaMail.defaultUser@defaultHost>
 Date:   Thu, 6 May 2021 12:31:29 +0700 (WIT)
 From:   nrafinancialservices <noreply_dateofficeHgTr5g6h7u@indosat.net.id>
 Reply-To: nrafinancialservices@orthodontist.net
 Subject: COVID-19 support loan at 3%
 MIME-Version: 1.0
 Content-Type: multipart/mixed; 
-        boundary="----=_Part_2238_3073736.1620279089841"
+        boundary="----=_Part_2237_18866253.1620279089823"
 To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-------=_Part_2238_3073736.1620279089841
+------=_Part_2237_18866253.1620279089823
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
@@ -86,7 +86,7 @@ kindly view attached document for more details
 
 
 
-------=_Part_2238_3073736.1620279089841
+------=_Part_2237_18866253.1620279089823
 Content-Type: APPLICATION/PDF; 
 	name="Introducing_NRA Financial Services_3%_Special_Loan_Offer
  .....pdf"
@@ -5516,7 +5516,7 @@ IDANCnRyYWlsZXINCjw8L1NpemUgNDU5L1Jvb3QgMSAwIFIvSW5mbyAxMDAgMCBSL0lEWzw0NkJG
 NDBBQkE2OUY4ODRGQTkwOThBRTVDREUwMzhCQj48NDZCRjQwQUJBNjlGODg0RkE5MDk4QUU1Q0RF
 MDM4QkI+XSAvUHJldiAyOTk0MjEvWFJlZlN0bSAyOTgyMzQ+Pg0Kc3RhcnR4cmVmDQozMDg3NjIN
 CiUlRU9G
-------=_Part_2238_3073736.1620279089841
+------=_Part_2237_18866253.1620279089823
 Content-Type: IMAGE/JPEG; 
 	name="Introducing_NRA Financial Services_3%_Special_Loan_Offer
  .....jpg"
@@ -8539,5 +8539,5 @@ igAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKK
 ACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA
 KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAo
 oooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/Z
-------=_Part_2238_3073736.1620279089841--
+------=_Part_2237_18866253.1620279089823--
 
