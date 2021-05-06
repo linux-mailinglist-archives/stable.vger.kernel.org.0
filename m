@@ -2,124 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E2B375CCA
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 23:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A11D6375CF7
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 23:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbhEFVVh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 17:21:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229572AbhEFVVg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 17:21:36 -0400
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED30C061574
-        for <stable@vger.kernel.org>; Thu,  6 May 2021 14:20:37 -0700 (PDT)
-Received: by mail-qk1-x749.google.com with SMTP id u126-20020a3792840000b02902e769005fe1so4447155qkd.2
-        for <stable@vger.kernel.org>; Thu, 06 May 2021 14:20:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=60xM6FWdjgElSCS5XWClKw4/NbcEaCXtD8Wn+llDojY=;
-        b=lQEStBcfVEMc1yoXYY3MarTsg1SDQgI7Ny5pMmobhwnSaRgXYyNx1S0Dl0rl5b5dAa
-         nT/I8Vjq/ZeXNEDv/4sX+62k4g1D8fQcPtXMbuM7U3vuEgWRUQSXNypzTRCs+IBPtjxF
-         T3ZpkUvsH2mCFZlrVXxdtqZiIGCAM4z/mBsK5UaAbmxxOTODO56eB0q1Ra9/TvYNxpJH
-         O1rXgKtLDW6azNO8+Ae5QxedZHz5vINgjhgzqeWJyqF/TIA/jzL2nE88f8DwT2bamPIL
-         +kcjsRFwpBUdeZ5GU310OsJvH94W6px+GZE8vZEvF/4fEMwJzKriHBcthwYyMty0PIEV
-         9Itw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=60xM6FWdjgElSCS5XWClKw4/NbcEaCXtD8Wn+llDojY=;
-        b=YZ2W3yyuQ9sB8zYQcAc2lNgMyVZjxxSzhaVIC6V1txxgaAjTbxtKrBDnOUtYlq3wV7
-         mDMbTKSd9jl6SbriChboTZmPo0o6Q8Xd5Nr4LYjFVdpfty3cutlDuNvK5ZU7QHdiNjSU
-         PoyqqGO2GyaJVO9FiGwLFfNC1KbPxmxFN+0wBff7fnQp0kPWnFYNfuamvD+ZnNz6qIPt
-         Si2QgN2R7TDuPB01eTP/WykZsdJYyuHuTUfX/Z3wy2VpSfJVnk64QtaLUP4hfegA3uvS
-         deiKCY8REwXL/PAlQeF/6BLqY55CoLnOHo7IvHC18+d4vXo/BIG31S13ftmKf6rcB+fx
-         0PpA==
-X-Gm-Message-State: AOAM533UAEL4xoDIMsmzB1YQ9gMqd5TwQF5N2SFbmfVacc3sGX5YWHId
-        z69yl171ga5FgVeMsuKiWQ/4apQ=
-X-Google-Smtp-Source: ABdhPJyK3cHsHf2SfzmG8t5qd6qZxixqZ0bc7sahr+wiq+4gc81NS5Igtz3Ug+Mc7zcQ8iPn16RKwAA=
-X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2ce:200:c762:3d3c:b811:8e75])
- (user=pcc job=sendgmr) by 2002:ad4:4e69:: with SMTP id ec9mr6504032qvb.5.1620336036450;
- Thu, 06 May 2021 14:20:36 -0700 (PDT)
-Date:   Thu,  6 May 2021 14:20:25 -0700
-Message-Id: <20210506212025.815380-1-pcc@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.31.1.607.g51e8a6a459-goog
-Subject: [PATCH] kasan: fix unit tests with CONFIG_UBSAN_LOCAL_BOUNDS enabled
-From:   Peter Collingbourne <pcc@google.com>
-To:     Andrey Konovalov <andreyknvl@gmail.com>,
-        Alexander Potapenko <glider@google.com>
-Cc:     Peter Collingbourne <pcc@google.com>,
-        George Popescu <georgepope@android.com>,
-        Elena Petrova <lenaptr@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S229894AbhEFVrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 17:47:20 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:47388 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229572AbhEFVrT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 17:47:19 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 156131C0B77; Thu,  6 May 2021 23:46:20 +0200 (CEST)
+Date:   Thu, 6 May 2021 23:46:19 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/15] 4.19.190-rc1 review
+Message-ID: <20210506214619.GA7363@amd>
+References: <20210505120503.781531508@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
+Content-Disposition: inline
+In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These tests deliberately access these arrays out of bounds,
-which will cause the dynamic local bounds checks inserted by
-CONFIG_UBSAN_LOCAL_BOUNDS to fail and panic the kernel. To avoid this
-problem, access the arrays via volatile pointers, which will prevent
-the compiler from being able to determine the array bounds.
 
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Cc: stable@vger.kernel.org
-Link: https://linux-review.googlesource.com/id/I90b1713fbfa1bf68ff895aef099ea77b98a7c3b9
----
- lib/test_kasan.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/lib/test_kasan.c b/lib/test_kasan.c
-index dc05cfc2d12f..2a078e8e7b8e 100644
---- a/lib/test_kasan.c
-+++ b/lib/test_kasan.c
-@@ -654,8 +654,8 @@ static char global_array[10];
- 
- static void kasan_global_oob(struct kunit *test)
- {
--	volatile int i = 3;
--	char *p = &global_array[ARRAY_SIZE(global_array) + i];
-+	char *volatile array = global_array;
-+	char *p = &array[ARRAY_SIZE(global_array) + 3];
- 
- 	/* Only generic mode instruments globals. */
- 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
-@@ -703,8 +703,8 @@ static void ksize_uaf(struct kunit *test)
- static void kasan_stack_oob(struct kunit *test)
- {
- 	char stack_array[10];
--	volatile int i = OOB_TAG_OFF;
--	char *p = &stack_array[ARRAY_SIZE(stack_array) + i];
-+	char *volatile array = stack_array;
-+	char *p = &array[ARRAY_SIZE(stack_array) + OOB_TAG_OFF];
- 
- 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_STACK);
- 
-@@ -715,7 +715,8 @@ static void kasan_alloca_oob_left(struct kunit *test)
- {
- 	volatile int i = 10;
- 	char alloca_array[i];
--	char *p = alloca_array - 1;
-+	char *volatile array = alloca_array;
-+	char *p = array - 1;
- 
- 	/* Only generic mode instruments dynamic allocas. */
- 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
-@@ -728,7 +729,8 @@ static void kasan_alloca_oob_right(struct kunit *test)
- {
- 	volatile int i = 10;
- 	char alloca_array[i];
--	char *p = alloca_array + i;
-+	char *volatile array = alloca_array;
-+	char *p = array + i;
- 
- 	/* Only generic mode instruments dynamic allocas. */
- 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
--- 
-2.31.1.607.g51e8a6a459-goog
+Hi!
 
+> This is the start of the stable review cycle for the 4.19.190 release.
+> There are 15 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Fri, 07 May 2021 12:04:54 +0000.
+> Anything received after that time might be too late.
+
+CIP testing did not find any kernel problems here: (testing
+infrastructure has some problems)
+
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.19.y
+
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmCUY6sACgkQMOfwapXb+vJzOwCeNLkPCqbvBooV1w+fHMjyO9Iu
+HpsAoLh6ReshuozJ85zCsApUXh9s6pLV
+=+abS
+-----END PGP SIGNATURE-----
+
+--NzB8fVQJ5HfG6fxh--
