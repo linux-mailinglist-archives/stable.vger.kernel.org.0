@@ -2,107 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F18A375C54
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 22:41:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67622375C65
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 22:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbhEFUmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 16:42:08 -0400
-Received: from 8bytes.org ([81.169.241.247]:37800 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231200AbhEFUmH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 May 2021 16:42:07 -0400
-Received: by theia.8bytes.org (Postfix, from userid 1000)
-        id E58A0312; Thu,  6 May 2021 22:41:07 +0200 (CEST)
-Date:   Thu, 6 May 2021 22:41:05 +0200
-From:   Joerg Roedel <joro@8bytes.org>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Joerg Roedel <jroedel@suse.de>, x86@kernel.org,
-        kexec@lists.infradead.org, stable@vger.kernel.org, hpa@zytor.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jiri Slaby <jslaby@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kees Cook <keescook@chromium.org>,
-        David Rientjes <rientjes@google.com>,
-        Cfir Cohen <cfir@google.com>,
-        Erdem Aktas <erdemaktas@google.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mike Stunes <mstunes@vmware.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Martin Radev <martin.b.radev@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 2/2] x86/kexec/64: Forbid kexec when running as an SEV-ES
- guest
-Message-ID: <YJRUYWRItEziB2eP@8bytes.org>
-References: <20210506093122.28607-1-joro@8bytes.org>
- <20210506093122.28607-3-joro@8bytes.org>
- <m17dkb4v4k.fsf@fess.ebiederm.org>
- <YJQ4QTtvG76WpcNf@suse.de>
- <m1o8dn1ye9.fsf@fess.ebiederm.org>
+        id S230444AbhEFUs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 16:48:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:39857 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230104AbhEFUs7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 16:48:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1620334080;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=iNyKa3qN4dnX6up4J3TEfAYRRZRzTgh3ft7OZjiOwtQ=;
+        b=VsuJOrBzqv8x8fmaA/K7QCwAKl7EYkYe1s4upYEq0YBj31A3buAEGuT+sCi3fWKRZsNnOp
+        pCREIZAaZFHD+vFdVPqIYD+QANlxCWn8virYQIcC312vKDEkP8T3qRzgu5hDGFBDCqn36F
+        8d7ygIHJQjBX5NVE670y9y5u3FI6tMs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-562-Zbj15EzQPIuZbIraAY5evg-1; Thu, 06 May 2021 16:47:57 -0400
+X-MC-Unique: Zbj15EzQPIuZbIraAY5evg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C2B91801B28;
+        Thu,  6 May 2021 20:47:56 +0000 (UTC)
+Received: from [172.30.42.188] (ovpn-113-225.phx2.redhat.com [10.3.113.225])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3EBC7690F3;
+        Thu,  6 May 2021 20:47:51 +0000 (UTC)
+Subject: [PATCH 5.11.y, 5.10.y, 5.4.y] vfio: Depend on MMU
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, jgg@nvidia.com
+Date:   Thu, 06 May 2021 14:47:51 -0600
+Message-ID: <162033393037.4094195.18215062546427210332.stgit@omen>
+User-Agent: StGit/1.0-8-g6af9-dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1o8dn1ye9.fsf@fess.ebiederm.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 06, 2021 at 01:59:42PM -0500, Eric W. Biederman wrote:
-> Joerg Roedel <jroedel@suse.de> writes:
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-> Why does it need that?
-> 
-> Would it not make sense to instead teach kexec how to pass a cpu from
-> one kernel to another.  We could use that everywhere.
-> 
-> Even the kexec-on-panic case should work as even in that case we have
-> to touch the cpus as they go down.
-> 
-> The hardware simply worked well enough that it hasn't mattered enough
-> for us to do something like that, but given that we need to do something
-> anyway.  It seems like it would make most sense do something that
-> will work everywhere, and does not introduce unnecessary dependencies
-> on hypervisors.
+commit b2b12db53507bc97d96f6b7cb279e831e5eafb00 upstream
 
-Well, I guess we could implement something that even works for non
-SEV-ES guests and bare-metal. The question is what benefit we get from
-that. Is the SIPI sequence currently used not reliable enough?
+VFIO_IOMMU_TYPE1 does not compile with !MMU:
 
-The benefit of being able to rely on the SIPI sequence is that the
-kexec'ed kernel can use the same method to bring up APs as the first
-kernel did.
+../drivers/vfio/vfio_iommu_type1.c: In function 'follow_fault_pfn':
+../drivers/vfio/vfio_iommu_type1.c:536:22: error: implicit declaration of function 'pte_write'; did you mean 'vfs_write'? [-Werror=implicit-function-declaration]
 
-Btw, the same is true for SEV-ES guests, The goal is bring the APs of
-an SEV-ES guest into a state where they will use the SEV-ES method of
-AP-bringup when they wake up again. This method involves a
-firmware-owned page called the AP-jump-table, which contains the reset
-vector for the AP in its first 4 bytes.
+So require it.
 
-> > As I said above, for protocol version 1 it will stay disabled, so it is
-> > not only a temporary hack.
-> 
-> Why does bringing up a cpu need hypervisor support?
+Suggested-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Message-Id: <0-v1-02cb5500df6e+78-vfio_no_mmu_jgg@nvidia.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Cc: stable@vger.kernel.org # 5.11.y, 5.10.y, 5.4.y
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+---
 
-When a CPU is taken offline under SEV-ES it will do a special hypercall
-named AP-reset-hold. The hypervisor will put the CPU into a halt state
-until the next SIPI arrives. In protocol version 1 this hypercall
-requires a GHCB shared page to be set up for the CPU doing the hypercall
-and upon CPU wakeup the HV will write to that shared page. Problem with
-that is that the page which contains the GHCB is already owned by the
-new kernel then and is probably not shared anymore, which can cause data
-corruption in the new kernel.
+The noted stable branches include upstream commit 179209fa1270
+("vfio: IOMMU_API should be selected") without the follow-up commit
+b2b12db53507 ("vfio: Depend on MMU"), which should have included a
+Fixes: tag for the prior commit.  Without this latter commit, we're
+susceptible to randconfig failures with !MMU configs.  Thanks!
 
-Version 2 of the protocol adds a purely MSR based version of the
-AP-reset-hold hypercall. This one does not need a GHCB page and has to
-be used to bring the APs offline before doing the kexec. That is the
-reason I plan to only support kexec when the hypervisor provides version
-2 of the protocol.
+ drivers/vfio/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Regards,
+diff --git a/drivers/vfio/Kconfig b/drivers/vfio/Kconfig
+index 90c0525b1e0c..67d0bf4efa16 100644
+--- a/drivers/vfio/Kconfig
++++ b/drivers/vfio/Kconfig
+@@ -22,7 +22,7 @@ config VFIO_VIRQFD
+ menuconfig VFIO
+ 	tristate "VFIO Non-Privileged userspace driver framework"
+ 	select IOMMU_API
+-	select VFIO_IOMMU_TYPE1 if (X86 || S390 || ARM || ARM64)
++	select VFIO_IOMMU_TYPE1 if MMU && (X86 || S390 || ARM || ARM64)
+ 	help
+ 	  VFIO provides a framework for secure userspace device drivers.
+ 	  See Documentation/driver-api/vfio.rst for more details.
 
-	Joerg
+
