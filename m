@@ -2,99 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 470633751CF
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 11:50:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 770993751E4
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 12:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234161AbhEFJu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 05:50:59 -0400
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:50993 "EHLO
-        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231194AbhEFJu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 05:50:59 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id E2B19580722;
-        Thu,  6 May 2021 05:50:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 06 May 2021 05:50:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=ZSvFMwP2scW534jrzgylOkXMM+D
-        rqeNkQQCfs8dEMTQ=; b=TcKzVnVACRyvMQcr0Jpo4kTVxHyvp3ZSRlzVpfpmPoZ
-        OrwNbHBm4HjlSXfA8In/HDqugJZbQFlCt/76ctzs2P24OCcTAAiZmdMLkQlsr4Uo
-        h4u8uZmAjL2guZekK74CFH4Kn/8JRPA10NVMP3/694q6yhGCWH8Y6C7v5yYA0RXV
-        DeznYaCuCDkGecJalBNRjeoJfVkL5aKakO/i3UW1jgNa6dhoYAq+uvOZiUH/Ce8L
-        YWNq15w0/ZkzhnNTsm4+6l+Ub7fkShAKbD1QIOVojsQgAZYrbcReCFWfcycNzn6E
-        Kv+82JziDZQCYApE+6ZMhXv0tKhbDutH2IN8RCfL/Ww==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ZSvFMw
-        P2scW534jrzgylOkXMM+DrqeNkQQCfs8dEMTQ=; b=Z4FgGOKAMsiG0hn515iB9/
-        N4k1v0FpIZ3r+icG+gDnqw/mO2hXbrZd+nLdGPIK0YHeL0EfbmsYr33nAvbtP3vh
-        46T6qh2FppQdC//ndjjqqawmU84uEoWfIXA3kklzD1xURYPk1CgpiS8R4rE2pC1s
-        +c8k47v9DlNu5uBkwgP5qdpxGkkdM2YfskxR1yc13Gkx4iWUciu9nrpjjFpYqytN
-        jJMk/L05JZw7lgnZyROk59Abxj+h9SmiHNLnnDRit316X33xhxulhfWjgSSWCGnM
-        W9RJ6Eu/j+O4Cr0LpnTFCLG+5zWzkS8+d0hcr8w5xVsqfFtyY4wblCMfMlrhroBQ
-        ==
-X-ME-Sender: <xms:x7uTYNEhHygCf-wTl0MiEKz-NtJezo_qZq_3OI_2te-yQ9SLQJE7Mw>
-    <xme:x7uTYCVIRcAIXd2Gik-3CgvTEIA4GucEfXLq1Qbq33nxXhU-cT2X7cvURMi9LaHO6
-    ZfhT5ZRjQU36A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegtddgvddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:x7uTYPJNzavCrM8BMM9t8yZt4ccn1ClYZtwS1cQ5dl1YgV3UrcY06g>
-    <xmx:x7uTYDEIbZaUcHuSrJTSsdWXY9332S6Eel00AqxgbOGX5wo-l17tbQ>
-    <xmx:x7uTYDVHOEnicTkS6u_BCm_l6fDV2J71ieNf-2gH3jIr_zZLJ-nRUA>
-    <xmx:yLuTYAUMdGfspwgiK17gc1Kd0ZbN8AA6bQ8rXS_u5u_N-hV-gA4RlQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Thu,  6 May 2021 05:49:59 -0400 (EDT)
-Date:   Thu, 6 May 2021 11:49:57 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: handling Fixes tags on rebased trees
-Message-ID: <YJO7xTZ6GKsvY3X4@kroah.com>
-References: <20210504184635.GT21598@kadam>
- <yq1h7jijnxu.fsf@ca-mkp.ca.oracle.com>
- <20210506083905.GB1922@kadam>
+        id S234289AbhEFKDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 06:03:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231194AbhEFKDI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 06:03:08 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 014E0C061574;
+        Thu,  6 May 2021 03:02:10 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id o26-20020a1c4d1a0000b0290146e1feccdaso4486162wmh.0;
+        Thu, 06 May 2021 03:02:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=m96F4W99KwswKkbWpnScN2uKHXVCbK/zvCc7vn2tHx8=;
+        b=E4hl0x6DCnp6qiQWQRQaTywQ81Du5YLVJZDKzaOaKEzmV2pksj/vB68Ks1afj1V8fO
+         GWa5/M5HttNbx+jT90J2ik+SBsjtJDIso0jTjARp1tPhJmZzCCySr/9YM74+wd6/qJbj
+         6wtguvJIEZBwKPYwSmdjUhL0/6F4ZCOORtlloAD848ZVekmk/x6o1b72A6zcK+imgPx0
+         KWWC+hbqdwOhNuNcmrDIkZPS3ZHSXB8HSi7hXewRRunXjWsJn5PETKbm+H+QXj66g9xT
+         KNzfsGZllbz6BnyAjh0yEMZwHHVj7NvzQMzdwquXSZoxwigwgaXqMDntt+rjtVR21Pzj
+         DmkQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=m96F4W99KwswKkbWpnScN2uKHXVCbK/zvCc7vn2tHx8=;
+        b=N2IaXglLULVoz9QXf5yTOuU+1qr5vgkvM969kUAoRpucStptZPeMfsAS5BTd3VINcZ
+         4pXk2rsyiP1hZfkH7Y04xv8ri4XgpvbsygqNJFcfZbCSXo0NNLZCv0cQUvlehy5iVULV
+         8fwGWGvhOKjsyFjVtchHf7GqsE+DEHehZLZHV3ADDdb+lEvSs8mNmiXNfc+ZFaeEFYvc
+         nJCLVkixxMoepVmS4rqfsmPw8gbe9PLfH0qUYS+98m9ZmNmzkSu0GFzYWRRrHAL5Dq+I
+         x5PBcMMAvnJZXtZKofQNK0OWOU0zPTQasch6MOPhkNPIZ0GP2EJkIejDFxTXNTrv7y7C
+         heeA==
+X-Gm-Message-State: AOAM533JrNx2CBn03JPCdMNPNqIosoECbiL+RqrBK6gadMueRSV+1MB0
+        J6PtYHgGLJoSCmzXssCF370=
+X-Google-Smtp-Source: ABdhPJydCAZy4tHE8WanLEGRFMH2I/6RNQ2KWClwVC8nvgVyZYUGKCOSw64T2ySyu3OupLwr/Mc+yA==
+X-Received: by 2002:a1c:7c15:: with SMTP id x21mr3153672wmc.186.1620295328691;
+        Thu, 06 May 2021 03:02:08 -0700 (PDT)
+Received: from debian (host-2-98-62-17.as13285.net. [2.98.62.17])
+        by smtp.gmail.com with ESMTPSA id a15sm3299137wrr.53.2021.05.06.03.02.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 May 2021 03:02:08 -0700 (PDT)
+Date:   Thu, 6 May 2021 11:02:06 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/15] 4.19.190-rc1 review
+Message-ID: <YJO+nq11d/jGDGPl@debian>
+References: <20210505120503.781531508@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210506083905.GB1922@kadam>
+In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 06, 2021 at 12:39:41PM +0300, Dan Carpenter wrote:
-> It turns that rebasing without updating the Fixes tag is sort of common.
-> I wrote a script to find the invalid tags from the last month and have
-> include the output below.  Two of the patches are in -mm and presumably
-> Andrew is going fold the Fixes commit into the original commit when
-> these are sent upstream so those aren't a real issue.
+Hi Greg,
+
+On Wed, May 05, 2021 at 02:05:05PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.190 release.
+> There are 15 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> We could probably try catching rebased trees when they are merged in
-> linux-next?  I'll play with this and see if it works.  But we're going
-> to end up missing some.  Maybe we need a file with a mapping of rebased
-> hashes which has something like:
-> 
-> 28252e08649f 0df68ce4c26a ("iscv: Prepare ptdump for vm layout dynamic addresses")
-> 42ae341756da d338ae6ff2d8 ("userfaultfd: add minor fault registration mode")
+> Responses should be made by Fri, 07 May 2021 12:04:54 +0000.
+> Anything received after that time might be too late.
 
-I thought Stephen's scripts already catch the "this commit isn't in the
-tree" issue?  I use them when I take patches, so that logic came from
-somewhere :)
+Build test:
+mips (gcc version 11.1.1 20210430): 63 configs -> no failure
+arm (gcc version 11.1.1 20210430): 116 configs -> no new failure
+x86_64 (gcc version 10.2.1 20210110): 2 configs -> no failure
 
-thanks,
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression.
 
-greg k-h
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
+
