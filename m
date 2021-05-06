@@ -2,154 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FA2B37501B
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 09:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8479737505E
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 09:47:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbhEFHZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 03:25:27 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:53565 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233378AbhEFHZ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 03:25:27 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3D8375C00F2;
-        Thu,  6 May 2021 03:24:29 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 06 May 2021 03:24:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=dunuqcwK9OLviMsU2
-        CESa6ag2jdxH/v4Jenxqgi7q7k=; b=hFyqOFOLJoRv8wW6BYwXJME95QvDx+BGO
-        QKNeYaHpRhUdw2W/9YHllvX7dxS+P8uIsg7sOyasR+K9+xuBfCpCwCu6qP1yzRcR
-        h91J44sJeaklIB2ZzmfJuqTiNUC4Iye5VB8WZ39zqa9Ml8lbO6VEjCwNp3IuaBzB
-        TI6F99C+MSS59jv7YF/RdQkaC2CDe1VIIZ6tEoE1YtY04tkxhrr0p/FdeOG3vtaf
-        5K6KgxIZyOIB37UK5Aq0vEYx0aF8P8PVTYy67hp4kcf8Jqaj0lIccdA6oOlVcNbT
-        fV4UaPFPGzYuRdsOj3QKYSUVsiW2q6vo/OUOkTwQTmhtD1lKqi/hg==
-X-ME-Sender: <xms:rJmTYBmFzyzQrwCKwLxig5pVabuz2Uytre_kDoCqmWJBhX1lDJOOyQ>
-    <xme:rJmTYM098i4gP_CF9UiONWrBW5FsASUCAE7VgrP7bb-cplRfPdEucww7zedcLJLCQ
-    RM2A2qeiUnpmdk>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdefledguddujecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertd
-    ertddtnecuhfhrohhmpefkughoucfutghhihhmmhgvlhcuoehiughoshgthhesihguohhs
-    tghhrdhorhhgqeenucggtffrrghtthgvrhhnpeetveeghfevgffgffekueffuedvhfeuhe
-    ehteffieekgeehveefvdegledvffduhfenucfkphepkeegrddvvdelrdduheefrddukeej
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepihguoh
-    hstghhsehiughoshgthhdrohhrgh
-X-ME-Proxy: <xmx:rJmTYHrWBlePy-FbecqNSR555YtPDLR3xGXWnuyk0itgxk2gf0tBHw>
-    <xmx:rJmTYBla9vvaWA6HCdJuZNPKnEr-JrcB3mVwFc_gz1Key_8W72rkIA>
-    <xmx:rJmTYP2WJpa5NRLh8MqAvi7vmF-z91EtyzuvV8y0x3nv6vaonJrUXA>
-    <xmx:rZmTYKScRKkNvJp4huMuqavHagmxygr16jkwSIwQ-_HNtqUDVE3POw>
-Received: from shredder.mellanox.com (igld-84-229-153-187.inter.net.il [84.229.153.187])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Thu,  6 May 2021 03:24:26 -0400 (EDT)
-From:   Ido Schimmel <idosch@idosch.org>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, jiri@nvidia.com,
-        petrm@nvidia.com, mlxsw@nvidia.com,
-        Ido Schimmel <idosch@nvidia.com>, stable@vger.kernel.org
-Subject: [PATCH net] mlxsw: spectrum_mr: Update egress RIF list before route's action
-Date:   Thu,  6 May 2021 10:23:08 +0300
-Message-Id: <20210506072308.3834303-1-idosch@idosch.org>
-X-Mailer: git-send-email 2.30.2
+        id S233541AbhEFHsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 03:48:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41856 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233505AbhEFHr7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 03:47:59 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E443AC061574
+        for <stable@vger.kernel.org>; Thu,  6 May 2021 00:47:00 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id m12so6873914eja.2
+        for <stable@vger.kernel.org>; Thu, 06 May 2021 00:47:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ouTCmWFpKTDg5oT/XmF36k/Rr3gENRlT/LMcL8SykNo=;
+        b=N3iPImlzvbiZ5dMkmaoyqcz69E+X1DJ0tpyEVJb0dTpDPOxU6Kw1ibv3LfE4wkMAEp
+         uoqo/fEk5QGB63iROU8XoSj/J/6oqUGlEcW09H0rF+seckLYLzGUtY3eHU27zb/dZhbL
+         U8D+Ww1n3Rti7vDTOBQ2HEgi3E1uSsp67TtnGyKQhkLsKQRHtsEag7U68QpfLbA5HeX5
+         B3MeOv4pqZv9XKeTcX1lVgh8LtPRXe8IwRgVrjEvCdu1LZSV6UKRU4jTxhkg4UeItt4R
+         91XSCDQbCWstvB0ojWKgVTVCtHC6NidNg4wzgaZBHHmNKCF6ceM8cpBdE+UYtxGwRspg
+         bKhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ouTCmWFpKTDg5oT/XmF36k/Rr3gENRlT/LMcL8SykNo=;
+        b=bQxT6yhQOcosrbqZ6xF2/9lJRkK/zYQARHDzDG4Y0yjWVh0CIJaraOin7uXUFPpCGm
+         Chn2/8p7NRBu462JrOSDIr+q5K2+9EDukqQNm3+xenmVZlJxoN2M9A7saIDAzh/+rMbN
+         zqf8kxe0g4aSc8BtCDXTjNrTay1tlRoHbBQt6EDkp4Si++fv1wn4vm8M8nEAiXzf1dNg
+         wkY3X9qwtEw/9CnMYpHewVgL+za0QZ9C0vkvF4bwUYE7XrAmBqIURNHKyQdZrZuVz1u6
+         jojlA9fS2vHfinAkLjsvxXTqqm7TUR+F86ge50v2x7Z5E5pDVyg89jWx8vq7dmz6WSLJ
+         D1GQ==
+X-Gm-Message-State: AOAM532fQ998lPnWxj1EKfcj/Cvnu15VuefHGZ2p+HT42qp1GHlb9fsn
+        9LcFCONzYHdDE3KCCeJW6fABmUkzwcEkqxvlbW7i7g==
+X-Google-Smtp-Source: ABdhPJx1KiJ65Bx8Buxnj46ldfs+vff1TRQPCh+N5FQoEVbjHtE8YrK1kWMW4yQ8IeftoQiQJojc0xFagm9vEdUTedk=
+X-Received: by 2002:a17:906:85da:: with SMTP id i26mr2986106ejy.287.1620287219373;
+ Thu, 06 May 2021 00:46:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210505112326.195493232@linuxfoundation.org>
+In-Reply-To: <20210505112326.195493232@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 6 May 2021 13:16:47 +0530
+Message-ID: <CA+G9fYurME_qyOTEbZneX_+nX8bVQsJWFyZq8qE=LS8AQ3JBCg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/29] 5.10.35-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+On Wed, 5 May 2021 at 17:37, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.35 release.
+> There are 29 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 07 May 2021 11:23:16 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.35-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Each multicast route that is forwarding packets (as opposed to trapping
-them) points to a list of egress router interfaces (RIFs) through which
-packets are replicated.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-A route's action can transition from trap to forward when a RIF is
-created for one of the route's egress virtual interfaces (eVIF). When
-this happens, the route's action is first updated and only later the
-list of egress RIFs is committed to the device.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-This results in the route pointing to an invalid list. In case the list
-pointer is out of range (due to uninitialized memory), the device will
-complain:
+## Build
+* kernel: 5.10.35-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.10.y
+* git commit: 5f894e4a8758db7af6eeb43311c0e9314871b031
+* git describe: v5.10.34-30-g5f894e4a8758
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.34-30-g5f894e4a8758
 
-mlxsw_spectrum2 0000:06:00.0: EMAD reg access failed (tid=5733bf490000905c,reg_id=300f(pefa),type=write,status=7(bad parameter))
+## No regressions (compared to v5.10.34-8-g14447ec121b3)
 
-Fix this by first committing the list of egress RIFs to the device and
-only later update the route's action.
+## No fixes (compared to v5.10.34-8-g14447ec121b3)
 
-Note that a fix is not needed in the reverse function (i.e.,
-mlxsw_sp_mr_route_evif_unresolve()), as there the route's action is
-first updated and only later the RIF is removed from the list.
 
-Cc: stable@vger.kernel.org
-Fixes: c011ec1bbfd6 ("mlxsw: spectrum: Add the multicast routing offloading logic")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
----
- .../net/ethernet/mellanox/mlxsw/spectrum_mr.c | 30 +++++++++----------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+## Test result summary
+ total: 75625, pass: 61937, fail: 2558, skip: 10882, xfail: 248,
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-index 7846a21555ef..1f6bc0c7e91d 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-@@ -535,6 +535,16 @@ mlxsw_sp_mr_route_evif_resolve(struct mlxsw_sp_mr_table *mr_table,
- 	u16 erif_index = 0;
- 	int err;
- 
-+	/* Add the eRIF */
-+	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
-+		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
-+		err = mr->mr_ops->route_erif_add(mlxsw_sp,
-+						 rve->mr_route->route_priv,
-+						 erif_index);
-+		if (err)
-+			return err;
-+	}
-+
- 	/* Update the route action, as the new eVIF can be a tunnel or a pimreg
- 	 * device which will require updating the action.
- 	 */
-@@ -544,17 +554,7 @@ mlxsw_sp_mr_route_evif_resolve(struct mlxsw_sp_mr_table *mr_table,
- 						      rve->mr_route->route_priv,
- 						      route_action);
- 		if (err)
--			return err;
--	}
--
--	/* Add the eRIF */
--	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
--		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
--		err = mr->mr_ops->route_erif_add(mlxsw_sp,
--						 rve->mr_route->route_priv,
--						 erif_index);
--		if (err)
--			goto err_route_erif_add;
-+			goto err_route_action_update;
- 	}
- 
- 	/* Update the minimum MTU */
-@@ -572,14 +572,14 @@ mlxsw_sp_mr_route_evif_resolve(struct mlxsw_sp_mr_table *mr_table,
- 	return 0;
- 
- err_route_min_mtu_update:
--	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
--		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
--					   erif_index);
--err_route_erif_add:
- 	if (route_action != rve->mr_route->route_action)
- 		mr->mr_ops->route_action_update(mlxsw_sp,
- 						rve->mr_route->route_priv,
- 						rve->mr_route->route_action);
-+err_route_action_update:
-+	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
-+		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
-+					   erif_index);
- 	return err;
- }
- 
--- 
-2.30.2
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 26 total, 26 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
 
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
