@@ -2,134 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92173375CA6
-	for <lists+stable@lfdr.de>; Thu,  6 May 2021 23:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E2B375CCA
+	for <lists+stable@lfdr.de>; Thu,  6 May 2021 23:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230082AbhEFVLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 17:11:55 -0400
-Received: from mail-mw2nam12on2052.outbound.protection.outlook.com ([40.107.244.52]:20879
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230037AbhEFVLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 May 2021 17:11:54 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UhzyBnThMh6xKl3o9SOSqZpnzbcF8kMkvN0qOjkwNegNv+tAdQNtVZdO/5sKyX66dLdMMf34D79S4m2S0LQ9WAn/rdhnlMLuqW39qkzVGPgFlqBybe5n+TmSLUc/nLPK3hmWJhonYAw5yaa4PL1qzgsQjFWIj4cMVop4Zt/AR/WtUJoCCsSfoxM0thYdIkfS2ZMhh8sdA7Z/+u9lhPtRPqlVmy7u8cZwaBc3TOMl5UyfUrbRQV1+ESUHFIen1K6wr3hDFxarXJlZ73dnHMdnUICTpEtFsNqFvQ3swugcX8F5f3E1RGGXc9MQMmU327hOpZ6O0rHV4TGFXVHwAbZblA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=N7u6+MIFLSEtWl+ecOXTqXmJ4Xm44pRV44S8rKk/Xnk=;
- b=lHWQse198N0hGCZSIxR212MyxlBJm3KnVKFy6VVE6m0305gXwKHRLnqGnk90w97CN2iQgPETH/iQvzkpInFMLInNzYh1eem6X0t62z5C5daDamPG4FSnFFISy1mSN2M69oKcAxHFBV5evnzwtzpAFgMtluQpluhJzsfOwbiGCUzfAaap51/jd2LP1eOqTJTRTgXGlryIpdkp3/vpNTr8ORDWLrpDdku1efVOy7jgQJgwFbL+yMfD3Q2ludSiiOA34hofI09V7h53zNckinoKEBa5UXnZx/4cWJcCoryEmJc3rB2j4Oe0a+lnggexq18fRwaUmnqwxFvGebDG4AzEBQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=N7u6+MIFLSEtWl+ecOXTqXmJ4Xm44pRV44S8rKk/Xnk=;
- b=WV/OaZFjPeGVpird0I+5Jbwv/Jiay5Gcf2N4QTvfAacGLAVYkUK4T0G8hN08Vd2psOrS0JGfzFevXMRjbeGPEoivQNLsAik9D8611VQcXpXp3WF8cIhBe2ajjOXxUviiWTAF94VfEfrGRwG/0EwopoYtvC6vg9iL5oXDGARqNdy6x53HOArgtCcR3FTJ5hhVTDrrx0tr+irmJrhoC3K821hXOuFZ5CX6PzIGAUT9eJL8aBOJXLkINOlmyq6tUJ+WN2hI8LnnOZkh6x8LUTK81brBQoVgz7F8SCBXdT+iP5Xtf2tAA6vFa4hD7SHkzrP3L0hj6mNDmZikpwT6vhbpSQ==
-Authentication-Results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
- by DM5PR1201MB0201.namprd12.prod.outlook.com (2603:10b6:4:5b::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25; Thu, 6 May
- 2021 21:10:55 +0000
-Received: from DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::ddb4:2cbb:4589:f039]) by DM6PR12MB3834.namprd12.prod.outlook.com
- ([fe80::ddb4:2cbb:4589:f039%4]) with mapi id 15.20.4108.026; Thu, 6 May 2021
- 21:10:54 +0000
-Date:   Thu, 6 May 2021 18:10:53 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5.11.y, 5.10.y, 5.4.y] vfio: Depend on MMU
-Message-ID: <20210506211053.GR1370958@nvidia.com>
-References: <162033393037.4094195.18215062546427210332.stgit@omen>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <162033393037.4094195.18215062546427210332.stgit@omen>
-X-Originating-IP: [47.55.113.94]
-X-ClientProxiedBy: BL1PR13CA0441.namprd13.prod.outlook.com
- (2603:10b6:208:2c3::26) To DM6PR12MB3834.namprd12.prod.outlook.com
- (2603:10b6:5:14a::12)
-MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from mlx.ziepe.ca (47.55.113.94) by BL1PR13CA0441.namprd13.prod.outlook.com (2603:10b6:208:2c3::26) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.12 via Frontend Transport; Thu, 6 May 2021 21:10:54 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lelGn-002XrX-Hl; Thu, 06 May 2021 18:10:53 -0300
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 5b34ef63-9370-4837-9313-08d910d36f8c
-X-MS-TrafficTypeDiagnostic: DM5PR1201MB0201:
-X-Microsoft-Antispam-PRVS: <DM5PR1201MB0201D44C725B99528C8C6B9CC2589@DM5PR1201MB0201.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: UnOH2NqpbbIjEc8IJErn8uJjFOzbz/4jTx4VDc7cUVehu66elRKpdQIFbej3xgDjKbeswFH0qbzE0V6+Eq6gfEbkunlC/MDrOM0FTomZO5BH6EJ23ND2MnWU24uwQvL+sZCx0YtmtWDW6XGXGDeJrIHKgn/z+cn/d64IK1rGLjiWuRDm9UVjFeSmikSvihZdAS3+1NooYAiAhAvP5OmKDxb/LMcCMEvQ58OuK1q10647KeRPA82GXNVj9lrdJzHdXSKPm6JPONaOP56MT6tn1Cf5SWF18+omoOWu/oxdscUh+PXdtuomZwCvbrPE0ZXxEooqTj6O9pxnxgn0ObO9oa87sTqC+asf/ezoVvzJXXH7rNvcnkgMgkQ4S8Iih3DX4uZqo0t+6V24uUAczqcO2O8n9x6ljHE8aILyEp+xqygvh59qgC5EjvX8yiVa9vb8wMISFNeEM6fwgTfy4edA2LMCpbAX8LJRRvt18WJ1WTcdfI8gHepLtKERpNyRltIqNfEqFA8IvWyD3UiseHqnnD5uwPKNByZR5IsaFDQUlE1IDQbSUjijFRsIhUyK12/IOd8SCA9tMqOkrliNDJ6KJXL5EuoXR7vGM2Iw04vGX/o=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(396003)(366004)(39860400002)(136003)(346002)(66946007)(36756003)(66556008)(426003)(9746002)(86362001)(2906002)(1076003)(9786002)(8936002)(33656002)(66476007)(316002)(26005)(38100700002)(186003)(83380400001)(5660300002)(6916009)(8676002)(4326008)(2616005)(478600001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?vj6LWa7PTi194bw0rnlvHhNCBl46E/ezsLSEL0UviXD2bpSgVSqCU8HniAPQ?=
- =?us-ascii?Q?Z3xUCWX9RO+ppeKVPYFe+IolnwRydPcw4cauhIebeRIi2Ui93CuBHynpBVzD?=
- =?us-ascii?Q?p6stkaX4hQJzVXQfGaMCDJyjavLWYbbt4sWfU86YMgi9gFBINDmBtWE3C0my?=
- =?us-ascii?Q?pCx1l6ZOpAknQ3LwOEykSQSD2AWvmsxkRlqEOiA5uHMlzLkC6P1hhU+4o+sn?=
- =?us-ascii?Q?lxcC85CbuDPEUV2zqQL6zeP0pFicBXEOcb5Kh8at6u/eAp2ypB9b4nFHupam?=
- =?us-ascii?Q?/vLB8hWVyU5g73pQDaK3qAPv7mgDh/LO+/OHOEuIAzo7xV3uG1EHpJbfAP6B?=
- =?us-ascii?Q?g1CgBK62DHcvbof1telpb2qbS39/tDz6bk8YRqBZ6fJQtjHGmw2qX2IZhY+T?=
- =?us-ascii?Q?zlSgDBvjyxWV94nriGswJaP5GDft5wyySNVVHd1oTFkk+/Cg9bt2kvXPU6mH?=
- =?us-ascii?Q?uykGb4M5NjXunKdr944Lu5AENcTPJpFY1BGdclBIrKto6x3gqnsuKuR8ahV2?=
- =?us-ascii?Q?4WNOu90OmeEIfW/EbcypcR5TSZ+PSexsAfCO1fx3e2ch3GgoPcgqjgUwZ6Iu?=
- =?us-ascii?Q?kng1uGkvQteXbICnOsw5S2iIBhBSYqVNRivY9FhCH+kXo3S/pr7069XkuTgg?=
- =?us-ascii?Q?KiPyzCT2w29OjzRFiIEGhVZIE6uSbqEx9darDopDZ36gztHbMNk2Qfttv27S?=
- =?us-ascii?Q?LrDNyQK43aagY9TcI8p3PP6SgJ/Lc6600fUY3IWn8xHcg/ENT+Ti3f+Ep3FJ?=
- =?us-ascii?Q?v0QdGLlyphQ+xBBjSuwaSjWmJh1r7cRgHES6b9fVYOCUsJM2293zxCDKT/5Q?=
- =?us-ascii?Q?o8bIjZ3ZtA4Jq6yxlQhVmeBc+kp7HNf4kzWVGqsv25k7Ut/ztRuzZGYsNUfm?=
- =?us-ascii?Q?C0WPTtpoWrKfjb9t1J/AhW9XLsJu9EyTwllE4hI0MbJ1igCCdRafxlpYgLXh?=
- =?us-ascii?Q?Ki2IC/SAXazlrdNm/rsvRKEiL6Jwi9n+KTTe+nYjEtzDIYLzw4hKZNzz0IWr?=
- =?us-ascii?Q?swdTsrTqYirVfQ/er6kjk0hCdh4ZmopYxMGjWBpWeosOPWt3d6EokZlmcg+/?=
- =?us-ascii?Q?O7lZk9kouJl82JtcSjqsoCiLI4tU9vroupq6X3UhUL1fU4eG/jOEJObX+9Jm?=
- =?us-ascii?Q?jP+cJJNISgK8HMoQdjC2atuHL3Kc6cQkOiygBGxdspwk2l57pFufHGoPc0wO?=
- =?us-ascii?Q?232OPF4VTaw7uVOhasiFiZjMST6PZLU7V+W8bvZHn3y17X+6D7bOxltfU4ON?=
- =?us-ascii?Q?8piuNUiH+nYwrhEURjWbdJLtajtFmHj3GLJpJST33RPDFubFR7yTxa59hjWU?=
- =?us-ascii?Q?S6A8Hxe1lugCMfLVPMwEyGqO?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5b34ef63-9370-4837-9313-08d910d36f8c
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 May 2021 21:10:54.6602
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: c101MfPhaLPhbAFG6X1CHL9X3Hh8d0TcJO/h3hddXcuW8mZaoB67Sfdr9L1rC4kc
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR1201MB0201
+        id S230096AbhEFVVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 17:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229572AbhEFVVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 17:21:36 -0400
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED30C061574
+        for <stable@vger.kernel.org>; Thu,  6 May 2021 14:20:37 -0700 (PDT)
+Received: by mail-qk1-x749.google.com with SMTP id u126-20020a3792840000b02902e769005fe1so4447155qkd.2
+        for <stable@vger.kernel.org>; Thu, 06 May 2021 14:20:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=60xM6FWdjgElSCS5XWClKw4/NbcEaCXtD8Wn+llDojY=;
+        b=lQEStBcfVEMc1yoXYY3MarTsg1SDQgI7Ny5pMmobhwnSaRgXYyNx1S0Dl0rl5b5dAa
+         nT/I8Vjq/ZeXNEDv/4sX+62k4g1D8fQcPtXMbuM7U3vuEgWRUQSXNypzTRCs+IBPtjxF
+         T3ZpkUvsH2mCFZlrVXxdtqZiIGCAM4z/mBsK5UaAbmxxOTODO56eB0q1Ra9/TvYNxpJH
+         O1rXgKtLDW6azNO8+Ae5QxedZHz5vINgjhgzqeWJyqF/TIA/jzL2nE88f8DwT2bamPIL
+         +kcjsRFwpBUdeZ5GU310OsJvH94W6px+GZE8vZEvF/4fEMwJzKriHBcthwYyMty0PIEV
+         9Itw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=60xM6FWdjgElSCS5XWClKw4/NbcEaCXtD8Wn+llDojY=;
+        b=YZ2W3yyuQ9sB8zYQcAc2lNgMyVZjxxSzhaVIC6V1txxgaAjTbxtKrBDnOUtYlq3wV7
+         mDMbTKSd9jl6SbriChboTZmPo0o6Q8Xd5Nr4LYjFVdpfty3cutlDuNvK5ZU7QHdiNjSU
+         PoyqqGO2GyaJVO9FiGwLFfNC1KbPxmxFN+0wBff7fnQp0kPWnFYNfuamvD+ZnNz6qIPt
+         Si2QgN2R7TDuPB01eTP/WykZsdJYyuHuTUfX/Z3wy2VpSfJVnk64QtaLUP4hfegA3uvS
+         deiKCY8REwXL/PAlQeF/6BLqY55CoLnOHo7IvHC18+d4vXo/BIG31S13ftmKf6rcB+fx
+         0PpA==
+X-Gm-Message-State: AOAM533UAEL4xoDIMsmzB1YQ9gMqd5TwQF5N2SFbmfVacc3sGX5YWHId
+        z69yl171ga5FgVeMsuKiWQ/4apQ=
+X-Google-Smtp-Source: ABdhPJyK3cHsHf2SfzmG8t5qd6qZxixqZ0bc7sahr+wiq+4gc81NS5Igtz3Ug+Mc7zcQ8iPn16RKwAA=
+X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2ce:200:c762:3d3c:b811:8e75])
+ (user=pcc job=sendgmr) by 2002:ad4:4e69:: with SMTP id ec9mr6504032qvb.5.1620336036450;
+ Thu, 06 May 2021 14:20:36 -0700 (PDT)
+Date:   Thu,  6 May 2021 14:20:25 -0700
+Message-Id: <20210506212025.815380-1-pcc@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.1.607.g51e8a6a459-goog
+Subject: [PATCH] kasan: fix unit tests with CONFIG_UBSAN_LOCAL_BOUNDS enabled
+From:   Peter Collingbourne <pcc@google.com>
+To:     Andrey Konovalov <andreyknvl@gmail.com>,
+        Alexander Potapenko <glider@google.com>
+Cc:     Peter Collingbourne <pcc@google.com>,
+        George Popescu <georgepope@android.com>,
+        Elena Petrova <lenaptr@google.com>,
+        Evgenii Stepanov <eugenis@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 06, 2021 at 02:47:51PM -0600, Alex Williamson wrote:
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> 
-> commit b2b12db53507bc97d96f6b7cb279e831e5eafb00 upstream
-> 
-> VFIO_IOMMU_TYPE1 does not compile with !MMU:
-> 
-> ../drivers/vfio/vfio_iommu_type1.c: In function 'follow_fault_pfn':
-> ../drivers/vfio/vfio_iommu_type1.c:536:22: error: implicit declaration of function 'pte_write'; did you mean 'vfs_write'? [-Werror=implicit-function-declaration]
-> 
-> So require it.
-> 
-> Suggested-by: Cornelia Huck <cohuck@redhat.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> Message-Id: <0-v1-02cb5500df6e+78-vfio_no_mmu_jgg@nvidia.com>
-> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-> Cc: stable@vger.kernel.org # 5.11.y, 5.10.y, 5.4.y
-> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-> 
-> The noted stable branches include upstream commit 179209fa1270
-> ("vfio: IOMMU_API should be selected") without the follow-up commit
-> b2b12db53507 ("vfio: Depend on MMU"), which should have included a
-> Fixes: tag for the prior commit.  Without this latter commit, we're
-> susceptible to randconfig failures with !MMU configs.  Thanks!
+These tests deliberately access these arrays out of bounds,
+which will cause the dynamic local bounds checks inserted by
+CONFIG_UBSAN_LOCAL_BOUNDS to fail and panic the kernel. To avoid this
+problem, access the arrays via volatile pointers, which will prevent
+the compiler from being able to determine the array bounds.
 
-Right. It would also be a fine solution to not include '1792 in any
-stable branches either
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: stable@vger.kernel.org
+Link: https://linux-review.googlesource.com/id/I90b1713fbfa1bf68ff895aef099ea77b98a7c3b9
+---
+ lib/test_kasan.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-Jason
+diff --git a/lib/test_kasan.c b/lib/test_kasan.c
+index dc05cfc2d12f..2a078e8e7b8e 100644
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -654,8 +654,8 @@ static char global_array[10];
+ 
+ static void kasan_global_oob(struct kunit *test)
+ {
+-	volatile int i = 3;
+-	char *p = &global_array[ARRAY_SIZE(global_array) + i];
++	char *volatile array = global_array;
++	char *p = &array[ARRAY_SIZE(global_array) + 3];
+ 
+ 	/* Only generic mode instruments globals. */
+ 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
+@@ -703,8 +703,8 @@ static void ksize_uaf(struct kunit *test)
+ static void kasan_stack_oob(struct kunit *test)
+ {
+ 	char stack_array[10];
+-	volatile int i = OOB_TAG_OFF;
+-	char *p = &stack_array[ARRAY_SIZE(stack_array) + i];
++	char *volatile array = stack_array;
++	char *p = &array[ARRAY_SIZE(stack_array) + OOB_TAG_OFF];
+ 
+ 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_STACK);
+ 
+@@ -715,7 +715,8 @@ static void kasan_alloca_oob_left(struct kunit *test)
+ {
+ 	volatile int i = 10;
+ 	char alloca_array[i];
+-	char *p = alloca_array - 1;
++	char *volatile array = alloca_array;
++	char *p = array - 1;
+ 
+ 	/* Only generic mode instruments dynamic allocas. */
+ 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
+@@ -728,7 +729,8 @@ static void kasan_alloca_oob_right(struct kunit *test)
+ {
+ 	volatile int i = 10;
+ 	char alloca_array[i];
+-	char *p = alloca_array + i;
++	char *volatile array = alloca_array;
++	char *p = array + i;
+ 
+ 	/* Only generic mode instruments dynamic allocas. */
+ 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
+-- 
+2.31.1.607.g51e8a6a459-goog
+
