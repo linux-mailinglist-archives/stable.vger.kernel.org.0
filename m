@@ -2,344 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EB8D3763B1
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 12:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9D2D3763DF
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 12:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234400AbhEGK3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 06:29:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59610 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236548AbhEGK3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 06:29:09 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D960C061574
-        for <stable@vger.kernel.org>; Fri,  7 May 2021 03:28:09 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id m12so6835939pgr.9
-        for <stable@vger.kernel.org>; Fri, 07 May 2021 03:28:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2+uBw7WRXDkbW1FSPzVjg7vrym4jbarN4YezL8sIknc=;
-        b=DD/8moVxTiMmAQcM4Guf3uVyPOXIrgKkMeT4XOg4DCyxCqc2GnsTD0WbRUGVPDh4wd
-         ZxDCI6NDgS3+4SmniV/AXuZWnHC5LpT6b9K9iE15t8LeDXkQvZBiK5ojxiFVJJn60imF
-         eJBrRRGhXEpsJERFElkMYXIypqQ4UGpWd0jBxmPluwx5ZGVIp+MVUYKQ/qjiUj8bk2JA
-         3z9+dRskKJePDPrqQHU9Exh9Xw51NJwg/BU971j9BXwVverl/B76k3AvAEfZZ8e2koRs
-         vm3SdzPg4hFs5/M7Kf2wcCxGrQIwJjgJaBDRFqG5Si4BvXIIAFv/GgYrCLPHwRM7N9Pl
-         G+Tw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2+uBw7WRXDkbW1FSPzVjg7vrym4jbarN4YezL8sIknc=;
-        b=rpkMpCK9nG49xzTDb04JCdbDjLiLlX2+4lQLQJG98s7bpDc30CuJ1MjYK4mF6TcYE+
-         z9Jl0JdZVmJrVngoOanITZIsEbP96qalZdR7hrWo+hK/ORi4HLK0TAIlVXzn3DoKlgIk
-         A+MmjcCzRwbKh2E9MJEByZzrVPmu2kGeTa62u4R5GQuxHEHepWFgtY2ntv1WGQZSe0fD
-         IccEptyk3WMVVaQYyxy3KJLlalAWTTf+GNJySqKh2ceCiWNxxEul+wwL7tdRvzF1WG5p
-         pOKW0jl2tSImUPLD3/QDiCm14+ClGRZoN9Qp9XXdn3jSbfF4DC4I6GBWcusCebHqLFcb
-         TQAQ==
-X-Gm-Message-State: AOAM531ORn2JMYHUBPLoeQylhknmuX4fDXcRFVUKwuZveMhAJ/ZtDhAo
-        4N+X43XytZXtgkAomvm5dvqolrgQ7L96OtBk
-X-Google-Smtp-Source: ABdhPJxlEeJIZR3Qe45lJcjQMICJSMETaokoTBm1vvQNT1P6aHTUpXy4THWafbBwSPUTrID46ffQkQ==
-X-Received: by 2002:a62:2904:0:b029:25c:13f2:47d4 with SMTP id p4-20020a6229040000b029025c13f247d4mr9630843pfp.4.1620383288543;
-        Fri, 07 May 2021 03:28:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e20sm11657126pjt.8.2021.05.07.03.28.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 May 2021 03:28:08 -0700 (PDT)
-Message-ID: <60951638.1c69fb81.32bc5.e13d@mx.google.com>
-Date:   Fri, 07 May 2021 03:28:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230486AbhEGKfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 06:35:25 -0400
+Received: from mail-dm6nam11on2042.outbound.protection.outlook.com ([40.107.223.42]:48598
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229758AbhEGKfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 May 2021 06:35:24 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=M/EgIZCP0v+L6EvvbaB/bmA3BUvhwdaYDQ2T7D7ms6QNG+JeIqX6AC8Sks7rXkGkOvEMAwMSZ4VO8id5O1oxh38xSstGZg9Pe5ZYXJfPisLQy6NGmq7uwDgB0a3s+BoM9AHok/rTQ5ZgZjHRrf6yfcUm7yGiyq5G5GStPglSNgIjwPptTsnrVkF7D6aUyx2SnKOV2UhcRrYli3aNsaPJE/b57iVTK9MxPubZ8AoO04WpZOPTqC7rxBWFPnnUhqM1WJbMGvSoFYBxQFVSBrhXwH/Ucbb1FTFNxbDBxd7GFtRkkelmh224lkSSRIAmeQgsIK5NdFqKHdDz9LUITT7jGA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ducR5XQD/GIiuQJM/fjME0/yBikCbYJUSgUzviYuk4k=;
+ b=O/d2HXT1SMS/ZTOy3U/AVGnWyYFsYoRb/GdzqbPWLHHxDOxKwCOTgys0cnk68SPzhrMupZ0lDI0luYKMylP7EfO/aDLV+J/Irr/aM6xNJMYDGWbOFr+gTtM+1eOjJaZfajIAWORkvUO2lIaww04I4+fVmsnhSbhtftSs4Vp5a45g9/836gZZ7J3o8JeeIBNvmdE4knjrhl+mFNhdzloKl1cQfwxkLaNWK2fYaYTiGGmtEHW+MSVzeCcSzpyrrLn9ZGqaohJHgC3zHy2kEsj6hPh0uLacRr+Iom1q9izOd/xdJHEJrTnJu6kUEk7P5uQEAzD8aaoFKj1ia0r4kgYYdg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.34) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ducR5XQD/GIiuQJM/fjME0/yBikCbYJUSgUzviYuk4k=;
+ b=d19PB/op3BMCcQjeHkoiSZ5bEV050ikCCegU03ymUGeoZViX1GqD8t5bGQz18EPrQ5BrDRSnrei7BEI6ALXU9suexD/+ldluCN3Sg0Szvd0igLagK3c6vhb+/fhEQK8+JroYB+EMwg95j0awdibXdJZ1T+6PxMyiC6skoes3xqVTzDOlhkUwxdtV9HG3f5iKOBmWhjfL9bfLUYUcIWAI8cR74BWvCvss7gKeBqR0EliSGqjhAuN9F7enCu187AGJrahHX2+sxsG3THurJlRUUOISm/eorlmMtpIhUwbthPgtto27AZv+CIKcHxrf91DvC1HbTwstWM+wRRoy4/pHMw==
+Received: from DM5PR06CA0035.namprd06.prod.outlook.com (2603:10b6:3:5d::21) by
+ BN6PR12MB1409.namprd12.prod.outlook.com (2603:10b6:404:1e::21) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4108.27; Fri, 7 May 2021 10:34:22 +0000
+Received: from DM6NAM11FT039.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:3:5d:cafe::ee) by DM5PR06CA0035.outlook.office365.com
+ (2603:10b6:3:5d::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend
+ Transport; Fri, 7 May 2021 10:34:22 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
+ smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.34; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.34) by
+ DM6NAM11FT039.mail.protection.outlook.com (10.13.172.83) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4108.25 via Frontend Transport; Fri, 7 May 2021 10:34:22 +0000
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Fri, 7 May
+ 2021 10:34:22 +0000
+Received: from moonraker.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 7 May 2021 10:34:20 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        "Marc Zyngier" <maz@kernel.org>
+CC:     <linux-gpio@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        Jon Hunter <jonathanh@nvidia.com>, <stable@vger.kernel.org>
+Subject: [PATCH] gpio: tegra186: Don't set parent IRQ affinity
+Date:   Fri, 7 May 2021 11:34:11 +0100
+Message-ID: <20210507103411.235206-1-jonathanh@nvidia.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.268-7-g2bdb1c8cec5d
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 77 runs,
- 7 regressions (v4.4.268-7-g2bdb1c8cec5d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-NVConfidentiality: public
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a98d8137-e280-48c9-22e5-08d91143adec
+X-MS-TrafficTypeDiagnostic: BN6PR12MB1409:
+X-Microsoft-Antispam-PRVS: <BN6PR12MB1409A491C5F7FBD29F3211C2D9579@BN6PR12MB1409.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:5516;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Ww2K+fDyc2BRw+b84s23kMKoOfX/NMe9sq3T0Q2sPLY72+9/xN9AsD2nuN8e+3wdMtvlINSjqSD+HfJWpb2my2Z6dGzDKCBeLYfyS1QcNsO5az16SBB1iDTOWggWcAOAod8GsEvn88IISFarb1Ly6iYKp4IEROyJfRONIyLeEJcUKcyk7tufCfCX7nFMbQaEDQ8r9w6WaGQIKGmfLEwIni578IyutmD4u+ye1lTCKbPYRuKuLaXTNViXYyofbPflEkzQWUbRKnTaYfXIvEBSQ3dpC8YtH1L8CxEMXS8dZsurH0t0/gGVwj2fr7IIXAFgeGIuV+6wznG3kc+OB03GukOI7RBYOs815v2v/XtzmBWFOrEJX1JumKpPJjNo5eoUGToYtNlWbkJG+QTSLO8hILppKH5dsvFmgWdmbRReapX9HZdHvLS9AaXGmD9/4W110D1ScoM5kpaARxSyXDMqMSEf2pxsSKdBg+5lAl2VTacNxQpTja8LDTubPb9fHzhIVZn8DZap35XS1ta9gaJToRwPAkCxp2qR6y9+bLIzw5KVZ56jsoXIZFKXBbIIOUhnX2wcquASW438NpppPBMoabaUz7Je+CxPlvw7EeH6sVm8/AOrTzKpRriHYVjh+W0fwQzFyMD+MLvLkddoCsFcdRGgMuONMwz8i31MxnnHxeY=
+X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(136003)(39860400002)(346002)(396003)(376002)(36840700001)(46966006)(54906003)(110136005)(8936002)(83380400001)(7696005)(70586007)(4326008)(36860700001)(36906005)(2616005)(356005)(70206006)(26005)(8676002)(7636003)(426003)(316002)(86362001)(47076005)(186003)(5660300002)(82740400003)(2906002)(336012)(82310400003)(6666004)(478600001)(36756003)(1076003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 May 2021 10:34:22.6961
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: a98d8137-e280-48c9-22e5-08d91143adec
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT039.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR12MB1409
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 77 runs, 7 regressions (v4.4.268-7-g2bdb1c8ce=
-c5d)
+When hotplugging CPUs on Tegra186 and Tegra194 errors such as the
+following are seen ...
+
+ IRQ63: set affinity failed(-22).
+ IRQ65: set affinity failed(-22).
+ IRQ66: set affinity failed(-22).
+ IRQ67: set affinity failed(-22).
+
+Looking at the /proc/interrupts the above are all interrupts associated
+with GPIOs. The reason why these error messages occur is because there
+is no 'parent_data' associated with any of the GPIO interrupts and so
+tegra186_irq_set_affinity() simply returns -EINVAL.
+
+To understand why there is no 'parent_data' it is first necessary to
+understand that in addition to the GPIO interrupts being routed to the
+interrupt controller (GIC), the interrupts for some GPIOs are also
+routed to the Tegra Power Management Controller (PMC) to wake up the
+system from low power states. In order to configure GPIO events as
+wake events in the PMC, the PMC is configured as IRQ parent domain
+for the GPIO IRQ domain. Originally the GIC was the IRQ parent domain
+of the PMC and although this was working, this started causing issues
+once commit 64a267e9a41c ("irqchip/gic: Configure SGIs as standard
+interrupts") was added, because technically, the GIC is not a parent
+of the PMC. Commit c351ab7bf2a5 ("soc/tegra: pmc: Don't create fake
+interrupt hierarchy levels") fixed this by severing the IRQ domain
+hierarchy for the Tegra GPIOs and hence, there may be no IRQ parent
+domain for the GPIOs.
+
+The GPIO controllers on Tegra186 and Tegra194 have either one or six
+interrupt lines to the interrupt controller. For GPIO controllers with
+six interrupts, the mapping of the GPIO interrupt to the controller
+interrupt is configurable within the GPIO controller. Currently a
+default mapping is used, however, it could be possible to use the
+set affinity callback for the Tegra186 GPIO driver to do something a
+bit more interesting. Currently, because interrupts for all GPIOs are
+have the same mapping and any attempts to configure the affinity for
+a given GPIO can conflict with another that shares the same IRQ, for
+now it is simpler to just remove set affinity support and this avoids
+the above warnings being seen.
+
+Cc: <stable@vger.kernel.org>
+Fixes: c4e1f7d92cd6 ("gpio: tegra186: Set affinity callback to parent")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+---
+ drivers/gpio/gpio-tegra186.c | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/drivers/gpio/gpio-tegra186.c b/drivers/gpio/gpio-tegra186.c
+index 1bd9e44df718..05974b760796 100644
+--- a/drivers/gpio/gpio-tegra186.c
++++ b/drivers/gpio/gpio-tegra186.c
+@@ -444,16 +444,6 @@ static int tegra186_irq_set_wake(struct irq_data *data, unsigned int on)
+ 	return 0;
+ }
+ 
+-static int tegra186_irq_set_affinity(struct irq_data *data,
+-				     const struct cpumask *dest,
+-				     bool force)
+-{
+-	if (data->parent_data)
+-		return irq_chip_set_affinity_parent(data, dest, force);
+-
+-	return -EINVAL;
+-}
+-
+ static void tegra186_gpio_irq(struct irq_desc *desc)
+ {
+ 	struct tegra_gpio *gpio = irq_desc_get_handler_data(desc);
+@@ -700,7 +690,6 @@ static int tegra186_gpio_probe(struct platform_device *pdev)
+ 	gpio->intc.irq_unmask = tegra186_irq_unmask;
+ 	gpio->intc.irq_set_type = tegra186_irq_set_type;
+ 	gpio->intc.irq_set_wake = tegra186_irq_set_wake;
+-	gpio->intc.irq_set_affinity = tegra186_irq_set_affinity;
+ 
+ 	irq = &gpio->gpio.irq;
+ 	irq->chip = &gpio->intc;
+-- 
+2.17.1
 
-Regressions Summary
--------------------
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.268-7-g2bdb1c8cec5d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.268-7-g2bdb1c8cec5d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2bdb1c8cec5df6de6d18f0dba0b2ba9375ff4a1c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094e6950399cbb7f96f547a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094e6950399cbb7f96f5=
-47b
-        failing since 174 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094e53916051d814b6f547d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094e53916051d814b6f5=
-47e
-        failing since 174 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609514a7640af9c20c6f5483
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
--virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609514a7640af9c20c6f5=
-484
-        failing since 174 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094e52053d103cf2a6f5467
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
-rm-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
-rm-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094e52053d103cf2a6f5=
-468
-        failing since 174 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094e6bc1dfbaf02ae6f5467
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094e6bc1dfbaf02ae6f5=
-468
-        failing since 174 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094e5c5d4e0363e666f546f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-virt-=
-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094e5c5d4e0363e666f5=
-470
-        failing since 174 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab             | compiler | defconfig        =
-  | regressions
---------------------+------+-----------------+----------+------------------=
---+------------
-qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094e5212489dd90c66f5469
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
-rm-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.268-7=
--g2bdb1c8cec5d/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
-rm-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094e5212489dd90c66f5=
-46a
-        failing since 174 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =20
