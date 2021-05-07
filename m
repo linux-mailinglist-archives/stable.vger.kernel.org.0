@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9391737666B
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 15:51:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F9437666E
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 15:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233394AbhEGNw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 09:52:27 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:60163 "EHLO
+        id S234529AbhEGNzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 09:55:50 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:56373 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237307AbhEGNw1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 09:52:27 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id D0CF31941CA8;
-        Fri,  7 May 2021 09:51:26 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 07 May 2021 09:51:26 -0400
+        by vger.kernel.org with ESMTP id S234081AbhEGNzu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 09:55:50 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0F9B7194156C;
+        Fri,  7 May 2021 09:54:50 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Fri, 07 May 2021 09:54:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/qDKcS
-        /Wp1hRpLuFY/vr1z/0cjgtYn9FfCpOz3rL8vg=; b=qPxhDDNMz3XzJGidnv3iLI
-        tEUMfX2mYmBGxFgHWhWQqS8cL3A6rIrsTSbBQepC3KgT8/e/T1GxJR4MF5HNfOON
-        2F+/QglTSuBMhckKkq+Rr5jtmvnotquBQYY6QMifAh33seWOj34819sbkagaGg7o
-        +QjWUdUOlkT3m9cZOXE9ABJI0HNfGcV0KBYr0Uhh4xOpUOVljop6Pv4hwpDDdmjv
-        hWSUeKrGTJB6ZMF9G7MagxTHwU4gdJH+JkKQSdRq4JOzKXcOHLUcj9jnK4sH6Nl3
-        VnDu83i01JLKe6nxWPiLjYzZBjnkjgp4dkk859YOKzmcRNenxlV4jXTuvVbXRPGw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Q0ESpJ
+        k1E7cia+7Rp/4fLBHabtYFoN9Q5GXvqzcIcx8=; b=hcnZ6nvlKipuRhtBPxh0dE
+        5rPrIkq1+yfkCgWJvrIciXMpnD9DKRY+gCcuxToVX6ElU26isC530wdWGpRFP/QY
+        dpoCT8x4g7ilVYvNzc+ur4wZP7fdDu/2z2IyJIhGtYE8aJXrLQUr0ybp4In32LMM
+        KgN1a1ZDGqi6c6oBSpF5Xn3H9LOmp5QuM5Zeqjhpie3fifbBYVC6F17u486Rw+97
+        lxM1SbV0ajxXWn1Kx8wfEndFyVqFgBSLKjg+g8JjMZo64mvnu2fmcWtMVTLPuUdX
+        7Cd0i04cavIeMxyw5xpklSDGIOPEqboInEGBG0RYVAB7BueHqQybM+WND5bMWhNw
         ==
-X-ME-Sender: <xms:3kWVYHxyNXZqQHq01EcRzGABwk1qu0vBlo1JSAZ5DWDQnFhUm3HV8A>
-    <xme:3kWVYPRC47NMPjl5Qb71kZ4_S9ti-frKsIXMtI1-MrHjfZA_zCiZ3-7NIJqfmfwYx
-    xV8j6T8vuVYhA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegvddgieelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:qUaVYB9C8Yy4LFSrrL44JBlPGX4Qlz5LmCScy4oDZcC7MsfOLM1S0g>
+    <xme:qUaVYFsdq-JgC8IFlKHp5VlP2x5wFQcsuyCScMxCIhwCxbU_dyHLTZZLzrzf0YKDW
+    dpIGAUwSWmXxw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegvddgjedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:3kWVYBUSOw4gogNCffWtIj25xPs-saiSgaZzo6SKnL2087SKRd2Mig>
-    <xmx:3kWVYBj9pEeDOF6YjSNtqepcmWnV8Wj1N2KC7EeB3pIeiyIEZppyIQ>
-    <xmx:3kWVYJAXBxvLJCBQrY7ehEekqAUN0zOXXAGG-bhd_KmHC_sVGwQZQQ>
-    <xmx:3kWVYE9g6f_1gvRFAZAfadyDoKGrGhvgL1uz4WyRagSpR9vMMLUoKw>
+    uceurghilhhouhhtmecufedttdenucgfrhhlucfvnfffucdluddtmdenucfjughrpefuvf
+    fhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihf
+    ohhunhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltd
+    etgedugeffgffhudffuddukeegfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghr
+    nhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:qUaVYPCZfzAxq01y22OGXjMWRGSb5VYYcfLwWU1Y1chF0lgg3vqf1Q>
+    <xmx:qUaVYFeXxZigy22-itkpvMuVHrAHsF6Vf8fU65M7JhbEkzjFBf6DsA>
+    <xmx:qUaVYGNekcQBNJjThnpwgBZualGb7kvKqYtPrwxfA6_7VYSFytM5Cw>
+    <xmx:qkaVYPa0dn7JMZb2r0obeKyRxrQiYeInXOVuUvJt1hX2xZQoN0L_Mw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Fri,  7 May 2021 09:51:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ftrace: Handle commands when closing set_ftrace_filter file" failed to apply to 4.4-stable tree
-To:     rostedt@goodmis.org
+        Fri,  7 May 2021 09:54:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mtd: spi-nor: core: Fix an issue of releasing resources" failed to apply to 4.14-stable tree
+To:     chenxiang66@hisilicon.com, michael@walle.cc,
+        tudor.ambarus@microchip.com, yangyicong@hisilicon.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 May 2021 15:51:15 +0200
-Message-ID: <162039547574183@kroah.com>
+Date:   Fri, 07 May 2021 15:54:46 +0200
+Message-ID: <162039568612311@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,51 +71,83 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8c9af478c06bb1ab1422f90d8ecbc53defd44bc3 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Wed, 5 May 2021 10:38:24 -0400
-Subject: [PATCH] ftrace: Handle commands when closing set_ftrace_filter file
+From be94215be1ab19e5d38f50962f611c88d4bfc83a Mon Sep 17 00:00:00 2001
+From: Xiang Chen <chenxiang66@hisilicon.com>
+Date: Thu, 1 Apr 2021 15:34:46 +0800
+Subject: [PATCH] mtd: spi-nor: core: Fix an issue of releasing resources
+ during read/write
 
- # echo switch_mm:traceoff > /sys/kernel/tracing/set_ftrace_filter
+If rmmod the driver during read or write, the driver will release the
+resources which are used during read or write, so it is possible to
+refer to NULL pointer.
 
-will cause switch_mm to stop tracing by the traceoff command.
+Use the testcase "mtd_debug read /dev/mtd0 0xc00000 0x400000 dest_file &
+sleep 0.5;rmmod spi_hisi_sfc_v3xx.ko", the issue can be reproduced in
+hisi_sfc_v3xx driver.
 
- # echo -n switch_mm:traceoff > /sys/kernel/tracing/set_ftrace_filter
+To avoid the issue, fill the interface _get_device and _put_device of
+mtd_info to grab the reference to the spi controller driver module, so
+the request of rmmod the driver is rejected before read/write is finished.
 
-does nothing.
-
-The reason is that the parsing in the write function only processes
-commands if it finished parsing (there is white space written after the
-command). That's to handle:
-
- write(fd, "switch_mm:", 10);
- write(fd, "traceoff", 8);
-
-cases, where the command is broken over multiple writes.
-
-The problem is if the file descriptor is closed, then the write call is
-not processed, and the command needs to be processed in the release code.
-The release code can handle matching of functions, but does not handle
-commands.
-
+Fixes: b199489d37b2 ("mtd: spi-nor: add the framework for SPI NOR")
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Reviewed-by: Michael Walle <michael@walle.cc>
 Cc: stable@vger.kernel.org
-Fixes: eda1e32855656 ("tracing: handle broken names in ftrace filter")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/1617262486-4223-1-git-send-email-yangyicong@hisilicon.com
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 057e962ca5ce..c57508445faa 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5591,7 +5591,10 @@ int ftrace_regex_release(struct inode *inode, struct file *file)
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index 8cf3cf92129e..bd2c7717eb10 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -2905,6 +2905,37 @@ static void spi_nor_resume(struct mtd_info *mtd)
+ 		dev_err(dev, "resume() failed\n");
+ }
  
- 	parser = &iter->parser;
- 	if (trace_parser_loaded(parser)) {
--		ftrace_match_records(iter->hash, parser->buffer, parser->idx);
-+		int enable = !(iter->flags & FTRACE_ITER_NOTRACE);
++static int spi_nor_get_device(struct mtd_info *mtd)
++{
++	struct mtd_info *master = mtd_get_master(mtd);
++	struct spi_nor *nor = mtd_to_spi_nor(master);
++	struct device *dev;
 +
-+		ftrace_process_regex(iter, parser->buffer,
-+				     parser->idx, enable);
- 	}
++	if (nor->spimem)
++		dev = nor->spimem->spi->controller->dev.parent;
++	else
++		dev = nor->dev;
++
++	if (!try_module_get(dev->driver->owner))
++		return -ENODEV;
++
++	return 0;
++}
++
++static void spi_nor_put_device(struct mtd_info *mtd)
++{
++	struct mtd_info *master = mtd_get_master(mtd);
++	struct spi_nor *nor = mtd_to_spi_nor(master);
++	struct device *dev;
++
++	if (nor->spimem)
++		dev = nor->spimem->spi->controller->dev.parent;
++	else
++		dev = nor->dev;
++
++	module_put(dev->driver->owner);
++}
++
+ void spi_nor_restore(struct spi_nor *nor)
+ {
+ 	/* restore the addressing mode */
+@@ -3099,6 +3130,8 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
+ 	mtd->_read = spi_nor_read;
+ 	mtd->_suspend = spi_nor_suspend;
+ 	mtd->_resume = spi_nor_resume;
++	mtd->_get_device = spi_nor_get_device;
++	mtd->_put_device = spi_nor_put_device;
  
- 	trace_parser_put(parser);
+ 	if (info->flags & USE_FSR)
+ 		nor->flags |= SNOR_F_USE_FSR;
 
