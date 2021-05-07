@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A3D2376682
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 15:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E53133766A8
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 16:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237312AbhEGN7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 09:59:18 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:50445 "EHLO
+        id S236882AbhEGOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 10:06:05 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:42099 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232056AbhEGN7R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 09:59:17 -0400
+        by vger.kernel.org with ESMTP id S231509AbhEGOGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 10:06:04 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id BE55419418CB;
-        Fri,  7 May 2021 09:58:17 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 437511941BF3;
+        Fri,  7 May 2021 10:05:04 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 07 May 2021 09:58:17 -0400
+  by compute1.internal (MEProxy); Fri, 07 May 2021 10:05:04 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=dNWdOH
-        v0CEnycN39iZyA6n5sScneecY2KAeGdADWJO0=; b=fCFN+33Jch0Seeapl3kZYX
-        faRea3VzpLYoOsPMYbAgYMDvGaTagI+73hcVL1ab3KBmLwYhON1AtEzgGHqr9f2u
-        w8qQ/FhNk21NnzIiPHENiWWzgtdBx8THtPoctI6O68cQ2k6K7uaem+2i3nNI5GFg
-        h+DdCMxvIjZa14eAZel2YvjCFbzkDjzeET08B6J4bcVlXXqeZqpj6pMH33AH//ho
-        +Pn1vLMbkffRw+0BSbmhQKZctTTC1iYYdiH3+ejdzJuzjFdhK8ermPcOkedhgYJh
-        /1fe64lZzaojLf/oOLHhmIK6mWmK9oj69qJ7i8ivsNaqSb4EH0eAxkK8r/YDhcYA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=z+ocUd
+        0F3mYwp9a1/xqHxg7dMNWf+Ols7Iuj9aQQ1Ns=; b=dpgLEuACMNWi7g9YL6y3Tf
+        +HVkhZJGydhEyqYJYVAq6vJ5voXiOHWCqXf+FEVF7iInsQIF1fCvu84PaQZThVWP
+        wXInHkz3ZOvrfBWCSBQLShniZD91QWpG0NP+UeOlo1ZXz52FP12/KmcCyWTFbRJ2
+        gb5xDqPaVGZ7yrXRvN6oJydiPJ05fb0ZDjblBqP9ADpyzpDjnJFRb+rsQ7qupUDq
+        L6v1lvxLPKq4pwoZXFL/vS0j2NO4kKJKJxqFDSigDVl/grghhqknrbLE/SP4EU9J
+        aJUoEW98j4CktgATmi5OeyoiIkBMILDZ1B2ETaGeZHKbe1lO6hxQ/nAaIsuc14VQ
         ==
-X-ME-Sender: <xms:eEeVYPCnx1XVm-_b8SFkGencJXqxDlcC-tLFmBHQAlxy7VYtrCgcDQ>
-    <xme:eEeVYFg9GiCXWz-L-_8jCWM-rcZcW7XyUV2qFbtneBi_jJ-gr4_yj0rp_Avr7vTYQ
-    n1ctHE2JSzsaw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegvddgjedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:D0mVYOWMTfyMWjhUAAc86LeIzZht5Yv2y6dohhpKhx7wvqEKzLwK_w>
+    <xme:D0mVYKnXrNq9hEV78azk13VTxrgRtIwg3LDVyZyNDKhlo8H40mpPc0MA-_0O2GgaN
+    tsdKgp60HE2Ow>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegvddgjedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:eEeVYKmGyRL7YUu6GG9hdej8p0S-qLyAHbw_rsQ2tNJvC_7MNvpq1A>
-    <xmx:eEeVYByYeQWS7PFZycyD6OQFHKpJGITK1IDD3Qfll7FbTmCGTPrv7w>
-    <xmx:eEeVYESwglEjy5TLOXceNJ-OHLB5xZYXu9HtTojDlKYR3HdVnvd1mQ>
-    <xmx:eUeVYN5vVyxMXEFc89XdT7kzRUTMWV9fgOMU6CV6i3W2Lprpqc680w>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:D0mVYCYBhrop1g21pNMha55b5cAOMRdrD-p4Ak5fs_w0CezLCUV_xw>
+    <xmx:D0mVYFUNAhjpjSFBOYnpHwUp32vaDBU--5GarnacaRi0FFm1SlgudQ>
+    <xmx:D0mVYInPeU2Mu0oln7op5rOD_RjcSUa3W9jgVbyA6_t0DOwM12nPBQ>
+    <xmx:EEmVYEuOKzK1o1FLNUZqE3Nqgtj7exMLgYwXNgz8S0zmUEq4zXsRSw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Fri,  7 May 2021 09:58:16 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] libceph: don't set global_id until we get an auth ticket" failed to apply to 5.10-stable tree
-To:     idryomov@gmail.com, sage@redhat.com
+        Fri,  7 May 2021 10:05:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mmc: core: Fix hanging on I/O during system suspend for" failed to apply to 4.19-stable tree
+To:     ulf.hansson@linaro.org, kwmad.kim@samsung.com,
+        linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 May 2021 15:58:14 +0200
-Message-ID: <1620395894102186@kroah.com>
+Date:   Fri, 07 May 2021 16:04:59 +0200
+Message-ID: <1620396299117251@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,99 +71,290 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 61ca49a9105faefa003b37542cebad8722f8ae22 Mon Sep 17 00:00:00 2001
-From: Ilya Dryomov <idryomov@gmail.com>
-Date: Mon, 26 Apr 2021 19:11:37 +0200
-Subject: [PATCH] libceph: don't set global_id until we get an auth ticket
+From 17a17bf50612e6048a9975450cf1bd30f93815b5 Mon Sep 17 00:00:00 2001
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Wed, 10 Mar 2021 16:29:00 +0100
+Subject: [PATCH] mmc: core: Fix hanging on I/O during system suspend for
+ removable cards
 
-With the introduction of enforcing mode, setting global_id as soon
-as we get it in the first MAuth reply will result in EACCES if the
-connection is reset before we get the second MAuth reply containing
-an auth ticket -- because on retry we would attempt to reclaim that
-global_id with no auth ticket at hand.
+The mmc core uses a PM notifier to temporarily during system suspend, turn
+off the card detection mechanism for removal/insertion of (e)MMC/SD/SDIO
+cards. Additionally, the notifier may be used to remove an SDIO card
+entirely, if a corresponding SDIO functional driver don't have the system
+suspend/resume callbacks assigned. This behaviour has been around for a
+very long time.
 
-Neither ceph_auth_client nor ceph_mon_client depend on global_id
-being set ealy, so just delay the setting until we get and process
-the second MAuth reply.  While at it, complain if the monitor sends
-a zero global_id or changes our global_id as the session is likely
-to fail after that.
+However, a recent bug report tells us there are problems with this
+approach. More precisely, when receiving the PM_SUSPEND_PREPARE
+notification, we may end up hanging on I/O to be completed, thus also
+preventing the system from getting suspended.
 
-Cc: stable@vger.kernel.org # needs backporting for < 5.11
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Reviewed-by: Sage Weil <sage@redhat.com>
+In the end what happens, is that the cancel_delayed_work_sync() in
+mmc_pm_notify() ends up waiting for mmc_rescan() to complete - and since
+mmc_rescan() wants to claim the host, it needs to wait for the I/O to be
+completed first.
 
-diff --git a/net/ceph/auth.c b/net/ceph/auth.c
-index eb261aa5fe18..de407e8feb97 100644
---- a/net/ceph/auth.c
-+++ b/net/ceph/auth.c
-@@ -36,6 +36,20 @@ static int init_protocol(struct ceph_auth_client *ac, int proto)
- 	}
+Typically, this problem is triggered in Android, if there is ongoing I/O
+while the user decides to suspend, resume and then suspend the system
+again. This due to that after the resume, an mmc_rescan() work gets punted
+to the workqueue, which job is to verify that the card remains inserted
+after the system has resumed.
+
+To fix this problem, userspace needs to become frozen to suspend the I/O,
+prior to turning off the card detection mechanism. Therefore, let's drop
+the PM notifiers for mmc subsystem altogether and rely on the card
+detection to be turned off/on as a part of the system_freezable_wq, that we
+are already using.
+
+Moreover, to allow and SDIO card to be removed during system suspend, let's
+manage this from a ->prepare() callback, assigned at the mmc_host_class
+level. In this way, we can use the parent device (the mmc_host_class
+device), to remove the card device that is the child, in the
+device_prepare() phase.
+
+Reported-by: Kiwoong Kim <kwmad.kim@samsung.com>
+Cc: stable@vger.kernel.org # v4.5+
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210310152900.149380-1-ulf.hansson@linaro.org
+Reviewed-by: Kiwoong Kim <kwmad.kim@samsung.com>
+
+diff --git a/drivers/mmc/core/core.c b/drivers/mmc/core/core.c
+index 9c13f7a52699..f194940c5974 100644
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -2269,80 +2269,6 @@ void mmc_stop_host(struct mmc_host *host)
+ 	mmc_release_host(host);
  }
  
-+static void set_global_id(struct ceph_auth_client *ac, u64 global_id)
+-#ifdef CONFIG_PM_SLEEP
+-/* Do the card removal on suspend if card is assumed removeable
+- * Do that in pm notifier while userspace isn't yet frozen, so we will be able
+-   to sync the card.
+-*/
+-static int mmc_pm_notify(struct notifier_block *notify_block,
+-			unsigned long mode, void *unused)
+-{
+-	struct mmc_host *host = container_of(
+-		notify_block, struct mmc_host, pm_notify);
+-	unsigned long flags;
+-	int err = 0;
+-
+-	switch (mode) {
+-	case PM_HIBERNATION_PREPARE:
+-	case PM_SUSPEND_PREPARE:
+-	case PM_RESTORE_PREPARE:
+-		spin_lock_irqsave(&host->lock, flags);
+-		host->rescan_disable = 1;
+-		spin_unlock_irqrestore(&host->lock, flags);
+-		cancel_delayed_work_sync(&host->detect);
+-
+-		if (!host->bus_ops)
+-			break;
+-
+-		/* Validate prerequisites for suspend */
+-		if (host->bus_ops->pre_suspend)
+-			err = host->bus_ops->pre_suspend(host);
+-		if (!err)
+-			break;
+-
+-		if (!mmc_card_is_removable(host)) {
+-			dev_warn(mmc_dev(host),
+-				 "pre_suspend failed for non-removable host: "
+-				 "%d\n", err);
+-			/* Avoid removing non-removable hosts */
+-			break;
+-		}
+-
+-		/* Calling bus_ops->remove() with a claimed host can deadlock */
+-		host->bus_ops->remove(host);
+-		mmc_claim_host(host);
+-		mmc_detach_bus(host);
+-		mmc_power_off(host);
+-		mmc_release_host(host);
+-		host->pm_flags = 0;
+-		break;
+-
+-	case PM_POST_SUSPEND:
+-	case PM_POST_HIBERNATION:
+-	case PM_POST_RESTORE:
+-
+-		spin_lock_irqsave(&host->lock, flags);
+-		host->rescan_disable = 0;
+-		spin_unlock_irqrestore(&host->lock, flags);
+-		_mmc_detect_change(host, 0, false);
+-
+-	}
+-
+-	return 0;
+-}
+-
+-void mmc_register_pm_notifier(struct mmc_host *host)
+-{
+-	host->pm_notify.notifier_call = mmc_pm_notify;
+-	register_pm_notifier(&host->pm_notify);
+-}
+-
+-void mmc_unregister_pm_notifier(struct mmc_host *host)
+-{
+-	unregister_pm_notifier(&host->pm_notify);
+-}
+-#endif
+-
+ static int __init mmc_init(void)
+ {
+ 	int ret;
+diff --git a/drivers/mmc/core/core.h b/drivers/mmc/core/core.h
+index 575ac0257af2..8032451abaea 100644
+--- a/drivers/mmc/core/core.h
++++ b/drivers/mmc/core/core.h
+@@ -93,14 +93,6 @@ int mmc_execute_tuning(struct mmc_card *card);
+ int mmc_hs200_to_hs400(struct mmc_card *card);
+ int mmc_hs400_to_hs200(struct mmc_card *card);
+ 
+-#ifdef CONFIG_PM_SLEEP
+-void mmc_register_pm_notifier(struct mmc_host *host);
+-void mmc_unregister_pm_notifier(struct mmc_host *host);
+-#else
+-static inline void mmc_register_pm_notifier(struct mmc_host *host) { }
+-static inline void mmc_unregister_pm_notifier(struct mmc_host *host) { }
+-#endif
+-
+ void mmc_wait_for_req_done(struct mmc_host *host, struct mmc_request *mrq);
+ bool mmc_is_req_done(struct mmc_host *host, struct mmc_request *mrq);
+ 
+diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+index 9b89a91b6b47..fe05b3645fe9 100644
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -35,6 +35,42 @@
+ 
+ static DEFINE_IDA(mmc_host_ida);
+ 
++#ifdef CONFIG_PM_SLEEP
++static int mmc_host_class_prepare(struct device *dev)
 +{
-+	dout("%s global_id %llu\n", __func__, global_id);
++	struct mmc_host *host = cls_dev_to_mmc_host(dev);
 +
-+	if (!global_id)
-+		pr_err("got zero global_id\n");
++	/*
++	 * It's safe to access the bus_ops pointer, as both userspace and the
++	 * workqueue for detecting cards are frozen at this point.
++	 */
++	if (!host->bus_ops)
++		return 0;
 +
-+	if (ac->global_id && global_id != ac->global_id)
-+		pr_err("global_id changed from %llu to %llu\n", ac->global_id,
-+		       global_id);
++	/* Validate conditions for system suspend. */
++	if (host->bus_ops->pre_suspend)
++		return host->bus_ops->pre_suspend(host);
 +
-+	ac->global_id = global_id;
++	return 0;
 +}
 +
- /*
-  * setup, teardown.
-  */
-@@ -222,11 +236,6 @@ int ceph_handle_auth_reply(struct ceph_auth_client *ac,
++static void mmc_host_class_complete(struct device *dev)
++{
++	struct mmc_host *host = cls_dev_to_mmc_host(dev);
++
++	_mmc_detect_change(host, 0, false);
++}
++
++static const struct dev_pm_ops mmc_host_class_dev_pm_ops = {
++	.prepare = mmc_host_class_prepare,
++	.complete = mmc_host_class_complete,
++};
++
++#define MMC_HOST_CLASS_DEV_PM_OPS (&mmc_host_class_dev_pm_ops)
++#else
++#define MMC_HOST_CLASS_DEV_PM_OPS NULL
++#endif
++
+ static void mmc_host_classdev_release(struct device *dev)
+ {
+ 	struct mmc_host *host = cls_dev_to_mmc_host(dev);
+@@ -46,6 +82,7 @@ static void mmc_host_classdev_release(struct device *dev)
+ static struct class mmc_host_class = {
+ 	.name		= "mmc_host",
+ 	.dev_release	= mmc_host_classdev_release,
++	.pm		= MMC_HOST_CLASS_DEV_PM_OPS,
+ };
  
- 	payload_end = payload + payload_len;
+ int mmc_register_host_class(void)
+@@ -538,8 +575,6 @@ int mmc_add_host(struct mmc_host *host)
+ #endif
  
--	if (global_id && ac->global_id != global_id) {
--		dout(" set global_id %lld -> %lld\n", ac->global_id, global_id);
--		ac->global_id = global_id;
--	}
+ 	mmc_start_host(host);
+-	mmc_register_pm_notifier(host);
 -
- 	if (ac->negotiating) {
- 		/* server does not support our protocols? */
- 		if (!protocol && result < 0) {
-@@ -253,11 +262,16 @@ int ceph_handle_auth_reply(struct ceph_auth_client *ac,
+ 	return 0;
+ }
  
- 	ret = ac->ops->handle_reply(ac, result, payload, payload_end,
- 				    NULL, NULL, NULL, NULL);
--	if (ret == -EAGAIN)
-+	if (ret == -EAGAIN) {
- 		ret = build_request(ac, true, reply_buf, reply_len);
--	else if (ret)
-+		goto out;
-+	} else if (ret) {
- 		pr_err("auth protocol '%s' mauth authentication failed: %d\n",
- 		       ceph_auth_proto_name(ac->protocol), result);
-+		goto out;
+@@ -555,7 +590,6 @@ EXPORT_SYMBOL(mmc_add_host);
+  */
+ void mmc_remove_host(struct mmc_host *host)
+ {
+-	mmc_unregister_pm_notifier(host);
+ 	mmc_stop_host(host);
+ 
+ #ifdef CONFIG_DEBUG_FS
+diff --git a/drivers/mmc/core/sdio.c b/drivers/mmc/core/sdio.c
+index 0fda7784cab2..3eb94ac2712e 100644
+--- a/drivers/mmc/core/sdio.c
++++ b/drivers/mmc/core/sdio.c
+@@ -985,21 +985,37 @@ static void mmc_sdio_detect(struct mmc_host *host)
+  */
+ static int mmc_sdio_pre_suspend(struct mmc_host *host)
+ {
+-	int i, err = 0;
++	int i;
+ 
+ 	for (i = 0; i < host->card->sdio_funcs; i++) {
+ 		struct sdio_func *func = host->card->sdio_func[i];
+ 		if (func && sdio_func_present(func) && func->dev.driver) {
+ 			const struct dev_pm_ops *pmops = func->dev.driver->pm;
+-			if (!pmops || !pmops->suspend || !pmops->resume) {
++			if (!pmops || !pmops->suspend || !pmops->resume)
+ 				/* force removal of entire card in that case */
+-				err = -ENOSYS;
+-				break;
+-			}
++				goto remove;
+ 		}
+ 	}
+ 
+-	return err;
++	return 0;
++
++remove:
++	if (!mmc_card_is_removable(host)) {
++		dev_warn(mmc_dev(host),
++			 "missing suspend/resume ops for non-removable SDIO card\n");
++		/* Don't remove a non-removable card - we can't re-detect it. */
++		return 0;
 +	}
 +
-+	set_global_id(ac, global_id);
- 
- out:
- 	mutex_unlock(&ac->mutex);
-@@ -484,15 +498,11 @@ int ceph_auth_handle_reply_done(struct ceph_auth_client *ac,
- 	int ret;
- 
- 	mutex_lock(&ac->mutex);
--	if (global_id && ac->global_id != global_id) {
--		dout("%s global_id %llu -> %llu\n", __func__, ac->global_id,
--		     global_id);
--		ac->global_id = global_id;
--	}
--
- 	ret = ac->ops->handle_reply(ac, 0, reply, reply + reply_len,
- 				    session_key, session_key_len,
- 				    con_secret, con_secret_len);
-+	if (!ret)
-+		set_global_id(ac, global_id);
- 	mutex_unlock(&ac->mutex);
- 	return ret;
++	/* Remove the SDIO card and let it be re-detected later on. */
++	mmc_sdio_remove(host);
++	mmc_claim_host(host);
++	mmc_detach_bus(host);
++	mmc_power_off(host);
++	mmc_release_host(host);
++	host->pm_flags = 0;
++
++	return 0;
  }
+ 
+ /*
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index a001ad2f5f23..17d7b326af29 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -302,9 +302,6 @@ struct mmc_host {
+ 	u32			ocr_avail_sdio;	/* SDIO-specific OCR */
+ 	u32			ocr_avail_sd;	/* SD-specific OCR */
+ 	u32			ocr_avail_mmc;	/* MMC-specific OCR */
+-#ifdef CONFIG_PM_SLEEP
+-	struct notifier_block	pm_notify;
+-#endif
+ 	struct wakeup_source	*ws;		/* Enable consume of uevents */
+ 	u32			max_current_330;
+ 	u32			max_current_300;
 
