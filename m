@@ -2,135 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E894376355
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 12:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC50376357
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 12:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235850AbhEGKMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 06:12:21 -0400
-Received: from foss.arm.com ([217.140.110.172]:53730 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235840AbhEGKMU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 May 2021 06:12:20 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E1341106F;
-        Fri,  7 May 2021 03:11:19 -0700 (PDT)
-Received: from C02TD0UTHF1T.local (unknown [10.57.29.54])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5EA963F718;
-        Fri,  7 May 2021 03:11:18 -0700 (PDT)
-Date:   Fri, 7 May 2021 11:11:15 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Peter Collingbourne <pcc@google.com>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: mte: initialize RGSR_EL1.SEED in __cpu_setup
-Message-ID: <20210507101115.GB52849@C02TD0UTHF1T.local>
-References: <20210507033725.1479129-1-pcc@google.com>
+        id S235840AbhEGKQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 06:16:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56616 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229812AbhEGKQM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 06:16:12 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA44C061574
+        for <stable@vger.kernel.org>; Fri,  7 May 2021 03:15:12 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id i14so6830981pgk.5
+        for <stable@vger.kernel.org>; Fri, 07 May 2021 03:15:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=CGNFptHLwlXmusZubY8G2EScKi7idPZtoLLDwWFQUTU=;
+        b=GCfTHP3prbXvGrhNn96OkOFAcvCpkKiV47iA48pU7oT0afno7vtI5TKpzkScl9zDvG
+         3nRLGMqY6ZrjI//BnhBWpejiqiue6DQFsQn+P3exMWm9JPoOQD9uop58F1jISUcdULa4
+         k87VxfAh2mf8pX7saZXe/JkemXmjEMFzfLGeAA5ikvuGa2BkixAjcZ3JgGcu9lW7IkiY
+         voh5WgtvpCii51A4gImR+BP8KwKLgqO8MMEurBfja//EVEV1NAJO0TCvQy1BIwX7ntkq
+         txg/GI9WUhOHWSa5ddwtEFEgBoWhoUxmTdZKU97sUhuLLvq2XhfMUbas/+AhcVHTRmAa
+         bOgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=CGNFptHLwlXmusZubY8G2EScKi7idPZtoLLDwWFQUTU=;
+        b=ldbtIcooGMG/3YEZLRLJpGBDMrs9fEC4bp+C2z/yE/rFHXxq7x2A6H4bHCy7kU18X5
+         Gq2nNugdTI3WqSc4BTeDdl3bZXedYMroa4WslRyCrFl0MCdg3rxXU9o0lPx5x4EBMx/v
+         /yCHn9z2q5Da4mwgHslEQ5s3MAd4Rn4mX1qihNjSM/TfSBI2azPjGsqISNlK1F53pnLO
+         uFLsdgFN2impzG0SU2aTQ08aB6zU0ixCV8j8dNounHpsNQFWFwuZErOFA8xEHiPNFTlF
+         CMenYu1BFsDF4LAFBAAAzSk8ogvhE+PtyZ8uvOA0rxMW9fQCV0EpW7KkMKf5W4q1HdvJ
+         WD/w==
+X-Gm-Message-State: AOAM532+vsJ6jUzRQQ8gqfHn9fd45ENACyfeVogVaEF9q11kd8JlEEy0
+        ErOKfNZY0ACPicH4ZQdOQsw+kn5bsWBy
+X-Google-Smtp-Source: ABdhPJy/6XfquFMb9hz/doSqI5Ggb8gZtgoDRczm3Tf77oMaW/6kENMZZh3K6jijpcbjsHYTMh2ffg==
+X-Received: by 2002:a63:5322:: with SMTP id h34mr9343864pgb.182.1620382511417;
+        Fri, 07 May 2021 03:15:11 -0700 (PDT)
+Received: from work ([103.77.37.184])
+        by smtp.gmail.com with ESMTPSA id a18sm4424176pgg.51.2021.05.07.03.15.09
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 07 May 2021 03:15:10 -0700 (PDT)
+Date:   Fri, 7 May 2021 15:45:08 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: MHI v5.13 commits for stable backporting
+Message-ID: <20210507101508.GB5646@work>
+References: <20210507080736.GA5646@work>
+ <YJT3rOgd9WVvdRZl@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210507033725.1479129-1-pcc@google.com>
+In-Reply-To: <YJT3rOgd9WVvdRZl@kroah.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Peter,
-
-On Thu, May 06, 2021 at 08:37:25PM -0700, Peter Collingbourne wrote:
-> A valid implementation choice for the ChooseRandomNonExcludedTag()
-> pseudocode function used by IRG is to behave in the same way as with
-> GCR_EL1.RRND=0. This would mean that RGSR_EL1.SEED is used as an LFSR
-> which must have a non-zero value in order for IRG to properly produce
-> pseudorandom numbers. However, RGSR_EL1 is reset to an UNKNOWN value
-> on soft reset and thus may reset to 0. Therefore we must initialize
-> RGSR_EL1.SEED to a non-zero value in order to ensure that IRG behaves
-> as expected.
+On Fri, May 07, 2021 at 10:17:48AM +0200, Greg KH wrote:
+> On Fri, May 07, 2021 at 01:37:36PM +0530, Manivannan Sadhasivam wrote:
+> > Hi Greg,
+> > 
+> > As suggested by you in MHI v5.13 PR [1], please find the below commits that
+> > got merged for v5.13 and should be backported to stable kernels:
+> > 
+> > 683e77cadc83 ("bus: mhi: core: Fix shadow declarations")
+> > 5630c1009bd9 ("bus: mhi: pci_generic: Constify mhi_controller_config struct definitions")
+> > ec32332df764 ("bus: mhi: core: Sanity check values from remote device before use")
+> > 47705c084659 ("bus: mhi: core: Clear configuration from channel context during reset")
+> > 70f7025c854c ("bus: mhi: core: remove redundant initialization of variables state and ee")
+> > 68731852f6e5 ("bus: mhi: core: Return EAGAIN if MHI ring is full")
+> > 4547a749be99 ("bus: mhi: core: Fix MHI runtime_pm behavior")
+> > 6403298c58d4 ("bus: mhi: core: Fix check for syserr at power_up")
+> > 8de5ad994143 ("bus: mhi: core: Add missing checks for MMIO register entries")
+> > 0ecc1c70dcd3 ("bus: mhi: core: Fix invalid error returning in mhi_queue")
+> > 0fccbf0a3b69 ("bus: mhi: pci_generic: Remove WQ_MEM_RECLAIM flag from state workqueue")
+> > 
+> > I'll make sure to tag stable list for future potential patches.
 > 
-> Signed-off-by: Peter Collingbourne <pcc@google.com>
-> Cc: stable@vger.kernel.org
-> Link: https://linux-review.googlesource.com/id/I2b089b6c7d6f17ee37e2f0db7df5ad5bcc04526c
-> ---
->  arch/arm64/mm/proc.S | 17 +++++++++++++++--
->  1 file changed, 15 insertions(+), 2 deletions(-)
+> That's a lot, are you sure they are all needed?  Constify?
+>
+
+Filtered the patches now...
+
+> What order should these be applied in and how far back should the
+> patches be backported?
 > 
-> diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
-> index 0a48191534ff..e8e1eaee4b3f 100644
-> --- a/arch/arm64/mm/proc.S
-> +++ b/arch/arm64/mm/proc.S
-> @@ -437,7 +437,7 @@ SYM_FUNC_START(__cpu_setup)
->  	mrs	x10, ID_AA64PFR1_EL1
->  	ubfx	x10, x10, #ID_AA64PFR1_MTE_SHIFT, #4
->  	cmp	x10, #ID_AA64PFR1_MTE
-> -	b.lt	1f
-> +	b.lt	2f
->  
->  	/* Normal Tagged memory type at the corresponding MAIR index */
->  	mov	x10, #MAIR_ATTR_NORMAL_TAGGED
-> @@ -447,6 +447,19 @@ SYM_FUNC_START(__cpu_setup)
->  	mov	x10, #(SYS_GCR_EL1_RRND | SYS_GCR_EL1_EXCL_MASK)
->  	msr_s	SYS_GCR_EL1, x10
->  
-> +	/*
-> +	 * Initialize RGSR_EL1.SEED to a non-zero value. If the implementation
-> +	 * chooses to implement GCR_EL1.RRND=1 in the same way as RRND=0 then
-> +	 * the seed will be used as an LFSR, so it should be put onto the MLS.
-> +	 */
 
-For those of us not familiar with LFSRs, could we crib a bit from the
-commit message to describe why, e.g.
+Below is the order and stable kernel revisions:
 
-	/*
-	 * If GCR_EL1.RRND=1 is implemented the same way as RRND=0, then
-	 * RGSR_EL1.SEED must be non-zero for IRG to produce
-	 * pseudorandom numbers. As RGSR_EL1 is UNKNOWN out of reset, we
-	 * must initialize it.
-	 */
+6403298c58d4 ("bus: mhi: core: Fix check for syserr at power_up") #5.10
+47705c084659 ("bus: mhi: core: Clear configuration from channel context during reset") #5.10
+ec32332df764 ("bus: mhi: core: Sanity check values from remote device before use") #5.10
+8de5ad994143 ("bus: mhi: core: Add missing checks for MMIO register entries") #5.11
+0fccbf0a3b69 ("bus: mhi: pci_generic: Remove WQ_MEM_RECLAIM flag from state workqueue") #5.11
+4547a749be99 ("bus: mhi: core: Fix MHI runtime_pm behavior") #5.12
+0ecc1c70dcd3 ("bus: mhi: core: Fix invalid error returning in mhi_queue") #5.12
 
-> +	mrs	x10, CNTVCT_EL0
-> +	and	x10, x10, #SYS_RGSR_EL1_SEED_MASK
-> +	cbnz	x10, 1f
-> +	mov	x10, #1
-> +1:
-
-To minimize the diff and make this more locally contained, we could
-avoid the branch and relabelling by using ANDS and CSET:
-	
-	mrs     x10, CNTVCT_EL0
-	ands	x10, x10, #SYS_RGSR_EL1_SEED_MASK
-	cset	x10, ne
-
-... or we could unconditionally ORR in 1:
-
-	mrs	x10, CNTVCT_EL0
-	orr	x10, x10, #1
-	and	x10, x10, #SYS_RGSR_EL1_SEED_MASK
+TBH I misunderstood that Sasha's bot will pick the patches based on Fixes tag
+and the commit message, etc... and will apply them to respective stable kernels
+based on trial and error. Probably I expected too much or I'm lazy :)
 
 Thanks,
-Mark.
+Mani
 
-> +	lsl	x10, x10, #SYS_RGSR_EL1_SEED_SHIFT
-> +	msr_s	SYS_RGSR_EL1, x10
-> +
->  	/* clear any pending tag check faults in TFSR*_EL1 */
->  	msr_s	SYS_TFSR_EL1, xzr
->  	msr_s	SYS_TFSRE0_EL1, xzr
-> @@ -454,7 +467,7 @@ SYM_FUNC_START(__cpu_setup)
->  	/* set the TCR_EL1 bits */
->  	mov_q	x10, TCR_KASAN_HW_FLAGS
->  	orr	tcr, tcr, x10
-> -1:
-> +2:
->  #endif
->  	tcr_clear_errata_bits tcr, x9, x5
->  
-> -- 
-> 2.31.1.607.g51e8a6a459-goog
+> thanks,
 > 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> greg k-h
