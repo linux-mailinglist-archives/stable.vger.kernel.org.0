@@ -2,73 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BA1375ED0
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 04:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EBD6375EDD
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 04:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232861AbhEGC3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 22:29:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38074 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229909AbhEGC3a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 22:29:30 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F48C061574
-        for <stable@vger.kernel.org>; Thu,  6 May 2021 19:28:30 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id lp4so4341380pjb.1
-        for <stable@vger.kernel.org>; Thu, 06 May 2021 19:28:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=nD7IY+LjcxcMIZpaRs/DBTc2sREzVi5ay9Y/RepaOJo=;
-        b=mm8A3tagt4yWacSRzb4nDxqdn/sFHXrWuq2BAECcKztWQLHMLI4jNEMVuhbeJNEiTG
-         Zh+03f5kWKsuCKIg7szCA35VaKOgP4jhK3v0rKj7kWeA/myQOQER/yvhXSA29OHFggff
-         6RWqItjuyQ2gZhaKe3cJd1QUFydbeReIHeI5UPAVkERsSkSWtkvpbfD3dS7za2Qdi3b5
-         Y4HkWMYImyy5o7zb5ZnhGsCbArRkRoy70acPAE4k0GS/5Ykr+sXRpIDj45RwLSvmNkhT
-         Jmn8KTw+aoxbWNAtnEvbygQevOwP5i0ZNZ01WXuoibrrEsHiPY+hq9cycUVcjH4hZxlQ
-         +iCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=nD7IY+LjcxcMIZpaRs/DBTc2sREzVi5ay9Y/RepaOJo=;
-        b=QejH+tQluuFmE1nGAQlH/x2o6hPTAm90ZrHdIrRjKlN2lq4HSyXYQ2ie18rTQezS9r
-         8fpEXwk4KtVY5qnF6O2vLNwgnpFej+tEWyMRAR+e9s3NABslOdXRAkdKfzptazFfe+lG
-         PMh3vtvp6VOdDH7kI2VZ19gBsBr3p+960avLCiv4JLiNjJXk6FCqyOik5GjrkcSmdi+x
-         oq3R+h7sImJiRAYmWqYKoRLDvS7pFbdC62jCbHI21n+7lte12LHEkb6OmtnsC+NQbfTB
-         vAPppnoOnFk6CHtES0hvHL1E0MDGR5Q2opUtkcZI0MwuIRH4x18UAXKnlYC35acFOhcD
-         ol/A==
-X-Gm-Message-State: AOAM531UW58Z+M6jzVYLQVWVwgtL2eOjo9oq+EvgqCzdHDb9vj0wLf3r
-        cBN68nrMFJUaorUTIMG2p+F+DoNs9JBOMGnf4ys=
-X-Google-Smtp-Source: ABdhPJxAD4RtkUW+Kj0q7RGZ5VzIq5+F7QkqA5M8j5Sz3R+jcD9EbbVVVXaXMeLL4xq9JPpAEPiG7RoDaG7JgWxo7W4=
-X-Received: by 2002:a17:90a:e003:: with SMTP id u3mr20649820pjy.77.1620354508988;
- Thu, 06 May 2021 19:28:28 -0700 (PDT)
+        id S231241AbhEGCqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 22:46:24 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:57104 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230515AbhEGCqX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 22:46:23 -0400
+Received: from [123.112.70.57] (helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <hui.wang@canonical.com>)
+        id 1leqUP-00058x-VI; Fri, 07 May 2021 02:45:19 +0000
+From:   Hui Wang <hui.wang@canonical.com>
+To:     alsa-devel@alsa-project.org, tiwai@suse.de, kailang@realtek.com,
+        stable@vger.kernel.org
+Subject: [PATCH] ALSA: hda/realtek: reset eapd coeff to default value for alc287
+Date:   Fri,  7 May 2021 10:44:52 +0800
+Message-Id: <20210507024452.8300-1-hui.wang@canonical.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Received: by 2002:a05:6a10:3c4e:0:0:0:0 with HTTP; Thu, 6 May 2021 19:28:28
- -0700 (PDT)
-Reply-To: sroomf70@gmail.com
-From:   "Mrs. Rose Godwin" <rosegodwin1999@gmail.com>
-Date:   Thu, 6 May 2021 19:28:28 -0700
-Message-ID: <CAL6LAtqC+osE1LY-PtVyge8dRhuwShRvVGMhbUJ31yghBJNmQg@mail.gmail.com>
-Subject: Greetings,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Ubuntu users reported an audio bug on the Lenovo Yoga Slim 7 14IIL05,
+he installed dual OS (Windows + Linux), if he booted to the Linux
+from Windows, the Speaker can't work well, it has crackling noise,
+if he poweroff the machine first after Windows, the Speaker worked
+well.
+
+Before rebooting or shutdown from Windows, the Windows changes the
+codec eapd coeff value, but the BIOS doesn't re-initialize its value,
+when booting into the Linux from Windows, the eapd coeff value is not
+correct. To fix it, set the codec default value to that coeff register
+in the alsa driver.
+
+BugLink: http://bugs.launchpad.net/bugs/1925057
+Suggested-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+---
+ sound/pci/hda/patch_realtek.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 6d58f24c9702..a5f3e78ec04e 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -395,7 +395,6 @@ static void alc_fill_eapd_coef(struct hda_codec *codec)
+ 	case 0x10ec0282:
+ 	case 0x10ec0283:
+ 	case 0x10ec0286:
+-	case 0x10ec0287:
+ 	case 0x10ec0288:
+ 	case 0x10ec0285:
+ 	case 0x10ec0298:
+@@ -406,6 +405,10 @@ static void alc_fill_eapd_coef(struct hda_codec *codec)
+ 	case 0x10ec0275:
+ 		alc_update_coef_idx(codec, 0xe, 0, 1<<0);
+ 		break;
++	case 0x10ec0287:
++		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
++		alc_write_coef_idx(codec, 0x8, 0x4ab7);
++		break;
+ 	case 0x10ec0293:
+ 		alc_update_coef_idx(codec, 0xa, 1<<13, 0);
+ 		break;
 -- 
-Greetings,
-From Mrs. Rose Godwin, we notify you through our official mail but no
-respond from you before sending you with this private email hope you
-Received the Fund that was paid to your account? do not hesitate to
-keep us notice as soon as possible to enable us make the balance
-transfer into your nominated account. awaiting your urgent
-notification.
+2.25.1
 
-Thanks
-Mrs. Rose Godwin,
-Foreign Remittance
-
-Best regards
-Prof. Dr Diane
-Head of Foreign Operation
