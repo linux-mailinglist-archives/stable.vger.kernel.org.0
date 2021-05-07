@@ -2,762 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F341F376505
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 14:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2493376507
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 14:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236333AbhEGMYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 08:24:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51510 "EHLO mail.kernel.org"
+        id S236346AbhEGMYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 08:24:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236304AbhEGMYr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 May 2021 08:24:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42B0561400;
-        Fri,  7 May 2021 12:23:46 +0000 (UTC)
+        id S236342AbhEGMYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 May 2021 08:24:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E42FC61456;
+        Fri,  7 May 2021 12:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620390227;
-        bh=YtXBbi0f3uNlTBCuNI30iFlLn3hhO5Iwpi5HWh56Y0I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxmj1AHBMdUJE25rCPRLwfH32kJ4RAWOu+fSQVN2kF7ufKdNeQyQXSMlFmNIPEB+N
-         Z9El15vybN4trrjN9q0XZmYE6lHi8wvDtiHku9tknv7Wu5x3qbQCSGtt2f9bdYx5vR
-         LYPoFVbL/Mu2hwKW0UK9AZ7SG3kJXlAAAVzTK5uo=
+        s=korg; t=1620390230;
+        bh=qSs2LJ1prx9q+2FiumXu9otG/zhXe9fjf9q2DDlc9yw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=yEjUpLpev3tQGMtfBTdkbnbaPpSFSO13ZywO3MVsSQPPlLIGErOFzuvsF4OHX7tky
+         AHuYI9yYvpRPo6eTnRRuIQesbhGkGwLVfyRn/++MfaW1j/9ODdK1yg1H45BNpf5LZt
+         S4LDRnYf1Tb0/1NmhsAoXOsWInqOqRemqF0ez1e0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.190
-Date:   Fri,  7 May 2021 14:23:39 +0200
-Message-Id: <1620390218144102@kroah.com>
+Subject: Linux 5.4.117
+Date:   Fri,  7 May 2021 14:23:43 +0200
+Message-Id: <1620390223182136@kroah.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <162039021859112@kroah.com>
-References: <162039021859112@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index b19e0e7b7eb3..c813c3bb7405 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 189
-+SUBLEVEL = 190
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/mips/vdso/gettimeofday.c b/arch/mips/vdso/gettimeofday.c
-index e22b422f282c..9fdc84fc3985 100644
---- a/arch/mips/vdso/gettimeofday.c
-+++ b/arch/mips/vdso/gettimeofday.c
-@@ -18,6 +18,12 @@
- #include <asm/unistd.h>
- #include <asm/vdso.h>
- 
-+#if MIPS_ISA_REV < 6
-+#define VDSO_SYSCALL_CLOBBERS "hi", "lo",
-+#else
-+#define VDSO_SYSCALL_CLOBBERS
-+#endif
-+
- #ifdef CONFIG_MIPS_CLOCK_VSYSCALL
- 
- static __always_inline long gettimeofday_fallback(struct timeval *_tv,
-@@ -34,7 +40,9 @@ static __always_inline long gettimeofday_fallback(struct timeval *_tv,
- 	: "=r" (ret), "=r" (error)
- 	: "r" (tv), "r" (tz), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
- 
- 	return error ? -ret : ret;
- }
-@@ -55,7 +63,9 @@ static __always_inline long clock_gettime_fallback(clockid_t _clkid,
- 	: "=r" (ret), "=r" (error)
- 	: "r" (clkid), "r" (ts), "r" (nr)
- 	: "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13",
--	  "$14", "$15", "$24", "$25", "hi", "lo", "memory");
-+	  "$14", "$15", "$24", "$25",
-+	  VDSO_SYSCALL_CLOBBERS
-+	  "memory");
- 
- 	return error ? -ret : ret;
- }
-diff --git a/arch/x86/kernel/acpi/boot.c b/arch/x86/kernel/acpi/boot.c
-index 7303bb398862..b35c34cfbe52 100644
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -1565,10 +1565,18 @@ void __init acpi_boot_table_init(void)
- 	/*
- 	 * Initialize the ACPI boot-time table parser.
- 	 */
--	if (acpi_table_init()) {
-+	if (acpi_locate_initial_tables())
- 		disable_acpi();
--		return;
--	}
-+	else
-+		acpi_reserve_initial_tables();
-+}
-+
-+int __init early_acpi_boot_init(void)
-+{
-+	if (acpi_disabled)
-+		return 1;
-+
-+	acpi_table_init_complete();
- 
- 	acpi_table_parse(ACPI_SIG_BOOT, acpi_parse_sbf);
- 
-@@ -1581,18 +1589,9 @@ void __init acpi_boot_table_init(void)
- 		} else {
- 			printk(KERN_WARNING PREFIX "Disabling ACPI support\n");
- 			disable_acpi();
--			return;
-+			return 1;
- 		}
- 	}
--}
--
--int __init early_acpi_boot_init(void)
--{
--	/*
--	 * If acpi_disabled, bail out
--	 */
--	if (acpi_disabled)
--		return 1;
- 
- 	/*
- 	 * Process the Multiple APIC Description Table (MADT), if present
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 90ecc108bc8a..652a10a3219d 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -1176,6 +1176,8 @@ void __init setup_arch(char **cmdline_p)
- 	reserve_initrd();
- 
- 	acpi_table_upgrade();
-+	/* Look for ACPI tables and reserve memory occupied by them. */
-+	acpi_boot_table_init();
- 
- 	vsmp_init();
- 
-@@ -1183,11 +1185,6 @@ void __init setup_arch(char **cmdline_p)
- 
- 	early_platform_quirks();
- 
--	/*
--	 * Parse the ACPI tables for possible boot-time SMP configuration.
--	 */
--	acpi_boot_table_init();
--
- 	early_acpi_boot_init();
- 
- 	initmem_init();
-diff --git a/drivers/acpi/tables.c b/drivers/acpi/tables.c
-index a3d012b08fc5..041ee2381927 100644
---- a/drivers/acpi/tables.c
-+++ b/drivers/acpi/tables.c
-@@ -732,7 +732,7 @@ acpi_os_table_override(struct acpi_table_header *existing_table,
- }
- 
- /*
-- * acpi_table_init()
-+ * acpi_locate_initial_tables()
-  *
-  * find RSDP, find and checksum SDT/XSDT.
-  * checksum all tables, print SDT/XSDT
-@@ -740,7 +740,7 @@ acpi_os_table_override(struct acpi_table_header *existing_table,
-  * result: sdt_entry[] is initialized
-  */
- 
--int __init acpi_table_init(void)
-+int __init acpi_locate_initial_tables(void)
- {
- 	acpi_status status;
- 
-@@ -755,9 +755,45 @@ int __init acpi_table_init(void)
- 	status = acpi_initialize_tables(initial_tables, ACPI_MAX_TABLES, 0);
- 	if (ACPI_FAILURE(status))
- 		return -EINVAL;
--	acpi_table_initrd_scan();
- 
-+	return 0;
-+}
-+
-+void __init acpi_reserve_initial_tables(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < ACPI_MAX_TABLES; i++) {
-+		struct acpi_table_desc *table_desc = &initial_tables[i];
-+		u64 start = table_desc->address;
-+		u64 size = table_desc->length;
-+
-+		if (!start || !size)
-+			break;
-+
-+		pr_info("Reserving %4s table memory at [mem 0x%llx-0x%llx]\n",
-+			table_desc->signature.ascii, start, start + size - 1);
-+
-+		memblock_reserve(start, size);
-+	}
-+}
-+
-+void __init acpi_table_init_complete(void)
-+{
-+	acpi_table_initrd_scan();
- 	check_multiple_madt();
-+}
-+
-+int __init acpi_table_init(void)
-+{
-+	int ret;
-+
-+	ret = acpi_locate_initial_tables();
-+	if (ret)
-+		return ret;
-+
-+	acpi_table_init_complete();
-+
- 	return 0;
- }
- 
-diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index a9d0df435e26..b2434b479846 100644
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -307,12 +307,12 @@ static int ax88179_read_cmd(struct usbnet *dev, u8 cmd, u16 value, u16 index,
- 	int ret;
- 
- 	if (2 == size) {
--		u16 buf;
-+		u16 buf = 0;
- 		ret = __ax88179_read_cmd(dev, cmd, value, index, size, &buf, 0);
- 		le16_to_cpus(&buf);
- 		*((u16 *)data) = buf;
- 	} else if (4 == size) {
--		u32 buf;
-+		u32 buf = 0;
- 		ret = __ax88179_read_cmd(dev, cmd, value, index, size, &buf, 0);
- 		le32_to_cpus(&buf);
- 		*((u32 *)data) = buf;
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c b/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-index 93f396d7e684..dea29a69aaf6 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-@@ -654,6 +654,7 @@ static int iwl_pcie_gen2_enqueue_hcmd(struct iwl_trans *trans,
- 	const u8 *cmddata[IWL_MAX_CMD_TBS_PER_TFD];
- 	u16 cmdlen[IWL_MAX_CMD_TBS_PER_TFD];
- 	struct iwl_tfh_tfd *tfd;
-+	unsigned long flags2;
- 
- 	copy_size = sizeof(struct iwl_cmd_header_wide);
- 	cmd_size = sizeof(struct iwl_cmd_header_wide);
-@@ -722,14 +723,14 @@ static int iwl_pcie_gen2_enqueue_hcmd(struct iwl_trans *trans,
- 		goto free_dup_buf;
- 	}
- 
--	spin_lock_bh(&txq->lock);
-+	spin_lock_irqsave(&txq->lock, flags2);
- 
- 	idx = iwl_pcie_get_cmd_index(txq, txq->write_ptr);
- 	tfd = iwl_pcie_get_tfd(trans, txq, txq->write_ptr);
- 	memset(tfd, 0, sizeof(*tfd));
- 
- 	if (iwl_queue_space(trans, txq) < ((cmd->flags & CMD_ASYNC) ? 2 : 1)) {
--		spin_unlock_bh(&txq->lock);
-+		spin_unlock_irqrestore(&txq->lock, flags2);
- 
- 		IWL_ERR(trans, "No space in command queue\n");
- 		iwl_op_mode_cmd_queue_full(trans->op_mode);
-@@ -870,7 +871,7 @@ static int iwl_pcie_gen2_enqueue_hcmd(struct iwl_trans *trans,
- 	spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
- 
- out:
--	spin_unlock_bh(&txq->lock);
-+	spin_unlock_irqrestore(&txq->lock, flags2);
- free_dup_buf:
- 	if (idx < 0)
- 		kfree(dup_buf);
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/tx.c b/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-index b1a71539ca3e..41ba0a719375 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx.c
-@@ -1495,6 +1495,7 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
- 	u32 cmd_pos;
- 	const u8 *cmddata[IWL_MAX_CMD_TBS_PER_TFD];
- 	u16 cmdlen[IWL_MAX_CMD_TBS_PER_TFD];
-+	unsigned long flags2;
- 
- 	if (WARN(!trans->wide_cmd_header &&
- 		 group_id > IWL_ALWAYS_LONG_GROUP,
-@@ -1578,10 +1579,10 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
- 		goto free_dup_buf;
- 	}
- 
--	spin_lock_bh(&txq->lock);
-+	spin_lock_irqsave(&txq->lock, flags2);
- 
- 	if (iwl_queue_space(trans, txq) < ((cmd->flags & CMD_ASYNC) ? 2 : 1)) {
--		spin_unlock_bh(&txq->lock);
-+		spin_unlock_irqrestore(&txq->lock, flags2);
- 
- 		IWL_ERR(trans, "No space in command queue\n");
- 		iwl_op_mode_cmd_queue_full(trans->op_mode);
-@@ -1742,7 +1743,7 @@ static int iwl_pcie_enqueue_hcmd(struct iwl_trans *trans,
- 	spin_unlock_irqrestore(&trans_pcie->reg_lock, flags);
- 
-  out:
--	spin_unlock_bh(&txq->lock);
-+	spin_unlock_irqrestore(&txq->lock, flags2);
-  free_dup_buf:
- 	if (idx < 0)
- 		kfree(dup_buf);
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 559698640fe2..35c7d3185fea 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -6300,6 +6300,7 @@ enum thermal_access_mode {
- enum { /* TPACPI_THERMAL_TPEC_* */
- 	TP_EC_THERMAL_TMP0 = 0x78,	/* ACPI EC regs TMP 0..7 */
- 	TP_EC_THERMAL_TMP8 = 0xC0,	/* ACPI EC regs TMP 8..15 */
-+	TP_EC_FUNCREV      = 0xEF,      /* ACPI EC Functional revision */
- 	TP_EC_THERMAL_TMP_NA = -128,	/* ACPI EC sensor not available */
- 
- 	TPACPI_THERMAL_SENSOR_NA = -128000, /* Sensor not available */
-@@ -6498,7 +6499,7 @@ static const struct attribute_group thermal_temp_input8_group = {
- 
- static int __init thermal_init(struct ibm_init_struct *iibm)
- {
--	u8 t, ta1, ta2;
-+	u8 t, ta1, ta2, ver = 0;
- 	int i;
- 	int acpi_tmp7;
- 	int res;
-@@ -6513,7 +6514,14 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
- 		 * 0x78-0x7F, 0xC0-0xC7.  Registers return 0x00 for
- 		 * non-implemented, thermal sensors return 0x80 when
- 		 * not available
-+		 * The above rule is unfortunately flawed. This has been seen with
-+		 * 0xC2 (power supply ID) causing thermal control problems.
-+		 * The EC version can be determined by offset 0xEF and at least for
-+		 * version 3 the Lenovo firmware team confirmed that registers 0xC0-0xC7
-+		 * are not thermal registers.
- 		 */
-+		if (!acpi_ec_read(TP_EC_FUNCREV, &ver))
-+			pr_warn("Thinkpad ACPI EC unable to access EC version\n");
- 
- 		ta1 = ta2 = 0;
- 		for (i = 0; i < 8; i++) {
-@@ -6523,11 +6531,13 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
- 				ta1 = 0;
- 				break;
- 			}
--			if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
--				ta2 |= t;
--			} else {
--				ta1 = 0;
--				break;
-+			if (ver < 3) {
-+				if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
-+					ta2 |= t;
-+				} else {
-+					ta1 = 0;
-+					break;
-+				}
- 			}
- 		}
- 		if (ta1 == 0) {
-@@ -6540,9 +6550,12 @@ static int __init thermal_init(struct ibm_init_struct *iibm)
- 				thermal_read_mode = TPACPI_THERMAL_NONE;
- 			}
- 		} else {
--			thermal_read_mode =
--			    (ta2 != 0) ?
--			    TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
-+			if (ver >= 3)
-+				thermal_read_mode = TPACPI_THERMAL_TPEC_8;
-+			else
-+				thermal_read_mode =
-+					(ta2 != 0) ?
-+					TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
- 		}
- 	} else if (acpi_tmp7) {
- 		if (tpacpi_is_ibm() &&
-diff --git a/drivers/staging/erofs/inode.c b/drivers/staging/erofs/inode.c
-index 12a5be95457f..a43abd530cc1 100644
---- a/drivers/staging/erofs/inode.c
-+++ b/drivers/staging/erofs/inode.c
-@@ -14,26 +14,78 @@
- 
- #include <trace/events/erofs.h>
- 
--/* no locking */
--static int read_inode(struct inode *inode, void *data)
-+/*
-+ * if inode is successfully read, return its inode page (or sometimes
-+ * the inode payload page if it's an extended inode) in order to fill
-+ * inline data if possible.
-+ */
-+static struct page *read_inode(struct inode *inode, unsigned int *ofs)
- {
-+	struct super_block *sb = inode->i_sb;
-+	struct erofs_sb_info *sbi = EROFS_SB(sb);
- 	struct erofs_vnode *vi = EROFS_V(inode);
--	struct erofs_inode_v1 *v1 = data;
--	const unsigned advise = le16_to_cpu(v1->i_advise);
-+	const erofs_off_t inode_loc = iloc(sbi, vi->nid);
-+	erofs_blk_t blkaddr;
-+	struct page *page;
-+	struct erofs_inode_v1 *v1;
-+	struct erofs_inode_v2 *v2, *copied = NULL;
-+	unsigned int ifmt;
-+	int err;
- 
--	vi->data_mapping_mode = __inode_data_mapping(advise);
-+	blkaddr = erofs_blknr(inode_loc);
-+	*ofs = erofs_blkoff(inode_loc);
- 
-+	debugln("%s, reading inode nid %llu at %u of blkaddr %u",
-+		__func__, vi->nid, *ofs, blkaddr);
-+
-+	page = erofs_get_meta_page(sb, blkaddr, false);
-+	if (IS_ERR(page)) {
-+		errln("failed to get inode (nid: %llu) page, err %ld",
-+		      vi->nid, PTR_ERR(page));
-+		return page;
-+	}
-+
-+	v1 = page_address(page) + *ofs;
-+	ifmt = le16_to_cpu(v1->i_advise);
-+
-+	vi->data_mapping_mode = __inode_data_mapping(ifmt);
- 	if (unlikely(vi->data_mapping_mode >= EROFS_INODE_LAYOUT_MAX)) {
- 		errln("unknown data mapping mode %u of nid %llu",
- 			vi->data_mapping_mode, vi->nid);
--		DBG_BUGON(1);
--		return -EIO;
-+		err = -EOPNOTSUPP;
-+		goto err_out;
- 	}
- 
--	if (__inode_version(advise) == EROFS_INODE_LAYOUT_V2) {
--		struct erofs_inode_v2 *v2 = data;
--
-+	switch (__inode_version(ifmt)) {
-+	case EROFS_INODE_LAYOUT_V2:
- 		vi->inode_isize = sizeof(struct erofs_inode_v2);
-+		/* check if the inode acrosses page boundary */
-+		if (*ofs + vi->inode_isize <= PAGE_SIZE) {
-+			*ofs += vi->inode_isize;
-+			v2 = (struct erofs_inode_v2 *)v1;
-+		} else {
-+			const unsigned int gotten = PAGE_SIZE - *ofs;
-+
-+			copied = kmalloc(vi->inode_isize, GFP_NOFS);
-+			if (!copied) {
-+				err = -ENOMEM;
-+				goto err_out;
-+			}
-+			memcpy(copied, v1, gotten);
-+			unlock_page(page);
-+			put_page(page);
-+
-+			page = erofs_get_meta_page(sb, blkaddr + 1, false);
-+			if (IS_ERR(page)) {
-+				errln("failed to get inode payload page (nid: %llu), err %ld",
-+				      vi->nid, PTR_ERR(page));
-+				kfree(copied);
-+				return page;
-+			}
-+			*ofs = vi->inode_isize - gotten;
-+			memcpy((u8 *)copied + gotten, page_address(page), *ofs);
-+			v2 = copied;
-+		}
- 		vi->xattr_isize = ondisk_xattr_ibody_size(v2->i_xattr_icount);
- 
- 		inode->i_mode = le16_to_cpu(v2->i_mode);
-@@ -46,7 +98,7 @@ static int read_inode(struct inode *inode, void *data)
- 		} else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
- 			inode->i_rdev = 0;
- 		} else {
--			return -EIO;
-+			goto bogusimode;
- 		}
- 
- 		i_uid_write(inode, le32_to_cpu(v2->i_uid));
-@@ -58,10 +110,11 @@ static int read_inode(struct inode *inode, void *data)
- 		inode->i_ctime.tv_nsec = le32_to_cpu(v2->i_ctime_nsec);
- 
- 		inode->i_size = le64_to_cpu(v2->i_size);
--	} else if (__inode_version(advise) == EROFS_INODE_LAYOUT_V1) {
--		struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
--
-+		kfree(copied);
-+		break;
-+	case EROFS_INODE_LAYOUT_V1:
- 		vi->inode_isize = sizeof(struct erofs_inode_v1);
-+		*ofs += vi->inode_isize;
- 		vi->xattr_isize = ondisk_xattr_ibody_size(v1->i_xattr_icount);
- 
- 		inode->i_mode = le16_to_cpu(v1->i_mode);
-@@ -74,7 +127,7 @@ static int read_inode(struct inode *inode, void *data)
- 		} else if (S_ISFIFO(inode->i_mode) || S_ISSOCK(inode->i_mode)) {
- 			inode->i_rdev = 0;
- 		} else {
--			return -EIO;
-+			goto bogusimode;
- 		}
- 
- 		i_uid_write(inode, le16_to_cpu(v1->i_uid));
-@@ -86,11 +139,12 @@ static int read_inode(struct inode *inode, void *data)
- 		inode->i_ctime.tv_nsec = sbi->build_time_nsec;
- 
- 		inode->i_size = le32_to_cpu(v1->i_size);
--	} else {
-+		break;
-+	default:
- 		errln("unsupported on-disk inode version %u of nid %llu",
--			__inode_version(advise), vi->nid);
--		DBG_BUGON(1);
--		return -EIO;
-+		      __inode_version(ifmt), vi->nid);
-+		err = -EOPNOTSUPP;
-+		goto err_out;
- 	}
- 
- 	inode->i_mtime.tv_sec = inode->i_ctime.tv_sec;
-@@ -100,7 +154,16 @@ static int read_inode(struct inode *inode, void *data)
- 
- 	/* measure inode.i_blocks as the generic filesystem */
- 	inode->i_blocks = ((inode->i_size - 1) >> 9) + 1;
--	return 0;
-+	return page;
-+bogusimode:
-+	errln("bogus i_mode (%o) @ nid %llu", inode->i_mode, vi->nid);
-+	err = -EIO;
-+err_out:
-+	DBG_BUGON(1);
-+	kfree(copied);
-+	unlock_page(page);
-+	put_page(page);
-+	return ERR_PTR(err);
- }
- 
- /*
-@@ -132,7 +195,7 @@ static int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
- 		if (unlikely(lnk == NULL))
- 			return -ENOMEM;
- 
--		m_pofs += vi->inode_isize + vi->xattr_isize;
-+		m_pofs += vi->xattr_isize;
- 
- 		/* inline symlink data shouldn't across page boundary as well */
- 		if (unlikely(m_pofs + inode->i_size > PAGE_SIZE)) {
-@@ -153,35 +216,17 @@ static int fill_inline_data(struct inode *inode, void *data, unsigned m_pofs)
- 
- static int fill_inode(struct inode *inode, int isdir)
- {
--	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
--	struct erofs_vnode *vi = EROFS_V(inode);
- 	struct page *page;
--	void *data;
--	int err;
--	erofs_blk_t blkaddr;
--	unsigned ofs;
-+	unsigned int ofs;
-+	int err = 0;
- 
- 	trace_erofs_fill_inode(inode, isdir);
- 
--	blkaddr = erofs_blknr(iloc(sbi, vi->nid));
--	ofs = erofs_blkoff(iloc(sbi, vi->nid));
--
--	debugln("%s, reading inode nid %llu at %u of blkaddr %u",
--		__func__, vi->nid, ofs, blkaddr);
--
--	page = erofs_get_meta_page(inode->i_sb, blkaddr, isdir);
--
-+	/* read inode base data from disk */
-+	page = read_inode(inode, &ofs);
- 	if (IS_ERR(page)) {
--		errln("failed to get inode (nid: %llu) page, err %ld",
--			vi->nid, PTR_ERR(page));
- 		return PTR_ERR(page);
--	}
--
--	DBG_BUGON(!PageUptodate(page));
--	data = page_address(page);
--
--	err = read_inode(inode, data + ofs);
--	if (!err) {
-+	} else {
- 		/* setup the new inode */
- 		if (S_ISREG(inode->i_mode)) {
- #ifdef CONFIG_EROFS_FS_XATTR
-@@ -229,7 +274,7 @@ static int fill_inode(struct inode *inode, int isdir)
- 		inode->i_mapping->a_ops = &erofs_raw_access_aops;
- 
- 		/* fill last page if inline data is available */
--		fill_inline_data(inode, data, ofs);
-+		fill_inline_data(inode, page_address(page), ofs);
- 	}
- 
- out_unlock:
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index b8a4707dfafa..f6a6c54cba35 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -406,6 +406,7 @@ static const struct usb_device_id usb_quirk_list[] = {
- 
- 	/* Realtek hub in Dell WD19 (Type-C) */
- 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
-+	{ USB_DEVICE(0x0bda, 0x5487), .driver_info = USB_QUIRK_RESET_RESUME },
- 
- 	/* Generic RTL8153 based ethernet adapters */
- 	{ USB_DEVICE(0x0bda, 0x8153), .driver_info = USB_QUIRK_NO_LPM },
-@@ -438,6 +439,9 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
- 			USB_QUIRK_DISCONNECT_SUSPEND },
- 
-+	/* Lenovo ThinkPad USB-C Dock Gen2 Ethernet (RTL8153 GigE) */
-+	{ USB_DEVICE(0x17ef, 0xa387), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* BUILDWIN Photo Frame */
- 	{ USB_DEVICE(0x1908, 0x1315), .driver_info =
- 			USB_QUIRK_HONOR_BNUMINTERFACES },
-diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
-index f0dc432a3ceb..c97d8d251eb9 100644
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -1479,7 +1479,8 @@ static struct ovl_entry *ovl_get_lowerstack(struct super_block *sb,
-  * - upper/work dir of any overlayfs instance
-  */
- static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
--			   struct dentry *dentry, const char *name)
-+			   struct dentry *dentry, const char *name,
-+			   bool is_lower)
- {
- 	struct dentry *next = dentry, *parent;
- 	int err = 0;
-@@ -1491,7 +1492,7 @@ static int ovl_check_layer(struct super_block *sb, struct ovl_fs *ofs,
- 
- 	/* Walk back ancestors to root (inclusive) looking for traps */
- 	while (!err && parent != next) {
--		if (ovl_lookup_trap_inode(sb, parent)) {
-+		if (is_lower && ovl_lookup_trap_inode(sb, parent)) {
- 			err = -ELOOP;
- 			pr_err("overlayfs: overlapping %s path\n", name);
- 		} else if (ovl_is_inuse(parent)) {
-@@ -1517,7 +1518,7 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
- 
- 	if (ofs->upper_mnt) {
- 		err = ovl_check_layer(sb, ofs, ofs->upper_mnt->mnt_root,
--				      "upperdir");
-+				      "upperdir", false);
- 		if (err)
- 			return err;
- 
-@@ -1528,7 +1529,8 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
- 		 * workbasedir.  In that case, we already have their traps in
- 		 * inode cache and we will catch that case on lookup.
- 		 */
--		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir");
-+		err = ovl_check_layer(sb, ofs, ofs->workbasedir, "workdir",
-+				      false);
- 		if (err)
- 			return err;
- 	}
-@@ -1536,7 +1538,7 @@ static int ovl_check_overlapping_layers(struct super_block *sb,
- 	for (i = 0; i < ofs->numlower; i++) {
- 		err = ovl_check_layer(sb, ofs,
- 				      ofs->lower_layers[i].mnt->mnt_root,
--				      "lowerdir");
-+				      "lowerdir", true);
- 		if (err)
- 			return err;
- 	}
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 019468f072b7..1a37748766b7 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -230,10 +230,14 @@ void __iomem *__acpi_map_table(unsigned long phys, unsigned long size);
- void __acpi_unmap_table(void __iomem *map, unsigned long size);
- int early_acpi_boot_init(void);
- int acpi_boot_init (void);
-+void acpi_boot_table_prepare (void);
- void acpi_boot_table_init (void);
- int acpi_mps_check (void);
- int acpi_numa_init (void);
- 
-+int acpi_locate_initial_tables (void);
-+void acpi_reserve_initial_tables (void);
-+void acpi_table_init_complete (void);
- int acpi_table_init (void);
- int acpi_table_parse(char *id, acpi_tbl_table_handler handler);
- int __init acpi_table_parse_entries(char *id, unsigned long table_size,
-@@ -734,9 +738,12 @@ static inline int acpi_boot_init(void)
- 	return 0;
- }
- 
-+static inline void acpi_boot_table_prepare(void)
-+{
-+}
-+
- static inline void acpi_boot_table_init(void)
- {
--	return;
- }
- 
- static inline int acpi_mps_check(void)
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index a0cdb6c4a330..f49f84b71a6b 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6099,14 +6099,10 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 			*patch++ = BPF_ALU64_REG(BPF_OR, BPF_REG_AX, off_reg);
- 			*patch++ = BPF_ALU64_IMM(BPF_NEG, BPF_REG_AX, 0);
- 			*patch++ = BPF_ALU64_IMM(BPF_ARSH, BPF_REG_AX, 63);
--			if (issrc) {
--				*patch++ = BPF_ALU64_REG(BPF_AND, BPF_REG_AX,
--							 off_reg);
--				insn->src_reg = BPF_REG_AX;
--			} else {
--				*patch++ = BPF_ALU64_REG(BPF_AND, off_reg,
--							 BPF_REG_AX);
--			}
-+			*patch++ = BPF_ALU64_REG(BPF_AND, BPF_REG_AX, off_reg);
-+			if (!issrc)
-+				*patch++ = BPF_MOV64_REG(insn->dst_reg, insn->src_reg);
-+			insn->src_reg = BPF_REG_AX;
- 			if (isneg)
- 				insn->code = insn->code == code_add ?
- 					     code_sub : code_add;
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 83f72ddf4fda..81304c2c1124 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -2499,6 +2499,16 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 	}
- },
- 
-+{
-+	USB_DEVICE_VENDOR_SPEC(0x0944, 0x0204),
-+	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
-+		.vendor_name = "KORG, Inc.",
-+		/* .product_name = "ToneLab EX", */
-+		.ifnum = 3,
-+		.type = QUIRK_MIDI_STANDARD_INTERFACE,
-+	}
-+},
-+
- /* AKAI devices */
- {
- 	USB_DEVICE(0x09e8, 0x0062),
+I'm announcing the release of the 5.4.117 kernel.
+
+All users of the 5.4 kernel series must upgrade.
+
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                          |    2 -
+ arch/mips/include/asm/vdso/gettimeofday.h         |   26 +++++++++++--
+ arch/x86/kernel/acpi/boot.c                       |   25 ++++++-------
+ arch/x86/kernel/setup.c                           |    7 +--
+ drivers/acpi/tables.c                             |   42 ++++++++++++++++++++--
+ drivers/net/ethernet/intel/igb/igb_main.c         |    3 -
+ drivers/net/usb/ax88179_178a.c                    |    4 +-
+ drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c |    7 ++-
+ drivers/net/wireless/intel/iwlwifi/pcie/tx.c      |    7 ++-
+ drivers/platform/x86/thinkpad_acpi.c              |   31 +++++++++++-----
+ drivers/scsi/ufs/ufshcd.c                         |   14 +++++--
+ drivers/usb/core/quirks.c                         |    4 ++
+ drivers/vfio/Kconfig                              |    2 -
+ fs/overlayfs/super.c                              |   12 +++---
+ include/linux/acpi.h                              |    9 ++++
+ include/linux/bpf_verifier.h                      |    5 +-
+ kernel/bpf/verifier.c                             |   33 +++++++++--------
+ kernel/events/core.c                              |   12 +++---
+ lib/Makefile                                      |    4 +-
+ sound/usb/quirks-table.h                          |   10 +++++
+ tools/perf/builtin-ftrace.c                       |    2 -
+ tools/perf/util/data.c                            |    5 +-
+ 22 files changed, 181 insertions(+), 85 deletions(-)
+
+Arnd Bergmann (1):
+      avoid __memcat_p link failure
+
+Chris Chiu (1):
+      USB: Add reset-resume quirk for WD19's Realtek Hub
+
+Dan Carpenter (1):
+      scsi: ufs: Unlock on a couple error paths
+
+Daniel Borkmann (2):
+      bpf: Fix masking negation logic upon negative dst register
+      bpf: Fix leakage of uninitialized bpf stack under speculation
+
+Greg Kroah-Hartman (1):
+      Linux 5.4.117
+
+Jason Gunthorpe (1):
+      vfio: Depend on MMU
+
+Jiri Kosina (2):
+      iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_enqueue_hcmd()
+      iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_gen2_enqueue_hcmd()
+
+Kai-Heng Feng (1):
+      USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
+
+Mark Pearson (1):
+      platform/x86: thinkpad_acpi: Correct thermal sensor allocation
+
+Miklos Szeredi (1):
+      ovl: allow upperdir inside lowerdir
+
+Nick Lowe (1):
+      igb: Enable RSS for Intel I211 Ethernet Controller
+
+Ondrej Mosnacek (1):
+      perf/core: Fix unconditional security_locked_down() call
+
+Phillip Potter (1):
+      net: usb: ax88179_178a: initialize local variables before use
+
+Rafael J. Wysocki (2):
+      ACPI: tables: x86: Reserve memory occupied by ACPI tables
+      ACPI: x86: Call acpi_boot_table_init() after acpi_table_upgrade()
+
+Romain Naour (1):
+      mips: Do not include hi and lo in clobber list for R6
+
+Takashi Iwai (1):
+      ALSA: usb-audio: Add MIDI quirk for Vox ToneLab EX
+
+Thomas Richter (1):
+      perf ftrace: Fix access to pid in array when setting a pid filter
+
+Zhen Lei (1):
+      perf data: Fix error return code in perf_data__create_dir()
+
