@@ -2,162 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992E13767EC
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 17:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E68453767F4
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 17:29:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233864AbhEGP3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 11:29:01 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:33811 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233167AbhEGP3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 11:29:00 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A256F1941A19;
-        Fri,  7 May 2021 11:27:59 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Fri, 07 May 2021 11:27:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=BhYkiK
-        oEOtQrG1KP9wSPfdOJpJ1vlzWuAlgc3DWdkvc=; b=M0I4vvTNuRgxwslSlwh0RF
-        R4TFZBwKhXW3I5xoVB0+ANfppTcBDOb2BuI8FWtQUONaHZHupGjQP0kx86ughfIW
-        A0SWUcSlqDJpONOxEzEGA1n8+yXZ2YMzLlaBmxBC66gFPrGxo/zmZX560k83fqgN
-        CBX3yVyzGyq40NoWiorXltERiV3lagers6l4JHaK0zHDU3ihZzD69ImwVIOWgZEo
-        qCLdKCpB8y94UWPsMg0LbazU9SqFNxdaeVOocCzZNvhzM3QVjRuBa1iwnDwBcuEk
-        n4FgLFxaGt5TLgGmDWPNSNEhxKrXim46s6fWJyUfDhnOb6oK6hN0W+8zJDvGze3w
-        ==
-X-ME-Sender: <xms:f1yVYJrMe7ddtcmrnpPWzmXWanHm_vUVrk_XEbHANyaebRdH5OE9AA>
-    <xme:f1yVYLqVdss1NkOp1NU8RPBcWIKpIjOQcHgDo1DJ5re5aDx_jeEj6dG3bx2Bnmscg
-    VFHteoTeR5UFw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegvddgkeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:f1yVYGM023Y79185U4ZiOgAsCahBiBAP7ToOyk7JlCrVTX7k_P6WOg>
-    <xmx:f1yVYE6sjfawzClQUelGZrjxBLxwXtneQe73leZkOQoIrWvmtWzscQ>
-    <xmx:f1yVYI41TPvVDPnWW5WUYSoe7mSyFqcFzT0GYye8GexhAFFStgq8iQ>
-    <xmx:f1yVYNhaZ6_zQPi0Rr1b2PRpYWhtw_zh0Vm1jpJMCJ9JrMyc0hQCAQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Fri,  7 May 2021 11:27:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix metadata extent leak after failure to create" failed to apply to 4.4-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 May 2021 17:27:56 +0200
-Message-ID: <1620401276119220@kroah.com>
+        id S233167AbhEGPat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 11:30:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41812 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232314AbhEGPat (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 11:30:49 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF6BC061574
+        for <stable@vger.kernel.org>; Fri,  7 May 2021 08:29:49 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id s22so7394277pgk.6
+        for <stable@vger.kernel.org>; Fri, 07 May 2021 08:29:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NBfhJroI5LpOcAEQDJ8Iv542LX20l12rvHAHrrq1wys=;
+        b=WORy7LNvL486b5YyDdovM9fvMmnyNcsJ1immblYR9jS/19gS/tHozYhv+kLUdmp1ju
+         auQXcGYGZCWkZQhd+xxAjhoweL5P5rhovzngRkUPkYk1/lVVrVdR65HJYtIcEXbDphhN
+         hAo3ijvR7gMKmqIvktbmdX9w5iAGhU6RBhoSSGX4/tczk2gfMe8KMaFXa0tHx/JNQ2L8
+         35MWlUwqHO4/DG0Yz+1wF2oG0XwQQBAw70rJkG6lAjZilL0yD/Jo4MnXSqlNZzNDHQ0V
+         +WaiTvb1DDB021BvuhOrBbe6Tw7WfxTHrW13p9GBaZWNNvQhQxhw4WVzpnzE5UsuAPoV
+         ppHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NBfhJroI5LpOcAEQDJ8Iv542LX20l12rvHAHrrq1wys=;
+        b=E6LMZKHM2pKD9QjyMdyR1yq61QhmZExp8qujhJEBw5k9BZB5zORw/p1zdZccRb1Odf
+         uPN+vq238GBnA2bd/ypa8b5FvzG6k0tkSj0hnrXZG5q6Bp0RhtpLj419+xHD9AYcYoeG
+         vNJMaa6onghcFAvEOnhZNZ/nIMJEj/OXdHpYnxIJCWv/W2Kt42dEnnbwX0uCKN9WaCMn
+         kBd8vuNrCAD9834mSPQO31pgDdLG4AeA9g/zvrvOXfdXPypnIMAjgHMg8HYzH1ZkB4i1
+         rHtG8VmO5FRrZOJ8QiRON3INlWgyGqfhOMnO3ffzijXAkLD8IaU3UA54s2PvSzUyX23u
+         Qgyw==
+X-Gm-Message-State: AOAM530UMItY2xkXxWadWlOyOPATBtvtFWgP3zzNoh3216TIIS/i3TJk
+        92RjPtJijghhxn4sTfmkYl1BA4nsUpUnU7fY
+X-Google-Smtp-Source: ABdhPJwlzYTheQU1eSW9NknNjmTOHKPrieZHqrB3wdm2O5gylsgPphF36tJdT7E0qJwYmq82h+DDoA==
+X-Received: by 2002:a62:2a14:0:b029:263:20c5:6d8c with SMTP id q20-20020a622a140000b029026320c56d8cmr11008727pfq.23.1620401388949;
+        Fri, 07 May 2021 08:29:48 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u1sm4969877pgh.80.2021.05.07.08.29.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 May 2021 08:29:48 -0700 (PDT)
+Message-ID: <60955cec.1c69fb81.e80e0.ea6c@mx.google.com>
+Date:   Fri, 07 May 2021 08:29:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.11.18-30-g80983e09d98ce
+X-Kernelci-Branch: queue/5.11
+Subject: stable-rc/queue/5.11 baseline: 106 runs,
+ 1 regressions (v5.11.18-30-g80983e09d98ce)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.11 baseline: 106 runs, 1 regressions (v5.11.18-30-g80983e=
+09d98ce)
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-greg k-h
 
------------------- original commit in Linus's tree ------------------
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.11/ker=
+nel/v5.11.18-30-g80983e09d98ce/plan/baseline/
 
-From 67addf29004c5be9fa0383c82a364bb59afc7f84 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Tue, 20 Apr 2021 10:55:12 +0100
-Subject: [PATCH] btrfs: fix metadata extent leak after failure to create
- subvolume
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.11
+  Describe: v5.11.18-30-g80983e09d98ce
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      80983e09d98cead100040800371966922c1c5a93 =
 
-When creating a subvolume we allocate an extent buffer for its root node
-after starting a transaction. We setup a root item for the subvolume that
-points to that extent buffer and then attempt to insert the root item into
-the root tree - however if that fails, due to ENOMEM for example, we do
-not free the extent buffer previously allocated and we do not abort the
-transaction (as at that point we did nothing that can not be undone).
 
-This means that we effectively do not return the metadata extent back to
-the free space cache/tree and we leave a delayed reference for it which
-causes a metadata extent item to be added to the extent tree, in the next
-transaction commit, without having backreferences. When this happens
-'btrfs check' reports the following:
 
-  $ btrfs check /dev/sdi
-  Opening filesystem to check...
-  Checking filesystem on /dev/sdi
-  UUID: dce2cb9d-025f-4b05-a4bf-cee0ad3785eb
-  [1/7] checking root items
-  [2/7] checking extents
-  ref mismatch on [30425088 16384] extent item 1, found 0
-  backref 30425088 root 256 not referenced back 0x564a91c23d70
-  incorrect global backref count on 30425088 found 1 wanted 0
-  backpointer mismatch on [30425088 16384]
-  owner ref check failed [30425088 16384]
-  ERROR: errors found in extent allocation tree or chunk allocation
-  [3/7] checking free space cache
-  [4/7] checking fs roots
-  [5/7] checking only csums items (without verifying data)
-  [6/7] checking root refs
-  [7/7] checking quota groups skipped (not enabled on this FS)
-  found 212992 bytes used, error(s) found
-  total csum bytes: 0
-  total tree bytes: 131072
-  total fs tree bytes: 32768
-  total extent tree bytes: 16384
-  btree space waste bytes: 124669
-  file data blocks allocated: 65536
-   referenced 65536
+Test Regressions
+---------------- =
 
-So fix this by freeing the metadata extent if btrfs_insert_root() returns
-an error.
 
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 37c92a9fa2e3..b1328f17607e 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -697,8 +697,6 @@ static noinline int create_subvol(struct inode *dir,
- 	btrfs_set_root_otransid(root_item, trans->transid);
- 
- 	btrfs_tree_unlock(leaf);
--	free_extent_buffer(leaf);
--	leaf = NULL;
- 
- 	btrfs_set_root_dirid(root_item, BTRFS_FIRST_FREE_OBJECTID);
- 
-@@ -707,8 +705,22 @@ static noinline int create_subvol(struct inode *dir,
- 	key.type = BTRFS_ROOT_ITEM_KEY;
- 	ret = btrfs_insert_root(trans, fs_info->tree_root, &key,
- 				root_item);
--	if (ret)
-+	if (ret) {
-+		/*
-+		 * Since we don't abort the transaction in this case, free the
-+		 * tree block so that we don't leak space and leave the
-+		 * filesystem in an inconsistent state (an extent item in the
-+		 * extent tree without backreferences). Also no need to have
-+		 * the tree block locked since it is not in any tree at this
-+		 * point, so no other task can find it and use it.
-+		 */
-+		btrfs_free_tree_block(trans, root, leaf, 0, 1);
-+		free_extent_buffer(leaf);
- 		goto fail;
-+	}
-+
-+	free_extent_buffer(leaf);
-+	leaf = NULL;
- 
- 	key.offset = (u64)-1;
- 	new_root = btrfs_get_new_fs_root(fs_info, objectid, anon_dev);
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
+
+  Details:     https://kernelci.org/test/plan/id/60952c34d554b83af16f5482
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.18-=
+30-g80983e09d98ce/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.18-=
+30-g80983e09d98ce/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60952c34d554b83af16f5=
+483
+        failing since 0 day (last pass: v5.11.18-29-g6c2ae64a2a728, first f=
+ail: v5.11.18-30-g4232ce7a02cc) =
+
+ =20
