@@ -2,122 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF421375F35
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 05:37:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50E0E375F7D
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 06:34:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232241AbhEGDio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 23:38:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53044 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232236AbhEGDin (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 23:38:43 -0400
-Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12233C061574
-        for <stable@vger.kernel.org>; Thu,  6 May 2021 20:37:44 -0700 (PDT)
-Received: by mail-qk1-x74a.google.com with SMTP id s10-20020a05620a030ab02902e061a1661fso5053374qkm.12
-        for <stable@vger.kernel.org>; Thu, 06 May 2021 20:37:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=mmh/HasNad45uSD7aVtNYaJgQvNsNvTGr9AsS2eHU3s=;
-        b=RfTCNGnRBobPph7DjJQKUzjwlChJOsSNHGppS/YfPq1Fwd0paDPKYSwBwqC6OA+ona
-         0UHYZJ2GeOpOMBDHatX05MwoBm9DaJT6BleLIzzrw0ZP1rixPUzW2gWSBzhQGTiDFptG
-         QEIHFDkySObAtAITjJyjOGzQpl+eC+a9KA3Li+T28Ms+kxM4dXa7UHSWctLcEbwJbrVq
-         NWiw6IaZ1UXIKobEkBWO5R6a6UkSnD9djIZZiPOA38+QGqQJ64ut7RuuboUkFSsOPdFb
-         fFh8iIvXdw0ESGrzrA9Z2NrLLXHX25Dps/xl9xxsrE1nlWKRjubqvm5i7n/jCMKJLtAv
-         yzCA==
+        id S231675AbhEGEfb convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 7 May 2021 00:35:31 -0400
+Received: from mail-qk1-f176.google.com ([209.85.222.176]:35503 "EHLO
+        mail-qk1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231630AbhEGEfb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 00:35:31 -0400
+Received: by mail-qk1-f176.google.com with SMTP id x8so7324383qkl.2;
+        Thu, 06 May 2021 21:34:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=mmh/HasNad45uSD7aVtNYaJgQvNsNvTGr9AsS2eHU3s=;
-        b=tqmFkRUt6jKbjx9CQvu6KLvvkZArKuzpLWtaG98CjNkeTbO3gr2d4QKbsR8I+mYQAW
-         4uJF/s9MJuqqK9QC4hc6y6QqEZwC8onPjDSrvlTfQgp6bpTpmNTyORYfMfNnD94iNLhy
-         HxPgknJL0nMeecqG6hMN9yP33pRUU03YbLphwReUJRaK4doQtMt/pA1JL1+sr19RnLE+
-         CMRXrTxWV0Si+UQHebjEIzBsNJjZDEc/fm8A2xvXvw9t19Wqcsllv8F9B7LH2OnrCtE0
-         7JYsCnn15mh9DxWCdYjKVav9kTwePw0dM3zaEQH2tlZXJ7lg8jVSJHod71T8FEgIbqfH
-         /sZQ==
-X-Gm-Message-State: AOAM533U5unmuJxHTtMk90nUsLDGTokyplZ5Ae825DrHnnbPC8GN+pwP
-        s6KknjXhKJ9wXcgxhgSZ96No6oU=
-X-Google-Smtp-Source: ABdhPJzw6qkCrj56jDT5D8uW81ZD4tJiE+Ui+OuZHuGtY5kaBkPhqNLmwdNvnacQapTZCpHH4kBZ37M=
-X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2ce:200:c762:3d3c:b811:8e75])
- (user=pcc job=sendgmr) by 2002:a0c:e9c6:: with SMTP id q6mr7701948qvo.15.1620358663196;
- Thu, 06 May 2021 20:37:43 -0700 (PDT)
-Date:   Thu,  6 May 2021 20:37:25 -0700
-Message-Id: <20210507033725.1479129-1-pcc@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.31.1.607.g51e8a6a459-goog
-Subject: [PATCH] arm64: mte: initialize RGSR_EL1.SEED in __cpu_setup
-From:   Peter Collingbourne <pcc@google.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Will Deacon <will@kernel.org>
-Cc:     Peter Collingbourne <pcc@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=Ny/T7GETCcZsveAc22eept4j8pRJh4Gka9m8hkhoVOo=;
+        b=K5NjoWuw90PKfs1J1nz3OQNFKjKleCp07sBguSZkuTYqzt+yg/fO5zt4XUICM0gT8W
+         IS7M0jLVsw5cYDwtgMJvoJcGK9d/975rxPDybYXAMYGIDUJfM5L3Igc2Fj1iWQisLTlq
+         4pEIC8M9ASWGb3p/9c0S9cWitHqnFxaXtQhpufvE+KeU9cG8RlATUNYUFqVMx7faOFq8
+         IfVM9Gx99ujka7OXlgTrDLj8uLsRSos/HCV1kcigj8UYoYhxExNi/68GmmGPQC7kbarE
+         B38MIx2QdEMzt5Tew3XMuQzCQdeCniovpFPDB426wPLotcdS+8/h7c5d+q7b4ztM1JMl
+         8Kzw==
+X-Gm-Message-State: AOAM533Uk6/oASDQEoR5rKZjgd1DXftiOmDBrBB4MVZ5ESJJTLeQUAXE
+        N3vVyZZe2g4g6BQuM9zKBbw1gxMkLAw=
+X-Google-Smtp-Source: ABdhPJx3qDTe8f4kbU5lASQAD88Rzzj+FaRBv1rGnD/PgTTLmOeVLCJClkpxFiby7a4ddyQ2xhrGwQ==
+X-Received: by 2002:a37:8744:: with SMTP id j65mr8112694qkd.304.1620362070766;
+        Thu, 06 May 2021 21:34:30 -0700 (PDT)
+Received: from ?IPv6:2601:184:417f:5b5f::557e:48ed? ([2601:184:417f:5b5f::557e:48ed])
+        by smtp.gmail.com with ESMTPSA id p187sm4149487qkd.92.2021.05.06.21.34.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 May 2021 21:34:30 -0700 (PDT)
+Subject: Re: [PATCH AUTOSEL 5.12 090/116] ASoC: rt286: Generalize support for
+ ALC3263 codec
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org
+References: <20210505163125.3460440-1-sashal@kernel.org>
+ <20210505163125.3460440-90-sashal@kernel.org>
+From:   David Ward <david.ward@gatech.edu>
+Message-ID: <55cb81cd-4eb9-049a-abf6-d4628ac8cb34@gatech.edu>
+Date:   Fri, 7 May 2021 00:34:29 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
+MIME-Version: 1.0
+In-Reply-To: <20210505163125.3460440-90-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A valid implementation choice for the ChooseRandomNonExcludedTag()
-pseudocode function used by IRG is to behave in the same way as with
-GCR_EL1.RRND=0. This would mean that RGSR_EL1.SEED is used as an LFSR
-which must have a non-zero value in order for IRG to properly produce
-pseudorandom numbers. However, RGSR_EL1 is reset to an UNKNOWN value
-on soft reset and thus may reset to 0. Therefore we must initialize
-RGSR_EL1.SEED to a non-zero value in order to ensure that IRG behaves
-as expected.
+On 5/5/21 12:30 PM, Sasha Levin wrote:
+> From: David Ward <david.ward@gatech.edu>
+>
+> [ Upstream commit aa2f9c12821e6a4ba1df4fb34a3dbc6a2a1ee7fe ]
+>
+> The ALC3263 codec on the XPS 13 9343 is also found on the Latitude 13 7350
+> and Venue 11 Pro 7140. They require the same handling for the combo jack to
+> work with a headset: GPIO pin 6 must be set.
+>
+> The HDA driver always sets this pin on the ALC3263, which it distinguishes
+> by the codec vendor/device ID 0x10ec0288 and PCI subsystem vendor ID 0x1028
+> (Dell). The ASoC driver does not use PCI, so adapt this check to use DMI to
+> determine if Dell is the system vendor.
 
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Cc: stable@vger.kernel.org
-Link: https://linux-review.googlesource.com/id/I2b089b6c7d6f17ee37e2f0db7df5ad5bcc04526c
----
- arch/arm64/mm/proc.S | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+For this patch to be useful, commit cd8499d5c03b ("ASoC: rt286: Make 
+RT286_SET_GPIO_* readable and writable") from the same series is needed 
+as well, which fixed the regmap config.
 
-diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
-index 0a48191534ff..e8e1eaee4b3f 100644
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -437,7 +437,7 @@ SYM_FUNC_START(__cpu_setup)
- 	mrs	x10, ID_AA64PFR1_EL1
- 	ubfx	x10, x10, #ID_AA64PFR1_MTE_SHIFT, #4
- 	cmp	x10, #ID_AA64PFR1_MTE
--	b.lt	1f
-+	b.lt	2f
- 
- 	/* Normal Tagged memory type at the corresponding MAIR index */
- 	mov	x10, #MAIR_ATTR_NORMAL_TAGGED
-@@ -447,6 +447,19 @@ SYM_FUNC_START(__cpu_setup)
- 	mov	x10, #(SYS_GCR_EL1_RRND | SYS_GCR_EL1_EXCL_MASK)
- 	msr_s	SYS_GCR_EL1, x10
- 
-+	/*
-+	 * Initialize RGSR_EL1.SEED to a non-zero value. If the implementation
-+	 * chooses to implement GCR_EL1.RRND=1 in the same way as RRND=0 then
-+	 * the seed will be used as an LFSR, so it should be put onto the MLS.
-+	 */
-+	mrs	x10, CNTVCT_EL0
-+	and	x10, x10, #SYS_RGSR_EL1_SEED_MASK
-+	cbnz	x10, 1f
-+	mov	x10, #1
-+1:
-+	lsl	x10, x10, #SYS_RGSR_EL1_SEED_SHIFT
-+	msr_s	SYS_RGSR_EL1, x10
-+
- 	/* clear any pending tag check faults in TFSR*_EL1 */
- 	msr_s	SYS_TFSR_EL1, xzr
- 	msr_s	SYS_TFSRE0_EL1, xzr
-@@ -454,7 +467,7 @@ SYM_FUNC_START(__cpu_setup)
- 	/* set the TCR_EL1 bits */
- 	mov_q	x10, TCR_KASAN_HW_FLAGS
- 	orr	tcr, tcr, x10
--1:
-+2:
- #endif
- 	tcr_clear_errata_bits tcr, x9, x5
- 
--- 
-2.31.1.607.g51e8a6a459-goog
+(The same comment is true for all stable branches.)
+
+Thank you,
+
+David
+
+>
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=150601
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205961
+> Signed-off-by: David Ward <david.ward@gatech.edu>
+> Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+> Link: https://lore.kernel.org/r/20210418134658.4333-6-david.ward@gatech.edu
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   sound/soc/codecs/rt286.c | 20 ++++++++++----------
+>   1 file changed, 10 insertions(+), 10 deletions(-)
+>
+> diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
+> index 8abe232ca4a4..2f18f5114f7e 100644
+> --- a/sound/soc/codecs/rt286.c
+> +++ b/sound/soc/codecs/rt286.c
+> @@ -1117,12 +1117,11 @@ static const struct dmi_system_id force_combo_jack_table[] = {
+>   	{ }
+>   };
+>   
+> -static const struct dmi_system_id dmi_dell_dino[] = {
+> +static const struct dmi_system_id dmi_dell[] = {
+>   	{
+> -		.ident = "Dell Dino",
+> +		.ident = "Dell",
+>   		.matches = {
+>   			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> -			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 9343")
+>   		}
+>   	},
+>   	{ }
+> @@ -1133,7 +1132,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+>   {
+>   	struct rt286_platform_data *pdata = dev_get_platdata(&i2c->dev);
+>   	struct rt286_priv *rt286;
+> -	int i, ret, val;
+> +	int i, ret, vendor_id;
+>   
+>   	rt286 = devm_kzalloc(&i2c->dev,	sizeof(*rt286),
+>   				GFP_KERNEL);
+> @@ -1149,14 +1148,15 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+>   	}
+>   
+>   	ret = regmap_read(rt286->regmap,
+> -		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &val);
+> +		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &vendor_id);
+>   	if (ret != 0) {
+>   		dev_err(&i2c->dev, "I2C error %d\n", ret);
+>   		return ret;
+>   	}
+> -	if (val != RT286_VENDOR_ID && val != RT288_VENDOR_ID) {
+> +	if (vendor_id != RT286_VENDOR_ID && vendor_id != RT288_VENDOR_ID) {
+>   		dev_err(&i2c->dev,
+> -			"Device with ID register %#x is not rt286\n", val);
+> +			"Device with ID register %#x is not rt286\n",
+> +			vendor_id);
+>   		return -ENODEV;
+>   	}
+>   
+> @@ -1180,8 +1180,8 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+>   	if (pdata)
+>   		rt286->pdata = *pdata;
+>   
+> -	if (dmi_check_system(force_combo_jack_table) ||
+> -		dmi_check_system(dmi_dell_dino))
+> +	if ((vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) ||
+> +		dmi_check_system(force_combo_jack_table))
+>   		rt286->pdata.cbj_en = true;
+>   
+>   	regmap_write(rt286->regmap, RT286_SET_AUDIO_POWER, AC_PWRST_D3);
+> @@ -1220,7 +1220,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+>   	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL3, 0xf777, 0x4737);
+>   	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL4, 0x00ff, 0x003f);
+>   
+> -	if (dmi_check_system(dmi_dell_dino)) {
+> +	if (vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) {
+>   		regmap_update_bits(rt286->regmap,
+>   			RT286_SET_GPIO_MASK, 0x40, 0x40);
+>   		regmap_update_bits(rt286->regmap,
 
