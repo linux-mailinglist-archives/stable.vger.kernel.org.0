@@ -2,390 +2,1063 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0A037680E
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 17:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06EAD37683D
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 17:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237895AbhEGPdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 11:33:06 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:60305 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237859AbhEGPdG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 11:33:06 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 4411519404EE;
-        Fri,  7 May 2021 11:32:05 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Fri, 07 May 2021 11:32:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=UajDNh
-        0StJwgIz3+e2XJdmsrTY1GjKWFysbalNGa+TA=; b=BGHDojMrFHaPAxDHAsU6ms
-        W/TafXji2j4o8jp3qx2jqAeUR6nbHT1qyG5EBaQPMLROfQOj+sxBRC9ImP6iQstX
-        e2NF3j2u95MfYKf488kO4dPJRTAFaCMQ/0fiWkbm92DUOaWmyMUtSxRHN+JXwCUF
-        o9LvGTqpE5T1KujvwkYoJLSmg1PBo5H5lpiv13VZayszqjeghH0utWFctOkLfq4I
-        LCSn7uSAAsKG/ji2rZSpeuvTcl9wfUd1Mn5183VbNTzMnkI/pTb7e37HO178vtfi
-        95efWq4c1pMtAnnm3EtaQ4UZbHpXUhuCCYBHNQUcGvzKoZS1JcA7oDBi1XM4Ah+w
-        ==
-X-ME-Sender: <xms:dF2VYFLDYsLsmu5x7Se8g1sbLGrQ9_Xg0g_CTorqoTtMMmh3SV1aZQ>
-    <xme:dF2VYBLyFvOwHZkx8X_6XGQ0lOOQEFPL1BhSCl42Bbw1I3_NNAyEvnkE3QcqNgUTt
-    za-2Oes7fk57A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegvddgkeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:dF2VYNuVOdoLKh960XYQOqWfrjaWE7ZLDLrCxQBhkyKiesKk5ANwGg>
-    <xmx:dF2VYGb87vtVkAJPjlEL_ijb2eCcn4ssN7IWnJpmFwRYlWQlX1ZzyQ>
-    <xmx:dF2VYMbf0Fn0UJGXqwqPEDaPecK4slkPRWnSis7LfrDBxJ2BrB1DdA>
-    <xmx:dV2VYHzupthtdipifERR0516dOLahthuTDNhhD7efwb18QaXJhcOpg>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Fri,  7 May 2021 11:32:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix race when picking most recent mod log operation" failed to apply to 5.12-stable tree
-To:     fdmanana@suse.com, ce3g8jdj@umail.furryterror.org, dsterba@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 May 2021 17:31:51 +0200
-Message-ID: <162040151135190@kroah.com>
+        id S233113AbhEGPsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 11:48:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45616 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229558AbhEGPr6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 11:47:58 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBFA6C061574
+        for <stable@vger.kernel.org>; Fri,  7 May 2021 08:46:56 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id s22so7428345pgk.6
+        for <stable@vger.kernel.org>; Fri, 07 May 2021 08:46:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pCl//DcaE4C0/6mCT2ORSXad73hhKPM2yjGXOcKGlRo=;
+        b=ofxYDf4MFHFxHCZyl4+hCcYO5ZAmqp96zI0yQ9Flqy/ksTc+onodV858PBYTx6FiBK
+         tJJDyKSAW+bwz8PrLJJkBp34JDSfPfe4MBZn6TB7jqVwKPWrn4ZCofMBn+5E7rfTepiI
+         Q6ING9yE5I8ln6jsBjabnbkaFpaTCNu0jRXMIw9TS1ntwzpsn5BpnJg7gT2s72+KFtBy
+         qnxkP4ehHO7xUmpID19wHD2EOhiRSR/yccnHlvbidHVXUgnACRezTc4KtbphvB+pZM5D
+         /+88lz/I8+SdOldRVe70pxfFPohdqC0GpcunaHKr8h5D4WJ43NyeDECBJbFAP5uiQ4If
+         fMwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pCl//DcaE4C0/6mCT2ORSXad73hhKPM2yjGXOcKGlRo=;
+        b=DJeCMbB6QQWZ6NHSFT5XWaijUZ60EtYs6GaSAiPeCSIOUzNYBpBiBG+XB2Gu+f2HOt
+         vJEPMYq7H8EMyXbLc3YnuMCumwY2xkSe2wC1S7EoHkv7j+KaShDN0J3rIcMBQWxrpQ+J
+         CbJmb2w+bllp+KCshOsQrVAFVipXEoi02h9g5BYIybc+3YGEk20C5i32EvUm7Q6zAWZm
+         zJQ4xZhtkKW4oZWxSm23Aj3cgIWKH4/NUoryoIIqxzRGuMjAENQIocHVeQEgq0fTR0//
+         cREvoffwi7Rwdv9JXDgCK8n1Re37q/6fPwgIGvM34ihu8bAadolHoUTPbM6PL7D9Ddmr
+         5eng==
+X-Gm-Message-State: AOAM532mTZsWrekLdkP3MpAStbwUcEwOV4Egox6a+axZeZm6/OnWkwdb
+        Y/plQuKXB3VFdgeSLFmBpNzqlfKyk07HcD4E
+X-Google-Smtp-Source: ABdhPJxeHyt5VzcFDts2KgF8rIzE0eJJCoiy05kIb+LiqjDuF15PLL6YIDc617kgKtVbZty7svy50A==
+X-Received: by 2002:a63:eb0a:: with SMTP id t10mr10905483pgh.385.1620402415779;
+        Fri, 07 May 2021 08:46:55 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n189sm3293101pfn.10.2021.05.07.08.46.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 May 2021 08:46:55 -0700 (PDT)
+Message-ID: <609560ef.1c69fb81.5acf7.a0ed@mx.google.com>
+Date:   Fri, 07 May 2021 08:46:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.11.19-48-gd53cc5ac4f922
+X-Kernelci-Branch: queue/5.11
+Subject: stable-rc/queue/5.11 build: 179 builds: 0 failed, 179 passed,
+ 13 warnings (v5.11.19-48-gd53cc5ac4f922)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.11 build: 179 builds: 0 failed, 179 passed, 13 warnings (=
+v5.11.19-48-gd53cc5ac4f922)
 
-The patch below does not apply to the 5.12-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+1/kernel/v5.11.19-48-gd53cc5ac4f922/
 
-thanks,
+Tree: stable-rc
+Branch: queue/5.11
+Git Describe: v5.11.19-48-gd53cc5ac4f922
+Git Commit: d53cc5ac4f9220da3d38d10e8feb8daf3ff4b798
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-greg k-h
+Warnings Detected:
 
------------------- original commit in Linus's tree ------------------
+arc:
 
-From f9690f426b2134cc3e74bfc5d9dfd6a4b2ca5281 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Tue, 20 Apr 2021 10:55:44 +0100
-Subject: [PATCH] btrfs: fix race when picking most recent mod log operation
- for an old root
+arm64:
 
-Commit dbcc7d57bffc0c ("btrfs: fix race when cloning extent buffer during
-rewind of an old root"), fixed a race when we need to rewind the extent
-buffer of an old root. It was caused by picking a new mod log operation
-for the extent buffer while getting a cloned extent buffer with an outdated
-number of items (off by -1), because we cloned the extent buffer without
-locking it first.
+arm:
+    omap1_defconfig (gcc-8): 2 warnings
 
-However there is still another similar race, but in the opposite direction.
-The cloned extent buffer has a number of items that does not match the
-number of tree mod log operations that are going to be replayed. This is
-because right after we got the last (most recent) tree mod log operation to
-replay and before locking and cloning the extent buffer, another task adds
-a new pointer to the extent buffer, which results in adding a new tree mod
-log operation and incrementing the number of items in the extent buffer.
-So after cloning we have mismatch between the number of items in the extent
-buffer and the number of mod log operations we are going to apply to it.
-This results in hitting a BUG_ON() that produces the following stack trace:
+i386:
 
-   ------------[ cut here ]------------
-   kernel BUG at fs/btrfs/tree-mod-log.c:675!
-   invalid opcode: 0000 [#1] SMP KASAN PTI
-   CPU: 3 PID: 4811 Comm: crawl_1215 Tainted: G        W         5.12.0-7d1efdf501f8-misc-next+ #99
-   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-   RIP: 0010:tree_mod_log_rewind+0x3b1/0x3c0
-   Code: 05 48 8d 74 10 (...)
-   RSP: 0018:ffffc90001027090 EFLAGS: 00010293
-   RAX: 0000000000000000 RBX: ffff8880a8514600 RCX: ffffffffaa9e59b6
-   RDX: 0000000000000007 RSI: dffffc0000000000 RDI: ffff8880a851462c
-   RBP: ffffc900010270e0 R08: 00000000000000c0 R09: ffffed1004333417
-   R10: ffff88802199a0b7 R11: ffffed1004333416 R12: 000000000000000e
-   R13: ffff888135af8748 R14: ffff88818766ff00 R15: ffff8880a851462c
-   FS:  00007f29acf62700(0000) GS:ffff8881f2200000(0000) knlGS:0000000000000000
-   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-   CR2: 00007f0e6013f718 CR3: 000000010d42e003 CR4: 0000000000170ee0
-   Call Trace:
-    btrfs_get_old_root+0x16a/0x5c0
-    ? lock_downgrade+0x400/0x400
-    btrfs_search_old_slot+0x192/0x520
-    ? btrfs_search_slot+0x1090/0x1090
-    ? free_extent_buffer.part.61+0xd7/0x140
-    ? free_extent_buffer+0x13/0x20
-    resolve_indirect_refs+0x3e9/0xfc0
-    ? lock_downgrade+0x400/0x400
-    ? __kasan_check_read+0x11/0x20
-    ? add_prelim_ref.part.11+0x150/0x150
-    ? lock_downgrade+0x400/0x400
-    ? __kasan_check_read+0x11/0x20
-    ? lock_acquired+0xbb/0x620
-    ? __kasan_check_write+0x14/0x20
-    ? do_raw_spin_unlock+0xa8/0x140
-    ? rb_insert_color+0x340/0x360
-    ? prelim_ref_insert+0x12d/0x430
-    find_parent_nodes+0x5c3/0x1830
-    ? stack_trace_save+0x87/0xb0
-    ? resolve_indirect_refs+0xfc0/0xfc0
-    ? fs_reclaim_acquire+0x67/0xf0
-    ? __kasan_check_read+0x11/0x20
-    ? lockdep_hardirqs_on_prepare+0x210/0x210
-    ? fs_reclaim_acquire+0x67/0xf0
-    ? __kasan_check_read+0x11/0x20
-    ? ___might_sleep+0x10f/0x1e0
-    ? __kasan_kmalloc+0x9d/0xd0
-    ? trace_hardirqs_on+0x55/0x120
-    btrfs_find_all_roots_safe+0x142/0x1e0
-    ? find_parent_nodes+0x1830/0x1830
-    ? trace_hardirqs_on+0x55/0x120
-    ? ulist_free+0x1f/0x30
-    ? btrfs_inode_flags_to_xflags+0x50/0x50
-    iterate_extent_inodes+0x20e/0x580
-    ? tree_backref_for_extent+0x230/0x230
-    ? release_extent_buffer+0x225/0x280
-    ? read_extent_buffer+0xdd/0x110
-    ? lock_downgrade+0x400/0x400
-    ? __kasan_check_read+0x11/0x20
-    ? lock_acquired+0xbb/0x620
-    ? __kasan_check_write+0x14/0x20
-    ? do_raw_spin_unlock+0xa8/0x140
-    ? _raw_spin_unlock+0x22/0x30
-    ? release_extent_buffer+0x225/0x280
-    iterate_inodes_from_logical+0x129/0x170
-    ? iterate_inodes_from_logical+0x129/0x170
-    ? btrfs_inode_flags_to_xflags+0x50/0x50
-    ? iterate_extent_inodes+0x580/0x580
-    ? __vmalloc_node+0x92/0xb0
-    ? init_data_container+0x34/0xb0
-    ? init_data_container+0x34/0xb0
-    ? kvmalloc_node+0x60/0x80
-    btrfs_ioctl_logical_to_ino+0x158/0x230
-    btrfs_ioctl+0x2038/0x4360
-    ? __kasan_check_write+0x14/0x20
-    ? mmput+0x3b/0x220
-    ? btrfs_ioctl_get_supported_features+0x30/0x30
-    ? __kasan_check_read+0x11/0x20
-    ? __kasan_check_read+0x11/0x20
-    ? lock_release+0xc8/0x650
-    ? __might_fault+0x64/0xd0
-    ? __kasan_check_read+0x11/0x20
-    ? lock_downgrade+0x400/0x400
-    ? lockdep_hardirqs_on_prepare+0x210/0x210
-    ? lockdep_hardirqs_on_prepare+0x13/0x210
-    ? _raw_spin_unlock_irqrestore+0x51/0x63
-    ? __kasan_check_read+0x11/0x20
-    ? do_vfs_ioctl+0xfc/0x9d0
-    ? ioctl_file_clone+0xe0/0xe0
-    ? lock_downgrade+0x400/0x400
-    ? lockdep_hardirqs_on_prepare+0x210/0x210
-    ? __kasan_check_read+0x11/0x20
-    ? lock_release+0xc8/0x650
-    ? __task_pid_nr_ns+0xd3/0x250
-    ? __kasan_check_read+0x11/0x20
-    ? __fget_files+0x160/0x230
-    ? __fget_light+0xf2/0x110
-    __x64_sys_ioctl+0xc3/0x100
-    do_syscall_64+0x37/0x80
-    entry_SYSCALL_64_after_hwframe+0x44/0xae
-   RIP: 0033:0x7f29ae85b427
-   Code: 00 00 90 48 8b (...)
-   RSP: 002b:00007f29acf5fcf8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-   RAX: ffffffffffffffda RBX: 00007f29acf5ff40 RCX: 00007f29ae85b427
-   RDX: 00007f29acf5ff48 RSI: 00000000c038943b RDI: 0000000000000003
-   RBP: 0000000001000000 R08: 0000000000000000 R09: 00007f29acf60120
-   R10: 00005640d5fc7b00 R11: 0000000000000246 R12: 0000000000000003
-   R13: 00007f29acf5ff48 R14: 00007f29acf5ff40 R15: 00007f29acf5fef8
-   Modules linked in:
-   ---[ end trace 85e5fce078dfbe04 ]---
+mips:
+    32r2el_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    rm200_defconfig (gcc-8): 1 warning
 
-  (gdb) l *(tree_mod_log_rewind+0x3b1)
-  0xffffffff819e5b21 is in tree_mod_log_rewind (fs/btrfs/tree-mod-log.c:675).
-  670                      * the modification. As we're going backwards, we do the
-  671                      * opposite of each operation here.
-  672                      */
-  673                     switch (tm->op) {
-  674                     case BTRFS_MOD_LOG_KEY_REMOVE_WHILE_FREEING:
-  675                             BUG_ON(tm->slot < n);
-  676                             fallthrough;
-  677                     case BTRFS_MOD_LOG_KEY_REMOVE_WHILE_MOVING:
-  678                     case BTRFS_MOD_LOG_KEY_REMOVE:
-  679                             btrfs_set_node_key(eb, &tm->key, tm->slot);
-  (gdb) quit
+riscv:
+    rv32_defconfig (gcc-8): 6 warnings
 
-The following steps explain in more detail how it happens:
+x86_64:
+    allnoconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
 
-1) We have one tree mod log user (through fiemap or the logical ino ioctl),
-   with a sequence number of 1, so we have fs_info->tree_mod_seq == 1.
-   This is task A;
 
-2) Another task is at ctree.c:balance_level() and we have eb X currently as
-   the root of the tree, and we promote its single child, eb Y, as the new
-   root.
+Warnings summary:
 
-   Then, at ctree.c:balance_level(), we call:
+    2    kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=
+=E2=80=99 [-Wunused-variable]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    1    {standard input}:39: Warning: macro instruction expanded into mult=
+iple instructions
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    arch/arm/mach-omap1/board-h2.c:347:34: warning: =E2=80=98isp1301_g=
+piod_table=E2=80=99 defined but not used [-Wunused-variable]
+    1    arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: =E2=80=98am=
+s_delta_camera_power=E2=80=99 defined but not used [-Wunused-function]
+    1    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved sy=
+mbol check will be entirely skipped.
 
-      ret = btrfs_tree_mod_log_insert_root(root->node, child, true);
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
 
-3) At btrfs_tree_mod_log_insert_root() we create a tree mod log operation
-   of type BTRFS_MOD_LOG_KEY_REMOVE_WHILE_FREEING, with a ->logical field
-   pointing to ebX->start. We only have one item in eb X, so we create
-   only one tree mod log operation, and store in the "tm_list" array;
+Detailed per-defconfig build reports:
 
-4) Then, still at btrfs_tree_mod_log_insert_root(), we create a tree mod
-   log element of operation type BTRFS_MOD_LOG_ROOT_REPLACE, ->logical set
-   to ebY->start, ->old_root.logical set to ebX->start, ->old_root.level
-   set to the level of eb X and ->generation set to the generation of eb X;
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
 
-5) Then btrfs_tree_mod_log_insert_root() calls tree_mod_log_free_eb() with
-   "tm_list" as argument. After that, tree_mod_log_free_eb() calls
-   tree_mod_log_insert(). This inserts the mod log operation of type
-   BTRFS_MOD_LOG_KEY_REMOVE_WHILE_FREEING from step 3 into the rbtree
-   with a sequence number of 2 (and fs_info->tree_mod_seq set to 2);
+Warnings:
+    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved symbol =
+check will be entirely skipped.
 
-6) Then, after inserting the "tm_list" single element into the tree mod
-   log rbtree, the BTRFS_MOD_LOG_ROOT_REPLACE element is inserted, which
-   gets the sequence number 3 (and fs_info->tree_mod_seq set to 3);
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
 
-7) Back to ctree.c:balance_level(), we free eb X by calling
-   btrfs_free_tree_block() on it. Because eb X was created in the current
-   transaction, has no other references and writeback did not happen for
-   it, we add it back to the free space cache/tree;
+Warnings:
+    kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=E2=
+=80=99 [-Wunused-variable]
 
-8) Later some other task B allocates the metadata extent from eb X, since
-   it is marked as free space in the space cache/tree, and uses it as a
-   node for some other btree;
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
-9) The tree mod log user task calls btrfs_search_old_slot(), which calls
-   btrfs_get_old_root(), and finally that calls tree_mod_log_oldest_root()
-   with time_seq == 1 and eb_root == eb Y;
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
-10) The first iteration of the while loop finds the tree mod log element
-    with sequence number 3, for the logical address of eb Y and of type
-    BTRFS_MOD_LOG_ROOT_REPLACE;
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
-11) Because the operation type is BTRFS_MOD_LOG_ROOT_REPLACE, we don't
-    break out of the loop, and set root_logical to point to
-    tm->old_root.logical, which corresponds to the logical address of
-    eb X;
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
-12) On the next iteration of the while loop, the call to
-    tree_mod_log_search_oldest() returns the smallest tree mod log element
-    for the logical address of eb X, which has a sequence number of 2, an
-    operation type of BTRFS_MOD_LOG_KEY_REMOVE_WHILE_FREEING and
-    corresponds to the old slot 0 of eb X (eb X had only 1 item in it
-    before being freed at step 7);
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
-13) We then break out of the while loop and return the tree mod log
-    operation of type BTRFS_MOD_LOG_ROOT_REPLACE (eb Y), and not the one
-    for slot 0 of eb X, to btrfs_get_old_root();
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
-14) At btrfs_get_old_root(), we process the BTRFS_MOD_LOG_ROOT_REPLACE
-    operation and set "logical" to the logical address of eb X, which was
-    the old root. We then call tree_mod_log_search() passing it the logical
-    address of eb X and time_seq == 1;
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-15) But before calling tree_mod_log_search(), task B locks eb X, adds a
-    key to eb X, which results in adding a tree mod log operation of type
-    BTRFS_MOD_LOG_KEY_ADD, with a sequence number of 4, to the tree mod
-    log, and increments the number of items in eb X from 0 to 1.
-    Now fs_info->tree_mod_seq has a value of 4;
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-16) Task A then calls tree_mod_log_search(), which returns the most recent
-    tree mod log operation for eb X, which is the one just added by task B
-    at the previous step, with a sequence number of 4, a type of
-    BTRFS_MOD_LOG_KEY_ADD and for slot 0;
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-17) Before task A locks and clones eb X, task A adds another key to eb X,
-    which results in adding a new BTRFS_MOD_LOG_KEY_ADD mod log operation,
-    with a sequence number of 5, for slot 1 of eb X, increments the
-    number of items in eb X from 1 to 2, and unlocks eb X.
-    Now fs_info->tree_mod_seq has a value of 5;
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-18) Task A then locks eb X and clones it. The clone has a value of 2 for
-    the number of items and the pointer "tm" points to the tree mod log
-    operation with sequence number 4, not the most recent one with a
-    sequence number of 5, so there is mismatch between the number of
-    mod log operations that are going to be applied to the cloned version
-    of eb X and the number of items in the clone;
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-19) Task A then calls tree_mod_log_rewind() with the clone of eb X, the
-    tree mod log operation with sequence number 4 and a type of
-    BTRFS_MOD_LOG_KEY_ADD, and time_seq == 1;
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-20) At tree_mod_log_rewind(), we set the local variable "n" with a value
-    of 2, which is the number of items in the clone of eb X.
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
-    Then in the first iteration of the while loop, we process the mod log
-    operation with sequence number 4, which is targeted at slot 0 and has
-    a type of BTRFS_MOD_LOG_KEY_ADD. This results in decrementing "n" from
-    2 to 1.
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-    Then we pick the next tree mod log operation for eb X, which is the
-    tree mod log operation with a sequence number of 2, a type of
-    BTRFS_MOD_LOG_KEY_REMOVE_WHILE_FREEING and for slot 0, it is the one
-    added in step 5 to the tree mod log tree.
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-    We go back to the top of the loop to process this mod log operation,
-    and because its slot is 0 and "n" has a value of 1, we hit the BUG_ON:
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
-        (...)
-        switch (tm->op) {
-        case BTRFS_MOD_LOG_KEY_REMOVE_WHILE_FREEING:
-                BUG_ON(tm->slot < n);
-                fallthrough;
-	(...)
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
-Fix this by checking for a more recent tree mod log operation after locking
-and cloning the extent buffer of the old root node, and use it as the first
-operation to apply to the cloned extent buffer when rewinding it.
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
-Stable backport notes: due to moved code and renames, in =< 5.11 the
-change should be applied to ctree.c:get_old_root.
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
-Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
-Link: https://lore.kernel.org/linux-btrfs/20210404040732.GZ32440@hungrycats.org/
-Fixes: 834328a8493079 ("Btrfs: tree mod log's old roots could still be part of the tree")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
-diff --git a/fs/btrfs/tree-mod-log.c b/fs/btrfs/tree-mod-log.c
-index 1e52584f3fa5..8a3a14686d3e 100644
---- a/fs/btrfs/tree-mod-log.c
-+++ b/fs/btrfs/tree-mod-log.c
-@@ -830,10 +830,30 @@ struct extent_buffer *btrfs_get_old_root(struct btrfs_root *root, u64 time_seq)
- 				   "failed to read tree block %llu from get_old_root",
- 				   logical);
- 		} else {
-+			struct tree_mod_elem *tm2;
-+
- 			btrfs_tree_read_lock(old);
- 			eb = btrfs_clone_extent_buffer(old);
-+			/*
-+			 * After the lookup for the most recent tree mod operation
-+			 * above and before we locked and cloned the extent buffer
-+			 * 'old', a new tree mod log operation may have been added.
-+			 * So lookup for a more recent one to make sure the number
-+			 * of mod log operations we replay is consistent with the
-+			 * number of items we have in the cloned extent buffer,
-+			 * otherwise we can hit a BUG_ON when rewinding the extent
-+			 * buffer.
-+			 */
-+			tm2 = tree_mod_log_search(fs_info, logical, time_seq);
- 			btrfs_tree_read_unlock(old);
- 			free_extent_buffer(old);
-+			ASSERT(tm2);
-+			ASSERT(tm2 == tm || tm2->seq > tm->seq);
-+			if (!tm2 || tm2->seq < tm->seq) {
-+				free_extent_buffer(eb);
-+				return NULL;
-+			}
-+			tm = tm2;
- 		}
- 	} else if (old_root) {
- 		eb_root_owner = btrfs_header_owner(eb_root);
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    {standard input}:39: Warning: macro instruction expanded into multiple =
+instructions
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/mach-omap1/board-h2.c:347:34: warning: =E2=80=98isp1301_gpiod_=
+table=E2=80=99 defined but not used [-Wunused-variable]
+    arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: =E2=80=98ams_del=
+ta_camera_power=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=E2=
+=80=99 [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
