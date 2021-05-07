@@ -2,127 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6FCC3764D7
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 14:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37B6C376503
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 14:23:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235743AbhEGMEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 08:04:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52290 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235953AbhEGMEL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 08:04:11 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6BF6C061574
-        for <stable@vger.kernel.org>; Fri,  7 May 2021 05:03:11 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id s22so6992444pgk.6
-        for <stable@vger.kernel.org>; Fri, 07 May 2021 05:03:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=h77PUx4hHIbpF+jxrfLN401By7tcLh7A3S7anqq1p/k=;
-        b=CJmcmhdJjaAzZS+zppa8D0dydBD6h+7nZeXryUu0/erihqtSUxnFs0SeFxk8mGVjdH
-         ikFor9J1X67tRJudBzra3WZHXdO5iujBpzE6mNOBCkxURraSs/xe2oC1RMdD/Q3cb/Az
-         gUDCp9zyXUcTXmf+BgSrKDgD1ZZSBdgkp9MdrONbzupUqsF5IgVHCuiCcSPmwm+RcMRD
-         YEBsS2pFIi9T/gfgoxHOBdBksGLj7UsjI2e4jnglDn2lwQgb2OaA1YJID8KUmiiYSK3O
-         hu2OQdqfmXvULIR8bgsWP/40pudZSkLqHu7LlzDGZLaUUPz5XMkq7CIMSvUWyn9YqIYF
-         bbsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=h77PUx4hHIbpF+jxrfLN401By7tcLh7A3S7anqq1p/k=;
-        b=RP1VEiuf/qs1IsOGsVQPHP9pw8FWHZ6xgMc+tqGbQyM4Kn/3FgPybRrGFa2qF+bBjv
-         v2KsRv81ulHKaTvKY3Lb6lwRV9+88PJXo3xOncE2NalsBI5GPtxaoMX8ZDzjmp5/Jtvd
-         v0ZN2RWygTYj4AO08X4OyecXJzi9e4unHIF4udQnUOENr4di2lDNfvzqD2sKdfTlxmTX
-         soOm79f1OhStTO08Vs3A0tu7l24kknW7pamVT1ZgcrI41uPLr/Y21RUJQr1sKRagCHiw
-         PAeytH/t0IAnVt1cZumDb3aTyV1JghNJ+Qt4lgFOnEbIjbG+ApTPKHcYIg+2AgWEz5re
-         Hp9A==
-X-Gm-Message-State: AOAM531n3RpWbn3bwXco5okYKb7J1/MQReDvCG9eX7GfDflCJHhIgGnI
-        nPTxLdfYFeEtExy924a2WV0lvioTI6soFtrR
-X-Google-Smtp-Source: ABdhPJw9vL438UT9FrP6+f3ODmt7vVttaBYdMzu8Zf61iYMDY8+Mq80De5Vk2Aerz9LfDxnLxeVs4g==
-X-Received: by 2002:a63:1c22:: with SMTP id c34mr9655672pgc.408.1620388990922;
-        Fri, 07 May 2021 05:03:10 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q23sm4538593pgt.42.2021.05.07.05.03.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 May 2021 05:03:10 -0700 (PDT)
-Message-ID: <60952c7e.1c69fb81.1eeb1.d707@mx.google.com>
-Date:   Fri, 07 May 2021 05:03:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S235810AbhEGMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 08:24:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51396 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229637AbhEGMYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 May 2021 08:24:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 801AC61400;
+        Fri,  7 May 2021 12:23:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1620390222;
+        bh=pRtVaMVl5yjhYHK+bsW8G1rc+7MTTRAvrLDu6uHVffI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=IREoRXExN+RgdkqUwWwhLnsoDsJG3jy9YhYEekHaFkbqEoeGsQ0WhqBf0kGa996yf
+         UAKF8X7c74JyBTrzwj8u9j1klJyS0irabh5bBruxx5fvgrQtema3lAYMslbVV0ynOB
+         sygeuoD+A9wdr2lk7l6I2bkcQTfnw5ILa1fytogA=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.19.190
+Date:   Fri,  7 May 2021 14:23:38 +0200
+Message-Id: <162039021859112@kroah.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.34-28-gfe295056d9295
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 131 runs,
- 1 regressions (v5.10.34-28-gfe295056d9295)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 131 runs, 1 regressions (v5.10.34-28-gfe2950=
-56d9295)
+I'm announcing the release of the 4.19.190 kernel.
 
-Regressions Summary
--------------------
+All users of the 4.19 kernel series must upgrade.
 
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 1=
-          =
+The updated 4.19.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
+thanks,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.34-28-gfe295056d9295/plan/baseline/
+greg k-h
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.34-28-gfe295056d9295
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fe295056d9295a29423e42718522d24933080fd4 =
+------------
 
+ Makefile                                          |    2 
+ arch/mips/vdso/gettimeofday.c                     |   14 +-
+ arch/x86/kernel/acpi/boot.c                       |   25 +---
+ arch/x86/kernel/setup.c                           |    7 -
+ drivers/acpi/tables.c                             |   42 ++++++
+ drivers/net/usb/ax88179_178a.c                    |    4 
+ drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c |    7 -
+ drivers/net/wireless/intel/iwlwifi/pcie/tx.c      |    7 -
+ drivers/platform/x86/thinkpad_acpi.c              |   31 +++--
+ drivers/staging/erofs/inode.c                     |  135 ++++++++++++++--------
+ drivers/usb/core/quirks.c                         |    4 
+ fs/overlayfs/super.c                              |   12 +
+ include/linux/acpi.h                              |    9 +
+ kernel/bpf/verifier.c                             |   12 -
+ sound/usb/quirks-table.h                          |   10 +
+ 15 files changed, 221 insertions(+), 100 deletions(-)
 
+Chris Chiu (1):
+      USB: Add reset-resume quirk for WD19's Realtek Hub
 
-Test Regressions
----------------- =
+Daniel Borkmann (1):
+      bpf: Fix masking negation logic upon negative dst register
 
+Gao Xiang (1):
+      erofs: fix extended inode could cross boundary
 
+Greg Kroah-Hartman (1):
+      Linux 4.19.190
 
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 1=
-          =
+Jiri Kosina (2):
+      iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_enqueue_hcmd()
+      iwlwifi: Fix softirq/hardirq disabling in iwl_pcie_gen2_enqueue_hcmd()
 
+Kai-Heng Feng (1):
+      USB: Add LPM quirk for Lenovo ThinkPad USB-C Dock Gen2 Ethernet
 
-  Details:     https://kernelci.org/test/plan/id/6094f7576bdc734cba6f5468
+Mark Pearson (1):
+      platform/x86: thinkpad_acpi: Correct thermal sensor allocation
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.34-=
-28-gfe295056d9295/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837=
--rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.34-=
-28-gfe295056d9295/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837=
--rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+Miklos Szeredi (1):
+      ovl: allow upperdir inside lowerdir
 
+Phillip Potter (1):
+      net: usb: ax88179_178a: initialize local variables before use
 
+Rafael J. Wysocki (2):
+      ACPI: tables: x86: Reserve memory occupied by ACPI tables
+      ACPI: x86: Call acpi_boot_table_init() after acpi_table_upgrade()
 
-  * baseline.login: https://kernelci.org/test/case/id/6094f7576bdc734cba6f5=
-469
-        new failure (last pass: v5.10.34-27-ge42f087e04ed) =
+Romain Naour (1):
+      mips: Do not include hi and lo in clobber list for R6
 
- =20
+Takashi Iwai (1):
+      ALSA: usb-audio: Add MIDI quirk for Vox ToneLab EX
+
