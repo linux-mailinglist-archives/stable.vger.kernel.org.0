@@ -2,81 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1DEA375E2D
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 03:04:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EFF5375E32
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 03:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234078AbhEGBFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 May 2021 21:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45452 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230499AbhEGBFI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 May 2021 21:05:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D31F61289;
-        Fri,  7 May 2021 01:04:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1620349448;
-        bh=ywG4yXXZ9eivodlDtaUiW9MkrJJEsrhDYn0L37s0iYU=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=tF6aVm4OY4nxbOG2rNj/LlE4PXXG7dMKQ2XQdjQqAkx1EKG84Pe/HWPiyqzY24eTL
-         S1Vuva/TS3uos482eIHq9LARmJcYWT6N/RjmsFhZnZxcUSoOuRd/WLuxc7bkB/l589
-         BOAKvLq4Y2hQannvz+qq86up45wVdipEVAKsAKRI=
-Date:   Thu, 06 May 2021 18:04:07 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, dave@stgolabs.net, dbueso@suse.de,
-        jbaron@akamai.com, linux-mm@kvack.org, mm-commits@vger.kernel.org,
-        rpenyaev@suse.de, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, viro@zeniv.linux.org.uk
-Subject:  [patch 40/91] fs/epoll: restore waking from
- ep_done_scan()
-Message-ID: <20210507010407.7J59uHTtq%akpm@linux-foundation.org>
-In-Reply-To: <20210506180126.03e1baee7ca52bedb6cc6003@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S234234AbhEGBHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 May 2021 21:07:47 -0400
+Received: from szxga07-in.huawei.com ([45.249.212.35]:18343 "EHLO
+        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234202AbhEGBHr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 May 2021 21:07:47 -0400
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4FbsfK5Y90zCr5J;
+        Fri,  7 May 2021 09:04:09 +0800 (CST)
+Received: from [10.174.178.208] (10.174.178.208) by
+ DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
+ 14.3.498.0; Fri, 7 May 2021 09:06:42 +0800
+Subject: Re: [PATCH 4.19 00/15] 4.19.190-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210505120503.781531508@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <069dd10a-ad04-ff76-d193-98d6381d656c@huawei.com>
+Date:   Fri, 7 May 2021 09:06:40 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20210505120503.781531508@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davidlohr Bueso <dave@stgolabs.net>
-Subject: fs/epoll: restore waking from ep_done_scan()
 
-339ddb53d373 (fs/epoll: remove unnecessary wakeups of nested epoll)
-changed the userspace visible behavior of exclusive waiters blocked on a
-common epoll descriptor upon a single event becoming ready.  Previously,
-all tasks doing epoll_wait would awake, and now only one is awoken,
-potentially causing missed wakeups on applications that rely on this
-behavior, such as Apache Qpid.
 
-While the aforementioned commit aims at having only a wakeup single path
-in ep_poll_callback (with the exceptions of epoll_ctl cases), we need to
-restore the wakeup in what was the old ep_scan_ready_list() such that the
-next thread can be awoken, in a cascading style, after the waker's
-corresponding ep_send_events().
+On 2021/5/5 20:05, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.190 release.
+> There are 15 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 07 May 2021 12:04:54 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.190-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Link: https://lkml.kernel.org/r/20210405231025.33829-3-dave@stgolabs.net
-Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
-Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: Roman Penyaev <rpenyaev@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Tested on arm64 and x86 for 4.19.190-rc1,
 
- fs/eventpoll.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.19.y
+Version: 4.19.190-rc1
+Commit: 5a3ba2f90f8789162a03e07a37224bab4c643d1d
+Compiler: gcc version 7.3.0 (GCC)
 
---- a/fs/eventpoll.c~fs-epoll-restore-waking-from-ep_done_scan
-+++ a/fs/eventpoll.c
-@@ -657,6 +657,12 @@ static void ep_done_scan(struct eventpol
- 	 */
- 	list_splice(txlist, &ep->rdllist);
- 	__pm_relax(ep->ws);
-+
-+	if (!list_empty(&ep->rdllist)) {
-+		if (waitqueue_active(&ep->wq))
-+			wake_up(&ep->wq);
-+	}
-+
- 	write_unlock_irq(&ep->lock);
- }
- 
-_
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8435
+passed: 8435
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8435
+passed: 8435
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
