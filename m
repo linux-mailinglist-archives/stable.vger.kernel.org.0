@@ -2,120 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E68453767F4
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 17:29:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9F513767F6
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 17:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233167AbhEGPat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 11:30:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41812 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232314AbhEGPat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 11:30:49 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF6BC061574
-        for <stable@vger.kernel.org>; Fri,  7 May 2021 08:29:49 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id s22so7394277pgk.6
-        for <stable@vger.kernel.org>; Fri, 07 May 2021 08:29:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=NBfhJroI5LpOcAEQDJ8Iv542LX20l12rvHAHrrq1wys=;
-        b=WORy7LNvL486b5YyDdovM9fvMmnyNcsJ1immblYR9jS/19gS/tHozYhv+kLUdmp1ju
-         auQXcGYGZCWkZQhd+xxAjhoweL5P5rhovzngRkUPkYk1/lVVrVdR65HJYtIcEXbDphhN
-         hAo3ijvR7gMKmqIvktbmdX9w5iAGhU6RBhoSSGX4/tczk2gfMe8KMaFXa0tHx/JNQ2L8
-         35MWlUwqHO4/DG0Yz+1wF2oG0XwQQBAw70rJkG6lAjZilL0yD/Jo4MnXSqlNZzNDHQ0V
-         +WaiTvb1DDB021BvuhOrBbe6Tw7WfxTHrW13p9GBaZWNNvQhQxhw4WVzpnzE5UsuAPoV
-         ppHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=NBfhJroI5LpOcAEQDJ8Iv542LX20l12rvHAHrrq1wys=;
-        b=E6LMZKHM2pKD9QjyMdyR1yq61QhmZExp8qujhJEBw5k9BZB5zORw/p1zdZccRb1Odf
-         uPN+vq238GBnA2bd/ypa8b5FvzG6k0tkSj0hnrXZG5q6Bp0RhtpLj419+xHD9AYcYoeG
-         vNJMaa6onghcFAvEOnhZNZ/nIMJEj/OXdHpYnxIJCWv/W2Kt42dEnnbwX0uCKN9WaCMn
-         kBd8vuNrCAD9834mSPQO31pgDdLG4AeA9g/zvrvOXfdXPypnIMAjgHMg8HYzH1ZkB4i1
-         rHtG8VmO5FRrZOJ8QiRON3INlWgyGqfhOMnO3ffzijXAkLD8IaU3UA54s2PvSzUyX23u
-         Qgyw==
-X-Gm-Message-State: AOAM530UMItY2xkXxWadWlOyOPATBtvtFWgP3zzNoh3216TIIS/i3TJk
-        92RjPtJijghhxn4sTfmkYl1BA4nsUpUnU7fY
-X-Google-Smtp-Source: ABdhPJwlzYTheQU1eSW9NknNjmTOHKPrieZHqrB3wdm2O5gylsgPphF36tJdT7E0qJwYmq82h+DDoA==
-X-Received: by 2002:a62:2a14:0:b029:263:20c5:6d8c with SMTP id q20-20020a622a140000b029026320c56d8cmr11008727pfq.23.1620401388949;
-        Fri, 07 May 2021 08:29:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u1sm4969877pgh.80.2021.05.07.08.29.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 May 2021 08:29:48 -0700 (PDT)
-Message-ID: <60955cec.1c69fb81.e80e0.ea6c@mx.google.com>
-Date:   Fri, 07 May 2021 08:29:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232314AbhEGPbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 11:31:33 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:39719 "EHLO
+        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232209AbhEGPbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 11:31:32 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id D2C151941A19;
+        Fri,  7 May 2021 11:30:31 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Fri, 07 May 2021 11:30:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=5nA2dj
+        X8TElv+5XBMofMbC9K3YofPtaEJHSjCeEumDo=; b=iHoL1d4jFCjXfX+SXlpeJj
+        iFNXX3M3Pu8MoOMCaIznJgr/v2Jw8F0uxw4iwUzi16SnS3v4bx/1cBhJoCIuzCWv
+        45r3Z/5rLzarokM28q9L6D6fOHmDstpqAb40V9LMAueWUvtwNFsgGjIo01RutWV3
+        QLSD0hn0RwqaXRyRqeB9eG0YqN8cMJI5HePrkCW9zevoDyyeqblenqT5W+qSZ/Fa
+        rfTWEVUibiOQaehR48YMPXv5WE7WHlp/ikFtd5UtoG+ruOMO82wDX2jgKrFqp1wQ
+        +6U5Eir7/sWzned4HzxaJ/hIL2rtURZOOfTh535PHXX9oE57WdbI7KBuxlY62mEQ
+        ==
+X-ME-Sender: <xms:F12VYE4wUhMuiVbropx3NaNn5r-ireB0UNjbAeMy7lJKSyYMjB6bzQ>
+    <xme:F12VYF7BQoVDIMmbgOKZNsNOCRhNI0G1RZOiRZHtWnP9BC1QF9W9mRU9sp7qhI0eD
+    _d-30VeKLsY7w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegvddgkeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:F12VYDchL3XOUiUGifz9sF95ogAggKx8QfBt45gkhJJQFmpDw6ZdiQ>
+    <xmx:F12VYJL6f9KO3s7Kyzur0Lvb1Mt5NAkNy3iAveiLCrLtEgXyVBSeuA>
+    <xmx:F12VYIKgeHK1yQncu_slHVluqR3t8XgVC6UTqnvRjr1Ncym2CdxmCg>
+    <xmx:F12VYM3u15Ezgsy8ZxZxr1EqxUNEpP5IovOwyHi2egVqiMgkbq0I9g>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Fri,  7 May 2021 11:30:31 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix a potential hole punching failure" failed to apply to 4.4-stable tree
+To:     bingjingc@synology.com, cccheng@synology.com, dsterba@suse.com,
+        fdmanana@suse.com, robbieko@synology.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 07 May 2021 17:30:28 +0200
+Message-ID: <16204014283618@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.11.18-30-g80983e09d98ce
-X-Kernelci-Branch: queue/5.11
-Subject: stable-rc/queue/5.11 baseline: 106 runs,
- 1 regressions (v5.11.18-30-g80983e09d98ce)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.11 baseline: 106 runs, 1 regressions (v5.11.18-30-g80983e=
-09d98ce)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+thanks,
 
+greg k-h
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.11/ker=
-nel/v5.11.18-30-g80983e09d98ce/plan/baseline/
+------------------ original commit in Linus's tree ------------------
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.11
-  Describe: v5.11.18-30-g80983e09d98ce
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      80983e09d98cead100040800371966922c1c5a93 =
+From 3227788cd369d734d2d3cd94f8af7536b60fa552 Mon Sep 17 00:00:00 2001
+From: BingJing Chang <bingjingc@synology.com>
+Date: Thu, 25 Mar 2021 09:56:22 +0800
+Subject: [PATCH] btrfs: fix a potential hole punching failure
 
+In commit d77815461f04 ("btrfs: Avoid trucating page or punching hole
+in a already existed hole."), existing holes can be skipped by calling
+find_first_non_hole() to adjust start and len. However, if the given len
+is invalid and large, when an EXTENT_MAP_HOLE extent is found, len will
+not be set to zero because (em->start + em->len) is less than
+(start + len). Then the ret will be 1 but len will not be set to 0.
+The propagated non-zero ret will result in fallocate failure.
 
+In the while-loop of btrfs_replace_file_extents(), len is not updated
+every time before it calls find_first_non_hole(). That is, after
+btrfs_drop_extents() successfully drops the last non-hole file extent,
+it may fail with ENOSPC when attempting to drop a file extent item
+representing a hole. The problem can happen. After it calls
+find_first_non_hole(), the cur_offset will be adjusted to be larger
+than or equal to end. However, since the len is not set to zero, the
+break-loop condition (ret && !len) will not be met. After it leaves the
+while-loop, fallocate will return 1, which is an unexpected return
+value.
 
-Test Regressions
----------------- =
+We're not able to construct a reproducible way to let
+btrfs_drop_extents() fail with ENOSPC after it drops the last non-hole
+file extent but with remaining holes left. However, it's quite easy to
+fix. We just need to update and check the len every time before we call
+find_first_non_hole(). To make the while loop more readable, we also
+pull the variable updates to the bottom of loop like this:
+  while (cur_offset < end) {
+	  ...
+	  // update cur_offset & len
+	  // advance cur_offset & len in hole-punching case if needed
+  }
 
+Reported-by: Robbie Ko <robbieko@synology.com>
+Fixes: d77815461f04 ("btrfs: Avoid trucating page or punching hole in a already existed hole.")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Robbie Ko <robbieko@synology.com>
+Reviewed-by: Chung-Chiang Cheng <cccheng@synology.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: BingJing Chang <bingjingc@synology.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index 42634658815f..864c08d08a35 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2730,8 +2730,6 @@ int btrfs_replace_file_extents(struct btrfs_inode *inode,
+ 			extent_info->file_offset += replace_len;
+ 		}
+ 
+-		cur_offset = drop_args.drop_end;
+-
+ 		ret = btrfs_update_inode(trans, root, inode);
+ 		if (ret)
+ 			break;
+@@ -2751,7 +2749,9 @@ int btrfs_replace_file_extents(struct btrfs_inode *inode,
+ 		BUG_ON(ret);	/* shouldn't happen */
+ 		trans->block_rsv = rsv;
+ 
+-		if (!extent_info) {
++		cur_offset = drop_args.drop_end;
++		len = end - cur_offset;
++		if (!extent_info && len) {
+ 			ret = find_first_non_hole(inode, &cur_offset, &len);
+ 			if (unlikely(ret < 0))
+ 				break;
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60952c34d554b83af16f5482
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.18-=
-30-g80983e09d98ce/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.18-=
-30-g80983e09d98ce/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60952c34d554b83af16f5=
-483
-        failing since 0 day (last pass: v5.11.18-29-g6c2ae64a2a728, first f=
-ail: v5.11.18-30-g4232ce7a02cc) =
-
- =20
