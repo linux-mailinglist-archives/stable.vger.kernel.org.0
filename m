@@ -2,279 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E967376460
-	for <lists+stable@lfdr.de>; Fri,  7 May 2021 13:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 474D6376467
+	for <lists+stable@lfdr.de>; Fri,  7 May 2021 13:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230455AbhEGLQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 May 2021 07:16:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41912 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231932AbhEGLQq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 May 2021 07:16:46 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8526C061574
-        for <stable@vger.kernel.org>; Fri,  7 May 2021 04:15:46 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id s20so4948743plr.13
-        for <stable@vger.kernel.org>; Fri, 07 May 2021 04:15:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SH5OTqn3NWzJs0O8ciaYllXydHr9xZ70pVqz9mOnF/0=;
-        b=eqP2g+k2Qgzd2bL/vSU0dP+/x1ten7KBXeW2H7bFqLCrd4I/M3B7e5yGArbv05zGgZ
-         Sj0LzXWLVoDf3F4T99c16JCck5IAloJan6TvK7zgr5oSL+AyeeFNe+yIad6AtWXoKnff
-         ptDXzS+pVQCjjkJQMz7ky+i0KA+nN+MhNJmFgOyiD+b+LJwxFRFjA5UvK8VGvaWnQjs4
-         aFIh3q8p2Y+Rgym8v3qnPqXDfwis4dJwBOTPGaur9O0/m/ZFtFsOoi4OAJvdiz8voXp8
-         lwbcQfnUCBJGq/3hNEVLMlxnr1w4mDLl7BpcTyKF3OkwFsmw/1dLrU8Ldq22TAfJsIMP
-         ZHMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SH5OTqn3NWzJs0O8ciaYllXydHr9xZ70pVqz9mOnF/0=;
-        b=EyPoa9tUGjT88prdKhdu9qktQou1WQZLwKRX/cWdPZHDLTfRQZ2G8l+CSMOizeyiLv
-         gjAH0YC1EmALdchJRhzKSUIo2U6NgOfTLW0CD9EjAx/QFG7uuFqWsOHHR+TTqG7s2prM
-         ujgGGmAVKCg7cEFHH03ELm0jvfTeOau6uTCrEuyHL1AarMsbqOUTs+qNcX1CVOJg2pQj
-         EcIkePg7DUxVB3KHFxDrU6G3gP2MW0rN5QhAzCIeCH8A0abnUUVp952QSLzr+zJAC2+P
-         6lckmlH5orn/MulxwaIVm0JS6F5GuyTlPVs5MTO7i6Lzk9CvilE10NJbPFfxY+a3vHcy
-         SL/g==
-X-Gm-Message-State: AOAM530M41q74GJayMxoT6HIFGYjUeKeTFwFMJ55ue/2ox7dvbt2tQQB
-        I6lPgQHqLYK1mQwYbxLD5pmBgSs2yC9Hql/6
-X-Google-Smtp-Source: ABdhPJzKgTNgO+fU7AJKwYtZSAfly6IQtU+ORJ2K7U0WNqgARyqKhHBm0V+o3LMo89BvGmAYFaVhOA==
-X-Received: by 2002:a17:903:31d3:b029:ee:bccd:e686 with SMTP id v19-20020a17090331d3b02900eebccde686mr9646065ple.1.1620386146200;
-        Fri, 07 May 2021 04:15:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l6sm4315257pgc.68.2021.05.07.04.15.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 May 2021 04:15:45 -0700 (PDT)
-Message-ID: <60952161.1c69fb81.73b2d.ccbb@mx.google.com>
-Date:   Fri, 07 May 2021 04:15:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S235498AbhEGLXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 May 2021 07:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36880 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231932AbhEGLXp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 May 2021 07:23:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8822661458;
+        Fri,  7 May 2021 11:22:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1620386565;
+        bh=jX05VFyu9lXy9oROC2Ilaza5BK5GLwQ6AxUCb33C8HM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Op3rDHjqCbuF1EP8Nl0Mzoow5iKlgHHdnVpqw0pe6ofF6Q8batSjtVEBvPkyfDv8d
+         /PNJkwjXMWzq4otsKY2swCevrrraEpO6z+du0Cph+O0H43Il7OBGgVONH4SHrGgnMW
+         jVlKZRYFziK8Bvqm4ee9e1BSaRq14m5Uw+uzP7dY=
+Date:   Fri, 7 May 2021 13:22:42 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: MHI v5.13 commits for stable backporting
+Message-ID: <YJUjAjuQg0L6/tn9@kroah.com>
+References: <20210507080736.GA5646@work>
+ <YJT3rOgd9WVvdRZl@kroah.com>
+ <20210507101508.GB5646@work>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.268-6-g25d36caf436a2
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 89 runs,
- 5 regressions (v4.9.268-6-g25d36caf436a2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210507101508.GB5646@work>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 89 runs, 5 regressions (v4.9.268-6-g25d36caf4=
-36a2)
+On Fri, May 07, 2021 at 03:45:08PM +0530, Manivannan Sadhasivam wrote:
+> On Fri, May 07, 2021 at 10:17:48AM +0200, Greg KH wrote:
+> > On Fri, May 07, 2021 at 01:37:36PM +0530, Manivannan Sadhasivam wrote:
+> > > Hi Greg,
+> > > 
+> > > As suggested by you in MHI v5.13 PR [1], please find the below commits that
+> > > got merged for v5.13 and should be backported to stable kernels:
+> > > 
+> > > 683e77cadc83 ("bus: mhi: core: Fix shadow declarations")
+> > > 5630c1009bd9 ("bus: mhi: pci_generic: Constify mhi_controller_config struct definitions")
+> > > ec32332df764 ("bus: mhi: core: Sanity check values from remote device before use")
+> > > 47705c084659 ("bus: mhi: core: Clear configuration from channel context during reset")
+> > > 70f7025c854c ("bus: mhi: core: remove redundant initialization of variables state and ee")
+> > > 68731852f6e5 ("bus: mhi: core: Return EAGAIN if MHI ring is full")
+> > > 4547a749be99 ("bus: mhi: core: Fix MHI runtime_pm behavior")
+> > > 6403298c58d4 ("bus: mhi: core: Fix check for syserr at power_up")
+> > > 8de5ad994143 ("bus: mhi: core: Add missing checks for MMIO register entries")
+> > > 0ecc1c70dcd3 ("bus: mhi: core: Fix invalid error returning in mhi_queue")
+> > > 0fccbf0a3b69 ("bus: mhi: pci_generic: Remove WQ_MEM_RECLAIM flag from state workqueue")
+> > > 
+> > > I'll make sure to tag stable list for future potential patches.
+> > 
+> > That's a lot, are you sure they are all needed?  Constify?
+> >
+> 
+> Filtered the patches now...
+> 
+> > What order should these be applied in and how far back should the
+> > patches be backported?
+> > 
+> 
+> Below is the order and stable kernel revisions:
+> 
+> 6403298c58d4 ("bus: mhi: core: Fix check for syserr at power_up") #5.10
+> 47705c084659 ("bus: mhi: core: Clear configuration from channel context during reset") #5.10
+> ec32332df764 ("bus: mhi: core: Sanity check values from remote device before use") #5.10
+> 8de5ad994143 ("bus: mhi: core: Add missing checks for MMIO register entries") #5.11
+> 0fccbf0a3b69 ("bus: mhi: pci_generic: Remove WQ_MEM_RECLAIM flag from state workqueue") #5.11
+> 4547a749be99 ("bus: mhi: core: Fix MHI runtime_pm behavior") #5.12
+> 0ecc1c70dcd3 ("bus: mhi: core: Fix invalid error returning in mhi_queue") #5.12
+> 
+> TBH I misunderstood that Sasha's bot will pick the patches based on Fixes tag
+> and the commit message, etc... and will apply them to respective stable kernels
+> based on trial and error. Probably I expected too much or I'm lazy :)
 
-Regressions Summary
--------------------
+Please read
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
+Yes, we have scripts for lazy maintainers/developers to pick up things
+that they forget to tag properly, but please, if at all possible, do it
+correctly to ensure that the commits you know you want backported, are
+properly backported and if not, you will be notified.
 
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
+thanks,
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.268-6-g25d36caf436a2/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.268-6-g25d36caf436a2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      25d36caf436a2a2592b4005d2269be8cc86fe097 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094edfe6f8c1ae0746f547d
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6094edfe6f8c1ae=
-0746f5482
-        new failure (last pass: v4.9.268-6-g95e2a2bf1fb1)
-        2 lines
-
-    2021-05-07 07:36:26.911000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, swapper/0/0
-    2021-05-07 07:36:26.920000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff24c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-05-07 07:36:26.936000+00:00  [   20.324218] <LAVA_SIGNAL_TESTCASE =
-TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094ecfdb54ee837f16f5471
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094ecfdb54ee837f16f5=
-472
-        failing since 174 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094ecf5b50fb152036f546a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094ecf5b50fb152036f5=
-46b
-        failing since 174 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609519dec28d13e1566f5476
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609519dec28d13e1566f5=
-477
-        failing since 174 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6094ede1926183f0356f5470
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
--g25d36caf436a2/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6094ede1926183f0356f5=
-471
-        failing since 174 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+greg k-h
