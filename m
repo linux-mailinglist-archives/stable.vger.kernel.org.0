@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D02E63776E2
-	for <lists+stable@lfdr.de>; Sun,  9 May 2021 15:58:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C88A3776E4
+	for <lists+stable@lfdr.de>; Sun,  9 May 2021 16:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbhEIN74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 May 2021 09:59:56 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:51393 "EHLO
+        id S229605AbhEIOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 May 2021 10:02:36 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:51471 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229602AbhEIN7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 09:59:54 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8FCAF1940CCE;
-        Sun,  9 May 2021 09:58:50 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229602AbhEIOCg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 10:02:36 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 66F551940682;
+        Sun,  9 May 2021 10:01:32 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 09 May 2021 09:58:50 -0400
+  by compute2.internal (MEProxy); Sun, 09 May 2021 10:01:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=EKf093
-        kKVFRlVMigBJHzLBMp//bEv/n8bapal4wn+Xs=; b=CkNF7k4M9NYymYIg+GDWPm
-        sPpAzKAybtNh83I5pEDYwKUlKybn+KgsUDZYP19GG3cTzNl0BYOPrfYminRNV62h
-        lHSqj8LZddhfF8klDiHBdfRE1WWLQjXOxB8kUvkMl3c94sR9/Wf3o81eRQ0Puc47
-        DsIKX9RdYn54m1cAMjwIYovhHW+LhCugjSFV0JrZsECUy9C+7shP/gmidZ3kX0dM
-        a5eqTSOp4syyi+M5npQ5EmI6fwWAmg9h1QnoNyMiuBWWCGKRgth+IV18sUMmi36u
-        DyuMT2/soxdGCCkIWYDPL9TE5DtEHa0ftd/q2BJFOJLxAyXTW2t9k0V5sddBXSEg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8nKOKk
+        pnfWsWl52mM0aiiHekQzIcrXtdLuN7Guq1ivk=; b=R3v9wOEJ5aPYaaFDNVAr4m
+        Vbxp5S+QCm9YbgpUwWplHxqvWbR5chEADwasvIdze7DL4tIvoret+91uzldom0a5
+        sdKh9DCaec9tH4GHItn1iYSeMcpirOHU1uJwlEseDKPNPz8Yv3MEy4q/zqryo4CQ
+        G4ikqZfjbyqIzuamQ3mGdsu7ipSGyUosErcfkMDtijyV5QG27eSNZOchkZ96cfS+
+        WdpZLz3kY7djCfIJIKCA+gBqu9pGsPwJn7EwuToYUlGkNakYzN7TFp1w++/pI5Sh
+        /DMHmSzjYuEQBNmw9tF2n0O/GpSYjBMNkcw5XIOOlTxkXD1dMj7aPxSH0kmwsMRw
         ==
-X-ME-Sender: <xms:muqXYFtnAV9Owy7awDEc58h13hjLk2onXX4b1hIxC1R1izejJ3Ahow>
-    <xme:muqXYOffTjAwGWk992Abi7sjgndyspwWW39zqegTpOpV3ClXEUCW6mnAx8PNbV9I1
-    1o5QcjKgmj1ZA>
+X-ME-Sender: <xms:POuXYLkgVNuoN3Dhlr_OCmF4xw3rT0nQbd4IzaXEYFeZofut1XbVRg>
+    <xme:POuXYO1AuthxfPvuRsUJsDB-p1-b8-J_2kdd3KmI-a6iB2b3wfgchpPYi5do55qaI
+    TfsNaZLvZldMA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegiedgjeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucgfrhhlucfvnfffucdluddtmdenucfjughrpefuvf
-    fhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihf
-    ohhunhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltd
-    etgedugeffgffhudffuddukeegfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghr
-    nhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:muqXYIw3EyFv9qdHRbh8pfqeOE34mN3_7lqfl7VOBqOv8Bh5jg7DjQ>
-    <xmx:muqXYMPaCTs0UyjS-Z93ITN5KIq1HjUsvLz_2OY6dcu2IiiYqIhBqQ>
-    <xmx:muqXYF8bxf9qn2Ltx7CxOqfbIJ-P5OV-2_LfHVi5UCexT7Hq_X3eog>
-    <xmx:muqXYHKV7hYpVYIJ3n1ABAK7ZIAh1hPrZBwAmkGAo_zHC6CZQuJxOA>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:POuXYBrrfvWTymr-GhDL89TKX6ojki_9T1LsR4l7mEsJDOXA0HMGDg>
+    <xmx:POuXYDniHht1-68fOavmBs_mIbbpjcqzB8j0LlqHs_MZSXGJFBhRdw>
+    <xmx:POuXYJ1MNYKTxKAxc7HhQEwffNV8RgqqxrUKsiI1avljV2mF47EWUQ>
+    <xmx:POuXYDom3zd_MF3DfwIq4nu7luH5TTcl9COGsIBToOYP7KIsEbRN2g>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun,  9 May 2021 09:58:50 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] fuse: fix write deadlock" failed to apply to 4.19-stable tree
-To:     vgoyal@redhat.com, cai@lca.pw, mszeredi@redhat.com,
-        stable@vger.kernel.org
+        Sun,  9 May 2021 10:01:31 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] rcu/nocb: Fix missed nocb_timer requeue" failed to apply to 5.4-stable tree
+To:     frederic@kernel.org, boqun.feng@gmail.com, jiangshanlai@gmail.com,
+        joel@joelfernandes.org, josh@joshtriplett.org,
+        neeraju@codeaurora.org, paulmck@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 May 2021 15:58:44 +0200
-Message-ID: <162056872495243@kroah.com>
+Date:   Sun, 09 May 2021 16:01:29 +0200
+Message-ID: <16205688891393@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,161 +72,120 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4f06dd92b5d0a6f8eec6a34b8d6ef3e1f4ac1e10 Mon Sep 17 00:00:00 2001
-From: Vivek Goyal <vgoyal@redhat.com>
-Date: Wed, 21 Oct 2020 16:12:49 -0400
-Subject: [PATCH] fuse: fix write deadlock
+From b2fcf2102049f6e56981e0ab3d9b633b8e2741da Mon Sep 17 00:00:00 2001
+From: Frederic Weisbecker <frederic@kernel.org>
+Date: Tue, 23 Feb 2021 01:09:59 +0100
+Subject: [PATCH] rcu/nocb: Fix missed nocb_timer requeue
 
-There are two modes for write(2) and friends in fuse:
+This sequence of events can lead to a failure to requeue a CPU's
+->nocb_timer:
 
-a) write through (update page cache, send sync WRITE request to userspace)
+1.	There are no callbacks queued for any CPU covered by CPU 0-2's
+	->nocb_gp_kthread.  Note that ->nocb_gp_kthread is associated
+	with CPU 0.
 
-b) buffered write (update page cache, async writeout later)
+2.	CPU 1 enqueues its first callback with interrupts disabled, and
+	thus must defer awakening its ->nocb_gp_kthread.  It therefore
+	queues its rcu_data structure's ->nocb_timer.  At this point,
+	CPU 1's rdp->nocb_defer_wakeup is RCU_NOCB_WAKE.
 
-The write through method kept all the page cache pages locked that were
-used for the request.  Keeping more than one page locked is deadlock prone
-and Qian Cai demonstrated this with trinity fuzzing.
+3.	CPU 2, which shares the same ->nocb_gp_kthread, also enqueues a
+	callback, but with interrupts enabled, allowing it to directly
+	awaken the ->nocb_gp_kthread.
 
-The reason for keeping the pages locked is that concurrent mapped reads
-shouldn't try to pull possibly stale data into the page cache.
+4.	The newly awakened ->nocb_gp_kthread associates both CPU 1's
+	and CPU 2's callbacks with a future grace period and arranges
+	for that grace period to be started.
 
-For full page writes, the easy way to fix this is to make the cached page
-be the authoritative source by marking the page PG_uptodate immediately.
-After this the page can be safely unlocked, since mapped/cached reads will
-take the written data from the cache.
+5.	This ->nocb_gp_kthread goes to sleep waiting for the end of this
+	future grace period.
 
-Concurrent mapped writes will now cause data in the original WRITE request
-to be updated; this however doesn't cause any data inconsistency and this
-scenario should be exceedingly rare anyway.
+6.	This grace period elapses before the CPU 1's timer fires.
+	This is normally improbably given that the timer is set for only
+	one jiffy, but timers can be delayed.  Besides, it is possible
+	that kernel was built with CONFIG_RCU_STRICT_GRACE_PERIOD=y.
 
-If the WRITE request returns with an error in the above case, currently the
-page is not marked uptodate; this means that a concurrent read will always
-read consistent data.  After this patch the page is uptodate between
-writing to the cache and receiving the error: there's window where a cached
-read will read the wrong data.  While theoretically this could be a
-regression, it is unlikely to be one in practice, since this is normal for
-buffered writes.
+7.	The grace period ends, so rcu_gp_kthread awakens the
+	->nocb_gp_kthread, which in turn awakens both CPU 1's and
+	CPU 2's ->nocb_cb_kthread.  Then ->nocb_gb_kthread sleeps
+	waiting for more newly queued callbacks.
 
-In case of a partial page write to an already uptodate page the locking is
-also unnecessary, with the above caveats.
+8.	CPU 1's ->nocb_cb_kthread invokes its callback, then sleeps
+	waiting for more invocable callbacks.
 
-Partial write of a not uptodate page still needs to be handled.  One way
-would be to read the complete page before doing the write.  This is not
-possible, since it might break filesystems that don't expect any READ
-requests when the file was opened O_WRONLY.
+9.	Note that neither kthread updated any ->nocb_timer state,
+	so CPU 1's ->nocb_defer_wakeup is still set to RCU_NOCB_WAKE.
 
-The other solution is to serialize the synchronous write with reads from
-the partial pages.  The easiest way to do this is to keep the partial pages
-locked.  The problem is that a write() may involve two such pages (one head
-and one tail).  This patch fixes it by only locking the partial tail page.
-If there's a partial head page as well, then split that off as a separate
-WRITE request.
+10.	CPU 1 enqueues its second callback, this time with interrupts
+ 	enabled so it can wake directly	->nocb_gp_kthread.
+	It does so with calling wake_nocb_gp() which also cancels the
+	pending timer that got queued in step 2. But that doesn't reset
+	CPU 1's ->nocb_defer_wakeup which is still set to RCU_NOCB_WAKE.
+	So CPU 1's ->nocb_defer_wakeup and its ->nocb_timer are now
+	desynchronized.
 
-Reported-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/linux-fsdevel/4794a3fa3742a5e84fb0f934944204b55730829b.camel@lca.pw/
-Fixes: ea9b9907b82a ("fuse: implement perform_write")
-Cc: <stable@vger.kernel.org> # v2.6.26
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+11.	->nocb_gp_kthread associates the callback queued in 10 with a new
+	grace period, arranges for that grace period to start and sleeps
+	waiting for it to complete.
 
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index 8cccecb55fb8..eff4abaa87da 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -1099,6 +1099,7 @@ static ssize_t fuse_send_write_pages(struct fuse_io_args *ia,
- 	struct fuse_file *ff = file->private_data;
- 	struct fuse_mount *fm = ff->fm;
- 	unsigned int offset, i;
-+	bool short_write;
- 	int err;
- 
- 	for (i = 0; i < ap->num_pages; i++)
-@@ -1113,32 +1114,38 @@ static ssize_t fuse_send_write_pages(struct fuse_io_args *ia,
- 	if (!err && ia->write.out.size > count)
- 		err = -EIO;
- 
-+	short_write = ia->write.out.size < count;
- 	offset = ap->descs[0].offset;
- 	count = ia->write.out.size;
- 	for (i = 0; i < ap->num_pages; i++) {
- 		struct page *page = ap->pages[i];
- 
--		if (!err && !offset && count >= PAGE_SIZE)
--			SetPageUptodate(page);
--
--		if (count > PAGE_SIZE - offset)
--			count -= PAGE_SIZE - offset;
--		else
--			count = 0;
--		offset = 0;
--
--		unlock_page(page);
-+		if (err) {
-+			ClearPageUptodate(page);
-+		} else {
-+			if (count >= PAGE_SIZE - offset)
-+				count -= PAGE_SIZE - offset;
-+			else {
-+				if (short_write)
-+					ClearPageUptodate(page);
-+				count = 0;
-+			}
-+			offset = 0;
-+		}
-+		if (ia->write.page_locked && (i == ap->num_pages - 1))
-+			unlock_page(page);
- 		put_page(page);
+12.	The grace period ends, rcu_gp_kthread awakens ->nocb_gp_kthread,
+	which in turn wakes up CPU 1's ->nocb_cb_kthread which then
+	invokes the callback queued in 10.
+
+13.	CPU 1 enqueues its third callback, this time with interrupts
+	disabled so it must queue a timer for a deferred wakeup. However
+	the value of its ->nocb_defer_wakeup is RCU_NOCB_WAKE which
+	incorrectly indicates that a timer is already queued.  Instead,
+	CPU 1's ->nocb_timer was cancelled in 10.  CPU 1 therefore fails
+	to queue the ->nocb_timer.
+
+14.	CPU 1 has its pending callback and it may go unnoticed until
+	some other CPU ever wakes up ->nocb_gp_kthread or CPU 1 ever
+	calls an explicit deferred wakeup, for example, during idle entry.
+
+This commit fixes this bug by resetting rdp->nocb_defer_wakeup everytime
+we delete the ->nocb_timer.
+
+It is quite possible that there is a similar scenario involving
+->nocb_bypass_timer and ->nocb_defer_wakeup.  However, despite some
+effort from several people, a failure scenario has not yet been located.
+However, that by no means guarantees that no such scenario exists.
+Finding a failure scenario is left as an exercise for the reader, and the
+"Fixes:" tag below relates to ->nocb_bypass_timer instead of ->nocb_timer.
+
+Fixes: d1b222c6be1f (rcu/nocb: Add bypass callback queueing)
+Cc: <stable@vger.kernel.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Reviewed-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index a1a17adeae54..e392bd129316 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -1708,7 +1708,11 @@ static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 		return false;
  	}
- 
- 	return err;
- }
- 
--static ssize_t fuse_fill_write_pages(struct fuse_args_pages *ap,
-+static ssize_t fuse_fill_write_pages(struct fuse_io_args *ia,
- 				     struct address_space *mapping,
- 				     struct iov_iter *ii, loff_t pos,
- 				     unsigned int max_pages)
- {
-+	struct fuse_args_pages *ap = &ia->ap;
- 	struct fuse_conn *fc = get_fuse_conn(mapping->host);
- 	unsigned offset = pos & (PAGE_SIZE - 1);
- 	size_t count = 0;
-@@ -1191,6 +1198,16 @@ static ssize_t fuse_fill_write_pages(struct fuse_args_pages *ap,
- 		if (offset == PAGE_SIZE)
- 			offset = 0;
- 
-+		/* If we copied full page, mark it uptodate */
-+		if (tmp == PAGE_SIZE)
-+			SetPageUptodate(page);
+-	del_timer(&rdp->nocb_timer);
 +
-+		if (PageUptodate(page)) {
-+			unlock_page(page);
-+		} else {
-+			ia->write.page_locked = true;
-+			break;
-+		}
- 		if (!fc->big_writes)
- 			break;
- 	} while (iov_iter_count(ii) && count < fc->max_write &&
-@@ -1234,7 +1251,7 @@ static ssize_t fuse_perform_write(struct kiocb *iocb,
- 			break;
- 		}
++	if (READ_ONCE(rdp->nocb_defer_wakeup) > RCU_NOCB_WAKE_NOT) {
++		WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
++		del_timer(&rdp->nocb_timer);
++	}
+ 	rcu_nocb_unlock_irqrestore(rdp, flags);
+ 	raw_spin_lock_irqsave(&rdp_gp->nocb_gp_lock, flags);
+ 	if (force || READ_ONCE(rdp_gp->nocb_gp_sleep)) {
+@@ -2335,7 +2339,6 @@ static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
+ 		return false;
+ 	}
+ 	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
+-	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
+ 	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
+ 	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
  
--		count = fuse_fill_write_pages(ap, mapping, ii, pos, nr_pages);
-+		count = fuse_fill_write_pages(&ia, mapping, ii, pos, nr_pages);
- 		if (count <= 0) {
- 			err = count;
- 		} else {
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index 63d97a15ffde..74d888c78fa4 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -912,6 +912,7 @@ struct fuse_io_args {
- 		struct {
- 			struct fuse_write_in in;
- 			struct fuse_write_out out;
-+			bool page_locked;
- 		} write;
- 	};
- 	struct fuse_args_pages ap;
 
