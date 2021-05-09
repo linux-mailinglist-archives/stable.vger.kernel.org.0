@@ -2,149 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F0A33776BC
-	for <lists+stable@lfdr.de>; Sun,  9 May 2021 15:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 447333776BE
+	for <lists+stable@lfdr.de>; Sun,  9 May 2021 15:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229607AbhEINJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 May 2021 09:09:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41340 "EHLO
+        id S229603AbhEINLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 May 2021 09:11:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229590AbhEINJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 09:09:41 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05630C061573
-        for <stable@vger.kernel.org>; Sun,  9 May 2021 06:08:39 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id l10-20020a17090a850ab0290155b06f6267so8580698pjn.5
-        for <stable@vger.kernel.org>; Sun, 09 May 2021 06:08:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=MMzEohzNI8s0YGtCes80Ykark4Tub3OCFPENyA6b0kk=;
-        b=hrRmxG0DaWrKdBSPC8nBpfZ8NTDCbJinQdanMCspt/BypgLFhM7MmDcwo0dS8XahOG
-         0XAx34XJ8qhHK3upt9oV2/mQaQS7kpZ/swMUb+27lSM3TJ0CuILg5I3k/iKN2Rf5vUB5
-         cQwzACoMWtWKw8noKqn+ejXhiQS2AJsvNkBiWhUJLVEg3pyVmOeE/SrsDHMlbo0I7e+Z
-         EQ6exrNsgT7D+Ks2ZypKYA+Zihv8VH2TBJzIuCmgbaqQx6gfulwaiJIwwfarnWenmWt+
-         ACfiPJCWII6abnNW7a6IowsFsmxrrdDPsMVpw330C3CMgtuOgaYCdT4JLFx09XYB3oaW
-         ekSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=MMzEohzNI8s0YGtCes80Ykark4Tub3OCFPENyA6b0kk=;
-        b=b87asF28+IwDkeV55jXTKiZld9d4NiZImbJPgOghMzMyzr+z9pipRsCesi6/stwBBO
-         UAXZC+lGhripu4650O5raDlKEFq/wm0yOD7RXvIW7jmttPvQPPU25VvopBj6eEsOfsmQ
-         nbAt35LE2JJMbu4QmV93tmdv+vKqUtt3i2PfAQM6cZ7oYs4cuOLZCZQ5SMWH3J1Yw7si
-         fPtROp6vzZDWxsjR6q/PW6lWBorVpwIqNMtXZ6nNodwTywlH+7y8Teby392/rzYfIbIo
-         OWrfCjsFhocxZT+7iHO06FS0Wbmi2r9jeF5soa9vWf8Y43yfspTLP6vZzgjZutC3cfVj
-         AaeQ==
-X-Gm-Message-State: AOAM53234FKQmUYwHNRrJ1j0Fow8osCmKaiPTF+h024QPMoPmCCWnGs7
-        +jiSmtnCeUB3nma9luLb9OI+rOCx+x5Q5v9P
-X-Google-Smtp-Source: ABdhPJyDPOiKciFSgjvC0oY5wRoocT2SN+7X1jj+NN48ZEJinwpYbVUJMhq+HA7NweHupbkMe/ovCw==
-X-Received: by 2002:a17:903:18b:b029:ee:d430:6c4d with SMTP id z11-20020a170903018bb02900eed4306c4dmr20250950plg.34.1620565718273;
-        Sun, 09 May 2021 06:08:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k7sm8974408pfc.16.2021.05.09.06.08.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 May 2021 06:08:37 -0700 (PDT)
-Message-ID: <6097ded5.1c69fb81.ca70e.b416@mx.google.com>
-Date:   Sun, 09 May 2021 06:08:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229590AbhEINLC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 09:11:02 -0400
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10787C061573;
+        Sun,  9 May 2021 06:09:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=jmMlMrReug8dSG3qMgbDjrwA6zFS6KOYzBiUrMYLurI=; b=cNvbXvPjSI+Vkyp34Q1pYieCF
+        DMTf/bm9yJ3Nao7+sGIoIAs+4g4EKyThDYzxI41glhBzBSqN9FqgmTtkChW05uHo2MLMAotv2mBIn
+        Vu22decVhvbON5QdKBb2ORDsbT2wubaeRrq4hL8jueKSsJTOYgCPAqKytiikARd+tAHj5VqAiCYJr
+        +XzykKeew2SKNrR/ZmKDNCKxQ6CA1BwAnU+imRMpZSlw3aO7H04avilESyyYTUuhaLYBKScJd1NPR
+        ivKCS3iQjAF58z5XAlr5R+XvI0Gis3vNeOuNezYrGisoE+PbI1oH9iG2eWzAPgmJx8nuhnMLUZ8wC
+        j9ic4idew==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:43814)
+        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1lfjC1-0007H1-FH; Sun, 09 May 2021 14:09:57 +0100
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1lfjC0-0007f1-Sx; Sun, 09 May 2021 14:09:56 +0100
+Date:   Sun, 9 May 2021 14:09:56 +0100
+From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
+To:     Ansuel Smith <ansuelsmth@gmail.com>
+Cc:     stable@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [RESEND PATCH] arm: Enlarge IO_SPACE_LIMIT needed for some SoC
+Message-ID: <20210509130956.GI1336@shell.armlinux.org.uk>
+References: <20210508175537.202-1-ansuelsmth@gmail.com>
+ <20210508185043.GF1336@shell.armlinux.org.uk>
+ <YJcV6I6yYt5zIsXQ@Ansuel-xps.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.12.2-284-g66353c8ef656
-X-Kernelci-Branch: linux-5.12.y
-Subject: stable-rc/linux-5.12.y baseline: 105 runs,
- 2 regressions (v5.12.2-284-g66353c8ef656)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YJcV6I6yYt5zIsXQ@Ansuel-xps.localdomain>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: Russell King - ARM Linux admin <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.12.y baseline: 105 runs, 2 regressions (v5.12.2-284-g6635=
-3c8ef656)
+On Sun, May 09, 2021 at 12:51:20AM +0200, Ansuel Smith wrote:
+> On Sat, May 08, 2021 at 07:50:44PM +0100, Russell King - ARM Linux admin wrote:
+> > On Sat, May 08, 2021 at 07:55:35PM +0200, Ansuel Smith wrote:
+> > > Ipq8064 SoC requires larger IO_SPACE_LIMIT or second and third pci port
+> > > fails to register the IO addresses and connected device doesn't work.
+> > > 
+> > > Cc: <stable@vger.kernel.org> # 4.9+
+> > > Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+> > 
+> > I don't see any consideration of whether this increase results in any
+> > clashes with any other related areas. Also, there is no update of the
+> > memory layout documentation.
+> > 
+> > The memory layout documentation says:
+> > 
+> > =============== =============== ===============================================
+> > Start           End             Use
+> > =============== =============== ===============================================
+> > fee00000        feffffff        Mapping of PCI I/O space. This is a static
+> >                                 mapping within the vmalloc space.
+> > 
+> > which means there's a maximum of 0x001fffff available. You are
+> > increasing it's size from 0x000fffff to 0x00ffffff. This means it
+> > expands from 0xfee00000 through to 0xffdfffff.
+> > 
+> > This conflicts with these entries:
+> > 
+> > ffc80000        ffefffff        Fixmap mapping region.  Addresses provided
+> >                                 by fix_to_virt() will be located here.
+> > 
+> > ffc00000        ffc7ffff        Guard region
+> > 
+> > ff800000        ffbfffff        Permanent, fixed read-only mapping of the
+> >                                 firmware provided DT blob
+> > 
+> > So, I have no option but to NAK this change. Sorry.
+> > 
+> > You can find this documentation in the "Documentation" subdirectory.
+> > 
+> > -- 
+> > RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+> > FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+> 
+> Hi,
+> Thanks a lot for the review and sorry for the mess. Just to make sure I
+> don't push a very wrong patch another time. ipq8064 require 0x300000 of
+> IO space if all 3 lines are used. From what I can read in the
+> documentation, the PCI I/O mapping section does have space and can be
+> expanded to ff0fffff without causing collision. So I have to update that
+> part and the IO_LIMIT to 0x2fffff. Tell me if I'm completely wrong and
+> again, thanks for the review.
 
-Regressions Summary
--------------------
+Well, an obvious question would be: do you really need that much IO
+space? PCs have got away with 64K of IO space without having a problem
+for years, so 64K per bus should be fine. If you have 3 buses, that
+should be 3 * 64K or 192K.
 
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 2=
-          =
+I would bet in the normal circumstance that the IO space on every PCI
+bus is very sparsely used, so using 1MiB per bus seems over the top.
 
+That said, using 1MB each for three buses takes the top of the IO space
+to 0xff100000, which shouldn't be a problem, assuming memory.rst is up
+to date.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.12.y/ker=
-nel/v5.12.2-284-g66353c8ef656/plan/baseline/
+In any case, I really don't think such a change has anything to do with
+stable kernels, so please drop that for your next submission.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.12.y
-  Describe: v5.12.2-284-g66353c8ef656
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      66353c8ef656711854711ba664e3fc4d6adc00ab =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab          | compiler | defconfig         | r=
-egressions
--------------------+------+--------------+----------+-------------------+--=
-----------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 2=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6097a9e4fd3947260e6f5483
-
-  Results:     3 PASS, 2 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.12.y/v5.12.2=
--284-g66353c8ef656/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm283=
-7-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.12.y/v5.12.2=
--284-g66353c8ef656/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm283=
-7-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6097a9e4fd39472=
-60e6f5487
-        new failure (last pass: v5.12.2)
-        4 lines
-
-    2021-05-09 09:22:21.823000+00:00  kern  :alert : Unable to handle kerne=
-l NULL pointer dereference at virtual address 00000f44
-    2021-05-09 09:22:21.824000+00:00  <8>[   13.496266] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D4>
-    2021-05-09 09:22:21.825000+00:00  kern  :alert : pgd =3D 809c4910   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6097a9e4fd39472=
-60e6f5488
-        new failure (last pass: v5.12.2)
-        14 lines
-
-    2021-05-09 09:22:21.867000+00:00  kern  :emerg : Internal error: Oops: =
-817 [#1] ARM
-    2021-05-09 09:22:21.868000+00:00  kern  :emerg : Process udevd (pid: 10=
-4, stack limit =3D 0x53d1d12a)
-    2021-05-09 09:22:21.869000+00:00  ke<8>[   13.537978] <LAVA_SIGNAL_TEST=
-CASE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D14>
-    2021-05-09 09:22:21.870000+00:00  rn  :emerg : Stack: (0xc<8>[   13.548=
-792] <LAVA_SIGNAL_ENDRUN 0_dmesg 302100_1.5.2.4.1>   =
-
- =20
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
