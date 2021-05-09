@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 705E63776CA
+	by mail.lfdr.de (Postfix) with ESMTP id B981C3776CB
 	for <lists+stable@lfdr.de>; Sun,  9 May 2021 15:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229615AbhEINoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 May 2021 09:44:11 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:33417 "EHLO
+        id S229602AbhEINoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 May 2021 09:44:12 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:45463 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229591AbhEINoK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 09:44:10 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 10D771940401;
-        Sun,  9 May 2021 09:43:07 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 09 May 2021 09:43:07 -0400
+        by vger.kernel.org with ESMTP id S229591AbhEINoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 09:44:12 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id B184D19405FA;
+        Sun,  9 May 2021 09:43:08 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 09 May 2021 09:43:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=7sRxRg
-        kUlc0MFereGUL5Eb1Zbw7tksDlpunzA7UDIIU=; b=KNCU78X1UAWMA+fwrhWwhL
-        0Qt7BEl+D7WTF7onRDEYYIi3kBCeDT8NmQPiXCo1COFhVZ0wGCPnGdepe9cJlEII
-        wQsuir8JqvmUGIYK3k/YW1wwNAjQ8mJYjhlYs1P7J/hk7Rwpsi8ftczZEBctdVzn
-        FNfgM83TL9pEKKNfUJDGKPfdxjw8MBPzpP4LvXqTjRdzO45cXkSTlBl4JSTpLHC0
-        hUtUWX0+Qim8aS+O8cr5tYApffrmXEneEomHMV7guQiW8rqf02256kJe1D041P74
-        ZI/ygfhBd9mkvh5jMKdtqCq0Ji1TzhaW7mzvMpMcATL0j595TgdDXPoWgQQUTkVg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=pUvAt6
+        qkGz0mQ0BSX5SNya6yZBANvMopvorHLH8aPEU=; b=dVz/C4266xXIkQDo36xXrQ
+        R1uTYF8zG7fPI9juTdIy6h0J16CaJzDDV1JX6WtPlBV3h8/+J5bko7DG3M3ebOgb
+        hkbxYFoBwbdnU0Py53PzdCl4s9somS8iviFd1k8Z+Nbj97ZgIWTEhrk4HWkyRPMr
+        Wludu1oo0cgrAQ2LNC5McMTu214hsiTA7ylbAvqA/EgJbnMTabjbjNL1/zRCsCWE
+        x/mmc/MzwANS1mFUAPOgEMLNILO1TyObUbF4MGtagsCbD/CB2isy/C7aNMCBnUSF
+        W0GI+WWmg5Fzq9zYaiYFpTcb5CP9UCsLEMGunYAYDny40l5aVccCz/muYhFihHPg
         ==
-X-ME-Sender: <xms:6uaXYBFxVoXh6OAQukE0MwfX6R0g3LScgVze2H9fgxhWO_2b9aJGRg>
-    <xme:6uaXYGWGBbEghYIi97pRjCTSlFfrd2SdYHUgQMAp3xP24buNwhVW7UMvCOJPu09Ct
-    ZkF5q6Jdu-8Xg>
+X-ME-Sender: <xms:7OaXYDE51WiNkZBkZr_Ni4q4B913yN6cWvMJ-b1W8d0hdU7r2H0Qug>
+    <xme:7OaXYAV8TbM4OmySjFOZDZD9KFc4tkhGmvz_ZnUZLa7XzLxVYRfhf0i6IBwwMUQUM
+    zlfPAZa7f1gYQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegiedgjedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:6uaXYDJPlci0a-k-lRZkYEcrwgVFTXA21TvdsH6v8DyVXZaKvtVOhQ>
-    <xmx:6uaXYHEQtS_n_EKsIySAgI74gdip9KUxKyI_OiF96VtMk8W-5HZaCg>
-    <xmx:6uaXYHVKTV_RnCkzcuhjx4UAmN0q7Dd0mHMEw37hOCQXPhapPNx7hw>
-    <xmx:6-aXYDpo3vJ_nYLW53s7XoGRfGVIYI_5ZIqdydZxKoAgqMRo6sZEVWLe1Q0>
+X-ME-Proxy: <xmx:7OaXYFKkZpf2CCcoMJB7u5uOEEChaB_j8hkY78fhq19hvY24z0uIwg>
+    <xmx:7OaXYBEP0YrOR6PGjPABg3AF4zm4CKux9W7hpTnj4jDgpGLCfll6uw>
+    <xmx:7OaXYJV0fMxism42Gk3GxbAcKFAAyA1XXq2pU70FY1HB4yXZbATRxg>
+    <xmx:7OaXYFpFL6sTe36o1ihYUPLkNv1qH0NLA_kCLwpbpgjLlTbh6Esryzr-nhA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun,  9 May 2021 09:43:06 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iommu/vt-d: Force to flush iotlb before creating superpage" failed to apply to 4.9-stable tree
+        Sun,  9 May 2021 09:43:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Force to flush iotlb before creating superpage" failed to apply to 4.14-stable tree
 To:     longpeng2@huawei.com, alex.williamson@redhat.com,
         arei.gonglei@huawei.com, baolu.lu@linux.intel.com,
         dwmw2@infradead.org, joro@8bytes.org, jroedel@suse.de,
         kevin.tian@intel.com, nadav.amit@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 May 2021 15:43:00 +0200
-Message-ID: <1620567780254220@kroah.com>
+Date:   Sun, 09 May 2021 15:43:02 +0200
+Message-ID: <1620567782202116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
