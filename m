@@ -2,177 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C04377808
-	for <lists+stable@lfdr.de>; Sun,  9 May 2021 21:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC2E37781D
+	for <lists+stable@lfdr.de>; Sun,  9 May 2021 21:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbhEITSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 May 2021 15:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38990 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229662AbhEITSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 May 2021 15:18:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 815526140B;
-        Sun,  9 May 2021 19:17:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620587864;
-        bh=CV4rIl9CyEpAvSLMmV+Wi3FcGolfY9PY6+Q6Fuygklg=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Ib6tvNkc2uHzxeVPdvZvnETI58bSjMAF1FbaoWASPsHdvA4H32kl1b9q5bhskRCqN
-         XZUwJBKHNKz249VNaFh6nYqebJeQ9QQAktP8gYKu3C3NZoUaMQpvmPuQUWK/FCESri
-         0+njcDBKBpnb7NR+GT3C4lyxnu43ApsUWyjAYBHMOrvDLGa2i5/H3dGPQ9oqdLpxc3
-         mbPeq2JraH/dn3AOoYkL8Z9nrVt/Zbv4XP9Eyi3yMPyrS8VWadxRgE3f8eFMkoQ50p
-         79FXxG3B0twcNkryEZIUDw3YUY9vsQFkxZlfKJQLQhPPtXtmlABynPId6icwAVoXgz
-         IfmULIHZBAIkA==
-Received: by mail-oi1-f181.google.com with SMTP id z3so12667418oib.5;
-        Sun, 09 May 2021 12:17:44 -0700 (PDT)
-X-Gm-Message-State: AOAM532o+9VcYysLiL46Ucbo0ljoKoKd+QDFZT5TiZPfoXdYqnWhD+yM
-        bcXgwwxQ3eo0/p+HJwQtNUwq9VA3/AIhx1LoRNc=
-X-Google-Smtp-Source: ABdhPJwGAmjCyKrau3g+4xJBVPdRbIhO4glLGE0QurdmX3sKAWmXXqcsGtHCuQ+MRotVnzG+iMOFJOVob3yCUkRTgfk=
-X-Received: by 2002:aca:e142:: with SMTP id y63mr15544276oig.33.1620587863681;
- Sun, 09 May 2021 12:17:43 -0700 (PDT)
+        id S229685AbhEITio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 May 2021 15:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40224 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229666AbhEITio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 15:38:44 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52FFC061573
+        for <stable@vger.kernel.org>; Sun,  9 May 2021 12:37:39 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id v13so8068339ple.9
+        for <stable@vger.kernel.org>; Sun, 09 May 2021 12:37:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eLloTexJNIketMKcZMirVO3mY93/VZ8aRiB96v7+Eao=;
+        b=LLajs/GYLcCdWZeprsNs5tvzXmu8sx8mexwcgr1WQcbw8yNzKJ6R6R7BPklv6DtHCo
+         W95USm8Y/eX3sDvYq4zl29FogQkr1oWSqV+ktVpAETwj1Plz6j1CaXhX7S6L6ZPEoSBl
+         qL69Wtqv1wyx4EXMmIIAhZTX6zfhdx4ViTsQLUl5ozGiNvId+G0ATY+3F+PNiAR8d8u+
+         jpOhP6w/95GKhtZtfLbKQj5e7/f5Rzw5mYngwhIWT7n+HoCiJKM2F2JWiBB4PLupy6pb
+         15njrZfS3Tho7mOZljoP+bwyrIAZY3ZO34xyc4+Izn0j0e02CRz7w6mEz4JAcfVbOmHS
+         ympw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eLloTexJNIketMKcZMirVO3mY93/VZ8aRiB96v7+Eao=;
+        b=VJYC/LHQ9Vsfvvg4mLoakrA5x3EfflgHSTegQh1px6jFxt+PmldBQel+1/K0eF6WRD
+         fJHTc1+7ANZrjZAQzPRWT2OddQtAosTP91pvWCDoNwHR0B8EF4hHWJMs8Rt8oAkg6Zax
+         Kj5JTRpmUYY5UdhWGm+vwRLmCtEshyiHtP8Olgxbpfk6FRMzxCht83TCt6BnJ3DKWn6k
+         Wj28cmZhNqp9nqZTG6cbYYkM0CEHfmlMBp/21elH+rvlWjnGoUy1DZND+OlcdD6sNU3J
+         8WG4K5ndJ+h3a0Mr/z7kzCpv5iKD1Q/Ns5psLikkYzK1zqi1n5Wp2l7vmwRonU1ByGNj
+         +SFQ==
+X-Gm-Message-State: AOAM531nrirTGzQbEWrKbsm2tOtZmjdAXLbo/iuIGzEEKiFkmKFwFE3Q
+        H5c5F7+0veO3HOLyKE1HFqpq7CbNudWSgNJu
+X-Google-Smtp-Source: ABdhPJx62amLHWWfaWucQTtouKDuxd1TQ/cE2tjuLmEr5Z8ASy8CvHmQXDxGy5pg2FeRNFvw94tImg==
+X-Received: by 2002:a17:90a:590d:: with SMTP id k13mr24827171pji.68.1620589058858;
+        Sun, 09 May 2021 12:37:38 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w123sm9112717pfb.109.2021.05.09.12.37.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 09 May 2021 12:37:38 -0700 (PDT)
+Message-ID: <60983a02.1c69fb81.f0669.b81a@mx.google.com>
+Date:   Sun, 09 May 2021 12:37:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210509173029.1653182-1-f.fainelli@gmail.com>
-In-Reply-To: <20210509173029.1653182-1-f.fainelli@gmail.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Sun, 9 May 2021 21:17:32 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXGt1zrRQused3xgXzhQYfDchgH325iRDCZrx+7o1+bUnA@mail.gmail.com>
-Message-ID: <CAMj1kXGt1zrRQused3xgXzhQYfDchgH325iRDCZrx+7o1+bUnA@mail.gmail.com>
-Subject: Re: [PATCH stable 5.10 0/3] ARM FDT relocation backports
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Russell King <linux@armlinux.org.uk>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Desaulniers <ndesaulniers@gooogle.com>,
-        Joe Perches <joe@perches.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.268-55-ge33ffaa8b09b
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 117 runs,
+ 5 regressions (v4.9.268-55-ge33ffaa8b09b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 9 May 2021 at 19:30, Florian Fainelli <f.fainelli@gmail.com> wrote:
->
-> Hi Greg, Sasha,
->
-> These patches were not marked with a Fixes: tag but they do fix booting
-> ARM 32-bit platforms that have specific FDT placement and would cause
-> boot failures like these:
->
+stable-rc/queue/4.9 baseline: 117 runs, 5 regressions (v4.9.268-55-ge33ffaa=
+8b09b)
 
-I don't have any objections to backporting these changes, but it would
-be helpful if you could explain why this is a regression. Also, you'll
-need to pull in the following patch as well
+Regressions Summary
+-------------------
 
-10fce53c0ef8 ARM: 9027/1: head.S: explicitly map DT even if it lives
-in the first physical section
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
 
-> [    0.000000] 8<--- cut here ---
-> [    0.000000] Unable to handle kernel paging request at virtual address
-> ffa14000
-> [    0.000000] pgd = (ptrval)
-> [    0.000000] [ffa14000] *pgd=80000040007003, *pmd=00000000
-> [    0.000000] Internal error: Oops: 206 [#1] SMP ARM
-> [    0.000000] Modules linked in:
-> [    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.4.85-1.0 #1
-> [    0.000000] Hardware name: Broadcom STB (Flattened Device Tree)
-> [    0.000000] PC is at fdt_check_header+0xc/0x21c
-> [    0.000000] LR is at __unflatten_device_tree+0x7c/0x2f8
-> [    0.000000] pc : [<c0d30e44>]    lr : [<c0a6c0fc>]    psr: 600000d3
-> [    0.000000] sp : c1401eac  ip : c1401ec8  fp : c1401ec4
-> [    0.000000] r10: 00000000  r9 : c150523c  r8 : 00000000
-> [    0.000000] r7 : c124eab4  r6 : ffa14000  r5 : 00000000  r4 :
-> c14ba920
-> [    0.000000] r3 : 00000000  r2 : c150523c  r1 : 00000000  r0 :
-> ffa14000
-> [    0.000000] Flags: nZCv  IRQs off  FIQs off  Mode SVC_32  ISA ARM
-> Segment user
-> [    0.000000] Control: 30c5383d  Table: 40003000  DAC: fffffffd
-> [    0.000000] Process swapper (pid: 0, stack limit = 0x(ptrval))
-> [    0.000000] Stack: (0xc1401eac to 0xc1402000)
-> [    0.000000] 1ea0:                            c14ba920 00000000
-> ffa14000 c1401ef4 c1401ec8
-> [    0.000000] 1ec0: c0a6c0fc c0d30e44 c124eab4 c124eab4 00000000
-> c14ebfc0 c140e5b8 00000000
-> [    0.000000] 1ee0: 00000001 c126f5a0 c1401f14 c1401ef8 c1250064
-> c0a6c08c 00000000 c1401f08
-> [    0.000000] 1f00: c022ddac c140ce80 c1401f9c c1401f18 c120506c
-> c125002c 00000000 00000000
-> [    0.000000] 1f20: 00000000 00000000 ffffffff c1401f94 c1401f6c
-> c1406308 3fffffff 00000001
-> [    0.000000] 1f40: 00000000 00000001 c1432b58 c14ca180 c1213ca4
-> c1406308 c1406300 30c0387d
-> [    0.000000] 1f60: c1401f8c c1401f70 c028e0ec 00000000 c1401f94
-> c1406308 c1406300 30c0387d
-> [    0.000000] 1f80: 00000000 7fa14000 420f1000 30c5387d c1401ff4
-> c1401fa0 c1200c98 c120467c
-> [    0.000000] 1fa0: 00000000 00000000 00000000 00000000 00000000
-> 00000000 00000000 c127fa44
-> [    0.000000] 1fc0: 00000000 00000000 00000000 c1200330 00000000
-> 30c0387d ffffffff 7fa14000
-> [    0.000000] 1fe0: 420f1000 30c5387d 00000000 c1401ff8 00000000
-> c1200c28 00000000 00000000
-> [    0.000000] Backtrace:
-> [    0.000000] [<c0d30e38>] (fdt_check_header) from [<c0a6c0fc>]
-> (__unflatten_device_tree+0x7c/0x2f8)
-> [    0.000000]  r6:ffa14000 r5:00000000 r4:c14ba920
-> [    0.000000] [<c0a6c080>] (__unflatten_device_tree) from [<c1250064>]
-> (unflatten_device_tree+0x44/0x54)
-> [    0.000000]  r10:c126f5a0 r9:00000001 r8:00000000 r7:c140e5b8
-> r6:c14ebfc0 r5:00000000
-> [    0.000000]  r4:c124eab4 r3:c124eab4
-> [    0.000000] [<c1250020>] (unflatten_device_tree) from [<c120506c>]
-> (setup_arch+0x9fc/0xc84)
-> [    0.000000]  r4:c140ce80
-> [    0.000000] [<c1204670>] (setup_arch) from [<c1200c98>]
-> (start_kernel+0x7c/0x540)
-> [    0.000000]  r10:30c5387d r9:420f1000 r8:7fa14000 r7:00000000
-> r6:30c0387d r5:c1406300
-> [    0.000000]  r4:c1406308
-> [    0.000000] [<c1200c1c>] (start_kernel) from [<00000000>] (0x0)
-> [    0.000000]  r10:30c5387d r9:420f1000 r8:7fa14000 r7:ffffffff
-> r6:30c0387d r5:00000000
-> [    0.000000]  r4:c1200330
-> [    0.000000] Code: e89da800 e1a0c00d e92dd870 e24cb004 (e5d03000)
-> [    0.000000] random: get_random_bytes called from
-> print_oops_end_marker+0x50/0x58 with crng_init=0
-> [    0.000000] ---[ end trace f34b4929828506c1 ]---
-> [    0.000000] Kernel panic - not syncing: Attempted to kill the idle
-> task!
-> [    0.000000] ---[ end Kernel panic - not syncing: Attempted to kill
-> the idle task! ]---
->
->
-> Ard Biesheuvel (3):
->   ARM: 9011/1: centralize phys-to-virt conversion of DT/ATAGS address
->   ARM: 9012/1: move device tree mapping out of linear region
->   ARM: 9020/1: mm: use correct section size macro to describe the FDT
->     virtual address
->
->  Documentation/arm/memory.rst  |  7 ++++++-
->  arch/arm/include/asm/fixmap.h |  2 +-
->  arch/arm/include/asm/memory.h |  5 +++++
->  arch/arm/include/asm/prom.h   |  4 ++--
->  arch/arm/kernel/atags.h       |  4 ++--
->  arch/arm/kernel/atags_parse.c |  6 +++---
->  arch/arm/kernel/devtree.c     |  6 +++---
->  arch/arm/kernel/head.S        |  5 ++---
->  arch/arm/kernel/setup.c       | 19 ++++++++++++++-----
->  arch/arm/mm/init.c            |  1 -
->  arch/arm/mm/mmu.c             | 20 ++++++++++++++------
->  arch/arm/mm/pv-fixup-asm.S    |  4 ++--
->  12 files changed, 54 insertions(+), 29 deletions(-)
->
-> --
-> 2.25.1
->
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.268-55-ge33ffaa8b09b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.268-55-ge33ffaa8b09b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e33ffaa8b09bb5b26711336ade8f154a15ba28f0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609805aba0be4839b26f5468
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609805aba0be4839b26f5=
+469
+        failing since 176 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609805a1cf4cb48c476f547b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609805a1cf4cb48c476f5=
+47c
+        failing since 176 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609805bda0be4839b26f547e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609805bda0be4839b26f5=
+47f
+        failing since 176 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60980555f17d5813cd6f5479
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60980555f17d5813cd6f5=
+47a
+        failing since 176 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6098055eab8a191cd16f5467
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-5=
+5-ge33ffaa8b09b/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6098055eab8a191cd16f5=
+468
+        failing since 176 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
