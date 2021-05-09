@@ -2,162 +2,308 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F20583775E0
-	for <lists+stable@lfdr.de>; Sun,  9 May 2021 10:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 394F33775E7
+	for <lists+stable@lfdr.de>; Sun,  9 May 2021 10:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229593AbhEII3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 May 2021 04:29:00 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:57854 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229605AbhEII27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 04:28:59 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2AC441C0B77; Sun,  9 May 2021 10:27:56 +0200 (CEST)
-Date:   Sun, 9 May 2021 10:27:55 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     stable@vger.kernel.org, mark.d.gray@redhat.com, wens@csie.org,
-        Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>,
-        Greg Rose <gvrose8192@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4] geneve: add transport ports in route lookup for geneve
-Message-ID: <20210509082755.GB25504@amd>
+        id S229681AbhEIIdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 May 2021 04:33:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38404 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229679AbhEIIdt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 04:33:49 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41BB0C061573
+        for <stable@vger.kernel.org>; Sun,  9 May 2021 01:32:46 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id v191so11520655pfc.8
+        for <stable@vger.kernel.org>; Sun, 09 May 2021 01:32:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=e9aYCbwuaVJB1bNK9Cc/xNFbaRZbprQvuuwTE2ap7Ns=;
+        b=W7dgK8bJiId5VXC1VVfiLXwzA/unv9X91yo5So21CUIsgbq6Py+L/cpEQaM30yRugG
+         3Hh5cZAWCCFG/25ShU0+xQcTkgRNuE3g7cPSihSa8r4WhWuQxG03tOTdcVYsW5v/qsuW
+         YTMejKfPELu9BTrCHywrpFe76kW9/3eg847RWa/sQ0OWQANgHJLC3uj8JRX7aijCVMln
+         1CNYnNutGdnDisJNH7f6kxnrzsbCA+A8FafLuJ5n9IuwA0Dn0/bdej6uVQxiyu40A9TC
+         ITAzjPOdcYw/qKWZCnKWv28AS0xbB0p/2yCnFIwQ+I/xiwTstGDHsHK8rGQoS/4BQoJG
+         4neg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=e9aYCbwuaVJB1bNK9Cc/xNFbaRZbprQvuuwTE2ap7Ns=;
+        b=VtBwEM8/dwWsHMMKH1aUO0KAt5/T1E/qx7CQKW97D/3RzlrqOSfd2AgOVW7HcaFg9g
+         2kfdxQDcnFV+QMePrzwAwXXuHFvTzb49xTIqHF92rDq+cVYZCPKKcAut7pu/b7uAdOPj
+         vGgfBsoyfqJaudq9fhQrNm5mijD3LH5oI9TlCkBZjVM8S+MSWzi1dQv+sNJ4Oanc8t+M
+         LJe2UdneT7IMdvMU2E4aqgN2cWBtw/N1XygBKg2oeEr5azSrkr8rqt4RITyn5+BeEtQo
+         u3tq+GMCboLOKCwbZ3f9wqx6vLTReBpeOqP6n2RU9eybhWWNA080fJcjpioS+mTazhvn
+         wlaA==
+X-Gm-Message-State: AOAM530ZoMNE+lzidJgLbmjQMsoIOmlgKm5Fyds05e0Q6E98FKM4kPiH
+        sZ2X5HRWQy99aYXnOMW794hUlX2oIlRddg3k
+X-Google-Smtp-Source: ABdhPJwtLQBfTvPREgfgEw96EgxsYqlQxL0YZrXdmKmMHOEEMA4pSFRJAkainVEKZzqJ5QG8G5WsDg==
+X-Received: by 2002:a63:575a:: with SMTP id h26mr19954066pgm.35.1620549165522;
+        Sun, 09 May 2021 01:32:45 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id dw18sm16208230pjb.36.2021.05.09.01.32.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 09 May 2021 01:32:45 -0700 (PDT)
+Message-ID: <60979e2d.1c69fb81.4a3d0.befa@mx.google.com>
+Date:   Sun, 09 May 2021 01:32:45 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.232-77-g4a18fd501f63
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 121 runs,
+ 6 regressions (v4.14.232-77-g4a18fd501f63)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.14 baseline: 121 runs, 6 regressions (v4.14.232-77-g4a18f=
+d501f63)
 
---neYutvxvOLaeuPCA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-=46rom: Mark Gray <mark.d.gray@redhat.com>
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
 
-[ Upstream commit 34beb21594519ce64a55a498c2fe7d567bc1ca20 ]
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
 
-This patch adds transport ports information for route lookup so that
-IPsec can select Geneve tunnel traffic to do encryption. This is
-needed for OVS/OVN IPsec with encrypted Geneve tunnels.
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
 
-This can be tested by configuring a host-host VPN using an IKE
-daemon and specifying port numbers. For example, for an
-Openswan-type configuration, the following parameters should be
-configured on both hosts and IPsec set up as-per normal:
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
 
-$ cat /etc/ipsec.conf
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
 
-conn in
-=2E..
-left=3D$IP1
-right=3D$IP2
-=2E..
-leftprotoport=3Dudp/6081
-rightprotoport=3Dudp
-=2E..
-conn out
-=2E..
-left=3D$IP1
-right=3D$IP2
-=2E..
-leftprotoport=3Dudp
-rightprotoport=3Dudp/6081
-=2E..
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
 
-The tunnel can then be setup using "ip" on both hosts (but
-changing the relevant IP addresses):
 
-$ ip link add tun type geneve id 1000 remote $IP2
-$ ip addr add 192.168.0.1/24 dev tun
-$ ip link set tun up
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.232-77-g4a18fd501f63/plan/baseline/
 
-This can then be tested by pinging from $IP1:
-
-$ ping 192.168.0.2
-
-Without this patch the traffic is unencrypted on the wire.
-
-Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
-Signed-off-by: Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>
-Signed-off-by: Mark Gray <mark.d.gray@redhat.com>
-Reviewed-by: Greg Rose <gvrose8192@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[backport to 4.4 for CVE-2020-25645]
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
----
- drivers/net/geneve.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index ee38299f9c57..aa00d71705c6 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -842,7 +842,7 @@ static netdev_tx_t geneve_xmit_skb(struct sk_buff *skb,=
- struct net_device *dev,
-=20
- 	sport =3D udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	rt =3D geneve_get_v4_rt(skb, dev, &fl4, info,
--			      geneve->dst_port, sport);
-+			      info->key.tp_dst, sport);
- 	if (IS_ERR(rt)) {
- 		err =3D PTR_ERR(rt);
- 		goto tx_error;
-@@ -925,7 +925,7 @@ static netdev_tx_t geneve6_xmit_skb(struct sk_buff *skb=
-, struct net_device *dev,
-=20
- 	sport =3D udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	dst =3D geneve_get_v6_dst(skb, dev, &fl6, info,
--				geneve->dst_port, sport);
-+				info->key.tp_dst, sport);
- 	if (IS_ERR(dst)) {
- 		err =3D PTR_ERR(dst);
- 		goto tx_error;
-@@ -1026,7 +1026,7 @@ static int geneve_fill_metadata_dst(struct net_device=
- *dev, struct sk_buff *skb)
- 					  1, USHRT_MAX, true);
-=20
- 		rt =3D geneve_get_v4_rt(skb, dev, &fl4, info,
--				      geneve->dst_port, sport);
-+				      info->key.tp_dst, sport);
- 		if (IS_ERR(rt))
- 			return PTR_ERR(rt);
-=20
-@@ -1038,7 +1038,7 @@ static int geneve_fill_metadata_dst(struct net_device=
- *dev, struct sk_buff *skb)
- 					  1, USHRT_MAX, true);
-=20
- 		dst =3D geneve_get_v6_dst(skb, dev, &fl6, info,
--					geneve->dst_port, sport);
-+					info->key.tp_dst, sport);
- 		if (IS_ERR(dst))
- 			return PTR_ERR(dst);
-=20
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.232-77-g4a18fd501f63
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4a18fd501f63701d66ef807060f553ec7b465414 =
 
 
 
------ End forwarded message -----
+Test Regressions
+---------------- =
 
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---neYutvxvOLaeuPCA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
 
-iEYEARECAAYFAmCXnQsACgkQMOfwapXb+vIgcgCghRY2m7O1IfHrVVMgqQytnsMV
-DyUAoKqt8f0UkkVd7bXo1p46jzXaLMr5
-=Fegg
------END PGP SIGNATURE-----
 
---neYutvxvOLaeuPCA--
+  Details:     https://kernelci.org/test/plan/id/60976ef8eda481947d6f54a1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60976ef8eda481947d6f5=
+4a2
+        failing since 68 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
+t fail: v4.14.222-120-gdc8887cba23e) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6097681554604517116f549c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6097681554604517116f5=
+49d
+        failing since 176 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60976818c36696b3156f546c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60976818c36696b3156f5=
+46d
+        failing since 176 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6097681354604517116f5499
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6097681354604517116f5=
+49a
+        failing since 176 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609767cdcdb42486c86f547c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609767cdcdb42486c86f5=
+47d
+        failing since 176 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609767af04fed0b5f86f5467
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-77-g4a18fd501f63/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609767af04fed0b5f86f5=
+468
+        failing since 176 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
