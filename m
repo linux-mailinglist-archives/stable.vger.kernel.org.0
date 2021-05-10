@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 997CF37850D
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E010F37850F
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232677AbhEJK6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232704AbhEJK6V (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 May 2021 06:58:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41710 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231774AbhEJKxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232349AbhEJKxt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:53:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2452761924;
-        Mon, 10 May 2021 10:41:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88330613C9;
+        Mon, 10 May 2021 10:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643292;
-        bh=16o5mwawdxf4Ny7fQtU3+asqhsuzzApK0LeRnYTi4e4=;
+        s=korg; t=1620643295;
+        bh=gl4LTxeDSpZKZS21MVfhx8fcKg+TJblp7rcu6FDOc1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5ERXJl8RJYJ7ZD7OzulsZYU8kgRw3XJoX4I1u+McOgCN2Lyl/ynSqhFIbGEEAOJe
-         /ZqSy0cMBdpJsbFR5Qcy3EBz0tTROt0Voxqnd3O63NF1CMMdy3+uL7nICbxftpVvca
-         XTt0FzGdYBbL/xidhGvG/TRNMdT1hkQDxjgOsntk=
+        b=aWVnvjjWJDfvfvvhlDRHAj9mkcUYRU/0xbqGnzlrTmftXke2i7t+0w9Jwr+kiokja
+         9wLmdY6kc+rIp1ex7m7BGgnAsO5mig9FM9Z3HrgSIO/Qce7b8UWtuRSlvmwUSBLTHO
+         7wfqX4hJlHSsKi4RW3iNNOStyUUfHAJIutMar4P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrey Zhizhikin <andrey.z@gmail.com>
-Subject: [PATCH 5.10 256/299] Fix misc new gcc warnings
-Date:   Mon, 10 May 2021 12:20:53 +0200
-Message-Id: <20210510102013.401310567@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yang <yang.yang29@zte.com.cn>,
+        Joel Stanley <joel@jms.id.au>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.10 257/299] jffs2: check the validity of dstlen in jffs2_zlib_compress()
+Date:   Mon, 10 May 2021 12:20:54 +0200
+Message-Id: <20210510102013.440312793@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -40,81 +40,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Yang Yang <yang.yang29@zte.com.cn>
 
-commit e7c6e405e171fb33990a12ecfd14e6500d9e5cf2 upstream.
+commit 90ada91f4610c5ef11bc52576516d96c496fc3f1 upstream.
 
-It seems like Fedora 34 ends up enabling a few new gcc warnings, notably
-"-Wstringop-overread" and "-Warray-parameter".
+KASAN reports a BUG when download file in jffs2 filesystem.It is
+because when dstlen == 1, cpage_out will write array out of bounds.
+Actually, data will not be compressed in jffs2_zlib_compress() if
+data's length less than 4.
 
-Both of them cause what seem to be valid warnings in the kernel, where
-we have array size mismatches in function arguments (that are no longer
-just silently converted to a pointer to element, but actually checked).
+[  393.799778] BUG: KASAN: slab-out-of-bounds in jffs2_rtime_compress+0x214/0x2f0 at addr ffff800062e3b281
+[  393.809166] Write of size 1 by task tftp/2918
+[  393.813526] CPU: 3 PID: 2918 Comm: tftp Tainted: G    B           4.9.115-rt93-EMBSYS-CGEL-6.1.R6-dirty #1
+[  393.823173] Hardware name: LS1043A RDB Board (DT)
+[  393.827870] Call trace:
+[  393.830322] [<ffff20000808c700>] dump_backtrace+0x0/0x2f0
+[  393.835721] [<ffff20000808ca04>] show_stack+0x14/0x20
+[  393.840774] [<ffff2000086ef700>] dump_stack+0x90/0xb0
+[  393.845829] [<ffff20000827b19c>] kasan_object_err+0x24/0x80
+[  393.851402] [<ffff20000827b404>] kasan_report_error+0x1b4/0x4d8
+[  393.857323] [<ffff20000827bae8>] kasan_report+0x38/0x40
+[  393.862548] [<ffff200008279d44>] __asan_store1+0x4c/0x58
+[  393.867859] [<ffff2000084ce2ec>] jffs2_rtime_compress+0x214/0x2f0
+[  393.873955] [<ffff2000084bb3b0>] jffs2_selected_compress+0x178/0x2a0
+[  393.880308] [<ffff2000084bb530>] jffs2_compress+0x58/0x478
+[  393.885796] [<ffff2000084c5b34>] jffs2_write_inode_range+0x13c/0x450
+[  393.892150] [<ffff2000084be0b8>] jffs2_write_end+0x2a8/0x4a0
+[  393.897811] [<ffff2000081f3008>] generic_perform_write+0x1c0/0x280
+[  393.903990] [<ffff2000081f5074>] __generic_file_write_iter+0x1c4/0x228
+[  393.910517] [<ffff2000081f5210>] generic_file_write_iter+0x138/0x288
+[  393.916870] [<ffff20000829ec1c>] __vfs_write+0x1b4/0x238
+[  393.922181] [<ffff20000829ff00>] vfs_write+0xd0/0x238
+[  393.927232] [<ffff2000082a1ba8>] SyS_write+0xa0/0x110
+[  393.932283] [<ffff20000808429c>] __sys_trace_return+0x0/0x4
+[  393.937851] Object at ffff800062e3b280, in cache kmalloc-64 size: 64
+[  393.944197] Allocated:
+[  393.946552] PID = 2918
+[  393.948913]  save_stack_trace_tsk+0x0/0x220
+[  393.953096]  save_stack_trace+0x18/0x20
+[  393.956932]  kasan_kmalloc+0xd8/0x188
+[  393.960594]  __kmalloc+0x144/0x238
+[  393.963994]  jffs2_selected_compress+0x48/0x2a0
+[  393.968524]  jffs2_compress+0x58/0x478
+[  393.972273]  jffs2_write_inode_range+0x13c/0x450
+[  393.976889]  jffs2_write_end+0x2a8/0x4a0
+[  393.980810]  generic_perform_write+0x1c0/0x280
+[  393.985251]  __generic_file_write_iter+0x1c4/0x228
+[  393.990040]  generic_file_write_iter+0x138/0x288
+[  393.994655]  __vfs_write+0x1b4/0x238
+[  393.998228]  vfs_write+0xd0/0x238
+[  394.001543]  SyS_write+0xa0/0x110
+[  394.004856]  __sys_trace_return+0x0/0x4
+[  394.008684] Freed:
+[  394.010691] PID = 2918
+[  394.013051]  save_stack_trace_tsk+0x0/0x220
+[  394.017233]  save_stack_trace+0x18/0x20
+[  394.021069]  kasan_slab_free+0x88/0x188
+[  394.024902]  kfree+0x6c/0x1d8
+[  394.027868]  jffs2_sum_write_sumnode+0x2c4/0x880
+[  394.032486]  jffs2_do_reserve_space+0x198/0x598
+[  394.037016]  jffs2_reserve_space+0x3f8/0x4d8
+[  394.041286]  jffs2_write_inode_range+0xf0/0x450
+[  394.045816]  jffs2_write_end+0x2a8/0x4a0
+[  394.049737]  generic_perform_write+0x1c0/0x280
+[  394.054179]  __generic_file_write_iter+0x1c4/0x228
+[  394.058968]  generic_file_write_iter+0x138/0x288
+[  394.063583]  __vfs_write+0x1b4/0x238
+[  394.067157]  vfs_write+0xd0/0x238
+[  394.070470]  SyS_write+0xa0/0x110
+[  394.073783]  __sys_trace_return+0x0/0x4
+[  394.077612] Memory state around the buggy address:
+[  394.082404]  ffff800062e3b180: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
+[  394.089623]  ffff800062e3b200: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
+[  394.096842] >ffff800062e3b280: 01 fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  394.104056]                    ^
+[  394.107283]  ffff800062e3b300: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[  394.114502]  ffff800062e3b380: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[  394.121718] ==================================================================
 
-This fixes most of the trivial ones, by making the function declaration
-match the function definition, and in the case of intel_pm.c, removing
-the over-specified array size from the argument declaration.
-
-At least one 'stringop-overread' warning remains in the i915 driver, but
-that one doesn't have the same obvious trivial fix, and may or may not
-actually be indicative of a bug.
-
-[ It was a mistake to upgrade one of my machines to Fedora 34 while
-  being busy with the merge window, but if this is the extent of the
-  compiler upgrade problems, things are better than usual    - Linus ]
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrey Zhizhikin <andrey.z@gmail.com>
+Signed-off-by: Yang Yang <yang.yang29@zte.com.cn>
+Cc: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c     |    2 +-
- drivers/media/usb/dvb-usb/dvb-usb.h |    2 +-
- include/scsi/libfcoe.h              |    2 +-
- net/bluetooth/ecdh_helper.h         |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ fs/jffs2/compr_rtime.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -2992,7 +2992,7 @@ int ilk_wm_max_level(const struct drm_i9
+--- a/fs/jffs2/compr_rtime.c
++++ b/fs/jffs2/compr_rtime.c
+@@ -37,6 +37,9 @@ static int jffs2_rtime_compress(unsigned
+ 	int outpos = 0;
+ 	int pos=0;
  
- static void intel_print_wm_latency(struct drm_i915_private *dev_priv,
- 				   const char *name,
--				   const u16 wm[8])
-+				   const u16 wm[])
- {
- 	int level, max_level = ilk_wm_max_level(dev_priv);
++	if (*dstlen <= 3)
++		return -1;
++
+ 	memset(positions,0,sizeof(positions));
  
---- a/drivers/media/usb/dvb-usb/dvb-usb.h
-+++ b/drivers/media/usb/dvb-usb/dvb-usb.h
-@@ -487,7 +487,7 @@ extern int __must_check
- dvb_usb_generic_write(struct dvb_usb_device *, u8 *, u16);
- 
- /* commonly used remote control parsing */
--extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
-+extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[5], u32 *, int *);
- 
- /* commonly used firmware download types and function */
- struct hexline {
---- a/include/scsi/libfcoe.h
-+++ b/include/scsi/libfcoe.h
-@@ -249,7 +249,7 @@ int fcoe_ctlr_recv_flogi(struct fcoe_ctl
- 			 struct fc_frame *);
- 
- /* libfcoe funcs */
--u64 fcoe_wwn_from_mac(unsigned char mac[], unsigned int, unsigned int);
-+u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
- int fcoe_libfc_config(struct fc_lport *, struct fcoe_ctlr *,
- 		      const struct libfc_function_template *, int init_fcp);
- u32 fcoe_fc_crc(struct fc_frame *fp);
---- a/net/bluetooth/ecdh_helper.h
-+++ b/net/bluetooth/ecdh_helper.h
-@@ -25,6 +25,6 @@
- 
- int compute_ecdh_secret(struct crypto_kpp *tfm, const u8 pair_public_key[64],
- 			u8 secret[32]);
--int set_ecdh_privkey(struct crypto_kpp *tfm, const u8 *private_key);
-+int set_ecdh_privkey(struct crypto_kpp *tfm, const u8 private_key[32]);
- int generate_ecdh_public_key(struct crypto_kpp *tfm, u8 public_key[64]);
- int generate_ecdh_keys(struct crypto_kpp *tfm, u8 public_key[64]);
+ 	while (pos < (*sourcelen) && outpos <= (*dstlen)-2) {
 
 
