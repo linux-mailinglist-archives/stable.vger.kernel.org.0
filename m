@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB9413782AE
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302253782AF
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232180AbhEJKgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:36:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41804 "EHLO mail.kernel.org"
+        id S232217AbhEJKgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232389AbhEJKea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:34:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3F5761075;
-        Mon, 10 May 2021 10:28:11 +0000 (UTC)
+        id S232776AbhEJKfG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:35:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 375F861139;
+        Mon, 10 May 2021 10:28:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642492;
-        bh=BCOE47gw0we5L3WlvPJTxVG0irZDJI/+FHR8ebkLFQc=;
+        s=korg; t=1620642494;
+        bh=AAcA8OdPJl+ilu/dPnGtwVxONE61/5EAHLfi0bMQ3Q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOWFpIiN1byhjLWpkVxHL6gRtlcMIj16u3syf21+gXhYEPw2sjVFOG5TMw8zwtnlf
-         Q+zzjxR13iNl+WJ4kVaTmvLdF1PJoTGSYhIEtahJqsVgLa5BM9fIZp+aOS9xECdEch
-         iqZZoAhzrspde/6xVDo80NRLAbNhRJvfafB13HJo=
+        b=gujU750tjCS91vr2/hOWlEG3DAlzXBgb0+C2TFPFv5kHGO/gUfPGGT0qW0DHAW+hC
+         cG0W3zsjobHLH+zpIfuYekgYUb+cCAFGTf9L1772OpjJMVahZB48fUQjL3vDlJR7TB
+         0KlUxOGEldf8f5Ym9Sh2lI+JtcApaGPdXIUmr5E0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Qu Huang <jinsdb@126.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/184] drm/msm/mdp5: Do not multiply vclk line count by 100
-Date:   Mon, 10 May 2021 12:20:09 +0200
-Message-Id: <20210510101953.954823470@linuxfoundation.org>
+Subject: [PATCH 5.4 116/184] drm/amdkfd: Fix cat debugfs hang_hws file causes system crash bug
+Date:   Mon, 10 May 2021 12:20:10 +0200
+Message-Id: <20210510101953.986835104@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -43,69 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Qu Huang <jinsdb@126.com>
 
-[ Upstream commit 377569f82ea8228c421cef4da33e056a900b58ca ]
+[ Upstream commit d73610211eec8aa027850982b1a48980aa1bc96e ]
 
-Neither vtotal nor drm_mode_vrefresh contain a value that is
-premultiplied by 100 making the x100 variable name incorrect and
-resulting in vclks_line to become 100 times larger than it is supposed
-to be.  The hardware counts 100 clockticks too many before tearcheck,
-leading to severe panel issues on at least the Sony Xperia lineup.
+Here is the system crash log:
+[ 1272.884438] BUG: unable to handle kernel NULL pointer dereference at
+(null)
+[ 1272.884444] IP: [<          (null)>]           (null)
+[ 1272.884447] PGD 825b09067 PUD 8267c8067 PMD 0
+[ 1272.884452] Oops: 0010 [#1] SMP
+[ 1272.884509] CPU: 13 PID: 3485 Comm: cat Kdump: loaded Tainted: G
+[ 1272.884515] task: ffff9a38dbd4d140 ti: ffff9a37cd3b8000 task.ti:
+ffff9a37cd3b8000
+[ 1272.884517] RIP: 0010:[<0000000000000000>]  [<          (null)>]
+(null)
+[ 1272.884520] RSP: 0018:ffff9a37cd3bbe68  EFLAGS: 00010203
+[ 1272.884522] RAX: 0000000000000000 RBX: 0000000000000000 RCX:
+0000000000014d5f
+[ 1272.884524] RDX: fffffffffffffff4 RSI: 0000000000000001 RDI:
+ffff9a38aca4d200
+[ 1272.884526] RBP: ffff9a37cd3bbed0 R08: ffff9a38dcd5f1a0 R09:
+ffff9a31ffc07300
+[ 1272.884527] R10: ffff9a31ffc07300 R11: ffffffffaddd5e9d R12:
+ffff9a38b4e0fb00
+[ 1272.884529] R13: 0000000000000001 R14: ffff9a37cd3bbf18 R15:
+ffff9a38aca4d200
+[ 1272.884532] FS:  00007feccaa67740(0000) GS:ffff9a38dcd40000(0000)
+knlGS:0000000000000000
+[ 1272.884534] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1272.884536] CR2: 0000000000000000 CR3: 00000008267c0000 CR4:
+00000000003407e0
+[ 1272.884537] Call Trace:
+[ 1272.884544]  [<ffffffffade68940>] ? seq_read+0x130/0x440
+[ 1272.884548]  [<ffffffffade40f8f>] vfs_read+0x9f/0x170
+[ 1272.884552]  [<ffffffffade41e4f>] SyS_read+0x7f/0xf0
+[ 1272.884557]  [<ffffffffae374ddb>] system_call_fastpath+0x22/0x27
+[ 1272.884558] Code:  Bad RIP value.
+[ 1272.884562] RIP  [<          (null)>]           (null)
+[ 1272.884564]  RSP <ffff9a37cd3bbe68>
+[ 1272.884566] CR2: 0000000000000000
 
-This is likely an artifact from the original MDSS DSI panel driver where
-the calculation [1] corrected for a premultiplied reference framerate by
-100 [2].  It does not appear that the above values were ever
-premultiplied in the history of the DRM MDP5 driver.
-
-With this change applied the value written to the SYNC_CONFIG_VSYNC
-register is now identical to downstream kernels.
-
-[1]: https://source.codeaurora.org/quic/la/kernel/msm-3.18/tree/drivers/video/msm/mdss/mdss_mdp_intf_cmd.c?h=LA.UM.8.6.c26-02400-89xx.0#n288
-[2]: https://source.codeaurora.org/quic/la/kernel/msm-3.18/tree/drivers/video/msm/mdss/mdss_dsi_panel.c?h=LA.UM.8.6.c26-02400-89xx.0#n1648
-
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Link: https://lore.kernel.org/r/20210406214726.131534-3-marijn.suijten@somainline.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Qu Huang <jinsdb@126.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
-index 288f18cbf62d..0425400f44db 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
-@@ -41,7 +41,7 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
- {
- 	struct mdp5_kms *mdp5_kms = get_kms(encoder);
- 	struct device *dev = encoder->dev->dev;
--	u32 total_lines_x100, vclks_line, cfg;
-+	u32 total_lines, vclks_line, cfg;
- 	long vsync_clk_speed;
- 	struct mdp5_hw_mixer *mixer = mdp5_crtc_get_mixer(encoder->crtc);
- 	int pp_id = mixer->pp;
-@@ -51,8 +51,8 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
- 		return -EINVAL;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c b/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
+index 511712c2e382..673d5e34f213 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
+@@ -33,6 +33,11 @@ static int kfd_debugfs_open(struct inode *inode, struct file *file)
  
--	total_lines_x100 = mode->vtotal * drm_mode_vrefresh(mode);
--	if (!total_lines_x100) {
-+	total_lines = mode->vtotal * drm_mode_vrefresh(mode);
-+	if (!total_lines) {
- 		DRM_DEV_ERROR(dev, "%s: vtotal(%d) or vrefresh(%d) is 0\n",
- 			      __func__, mode->vtotal, drm_mode_vrefresh(mode));
- 		return -EINVAL;
-@@ -64,7 +64,7 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
- 							vsync_clk_speed);
- 		return -EINVAL;
- 	}
--	vclks_line = vsync_clk_speed * 100 / total_lines_x100;
-+	vclks_line = vsync_clk_speed / total_lines;
+ 	return single_open(file, show, NULL);
+ }
++static int kfd_debugfs_hang_hws_read(struct seq_file *m, void *data)
++{
++	seq_printf(m, "echo gpu_id > hang_hws\n");
++	return 0;
++}
  
- 	cfg = MDP5_PP_SYNC_CONFIG_VSYNC_COUNTER_EN
- 		| MDP5_PP_SYNC_CONFIG_VSYNC_IN_EN;
+ static ssize_t kfd_debugfs_hang_hws_write(struct file *file,
+ 	const char __user *user_buf, size_t size, loff_t *ppos)
+@@ -94,7 +99,7 @@ void kfd_debugfs_init(void)
+ 	debugfs_create_file("rls", S_IFREG | 0444, debugfs_root,
+ 			    kfd_debugfs_rls_by_device, &kfd_debugfs_fops);
+ 	debugfs_create_file("hang_hws", S_IFREG | 0200, debugfs_root,
+-			    NULL, &kfd_debugfs_hang_hws_fops);
++			    kfd_debugfs_hang_hws_read, &kfd_debugfs_hang_hws_fops);
+ }
+ 
+ void kfd_debugfs_fini(void)
 -- 
 2.30.2
 
