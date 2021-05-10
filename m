@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E34FB3782C0
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56917378455
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230484AbhEJKhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:37:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41804 "EHLO mail.kernel.org"
+        id S233057AbhEJKvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:51:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231223AbhEJKfW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:35:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 650E2616ED;
-        Mon, 10 May 2021 10:28:38 +0000 (UTC)
+        id S233443AbhEJKuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:50:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9004616E8;
+        Mon, 10 May 2021 10:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642518;
-        bh=VtMMlTKEpzi3wzRMRuuMeFN/bWje5cm33io5PqzJTNA=;
+        s=korg; t=1620643130;
+        bh=xuaQyowJnAi9b6Ss3OrZfWGSxAGyrYu9Gkf8tyxhaX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEXq7dwd+y3PP/J6gefG5BRrIRCYOWc/IE3U5C0BU9TV/ZG+0DtGkbbTS0VoLEyc6
-         LL2SKBE7UswdIYQ1QYJuII4ANWd4DE4jg+doHktftOEL+3jnOE6ygO0zWc3zXLsQGb
-         CHyNYoyJ+1IgQIGDL8CgJUjcr/XKKcjzEE0Z72HQ=
+        b=cr1gYvFrBT1/W0hZPnIIZGP3XWRxeP9WvOCFaVS7RgMQkWyHvStfsxcJRCsM6pu0W
+         GiN6WP9ouw664D/WlZ7BBjU/aPFc0UyQaX4VScXBpgPpeIFd2w0zyD8DHh7DcOoshv
+         UcBGtEUZwQqtL4cS8EpdwEs/MnDxbIClBTaDj9hc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Daniel Wagner <dwagner@suse.de>, Lee Duncan <lduncan@suse.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Gomez <daniel@qtec.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/184] scsi: qla2xxx: Always check the return value of qla24xx_get_isp_stats()
+Subject: [PATCH 5.10 189/299] drm/radeon/ttm: Fix memory leak userptr pages
 Date:   Mon, 10 May 2021 12:19:46 +0200
-Message-Id: <20210510101953.192953127@linuxfoundation.org>
+Message-Id: <20210510102011.190492536@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
-References: <20210510101950.200777181@linuxfoundation.org>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+References: <20210510102004.821838356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Daniel Gomez <daniel@qtec.com>
 
-[ Upstream commit a2b2cc660822cae08c351c7f6b452bfd1330a4f7 ]
+[ Upstream commit 5aeaa43e0ef1006320c077cbc49f4a8229ca3460 ]
 
-This patch fixes the following Coverity warning:
+If userptr pages have been pinned but not bounded,
+they remain uncleared.
 
-    CID 361199 (#1 of 1): Unchecked return value (CHECKED_RETURN)
-    3. check_return: Calling qla24xx_get_isp_stats without checking return
-    value (as is done elsewhere 4 out of 5 times).
-
-Link: https://lore.kernel.org/r/20210320232359.941-7-bvanassche@acm.org
-Cc: Quinn Tran <qutran@marvell.com>
-Cc: Mike Christie <michael.christie@oracle.com>
-Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-Cc: Daniel Wagner <dwagner@suse.de>
-Cc: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Daniel Gomez <daniel@qtec.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_ttm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
-index bed7e8637217..580d30cd5c35 100644
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -2691,6 +2691,8 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
- 	vha->qla_stats.jiffies_at_last_reset = get_jiffies_64();
+diff --git a/drivers/gpu/drm/radeon/radeon_ttm.c b/drivers/gpu/drm/radeon/radeon_ttm.c
+index 36150b7f31a9..a65cb349fac2 100644
+--- a/drivers/gpu/drm/radeon/radeon_ttm.c
++++ b/drivers/gpu/drm/radeon/radeon_ttm.c
+@@ -566,13 +566,14 @@ static void radeon_ttm_backend_unbind(struct ttm_bo_device *bdev, struct ttm_tt
+ 	struct radeon_ttm_tt *gtt = (void *)ttm;
+ 	struct radeon_device *rdev = radeon_get_rdev(bdev);
  
- 	if (IS_FWI2_CAPABLE(ha)) {
-+		int rval;
++	if (gtt->userptr)
++		radeon_ttm_tt_unpin_userptr(bdev, ttm);
 +
- 		stats = dma_alloc_coherent(&ha->pdev->dev,
- 		    sizeof(*stats), &stats_dma, GFP_KERNEL);
- 		if (!stats) {
-@@ -2700,7 +2702,11 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
- 		}
+ 	if (!gtt->bound)
+ 		return;
  
- 		/* reset firmware statistics */
--		qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
-+		rval = qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
-+		if (rval != QLA_SUCCESS)
-+			ql_log(ql_log_warn, vha, 0x70de,
-+			       "Resetting ISP statistics failed: rval = %d\n",
-+			       rval);
+ 	radeon_gart_unbind(rdev, gtt->offset, ttm->num_pages);
  
- 		dma_free_coherent(&ha->pdev->dev, sizeof(*stats),
- 		    stats, stats_dma);
+-	if (gtt->userptr)
+-		radeon_ttm_tt_unpin_userptr(bdev, ttm);
+ 	gtt->bound = false;
+ }
+ 
 -- 
 2.30.2
 
