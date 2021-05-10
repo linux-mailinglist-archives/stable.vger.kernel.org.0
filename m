@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E72503788BA
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A08AC378680
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234547AbhEJLXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:23:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
+        id S231628AbhEJLIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:08:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237179AbhEJLLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 051E461919;
-        Mon, 10 May 2021 11:07:43 +0000 (UTC)
+        id S233066AbhEJK6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:58:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59A8961A24;
+        Mon, 10 May 2021 10:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644864;
-        bh=/PZsmNOAHWc+djAPVac4wuQz4zH8jRh/xYnwOEZUpFc=;
+        s=korg; t=1620643949;
+        bh=LX81eCBHZYgAw4O3k/QohnUyjG5iJ/a6glYHdVqzylc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHMEmXWVATF2N3afCOGk7OAlTir5u7YH7EDqiYCO3u7Slht8FI4u+oY/gQ5ja2w+M
-         ZVIPcezCg4qZLLZ6gG8yyBgPDvZnQeg63F1R2KiFEZWGXMc0BZJaanzNS8PjYXNbry
-         dj1SjjNQvPDBazO0fXh2pqG/Ut8WZ/JeSIuBD8Us=
+        b=S6C8V3JpnHlQP2AD/CxQpkkYKH+MhZbH2c+VnivD3/1uGfLYKKuCcj+RaWSgD9ndY
+         XL2dc9V8BYo1wcmeHhpGubE0AIF8j9LkNU2p1a8M+J3LxS8C/ItWN59HW/obj5pekM
+         /nAsUExgkgi/3D+0aUkqFBidcmBRgvDZSLc6LLV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 228/384] power: supply: s3c_adc_battery: fix possible use-after-free in s3c_adc_bat_remove()
+Subject: [PATCH 5.11 227/342] scsi: lpfc: Fix error handling for mailboxes completed in MBX_POLL mode
 Date:   Mon, 10 May 2021 12:20:17 +0200
-Message-Id: <20210510102022.416886661@linuxfoundation.org>
+Message-Id: <20210510102017.588956927@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +41,296 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 68ae256945d2abe9036a7b68af4cc65aff79d5b7 ]
+[ Upstream commit 304ee43238fed517faa123e034b593905b8679f8 ]
 
-This driver's remove path calls cancel_delayed_work(). However, that
-function does not wait until the work function finishes. This means
-that the callback function may still be running after the driver's
-remove function has finished, which would result in a use-after-free.
+In SLI-4, when performing a mailbox command with MBX_POLL, the driver uses
+the BMBX register to send the command rather than the MQ. A flag is set
+indicating the BMBX register is active and saves the mailbox job struct
+(mboxq) in the mbox_active element of the adapter. The routine then waits
+for completion or timeout. The mailbox job struct is not freed by the
+routine. In cases of timeout, the adapter will be reset. The
+lpfc_sli_mbox_sys_flush() routine will clean up the mbox in preparation for
+the reset. It clears the BMBX active flag and marks the job structure as
+MBX_NOT_FINISHED. But, it never frees the mboxq job structure. Expectation
+in both normal completion and timeout cases is that the issuer of the mbx
+command will free the structure.  Unfortunately, not all calling paths are
+freeing the memory in cases of error.
 
-Fix by calling cancel_delayed_work_sync(), which ensures that
-the work is properly cancelled, no longer running, and unable
-to re-schedule itself.
+All calling paths were looked at and updated, if missing, to free the mboxq
+memory regardless of completion status.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://lore.kernel.org/r/20210412013127.2387-7-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/s3c_adc_battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_attr.c | 75 +++++++++++++++++++++--------------
+ drivers/scsi/lpfc/lpfc_init.c |  9 ++---
+ drivers/scsi/lpfc/lpfc_sli.c  | 42 ++++++++++----------
+ 3 files changed, 70 insertions(+), 56 deletions(-)
 
-diff --git a/drivers/power/supply/s3c_adc_battery.c b/drivers/power/supply/s3c_adc_battery.c
-index a2addc24ee8b..3e3a598f114d 100644
---- a/drivers/power/supply/s3c_adc_battery.c
-+++ b/drivers/power/supply/s3c_adc_battery.c
-@@ -395,7 +395,7 @@ static int s3c_adc_bat_remove(struct platform_device *pdev)
- 	if (main_bat.charge_finished)
- 		free_irq(gpiod_to_irq(main_bat.charge_finished), NULL);
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index 4528166dee36..243513925e90 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -1687,8 +1687,7 @@ lpfc_set_trunking(struct lpfc_hba *phba, char *buff_out)
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_MBOX,
+ 				"0071 Set trunk mode failed with status: %d",
+ 				rc);
+-	if (rc != MBX_TIMEOUT)
+-		mempool_free(mbox, phba->mbox_mem_pool);
++	mempool_free(mbox, phba->mbox_mem_pool);
  
--	cancel_delayed_work(&bat_work);
-+	cancel_delayed_work_sync(&bat_work);
+ 	return 0;
+ }
+@@ -6794,15 +6793,19 @@ lpfc_get_stats(struct Scsi_Host *shost)
+ 	pmboxq->ctx_buf = NULL;
+ 	pmboxq->vport = vport;
  
- 	if (pdata->exit)
- 		pdata->exit();
+-	if (vport->fc_flag & FC_OFFLINE_MODE)
++	if (vport->fc_flag & FC_OFFLINE_MODE) {
+ 		rc = lpfc_sli_issue_mbox(phba, pmboxq, MBX_POLL);
+-	else
+-		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
+-
+-	if (rc != MBX_SUCCESS) {
+-		if (rc != MBX_TIMEOUT)
++		if (rc != MBX_SUCCESS) {
+ 			mempool_free(pmboxq, phba->mbox_mem_pool);
+-		return NULL;
++			return NULL;
++		}
++	} else {
++		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
++		if (rc != MBX_SUCCESS) {
++			if (rc != MBX_TIMEOUT)
++				mempool_free(pmboxq, phba->mbox_mem_pool);
++			return NULL;
++		}
+ 	}
+ 
+ 	memset(hs, 0, sizeof (struct fc_host_statistics));
+@@ -6826,15 +6829,19 @@ lpfc_get_stats(struct Scsi_Host *shost)
+ 	pmboxq->ctx_buf = NULL;
+ 	pmboxq->vport = vport;
+ 
+-	if (vport->fc_flag & FC_OFFLINE_MODE)
++	if (vport->fc_flag & FC_OFFLINE_MODE) {
+ 		rc = lpfc_sli_issue_mbox(phba, pmboxq, MBX_POLL);
+-	else
+-		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
+-
+-	if (rc != MBX_SUCCESS) {
+-		if (rc != MBX_TIMEOUT)
++		if (rc != MBX_SUCCESS) {
+ 			mempool_free(pmboxq, phba->mbox_mem_pool);
+-		return NULL;
++			return NULL;
++		}
++	} else {
++		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
++		if (rc != MBX_SUCCESS) {
++			if (rc != MBX_TIMEOUT)
++				mempool_free(pmboxq, phba->mbox_mem_pool);
++			return NULL;
++		}
+ 	}
+ 
+ 	hs->link_failure_count = pmb->un.varRdLnk.linkFailureCnt;
+@@ -6907,15 +6914,19 @@ lpfc_reset_stats(struct Scsi_Host *shost)
+ 	pmboxq->vport = vport;
+ 
+ 	if ((vport->fc_flag & FC_OFFLINE_MODE) ||
+-		(!(psli->sli_flag & LPFC_SLI_ACTIVE)))
++		(!(psli->sli_flag & LPFC_SLI_ACTIVE))) {
+ 		rc = lpfc_sli_issue_mbox(phba, pmboxq, MBX_POLL);
+-	else
+-		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
+-
+-	if (rc != MBX_SUCCESS) {
+-		if (rc != MBX_TIMEOUT)
++		if (rc != MBX_SUCCESS) {
+ 			mempool_free(pmboxq, phba->mbox_mem_pool);
+-		return;
++			return;
++		}
++	} else {
++		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
++		if (rc != MBX_SUCCESS) {
++			if (rc != MBX_TIMEOUT)
++				mempool_free(pmboxq, phba->mbox_mem_pool);
++			return;
++		}
+ 	}
+ 
+ 	memset(pmboxq, 0, sizeof(LPFC_MBOXQ_t));
+@@ -6925,15 +6936,19 @@ lpfc_reset_stats(struct Scsi_Host *shost)
+ 	pmboxq->vport = vport;
+ 
+ 	if ((vport->fc_flag & FC_OFFLINE_MODE) ||
+-	    (!(psli->sli_flag & LPFC_SLI_ACTIVE)))
++	    (!(psli->sli_flag & LPFC_SLI_ACTIVE))) {
+ 		rc = lpfc_sli_issue_mbox(phba, pmboxq, MBX_POLL);
+-	else
++		if (rc != MBX_SUCCESS) {
++			mempool_free(pmboxq, phba->mbox_mem_pool);
++			return;
++		}
++	} else {
+ 		rc = lpfc_sli_issue_mbox_wait(phba, pmboxq, phba->fc_ratov * 2);
+-
+-	if (rc != MBX_SUCCESS) {
+-		if (rc != MBX_TIMEOUT)
+-			mempool_free( pmboxq, phba->mbox_mem_pool);
+-		return;
++		if (rc != MBX_SUCCESS) {
++			if (rc != MBX_TIMEOUT)
++				mempool_free(pmboxq, phba->mbox_mem_pool);
++			return;
++		}
+ 	}
+ 
+ 	lso->link_failure_count = pmb->un.varRdLnk.linkFailureCnt;
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index ac67f420ec26..ac06c6ec7297 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -9607,8 +9607,7 @@ lpfc_sli4_queue_setup(struct lpfc_hba *phba)
+ 				"3250 QUERY_FW_CFG mailbox failed with status "
+ 				"x%x add_status x%x, mbx status x%x\n",
+ 				shdr_status, shdr_add_status, rc);
+-		if (rc != MBX_TIMEOUT)
+-			mempool_free(mboxq, phba->mbox_mem_pool);
++		mempool_free(mboxq, phba->mbox_mem_pool);
+ 		rc = -ENXIO;
+ 		goto out_error;
+ 	}
+@@ -9624,8 +9623,7 @@ lpfc_sli4_queue_setup(struct lpfc_hba *phba)
+ 			"ulp1_mode:x%x\n", phba->sli4_hba.fw_func_mode,
+ 			phba->sli4_hba.ulp0_mode, phba->sli4_hba.ulp1_mode);
+ 
+-	if (rc != MBX_TIMEOUT)
+-		mempool_free(mboxq, phba->mbox_mem_pool);
++	mempool_free(mboxq, phba->mbox_mem_pool);
+ 
+ 	/*
+ 	 * Set up HBA Event Queues (EQs)
+@@ -10223,8 +10221,7 @@ lpfc_pci_function_reset(struct lpfc_hba *phba)
+ 		shdr_status = bf_get(lpfc_mbox_hdr_status, &shdr->response);
+ 		shdr_add_status = bf_get(lpfc_mbox_hdr_add_status,
+ 					 &shdr->response);
+-		if (rc != MBX_TIMEOUT)
+-			mempool_free(mboxq, phba->mbox_mem_pool);
++		mempool_free(mboxq, phba->mbox_mem_pool);
+ 		if (shdr_status || shdr_add_status || rc) {
+ 			lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+ 					"0495 SLI_FUNCTION_RESET mailbox "
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 8cb60c5703d0..3037a928eefc 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -5678,12 +5678,10 @@ lpfc_sli4_get_ctl_attr(struct lpfc_hba *phba)
+ 			phba->sli4_hba.lnk_info.lnk_no,
+ 			phba->BIOSVersion);
+ out_free_mboxq:
+-	if (rc != MBX_TIMEOUT) {
+-		if (bf_get(lpfc_mqe_command, &mboxq->u.mqe) == MBX_SLI4_CONFIG)
+-			lpfc_sli4_mbox_cmd_free(phba, mboxq);
+-		else
+-			mempool_free(mboxq, phba->mbox_mem_pool);
+-	}
++	if (bf_get(lpfc_mqe_command, &mboxq->u.mqe) == MBX_SLI4_CONFIG)
++		lpfc_sli4_mbox_cmd_free(phba, mboxq);
++	else
++		mempool_free(mboxq, phba->mbox_mem_pool);
+ 	return rc;
+ }
+ 
+@@ -5784,12 +5782,10 @@ retrieve_ppname:
+ 	}
+ 
+ out_free_mboxq:
+-	if (rc != MBX_TIMEOUT) {
+-		if (bf_get(lpfc_mqe_command, &mboxq->u.mqe) == MBX_SLI4_CONFIG)
+-			lpfc_sli4_mbox_cmd_free(phba, mboxq);
+-		else
+-			mempool_free(mboxq, phba->mbox_mem_pool);
+-	}
++	if (bf_get(lpfc_mqe_command, &mboxq->u.mqe) == MBX_SLI4_CONFIG)
++		lpfc_sli4_mbox_cmd_free(phba, mboxq);
++	else
++		mempool_free(mboxq, phba->mbox_mem_pool);
+ 	return rc;
+ }
+ 
+@@ -17041,8 +17037,7 @@ lpfc_rq_destroy(struct lpfc_hba *phba, struct lpfc_queue *hrq,
+ 				"2509 RQ_DESTROY mailbox failed with "
+ 				"status x%x add_status x%x, mbx status x%x\n",
+ 				shdr_status, shdr_add_status, rc);
+-		if (rc != MBX_TIMEOUT)
+-			mempool_free(mbox, hrq->phba->mbox_mem_pool);
++		mempool_free(mbox, hrq->phba->mbox_mem_pool);
+ 		return -ENXIO;
+ 	}
+ 	bf_set(lpfc_mbx_rq_destroy_q_id, &mbox->u.mqe.un.rq_destroy.u.request,
+@@ -17139,7 +17134,9 @@ lpfc_sli4_post_sgl(struct lpfc_hba *phba,
+ 	shdr = (union lpfc_sli4_cfg_shdr *) &post_sgl_pages->header.cfg_shdr;
+ 	shdr_status = bf_get(lpfc_mbox_hdr_status, &shdr->response);
+ 	shdr_add_status = bf_get(lpfc_mbox_hdr_add_status, &shdr->response);
+-	if (rc != MBX_TIMEOUT)
++	if (!phba->sli4_hba.intr_enable)
++		mempool_free(mbox, phba->mbox_mem_pool);
++	else if (rc != MBX_TIMEOUT)
+ 		mempool_free(mbox, phba->mbox_mem_pool);
+ 	if (shdr_status || shdr_add_status || rc) {
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+@@ -17336,7 +17333,9 @@ lpfc_sli4_post_sgl_list(struct lpfc_hba *phba,
+ 	shdr = (union lpfc_sli4_cfg_shdr *) &sgl->cfg_shdr;
+ 	shdr_status = bf_get(lpfc_mbox_hdr_status, &shdr->response);
+ 	shdr_add_status = bf_get(lpfc_mbox_hdr_add_status, &shdr->response);
+-	if (rc != MBX_TIMEOUT)
++	if (!phba->sli4_hba.intr_enable)
++		lpfc_sli4_mbox_cmd_free(phba, mbox);
++	else if (rc != MBX_TIMEOUT)
+ 		lpfc_sli4_mbox_cmd_free(phba, mbox);
+ 	if (shdr_status || shdr_add_status || rc) {
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+@@ -17449,7 +17448,9 @@ lpfc_sli4_post_io_sgl_block(struct lpfc_hba *phba, struct list_head *nblist,
+ 	shdr = (union lpfc_sli4_cfg_shdr *)&sgl->cfg_shdr;
+ 	shdr_status = bf_get(lpfc_mbox_hdr_status, &shdr->response);
+ 	shdr_add_status = bf_get(lpfc_mbox_hdr_add_status, &shdr->response);
+-	if (rc != MBX_TIMEOUT)
++	if (!phba->sli4_hba.intr_enable)
++		lpfc_sli4_mbox_cmd_free(phba, mbox);
++	else if (rc != MBX_TIMEOUT)
+ 		lpfc_sli4_mbox_cmd_free(phba, mbox);
+ 	if (shdr_status || shdr_add_status || rc) {
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+@@ -18799,8 +18800,7 @@ lpfc_sli4_post_rpi_hdr(struct lpfc_hba *phba, struct lpfc_rpi_hdr *rpi_page)
+ 	shdr = (union lpfc_sli4_cfg_shdr *) &hdr_tmpl->header.cfg_shdr;
+ 	shdr_status = bf_get(lpfc_mbox_hdr_status, &shdr->response);
+ 	shdr_add_status = bf_get(lpfc_mbox_hdr_add_status, &shdr->response);
+-	if (rc != MBX_TIMEOUT)
+-		mempool_free(mboxq, phba->mbox_mem_pool);
++	mempool_free(mboxq, phba->mbox_mem_pool);
+ 	if (shdr_status || shdr_add_status || rc) {
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+ 				"2514 POST_RPI_HDR mailbox failed with "
+@@ -20044,7 +20044,9 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 			break;
+ 		}
+ 	}
+-	if (rc != MBX_TIMEOUT)
++	if (!phba->sli4_hba.intr_enable)
++		mempool_free(mbox, phba->mbox_mem_pool);
++	else if (rc != MBX_TIMEOUT)
+ 		mempool_free(mbox, phba->mbox_mem_pool);
+ 	if (shdr_status || shdr_add_status || rc) {
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
 -- 
 2.30.2
 
