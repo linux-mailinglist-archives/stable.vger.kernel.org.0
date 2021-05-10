@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDDAF3785C9
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7BE23785C7
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233786AbhEJLBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:01:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52744 "EHLO mail.kernel.org"
+        id S233752AbhEJLBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:01:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234610AbhEJK4m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234614AbhEJK4m (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:56:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D19116199C;
-        Mon, 10 May 2021 10:47:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 353456199D;
+        Mon, 10 May 2021 10:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643657;
-        bh=U5VH1FjoHIBdj44rOau1N1EsQ+mJhMw5NKpHZphx7UI=;
+        s=korg; t=1620643659;
+        bh=evRa31w1g5GCBFrZGTvLbvg4VGdra5QJX+sMYnmOADo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nqu8NSp89lswZPM7SXbSryn/rpmgPmiLwzmXXhdzN0lsnarIRQrYtonmMQYGpB893
-         vozpAGefwuQb8Rp+/eU8/DEcbdVNTyBU/IMI8w2Vhx3IQlQISc+WYHli0s2XZX8WqL
-         hrf82TIUh3DVpxiK4mwyATcqv0VyavYrq+RHrYS8=
+        b=Pp4r68o15fdwDOZ4FxQIc4VGiNRVkDrewQfL4TBp/GjLFU0H8f6OgAWiO0umdZI+t
+         lQx9GoSY2kslI7A5X30xK+7ep+zDz002QsKi0KGrN1SH6Vz0jOp5vGMvm++NWg1AII
+         fauSOeh+OAyWhrUeafaULHTuf4LDvrE4kK/g0uPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Angela Czubak <acz@semihalf.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 105/342] clocksource/drivers/dw_apb_timer_of: Add handling for potential memory leak
-Date:   Mon, 10 May 2021 12:18:15 +0200
-Message-Id: <20210510102013.567025125@linuxfoundation.org>
+Subject: [PATCH 5.11 106/342] resource: Prevent irqresource_disabled() from erasing flags
+Date:   Mon, 10 May 2021 12:18:16 +0200
+Message-Id: <20210510102013.600066650@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -42,67 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Angela Czubak <acz@semihalf.com>
 
-[ Upstream commit 397dc6f7ca3c858dc95800f299357311ccf679e6 ]
+[ Upstream commit d08a745729646f407277e904b02991458f20d261 ]
 
-Add calls to disable the clock and unmap the timer base address in case
-of any failures.
+Some Chromebooks use hard-coded interrupts in their ACPI tables.
+This is an excerpt as dumped on Relm:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210322121844.2271041-1-dinguyen@kernel.org
+...
+            Name (_HID, "ELAN0001")  // _HID: Hardware ID
+            Name (_DDN, "Elan Touchscreen ")  // _DDN: DOS Device Name
+            Name (_UID, 0x05)  // _UID: Unique ID
+            Name (ISTP, Zero)
+            Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+            {
+                Name (BUF0, ResourceTemplate ()
+                {
+                    I2cSerialBusV2 (0x0010, ControllerInitiated, 0x00061A80,
+                        AddressingMode7Bit, "\\_SB.I2C1",
+                        0x00, ResourceConsumer, , Exclusive,
+                        )
+                    Interrupt (ResourceConsumer, Edge, ActiveLow, Exclusive, ,, )
+                    {
+                        0x000000B8,
+                    }
+                })
+                Return (BUF0) /* \_SB_.I2C1.ETSA._CRS.BUF0 */
+            }
+...
+
+This interrupt is hard-coded to 0xB8 = 184 which is too high to be mapped
+to IO-APIC, so no triggering information is propagated as acpi_register_gsi()
+fails and irqresource_disabled() is issued, which leads to erasing triggering
+and polarity information.
+
+Do not overwrite flags as it leads to erasing triggering and polarity
+information which might be useful in case of hard-coded interrupts.
+This way the information can be read later on even though mapping to
+APIC domain failed.
+
+Signed-off-by: Angela Czubak <acz@semihalf.com>
+[ rjw: Changelog rearrangement ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/dw_apb_timer_of.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ include/linux/ioport.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index 42e7e43b8fcd..b1e2b697b21b 100644
---- a/drivers/clocksource/dw_apb_timer_of.c
-+++ b/drivers/clocksource/dw_apb_timer_of.c
-@@ -52,18 +52,34 @@ static int __init timer_get_base_and_rate(struct device_node *np,
- 		return 0;
- 
- 	timer_clk = of_clk_get_by_name(np, "timer");
--	if (IS_ERR(timer_clk))
--		return PTR_ERR(timer_clk);
-+	if (IS_ERR(timer_clk)) {
-+		ret = PTR_ERR(timer_clk);
-+		goto out_pclk_disable;
-+	}
- 
- 	ret = clk_prepare_enable(timer_clk);
- 	if (ret)
--		return ret;
-+		goto out_timer_clk_put;
- 
- 	*rate = clk_get_rate(timer_clk);
--	if (!(*rate))
--		return -EINVAL;
-+	if (!(*rate)) {
-+		ret = -EINVAL;
-+		goto out_timer_clk_disable;
-+	}
- 
- 	return 0;
-+
-+out_timer_clk_disable:
-+	clk_disable_unprepare(timer_clk);
-+out_timer_clk_put:
-+	clk_put(timer_clk);
-+out_pclk_disable:
-+	if (!IS_ERR(pclk)) {
-+		clk_disable_unprepare(pclk);
-+		clk_put(pclk);
-+	}
-+	iounmap(*base);
-+	return ret;
+diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+index fe48b7840665..b53cb1a5b819 100644
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -331,7 +331,7 @@ static inline void irqresource_disabled(struct resource *res, u32 irq)
+ {
+ 	res->start = irq;
+ 	res->end = irq;
+-	res->flags = IORESOURCE_IRQ | IORESOURCE_DISABLED | IORESOURCE_UNSET;
++	res->flags |= IORESOURCE_IRQ | IORESOURCE_DISABLED | IORESOURCE_UNSET;
  }
  
- static int __init add_clockevent(struct device_node *event_timer)
+ #ifdef CONFIG_IO_STRICT_DEVMEM
 -- 
 2.30.2
 
