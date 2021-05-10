@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 996DE378830
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95223378826
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239038AbhEJLU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
+        id S239017AbhEJLUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:20:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234790AbhEJLJL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:09:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48B1A60FEF;
-        Mon, 10 May 2021 11:04:52 +0000 (UTC)
+        id S234752AbhEJLJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:09:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3D2861075;
+        Mon, 10 May 2021 11:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644692;
-        bh=Vd1HgjghEDtwEry470TixI2MTVg9CAJYBAjQx2k8iOI=;
+        s=korg; t=1620644695;
+        bh=WtgBg4aqoSGF1AHZavDT1Gbq04vx8og/vxKkPVDIwTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UP+od4bKpUZTqW+LtXevKiH1IGpohs2NanJqQJNDk87ooNBD8gCBWSDQ56wsMUYMe
-         DNOqC6jx7zpKCF2fQsmw+lGM6q0BGFurFcMo/Fmjd1ud/H2bisrN41XvSM7cVxp6R3
-         l7B6BadzEKyeezckAbLwZfnSZBeGswbC3p6Eb+HY=
+        b=zc5SDvi4dW6yE1OvqH3ZyhhOx5IUiP89MRC8CWIiYhhgWf2E35T328db58WzKpFLL
+         KOgpgr8m9/fTnrAJsCY+OG5JSS2RpwVgn5EVlR6XhX8HKU6yTMSPhFvObdbGZs+PiW
+         PAl0ZiiVtLp6EqraRqwamu6q4URKnsjBJIBZdy1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
+        stable@vger.kernel.org, Alex Sierra <alex.sierra@amd.com>,
         Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 184/384] drm/amdgpu: enable retry fault wptr overflow
-Date:   Mon, 10 May 2021 12:19:33 +0200
-Message-Id: <20210510102020.958844256@linuxfoundation.org>
+Subject: [PATCH 5.12 185/384] drm/amdgpu: enable 48-bit IH timestamp counter
+Date:   Mon, 10 May 2021 12:19:34 +0200
+Message-Id: <20210510102020.990125855@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,189 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Alex Sierra <alex.sierra@amd.com>
 
-[ Upstream commit b672cb1eee59efe6ca5bb2a2ce90060a22860558 ]
+[ Upstream commit 9a9c59a8f4f4478d5951eb0bded1d17b936aad6e ]
 
-If xnack is on, VM retry fault interrupt send to IH ring1, and ring1
-will be full quickly. IH cannot receive other interrupts, this causes
-deadlock if migrating buffer using sdma and waiting for sdma done while
-handling retry fault.
+By default this timestamp is 32 bit counter. It gets
+overflowed in around 10 minutes.
 
-Remove VMC from IH storm client, enable ring1 write pointer overflow,
-then IH will drop retry fault interrupts and be able to receive other
-interrupts while driver is handling retry fault.
-
-IH ring1 write pointer doesn't writeback to memory by IH, and ring1
-write pointer recorded by self-irq is not updated, so always read
-the latest ring1 write pointer from register.
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Sierra <alex.sierra@amd.com>
 Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vega10_ih.c | 32 +++++++++-----------------
- drivers/gpu/drm/amd/amdgpu/vega20_ih.c | 32 +++++++++-----------------
- 2 files changed, 22 insertions(+), 42 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/vega20_ih.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/vega10_ih.c b/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
-index 88626d83e07b..ca8efa5c6978 100644
---- a/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vega10_ih.c
-@@ -220,10 +220,8 @@ static int vega10_ih_enable_ring(struct amdgpu_device *adev,
- 	tmp = vega10_ih_rb_cntl(ih, tmp);
- 	if (ih == &adev->irq.ih)
- 		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, RPTR_REARM, !!adev->irq.msi_enabled);
--	if (ih == &adev->irq.ih1) {
--		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_ENABLE, 0);
-+	if (ih == &adev->irq.ih1)
- 		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, RB_FULL_DRAIN_ENABLE, 1);
--	}
- 	if (amdgpu_sriov_vf(adev)) {
- 		if (psp_reg_program(&adev->psp, ih_regs->psp_reg_id, tmp)) {
- 			dev_err(adev->dev, "PSP program IH_RB_CNTL failed!\n");
-@@ -265,7 +263,6 @@ static int vega10_ih_irq_init(struct amdgpu_device *adev)
- 	u32 ih_chicken;
- 	int ret;
- 	int i;
--	u32 tmp;
- 
- 	/* disable irqs */
- 	ret = vega10_ih_toggle_interrupts(adev, false);
-@@ -291,15 +288,6 @@ static int vega10_ih_irq_init(struct amdgpu_device *adev)
- 		}
- 	}
- 
--	tmp = RREG32_SOC15(OSSSYS, 0, mmIH_STORM_CLIENT_LIST_CNTL);
--	tmp = REG_SET_FIELD(tmp, IH_STORM_CLIENT_LIST_CNTL,
--			    CLIENT18_IS_STORM_CLIENT, 1);
--	WREG32_SOC15(OSSSYS, 0, mmIH_STORM_CLIENT_LIST_CNTL, tmp);
--
--	tmp = RREG32_SOC15(OSSSYS, 0, mmIH_INT_FLOOD_CNTL);
--	tmp = REG_SET_FIELD(tmp, IH_INT_FLOOD_CNTL, FLOOD_CNTL_ENABLE, 1);
--	WREG32_SOC15(OSSSYS, 0, mmIH_INT_FLOOD_CNTL, tmp);
--
- 	pci_set_master(adev->pdev);
- 
- 	/* enable interrupts */
-@@ -345,11 +333,17 @@ static u32 vega10_ih_get_wptr(struct amdgpu_device *adev,
- 	u32 wptr, tmp;
- 	struct amdgpu_ih_regs *ih_regs;
- 
--	wptr = le32_to_cpu(*ih->wptr_cpu);
--	ih_regs = &ih->ih_regs;
-+	if (ih == &adev->irq.ih) {
-+		/* Only ring0 supports writeback. On other rings fall back
-+		 * to register-based code with overflow checking below.
-+		 */
-+		wptr = le32_to_cpu(*ih->wptr_cpu);
- 
--	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
--		goto out;
-+		if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
-+			goto out;
-+	}
-+
-+	ih_regs = &ih->ih_regs;
- 
- 	/* Double check that the overflow wasn't already cleared. */
- 	wptr = RREG32_NO_KIQ(ih_regs->ih_rb_wptr);
-@@ -440,15 +434,11 @@ static int vega10_ih_self_irq(struct amdgpu_device *adev,
- 			      struct amdgpu_irq_src *source,
- 			      struct amdgpu_iv_entry *entry)
- {
--	uint32_t wptr = cpu_to_le32(entry->src_data[0]);
--
- 	switch (entry->ring_id) {
- 	case 1:
--		*adev->irq.ih1.wptr_cpu = wptr;
- 		schedule_work(&adev->irq.ih1_work);
- 		break;
- 	case 2:
--		*adev->irq.ih2.wptr_cpu = wptr;
- 		schedule_work(&adev->irq.ih2_work);
- 		break;
- 	default: break;
 diff --git a/drivers/gpu/drm/amd/amdgpu/vega20_ih.c b/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
-index 5a3c867d5881..75b06e1964ab 100644
+index 75b06e1964ab..86dcf448e0c2 100644
 --- a/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
 +++ b/drivers/gpu/drm/amd/amdgpu/vega20_ih.c
-@@ -220,10 +220,8 @@ static int vega20_ih_enable_ring(struct amdgpu_device *adev,
- 	tmp = vega20_ih_rb_cntl(ih, tmp);
- 	if (ih == &adev->irq.ih)
- 		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, RPTR_REARM, !!adev->irq.msi_enabled);
--	if (ih == &adev->irq.ih1) {
--		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_ENABLE, 0);
-+	if (ih == &adev->irq.ih1)
- 		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, RB_FULL_DRAIN_ENABLE, 1);
--	}
- 	if (amdgpu_sriov_vf(adev)) {
- 		if (psp_reg_program(&adev->psp, ih_regs->psp_reg_id, tmp)) {
- 			dev_err(adev->dev, "PSP program IH_RB_CNTL failed!\n");
-@@ -297,7 +295,6 @@ static int vega20_ih_irq_init(struct amdgpu_device *adev)
- 	u32 ih_chicken;
- 	int ret;
- 	int i;
--	u32 tmp;
+@@ -104,6 +104,8 @@ static int vega20_ih_toggle_ring_interrupts(struct amdgpu_device *adev,
  
- 	/* disable irqs */
- 	ret = vega20_ih_toggle_interrupts(adev, false);
-@@ -326,15 +323,6 @@ static int vega20_ih_irq_init(struct amdgpu_device *adev)
- 		}
- 	}
- 
--	tmp = RREG32_SOC15(OSSSYS, 0, mmIH_STORM_CLIENT_LIST_CNTL);
--	tmp = REG_SET_FIELD(tmp, IH_STORM_CLIENT_LIST_CNTL,
--			    CLIENT18_IS_STORM_CLIENT, 1);
--	WREG32_SOC15(OSSSYS, 0, mmIH_STORM_CLIENT_LIST_CNTL, tmp);
--
--	tmp = RREG32_SOC15(OSSSYS, 0, mmIH_INT_FLOOD_CNTL);
--	tmp = REG_SET_FIELD(tmp, IH_INT_FLOOD_CNTL, FLOOD_CNTL_ENABLE, 1);
--	WREG32_SOC15(OSSSYS, 0, mmIH_INT_FLOOD_CNTL, tmp);
--
- 	pci_set_master(adev->pdev);
- 
- 	/* enable interrupts */
-@@ -380,11 +368,17 @@ static u32 vega20_ih_get_wptr(struct amdgpu_device *adev,
- 	u32 wptr, tmp;
- 	struct amdgpu_ih_regs *ih_regs;
- 
--	wptr = le32_to_cpu(*ih->wptr_cpu);
--	ih_regs = &ih->ih_regs;
-+	if (ih == &adev->irq.ih) {
-+		/* Only ring0 supports writeback. On other rings fall back
-+		 * to register-based code with overflow checking below.
-+		 */
-+		wptr = le32_to_cpu(*ih->wptr_cpu);
- 
--	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
--		goto out;
-+		if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
-+			goto out;
-+	}
+ 	tmp = RREG32(ih_regs->ih_rb_cntl);
+ 	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, RB_ENABLE, (enable ? 1 : 0));
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, RB_GPU_TS_ENABLE, 1);
 +
-+	ih_regs = &ih->ih_regs;
- 
- 	/* Double check that the overflow wasn't already cleared. */
- 	wptr = RREG32_NO_KIQ(ih_regs->ih_rb_wptr);
-@@ -476,15 +470,11 @@ static int vega20_ih_self_irq(struct amdgpu_device *adev,
- 			      struct amdgpu_irq_src *source,
- 			      struct amdgpu_iv_entry *entry)
- {
--	uint32_t wptr = cpu_to_le32(entry->src_data[0]);
--
- 	switch (entry->ring_id) {
- 	case 1:
--		*adev->irq.ih1.wptr_cpu = wptr;
- 		schedule_work(&adev->irq.ih1_work);
- 		break;
- 	case 2:
--		*adev->irq.ih2.wptr_cpu = wptr;
- 		schedule_work(&adev->irq.ih2_work);
- 		break;
- 	default: break;
+ 	/* enable_intr field is only valid in ring0 */
+ 	if (ih == &adev->irq.ih)
+ 		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, ENABLE_INTR, (enable ? 1 : 0));
 -- 
 2.30.2
 
