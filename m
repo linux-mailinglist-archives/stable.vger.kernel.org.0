@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 998CE3783C0
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4DA63783C4
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232865AbhEJKrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:47:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59362 "EHLO mail.kernel.org"
+        id S231935AbhEJKrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:47:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233137AbhEJKpO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233158AbhEJKpO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:45:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF165610A7;
-        Mon, 10 May 2021 10:34:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BC2261139;
+        Mon, 10 May 2021 10:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642897;
-        bh=b2fjkCROhr0YWwuGxWZG7T4CbPA4ai5XCr36IorCXKs=;
+        s=korg; t=1620642899;
+        bh=ToYEWJBfBe7uy9FNJBzal6edEQ79xdeRGx54h0TVt9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3J1fMPKnSVOaW68UaW67i8wkDjTJUYxS4K0I/DhnThtfGLrjzLGFu09UwsH27JTx
-         ++4/nnaXIVogDjACS5gX2bphqN6L3jsJFI9dKxc3C2Zmp4Ftvx5XVtDAQO/RUkfDUV
-         BVLS0H/kOrwYyLdV2+skgDVSca0kaIl0EGVfmNKY=
+        b=aMTgkkv4qs8xkQYOk6r7WfkH8dCSTVJPZOWn4GqRp1RdKlxiWJ/PlKThyFwr3Z/oc
+         TYbe4/qyVguJAFT7/69mtGelX2+Di1M9UIozOuaTKMf3xVQGquM46R8BZEBbfC4pOR
+         BVyLoVs/TfcJsNprfNByrUWyF+20f9j4psiGoxWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Bixuan Cui <cuibixuan@huawei.com>,
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 097/299] usb: core: hub: Fix PM reference leak in usb_port_resume()
-Date:   Mon, 10 May 2021 12:18:14 +0200
-Message-Id: <20210510102008.142316032@linuxfoundation.org>
+Subject: [PATCH 5.10 098/299] usb: dwc3: gadget: Check for disabled LPM quirk
+Date:   Mon, 10 May 2021 12:18:15 +0200
+Message-Id: <20210510102008.173563302@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -40,37 +40,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 025f97d188006eeee4417bb475a6878d1e0eed3f ]
+[ Upstream commit 475e8be53d0496f9bc6159f4abb3ff5f9b90e8de ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-thus a pairing decrement is needed.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+If the device doesn't support LPM, make sure to disable the LPM
+capability and don't advertise to the host that it supports it.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Link: https://lore.kernel.org/r/20210408130831.56239-1-cuibixuan@huawei.com
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/9e68527ff932b1646f92a7593d4092a903754666.1618366071.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c   | 2 ++
+ drivers/usb/dwc3/core.h   | 4 +++-
+ drivers/usb/dwc3/gadget.c | 9 ++++++++-
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 17202b2ee063..22a86ae4f639 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3555,7 +3555,7 @@ int usb_port_resume(struct usb_device *udev, pm_message_t msg)
- 	u16		portchange, portstatus;
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 3101f0dcf6ae..1ffeb00b9391 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1297,6 +1297,8 @@ static void dwc3_get_properties(struct dwc3 *dwc)
+ 				"snps,usb3_lpm_capable");
+ 	dwc->usb2_lpm_disable = device_property_read_bool(dev,
+ 				"snps,usb2-lpm-disable");
++	dwc->usb2_gadget_lpm_disable = device_property_read_bool(dev,
++				"snps,usb2-gadget-lpm-disable");
+ 	device_property_read_u8(dev, "snps,rx-thr-num-pkt-prd",
+ 				&rx_thr_num_pkt_prd);
+ 	device_property_read_u8(dev, "snps,rx-max-burst-prd",
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 1b241f937d8f..575a93b4f120 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -1026,7 +1026,8 @@ struct dwc3_scratchpad_array {
+  * @dis_start_transfer_quirk: set if start_transfer failure SW workaround is
+  *			not needed for DWC_usb31 version 1.70a-ea06 and below
+  * @usb3_lpm_capable: set if hadrware supports Link Power Management
+- * @usb2_lpm_disable: set to disable usb2 lpm
++ * @usb2_lpm_disable: set to disable usb2 lpm for host
++ * @usb2_gadget_lpm_disable: set to disable usb2 lpm for gadget
+  * @disable_scramble_quirk: set if we enable the disable scramble quirk
+  * @u2exit_lfps_quirk: set if we enable u2exit lfps quirk
+  * @u2ss_inp3_quirk: set if we enable P3 OK for U2/SS Inactive quirk
+@@ -1227,6 +1228,7 @@ struct dwc3 {
+ 	unsigned		dis_start_transfer_quirk:1;
+ 	unsigned		usb3_lpm_capable:1;
+ 	unsigned		usb2_lpm_disable:1;
++	unsigned		usb2_gadget_lpm_disable:1;
  
- 	if (!test_and_set_bit(port1, hub->child_usage_bits)) {
--		status = pm_runtime_get_sync(&port_dev->dev);
-+		status = pm_runtime_resume_and_get(&port_dev->dev);
- 		if (status < 0) {
- 			dev_dbg(&udev->dev, "can't resume usb port, status %d\n",
- 					status);
+ 	unsigned		disable_scramble_quirk:1;
+ 	unsigned		u2exit_lfps_quirk:1;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 5b5520286eff..0ffd2a4e6309 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3398,6 +3398,7 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
+ 	/* Enable USB2 LPM Capability */
+ 
+ 	if (!DWC3_VER_IS_WITHIN(DWC3, ANY, 194A) &&
++	    !dwc->usb2_gadget_lpm_disable &&
+ 	    (speed != DWC3_DSTS_SUPERSPEED) &&
+ 	    (speed != DWC3_DSTS_SUPERSPEED_PLUS)) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_DCFG);
+@@ -3424,6 +3425,12 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
+ 
+ 		dwc3_gadget_dctl_write_safe(dwc, reg);
+ 	} else {
++		if (dwc->usb2_gadget_lpm_disable) {
++			reg = dwc3_readl(dwc->regs, DWC3_DCFG);
++			reg &= ~DWC3_DCFG_LPM_CAP;
++			dwc3_writel(dwc->regs, DWC3_DCFG, reg);
++		}
++
+ 		reg = dwc3_readl(dwc->regs, DWC3_DCTL);
+ 		reg &= ~DWC3_DCTL_HIRD_THRES_MASK;
+ 		dwc3_gadget_dctl_write_safe(dwc, reg);
+@@ -3871,7 +3878,7 @@ int dwc3_gadget_init(struct dwc3 *dwc)
+ 	dwc->gadget->speed		= USB_SPEED_UNKNOWN;
+ 	dwc->gadget->sg_supported	= true;
+ 	dwc->gadget->name		= "dwc3-gadget";
+-	dwc->gadget->lpm_capable	= true;
++	dwc->gadget->lpm_capable	= !dwc->usb2_gadget_lpm_disable;
+ 
+ 	/*
+ 	 * FIXME We might be setting max_speed to <SUPER, however versions
 -- 
 2.30.2
 
