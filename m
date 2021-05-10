@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EACF4378632
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30A6378630
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234531AbhEJLEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:04:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52794 "EHLO mail.kernel.org"
+        id S234497AbhEJLEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235026AbhEJK5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235025AbhEJK5a (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:57:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0A7861C3A;
-        Mon, 10 May 2021 10:51:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5653361959;
+        Mon, 10 May 2021 10:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643865;
-        bh=ac/ECm5ssDNwfZVOirucWzBGrSsQR/PGlfv7yDn6bOs=;
+        s=korg; t=1620643867;
+        bh=OwcsqU4PLySawmBUJfohkZ3H3aAEwZ96ZNnc4P1EYA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JtfOCjw76re1uJ94T7hBdkmeg8fJxwHljBpwNr1JCrus2RheW0TbZw1oxYP6Vi9cI
-         w2+Gem+je/3TS+blnqn835GF2JJbHbZGMULu231whUCoUO/zjYmiem8OgYQiuBC5JG
-         1Qjd3GsujG2Xdc4SrhuY8m/eyMLFqOxW5kbGGqV8=
+        b=uV0yDScDhc/tIqJKoCekFvypsAFiGPKI82XI4sQHJmyjefdsygitBJzvoEG5m0urr
+         j8OG9H4MtEwjCAxv2GnS3S73T8j7XDmWp/ctjRuAcPbe13gkJMjlMjfaMj5hMs6seR
+         j1LOpjT2YdJIwo5pugrguZtzG+dJp1vcLOTQrZJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Babu Moger <babu.moger@amd.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
+        Tony Lindgren <tony@atomide.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 191/342] selftests/resctrl: Fix checking for < 0 for unsigned values
-Date:   Mon, 10 May 2021 12:19:41 +0200
-Message-Id: <20210510102016.404242129@linuxfoundation.org>
+Subject: [PATCH 5.11 192/342] power: supply: cpcap-charger: Add usleep to cpcap charger to avoid usb plug bounce
+Date:   Mon, 10 May 2021 12:19:42 +0200
+Message-Id: <20210510102016.435944323@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -42,140 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fenghua Yu <fenghua.yu@intel.com>
+From: Carl Philipp Klemm <philipp@uvos.xyz>
 
-[ Upstream commit 1205b688c92558a04d8dd4cbc2b213e0fceba5db ]
+[ Upstream commit 751faedf06e895a17e985a88ef5b6364ffd797ed ]
 
-Dan reported following static checker warnings
+Adds 80000 us sleep when the usb cable is plugged in to hopefully avoid
+bouncing contacts.
 
-tools/testing/selftests/resctrl/resctrl_val.c:545 measure_vals()
-warn: 'bw_imc' unsigned <= 0
+Upon pluging in the usb cable vbus will bounce for some time, causing cpcap to
+dissconnect charging due to detecting an undervoltage condition. This is a
+scope of vbus on xt894 while quickly inserting the usb cable with firm force,
+probed at the far side of the usb socket and vbus loaded with approx 1k:
+http://uvos.xyz/maserati/usbplug.jpg.
 
-tools/testing/selftests/resctrl/resctrl_val.c:549 measure_vals()
-warn: 'bw_resc_end' unsigned <= 0
+As can clearly be seen, vbus is all over the place for the first 15 ms or so
+with a small blip at ~40 ms this causes the cpcap to trip up and disable
+charging again.
 
-These warnings are reported because
-1. measure_vals() declares 'bw_imc' and 'bw_resc_end' as unsigned long
-   variables
-2. Return value of get_mem_bw_imc() and get_mem_bw_resctrl() are assigned
-   to 'bw_imc' and 'bw_resc_end' respectively
-3. The returned values are checked for <= 0 to see if the calls failed
+The delay helps cpcap_usb_detect avoid the worst of this. It is, however, still
+not ideal as strong vibrations can cause the issue to reapear any time during
+charging. I have however not been able to cause the device to stop charging due
+to this in practice as it is hard to vibrate the device such that the vbus pins
+start bouncing again but cpcap_usb_detect is not called again due to a detected
+disconnect/reconnect event.
 
-Checking for < 0 for an unsigned value doesn't make any sense.
-
-Fix this issue by changing the implementation of get_mem_bw_imc() and
-get_mem_bw_resctrl() such that they now accept reference to a variable
-and set the variable appropriately upon success and return 0, else return
-< 0 on error.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Tested-by: Babu Moger <babu.moger@amd.com>
-Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Carl Philipp Klemm <philipp@uvos.xyz>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/resctrl/resctrl_val.c | 41 +++++++++++--------
- 1 file changed, 23 insertions(+), 18 deletions(-)
+ drivers/power/supply/cpcap-charger.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/resctrl/resctrl_val.c b/tools/testing/selftests/resctrl/resctrl_val.c
-index 5478c23c62ba..8df557894059 100644
---- a/tools/testing/selftests/resctrl/resctrl_val.c
-+++ b/tools/testing/selftests/resctrl/resctrl_val.c
-@@ -300,9 +300,9 @@ static int initialize_mem_bw_imc(void)
-  * Memory B/W utilized by a process on a socket can be calculated using
-  * iMC counters. Perf events are used to read these counters.
-  *
-- * Return: >= 0 on success. < 0 on failure.
-+ * Return: = 0 on success. < 0 on failure.
-  */
--static float get_mem_bw_imc(int cpu_no, char *bw_report)
-+static int get_mem_bw_imc(int cpu_no, char *bw_report, float *bw_imc)
- {
- 	float reads, writes, of_mul_read, of_mul_write;
- 	int imc, j, ret;
-@@ -373,13 +373,18 @@ static float get_mem_bw_imc(int cpu_no, char *bw_report)
- 		close(imc_counters_config[imc][WRITE].fd);
+diff --git a/drivers/power/supply/cpcap-charger.c b/drivers/power/supply/cpcap-charger.c
+index 22fff01425d6..891e1eb8e39d 100644
+--- a/drivers/power/supply/cpcap-charger.c
++++ b/drivers/power/supply/cpcap-charger.c
+@@ -633,6 +633,9 @@ static void cpcap_usb_detect(struct work_struct *work)
+ 		return;
  	}
  
--	if (strcmp(bw_report, "reads") == 0)
--		return reads;
-+	if (strcmp(bw_report, "reads") == 0) {
-+		*bw_imc = reads;
-+		return 0;
-+	}
- 
--	if (strcmp(bw_report, "writes") == 0)
--		return writes;
-+	if (strcmp(bw_report, "writes") == 0) {
-+		*bw_imc = writes;
-+		return 0;
-+	}
- 
--	return (reads + writes);
-+	*bw_imc = reads + writes;
-+	return 0;
- }
- 
- void set_mbm_path(const char *ctrlgrp, const char *mongrp, int resource_id)
-@@ -438,9 +443,8 @@ static void initialize_mem_bw_resctrl(const char *ctrlgrp, const char *mongrp,
-  * 1. If con_mon grp is given, then read from it
-  * 2. If con_mon grp is not given, then read from root con_mon grp
-  */
--static unsigned long get_mem_bw_resctrl(void)
-+static int get_mem_bw_resctrl(unsigned long *mbm_total)
- {
--	unsigned long mbm_total = 0;
- 	FILE *fp;
- 
- 	fp = fopen(mbm_total_path, "r");
-@@ -449,7 +453,7 @@ static unsigned long get_mem_bw_resctrl(void)
- 
- 		return -1;
- 	}
--	if (fscanf(fp, "%lu", &mbm_total) <= 0) {
-+	if (fscanf(fp, "%lu", mbm_total) <= 0) {
- 		perror("Could not get mbm local bytes");
- 		fclose(fp);
- 
-@@ -457,7 +461,7 @@ static unsigned long get_mem_bw_resctrl(void)
- 	}
- 	fclose(fp);
- 
--	return mbm_total;
-+	return 0;
- }
- 
- pid_t bm_pid, ppid;
-@@ -549,7 +553,8 @@ static void initialize_llc_occu_resctrl(const char *ctrlgrp, const char *mongrp,
- static int
- measure_vals(struct resctrl_val_param *param, unsigned long *bw_resc_start)
- {
--	unsigned long bw_imc, bw_resc, bw_resc_end;
-+	unsigned long bw_resc, bw_resc_end;
-+	float bw_imc;
- 	int ret;
- 
- 	/*
-@@ -559,13 +564,13 @@ measure_vals(struct resctrl_val_param *param, unsigned long *bw_resc_start)
- 	 * Compare the two values to validate resctrl value.
- 	 * It takes 1sec to measure the data.
- 	 */
--	bw_imc = get_mem_bw_imc(param->cpu_no, param->bw_report);
--	if (bw_imc <= 0)
--		return bw_imc;
-+	ret = get_mem_bw_imc(param->cpu_no, param->bw_report, &bw_imc);
-+	if (ret < 0)
-+		return ret;
- 
--	bw_resc_end = get_mem_bw_resctrl();
--	if (bw_resc_end <= 0)
--		return bw_resc_end;
-+	ret = get_mem_bw_resctrl(&bw_resc_end);
-+	if (ret < 0)
-+		return ret;
- 
- 	bw_resc = (bw_resc_end - *bw_resc_start) / MB;
- 	ret = print_results_bw(param->filename, bm_pid, bw_imc, bw_resc);
++	/* Delay for 80ms to avoid vbus bouncing when usb cable is plugged in */
++	usleep_range(80000, 120000);
++
+ 	/* Throttle chrgcurr2 interrupt for charger done and retry */
+ 	switch (ddata->state) {
+ 	case CPCAP_CHARGER_CHARGING:
 -- 
 2.30.2
 
