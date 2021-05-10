@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E50E1378511
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAEFF378513
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232773AbhEJK6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:58:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46508 "EHLO mail.kernel.org"
+        id S232817AbhEJK6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:58:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232830AbhEJKx7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:53:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 624876142D;
-        Mon, 10 May 2021 10:41:39 +0000 (UTC)
+        id S232859AbhEJKyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:54:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C35CD6191B;
+        Mon, 10 May 2021 10:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643299;
-        bh=XBY718aeLLfgEynBg4op5j+VG2Vw2BF1/Yw7EmWk8g8=;
+        s=korg; t=1620643302;
+        bh=t9vyVPaU00BquSZf1lFUN3LWYimv8BiZcYOd8GS6HDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPSvaPC7u4pEldkMSlmhVKT5qSQ0yoJX/cUxTM9BeiWfKLadyt/xOiWib1jeG7sTu
-         9ZLOhFAbuX458tmbUfpkr9GXQ1Fk0JkJI/ufs2iEv7gSLf27ta+X12/wUk4EN2F1N4
-         wvkaOR6LCnOrOw9hNyUGH/auGlp089lcRvhJU1Io=
+        b=op76y4kX8/l4goLtQt0TxD/kXKHSbylGEBri1qeXZn8VKIcDefmCXT8UyLV9yCNbj
+         36R7boRnKtynJrBXESbzgoSsHKbrRC55fz2cR1ayBeIQGXuySk0vL21kKiMcbbpTXX
+         GzNDqjpnQExNV1rZKq9UU8uX3mv3BnNgleeOCweM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        Tom Talpey <tom@talpey.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 259/299] smb3: do not attempt multichannel to server which does not support it
-Date:   Mon, 10 May 2021 12:20:56 +0200
-Message-Id: <20210510102013.507543604@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 260/299] Revert 337f13046ff0 ("futex: Allow FUTEX_CLOCK_REALTIME with FUTEX_WAIT op")
+Date:   Mon, 10 May 2021 12:20:57 +0200
+Message-Id: <20210510102013.541129533@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -40,38 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 9c2dc11df50d1c8537075ff6b98472198e24438e upstream.
+commit 4fbf5d6837bf81fd7a27d771358f4ee6c4f243f8 upstream.
 
-We were ignoring CAP_MULTI_CHANNEL in the server response - if the
-server doesn't support multichannel we should not be attempting it.
+The FUTEX_WAIT operand has historically a relative timeout which means that
+the clock id is irrelevant as relative timeouts on CLOCK_REALTIME are not
+subject to wall clock changes and therefore are mapped by the kernel to
+CLOCK_MONOTONIC for simplicity.
 
-See MS-SMB2 section 3.2.5.2
+If a caller would set FUTEX_CLOCK_REALTIME for FUTEX_WAIT the timeout is
+still treated relative vs. CLOCK_MONOTONIC and then the wait arms that
+timeout based on CLOCK_REALTIME which is broken and obviously has never
+been used or even tested.
 
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-By: Tom Talpey <tom@talpey.com>
-Cc: <stable@vger.kernel.org> # v5.8+
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Reject any attempt to use FUTEX_CLOCK_REALTIME with FUTEX_WAIT again.
+
+The desired functionality can be achieved with FUTEX_WAIT_BITSET and a
+FUTEX_BITSET_MATCH_ANY argument.
+
+Fixes: 337f13046ff0 ("futex: Allow FUTEX_CLOCK_REALTIME with FUTEX_WAIT op")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210422194704.834797921@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/sess.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/futex.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -92,6 +92,12 @@ int cifs_try_adding_channels(struct cifs
- 		return 0;
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3714,8 +3714,7 @@ long do_futex(u32 __user *uaddr, int op,
+ 
+ 	if (op & FUTEX_CLOCK_REALTIME) {
+ 		flags |= FLAGS_CLOCKRT;
+-		if (cmd != FUTEX_WAIT && cmd != FUTEX_WAIT_BITSET && \
+-		    cmd != FUTEX_WAIT_REQUEUE_PI)
++		if (cmd != FUTEX_WAIT_BITSET &&	cmd != FUTEX_WAIT_REQUEUE_PI)
+ 			return -ENOSYS;
  	}
  
-+	if (!(ses->server->capabilities & SMB2_GLOBAL_CAP_MULTI_CHANNEL)) {
-+		cifs_dbg(VFS, "server %s does not support multichannel\n", ses->server->hostname);
-+		ses->chan_max = 1;
-+		return 0;
-+	}
-+
- 	/*
- 	 * Make a copy of the iface list at the time and use that
- 	 * instead so as to not hold the iface spinlock for opening
 
 
