@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DAB337817C
+	by mail.lfdr.de (Postfix) with ESMTP id 66EA037817D
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231563AbhEJK1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:27:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59904 "EHLO mail.kernel.org"
+        id S231577AbhEJK1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:27:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231434AbhEJK0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:26:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 344DA61424;
-        Mon, 10 May 2021 10:25:11 +0000 (UTC)
+        id S231441AbhEJK0S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:26:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A08561466;
+        Mon, 10 May 2021 10:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642311;
-        bh=wGRLrcJpSCb5EoOgwO2B6SFPu5ZR9CVHfUW1xQWuDYM=;
+        s=korg; t=1620642314;
+        bh=Uc8tXsIHRsuaiYVvz1xm0zrbot1Lgb5vstXRryIUeU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZow9ckpk++MP/taWzjutfVsERXIoSYqA1uoAovf2f4pILeTkH3/lqj1ARMZYjEVm
-         TsGOHdJRCdkFbaG8CN/t2rdMe4+Wc35SlYCpv5UfhQJku2ghFCoR8BvTv9hIeHTPZw
-         j7Dda8/ZWcZ+pxoyyM5wNsySASyxsuH91dV8dEhA=
+        b=i49udXneTayoW1Y6T49uSPj7AX6719cCGW+Z6vMWILvoJw3ptQZGuDCD+2W6w5Lp4
+         eSj0atWpyWMktC9eI069/vQwniHbppEQJlR0k5dqn/i4/GkwkuVFSOwniuT/ZhE2dx
+         JFznqO7XzsfN1OUCeojxMZy3mNIUOR2g0aJspRUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+12cf5fbfdeba210a89dd@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org, Hui Tang <tanghui20@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/184] crypto: api - check for ERR pointers in crypto_destroy_tfm()
-Date:   Mon, 10 May 2021 12:18:56 +0200
-Message-Id: <20210510101951.590743855@linuxfoundation.org>
+Subject: [PATCH 5.4 043/184] crypto: qat - fix unmap invalid dma address
+Date:   Mon, 10 May 2021 12:18:57 +0200
+Message-Id: <20210510101951.620504527@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -43,147 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit 83681f2bebb34dbb3f03fecd8f570308ab8b7c2c ]
+[ Upstream commit 792b32fad548281e1b7fe14df9063a96c54b32a2 ]
 
-Given that crypto_alloc_tfm() may return ERR pointers, and to avoid
-crashes on obscure error paths where such pointers are presented to
-crypto_destroy_tfm() (such as [0]), add an ERR_PTR check there
-before dereferencing the second argument as a struct crypto_tfm
-pointer.
+'dma_mapping_error' return a negative value if 'dma_addr' is equal to
+'DMA_MAPPING_ERROR' not zero, so fix initialization of 'dma_addr'.
 
-[0] https://lore.kernel.org/linux-crypto/000000000000de949705bc59e0f6@google.com/
-
-Reported-by: syzbot+12cf5fbfdeba210a89dd@syzkaller.appspotmail.com
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/api.c               | 2 +-
- include/crypto/acompress.h | 2 ++
- include/crypto/aead.h      | 2 ++
- include/crypto/akcipher.h  | 2 ++
- include/crypto/hash.h      | 4 ++++
- include/crypto/kpp.h       | 2 ++
- include/crypto/rng.h       | 2 ++
- include/crypto/skcipher.h  | 2 ++
- 8 files changed, 17 insertions(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/qat_algs.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/crypto/api.c b/crypto/api.c
-index eda0c56b8615..c71d1485541c 100644
---- a/crypto/api.c
-+++ b/crypto/api.c
-@@ -568,7 +568,7 @@ void crypto_destroy_tfm(void *mem, struct crypto_tfm *tfm)
- {
- 	struct crypto_alg *alg;
+diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
+index 0d67cf5ede51..6b8ad3d67481 100644
+--- a/drivers/crypto/qat/qat_common/qat_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_algs.c
+@@ -715,7 +715,7 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
+ 	struct qat_alg_buf_list *bufl;
+ 	struct qat_alg_buf_list *buflout = NULL;
+ 	dma_addr_t blp;
+-	dma_addr_t bloutp = 0;
++	dma_addr_t bloutp;
+ 	struct scatterlist *sg;
+ 	size_t sz_out, sz = struct_size(bufl, bufers, n + 1);
  
--	if (unlikely(!mem))
-+	if (IS_ERR_OR_NULL(mem))
- 		return;
+@@ -727,6 +727,9 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
+ 	if (unlikely(!bufl))
+ 		return -ENOMEM;
  
- 	alg = tfm->__crt_alg;
-diff --git a/include/crypto/acompress.h b/include/crypto/acompress.h
-index d873f999b334..3a801a7d3a0e 100644
---- a/include/crypto/acompress.h
-+++ b/include/crypto/acompress.h
-@@ -147,6 +147,8 @@ static inline struct crypto_acomp *crypto_acomp_reqtfm(struct acomp_req *req)
-  * crypto_free_acomp() -- free ACOMPRESS tfm handle
-  *
-  * @tfm:	ACOMPRESS tfm handle allocated with crypto_alloc_acomp()
-+ *
-+ * If @tfm is a NULL or error pointer, this function does nothing.
-  */
- static inline void crypto_free_acomp(struct crypto_acomp *tfm)
- {
-diff --git a/include/crypto/aead.h b/include/crypto/aead.h
-index 3c245b1859e7..3b870b4e8275 100644
---- a/include/crypto/aead.h
-+++ b/include/crypto/aead.h
-@@ -179,6 +179,8 @@ static inline struct crypto_tfm *crypto_aead_tfm(struct crypto_aead *tfm)
- /**
-  * crypto_free_aead() - zeroize and free aead handle
-  * @tfm: cipher handle to be freed
-+ *
-+ * If @tfm is a NULL or error pointer, this function does nothing.
-  */
- static inline void crypto_free_aead(struct crypto_aead *tfm)
- {
-diff --git a/include/crypto/akcipher.h b/include/crypto/akcipher.h
-index 6924b091adec..8913b42fcb34 100644
---- a/include/crypto/akcipher.h
-+++ b/include/crypto/akcipher.h
-@@ -174,6 +174,8 @@ static inline struct crypto_akcipher *crypto_akcipher_reqtfm(
-  * crypto_free_akcipher() - free AKCIPHER tfm handle
-  *
-  * @tfm: AKCIPHER tfm handle allocated with crypto_alloc_akcipher()
-+ *
-+ * If @tfm is a NULL or error pointer, this function does nothing.
-  */
- static inline void crypto_free_akcipher(struct crypto_akcipher *tfm)
- {
-diff --git a/include/crypto/hash.h b/include/crypto/hash.h
-index 84e9f2380edf..e993c6beec07 100644
---- a/include/crypto/hash.h
-+++ b/include/crypto/hash.h
-@@ -260,6 +260,8 @@ static inline struct crypto_tfm *crypto_ahash_tfm(struct crypto_ahash *tfm)
- /**
-  * crypto_free_ahash() - zeroize and free the ahash handle
-  * @tfm: cipher handle to be freed
-+ *
-+ * If @tfm is a NULL or error pointer, this function does nothing.
-  */
- static inline void crypto_free_ahash(struct crypto_ahash *tfm)
- {
-@@ -703,6 +705,8 @@ static inline struct crypto_tfm *crypto_shash_tfm(struct crypto_shash *tfm)
- /**
-  * crypto_free_shash() - zeroize and free the message digest handle
-  * @tfm: cipher handle to be freed
-+ *
-+ * If @tfm is a NULL or error pointer, this function does nothing.
-  */
- static inline void crypto_free_shash(struct crypto_shash *tfm)
- {
-diff --git a/include/crypto/kpp.h b/include/crypto/kpp.h
-index cd9a9b500624..19a2eadbef61 100644
---- a/include/crypto/kpp.h
-+++ b/include/crypto/kpp.h
-@@ -154,6 +154,8 @@ static inline void crypto_kpp_set_flags(struct crypto_kpp *tfm, u32 flags)
-  * crypto_free_kpp() - free KPP tfm handle
-  *
-  * @tfm: KPP tfm handle allocated with crypto_alloc_kpp()
-+ *
-+ * If @tfm is a NULL or error pointer, this function does nothing.
-  */
- static inline void crypto_free_kpp(struct crypto_kpp *tfm)
- {
-diff --git a/include/crypto/rng.h b/include/crypto/rng.h
-index 8b4b844b4eef..17bb3673d3c1 100644
---- a/include/crypto/rng.h
-+++ b/include/crypto/rng.h
-@@ -111,6 +111,8 @@ static inline struct rng_alg *crypto_rng_alg(struct crypto_rng *tfm)
- /**
-  * crypto_free_rng() - zeroize and free RNG handle
-  * @tfm: cipher handle to be freed
-+ *
-+ * If @tfm is a NULL or error pointer, this function does nothing.
-  */
- static inline void crypto_free_rng(struct crypto_rng *tfm)
- {
-diff --git a/include/crypto/skcipher.h b/include/crypto/skcipher.h
-index aada87916918..0bce6005d325 100644
---- a/include/crypto/skcipher.h
-+++ b/include/crypto/skcipher.h
-@@ -203,6 +203,8 @@ static inline struct crypto_tfm *crypto_skcipher_tfm(
- /**
-  * crypto_free_skcipher() - zeroize and free cipher handle
-  * @tfm: cipher handle to be freed
-+ *
-+ * If @tfm is a NULL or error pointer, this function does nothing.
-  */
- static inline void crypto_free_skcipher(struct crypto_skcipher *tfm)
- {
++	for_each_sg(sgl, sg, n, i)
++		bufl->bufers[i].addr = DMA_MAPPING_ERROR;
++
+ 	blp = dma_map_single(dev, bufl, sz, DMA_TO_DEVICE);
+ 	if (unlikely(dma_mapping_error(dev, blp)))
+ 		goto err_in;
+@@ -760,10 +763,14 @@ static int qat_alg_sgl_to_bufl(struct qat_crypto_instance *inst,
+ 				       dev_to_node(&GET_DEV(inst->accel_dev)));
+ 		if (unlikely(!buflout))
+ 			goto err_in;
++
++		bufers = buflout->bufers;
++		for_each_sg(sglout, sg, n, i)
++			bufers[i].addr = DMA_MAPPING_ERROR;
++
+ 		bloutp = dma_map_single(dev, buflout, sz_out, DMA_TO_DEVICE);
+ 		if (unlikely(dma_mapping_error(dev, bloutp)))
+ 			goto err_out;
+-		bufers = buflout->bufers;
+ 		for_each_sg(sglout, sg, n, i) {
+ 			int y = sg_nctr;
+ 
 -- 
 2.30.2
 
