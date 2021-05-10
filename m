@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 131313786A0
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 471B4378851
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234882AbhEJLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:09:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
+        id S239159AbhEJLVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235543AbhEJLBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:01:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B17E61C19;
-        Mon, 10 May 2021 10:53:30 +0000 (UTC)
+        id S236995AbhEJLLI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AD89613CA;
+        Mon, 10 May 2021 11:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644011;
-        bh=BIQX3mrgQjYbqsK75Q+FnWt0J3RwnuA2FH8ieLqU8b4=;
+        s=korg; t=1620644773;
+        bh=4+PkIHY2y6oqKlC6HY2EbZ4VSkUTCZHr2F48zrTGS6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nqb0HJOd8pcC/0CDOZvkbBence7jeN9anDybsYU+LLYxF0QpdwZVoQS6tangRsIhV
-         rCyLB9kdoT/AN0yHuroDW5Ul0rCMrFxz8Tx4ZZZvgq58S4ome+qnQ4Hd+0Bf4FZu3I
-         v2HCJrZ+glywN+UczUSLu23VDhj/udlGtsd61I6s=
+        b=iaVVeZQwBKZNLudrgsgd2c8VVNdK9OgMihSjKQWjBqsVpxDDPLE60ornyXr4wh2qC
+         sg/KPxkPrG0kngkF1WHAs50L3UAclYHoMBQfOGHT4K9r4zGAttShB0eTEiD5hSaYw4
+         O87nXjj00YVil3/G0rk9imSqfQkqFRE/j9Rb7WKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Gomez <daniel@qtec.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Scott Teel <scott.teel@microchip.com>,
+        Scott Benesh <scott.benesh@microchip.com>,
+        Kevin Barnett <kevin.barnett@microchip.com>,
+        Murthy Bhat <Murthy.Bhat@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 216/342] drm/radeon/ttm: Fix memory leak userptr pages
+Subject: [PATCH 5.12 217/384] scsi: smartpqi: Correct request leakage during reset operations
 Date:   Mon, 10 May 2021 12:20:06 +0200
-Message-Id: <20210510102017.232164864@linuxfoundation.org>
+Message-Id: <20210510102022.049209088@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Gomez <daniel@qtec.com>
+From: Murthy Bhat <Murthy.Bhat@microchip.com>
 
-[ Upstream commit 5aeaa43e0ef1006320c077cbc49f4a8229ca3460 ]
+[ Upstream commit b622a601a13ae5974c5b0aeecb990c224b8db0d9 ]
 
-If userptr pages have been pinned but not bounded,
-they remain uncleared.
+While failing queued I/Os in TMF path, there was a request leak and hence
+stale entries in request pool with ref count being non-zero. In shutdown
+path we have a BUG_ON to catch stuck I/O either in firmware or in the
+driver. The stale requests caused a system crash. The I/O request pool
+leakage also lead to a significant performance drop.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Daniel Gomez <daniel@qtec.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/161549370379.25025.12793264112620796062.stgit@brunhilda
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
+Signed-off-by: Murthy Bhat <Murthy.Bhat@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_ttm.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_ttm.c b/drivers/gpu/drm/radeon/radeon_ttm.c
-index 176cb55062be..08a015a36304 100644
---- a/drivers/gpu/drm/radeon/radeon_ttm.c
-+++ b/drivers/gpu/drm/radeon/radeon_ttm.c
-@@ -486,13 +486,14 @@ static void radeon_ttm_backend_unbind(struct ttm_bo_device *bdev, struct ttm_tt
- 	struct radeon_ttm_tt *gtt = (void *)ttm;
- 	struct radeon_device *rdev = radeon_get_rdev(bdev);
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 3795804ea869..52e4d5618dc7 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -5488,6 +5488,8 @@ static void pqi_fail_io_queued_for_device(struct pqi_ctrl_info *ctrl_info,
  
-+	if (gtt->userptr)
-+		radeon_ttm_tt_unpin_userptr(bdev, ttm);
-+
- 	if (!gtt->bound)
- 		return;
+ 				list_del(&io_request->request_list_entry);
+ 				set_host_byte(scmd, DID_RESET);
++				pqi_free_io_request(io_request);
++				scsi_dma_unmap(scmd);
+ 				pqi_scsi_done(scmd);
+ 			}
  
- 	radeon_gart_unbind(rdev, gtt->offset, ttm->num_pages);
+@@ -5524,6 +5526,8 @@ static void pqi_fail_io_queued_for_all_devices(struct pqi_ctrl_info *ctrl_info)
  
--	if (gtt->userptr)
--		radeon_ttm_tt_unpin_userptr(bdev, ttm);
- 	gtt->bound = false;
- }
+ 				list_del(&io_request->request_list_entry);
+ 				set_host_byte(scmd, DID_RESET);
++				pqi_free_io_request(io_request);
++				scsi_dma_unmap(scmd);
+ 				pqi_scsi_done(scmd);
+ 			}
  
 -- 
 2.30.2
