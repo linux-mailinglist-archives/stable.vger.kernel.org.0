@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62110378484
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED4413782F7
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232357AbhEJKw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:52:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41986 "EHLO mail.kernel.org"
+        id S231593AbhEJKlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:41:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232734AbhEJKuo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:50:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E11A46195E;
-        Mon, 10 May 2021 10:40:23 +0000 (UTC)
+        id S230501AbhEJKiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:38:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B995D61948;
+        Mon, 10 May 2021 10:30:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643224;
-        bh=j+yJxaDaNg+0dsAfuh4blpsx95zm7XMjaysqroZ6ZpI=;
+        s=korg; t=1620642612;
+        bh=wdbCHKdUvK32gg7LPa2Wwc9jzT2t0sh0ThTdvKoP5u4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkXipbe9nzmOxV0ATMSB9UM6u+W6lZG+re74GQuZJBr7fHtir7NqpwgSa7CUlPG2s
-         fKX5NI0wF6mky5qh4NQ2AUqFpTCZoooBYEnG2XNb0RBAOH2GJJt82awbnxixfEi09u
-         QPZsZ+ZeNc7XKxlmbUwtIy3EOhwmdG95GIoPiMrI=
+        b=yGAjYGpOCv+LNIbCYRlNMy1HA1tmAnv8iUKmiFNzBxbWoejZSYn6k+lRo54poMkup
+         gSndw/UKKxeVMAJ5w44Tug7assrPQaEeZlfEgHSLCopItFAVi28325p/I2ILdyBwIN
+         JGlu1x8PYuxfx8J2A+S6d+ZLU0i8abr7YunDgnJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guochun Mao <guochun.mao@mediatek.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.10 227/299] ubifs: Only check replay with inode type to judge if inode linked
-Date:   Mon, 10 May 2021 12:20:24 +0200
-Message-Id: <20210510102012.449612872@linuxfoundation.org>
+        stable@vger.kernel.org, Luke D Jones <luke@ljones.dev>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 131/184] ALSA: hda/realtek: GA503 use same quirks as GA401
+Date:   Mon, 10 May 2021 12:20:25 +0200
+Message-Id: <20210510101954.458213075@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guochun Mao <guochun.mao@mediatek.com>
+From: Luke D Jones <luke@ljones.dev>
 
-commit 3e903315790baf4a966436e7f32e9c97864570ac upstream.
+commit 76fae6185f5456865ff1bcb647709d44fd987eb6 upstream.
 
-Conside the following case, it just write a big file into flash,
-when complete writing, delete the file, and then power off promptly.
-Next time power on, we'll get a replay list like:
-...
-LEB 1105:211344 len 4144 deletion 0 sqnum 428783 key type 1 inode 80
-LEB 15:233544 len 160 deletion 1 sqnum 428785 key type 0 inode 80
-LEB 1105:215488 len 4144 deletion 0 sqnum 428787 key type 1 inode 80
-...
-In the replay list, data nodes' deletion are 0, and the inode node's
-deletion is 1. In current logic, the file's dentry will be removed,
-but inode and the flash space it occupied will be reserved.
-User will see that much free space been disappeared.
+The GA503 has almost exactly the same default setup as the GA401
+model with the same issues. The GA401 quirks solve all the issues
+so we will use the full quirk chain.
 
-We only need to check the deletion value of the following inode type
-node of the replay entry.
-
-Fixes: e58725d51fa8 ("ubifs: Handle re-linking of inodes correctly while recovery")
-Cc: stable@vger.kernel.org
-Signed-off-by: Guochun Mao <guochun.mao@mediatek.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Luke D Jones <luke@ljones.dev>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210419030411.28304-1-luke@ljones.dev
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/replay.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ubifs/replay.c
-+++ b/fs/ubifs/replay.c
-@@ -223,7 +223,8 @@ static bool inode_still_linked(struct ub
- 	 */
- 	list_for_each_entry_reverse(r, &c->replay_list, list) {
- 		ubifs_assert(c, r->sqnum >= rino->sqnum);
--		if (key_inum(c, &r->key) == key_inum(c, &rino->key))
-+		if (key_inum(c, &r->key) == key_inum(c, &rino->key) &&
-+		    key_type(c, &r->key) == UBIFS_INO_KEY)
- 			return r->deletion == 0;
- 
- 	}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7958,6 +7958,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
++	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
 
 
