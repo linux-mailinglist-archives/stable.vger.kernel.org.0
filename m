@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 287F437888F
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 349053786B8
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232058AbhEJLWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:22:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
+        id S236771AbhEJLKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237247AbhEJLLq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C0F461879;
-        Mon, 10 May 2021 11:08:27 +0000 (UTC)
+        id S234429AbhEJLDq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:03:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2831A6191B;
+        Mon, 10 May 2021 10:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644908;
-        bh=2UG/nlHqSK72KX7mMr/KbK8F7icZvugEvKN7RYAV2l8=;
+        s=korg; t=1620644065;
+        bh=CaUE9g5fBBph2AIQ4z74U7FZ72oVHKTMSU/a1WMqIi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T03+NiLb0pQGVbZNnXOhWgRdkCSU11Qc3bK+5q6Eon3BCNBcznGvt6nzNtYtLRG+4
-         Gx8exLHJMzFu9wjBB7WfB+kBP1X2OCehRcjnedSv4iRmPI2qf1qQbCq9r6C5hTm+fr
-         Db+//OxHVtfiZFnJobEGRvVhi9zJyKlNMBVCC2/U=
+        b=Jfl1oGBZAk7tiHudPJhkwyEYtDOFbaDmPkAKOwWwnMpqDTzQGoifgjc1DUuZo2Q1r
+         oyAsXDvM2uU5PJMtixoYAhGcik7FQ9MhPUaucK6kmWR03JqV8QJX8+K4ybdDdjm9b+
+         gHiFj8odedphcdTtZ8ipwW0gYWwD/b+3MWJr5F14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geraldo Nascimento <geraldogabriel@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 274/384] ALSA: usb-audio: Explicitly set up the clock selector
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.11 273/342] powerpc/powernv: Enable HAIL (HV AIL) for ISA v3.1 processors
 Date:   Mon, 10 May 2021 12:21:03 +0200
-Message-Id: <20210510102023.869143211@linuxfoundation.org>
+Message-Id: <20210510102019.123476161@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,86 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit d2e8f641257d0d3af6e45d6ac2d6f9d56b8ea964 upstream.
+commit 49c1d07fd04f54eb588c4a1dfcedc8d22c5ffd50 upstream.
 
-In the current code, we have some assumption that the audio clock
-selector has been set up implicitly and don't want to touch it unless
-it's really needed for the fallback autoclock setup.  This works for
-most devices but some seem having a problem.  Partially this was
-covered for the devices with a single connector at the initialization
-phase (commit 086b957cc17f "ALSA: usb-audio: Skip the clock selector
-inquiry for single connections"), but also there are cases where the
-wrong clock set up is kept silently.  The latter seems to be the cause
-of the noises on Behringer devices.
+Starting with ISA v3.1, LPCR[AIL] no longer controls the interrupt
+mode for HV=1 interrupts. Instead, a new LPCR[HAIL] bit is defined
+which behaves like AIL=3 for HV interrupts when set.
 
-In this patch, we explicitly set up the audio clock selector whenever
-the appropriate node is found.
+Set HAIL on bare metal to give us mmu-on interrupts and improve
+performance.
 
-Reported-by: Geraldo Nascimento <geraldogabriel@gmail.com>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199327
-Link: https://lore.kernel.org/r/CAEsQvcvF7LnO8PxyyCxuRCx=7jNeSCvFAd-+dE0g_rd1rOxxdw@mail.gmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210413084152.32325-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This also fixes an scv bug: we don't implement scv real mode (AIL=0)
+vectors because they are at an inconvenient location, so we just
+disable scv support when AIL can not be set. However powernv assumes
+that LPCR[AIL] will enable AIL mode so it enables scv support despite
+HV interrupts being AIL=0, which causes scv interrupts to go off into
+the weeds.
+
+Fixes: 7fa95f9adaee ("powerpc/64s: system call support for scv/rfscv instructions")
+Cc: stable@vger.kernel.org # v5.9+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210402024124.545826-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/clock.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ arch/powerpc/include/asm/reg.h |    1 +
+ arch/powerpc/kernel/setup_64.c |   19 ++++++++++++++++---
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -296,7 +296,7 @@ static int __uac_clock_find_source(struc
- 
- 	selector = snd_usb_find_clock_selector(chip->ctrl_intf, entity_id);
- 	if (selector) {
--		int ret, i, cur;
-+		int ret, i, cur, err;
- 
- 		if (selector->bNrInPins == 1) {
- 			ret = 1;
-@@ -324,13 +324,17 @@ static int __uac_clock_find_source(struc
- 		ret = __uac_clock_find_source(chip, fmt,
- 					      selector->baCSourceID[ret - 1],
- 					      visited, validate);
-+		if (ret > 0) {
-+			err = uac_clock_selector_set_val(chip, entity_id, cur);
-+			if (err < 0)
-+				return err;
+--- a/arch/powerpc/include/asm/reg.h
++++ b/arch/powerpc/include/asm/reg.h
+@@ -441,6 +441,7 @@
+ #define   LPCR_VRMA_LP1		ASM_CONST(0x0000800000000000)
+ #define   LPCR_RMLS		0x1C000000	/* Implementation dependent RMO limit sel */
+ #define   LPCR_RMLS_SH		26
++#define   LPCR_HAIL		ASM_CONST(0x0000000004000000)   /* HV AIL (ISAv3.1) */
+ #define   LPCR_ILE		ASM_CONST(0x0000000002000000)   /* !HV irqs set MSR:LE */
+ #define   LPCR_AIL		ASM_CONST(0x0000000001800000)	/* Alternate interrupt location */
+ #define   LPCR_AIL_0		ASM_CONST(0x0000000000000000)	/* MMU off exception offset 0x0 */
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -231,10 +231,23 @@ static void cpu_ready_for_interrupts(voi
+ 	 * If we are not in hypervisor mode the job is done once for
+ 	 * the whole partition in configure_exceptions().
+ 	 */
+-	if (cpu_has_feature(CPU_FTR_HVMODE) &&
+-	    cpu_has_feature(CPU_FTR_ARCH_207S)) {
++	if (cpu_has_feature(CPU_FTR_HVMODE)) {
+ 		unsigned long lpcr = mfspr(SPRN_LPCR);
+-		mtspr(SPRN_LPCR, lpcr | LPCR_AIL_3);
++		unsigned long new_lpcr = lpcr;
++
++		if (cpu_has_feature(CPU_FTR_ARCH_31)) {
++			/* P10 DD1 does not have HAIL */
++			if (pvr_version_is(PVR_POWER10) &&
++					(mfspr(SPRN_PVR) & 0xf00) == 0x100)
++				new_lpcr |= LPCR_AIL_3;
++			else
++				new_lpcr |= LPCR_HAIL;
++		} else if (cpu_has_feature(CPU_FTR_ARCH_207S)) {
++			new_lpcr |= LPCR_AIL_3;
 +		}
 +
- 		if (!validate || ret > 0 || !chip->autoclock)
- 			return ret;
++		if (new_lpcr != lpcr)
++			mtspr(SPRN_LPCR, new_lpcr);
+ 	}
  
- 		/* The current clock source is invalid, try others. */
- 		for (i = 1; i <= selector->bNrInPins; i++) {
--			int err;
--
- 			if (i == cur)
- 				continue;
- 
-@@ -396,7 +400,7 @@ static int __uac3_clock_find_source(stru
- 
- 	selector = snd_usb_find_clock_selector_v3(chip->ctrl_intf, entity_id);
- 	if (selector) {
--		int ret, i, cur;
-+		int ret, i, cur, err;
- 
- 		/* the entity ID we are looking for is a selector.
- 		 * find out what it currently selects */
-@@ -418,6 +422,12 @@ static int __uac3_clock_find_source(stru
- 		ret = __uac3_clock_find_source(chip, fmt,
- 					       selector->baCSourceID[ret - 1],
- 					       visited, validate);
-+		if (ret > 0) {
-+			err = uac_clock_selector_set_val(chip, entity_id, cur);
-+			if (err < 0)
-+				return err;
-+		}
-+
- 		if (!validate || ret > 0 || !chip->autoclock)
- 			return ret;
- 
+ 	/*
 
 
