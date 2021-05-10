@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8727C37880F
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235F637878A
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238925AbhEJLUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
+        id S237676AbhEJLP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:15:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236708AbhEJLIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:08:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1E96619D5;
-        Mon, 10 May 2021 11:03:39 +0000 (UTC)
+        id S236552AbhEJLIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C52A86199F;
+        Mon, 10 May 2021 11:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644620;
-        bh=vKdPmdkzq816tLZ+cvA2q7gqshLQRHW8TRtYAB/1oSc=;
+        s=korg; t=1620644526;
+        bh=TgVC4UPVRHZNBIu5csNjWVaW5ddsvCz1lELdgxWi99I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XokHdsxrVhcdrXOkkvdrE376ZdN1eEkDM69+TshXGO9vuVUWLj7S6Bj4vKf3WKf63
-         e8kuC3IGeVpXWZjKHIJJD2JdeYYcx1kV/DvKaFr11OUcnykcHInm5i/xYY8eiPR1ik
-         qm/wRoe2OmCyPeNSBzovvr+FCAsjs6Nw3uhSGtY4=
+        b=nwE4ycgck8y5T80Aazgf5pYKsD7fQxRe2OBpA8XspB/oQHK+g0B5pYaF9hElueSQJ
+         GVL63pGMtyHSsMQOrKaTtD3zJe9T5HWtLVFnL1AG2xF7HEUadXTs78/dpfhvdLU5IW
+         C2cejvt6kXiEBRC4BhrdrrorsDANoUbRBQ6gApBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 110/384] tools/power/x86/intel-speed-select: Increase string size
-Date:   Mon, 10 May 2021 12:18:19 +0200
-Message-Id: <20210510102018.520246081@linuxfoundation.org>
+Subject: [PATCH 5.12 111/384] platform/x86: ISST: Account for increased timeout in some cases
+Date:   Mon, 10 May 2021 12:18:20 +0200
+Message-Id: <20210510102018.561089412@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -43,72 +43,112 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 2e70b710f36c80b6e78cf32a5c30b46dbb72213c ]
+[ Upstream commit 5c782817a981981917ec3c647cf521022ee07143 ]
 
-The current string size to print cpulist can accommodate upto 80
-logical CPUs per package. But this limit is not enough. So increase
-the string size. Also prevent buffer overflow, if the string size
-reaches limit.
+In some cases when firmware is busy or updating, some mailbox commands
+still timeout on some newer CPUs. To fix this issue, change how we
+process timeout.
+
+With this change, replaced timeout from using simple count with real
+timeout in micro-seconds using ktime. When the command response takes
+more than average processing time, yield to other tasks. The worst case
+timeout is extended upto 1 milli-second.
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20210330220840.3113959-1-srinivas.pandruvada@linux.intel.com
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/intel-speed-select/isst-display.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ .../intel_speed_select_if/isst_if_mbox_pci.c  | 33 +++++++++++++------
+ 1 file changed, 23 insertions(+), 10 deletions(-)
 
-diff --git a/tools/power/x86/intel-speed-select/isst-display.c b/tools/power/x86/intel-speed-select/isst-display.c
-index 8e54ce47648e..3bf1820c0da1 100644
---- a/tools/power/x86/intel-speed-select/isst-display.c
-+++ b/tools/power/x86/intel-speed-select/isst-display.c
-@@ -25,10 +25,14 @@ static void printcpulist(int str_len, char *str, int mask_size,
- 			index = snprintf(&str[curr_index],
- 					 str_len - curr_index, ",");
- 			curr_index += index;
-+			if (curr_index >= str_len)
-+				break;
+diff --git a/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c b/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
+index a2a2d923e60c..df1fc6c719f3 100644
+--- a/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
++++ b/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
+@@ -21,12 +21,16 @@
+ #define PUNIT_MAILBOX_BUSY_BIT		31
+ 
+ /*
+- * The average time to complete some commands is about 40us. The current
+- * count is enough to satisfy 40us. But when the firmware is very busy, this
+- * causes timeout occasionally.  So increase to deal with some worst case
+- * scenarios. Most of the command still complete in few us.
++ * The average time to complete mailbox commands is less than 40us. Most of
++ * the commands complete in few micro seconds. But the same firmware handles
++ * requests from all power management features.
++ * We can create a scenario where we flood the firmware with requests then
++ * the mailbox response can be delayed for 100s of micro seconds. So define
++ * two timeouts. One for average case and one for long.
++ * If the firmware is taking more than average, just call cond_resched().
+  */
+-#define OS_MAILBOX_RETRY_COUNT		100
++#define OS_MAILBOX_TIMEOUT_AVG_US	40
++#define OS_MAILBOX_TIMEOUT_MAX_US	1000
+ 
+ struct isst_if_device {
+ 	struct mutex mutex;
+@@ -35,11 +39,13 @@ struct isst_if_device {
+ static int isst_if_mbox_cmd(struct pci_dev *pdev,
+ 			    struct isst_if_mbox_cmd *mbox_cmd)
+ {
+-	u32 retries, data;
++	s64 tm_delta = 0;
++	ktime_t tm;
++	u32 data;
+ 	int ret;
+ 
+ 	/* Poll for rb bit == 0 */
+-	retries = OS_MAILBOX_RETRY_COUNT;
++	tm = ktime_get();
+ 	do {
+ 		ret = pci_read_config_dword(pdev, PUNIT_MAILBOX_INTERFACE,
+ 					    &data);
+@@ -48,11 +54,14 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
+ 
+ 		if (data & BIT_ULL(PUNIT_MAILBOX_BUSY_BIT)) {
+ 			ret = -EBUSY;
++			tm_delta = ktime_us_delta(ktime_get(), tm);
++			if (tm_delta > OS_MAILBOX_TIMEOUT_AVG_US)
++				cond_resched();
+ 			continue;
  		}
- 		index = snprintf(&str[curr_index], str_len - curr_index, "%d",
- 				 i);
- 		curr_index += index;
-+		if (curr_index >= str_len)
-+			break;
- 		first = 0;
- 	}
+ 		ret = 0;
+ 		break;
+-	} while (--retries);
++	} while (tm_delta < OS_MAILBOX_TIMEOUT_MAX_US);
+ 
+ 	if (ret)
+ 		return ret;
+@@ -74,7 +83,8 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
+ 		return ret;
+ 
+ 	/* Poll for rb bit == 0 */
+-	retries = OS_MAILBOX_RETRY_COUNT;
++	tm_delta = 0;
++	tm = ktime_get();
+ 	do {
+ 		ret = pci_read_config_dword(pdev, PUNIT_MAILBOX_INTERFACE,
+ 					    &data);
+@@ -83,6 +93,9 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
+ 
+ 		if (data & BIT_ULL(PUNIT_MAILBOX_BUSY_BIT)) {
+ 			ret = -EBUSY;
++			tm_delta = ktime_us_delta(ktime_get(), tm);
++			if (tm_delta > OS_MAILBOX_TIMEOUT_AVG_US)
++				cond_resched();
+ 			continue;
+ 		}
+ 
+@@ -96,7 +109,7 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
+ 		mbox_cmd->resp_data = data;
+ 		ret = 0;
+ 		break;
+-	} while (--retries);
++	} while (tm_delta < OS_MAILBOX_TIMEOUT_MAX_US);
+ 
+ 	return ret;
  }
-@@ -64,10 +68,14 @@ static void printcpumask(int str_len, char *str, int mask_size,
- 		index = snprintf(&str[curr_index], str_len - curr_index, "%08x",
- 				 mask[i]);
- 		curr_index += index;
-+		if (curr_index >= str_len)
-+			break;
- 		if (i) {
- 			strncat(&str[curr_index], ",", str_len - curr_index);
- 			curr_index++;
- 		}
-+		if (curr_index >= str_len)
-+			break;
- 	}
- 
- 	free(mask);
-@@ -185,7 +193,7 @@ static void _isst_pbf_display_information(int cpu, FILE *outf, int level,
- 					  int disp_level)
- {
- 	char header[256];
--	char value[256];
-+	char value[512];
- 
- 	snprintf(header, sizeof(header), "speed-select-base-freq-properties");
- 	format_and_print(outf, disp_level, header, NULL);
-@@ -349,7 +357,7 @@ void isst_ctdp_display_information(int cpu, FILE *outf, int tdp_level,
- 				   struct isst_pkg_ctdp *pkg_dev)
- {
- 	char header[256];
--	char value[256];
-+	char value[512];
- 	static int level;
- 	int i;
- 
 -- 
 2.30.2
 
