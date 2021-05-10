@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD6A378E6D
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A141378E69
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241034AbhEJN3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:29:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54782 "EHLO mail.kernel.org"
+        id S241017AbhEJN27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 09:28:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345702AbhEJMox (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 08:44:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76AA2611CA;
-        Mon, 10 May 2021 12:43:46 +0000 (UTC)
+        id S242907AbhEJMoo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 08:44:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88FB160FF2;
+        Mon, 10 May 2021 12:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620650627;
-        bh=VJ/xKku7Po9qW41lpcWan+5+iYeNZH40O7WSkXzICCs=;
+        s=korg; t=1620650619;
+        bh=jBpXhoFQoTkdm7vnKeeyRktif/Yor1Enm4DEBlpLdqQ=;
         h=Subject:To:From:Date:From;
-        b=iu2lFtk2zqru/v7edIvbrvgQaUtFfz/TXj7pbeUJw7CgUdPVLZgc0wFALBR8wkB2z
-         RREP8ql8S3F+iF2jA9sB2qcoWzuIFHioHD92NpPq2UZPBTHAyjxwfrebXGymZpIKMw
-         u2WlGOc3wCTtfFF33Kkf5iXDBo7tQdIo+JxgeZ00=
-Subject: patch "usb: dwc3: pci: Enable usb2-gadget-lpm-disable for Intel Merrifield" added to usb-linus
-To:     ftoth@exalondelft.nl, andy.shevchenko@gmail.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=wCnt5ITxwnDko8huitwYUPm2ctZp2FeTqw7fYw2KMpT5X8GKDGNrCDgALhA2M/y+d
+         Kv+bCCZcNuH8OLZe19g/5AaBBBGXOBVZYHXzA5KNt1qv988T+MMTBxWfhsUVoMeaQT
+         maA6DnlaL9DqHon9woKyYcEOEa4f4cZUFSqPCdFg=
+Subject: patch "cdc-wdm: untangle a circular dependency between callback and softint" added to usb-linus
+To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 10 May 2021 14:43:36 +0200
-Message-ID: <1620650616241133@kroah.com>
+Message-ID: <16206506160140@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: pci: Enable usb2-gadget-lpm-disable for Intel Merrifield
+    cdc-wdm: untangle a circular dependency between callback and softint
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,36 +51,109 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 04357fafea9c7ed34525eb9680c760245c3bb958 Mon Sep 17 00:00:00 2001
-From: Ferry Toth <ftoth@exalondelft.nl>
-Date: Sun, 25 Apr 2021 17:09:47 +0200
-Subject: usb: dwc3: pci: Enable usb2-gadget-lpm-disable for Intel Merrifield
+From 18abf874367456540846319574864e6ff32752e2 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Mon, 26 Apr 2021 11:26:22 +0200
+Subject: cdc-wdm: untangle a circular dependency between callback and softint
 
-On Intel Merrifield LPM is causing host to reset port after a timeout.
-By disabling LPM entirely this is prevented.
+We have a cycle of callbacks scheduling works which submit
+URBs with those callbacks. This needs to be blocked, stopped
+and unblocked to untangle the circle.
 
-Fixes: 066c09593454 ("usb: dwc3: pci: Enable extcon driver for Intel Merrifield")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20210426092622.20433-1-oneukum@suse.com
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210425150947.5862-1-ftoth@exalondelft.nl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/class/cdc-wdm.c | 30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index e7b932dcbf82..1e51460938b8 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -123,6 +123,7 @@ static const struct property_entry dwc3_pci_mrfld_properties[] = {
- 	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
- 	PROPERTY_ENTRY_BOOL("snps,dis_u3_susphy_quirk"),
- 	PROPERTY_ENTRY_BOOL("snps,dis_u2_susphy_quirk"),
-+	PROPERTY_ENTRY_BOOL("snps,usb2-gadget-lpm-disable"),
- 	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
- 	{}
- };
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index 508b1c3f8b73..d1e4a7379beb 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -321,12 +321,23 @@ static void wdm_int_callback(struct urb *urb)
+ 
+ }
+ 
+-static void kill_urbs(struct wdm_device *desc)
++static void poison_urbs(struct wdm_device *desc)
+ {
+ 	/* the order here is essential */
+-	usb_kill_urb(desc->command);
+-	usb_kill_urb(desc->validity);
+-	usb_kill_urb(desc->response);
++	usb_poison_urb(desc->command);
++	usb_poison_urb(desc->validity);
++	usb_poison_urb(desc->response);
++}
++
++static void unpoison_urbs(struct wdm_device *desc)
++{
++	/*
++	 *  the order here is not essential
++	 *  it is symmetrical just to be nice
++	 */
++	usb_unpoison_urb(desc->response);
++	usb_unpoison_urb(desc->validity);
++	usb_unpoison_urb(desc->command);
+ }
+ 
+ static void free_urbs(struct wdm_device *desc)
+@@ -741,11 +752,12 @@ static int wdm_release(struct inode *inode, struct file *file)
+ 	if (!desc->count) {
+ 		if (!test_bit(WDM_DISCONNECTING, &desc->flags)) {
+ 			dev_dbg(&desc->intf->dev, "wdm_release: cleanup\n");
+-			kill_urbs(desc);
++			poison_urbs(desc);
+ 			spin_lock_irq(&desc->iuspin);
+ 			desc->resp_count = 0;
+ 			spin_unlock_irq(&desc->iuspin);
+ 			desc->manage_power(desc->intf, 0);
++			unpoison_urbs(desc);
+ 		} else {
+ 			/* must avoid dev_printk here as desc->intf is invalid */
+ 			pr_debug(KBUILD_MODNAME " %s: device gone - cleaning up\n", __func__);
+@@ -1037,9 +1049,9 @@ static void wdm_disconnect(struct usb_interface *intf)
+ 	wake_up_all(&desc->wait);
+ 	mutex_lock(&desc->rlock);
+ 	mutex_lock(&desc->wlock);
++	poison_urbs(desc);
+ 	cancel_work_sync(&desc->rxwork);
+ 	cancel_work_sync(&desc->service_outs_intr);
+-	kill_urbs(desc);
+ 	mutex_unlock(&desc->wlock);
+ 	mutex_unlock(&desc->rlock);
+ 
+@@ -1080,9 +1092,10 @@ static int wdm_suspend(struct usb_interface *intf, pm_message_t message)
+ 		set_bit(WDM_SUSPENDING, &desc->flags);
+ 		spin_unlock_irq(&desc->iuspin);
+ 		/* callback submits work - order is essential */
+-		kill_urbs(desc);
++		poison_urbs(desc);
+ 		cancel_work_sync(&desc->rxwork);
+ 		cancel_work_sync(&desc->service_outs_intr);
++		unpoison_urbs(desc);
+ 	}
+ 	if (!PMSG_IS_AUTO(message)) {
+ 		mutex_unlock(&desc->wlock);
+@@ -1140,7 +1153,7 @@ static int wdm_pre_reset(struct usb_interface *intf)
+ 	wake_up_all(&desc->wait);
+ 	mutex_lock(&desc->rlock);
+ 	mutex_lock(&desc->wlock);
+-	kill_urbs(desc);
++	poison_urbs(desc);
+ 	cancel_work_sync(&desc->rxwork);
+ 	cancel_work_sync(&desc->service_outs_intr);
+ 	return 0;
+@@ -1151,6 +1164,7 @@ static int wdm_post_reset(struct usb_interface *intf)
+ 	struct wdm_device *desc = wdm_find_device(intf);
+ 	int rv;
+ 
++	unpoison_urbs(desc);
+ 	clear_bit(WDM_OVERFLOW, &desc->flags);
+ 	clear_bit(WDM_RESETTING, &desc->flags);
+ 	rv = recover_from_urb_loss(desc);
 -- 
 2.31.1
 
