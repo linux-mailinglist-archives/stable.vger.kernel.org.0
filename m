@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 858013788B1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D291A3788E4
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234406AbhEJLXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:23:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
+        id S235519AbhEJLYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237200AbhEJLLe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4661B61285;
-        Mon, 10 May 2021 11:08:01 +0000 (UTC)
+        id S232784AbhEJLMN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:12:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 106576193E;
+        Mon, 10 May 2021 11:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644881;
-        bh=/zM04TnIe3i8ugoTjV5c3/lmKk8e7uKbmdy3oHOQvAQ=;
+        s=korg; t=1620644992;
+        bh=k4CLqe5eucxO/nVwg6pmB9ZrMh26nn4Z45adj+6WbKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtJ46Cj1nI07Ls54AaxhC+n93l3W9z+HXaM+eTiR5cu64ilr0DWnXB/yXffMfKF76
-         T4N84FmKrb+Q8/bP1VChs4v0YLCKDvzz3Xu/Fzvc7nXrbnsUzVSri3Zl/xJOjviFgr
-         Wt4Clip4VgjwsV6V54y2aoQMpbpj8Qm/boRFGU6w=
+        b=FOYk2kUfqyQWu3BbI3/N5Nn0izjlG0Hf5Lk4V5XBeY1P7Arpz5fNUQKr2O77uBfSa
+         VsYhot/EU0Z/0qSC0MeE4kZnWjkIS6wq4dlQ31amtJ461KuVo/tNobhrTGQErdO78V
+         aa2/pqUov0smhpy+q1GBV9VQjVL5GGYR/Nae7CFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 261/384] scsi: libfc: Fix a format specifier
-Date:   Mon, 10 May 2021 12:20:50 +0200
-Message-Id: <20210510102023.467113404@linuxfoundation.org>
+Subject: [PATCH 5.12 262/384] perf: Rework perf_event_exit_event()
+Date:   Mon, 10 May 2021 12:20:51 +0200
+Message-Id: <20210510102023.497491530@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,43 +40,269 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 90d6697810f06aceea9de71ad836a8c7669789cd ]
+[ Upstream commit ef54c1a476aef7eef26fe13ea10dc090952c00f8 ]
 
-Since the 'mfs' member has been declared as 'u32' in include/scsi/libfc.h,
-use the %u format specifier instead of %hu. This patch fixes the following
-clang compiler warning:
+Make perf_event_exit_event() more robust, such that we can use it from
+other contexts. Specifically the up and coming remove_on_exec.
 
-warning: format specifies type
-      'unsigned short' but the argument has type 'u32' (aka 'unsigned int')
-      [-Wformat]
-                             "lport->mfs:%hu\n", mfs, lport->mfs);
-                                         ~~~          ^~~~~~~~~~
-                                         %u
+For this to work we need to address a few issues. Remove_on_exec will
+not destroy the entire context, so we cannot rely on TASK_TOMBSTONE to
+disable event_function_call() and we thus have to use
+perf_remove_from_context().
 
-Link: https://lore.kernel.org/r/20210415220826.29438-8-bvanassche@acm.org
-Cc: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+When using perf_remove_from_context(), there's two races to consider.
+The first is against close(), where we can have concurrent tear-down
+of the event. The second is against child_list iteration, which should
+not find a half baked event.
+
+To address this, teach perf_remove_from_context() to special case
+!ctx->is_active and about DETACH_CHILD.
+
+[ elver@google.com: fix racing parent/child exit in sync_child_event(). ]
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210408103605.1676875-2-elver@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libfc/fc_lport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/perf_event.h |   1 +
+ kernel/events/core.c       | 142 +++++++++++++++++++++----------------
+ 2 files changed, 80 insertions(+), 63 deletions(-)
 
-diff --git a/drivers/scsi/libfc/fc_lport.c b/drivers/scsi/libfc/fc_lport.c
-index 22826544da7e..9989669beec3 100644
---- a/drivers/scsi/libfc/fc_lport.c
-+++ b/drivers/scsi/libfc/fc_lport.c
-@@ -1731,7 +1731,7 @@ void fc_lport_flogi_resp(struct fc_seq *sp, struct fc_frame *fp,
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 3f7f89ea5e51..3d478abf411c 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -607,6 +607,7 @@ struct swevent_hlist {
+ #define PERF_ATTACH_TASK_DATA	0x08
+ #define PERF_ATTACH_ITRACE	0x10
+ #define PERF_ATTACH_SCHED_CB	0x20
++#define PERF_ATTACH_CHILD	0x40
  
- 	if (mfs < FC_SP_MIN_MAX_PAYLOAD || mfs > FC_SP_MAX_MAX_PAYLOAD) {
- 		FC_LPORT_DBG(lport, "FLOGI bad mfs:%hu response, "
--			     "lport->mfs:%hu\n", mfs, lport->mfs);
-+			     "lport->mfs:%u\n", mfs, lport->mfs);
- 		fc_lport_error(lport, fp);
- 		goto out;
+ struct perf_cgroup;
+ struct perf_buffer;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 43ceb8dae264..c24ea952e7ae 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -2204,6 +2204,26 @@ out:
+ 	perf_event__header_size(leader);
+ }
+ 
++static void sync_child_event(struct perf_event *child_event);
++
++static void perf_child_detach(struct perf_event *event)
++{
++	struct perf_event *parent_event = event->parent;
++
++	if (!(event->attach_state & PERF_ATTACH_CHILD))
++		return;
++
++	event->attach_state &= ~PERF_ATTACH_CHILD;
++
++	if (WARN_ON_ONCE(!parent_event))
++		return;
++
++	lockdep_assert_held(&parent_event->child_mutex);
++
++	sync_child_event(event);
++	list_del_init(&event->child_list);
++}
++
+ static bool is_orphaned_event(struct perf_event *event)
+ {
+ 	return event->state == PERF_EVENT_STATE_DEAD;
+@@ -2311,6 +2331,7 @@ group_sched_out(struct perf_event *group_event,
+ }
+ 
+ #define DETACH_GROUP	0x01UL
++#define DETACH_CHILD	0x02UL
+ 
+ /*
+  * Cross CPU call to remove a performance event
+@@ -2334,6 +2355,8 @@ __perf_remove_from_context(struct perf_event *event,
+ 	event_sched_out(event, cpuctx, ctx);
+ 	if (flags & DETACH_GROUP)
+ 		perf_group_detach(event);
++	if (flags & DETACH_CHILD)
++		perf_child_detach(event);
+ 	list_del_event(event, ctx);
+ 
+ 	if (!ctx->nr_events && ctx->is_active) {
+@@ -2362,25 +2385,21 @@ static void perf_remove_from_context(struct perf_event *event, unsigned long fla
+ 
+ 	lockdep_assert_held(&ctx->mutex);
+ 
+-	event_function_call(event, __perf_remove_from_context, (void *)flags);
+-
+ 	/*
+-	 * The above event_function_call() can NO-OP when it hits
+-	 * TASK_TOMBSTONE. In that case we must already have been detached
+-	 * from the context (by perf_event_exit_event()) but the grouping
+-	 * might still be in-tact.
++	 * Because of perf_event_exit_task(), perf_remove_from_context() ought
++	 * to work in the face of TASK_TOMBSTONE, unlike every other
++	 * event_function_call() user.
+ 	 */
+-	WARN_ON_ONCE(event->attach_state & PERF_ATTACH_CONTEXT);
+-	if ((flags & DETACH_GROUP) &&
+-	    (event->attach_state & PERF_ATTACH_GROUP)) {
+-		/*
+-		 * Since in that case we cannot possibly be scheduled, simply
+-		 * detach now.
+-		 */
+-		raw_spin_lock_irq(&ctx->lock);
+-		perf_group_detach(event);
++	raw_spin_lock_irq(&ctx->lock);
++	if (!ctx->is_active) {
++		__perf_remove_from_context(event, __get_cpu_context(ctx),
++					   ctx, (void *)flags);
+ 		raw_spin_unlock_irq(&ctx->lock);
++		return;
  	}
++	raw_spin_unlock_irq(&ctx->lock);
++
++	event_function_call(event, __perf_remove_from_context, (void *)flags);
+ }
+ 
+ /*
+@@ -12373,14 +12392,17 @@ void perf_pmu_migrate_context(struct pmu *pmu, int src_cpu, int dst_cpu)
+ }
+ EXPORT_SYMBOL_GPL(perf_pmu_migrate_context);
+ 
+-static void sync_child_event(struct perf_event *child_event,
+-			       struct task_struct *child)
++static void sync_child_event(struct perf_event *child_event)
+ {
+ 	struct perf_event *parent_event = child_event->parent;
+ 	u64 child_val;
+ 
+-	if (child_event->attr.inherit_stat)
+-		perf_event_read_event(child_event, child);
++	if (child_event->attr.inherit_stat) {
++		struct task_struct *task = child_event->ctx->task;
++
++		if (task && task != TASK_TOMBSTONE)
++			perf_event_read_event(child_event, task);
++	}
+ 
+ 	child_val = perf_event_count(child_event);
+ 
+@@ -12395,60 +12417,53 @@ static void sync_child_event(struct perf_event *child_event,
+ }
+ 
+ static void
+-perf_event_exit_event(struct perf_event *child_event,
+-		      struct perf_event_context *child_ctx,
+-		      struct task_struct *child)
++perf_event_exit_event(struct perf_event *event, struct perf_event_context *ctx)
+ {
+-	struct perf_event *parent_event = child_event->parent;
++	struct perf_event *parent_event = event->parent;
++	unsigned long detach_flags = 0;
+ 
+-	/*
+-	 * Do not destroy the 'original' grouping; because of the context
+-	 * switch optimization the original events could've ended up in a
+-	 * random child task.
+-	 *
+-	 * If we were to destroy the original group, all group related
+-	 * operations would cease to function properly after this random
+-	 * child dies.
+-	 *
+-	 * Do destroy all inherited groups, we don't care about those
+-	 * and being thorough is better.
+-	 */
+-	raw_spin_lock_irq(&child_ctx->lock);
+-	WARN_ON_ONCE(child_ctx->is_active);
++	if (parent_event) {
++		/*
++		 * Do not destroy the 'original' grouping; because of the
++		 * context switch optimization the original events could've
++		 * ended up in a random child task.
++		 *
++		 * If we were to destroy the original group, all group related
++		 * operations would cease to function properly after this
++		 * random child dies.
++		 *
++		 * Do destroy all inherited groups, we don't care about those
++		 * and being thorough is better.
++		 */
++		detach_flags = DETACH_GROUP | DETACH_CHILD;
++		mutex_lock(&parent_event->child_mutex);
++	}
+ 
+-	if (parent_event)
+-		perf_group_detach(child_event);
+-	list_del_event(child_event, child_ctx);
+-	perf_event_set_state(child_event, PERF_EVENT_STATE_EXIT); /* is_event_hup() */
+-	raw_spin_unlock_irq(&child_ctx->lock);
++	perf_remove_from_context(event, detach_flags);
++
++	raw_spin_lock_irq(&ctx->lock);
++	if (event->state > PERF_EVENT_STATE_EXIT)
++		perf_event_set_state(event, PERF_EVENT_STATE_EXIT);
++	raw_spin_unlock_irq(&ctx->lock);
+ 
+ 	/*
+-	 * Parent events are governed by their filedesc, retain them.
++	 * Child events can be freed.
+ 	 */
+-	if (!parent_event) {
+-		perf_event_wakeup(child_event);
++	if (parent_event) {
++		mutex_unlock(&parent_event->child_mutex);
++		/*
++		 * Kick perf_poll() for is_event_hup();
++		 */
++		perf_event_wakeup(parent_event);
++		free_event(event);
++		put_event(parent_event);
+ 		return;
+ 	}
+-	/*
+-	 * Child events can be cleaned up.
+-	 */
+-
+-	sync_child_event(child_event, child);
+ 
+ 	/*
+-	 * Remove this event from the parent's list
+-	 */
+-	WARN_ON_ONCE(parent_event->ctx->parent_ctx);
+-	mutex_lock(&parent_event->child_mutex);
+-	list_del_init(&child_event->child_list);
+-	mutex_unlock(&parent_event->child_mutex);
+-
+-	/*
+-	 * Kick perf_poll() for is_event_hup().
++	 * Parent events are governed by their filedesc, retain them.
+ 	 */
+-	perf_event_wakeup(parent_event);
+-	free_event(child_event);
+-	put_event(parent_event);
++	perf_event_wakeup(event);
+ }
+ 
+ static void perf_event_exit_task_context(struct task_struct *child, int ctxn)
+@@ -12505,7 +12520,7 @@ static void perf_event_exit_task_context(struct task_struct *child, int ctxn)
+ 	perf_event_task(child, child_ctx, 0);
+ 
+ 	list_for_each_entry_safe(child_event, next, &child_ctx->event_list, event_entry)
+-		perf_event_exit_event(child_event, child_ctx, child);
++		perf_event_exit_event(child_event, child_ctx);
+ 
+ 	mutex_unlock(&child_ctx->mutex);
+ 
+@@ -12765,6 +12780,7 @@ inherit_event(struct perf_event *parent_event,
+ 	 */
+ 	raw_spin_lock_irqsave(&child_ctx->lock, flags);
+ 	add_event_to_ctx(child_event, child_ctx);
++	child_event->attach_state |= PERF_ATTACH_CHILD;
+ 	raw_spin_unlock_irqrestore(&child_ctx->lock, flags);
+ 
+ 	/*
 -- 
 2.30.2
 
