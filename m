@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F8C43787F2
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C528378723
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238809AbhEJLUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
+        id S235296AbhEJLOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:14:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236053AbhEJLHZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C87E616E9;
-        Mon, 10 May 2021 10:57:51 +0000 (UTC)
+        id S236056AbhEJLHY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8DE616ED;
+        Mon, 10 May 2021 10:57:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644272;
-        bh=RWpexhPvp66+Tff5MbWUMpq+NMkNjRW/PLGWLjp8PVI=;
+        s=korg; t=1620644274;
+        bh=xZJ482XOAPo4NHz/gYmgW/ROsIxqwtHKbtewnL8D5nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vtyfu+J1qzggQXlLNq9qbUy9xHWjZQ/lQWiPiULD/L+ZCPdOQmDRX+Yvn3xqMkXyu
-         d4+Mc2Kr+LMmp4qjoEeT8u1+yvwwyFF0NsrY0pFgVnQb52AvxHXnVCBjDiJS2EHUJA
-         NQ0Iny679AJTnPv6HsB1c0FgIAy0ylqDYroYoZEE=
+        b=ktzVX/b7YVu/KmQRvXpK8vtqqY6U+DWzIrpyBZ4N/sM24E1s1wmV3kG97S9/a6Wxj
+         pC1AapgIqhShT7894hK6SLQ5pA+sbKSLvZNRE2OizTxN8SduskW6SRd2w2Ka0Q8kf3
+         tUYS0ZFX5NKGc5nQ+IfX41XVcxrQhB/VVPep5IyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.12 015/384] tpm: acpi: Check eventlog signature before using it
-Date:   Mon, 10 May 2021 12:16:44 +0200
-Message-Id: <20210510102015.376463098@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Langsdorf <mlangsdo@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.12 016/384] ACPI: custom_method: fix potential use-after-free issue
+Date:   Mon, 10 May 2021 12:16:45 +0200
+Message-Id: <20210510102015.406981762@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -39,91 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Mark Langsdorf <mlangsdo@redhat.com>
 
-commit 3dcd15665aca80197333500a4be3900948afccc1 upstream.
+commit e483bb9a991bdae29a0caa4b3a6d002c968f94aa upstream.
 
-Check the eventlog signature before using it. This avoids using an
-empty log, as may be the case when QEMU created the ACPI tables,
-rather than probing the EFI log next. This resolves an issue where
-the EFI log was empty since an empty ACPI log was used.
+In cm_write(), buf is always freed when reaching the end of the
+function.  If the requested count is less than table.length, the
+allocated buffer will be freed but subsequent calls to cm_write() will
+still try to access it.
 
-Cc: stable@vger.kernel.org
-Fixes: 85467f63a05c ("tpm: Add support for event log pointer found in TPM2 ACPI table")
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Remove the unconditional kfree(buf) at the end of the function and
+set the buf to NULL in the -EINVAL error path to match the rest of
+function.
+
+Fixes: 03d1571d9513 ("ACPI: custom_method: fix memory leaks")
+Signed-off-by: Mark Langsdorf <mlangsdo@redhat.com>
+Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/eventlog/acpi.c |   33 ++++++++++++++++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
+ drivers/acpi/custom_method.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/tpm/eventlog/acpi.c
-+++ b/drivers/char/tpm/eventlog/acpi.c
-@@ -41,6 +41,27 @@ struct acpi_tcpa {
- 	};
- };
+--- a/drivers/acpi/custom_method.c
++++ b/drivers/acpi/custom_method.c
+@@ -55,6 +55,7 @@ static ssize_t cm_write(struct file *fil
+ 	    (*ppos + count < count) ||
+ 	    (count > uncopied_bytes)) {
+ 		kfree(buf);
++		buf = NULL;
+ 		return -EINVAL;
+ 	}
  
-+/* Check that the given log is indeed a TPM2 log. */
-+static bool tpm_is_tpm2_log(void *bios_event_log, u64 len)
-+{
-+	struct tcg_efi_specid_event_head *efispecid;
-+	struct tcg_pcr_event *event_header;
-+	int n;
-+
-+	if (len < sizeof(*event_header))
-+		return false;
-+	len -= sizeof(*event_header);
-+	event_header = bios_event_log;
-+
-+	if (len < sizeof(*efispecid))
-+		return false;
-+	efispecid = (struct tcg_efi_specid_event_head *)event_header->event;
-+
-+	n = memcmp(efispecid->signature, TCG_SPECID_SIG,
-+		   sizeof(TCG_SPECID_SIG));
-+	return n == 0;
-+}
-+
- /* read binary bios log */
- int tpm_read_log_acpi(struct tpm_chip *chip)
- {
-@@ -52,6 +73,7 @@ int tpm_read_log_acpi(struct tpm_chip *c
- 	struct acpi_table_tpm2 *tbl;
- 	struct acpi_tpm2_phy *tpm2_phy;
- 	int format;
-+	int ret;
+@@ -76,7 +77,6 @@ static ssize_t cm_write(struct file *fil
+ 		add_taint(TAINT_OVERRIDDEN_ACPI_TABLE, LOCKDEP_NOW_UNRELIABLE);
+ 	}
  
- 	log = &chip->log;
- 
-@@ -112,6 +134,7 @@ int tpm_read_log_acpi(struct tpm_chip *c
- 
- 	log->bios_event_log_end = log->bios_event_log + len;
- 
-+	ret = -EIO;
- 	virt = acpi_os_map_iomem(start, len);
- 	if (!virt)
- 		goto err;
-@@ -119,11 +142,19 @@ int tpm_read_log_acpi(struct tpm_chip *c
- 	memcpy_fromio(log->bios_event_log, virt, len);
- 
- 	acpi_os_unmap_iomem(virt, len);
-+
-+	if (chip->flags & TPM_CHIP_FLAG_TPM2 &&
-+	    !tpm_is_tpm2_log(log->bios_event_log, len)) {
-+		/* try EFI log next */
-+		ret = -ENODEV;
-+		goto err;
-+	}
-+
- 	return format;
- 
- err:
- 	kfree(log->bios_event_log);
- 	log->bios_event_log = NULL;
--	return -EIO;
-+	return ret;
- 
+-	kfree(buf);
+ 	return count;
  }
+ 
 
 
