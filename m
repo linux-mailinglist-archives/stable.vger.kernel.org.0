@@ -2,33 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F399378928
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1703F378929
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238462AbhEJLZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60432 "EHLO mail.kernel.org"
+        id S238528AbhEJLZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238078AbhEJLRA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:17:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 329AE61490;
-        Mon, 10 May 2021 11:12:28 +0000 (UTC)
+        id S238089AbhEJLRB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:17:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EACF61628;
+        Mon, 10 May 2021 11:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645148;
-        bh=MrtvytRJtzO1IuaNt7kBtK8kiwyOrLRLPvo3F8h5+hY=;
+        s=korg; t=1620645150;
+        bh=Ga0GcZJ15+mCFyWQygC1n0QxlS2LBSHB5Xti+h6bYng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZ+UM3kwSvnYTFovzh/0C62PYJf5EHIu8AgZC6WpZKv9Q/VHck7vP5oUXLhlMPMgE
-         k0RA0Mr0JxLDj/g4w/Bt5EbijXcuClAoh9Xfa5RjgZBNDIQU0PsH9u0l81eQiXYejy
-         8gyX9elNISXsUOAfmvd73PDRrPwVZ6SRNUkAHKkM=
+        b=E8MWQ5loY0cr3fVcfFPxgMwbjwtk2NishDWyFIzty1O8VlQVyq1ZTwYzqieSXPQkS
+         G21OHGwfbVnsN9Ip6BuYS0xVjOg090xU9QZ4nBnP9+Bc8n4uDD39ie7RijNujqhnNR
+         31OC2g7KaicmGEauY8k9Aanuc6gq+P4LyLIrs1w4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+bcc922b19ccc64240b42@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>
-Subject: [PATCH 5.12 371/384] tty: fix memory leak in vc_deallocate
-Date:   Mon, 10 May 2021 12:22:40 +0200
-Message-Id: <20210510102026.994348868@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
+        Angus Ainslie <angus@akkea.ca>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Karun Eagalapati <karun256@gmail.com>,
+        Martin Kepplinger <martink@posteo.de>,
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Siva Rebbagondla <siva8118@gmail.com>, netdev@vger.kernel.org
+Subject: [PATCH 5.12 372/384] rsi: Use resume_noirq for SDIO
+Date:   Mon, 10 May 2021 12:22:41 +0200
+Message-Id: <20210510102027.031476939@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,34 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Marek Vasut <marex@denx.de>
 
-commit 211b4d42b70f1c1660feaa968dac0efc2a96ac4d upstream.
+commit c434e5e48dc4e626364491455f97e2db0aa137b1 upstream.
 
-syzbot reported memory leak in tty/vt.
-The problem was in VT_DISALLOCATE ioctl cmd.
-After allocating unimap with PIO_UNIMAP it wasn't
-freed via VT_DISALLOCATE, but vc_cons[currcons].d was
-zeroed.
+The rsi_resume() does access the bus to enable interrupts on the RSI
+SDIO WiFi card, however when calling sdio_claim_host() in the resume
+path, it is possible the bus is already claimed and sdio_claim_host()
+spins indefinitelly. Enable the SDIO card interrupts in resume_noirq
+instead to prevent anything else from claiming the SDIO bus first.
 
-Reported-by: syzbot+bcc922b19ccc64240b42@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210327214443.21548-1-paskripkin@gmail.com
+Fixes: 20db07332736 ("rsi: sdio suspend and resume support")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
+Cc: Angus Ainslie <angus@akkea.ca>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Karun Eagalapati <karun256@gmail.com>
+Cc: Martin Kepplinger <martink@posteo.de>
+Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Cc: Siva Rebbagondla <siva8118@gmail.com>
+Cc: netdev@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210327235932.175896-1-marex@denx.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/rsi/rsi_91x_sdio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1381,6 +1381,7 @@ struct vc_data *vc_deallocate(unsigned i
- 		atomic_notifier_call_chain(&vt_notifier_list, VT_DEALLOCATE, &param);
- 		vcs_remove_sysfs(currcons);
- 		visual_deinit(vc);
-+		con_free_unimap(vc);
- 		put_pid(vc->vt_pid);
- 		vc_uniscr_set(vc, NULL);
- 		kfree(vc->vc_screenbuf);
+--- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
++++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
+@@ -1513,7 +1513,7 @@ static int rsi_restore(struct device *de
+ }
+ static const struct dev_pm_ops rsi_pm_ops = {
+ 	.suspend = rsi_suspend,
+-	.resume = rsi_resume,
++	.resume_noirq = rsi_resume,
+ 	.freeze = rsi_freeze,
+ 	.thaw = rsi_thaw,
+ 	.restore = rsi_restore,
 
 
