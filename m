@@ -2,101 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A835378F04
+	by mail.lfdr.de (Postfix) with ESMTP id C61E2378F06
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbhEJN1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:27:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44756 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243949AbhEJL5t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:57:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B45F6121E;
-        Mon, 10 May 2021 11:56:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620647804;
-        bh=lvQXdb1uLea5kXdp+Ftv8+KRCK1dJmRCKA5861t8EtA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xK3uwn5tg3sDk4vk3eHxU2oEQx4gLZtj6P6O9LMAOI4mO+Fl9FZBBhHgh073ChczT
-         NWf31ASWzU3yujqug5lrUtq2gnCJMF/URqTHX3Y375r9cHaoYmFKt27bpV+DbrsADi
-         u9LvrBNYxOZrb38mfGAAcp/mbV5J2bXSz67Go5YE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 088/384] kselftest/arm64: mte: Fix MTE feature detection
-Date:   Mon, 10 May 2021 12:17:57 +0200
-Message-Id: <20210510102017.788324435@linuxfoundation.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S241150AbhEJN1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 09:27:13 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:54224 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235030AbhEJME1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 08:04:27 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 5F5B51C0B79; Mon, 10 May 2021 14:03:18 +0200 (CEST)
+Date:   Mon, 10 May 2021 14:03:18 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Wesley Cheng <wcheng@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 06/21] usb: dwc3: gadget: Ignore EP queue
+ requests during bus reset
+Message-ID: <20210510120318.GA3547@duo.ucw.cz>
+References: <20210502140517.2719912-1-sashal@kernel.org>
+ <20210502140517.2719912-6-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Disposition: inline
+In-Reply-To: <20210502140517.2719912-6-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 592432862cc4019075a7196d9961562c49507d6f ]
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-To check whether the CPU and kernel support the MTE features we want
-to test, we use an (emulated) CPU ID register read. However we only
-check against a very particular feature version (0b0010), even though
-the ARM ARM promises ID register features to be backwards compatible.
+Hi!
 
-While this could be fixed by using ">=" instead of "==", we should
-actually use the explicit HWCAP2_MTE hardware capability, exposed by the
-kernel via the ELF auxiliary vectors.
+> [ Upstream commit 71ca43f30df9c642970f9dc9b2d6f463f4967e7b ]
+>=20
+> The current dwc3_gadget_reset_interrupt() will stop any active
+> transfers, but only addresses blocking of EP queuing for while we are
+> coming from a disconnected scenario, i.e. after receiving the disconnect
+> event.  If the host decides to issue a bus reset on the device, the
+> connected parameter will still be set to true, allowing for EP queuing
+> to continue while we are disabling the functions.  To avoid this, set the
+> connected flag to false until the stop active transfers is complete.
 
-That moves this responsibility to the kernel, and fixes running the
-tests on machines with FEAT_MTE3 capability.
-
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Mark Brown <broone@kernel.org>
-Link: https://lore.kernel.org/r/20210319165334.29213-7-andre.przywara@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- tools/testing/selftests/arm64/mte/mte_common_util.c | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
-
-diff --git a/tools/testing/selftests/arm64/mte/mte_common_util.c b/tools/testing/selftests/arm64/mte/mte_common_util.c
-index 39f8908988ea..70665ba88cbb 100644
---- a/tools/testing/selftests/arm64/mte/mte_common_util.c
-+++ b/tools/testing/selftests/arm64/mte/mte_common_util.c
-@@ -278,22 +278,13 @@ int mte_switch_mode(int mte_option, unsigned long incl_mask)
- 	return 0;
- }
- 
--#define ID_AA64PFR1_MTE_SHIFT		8
--#define ID_AA64PFR1_MTE			2
--
- int mte_default_setup(void)
- {
--	unsigned long hwcaps = getauxval(AT_HWCAP);
-+	unsigned long hwcaps2 = getauxval(AT_HWCAP2);
- 	unsigned long en = 0;
- 	int ret;
- 
--	if (!(hwcaps & HWCAP_CPUID)) {
--		ksft_print_msg("FAIL: CPUID registers unavailable\n");
--		return KSFT_FAIL;
--	}
--	/* Read ID_AA64PFR1_EL1 register */
--	asm volatile("mrs %0, id_aa64pfr1_el1" : "=r"(hwcaps) : : "memory");
--	if (((hwcaps >> ID_AA64PFR1_MTE_SHIFT) & MT_TAG_MASK) != ID_AA64PFR1_MTE) {
-+	if (!(hwcaps2 & HWCAP2_MTE)) {
- 		ksft_print_msg("FAIL: MTE features unavailable\n");
- 		return KSFT_SKIP;
- 	}
--- 
-2.30.2
+This is mismerged / crazy. Will probably break the driver completely.
 
 
+> +++ b/drivers/usb/dwc3/gadget.c
+> @@ -2717,6 +2717,15 @@ static void dwc3_gadget_reset_interrupt(struct dwc=
+3 *dwc)
+> =20
+>  	dwc->connected =3D true;
+> =20
+> +	/*
+> +	 * Ideally, dwc3_reset_gadget() would trigger the function
+> +	 * drivers to stop any active transfers through ep disable.
+> +	 * However, for functions which defer ep disable, such as mass
+> +	 * storage, we will need to rely on the call to stop active
+> +	 * transfers here, and avoid allowing of request queuing.
+> +	 */
+> +	dwc->connected =3D false;
+> +
+>  	/*
+>  	 * WORKAROUND: DWC3 revisions <1.88a have an issue which
+>  	 * would cause a missing Disconnect Event if there's a
 
+See how connected =3D true is immediately overwritten? In mainline
+=3D true assignment is done below, so it does not have this problem.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--X1bOJ3K7DJ5YkBrT
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYJkhBgAKCRAw5/Bqldv6
+8vriAJ93Vdrcs7s+vSB1tVq38r7SCD99egCfdSw1Y5MmAJl3i9NZVrdpvDiQRqo=
+=RSty
+-----END PGP SIGNATURE-----
+
+--X1bOJ3K7DJ5YkBrT--
