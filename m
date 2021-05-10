@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F98337868E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814B93788B0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233446AbhEJLJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:09:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55456 "EHLO mail.kernel.org"
+        id S234368AbhEJLXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:23:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233766AbhEJK7r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:59:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8021C61C4C;
-        Mon, 10 May 2021 10:53:03 +0000 (UTC)
+        id S237104AbhEJLLV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68D786162D;
+        Mon, 10 May 2021 11:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643984;
-        bh=Xf+puenA/PUhO6WkOQj7oPaNgZ6nEmCspFlKaCdmti0=;
+        s=korg; t=1620644824;
+        bh=6L+UN9HNWtK4MTQO6xqBHLL8BwK5sHu8Y0fdOskqV+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roVH/1HAqlGFQ904gkCMtye1I1MWD9Va49ac8giZEG3tqz+xGHT45m49yQivfRw0e
-         GtOrV3lPXBO1AR27B0fFqFwFUWm4W3HYJ7fypGEL34XRgBVbL8y6Xg/iBNhpvxuGJg
-         vmUsUzZYXNNugPiedD07iE75/EonBhiuDRQE+ZnQ=
+        b=NZ0b3yeWJJ6cp6KA2DXJCBxZF4dk561OF3CSikrFEViAur+rEHgdhGKZJYUX5Dl2F
+         aDYpxMw8IQFv6P6FbQxqeybPzE32YJLx4vNSmM4TXu5DXC9SmfrVOV3mtKbS0t7wv+
+         hDB58pCMFiekVpy9kHgVDk4H1+G8CznQSe1zFhDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangqing Zhu <zhuguangqing83@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Carl Philipp Klemm <philipp@uvos.xyz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 239/342] power: supply: cpcap-battery: fix invalid usage of list cursor
+Subject: [PATCH 5.12 240/384] drm/msm/mdp5: Configure PP_SYNC_HEIGHT to double the vtotal
 Date:   Mon, 10 May 2021 12:20:29 +0200
-Message-Id: <20210510102017.985555309@linuxfoundation.org>
+Message-Id: <20210510102022.795050269@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangqing Zhu <zhuguangqing83@gmail.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit d0a43c12ee9f57ddb284272187bd18726c2c2c98 ]
+[ Upstream commit 2ad52bdb220de5ab348098e3482b01235d15a842 ]
 
-Fix invalid usage of a list_for_each_entry in cpcap_battery_irq_thread().
-Empty list or fully traversed list points to list head, which is not
-NULL (and before the first element containing real data).
+Leaving this at a close-to-maximum register value 0xFFF0 means it takes
+very long for the MDSS to generate a software vsync interrupt when the
+hardware TE interrupt doesn't arrive.  Configuring this to double the
+vtotal (like some downstream kernels) leads to a frame to take at most
+twice before the vsync signal, until hardware TE comes up.
 
-Signed-off-by: Guangqing Zhu <zhuguangqing83@gmail.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Carl Philipp Klemm <philipp@uvos.xyz>
-Tested-by: Carl Philipp Klemm <philipp@uvos.xyz>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+In this case the hardware interrupt responsible for providing this
+signal - "disp-te" gpio - is not hooked up to the mdp5 vsync/pp logic at
+all.  This solves severe panel update issues observed on at least the
+Xperia Loire and Tone series, until said gpio is properly hooked up to
+an irq.
+
+Suggested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Link: https://lore.kernel.org/r/20210406214726.131534-2-marijn.suijten@somainline.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cpcap-battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/cpcap-battery.c
-index cebc5c8fda1b..793d4ca52f8a 100644
---- a/drivers/power/supply/cpcap-battery.c
-+++ b/drivers/power/supply/cpcap-battery.c
-@@ -626,7 +626,7 @@ static irqreturn_t cpcap_battery_irq_thread(int irq, void *data)
- 			break;
- 	}
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
+index ff2c1d583c79..f6df4d3b1406 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
+@@ -49,9 +49,17 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
+ 		| MDP5_PP_SYNC_CONFIG_VSYNC_IN_EN;
+ 	cfg |= MDP5_PP_SYNC_CONFIG_VSYNC_COUNT(vclks_line);
  
--	if (!d)
-+	if (list_entry_is_head(d, &ddata->irq_list, node))
- 		return IRQ_NONE;
- 
- 	latest = cpcap_battery_latest(ddata);
++	/*
++	 * Tearcheck emits a blanking signal every vclks_line * vtotal * 2 ticks on
++	 * the vsync_clk equating to roughly half the desired panel refresh rate.
++	 * This is only necessary as stability fallback if interrupts from the
++	 * panel arrive too late or not at all, but is currently used by default
++	 * because these panel interrupts are not wired up yet.
++	 */
+ 	mdp5_write(mdp5_kms, REG_MDP5_PP_SYNC_CONFIG_VSYNC(pp_id), cfg);
+ 	mdp5_write(mdp5_kms,
+-		REG_MDP5_PP_SYNC_CONFIG_HEIGHT(pp_id), 0xfff0);
++		REG_MDP5_PP_SYNC_CONFIG_HEIGHT(pp_id), (2 * mode->vtotal));
++
+ 	mdp5_write(mdp5_kms,
+ 		REG_MDP5_PP_VSYNC_INIT_VAL(pp_id), mode->vdisplay);
+ 	mdp5_write(mdp5_kms, REG_MDP5_PP_RD_PTR_IRQ(pp_id), mode->vdisplay + 1);
 -- 
 2.30.2
 
