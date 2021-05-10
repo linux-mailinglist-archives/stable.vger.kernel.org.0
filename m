@@ -2,127 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D13A378FFD
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 16:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9D8379127
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 16:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237267AbhEJN6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:58:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55666 "EHLO
+        id S231470AbhEJOpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 10:45:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236751AbhEJNxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 09:53:54 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 908DFC0612ED;
-        Mon, 10 May 2021 06:33:32 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id gx21-20020a17090b1255b02901589d39576eso3782976pjb.0;
-        Mon, 10 May 2021 06:33:32 -0700 (PDT)
+        with ESMTP id S233578AbhEJOnC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 10:43:02 -0400
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0870BC08EACA
+        for <stable@vger.kernel.org>; Mon, 10 May 2021 07:01:50 -0700 (PDT)
+Received: by mail-lj1-x22b.google.com with SMTP id w4so20935155ljw.9
+        for <stable@vger.kernel.org>; Mon, 10 May 2021 07:01:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=SWc6HvBPJvv2dkce5ud+kbAsCLR0AEFXu+aa6as3WtI=;
-        b=RYQEnGEMhpGjvohnk2yQjpWAbJ8bTMQdWfcTL7H678yAe8WA8MT6WwVlhApozlBfu7
-         rV63Wi1f73OnVRBIfQu1fdgj3/O8xRMUUz6l4tWPCK5Pcx3GaoNc+hhdUm/guRnbd/EP
-         2gZD/RBVSF02kDXw5SwSu7GDl8bucgAr0ljCjgYBxHOhV9gstO/ZpUpDGRlLOzSvo3Dl
-         WXjTHW6WuUFfOiCdcFZxGI6uszimldO8rc5ZTZtNV4ZxMJBaYVEaYfoi6ncrubJonDo2
-         4KP+uiz+h6VdPTun5x06QAWEx3LjlXwkZD2NQowW3AuLE3dU6Y0qDvN2qsRhFA75shEg
-         mXTg==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DQsuL10ttGgvUSSdwEEABCcNLhZF92QzGWTDfsTdZC0=;
+        b=qNtWaLjGIXQMeTIChrMNYPp2/WjHnGPearQQprE05w3lsIY390FY2r1cFDsNdyxCNZ
+         jrXtwIa2MpTAokF2DjIfBEnGEnFcNeKYhs/jcoPOwoWKck8/JKhBYwPkLF+7hPxoCSie
+         WvdtEleVqiDOuLhvesR3tOU4j8ErY0Hxzn6dCO2MZ8Pr0I7BabiZpd1qQwKAE/+hxSY3
+         nknoLINClx20aEJImVjqx37XthuTT1uHfzMX2Tt5c37QBi00j991nCh0BrlPoRevPo55
+         I4W84RAKkx+qkHsUG7mmdZpFhUW4jCYGkFJ0Nxhg+ZFFjj6pOIzn5jPKD89sKNyn1/xB
+         z6kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=SWc6HvBPJvv2dkce5ud+kbAsCLR0AEFXu+aa6as3WtI=;
-        b=E62H+Gpvt6XdD1yd9UBoOcx0KVH60lhwPL7iBJGFZ0A5nj8ajAETxWYhqFVF3g34PR
-         7cOCdQv4jTfxZDx1+UdfWYDJRZnOua+Xs6mTyfrF12SmfZmCqrsxU9xWqfgqOTPTD6nB
-         ovsv7/oudzSEsKb35oUFqZ2h9+cOED4ov5xmlyNDeN3NkRltAlEirGy8DeG7HOJGJTkl
-         8kWrEX/MCrNhrpN1exeRpkLLPkEGhqj2t63tHvUgDs9RlCSHZTVo5gYlOCdAa8zhWjLZ
-         euBycbdeLLpzivqXL+iKRarZRsZv53XJBjx7h1yJaorHkaZkXxMV02wuaqO/GyVACOkD
-         /xNg==
-X-Gm-Message-State: AOAM532vyj4duXKRRT675IO4uRx1eIN/Ry+yKDOdv7SH5ErGadCT8gCL
-        tUSVTbi5NPtAfSFWU0ZNPKS/x/gv2zU=
-X-Google-Smtp-Source: ABdhPJz5zGBsiedFPuOElsetInFE8TbXFegdd8SF+sdd6CJEMJsKqSMEetYIXPAzp7MJI1rVupRvpA==
-X-Received: by 2002:a17:90a:3948:: with SMTP id n8mr28760783pjf.32.1620653612080;
-        Mon, 10 May 2021 06:33:32 -0700 (PDT)
-Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id w127sm7906564pfw.4.2021.05.10.06.33.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 06:33:31 -0700 (PDT)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        "kernelci.org bot" <bot@kernelci.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Russell King <linux@armlinux.org.uk>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-doc@vger.kernel.org (open list:DOCUMENTATION),
-        linux-kernel@vger.kernel.org (open list),
-        linux-arm-kernel@lists.infradead.org (moderated list:ARM PORT),
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH stable 5.4 v2 4/4] ARM: 9027/1: head.S: explicitly map DT even if it lives in the first physical section
-Date:   Mon, 10 May 2021 06:33:21 -0700
-Message-Id: <20210510133321.1790243-5-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210510133321.1790243-1-f.fainelli@gmail.com>
-References: <20210510133321.1790243-1-f.fainelli@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DQsuL10ttGgvUSSdwEEABCcNLhZF92QzGWTDfsTdZC0=;
+        b=XHcefB0UdgEJKTTc6/6LBpmEv4z7EvkLCR1cnI+6vfKJHoHQGeesstsqwzj98eQHa9
+         dOQ0cC0fhhFjo7K02Q/MU8g6wrf2UuLwRhlT92+XMJFssR1yVDzlqjpcuJP4hq1afDqG
+         sVi6cbuwNlZaWgltNuUV5YkpGjjuZAHwedAB9mBeXQxEVjreoxttEU0FyrJ4LglwIlfq
+         PjFhnYo1ykcaYLS7NOI1fNdJf5rtERirtyLoyRFndnf55ywzJYSxSdatsqrKLpoR1ygU
+         iqbrd2ki8fN0XzUvd319Q0JlBcNybkgAzsxUFTapm4o5iPasq1x6kZIhZroKq/clsvoc
+         XAmA==
+X-Gm-Message-State: AOAM530rYGtiNXLSBQ2uyttLmgvRPYpoR2rWamxylKefJKAkmy0vRr0+
+        kJRVKWLJ30TowjiE1rjWnhq2jyZUf7sNSRNSimkriw==
+X-Google-Smtp-Source: ABdhPJzTAghL8Sdb1Gw9MPXcbmOW24XGnOJcMCgtYTxm5f97ovoej8TmEINBWT+FiI25beskbGWOdasTt0AKNmWY6l8=
+X-Received: by 2002:a05:651c:22b:: with SMTP id z11mr19730326ljn.182.1620655306896;
+ Mon, 10 May 2021 07:01:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210319121357.255176-1-huobean@gmail.com> <20210319121357.255176-3-huobean@gmail.com>
+ <CAPDyKFrU591aeH5GyuuQW8tPeNc9wav=t8wqF1EdTBbCc9xheg@mail.gmail.com>
+ <79ec60974875d4ac17589ea4575e36ec1204f881.camel@gmail.com> <9b7ecf8a74e7e04174181aed0c5f0e356d0ed280.camel@gmail.com>
+In-Reply-To: <9b7ecf8a74e7e04174181aed0c5f0e356d0ed280.camel@gmail.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Mon, 10 May 2021 16:01:10 +0200
+Message-ID: <CAPDyKFqd03GZVtxmoiY3NFS_EggLQLMGk62AneZLoOn_20BDJQ@mail.gmail.com>
+Subject: Re: [PATCH v1 2/2] mmc: cavium: Remove redundant if-statement checkup
+To:     Bean Huo <huobean@gmail.com>
+Cc:     rric@kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Bean Huo (beanhuo)" <beanhuo@micron.com>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+On Thu, 29 Apr 2021 at 22:30, Bean Huo <huobean@gmail.com> wrote:
+>
+> On Fri, 2021-03-19 at 16:42 +0100, Bean Huo wrote:
+> > On Fri, 2021-03-19 at 15:09 +0100, Ulf Hansson wrote:
+> >
+> > > On Fri, 19 Mar 2021 at 13:14, Bean Huo <huobean@gmail.com> wrote:
+> > > > From: Bean Huo <beanhuo@micron.com>
+> > > > Currently, we have two ways to issue multiple-block read/write
+> > > > the
+> > > > command to the eMMC. One is by normal IO request path fs->block-
+> > > > > mmc.
+> > > > Another one is that we can issue multiple-block read/write
+> > > > through
+> > > > MMC ioctl interface. For the first path, mrq->stop, and mrq-
+> > > > >stop-
+> > > > > opcode
+> > > > will be initialized in mmc_blk_data_prep(). However, for the
+> > > > second
+> > > > IO
+> > > > path, mrq->stop is not initialized since it is a pre-defined
+> > > > multiple
+> > > > blocks read/write.
+> > > As a matter of fact this way is also supported for the regular
+> > > block
+> > > I/O path. To make the mmc block driver to use it, mmc host drivers
+> > > need to announce that it's supported by setting MMC_CAP_CMD23.
+> > > It looks like that is what your patch should be targeted towards,
+> > > can
+> > > you have a look at this instead?
+> >
+> >
+> > Hi Ulf,
+> >
+> > Thanks for your comments. I will look at that as your suggestion.
+> >
+> > The patch [1/2] is accepted, so I will just update this patch to
+> >
+> > the next version.
+> >
+> >
+> >
+> > Kind regards,
+> >
+> > Bean
+>
+>
+> Hi Uffe,
+> Could you please firstly accept this patch? let the customer update
+> their kernel. As I tried to develop the next version of the patch
+> according to your suggestion, more changes will be involved. Also, no
+> matter how to make the change general, below mrq->stop checkup should
+> be deleted since it is obsolete. In the data transmission completion
+> interrupt, mrq->stop will be checked again.
+>
+> -       if (!mrq->data || !mrq->data->sg || !mrq->data->sg_len ||
+> -           !mrq->stop || mrq->stop->opcode != MMC_STOP_TRANSMISSION) {
+> +       if (!mrq->data || !mrq->data->sg || !mrq->data->sg_len) {
+>
 
-commit 10fce53c0ef8f6e79115c3d9e0d7ea1338c3fa37 upstream
+Well, I don't think the above checks are incorrect. Instead I think it
+points out that the cavium mmc driver lacks support for CMD23, while
+only open ended data transfers are supported.
 
-The early ATAGS/DT mapping code uses SECTION_SHIFT to mask low order
-bits of R2, and decides that no ATAGS/DTB were provided if the resulting
-value is 0x0.
+The proper way forward is instead to implement CMD23 support to the
+cavium mmc driver. In the same patch adding that support, you should
+be able to remove the above checks.
 
-This means that on systems where DRAM starts at 0x0 (such as Raspberry
-Pi), no explicit mapping of the DT will be created if R2 points into the
-first 1 MB section of memory. This was not a problem before, because the
-decompressed kernel is loaded at the base of DRAM and mapped using
-sections as well, and so as long as the DT is referenced via a virtual
-address that uses the same translation (the linear map, in this case),
-things work fine.
-
-However, commit 7a1be318f579 ("9012/1: move device tree mapping out of
-linear region") changes this, and now the DT is referenced via a virtual
-address that is disjoint from the linear mapping of DRAM, and so we need
-the early code to create the DT mapping unconditionally.
-
-So let's create the early DT mapping for any value of R2 != 0x0.
-
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- arch/arm/kernel/head.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm/kernel/head.S b/arch/arm/kernel/head.S
-index 4f49e8c71ef1..5ceed4d9ee03 100644
---- a/arch/arm/kernel/head.S
-+++ b/arch/arm/kernel/head.S
-@@ -274,10 +274,10 @@ __create_page_tables:
- 	 * We map 2 sections in case the ATAGs/DTB crosses a section boundary.
- 	 */
- 	mov	r0, r2, lsr #SECTION_SHIFT
--	movs	r0, r0, lsl #SECTION_SHIFT
-+	cmp	r2, #0
- 	ldrne	r3, =FDT_FIXED_BASE >> (SECTION_SHIFT - PMD_ORDER)
- 	addne	r3, r3, r4
--	orrne	r6, r7, r0
-+	orrne	r6, r7, r0, lsl #SECTION_SHIFT
- 	strne	r6, [r3], #1 << PMD_ORDER
- 	addne	r6, r6, #1 << SECTION_SHIFT
- 	strne	r6, [r3]
--- 
-2.25.1
-
+Kind regards
+Uffe
