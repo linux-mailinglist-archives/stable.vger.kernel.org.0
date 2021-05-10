@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB7E3786DE
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE13C378877
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231824AbhEJLLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:11:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
+        id S233984AbhEJLVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234728AbhEJLFQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77CBF61090;
-        Mon, 10 May 2021 10:55:09 +0000 (UTC)
+        id S237129AbhEJLLZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 487D161433;
+        Mon, 10 May 2021 11:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644110;
-        bh=+O1awEC6LLjUZL7jHfPVU/co9F9cpQMtrow0VxvOvkk=;
+        s=korg; t=1620644844;
+        bh=AAcA8OdPJl+ilu/dPnGtwVxONE61/5EAHLfi0bMQ3Q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7MsYj8lZ9mOF/kCgybTXbrSum3l2tnwg4nCOcjVLuGOIPPQ0QYtBQ8muFoAVqx61
-         b4hAFmnwQ79Bg4gyNlPuLxoqKAoRlzgcDjsSt0YsnSyYtK+Z8cnpNuUkfDIj/kyDvI
-         JNRQB1kn68RS9C4l1jloGgBkS7Q83xRk82beCmz8=
+        b=Yv/MZbYlzBJsXsy0d4d0G/y6x0qdmutxUMyk5x062VyFlbjtT88U9WzLPcRmOBBDN
+         1vKSZoAAiMTqOYl02kY4Y5P7wmtujtOkbWCsRDJjD52ILxwkLks2thMBg6yWei8CVb
+         M6E1GobbNgQ/9CKZExVRi6o/HQ4tPEeFCzk15r9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luke D Jones <luke@ljones.dev>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 246/342] ALSA: hda/realtek: GA503 use same quirks as GA401
+        stable@vger.kernel.org, Qu Huang <jinsdb@126.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 247/384] drm/amdkfd: Fix cat debugfs hang_hws file causes system crash bug
 Date:   Mon, 10 May 2021 12:20:36 +0200
-Message-Id: <20210510102018.205659470@linuxfoundation.org>
+Message-Id: <20210510102023.032245592@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D Jones <luke@ljones.dev>
+From: Qu Huang <jinsdb@126.com>
 
-commit 76fae6185f5456865ff1bcb647709d44fd987eb6 upstream.
+[ Upstream commit d73610211eec8aa027850982b1a48980aa1bc96e ]
 
-The GA503 has almost exactly the same default setup as the GA401
-model with the same issues. The GA401 quirks solve all the issues
-so we will use the full quirk chain.
+Here is the system crash log:
+[ 1272.884438] BUG: unable to handle kernel NULL pointer dereference at
+(null)
+[ 1272.884444] IP: [<          (null)>]           (null)
+[ 1272.884447] PGD 825b09067 PUD 8267c8067 PMD 0
+[ 1272.884452] Oops: 0010 [#1] SMP
+[ 1272.884509] CPU: 13 PID: 3485 Comm: cat Kdump: loaded Tainted: G
+[ 1272.884515] task: ffff9a38dbd4d140 ti: ffff9a37cd3b8000 task.ti:
+ffff9a37cd3b8000
+[ 1272.884517] RIP: 0010:[<0000000000000000>]  [<          (null)>]
+(null)
+[ 1272.884520] RSP: 0018:ffff9a37cd3bbe68  EFLAGS: 00010203
+[ 1272.884522] RAX: 0000000000000000 RBX: 0000000000000000 RCX:
+0000000000014d5f
+[ 1272.884524] RDX: fffffffffffffff4 RSI: 0000000000000001 RDI:
+ffff9a38aca4d200
+[ 1272.884526] RBP: ffff9a37cd3bbed0 R08: ffff9a38dcd5f1a0 R09:
+ffff9a31ffc07300
+[ 1272.884527] R10: ffff9a31ffc07300 R11: ffffffffaddd5e9d R12:
+ffff9a38b4e0fb00
+[ 1272.884529] R13: 0000000000000001 R14: ffff9a37cd3bbf18 R15:
+ffff9a38aca4d200
+[ 1272.884532] FS:  00007feccaa67740(0000) GS:ffff9a38dcd40000(0000)
+knlGS:0000000000000000
+[ 1272.884534] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1272.884536] CR2: 0000000000000000 CR3: 00000008267c0000 CR4:
+00000000003407e0
+[ 1272.884537] Call Trace:
+[ 1272.884544]  [<ffffffffade68940>] ? seq_read+0x130/0x440
+[ 1272.884548]  [<ffffffffade40f8f>] vfs_read+0x9f/0x170
+[ 1272.884552]  [<ffffffffade41e4f>] SyS_read+0x7f/0xf0
+[ 1272.884557]  [<ffffffffae374ddb>] system_call_fastpath+0x22/0x27
+[ 1272.884558] Code:  Bad RIP value.
+[ 1272.884562] RIP  [<          (null)>]           (null)
+[ 1272.884564]  RSP <ffff9a37cd3bbe68>
+[ 1272.884566] CR2: 0000000000000000
 
-Signed-off-by: Luke D Jones <luke@ljones.dev>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210419030411.28304-1-luke@ljones.dev
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Qu Huang <jinsdb@126.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8138,6 +8138,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
- 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
-+	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c b/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
+index 511712c2e382..673d5e34f213 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
+@@ -33,6 +33,11 @@ static int kfd_debugfs_open(struct inode *inode, struct file *file)
+ 
+ 	return single_open(file, show, NULL);
+ }
++static int kfd_debugfs_hang_hws_read(struct seq_file *m, void *data)
++{
++	seq_printf(m, "echo gpu_id > hang_hws\n");
++	return 0;
++}
+ 
+ static ssize_t kfd_debugfs_hang_hws_write(struct file *file,
+ 	const char __user *user_buf, size_t size, loff_t *ppos)
+@@ -94,7 +99,7 @@ void kfd_debugfs_init(void)
+ 	debugfs_create_file("rls", S_IFREG | 0444, debugfs_root,
+ 			    kfd_debugfs_rls_by_device, &kfd_debugfs_fops);
+ 	debugfs_create_file("hang_hws", S_IFREG | 0200, debugfs_root,
+-			    NULL, &kfd_debugfs_hang_hws_fops);
++			    kfd_debugfs_hang_hws_read, &kfd_debugfs_hang_hws_fops);
+ }
+ 
+ void kfd_debugfs_fini(void)
+-- 
+2.30.2
+
 
 
