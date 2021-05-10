@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3423D37867F
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79796378874
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233399AbhEJLIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:08:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52738 "EHLO mail.kernel.org"
+        id S231508AbhEJLVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233014AbhEJK6e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:58:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F380461C42;
-        Mon, 10 May 2021 10:52:26 +0000 (UTC)
+        id S237122AbhEJLLY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23D476108B;
+        Mon, 10 May 2021 11:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643947;
-        bh=VK4TKkdLCyYB2jolGzA6DvbjK23JzRWc8QEp68JjztE=;
+        s=korg; t=1620644837;
+        bh=QjSBw+Y6XhXQaB/vrBFpm1kDfUcD7FqR92r8Xtah6ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWlclV20F8q2L9TebYFN2bpn6ppCrE4hMRyOlGCt5BbjtgetLzhecbmE+oMJjq3J8
-         B87MtpI/l+4JL9oR70xxuOmuquYYThdj6XdIsB8OX4Qff4oHrOGkBo0jm4sDnmwghP
-         6+YYbCgqMOm2VFgu8VMwvMz2VGYhkwi2vAzO9qPQ=
+        b=vNVyEJoSak5Lse5SF81coFp3WTNcS5jexiQ4fGqAiYkEUBHONo2RwfTw07YwRbVCU
+         rmNDo0Ks8oH92chHuebIZrNmc9wSdjLQlt24gtXQWcaH8ZGPJSVihz7I2B1cYxIFOg
+         x2n/nHfaOvBsaVK0fAyhIoUe8CkmTfRM26TuxpKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 226/342] scsi: lpfc: Fix reference counting errors in lpfc_cmpl_els_rsp()
+Subject: [PATCH 5.12 227/384] power: supply: generic-adc-battery: fix possible use-after-free in gab_remove()
 Date:   Mon, 10 May 2021 12:20:16 +0200
-Message-Id: <20210510102017.557144953@linuxfoundation.org>
+Message-Id: <20210510102022.387202690@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,146 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f866eb06c087125619457b53e9211a9e758f64f7 ]
+[ Upstream commit b6cfa007b3b229771d9588970adb4ab3e0487f49 ]
 
-Call traces are being seen that result from a nodelist structure ref
-counting error. They are typically seen after transmission of an LS_RJT ELS
-response.
+This driver's remove path calls cancel_delayed_work(). However, that
+function does not wait until the work function finishes. This means
+that the callback function may still be running after the driver's
+remove function has finished, which would result in a use-after-free.
 
-Aged code in lpfc_cmpl_els_rsp() calls lpfc_nlp_not_used() which, if the
-ndlp reference count is exactly 1, will decrement the reference count.
-Previously lpfc_nlp_put() was within lpfc_els_free_iocb(), and the 'put'
-within the free would only be invoked if cmdiocb->context1 was not NULL.
-Since the nodelist structure reference count is decremented when exiting
-lpfc_cmpl_els_rsp() the lpfc_nlp_not_used() calls are no longer required.
-Calling them is causing the reference count issue.
+Fix by calling cancel_delayed_work_sync(), which ensures that
+the work is properly cancelled, no longer running, and unable
+to re-schedule itself.
 
-Fix by removing the lpfc_nlp_not_used() calls.
-
-Link: https://lore.kernel.org/r/20210412013127.2387-4-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 64 +-----------------------------------
- 1 file changed, 1 insertion(+), 63 deletions(-)
+ drivers/power/supply/generic-adc-battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 69e8a127b44f..2dce17827504 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -4465,10 +4465,7 @@ lpfc_mbx_cmpl_dflt_rpi(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
-  * nlp_flag bitmap in the ndlp data structure, if the mbox command reference
-  * field in the command IOCB is not NULL, the referred mailbox command will
-  * be send out, and then invokes the lpfc_els_free_iocb() routine to release
-- * the IOCB. Under error conditions, such as when a LS_RJT is returned or a
-- * link down event occurred during the discovery, the lpfc_nlp_not_used()
-- * routine shall be invoked trying to release the ndlp if no other threads
-- * are currently referring it.
-+ * the IOCB.
-  **/
- static void
- lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
-@@ -4478,10 +4475,8 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 	struct lpfc_vport *vport = ndlp ? ndlp->vport : NULL;
- 	struct Scsi_Host  *shost = vport ? lpfc_shost_from_vport(vport) : NULL;
- 	IOCB_t  *irsp;
--	uint8_t *pcmd;
- 	LPFC_MBOXQ_t *mbox = NULL;
- 	struct lpfc_dmabuf *mp = NULL;
--	uint32_t ls_rjt = 0;
- 
- 	irsp = &rspiocb->iocb;
- 
-@@ -4493,18 +4488,6 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 	if (cmdiocb->context_un.mbox)
- 		mbox = cmdiocb->context_un.mbox;
- 
--	/* First determine if this is a LS_RJT cmpl. Note, this callback
--	 * function can have cmdiocb->contest1 (ndlp) field set to NULL.
--	 */
--	pcmd = (uint8_t *) (((struct lpfc_dmabuf *) cmdiocb->context2)->virt);
--	if (ndlp && (*((uint32_t *) (pcmd)) == ELS_CMD_LS_RJT)) {
--		/* A LS_RJT associated with Default RPI cleanup has its own
--		 * separate code path.
--		 */
--		if (!(ndlp->nlp_flag & NLP_RM_DFLT_RPI))
--			ls_rjt = 1;
--	}
--
- 	/* Check to see if link went down during discovery */
- 	if (!ndlp || lpfc_els_chk_latt(vport)) {
- 		if (mbox) {
-@@ -4515,15 +4498,6 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 			}
- 			mempool_free(mbox, phba->mbox_mem_pool);
- 		}
--		if (ndlp && (ndlp->nlp_flag & NLP_RM_DFLT_RPI))
--			if (lpfc_nlp_not_used(ndlp)) {
--				ndlp = NULL;
--				/* Indicate the node has already released,
--				 * should not reference to it from within
--				 * the routine lpfc_els_free_iocb.
--				 */
--				cmdiocb->context1 = NULL;
--			}
- 		goto out;
+diff --git a/drivers/power/supply/generic-adc-battery.c b/drivers/power/supply/generic-adc-battery.c
+index 0032069fbc2b..66039c665dd1 100644
+--- a/drivers/power/supply/generic-adc-battery.c
++++ b/drivers/power/supply/generic-adc-battery.c
+@@ -373,7 +373,7 @@ static int gab_remove(struct platform_device *pdev)
  	}
  
-@@ -4601,29 +4575,6 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- 				"Data: x%x x%x x%x\n",
- 				ndlp->nlp_DID, ndlp->nlp_flag, ndlp->nlp_state,
- 				ndlp->nlp_rpi);
--
--			if (lpfc_nlp_not_used(ndlp)) {
--				ndlp = NULL;
--				/* Indicate node has already been released,
--				 * should not reference to it from within
--				 * the routine lpfc_els_free_iocb.
--				 */
--				cmdiocb->context1 = NULL;
--			}
--		} else {
--			/* Do not drop node for lpfc_els_abort'ed ELS cmds */
--			if (!lpfc_error_lost_link(irsp) &&
--			    ndlp->nlp_flag & NLP_ACC_REGLOGIN) {
--				if (lpfc_nlp_not_used(ndlp)) {
--					ndlp = NULL;
--					/* Indicate node has already been
--					 * released, should not reference
--					 * to it from within the routine
--					 * lpfc_els_free_iocb.
--					 */
--					cmdiocb->context1 = NULL;
--				}
--			}
- 		}
- 		mp = (struct lpfc_dmabuf *)mbox->ctx_buf;
- 		if (mp) {
-@@ -4639,19 +4590,6 @@ out:
- 			ndlp->nlp_flag &= ~NLP_ACC_REGLOGIN;
- 		ndlp->nlp_flag &= ~NLP_RM_DFLT_RPI;
- 		spin_unlock_irq(&ndlp->lock);
--
--		/* If the node is not being used by another discovery thread,
--		 * and we are sending a reject, we are done with it.
--		 * Release driver reference count here and free associated
--		 * resources.
--		 */
--		if (ls_rjt)
--			if (lpfc_nlp_not_used(ndlp))
--				/* Indicate node has already been released,
--				 * should not reference to it from within
--				 * the routine lpfc_els_free_iocb.
--				 */
--				cmdiocb->context1 = NULL;
- 	}
+ 	kfree(adc_bat->psy_desc.properties);
+-	cancel_delayed_work(&adc_bat->bat_work);
++	cancel_delayed_work_sync(&adc_bat->bat_work);
+ 	return 0;
+ }
  
- 	/* Release the originating I/O reference. */
 -- 
 2.30.2
 
