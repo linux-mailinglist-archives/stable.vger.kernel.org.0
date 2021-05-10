@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2E1378382
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E66378384
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbhEJKqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:46:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57592 "EHLO mail.kernel.org"
+        id S233351AbhEJKqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231830AbhEJKnY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:43:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBAB561981;
-        Mon, 10 May 2021 10:32:57 +0000 (UTC)
+        id S231587AbhEJKnp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:43:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31AB361601;
+        Mon, 10 May 2021 10:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642778;
-        bh=b0SCXIwu0w5AlP6zDo9kyjnJFWVzFfAoAa3H34IXwVA=;
+        s=korg; t=1620642780;
+        bh=87u4Oxez2HMsgA/6h0n32Hgx7cgclne32pu0zWewqGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GAuktRT1hWpd5rBQYqR+iKRp6tWk11WZIbgjbz/ty5ciDEwAfD+PfASLlawW5Xhdk
-         YH8dvVDL2vekAYtLym6LId6d9lvLcW89U7bLAhCjgfzr+m+CVG5aRI4oUIjz7lg+Zq
-         +COJCscMV10dZunxHyBjNHfdyrUpiH90MNGoxPy0=
+        b=cCc3mDy16pTa9hpaaY4pNBo/gVDBH0okMMNSmkhkeaWxp3hrkvYrM2QNID+u21tqQ
+         PvRzqIuhOpOkhZlPFscTre3WKM52LmO7mrupa665LQyo9kX8710XRnxOT56OfEkUJ8
+         zB/fEM3BKXcmkQv5eWqkSfQJGMjk9Lne4WGUaWcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 012/299] ftrace: Handle commands when closing set_ftrace_filter file
-Date:   Mon, 10 May 2021 12:16:49 +0200
-Message-Id: <20210510102005.253710209@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.10 013/299] ARM: 9056/1: decompressor: fix BSS size calculation for LLVM ld.lld
+Date:   Mon, 10 May 2021 12:16:50 +0200
+Message-Id: <20210510102005.284145446@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -39,53 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 8c9af478c06bb1ab1422f90d8ecbc53defd44bc3 upstream.
+commit c4e792d1acce31c2eb7b9193ab06ab94de05bf42 upstream.
 
- # echo switch_mm:traceoff > /sys/kernel/tracing/set_ftrace_filter
+The LLVM ld.lld linker uses a different symbol type for __bss_start,
+resulting in the calculation of KBSS_SZ to be thrown off. Up until now,
+this has gone unnoticed as it only affects the appended DTB case, but
+pending changes for ARM in the way the decompressed kernel is cleaned
+from the caches has uncovered this problem.
 
-will cause switch_mm to stop tracing by the traceoff command.
+On a ld.lld build:
 
- # echo -n switch_mm:traceoff > /sys/kernel/tracing/set_ftrace_filter
+  $ nm vmlinux |grep bss_
+  c1c22034 D __bss_start
+  c1c86e98 B __bss_stop
 
-does nothing.
+resulting in
 
-The reason is that the parsing in the write function only processes
-commands if it finished parsing (there is white space written after the
-command). That's to handle:
+  $ readelf -s arch/arm/boot/compressed/vmlinux | grep bss_size
+  433: c1c86e98     0 NOTYPE  GLOBAL DEFAULT  ABS _kernel_bss_size
 
- write(fd, "switch_mm:", 10);
- write(fd, "traceoff", 8);
+which is obviously incorrect, and may cause the cache clean to access
+unmapped memory, or cause the size calculation to wrap, resulting in no
+cache clean to be performed at all.
 
-cases, where the command is broken over multiple writes.
+Fix this by updating the sed regex to take D type symbols into account.
 
-The problem is if the file descriptor is closed, then the write call is
-not processed, and the command needs to be processed in the release code.
-The release code can handle matching of functions, but does not handle
-commands.
+Link: https://lore.kernel.org/linux-arm-kernel/6c65bcef-d4e7-25fa-43cf-2c435bb61bb9@collabora.com/
+Link: https://lore.kernel.org/linux-arm-kernel/20210205085220.31232-1-ardb@kernel.org/
 
-Cc: stable@vger.kernel.org
-Fixes: eda1e32855656 ("tracing: handle broken names in ftrace filter")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org> # v4.19+
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reported-by: Guillaume Tucker <guillaume.tucker@collabora.com>
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm/boot/compressed/Makefile |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5632,7 +5632,10 @@ int ftrace_regex_release(struct inode *i
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -114,8 +114,8 @@ asflags-y := -DZIMAGE
  
- 	parser = &iter->parser;
- 	if (trace_parser_loaded(parser)) {
--		ftrace_match_records(iter->hash, parser->buffer, parser->idx);
-+		int enable = !(iter->flags & FTRACE_ITER_NOTRACE);
-+
-+		ftrace_process_regex(iter, parser->buffer,
-+				     parser->idx, enable);
- 	}
- 
- 	trace_parser_put(parser);
+ # Supply kernel BSS size to the decompressor via a linker symbol.
+ KBSS_SZ = $(shell echo $$(($$($(NM) $(obj)/../../../../vmlinux | \
+-		sed -n -e 's/^\([^ ]*\) [AB] __bss_start$$/-0x\1/p' \
+-		       -e 's/^\([^ ]*\) [AB] __bss_stop$$/+0x\1/p') )) )
++		sed -n -e 's/^\([^ ]*\) [ABD] __bss_start$$/-0x\1/p' \
++		       -e 's/^\([^ ]*\) [ABD] __bss_stop$$/+0x\1/p') )) )
+ LDFLAGS_vmlinux = --defsym _kernel_bss_size=$(KBSS_SZ)
+ # Supply ZRELADDR to the decompressor via a linker symbol.
+ ifneq ($(CONFIG_AUTO_ZRELADDR),y)
 
 
