@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B8D37881D
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F15378817
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238984AbhEJLUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
+        id S238967AbhEJLUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:20:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231341AbhEJLIm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:08:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DF8B619FE;
-        Mon, 10 May 2021 11:04:00 +0000 (UTC)
+        id S230295AbhEJLIo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC139613C9;
+        Mon, 10 May 2021 11:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644641;
-        bh=VkO9kDar+T5480JzDWlIRMDbg+VsBAidXambrt3br0g=;
+        s=korg; t=1620644643;
+        bh=797DPJgBYy0V1f03bvCENeGmNyA/WI0T8ZcsrmlXkx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOo8vWjpJ4BDDPqAFj9/nZARbyJk8y3sgJSQCy8l0MIXfcrlkt2YUloXIWstoXNPj
-         qyObDppDVl9KvMXA9Rl8wORY519cDtNFJgrjdUCUsmsgBJXvnNljgbxFKUZTnomncT
-         Ebxt8+3P+Ez9EK+esv4He8jcyNo0jpfFYi6v1rzo=
+        b=sUYm8r69mF/TSqPeW4u/6FJ+J/daMcLIIDORRDYWbpUm7EawoOxkp0Nmc/+L/MydR
+         n/T8Myy4r8mgu9ctH2hkzXHwoqJHujO6GqD652mD8dxczjHyuVU6720N6O7YnFHn3D
+         XpPdzbPaDrkJFEWlyG5H5Cnev3y83h2U6ea7RkFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xndcn <xndchn@gmail.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 165/384] drm/virtio: fix possible leak/unlock virtio_gpu_object_array
-Date:   Mon, 10 May 2021 12:19:14 +0200
-Message-Id: <20210510102020.323729382@linuxfoundation.org>
+Subject: [PATCH 5.12 166/384] scsi: target: pscsi: Fix warning in pscsi_complete_cmd()
+Date:   Mon, 10 May 2021 12:19:15 +0200
+Message-Id: <20210510102020.354842301@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,47 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xndcn <xndchn@gmail.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit 377f8331d0565e6f71ba081c894029a92d0c7e77 ]
+[ Upstream commit fd48c056a32ed6e7754c7c475490f3bed54ed378 ]
 
-virtio_gpu_object array is not freed or unlocked in some
-failed cases.
+This fixes a compilation warning in pscsi_complete_cmd():
 
-Signed-off-by: xndcn <xndchn@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210305151819.14330-1-xndchn@gmail.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+     drivers/target/target_core_pscsi.c: In function ‘pscsi_complete_cmd’:
+     drivers/target/target_core_pscsi.c:624:5: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+     ; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
+
+Link: https://lore.kernel.org/r/20210228055645.22253-5-chaitanya.kulkarni@wdc.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 2 +-
- drivers/gpu/drm/virtio/virtgpu_object.c | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/target/target_core_pscsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 23eb6d772e40..669f2ee39515 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -174,7 +174,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 		if (!sync_file) {
- 			dma_fence_put(&out_fence->f);
- 			ret = -ENOMEM;
--			goto out_memdup;
-+			goto out_unresv;
- 		}
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index 9ee797b8cb7e..508b49b0eaf5 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -620,8 +620,9 @@ static void pscsi_complete_cmd(struct se_cmd *cmd, u8 scsi_status,
+ 			unsigned char *buf;
  
- 		exbuf->fence_fd = out_fence_fd;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index d69a5b6da553..4ff1ec28e630 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -248,6 +248,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 			buf = transport_kmap_data_sg(cmd);
+-			if (!buf)
++			if (!buf) {
+ 				; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
++			}
  
- 	ret = virtio_gpu_object_shmem_init(vgdev, bo, &ents, &nents);
- 	if (ret != 0) {
-+		virtio_gpu_array_put_free(objs);
- 		virtio_gpu_free_object(&shmem_obj->base);
- 		return ret;
- 	}
+ 			if (cdb[0] == MODE_SENSE_10) {
+ 				if (!(buf[3] & 0x80))
 -- 
 2.30.2
 
