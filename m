@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A02F23787ED
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 521C13788FB
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237048AbhEJLUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
+        id S235886AbhEJLZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236002AbhEJLHN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AA206194A;
-        Mon, 10 May 2021 10:57:19 +0000 (UTC)
+        id S233269AbhEJLOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:14:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 831EB610A0;
+        Mon, 10 May 2021 11:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644240;
-        bh=iGg2rkR9LvqocJcMaj2Kj1zQhYKuImPMlBsYVy7Kfbw=;
+        s=korg; t=1620645039;
+        bh=8VikAt3YSecImfYBfomlhEJb3RSTeVARhmkcfe9AGyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hm1J4UKXoYoRrzuMIVaIbTA4QTqMv7wB9Vkl5sAXpi5Zn2Lpb3l8gKlLXjZIyhuoN
-         dpOu1Fw+RbN+TKUSRRwLH2XuuhtnYETtCR5JH+qpdSNm/PV4SRU/VYtW6qpbO4Uzow
-         ZQEZiHrK7ErcxW+eCuyAd+bt+ftiePGfjljVU120=
+        b=DR9y/MqNk7iT694CaEqulmsbM4RGev+n7oy0L1n9ijXTjAVWeYmaD52y9ReJyJv/h
+         jDbx2py9ff/9roTnHydOp6mBrDeV29/gL9qbpMNnuElTHUqgBGkpfxRoqXq4sGr86q
+         pLim601fSdoo+szWGNaKq7/pRNk5H4x4b0+B0Yqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.11 325/342] usb: dwc3: gadget: Remove FS bInterval_m1 limitation
+        stable@vger.kernel.org, Josh Triplett <josh@joshtriplett.org>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.12 326/384] rcu/nocb: Fix missed nocb_timer requeue
 Date:   Mon, 10 May 2021 12:21:55 +0200
-Message-Id: <20210510102020.847224382@linuxfoundation.org>
+Message-Id: <20210510102025.542777967@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-commit 3232a3ce55edfc0d7f8904543b4088a5339c2b2b upstream.
+commit b2fcf2102049f6e56981e0ab3d9b633b8e2741da upstream.
 
-The programming guide incorrectly stated that the DCFG.bInterval_m1 must
-be set to 0 when operating in fullspeed. There's no such limitation for
-all IPs. See DWC_usb3x programming guide section 3.2.2.1.
+This sequence of events can lead to a failure to requeue a CPU's
+->nocb_timer:
 
-Fixes: a1679af85b2a ("usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1")
+1.	There are no callbacks queued for any CPU covered by CPU 0-2's
+	->nocb_gp_kthread.  Note that ->nocb_gp_kthread is associated
+	with CPU 0.
+
+2.	CPU 1 enqueues its first callback with interrupts disabled, and
+	thus must defer awakening its ->nocb_gp_kthread.  It therefore
+	queues its rcu_data structure's ->nocb_timer.  At this point,
+	CPU 1's rdp->nocb_defer_wakeup is RCU_NOCB_WAKE.
+
+3.	CPU 2, which shares the same ->nocb_gp_kthread, also enqueues a
+	callback, but with interrupts enabled, allowing it to directly
+	awaken the ->nocb_gp_kthread.
+
+4.	The newly awakened ->nocb_gp_kthread associates both CPU 1's
+	and CPU 2's callbacks with a future grace period and arranges
+	for that grace period to be started.
+
+5.	This ->nocb_gp_kthread goes to sleep waiting for the end of this
+	future grace period.
+
+6.	This grace period elapses before the CPU 1's timer fires.
+	This is normally improbably given that the timer is set for only
+	one jiffy, but timers can be delayed.  Besides, it is possible
+	that kernel was built with CONFIG_RCU_STRICT_GRACE_PERIOD=y.
+
+7.	The grace period ends, so rcu_gp_kthread awakens the
+	->nocb_gp_kthread, which in turn awakens both CPU 1's and
+	CPU 2's ->nocb_cb_kthread.  Then ->nocb_gb_kthread sleeps
+	waiting for more newly queued callbacks.
+
+8.	CPU 1's ->nocb_cb_kthread invokes its callback, then sleeps
+	waiting for more invocable callbacks.
+
+9.	Note that neither kthread updated any ->nocb_timer state,
+	so CPU 1's ->nocb_defer_wakeup is still set to RCU_NOCB_WAKE.
+
+10.	CPU 1 enqueues its second callback, this time with interrupts
+ 	enabled so it can wake directly	->nocb_gp_kthread.
+	It does so with calling wake_nocb_gp() which also cancels the
+	pending timer that got queued in step 2. But that doesn't reset
+	CPU 1's ->nocb_defer_wakeup which is still set to RCU_NOCB_WAKE.
+	So CPU 1's ->nocb_defer_wakeup and its ->nocb_timer are now
+	desynchronized.
+
+11.	->nocb_gp_kthread associates the callback queued in 10 with a new
+	grace period, arranges for that grace period to start and sleeps
+	waiting for it to complete.
+
+12.	The grace period ends, rcu_gp_kthread awakens ->nocb_gp_kthread,
+	which in turn wakes up CPU 1's ->nocb_cb_kthread which then
+	invokes the callback queued in 10.
+
+13.	CPU 1 enqueues its third callback, this time with interrupts
+	disabled so it must queue a timer for a deferred wakeup. However
+	the value of its ->nocb_defer_wakeup is RCU_NOCB_WAKE which
+	incorrectly indicates that a timer is already queued.  Instead,
+	CPU 1's ->nocb_timer was cancelled in 10.  CPU 1 therefore fails
+	to queue the ->nocb_timer.
+
+14.	CPU 1 has its pending callback and it may go unnoticed until
+	some other CPU ever wakes up ->nocb_gp_kthread or CPU 1 ever
+	calls an explicit deferred wakeup, for example, during idle entry.
+
+This commit fixes this bug by resetting rdp->nocb_defer_wakeup everytime
+we delete the ->nocb_timer.
+
+It is quite possible that there is a similar scenario involving
+->nocb_bypass_timer and ->nocb_defer_wakeup.  However, despite some
+effort from several people, a failure scenario has not yet been located.
+However, that by no means guarantees that no such scenario exists.
+Finding a failure scenario is left as an exercise for the reader, and the
+"Fixes:" tag below relates to ->nocb_bypass_timer instead of ->nocb_timer.
+
+Fixes: d1b222c6be1f (rcu/nocb: Add bypass callback queueing)
 Cc: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/5d4139ae89d810eb0a2d8577fb096fc88e87bfab.1618472454.git.Thinh.Nguyen@synopsys.com
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Reviewed-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ kernel/rcu/tree_plugin.h |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -608,12 +608,14 @@ static int dwc3_gadget_set_ep_config(str
- 		u8 bInterval_m1;
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -1646,7 +1646,11 @@ static bool wake_nocb_gp(struct rcu_data
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+ 		return false;
+ 	}
+-	del_timer(&rdp->nocb_timer);
++
++	if (READ_ONCE(rdp->nocb_defer_wakeup) > RCU_NOCB_WAKE_NOT) {
++		WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
++		del_timer(&rdp->nocb_timer);
++	}
+ 	rcu_nocb_unlock_irqrestore(rdp, flags);
+ 	raw_spin_lock_irqsave(&rdp_gp->nocb_gp_lock, flags);
+ 	if (force || READ_ONCE(rdp_gp->nocb_gp_sleep)) {
+@@ -2265,7 +2269,6 @@ static bool do_nocb_deferred_wakeup_comm
+ 		return false;
+ 	}
+ 	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
+-	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
+ 	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
+ 	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
  
- 		/*
--		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
--		 * must be set to 0 when the controller operates in full-speed.
-+		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13.
-+		 *
-+		 * NOTE: The programming guide incorrectly stated bInterval_m1
-+		 * must be set to 0 when operating in fullspeed. Internally the
-+		 * controller does not have this limitation. See DWC_usb3x
-+		 * programming guide section 3.2.2.1.
- 		 */
- 		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
--		if (dwc->gadget->speed == USB_SPEED_FULL)
--			bInterval_m1 = 0;
- 
- 		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
- 		    dwc->gadget->speed == USB_SPEED_FULL)
 
 
