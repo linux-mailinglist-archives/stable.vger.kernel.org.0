@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C04B3782A5
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72130378469
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231793AbhEJKgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:36:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41322 "EHLO mail.kernel.org"
+        id S233252AbhEJKwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232312AbhEJKeT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:34:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58DBC61490;
-        Mon, 10 May 2021 10:27:57 +0000 (UTC)
+        id S233599AbhEJKuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:50:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5380761A13;
+        Mon, 10 May 2021 10:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642477;
-        bh=6g2XKRRArM4saSLPY4VUkIIpd6tY+pCZaErkAo72feE=;
+        s=korg; t=1620643172;
+        bh=Xf+puenA/PUhO6WkOQj7oPaNgZ6nEmCspFlKaCdmti0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tw/Fmw4NVa60+C/BwA1TdxbeTVADCBkuFUkLtaHlqiAWSb00FpU7k+OTjYJSZTCR
-         fhBthUeAF7KsyFTInwSILp9r8UaDMM5cnC7KHLk741f45ETS5KQi+Mh6jB90dQvp03
-         0T7u7PlmJTonV15VGx6EKO1KUtBR8u8KFViYfzAg=
+        b=Sp7RiJemB+F0yGEoFKIk6tmMxtRtA5lKZ/lO2eB+bHgecrZvuPrAEsQ+xdNpaCQSo
+         kXbg9p8R38NZWwzS8ucM7cdhV+X5XCz24TeR5bfbNQdmIdztHgJpqRkFoPfjr0gK+j
+         TdgLYJQpjEI4nSxe9x4zLi/ZEcGBf+h/GVApwJIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Guangqing Zhu <zhuguangqing83@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Carl Philipp Klemm <philipp@uvos.xyz>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 110/184] media: platform: sti: Fix runtime PM imbalance in regs_show
-Date:   Mon, 10 May 2021 12:20:04 +0200
-Message-Id: <20210510101953.793223245@linuxfoundation.org>
+Subject: [PATCH 5.10 208/299] power: supply: cpcap-battery: fix invalid usage of list cursor
+Date:   Mon, 10 May 2021 12:20:05 +0200
+Message-Id: <20210510102011.818616470@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
-References: <20210510101950.200777181@linuxfoundation.org>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+References: <20210510102004.821838356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Guangqing Zhu <zhuguangqing83@gmail.com>
 
-[ Upstream commit 69306a947b3ae21e0d1cbfc9508f00fec86c7297 ]
+[ Upstream commit d0a43c12ee9f57ddb284272187bd18726c2c2c98 ]
 
-pm_runtime_get_sync() will increase the runtime PM counter
-even it returns an error. Thus a pairing decrement is needed
-to prevent refcount leak. Fix this by replacing this API with
-pm_runtime_resume_and_get(), which will not change the runtime
-PM counter on error.
+Fix invalid usage of a list_for_each_entry in cpcap_battery_irq_thread().
+Empty list or fully traversed list points to list head, which is not
+NULL (and before the first element containing real data).
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Guangqing Zhu <zhuguangqing83@gmail.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Reviewed-by: Carl Philipp Klemm <philipp@uvos.xyz>
+Tested-by: Carl Philipp Klemm <philipp@uvos.xyz>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/bdisp/bdisp-debug.c | 2 +-
+ drivers/power/supply/cpcap-battery.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sti/bdisp/bdisp-debug.c b/drivers/media/platform/sti/bdisp/bdisp-debug.c
-index 77ca7517fa3e..bae62af82643 100644
---- a/drivers/media/platform/sti/bdisp/bdisp-debug.c
-+++ b/drivers/media/platform/sti/bdisp/bdisp-debug.c
-@@ -480,7 +480,7 @@ static int regs_show(struct seq_file *s, void *data)
- 	int ret;
- 	unsigned int i;
+diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/cpcap-battery.c
+index cebc5c8fda1b..793d4ca52f8a 100644
+--- a/drivers/power/supply/cpcap-battery.c
++++ b/drivers/power/supply/cpcap-battery.c
+@@ -626,7 +626,7 @@ static irqreturn_t cpcap_battery_irq_thread(int irq, void *data)
+ 			break;
+ 	}
  
--	ret = pm_runtime_get_sync(bdisp->dev);
-+	ret = pm_runtime_resume_and_get(bdisp->dev);
- 	if (ret < 0) {
- 		seq_puts(s, "Cannot wake up IP\n");
- 		return 0;
+-	if (!d)
++	if (list_entry_is_head(d, &ddata->irq_list, node))
+ 		return IRQ_NONE;
+ 
+ 	latest = cpcap_battery_latest(ddata);
 -- 
 2.30.2
 
