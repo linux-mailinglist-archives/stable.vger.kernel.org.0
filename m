@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 659D13785A0
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25C863785A2
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235448AbhEJLBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:01:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53006 "EHLO mail.kernel.org"
+        id S235461AbhEJLBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:01:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234463AbhEJK4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FBBD6197E;
-        Mon, 10 May 2021 10:46:15 +0000 (UTC)
+        id S234474AbhEJK4d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3EE06198E;
+        Mon, 10 May 2021 10:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643576;
-        bh=yRYcq6j35c8xXbshQieIahs1G4PzznF+jh3voE7fUqo=;
+        s=korg; t=1620643578;
+        bh=jJhsYv8EYiSDb/i1+WUcS9e0SCstEdckTV24t98NXkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJtyvVPRuwYGigWiGz/EbFlytFEgc835WkRkaASgfae5Pu6IWciStUF7xBXpy1y82
-         jUZCIwSmQIgAasoJnSuYvfzzCHuNdug7bhVnImyeZotnYZ10SqVpOhyVtPDhbXVBZ2
-         o6NS3eOLu4PN7tXMhblt/BhCY6jtOCNSpIgHlAuk=
+        b=RfAMC4rGZWCbVhgyCNVr2jyOuuSThmlpctBDjJMhsa90tgePNUbY4cuAoX3LhMJ1b
+         XERv0km/fyhJ/sjvXXlVPRBfFyds0BfzhQ8mNU9K8ZCfdsPtSNz8viUPyZG3FI49ZO
+         EKJL/OXUi6fKT6ndZ+TIqWrJxPwmrw5pXMCbtvVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        stable@vger.kernel.org,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 071/342] usb: gadget: uvc: add bInterval checking for HS mode
-Date:   Mon, 10 May 2021 12:17:41 +0200
-Message-Id: <20210510102012.469670191@linuxfoundation.org>
+Subject: [PATCH 5.11 072/342] usb: webcam: Invalid size of Processing Unit Descriptor
+Date:   Mon, 10 May 2021 12:17:42 +0200
+Message-Id: <20210510102012.499903048@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -43,45 +44,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pawel Laszczak <pawell@cadence.com>
 
-[ Upstream commit 26adde04acdff14a1f28d4a5dce46a8513a3038b ]
+[ Upstream commit 6a154ec9ef6762c774cd2b50215c7a8f0f08a862 ]
 
-Patch adds extra checking for bInterval passed by configfs.
-The 5.6.4 chapter of USB Specification (rev. 2.0) say:
-"A high-bandwidth endpoint must specify a period of 1x125 µs
-(i.e., a bInterval value of 1)."
+According with USB Device Class Definition for Video Device the
+Processing Unit Descriptor bLength should be 12 (10 + bmControlSize),
+but it has 11.
 
-The issue was observed during testing UVC class on CV.
-I treat this change as improvement because we can control
-bInterval by configfs.
+Invalid length caused that Processing Unit Descriptor Test Video form
+CV tool failed. To fix this issue patch adds bmVideoStandards into
+uvc_processing_unit_descriptor structure.
 
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
+The bmVideoStandards field was added in UVC 1.1 and it wasn't part of
+UVC 1.0a.
+
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20210308125338.4824-1-pawell@gli-login.cadence.com
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Link: https://lore.kernel.org/r/20210315071748.29706-1-pawell@gli-login.cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_uvc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_uvc.c | 1 +
+ drivers/usb/gadget/legacy/webcam.c  | 1 +
+ include/uapi/linux/usb/video.h      | 3 ++-
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/usb/gadget/function/f_uvc.c b/drivers/usb/gadget/function/f_uvc.c
-index 44b4352a2676..ed77a126a74f 100644
+index ed77a126a74f..f48a00e49794 100644
 --- a/drivers/usb/gadget/function/f_uvc.c
 +++ b/drivers/usb/gadget/function/f_uvc.c
-@@ -633,7 +633,12 @@ uvc_function_bind(struct usb_configuration *c, struct usb_function *f)
+@@ -822,6 +822,7 @@ static struct usb_function_instance *uvc_alloc_inst(void)
+ 	pd->bmControls[0]		= 1;
+ 	pd->bmControls[1]		= 0;
+ 	pd->iProcessing			= 0;
++	pd->bmVideoStandards		= 0;
  
- 	uvc_hs_streaming_ep.wMaxPacketSize =
- 		cpu_to_le16(max_packet_size | ((max_packet_mult - 1) << 11));
--	uvc_hs_streaming_ep.bInterval = opts->streaming_interval;
-+
-+	/* A high-bandwidth endpoint must specify a bInterval value of 1 */
-+	if (max_packet_mult > 1)
-+		uvc_hs_streaming_ep.bInterval = 1;
-+	else
-+		uvc_hs_streaming_ep.bInterval = opts->streaming_interval;
+ 	od = &opts->uvc_output_terminal;
+ 	od->bLength			= UVC_DT_OUTPUT_TERMINAL_SIZE;
+diff --git a/drivers/usb/gadget/legacy/webcam.c b/drivers/usb/gadget/legacy/webcam.c
+index a9f8eb8e1c76..2c9eab2b863d 100644
+--- a/drivers/usb/gadget/legacy/webcam.c
++++ b/drivers/usb/gadget/legacy/webcam.c
+@@ -125,6 +125,7 @@ static const struct uvc_processing_unit_descriptor uvc_processing = {
+ 	.bmControls[0]		= 1,
+ 	.bmControls[1]		= 0,
+ 	.iProcessing		= 0,
++	.bmVideoStandards	= 0,
+ };
  
- 	uvc_ss_streaming_ep.wMaxPacketSize = cpu_to_le16(max_packet_size);
- 	uvc_ss_streaming_ep.bInterval = opts->streaming_interval;
+ static const struct uvc_output_terminal_descriptor uvc_output_terminal = {
+diff --git a/include/uapi/linux/usb/video.h b/include/uapi/linux/usb/video.h
+index d854cb19c42c..bfdae12cdacf 100644
+--- a/include/uapi/linux/usb/video.h
++++ b/include/uapi/linux/usb/video.h
+@@ -302,9 +302,10 @@ struct uvc_processing_unit_descriptor {
+ 	__u8   bControlSize;
+ 	__u8   bmControls[2];
+ 	__u8   iProcessing;
++	__u8   bmVideoStandards;
+ } __attribute__((__packed__));
+ 
+-#define UVC_DT_PROCESSING_UNIT_SIZE(n)			(9+(n))
++#define UVC_DT_PROCESSING_UNIT_SIZE(n)			(10+(n))
+ 
+ /* 3.7.2.6. Extension Unit Descriptor */
+ struct uvc_extension_unit_descriptor {
 -- 
 2.30.2
 
