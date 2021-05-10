@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA4EE378691
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCAB037884A
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233722AbhEJLJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:09:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52682 "EHLO mail.kernel.org"
+        id S239132AbhEJLVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233883AbhEJK7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:59:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6D2C61962;
-        Mon, 10 May 2021 10:52:58 +0000 (UTC)
+        id S236938AbhEJLLA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 386C061432;
+        Mon, 10 May 2021 11:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643979;
-        bh=r8UFkN2AuDgHpPR55vbdoKDopD8eGlpX6lyOUa+cLq4=;
+        s=korg; t=1620644758;
+        bh=iHP5PI9dFvN+iJnh0PXIZUJf03sir2CeqLFELWPo6tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d16idBJBypLQ7/xpR75QuYHag2imGOoQxfpoB5lemhhIJcH3+S1RWW1K2nwk2aB35
-         WaENLeU9L42EGsCii6KeKmvJXAVvOZSoxiaw74dI3e6IFj5L2ZvSOfJy4fvx6xS8XP
-         DUTIbbfMKUcjvY2WfrP14e3WLzYIqL2sOdFXV9/E=
+        b=cQh/jEz4yDc4RrKcx4gGo6rBa2wd6D1JE/VYNoUXtxwIb5Mn5th6jNZMm+GtwaeeC
+         HmpkB73lh/Suld9WskS1zE/QkA46j3ZnvoKNrP5LveFqwXMEyzvT+Ioc4D85WIbR7y
+         5WN6ehulh6cpa3fizE+X/PiTcu/W54UkGHbSt8Lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+e7f4c64a4248a0340c37@syzkaller.appspotmail.com
-Subject: [PATCH 5.11 211/342] media: gscpa/stv06xx: fix memory leak
+        stable@vger.kernel.org,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Babu Moger <babu.moger@amd.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 212/384] selftests/resctrl: Fix incorrect parsing of iMC counters
 Date:   Mon, 10 May 2021 12:20:01 +0200
-Message-Id: <20210510102017.057582627@linuxfoundation.org>
+Message-Id: <20210510102021.881823874@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit 4f4e6644cd876c844cdb3bea2dd7051787d5ae25 ]
+[ Upstream commit d81343b5eedf84be71a4313e8fd073d0c510afcf ]
 
-For two of the supported sensors the stv06xx driver allocates memory which
-is stored in sd->sensor_priv. This memory is freed on a disconnect, but if
-the probe() fails, then it isn't freed and so this leaks memory.
+iMC (Integrated Memory Controller) counters are usually at
+"/sys/bus/event_source/devices/" and are named as "uncore_imc_<n>".
+num_of_imcs() function tries to count number of such iMC counters so that
+it could appropriately initialize required number of perf_attr structures
+that could be used to read these iMC counters.
 
-Add a new probe_error() op that drivers can use to free any allocated
-memory in case there was a probe failure.
+num_of_imcs() function assumes that all the directories under this path
+that start with "uncore_imc" are iMC counters. But, on some systems there
+could be directories named as "uncore_imc_free_running" which aren't iMC
+counters. Trying to read from such directories will result in "not found
+file" errors and MBM/MBA tests will fail.
 
-Thanks to Pavel Skripkin <paskripkin@gmail.com> for discovering the cause
-of the memory leak.
+Hence, fix the logic in num_of_imcs() such that it looks at the first
+character after "uncore_imc_" to check if it's a numerical digit or not. If
+it's a digit then the directory represents an iMC counter, else, skip the
+directory.
 
-Reported-and-tested-by: syzbot+e7f4c64a4248a0340c37@syzkaller.appspotmail.com
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: Reinette Chatre <reinette.chatre@intel.com>
+Tested-by: Babu Moger <babu.moger@amd.com>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/gspca.c           | 2 ++
- drivers/media/usb/gspca/gspca.h           | 1 +
- drivers/media/usb/gspca/stv06xx/stv06xx.c | 9 +++++++++
- 3 files changed, 12 insertions(+)
+ tools/testing/selftests/resctrl/resctrl_val.c | 22 +++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/gspca.c b/drivers/media/usb/gspca/gspca.c
-index 158c8e28ed2c..47d8f28bfdfc 100644
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -1576,6 +1576,8 @@ out:
- #endif
- 	v4l2_ctrl_handler_free(gspca_dev->vdev.ctrl_handler);
- 	v4l2_device_unregister(&gspca_dev->v4l2_dev);
-+	if (sd_desc->probe_error)
-+		sd_desc->probe_error(gspca_dev);
- 	kfree(gspca_dev->usb_buf);
- 	kfree(gspca_dev);
- 	return ret;
-diff --git a/drivers/media/usb/gspca/gspca.h b/drivers/media/usb/gspca/gspca.h
-index b0ced2e14006..a6554d5e9e1a 100644
---- a/drivers/media/usb/gspca/gspca.h
-+++ b/drivers/media/usb/gspca/gspca.h
-@@ -105,6 +105,7 @@ struct sd_desc {
- 	cam_cf_op config;	/* called on probe */
- 	cam_op init;		/* called on probe and resume */
- 	cam_op init_controls;	/* called on probe */
-+	cam_v_op probe_error;	/* called if probe failed, do cleanup here */
- 	cam_op start;		/* called on stream on after URBs creation */
- 	cam_pkt_op pkt_scan;
- /* optional operations */
-diff --git a/drivers/media/usb/gspca/stv06xx/stv06xx.c b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-index 95673fc0a99c..d9bc2aacc885 100644
---- a/drivers/media/usb/gspca/stv06xx/stv06xx.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-@@ -529,12 +529,21 @@ static int sd_int_pkt_scan(struct gspca_dev *gspca_dev,
- static int stv06xx_config(struct gspca_dev *gspca_dev,
- 			  const struct usb_device_id *id);
- 
-+static void stv06xx_probe_error(struct gspca_dev *gspca_dev)
-+{
-+	struct sd *sd = (struct sd *)gspca_dev;
+diff --git a/tools/testing/selftests/resctrl/resctrl_val.c b/tools/testing/selftests/resctrl/resctrl_val.c
+index aed71fd0713b..5478c23c62ba 100644
+--- a/tools/testing/selftests/resctrl/resctrl_val.c
++++ b/tools/testing/selftests/resctrl/resctrl_val.c
+@@ -221,8 +221,8 @@ static int read_from_imc_dir(char *imc_dir, int count)
+  */
+ static int num_of_imcs(void)
+ {
++	char imc_dir[512], *temp;
+ 	unsigned int count = 0;
+-	char imc_dir[512];
+ 	struct dirent *ep;
+ 	int ret;
+ 	DIR *dp;
+@@ -230,7 +230,25 @@ static int num_of_imcs(void)
+ 	dp = opendir(DYN_PMU_PATH);
+ 	if (dp) {
+ 		while ((ep = readdir(dp))) {
+-			if (strstr(ep->d_name, UNCORE_IMC)) {
++			temp = strstr(ep->d_name, UNCORE_IMC);
++			if (!temp)
++				continue;
 +
-+	kfree(sd->sensor_priv);
-+	sd->sensor_priv = NULL;
-+}
++			/*
++			 * imc counters are named as "uncore_imc_<n>", hence
++			 * increment the pointer to point to <n>. Note that
++			 * sizeof(UNCORE_IMC) would count for null character as
++			 * well and hence the last underscore character in
++			 * uncore_imc'_' need not be counted.
++			 */
++			temp = temp + sizeof(UNCORE_IMC);
 +
- /* sub-driver description */
- static const struct sd_desc sd_desc = {
- 	.name = MODULE_NAME,
- 	.config = stv06xx_config,
- 	.init = stv06xx_init,
- 	.init_controls = stv06xx_init_controls,
-+	.probe_error = stv06xx_probe_error,
- 	.start = stv06xx_start,
- 	.stopN = stv06xx_stopN,
- 	.pkt_scan = stv06xx_pkt_scan,
++			/*
++			 * Some directories under "DYN_PMU_PATH" could have
++			 * names like "uncore_imc_free_running", hence, check if
++			 * first character is a numerical digit or not.
++			 */
++			if (temp[0] >= '0' && temp[0] <= '9') {
+ 				sprintf(imc_dir, "%s/%s/", DYN_PMU_PATH,
+ 					ep->d_name);
+ 				ret = read_from_imc_dir(imc_dir, count);
 -- 
 2.30.2
 
