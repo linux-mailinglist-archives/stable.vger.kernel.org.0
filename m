@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CBA93781AB
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:27:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033C83781AF
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231449AbhEJK2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:28:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60482 "EHLO mail.kernel.org"
+        id S231732AbhEJK2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:28:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231623AbhEJK1m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:27:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A67B6143C;
-        Mon, 10 May 2021 10:26:23 +0000 (UTC)
+        id S231504AbhEJK1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:27:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE7DB61466;
+        Mon, 10 May 2021 10:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642384;
-        bh=R4z/pEi3GiFfFhP0w1RPPxuvznQ43s/lLLRKX6g9rGQ=;
+        s=korg; t=1620642386;
+        bh=9D/Q0VxAMiYdeIcFr/NNyxXHgJsYy4ABWVkzL6zh4CI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=009pabBi2F9ktLddsEinln/FfL52s6F2qjK3J6QCJa/lx/4fmu6t1NPA1XySBGJhj
-         e08O752lX5BEqEAn/k8QPBoIYb9def1vK1S9RAst8qdGyss6Tgs4TpMjCkeSiWABW5
-         84bJcgja8IPD5FxRHvo55+CdgV8XVo8i+TVABiH4=
+        b=zlv6N2QgYBj9XB2HNVUArnz74s/ntSLXb7zN022Yf/UIrTEvHkpROzyfsOhE1G1u9
+         94SeydxU2ys7tMxtv92Rl8Gi2q15eDp7cUiPDkqyVSU2UhGpiut+8LkqJ2V/AFs2HN
+         p1ZBrOhd/hNKr9F0eO4TUGFyEo6e+ZtWa78QhQrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Eryk Brol <eryk.brol@amd.com>,
+        Bindu Ramamurthy <bindu.r@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/184] drm/qxl: release shadow on shutdown
-Date:   Mon, 10 May 2021 12:19:26 +0200
-Message-Id: <20210510101952.553399742@linuxfoundation.org>
+Subject: [PATCH 5.4 073/184] drm/amd/display: Check for DSC support instead of ASIC revision
+Date:   Mon, 10 May 2021 12:19:27 +0200
+Message-Id: <20210510101952.583144113@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -40,36 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Eryk Brol <eryk.brol@amd.com>
 
-[ Upstream commit 4ca77c513537700d3fae69030879f781dde1904c ]
+[ Upstream commit 349a19b2f1b01e713268c7de9944ad669ccdf369 ]
 
-In case we have a shadow surface on shutdown release
-it so it doesn't leak.
+[why]
+This check for ASIC revision is no longer useful and causes
+lightup issues after a topology change in MST DSC scenario.
+In this case, DSC configs should be recalculated for the new
+topology. This check prevented that from happening on certain
+ASICs that do, in fact, support DSC.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210204145712.1531203-6-kraxel@redhat.com
+[how]
+Change the ASIC revision to instead check if DSC is supported.
+
+Signed-off-by: Eryk Brol <eryk.brol@amd.com>
+Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 9abf3dc5ef99..a6ee10cbcfdd 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1237,6 +1237,10 @@ int qxl_modeset_init(struct qxl_device *qdev)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index fbbe611d4873..2626aacf492f 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -7330,7 +7330,7 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 	}
  
- void qxl_modeset_fini(struct qxl_device *qdev)
- {
-+	if (qdev->dumb_shadow_bo) {
-+		drm_gem_object_put(&qdev->dumb_shadow_bo->tbo.base);
-+		qdev->dumb_shadow_bo = NULL;
-+	}
- 	qxl_destroy_monitors_object(qdev);
- 	drm_mode_config_cleanup(&qdev->ddev);
- }
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
+-	if (adev->asic_type >= CHIP_NAVI10) {
++	if (dc_resource_is_dsc_encoding_supported(dc)) {
+ 		for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
+ 			if (drm_atomic_crtc_needs_modeset(new_crtc_state)) {
+ 				ret = add_affected_mst_dsc_crtcs(state, crtc);
 -- 
 2.30.2
 
