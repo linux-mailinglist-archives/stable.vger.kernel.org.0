@@ -2,182 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5FC378FF6
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 16:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F643378FF7
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 16:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241881AbhEJN5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:57:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55640 "EHLO
+        id S233720AbhEJN6A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 09:58:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242960AbhEJNxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 09:53:49 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1336BC06137E;
-        Mon, 10 May 2021 06:33:27 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id 10so13751250pfl.1;
-        Mon, 10 May 2021 06:33:27 -0700 (PDT)
+        with ESMTP id S242963AbhEJNxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 09:53:52 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9853DC06137F;
+        Mon, 10 May 2021 06:33:28 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id j6-20020a17090adc86b02900cbfe6f2c96so10332317pjv.1;
+        Mon, 10 May 2021 06:33:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=KXKAAx7CLKZeMl7TpKKmKCAcmvO/BVIrKGp8RbmnYl4=;
-        b=CNSZK/Cinvl8bScaoPMZT4drw0OIphHipTKR4GsQk9OwP5Boy0WFaPP2no815SiFav
-         ZJD85u8udlrqYDxEVvJf4p6R9koLDGkQswNrQFoTnDf6G3hJWPpMJuTZclp7HGfpqmbf
-         UzrUpFCOqxNAU8zb2qD45tjBue+d+UheMCNdjRVnGthrb9YCSz1IVBU879DUdpDW/QvJ
-         1w+noTjxr/L7Hsoau9oqGBSbP58w0wbgYhhEFEtFRZseC2L0DegCczSGGoVIA6uxvlUL
-         EhJFZVilpUZS8DZNT4aCnbvW94+7qjuyT70hy/yKnWlxzjKqduphmelVl89l7m/ckltq
-         pSNA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=e961IvvDlCBFXI/0k42PMsomsMORfO1QUJjExHw3DxE=;
+        b=HuqUYh+2ldg9oWj+uawQaI2k/BV92K2Dldh39uWAtLV6I0Gr7po8bjIKH9m7TnscV+
+         21PxxxjLC/oHrpGT3Kzu7js1Iq3vvsupTpyv4DLc+XIH1bWtS+mYqyFe8lEZy0/TRk4f
+         xInWO8z4pfw5y9YzEozHBg3IkQB0uVeHHVT86asA5dGXlv402EiLeIHdb4xwnjLSRxVQ
+         B1xJz6RMY1WpDrJHNcfOc5b4k9+m41W3bAllCBlgWgmMilUxCyXkbsQ596VvsWhtZ665
+         OWRnuWbDvazP718qJA3DMRxFj+ixQRYCvsUXeut48DO4BUOS9uqVhQHofjYkHWf/e5p1
+         F3ig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=KXKAAx7CLKZeMl7TpKKmKCAcmvO/BVIrKGp8RbmnYl4=;
-        b=dwSesHdUjHKupMhAljuVGarSwgDtRsMmGm4tcAvvF2pYM/yzKo27OSrLkrMf1ej/7m
-         VH2yyTfCyIt2/7zqMethaulvIuf4RDPoMAB9eEdWqNWXDFcS1FjB9IRBvl8eEPYbYOL7
-         /z+kJ4TEyIKTw/yyP/psFdZgr991OJWSu0NxhCu5aY0GiiBptzCywH9bZumpqfEvQBO6
-         8kztVyno9wyim+I+X6JxKvW6JJr8FkdIXz/jT8PLfPlgDlDDMWRHJ/0R7s66MFlaPnjU
-         nXeRpGwf8m/tRhdBxgW4ik5jIUu6PtWejpRR1oArspGJ7Ls0XardlGskvUYFuMN9fIhq
-         XgNg==
-X-Gm-Message-State: AOAM530VUNttRxL6GJvV5Xv0psSUpTmxdDPus1FYlhvWVMCj72G2upuy
-        KnIkLIeQj3ddEXif1hLCHqYp62kNcS4=
-X-Google-Smtp-Source: ABdhPJzc2Zel/3nvTwKMN44cVHNoEyqNpKn793SdY/mTZkl8/DFrtvzmEKYdGeMflsrOwdO6pypBCA==
-X-Received: by 2002:a62:e704:0:b029:2c4:b81e:d1a7 with SMTP id s4-20020a62e7040000b02902c4b81ed1a7mr2414098pfh.31.1620653606116;
-        Mon, 10 May 2021 06:33:26 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=e961IvvDlCBFXI/0k42PMsomsMORfO1QUJjExHw3DxE=;
+        b=EREYDi5FoiNQB0FLdRvPXAiklV4gq9RRaGf7Ii3aWt1AptgFxkkBkKL16P/mx0FSE1
+         JLKStZungtU1HhQkYzlxdOATjJajbhLIuwh3Twvo9y2xuOVPQTrVz5Fmfiil463s8HAS
+         G1gc0GFqHFcsVa87xdCgDTZeGdx914XXFuMTV7usBrCzaM2GMwVakybOeZkYlQA/sbbR
+         fVwd9T2+XpQM5RTJnOixbUkHOwOzTyKTm2UdgGKL1zOY+j7yKF4ADNoP8bOBxGqAV8c0
+         sMluqDfb8FiaiVL4BiXJvSps3d3zdbBS5W1Ha/+Ygo1vM0Kb1GxKs2Ko8Hpr6wJLzvCT
+         Gm7w==
+X-Gm-Message-State: AOAM533+0OFmgD1+D4tNbE3Ur6MrFwBq3Cvbig5qdCxfsOBkxr8EltM5
+        XJyewKoTd0MYfrMdGN2051/nxtOWWwk=
+X-Google-Smtp-Source: ABdhPJwugICuQsrb60cCGL2hx1saXoIVPQ/7hZByhdlIAh/7jVVhSslYzT5be5Ueiuvc6J/jCVMLmA==
+X-Received: by 2002:a17:90a:17ad:: with SMTP id q42mr10736269pja.181.1620653607590;
+        Mon, 10 May 2021 06:33:27 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id w127sm7906564pfw.4.2021.05.10.06.33.24
+        by smtp.gmail.com with ESMTPSA id w127sm7906564pfw.4.2021.05.10.06.33.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 06:33:25 -0700 (PDT)
+        Mon, 10 May 2021 06:33:27 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     stable@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jonathan Corbet <corbet@lwn.net>,
         Russell King <linux@armlinux.org.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nicolas Pitre <nico@fluxnic.net>,
         Sasha Levin <sashal@kernel.org>,
         linux-doc@vger.kernel.org (open list:DOCUMENTATION),
         linux-kernel@vger.kernel.org (open list),
         linux-arm-kernel@lists.infradead.org (moderated list:ARM PORT),
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH stable 5.4 v2 0/4] ARM FDT relocation backports
-Date:   Mon, 10 May 2021 06:33:17 -0700
-Message-Id: <20210510133321.1790243-1-f.fainelli@gmail.com>
+Subject: [PATCH stable 5.4 v2 1/4] ARM: 9011/1: centralize phys-to-virt conversion of DT/ATAGS address
+Date:   Mon, 10 May 2021 06:33:18 -0700
+Message-Id: <20210510133321.1790243-2-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210510133321.1790243-1-f.fainelli@gmail.com>
+References: <20210510133321.1790243-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg, Sasha,
+From: Ard Biesheuvel <ardb@kernel.org>
 
-These patches were not marked with a Fixes: tag but they do fix booting
-ARM 32-bit platforms that have specific FDT placement and would cause
-boot failures like these:
+commit e9a2f8b599d0bc22a1b13e69527246ac39c697b4 upstream
 
-[    0.000000] 8<--- cut here ---
-[    0.000000] Unable to handle kernel paging request at virtual address
-ffa14000
-[    0.000000] pgd = (ptrval)
-[    0.000000] [ffa14000] *pgd=80000040007003, *pmd=00000000
-[    0.000000] Internal error: Oops: 206 [#1] SMP ARM
-[    0.000000] Modules linked in:
-[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.4.85-1.0 #1
-[    0.000000] Hardware name: Broadcom STB (Flattened Device Tree)
-[    0.000000] PC is at fdt_check_header+0xc/0x21c
-[    0.000000] LR is at __unflatten_device_tree+0x7c/0x2f8
-[    0.000000] pc : [<c0d30e44>]    lr : [<c0a6c0fc>]    psr: 600000d3
-[    0.000000] sp : c1401eac  ip : c1401ec8  fp : c1401ec4
-[    0.000000] r10: 00000000  r9 : c150523c  r8 : 00000000
-[    0.000000] r7 : c124eab4  r6 : ffa14000  r5 : 00000000  r4 :
-c14ba920
-[    0.000000] r3 : 00000000  r2 : c150523c  r1 : 00000000  r0 :
-ffa14000
-[    0.000000] Flags: nZCv  IRQs off  FIQs off  Mode SVC_32  ISA ARM
-Segment user
-[    0.000000] Control: 30c5383d  Table: 40003000  DAC: fffffffd
-[    0.000000] Process swapper (pid: 0, stack limit = 0x(ptrval))
-[    0.000000] Stack: (0xc1401eac to 0xc1402000)
-[    0.000000] 1ea0:                            c14ba920 00000000
-ffa14000 c1401ef4 c1401ec8
-[    0.000000] 1ec0: c0a6c0fc c0d30e44 c124eab4 c124eab4 00000000
-c14ebfc0 c140e5b8 00000000
-[    0.000000] 1ee0: 00000001 c126f5a0 c1401f14 c1401ef8 c1250064
-c0a6c08c 00000000 c1401f08
-[    0.000000] 1f00: c022ddac c140ce80 c1401f9c c1401f18 c120506c
-c125002c 00000000 00000000
-[    0.000000] 1f20: 00000000 00000000 ffffffff c1401f94 c1401f6c
-c1406308 3fffffff 00000001
-[    0.000000] 1f40: 00000000 00000001 c1432b58 c14ca180 c1213ca4
-c1406308 c1406300 30c0387d
-[    0.000000] 1f60: c1401f8c c1401f70 c028e0ec 00000000 c1401f94
-c1406308 c1406300 30c0387d
-[    0.000000] 1f80: 00000000 7fa14000 420f1000 30c5387d c1401ff4
-c1401fa0 c1200c98 c120467c
-[    0.000000] 1fa0: 00000000 00000000 00000000 00000000 00000000
-00000000 00000000 c127fa44
-[    0.000000] 1fc0: 00000000 00000000 00000000 c1200330 00000000
-30c0387d ffffffff 7fa14000
-[    0.000000] 1fe0: 420f1000 30c5387d 00000000 c1401ff8 00000000
-c1200c28 00000000 00000000
-[    0.000000] Backtrace:
-[    0.000000] [<c0d30e38>] (fdt_check_header) from [<c0a6c0fc>]
-(__unflatten_device_tree+0x7c/0x2f8)
-[    0.000000]  r6:ffa14000 r5:00000000 r4:c14ba920
-[    0.000000] [<c0a6c080>] (__unflatten_device_tree) from [<c1250064>]
-(unflatten_device_tree+0x44/0x54)
-[    0.000000]  r10:c126f5a0 r9:00000001 r8:00000000 r7:c140e5b8
-r6:c14ebfc0 r5:00000000
-[    0.000000]  r4:c124eab4 r3:c124eab4
-[    0.000000] [<c1250020>] (unflatten_device_tree) from [<c120506c>]
-(setup_arch+0x9fc/0xc84)
-[    0.000000]  r4:c140ce80
-[    0.000000] [<c1204670>] (setup_arch) from [<c1200c98>]
-(start_kernel+0x7c/0x540)
-[    0.000000]  r10:30c5387d r9:420f1000 r8:7fa14000 r7:00000000
-r6:30c0387d r5:c1406300
-[    0.000000]  r4:c1406308
-[    0.000000] [<c1200c1c>] (start_kernel) from [<00000000>] (0x0)
-[    0.000000]  r10:30c5387d r9:420f1000 r8:7fa14000 r7:ffffffff
-r6:30c0387d r5:00000000
-[    0.000000]  r4:c1200330
-[    0.000000] Code: e89da800 e1a0c00d e92dd870 e24cb004 (e5d03000)
-[    0.000000] random: get_random_bytes called from
-print_oops_end_marker+0x50/0x58 with crng_init=0
-[    0.000000] ---[ end trace f34b4929828506c1 ]---
-[    0.000000] Kernel panic - not syncing: Attempted to kill the idle
-task!
-[    0.000000] ---[ end Kernel panic - not syncing: Attempted to kill
-the idle task! ]---
+Before moving the DT mapping out of the linear region, let's prepare
+for this change by removing all the phys-to-virt translations of the
+__atags_pointer variable, and perform this translation only once at
+setup time.
 
-Changes in v2:
-
-- include "ARM: 9027/1: head.S: explicitly map DT even if it lives in
-  the first physical section" as suggested by Ard.
-
-Ard Biesheuvel (4):
-  ARM: 9011/1: centralize phys-to-virt conversion of DT/ATAGS address
-  ARM: 9012/1: move device tree mapping out of linear region
-  ARM: 9020/1: mm: use correct section size macro to describe the FDT
-    virtual address
-  ARM: 9027/1: head.S: explicitly map DT even if it lives in the first
-    physical section
-
- Documentation/arm/memory.rst  |  7 ++++++-
- arch/arm/include/asm/fixmap.h |  2 +-
- arch/arm/include/asm/memory.h |  5 +++++
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+---
  arch/arm/include/asm/prom.h   |  4 ++--
  arch/arm/kernel/atags.h       |  4 ++--
  arch/arm/kernel/atags_parse.c |  6 +++---
  arch/arm/kernel/devtree.c     |  6 +++---
- arch/arm/kernel/head.S        |  9 ++++-----
- arch/arm/kernel/setup.c       | 19 ++++++++++++++-----
- arch/arm/mm/init.c            |  1 -
- arch/arm/mm/mmu.c             | 20 ++++++++++++++------
- arch/arm/mm/pv-fixup-asm.S    |  4 ++--
- 12 files changed, 56 insertions(+), 31 deletions(-)
+ arch/arm/kernel/setup.c       | 14 +++++++++-----
+ arch/arm/mm/mmu.c             |  4 ++--
+ 6 files changed, 21 insertions(+), 17 deletions(-)
 
+diff --git a/arch/arm/include/asm/prom.h b/arch/arm/include/asm/prom.h
+index 1e36c40533c1..402e3f34c7ed 100644
+--- a/arch/arm/include/asm/prom.h
++++ b/arch/arm/include/asm/prom.h
+@@ -9,12 +9,12 @@
+ 
+ #ifdef CONFIG_OF
+ 
+-extern const struct machine_desc *setup_machine_fdt(unsigned int dt_phys);
++extern const struct machine_desc *setup_machine_fdt(void *dt_virt);
+ extern void __init arm_dt_init_cpu_maps(void);
+ 
+ #else /* CONFIG_OF */
+ 
+-static inline const struct machine_desc *setup_machine_fdt(unsigned int dt_phys)
++static inline const struct machine_desc *setup_machine_fdt(void *dt_virt)
+ {
+ 	return NULL;
+ }
+diff --git a/arch/arm/kernel/atags.h b/arch/arm/kernel/atags.h
+index 067e12edc341..f2819c25b602 100644
+--- a/arch/arm/kernel/atags.h
++++ b/arch/arm/kernel/atags.h
+@@ -2,11 +2,11 @@
+ void convert_to_tag_list(struct tag *tags);
+ 
+ #ifdef CONFIG_ATAGS
+-const struct machine_desc *setup_machine_tags(phys_addr_t __atags_pointer,
++const struct machine_desc *setup_machine_tags(void *__atags_vaddr,
+ 	unsigned int machine_nr);
+ #else
+ static inline const struct machine_desc * __init __noreturn
+-setup_machine_tags(phys_addr_t __atags_pointer, unsigned int machine_nr)
++setup_machine_tags(void *__atags_vaddr, unsigned int machine_nr)
+ {
+ 	early_print("no ATAGS support: can't continue\n");
+ 	while (true);
+diff --git a/arch/arm/kernel/atags_parse.c b/arch/arm/kernel/atags_parse.c
+index ce02f92f4ab2..8288151631fc 100644
+--- a/arch/arm/kernel/atags_parse.c
++++ b/arch/arm/kernel/atags_parse.c
+@@ -176,7 +176,7 @@ static void __init squash_mem_tags(struct tag *tag)
+ }
+ 
+ const struct machine_desc * __init
+-setup_machine_tags(phys_addr_t __atags_pointer, unsigned int machine_nr)
++setup_machine_tags(void *atags_vaddr, unsigned int machine_nr)
+ {
+ 	struct tag *tags = (struct tag *)&default_tags;
+ 	const struct machine_desc *mdesc = NULL, *p;
+@@ -197,8 +197,8 @@ setup_machine_tags(phys_addr_t __atags_pointer, unsigned int machine_nr)
+ 	if (!mdesc)
+ 		return NULL;
+ 
+-	if (__atags_pointer)
+-		tags = phys_to_virt(__atags_pointer);
++	if (atags_vaddr)
++		tags = atags_vaddr;
+ 	else if (mdesc->atag_offset)
+ 		tags = (void *)(PAGE_OFFSET + mdesc->atag_offset);
+ 
+diff --git a/arch/arm/kernel/devtree.c b/arch/arm/kernel/devtree.c
+index 39c978698406..4e09883c276d 100644
+--- a/arch/arm/kernel/devtree.c
++++ b/arch/arm/kernel/devtree.c
+@@ -203,12 +203,12 @@ static const void * __init arch_get_next_mach(const char *const **match)
+ 
+ /**
+  * setup_machine_fdt - Machine setup when an dtb was passed to the kernel
+- * @dt_phys: physical address of dt blob
++ * @dt_virt: virtual address of dt blob
+  *
+  * If a dtb was passed to the kernel in r2, then use it to choose the
+  * correct machine_desc and to setup the system.
+  */
+-const struct machine_desc * __init setup_machine_fdt(unsigned int dt_phys)
++const struct machine_desc * __init setup_machine_fdt(void *dt_virt)
+ {
+ 	const struct machine_desc *mdesc, *mdesc_best = NULL;
+ 
+@@ -221,7 +221,7 @@ const struct machine_desc * __init setup_machine_fdt(unsigned int dt_phys)
+ 	mdesc_best = &__mach_desc_GENERIC_DT;
+ #endif
+ 
+-	if (!dt_phys || !early_init_dt_verify(phys_to_virt(dt_phys)))
++	if (!dt_virt || !early_init_dt_verify(dt_virt))
+ 		return NULL;
+ 
+ 	mdesc = of_flat_dt_match_machine(mdesc_best, arch_get_next_mach);
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index d0a464e317ea..d0cad48ff83b 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -89,6 +89,7 @@ unsigned int cacheid __read_mostly;
+ EXPORT_SYMBOL(cacheid);
+ 
+ unsigned int __atags_pointer __initdata;
++void *atags_vaddr __initdata;
+ 
+ unsigned int system_rev;
+ EXPORT_SYMBOL(system_rev);
+@@ -1075,19 +1076,22 @@ void __init hyp_mode_check(void)
+ 
+ void __init setup_arch(char **cmdline_p)
+ {
+-	const struct machine_desc *mdesc;
++	const struct machine_desc *mdesc = NULL;
++
++	if (__atags_pointer)
++		atags_vaddr = phys_to_virt(__atags_pointer);
+ 
+ 	setup_processor();
+-	mdesc = setup_machine_fdt(__atags_pointer);
++	if (atags_vaddr)
++		mdesc = setup_machine_fdt(atags_vaddr);
+ 	if (!mdesc)
+-		mdesc = setup_machine_tags(__atags_pointer, __machine_arch_type);
++		mdesc = setup_machine_tags(atags_vaddr, __machine_arch_type);
+ 	if (!mdesc) {
+ 		early_print("\nError: invalid dtb and unrecognized/unsupported machine ID\n");
+ 		early_print("  r1=0x%08x, r2=0x%08x\n", __machine_arch_type,
+ 			    __atags_pointer);
+ 		if (__atags_pointer)
+-			early_print("  r2[]=%*ph\n", 16,
+-				    phys_to_virt(__atags_pointer));
++			early_print("  r2[]=%*ph\n", 16, atags_vaddr);
+ 		dump_machine_table();
+ 	}
+ 
+diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+index 48c2888297dd..e1cd9a05be04 100644
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -1512,7 +1512,7 @@ static void __init map_lowmem(void)
+ }
+ 
+ #ifdef CONFIG_ARM_PV_FIXUP
+-extern unsigned long __atags_pointer;
++extern void *atags_vaddr;
+ typedef void pgtables_remap(long long offset, unsigned long pgd, void *bdata);
+ pgtables_remap lpae_pgtables_remap_asm;
+ 
+@@ -1543,7 +1543,7 @@ static void __init early_paging_init(const struct machine_desc *mdesc)
+ 	 */
+ 	lpae_pgtables_remap = (pgtables_remap *)(unsigned long)__pa(lpae_pgtables_remap_asm);
+ 	pa_pgd = __pa(swapper_pg_dir);
+-	boot_data = __va(__atags_pointer);
++	boot_data = atags_vaddr;
+ 	barrier();
+ 
+ 	pr_info("Switching physical address space to 0x%08llx\n",
 -- 
 2.25.1
 
