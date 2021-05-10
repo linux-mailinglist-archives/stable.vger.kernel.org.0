@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C8D377DFD
+	by mail.lfdr.de (Postfix) with ESMTP id 7F74F377DFC
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbhEJIWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:22:02 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:46683 "EHLO
+        id S230203AbhEJIWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:22:00 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:52479 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230208AbhEJIWB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:22:01 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E439F1940BCD;
-        Mon, 10 May 2021 04:20:56 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 10 May 2021 04:20:56 -0400
+        by vger.kernel.org with ESMTP id S230093AbhEJIWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:22:00 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2AEBA1940BCD;
+        Mon, 10 May 2021 04:20:55 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Mon, 10 May 2021 04:20:55 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=B6zqUG
-        2dlI9QOtMe+mcr81OKKHtSjV7gGQCc2M0WWZM=; b=Ui1n45HuDcl2S8tJp6lGP9
-        +dpitkPxFsN61pY1MvLS7YrKxNTbJBOulGMFpwKbVSXBgigKRxCAowoYk/D7OZYV
-        6eOag4uTAKNCgJaFlrdM22MXt5j+H3Aznh1B+M6PGbfnhz8sTHEjczGoSE7Q7j6y
-        6v6s1+K94NRG0su3v+Lq7WKYlXJ4vG2c+jaYkU/ubpClCuWmb2Ngcl2p6YuUp2eP
-        NOMefskTHKTHHKSYgA6Wfw4Bv4zP5aHobJ2ECK8ME+MRnHXnQjTZ0I6kPZxLoTRL
-        S3dRuHOH63DVjTpN5/Ivl9x4H49CXLHq0zoIN9XUTzsCO1OyLUWHRs8TPwdg6zUQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Ku0gdf
+        KmVDisk5k7TmPi+Q5cGQls7njA+CYjDekrKa4=; b=szLqp/Ry8i3ne/GBCe+eCb
+        zgEE68UtM16NvfjCkQlpfIjcoUQmALOCzikqqDwAxK2OE4U+CWmJsHwv1rmJBXh/
+        6hQZfq+bwcCU4KKTQv45VGR7tM05VO+JB7As3PXL6xa86BuhuCuFuF0Z+Wvgct3I
+        7wJcD8FBUTafaw9garicPxaUndanKpPJ9YvBWgNQhTybnOVnB8DeVhZneKv4ygVU
+        pb17AALh9ALTqWMqjR7u9DCrj5JkbThwhtQV0EW7EIMQNDItMl9Kdoe2mas40gGc
+        1bN+NtRWFXLCQCQSg5bFDRyHm8JZ9P4gavWpf5nTqgFZv/kl7nNknGl09Y+5xaOA
         ==
-X-ME-Sender: <xms:6OyYYGV2f7JOrM8vy9jiN9jSmTNXk_Jol63kaTXag0isobwAwWiCJw>
-    <xme:6OyYYClDtodZOpxYAlpFyiHyn8Qy8yNbCGUBOfjNCt-dvLSECeZHCitMqqVAq_omC
-    dt47-6KV5begw>
+X-ME-Sender: <xms:5-yYYNb-YtAkCRbh80eQ4774YNiS8cj22C4bii749UDYgOLq_0OOHw>
+    <xme:5-yYYEbhWHRqowXWYP1ODPHY9FtP3n7u5CotlqVKarKc3tkL93F7u3kpv_yB00och
+    9uYjqVNKlRNcg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:6OyYYKbGHfhj41i04BrPiqVckZervJ_0qvHpxaMf7v8ZjlcKm9ytgg>
-    <xmx:6OyYYNUkEr_XYEOz98jH_SoZ_CKVqywL_bvmeXGrIa7lYmlAJ4_ZVw>
-    <xmx:6OyYYAnRcI5udHbCD6TYeCY-_nVhkKlbdT1HuwivgS-D3YdWcj7Qsg>
-    <xmx:6OyYYFyWd_gNaHFZbmBVSmsy5JOU625tboQt5rgQxyOObk0nKjNsPg>
+X-ME-Proxy: <xmx:5-yYYP8mJbwDTTrNQJVR7cIMqx0srR9RTgIIxHlmYHKXXskPwQk2Sw>
+    <xmx:5-yYYLog0taSp4DVi7crztIYRE6LESn7W2SlBGCBuGSu3gGPUNZOlg>
+    <xmx:5-yYYIrPmvQjEBnIPqRLiVvFY2HSyB_06oPGqmQ12o3pF8j2Uapz5A>
+    <xmx:5-yYYP2DmCD4AoyyQ_1M0fDUeJB9jPf2EzC__vwi7LJc_00fnVgszQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:20:56 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Remove FS bInterval_m1 limitation" failed to apply to 4.9-stable tree
+        Mon, 10 May 2021 04:20:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Remove FS bInterval_m1 limitation" failed to apply to 4.14-stable tree
 To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 10 May 2021 10:20:45 +0200
-Message-ID: <162063484537173@kroah.com>
+Message-ID: <162063484540211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
