@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB06537847E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83F003782F8
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231297AbhEJKwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:52:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41732 "EHLO mail.kernel.org"
+        id S232011AbhEJKlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:41:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233748AbhEJKud (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:50:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06A2261954;
-        Mon, 10 May 2021 10:40:01 +0000 (UTC)
+        id S231733AbhEJKi4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:38:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 400A361950;
+        Mon, 10 May 2021 10:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643202;
-        bh=sFNkAUFqPkld7N7J8ph5F7w+KUBRpZjz87UnLlxrk8c=;
+        s=korg; t=1620642614;
+        bh=OKwK4eLz2HroNbBIrmCzlVwA30oGt11q/lcXejRblVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahnpDcixIkiCuxD5KZ9o3Lc/pVG/+RXXI9c/hddS2pNAFpn4Vol+kmAmrn78WsJT5
-         PoaQXbwkBW6pv+tXrQe7KeNHPbtH/NkPNBsKr3UR+lljrvl8PDEFcpUyt/3T1dr+w7
-         LZW5cWi1tEB8M1ToDIi9pggq1W00bapY3Yibum2Q=
+        b=rPpZr6X08bWugkjVciU3Qd3zis8KgirSD2dUYErFGjwWAySOEffETEbJq1NOQZnnJ
+         FIFh6SychF53ZF6k04ETTN8/EU4QfelhuNuDsL2nmrPP/LzWfdpS8bt/BtaDLVVmG8
+         O01JAjAy9i2tr5gyW+SbcrYci3/1JCwJ1R0m1DOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eckhart Mohr <e.mohr@tuxedocomputers.com>,
-        Werner Sembach <wse@tuxedocomputers.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 219/299] ALSA: hda/realtek: Add quirk for Intel Clevo PCx0Dx
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 122/184] mfd: arizona: Fix rumtime PM imbalance on error
 Date:   Mon, 10 May 2021 12:20:16 +0200
-Message-Id: <20210510102012.169103035@linuxfoundation.org>
+Message-Id: <20210510101954.169354391@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eckhart Mohr <e.mohr@tuxedocomputers.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 970e3012c04c96351c413f193a9c909e6d871ce2 upstream.
+[ Upstream commit fe6df2b48043bbe1e852b2320501d3b169363c35 ]
 
-This applies a SND_PCI_QUIRK(...) to the Clevo PCx0Dx barebones. This
-fix enables audio output over the headset jack and ensures that a
-microphone connected via the headset combo jack is correctly recognized
-when pluged in.
+pm_runtime_get_sync() will increase the rumtime PM counter
+even it returns an error. Thus a pairing decrement is needed
+to prevent refcount leak. Fix this by replacing this API with
+pm_runtime_resume_and_get(), which will not change the runtime
+PM counter on error.
 
-[ Rearranged the list entries in a sorted order -- tiwai ]
-
-Signed-off-by: Eckhart Mohr <e.mohr@tuxedocomputers.com>
-Co-developed-by: Werner Sembach <wse@tuxedocomputers.com>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210427153025.451118-1-wse@tuxedocomputers.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mfd/arizona-irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2552,8 +2552,10 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65d2, "Clevo PB51R[CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65e1, "Clevo PB51[ED][DF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
+diff --git a/drivers/mfd/arizona-irq.c b/drivers/mfd/arizona-irq.c
+index 077d9ab112b7..d919ae9691e2 100644
+--- a/drivers/mfd/arizona-irq.c
++++ b/drivers/mfd/arizona-irq.c
+@@ -100,7 +100,7 @@ static irqreturn_t arizona_irq_thread(int irq, void *data)
+ 	unsigned int val;
+ 	int ret;
+ 
+-	ret = pm_runtime_get_sync(arizona->dev);
++	ret = pm_runtime_resume_and_get(arizona->dev);
+ 	if (ret < 0) {
+ 		dev_err(arizona->dev, "Failed to resume device: %d\n", ret);
+ 		return IRQ_NONE;
+-- 
+2.30.2
+
 
 
