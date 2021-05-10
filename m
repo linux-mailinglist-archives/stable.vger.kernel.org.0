@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E8893783BF
+	by mail.lfdr.de (Postfix) with ESMTP id 03AEC3783BE
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232257AbhEJKrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:47:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
+        id S231523AbhEJKrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:47:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233094AbhEJKpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233097AbhEJKpG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:45:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8B6D61629;
-        Mon, 10 May 2021 10:34:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5723E6198D;
+        Mon, 10 May 2021 10:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642882;
-        bh=9gF8Q9fNXPb4r1Y32OJG8PUxSA5kit88CiPHfWD0a/s=;
+        s=korg; t=1620642884;
+        bh=C2H65WP07QgvE+W6suGNJ0L+SwhbQURawXPM8DVvPM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEtJ4KwmJzVn+7FTCEmVNvFDpTugxvbkHIvVj+njjImg/MG+wCSrP2AID/uX7tJNi
-         fn4Y7pDkzTRVniEXG6upBW+LY0c7rmcs2a/nzio3PA/z26UK5esQMRBLU1f1LfdjbR
-         qgqOvjx7t7FvCLYwLBsr7GPqdqfUb5SUIBWSunH8=
+        b=XVD1zsO+AqiBKpVrOojdNq2xozYfTaahSXWi8gI+HMxlpa3cGoN8z+vu+UFxjmCeT
+         T79JcpECySANEc24zCX6UB9l8UnQqRJ95OrnvZLjCCnIOukJ6eZS1HN64R6EDwqqY7
+         vRC9pasqDiESweB05lY1pYpI8GSWHJJQc16FYNx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/299] platform/x86: ISST: Account for increased timeout in some cases
-Date:   Mon, 10 May 2021 12:18:08 +0200
-Message-Id: <20210510102007.953462539@linuxfoundation.org>
+Subject: [PATCH 5.10 092/299] spi: dln2: Fix reference leak to master
+Date:   Mon, 10 May 2021 12:18:09 +0200
+Message-Id: <20210510102007.984328221@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -41,114 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 5c782817a981981917ec3c647cf521022ee07143 ]
+[ Upstream commit 9b844b087124c1538d05f40fda8a4fec75af55be ]
 
-In some cases when firmware is busy or updating, some mailbox commands
-still timeout on some newer CPUs. To fix this issue, change how we
-process timeout.
+Call spi_master_get() holds the reference count to master device, thus
+we need an additional spi_master_put() call to reduce the reference
+count, otherwise we will leak a reference to master.
 
-With this change, replaced timeout from using simple count with real
-timeout in micro-seconds using ktime. When the command response takes
-more than average processing time, yield to other tasks. The worst case
-timeout is extended upto 1 milli-second.
+This commit fix it by removing the unnecessary spi_master_get().
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Link: https://lore.kernel.org/r/20210330220840.3113959-1-srinivas.pandruvada@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20210409082955.2907950-1-weiyongjun1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../intel_speed_select_if/isst_if_mbox_pci.c  | 33 +++++++++++++------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ drivers/spi/spi-dln2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c b/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
-index 95f01e7a87d5..da958aa8468d 100644
---- a/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
-+++ b/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
-@@ -21,12 +21,16 @@
- #define PUNIT_MAILBOX_BUSY_BIT		31
+diff --git a/drivers/spi/spi-dln2.c b/drivers/spi/spi-dln2.c
+index 75b33d7d14b0..9a4d942fafcf 100644
+--- a/drivers/spi/spi-dln2.c
++++ b/drivers/spi/spi-dln2.c
+@@ -780,7 +780,7 @@ exit_free_master:
  
- /*
-- * The average time to complete some commands is about 40us. The current
-- * count is enough to satisfy 40us. But when the firmware is very busy, this
-- * causes timeout occasionally.  So increase to deal with some worst case
-- * scenarios. Most of the command still complete in few us.
-+ * The average time to complete mailbox commands is less than 40us. Most of
-+ * the commands complete in few micro seconds. But the same firmware handles
-+ * requests from all power management features.
-+ * We can create a scenario where we flood the firmware with requests then
-+ * the mailbox response can be delayed for 100s of micro seconds. So define
-+ * two timeouts. One for average case and one for long.
-+ * If the firmware is taking more than average, just call cond_resched().
-  */
--#define OS_MAILBOX_RETRY_COUNT		100
-+#define OS_MAILBOX_TIMEOUT_AVG_US	40
-+#define OS_MAILBOX_TIMEOUT_MAX_US	1000
- 
- struct isst_if_device {
- 	struct mutex mutex;
-@@ -35,11 +39,13 @@ struct isst_if_device {
- static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 			    struct isst_if_mbox_cmd *mbox_cmd)
+ static int dln2_spi_remove(struct platform_device *pdev)
  {
--	u32 retries, data;
-+	s64 tm_delta = 0;
-+	ktime_t tm;
-+	u32 data;
- 	int ret;
+-	struct spi_master *master = spi_master_get(platform_get_drvdata(pdev));
++	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct dln2_spi *dln2 = spi_master_get_devdata(master);
  
- 	/* Poll for rb bit == 0 */
--	retries = OS_MAILBOX_RETRY_COUNT;
-+	tm = ktime_get();
- 	do {
- 		ret = pci_read_config_dword(pdev, PUNIT_MAILBOX_INTERFACE,
- 					    &data);
-@@ -48,11 +54,14 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 
- 		if (data & BIT_ULL(PUNIT_MAILBOX_BUSY_BIT)) {
- 			ret = -EBUSY;
-+			tm_delta = ktime_us_delta(ktime_get(), tm);
-+			if (tm_delta > OS_MAILBOX_TIMEOUT_AVG_US)
-+				cond_resched();
- 			continue;
- 		}
- 		ret = 0;
- 		break;
--	} while (--retries);
-+	} while (tm_delta < OS_MAILBOX_TIMEOUT_MAX_US);
- 
- 	if (ret)
- 		return ret;
-@@ -74,7 +83,8 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 		return ret;
- 
- 	/* Poll for rb bit == 0 */
--	retries = OS_MAILBOX_RETRY_COUNT;
-+	tm_delta = 0;
-+	tm = ktime_get();
- 	do {
- 		ret = pci_read_config_dword(pdev, PUNIT_MAILBOX_INTERFACE,
- 					    &data);
-@@ -83,6 +93,9 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 
- 		if (data & BIT_ULL(PUNIT_MAILBOX_BUSY_BIT)) {
- 			ret = -EBUSY;
-+			tm_delta = ktime_us_delta(ktime_get(), tm);
-+			if (tm_delta > OS_MAILBOX_TIMEOUT_AVG_US)
-+				cond_resched();
- 			continue;
- 		}
- 
-@@ -96,7 +109,7 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 		mbox_cmd->resp_data = data;
- 		ret = 0;
- 		break;
--	} while (--retries);
-+	} while (tm_delta < OS_MAILBOX_TIMEOUT_MAX_US);
- 
- 	return ret;
- }
+ 	pm_runtime_disable(&pdev->dev);
 -- 
 2.30.2
 
