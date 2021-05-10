@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE51A37848B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 251463782CB
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231732AbhEJKxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42076 "EHLO mail.kernel.org"
+        id S230503AbhEJKiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:38:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232769AbhEJKvK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:51:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BADFA61960;
-        Mon, 10 May 2021 10:40:28 +0000 (UTC)
+        id S231989AbhEJKfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:35:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F81B6144E;
+        Mon, 10 May 2021 10:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643229;
-        bh=bSLkO+VVhvv8H1V2LIVqicFAIdm0qHnN9TBYcyXa2QU=;
+        s=korg; t=1620642528;
+        bh=DCHY9BwtrB1rxiIe8oM3OsBDQMo8xeEFLzJ/0d9rmWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wT5/y6evRSdNWFbsmQUnVabncov2kt0d24Id8vuL4xIDQ8g4Kz17FuiE0ikJDSNYd
-         /zRZji4gScbvtdmytpS29KjurlrTs0w1KZl00FP+6uVeDkCAZ233rnNm+AIe3vsyyh
-         F4V3SlxuekYMhPRy8JhcQT3dnr+7YwooaKDqdN9I=
+        b=CUrM23RWnxjTtSVPfg10t9YGDfqRRXSFWK/L6qD/6A623KG8xe98uLHv8IW42/wpB
+         a+hF7fYkz8HRHgteOovsyBeKlTnMsCnFJj7UmcBSvyCTRzVTFkVzCamKZ88tWw/X7q
+         iQUiLokV8XdEIvm5wEww7uXxbXAivC1nh57GU3MU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Subject: [PATCH 5.10 229/299] f2fs: fix to avoid out-of-bounds memory access
+        stable@vger.kernel.org, Phil Calvin <phil@philcalvin.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 132/184] ALSA: hda/realtek: fix mic boost on Intel NUC 8
 Date:   Mon, 10 May 2021 12:20:26 +0200
-Message-Id: <20210510102012.520767471@linuxfoundation.org>
+Message-Id: <20210510101954.490276309@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Phil Calvin <phil@philcalvin.com>
 
-commit b862676e371715456c9dade7990c8004996d0d9e upstream.
+commit d1ee66c5d3c5a0498dd5e3f2af5b8c219a98bba5 upstream.
 
-butt3rflyh4ck <butterflyhuangxx@gmail.com> reported a bug found by
-syzkaller fuzzer with custom modifications in 5.12.0-rc3+ [1]:
+Fix two bugs with the Intel HDA Realtek ALC233 sound codec
+present in Intel NUC NUC8i7BEH and probably a few other similar
+NUC models.
 
- dump_stack+0xfa/0x151 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x82/0x32c mm/kasan/report.c:232
- __kasan_report mm/kasan/report.c:399 [inline]
- kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
- f2fs_test_bit fs/f2fs/f2fs.h:2572 [inline]
- current_nat_addr fs/f2fs/node.h:213 [inline]
- get_next_nat_page fs/f2fs/node.c:123 [inline]
- __flush_nat_entry_set fs/f2fs/node.c:2888 [inline]
- f2fs_flush_nat_entries+0x258e/0x2960 fs/f2fs/node.c:2991
- f2fs_write_checkpoint+0x1372/0x6a70 fs/f2fs/checkpoint.c:1640
- f2fs_issue_checkpoint+0x149/0x410 fs/f2fs/checkpoint.c:1807
- f2fs_sync_fs+0x20f/0x420 fs/f2fs/super.c:1454
- __sync_filesystem fs/sync.c:39 [inline]
- sync_filesystem fs/sync.c:67 [inline]
- sync_filesystem+0x1b5/0x260 fs/sync.c:48
- generic_shutdown_super+0x70/0x370 fs/super.c:448
- kill_block_super+0x97/0xf0 fs/super.c:1394
+These codecs advertise a 4-level microphone input boost amplifier on
+pin 0x19, but the highest two boost settings do not work correctly,
+and produce only low analog noise that does not seem to contain any
+discernible signal. There is an existing fixup for this exact problem
+but for a different PCI subsystem ID, so we re-use that logic.
 
-The root cause is, if nat entry in checkpoint journal area is corrupted,
-e.g. nid of journalled nat entry exceeds max nid value, during checkpoint,
-once it tries to flush nat journal to NAT area, get_next_nat_page() may
-access out-of-bounds memory on nat_bitmap due to it uses wrong nid value
-as bitmap offset.
+Changing the boost level also triggers a DC spike in the input signal
+that bleeds off over about a second and overwhelms any input during
+that time. Thankfully, the existing fixup has the side effect of
+making the boost control show up in userspace as a mute/unmute switch,
+and this keeps (e.g.) PulseAudio from fiddling with it during normal
+input volume adjustments.
 
-[1] https://lore.kernel.org/lkml/CAFcO6XOMWdr8pObek6eN6-fs58KG9doRFadgJj-FnF-1x43s2g@mail.gmail.com/T/#u
+Finally, the NUC hardware has built-in inverted stereo mics. This
+patch also enables the usual fixup for this so the two channels cancel
+noise instead of the actual signal.
 
-Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+[ Re-ordered the quirk entry point by tiwai ]
+
+Signed-off-by: Phil Calvin <phil@philcalvin.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/80dc5663-7734-e7e5-25ef-15b5df24511a@philcalvin.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/node.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_realtek.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2781,6 +2781,9 @@ static void remove_nats_in_journal(struc
- 		struct f2fs_nat_entry raw_ne;
- 		nid_t nid = le32_to_cpu(nid_in_journal(journal, i));
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6332,6 +6332,8 @@ enum {
+ 	ALC269_FIXUP_LEMOTE_A1802,
+ 	ALC269_FIXUP_LEMOTE_A190X,
+ 	ALC256_FIXUP_INTEL_NUC8_RUGGED,
++	ALC233_FIXUP_INTEL_NUC8_DMIC,
++	ALC233_FIXUP_INTEL_NUC8_BOOST,
+ 	ALC256_FIXUP_INTEL_NUC10,
+ 	ALC255_FIXUP_XIAOMI_HEADSET_MIC,
+ 	ALC274_FIXUP_HP_MIC,
+@@ -7043,6 +7045,16 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc233_fixup_lenovo_line2_mic_hotkey,
+ 	},
++	[ALC233_FIXUP_INTEL_NUC8_DMIC] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc_fixup_inv_dmic,
++		.chained = true,
++		.chain_id = ALC233_FIXUP_INTEL_NUC8_BOOST,
++	},
++	[ALC233_FIXUP_INTEL_NUC8_BOOST] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc269_fixup_limit_int_mic_boost
++	},
+ 	[ALC255_FIXUP_DELL_SPK_NOISE] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc_fixup_disable_aamix,
+@@ -8125,6 +8137,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
+ 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
++	SND_PCI_QUIRK(0x8086, 0x2074, "Intel NUC 8", ALC233_FIXUP_INTEL_NUC8_DMIC),
+ 	SND_PCI_QUIRK(0x8086, 0x2080, "Intel NUC 8 Rugged", ALC256_FIXUP_INTEL_NUC8_RUGGED),
+ 	SND_PCI_QUIRK(0x8086, 0x2081, "Intel NUC 10", ALC256_FIXUP_INTEL_NUC10),
  
-+		if (f2fs_check_nid_range(sbi, nid))
-+			continue;
-+
- 		raw_ne = nat_in_journal(journal, i);
- 
- 		ne = __lookup_nat_cache(nm_i, nid);
 
 
