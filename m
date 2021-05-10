@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61877378903
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39655378710
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236792AbhEJLZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
+        id S235134AbhEJLNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:13:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237480AbhEJLPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:15:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9241661288;
-        Mon, 10 May 2021 11:11:02 +0000 (UTC)
+        id S235883AbhEJLGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:06:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EF2161581;
+        Mon, 10 May 2021 10:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645063;
-        bh=ixXvKLSy18G5CyVdi8WHqjtr8ZHOC6O9tOQOd402WhE=;
+        s=korg; t=1620644213;
+        bh=3XajU10dEMXk9toIBhGzvm02aQA3tpd2LUqRYNKKr64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/RE4kyslSVUs97Ucnao4OQ88EWC045OIDPxDKD6Q+ZAizEXPUEAWBpXsUA0tERIx
-         KPZELSELm+4U1SyNdpcswz3YsKcUCzfX9cJm4UG0wAezJC6OGaC1yBXadJ0qftZ1w7
-         25WenCz8XKCeDA1cdbv1NsEOwLCQNqPbtr5q1e3k=
+        b=ZlK8jSSx5BWoHUzp5/6EPY3IEpaCmztcJkqk74Vw53bViPm1BdeV3S7mi6/3KQ9kK
+         vezfr940b9WhdkJehDiCq3yjEKRqh8TDnp7ZO8Fzs8BtEw3ews4vsb4k9JCAfce9ts
+         kiLxM+4ZqdgCGJSijxwVMZzeM0/BfmPu9zwQnXnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elliot Berman <eberman@codeaurora.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.12 335/384] kbuild: update config_data.gz only when the content of .config is changed
+        stable@vger.kernel.org, Konstantin Kharlamov <hi-angel@yandex.ru>,
+        Todd Brandt <todd.e.brandt@linux.intel.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.11 334/342] tracing: Restructure trace_clock_global() to never block
 Date:   Mon, 10 May 2021 12:22:04 +0200
-Message-Id: <20210510102025.830537773@linuxfoundation.org>
+Message-Id: <20210510102021.147148381@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,88 +40,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 46b41d5dd8019b264717978c39c43313a524d033 upstream.
+commit aafe104aa9096827a429bc1358f8260ee565b7cc upstream.
 
-If the timestamp of the .config file is updated, config_data.gz is
-regenerated, then vmlinux is re-linked. This occurs even if the content
-of the .config has not changed at all.
+It was reported that a fix to the ring buffer recursion detection would
+cause a hung machine when performing suspend / resume testing. The
+following backtrace was extracted from debugging that case:
 
-This issue was mitigated by commit 67424f61f813 ("kconfig: do not write
-.config if the content is the same"); Kconfig does not update the
-.config when it ends up with the identical configuration.
+Call Trace:
+ trace_clock_global+0x91/0xa0
+ __rb_reserve_next+0x237/0x460
+ ring_buffer_lock_reserve+0x12a/0x3f0
+ trace_buffer_lock_reserve+0x10/0x50
+ __trace_graph_return+0x1f/0x80
+ trace_graph_return+0xb7/0xf0
+ ? trace_clock_global+0x91/0xa0
+ ftrace_return_to_handler+0x8b/0xf0
+ ? pv_hash+0xa0/0xa0
+ return_to_handler+0x15/0x30
+ ? ftrace_graph_caller+0xa0/0xa0
+ ? trace_clock_global+0x91/0xa0
+ ? __rb_reserve_next+0x237/0x460
+ ? ring_buffer_lock_reserve+0x12a/0x3f0
+ ? trace_event_buffer_lock_reserve+0x3c/0x120
+ ? trace_event_buffer_reserve+0x6b/0xc0
+ ? trace_event_raw_event_device_pm_callback_start+0x125/0x2d0
+ ? dpm_run_callback+0x3b/0xc0
+ ? pm_ops_is_empty+0x50/0x50
+ ? platform_get_irq_byname_optional+0x90/0x90
+ ? trace_device_pm_callback_start+0x82/0xd0
+ ? dpm_run_callback+0x49/0xc0
 
-The issue is remaining when the .config is created by *_defconfig with
-some config fragment(s) applied on top.
+With the following RIP:
 
-This is typical for powerpc and mips, where several *_defconfig targets
-are constructed by using merge_config.sh.
+RIP: 0010:native_queued_spin_lock_slowpath+0x69/0x200
 
-One workaround is to have the copy of the .config. The filechk rule
-updates the copy, kernel/config_data, by checking the content instead
-of the timestamp.
+Since the fix to the recursion detection would allow a single recursion to
+happen while tracing, this lead to the trace_clock_global() taking a spin
+lock and then trying to take it again:
 
-With this commit, the second run with the same configuration avoids
-the needless rebuilds.
+ring_buffer_lock_reserve() {
+  trace_clock_global() {
+    arch_spin_lock() {
+      queued_spin_lock_slowpath() {
+        /* lock taken */
+        (something else gets traced by function graph tracer)
+          ring_buffer_lock_reserve() {
+            trace_clock_global() {
+              arch_spin_lock() {
+                queued_spin_lock_slowpath() {
+                /* DEAD LOCK! */
 
-  $ make ARCH=mips defconfig all
-   [ snip ]
-  $ make ARCH=mips defconfig all
-  *** Default configuration is based on target '32r2el_defconfig'
-  Using ./arch/mips/configs/generic_defconfig as base
-  Merging arch/mips/configs/generic/32r2.config
-  Merging arch/mips/configs/generic/el.config
-  Merging ./arch/mips/configs/generic/board-boston.config
-  Merging ./arch/mips/configs/generic/board-ni169445.config
-  Merging ./arch/mips/configs/generic/board-ocelot.config
-  Merging ./arch/mips/configs/generic/board-ranchu.config
-  Merging ./arch/mips/configs/generic/board-sead-3.config
-  Merging ./arch/mips/configs/generic/board-xilfpga.config
-  #
-  # configuration written to .config
-  #
-    SYNC    include/config/auto.conf
-    CALL    scripts/checksyscalls.sh
-    CALL    scripts/atomic/check-atomics.sh
-    CHK     include/generated/compile.h
-    CHK     include/generated/autoksyms.h
+Tracing should *never* block, as it can lead to strange lockups like the
+above.
 
-Reported-by: Elliot Berman <eberman@codeaurora.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Restructure the trace_clock_global() code to instead of simply taking a
+lock to update the recorded "prev_time" simply use it, as two events
+happening on two different CPUs that calls this at the same time, really
+doesn't matter which one goes first. Use a trylock to grab the lock for
+updating the prev_time, and if it fails, simply try again the next time.
+If it failed to be taken, that means something else is already updating
+it.
+
+Link: https://lkml.kernel.org/r/20210430121758.650b6e8a@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Tested-by: Konstantin Kharlamov <hi-angel@yandex.ru>
+Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
+Fixes: b02414c8f045 ("ring-buffer: Fix recursion protection transitions between interrupt context") # started showing the problem
+Fixes: 14131f2f98ac3 ("tracing: implement trace_clock_*() APIs") # where the bug happened
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212761
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/.gitignore |    1 +
- kernel/Makefile   |    9 +++++++--
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ kernel/trace/trace_clock.c |   48 ++++++++++++++++++++++++++++++---------------
+ 1 file changed, 32 insertions(+), 16 deletions(-)
 
---- a/kernel/.gitignore
-+++ b/kernel/.gitignore
-@@ -1,4 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
-+/config_data
- kheaders.md5
- timeconst.h
- hz.bc
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -138,10 +138,15 @@ obj-$(CONFIG_SCF_TORTURE_TEST) += scftor
+--- a/kernel/trace/trace_clock.c
++++ b/kernel/trace/trace_clock.c
+@@ -95,33 +95,49 @@ u64 notrace trace_clock_global(void)
+ {
+ 	unsigned long flags;
+ 	int this_cpu;
+-	u64 now;
++	u64 now, prev_time;
  
- $(obj)/configs.o: $(obj)/config_data.gz
+ 	raw_local_irq_save(flags);
  
--targets += config_data.gz
--$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
-+targets += config_data config_data.gz
-+$(obj)/config_data.gz: $(obj)/config_data FORCE
- 	$(call if_changed,gzip)
- 
-+filechk_cat = cat $<
+ 	this_cpu = raw_smp_processor_id();
+-	now = sched_clock_cpu(this_cpu);
 +
-+$(obj)/config_data: $(KCONFIG_CONFIG) FORCE
-+	$(call filechk,cat)
-+
- $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
+ 	/*
+-	 * If in an NMI context then dont risk lockups and return the
+-	 * cpu_clock() time:
++	 * The global clock "guarantees" that the events are ordered
++	 * between CPUs. But if two events on two different CPUS call
++	 * trace_clock_global at roughly the same time, it really does
++	 * not matter which one gets the earlier time. Just make sure
++	 * that the same CPU will always show a monotonic clock.
++	 *
++	 * Use a read memory barrier to get the latest written
++	 * time that was recorded.
+ 	 */
+-	if (unlikely(in_nmi()))
+-		goto out;
++	smp_rmb();
++	prev_time = READ_ONCE(trace_clock_struct.prev_time);
++	now = sched_clock_cpu(this_cpu);
  
- quiet_cmd_genikh = CHK     $(obj)/kheaders_data.tar.xz
+-	arch_spin_lock(&trace_clock_struct.lock);
++	/* Make sure that now is always greater than prev_time */
++	if ((s64)(now - prev_time) < 0)
++		now = prev_time + 1;
+ 
+ 	/*
+-	 * TODO: if this happens often then maybe we should reset
+-	 * my_scd->clock to prev_time+1, to make sure
+-	 * we start ticking with the local clock from now on?
++	 * If in an NMI context then dont risk lockups and simply return
++	 * the current time.
+ 	 */
+-	if ((s64)(now - trace_clock_struct.prev_time) < 0)
+-		now = trace_clock_struct.prev_time + 1;
+-
+-	trace_clock_struct.prev_time = now;
+-
+-	arch_spin_unlock(&trace_clock_struct.lock);
++	if (unlikely(in_nmi()))
++		goto out;
+ 
++	/* Tracing can cause strange recursion, always use a try lock */
++	if (arch_spin_trylock(&trace_clock_struct.lock)) {
++		/* Reread prev_time in case it was already updated */
++		prev_time = READ_ONCE(trace_clock_struct.prev_time);
++		if ((s64)(now - prev_time) < 0)
++			now = prev_time + 1;
++
++		trace_clock_struct.prev_time = now;
++
++		/* The unlock acts as the wmb for the above rmb */
++		arch_spin_unlock(&trace_clock_struct.lock);
++	}
+  out:
+ 	raw_local_irq_restore(flags);
+ 
 
 
