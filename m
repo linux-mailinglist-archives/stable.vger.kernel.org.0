@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86CED378167
+	by mail.lfdr.de (Postfix) with ESMTP id D9854378168
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231340AbhEJK0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:26:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59368 "EHLO mail.kernel.org"
+        id S231478AbhEJK0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:26:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231341AbhEJKZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:25:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC7B761490;
-        Mon, 10 May 2021 10:24:45 +0000 (UTC)
+        id S230381AbhEJK0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:26:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7090561469;
+        Mon, 10 May 2021 10:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642286;
-        bh=Pgi5AOJ+c7NHVLTDkIGB5saGftEkhD5/Oray332hU3I=;
+        s=korg; t=1620642289;
+        bh=VrwHoIf2G4TvsPc3j/CElybg0GVSiEhd0AMv7J0lRnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bw1lvezogVO1zitoB7y0V0JLh46cXaHl4nXJo6TpL5WQdxqO93DCHYrbnzGOxp6Z9
-         oXtaUkzV2DzAZ6pPpR4NsbYzQFRn5Wrg5I8rlg3Nxu3lC3GK+/t6LhiNumNxoEMEfZ
-         mQproKqL1SzgKE+EkC+6LF2+/RhjLsspRnO2R3Js=
+        b=xSp4fXdRJI27z73T9UidvIwARgAtTCqNSdLF2NbQiTfxtNevLuDvk7Zhxu3J7JKV7
+         Gdtxj7K1Md68W1MA5NZDkkWWYo4dSYq5BIuyouzBm3333Y7corUPBQ8NUYQ16dG2Lz
+         1ktI+deMi4K2ocUjly2zWuSm8YiopOwyZ+HDsWqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Aurich <paul@darkrain42.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 033/184] cifs: Return correct error code from smb2_get_enc_key
-Date:   Mon, 10 May 2021 12:18:47 +0200
-Message-Id: <20210510101951.309998775@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 034/184] btrfs: fix metadata extent leak after failure to create subvolume
+Date:   Mon, 10 May 2021 12:18:48 +0200
+Message-Id: <20210510101951.340474920@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -39,50 +39,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Aurich <paul@darkrain42.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 83728cbf366e334301091d5b808add468ab46b27 upstream.
+commit 67addf29004c5be9fa0383c82a364bb59afc7f84 upstream.
 
-Avoid a warning if the error percolates back up:
+When creating a subvolume we allocate an extent buffer for its root node
+after starting a transaction. We setup a root item for the subvolume that
+points to that extent buffer and then attempt to insert the root item into
+the root tree - however if that fails, due to ENOMEM for example, we do
+not free the extent buffer previously allocated and we do not abort the
+transaction (as at that point we did nothing that can not be undone).
 
-[440700.376476] CIFS VFS: \\otters.example.com crypt_message: Could not get encryption key
-[440700.386947] ------------[ cut here ]------------
-[440700.386948] err = 1
-[440700.386977] WARNING: CPU: 11 PID: 2733 at /build/linux-hwe-5.4-p6lk6L/linux-hwe-5.4-5.4.0/lib/errseq.c:74 errseq_set+0x5c/0x70
-...
-[440700.397304] CPU: 11 PID: 2733 Comm: tar Tainted: G           OE     5.4.0-70-generic #78~18.04.1-Ubuntu
-...
-[440700.397334] Call Trace:
-[440700.397346]  __filemap_set_wb_err+0x1a/0x70
-[440700.397419]  cifs_writepages+0x9c7/0xb30 [cifs]
-[440700.397426]  do_writepages+0x4b/0xe0
-[440700.397444]  __filemap_fdatawrite_range+0xcb/0x100
-[440700.397455]  filemap_write_and_wait+0x42/0xa0
-[440700.397486]  cifs_setattr+0x68b/0xf30 [cifs]
-[440700.397493]  notify_change+0x358/0x4a0
-[440700.397500]  utimes_common+0xe9/0x1c0
-[440700.397510]  do_utimes+0xc5/0x150
-[440700.397520]  __x64_sys_utimensat+0x88/0xd0
+This means that we effectively do not return the metadata extent back to
+the free space cache/tree and we leave a delayed reference for it which
+causes a metadata extent item to be added to the extent tree, in the next
+transaction commit, without having backreferences. When this happens
+'btrfs check' reports the following:
 
-Fixes: 61cfac6f267d ("CIFS: Fix possible use after free in demultiplex thread")
-Signed-off-by: Paul Aurich <paul@darkrain42.org>
-CC: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+  $ btrfs check /dev/sdi
+  Opening filesystem to check...
+  Checking filesystem on /dev/sdi
+  UUID: dce2cb9d-025f-4b05-a4bf-cee0ad3785eb
+  [1/7] checking root items
+  [2/7] checking extents
+  ref mismatch on [30425088 16384] extent item 1, found 0
+  backref 30425088 root 256 not referenced back 0x564a91c23d70
+  incorrect global backref count on 30425088 found 1 wanted 0
+  backpointer mismatch on [30425088 16384]
+  owner ref check failed [30425088 16384]
+  ERROR: errors found in extent allocation tree or chunk allocation
+  [3/7] checking free space cache
+  [4/7] checking fs roots
+  [5/7] checking only csums items (without verifying data)
+  [6/7] checking root refs
+  [7/7] checking quota groups skipped (not enabled on this FS)
+  found 212992 bytes used, error(s) found
+  total csum bytes: 0
+  total tree bytes: 131072
+  total fs tree bytes: 32768
+  total extent tree bytes: 16384
+  btree space waste bytes: 124669
+  file data blocks allocated: 65536
+   referenced 65536
+
+So fix this by freeing the metadata extent if btrfs_insert_root() returns
+an error.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/ioctl.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3693,7 +3693,7 @@ smb2_get_enc_key(struct TCP_Server_Info
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -667,8 +667,6 @@ static noinline int create_subvol(struct
+ 	btrfs_set_root_otransid(root_item, trans->transid);
  
--	return 1;
-+	return -EAGAIN;
- }
- /*
-  * Encrypt or decrypt @rqst message. @rqst[0] has the following format:
+ 	btrfs_tree_unlock(leaf);
+-	free_extent_buffer(leaf);
+-	leaf = NULL;
+ 
+ 	btrfs_set_root_dirid(root_item, new_dirid);
+ 
+@@ -677,8 +675,22 @@ static noinline int create_subvol(struct
+ 	key.type = BTRFS_ROOT_ITEM_KEY;
+ 	ret = btrfs_insert_root(trans, fs_info->tree_root, &key,
+ 				root_item);
+-	if (ret)
++	if (ret) {
++		/*
++		 * Since we don't abort the transaction in this case, free the
++		 * tree block so that we don't leak space and leave the
++		 * filesystem in an inconsistent state (an extent item in the
++		 * extent tree without backreferences). Also no need to have
++		 * the tree block locked since it is not in any tree at this
++		 * point, so no other task can find it and use it.
++		 */
++		btrfs_free_tree_block(trans, root, leaf, 0, 1);
++		free_extent_buffer(leaf);
+ 		goto fail;
++	}
++
++	free_extent_buffer(leaf);
++	leaf = NULL;
+ 
+ 	key.offset = (u64)-1;
+ 	new_root = btrfs_read_fs_root_no_name(fs_info, &key);
 
 
