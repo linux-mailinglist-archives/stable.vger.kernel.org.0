@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A638F37862D
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC0FF378634
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234466AbhEJLEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:04:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52740 "EHLO mail.kernel.org"
+        id S234574AbhEJLEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:04:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235013AbhEJK52 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:57:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1E7D619C8;
-        Mon, 10 May 2021 10:50:57 +0000 (UTC)
+        id S235028AbhEJK5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:57:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A13A0619D4;
+        Mon, 10 May 2021 10:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643858;
-        bh=T54aLA5wD0D6/LLW3960542PD7sKXeumim8pBYl7Fos=;
+        s=korg; t=1620643863;
+        bh=iHP5PI9dFvN+iJnh0PXIZUJf03sir2CeqLFELWPo6tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaCsrlfytwjl7t3riN40ceRc9LbV16S598KwFMcFk+tJqVXW4aACW6Xpo3goQ5AMO
-         54ePzuzNq4VfLLVgDrNk5zVZg9uSdNft1STjjbUtEL97ewrL8YEInd4J87j2PqL1uK
-         H5FenMK1Mi08NWe+gNMTvG88arI9AZ7ocoPYL6fQ=
+        b=0bYOaYzQKm3uqibpfSDgq7ZGmrzvF1BOqapSnYYhg4R2Joy1qJGms9ILFbKUopxUz
+         n1zKihX3Pxh1bbn/2oTO8OqISFrGMDWMnf/Ax/MdGvZtH7KGQZJssi7DDFKBxiWDH0
+         y8TwG2rua04d/wOPrWZtH1sYqBwxbrbrXTgNXxKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Fenghua Yu <fenghua.yu@intel.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 189/342] selftests/resctrl: Use resctrl/info for feature detection
-Date:   Mon, 10 May 2021 12:19:39 +0200
-Message-Id: <20210510102016.332275637@linuxfoundation.org>
+Subject: [PATCH 5.11 190/342] selftests/resctrl: Fix incorrect parsing of iMC counters
+Date:   Mon, 10 May 2021 12:19:40 +0200
+Message-Id: <20210510102016.370577548@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -45,46 +45,24 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit ee0415681eb661efa1eb2db7acc263f2c7df1e23 ]
+[ Upstream commit d81343b5eedf84be71a4313e8fd073d0c510afcf ]
 
-Resctrl test suite before running any unit test (like cmt, cat, mbm and
-mba) should first check if the feature is enabled (by kernel and not just
-supported by H/W) on the platform or not.
-validate_resctrl_feature_request() is supposed to do that. This function
-intends to grep for relevant flags in /proc/cpuinfo but there are several
-issues here
+iMC (Integrated Memory Controller) counters are usually at
+"/sys/bus/event_source/devices/" and are named as "uncore_imc_<n>".
+num_of_imcs() function tries to count number of such iMC counters so that
+it could appropriately initialize required number of perf_attr structures
+that could be used to read these iMC counters.
 
-1. validate_resctrl_feature_request() calls fgrep() to get flags from
-   /proc/cpuinfo. But, fgrep() can only return a string with maximum of 255
-   characters and hence the complete cpu flags are never returned.
-2. The substring search logic is also busted. If strstr() finds requested
-   resctrl feature in the cpu flags, it returns pointer to the first
-   occurrence. But, the logic negates the return value of strstr() and
-   hence validate_resctrl_feature_request() returns false if the feature is
-   present in the cpu flags and returns true if the feature is not present.
-3. validate_resctrl_feature_request() checks if a resctrl feature is
-   reported in /proc/cpuinfo flags or not. Having a cpu flag means that the
-   H/W supports the feature, but it doesn't mean that the kernel enabled
-   it. A user could selectively enable only a subset of resctrl features
-   using kernel command line arguments. Hence, /proc/cpuinfo isn't a
-   reliable source to check if a feature is enabled or not.
+num_of_imcs() function assumes that all the directories under this path
+that start with "uncore_imc" are iMC counters. But, on some systems there
+could be directories named as "uncore_imc_free_running" which aren't iMC
+counters. Trying to read from such directories will result in "not found
+file" errors and MBM/MBA tests will fail.
 
-The 3rd issue being the major one and fixing it requires changing the way
-validate_resctrl_feature_request() works. Since, /proc/cpuinfo isn't the
-right place to check if a resctrl feature is enabled or not, a more
-appropriate place is /sys/fs/resctrl/info directory. Change
-validate_resctrl_feature_request() such that,
-
-1. For cat, check if /sys/fs/resctrl/info/L3 directory is present or not
-2. For mba, check if /sys/fs/resctrl/info/MB directory is present or not
-3. For cmt, check if /sys/fs/resctrl/info/L3_MON directory is present and
-   check if /sys/fs/resctrl/info/L3_MON/mon_features has llc_occupancy
-4. For mbm, check if /sys/fs/resctrl/info/L3_MON directory is present and
-   check if /sys/fs/resctrl/info/L3_MON/mon_features has
-   mbm_<total/local>_bytes
-
-Please note that only L3_CAT, L3_CMT, MBA and MBM are supported. CDP and L2
-variants can be added later.
+Hence, fix the logic in num_of_imcs() such that it looks at the first
+character after "uncore_imc_" to check if it's a numerical digit or not. If
+it's a digit then the directory represents an iMC counter, else, skip the
+directory.
 
 Reported-by: Reinette Chatre <reinette.chatre@intel.com>
 Tested-by: Babu Moger <babu.moger@amd.com>
@@ -92,106 +70,50 @@ Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/resctrl/resctrl.h   |  6 ++-
- tools/testing/selftests/resctrl/resctrlfs.c | 52 ++++++++++++++++-----
- 2 files changed, 46 insertions(+), 12 deletions(-)
+ tools/testing/selftests/resctrl/resctrl_val.c | 22 +++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/resctrl/resctrl.h b/tools/testing/selftests/resctrl/resctrl.h
-index 36da6136af96..9dcc96e1ad3d 100644
---- a/tools/testing/selftests/resctrl/resctrl.h
-+++ b/tools/testing/selftests/resctrl/resctrl.h
-@@ -28,6 +28,10 @@
- #define RESCTRL_PATH		"/sys/fs/resctrl"
- #define PHYS_ID_PATH		"/sys/devices/system/cpu/cpu"
- #define CBM_MASK_PATH		"/sys/fs/resctrl/info"
-+#define L3_PATH			"/sys/fs/resctrl/info/L3"
-+#define MB_PATH			"/sys/fs/resctrl/info/MB"
-+#define L3_MON_PATH		"/sys/fs/resctrl/info/L3_MON"
-+#define L3_MON_FEATURES_PATH	"/sys/fs/resctrl/info/L3_MON/mon_features"
- 
- #define PARENT_EXIT(err_msg)			\
- 	do {					\
-@@ -79,7 +83,7 @@ int remount_resctrlfs(bool mum_resctrlfs);
- int get_resource_id(int cpu_no, int *resource_id);
- int umount_resctrlfs(void);
- int validate_bw_report_request(char *bw_report);
--bool validate_resctrl_feature_request(char *resctrl_val);
-+bool validate_resctrl_feature_request(const char *resctrl_val);
- char *fgrep(FILE *inf, const char *str);
- int taskset_benchmark(pid_t bm_pid, int cpu_no);
- void run_benchmark(int signum, siginfo_t *info, void *ucontext);
-diff --git a/tools/testing/selftests/resctrl/resctrlfs.c b/tools/testing/selftests/resctrl/resctrlfs.c
-index 4174e48e06d1..b57170f53861 100644
---- a/tools/testing/selftests/resctrl/resctrlfs.c
-+++ b/tools/testing/selftests/resctrl/resctrlfs.c
-@@ -616,26 +616,56 @@ char *fgrep(FILE *inf, const char *str)
-  * validate_resctrl_feature_request - Check if requested feature is valid.
-  * @resctrl_val:	Requested feature
-  *
-- * Return: 0 on success, non-zero on failure
-+ * Return: True if the feature is supported, else false
+diff --git a/tools/testing/selftests/resctrl/resctrl_val.c b/tools/testing/selftests/resctrl/resctrl_val.c
+index aed71fd0713b..5478c23c62ba 100644
+--- a/tools/testing/selftests/resctrl/resctrl_val.c
++++ b/tools/testing/selftests/resctrl/resctrl_val.c
+@@ -221,8 +221,8 @@ static int read_from_imc_dir(char *imc_dir, int count)
   */
--bool validate_resctrl_feature_request(char *resctrl_val)
-+bool validate_resctrl_feature_request(const char *resctrl_val)
+ static int num_of_imcs(void)
  {
--	FILE *inf = fopen("/proc/cpuinfo", "r");
-+	struct stat statbuf;
- 	bool found = false;
- 	char *res;
-+	FILE *inf;
- 
--	if (!inf)
-+	if (!resctrl_val)
- 		return false;
- 
--	res = fgrep(inf, "flags");
--
--	if (res) {
--		char *s = strchr(res, ':');
-+	if (remount_resctrlfs(false))
-+		return false;
- 
--		found = s && !strstr(s, resctrl_val);
--		free(res);
-+	if (!strncmp(resctrl_val, CAT_STR, sizeof(CAT_STR))) {
-+		if (!stat(L3_PATH, &statbuf))
-+			return true;
-+	} else if (!strncmp(resctrl_val, MBA_STR, sizeof(MBA_STR))) {
-+		if (!stat(MB_PATH, &statbuf))
-+			return true;
-+	} else if (!strncmp(resctrl_val, MBM_STR, sizeof(MBM_STR)) ||
-+		   !strncmp(resctrl_val, CMT_STR, sizeof(CMT_STR))) {
-+		if (!stat(L3_MON_PATH, &statbuf)) {
-+			inf = fopen(L3_MON_FEATURES_PATH, "r");
-+			if (!inf)
-+				return false;
++	char imc_dir[512], *temp;
+ 	unsigned int count = 0;
+-	char imc_dir[512];
+ 	struct dirent *ep;
+ 	int ret;
+ 	DIR *dp;
+@@ -230,7 +230,25 @@ static int num_of_imcs(void)
+ 	dp = opendir(DYN_PMU_PATH);
+ 	if (dp) {
+ 		while ((ep = readdir(dp))) {
+-			if (strstr(ep->d_name, UNCORE_IMC)) {
++			temp = strstr(ep->d_name, UNCORE_IMC);
++			if (!temp)
++				continue;
 +
-+			if (!strncmp(resctrl_val, CMT_STR, sizeof(CMT_STR))) {
-+				res = fgrep(inf, "llc_occupancy");
-+				if (res) {
-+					found = true;
-+					free(res);
-+				}
-+			}
++			/*
++			 * imc counters are named as "uncore_imc_<n>", hence
++			 * increment the pointer to point to <n>. Note that
++			 * sizeof(UNCORE_IMC) would count for null character as
++			 * well and hence the last underscore character in
++			 * uncore_imc'_' need not be counted.
++			 */
++			temp = temp + sizeof(UNCORE_IMC);
 +
-+			if (!strncmp(resctrl_val, MBM_STR, sizeof(MBM_STR))) {
-+				res = fgrep(inf, "mbm_total_bytes");
-+				if (res) {
-+					free(res);
-+					res = fgrep(inf, "mbm_local_bytes");
-+					if (res) {
-+						found = true;
-+						free(res);
-+					}
-+				}
-+			}
-+			fclose(inf);
-+		}
- 	}
--	fclose(inf);
- 
- 	return found;
- }
++			/*
++			 * Some directories under "DYN_PMU_PATH" could have
++			 * names like "uncore_imc_free_running", hence, check if
++			 * first character is a numerical digit or not.
++			 */
++			if (temp[0] >= '0' && temp[0] <= '9') {
+ 				sprintf(imc_dir, "%s/%s/", DYN_PMU_PATH,
+ 					ep->d_name);
+ 				ret = read_from_imc_dir(imc_dir, count);
 -- 
 2.30.2
 
