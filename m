@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABEA73788D1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3CAE3788D3
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235016AbhEJLYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:24:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54928 "EHLO mail.kernel.org"
+        id S235189AbhEJLYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230465AbhEJLLu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E191561627;
-        Mon, 10 May 2021 11:09:08 +0000 (UTC)
+        id S231712AbhEJLLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6364461926;
+        Mon, 10 May 2021 11:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644949;
-        bh=HYu738Z9hfd84mR0bu7eMoQor2MK106Intwa8Fm57JE=;
+        s=korg; t=1620644951;
+        bh=vyc+nJ14+lnmbhVlGuewjiHY/sqNuE9+DBlk5Cv7qy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sg7Zes22tgXtCl1CA0bLcYsR8yoIBqHuKlyPY739AMdahuKoR4F1YrkIE4BQGv4rs
-         69fpPZuPyaHIUv+0plfe0qRq0qeLrkT8ul+wtkmfliN97Qr0Q6a9OqA0vzmT+BLNXL
-         fo/smD4okNwrMtqvuD06SBxDjvDkVJpRH0UDqVRA=
+        b=FAmzthEONGFa29oVMdRhH3xq8mqGu+ZvPzbg2jfvFguYxLatSkYp8TQfa1TurzfTr
+         kKmE6D00+JesK5EJfnSAvJCmIEzWrF1wmEpZB2mCz3xI+k0YWq/CEgkBWhDtTIfiXV
+         ov2/WyPvN3ndsb+5PxbKB4G8L/kKfyyYpG8fbeaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.de>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.12 289/384] virtiofs: fix memory leak in virtio_fs_probe()
-Date:   Mon, 10 May 2021 12:21:18 +0200
-Message-Id: <20210510102024.335554759@linuxfoundation.org>
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.12 290/384] kcsan, debugfs: Move debugfs file creation out of early init
+Date:   Mon, 10 May 2021 12:21:19 +0200
+Message-Id: <20210510102024.371707888@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,59 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <lhenriques@suse.de>
+From: Marco Elver <elver@google.com>
 
-commit c79c5e0178922a9e092ec8fed026750f39dcaef4 upstream.
+commit e36299efe7d749976fbdaaf756dee6ef32543c2c upstream.
 
-When accidentally passing twice the same tag to qemu, kmemleak ended up
-reporting a memory leak in virtiofs.  Also, looking at the log I saw the
-following error (that's when I realised the duplicated tag):
+Commit 56348560d495 ("debugfs: do not attempt to create a new file
+before the filesystem is initalized") forbids creating new debugfs files
+until debugfs is fully initialized.  This means that KCSAN's debugfs
+file creation, which happened at the end of __init(), no longer works.
+And was apparently never supposed to work!
 
-  virtiofs: probe of virtio5 failed with error -17
+However, there is no reason to create KCSAN's debugfs file so early.
+This commit therefore moves its creation to a late_initcall() callback.
 
-Here's the kmemleak log for reference:
-
-unreferenced object 0xffff888103d47800 (size 1024):
-  comm "systemd-udevd", pid 118, jiffies 4294893780 (age 18.340s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff 80 90 02 a0 ff ff ff ff  ................
-  backtrace:
-    [<000000000ebb87c1>] virtio_fs_probe+0x171/0x7ae [virtiofs]
-    [<00000000f8aca419>] virtio_dev_probe+0x15f/0x210
-    [<000000004d6baf3c>] really_probe+0xea/0x430
-    [<00000000a6ceeac8>] device_driver_attach+0xa8/0xb0
-    [<00000000196f47a7>] __driver_attach+0x98/0x140
-    [<000000000b20601d>] bus_for_each_dev+0x7b/0xc0
-    [<00000000399c7b7f>] bus_add_driver+0x11b/0x1f0
-    [<0000000032b09ba7>] driver_register+0x8f/0xe0
-    [<00000000cdd55998>] 0xffffffffa002c013
-    [<000000000ea196a2>] do_one_initcall+0x64/0x2e0
-    [<0000000008f727ce>] do_init_module+0x5c/0x260
-    [<000000003cdedab6>] __do_sys_finit_module+0xb5/0x120
-    [<00000000ad2f48c6>] do_syscall_64+0x33/0x40
-    [<00000000809526b5>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Luis Henriques <lhenriques@suse.de>
-Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 56348560d495 ("debugfs: do not attempt to create a new file before the filesystem is initalized")
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/virtio_fs.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/kcsan/core.c    |    2 --
+ kernel/kcsan/debugfs.c |    4 +++-
+ kernel/kcsan/kcsan.h   |    5 -----
+ 3 files changed, 3 insertions(+), 8 deletions(-)
 
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -896,6 +896,7 @@ static int virtio_fs_probe(struct virtio
- out_vqs:
- 	vdev->config->reset(vdev);
- 	virtio_fs_cleanup_vqs(vdev, fs);
-+	kfree(fs->vqs);
+--- a/kernel/kcsan/core.c
++++ b/kernel/kcsan/core.c
+@@ -639,8 +639,6 @@ void __init kcsan_init(void)
  
- out:
- 	vdev->priv = NULL;
+ 	BUG_ON(!in_task());
+ 
+-	kcsan_debugfs_init();
+-
+ 	for_each_possible_cpu(cpu)
+ 		per_cpu(kcsan_rand_state, cpu) = (u32)get_cycles();
+ 
+--- a/kernel/kcsan/debugfs.c
++++ b/kernel/kcsan/debugfs.c
+@@ -261,7 +261,9 @@ static const struct file_operations debu
+ 	.release = single_release
+ };
+ 
+-void __init kcsan_debugfs_init(void)
++static void __init kcsan_debugfs_init(void)
+ {
+ 	debugfs_create_file("kcsan", 0644, NULL, NULL, &debugfs_ops);
+ }
++
++late_initcall(kcsan_debugfs_init);
+--- a/kernel/kcsan/kcsan.h
++++ b/kernel/kcsan/kcsan.h
+@@ -31,11 +31,6 @@ void kcsan_save_irqtrace(struct task_str
+ void kcsan_restore_irqtrace(struct task_struct *task);
+ 
+ /*
+- * Initialize debugfs file.
+- */
+-void kcsan_debugfs_init(void);
+-
+-/*
+  * Statistics counters displayed via debugfs; should only be modified in
+  * slow-paths.
+  */
 
 
