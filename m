@@ -2,175 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 799E3379435
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 18:38:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E71379459
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 18:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231787AbhEJQj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 12:39:27 -0400
-Received: from mail-ej1-f47.google.com ([209.85.218.47]:33350 "EHLO
-        mail-ej1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231754AbhEJQjN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 12:39:13 -0400
-Received: by mail-ej1-f47.google.com with SMTP id t4so25569634ejo.0;
-        Mon, 10 May 2021 09:38:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=bMp27vjnpmoienkYOT4SN0KllWYc9kDbddnvTB+uzc0=;
-        b=YsCXn5TUhrY9TC79A3oY/ofHCDCZ4s/MMuOFgV2REc2qjTeV8jNoIN+qE3u+KnYFjo
-         LJmDDgILA84wuJelo5+h5m96tOVOvKfgWs19VKbdQSmDN3xUhoLcWSjkmrRRbMD+gm/8
-         y6bsD9rWvfXJHJgP4uWhJfoEWjIe8V2Rh7KWH6K6nM9jEOXBbldNQLSpKkl0e+DAzlIj
-         ovEU8aDV0uV9LQKlg7LJymE+FSIMQdPf3yfjzpnxzKKDb6hjHnsy4YEZFpPmxKtM5Rqv
-         ofpAC29rowzyHQmQgryXz5sL80s5rRUQn2h321Bp6BiomAT6dva3pZdU5nlWrxjliZSS
-         e2Ew==
-X-Gm-Message-State: AOAM532Db8W4EBc01QUNXz8zRWQxbdFjxZA0JgGRpm/aS/8fgYDnkPTe
-        YfvzSf6B2Xfu0o3/gTBj/Hc=
-X-Google-Smtp-Source: ABdhPJxngxasS9kSwAqLewU+kX4d6eFSK+sYWdvZKTa8IXx9X39lFpQYeqK/u/q6+52891rCrKTCZQ==
-X-Received: by 2002:a17:906:8285:: with SMTP id h5mr26338206ejx.456.1620664687663;
-        Mon, 10 May 2021 09:38:07 -0700 (PDT)
-Received: from localhost (net-5-94-253-60.cust.vodafonedsl.it. [5.94.253.60])
-        by smtp.gmail.com with ESMTPSA id g4sm11680730edq.0.2021.05.10.09.38.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 09:38:07 -0700 (PDT)
-Date:   Mon, 10 May 2021 18:38:04 +0200
-From:   Matteo Croce <mcroce@linux.microsoft.com>
-To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc:     linux-mm@kvack.org, stable@vger.kernel.org,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Vlastimil Babka <vbabka@suse.cz>, netdev@vger.kernel.org
-Subject: Re: [PATCH] mm: Fix struct page layout on 32-bit systems
-Message-ID: <20210510183804.05bc134f@linux.microsoft.com>
-In-Reply-To: <20210510153211.1504886-1-willy@infradead.org>
-References: <20210510153211.1504886-1-willy@infradead.org>
-Organization: Microsoft
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        id S231863AbhEJQpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 12:45:45 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56636 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231736AbhEJQpo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 12:45:44 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14AGZJ7Q115336;
+        Mon, 10 May 2021 12:44:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=vnAYmSre0cOZDcxrTRW9FEGmvaFURp4YtQVfXpnn4d0=;
+ b=eJYXg2emET8lP6XiXTs1ErkAJ2zXrS0Ak4yu2eqomjxMzLXTZ4QPSWrSTLNzgtZlJ8wl
+ E1kGRzzXTSU4j6Qjj+PnF0sM2d2xh6jjzPfFWauoFenyYPLpJ2pFPYMiSOW2JDKVWn5s
+ E1TZhEQZlOQuIDwCxa5RqOqJH/T+Vjox2jX4sqrFK1x9CaqJE5i5rVpX6btyCebAjYQZ
+ TSmXIgIvlV8fZofjrrU+wo/cgulsB4G1fQHxr7fMJIT64d3kOQdziCKSmI0TtsDRL0Fr
+ DSRsDB6P/0hG4PpG4tvhIodnGmc71A4NkhduxcrGQbU3W1dZMx3LFSey15oJ1Q43G4dP OA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38f7ha9ytb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 May 2021 12:44:37 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14AGZT2b116620;
+        Mon, 10 May 2021 12:44:36 -0400
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38f7ha9yse-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 May 2021 12:44:36 -0400
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14AGh0Y7021538;
+        Mon, 10 May 2021 16:44:34 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma03dal.us.ibm.com with ESMTP id 38dj993hv7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 10 May 2021 16:44:34 +0000
+Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14AGiWx830736834
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 10 May 2021 16:44:32 GMT
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5327DAE064;
+        Mon, 10 May 2021 16:44:32 +0000 (GMT)
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1133DAE05F;
+        Mon, 10 May 2021 16:44:31 +0000 (GMT)
+Received: from cpe-172-100-179-72.stny.res.rr.com.com (unknown [9.85.140.234])
+        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon, 10 May 2021 16:44:30 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, fiuczy@linux.ibm.com,
+        Tony Krowiak <akrowiak@linux.ibm.com>, stable@vger.kernel.org,
+        Tony Krowiak <akrowiak@stny.rr.com>
+Subject: [PATCH v16 01/14] s390/vfio-ap: fix memory leak in mdev remove callback
+Date:   Mon, 10 May 2021 12:44:10 -0400
+Message-Id: <20210510164423.346858-2-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210510164423.346858-1-akrowiak@linux.ibm.com>
+References: <20210510164423.346858-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sj-owWYLxgvi1eCc--2z6vfYwjqFjfqc
+X-Proofpoint-ORIG-GUID: en8IrDvmBzIHIC1B4KkillZeqIqnPQJn
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-10_09:2021-05-10,2021-05-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
+ lowpriorityscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ mlxlogscore=999 phishscore=0 priorityscore=1501 clxscore=1015 mlxscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105100113
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 May 2021 16:32:11 +0100
-"Matthew Wilcox (Oracle)" <willy@infradead.org> wrote:
+The mdev remove callback for the vfio_ap device driver bails out with
+-EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+to prevent the mdev from being removed while in use; however, returning a
+non-zero rc does not prevent removal. This could result in a memory leak
+of the resources allocated when the mdev was created. In addition, the
+KVM guest will still have access to the AP devices assigned to the mdev
+even though the mdev no longer exists.
 
-> 32-bit architectures which expect 8-byte alignment for 8-byte integers
-> and need 64-bit DMA addresses (arm, mips, ppc) had their struct page
-> inadvertently expanded in 2019.  When the dma_addr_t was added, it
-> forced the alignment of the union to 8 bytes, which inserted a 4 byte
-> gap between 'flags' and the union.
-> 
-> Fix this by storing the dma_addr_t in one or two adjacent unsigned
-> longs. This restores the alignment to that of an unsigned long.  We
-> always store the low bits in the first word to prevent the PageTail
-> bit from being inadvertently set on a big endian platform.  If that
-> happened, get_user_pages_fast() racing against a page which was freed
-> and reallocated to the page_pool could dereference a bogus
-> compound_head(), which would be hard to trace back to this cause.
-> 
-> Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-> Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-> Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-> Acked-by: Vlastimil Babka <vbabka@suse.cz>
-> ---
->  include/linux/mm_types.h |  4 ++--
->  include/net/page_pool.h  | 12 +++++++++++-
->  net/core/page_pool.c     | 12 +++++++-----
->  3 files changed, 20 insertions(+), 8 deletions(-)
-> 
-> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> index 6613b26a8894..5aacc1c10a45 100644
-> --- a/include/linux/mm_types.h
-> +++ b/include/linux/mm_types.h
-> @@ -97,10 +97,10 @@ struct page {
->  		};
->  		struct {	/* page_pool used by netstack */
->  			/**
-> -			 * @dma_addr: might require a 64-bit value
-> even on
-> +			 * @dma_addr: might require a 64-bit value on
->  			 * 32-bit architectures.
->  			 */
-> -			dma_addr_t dma_addr;
-> +			unsigned long dma_addr[2];
->  		};
->  		struct {	/* slab, slob and slub */
->  			union {
-> diff --git a/include/net/page_pool.h b/include/net/page_pool.h
-> index 6d517a37c18b..b4b6de909c93 100644
-> --- a/include/net/page_pool.h
-> +++ b/include/net/page_pool.h
-> @@ -198,7 +198,17 @@ static inline void
-> page_pool_recycle_direct(struct page_pool *pool, 
->  static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
->  {
-> -	return page->dma_addr;
-> +	dma_addr_t ret = page->dma_addr[0];
-> +	if (sizeof(dma_addr_t) > sizeof(unsigned long))
-> +		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
-> +	return ret;
-> +}
-> +
-> +static inline void page_pool_set_dma_addr(struct page *page,
-> dma_addr_t addr) +{
-> +	page->dma_addr[0] = addr;
-> +	if (sizeof(dma_addr_t) > sizeof(unsigned long))
-> +		page->dma_addr[1] = upper_32_bits(addr);
->  }
->  
->  static inline bool is_page_pool_compiled_in(void)
-> diff --git a/net/core/page_pool.c b/net/core/page_pool.c
-> index 9ec1aa9640ad..3c4c4c7a0402 100644
-> --- a/net/core/page_pool.c
-> +++ b/net/core/page_pool.c
-> @@ -174,8 +174,10 @@ static void page_pool_dma_sync_for_device(struct
-> page_pool *pool, struct page *page,
->  					  unsigned int dma_sync_size)
->  {
-> +	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
-> +
->  	dma_sync_size = min(dma_sync_size, pool->p.max_len);
-> -	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
-> +	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
->  					 pool->p.offset,
-> dma_sync_size, pool->p.dma_dir);
->  }
-> @@ -195,7 +197,7 @@ static bool page_pool_dma_map(struct page_pool
-> *pool, struct page *page) if (dma_mapping_error(pool->p.dev, dma))
->  		return false;
->  
-> -	page->dma_addr = dma;
-> +	page_pool_set_dma_addr(page, dma);
->  
->  	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
->  		page_pool_dma_sync_for_device(pool, page,
-> pool->p.max_len); @@ -331,13 +333,13 @@ void
-> page_pool_release_page(struct page_pool *pool, struct page *page) */
->  		goto skip_dma_unmap;
->  
-> -	dma = page->dma_addr;
-> +	dma = page_pool_get_dma_addr(page);
->  
-> -	/* When page is unmapped, it cannot be returned our pool */
-> +	/* When page is unmapped, it cannot be returned to our pool
-> */ dma_unmap_page_attrs(pool->p.dev, dma,
->  			     PAGE_SIZE << pool->p.order,
-> pool->p.dma_dir, DMA_ATTR_SKIP_CPU_SYNC);
-> -	page->dma_addr = 0;
-> +	page_pool_set_dma_addr(page, 0);
->  skip_dma_unmap:
->  	/* This may be the last page returned, releasing the pool, so
->  	 * it is not safe to reference pool afterwards.
+To prevent this scenario, cleanup will be done - including unplugging the
+AP adapters, domains and control domains - regardless of whether the mdev
+is in use by a KVM guest or not.
 
-I rebased the skb recycling series against this change. I have it
-running since a few days on a machine (MacchiatoBIN Double shot) which
-uses the mvpp2 driver.
-No issues so far.
+Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 39 +++++++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 10 deletions(-)
 
-Regards,
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index b2c7e10dfdcd..757166da947e 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -335,6 +335,32 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
+ 	matrix->adm_max = info->apxa ? info->Nd : 15;
+ }
+ 
++static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
++{
++	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
++}
++
++static void vfio_ap_mdev_clear_apcb(struct ap_matrix_mdev *matrix_mdev)
++{
++	/*
++	 * If the KVM pointer is in the process of being set, wait until the
++	 * process has completed.
++	 */
++	wait_event_cmd(matrix_mdev->wait_for_kvm,
++		       !matrix_mdev->kvm_busy,
++		       mutex_unlock(&matrix_dev->lock),
++		       mutex_lock(&matrix_dev->lock));
++
++	if (vfio_ap_mdev_has_crycb(matrix_mdev)) {
++		matrix_mdev->kvm_busy = true;
++		mutex_unlock(&matrix_dev->lock);
++		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
++		mutex_lock(&matrix_dev->lock);
++		matrix_mdev->kvm_busy = false;
++		wake_up_all(&matrix_mdev->wait_for_kvm);
++	}
++}
++
+ static int vfio_ap_mdev_create(struct mdev_device *mdev)
+ {
+ 	struct ap_matrix_mdev *matrix_mdev;
+@@ -366,16 +392,9 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+ 	mutex_lock(&matrix_dev->lock);
+-
+-	/*
+-	 * If the KVM pointer is in flux or the guest is running, disallow
+-	 * un-assignment of control domain.
+-	 */
+-	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
+-		mutex_unlock(&matrix_dev->lock);
+-		return -EBUSY;
+-	}
+-
++	WARN(vfio_ap_mdev_has_crycb(matrix_mdev),
++	     "Removing mdev leaves KVM guest without any crypto devices");
++	vfio_ap_mdev_clear_apcb(matrix_mdev);
+ 	vfio_ap_mdev_reset_queues(mdev);
+ 	list_del(&matrix_mdev->node);
+ 	kfree(matrix_mdev);
 -- 
-per aspera ad upstream
+2.30.2
+
