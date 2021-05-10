@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F323781B9
+	by mail.lfdr.de (Postfix) with ESMTP id 20E863781B7
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231305AbhEJK3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:29:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33952 "EHLO mail.kernel.org"
+        id S230492AbhEJK3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:29:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231660AbhEJK1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:27:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7B74610C9;
-        Mon, 10 May 2021 10:26:35 +0000 (UTC)
+        id S231656AbhEJK1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:27:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DDDD61090;
+        Mon, 10 May 2021 10:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642396;
-        bh=t9f/7bHCVTgR+AuzpestGI9KgiTNtjS/ARaBFz0PumU=;
+        s=korg; t=1620642398;
+        bh=mLGJBaQAfuA/+IOhEU4qh/p0ufoOZWLFfpTLJIhCyOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZQ6qBlHvQZTFIVXOegTibUwAsD5iHPlcoBxKTQpVVTSPidh49NR/AnM207i8xxOQ
-         ICMBxMRuuvbVurzR8owrMX1q3fqJ0Bbqls9BxFxjvuWWMjiTXLmFZHgoOM3HyqWQ7w
-         /pbgW2aCHaXZ6rOOEGogNhR7UFbaBtz2xN/pWmKc=
+        b=C1x//rPDhWYhLQjiDO+YjrtZltT9UZWzN88mF3Gld3OotT4bbaqfY+q1Y7nTCGPMT
+         sOp0Go+Y86TvBIgFxCgHdeglmM4DXIKuhzL5b6xgx1MQk8fBYKgkXaZA5hd9MZQ8Ej
+         NtD4eed9OT8m4kP4q3YZ88GP3+MNEVsKgUwQO3zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/184] scsi: lpfc: Fix pt2pt connection does not recover after LOGO
-Date:   Mon, 10 May 2021 12:19:30 +0200
-Message-Id: <20210510101952.679968628@linuxfoundation.org>
+Subject: [PATCH 5.4 077/184] scsi: target: pscsi: Fix warning in pscsi_complete_cmd()
+Date:   Mon, 10 May 2021 12:19:31 +0200
+Message-Id: <20210510101952.709768438@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -41,48 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit bd4f5100424d17d4e560d6653902ef8e49b2fc1f ]
+[ Upstream commit fd48c056a32ed6e7754c7c475490f3bed54ed378 ]
 
-On a pt2pt setup, between 2 initiators, if one side issues a a LOGO, there
-is no relogin attempt. The FC specs are grey in this area on which port
-(higher wwn or not) is to re-login.
+This fixes a compilation warning in pscsi_complete_cmd():
 
-As there is no spec guidance, unconditionally re-PLOGI after the logout to
-ensure a login is re-established.
+     drivers/target/target_core_pscsi.c: In function ‘pscsi_complete_cmd’:
+     drivers/target/target_core_pscsi.c:624:5: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+     ; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
 
-Link: https://lore.kernel.org/r/20210301171821.3427-8-jsmart2021@gmail.com
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Link: https://lore.kernel.org/r/20210228055645.22253-5-chaitanya.kulkarni@wdc.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nportdisc.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/target/target_core_pscsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index 418d62e94554..ea31711b1aeb 100644
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -888,9 +888,14 @@ lpfc_rcv_logo(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 		}
- 	} else if ((!(ndlp->nlp_type & NLP_FABRIC) &&
- 		((ndlp->nlp_type & NLP_FCP_TARGET) ||
--		!(ndlp->nlp_type & NLP_FCP_INITIATOR))) ||
-+		(ndlp->nlp_type & NLP_NVME_TARGET) ||
-+		(vport->fc_flag & FC_PT2PT))) ||
- 		(ndlp->nlp_state == NLP_STE_ADISC_ISSUE)) {
--		/* Only try to re-login if this is NOT a Fabric Node */
-+		/* Only try to re-login if this is NOT a Fabric Node
-+		 * AND the remote NPORT is a FCP/NVME Target or we
-+		 * are in pt2pt mode. NLP_STE_ADISC_ISSUE is a special
-+		 * case for LOGO as a response to ADISC behavior.
-+		 */
- 		mod_timer(&ndlp->nlp_delayfunc,
- 			  jiffies + msecs_to_jiffies(1000 * 1));
- 		spin_lock_irq(shost->host_lock);
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index 5a047ce77bc0..55fe93296deb 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -620,8 +620,9 @@ static void pscsi_complete_cmd(struct se_cmd *cmd, u8 scsi_status,
+ 			unsigned char *buf;
+ 
+ 			buf = transport_kmap_data_sg(cmd);
+-			if (!buf)
++			if (!buf) {
+ 				; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
++			}
+ 
+ 			if (cdb[0] == MODE_SENSE_10) {
+ 				if (!(buf[3] & 0x80))
 -- 
 2.30.2
 
