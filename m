@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FDD337816C
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A522337816F
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231351AbhEJK0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:26:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59522 "EHLO mail.kernel.org"
+        id S231311AbhEJK0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:26:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231355AbhEJK0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:26:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD0D861483;
-        Mon, 10 May 2021 10:24:55 +0000 (UTC)
+        id S231316AbhEJK0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:26:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CAFA6157E;
+        Mon, 10 May 2021 10:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642296;
-        bh=hs+EqPyCDyqCDKC+REF6QbabERUgprgunsI+jUv/DwY=;
+        s=korg; t=1620642301;
+        bh=tlHZhou9pIZjDdRAMKf2IlxrQt7MAyrnT5XDdz31yjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNp+PStqfo9eFfqQR1ad5bbnCbVGJoziQ+CFmw7h1VIyty5wy92z9GfvOQlhtbqO9
-         YlGF/XiJOIVr+7YWrzBDv9sUlRSC/+WvThdRjhqVyv8TU1KsXrxwbwnMUIdOWB5wmw
-         pQ1g+dV2bXeA2NaYmAeE7IDRTuDY8DOE5EVnlT9g=
+        b=NtdzJhwRo2t8RhTWcReWqYb+Z3XPM/Lf1EJE2xCC6dz2cRg3WYnR3SQpMgzU4JYHB
+         EUzfLGGrYsDx4ZI31PH1XDE9Dv8dwBu89tngGmJVfNk7LsLDXylnJbLR3pDo7l3qiR
+         d1LGa42uf7gAIyZ0bM8e//qgQZlzswRfu6F4rm4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Phillip Potter <phil@philpotter.co.uk>
-Subject: [PATCH 5.4 037/184] fbdev: zero-fill colormap in fbcmap.c
-Date:   Mon, 10 May 2021 12:18:51 +0200
-Message-Id: <20210510101951.434751835@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 038/184] bus: ti-sysc: Probe for l4_wkup and l4_cfg interconnect devices first
+Date:   Mon, 10 May 2021 12:18:52 +0200
+Message-Id: <20210510101951.464618985@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -41,51 +39,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 19ab233989d0f7ab1de19a036e247afa4a0a1e9c upstream.
+[ Upstream commit 4700a00755fb5a4bb5109128297d6fd2d1272ee6 ]
 
-Use kzalloc() rather than kmalloc() for the dynamically allocated parts
-of the colormap in fb_alloc_cmap_gfp, to prevent a leak of random kernel
-data to userspace under certain circumstances.
+We want to probe l4_wkup and l4_cfg interconnect devices first to avoid
+issues with missing resources. Otherwise we attempt to probe l4_per
+devices first causing pointless deferred probe and also annoyingh
+renumbering of the MMC devices for example.
 
-Fixes a KMSAN-found infoleak bug reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=741578659feabd108ad9e06696f0c1f2e69c4b6e
-
-Reported-by: syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210331220719.1499743-1-phil@philpotter.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcmap.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/bus/ti-sysc.c | 49 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
---- a/drivers/video/fbdev/core/fbcmap.c
-+++ b/drivers/video/fbdev/core/fbcmap.c
-@@ -101,17 +101,17 @@ int fb_alloc_cmap_gfp(struct fb_cmap *cm
- 		if (!len)
- 			return 0;
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index f9ff6d433dfe..d59e1ca9990b 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -602,6 +602,51 @@ static int sysc_parse_and_check_child_range(struct sysc *ddata)
+ 	return 0;
+ }
  
--		cmap->red = kmalloc(size, flags);
-+		cmap->red = kzalloc(size, flags);
- 		if (!cmap->red)
- 			goto fail;
--		cmap->green = kmalloc(size, flags);
-+		cmap->green = kzalloc(size, flags);
- 		if (!cmap->green)
- 			goto fail;
--		cmap->blue = kmalloc(size, flags);
-+		cmap->blue = kzalloc(size, flags);
- 		if (!cmap->blue)
- 			goto fail;
- 		if (transp) {
--			cmap->transp = kmalloc(size, flags);
-+			cmap->transp = kzalloc(size, flags);
- 			if (!cmap->transp)
- 				goto fail;
- 		} else {
++/* Interconnect instances to probe before l4_per instances */
++static struct resource early_bus_ranges[] = {
++	/* am3/4 l4_wkup */
++	{ .start = 0x44c00000, .end = 0x44c00000 + 0x300000, },
++	/* omap4/5 and dra7 l4_cfg */
++	{ .start = 0x4a000000, .end = 0x4a000000 + 0x300000, },
++	/* omap4 l4_wkup */
++	{ .start = 0x4a300000, .end = 0x4a300000 + 0x30000,  },
++	/* omap5 and dra7 l4_wkup without dra7 dcan segment */
++	{ .start = 0x4ae00000, .end = 0x4ae00000 + 0x30000,  },
++};
++
++static atomic_t sysc_defer = ATOMIC_INIT(10);
++
++/**
++ * sysc_defer_non_critical - defer non_critical interconnect probing
++ * @ddata: device driver data
++ *
++ * We want to probe l4_cfg and l4_wkup interconnect instances before any
++ * l4_per instances as l4_per instances depend on resources on l4_cfg and
++ * l4_wkup interconnects.
++ */
++static int sysc_defer_non_critical(struct sysc *ddata)
++{
++	struct resource *res;
++	int i;
++
++	if (!atomic_read(&sysc_defer))
++		return 0;
++
++	for (i = 0; i < ARRAY_SIZE(early_bus_ranges); i++) {
++		res = &early_bus_ranges[i];
++		if (ddata->module_pa >= res->start &&
++		    ddata->module_pa <= res->end) {
++			atomic_set(&sysc_defer, 0);
++
++			return 0;
++		}
++	}
++
++	atomic_dec_if_positive(&sysc_defer);
++
++	return -EPROBE_DEFER;
++}
++
+ static struct device_node *stdout_path;
+ 
+ static void sysc_init_stdout_path(struct sysc *ddata)
+@@ -826,6 +871,10 @@ static int sysc_map_and_check_registers(struct sysc *ddata)
+ 	if (error)
+ 		return error;
+ 
++	error = sysc_defer_non_critical(ddata);
++	if (error)
++		return error;
++
+ 	sysc_check_children(ddata);
+ 
+ 	error = sysc_parse_registers(ddata);
+-- 
+2.30.2
+
 
 
