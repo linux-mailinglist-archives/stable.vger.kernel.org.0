@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 326EB378554
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B67B9378557
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235123AbhEJLAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:00:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53030 "EHLO mail.kernel.org"
+        id S235133AbhEJLAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234111AbhEJKzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:55:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 337746188B;
-        Mon, 10 May 2021 10:43:56 +0000 (UTC)
+        id S234110AbhEJKzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:55:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98AA561956;
+        Mon, 10 May 2021 10:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643436;
-        bh=HJQU5DyvW9xduhipoOniHRMWuWAwWg7D4AkVdwbJluA=;
+        s=korg; t=1620643439;
+        bh=bbNokWG/OOTmYxR7K9p8wj7ATK+qZNNE29KRCIpvPAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yUAcoG/ZGq8QL8g2Xm5swYt1a5oMAdWR+c7mqlPYGv25lAuf/PFfjgcNOrXSEmdQw
-         XsFYPbnzGDSKIvep/EOhfFIFnsQz7+g8aHIAV3zfd8LUJ9OBGkmtFXQD0d3K1ltrl+
-         DP0gBkBbeLGTS7G2NhLoOJ0Brry6WMEFjj8lE18Y=
+        b=DuC/TWcDTA3+Bjale8IfoA5skOkLnDBPuB1rYXZ4HqZroLyMqkiLqY/pHpJsXWMlJ
+         6lP/R8WURbS7cqwgOCPLKmv+lR6bjuF7JvS2dIsT/6LKH0VbXdlbpwRUm5/VrID88G
+         huheCngK3KJoE93/OirRTbGtbi1iMMc9Kuukzad8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Langsdorf <mlangsdo@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.11 015/342] ACPI: custom_method: fix a possible memory leak
-Date:   Mon, 10 May 2021 12:16:45 +0200
-Message-Id: <20210510102010.608533560@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.11 016/342] ftrace: Handle commands when closing set_ftrace_filter file
+Date:   Mon, 10 May 2021 12:16:46 +0200
+Message-Id: <20210510102010.639536420@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -39,36 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Langsdorf <mlangsdo@redhat.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 1cfd8956437f842836e8a066b40d1ec2fc01f13e upstream.
+commit 8c9af478c06bb1ab1422f90d8ecbc53defd44bc3 upstream.
 
-In cm_write(), if the 'buf' is allocated memory but not fully consumed,
-it is possible to reallocate the buffer without freeing it by passing
-'*ppos' as 0 on a subsequent call.
+ # echo switch_mm:traceoff > /sys/kernel/tracing/set_ftrace_filter
 
-Add an explicit kfree() before kzalloc() to prevent the possible memory
-leak.
+will cause switch_mm to stop tracing by the traceoff command.
 
-Fixes: 526b4af47f44 ("ACPI: Split out custom_method functionality into an own driver")
-Signed-off-by: Mark Langsdorf <mlangsdo@redhat.com>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+ # echo -n switch_mm:traceoff > /sys/kernel/tracing/set_ftrace_filter
+
+does nothing.
+
+The reason is that the parsing in the write function only processes
+commands if it finished parsing (there is white space written after the
+command). That's to handle:
+
+ write(fd, "switch_mm:", 10);
+ write(fd, "traceoff", 8);
+
+cases, where the command is broken over multiple writes.
+
+The problem is if the file descriptor is closed, then the write call is
+not processed, and the command needs to be processed in the release code.
+The release code can handle matching of functions, but does not handle
+commands.
+
+Cc: stable@vger.kernel.org
+Fixes: eda1e32855656 ("tracing: handle broken names in ftrace filter")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/custom_method.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/ftrace.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/custom_method.c
-+++ b/drivers/acpi/custom_method.c
-@@ -42,6 +42,8 @@ static ssize_t cm_write(struct file *fil
- 				   sizeof(struct acpi_table_header)))
- 			return -EFAULT;
- 		uncopied_bytes = max_size = table.length;
-+		/* make sure the buf is not allocated */
-+		kfree(buf);
- 		buf = kzalloc(max_size, GFP_KERNEL);
- 		if (!buf)
- 			return -ENOMEM;
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5631,7 +5631,10 @@ int ftrace_regex_release(struct inode *i
+ 
+ 	parser = &iter->parser;
+ 	if (trace_parser_loaded(parser)) {
+-		ftrace_match_records(iter->hash, parser->buffer, parser->idx);
++		int enable = !(iter->flags & FTRACE_ITER_NOTRACE);
++
++		ftrace_process_regex(iter, parser->buffer,
++				     parser->idx, enable);
+ 	}
+ 
+ 	trace_parser_put(parser);
 
 
