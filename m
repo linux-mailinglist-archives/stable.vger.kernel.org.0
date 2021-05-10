@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C35E37864E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB3F378653
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234814AbhEJLFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:05:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52682 "EHLO mail.kernel.org"
+        id S234870AbhEJLFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:05:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232881AbhEJK5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232880AbhEJK5r (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:57:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECB1361C3C;
-        Mon, 10 May 2021 10:52:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D5F861C3D;
+        Mon, 10 May 2021 10:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643930;
-        bh=lt/9rK8T3AM+NmcPi+E/Z3NSuGiLmZH/qelNbYjdOfM=;
+        s=korg; t=1620643932;
+        bh=AAcA8OdPJl+ilu/dPnGtwVxONE61/5EAHLfi0bMQ3Q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3OTHvTikuk3iKlMy/n23afPwbgKI5WPpteaVwcFXv9Q42LwlASueJtS8mTyklgMp
-         gjaHC3wvDY3oFrvbWne+Um+emJ094vWApp/r/fYZPUejr+JUg0iwYf521z8+07Y0jL
-         Pgw5cuIuo/0LKU6FcC3MR2kBEoB0zUOj9jzY69SU=
+        b=mTPjwlkfuQPc78ydznKYl8V5IAF6W2TEVVV8c5o5OZVVr1VAMxYdvRpz6i7dtKqQK
+         3GhPT0SNVfJ2sxsqs2c65nCOreTnvNLL6taiRWb2Nq8ttR+x1nAJD4r4//OtZTc6Mq
+         GtHZu0lbLJGL+F8bs6oO705WJSwkX5Q/s5H6KlDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Tong Zhang <ztong0001@gmail.com>,
+        stable@vger.kernel.org, Qu Huang <jinsdb@126.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 219/342] drm/radeon: dont evict if not initialized
-Date:   Mon, 10 May 2021 12:20:09 +0200
-Message-Id: <20210510102017.331661695@linuxfoundation.org>
+Subject: [PATCH 5.11 220/342] drm/amdkfd: Fix cat debugfs hang_hws file causes system crash bug
+Date:   Mon, 10 May 2021 12:20:10 +0200
+Message-Id: <20210510102017.367218398@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -42,48 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Qu Huang <jinsdb@126.com>
 
-[ Upstream commit 05eacc0f8f6c7e27f1841343611f4bed9ee178c1 ]
+[ Upstream commit d73610211eec8aa027850982b1a48980aa1bc96e ]
 
-TTM_PL_VRAM may not initialized at all when calling
-radeon_bo_evict_vram(). We need to check before doing eviction.
+Here is the system crash log:
+[ 1272.884438] BUG: unable to handle kernel NULL pointer dereference at
+(null)
+[ 1272.884444] IP: [<          (null)>]           (null)
+[ 1272.884447] PGD 825b09067 PUD 8267c8067 PMD 0
+[ 1272.884452] Oops: 0010 [#1] SMP
+[ 1272.884509] CPU: 13 PID: 3485 Comm: cat Kdump: loaded Tainted: G
+[ 1272.884515] task: ffff9a38dbd4d140 ti: ffff9a37cd3b8000 task.ti:
+ffff9a37cd3b8000
+[ 1272.884517] RIP: 0010:[<0000000000000000>]  [<          (null)>]
+(null)
+[ 1272.884520] RSP: 0018:ffff9a37cd3bbe68  EFLAGS: 00010203
+[ 1272.884522] RAX: 0000000000000000 RBX: 0000000000000000 RCX:
+0000000000014d5f
+[ 1272.884524] RDX: fffffffffffffff4 RSI: 0000000000000001 RDI:
+ffff9a38aca4d200
+[ 1272.884526] RBP: ffff9a37cd3bbed0 R08: ffff9a38dcd5f1a0 R09:
+ffff9a31ffc07300
+[ 1272.884527] R10: ffff9a31ffc07300 R11: ffffffffaddd5e9d R12:
+ffff9a38b4e0fb00
+[ 1272.884529] R13: 0000000000000001 R14: ffff9a37cd3bbf18 R15:
+ffff9a38aca4d200
+[ 1272.884532] FS:  00007feccaa67740(0000) GS:ffff9a38dcd40000(0000)
+knlGS:0000000000000000
+[ 1272.884534] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1272.884536] CR2: 0000000000000000 CR3: 00000008267c0000 CR4:
+00000000003407e0
+[ 1272.884537] Call Trace:
+[ 1272.884544]  [<ffffffffade68940>] ? seq_read+0x130/0x440
+[ 1272.884548]  [<ffffffffade40f8f>] vfs_read+0x9f/0x170
+[ 1272.884552]  [<ffffffffade41e4f>] SyS_read+0x7f/0xf0
+[ 1272.884557]  [<ffffffffae374ddb>] system_call_fastpath+0x22/0x27
+[ 1272.884558] Code:  Bad RIP value.
+[ 1272.884562] RIP  [<          (null)>]           (null)
+[ 1272.884564]  RSP <ffff9a37cd3bbe68>
+[ 1272.884566] CR2: 0000000000000000
 
-[    2.160837] BUG: kernel NULL pointer dereference, address: 0000000000000020
-[    2.161212] #PF: supervisor read access in kernel mode
-[    2.161490] #PF: error_code(0x0000) - not-present page
-[    2.161767] PGD 0 P4D 0
-[    2.163088] RIP: 0010:ttm_resource_manager_evict_all+0x70/0x1c0 [ttm]
-[    2.168506] Call Trace:
-[    2.168641]  radeon_bo_evict_vram+0x1c/0x20 [radeon]
-[    2.168936]  radeon_device_fini+0x28/0xf9 [radeon]
-[    2.169224]  radeon_driver_unload_kms+0x44/0xa0 [radeon]
-[    2.169534]  radeon_driver_load_kms+0x174/0x210 [radeon]
-[    2.169843]  drm_dev_register+0xd9/0x1c0 [drm]
-[    2.170104]  radeon_pci_probe+0x117/0x1a0 [radeon]
-
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Suggested-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Qu Huang <jinsdb@126.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_object.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_object.c b/drivers/gpu/drm/radeon/radeon_object.c
-index 8bc5ad1d6585..962be545f889 100644
---- a/drivers/gpu/drm/radeon/radeon_object.c
-+++ b/drivers/gpu/drm/radeon/radeon_object.c
-@@ -385,6 +385,8 @@ int radeon_bo_evict_vram(struct radeon_device *rdev)
- 	}
- #endif
- 	man = ttm_manager_type(bdev, TTM_PL_VRAM);
-+	if (!man)
-+		return 0;
- 	return ttm_resource_manager_evict_all(bdev, man);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c b/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
+index 511712c2e382..673d5e34f213 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
+@@ -33,6 +33,11 @@ static int kfd_debugfs_open(struct inode *inode, struct file *file)
+ 
+ 	return single_open(file, show, NULL);
+ }
++static int kfd_debugfs_hang_hws_read(struct seq_file *m, void *data)
++{
++	seq_printf(m, "echo gpu_id > hang_hws\n");
++	return 0;
++}
+ 
+ static ssize_t kfd_debugfs_hang_hws_write(struct file *file,
+ 	const char __user *user_buf, size_t size, loff_t *ppos)
+@@ -94,7 +99,7 @@ void kfd_debugfs_init(void)
+ 	debugfs_create_file("rls", S_IFREG | 0444, debugfs_root,
+ 			    kfd_debugfs_rls_by_device, &kfd_debugfs_fops);
+ 	debugfs_create_file("hang_hws", S_IFREG | 0200, debugfs_root,
+-			    NULL, &kfd_debugfs_hang_hws_fops);
++			    kfd_debugfs_hang_hws_read, &kfd_debugfs_hang_hws_fops);
  }
  
+ void kfd_debugfs_fini(void)
 -- 
 2.30.2
 
