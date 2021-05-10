@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EADF37890F
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30CA378715
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237436AbhEJLZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55450 "EHLO mail.kernel.org"
+        id S233137AbhEJLNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:13:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237794AbhEJLQI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:16:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EF226147D;
-        Mon, 10 May 2021 11:11:26 +0000 (UTC)
+        id S235922AbhEJLHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03A3F616EC;
+        Mon, 10 May 2021 10:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645086;
-        bh=5fA5HRacLtdKHi/l2HsSrYgNzOh+9o/Td1vWYrbgJiQ=;
+        s=korg; t=1620644223;
+        bh=YbwQKJAa9lOssjby/mnJkHTghR654Wic2HUcafAaiwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIMTUU0Hp96PKsk+oOTRsoJApI0kKMQxTihAimsmpoAgSjpKUVqSe1svAm4Eoa1/w
-         dCyMeLlpX9dO3K2Nl04C7ovEHwcaxJBLXm1oaod0+wMMjdW1WTkEsTOzxFiUbNiOzk
-         Hy+4x+M6GlnbjGjxNJ87Z/rj+Q16lrRg6wXnysE8=
+        b=Mj+OLdXgY9BnQM8c8C5XuZrVdFVZljLZ6Ndobc3eUfZfbiooUeOjcqG5JpV/b8+QN
+         5xbzl5sZz2YrjySYJiC7IpSoBdOxHy8zNbCRsWzjCzxuauyLRJ8uq0BI0rxbKHO7J/
+         i476rLWonV2pwTp4faiSTQD/8T4eG/xr384rA0nQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.12 339/384] ext4: do not set SB_ACTIVE in ext4_orphan_cleanup()
+        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.11 338/342] dm rq: fix double free of blk_mq_tag_set in dev remove after table load fails
 Date:   Mon, 10 May 2021 12:22:08 +0200
-Message-Id: <20210510102025.957090084@linuxfoundation.org>
+Message-Id: <20210510102021.273302687@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +39,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Benjamin Block <bblock@linux.ibm.com>
 
-commit 72ffb49a7b623c92a37657eda7cc46a06d3e8398 upstream.
+commit 8e947c8f4a5620df77e43c9c75310dc510250166 upstream.
 
-When CONFIG_QUOTA is enabled, if we failed to mount the filesystem due
-to some error happens behind ext4_orphan_cleanup(), it will end up
-triggering a after free issue of super_block. The problem is that
-ext4_orphan_cleanup() will set SB_ACTIVE flag if CONFIG_QUOTA is
-enabled, after we cleanup the truncated inodes, the last iput() will put
-them into the lru list, and these inodes' pages may probably dirty and
-will be write back by the writeback thread, so it could be raced by
-freeing super_block in the error path of mount_bdev().
+When loading a device-mapper table for a request-based mapped device,
+and the allocation/initialization of the blk_mq_tag_set for the device
+fails, a following device remove will cause a double free.
 
-After check the setting of SB_ACTIVE flag in ext4_orphan_cleanup(), it
-was used to ensure updating the quota file properly, but evict inode and
-trash data immediately in the last iput does not affect the quotafile,
-so setting the SB_ACTIVE flag seems not required[1]. Fix this issue by
-just remove the SB_ACTIVE setting.
+E.g. (dmesg):
+  device-mapper: core: Cannot initialize queue for request-based dm-mq mapped device
+  device-mapper: ioctl: unable to set up device queue for new table.
+  Unable to handle kernel pointer dereference in virtual kernel address space
+  Failing address: 0305e098835de000 TEID: 0305e098835de803
+  Fault in home space mode while using kernel ASCE.
+  AS:000000025efe0007 R3:0000000000000024
+  Oops: 0038 ilc:3 [#1] SMP
+  Modules linked in: ... lots of modules ...
+  Supported: Yes, External
+  CPU: 0 PID: 7348 Comm: multipathd Kdump: loaded Tainted: G        W      X    5.3.18-53-default #1 SLE15-SP3
+  Hardware name: IBM 8561 T01 7I2 (LPAR)
+  Krnl PSW : 0704e00180000000 000000025e368eca (kfree+0x42/0x330)
+             R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+  Krnl GPRS: 000000000000004a 000000025efe5230 c1773200d779968d 0000000000000000
+             000000025e520270 000000025e8d1b40 0000000000000003 00000007aae10000
+             000000025e5202a2 0000000000000001 c1773200d779968d 0305e098835de640
+             00000007a8170000 000003ff80138650 000000025e5202a2 000003e00396faa8
+  Krnl Code: 000000025e368eb8: c4180041e100       lgrl    %r1,25eba50b8
+             000000025e368ebe: ecba06b93a55       risbg   %r11,%r10,6,185,58
+            #000000025e368ec4: e3b010000008       ag      %r11,0(%r1)
+            >000000025e368eca: e310b0080004       lg      %r1,8(%r11)
+             000000025e368ed0: a7110001           tmll    %r1,1
+             000000025e368ed4: a7740129           brc     7,25e369126
+             000000025e368ed8: e320b0080004       lg      %r2,8(%r11)
+             000000025e368ede: b904001b           lgr     %r1,%r11
+  Call Trace:
+   [<000000025e368eca>] kfree+0x42/0x330
+   [<000000025e5202a2>] blk_mq_free_tag_set+0x72/0xb8
+   [<000003ff801316a8>] dm_mq_cleanup_mapped_device+0x38/0x50 [dm_mod]
+   [<000003ff80120082>] free_dev+0x52/0xd0 [dm_mod]
+   [<000003ff801233f0>] __dm_destroy+0x150/0x1d0 [dm_mod]
+   [<000003ff8012bb9a>] dev_remove+0x162/0x1c0 [dm_mod]
+   [<000003ff8012a988>] ctl_ioctl+0x198/0x478 [dm_mod]
+   [<000003ff8012ac8a>] dm_ctl_ioctl+0x22/0x38 [dm_mod]
+   [<000000025e3b11ee>] ksys_ioctl+0xbe/0xe0
+   [<000000025e3b127a>] __s390x_sys_ioctl+0x2a/0x40
+   [<000000025e8c15ac>] system_call+0xd8/0x2c8
+  Last Breaking-Event-Address:
+   [<000000025e52029c>] blk_mq_free_tag_set+0x6c/0xb8
+  Kernel panic - not syncing: Fatal exception: panic_on_oops
 
-[1] https://lore.kernel.org/linux-ext4/99cce8ca-e4a0-7301-840f-2ace67c551f3@huawei.com/T/#m04990cfbc4f44592421736b504afcc346b2a7c00
+When allocation/initialization of the blk_mq_tag_set fails in
+dm_mq_init_request_queue(), it is uninitialized/freed, but the pointer
+is not reset to NULL; so when dev_remove() later gets into
+dm_mq_cleanup_mapped_device() it sees the pointer and tries to
+uninitialize and free it again.
 
-Cc: stable@kernel.org
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Tested-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210331033138.918975-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fix this by setting the pointer to NULL in dm_mq_init_request_queue()
+error-handling. Also set it to NULL in dm_mq_cleanup_mapped_device().
+
+Cc: <stable@vger.kernel.org> # 4.6+
+Fixes: 1c357a1e86a4 ("dm: allocate blk_mq_tag_set rather than embed in mapped_device")
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/md/dm-rq.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3023,9 +3023,6 @@ static void ext4_orphan_cleanup(struct s
- 		sb->s_flags &= ~SB_RDONLY;
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -569,6 +569,7 @@ out_tag_set:
+ 	blk_mq_free_tag_set(md->tag_set);
+ out_kfree_tag_set:
+ 	kfree(md->tag_set);
++	md->tag_set = NULL;
+ 
+ 	return err;
+ }
+@@ -578,6 +579,7 @@ void dm_mq_cleanup_mapped_device(struct
+ 	if (md->tag_set) {
+ 		blk_mq_free_tag_set(md->tag_set);
+ 		kfree(md->tag_set);
++		md->tag_set = NULL;
  	}
- #ifdef CONFIG_QUOTA
--	/* Needed for iput() to work correctly and not trash data */
--	sb->s_flags |= SB_ACTIVE;
--
- 	/*
- 	 * Turn on quotas which were not enabled for read-only mounts if
- 	 * filesystem has quota feature, so that they are updated correctly.
+ }
+ 
 
 
