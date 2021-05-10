@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3893786F2
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0583788E6
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233191AbhEJLMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:12:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
+        id S235586AbhEJLYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235732AbhEJLF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80A3061482;
-        Mon, 10 May 2021 10:55:56 +0000 (UTC)
+        id S233537AbhEJLMO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:12:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8E8610C9;
+        Mon, 10 May 2021 11:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644157;
-        bh=jcQY+hQeCyRaAiIN0ruuZAsRzx2KPQ2e15Vdb/KsaFw=;
+        s=korg; t=1620645000;
+        bh=cccvPXStjqd+9m62K0FQoCSB956SlMxdLxO/1zn/KMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkzRmOc4iZ1PHr6nNNr2hOb2gmGeW2B4mEUV3IWOzMHqVjwiV41V69Tk66ebcL6dE
-         yTnkk0fAcphprWkruOFKjaxIDHFXNMeViQNb6k+NmD+U6NB1RiDXuV3hGNnPmrdnOf
-         iWGE+HvaoazPDite4A3iX5zfttmDVOu4te/PDA6w=
+        b=oOLJOe7LDTcfFc/kpH9qxlXeteZ98o/rFc59Y5IfisWPfyGutU2+4174omheNoqOQ
+         Una5d6ywgqUcvaEU8UJKR/PRSMsCGJFVQ9F6bNYANeh6/m+h4ypvEZWSqLjP32LouX
+         k6uk9tcjLJ4I6rgNWEG8/e+LXzn3Hepn9UWtalSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Hulk Robot <hulkci@huawei.com>,
-        Xu Yihang <xuyihang@huawei.com>,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.11 310/342] ext4: fix error return code in ext4_fc_perform_commit()
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.12 311/384] powerpc/kvm: Fix PR KVM with KUAP/MEM_KEYS enabled
 Date:   Mon, 10 May 2021 12:21:40 +0200
-Message-Id: <20210510102020.348824950@linuxfoundation.org>
+Message-Id: <20210510102025.050546957@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +38,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yihang <xuyihang@huawei.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit e1262cd2e68a0870fb9fc95eb202d22e8f0074b7 upstream.
+commit e4e8bc1df691ba5ba749d1e2b67acf9827e51a35 upstream.
 
-In case of if not ext4_fc_add_tlv branch, an error return code is missing.
+The changes to add KUAP support with the hash MMU broke booting of KVM
+PR guests. The symptom is no visible progress of the guest, or possibly
+just "SLOF" being printed to the qemu console.
 
-Cc: stable@kernel.org
-Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Xu Yihang <xuyihang@huawei.com>
-Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
-Link: https://lore.kernel.org/r/20210408070033.123047-1-xuyihang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Host code is still executing, but breaking into xmon might show a stack
+trace such as:
+
+  __might_fault+0x84/0xe0 (unreliable)
+  kvm_read_guest+0x1c8/0x2f0 [kvm]
+  kvmppc_ld+0x1b8/0x2d0 [kvm]
+  kvmppc_load_last_inst+0x50/0xa0 [kvm]
+  kvmppc_exit_pr_progint+0x178/0x220 [kvm_pr]
+  kvmppc_handle_exit_pr+0x31c/0xe30 [kvm_pr]
+  after_sprg3_load+0x80/0x90 [kvm_pr]
+  kvmppc_vcpu_run_pr+0x104/0x260 [kvm_pr]
+  kvmppc_vcpu_run+0x34/0x48 [kvm]
+  kvm_arch_vcpu_ioctl_run+0x340/0x450 [kvm]
+  kvm_vcpu_ioctl+0x2ac/0x8c0 [kvm]
+  sys_ioctl+0x320/0x1060
+  system_call_exception+0x160/0x270
+  system_call_common+0xf0/0x27c
+
+Bisect points to commit b2ff33a10c8b ("powerpc/book3s64/hash/kuap:
+Enable kuap on hash"), but that's just the commit that enabled KUAP with
+hash and made the bug visible.
+
+The root cause seems to be that KVM PR is creating kernel mappings that
+don't use the correct key, since we switched to using key 3.
+
+We have a helper for adding the right key value, however it's designed
+to take a pteflags variable, which the KVM code doesn't have. But we can
+make it work by passing 0 for the pteflags, and tell it explicitly that
+it should use the kernel key.
+
+With that changed guests boot successfully.
+
+Fixes: d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3 for kernel mapping with hash translation")
+Cc: stable@vger.kernel.org # v5.11+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210419120139.1455937-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_64_mmu_host.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1093,8 +1093,10 @@ static int ext4_fc_perform_commit(journa
- 		head.fc_tid = cpu_to_le32(
- 			sbi->s_journal->j_running_transaction->t_tid);
- 		if (!ext4_fc_add_tlv(sb, EXT4_FC_TAG_HEAD, sizeof(head),
--			(u8 *)&head, &crc))
-+			(u8 *)&head, &crc)) {
-+			ret = -ENOSPC;
- 			goto out;
-+		}
- 	}
+--- a/arch/powerpc/kvm/book3s_64_mmu_host.c
++++ b/arch/powerpc/kvm/book3s_64_mmu_host.c
+@@ -12,6 +12,7 @@
+ #include <asm/kvm_ppc.h>
+ #include <asm/kvm_book3s.h>
+ #include <asm/book3s/64/mmu-hash.h>
++#include <asm/book3s/64/pkeys.h>
+ #include <asm/machdep.h>
+ #include <asm/mmu_context.h>
+ #include <asm/hw_irq.h>
+@@ -133,6 +134,7 @@ int kvmppc_mmu_map_page(struct kvm_vcpu
+ 	else
+ 		kvmppc_mmu_flush_icache(pfn);
  
- 	spin_lock(&sbi->s_fc_lock);
++	rflags |= pte_to_hpte_pkey_bits(0, HPTE_USE_KERNEL_KEY);
+ 	rflags = (rflags & ~HPTE_R_WIMG) | orig_pte->wimg;
+ 
+ 	/*
 
 
