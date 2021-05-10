@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F4E3786E1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C603E3788D5
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232868AbhEJLLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:11:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36380 "EHLO mail.kernel.org"
+        id S235292AbhEJLYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234909AbhEJLFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5247E61361;
-        Mon, 10 May 2021 10:55:14 +0000 (UTC)
+        id S232113AbhEJLLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA65D61924;
+        Mon, 10 May 2021 11:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644114;
-        bh=JZ/Pwck0SsuxLH3bdRoQgPNqYfMqN0qoUHNxRCnkKB4=;
+        s=korg; t=1620644966;
+        bh=iWExxXiCDQzUfgzXXr/E4mZPbsi6kipT5A/Mmq3YgxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQLKTdRN5pci+9uyWSJcmdi/XHSbtd9d5ECRhBPubahUX47EEg6GdceEy+823n2JZ
-         r34ZBiN4hIpyQD/KLswwJ65W93R9KG5FyHLXN3FCCgkp85o+cU6Ob5RDP10boXaGsA
-         FBnenS1+nm+CfS9/4W8HBg3VPPaXFn8+fYNlH2OY=
+        b=NuuZy/c85u/H2Byp5YbQvXhmxWGi6qRW4GrbLnhzpxfNcg2fJQrxANX9dc/HyR3Uf
+         6rfgbOaUVHMHRf32BIfYMZLL9BQIyCMV3B8Af5GkqkBJrA/gR4H5XSyQkf+EHMHdAV
+         NOOEYfOrHqmiCFJLiTBTcNLNyCKbFePgkTHSWXyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrey Zhizhikin <andrey.z@gmail.com>
-Subject: [PATCH 5.11 294/342] Fix misc new gcc warnings
+        stable@vger.kernel.org, Eelco Chaudron <echaudro@redhat.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 295/384] openvswitch: fix stack OOB read while fragmenting IPv4 packets
 Date:   Mon, 10 May 2021 12:21:24 +0200
-Message-Id: <20210510102019.828493754@linuxfoundation.org>
+Message-Id: <20210510102024.536293294@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +40,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit e7c6e405e171fb33990a12ecfd14e6500d9e5cf2 upstream.
+commit 7c0ea5930c1c211931819d83cfb157bff1539a4c upstream.
 
-It seems like Fedora 34 ends up enabling a few new gcc warnings, notably
-"-Wstringop-overread" and "-Warray-parameter".
+running openvswitch on kernels built with KASAN, it's possible to see the
+following splat while testing fragmentation of IPv4 packets:
 
-Both of them cause what seem to be valid warnings in the kernel, where
-we have array size mismatches in function arguments (that are no longer
-just silently converted to a pointer to element, but actually checked).
+ BUG: KASAN: stack-out-of-bounds in ip_do_fragment+0x1b03/0x1f60
+ Read of size 1 at addr ffff888112fc713c by task handler2/1367
 
-This fixes most of the trivial ones, by making the function declaration
-match the function definition, and in the case of intel_pm.c, removing
-the over-specified array size from the argument declaration.
+ CPU: 0 PID: 1367 Comm: handler2 Not tainted 5.12.0-rc6+ #418
+ Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+ Call Trace:
+  dump_stack+0x92/0xc1
+  print_address_description.constprop.7+0x1a/0x150
+  kasan_report.cold.13+0x7f/0x111
+  ip_do_fragment+0x1b03/0x1f60
+  ovs_fragment+0x5bf/0x840 [openvswitch]
+  do_execute_actions+0x1bd5/0x2400 [openvswitch]
+  ovs_execute_actions+0xc8/0x3d0 [openvswitch]
+  ovs_packet_cmd_execute+0xa39/0x1150 [openvswitch]
+  genl_family_rcv_msg_doit.isra.15+0x227/0x2d0
+  genl_rcv_msg+0x287/0x490
+  netlink_rcv_skb+0x120/0x380
+  genl_rcv+0x24/0x40
+  netlink_unicast+0x439/0x630
+  netlink_sendmsg+0x719/0xbf0
+  sock_sendmsg+0xe2/0x110
+  ____sys_sendmsg+0x5ba/0x890
+  ___sys_sendmsg+0xe9/0x160
+  __sys_sendmsg+0xd3/0x170
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f957079db07
+ Code: c3 66 90 41 54 41 89 d4 55 48 89 f5 53 89 fb 48 83 ec 10 e8 eb ec ff ff 44 89 e2 48 89 ee 89 df 41 89 c0 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 35 44 89 c7 48 89 44 24 08 e8 24 ed ff ff 48
+ RSP: 002b:00007f956ce35a50 EFLAGS: 00000293 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 0000000000000019 RCX: 00007f957079db07
+ RDX: 0000000000000000 RSI: 00007f956ce35ae0 RDI: 0000000000000019
+ RBP: 00007f956ce35ae0 R08: 0000000000000000 R09: 00007f9558006730
+ R10: 0000000000000000 R11: 0000000000000293 R12: 0000000000000000
+ R13: 00007f956ce37308 R14: 00007f956ce35f80 R15: 00007f956ce35ae0
 
-At least one 'stringop-overread' warning remains in the i915 driver, but
-that one doesn't have the same obvious trivial fix, and may or may not
-actually be indicative of a bug.
+ The buggy address belongs to the page:
+ page:00000000af2a1d93 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x112fc7
+ flags: 0x17ffffc0000000()
+ raw: 0017ffffc0000000 0000000000000000 dead000000000122 0000000000000000
+ raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+ page dumped because: kasan: bad access detected
 
-[ It was a mistake to upgrade one of my machines to Fedora 34 while
-  being busy with the merge window, but if this is the extent of the
-  compiler upgrade problems, things are better than usual    - Linus ]
+ addr ffff888112fc713c is located in stack of task handler2/1367 at offset 180 in frame:
+  ovs_fragment+0x0/0x840 [openvswitch]
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrey Zhizhikin <andrey.z@gmail.com>
+ this frame has 2 objects:
+  [32, 144) 'ovs_dst'
+  [192, 424) 'ovs_rt'
+
+ Memory state around the buggy address:
+  ffff888112fc7000: f3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff888112fc7080: 00 f1 f1 f1 f1 00 00 00 00 00 00 00 00 00 00 00
+ >ffff888112fc7100: 00 00 00 f2 f2 f2 f2 f2 f2 00 00 00 00 00 00 00
+                                         ^
+  ffff888112fc7180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff888112fc7200: 00 00 00 00 00 00 f2 f2 f2 00 00 00 00 00 00 00
+
+for IPv4 packets, ovs_fragment() uses a temporary struct dst_entry. Then,
+in the following call graph:
+
+  ip_do_fragment()
+    ip_skb_dst_mtu()
+      ip_dst_mtu_maybe_forward()
+        ip_mtu_locked()
+
+the pointer to struct dst_entry is used as pointer to struct rtable: this
+turns the access to struct members like rt_mtu_locked into an OOB read in
+the stack. Fix this changing the temporary variable used for IPv4 packets
+in ovs_fragment(), similarly to what is done for IPv6 few lines below.
+
+Fixes: d52e5a7e7ca4 ("ipv4: lock mtu in fnhe when received PMTU < net.ipv4.route.min_pmt")
+Cc: <stable@vger.kernel.org>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c     |    2 +-
- drivers/media/usb/dvb-usb/dvb-usb.h |    2 +-
- include/scsi/libfcoe.h              |    2 +-
- net/bluetooth/ecdh_helper.h         |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ net/openvswitch/actions.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -2993,7 +2993,7 @@ int ilk_wm_max_level(const struct drm_i9
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -827,17 +827,17 @@ static void ovs_fragment(struct net *net
+ 	}
  
- static void intel_print_wm_latency(struct drm_i915_private *dev_priv,
- 				   const char *name,
--				   const u16 wm[8])
-+				   const u16 wm[])
- {
- 	int level, max_level = ilk_wm_max_level(dev_priv);
+ 	if (key->eth.type == htons(ETH_P_IP)) {
+-		struct dst_entry ovs_dst;
++		struct rtable ovs_rt = { 0 };
+ 		unsigned long orig_dst;
  
---- a/drivers/media/usb/dvb-usb/dvb-usb.h
-+++ b/drivers/media/usb/dvb-usb/dvb-usb.h
-@@ -487,7 +487,7 @@ extern int __must_check
- dvb_usb_generic_write(struct dvb_usb_device *, u8 *, u16);
+ 		prepare_frag(vport, skb, orig_network_offset,
+ 			     ovs_key_mac_proto(key));
+-		dst_init(&ovs_dst, &ovs_dst_ops, NULL, 1,
++		dst_init(&ovs_rt.dst, &ovs_dst_ops, NULL, 1,
+ 			 DST_OBSOLETE_NONE, DST_NOCOUNT);
+-		ovs_dst.dev = vport->dev;
++		ovs_rt.dst.dev = vport->dev;
  
- /* commonly used remote control parsing */
--extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
-+extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[5], u32 *, int *);
+ 		orig_dst = skb->_skb_refdst;
+-		skb_dst_set_noref(skb, &ovs_dst);
++		skb_dst_set_noref(skb, &ovs_rt.dst);
+ 		IPCB(skb)->frag_max_size = mru;
  
- /* commonly used firmware download types and function */
- struct hexline {
---- a/include/scsi/libfcoe.h
-+++ b/include/scsi/libfcoe.h
-@@ -249,7 +249,7 @@ int fcoe_ctlr_recv_flogi(struct fcoe_ctl
- 			 struct fc_frame *);
- 
- /* libfcoe funcs */
--u64 fcoe_wwn_from_mac(unsigned char mac[], unsigned int, unsigned int);
-+u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
- int fcoe_libfc_config(struct fc_lport *, struct fcoe_ctlr *,
- 		      const struct libfc_function_template *, int init_fcp);
- u32 fcoe_fc_crc(struct fc_frame *fp);
---- a/net/bluetooth/ecdh_helper.h
-+++ b/net/bluetooth/ecdh_helper.h
-@@ -25,6 +25,6 @@
- 
- int compute_ecdh_secret(struct crypto_kpp *tfm, const u8 pair_public_key[64],
- 			u8 secret[32]);
--int set_ecdh_privkey(struct crypto_kpp *tfm, const u8 *private_key);
-+int set_ecdh_privkey(struct crypto_kpp *tfm, const u8 private_key[32]);
- int generate_ecdh_public_key(struct crypto_kpp *tfm, u8 public_key[64]);
- int generate_ecdh_keys(struct crypto_kpp *tfm, u8 public_key[64]);
+ 		ip_do_fragment(net, skb->sk, skb, ovs_vport_output);
 
 
