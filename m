@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB0BF377DF4
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:19:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F338377DF9
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230059AbhEJIUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:20:30 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:57585 "EHLO
+        id S230045AbhEJIVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:21:52 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:40715 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230138AbhEJIU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:20:28 -0400
+        by vger.kernel.org with ESMTP id S230093AbhEJIVw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:21:52 -0400
 Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A9E871940BDA;
-        Mon, 10 May 2021 04:19:22 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 7913C1940BF3;
+        Mon, 10 May 2021 04:20:47 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 10 May 2021 04:19:22 -0400
+  by compute2.internal (MEProxy); Mon, 10 May 2021 04:20:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=EeNFfr
-        frs9fRwUo0Rjs85zZ0717udFkD23kSX38Yb8Y=; b=IXatETCAXcFmEAr4ucgUh+
-        SSCpZHNUf1sVow3C+Z1iHM/FSxTN99YyuXrYPILjIECHFhegpy4C1sCKnFp3lSg/
-        wanb76UoHs7ODaFCrsx+ecxhqWwR/PoCjxIMaS794FBfJAJ4/YJCvBHv9px0JWrq
-        TvhYWe5aL2VZ3jqFIlRJ8Hw0RRiOhqtM4kmLnn46a4rzvvyH57PVuMwOvhAtI6st
-        7LeAm9OqLF6QKhm41cX1TOci7AVyFl6nYxYhWOLFUtXgqvW/KUEvTlCr0Sm6QkWd
-        J+YPzKs7TwK0s5NTRM8E55mknXO49lFfmkdoKHlCCnnLOCT2GucaxelEOLJXgA9Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=b5Z+w2
+        l+UBCw1UXFJq5ce+frBm/C8Hbg30xUMVVvSV8=; b=aich+KEJrE4pa4Tzw2RJ10
+        IBMnlYLG61yN2hBvUswLG6m7PsA3gRack8as1VPM+KjIcgrjEkuGdbyO9HK/caUr
+        UNg/G1/qnW9rZHV8C/kkZUiJ9WT/oq2F3IFlcnjE+MJvbTqYkOhdg8f3gqDlOd2F
+        7Za+MIWKGIZklEnN1NugBeDsLJxWK0oquZpmzb6jOwp6UsqqMlt/opLbcHCdwtXu
+        mK8ka+OIVTbdNkMHtDl0hKJnM/YAXbDwKIBlxuQkFCwWnab2dPv8HVbhQMQRnY3E
+        ObnMYQM+q7zn94xu5z6CXCmFVqA2+dP6HL77hghdyz87bvJKZVy/8avCz7T/UeyQ
         ==
-X-ME-Sender: <xms:iuyYYBVl-0KWuyEFrFuGfcKhI4cL_gFK7xLgGIH7GN92SFBXm8QBeA>
-    <xme:iuyYYBkELQ9T-l2XmF95OaUh-dZWiUEw36XDBt9i_i3Po6nIkkJXdwg6GM8F8HIpA
-    uOrIIloKKbjCw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtdduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:3-yYYLZjvmlF4p9qevUsuJ85ZpkStfcnB8GH6CcGN6K6F8KiOS4w6Q>
+    <xme:3-yYYKYUZBsHoAkolDwXmGjV8JIZTuFJPwJBWiOV8qY711DmfUhhu3hE9xzxR0f6W
+    osAGXemdK1L3Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,19 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtdduucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:iuyYYNaMRVSJ0B-tFcPK1jwPC2OHijkoqrW4ZuuxPwa1mDHSLgUf2Q>
-    <xmx:iuyYYEWnUAz9wT_eEMdLvUCPZkJJDy2mwDAyvJD8ys02YL-StNuSlA>
-    <xmx:iuyYYLn6fvq9WRS-WelYXeNubD3MhHk8SHglLuV-8Hi6XMlR8XBGWw>
-    <xmx:iuyYYKsuq3xw82CHzaaKj4GwlNJChfuEaogzcpSmQ1QaA2dw7Eymug>
+X-ME-Proxy: <xmx:3-yYYN9GkogCmwbnMr7rv6JQn9t9kvQILmbwn7lK2nSTrp8rPD2wTQ>
+    <xmx:3-yYYBrza44eVhGjfz-dwuYEFzn-LGkpmN352R7R5rzJpTgLY_fPjA>
+    <xmx:3-yYYGqim4QP8Hm9S7EaSV-F-EygKAsP4UbiKwgUNWkUf9kNJe_gjA>
+    <xmx:3-yYYN3SDM6CRzyOck_SzzpuUmlsxolENTF4HEHA_08MVjGLI34ZbA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:19:22 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: Check current->io_uring in io_uring_cancel_sqpoll" failed to apply to 5.10-stable tree
-To:     hello@oswalpalash.com, axboe@kernel.dk
+        Mon, 10 May 2021 04:20:46 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Remove FS bInterval_m1 limitation" failed to apply to 4.4-stable tree
+To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 10:19:21 +0200
-Message-ID: <1620634761103178@kroah.com>
+Date:   Mon, 10 May 2021 10:20:44 +0200
+Message-ID: <162063484490162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,41 +71,43 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6d042ffb598ed83e7d5623cc961d249def5b9829 Mon Sep 17 00:00:00 2001
-From: Palash Oswal <hello@oswalpalash.com>
-Date: Tue, 27 Apr 2021 18:21:49 +0530
-Subject: [PATCH] io_uring: Check current->io_uring in io_uring_cancel_sqpoll
+From 3232a3ce55edfc0d7f8904543b4088a5339c2b2b Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Thu, 15 Apr 2021 00:41:58 -0700
+Subject: [PATCH] usb: dwc3: gadget: Remove FS bInterval_m1 limitation
 
-syzkaller identified KASAN: null-ptr-deref Write in
-io_uring_cancel_sqpoll.
+The programming guide incorrectly stated that the DCFG.bInterval_m1 must
+be set to 0 when operating in fullspeed. There's no such limitation for
+all IPs. See DWC_usb3x programming guide section 3.2.2.1.
 
-io_uring_cancel_sqpoll is called by io_sq_thread before calling
-io_uring_alloc_task_context. This leads to current->io_uring being NULL.
-io_uring_cancel_sqpoll should not have to deal with threads where
-current->io_uring is NULL.
+Fixes: a1679af85b2a ("usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1")
+Cc: <stable@vger.kernel.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/5d4139ae89d810eb0a2d8577fb096fc88e87bfab.1618472454.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-In order to cast a wider safety net, perform input sanitisation directly
-in io_uring_cancel_sqpoll and return for NULL value of current->io_uring.
-This is safe since if current->io_uring isn't set, then there's no way
-for the task to have submitted any requests.
-
-Reported-by: syzbot+be51ca5a4d97f017cd50@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Palash Oswal <hello@oswalpalash.com>
-Link: https://lore.kernel.org/r/20210427125148.21816-1-hello@oswalpalash.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 863420e184cf..81096f3b01ea 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -9044,6 +9044,8 @@ static void io_uring_cancel_sqpoll(struct io_sq_data *sqd)
- 	s64 inflight;
- 	DEFINE_WAIT(wait);
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 1a632a3faf7f..90f4f9e69b22 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -607,12 +607,14 @@ static int dwc3_gadget_set_ep_config(struct dwc3_ep *dep, unsigned int action)
+ 		u8 bInterval_m1;
  
-+	if (!current->io_uring)
-+		return;
- 	WARN_ON_ONCE(!sqd || sqd->thread != current);
+ 		/*
+-		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
+-		 * must be set to 0 when the controller operates in full-speed.
++		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13.
++		 *
++		 * NOTE: The programming guide incorrectly stated bInterval_m1
++		 * must be set to 0 when operating in fullspeed. Internally the
++		 * controller does not have this limitation. See DWC_usb3x
++		 * programming guide section 3.2.2.1.
+ 		 */
+ 		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
+-		if (dwc->gadget->speed == USB_SPEED_FULL)
+-			bInterval_m1 = 0;
  
- 	atomic_inc(&tctx->in_idle);
+ 		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
+ 		    dwc->gadget->speed == USB_SPEED_FULL)
 
