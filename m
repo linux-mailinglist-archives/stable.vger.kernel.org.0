@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FAF378567
+	by mail.lfdr.de (Postfix) with ESMTP id 91E34378568
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235166AbhEJLAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:00:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52744 "EHLO mail.kernel.org"
+        id S235173AbhEJLAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234149AbhEJKz7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234151AbhEJKz7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:55:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAA9F61090;
-        Mon, 10 May 2021 10:44:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24913610C9;
+        Mon, 10 May 2021 10:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643456;
-        bh=OIG8iDHZQYt5/XvM2OIwQwaHViY9KNUCyqdEwXHsQLc=;
+        s=korg; t=1620643458;
+        bh=7hBYsmq3KtSYF2pUFkYJxrX++i1XE/CS+Ns8JFKTeL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aTTQRNNRwGy2Rf18jus5YqrHMrddcJwdAXtwPfEZrQdxwc8dZtqQxzETOTlD2EwMz
-         +xLqkIocVx2EO8SlPKnBFTZqFHs2B9GDPXDbtAzfdE7gccaXLzbGB0Yx0AVZ/ah+Lk
-         esmxwOzvP5jek6867cad4SWy39+sgmCi46aPdnEY=
+        b=lt2WKLpJaEHPaQuWJEHaSDt4HMa3DIgQoH+6jhsI6H7DEz6ie1dJ/kXtTJeglm5gu
+         NghifrTxZ+k26zaFpIf/D6o7uVB1m1joCMzQJR6s/7X7wmh356N8S0XrAg+9Z164R7
+         p0h5QtxQ6GX36gKv/KJbXLQEg1GB4GQcNLYMtsTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.11 008/342] s390/disassembler: increase ebpf disasm buffer size
-Date:   Mon, 10 May 2021 12:16:38 +0200
-Message-Id: <20210510102010.380306522@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Hartmayer <mhartmay@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.11 009/342] s390/zcrypt: fix zcard and zqueue hot-unplug memleak
+Date:   Mon, 10 May 2021 12:16:39 +0200
+Message-Id: <20210510102010.411572351@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -39,74 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-commit 6f3353c2d2b3eb4de52e9704cb962712033db181 upstream.
+commit 70fac8088cfad9f3b379c9082832b4d7532c16c2 upstream.
 
-Current ebpf disassembly buffer size of 64 is too small. E.g. this line
-takes 65 bytes:
-01fffff8005822e: ec8100ed8065\tclgrj\t%r8,%r1,8,001fffff80058408\n\0
+Tests with kvm and a kmemdebug kernel showed, that on hot unplug the
+zcard and zqueue structs for the unplugged card or queue are not
+properly freed because of a mismatch with get/put for the embedded
+kref counter.
 
-Double the buffer size like it is done for the kernel disassembly buffer.
+This fix now adjusts the handling of the kref counters. With init the
+kref counter starts with 1. This initial value needs to drop to zero
+with the unregister of the card or queue to trigger the release and
+free the object.
 
-Fixes the following KASAN finding:
-
-UG: KASAN: stack-out-of-bounds in print_fn_code+0x34c/0x380
-Write of size 1 at addr 001fff800ad5f970 by task test_progs/853
-
-CPU: 53 PID: 853 Comm: test_progs Not tainted
-5.12.0-rc7-23786-g23457d86b1f0-dirty #19
-Hardware name: IBM 3906 M04 704 (LPAR)
-Call Trace:
- [<0000000cd8e0538a>] show_stack+0x17a/0x1668
- [<0000000cd8e2a5d8>] dump_stack+0x140/0x1b8
- [<0000000cd8e16e74>] print_address_description.constprop.0+0x54/0x260
- [<0000000cd75a8698>] kasan_report+0xc8/0x130
- [<0000000cd6e26da4>] print_fn_code+0x34c/0x380
- [<0000000cd6ea0f4e>] bpf_int_jit_compile+0xe3e/0xe58
- [<0000000cd72c4c88>] bpf_prog_select_runtime+0x5b8/0x9c0
- [<0000000cd72d1bf8>] bpf_prog_load+0xa78/0x19c0
- [<0000000cd72d7ad6>] __do_sys_bpf.part.0+0x18e/0x768
- [<0000000cd6e0f392>] do_syscall+0x12a/0x220
- [<0000000cd8e333f8>] __do_syscall+0x98/0xc8
- [<0000000cd8e54834>] system_call+0x6c/0x94
-1 lock held by test_progs/853:
- #0: 0000000cd9bf7460 (report_lock){....}-{2:2}, at:
-     kasan_report+0x96/0x130
-
-addr 001fff800ad5f970 is located in stack of task test_progs/853 at
-offset 96 in frame:
- print_fn_code+0x0/0x380
-this frame has 1 object:
- [32, 96) 'buffer'
-
-Memory state around the buggy address:
- 001fff800ad5f800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 001fff800ad5f880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->001fff800ad5f900: 00 00 f1 f1 f1 f1 00 00 00 00 00 00 00 00 f3 f3
-                                                             ^
- 001fff800ad5f980: f3 f3 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- 001fff800ad5fa00: 00 00 00 00 00 00 00 f1 f1 f1 f1 00 00 00 00 00
-
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 29c2680fd2bf ("s390/ap: fix ap devices reference counting")
+Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/dis.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/crypto/zcrypt_card.c  |    1 +
+ drivers/s390/crypto/zcrypt_queue.c |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/arch/s390/kernel/dis.c
-+++ b/arch/s390/kernel/dis.c
-@@ -563,7 +563,7 @@ void show_code(struct pt_regs *regs)
- 
- void print_fn_code(unsigned char *code, unsigned long len)
- {
--	char buffer[64], *ptr;
-+	char buffer[128], *ptr;
- 	int opsize, i;
- 
- 	while (len) {
+--- a/drivers/s390/crypto/zcrypt_card.c
++++ b/drivers/s390/crypto/zcrypt_card.c
+@@ -192,5 +192,6 @@ void zcrypt_card_unregister(struct zcryp
+ 	spin_unlock(&zcrypt_list_lock);
+ 	sysfs_remove_group(&zc->card->ap_dev.device.kobj,
+ 			   &zcrypt_card_attr_group);
++	zcrypt_card_put(zc);
+ }
+ EXPORT_SYMBOL(zcrypt_card_unregister);
+--- a/drivers/s390/crypto/zcrypt_queue.c
++++ b/drivers/s390/crypto/zcrypt_queue.c
+@@ -223,5 +223,6 @@ void zcrypt_queue_unregister(struct zcry
+ 	sysfs_remove_group(&zq->queue->ap_dev.device.kobj,
+ 			   &zcrypt_queue_attr_group);
+ 	zcrypt_card_put(zc);
++	zcrypt_queue_put(zq);
+ }
+ EXPORT_SYMBOL(zcrypt_queue_unregister);
 
 
