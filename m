@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6FBB378580
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D0A2378581
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235287AbhEJLAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:00:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52744 "EHLO mail.kernel.org"
+        id S235295AbhEJLAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234282AbhEJK4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FD1C6162C;
-        Mon, 10 May 2021 10:45:08 +0000 (UTC)
+        id S234291AbhEJK4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C38C161981;
+        Mon, 10 May 2021 10:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643508;
-        bh=NP0EJ8kuHK4TxSdYpQDX7lgasfB84oNqD23GsylnWUE=;
+        s=korg; t=1620643511;
+        bh=ETJoj2j80oumrwPwA11tzNIIEASKJKrk3A+O9Q4qKDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQ2UhpJkp4KmIXdd8OFMdGUvzEzCTGIXMlcNH5lXZTFHGBwh+1N8Bbdhr7S512y4U
-         hdP5XdupraGprvDypXK57eKKLUaf1WAU5+kdQ+DHo7HBAXS/9vpd3b3A0hDr0Qae9n
-         bhY/9uKDwTfqIvMepe588jUzrUMsgUh9NS7RsbSo=
+        b=LZ/9W0vhTKPbQ4Aln8TvXFOonHLRLEIXq2NdtVq54yrvivgr7I1lIp1g31enkANRq
+         63X5HKxujGvuzdyRAU6hOLy2uML9Vr6eF0GfVCRSEMak2gY6lsuWJyAcwE37Y+tjE8
+         7zljKm5KyFmtjke4X+bOdFh/8Zw2YGiPwYMD/5B0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        stable@vger.kernel.org, Brendan Peter <bpeter@lytx.com>,
+        Avri Altman <avri.altman@wdc.com>,
         Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.11 043/342] mmc: block: Update ext_csd.cache_ctrl if it was written
-Date:   Mon, 10 May 2021 12:17:13 +0200
-Message-Id: <20210510102011.532421979@linuxfoundation.org>
+Subject: [PATCH 5.11 044/342] mmc: block: Issue a cache flush only when its enabled
+Date:   Mon, 10 May 2021 12:17:14 +0200
+Message-Id: <20210510102011.575223665@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -42,44 +43,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Avri Altman <avri.altman@wdc.com>
 
-commit aea0440ad023ab0662299326f941214b0d7480bd upstream.
+commit 97fce126e279690105ee15be652b465fd96f9997 upstream.
 
-The cache function can be turned ON and OFF by writing to the CACHE_CTRL
-byte (EXT_CSD byte [33]).  However,  card->ext_csd.cache_ctrl is only
-set on init if cache size > 0.
+In command queueing mode, the cache isn't flushed via the mmc_flush_cache()
+function, but instead by issuing a CMDQ_TASK_MGMT (CMD48) with a
+FLUSH_CACHE opcode. In this path, we need to check if cache has been
+enabled, before deciding to flush the cache, along the lines of what's
+being done in mmc_flush_cache().
 
-Fix that by explicitly setting ext_csd.cache_ctrl on ext-csd write.
+To fix this problem, let's add a new bus ops callback ->cache_enabled() and
+implement it for the mmc bus type. In this way, the mmc block device driver
+can call it to know whether cache flushing should be done.
 
-Signed-off-by: Avri Altman <avri.altman@wdc.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 1e8e55b67030 (mmc: block: Add CQE support)
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210420134641.57343-3-avri.altman@wdc.com
+Reported-by: Brendan Peter <bpeter@lytx.com>
+Signed-off-by: Avri Altman <avri.altman@wdc.com>
+Tested-by: Brendan Peter <bpeter@lytx.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20210425060207.2591-2-avri.altman@wdc.com
+Link: https://lore.kernel.org/r/20210425060207.2591-3-avri.altman@wdc.com
+[Ulf: Squashed the two patches and made some minor updates]
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/block.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/mmc/core/block.c   |    4 ++++
+ drivers/mmc/core/core.h    |    9 +++++++++
+ drivers/mmc/core/mmc.c     |    7 +++++++
+ drivers/mmc/core/mmc_ops.c |    4 +---
+ 4 files changed, 21 insertions(+), 3 deletions(-)
 
 --- a/drivers/mmc/core/block.c
 +++ b/drivers/mmc/core/block.c
-@@ -572,6 +572,18 @@ static int __mmc_blk_ioctl_cmd(struct mm
- 	}
+@@ -2233,6 +2233,10 @@ enum mmc_issued mmc_blk_mq_issue_rq(stru
+ 	case MMC_ISSUE_ASYNC:
+ 		switch (req_op(req)) {
+ 		case REQ_OP_FLUSH:
++			if (!mmc_cache_enabled(host)) {
++				blk_mq_end_request(req, BLK_STS_OK);
++				return MMC_REQ_FINISHED;
++			}
+ 			ret = mmc_blk_cqe_issue_flush(mq, req);
+ 			break;
+ 		case REQ_OP_READ:
+--- a/drivers/mmc/core/core.h
++++ b/drivers/mmc/core/core.h
+@@ -29,6 +29,7 @@ struct mmc_bus_ops {
+ 	int (*shutdown)(struct mmc_host *);
+ 	int (*hw_reset)(struct mmc_host *);
+ 	int (*sw_reset)(struct mmc_host *);
++	bool (*cache_enabled)(struct mmc_host *);
+ };
  
- 	/*
-+	 * Make sure to update CACHE_CTRL in case it was changed. The cache
-+	 * will get turned back on if the card is re-initialized, e.g.
-+	 * suspend/resume or hw reset in recovery.
-+	 */
-+	if ((MMC_EXTRACT_INDEX_FROM_ARG(cmd.arg) == EXT_CSD_CACHE_CTRL) &&
-+	    (cmd.opcode == MMC_SWITCH)) {
-+		u8 value = MMC_EXTRACT_VALUE_FROM_ARG(cmd.arg) & 1;
+ void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops);
+@@ -171,4 +172,12 @@ static inline void mmc_post_req(struct m
+ 		host->ops->post_req(host, mrq, err);
+ }
+ 
++static inline bool mmc_cache_enabled(struct mmc_host *host)
++{
++	if (host->bus_ops->cache_enabled)
++		return host->bus_ops->cache_enabled(host);
 +
-+		card->ext_csd.cache_ctrl = value;
-+	}
++	return false;
++}
 +
-+	/*
- 	 * According to the SD specs, some commands require a delay after
- 	 * issuing the command.
- 	 */
+ #endif
+--- a/drivers/mmc/core/mmc.c
++++ b/drivers/mmc/core/mmc.c
+@@ -2033,6 +2033,12 @@ static void mmc_detect(struct mmc_host *
+ 	}
+ }
+ 
++static bool _mmc_cache_enabled(struct mmc_host *host)
++{
++	return host->card->ext_csd.cache_size > 0 &&
++	       host->card->ext_csd.cache_ctrl & 1;
++}
++
+ static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
+ {
+ 	int err = 0;
+@@ -2212,6 +2218,7 @@ static const struct mmc_bus_ops mmc_ops
+ 	.alive = mmc_alive,
+ 	.shutdown = mmc_shutdown,
+ 	.hw_reset = _mmc_hw_reset,
++	.cache_enabled = _mmc_cache_enabled,
+ };
+ 
+ /*
+--- a/drivers/mmc/core/mmc_ops.c
++++ b/drivers/mmc/core/mmc_ops.c
+@@ -988,9 +988,7 @@ int mmc_flush_cache(struct mmc_card *car
+ {
+ 	int err = 0;
+ 
+-	if (mmc_card_mmc(card) &&
+-			(card->ext_csd.cache_size > 0) &&
+-			(card->ext_csd.cache_ctrl & 1)) {
++	if (mmc_cache_enabled(card->host)) {
+ 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+ 				 EXT_CSD_FLUSH_CACHE, 1,
+ 				 MMC_CACHE_FLUSH_TIMEOUT_MS);
 
 
