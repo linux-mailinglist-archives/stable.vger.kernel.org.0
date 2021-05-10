@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E54378699
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6E0378878
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233951AbhEJLJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:09:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34426 "EHLO mail.kernel.org"
+        id S234017AbhEJLVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235313AbhEJLAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:00:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B2766186A;
-        Mon, 10 May 2021 10:53:17 +0000 (UTC)
+        id S237128AbhEJLLZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D88CB616ED;
+        Mon, 10 May 2021 11:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643998;
-        bh=QFW2PpfndsL4yLPOv8wibmBs/SN33oj8abfed6abK/A=;
+        s=korg; t=1620644842;
+        bh=tRWyyhcBXBvFUc+HVNLYEexxfPmuLpkO+e4d3RvyVO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WlQMtK3zWbPT4iPqalK3GyD7xyu14UHkWZFFPN2r5tIlH+fhuHHRim/mfPd8djF0h
-         SEsuxS+ZPcjHbO1ugGhMuSYkYNESgNh7qp3eNe+FbzaONBnIeSdcuHMWGqAQL8ALD5
-         2KsRoCtyYRVeRm9ejZnJ57cm4kS8XKKyfcvpajj4=
+        b=FslNKLbcJMCw9xCRlecdDeXcXQRtH2myQ16lhtPNJw5msafTi2z0+uHw8lhnxl3Kn
+         5bA74cQNv0uNRsnKr99yiPeAjClP8me6VpL2zVEBsGWFCmYSpW7ZFmQk9U71xsr+/S
+         oKTtZ+UNzn4IIMRJ4lbGs5vb7VBeeoeMOOcDfC1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Witschel <diabonas@archlinux.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 245/342] ALSA: hda/realtek: fix mute/micmute LEDs for HP ProBook 445 G7
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Tong Zhang <ztong0001@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 246/384] drm/radeon: dont evict if not initialized
 Date:   Mon, 10 May 2021 12:20:35 +0200
-Message-Id: <20210510102018.174585089@linuxfoundation.org>
+Message-Id: <20210510102022.992843928@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Witschel <diabonas@archlinux.org>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit 75b62ab65d2715ce6ff0794033d61ab9dc4a2dfc upstream.
+[ Upstream commit 05eacc0f8f6c7e27f1841343611f4bed9ee178c1 ]
 
-The HP ProBook 445 G7 (17T32ES) uses ALC236. Like ALC236_FIXUP_HP_GPIO_LED,
-COEF index 0x34 bit 5 is used to control the playback mute LED, but the
-microphone mute LED is controlled using pin VREF instead of a COEF index.
+TTM_PL_VRAM may not initialized at all when calling
+radeon_bo_evict_vram(). We need to check before doing eviction.
 
-AlsaInfo: https://alsa-project.org/db/?f=0d3f4d1af39cc359f9fea9b550727ee87e5cf45a
-Signed-off-by: Jonas Witschel <diabonas@archlinux.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210416105852.52588-1-diabonas@archlinux.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[    2.160837] BUG: kernel NULL pointer dereference, address: 0000000000000020
+[    2.161212] #PF: supervisor read access in kernel mode
+[    2.161490] #PF: error_code(0x0000) - not-present page
+[    2.161767] PGD 0 P4D 0
+[    2.163088] RIP: 0010:ttm_resource_manager_evict_all+0x70/0x1c0 [ttm]
+[    2.168506] Call Trace:
+[    2.168641]  radeon_bo_evict_vram+0x1c/0x20 [radeon]
+[    2.168936]  radeon_device_fini+0x28/0xf9 [radeon]
+[    2.169224]  radeon_driver_unload_kms+0x44/0xa0 [radeon]
+[    2.169534]  radeon_driver_load_kms+0x174/0x210 [radeon]
+[    2.169843]  drm_dev_register+0xd9/0x1c0 [drm]
+[    2.170104]  radeon_pci_probe+0x117/0x1a0 [radeon]
+
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Suggested-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/gpu/drm/radeon/radeon_object.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4438,6 +4438,25 @@ static void alc236_fixup_hp_mute_led(str
- 	alc236_fixup_hp_coef_micmute_led(codec, fix, action);
+diff --git a/drivers/gpu/drm/radeon/radeon_object.c b/drivers/gpu/drm/radeon/radeon_object.c
+index 9b81786782de..499ce55e34cc 100644
+--- a/drivers/gpu/drm/radeon/radeon_object.c
++++ b/drivers/gpu/drm/radeon/radeon_object.c
+@@ -384,6 +384,8 @@ int radeon_bo_evict_vram(struct radeon_device *rdev)
+ 	}
+ #endif
+ 	man = ttm_manager_type(bdev, TTM_PL_VRAM);
++	if (!man)
++		return 0;
+ 	return ttm_resource_manager_evict_all(bdev, man);
  }
  
-+static void alc236_fixup_hp_micmute_led_vref(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->cap_mute_led_nid = 0x1a;
-+		snd_hda_gen_add_micmute_led_cdev(codec, vref_micmute_led_set);
-+		codec->power_filter = led_power_filter;
-+	}
-+}
-+
-+static void alc236_fixup_hp_mute_led_micmute_vref(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	alc236_fixup_hp_mute_led_coefbit(codec, fix, action);
-+	alc236_fixup_hp_micmute_led_vref(codec, fix, action);
-+}
-+
- #if IS_REACHABLE(CONFIG_INPUT)
- static void gpio2_mic_hotkey_event(struct hda_codec *codec,
- 				   struct hda_jack_callback *event)
-@@ -6400,6 +6419,7 @@ enum {
- 	ALC285_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_GPIO_LED,
- 	ALC236_FIXUP_HP_MUTE_LED,
-+	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
-@@ -7646,6 +7666,10 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc236_fixup_hp_mute_led,
- 	},
-+	[ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc236_fixup_hp_mute_led_micmute_vref,
-+	},
- 	[ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -8063,6 +8087,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8730, "HP ProBook 445 G7", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
+-- 
+2.30.2
+
 
 
