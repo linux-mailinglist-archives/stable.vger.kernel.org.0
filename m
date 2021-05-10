@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0687C378480
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0002F37830F
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231754AbhEJKwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:52:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41704 "EHLO mail.kernel.org"
+        id S231646AbhEJKlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233749AbhEJKud (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:50:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 793BE61A19;
-        Mon, 10 May 2021 10:40:14 +0000 (UTC)
+        id S231497AbhEJKiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:38:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 830A36194D;
+        Mon, 10 May 2021 10:30:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643215;
-        bh=C1dqAl8yM/FcmpKUv7/eSkotv/kH+Fip/4XB2HDQ1OA=;
+        s=korg; t=1620642602;
+        bh=gwPx88FQUSun16PDktMHt4w2R/nn90Cn3ZCyjqLPprA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Whj+j/+3pSFyZHlshcqLNG7Vz2mcAaEWSqO0MUuff/lNXlQNh39cQ3bewGZoTpj8h
-         A3i7vHeGofRrESMr7qez8MacaTe9f9lOSW2HCbUsVkvzoZbE2r+G4FtvE35jPNu3qe
-         FLKGjqJaLB4RXduWT45yUjYSixjtZlsubHLi9wa8=
+        b=b06ayzPMXCBWgS0YNX4JcgHvX9PpjyEAszhUAWcBpSM1E2mHRDn0o42AK1mWzSy2o
+         qT8y8K3C3+wJNYq4+x2bNNW5dcukOzmQNhxLSpfAVm7oxqoADwZlWgUEolREoXsru7
+         xuMleyzzXF3JR57ycimETjblM1ixZ5AXtEaOk4Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 224/299] fs: fix reporting supported extra file attributes for statx()
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 127/184] ALSA: sb: Fix two use after free in snd_sb_qsound_build
 Date:   Mon, 10 May 2021 12:20:21 +0200
-Message-Id: <20210510102012.337598131@linuxfoundation.org>
+Message-Id: <20210510101954.334013342@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 5afa7e8b70d65819245fece61a65fd753b4aae33 upstream.
+commit 4fb44dd2c1dda18606348acdfdb97e8759dde9df upstream.
 
-statx(2) notes that any attribute that is not indicated as supported
-by stx_attributes_mask has no usable value.  Commits 801e523796004
-("fs: move generic stat response attr handling to vfs_getattr_nosec")
-and 712b2698e4c02 ("fs/stat: Define DAX statx attribute") sets
-STATX_ATTR_AUTOMOUNT and STATX_ATTR_DAX, respectively, without setting
-stx_attributes_mask, which can cause xfstests generic/532 to fail.
+In snd_sb_qsound_build, snd_ctl_add(..,p->qsound_switch...) and
+snd_ctl_add(..,p->qsound_space..) are called. But the second
+arguments of snd_ctl_add() could be freed via snd_ctl_add_replace()
+->snd_ctl_free_one(). After the error code is returned,
+snd_sb_qsound_destroy(p) is called in __error branch.
 
-Fix this in the same way as commit 1b9598c8fb99 ("xfs: fix reporting
-supported extra file attributes for statx()")
+But in snd_sb_qsound_destroy(), the freed p->qsound_switch and
+p->qsound_space are still used by snd_ctl_remove().
 
-Fixes: 801e523796004 ("fs: move generic stat response attr handling to vfs_getattr_nosec")
-Fixes: 712b2698e4c02 ("fs/stat: Define DAX statx attribute")
-Cc: stable@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+My patch set p->qsound_switch and p->qsound_space to NULL if
+snd_ctl_add() failed to avoid the uaf bugs. But these codes need
+to further be improved with the code style.
+
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210426145541.8070-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/stat.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/isa/sb/sb16_csp.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/stat.c
-+++ b/fs/stat.c
-@@ -77,12 +77,20 @@ int vfs_getattr_nosec(const struct path
- 	/* SB_NOATIME means filesystem supplies dummy atime value */
- 	if (inode->i_sb->s_flags & SB_NOATIME)
- 		stat->result_mask &= ~STATX_ATIME;
-+
-+	/*
-+	 * Note: If you add another clause to set an attribute flag, please
-+	 * update attributes_mask below.
-+	 */
- 	if (IS_AUTOMOUNT(inode))
- 		stat->attributes |= STATX_ATTR_AUTOMOUNT;
+--- a/sound/isa/sb/sb16_csp.c
++++ b/sound/isa/sb/sb16_csp.c
+@@ -1045,10 +1045,14 @@ static int snd_sb_qsound_build(struct sn
  
- 	if (IS_DAX(inode))
- 		stat->attributes |= STATX_ATTR_DAX;
+ 	spin_lock_init(&p->q_lock);
  
-+	stat->attributes_mask |= (STATX_ATTR_AUTOMOUNT |
-+				  STATX_ATTR_DAX);
-+
- 	if (inode->i_op->getattr)
- 		return inode->i_op->getattr(path, stat, request_mask,
- 					    query_flags);
+-	if ((err = snd_ctl_add(card, p->qsound_switch = snd_ctl_new1(&snd_sb_qsound_switch, p))) < 0)
++	if ((err = snd_ctl_add(card, p->qsound_switch = snd_ctl_new1(&snd_sb_qsound_switch, p))) < 0) {
++		p->qsound_switch = NULL;
+ 		goto __error;
+-	if ((err = snd_ctl_add(card, p->qsound_space = snd_ctl_new1(&snd_sb_qsound_space, p))) < 0)
++	}
++	if ((err = snd_ctl_add(card, p->qsound_space = snd_ctl_new1(&snd_sb_qsound_space, p))) < 0) {
++		p->qsound_space = NULL;
+ 		goto __error;
++	}
+ 
+ 	return 0;
+ 
 
 
