@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8C483783DB
+	by mail.lfdr.de (Postfix) with ESMTP id F19853783DC
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232291AbhEJKru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:47:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32906 "EHLO mail.kernel.org"
+        id S232217AbhEJKrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:47:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233301AbhEJKpg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233300AbhEJKpg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:45:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35DF561923;
-        Mon, 10 May 2021 10:35:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 958C761999;
+        Mon, 10 May 2021 10:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642951;
-        bh=RI5xZp6fXcTeorMo8FtnealqGLEsm1U4JacNau8h+kg=;
+        s=korg; t=1620642954;
+        bh=fCXfaaJB2koyRgGh4fhXe+1ZOELzDl3iJBO9qmvJRIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dYz8zFRxiHGP6v9BuuCbhovORseFfzhRFyZw2avrinEGEat2q6Qnjh3UVV3yWQeMO
-         Ehd22CXw9jT2YGZDqy09YfNkWSojQ48GhP/OQmHcF3KwmQniRBhfk2Ll/D/cqqiuMs
-         /GCQO9TKbLdqIDb8cw24+5pLK4yY+RExwPqImUOk=
+        b=aC/BETOkfKy6OU+feVJoEs2pDDYxpdyAF6cd5oSoxlzA+H8flqcio976VlDya8Vgc
+         kDCgKz6u56B6tUhziFjGrmJ8aPhDGAd5AFqEX5+kq/K+ov3dJtP6H/AiLV6MPRIt/2
+         roFyOpvefRLxSBAwjK1jnLkMa3a9WQjkw1azTJLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Leung <martin.leung@amd.com>,
-        Alvin Lee <Alvin.Lee2@amd.com>,
-        Qingqing Zhuo <Qingqing.Zhuo@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 117/299] drm/amd/display: changing sr exit latency
-Date:   Mon, 10 May 2021 12:18:34 +0200
-Message-Id: <20210510102008.838604922@linuxfoundation.org>
+Subject: [PATCH 5.10 118/299] drm/ast: fix memory leak when unload the driver
+Date:   Mon, 10 May 2021 12:18:35 +0200
+Message-Id: <20210510102008.873791010@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -43,41 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Leung <martin.leung@amd.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit efe213e5a57e0cd92fa4f328dc1963d330549982 ]
+[ Upstream commit dc739820ff90acccd013f6bb420222978a982791 ]
 
-[Why]
-Hardware team remeasured, need to update timings
-to increase latency slightly and avoid intermittent
-underflows.
+a connector is leaked upon module unload, it seems that we should do
+similar to sample driver as suggested in drm_drv.c.
 
-[How]
-sr exit latency update.
+Adding drm_atomic_helper_shutdown() in ast_pci_remove to prevent leaking.
 
-Signed-off-by: Martin Leung <martin.leung@amd.com>
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Acked-by: Qingqing Zhuo <Qingqing.Zhuo@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+[  153.822134] WARNING: CPU: 0 PID: 173 at drivers/gpu/drm/drm_mode_config.c:504 drm_mode_config_cle0
+[  153.822698] Modules linked in: ast(-) drm_vram_helper drm_ttm_helper ttm [last unloaded: ttm]
+[  153.823197] CPU: 0 PID: 173 Comm: modprobe Tainted: G        W         5.11.0-03615-g55f62bc873474
+[  153.823708] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-4
+[  153.824333] RIP: 0010:drm_mode_config_cleanup+0x418/0x470
+[  153.824637] Code: 0c 00 00 00 00 48 8b 84 24 a8 00 00 00 65 48 33 04 25 28 00 00 00 75 65 48 81 c0
+[  153.825668] RSP: 0018:ffff888103c9fb70 EFLAGS: 00010212
+[  153.825962] RAX: ffff888102b0d100 RBX: ffff888102b0c298 RCX: ffffffff818d8b2b
+[  153.826356] RDX: dffffc0000000000 RSI: 000000007fffffff RDI: ffff888102b0c298
+[  153.826748] RBP: ffff888103c9fba0 R08: 0000000000000001 R09: ffffed1020561857
+[  153.827146] R10: ffff888102b0c2b7 R11: ffffed1020561856 R12: ffff888102b0c000
+[  153.827538] R13: ffff888102b0c2d8 R14: ffff888102b0c2d8 R15: 1ffff11020793f70
+[  153.827935] FS:  00007f24bff456a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
+[  153.828380] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  153.828697] CR2: 0000000001c39018 CR3: 0000000103c90000 CR4: 00000000000006f0
+[  153.829096] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  153.829486] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  153.829883] Call Trace:
+[  153.830024]  ? drmm_mode_config_init+0x930/0x930
+[  153.830281]  ? cpumask_next+0x16/0x20
+[  153.830488]  ? mnt_get_count+0x66/0x80
+[  153.830699]  ? drm_mode_config_cleanup+0x470/0x470
+[  153.830972]  drm_managed_release+0xed/0x1c0
+[  153.831208]  drm_dev_release+0x3a/0x50
+[  153.831420]  release_nodes+0x39e/0x410
+[  153.831631]  ? devres_release+0x40/0x40
+[  153.831852]  device_release_driver_internal+0x158/0x270
+[  153.832143]  driver_detach+0x76/0xe0
+[  153.832344]  bus_remove_driver+0x7e/0x100
+[  153.832568]  pci_unregister_driver+0x28/0xf0
+[  153.832821]  __x64_sys_delete_module+0x268/0x300
+[  153.833086]  ? __ia32_sys_delete_module+0x300/0x300
+[  153.833357]  ? call_rcu+0x372/0x4f0
+[  153.833553]  ? fpregs_assert_state_consistent+0x4d/0x60
+[  153.833840]  ? exit_to_user_mode_prepare+0x2f/0x130
+[  153.834118]  do_syscall_64+0x33/0x40
+[  153.834317]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  153.834597] RIP: 0033:0x7f24bfec7cf7
+[  153.834797] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f7 48 89 d6 41
+[  153.835812] RSP: 002b:00007fff72e6cb58 EFLAGS: 00000202 ORIG_RAX: 00000000000000b0
+[  153.836234] RAX: ffffffffffffffda RBX: 00007f24bff45690 RCX: 00007f24bfec7cf7
+[  153.836623] RDX: 00000000ffffffff RSI: 0000000000000080 RDI: 0000000001c2fb10
+[  153.837018] RBP: 0000000001c2fac0 R08: 2f2f2f2f2f2f2f2f R09: 0000000001c2fac0
+[  153.837408] R10: fefefefefefefeff R11: 0000000000000202 R12: 0000000001c2fac0
+[  153.837798] R13: 0000000001c2f9d0 R14: 0000000000000000 R15: 0000000000000001
+[  153.838194] ---[ end trace b92031513bbe596c ]---
+[  153.838441] [drm:drm_mode_config_cleanup] *ERROR* connector VGA-1 leaked!
+
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210222023322.984885-1-ztong0001@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/ast/ast_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-index 2455d210ccf6..8465cae180da 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-@@ -180,7 +180,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn3_0_soc = {
- 		},
- 	.min_dcfclk = 500.0, /* TODO: set this to actual min DCFCLK */
- 	.num_states = 1,
--	.sr_exit_time_us = 12,
-+	.sr_exit_time_us = 15.5,
- 	.sr_enter_plus_exit_time_us = 20,
- 	.urgent_latency_us = 4.0,
- 	.urgent_latency_pixel_data_only_us = 4.0,
+diff --git a/drivers/gpu/drm/ast/ast_drv.c b/drivers/gpu/drm/ast/ast_drv.c
+index f0b4af1c390a..59d2466d40c6 100644
+--- a/drivers/gpu/drm/ast/ast_drv.c
++++ b/drivers/gpu/drm/ast/ast_drv.c
+@@ -30,6 +30,7 @@
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ 
++#include <drm/drm_atomic_helper.h>
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_fb_helper.h>
+@@ -138,6 +139,7 @@ static void ast_pci_remove(struct pci_dev *pdev)
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
+ 
+ 	drm_dev_unregister(dev);
++	drm_atomic_helper_shutdown(dev);
+ }
+ 
+ static int ast_drm_freeze(struct drm_device *dev)
 -- 
 2.30.2
 
