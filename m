@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1C737871E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49AFA3788FE
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236541AbhEJLNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:13:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
+        id S236323AbhEJLZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236024AbhEJLHR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED4086194B;
-        Mon, 10 May 2021 10:57:24 +0000 (UTC)
+        id S233634AbhEJLOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:14:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36E1161430;
+        Mon, 10 May 2021 11:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644245;
-        bh=VeoYrpX0w42wUk3oct7e9z8D++Z1g/izGdPTLk9JEf8=;
+        s=korg; t=1620645043;
+        bh=JZ/Pwck0SsuxLH3bdRoQgPNqYfMqN0qoUHNxRCnkKB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJr+e2o28vhiDBS9wo4p8FkVJJ/b+jrCk/053qE49dVYPuLOa2FNaSaXonY0ue/na
-         YGSOeuNCmuKwace6nwaAmXyV3APwppMoM20OoFaxJRrDfNUscZfNxrI91/Xf07/pDg
-         z/AuVaHmhw/qv+pRX2tvkV/6HSLiKeQ5JMtyQNok=
+        b=CdwBzQIlFd8kNgjIC7kBAJEIj1N1aJ2WJDTreDx+GdzuXCwBDfP8xIP8ZuHIo+98g
+         ioRc4dgPita+vQb8XN3YItSMCFhMxlfB51i8l4tEWA4IJUnTgZOPIaIY3gLyKb6Av0
+         RYgtsf1kG3EEfxfkVByifq1STxaByF5vMcn3pe7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ferry Toth <fntoth@gmail.com>,
-        Wesley Cheng <wcheng@codeaurora.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Yu Chen <chenyu56@huawei.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.11 327/342] usb: dwc3: core: Do core softreset when switch mode
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrey Zhizhikin <andrey.z@gmail.com>
+Subject: [PATCH 5.12 328/384] Fix misc new gcc warnings
 Date:   Mon, 10 May 2021 12:21:57 +0200
-Message-Id: <20210510102020.911430387@linuxfoundation.org>
+Message-Id: <20210510102025.604760769@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,155 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Chen <chenyu56@huawei.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit f88359e1588b85cf0e8209ab7d6620085f3441d9 upstream.
+commit e7c6e405e171fb33990a12ecfd14e6500d9e5cf2 upstream.
 
-From: John Stultz <john.stultz@linaro.org>
+It seems like Fedora 34 ends up enabling a few new gcc warnings, notably
+"-Wstringop-overread" and "-Warray-parameter".
 
-According to the programming guide, to switch mode for DRD controller,
-the driver needs to do the following.
+Both of them cause what seem to be valid warnings in the kernel, where
+we have array size mismatches in function arguments (that are no longer
+just silently converted to a pointer to element, but actually checked).
 
-To switch from device to host:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(host mode)
-3. Reset the host with USBCMD.HCRESET
-4. Then follow up with the initializing host registers sequence
+This fixes most of the trivial ones, by making the function declaration
+match the function definition, and in the case of intel_pm.c, removing
+the over-specified array size from the argument declaration.
 
-To switch from host to device:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(device mode)
-3. Reset the device with DCTL.CSftRst
-4. Then follow up with the initializing registers sequence
+At least one 'stringop-overread' warning remains in the i915 driver, but
+that one doesn't have the same obvious trivial fix, and may or may not
+actually be indicative of a bug.
 
-Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
-switching from host to device. John Stult reported a lockup issue seen
-with HiKey960 platform without these steps[1]. Similar issue is observed
-with Ferry's testing platform[2].
+[ It was a mistake to upgrade one of my machines to Fedora 34 while
+  being busy with the merge window, but if this is the extent of the
+  compiler upgrade problems, things are better than usual    - Linus ]
 
-So, apply the required steps along with some fixes to Yu Chen's and John
-Stultz's version. The main fixes to their versions are the missing wait
-for clocks synchronization before clearing GCTL.CoreSoftReset and only
-apply DCTL.CSftRst when switching from host to device.
-
-[1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
-[2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
-
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ferry Toth <fntoth@gmail.com>
-Cc: Wesley Cheng <wcheng@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Tested-by: Wesley Cheng <wcheng@codeaurora.org>
-Signed-off-by: Yu Chen <chenyu56@huawei.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrey Zhizhikin <andrey.z@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/core.c |   27 +++++++++++++++++++++++++++
- drivers/usb/dwc3/core.h |    5 +++++
- 2 files changed, 32 insertions(+)
+ drivers/gpu/drm/i915/intel_pm.c     |    2 +-
+ drivers/media/usb/dvb-usb/dvb-usb.h |    2 +-
+ include/scsi/libfcoe.h              |    2 +-
+ net/bluetooth/ecdh_helper.h         |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -114,6 +114,8 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u
- 	dwc->current_dr_role = mode;
- }
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -2993,7 +2993,7 @@ int ilk_wm_max_level(const struct drm_i9
  
-+static int dwc3_core_soft_reset(struct dwc3 *dwc);
-+
- static void __dwc3_set_mode(struct work_struct *work)
+ static void intel_print_wm_latency(struct drm_i915_private *dev_priv,
+ 				   const char *name,
+-				   const u16 wm[8])
++				   const u16 wm[])
  {
- 	struct dwc3 *dwc = work_to_dwc(work);
-@@ -121,6 +123,8 @@ static void __dwc3_set_mode(struct work_
- 	int ret;
- 	u32 reg;
+ 	int level, max_level = ilk_wm_max_level(dev_priv);
  
-+	mutex_lock(&dwc->mutex);
-+
- 	pm_runtime_get_sync(dwc->dev);
+--- a/drivers/media/usb/dvb-usb/dvb-usb.h
++++ b/drivers/media/usb/dvb-usb/dvb-usb.h
+@@ -487,7 +487,7 @@ extern int __must_check
+ dvb_usb_generic_write(struct dvb_usb_device *, u8 *, u16);
  
- 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
-@@ -154,6 +158,25 @@ static void __dwc3_set_mode(struct work_
- 		break;
- 	}
+ /* commonly used remote control parsing */
+-extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
++extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[5], u32 *, int *);
  
-+	/* For DRD host or device mode only */
-+	if (dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg |= DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+
-+		/*
-+		 * Wait for internal clocks to synchronized. DWC_usb31 and
-+		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
-+		 * keep it consistent across different IPs, let's wait up to
-+		 * 100ms before clearing GCTL.CORESOFTRESET.
-+		 */
-+		msleep(100);
-+
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg &= ~DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-+	}
-+
- 	spin_lock_irqsave(&dwc->lock, flags);
+ /* commonly used firmware download types and function */
+ struct hexline {
+--- a/include/scsi/libfcoe.h
++++ b/include/scsi/libfcoe.h
+@@ -249,7 +249,7 @@ int fcoe_ctlr_recv_flogi(struct fcoe_ctl
+ 			 struct fc_frame *);
  
- 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
-@@ -178,6 +201,8 @@ static void __dwc3_set_mode(struct work_
- 		}
- 		break;
- 	case DWC3_GCTL_PRTCAP_DEVICE:
-+		dwc3_core_soft_reset(dwc);
-+
- 		dwc3_event_buffers_setup(dwc);
+ /* libfcoe funcs */
+-u64 fcoe_wwn_from_mac(unsigned char mac[], unsigned int, unsigned int);
++u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
+ int fcoe_libfc_config(struct fc_lport *, struct fcoe_ctlr *,
+ 		      const struct libfc_function_template *, int init_fcp);
+ u32 fcoe_fc_crc(struct fc_frame *fp);
+--- a/net/bluetooth/ecdh_helper.h
++++ b/net/bluetooth/ecdh_helper.h
+@@ -25,6 +25,6 @@
  
- 		if (dwc->usb2_phy)
-@@ -200,6 +225,7 @@ static void __dwc3_set_mode(struct work_
- out:
- 	pm_runtime_mark_last_busy(dwc->dev);
- 	pm_runtime_put_autosuspend(dwc->dev);
-+	mutex_unlock(&dwc->mutex);
- }
- 
- void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
-@@ -1529,6 +1555,7 @@ static int dwc3_probe(struct platform_de
- 	dwc3_cache_hwparams(dwc);
- 
- 	spin_lock_init(&dwc->lock);
-+	mutex_init(&dwc->mutex);
- 
- 	pm_runtime_set_active(dev);
- 	pm_runtime_use_autosuspend(dev);
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -13,6 +13,7 @@
- 
- #include <linux/device.h>
- #include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/ioport.h>
- #include <linux/list.h>
- #include <linux/bitops.h>
-@@ -942,6 +943,7 @@ struct dwc3_scratchpad_array {
-  * @scratch_addr: dma address of scratchbuf
-  * @ep0_in_setup: one control transfer is completed and enter setup phase
-  * @lock: for synchronizing
-+ * @mutex: for mode switching
-  * @dev: pointer to our struct device
-  * @sysdev: pointer to the DMA-capable device
-  * @xhci: pointer to our xHCI child
-@@ -1078,6 +1080,9 @@ struct dwc3 {
- 	/* device lock */
- 	spinlock_t		lock;
- 
-+	/* mode switching lock */
-+	struct mutex		mutex;
-+
- 	struct device		*dev;
- 	struct device		*sysdev;
- 
+ int compute_ecdh_secret(struct crypto_kpp *tfm, const u8 pair_public_key[64],
+ 			u8 secret[32]);
+-int set_ecdh_privkey(struct crypto_kpp *tfm, const u8 *private_key);
++int set_ecdh_privkey(struct crypto_kpp *tfm, const u8 private_key[32]);
+ int generate_ecdh_public_key(struct crypto_kpp *tfm, u8 public_key[64]);
+ int generate_ecdh_keys(struct crypto_kpp *tfm, u8 public_key[64]);
 
 
