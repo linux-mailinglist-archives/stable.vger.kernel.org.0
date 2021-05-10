@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BCD03782C3
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 517CC378495
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231453AbhEJKh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:37:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40094 "EHLO mail.kernel.org"
+        id S232149AbhEJKxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:53:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230348AbhEJKfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:35:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80F8A613C5;
-        Mon, 10 May 2021 10:28:50 +0000 (UTC)
+        id S232871AbhEJKvQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:51:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FD0C6194E;
+        Mon, 10 May 2021 10:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642531;
-        bh=SFygIOf12eqWaQFvpjNtqQ8oCYVu/H0DzTbBOpHv+NI=;
+        s=korg; t=1620643231;
+        bh=5fuRqTcKIiPzxbE9ZPKDhNPvkmZlbtvNlweGkPwV8cQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=exApL5vfOkl93T8e5MgNAUK5Bl19A7/qoPkAKC8X0QU9Y/g2+VozORx1ZZG1pxKrZ
-         cdXd1cTEcLnvpMKq5MPXAqV8EdME3uJgQ2C6L8SiapBxkM++SD5dKkll8Tcwd51e8O
-         jTTFZFI3IVFz7roMhGtdcv5Nxp6ziVgoT2qHeZ4Y=
+        b=eP0JSKdScNyo7BUbLXymaSXa5mQg+5OzCkPPdhrq1q6NSSHKpqoyAaw13dGzBzD/F
+         gwp0aTF05W/jEkr2PErULyvxqXJt4/H1VIorlv8SWxtlvV3F29X7ftZPgg2AL7HMOO
+         IMPmb4iLoi2VDiJDt4jiUkWIkNRuVDesnY1/3jh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Loone <sami@loone.fi>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 133/184] ALSA: hda/realtek: fix static noise on ALC285 Lenovo laptops
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 230/299] mlxsw: spectrum_mr: Update egress RIF list before routes action
 Date:   Mon, 10 May 2021 12:20:27 +0200
-Message-Id: <20210510101954.520757365@linuxfoundation.org>
+Message-Id: <20210510102012.557689924@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
-References: <20210510101950.200777181@linuxfoundation.org>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+References: <20210510102004.821838356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Loone <sami@loone.fi>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit 9bbb94e57df135ef61bef075d9c99b8d9e89e246 upstream.
+commit cbaf3f6af9c268caf558c8e7ec52bcb35c5455dd upstream.
 
-Remove a duplicate vendor+subvendor pin fixup entry as one is masking
-the other and making it unreachable. Consider the more specific newcomer
-as a second chance instead.
+Each multicast route that is forwarding packets (as opposed to trapping
+them) points to a list of egress router interfaces (RIFs) through which
+packets are replicated.
 
-The generic entry is made less strict to also match for laptops with
-slightly different 0x12 pin configuration. Tested on Lenovo Yoga 6 (AMD)
-where 0x12 is 0x40000000.
+A route's action can transition from trap to forward when a RIF is
+created for one of the route's egress virtual interfaces (eVIF). When
+this happens, the route's action is first updated and only later the
+list of egress RIFs is committed to the device.
 
-Fixes: 607184cb1635 ("ALSA: hda/realtek - Add supported for more Lenovo ALC285 Headset Button")
-Signed-off-by: Sami Loone <sami@loone.fi>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YIXS+GT/dGI/LtK6@yoga
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This results in the route pointing to an invalid list. In case the list
+pointer is out of range (due to uninitialized memory), the device will
+complain:
+
+mlxsw_spectrum2 0000:06:00.0: EMAD reg access failed (tid=5733bf490000905c,reg_id=300f(pefa),type=write,status=7(bad parameter))
+
+Fix this by first committing the list of egress RIFs to the device and
+only later update the route's action.
+
+Note that a fix is not needed in the reverse function (i.e.,
+mlxsw_sp_mr_route_evif_unresolve()), as there the route's action is
+first updated and only later the RIF is removed from the list.
+
+Cc: stable@vger.kernel.org
+Fixes: c011ec1bbfd6 ("mlxsw: spectrum: Add the multicast routing offloading logic")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/20210506072308.3834303-1-idosch@idosch.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c |   30 +++++++++++-----------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8597,12 +8597,7 @@ static const struct snd_hda_pin_quirk al
- 		{0x12, 0x90a60130},
- 		{0x19, 0x03a11020},
- 		{0x21, 0x0321101f}),
--	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
--		{0x14, 0x90170110},
--		{0x19, 0x04a11040},
--		{0x21, 0x04211020}),
- 	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_LENOVO_PC_BEEP_IN_NOISE,
--		{0x12, 0x90a60130},
- 		{0x14, 0x90170110},
- 		{0x19, 0x04a11040},
- 		{0x21, 0x04211020}),
-@@ -8770,6 +8765,10 @@ static const struct snd_hda_pin_quirk al
- 	SND_HDA_PIN_QUIRK(0x10ec0236, 0x1028, "Dell", ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
- 		{0x19, 0x40000000},
- 		{0x1a, 0x40000000}),
-+	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
-+		{0x14, 0x90170110},
-+		{0x19, 0x04a11040},
-+		{0x21, 0x04211020}),
- 	{}
- };
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
+@@ -535,6 +535,16 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
+ 	u16 erif_index = 0;
+ 	int err;
+ 
++	/* Add the eRIF */
++	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
++		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
++		err = mr->mr_ops->route_erif_add(mlxsw_sp,
++						 rve->mr_route->route_priv,
++						 erif_index);
++		if (err)
++			return err;
++	}
++
+ 	/* Update the route action, as the new eVIF can be a tunnel or a pimreg
+ 	 * device which will require updating the action.
+ 	 */
+@@ -544,17 +554,7 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
+ 						      rve->mr_route->route_priv,
+ 						      route_action);
+ 		if (err)
+-			return err;
+-	}
+-
+-	/* Add the eRIF */
+-	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
+-		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
+-		err = mr->mr_ops->route_erif_add(mlxsw_sp,
+-						 rve->mr_route->route_priv,
+-						 erif_index);
+-		if (err)
+-			goto err_route_erif_add;
++			goto err_route_action_update;
+ 	}
+ 
+ 	/* Update the minimum MTU */
+@@ -572,14 +572,14 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
+ 	return 0;
+ 
+ err_route_min_mtu_update:
+-	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
+-		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
+-					   erif_index);
+-err_route_erif_add:
+ 	if (route_action != rve->mr_route->route_action)
+ 		mr->mr_ops->route_action_update(mlxsw_sp,
+ 						rve->mr_route->route_priv,
+ 						rve->mr_route->route_action);
++err_route_action_update:
++	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
++		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
++					   erif_index);
+ 	return err;
+ }
  
 
 
