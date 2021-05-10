@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05385378905
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 740FD378714
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236935AbhEJLZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53450 "EHLO mail.kernel.org"
+        id S233041AbhEJLN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:13:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237560AbhEJLPb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:15:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7668361464;
-        Mon, 10 May 2021 11:11:07 +0000 (UTC)
+        id S235912AbhEJLG6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:06:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15BDD61624;
+        Mon, 10 May 2021 10:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645068;
-        bh=b+X48dCloFuRbRgUeHgCfH6mM1EbHUpVAf6wPUprbmU=;
+        s=korg; t=1620644218;
+        bh=NnXrD86QDaepdkZjCNN7ZgN4nfylby90UqM9E5K6xzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d74Dpo1U4PAY5m+iLlVvkqhqAHjtjJHvhOmMDCWcBBiBLEdvsWz1MR3KtjF8SKTeN
-         lDo8bFngR1YH2ji5yTLRhqKy/Dnxvy3U1ApL3SxjzWLsARg66EyTMbECTSf/rGCvjy
-         uuiG1Nh4NKZRT95RpxQrPbCUBm+KTOE5VI3z50/k=
+        b=DsbLVOicL8H1gZhHZArK7OEqaMdsF96mmROqTSTbf9BgANpbpNgWhFQXXOXuAD1Mu
+         CVRwqxaknT1bikwo9leBdJShK4sI2QG4JZGplJXgxOOhGQZc6+LCxPA1XaTIGq0e8W
+         d8LyLYCMGVP63mbqJiK+bYMd5nitbIzrzO9jQkgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Hao Sun <sunhao.th@gmail.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.12 337/384] ext4: annotate data race in jbd2_journal_dirty_metadata()
+        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
+        Ming-Hung Tsai <mtsai@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.11 336/342] dm space map common: fix division bug in sm_ll_find_free_block()
 Date:   Mon, 10 May 2021 12:22:06 +0200
-Message-Id: <20210510102025.895445860@linuxfoundation.org>
+Message-Id: <20210510102021.211736963@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Joe Thornber <ejt@redhat.com>
 
-commit 83fe6b18b8d04c6c849379005e1679bac9752466 upstream.
+commit 5208692e80a1f3c8ce2063a22b675dd5589d1d80 upstream.
 
-Assertion checks in jbd2_journal_dirty_metadata() are known to be racy
-but we don't want to be grabbing locks just for them.  We thus recheck
-them under b_state_lock only if it looks like they would fail. Annotate
-the checks with data_race().
+This division bug meant the search for free metadata space could skip
+the final allocation bitmap's worth of entries. Fix affects DM thinp,
+cache and era targets.
 
-Cc: stable@kernel.org
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210406161804.20150-2-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@vger.kernel.org
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Tested-by: Ming-Hung Tsai <mtsai@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jbd2/transaction.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/md/persistent-data/dm-space-map-common.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1479,8 +1479,8 @@ int jbd2_journal_dirty_metadata(handle_t
- 	 * crucial to catch bugs so let's do a reliable check until the
- 	 * lockless handling is fully proven.
+--- a/drivers/md/persistent-data/dm-space-map-common.c
++++ b/drivers/md/persistent-data/dm-space-map-common.c
+@@ -339,6 +339,8 @@ int sm_ll_find_free_block(struct ll_disk
  	 */
--	if (jh->b_transaction != transaction &&
--	    jh->b_next_transaction != transaction) {
-+	if (data_race(jh->b_transaction != transaction &&
-+	    jh->b_next_transaction != transaction)) {
- 		spin_lock(&jh->b_state_lock);
- 		J_ASSERT_JH(jh, jh->b_transaction == transaction ||
- 				jh->b_next_transaction == transaction);
-@@ -1488,8 +1488,8 @@ int jbd2_journal_dirty_metadata(handle_t
- 	}
- 	if (jh->b_modified == 1) {
- 		/* If it's in our transaction it must be in BJ_Metadata list. */
--		if (jh->b_transaction == transaction &&
--		    jh->b_jlist != BJ_Metadata) {
-+		if (data_race(jh->b_transaction == transaction &&
-+		    jh->b_jlist != BJ_Metadata)) {
- 			spin_lock(&jh->b_state_lock);
- 			if (jh->b_transaction == transaction &&
- 			    jh->b_jlist != BJ_Metadata)
+ 	begin = do_div(index_begin, ll->entries_per_block);
+ 	end = do_div(end, ll->entries_per_block);
++	if (end == 0)
++		end = ll->entries_per_block;
+ 
+ 	for (i = index_begin; i < index_end; i++, begin = 0) {
+ 		struct dm_block *blk;
 
 
