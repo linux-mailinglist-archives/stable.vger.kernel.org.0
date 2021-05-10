@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7413782FB
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E190378317
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231455AbhEJKlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:41:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48344 "EHLO mail.kernel.org"
+        id S232131AbhEJKmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232350AbhEJKjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232357AbhEJKjp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E19161949;
-        Mon, 10 May 2021 10:30:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFD6E61953;
+        Mon, 10 May 2021 10:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642632;
-        bh=epXSFlnF5RCUilyikK2WahaiRoIvdrZJsRJu0C8vle0=;
+        s=korg; t=1620642634;
+        bh=ibVnBzgSzFXZ8BDNUFeMqNbg73fRLw1pxvE+LdU2vys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmVYPWhS0epgjChCisrwd3zRN0u38P2nywsA9e3asHszHjvHgiUJ4tE9dVUERw1Sm
-         lIAQfeQRlD8YNfYxeCTCLxxL8ovUCdcEgZ07eamfOJB/u2XGTqniFkYJZfbGRykhB+
-         2yQsu/Xz2/6IrxV6C4b16OI2N8yLaNsR3dHebnew=
+        b=c6lJPwfm/vulCigvynJsUvTTkTZu6ADzYKePNXFF0PuiFJx59dLc3mQDgBeUrxfUH
+         TEAi7v88tzSkS1bzVpXA3iR5Zab0OEs5cnt2wYOAOvBREkIOZGNXALkDUhUDzeegTC
+         JfzJ8zvEvHkSY3YyYzfiJ8hw4lzThHs85V/9wIYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dean Anderson <dean@sensoray.com>
-Subject: [PATCH 5.4 174/184] usb: gadget/function/f_fs string table fix for multiple languages
-Date:   Mon, 10 May 2021 12:21:08 +0200
-Message-Id: <20210510101955.823517111@linuxfoundation.org>
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 5.4 175/184] usb: dwc3: gadget: Fix START_TRANSFER link state check
+Date:   Mon, 10 May 2021 12:21:09 +0200
+Message-Id: <20210510101955.854977660@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -38,44 +39,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dean Anderson <dean@sensoray.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 55b74ce7d2ce0b0058f3e08cab185a0afacfe39e upstream.
+commit c560e76319a94a3b9285bc426c609903408e4826 upstream.
 
-Fixes bug with the handling of more than one language in
-the string table in f_fs.c.
-str_count was not reset for subsequent language codes.
-str_count-- "rolls under" and processes u32 max strings on
-the processing of the second language entry.
-The existing bug can be reproduced by adding a second language table
-to the structure "strings" in tools/usb/ffs-test.c.
+The START_TRANSFER command needs to be executed while in ON/U0 link
+state (with an exception during register initialization). Don't use
+dwc->link_state to check this since the driver only tracks the link
+state when the link state change interrupt is enabled. Check the link
+state from DSTS register instead.
 
-Signed-off-by: Dean Anderson <dean@sensoray.com>
-Link: https://lore.kernel.org/r/20210317224109.21534-1-dean@sensoray.com
-Cc: stable <stable@vger.kernel.org>
+Note that often the host already brings the device out of low power
+before it sends/requests the next transfer. So, the user won't see any
+issue when the device starts transfer then. This issue is more
+noticeable in cases when the device delays starting transfer, which can
+happen during delayed control status after the host put the device in
+low power.
+
+Fixes: 799e9dc82968 ("usb: dwc3: gadget: conditionally disable Link State change events")
+Cc: <stable@vger.kernel.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/bcefaa9ecbc3e1936858c0baa14de6612960e909.1618884221.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_fs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -2658,6 +2658,7 @@ static int __ffs_data_got_strings(struct
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -304,13 +304,12 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_
+ 	}
  
- 	do { /* lang_count > 0 so we can use do-while */
- 		unsigned needed = needed_count;
-+		u32 str_per_lang = str_count;
+ 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
+-		int		needs_wakeup;
++		int link_state;
  
- 		if (unlikely(len < 3))
- 			goto error_free;
-@@ -2693,7 +2694,7 @@ static int __ffs_data_got_strings(struct
- 
- 			data += length + 1;
- 			len -= length + 1;
--		} while (--str_count);
-+		} while (--str_per_lang);
- 
- 		s->id = 0;   /* terminator */
- 		s->s = NULL;
+-		needs_wakeup = (dwc->link_state == DWC3_LINK_STATE_U1 ||
+-				dwc->link_state == DWC3_LINK_STATE_U2 ||
+-				dwc->link_state == DWC3_LINK_STATE_U3);
+-
+-		if (unlikely(needs_wakeup)) {
++		link_state = dwc3_gadget_get_link_state(dwc);
++		if (link_state == DWC3_LINK_STATE_U1 ||
++		    link_state == DWC3_LINK_STATE_U2 ||
++		    link_state == DWC3_LINK_STATE_U3) {
+ 			ret = __dwc3_gadget_wakeup(dwc);
+ 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
+ 					ret);
+@@ -1862,6 +1861,8 @@ static int __dwc3_gadget_wakeup(struct d
+ 	case DWC3_LINK_STATE_RESET:
+ 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
+ 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
++	case DWC3_LINK_STATE_U2:	/* in HS, means Sleep (L1) */
++	case DWC3_LINK_STATE_U1:
+ 	case DWC3_LINK_STATE_RESUME:
+ 		break;
+ 	default:
 
 
