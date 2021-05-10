@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C24C3782DC
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F085D3782DA
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232013AbhEJKio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:38:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44008 "EHLO mail.kernel.org"
+        id S232002AbhEJKin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:38:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231360AbhEJKgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231167AbhEJKgj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:36:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 820F06193F;
-        Mon, 10 May 2021 10:29:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6D19613D6;
+        Mon, 10 May 2021 10:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642558;
-        bh=8TUX8ebQCnnosyGIob6anlDtDbTdnqT6huL51mjRUGc=;
+        s=korg; t=1620642560;
+        bh=KIr7O11WsfUxdjcPN3lJ5XLBUJ+kJA01EzYdnn6q10k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OofkkhoIGu+fkAlxRhtGQz3LK5G7LEHdZP2ULmf665HaUmUlBi4jRZ3H4rApFlpNu
-         CbP76MLGjtROlK8H8xATmL8cZOV6aXPvluqD2RiBfVp8kCFZO+f6KPuB9lfNNTtPRO
-         6NxOfB6hY8N2Rez9TtdACbewi5aL7nmh9NTxf2Fg=
+        b=KszBgt/QsvbdfsmXH4bzphKf0vtFceZ5DEfYn98Lz+b32gqza7+lyEBxAs8nE1iBh
+         vDLWVmOcE/0BylvYPGora7wQC5YLgW/gq2GqQvXsgUVZI0AfVbL9bcxk3N7FfQq2iT
+         vjGl8OU3zp/j/0xGYWtiG8uPmnYWrYaU5HgrN0IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dann frazier <dann.frazier@canonical.com>,
-        Marc Zyngier <maz@kernel.org>, Fu Wei <wefu@redhat.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.4 143/184] ACPI: GTDT: Dont corrupt interrupt mappings on watchdow probe failure
-Date:   Mon, 10 May 2021 12:20:37 +0200
-Message-Id: <20210510101954.822924233@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.4 144/184] NFS: Dont discard pNFS layout segments that are marked for return
+Date:   Mon, 10 May 2021 12:20:38 +0200
+Message-Id: <20210510101954.853737275@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -43,82 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 1ecd5b129252249b9bc03d7645a7bda512747277 upstream.
+commit 39fd01863616964f009599e50ca5c6ea9ebf88d6 upstream.
 
-When failing the driver probe because of invalid firmware properties,
-the GTDT driver unmaps the interrupt that it mapped earlier.
+If the pNFS layout segment is marked with the NFS_LSEG_LAYOUTRETURN
+flag, then the assumption is that it has some reporting requirement
+to perform through a layoutreturn (e.g. flexfiles layout stats or error
+information).
 
-However, it never checks whether the mapping of the interrupt actially
-succeeded. Even more, should the firmware report an illegal interrupt
-number that overlaps with the GIC SGI range, this can result in an
-IPI being unmapped, and subsequent fireworks (as reported by Dann
-Frazier).
-
-Rework the driver to have a slightly saner behaviour and actually
-check whether the interrupt has been mapped before unmapping things.
-
-Reported-by: dann frazier <dann.frazier@canonical.com>
-Fixes: ca9ae5ec4ef0 ("acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/YH87dtTfwYgavusz@xps13.dannf
-Cc: <stable@vger.kernel.org>
-Cc: Fu Wei <wefu@redhat.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: dann frazier <dann.frazier@canonical.com>
-Tested-by: Hanjun Guo <guohanjun@huawei.com>
-Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
-Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Link: https://lore.kernel.org/r/20210421164317.1718831-2-maz@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: e0b7d420f72a ("pNFS: Don't discard layout segments that are marked for return")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/arm64/gtdt.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/nfs/pnfs.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/acpi/arm64/gtdt.c
-+++ b/drivers/acpi/arm64/gtdt.c
-@@ -329,7 +329,7 @@ static int __init gtdt_import_sbsa_gwdt(
- 					int index)
- {
- 	struct platform_device *pdev;
--	int irq = map_gt_gsi(wd->timer_interrupt, wd->timer_flags);
-+	int irq;
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2427,6 +2427,9 @@ pnfs_mark_matching_lsegs_return(struct p
  
- 	/*
- 	 * According to SBSA specification the size of refresh and control
-@@ -338,7 +338,7 @@ static int __init gtdt_import_sbsa_gwdt(
- 	struct resource res[] = {
- 		DEFINE_RES_MEM(wd->control_frame_address, SZ_4K),
- 		DEFINE_RES_MEM(wd->refresh_frame_address, SZ_4K),
--		DEFINE_RES_IRQ(irq),
-+		{},
- 	};
- 	int nr_res = ARRAY_SIZE(res);
+ 	assert_spin_locked(&lo->plh_inode->i_lock);
  
-@@ -348,10 +348,11 @@ static int __init gtdt_import_sbsa_gwdt(
- 
- 	if (!(wd->refresh_frame_address && wd->control_frame_address)) {
- 		pr_err(FW_BUG "failed to get the Watchdog base address.\n");
--		acpi_unregister_gsi(wd->timer_interrupt);
- 		return -EINVAL;
- 	}
- 
-+	irq = map_gt_gsi(wd->timer_interrupt, wd->timer_flags);
-+	res[2] = (struct resource)DEFINE_RES_IRQ(irq);
- 	if (irq <= 0) {
- 		pr_warn("failed to map the Watchdog interrupt.\n");
- 		nr_res--;
-@@ -364,7 +365,8 @@ static int __init gtdt_import_sbsa_gwdt(
- 	 */
- 	pdev = platform_device_register_simple("sbsa-gwdt", index, res, nr_res);
- 	if (IS_ERR(pdev)) {
--		acpi_unregister_gsi(wd->timer_interrupt);
-+		if (irq > 0)
-+			acpi_unregister_gsi(wd->timer_interrupt);
- 		return PTR_ERR(pdev);
- 	}
- 
++	if (test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags))
++		tmp_list = &lo->plh_return_segs;
++
+ 	list_for_each_entry_safe(lseg, next, &lo->plh_segs, pls_list)
+ 		if (pnfs_match_lseg_recall(lseg, return_range, seq)) {
+ 			dprintk("%s: marking lseg %p iomode %d "
+@@ -2434,6 +2437,8 @@ pnfs_mark_matching_lsegs_return(struct p
+ 				lseg, lseg->pls_range.iomode,
+ 				lseg->pls_range.offset,
+ 				lseg->pls_range.length);
++			if (test_bit(NFS_LSEG_LAYOUTRETURN, &lseg->pls_flags))
++				tmp_list = &lo->plh_return_segs;
+ 			if (mark_lseg_invalid(lseg, tmp_list))
+ 				continue;
+ 			remaining++;
 
 
