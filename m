@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B1BF3788FC
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3602E37871D
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235962AbhEJLZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60380 "EHLO mail.kernel.org"
+        id S235850AbhEJLNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:13:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233638AbhEJLOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:14:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8366101D;
-        Mon, 10 May 2021 11:10:45 +0000 (UTC)
+        id S236025AbhEJLHR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF6B961944;
+        Mon, 10 May 2021 10:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645046;
-        bh=dhcHTDIdSmLd56jCrErKTAtg111bdBF2obbT9o8WXWs=;
+        s=korg; t=1620644250;
+        bh=mrxv9A38FANIUx0s566WXspDiCL3kAfq/zU5fvwKeN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjylKRACfvA6SPr1yIwUrBb1KymmIP+oFWQGmblN7t7cpU6QFkFk8faULXtOrbJ+5
-         A1Pj7EtyKVIrBtaY8YnOuLOGdFZciJ3EbwCK3IR2IUsnvbGMi7eQ8wJpSZTY1yy4JE
-         TVuW7ot5bm0pqFQILF7OMSVw1WowcW6z9CRQMyww=
+        b=hrqB3t/28EcwntA7+WUPaUtZvqs8Mv8zqI8YLcNoKDPHmT0h20bpIVUD9BvwYffcq
+         M4MaFomV3TC9/F0p8mKZKJLRPRy2tOeOTMNxQJroAPfKewdwjd+KYggGMk3KTtgB+E
+         su+m8uxHJ5bPJoY7NUHyP/hoep/FeyXwBNx2s6Ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Talpey <tom@talpey.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.12 329/384] smb3: when mounting with multichannel include it in requested capabilities
-Date:   Mon, 10 May 2021 12:21:58 +0200
-Message-Id: <20210510102025.641128516@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.11 329/342] PCI: dwc: Move iATU detection earlier
+Date:   Mon, 10 May 2021 12:21:59 +0200
+Message-Id: <20210510102020.973975164@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +45,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 
-commit 679971e7213174efb56abc8fab1299d0a88db0e8 upstream.
+commit 8bcca26585585ae4b44d25d30f351ad0afa4976b upstream.
 
-In the SMB3/SMB3.1.1 negotiate protocol request, we are supposed to
-advertise CAP_MULTICHANNEL capability when establishing multiple
-channels has been requested by the user doing the mount. See MS-SMB2
-sections 2.2.3 and 3.2.5.2
+dw_pcie_ep_init() depends on the detected iATU region numbers to allocate
+the in/outbound window management bitmap.  It fails after 281f1f99cf3a
+("PCI: dwc: Detect number of iATU windows").
 
-Without setting it there is some risk that multichannel could fail
-if the server interpreted the field strictly.
+Move the iATU region detection into a new function, move the detection to
+the very beginning of dw_pcie_host_init() and dw_pcie_ep_init().  Also
+remove it from the dw_pcie_setup(), since it's more like a software
+initialization step than hardware setup.
 
-Reviewed-By: Tom Talpey <tom@talpey.com>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Cc: <stable@vger.kernel.org> # v5.8+
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Link: https://lore.kernel.org/r/20210125044803.4310-1-Zhiqiang.Hou@nxp.com
+Link: https://lore.kernel.org/linux-pci/20210407131255.702054-1-dmitry.baryshkov@linaro.org
+Link: https://lore.kernel.org/r/20210413142219.2301430-1-dmitry.baryshkov@linaro.org
+Fixes: 281f1f99cf3a ("PCI: dwc: Detect number of iATU windows")
+Tested-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+[DB: moved dw_pcie_iatu_detect to happen after host_init callback]
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Cc: stable@vger.kernel.org	# v5.11+
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2pdu.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/pci/controller/dwc/pcie-designware-ep.c   |    2 ++
+ drivers/pci/controller/dwc/pcie-designware-host.c |    1 +
+ drivers/pci/controller/dwc/pcie-designware.c      |   11 ++++++++---
+ drivers/pci/controller/dwc/pcie-designware.h      |    1 +
+ 4 files changed, 12 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -841,6 +841,8 @@ SMB2_negotiate(const unsigned int xid, s
- 		req->SecurityMode = 0;
+--- a/drivers/pci/controller/dwc/pcie-designware-ep.c
++++ b/drivers/pci/controller/dwc/pcie-designware-ep.c
+@@ -707,6 +707,8 @@ int dw_pcie_ep_init(struct dw_pcie_ep *e
+ 		}
+ 	}
  
- 	req->Capabilities = cpu_to_le32(server->vals->req_capabilities);
-+	if (ses->chan_max > 1)
-+		req->Capabilities |= cpu_to_le32(SMB2_GLOBAL_CAP_MULTI_CHANNEL);
- 
- 	/* ClientGUID must be zero for SMB2.02 dialect */
- 	if (server->vals->protocol_id == SMB20_PROT_ID)
-@@ -1032,6 +1034,9 @@ int smb3_validate_negotiate(const unsign
- 
- 	pneg_inbuf->Capabilities =
- 			cpu_to_le32(server->vals->req_capabilities);
-+	if (tcon->ses->chan_max > 1)
-+		pneg_inbuf->Capabilities |= cpu_to_le32(SMB2_GLOBAL_CAP_MULTI_CHANNEL);
++	dw_pcie_iatu_detect(pci);
 +
- 	memcpy(pneg_inbuf->Guid, server->client_guid,
- 					SMB2_CLIENT_GUID_SIZE);
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "addr_space");
+ 	if (!res)
+ 		return -EINVAL;
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -421,6 +421,7 @@ int dw_pcie_host_init(struct pcie_port *
+ 		if (ret)
+ 			goto err_free_msi;
+ 	}
++	dw_pcie_iatu_detect(pci);
  
+ 	dw_pcie_setup_rc(pp);
+ 	dw_pcie_msi_init(pp);
+--- a/drivers/pci/controller/dwc/pcie-designware.c
++++ b/drivers/pci/controller/dwc/pcie-designware.c
+@@ -610,11 +610,9 @@ static void dw_pcie_iatu_detect_regions(
+ 	pci->num_ob_windows = ob;
+ }
+ 
+-void dw_pcie_setup(struct dw_pcie *pci)
++void dw_pcie_iatu_detect(struct dw_pcie *pci)
+ {
+-	u32 val;
+ 	struct device *dev = pci->dev;
+-	struct device_node *np = dev->of_node;
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 
+ 	if (pci->version >= 0x480A || (!pci->version &&
+@@ -643,6 +641,13 @@ void dw_pcie_setup(struct dw_pcie *pci)
+ 
+ 	dev_info(pci->dev, "Detected iATU regions: %u outbound, %u inbound",
+ 		 pci->num_ob_windows, pci->num_ib_windows);
++}
++
++void dw_pcie_setup(struct dw_pcie *pci)
++{
++	u32 val;
++	struct device *dev = pci->dev;
++	struct device_node *np = dev->of_node;
+ 
+ 	if (pci->link_gen > 0)
+ 		dw_pcie_link_set_max_speed(pci, pci->link_gen);
+--- a/drivers/pci/controller/dwc/pcie-designware.h
++++ b/drivers/pci/controller/dwc/pcie-designware.h
+@@ -304,6 +304,7 @@ int dw_pcie_prog_inbound_atu(struct dw_p
+ void dw_pcie_disable_atu(struct dw_pcie *pci, int index,
+ 			 enum dw_pcie_region_type type);
+ void dw_pcie_setup(struct dw_pcie *pci);
++void dw_pcie_iatu_detect(struct dw_pcie *pci);
+ 
+ static inline void dw_pcie_writel_dbi(struct dw_pcie *pci, u32 reg, u32 val)
+ {
 
 
