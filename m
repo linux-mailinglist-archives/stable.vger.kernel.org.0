@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D68243782E5
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 737C13782E7
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233030AbhEJKlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:41:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41940 "EHLO mail.kernel.org"
+        id S231436AbhEJKlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:41:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231495AbhEJKhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:37:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AB9F61945;
-        Mon, 10 May 2021 10:29:27 +0000 (UTC)
+        id S232458AbhEJKhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:37:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8D76613D3;
+        Mon, 10 May 2021 10:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642568;
-        bh=S9KxFvBNJF3LUzHlhzOwhH8iAqUgt9pncIjyMoGMI+o=;
+        s=korg; t=1620642570;
+        bh=JLkh8RkqJZJaK2LwravebZmz1WwGK32aRUDEesafqN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/RH73pGWPsF4YhZQQDu/F5wJgSoq8wOAkkk5aw0gwuLbtImk2NwsfgO5Q0mp4G5U
-         VSt77b0NTzWqe+cPSLkwy2O1Lv+IjI4Ebv/Ifzhp9MyyIzZUGLZET8F1AMAjSXy1oB
-         1veR+CLCD1TQuF8H5cBVmLYil96Ujz5rSy0r//YM=
+        b=0ukZqeHFQWciSy1HUAntKstCAgZQDcqOJ9om1KySEfg1rKFi/VxXlfKhSC40sehd8
+         gc0SXOJmJGXXltoqcOmpKOfw7sJmhnb8ttydc93FrsUMtou31DDKt2B0gzyoaZIx0o
+         uPYfEOLVGXLxVWgkHrRYozH7jgmPGEgQ9XU4Hshs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kunkun Xu <xukunkun1@huawei.com>,
-        lizhe <lizhe67@huawei.com>, Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.4 147/184] jffs2: Fix kasan slab-out-of-bounds problem
-Date:   Mon, 10 May 2021 12:20:41 +0200
-Message-Id: <20210510101954.942849081@linuxfoundation.org>
+        stable@vger.kernel.org, Dominic DeMarco <ddemarc@us.ibm.com>,
+        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 148/184] powerpc/eeh: Fix EEH handling for hugepages in ioremap space.
+Date:   Mon, 10 May 2021 12:20:42 +0200
+Message-Id: <20210510101954.973676014@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -39,138 +41,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lizhe <lizhe67@huawei.com>
+From: Mahesh Salgaonkar <mahesh@linux.ibm.com>
 
-commit 960b9a8a7676b9054d8b46a2c7db52a0c8766b56 upstream.
+commit 5ae5bc12d0728db60a0aa9b62160ffc038875f1a upstream.
 
-KASAN report a slab-out-of-bounds problem. The logs are listed below.
-It is because in function jffs2_scan_dirent_node, we alloc "checkedlen+1"
-bytes for fd->name and we check crc with length rd->nsize. If checkedlen
-is less than rd->nsize, it will cause the slab-out-of-bounds problem.
+During the EEH MMIO error checking, the current implementation fails to map
+the (virtual) MMIO address back to the pci device on radix with hugepage
+mappings for I/O. This results into failure to dispatch EEH event with no
+recovery even when EEH capability has been enabled on the device.
 
-jffs2: Dirent at *** has zeroes in name. Truncating to %d char
-==================================================================
-BUG: KASAN: slab-out-of-bounds in crc32_le+0x1ce/0x260 at addr ffff8800842cf2d1
-Read of size 1 by task test_JFFS2/915
-=============================================================================
-BUG kmalloc-64 (Tainted: G    B      O   ): kasan: bad access detected
------------------------------------------------------------------------------
-INFO: Allocated in jffs2_alloc_full_dirent+0x2a/0x40 age=0 cpu=1 pid=915
-	___slab_alloc+0x580/0x5f0
-	__slab_alloc.isra.24+0x4e/0x64
-	__kmalloc+0x170/0x300
-	jffs2_alloc_full_dirent+0x2a/0x40
-	jffs2_scan_eraseblock+0x1ca4/0x3b64
-	jffs2_scan_medium+0x285/0xfe0
-	jffs2_do_mount_fs+0x5fb/0x1bbc
-	jffs2_do_fill_super+0x245/0x6f0
-	jffs2_fill_super+0x287/0x2e0
-	mount_mtd_aux.isra.0+0x9a/0x144
-	mount_mtd+0x222/0x2f0
-	jffs2_mount+0x41/0x60
-	mount_fs+0x63/0x230
-	vfs_kern_mount.part.6+0x6c/0x1f4
-	do_mount+0xae8/0x1940
-	SyS_mount+0x105/0x1d0
-INFO: Freed in jffs2_free_full_dirent+0x22/0x40 age=27 cpu=1 pid=915
-	__slab_free+0x372/0x4e4
-	kfree+0x1d4/0x20c
-	jffs2_free_full_dirent+0x22/0x40
-	jffs2_build_remove_unlinked_inode+0x17a/0x1e4
-	jffs2_do_mount_fs+0x1646/0x1bbc
-	jffs2_do_fill_super+0x245/0x6f0
-	jffs2_fill_super+0x287/0x2e0
-	mount_mtd_aux.isra.0+0x9a/0x144
-	mount_mtd+0x222/0x2f0
-	jffs2_mount+0x41/0x60
-	mount_fs+0x63/0x230
-	vfs_kern_mount.part.6+0x6c/0x1f4
-	do_mount+0xae8/0x1940
-	SyS_mount+0x105/0x1d0
-	entry_SYSCALL_64_fastpath+0x1e/0x97
-Call Trace:
- [<ffffffff815befef>] dump_stack+0x59/0x7e
- [<ffffffff812d1d65>] print_trailer+0x125/0x1b0
- [<ffffffff812d82c8>] object_err+0x34/0x40
- [<ffffffff812dadef>] kasan_report.part.1+0x21f/0x534
- [<ffffffff81132401>] ? vprintk+0x2d/0x40
- [<ffffffff815f1ee2>] ? crc32_le+0x1ce/0x260
- [<ffffffff812db41a>] kasan_report+0x26/0x30
- [<ffffffff812d9fc1>] __asan_load1+0x3d/0x50
- [<ffffffff815f1ee2>] crc32_le+0x1ce/0x260
- [<ffffffff814764ae>] ? jffs2_alloc_full_dirent+0x2a/0x40
- [<ffffffff81485cec>] jffs2_scan_eraseblock+0x1d0c/0x3b64
- [<ffffffff81488813>] ? jffs2_scan_medium+0xccf/0xfe0
- [<ffffffff81483fe0>] ? jffs2_scan_make_ino_cache+0x14c/0x14c
- [<ffffffff812da3e9>] ? kasan_unpoison_shadow+0x35/0x50
- [<ffffffff812da3e9>] ? kasan_unpoison_shadow+0x35/0x50
- [<ffffffff812da462>] ? kasan_kmalloc+0x5e/0x70
- [<ffffffff812d5d90>] ? kmem_cache_alloc_trace+0x10c/0x2cc
- [<ffffffff818169fb>] ? mtd_point+0xf7/0x130
- [<ffffffff81487dc9>] jffs2_scan_medium+0x285/0xfe0
- [<ffffffff81487b44>] ? jffs2_scan_eraseblock+0x3b64/0x3b64
- [<ffffffff812da3e9>] ? kasan_unpoison_shadow+0x35/0x50
- [<ffffffff812da3e9>] ? kasan_unpoison_shadow+0x35/0x50
- [<ffffffff812da462>] ? kasan_kmalloc+0x5e/0x70
- [<ffffffff812d57df>] ? __kmalloc+0x12b/0x300
- [<ffffffff812da462>] ? kasan_kmalloc+0x5e/0x70
- [<ffffffff814a2753>] ? jffs2_sum_init+0x9f/0x240
- [<ffffffff8148b2ff>] jffs2_do_mount_fs+0x5fb/0x1bbc
- [<ffffffff8148ad04>] ? jffs2_del_noinode_dirent+0x640/0x640
- [<ffffffff812da462>] ? kasan_kmalloc+0x5e/0x70
- [<ffffffff81127c5b>] ? __init_rwsem+0x97/0xac
- [<ffffffff81492349>] jffs2_do_fill_super+0x245/0x6f0
- [<ffffffff81493c5b>] jffs2_fill_super+0x287/0x2e0
- [<ffffffff814939d4>] ? jffs2_parse_options+0x594/0x594
- [<ffffffff81819bea>] mount_mtd_aux.isra.0+0x9a/0x144
- [<ffffffff81819eb6>] mount_mtd+0x222/0x2f0
- [<ffffffff814939d4>] ? jffs2_parse_options+0x594/0x594
- [<ffffffff81819c94>] ? mount_mtd_aux.isra.0+0x144/0x144
- [<ffffffff81258757>] ? free_pages+0x13/0x1c
- [<ffffffff814fa0ac>] ? selinux_sb_copy_data+0x278/0x2e0
- [<ffffffff81492b35>] jffs2_mount+0x41/0x60
- [<ffffffff81302fb7>] mount_fs+0x63/0x230
- [<ffffffff8133755f>] ? alloc_vfsmnt+0x32f/0x3b0
- [<ffffffff81337f2c>] vfs_kern_mount.part.6+0x6c/0x1f4
- [<ffffffff8133ceec>] do_mount+0xae8/0x1940
- [<ffffffff811b94e0>] ? audit_filter_rules.constprop.6+0x1d10/0x1d10
- [<ffffffff8133c404>] ? copy_mount_string+0x40/0x40
- [<ffffffff812cbf78>] ? alloc_pages_current+0xa4/0x1bc
- [<ffffffff81253a89>] ? __get_free_pages+0x25/0x50
- [<ffffffff81338993>] ? copy_mount_options.part.17+0x183/0x264
- [<ffffffff8133e3a9>] SyS_mount+0x105/0x1d0
- [<ffffffff8133e2a4>] ? copy_mnt_ns+0x560/0x560
- [<ffffffff810e8391>] ? msa_space_switch_handler+0x13d/0x190
- [<ffffffff81be184a>] entry_SYSCALL_64_fastpath+0x1e/0x97
- [<ffffffff810e9274>] ? msa_space_switch+0xb0/0xe0
-Memory state around the buggy address:
- ffff8800842cf180: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8800842cf200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff8800842cf280: fc fc fc fc fc fc 00 00 00 00 01 fc fc fc fc fc
-                                                 ^
- ffff8800842cf300: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8800842cf380: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-==================================================================
+eeh_check_failure(token)		# token = virtual MMIO address
+  addr = eeh_token_to_phys(token);
+  edev = eeh_addr_cache_get_dev(addr);
+  if (!edev)
+	return 0;
+  eeh_dev_check_failure(edev);	<= Dispatch the EEH event
 
-Cc: stable@vger.kernel.org
-Reported-by: Kunkun Xu <xukunkun1@huawei.com>
-Signed-off-by: lizhe <lizhe67@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+In case of hugepage mappings, eeh_token_to_phys() has a bug in virt -> phys
+translation that results in wrong physical address, which is then passed to
+eeh_addr_cache_get_dev() to match it against cached pci I/O address ranges
+to get to a PCI device. Hence, it fails to find a match and the EEH event
+never gets dispatched leaving the device in failed state.
+
+The commit 33439620680be ("powerpc/eeh: Handle hugepages in ioremap space")
+introduced following logic to translate virt to phys for hugepage mappings:
+
+eeh_token_to_phys():
++	pa = pte_pfn(*ptep);
++
++	/* On radix we can do hugepage mappings for io, so handle that */
++       if (hugepage_shift) {
++               pa <<= hugepage_shift;			<= This is wrong
++               pa |= token & ((1ul << hugepage_shift) - 1);
++       }
+
+This patch fixes the virt -> phys translation in eeh_token_to_phys()
+function.
+
+  $ cat /sys/kernel/debug/powerpc/eeh_address_cache
+  mem addr range [0x0000040080000000-0x00000400807fffff]: 0030:01:00.1
+  mem addr range [0x0000040080800000-0x0000040080ffffff]: 0030:01:00.1
+  mem addr range [0x0000040081000000-0x00000400817fffff]: 0030:01:00.0
+  mem addr range [0x0000040081800000-0x0000040081ffffff]: 0030:01:00.0
+  mem addr range [0x0000040082000000-0x000004008207ffff]: 0030:01:00.1
+  mem addr range [0x0000040082080000-0x00000400820fffff]: 0030:01:00.0
+  mem addr range [0x0000040082100000-0x000004008210ffff]: 0030:01:00.1
+  mem addr range [0x0000040082110000-0x000004008211ffff]: 0030:01:00.0
+
+Above is the list of cached io address ranges of pci 0030:01:00.<fn>.
+
+Before this patch:
+
+Tracing 'arg1' of function eeh_addr_cache_get_dev() during error injection
+clearly shows that 'addr=' contains wrong physical address:
+
+   kworker/u16:0-7       [001] ....   108.883775: eeh_addr_cache_get_dev:
+	   (eeh_addr_cache_get_dev+0xc/0xf0) addr=0x80103000a510
+
+dmesg shows no EEH recovery messages:
+
+  [  108.563768] bnx2x: [bnx2x_timer:5801(eth2)]MFW seems hanged: drv_pulse (0x9ae) != mcp_pulse (0x7fff)
+  [  108.563788] bnx2x: [bnx2x_hw_stats_update:870(eth2)]NIG timer max (4294967295)
+  [  108.883788] bnx2x: [bnx2x_acquire_hw_lock:2013(eth1)]lock_status 0xffffffff  resource_bit 0x1
+  [  108.884407] bnx2x 0030:01:00.0 eth1: MDC/MDIO access timeout
+  [  108.884976] bnx2x 0030:01:00.0 eth1: MDC/MDIO access timeout
+  <..>
+
+After this patch:
+
+eeh_addr_cache_get_dev() trace shows correct physical address:
+
+  <idle>-0       [001] ..s.  1043.123828: eeh_addr_cache_get_dev:
+	  (eeh_addr_cache_get_dev+0xc/0xf0) addr=0x40080bc7cd8
+
+dmesg logs shows EEH recovery getting triggerred:
+
+  [  964.323980] bnx2x: [bnx2x_timer:5801(eth2)]MFW seems hanged: drv_pulse (0x746f) != mcp_pulse (0x7fff)
+  [  964.323991] EEH: Recovering PHB#30-PE#10000
+  [  964.324002] EEH: PE location: N/A, PHB location: N/A
+  [  964.324006] EEH: Frozen PHB#30-PE#10000 detected
+  <..>
+
+Fixes: 33439620680b ("powerpc/eeh: Handle hugepages in ioremap space")
+Cc: stable@vger.kernel.org # v5.3+
+Reported-by: Dominic DeMarco <ddemarc@us.ibm.com>
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/161821396263.48361.2796709239866588652.stgit@jupiter
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jffs2/scan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/eeh.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/fs/jffs2/scan.c
-+++ b/fs/jffs2/scan.c
-@@ -1078,7 +1078,7 @@ static int jffs2_scan_dirent_node(struct
- 	memcpy(&fd->name, rd->name, checkedlen);
- 	fd->name[checkedlen] = 0;
+--- a/arch/powerpc/kernel/eeh.c
++++ b/arch/powerpc/kernel/eeh.c
+@@ -368,14 +368,11 @@ static inline unsigned long eeh_token_to
+ 	pa = pte_pfn(*ptep);
  
--	crc = crc32(0, fd->name, rd->nsize);
-+	crc = crc32(0, fd->name, checkedlen);
- 	if (crc != je32_to_cpu(rd->name_crc)) {
- 		pr_notice("%s(): Name CRC failed on node at 0x%08x: Read 0x%08x, calculated 0x%08x\n",
- 			  __func__, ofs, je32_to_cpu(rd->name_crc), crc);
+ 	/* On radix we can do hugepage mappings for io, so handle that */
+-	if (hugepage_shift) {
+-		pa <<= hugepage_shift;
+-		pa |= token & ((1ul << hugepage_shift) - 1);
+-	} else {
+-		pa <<= PAGE_SHIFT;
+-		pa |= token & (PAGE_SIZE - 1);
+-	}
++	if (!hugepage_shift)
++		hugepage_shift = PAGE_SHIFT;
+ 
++	pa <<= PAGE_SHIFT;
++	pa |= token & ((1ul << hugepage_shift) - 1);
+ 	return pa;
+ }
+ 
 
 
