@@ -2,43 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC3B37870B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 922243788FF
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234923AbhEJLNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:13:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
+        id S236598AbhEJLZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235869AbhEJLGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:06:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAF786157E;
-        Mon, 10 May 2021 10:56:45 +0000 (UTC)
+        id S237438AbhEJLPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:15:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7B4F61108;
+        Mon, 10 May 2021 11:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644206;
-        bh=Ga0GcZJ15+mCFyWQygC1n0QxlS2LBSHB5Xti+h6bYng=;
+        s=korg; t=1620645058;
+        bh=rAGappilp1e9ZWphv4CQintWd2/j0kzuJ2+3dx1DlRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBfxkZLMa6T01w1HOGMxelaGbxFSm6gDSePY5FPpPrVxWKM9EGc31S0/V6ACiwep4
-         xanm7uz5yGWYYfNToVT7N5whjI/GJUhD//QEQE4U4pz9gLNjzKlM/8VIuDZJ7zA5Lj
-         gSuNnWP9b9ruT+Ko1B9ooWOQYAhnE6bv32q22+6I=
+        b=Id4VGtSE3FAwdvgJEh1lzj4B90BILiOfzBm59KAkys0n5L6aNu7cXrqRdq4d2o9My
+         3pn1meq1dWAXZF2O+kDfXOT9UnW1A4Rb4c4u/pUI4U9wmULt9jtNBem5sRfd7J6D1Y
+         u7RiDgcMDK7uOeTm3PAwZDZ2cZ3PbXdUf74TCyIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Angus Ainslie <angus@akkea.ca>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Karun Eagalapati <karun256@gmail.com>,
-        Martin Kepplinger <martink@posteo.de>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Siva Rebbagondla <siva8118@gmail.com>, netdev@vger.kernel.org
-Subject: [PATCH 5.11 331/342] rsi: Use resume_noirq for SDIO
-Date:   Mon, 10 May 2021 12:22:01 +0200
-Message-Id: <20210510102021.038993300@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.12 333/384] futex: Do not apply time namespace adjustment on FUTEX_LOCK_PI
+Date:   Mon, 10 May 2021 12:22:02 +0200
+Message-Id: <20210510102025.766946593@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit c434e5e48dc4e626364491455f97e2db0aa137b1 upstream.
+commit cdf78db4070967869e4d027c11f4dd825d8f815a upstream.
 
-The rsi_resume() does access the bus to enable interrupts on the RSI
-SDIO WiFi card, however when calling sdio_claim_host() in the resume
-path, it is possible the bus is already claimed and sdio_claim_host()
-spins indefinitelly. Enable the SDIO card interrupts in resume_noirq
-instead to prevent anything else from claiming the SDIO bus first.
+FUTEX_LOCK_PI does not require to have the FUTEX_CLOCK_REALTIME bit set
+because it has been using CLOCK_REALTIME based absolute timeouts
+forever. Due to that, the time namespace adjustment which is applied when
+FUTEX_CLOCK_REALTIME is not set, will wrongly take place for FUTEX_LOCK_PI
+and wreckage the timeout.
 
-Fixes: 20db07332736 ("rsi: sdio suspend and resume support")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-Cc: Angus Ainslie <angus@akkea.ca>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Karun Eagalapati <karun256@gmail.com>
-Cc: Martin Kepplinger <martink@posteo.de>
-Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Cc: Siva Rebbagondla <siva8118@gmail.com>
-Cc: netdev@vger.kernel.org
+Exclude it from that procedure.
+
+Fixes: c2f7d08cccf4 ("futex: Adjust absolute futex timeouts with per time namespace offset")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210327235932.175896-1-marex@denx.de
+Link: https://lore.kernel.org/r/20210422194704.984540159@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_sdio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/futex.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-@@ -1513,7 +1513,7 @@ static int rsi_restore(struct device *de
- }
- static const struct dev_pm_ops rsi_pm_ops = {
- 	.suspend = rsi_suspend,
--	.resume = rsi_resume,
-+	.resume_noirq = rsi_resume,
- 	.freeze = rsi_freeze,
- 	.thaw = rsi_thaw,
- 	.restore = rsi_restore,
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3781,7 +3781,7 @@ SYSCALL_DEFINE6(futex, u32 __user *, uad
+ 		t = timespec64_to_ktime(ts);
+ 		if (cmd == FUTEX_WAIT)
+ 			t = ktime_add_safe(ktime_get(), t);
+-		else if (!(op & FUTEX_CLOCK_REALTIME))
++		else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
+ 			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
+ 		tp = &t;
+ 	}
+@@ -3975,7 +3975,7 @@ SYSCALL_DEFINE6(futex_time32, u32 __user
+ 		t = timespec64_to_ktime(ts);
+ 		if (cmd == FUTEX_WAIT)
+ 			t = ktime_add_safe(ktime_get(), t);
+-		else if (!(op & FUTEX_CLOCK_REALTIME))
++		else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
+ 			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
+ 		tp = &t;
+ 	}
 
 
