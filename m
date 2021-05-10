@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4800C3786E3
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F5923788DB
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233203AbhEJLL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36658 "EHLO mail.kernel.org"
+        id S235351AbhEJLYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235020AbhEJLFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D00E613C2;
-        Mon, 10 May 2021 10:55:24 +0000 (UTC)
+        id S232793AbhEJLLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E60461938;
+        Mon, 10 May 2021 11:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644124;
-        bh=DSD6YYvZ0+XAhO+Nujk7EHWrzJzjyk4XXWrkdsUiQv0=;
+        s=korg; t=1620644975;
+        bh=C1l21XK72hRsuz8PCOavxVI3pVZMJ9hB26W5tSOAJV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3QfQCu5GCKmgs7pg/0sUOomyc3a625kc6yDeaYLGYYVGuJjJNVQghJ+nyDq60WY3
-         jCC7kSxvV1M0oy/RTQA+LJEXoF00MWebwzVpnt6JArymLugU1wktp5qmoZplUsp+X2
-         U2rjrJQauQirfU4QQLuHrpa76LbPOeyrUarQjR9o=
+        b=KJExCCSFQsBVR4n/kCJQUGp1ZzUd5Qm8EWUutzKopvNGLOVNtwB1Dx5xVIrykYZPP
+         RjoOOwK520PIHmBVFf9d1NFN4RZ4G8zKlrn/n4OsTR5xpRlWJJu4PWs93Bopv5tIEj
+         zQJoPMcwn3RvU7XwQqfBvyqhim3pATV1uw+Im9gI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        Tom Talpey <tom@talpey.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.11 298/342] smb3: do not attempt multichannel to server which does not support it
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.12 299/384] NFS: Dont discard pNFS layout segments that are marked for return
 Date:   Mon, 10 May 2021 12:21:28 +0200
-Message-Id: <20210510102019.954083135@linuxfoundation.org>
+Message-Id: <20210510102024.659826540@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 9c2dc11df50d1c8537075ff6b98472198e24438e upstream.
+commit 39fd01863616964f009599e50ca5c6ea9ebf88d6 upstream.
 
-We were ignoring CAP_MULTI_CHANNEL in the server response - if the
-server doesn't support multichannel we should not be attempting it.
+If the pNFS layout segment is marked with the NFS_LSEG_LAYOUTRETURN
+flag, then the assumption is that it has some reporting requirement
+to perform through a layoutreturn (e.g. flexfiles layout stats or error
+information).
 
-See MS-SMB2 section 3.2.5.2
-
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-By: Tom Talpey <tom@talpey.com>
-Cc: <stable@vger.kernel.org> # v5.8+
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: e0b7d420f72a ("pNFS: Don't discard layout segments that are marked for return")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/sess.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/nfs/pnfs.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -97,6 +97,12 @@ int cifs_try_adding_channels(struct cifs
- 		return 0;
- 	}
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2468,6 +2468,9 @@ pnfs_mark_matching_lsegs_return(struct p
  
-+	if (!(ses->server->capabilities & SMB2_GLOBAL_CAP_MULTI_CHANNEL)) {
-+		cifs_dbg(VFS, "server %s does not support multichannel\n", ses->server->hostname);
-+		ses->chan_max = 1;
-+		return 0;
-+	}
+ 	assert_spin_locked(&lo->plh_inode->i_lock);
+ 
++	if (test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags))
++		tmp_list = &lo->plh_return_segs;
 +
- 	/*
- 	 * Make a copy of the iface list at the time and use that
- 	 * instead so as to not hold the iface spinlock for opening
+ 	list_for_each_entry_safe(lseg, next, &lo->plh_segs, pls_list)
+ 		if (pnfs_match_lseg_recall(lseg, return_range, seq)) {
+ 			dprintk("%s: marking lseg %p iomode %d "
+@@ -2475,6 +2478,8 @@ pnfs_mark_matching_lsegs_return(struct p
+ 				lseg, lseg->pls_range.iomode,
+ 				lseg->pls_range.offset,
+ 				lseg->pls_range.length);
++			if (test_bit(NFS_LSEG_LAYOUTRETURN, &lseg->pls_flags))
++				tmp_list = &lo->plh_return_segs;
+ 			if (mark_lseg_invalid(lseg, tmp_list))
+ 				continue;
+ 			remaining++;
 
 
