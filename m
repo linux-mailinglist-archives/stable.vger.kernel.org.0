@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A963787E7
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 630923788D0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235683AbhEJLTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:19:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37324 "EHLO mail.kernel.org"
+        id S235011AbhEJLYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235615AbhEJLFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5A93611F1;
-        Mon, 10 May 2021 10:55:38 +0000 (UTC)
+        id S237326AbhEJLLu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 911A661090;
+        Mon, 10 May 2021 11:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644139;
-        bh=cYBlNz+rssiIDYLv8kRcjlaaHBL9HZUPloQL2Eed8GQ=;
+        s=korg; t=1620644947;
+        bh=AoaY9D4d5DiejkuK4ZR7IsJTe2zz79jVdftiA/c3n2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ruThqqpdl2Tie7VFIQgW3QOTiFuJmKX0ni+4eNZYodkrdXRzpQZS3pC59kerJ7r/d
-         gvWl1gd4yop0OycS3U6b2fFWhFulC+DaUkWbeN+/szGIih916lwbwQ5jyntgHGTnMs
-         S1QT4HJiMrKrMUKxf5u1ttcPSy3/7lM2vPCu3jFg=
+        b=sHixzjAbmpLlgsbEdpGTp2S+eoXq/TjlrgWDOSSVCrritjeA182qbUrWtOuRXnnWQ
+         bU29+QnZdLo5VY8ggW6ZmYJ0oRxxpZMNJQ+Jg2y8RIzxKsaLHBnzzByit7mAx/MbbZ
+         CQvOyllEEsh+Rjox+o41Hm39/DfPH5UJsxuJ+pvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heinz Mauelshagen <heinzm@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.11 286/342] dm raid: fix inconclusive reshape layout on fast raid4/5/6 table reload sequences
-Date:   Mon, 10 May 2021 12:21:16 +0200
-Message-Id: <20210510102019.556178304@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.12 288/384] fs: fix reporting supported extra file attributes for statx()
+Date:   Mon, 10 May 2021 12:21:17 +0200
+Message-Id: <20210510102024.302780283@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,134 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heinz Mauelshagen <heinzm@redhat.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit f99a8e4373eeacb279bc9696937a55adbff7a28a upstream.
+commit 5afa7e8b70d65819245fece61a65fd753b4aae33 upstream.
 
-If fast table reloads occur during an ongoing reshape of raid4/5/6
-devices the target may race reading a superblock vs the the MD resync
-thread; causing an inconclusive reshape state to be read in its
-constructor.
+statx(2) notes that any attribute that is not indicated as supported
+by stx_attributes_mask has no usable value.  Commits 801e523796004
+("fs: move generic stat response attr handling to vfs_getattr_nosec")
+and 712b2698e4c02 ("fs/stat: Define DAX statx attribute") sets
+STATX_ATTR_AUTOMOUNT and STATX_ATTR_DAX, respectively, without setting
+stx_attributes_mask, which can cause xfstests generic/532 to fail.
 
-lvm2 test lvconvert-raid-reshape-stripes-load-reload.sh can cause
-BUG_ON() to trigger in md_run(), e.g.:
-"kernel BUG at drivers/md/raid5.c:7567!".
+Fix this in the same way as commit 1b9598c8fb99 ("xfs: fix reporting
+supported extra file attributes for statx()")
 
-Scenario triggering the bug:
-
-1. the MD sync thread calls end_reshape() from raid5_sync_request()
-   when done reshaping. However end_reshape() _only_ updates the
-   reshape position to MaxSector keeping the changed layout
-   configuration though (i.e. any delta disks, chunk sector or RAID
-   algorithm changes). That inconclusive configuration is stored in
-   the superblock.
-
-2. dm-raid constructs a mapping, loading named inconsistent superblock
-   as of step 1 before step 3 is able to finish resetting the reshape
-   state completely, and calls md_run() which leads to mentioned bug
-   in raid5.c.
-
-3. the MD RAID personality's finish_reshape() is called; which resets
-   the reshape information on chunk sectors, delta disks, etc. This
-   explains why the bug is rarely seen on multi-core machines, as MD's
-   finish_reshape() superblock update races with the dm-raid
-   constructor's superblock load in step 2.
-
-Fix identifies inconclusive superblock content in the dm-raid
-constructor and resets it before calling md_run(), factoring out
-identifying checks into rs_is_layout_change() to share in existing
-rs_reshape_requested() and new rs_reset_inclonclusive_reshape(). Also
-enhance a comment and remove an empty line.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Heinz Mauelshagen <heinzm@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 801e523796004 ("fs: move generic stat response attr handling to vfs_getattr_nosec")
+Fixes: 712b2698e4c02 ("fs/stat: Define DAX statx attribute")
+Cc: stable@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-raid.c |   34 ++++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ fs/stat.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/md/dm-raid.c
-+++ b/drivers/md/dm-raid.c
-@@ -1868,6 +1868,14 @@ static bool rs_takeover_requested(struct
- 	return rs->md.new_level != rs->md.level;
- }
- 
-+/* True if layout is set to reshape. */
-+static bool rs_is_layout_change(struct raid_set *rs, bool use_mddev)
-+{
-+	return (use_mddev ? rs->md.delta_disks : rs->delta_disks) ||
-+	       rs->md.new_layout != rs->md.layout ||
-+	       rs->md.new_chunk_sectors != rs->md.chunk_sectors;
-+}
+--- a/fs/stat.c
++++ b/fs/stat.c
+@@ -86,12 +86,20 @@ int vfs_getattr_nosec(const struct path
+ 	/* SB_NOATIME means filesystem supplies dummy atime value */
+ 	if (inode->i_sb->s_flags & SB_NOATIME)
+ 		stat->result_mask &= ~STATX_ATIME;
 +
- /* True if @rs is requested to reshape by ctr */
- static bool rs_reshape_requested(struct raid_set *rs)
- {
-@@ -1880,9 +1888,7 @@ static bool rs_reshape_requested(struct
- 	if (rs_is_raid0(rs))
- 		return false;
++	/*
++	 * Note: If you add another clause to set an attribute flag, please
++	 * update attributes_mask below.
++	 */
+ 	if (IS_AUTOMOUNT(inode))
+ 		stat->attributes |= STATX_ATTR_AUTOMOUNT;
  
--	change = mddev->new_layout != mddev->layout ||
--		 mddev->new_chunk_sectors != mddev->chunk_sectors ||
--		 rs->delta_disks;
-+	change = rs_is_layout_change(rs, false);
+ 	if (IS_DAX(inode))
+ 		stat->attributes |= STATX_ATTR_DAX;
  
- 	/* Historical case to support raid1 reshape without delta disks */
- 	if (rs_is_raid1(rs)) {
-@@ -2817,7 +2823,7 @@ static sector_t _get_reshape_sectors(str
- }
- 
- /*
-- *
-+ * Reshape:
-  * - change raid layout
-  * - change chunk size
-  * - add disks
-@@ -2927,6 +2933,20 @@ static int rs_setup_reshape(struct raid_
- }
- 
- /*
-+ * If the md resync thread has updated superblock with max reshape position
-+ * at the end of a reshape but not (yet) reset the layout configuration
-+ * changes -> reset the latter.
-+ */
-+static void rs_reset_inconclusive_reshape(struct raid_set *rs)
-+{
-+	if (!rs_is_reshaping(rs) && rs_is_layout_change(rs, true)) {
-+		rs_set_cur(rs);
-+		rs->md.delta_disks = 0;
-+		rs->md.reshape_backwards = 0;
-+	}
-+}
++	stat->attributes_mask |= (STATX_ATTR_AUTOMOUNT |
++				  STATX_ATTR_DAX);
 +
-+/*
-  * Enable/disable discard support on RAID set depending on
-  * RAID level and discard properties of underlying RAID members.
-  */
-@@ -3212,11 +3232,14 @@ size_check:
- 	if (r)
- 		goto bad;
- 
-+	/* Catch any inconclusive reshape superblock content. */
-+	rs_reset_inconclusive_reshape(rs);
-+
- 	/* Start raid set read-only and assumed clean to change in raid_resume() */
- 	rs->md.ro = 1;
- 	rs->md.in_sync = 1;
- 
--	/* Keep array frozen */
-+	/* Keep array frozen until resume. */
- 	set_bit(MD_RECOVERY_FROZEN, &rs->md.recovery);
- 
- 	/* Has to be held on running the array */
-@@ -3230,7 +3253,6 @@ size_check:
- 	}
- 
- 	r = md_start(&rs->md);
--
- 	if (r) {
- 		ti->error = "Failed to start raid array";
- 		mddev_unlock(&rs->md);
+ 	mnt_userns = mnt_user_ns(path->mnt);
+ 	if (inode->i_op->getattr)
+ 		return inode->i_op->getattr(mnt_userns, path, stat,
 
 
