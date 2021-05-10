@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8BF378318
+	by mail.lfdr.de (Postfix) with ESMTP id 9F460378319
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232156AbhEJKmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50354 "EHLO mail.kernel.org"
+        id S232172AbhEJKmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232805AbhEJKkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232807AbhEJKkl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:40:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68F3A61964;
-        Mon, 10 May 2021 10:31:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D14256187E;
+        Mon, 10 May 2021 10:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642667;
-        bh=AERqpN5kleDe6IwFjMQe4lw55vjyM8uwmiBMCBR9VjM=;
+        s=korg; t=1620642670;
+        bh=CuYxJB7umDCj4o9qKLcmiRMAI6oPLGtgWCZp88C6E5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCCp8dMTDEOw4+ClDuSEphd8xwNjwqX498dVUdmI0WNF3j4oLzqzyaU4JnTEcjysy
-         UVX2K0zUPsJ7F5OBOLH+OvyhXgu4GwXSK9JbsLaCZYv3y1wqM3hXhuxNKMUSh3F3a+
-         xeS6l7yEbB0r6dNy6td80Lul0H86YEOK95MDCLIE=
+        b=HjUQbBxq+hZYEA0gQ1A2v40IrDexrXasXo63VAOLuf6+VFkmg4bTdZCluW+iM3IFe
+         rzWTweVTBUU8eqTPFCEk7kv6YLeFiN9VihpUrQadPcPKtwt/Qxv73Q9EDP8xyosYHz
+         MFd35Tp4kAVxoupu0/KgVcjYd/SHMb0YDeNOdmyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
+        Fengnan Chang <changfengnan@vivo.com>,
+        Andreas Dilger <adilger@dilger.ca>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 164/184] ext4: do not set SB_ACTIVE in ext4_orphan_cleanup()
-Date:   Mon, 10 May 2021 12:20:58 +0200
-Message-Id: <20210510101955.483965393@linuxfoundation.org>
+Subject: [PATCH 5.4 165/184] ext4: fix error code in ext4_commit_super
+Date:   Mon, 10 May 2021 12:20:59 +0200
+Message-Id: <20210510101955.515163554@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -40,49 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Fengnan Chang <changfengnan@vivo.com>
 
-commit 72ffb49a7b623c92a37657eda7cc46a06d3e8398 upstream.
+commit f88f1466e2a2e5ca17dfada436d3efa1b03a3972 upstream.
 
-When CONFIG_QUOTA is enabled, if we failed to mount the filesystem due
-to some error happens behind ext4_orphan_cleanup(), it will end up
-triggering a after free issue of super_block. The problem is that
-ext4_orphan_cleanup() will set SB_ACTIVE flag if CONFIG_QUOTA is
-enabled, after we cleanup the truncated inodes, the last iput() will put
-them into the lru list, and these inodes' pages may probably dirty and
-will be write back by the writeback thread, so it could be raced by
-freeing super_block in the error path of mount_bdev().
-
-After check the setting of SB_ACTIVE flag in ext4_orphan_cleanup(), it
-was used to ensure updating the quota file properly, but evict inode and
-trash data immediately in the last iput does not affect the quotafile,
-so setting the SB_ACTIVE flag seems not required[1]. Fix this issue by
-just remove the SB_ACTIVE setting.
-
-[1] https://lore.kernel.org/linux-ext4/99cce8ca-e4a0-7301-840f-2ace67c551f3@huawei.com/T/#m04990cfbc4f44592421736b504afcc346b2a7c00
+We should set the error code when ext4_commit_super check argument failed.
+Found in code review.
+Fixes: c4be0c1dc4cdc ("filesystem freeze: add error handling of write_super_lockfs/unlockfs").
 
 Cc: stable@kernel.org
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Tested-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210331033138.918975-1-yi.zhang@huawei.com
+Signed-off-by: Fengnan Chang <changfengnan@vivo.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20210402101631.561-1-changfengnan@vivo.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    3 ---
- 1 file changed, 3 deletions(-)
+ fs/ext4/super.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 --- a/fs/ext4/super.c
 +++ b/fs/ext4/super.c
-@@ -2675,9 +2675,6 @@ static void ext4_orphan_cleanup(struct s
- 		sb->s_flags &= ~SB_RDONLY;
- 	}
- #ifdef CONFIG_QUOTA
--	/* Needed for iput() to work correctly and not trash data */
--	sb->s_flags |= SB_ACTIVE;
--
+@@ -5057,8 +5057,10 @@ static int ext4_commit_super(struct supe
+ 	struct buffer_head *sbh = EXT4_SB(sb)->s_sbh;
+ 	int error = 0;
+ 
+-	if (!sbh || block_device_ejected(sb))
+-		return error;
++	if (!sbh)
++		return -EINVAL;
++	if (block_device_ejected(sb))
++		return -ENODEV;
+ 
  	/*
- 	 * Turn on quotas which were not enabled for read-only mounts if
- 	 * filesystem has quota feature, so that they are updated correctly.
+ 	 * If the file system is mounted read-only, don't update the
 
 
