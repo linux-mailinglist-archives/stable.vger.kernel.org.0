@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A778378601
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B98D37860E
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234348AbhEJLDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:03:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
+        id S232158AbhEJLDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:03:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234817AbhEJK5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:57:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 449AF6162D;
-        Mon, 10 May 2021 10:49:30 +0000 (UTC)
+        id S234848AbhEJK5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:57:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D387619C4;
+        Mon, 10 May 2021 10:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643770;
-        bh=9PNRs/NqtnqsZodPRpjt5A1cV1aiyd4RkqOemCQ4w8c=;
+        s=korg; t=1620643796;
+        bh=0PaCOtLrQBGr+8tY+o5O/Wn8N9gMmISX7EmabCtUb6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkNYxB88IK6GVMjmN96fln6Ghkixs3sthBS7KUwTFnok5waVG0+szYe265Ole1OqW
-         Lch3D3JUi9udzLXBbZDWqzdEsYaP3Q7POhHYO2N7VdJo5f91PXrtW3w5SdfZG4YwUW
-         avSWcG/VV4upQhyg+Sb7MqQ7b42JGucWVmwYgm0g=
+        b=pYn1S3dOWE7KsGctDaYPr5wlo7imcNlR7AQ9/PH0QaBbGgb8r1FnXhlFfXK3PJ00+
+         81Hu/SXTCOJMhOIOwX8jbACbuy2RPPzPp48SG1J5fYR+uaXtaLvk60LnaXDeTjWs5l
+         jhRbOsbN4WqykLRUbHBUi1Wgc0qYFNhnD6gm0Fo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Eric Yang <eric.yang2@amd.com>,
-        Qingqing Zhuo <Qingqing.Zhuo@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 134/342] drm/amd/display: Fix MPC OGAM power on/off sequence
-Date:   Mon, 10 May 2021 12:18:44 +0200
-Message-Id: <20210510102014.503058966@linuxfoundation.org>
+Subject: [PATCH 5.11 135/342] drm/ast: fix memory leak when unload the driver
+Date:   Mon, 10 May 2021 12:18:45 +0200
+Message-Id: <20210510102014.532268451@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -44,132 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 737b2b536a30a467c405d75f2287e17828838a13 ]
+[ Upstream commit dc739820ff90acccd013f6bb420222978a982791 ]
 
-[Why]
-Color corruption can occur on bootup into a login
-manager that applies a non-linear gamma LUT because
-the LUT may not actually be powered on before writing.
+a connector is leaked upon module unload, it seems that we should do
+similar to sample driver as suggested in drm_drv.c.
 
-It's cleared on the next full pipe reprogramming as
-we switch to LUTB from LUTA and the pipe accessing
-the LUT has taken it out of light sleep mode.
+Adding drm_atomic_helper_shutdown() in ast_pci_remove to prevent leaking.
 
-[How]
-The MPCC_OGAM_MEM_PWR_FORCE register does not force
-the current power mode when set to 0. It only forces
-when set light sleep, deep sleep or shutdown.
+[  153.822134] WARNING: CPU: 0 PID: 173 at drivers/gpu/drm/drm_mode_config.c:504 drm_mode_config_cle0
+[  153.822698] Modules linked in: ast(-) drm_vram_helper drm_ttm_helper ttm [last unloaded: ttm]
+[  153.823197] CPU: 0 PID: 173 Comm: modprobe Tainted: G        W         5.11.0-03615-g55f62bc873474
+[  153.823708] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-4
+[  153.824333] RIP: 0010:drm_mode_config_cleanup+0x418/0x470
+[  153.824637] Code: 0c 00 00 00 00 48 8b 84 24 a8 00 00 00 65 48 33 04 25 28 00 00 00 75 65 48 81 c0
+[  153.825668] RSP: 0018:ffff888103c9fb70 EFLAGS: 00010212
+[  153.825962] RAX: ffff888102b0d100 RBX: ffff888102b0c298 RCX: ffffffff818d8b2b
+[  153.826356] RDX: dffffc0000000000 RSI: 000000007fffffff RDI: ffff888102b0c298
+[  153.826748] RBP: ffff888103c9fba0 R08: 0000000000000001 R09: ffffed1020561857
+[  153.827146] R10: ffff888102b0c2b7 R11: ffffed1020561856 R12: ffff888102b0c000
+[  153.827538] R13: ffff888102b0c2d8 R14: ffff888102b0c2d8 R15: 1ffff11020793f70
+[  153.827935] FS:  00007f24bff456a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
+[  153.828380] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  153.828697] CR2: 0000000001c39018 CR3: 0000000103c90000 CR4: 00000000000006f0
+[  153.829096] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  153.829486] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  153.829883] Call Trace:
+[  153.830024]  ? drmm_mode_config_init+0x930/0x930
+[  153.830281]  ? cpumask_next+0x16/0x20
+[  153.830488]  ? mnt_get_count+0x66/0x80
+[  153.830699]  ? drm_mode_config_cleanup+0x470/0x470
+[  153.830972]  drm_managed_release+0xed/0x1c0
+[  153.831208]  drm_dev_release+0x3a/0x50
+[  153.831420]  release_nodes+0x39e/0x410
+[  153.831631]  ? devres_release+0x40/0x40
+[  153.831852]  device_release_driver_internal+0x158/0x270
+[  153.832143]  driver_detach+0x76/0xe0
+[  153.832344]  bus_remove_driver+0x7e/0x100
+[  153.832568]  pci_unregister_driver+0x28/0xf0
+[  153.832821]  __x64_sys_delete_module+0x268/0x300
+[  153.833086]  ? __ia32_sys_delete_module+0x300/0x300
+[  153.833357]  ? call_rcu+0x372/0x4f0
+[  153.833553]  ? fpregs_assert_state_consistent+0x4d/0x60
+[  153.833840]  ? exit_to_user_mode_prepare+0x2f/0x130
+[  153.834118]  do_syscall_64+0x33/0x40
+[  153.834317]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  153.834597] RIP: 0033:0x7f24bfec7cf7
+[  153.834797] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f7 48 89 d6 41
+[  153.835812] RSP: 002b:00007fff72e6cb58 EFLAGS: 00000202 ORIG_RAX: 00000000000000b0
+[  153.836234] RAX: ffffffffffffffda RBX: 00007f24bff45690 RCX: 00007f24bfec7cf7
+[  153.836623] RDX: 00000000ffffffff RSI: 0000000000000080 RDI: 0000000001c2fb10
+[  153.837018] RBP: 0000000001c2fac0 R08: 2f2f2f2f2f2f2f2f R09: 0000000001c2fac0
+[  153.837408] R10: fefefefefefefeff R11: 0000000000000202 R12: 0000000001c2fac0
+[  153.837798] R13: 0000000001c2f9d0 R14: 0000000000000000 R15: 0000000000000001
+[  153.838194] ---[ end trace b92031513bbe596c ]---
+[  153.838441] [drm:drm_mode_config_cleanup] *ERROR* connector VGA-1 leaked!
 
-The register to actually force power on and ignore
-sleep modes is MPCC_OGAM_MEM_PWR_DIS - a value of 0
-will enable power requests and a value of 1 will
-disable them.
-
-When PWR_FORCE!=0 is combined with PWR_DIS=0 then
-MPCC OGAM memory is forced into the state specified
-by the force bits.
-
-If PWR_FORCE is 0 then it respects the mode specified
-by MPCC_OGAM_MEM_LOW_PWR_MODE if the RAM LUT is not
-in use.
-
-We set that bit to shutdown on low power, but otherwise
-it inherits from bootup defaults.
-
-So for the fix:
-
-1. Update the sequence to "force" power on when needed
-
-We can use MPCC_OGAM_MEM_PWR_DIS for this to turn on the
-memory even when the block is in bypass and pending to be
-enabled for the next frame.
-
-We need this for both low power enabled or disabled.
-
-If we don't set this then we can run into issues when we
-first program the LUT from bootup.
-
-2. Don't apply FORCE_SEL
-
-Once we enable power requests with DIS=0 we run into the
-issue of the RAM being forced into light sleep and being
-unusable for display output. Leave this 0 like we used to
-for DCN20.
-
-3. Rely on MPCC OGAM init to determine light sleep/deep sleep
-
-MPC low power debug mode isn't enabled on any ASIC currently
-but we'll respect the setting determined during init if it
-is.
-
-Lightly tested as working with IGT tests and desktop color
-adjustment.
-
-4. Change the MPC resource default for DCN30
-
-It was interleaving the dcn20 and dcn30 versions before
-depending on the sequence.
-
-5. REG_WAIT for it to be on whenever we're powering up the
-memory
-
-Otherwise we can write register values too early and we'll
-get corruption.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Eric Yang <eric.yang2@amd.com>
-Acked-by: Qingqing Zhuo <Qingqing.Zhuo@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210222023322.984885-1-ztong0001@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c  | 24 ++++++++++---------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/ast/ast_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
-index 3e6f76096119..a7598356f37d 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_mpc.c
-@@ -143,16 +143,18 @@ static void mpc3_power_on_ogam_lut(
- {
- 	struct dcn30_mpc *mpc30 = TO_DCN30_MPC(mpc);
+diff --git a/drivers/gpu/drm/ast/ast_drv.c b/drivers/gpu/drm/ast/ast_drv.c
+index 667b450606ef..b047c0ea43e8 100644
+--- a/drivers/gpu/drm/ast/ast_drv.c
++++ b/drivers/gpu/drm/ast/ast_drv.c
+@@ -30,6 +30,7 @@
+ #include <linux/module.h>
+ #include <linux/pci.h>
  
--	if (mpc->ctx->dc->debug.enable_mem_low_power.bits.mpc) {
--		// Force power on
--		REG_UPDATE(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_DIS, power_on == true ? 1:0);
--		// Wait for confirmation when powering on
--		if (power_on)
--			REG_WAIT(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_STATE, 0, 10, 10);
--	} else {
--		REG_SET(MPCC_MEM_PWR_CTRL[mpcc_id], 0,
--				MPCC_OGAM_MEM_PWR_FORCE, power_on == true ? 0 : 1);
--	}
-+	/*
-+	 * Powering on: force memory active so the LUT can be updated.
-+	 * Powering off: allow entering memory low power mode
-+	 *
-+	 * Memory low power mode is controlled during MPC OGAM LUT init.
-+	 */
-+	REG_UPDATE(MPCC_MEM_PWR_CTRL[mpcc_id],
-+		   MPCC_OGAM_MEM_PWR_DIS, power_on != 0);
-+
-+	/* Wait for memory to be powered on - we won't be able to write to it otherwise. */
-+	if (power_on)
-+		REG_WAIT(MPCC_MEM_PWR_CTRL[mpcc_id], MPCC_OGAM_MEM_PWR_STATE, 0, 10, 10);
++#include <drm/drm_atomic_helper.h>
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_fb_helper.h>
+@@ -138,6 +139,7 @@ static void ast_pci_remove(struct pci_dev *pdev)
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
+ 
+ 	drm_dev_unregister(dev);
++	drm_atomic_helper_shutdown(dev);
  }
  
- static void mpc3_configure_ogam_lut(
-@@ -1427,7 +1429,7 @@ const struct mpc_funcs dcn30_mpc_funcs = {
- 	.acquire_rmu = mpcc3_acquire_rmu,
- 	.program_3dlut = mpc3_program_3dlut,
- 	.release_rmu = mpcc3_release_rmu,
--	.power_on_mpc_mem_pwr = mpc20_power_on_ogam_lut,
-+	.power_on_mpc_mem_pwr = mpc3_power_on_ogam_lut,
- 	.get_mpc_out_mux = mpc1_get_mpc_out_mux,
- 
- };
+ static int ast_drm_freeze(struct drm_device *dev)
 -- 
 2.30.2
 
