@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EBA33782B7
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FBDA378450
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232416AbhEJKhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:37:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44008 "EHLO mail.kernel.org"
+        id S232806AbhEJKvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:51:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232858AbhEJKfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:35:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B801C6191E;
-        Mon, 10 May 2021 10:28:28 +0000 (UTC)
+        id S233233AbhEJKtw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:49:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1826261628;
+        Mon, 10 May 2021 10:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642509;
-        bh=k6iANoMTLPnPloJAeQYtfa5ypFFqgGwkDw4/6S1NuD0=;
+        s=korg; t=1620643120;
+        bh=6L+UN9HNWtK4MTQO6xqBHLL8BwK5sHu8Y0fdOskqV+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06NAdQ4b9l7WF5X3mwZ/8XdN6DkiIZt+w1ZHWOmr5LggSD4c7lV9Ua1pM9xY+A1EO
-         rM5kvzazo0hhKJlOkJv3k/VTWRhGyCkiQaRJ8QbzVDWq560z6Oh//LRQsT3NYUvWRJ
-         FVJIzhAtQBoz6FoO7R/zCnufZJ+jFhPAzHBzq2Jk=
+        b=Zofs/htkCiJjuio/8QxYqadQQY5VnH/KcgadCiFTxOYoHfKuqVMAQpmTeK5nQPCHe
+         6tmiD+SdTXhglHOj/tI7mgbyDKNgIte8ncJSIkoith8CV3/cTr2grAQk2HtS+jBSfq
+         LpnAkO7MJx81X4/+7ODcjIV66JiC/fqJDtkgnTWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Anson Jacob <Anson.Jacob@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/184] drm/amdkfd: Fix UBSAN shift-out-of-bounds warning
-Date:   Mon, 10 May 2021 12:19:42 +0200
-Message-Id: <20210510101953.060845265@linuxfoundation.org>
+Subject: [PATCH 5.10 186/299] drm/msm/mdp5: Configure PP_SYNC_HEIGHT to double the vtotal
+Date:   Mon, 10 May 2021 12:19:43 +0200
+Message-Id: <20210510102011.100424459@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
-References: <20210510101950.200777181@linuxfoundation.org>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+References: <20210510102004.821838356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Jacob <Anson.Jacob@amd.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 50e2fc36e72d4ad672032ebf646cecb48656efe0 ]
+[ Upstream commit 2ad52bdb220de5ab348098e3482b01235d15a842 ]
 
-If get_num_sdma_queues or get_num_xgmi_sdma_queues is 0, we end up
-doing a shift operation where the number of bits shifted equals
-number of bits in the operand. This behaviour is undefined.
+Leaving this at a close-to-maximum register value 0xFFF0 means it takes
+very long for the MDSS to generate a software vsync interrupt when the
+hardware TE interrupt doesn't arrive.  Configuring this to double the
+vtotal (like some downstream kernels) leads to a frame to take at most
+twice before the vsync signal, until hardware TE comes up.
 
-Set num_sdma_queues or num_xgmi_sdma_queues to ULLONG_MAX, if the
-count is >= number of bits in the operand.
+In this case the hardware interrupt responsible for providing this
+signal - "disp-te" gpio - is not hooked up to the mdp5 vsync/pp logic at
+all.  This solves severe panel update issues observed on at least the
+Xperia Loire and Tone series, until said gpio is properly hooked up to
+an irq.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1472
-
-Reported-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Tested-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Suggested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Link: https://lore.kernel.org/r/20210406214726.131534-2-marijn.suijten@somainline.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/amdkfd/kfd_device_queue_manager.c   | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index e9a278440079..ab69898c9cb7 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -1011,6 +1011,9 @@ static int set_sched_resources(struct device_queue_manager *dqm)
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
+index ff2c1d583c79..f6df4d3b1406 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
+@@ -49,9 +49,17 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
+ 		| MDP5_PP_SYNC_CONFIG_VSYNC_IN_EN;
+ 	cfg |= MDP5_PP_SYNC_CONFIG_VSYNC_COUNT(vclks_line);
  
- static int initialize_cpsch(struct device_queue_manager *dqm)
- {
-+	uint64_t num_sdma_queues;
-+	uint64_t num_xgmi_sdma_queues;
++	/*
++	 * Tearcheck emits a blanking signal every vclks_line * vtotal * 2 ticks on
++	 * the vsync_clk equating to roughly half the desired panel refresh rate.
++	 * This is only necessary as stability fallback if interrupts from the
++	 * panel arrive too late or not at all, but is currently used by default
++	 * because these panel interrupts are not wired up yet.
++	 */
+ 	mdp5_write(mdp5_kms, REG_MDP5_PP_SYNC_CONFIG_VSYNC(pp_id), cfg);
+ 	mdp5_write(mdp5_kms,
+-		REG_MDP5_PP_SYNC_CONFIG_HEIGHT(pp_id), 0xfff0);
++		REG_MDP5_PP_SYNC_CONFIG_HEIGHT(pp_id), (2 * mode->vtotal));
 +
- 	pr_debug("num of pipes: %d\n", get_pipes_per_mec(dqm));
- 
- 	mutex_init(&dqm->lock_hidden);
-@@ -1019,8 +1022,18 @@ static int initialize_cpsch(struct device_queue_manager *dqm)
- 	dqm->sdma_queue_count = 0;
- 	dqm->xgmi_sdma_queue_count = 0;
- 	dqm->active_runlist = false;
--	dqm->sdma_bitmap = ~0ULL >> (64 - get_num_sdma_queues(dqm));
--	dqm->xgmi_sdma_bitmap = ~0ULL >> (64 - get_num_xgmi_sdma_queues(dqm));
-+
-+	num_sdma_queues = get_num_sdma_queues(dqm);
-+	if (num_sdma_queues >= BITS_PER_TYPE(dqm->sdma_bitmap))
-+		dqm->sdma_bitmap = ULLONG_MAX;
-+	else
-+		dqm->sdma_bitmap = (BIT_ULL(num_sdma_queues) - 1);
-+
-+	num_xgmi_sdma_queues = get_num_xgmi_sdma_queues(dqm);
-+	if (num_xgmi_sdma_queues >= BITS_PER_TYPE(dqm->xgmi_sdma_bitmap))
-+		dqm->xgmi_sdma_bitmap = ULLONG_MAX;
-+	else
-+		dqm->xgmi_sdma_bitmap = (BIT_ULL(num_xgmi_sdma_queues) - 1);
- 
- 	INIT_WORK(&dqm->hw_exception_work, kfd_process_hw_exception);
- 
+ 	mdp5_write(mdp5_kms,
+ 		REG_MDP5_PP_VSYNC_INIT_VAL(pp_id), mode->vdisplay);
+ 	mdp5_write(mdp5_kms, REG_MDP5_PP_RD_PTR_IRQ(pp_id), mode->vdisplay + 1);
 -- 
 2.30.2
 
