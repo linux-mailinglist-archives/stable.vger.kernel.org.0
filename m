@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED475378497
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48805378465
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232384AbhEJKxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:53:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41710 "EHLO mail.kernel.org"
+        id S233184AbhEJKv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:51:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41711 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231736AbhEJKwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:52:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC32C61961;
-        Mon, 10 May 2021 10:40:48 +0000 (UTC)
+        id S233538AbhEJKuM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:50:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1488B619F1;
+        Mon, 10 May 2021 10:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643249;
-        bh=wulewUnb/jPqQ3O6/IZe+6GoO25VtwJfJi1sGBbkcSc=;
+        s=korg; t=1620643165;
+        bh=K7MP6scl/OWuLlk6iKFJzWTsh7jEaPUuIVAJPFVdBtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfPuKnp/JFrK6f32rO8clUbwoB7LE6uFPAZj7zw+8Ps6yLzjN1/43Xlw1wd7vJjTF
-         D0IhV0yIXsq9vOJIKoHjECIaT6zth9aRzaLBpZXsGR9qrhinYmBqLPqHLinDa4xaq4
-         zaClW58etwYjtU4dHA0H5nlxzFJ0ZYXlTsKeJ9Uo=
+        b=WGY0dfyR49fq6YdAWXhccUYgggPHpHYUCtvJTqS+UL3kGvvFPgvJcehkD5aSLKTxt
+         xvrybnFvTRlJGaOt/g4OTT+IraSWUvWpBDIXQ64Q0Pc64frYiw90WaDKzAFJo8IHHL
+         017jD8xy4uX8cOUDJ0QvJ85JUTMAeaGIXAtNZWTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
+        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 204/299] sched,fair: Alternative sched_slice()
-Date:   Mon, 10 May 2021 12:20:01 +0200
-Message-Id: <20210510102011.679790795@linuxfoundation.org>
+Subject: [PATCH 5.10 205/299] block/rnbd-clt: Fix missing a memory free when unloading the module
+Date:   Mon, 10 May 2021 12:20:02 +0200
+Message-Id: <20210510102011.717028766@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -41,70 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
 
-[ Upstream commit 0c2de3f054a59f15e01804b75a04355c48de628c ]
+[ Upstream commit 12b06533104e802df73c1fbe159437c19933d6c0 ]
 
-The current sched_slice() seems to have issues; there's two possible
-things that could be improved:
+When unloading the rnbd-clt module, it does not free a memory
+including the filename of the symbolic link to /sys/block/rnbdX.
 
- - the 'nr_running' used for __sched_period() is daft when cgroups are
-   considered. Using the RQ wide h_nr_running seems like a much more
-   consistent number.
+It is found by kmemleak as below.
 
- - (esp) cgroups can slice it real fine, which makes for easy
-   over-scheduling, ensure min_gran is what the name says.
+unreferenced object 0xffff9f1a83d3c740 (size 16):
+  comm "bash", pid 736, jiffies 4295179665 (age 9841.310s)
+  hex dump (first 16 bytes):
+    21 64 65 76 21 6e 75 6c 6c 62 30 40 62 6c 61 00  !dev!nullb0@bla.
+  backtrace:
+    [<0000000039f0c55e>] 0xffffffffc0456c24
+    [<000000001aab9513>] kernfs_fop_write+0xcf/0x1c0
+    [<00000000db5aa4b3>] vfs_write+0xdb/0x1d0
+    [<000000007a2e2207>] ksys_write+0x65/0xe0
+    [<00000000055e280a>] do_syscall_64+0x50/0x1b0
+    [<00000000c2b51831>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20210412102001.611897312@infradead.org
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Link: https://lore.kernel.org/r/20210419073722.15351-13-gi-oh.kim@ionos.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c     | 12 +++++++++++-
- kernel/sched/features.h |  3 +++
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/block/rnbd/rnbd-clt-sysfs.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 481f4cc0958f..a0239649c741 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -700,7 +700,13 @@ static u64 __sched_period(unsigned long nr_running)
-  */
- static u64 sched_slice(struct cfs_rq *cfs_rq, struct sched_entity *se)
- {
--	u64 slice = __sched_period(cfs_rq->nr_running + !se->on_rq);
-+	unsigned int nr_running = cfs_rq->nr_running;
-+	u64 slice;
-+
-+	if (sched_feat(ALT_PERIOD))
-+		nr_running = rq_of(cfs_rq)->cfs.h_nr_running;
-+
-+	slice = __sched_period(nr_running + !se->on_rq);
- 
- 	for_each_sched_entity(se) {
- 		struct load_weight *load;
-@@ -717,6 +723,10 @@ static u64 sched_slice(struct cfs_rq *cfs_rq, struct sched_entity *se)
- 		}
- 		slice = __calc_delta(slice, se->load.weight, load);
+diff --git a/drivers/block/rnbd/rnbd-clt-sysfs.c b/drivers/block/rnbd/rnbd-clt-sysfs.c
+index d9dd138ca9c6..5613cd45866b 100644
+--- a/drivers/block/rnbd/rnbd-clt-sysfs.c
++++ b/drivers/block/rnbd/rnbd-clt-sysfs.c
+@@ -433,10 +433,14 @@ void rnbd_clt_remove_dev_symlink(struct rnbd_clt_dev *dev)
+ 	 * i.e. rnbd_clt_unmap_dev_store() leading to a sysfs warning because
+ 	 * of sysfs link already was removed already.
+ 	 */
+-	if (dev->blk_symlink_name && try_module_get(THIS_MODULE)) {
+-		sysfs_remove_link(rnbd_devs_kobj, dev->blk_symlink_name);
++	if (dev->blk_symlink_name) {
++		if (try_module_get(THIS_MODULE)) {
++			sysfs_remove_link(rnbd_devs_kobj, dev->blk_symlink_name);
++			module_put(THIS_MODULE);
++		}
++		/* It should be freed always. */
+ 		kfree(dev->blk_symlink_name);
+-		module_put(THIS_MODULE);
++		dev->blk_symlink_name = NULL;
  	}
-+
-+	if (sched_feat(BASE_SLICE))
-+		slice = max(slice, (u64)sysctl_sched_min_granularity);
-+
- 	return slice;
  }
  
-diff --git a/kernel/sched/features.h b/kernel/sched/features.h
-index 68d369cba9e4..f1bf5e12d889 100644
---- a/kernel/sched/features.h
-+++ b/kernel/sched/features.h
-@@ -90,3 +90,6 @@ SCHED_FEAT(WA_BIAS, true)
-  */
- SCHED_FEAT(UTIL_EST, true)
- SCHED_FEAT(UTIL_EST_FASTUP, true)
-+
-+SCHED_FEAT(ALT_PERIOD, true)
-+SCHED_FEAT(BASE_SLICE, true)
 -- 
 2.30.2
 
