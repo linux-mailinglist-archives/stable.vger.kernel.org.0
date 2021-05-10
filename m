@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F2F3786B6
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814713788E3
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236761AbhEJLKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:10:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
+        id S235476AbhEJLYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234365AbhEJLDT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:03:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7DD36162B;
-        Mon, 10 May 2021 10:54:17 +0000 (UTC)
+        id S233404AbhEJLMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:12:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB86E61941;
+        Mon, 10 May 2021 11:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644058;
-        bh=vc4YkXsp9LYCBLtu1We7x1zKPK4f0rGvM9IOT7u5xfE=;
+        s=korg; t=1620644990;
+        bh=2x17qympeKNR+HljtLITMAh+gayFVjXH0nYXirtyFrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3cHDcWQ3STjWWLFBhR5fP93NgQnp8OAON0YQ6uLqI5YM0qOjFr7m/cJ1MSPWjhJq
-         b4fMm2WEZnsbZgwxdFfB5U96KHDVPcTI2/iTQiXEk5VpXrIxP3QcHdSBVdJe49mMLk
-         vDnct3CsBYigsfq3zIoUum/Sx+Axx4S45sonVZdY=
+        b=XZbqidngDKClfKoTcARmhOPdN/K0zrDKUNr/hcJC+lgGtJRc6cES1A2mZKqMx9IEd
+         b8DsZlD5JMNipDb+4zdiXJC9iRSe482c3Lhrzlb9Bb7dDRrdH3sOTLhPSKKJUqyIBg
+         aVrezuSDqikdu4cFTPgvp2bdnSKCrvxYHa6ZTjIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Christoph Hellwig <hch@lst.de>,
-        Lei YU <yulei.sh@bytedance.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.11 270/342] jffs2: Hook up splice_write callback
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 271/384] ALSA: emu8000: Fix a use after free in snd_emu8000_create_mixer
 Date:   Mon, 10 May 2021 12:21:00 +0200
-Message-Id: <20210510102019.020801528@linuxfoundation.org>
+Message-Id: <20210510102023.777227820@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 42984af09afc414d540fcc8247f42894b0378a91 upstream.
+commit 1c98f574403dbcf2eb832d5535a10d967333ef2d upstream.
 
-overlayfs using jffs2 as the upper filesystem would fail in some cases
-since moving to v5.10. The test case used was to run 'touch' on a file
-that exists in the lower fs, causing the modification time to be
-updated. It returns EINVAL when the bug is triggered.
+Our code analyzer reported a uaf.
 
-A bisection showed this was introduced in v5.9-rc1, with commit
-36e2c7421f02 ("fs: don't allow splice read/write without explicit ops").
-Reverting that commit restores the expected behaviour.
+In snd_emu8000_create_mixer, the callee snd_ctl_add(..,emu->controls[i])
+calls snd_ctl_add_replace(.., kcontrol,..). Inside snd_ctl_add_replace(),
+if error happens, kcontrol will be freed by snd_ctl_free_one(kcontrol).
+Then emu->controls[i] points to a freed memory, and the execution comes
+to __error branch of snd_emu8000_create_mixer. The freed emu->controls[i]
+is used in snd_ctl_remove(card, emu->controls[i]).
 
-Some digging showed that this was due to jffs2 lacking an implementation
-of splice_write. (For unknown reasons the warn_unsupported that should
-trigger was not displaying any output).
+My patch set emu->controls[i] to NULL if snd_ctl_add() failed to avoid
+the uaf.
 
-Adding this patch resolved the issue and the test now passes.
-
-Cc: stable@vger.kernel.org
-Fixes: 36e2c7421f02 ("fs: don't allow splice read/write without explicit ops")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Lei YU <yulei.sh@bytedance.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210426131129.4796-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jffs2/file.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/isa/sb/emu8000.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/jffs2/file.c
-+++ b/fs/jffs2/file.c
-@@ -57,6 +57,7 @@ const struct file_operations jffs2_file_
- 	.mmap =		generic_file_readonly_mmap,
- 	.fsync =	jffs2_fsync,
- 	.splice_read =	generic_file_splice_read,
-+	.splice_write = iter_file_splice_write,
- };
+--- a/sound/isa/sb/emu8000.c
++++ b/sound/isa/sb/emu8000.c
+@@ -1029,8 +1029,10 @@ snd_emu8000_create_mixer(struct snd_card
  
- /* jffs2_file_inode_operations */
+ 	memset(emu->controls, 0, sizeof(emu->controls));
+ 	for (i = 0; i < EMU8000_NUM_CONTROLS; i++) {
+-		if ((err = snd_ctl_add(card, emu->controls[i] = snd_ctl_new1(mixer_defs[i], emu))) < 0)
++		if ((err = snd_ctl_add(card, emu->controls[i] = snd_ctl_new1(mixer_defs[i], emu))) < 0) {
++			emu->controls[i] = NULL;
+ 			goto __error;
++		}
+ 	}
+ 	return 0;
+ 
 
 
