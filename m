@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C14C83786EA
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C3A37890B
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232623AbhEJLMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:12:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44226 "EHLO mail.kernel.org"
+        id S237225AbhEJLZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235672AbhEJLFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C3AB613C5;
-        Mon, 10 May 2021 10:55:43 +0000 (UTC)
+        id S237629AbhEJLPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:15:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63A0A61458;
+        Mon, 10 May 2021 11:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644144;
-        bh=MdD+feZjH3L/WubtpNdfOOSb0CymylYxkHRfQCg24i4=;
+        s=korg; t=1620645074;
+        bh=VBuapzAtMSgn0oJkKrIQxusDBCzBDYqAKyIsWVpY6jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCmy/WAk9BVxQnLcclvVuKxwDyLqmHsPACdzdL99VnCmLhKE3l50eF4TcA0eo3kn8
-         QI4eQVdWarvy3PUzigq7FJs6XRCZBqCE6+3nTRd2rJKuJE0sGRBMKDZLRJGVXFVlro
-         Lxt0BTFlaOWoQyb2yUfYLOEUs1M2elETz3oGVVP0=
+        b=2eo1y3Pi1vN6+HxLqihYGO0ba49HfQRkVKcrSdx4qgl86bC/YO+kKq2NvNFIh2TpE
+         PiUhOBngPC9Tn4tBaLciTv5Fm9pItn+2vaAlg2g1s6HwhYDicbVpRcfGa/k4RzdO5s
+         d3FD6W9JuJnmd5wy/06az8fj16jimImADSP6olLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.11 305/342] ext4: fix check to prevent false positive report of incorrect used inodes
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.12 306/384] powerpc/powernv: Enable HAIL (HV AIL) for ISA v3.1 processors
 Date:   Mon, 10 May 2021 12:21:35 +0200
-Message-Id: <20210510102020.184369973@linuxfoundation.org>
+Message-Id: <20210510102024.890829372@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,96 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit a149d2a5cabbf6507a7832a1c4fd2593c55fd450 upstream.
+commit 49c1d07fd04f54eb588c4a1dfcedc8d22c5ffd50 upstream.
 
-Commit <50122847007> ("ext4: fix check to prevent initializing reserved
-inodes") check the block group zero and prevent initializing reserved
-inodes. But in some special cases, the reserved inode may not all belong
-to the group zero, it may exist into the second group if we format
-filesystem below.
+Starting with ISA v3.1, LPCR[AIL] no longer controls the interrupt
+mode for HV=1 interrupts. Instead, a new LPCR[HAIL] bit is defined
+which behaves like AIL=3 for HV interrupts when set.
 
-  mkfs.ext4 -b 4096 -g 8192 -N 1024 -I 4096 /dev/sda
+Set HAIL on bare metal to give us mmu-on interrupts and improve
+performance.
 
-So, it will end up triggering a false positive report of a corrupted
-file system. This patch fix it by avoid check reserved inodes if no free
-inode blocks will be zeroed.
+This also fixes an scv bug: we don't implement scv real mode (AIL=0)
+vectors because they are at an inconvenient location, so we just
+disable scv support when AIL can not be set. However powernv assumes
+that LPCR[AIL] will enable AIL mode so it enables scv support despite
+HV interrupts being AIL=0, which causes scv interrupts to go off into
+the weeds.
 
-Cc: stable@kernel.org
-Fixes: 50122847007 ("ext4: fix check to prevent initializing reserved inodes")
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Suggested-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210331121516.2243099-1-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 7fa95f9adaee ("powerpc/64s: system call support for scv/rfscv instructions")
+Cc: stable@vger.kernel.org # v5.9+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210402024124.545826-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ialloc.c |   48 ++++++++++++++++++++++++++++++++----------------
- 1 file changed, 32 insertions(+), 16 deletions(-)
+ arch/powerpc/include/asm/reg.h |    1 +
+ arch/powerpc/kernel/setup_64.c |   19 ++++++++++++++++---
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -1512,6 +1512,7 @@ int ext4_init_inode_table(struct super_b
- 	handle_t *handle;
- 	ext4_fsblk_t blk;
- 	int num, ret = 0, used_blks = 0;
-+	unsigned long used_inos = 0;
- 
- 	/* This should not happen, but just to be sure check this */
- 	if (sb_rdonly(sb)) {
-@@ -1542,22 +1543,37 @@ int ext4_init_inode_table(struct super_b
- 	 * used inodes so we need to skip blocks with used inodes in
- 	 * inode table.
+--- a/arch/powerpc/include/asm/reg.h
++++ b/arch/powerpc/include/asm/reg.h
+@@ -441,6 +441,7 @@
+ #define   LPCR_VRMA_LP1		ASM_CONST(0x0000800000000000)
+ #define   LPCR_RMLS		0x1C000000	/* Implementation dependent RMO limit sel */
+ #define   LPCR_RMLS_SH		26
++#define   LPCR_HAIL		ASM_CONST(0x0000000004000000)   /* HV AIL (ISAv3.1) */
+ #define   LPCR_ILE		ASM_CONST(0x0000000002000000)   /* !HV irqs set MSR:LE */
+ #define   LPCR_AIL		ASM_CONST(0x0000000001800000)	/* Alternate interrupt location */
+ #define   LPCR_AIL_0		ASM_CONST(0x0000000000000000)	/* MMU off exception offset 0x0 */
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -232,10 +232,23 @@ static void cpu_ready_for_interrupts(voi
+ 	 * If we are not in hypervisor mode the job is done once for
+ 	 * the whole partition in configure_exceptions().
  	 */
--	if (!(gdp->bg_flags & cpu_to_le16(EXT4_BG_INODE_UNINIT)))
--		used_blks = DIV_ROUND_UP((EXT4_INODES_PER_GROUP(sb) -
--			    ext4_itable_unused_count(sb, gdp)),
--			    sbi->s_inodes_per_block);
--
--	if ((used_blks < 0) || (used_blks > sbi->s_itb_per_group) ||
--	    ((group == 0) && ((EXT4_INODES_PER_GROUP(sb) -
--			       ext4_itable_unused_count(sb, gdp)) <
--			      EXT4_FIRST_INO(sb)))) {
--		ext4_error(sb, "Something is wrong with group %u: "
--			   "used itable blocks: %d; "
--			   "itable unused count: %u",
--			   group, used_blks,
--			   ext4_itable_unused_count(sb, gdp));
--		ret = 1;
--		goto err_out;
-+	if (!(gdp->bg_flags & cpu_to_le16(EXT4_BG_INODE_UNINIT))) {
-+		used_inos = EXT4_INODES_PER_GROUP(sb) -
-+			    ext4_itable_unused_count(sb, gdp);
-+		used_blks = DIV_ROUND_UP(used_inos, sbi->s_inodes_per_block);
+-	if (cpu_has_feature(CPU_FTR_HVMODE) &&
+-	    cpu_has_feature(CPU_FTR_ARCH_207S)) {
++	if (cpu_has_feature(CPU_FTR_HVMODE)) {
+ 		unsigned long lpcr = mfspr(SPRN_LPCR);
+-		mtspr(SPRN_LPCR, lpcr | LPCR_AIL_3);
++		unsigned long new_lpcr = lpcr;
 +
-+		/* Bogus inode unused count? */
-+		if (used_blks < 0 || used_blks > sbi->s_itb_per_group) {
-+			ext4_error(sb, "Something is wrong with group %u: "
-+				   "used itable blocks: %d; "
-+				   "itable unused count: %u",
-+				   group, used_blks,
-+				   ext4_itable_unused_count(sb, gdp));
-+			ret = 1;
-+			goto err_out;
++		if (cpu_has_feature(CPU_FTR_ARCH_31)) {
++			/* P10 DD1 does not have HAIL */
++			if (pvr_version_is(PVR_POWER10) &&
++					(mfspr(SPRN_PVR) & 0xf00) == 0x100)
++				new_lpcr |= LPCR_AIL_3;
++			else
++				new_lpcr |= LPCR_HAIL;
++		} else if (cpu_has_feature(CPU_FTR_ARCH_207S)) {
++			new_lpcr |= LPCR_AIL_3;
 +		}
 +
-+		used_inos += group * EXT4_INODES_PER_GROUP(sb);
-+		/*
-+		 * Are there some uninitialized inodes in the inode table
-+		 * before the first normal inode?
-+		 */
-+		if ((used_blks != sbi->s_itb_per_group) &&
-+		     (used_inos < EXT4_FIRST_INO(sb))) {
-+			ext4_error(sb, "Something is wrong with group %u: "
-+				   "itable unused count: %u; "
-+				   "itables initialized count: %ld",
-+				   group, ext4_itable_unused_count(sb, gdp),
-+				   used_inos);
-+			ret = 1;
-+			goto err_out;
-+		}
++		if (new_lpcr != lpcr)
++			mtspr(SPRN_LPCR, new_lpcr);
  	}
  
- 	blk = ext4_inode_table(sb, gdp) + used_blks;
+ 	/*
 
 
