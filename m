@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F4493788A7
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9730378841
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233505AbhEJLWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:22:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45870 "EHLO mail.kernel.org"
+        id S239101AbhEJLVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235572AbhEJLKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235575AbhEJLKS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 07:10:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 309DB61464;
-        Mon, 10 May 2021 11:05:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91D106144F;
+        Mon, 10 May 2021 11:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644731;
-        bh=gXiOxhMbUGRqAdnAYW3ioYWMt2JDeB0OfgFadacRKuM=;
+        s=korg; t=1620644734;
+        bh=2NP5te+jZbVJI9Ngj88cWMuWA5RVvd7pvJ2s2BY2Bss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YW4ttufKFpQcJcN9OWw90hyYrg/4g0KPU2HYEc+YY0e3eiV35Cc/qcb9Umgkqi//C
-         Mor1L6JoIqlJ6VGdagWKBlbvSq5iz0vw3+UJSGlm+g5Xr3WEOxSGcLPsQSZ4kbdKKL
-         zOZz9g3LG96wR+iyR5uyJpFNn2CrIB/Mf8ymXW+o=
+        b=aBwrG0yV4zZjdNh5C+qd0Pt5j2ZmQy2U6aItHf4nyLtWj3bM2NH7kaoGO8MkxYIEe
+         kXTYAXzWlNzlf8y4fGnGP2TCAyc/iu30BesTIM/+yZ8qX6cMDyjnzk4Hl6AVHjXM79
+         0WLt0foxdAuNRaXKd6gOhRhte2fl6NWERfJgmufI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 202/384] mmc: sdhci-brcmstb: Remove CQE quirk
-Date:   Mon, 10 May 2021 12:19:51 +0200
-Message-Id: <20210510102021.538446995@linuxfoundation.org>
+        stable@vger.kernel.org, Xingui Yang <yangxingui@huawei.com>,
+        Luo Jiaxing <luojiaxing@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 203/384] ata: ahci: Disable SXS for Hisilicon Kunpeng920
+Date:   Mon, 10 May 2021 12:19:52 +0200
+Message-Id: <20210510102021.574609104@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,35 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Xingui Yang <yangxingui@huawei.com>
 
-[ Upstream commit f0bdf98fab058efe7bf49732f70a0f26d1143154 ]
+[ Upstream commit 234e6d2c18f5b080cde874483c4c361f3ae7cffe ]
 
-Remove the CQHCI_QUIRK_SHORT_TXFR_DESC_SZ quirk because the
-latest chips have this fixed and earlier chips have other
-CQE problems that prevent the feature from being enabled.
+On Hisilicon Kunpeng920, ESP is set to 1 by default for all ports of
+SATA controller. In some scenarios, some ports are not external SATA ports,
+and it cause disks connected to these ports to be identified as removable
+disks. So disable the SXS capability on the software side to prevent users
+from mistakenly considering non-removable disks as removable disks and
+performing related operations.
 
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20210325192834.42955-1-alcooperx@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Xingui Yang <yangxingui@huawei.com>
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/1615544676-61926-1-git-send-email-luojiaxing@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-brcmstb.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/ata/ahci.c    | 5 +++++
+ drivers/ata/ahci.h    | 1 +
+ drivers/ata/libahci.c | 5 +++++
+ 3 files changed, 11 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci-brcmstb.c b/drivers/mmc/host/sdhci-brcmstb.c
-index f9780c65ebe9..f24623aac2db 100644
---- a/drivers/mmc/host/sdhci-brcmstb.c
-+++ b/drivers/mmc/host/sdhci-brcmstb.c
-@@ -199,7 +199,6 @@ static int sdhci_brcmstb_add_host(struct sdhci_host *host,
- 	if (dma64) {
- 		dev_dbg(mmc_dev(host->mmc), "Using 64 bit DMA\n");
- 		cq_host->caps |= CQHCI_TASK_DESC_SZ_128;
--		cq_host->quirks |= CQHCI_QUIRK_SHORT_TXFR_DESC_SZ;
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 00ba8e5a1ccc..33192a8f687d 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -1772,6 +1772,11 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		hpriv->flags |= AHCI_HFLAG_NO_DEVSLP;
+ 
+ #ifdef CONFIG_ARM64
++	if (pdev->vendor == PCI_VENDOR_ID_HUAWEI &&
++	    pdev->device == 0xa235 &&
++	    pdev->revision < 0x30)
++		hpriv->flags |= AHCI_HFLAG_NO_SXS;
++
+ 	if (pdev->vendor == 0x177d && pdev->device == 0xa01c)
+ 		hpriv->irq_handler = ahci_thunderx_irq_handler;
+ #endif
+diff --git a/drivers/ata/ahci.h b/drivers/ata/ahci.h
+index 98b8baa47dc5..d1f284f0c83d 100644
+--- a/drivers/ata/ahci.h
++++ b/drivers/ata/ahci.h
+@@ -242,6 +242,7 @@ enum {
+ 							suspend/resume */
+ 	AHCI_HFLAG_IGN_NOTSUPP_POWER_ON	= (1 << 27), /* ignore -EOPNOTSUPP
+ 							from phy_power_on() */
++	AHCI_HFLAG_NO_SXS		= (1 << 28), /* SXS not supported */
+ 
+ 	/* ap->flags bits */
+ 
+diff --git a/drivers/ata/libahci.c b/drivers/ata/libahci.c
+index ea5bf5f4cbed..fec2e9754aed 100644
+--- a/drivers/ata/libahci.c
++++ b/drivers/ata/libahci.c
+@@ -493,6 +493,11 @@ void ahci_save_initial_config(struct device *dev, struct ahci_host_priv *hpriv)
+ 		cap |= HOST_CAP_ALPM;
  	}
  
- 	ret = cqhci_init(cq_host, host->mmc, dma64);
++	if ((cap & HOST_CAP_SXS) && (hpriv->flags & AHCI_HFLAG_NO_SXS)) {
++		dev_info(dev, "controller does not support SXS, disabling CAP_SXS\n");
++		cap &= ~HOST_CAP_SXS;
++	}
++
+ 	if (hpriv->force_port_map && port_map != hpriv->force_port_map) {
+ 		dev_info(dev, "forcing port_map 0x%x -> 0x%x\n",
+ 			 port_map, hpriv->force_port_map);
 -- 
 2.30.2
 
