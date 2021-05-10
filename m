@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CBF378E6F
+	by mail.lfdr.de (Postfix) with ESMTP id DA9E8378E71
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242388AbhEJN3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:29:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57158 "EHLO mail.kernel.org"
+        id S242446AbhEJN3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 09:29:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348771AbhEJMrG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 08:47:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AC7F60FF2;
-        Mon, 10 May 2021 12:46:00 +0000 (UTC)
+        id S241038AbhEJMwY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 08:52:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10575611CA;
+        Mon, 10 May 2021 12:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620650761;
-        bh=qxQLaB8pah1n3ToTU1cMSTNKT26Fl/IME5uWUN71css=;
+        s=korg; t=1620651079;
+        bh=Ktj2JHvFNenH6IueBkjxq5Y2d7eJy7e6RNhDwe2Xg4s=;
         h=Subject:To:From:Date:From;
-        b=mnfvmfxwx56lLT79gmUkXjoH6SpFHUu1rXkpWQxUIB+7pfiZvrIHoYXalU3Cdy2Zo
-         sNfMGXEM4RD7LGFsztsNyhcreL80596NBlKW6dNajQV1T+SahDkbz4LYe5/0JA6leu
-         qrlXSLfCiOoG9rEeuWUrCSO0Qo+J9/6nS4YrsdxU=
-Subject: patch "usb: dwc3: gadget: Enable suspend events" added to usb-linus
-To:     jackp@codeaurora.org, balbi@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=0Dr1gcZa+jawZZWTyr9yUMNp9qOOSA97nI5owIfNAp1hK9PVHUpNrQfE94ZRdANX4
+         hlqBSRzOqnhwaR6g07igiMVIznGY7w3FkX26SeReoZwfdTLH05zTYkMifwSC0uWWWM
+         ck+W9eQJtrVJQfQ0NAyO8uuU02PAqc5vBzlscq6o=
+Subject: patch "usb: dwc2: Fix gadget DMA unmap direction" added to usb-linus
+To:     phil@raspberrypi.com, Minas.Harutyunyan@synopsys.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 14:45:58 +0200
-Message-ID: <16206507588381@kroah.com>
+Date:   Mon, 10 May 2021 14:51:17 +0200
+Message-ID: <162065107748229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: gadget: Enable suspend events
+    usb: dwc2: Fix gadget DMA unmap direction
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,44 +51,73 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From d1d90dd27254c44d087ad3f8b5b3e4fff0571f45 Mon Sep 17 00:00:00 2001
-From: Jack Pham <jackp@codeaurora.org>
-Date: Wed, 28 Apr 2021 02:01:10 -0700
-Subject: usb: dwc3: gadget: Enable suspend events
+From 75a41ce46bae6cbe7d3bb2584eb844291d642874 Mon Sep 17 00:00:00 2001
+From: Phil Elwell <phil@raspberrypi.com>
+Date: Thu, 6 May 2021 12:22:00 +0100
+Subject: usb: dwc2: Fix gadget DMA unmap direction
 
-commit 72704f876f50 ("dwc3: gadget: Implement the suspend entry event
-handler") introduced (nearly 5 years ago!) an interrupt handler for
-U3/L1-L2 suspend events.  The problem is that these events aren't
-currently enabled in the DEVTEN register so the handler is never
-even invoked.  Fix this simply by enabling the corresponding bit
-in dwc3_gadget_enable_irq() using the same revision check as found
-in the handler.
+The dwc2 gadget support maps and unmaps DMA buffers as necessary. When
+mapping and unmapping it uses the direction of the endpoint to select
+the direction of the DMA transfer, but this fails for Control OUT
+transfers because the unmap occurs after the endpoint direction has
+been reversed for the status phase.
 
-Fixes: 72704f876f50 ("dwc3: gadget: Implement the suspend entry event handler")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
+A possible solution would be to unmap the buffer before the direction
+is changed, but a safer, less invasive fix is to remember the buffer
+direction independently of the endpoint direction.
+
+Fixes: fe0b94abcdf6 ("usb: dwc2: gadget: manage ep0 state in software")
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210428090111.3370-1-jackp@codeaurora.org
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Link: https://lore.kernel.org/r/20210506112200.2893922-1-phil@raspberrypi.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/dwc2/core.h   | 2 ++
+ drivers/usb/dwc2/gadget.c | 3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index dd80e5ca8c78..cab3a9184068 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2323,6 +2323,10 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
- 	if (DWC3_VER_IS_PRIOR(DWC3, 250A))
- 		reg |= DWC3_DEVTEN_ULSTCNGEN;
+diff --git a/drivers/usb/dwc2/core.h b/drivers/usb/dwc2/core.h
+index da5ac4a4595b..ab6b815e0089 100644
+--- a/drivers/usb/dwc2/core.h
++++ b/drivers/usb/dwc2/core.h
+@@ -113,6 +113,7 @@ struct dwc2_hsotg_req;
+  * @debugfs: File entry for debugfs file for this endpoint.
+  * @dir_in: Set to true if this endpoint is of the IN direction, which
+  *          means that it is sending data to the Host.
++ * @map_dir: Set to the value of dir_in when the DMA buffer is mapped.
+  * @index: The index for the endpoint registers.
+  * @mc: Multi Count - number of transactions per microframe
+  * @interval: Interval for periodic endpoints, in frames or microframes.
+@@ -162,6 +163,7 @@ struct dwc2_hsotg_ep {
+ 	unsigned short		fifo_index;
  
-+	/* On 2.30a and above this bit enables U3/L2-L1 Suspend Events */
-+	if (!DWC3_VER_IS_PRIOR(DWC3, 230A))
-+		reg |= DWC3_DEVTEN_EOPFEN;
-+
- 	dwc3_writel(dwc->regs, DWC3_DEVTEN, reg);
+ 	unsigned char           dir_in;
++	unsigned char           map_dir;
+ 	unsigned char           index;
+ 	unsigned char           mc;
+ 	u16                     interval;
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index e6bb1bdb2760..184964174dc0 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -422,7 +422,7 @@ static void dwc2_hsotg_unmap_dma(struct dwc2_hsotg *hsotg,
+ {
+ 	struct usb_request *req = &hs_req->req;
+ 
+-	usb_gadget_unmap_request(&hsotg->gadget, req, hs_ep->dir_in);
++	usb_gadget_unmap_request(&hsotg->gadget, req, hs_ep->map_dir);
  }
  
+ /*
+@@ -1242,6 +1242,7 @@ static int dwc2_hsotg_map_dma(struct dwc2_hsotg *hsotg,
+ {
+ 	int ret;
+ 
++	hs_ep->map_dir = hs_ep->dir_in;
+ 	ret = usb_gadget_map_request(&hsotg->gadget, req, hs_ep->dir_in);
+ 	if (ret)
+ 		goto dma_error;
 -- 
 2.31.1
 
