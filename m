@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99BF637851A
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 981DD378516
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233101AbhEJK6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:58:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41768 "EHLO mail.kernel.org"
+        id S232971AbhEJK63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:58:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41711 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233072AbhEJKy0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:54:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CC5061966;
-        Mon, 10 May 2021 10:41:51 +0000 (UTC)
+        id S233058AbhEJKyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:54:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00FDE6191C;
+        Mon, 10 May 2021 10:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643312;
-        bh=PU5iZOcjK6E1Q14E4kwHGgYB1LJBMOyO6IAkkBaODDo=;
+        s=korg; t=1620643314;
+        bh=Z0wYcN899ocdNzLotbRtqJ4W0IGmBtUATHKOr3zkWxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCSg1i42ZgKQVsLOMWRCI3dEopYIR/K2cclaDJrHEftqYFlRxMj1vsm2B5cjaidOa
-         ErKHG9mIw9I/Wm0+PY3oAyquHxHk08TA29GgPwlwNmT0qdXvv3cRRJOn9oF2EM2Ci4
-         HnkBDQzcmyuEJZonAHV7OlgLOb+zySghvgpFEwgk=
+        b=U+jYZXKr0rqh80gNADq8yppSU7lyYjuQ3M/x8Rx4VJeWv5ajMw0uOMWIni6/K5VHQ
+         0i80X6g7KBzSN37d7k3pD9WhOqbgYj8j5f+IVBHesT2ic9YeLSgeI7kHt/BjoMOROs
+         AJDfHePvPkWEHa/mSRSTM7pHuaMPa1quzjLGPXjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elliot Berman <eberman@codeaurora.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.10 263/299] kbuild: update config_data.gz only when the content of .config is changed
-Date:   Mon, 10 May 2021 12:21:00 +0200
-Message-Id: <20210510102013.633312253@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        syzbot+30774a6acf6a2cf6d535@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 264/299] ext4: annotate data race in start_this_handle()
+Date:   Mon, 10 May 2021 12:21:01 +0200
+Message-Id: <20210510102013.664483002@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -39,88 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 46b41d5dd8019b264717978c39c43313a524d033 upstream.
+commit 3b1833e92baba135923af4a07e73fe6e54be5a2f upstream.
 
-If the timestamp of the .config file is updated, config_data.gz is
-regenerated, then vmlinux is re-linked. This occurs even if the content
-of the .config has not changed at all.
+Access to journal->j_running_transaction is not protected by appropriate
+lock and thus is racy. We are well aware of that and the code handles
+the race properly. Just add a comment and data_race() annotation.
 
-This issue was mitigated by commit 67424f61f813 ("kconfig: do not write
-.config if the content is the same"); Kconfig does not update the
-.config when it ends up with the identical configuration.
-
-The issue is remaining when the .config is created by *_defconfig with
-some config fragment(s) applied on top.
-
-This is typical for powerpc and mips, where several *_defconfig targets
-are constructed by using merge_config.sh.
-
-One workaround is to have the copy of the .config. The filechk rule
-updates the copy, kernel/config_data, by checking the content instead
-of the timestamp.
-
-With this commit, the second run with the same configuration avoids
-the needless rebuilds.
-
-  $ make ARCH=mips defconfig all
-   [ snip ]
-  $ make ARCH=mips defconfig all
-  *** Default configuration is based on target '32r2el_defconfig'
-  Using ./arch/mips/configs/generic_defconfig as base
-  Merging arch/mips/configs/generic/32r2.config
-  Merging arch/mips/configs/generic/el.config
-  Merging ./arch/mips/configs/generic/board-boston.config
-  Merging ./arch/mips/configs/generic/board-ni169445.config
-  Merging ./arch/mips/configs/generic/board-ocelot.config
-  Merging ./arch/mips/configs/generic/board-ranchu.config
-  Merging ./arch/mips/configs/generic/board-sead-3.config
-  Merging ./arch/mips/configs/generic/board-xilfpga.config
-  #
-  # configuration written to .config
-  #
-    SYNC    include/config/auto.conf
-    CALL    scripts/checksyscalls.sh
-    CALL    scripts/atomic/check-atomics.sh
-    CHK     include/generated/compile.h
-    CHK     include/generated/autoksyms.h
-
-Reported-by: Elliot Berman <eberman@codeaurora.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Cc: stable@kernel.org
+Reported-by: syzbot+30774a6acf6a2cf6d535@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210406161804.20150-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/.gitignore |    1 +
- kernel/Makefile   |    9 +++++++--
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ fs/jbd2/transaction.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/kernel/.gitignore
-+++ b/kernel/.gitignore
-@@ -1,4 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
-+/config_data
- kheaders.md5
- timeconst.h
- hz.bc
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -134,10 +134,15 @@ obj-$(CONFIG_SCF_TORTURE_TEST) += scftor
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -349,7 +349,12 @@ static int start_this_handle(journal_t *
+ 	}
  
- $(obj)/configs.o: $(obj)/config_data.gz
- 
--targets += config_data.gz
--$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
-+targets += config_data config_data.gz
-+$(obj)/config_data.gz: $(obj)/config_data FORCE
- 	$(call if_changed,gzip)
- 
-+filechk_cat = cat $<
-+
-+$(obj)/config_data: $(KCONFIG_CONFIG) FORCE
-+	$(call filechk,cat)
-+
- $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
- 
- quiet_cmd_genikh = CHK     $(obj)/kheaders_data.tar.xz
+ alloc_transaction:
+-	if (!journal->j_running_transaction) {
++	/*
++	 * This check is racy but it is just an optimization of allocating new
++	 * transaction early if there are high chances we'll need it. If we
++	 * guess wrong, we'll retry or free unused transaction.
++	 */
++	if (!data_race(journal->j_running_transaction)) {
+ 		/*
+ 		 * If __GFP_FS is not present, then we may be being called from
+ 		 * inside the fs writeback layer, so we MUST NOT fail.
 
 
