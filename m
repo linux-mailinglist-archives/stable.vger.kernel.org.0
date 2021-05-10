@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E71378711
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61877378903
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231759AbhEJLNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
+        id S236792AbhEJLZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235878AbhEJLGq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:06:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3C036147D;
-        Mon, 10 May 2021 10:56:50 +0000 (UTC)
+        id S237480AbhEJLPO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:15:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9241661288;
+        Mon, 10 May 2021 11:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644211;
-        bh=5cNnRC+bFfEcdlFXVaWzUifaY90iZD94uQ3ED7Ndf48=;
+        s=korg; t=1620645063;
+        bh=ixXvKLSy18G5CyVdi8WHqjtr8ZHOC6O9tOQOd402WhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytjetyLlsrYzMPBfENi0rlLnBTZUwoyybgwFhC1o73ioFx1eN/j1o4bCJfzBMAvlY
-         KUoDMmlJ0w5owTYcyKFjZ+lDJj5G46ckY6Vxb0wXs0ETjb2OttMMEhLtPsMNt3h5Bh
-         vRd3erfAcXZoVKS2BJqdBXkdeJZjV2CKRESITOhY=
+        b=b/RE4kyslSVUs97Ucnao4OQ88EWC045OIDPxDKD6Q+ZAizEXPUEAWBpXsUA0tERIx
+         KPZELSELm+4U1SyNdpcswz3YsKcUCzfX9cJm4UG0wAezJC6OGaC1yBXadJ0qftZ1w7
+         25WenCz8XKCeDA1cdbv1NsEOwLCQNqPbtr5q1e3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.11 333/342] tracing: Map all PIDs to command lines
-Date:   Mon, 10 May 2021 12:22:03 +0200
-Message-Id: <20210510102021.105887363@linuxfoundation.org>
+        stable@vger.kernel.org, Elliot Berman <eberman@codeaurora.org>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.12 335/384] kbuild: update config_data.gz only when the content of .config is changed
+Date:   Mon, 10 May 2021 12:22:04 +0200
+Message-Id: <20210510102025.830537773@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,123 +39,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 785e3c0a3a870e72dc530856136ab4c8dd207128 upstream.
+commit 46b41d5dd8019b264717978c39c43313a524d033 upstream.
 
-The default max PID is set by PID_MAX_DEFAULT, and the tracing
-infrastructure uses this number to map PIDs to the comm names of the
-tasks, such output of the trace can show names from the recorded PIDs in
-the ring buffer. This mapping is also exported to user space via the
-"saved_cmdlines" file in the tracefs directory.
+If the timestamp of the .config file is updated, config_data.gz is
+regenerated, then vmlinux is re-linked. This occurs even if the content
+of the .config has not changed at all.
 
-But currently the mapping expects the PIDs to be less than
-PID_MAX_DEFAULT, which is the default maximum and not the real maximum.
-Recently, systemd will increases the maximum value of a PID on the system,
-and when tasks are traced that have a PID higher than PID_MAX_DEFAULT, its
-comm is not recorded. This leads to the entire trace to have "<...>" as
-the comm name, which is pretty useless.
+This issue was mitigated by commit 67424f61f813 ("kconfig: do not write
+.config if the content is the same"); Kconfig does not update the
+.config when it ends up with the identical configuration.
 
-Instead, keep the array mapping the size of PID_MAX_DEFAULT, but instead
-of just mapping the index to the comm, map a mask of the PID
-(PID_MAX_DEFAULT - 1) to the comm, and find the full PID from the
-map_cmdline_to_pid array (that already exists).
+The issue is remaining when the .config is created by *_defconfig with
+some config fragment(s) applied on top.
 
-This bug goes back to the beginning of ftrace, but hasn't been an issue
-until user space started increasing the maximum value of PIDs.
+This is typical for powerpc and mips, where several *_defconfig targets
+are constructed by using merge_config.sh.
 
-Link: https://lkml.kernel.org/r/20210427113207.3c601884@gandalf.local.home
+One workaround is to have the copy of the .config. The filechk rule
+updates the copy, kernel/config_data, by checking the content instead
+of the timestamp.
 
-Cc: stable@vger.kernel.org
-Fixes: bc0c38d139ec7 ("ftrace: latency tracer infrastructure")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+With this commit, the second run with the same configuration avoids
+the needless rebuilds.
+
+  $ make ARCH=mips defconfig all
+   [ snip ]
+  $ make ARCH=mips defconfig all
+  *** Default configuration is based on target '32r2el_defconfig'
+  Using ./arch/mips/configs/generic_defconfig as base
+  Merging arch/mips/configs/generic/32r2.config
+  Merging arch/mips/configs/generic/el.config
+  Merging ./arch/mips/configs/generic/board-boston.config
+  Merging ./arch/mips/configs/generic/board-ni169445.config
+  Merging ./arch/mips/configs/generic/board-ocelot.config
+  Merging ./arch/mips/configs/generic/board-ranchu.config
+  Merging ./arch/mips/configs/generic/board-sead-3.config
+  Merging ./arch/mips/configs/generic/board-xilfpga.config
+  #
+  # configuration written to .config
+  #
+    SYNC    include/config/auto.conf
+    CALL    scripts/checksyscalls.sh
+    CALL    scripts/atomic/check-atomics.sh
+    CHK     include/generated/compile.h
+    CHK     include/generated/autoksyms.h
+
+Reported-by: Elliot Berman <eberman@codeaurora.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |   41 +++++++++++++++--------------------------
- 1 file changed, 15 insertions(+), 26 deletions(-)
+ kernel/.gitignore |    1 +
+ kernel/Makefile   |    9 +++++++--
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2387,14 +2387,13 @@ static void tracing_stop_tr(struct trace
+--- a/kernel/.gitignore
++++ b/kernel/.gitignore
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
++/config_data
+ kheaders.md5
+ timeconst.h
+ hz.bc
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -138,10 +138,15 @@ obj-$(CONFIG_SCF_TORTURE_TEST) += scftor
  
- static int trace_save_cmdline(struct task_struct *tsk)
- {
--	unsigned pid, idx;
-+	unsigned tpid, idx;
+ $(obj)/configs.o: $(obj)/config_data.gz
  
- 	/* treat recording of idle task as a success */
- 	if (!tsk->pid)
- 		return 1;
+-targets += config_data.gz
+-$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
++targets += config_data config_data.gz
++$(obj)/config_data.gz: $(obj)/config_data FORCE
+ 	$(call if_changed,gzip)
  
--	if (unlikely(tsk->pid > PID_MAX_DEFAULT))
--		return 0;
-+	tpid = tsk->pid & (PID_MAX_DEFAULT - 1);
++filechk_cat = cat $<
++
++$(obj)/config_data: $(KCONFIG_CONFIG) FORCE
++	$(call filechk,cat)
++
+ $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
  
- 	/*
- 	 * It's not the end of the world if we don't get
-@@ -2405,26 +2404,15 @@ static int trace_save_cmdline(struct tas
- 	if (!arch_spin_trylock(&trace_cmdline_lock))
- 		return 0;
- 
--	idx = savedcmd->map_pid_to_cmdline[tsk->pid];
-+	idx = savedcmd->map_pid_to_cmdline[tpid];
- 	if (idx == NO_CMDLINE_MAP) {
- 		idx = (savedcmd->cmdline_idx + 1) % savedcmd->cmdline_num;
- 
--		/*
--		 * Check whether the cmdline buffer at idx has a pid
--		 * mapped. We are going to overwrite that entry so we
--		 * need to clear the map_pid_to_cmdline. Otherwise we
--		 * would read the new comm for the old pid.
--		 */
--		pid = savedcmd->map_cmdline_to_pid[idx];
--		if (pid != NO_CMDLINE_MAP)
--			savedcmd->map_pid_to_cmdline[pid] = NO_CMDLINE_MAP;
--
--		savedcmd->map_cmdline_to_pid[idx] = tsk->pid;
--		savedcmd->map_pid_to_cmdline[tsk->pid] = idx;
--
-+		savedcmd->map_pid_to_cmdline[tpid] = idx;
- 		savedcmd->cmdline_idx = idx;
- 	}
- 
-+	savedcmd->map_cmdline_to_pid[idx] = tsk->pid;
- 	set_cmdline(idx, tsk->comm);
- 
- 	arch_spin_unlock(&trace_cmdline_lock);
-@@ -2435,6 +2423,7 @@ static int trace_save_cmdline(struct tas
- static void __trace_find_cmdline(int pid, char comm[])
- {
- 	unsigned map;
-+	int tpid;
- 
- 	if (!pid) {
- 		strcpy(comm, "<idle>");
-@@ -2446,16 +2435,16 @@ static void __trace_find_cmdline(int pid
- 		return;
- 	}
- 
--	if (pid > PID_MAX_DEFAULT) {
--		strcpy(comm, "<...>");
--		return;
-+	tpid = pid & (PID_MAX_DEFAULT - 1);
-+	map = savedcmd->map_pid_to_cmdline[tpid];
-+	if (map != NO_CMDLINE_MAP) {
-+		tpid = savedcmd->map_cmdline_to_pid[map];
-+		if (tpid == pid) {
-+			strlcpy(comm, get_saved_cmdlines(map), TASK_COMM_LEN);
-+			return;
-+		}
- 	}
--
--	map = savedcmd->map_pid_to_cmdline[pid];
--	if (map != NO_CMDLINE_MAP)
--		strlcpy(comm, get_saved_cmdlines(map), TASK_COMM_LEN);
--	else
--		strcpy(comm, "<...>");
-+	strcpy(comm, "<...>");
- }
- 
- void trace_find_cmdline(int pid, char comm[])
+ quiet_cmd_genikh = CHK     $(obj)/kheaders_data.tar.xz
 
 
