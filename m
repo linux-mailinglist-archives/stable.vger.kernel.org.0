@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68739378185
+	by mail.lfdr.de (Postfix) with ESMTP id B73DD378186
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231602AbhEJK1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:27:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60258 "EHLO mail.kernel.org"
+        id S231604AbhEJK1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:27:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231163AbhEJK0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:26:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F17161490;
-        Mon, 10 May 2021 10:25:26 +0000 (UTC)
+        id S231349AbhEJK0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:26:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4A9361469;
+        Mon, 10 May 2021 10:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642326;
-        bh=OBqrxIcHsGNiFPj4nBVwK4ZHeugmDxZKMSwmW3OQWgA=;
+        s=korg; t=1620642329;
+        bh=yQ7nSnSLkvevjanmofjDsZokqUxGL0cR60F+WpTwesg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daqxYfGBecZpV2MV96xQi43mcSfScN3QOo9eIeAtGGursudCZyDEPelYCQJGDnqfC
-         FFMM0Wzxw356etFOMY+2AWd79E1/bUcLgNSgo9rjooG6XWCV3SOgG5ZOkI8z1k76Cp
-         pClLtemvKYCRLSkAIsai1Y2P8cTByNVp7BQUHTDM=
+        b=qSIaj3dHapzNLhxlqo4OOk58qvKzBzhTOlZtg8B8hHr4xcBCYAHG/lE2J+Q/Eo4sr
+         BrR7aYS+V2TIjhTGqiPvYS70Y2O++bVR9TpIYnlxWbe7T3izHJATZdp/w418Ao8naO
+         xpwqe+VOW2JpbeqI+dgNuk2lXqd6tcPoswvA2K08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 014/184] scsi: mpt3sas: Block PCI config access from userspace during reset
-Date:   Mon, 10 May 2021 12:18:28 +0200
-Message-Id: <20210510101950.680939714@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 015/184] mmc: uniphier-sd: Fix an error handling path in uniphier_sd_probe()
+Date:   Mon, 10 May 2021 12:18:29 +0200
+Message-Id: <20210510101950.712459602@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -40,50 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 3c8604691d2acc7b7d4795d9695070de9eaa5828 upstream.
+commit b03aec1c1f337dfdae44cdb0645ecac34208ae0a upstream.
 
-While diag reset is in progress there is short duration where all access to
-controller's PCI config space from the host needs to be blocked. This is
-due to a hardware limitation of the IOC controllers.
+A 'uniphier_sd_clk_enable()' call should be balanced by a corresponding
+'uniphier_sd_clk_disable()' call.
+This is done in the remove function, but not in the error handling path of
+the probe.
 
-Block all access to controller's config space from userland applications by
-calling pci_cfg_access_lock() while diag reset is in progress and unlocking
-it again after the controller comes back to ready state.
+Add the missing call.
 
-Link: https://lore.kernel.org/r/20210330105137.20728-1-sreekanth.reddy@broadcom.com
-Cc: stable@vger.kernel.org #v5.4.108+
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 3fd784f745dd ("mmc: uniphier-sd: add UniPhier SD/eMMC controller driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lore.kernel.org/r/20210220142935.918554-1-christophe.jaillet@wanadoo.fr
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mmc/host/uniphier-sd.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -6572,6 +6572,8 @@ _base_diag_reset(struct MPT3SAS_ADAPTER
+--- a/drivers/mmc/host/uniphier-sd.c
++++ b/drivers/mmc/host/uniphier-sd.c
+@@ -639,7 +639,7 @@ static int uniphier_sd_probe(struct plat
  
- 	ioc_info(ioc, "sending diag reset !!\n");
+ 	ret = tmio_mmc_host_probe(host);
+ 	if (ret)
+-		goto free_host;
++		goto disable_clk;
  
-+	pci_cfg_access_lock(ioc->pdev);
-+
- 	drsprintk(ioc, ioc_info(ioc, "clear interrupts\n"));
+ 	ret = devm_request_irq(dev, irq, tmio_mmc_irq, IRQF_SHARED,
+ 			       dev_name(dev), host);
+@@ -650,6 +650,8 @@ static int uniphier_sd_probe(struct plat
  
- 	count = 0;
-@@ -6653,10 +6655,12 @@ _base_diag_reset(struct MPT3SAS_ADAPTER
- 		goto out;
- 	}
+ remove_host:
+ 	tmio_mmc_host_remove(host);
++disable_clk:
++	uniphier_sd_clk_disable(host);
+ free_host:
+ 	tmio_mmc_host_free(host);
  
-+	pci_cfg_access_unlock(ioc->pdev);
- 	ioc_info(ioc, "diag reset: SUCCESS\n");
- 	return 0;
- 
-  out:
-+	pci_cfg_access_unlock(ioc->pdev);
- 	ioc_err(ioc, "diag reset: FAILED\n");
- 	return -EFAULT;
- }
 
 
