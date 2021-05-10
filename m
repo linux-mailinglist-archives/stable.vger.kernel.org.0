@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0204F378396
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5B037839A
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:45:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230235AbhEJKqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:46:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59424 "EHLO mail.kernel.org"
+        id S231189AbhEJKqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:46:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232555AbhEJKoZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232542AbhEJKoZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:44:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFC8A6162F;
-        Mon, 10 May 2021 10:33:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22478616EC;
+        Mon, 10 May 2021 10:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642807;
-        bh=ILEpy1J7TlHfivPJPRaTe2nxOeUCInHvx8q4MVLUlIc=;
+        s=korg; t=1620642809;
+        bh=qvepuzUd2M5/wOW1s57kH7TsdtEDE4yT+qZGWuCSelg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTdLOLw4/rcO1bR3nSphku5Nn/q1tAVcl9wXZlaA5vxwfuHQ0GoUjlqKYEoZ8TpUl
-         rDub2GUpbNgrSkfpepc8bElDNX385QTQiESFm0iF6H6EdovdVfdx9t96+rejcRZs1Z
-         t0m6paEYMpiAWtXtdLiHDeJ0HmRyuDi7GYM+lpqs=
+        b=o2T6hBVEmylY9p0MbFIaeIQ+usKtSenjahthLplEqAlW2oxxs6xo1uKbQ/J/m7lD1
+         E5zPQiWlA2z49W2C7SQT/wIDZqUThuJY2VMGAWNm4Ewu1SIYDx08aX9IlDXoLpu9qW
+         NR1gxt4FAr7gPnTX92U12tDZS7cD4EUwD22NVG5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
+        stable@vger.kernel.org, Longfang Liu <liulongfang@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/299] x86/sev: Do not require Hypervisor CPUID bit for SEV guests
-Date:   Mon, 10 May 2021 12:17:37 +0200
-Message-Id: <20210510102006.866510985@linuxfoundation.org>
+Subject: [PATCH 5.10 061/299] crypto: hisilicon/sec - fixes a printing error
+Date:   Mon, 10 May 2021 12:17:38 +0200
+Message-Id: <20210510102006.906284385@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -41,152 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Longfang Liu <liulongfang@huawei.com>
 
-[ Upstream commit eab696d8e8b9c9d600be6fad8dd8dfdfaca6ca7c ]
+[ Upstream commit 4b7aef0230418345be1fb77abbb1592801869901 ]
 
-A malicious hypervisor could disable the CPUID intercept for an SEV or
-SEV-ES guest and trick it into the no-SEV boot path, where it could
-potentially reveal secrets. This is not an issue for SEV-SNP guests,
-as the CPUID intercept can't be disabled for those.
+When the log is output here, the device has not
+been initialized yet.
 
-Remove the Hypervisor CPUID bit check from the SEV detection code to
-protect against this kind of attack and add a Hypervisor bit equals zero
-check to the SME detection path to prevent non-encrypted guests from
-trying to enable SME.
-
-This handles the following cases:
-
-	1) SEV(-ES) guest where CPUID intercept is disabled. The guest
-	   will still see leaf 0x8000001f and the SEV bit. It can
-	   retrieve the C-bit and boot normally.
-
-	2) Non-encrypted guests with intercepted CPUID will check
-	   the SEV_STATUS MSR and find it 0 and will try to enable SME.
-	   This will fail when the guest finds MSR_K8_SYSCFG to be zero,
-	   as it is emulated by KVM. But we can't rely on that, as there
-	   might be other hypervisors which return this MSR with bit
-	   23 set. The Hypervisor bit check will prevent that the guest
-	   tries to enable SME in this case.
-
-	3) Non-encrypted guests on SEV capable hosts with CPUID intercept
-	   disabled (by a malicious hypervisor) will try to boot into
-	   the SME path. This will fail, but it is also not considered
-	   a problem because non-encrypted guests have no protection
-	   against the hypervisor anyway.
-
- [ bp: s/non-SEV/non-encrypted/g ]
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lkml.kernel.org/r/20210312123824.306-3-joro@8bytes.org
+Signed-off-by: Longfang Liu <liulongfang@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/mem_encrypt.S |  6 -----
- arch/x86/kernel/sev-es-shared.c        |  6 +----
- arch/x86/mm/mem_encrypt_identity.c     | 35 ++++++++++++++------------
- 3 files changed, 20 insertions(+), 27 deletions(-)
+ drivers/crypto/hisilicon/sec2/sec_crypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/mem_encrypt.S b/arch/x86/boot/compressed/mem_encrypt.S
-index aa561795efd1..a6dea4e8a082 100644
---- a/arch/x86/boot/compressed/mem_encrypt.S
-+++ b/arch/x86/boot/compressed/mem_encrypt.S
-@@ -23,12 +23,6 @@ SYM_FUNC_START(get_sev_encryption_bit)
- 	push	%ecx
- 	push	%edx
+diff --git a/drivers/crypto/hisilicon/sec2/sec_crypto.c b/drivers/crypto/hisilicon/sec2/sec_crypto.c
+index bb493423668c..41f1fcacb280 100644
+--- a/drivers/crypto/hisilicon/sec2/sec_crypto.c
++++ b/drivers/crypto/hisilicon/sec2/sec_crypto.c
+@@ -544,7 +544,7 @@ static int sec_skcipher_init(struct crypto_skcipher *tfm)
+ 	crypto_skcipher_set_reqsize(tfm, sizeof(struct sec_req));
+ 	ctx->c_ctx.ivsize = crypto_skcipher_ivsize(tfm);
+ 	if (ctx->c_ctx.ivsize > SEC_IV_SIZE) {
+-		dev_err(SEC_CTX_DEV(ctx), "get error skcipher iv size!\n");
++		pr_err("get error skcipher iv size!\n");
+ 		return -EINVAL;
+ 	}
  
--	/* Check if running under a hypervisor */
--	movl	$1, %eax
--	cpuid
--	bt	$31, %ecx		/* Check the hypervisor bit */
--	jnc	.Lno_sev
--
- 	movl	$0x80000000, %eax	/* CPUID to check the highest leaf */
- 	cpuid
- 	cmpl	$0x8000001f, %eax	/* See if 0x8000001f is available */
-diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-index cdc04d091242..387b71669818 100644
---- a/arch/x86/kernel/sev-es-shared.c
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -186,7 +186,6 @@ void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
- 	 * make it accessible to the hypervisor.
- 	 *
- 	 * In particular, check for:
--	 *	- Hypervisor CPUID bit
- 	 *	- Availability of CPUID leaf 0x8000001f
- 	 *	- SEV CPUID bit.
- 	 *
-@@ -194,10 +193,7 @@ void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
- 	 * can't be checked here.
- 	 */
- 
--	if ((fn == 1 && !(regs->cx & BIT(31))))
--		/* Hypervisor bit */
--		goto fail;
--	else if (fn == 0x80000000 && (regs->ax < 0x8000001f))
-+	if (fn == 0x80000000 && (regs->ax < 0x8000001f))
- 		/* SEV leaf check */
- 		goto fail;
- 	else if ((fn == 0x8000001f && !(regs->ax & BIT(1))))
-diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-index 6c5eb6f3f14f..a19374d26101 100644
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -503,14 +503,10 @@ void __init sme_enable(struct boot_params *bp)
- 
- #define AMD_SME_BIT	BIT(0)
- #define AMD_SEV_BIT	BIT(1)
--	/*
--	 * Set the feature mask (SME or SEV) based on whether we are
--	 * running under a hypervisor.
--	 */
--	eax = 1;
--	ecx = 0;
--	native_cpuid(&eax, &ebx, &ecx, &edx);
--	feature_mask = (ecx & BIT(31)) ? AMD_SEV_BIT : AMD_SME_BIT;
-+
-+	/* Check the SEV MSR whether SEV or SME is enabled */
-+	sev_status   = __rdmsr(MSR_AMD64_SEV);
-+	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
- 
- 	/*
- 	 * Check for the SME/SEV feature:
-@@ -530,19 +526,26 @@ void __init sme_enable(struct boot_params *bp)
- 
- 	/* Check if memory encryption is enabled */
- 	if (feature_mask == AMD_SME_BIT) {
-+		/*
-+		 * No SME if Hypervisor bit is set. This check is here to
-+		 * prevent a guest from trying to enable SME. For running as a
-+		 * KVM guest the MSR_K8_SYSCFG will be sufficient, but there
-+		 * might be other hypervisors which emulate that MSR as non-zero
-+		 * or even pass it through to the guest.
-+		 * A malicious hypervisor can still trick a guest into this
-+		 * path, but there is no way to protect against that.
-+		 */
-+		eax = 1;
-+		ecx = 0;
-+		native_cpuid(&eax, &ebx, &ecx, &edx);
-+		if (ecx & BIT(31))
-+			return;
-+
- 		/* For SME, check the SYSCFG MSR */
- 		msr = __rdmsr(MSR_K8_SYSCFG);
- 		if (!(msr & MSR_K8_SYSCFG_MEM_ENCRYPT))
- 			return;
- 	} else {
--		/* For SEV, check the SEV MSR */
--		msr = __rdmsr(MSR_AMD64_SEV);
--		if (!(msr & MSR_AMD64_SEV_ENABLED))
--			return;
--
--		/* Save SEV_STATUS to avoid reading MSR again */
--		sev_status = msr;
--
- 		/* SEV state cannot be controlled by a command line option */
- 		sme_me_mask = me_mask;
- 		sev_enabled = true;
 -- 
 2.30.2
 
