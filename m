@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7366637843A
+	by mail.lfdr.de (Postfix) with ESMTP id BC42A37843B
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231803AbhEJKvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
+        id S230196AbhEJKvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:51:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232250AbhEJKsT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:48:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3D5D619AE;
-        Mon, 10 May 2021 10:37:58 +0000 (UTC)
+        id S232398AbhEJKse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:48:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15B72619BF;
+        Mon, 10 May 2021 10:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643079;
-        bh=4p5NJe1BEEKVnw69vR2Ih0nK846XewJfLwVadjUya+Y=;
+        s=korg; t=1620643081;
+        bh=e32o7Z7sWV+TNyIfGmoe0o9HKopJPuGZnU+jhpXOcmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PuS4f5yrSBrXhQ/TL6IDq/giVj5xdij1dZgiJ1nCH//X0tiwSgZvX6s28CZxsXKCO
-         9mY8lM7Y8EKirhXkTaC3DE2AuPaxbsI/B7iKwd0W+RLbyCfw3U3zaeP92Ds6eIXJqB
-         NopT3VznTgAPStgFsHp6eoziYnl6X4EmOLicPAIA=
+        b=V61z5kNUA+1oD6eNbXxFlT8riBulZBsgMuX2phsEpW+6UOtGe7HoW1st6qEyG3S4w
+         a/XiCXFzS6k8geLVagT+JzrbMGqCzxO4eS8edsvBUl4qzHGReyFNVJfvjUFQ5+hSCM
+         Togu+lzJYi5Pd3CuYKJf7aLaOzmYQZatmD00ech0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+889397c820fa56adf25d@syzkaller.appspotmail.com,
-        Muhammad Usama Anjum <musamaanjum@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 170/299] media: em28xx: fix memory leak
-Date:   Mon, 10 May 2021 12:19:27 +0200
-Message-Id: <20210510102010.566682686@linuxfoundation.org>
+Subject: [PATCH 5.10 171/299] media: vivid: update EDID
+Date:   Mon, 10 May 2021 12:19:28 +0200
+Message-Id: <20210510102010.603364800@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -43,39 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <musamaanjum@gmail.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 0ae10a7dc8992ee682ff0b1752ff7c83d472eef1 ]
+[ Upstream commit 443ec4bbc6116f6f492a7a1282bfd8422c862158 ]
 
-If some error occurs, URB buffers should also be freed. If they aren't
-freed with the dvb here, the em28xx_dvb_fini call doesn't frees the URB
-buffers as dvb is set to NULL. The function in which error occurs should
-do all the cleanup for the allocations it had done.
+The EDID had a few mistakes as reported by edid-decode:
 
-Tested the patch with the reproducer provided by syzbot. This patch
-fixes the memleak.
+Block 1, CTA-861 Extension Block:
+  Video Data Block: For improved preferred timing interoperability, set 'Native detailed modes' to 1.
+  Video Capability Data Block: S_PT is equal to S_IT and S_CE, so should be set to 0 instead.
 
-Reported-by: syzbot+889397c820fa56adf25d@syzkaller.appspotmail.com
-Signed-off-by: Muhammad Usama Anjum <musamaanjum@gmail.com>
+Fixed those.
+
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-dvb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/test-drivers/vivid/vivid-core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-dvb.c b/drivers/media/usb/em28xx/em28xx-dvb.c
-index fb9cbfa81a84..3cd9e9556fa9 100644
---- a/drivers/media/usb/em28xx/em28xx-dvb.c
-+++ b/drivers/media/usb/em28xx/em28xx-dvb.c
-@@ -1984,6 +1984,7 @@ ret:
- 	return result;
+diff --git a/drivers/media/test-drivers/vivid/vivid-core.c b/drivers/media/test-drivers/vivid/vivid-core.c
+index aa8d350fd682..1e356dc65d31 100644
+--- a/drivers/media/test-drivers/vivid/vivid-core.c
++++ b/drivers/media/test-drivers/vivid/vivid-core.c
+@@ -205,13 +205,13 @@ static const u8 vivid_hdmi_edid[256] = {
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x7b,
  
- out_free:
-+	em28xx_uninit_usb_xfer(dev, EM28XX_DIGITAL_MODE);
- 	kfree(dvb);
- 	dev->dvb = NULL;
- 	goto ret;
+-	0x02, 0x03, 0x3f, 0xf0, 0x51, 0x61, 0x60, 0x5f,
++	0x02, 0x03, 0x3f, 0xf1, 0x51, 0x61, 0x60, 0x5f,
+ 	0x5e, 0x5d, 0x10, 0x1f, 0x04, 0x13, 0x22, 0x21,
+ 	0x20, 0x05, 0x14, 0x02, 0x11, 0x01, 0x23, 0x09,
+ 	0x07, 0x07, 0x83, 0x01, 0x00, 0x00, 0x6d, 0x03,
+ 	0x0c, 0x00, 0x10, 0x00, 0x00, 0x3c, 0x21, 0x00,
+ 	0x60, 0x01, 0x02, 0x03, 0x67, 0xd8, 0x5d, 0xc4,
+-	0x01, 0x78, 0x00, 0x00, 0xe2, 0x00, 0xea, 0xe3,
++	0x01, 0x78, 0x00, 0x00, 0xe2, 0x00, 0xca, 0xe3,
+ 	0x05, 0x00, 0x00, 0xe3, 0x06, 0x01, 0x00, 0x4d,
+ 	0xd0, 0x00, 0xa0, 0xf0, 0x70, 0x3e, 0x80, 0x30,
+ 	0x20, 0x35, 0x00, 0xc0, 0x1c, 0x32, 0x00, 0x00,
+@@ -220,7 +220,7 @@ static const u8 vivid_hdmi_edid[256] = {
+ 	0x00, 0x00, 0x1a, 0x1a, 0x1d, 0x00, 0x80, 0x51,
+ 	0xd0, 0x1c, 0x20, 0x40, 0x80, 0x35, 0x00, 0xc0,
+ 	0x1c, 0x32, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x82,
+ };
+ 
+ static int vidioc_querycap(struct file *file, void  *priv,
 -- 
 2.30.2
 
