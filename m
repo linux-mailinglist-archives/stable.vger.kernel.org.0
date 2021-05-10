@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3E637849E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68DF13782C6
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbhEJKx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:53:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41454 "EHLO mail.kernel.org"
+        id S232063AbhEJKh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:37:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233253AbhEJKwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:52:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71FDD61876;
-        Mon, 10 May 2021 10:40:53 +0000 (UTC)
+        id S231867AbhEJKfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:35:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBCAC61935;
+        Mon, 10 May 2021 10:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643254;
-        bh=SqM/N6JzNeVkkCEtOVfKCgRU/lkUPfSXPQSHx4t8blo=;
+        s=korg; t=1620642538;
+        bh=A4BMpIbDqHeE71Hyy2pt8f5E6pO94shDlNlFupU82ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tl1wi8pcg2zcxMzIkIUxD7b5ml4BmEEJvZjQKXhkuPtJ1N0M6Aaw0wvyi2SUtM3t1
-         zsB+BDKWFoUf9RUab1eROh3/KXwGoRlw/PcFBwuK9OIQO/YZALKpTUjxr+qzaO4mrv
-         KvZPTBaN2jarxa0lANnHl8inAKJfqSDqOQeB9Me0=
+        b=Mstsz44GzmluusSQJ1OfGK2rW0lr4qtZgrffkO6kdZeq9UACgLBzq8tsJ/ot9i1Yx
+         sifHjUxy64b1XBUxmYflS+Ke4OYDplWvyOImw9UTCguJagn3rre4AX9xX+0LVwG/CI
+         58yw/p/9uI/G/oAjoCqxNwSoPXryLCB2KYdP4ugw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ba2e91df8f74809417fa@syzkaller.appspotmail.com,
-        syzbot+f3a0fa110fd630ab56c8@syzkaller.appspotmail.com,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        linux-nfs@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.10 233/299] NFS: fs_context: validate UDP retrans to prevent shift out-of-bounds
+        stable@vger.kernel.org, Bill Wendling <morbo@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 136/184] arm64/vdso: Discard .note.gnu.property sections in vDSO
 Date:   Mon, 10 May 2021 12:20:30 +0200
-Message-Id: <20210510102012.656313062@linuxfoundation.org>
+Message-Id: <20210510101954.611509007@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Bill Wendling <morbo@google.com>
 
-commit c09f11ef35955785f92369e25819bf0629df2e59 upstream.
+[ Upstream commit 388708028e6937f3fc5fc19aeeb847f8970f489c ]
 
-Fix shift out-of-bounds in xprt_calc_majortimeo(). This is caused
-by a garbage timeout (retrans) mount option being passed to nfs mount,
-in this case from syzkaller.
+The arm64 assembler in binutils 2.32 and above generates a program
+property note in a note section, .note.gnu.property, to encode used x86
+ISAs and features. But the kernel linker script only contains a single
+NOTE segment:
 
-If the protocol is XPRT_TRANSPORT_UDP, then 'retrans' is a shift
-value for a 64-bit long integer, so 'retrans' cannot be >= 64.
-If it is >= 64, fail the mount and return an error.
+  PHDRS
+  {
+    text    PT_LOAD    FLAGS(5) FILEHDR PHDRS; /* PF_R|PF_X */
+    dynamic PT_DYNAMIC FLAGS(4);               /* PF_R */
+    note    PT_NOTE    FLAGS(4);               /* PF_R */
+  }
 
-Fixes: 9954bf92c0cd ("NFS: Move mount parameterisation bits into their own file")
-Reported-by: syzbot+ba2e91df8f74809417fa@syzkaller.appspotmail.com
-Reported-by: syzbot+f3a0fa110fd630ab56c8@syzkaller.appspotmail.com
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: Anna Schumaker <anna.schumaker@netapp.com>
-Cc: linux-nfs@vger.kernel.org
-Cc: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The NOTE segment generated by the vDSO linker script is aligned to 4 bytes.
+But the .note.gnu.property section must be aligned to 8 bytes on arm64.
+
+  $ readelf -n vdso64.so
+
+  Displaying notes found in: .note
+    Owner                Data size      Description
+    Linux                0x00000004     Unknown note type: (0x00000000)
+     description data: 06 00 00 00
+  readelf: Warning: note with invalid namesz and/or descsz found at offset 0x20
+  readelf: Warning:  type: 0x78, namesize: 0x00000100, descsize: 0x756e694c, alignment: 8
+
+Since the note.gnu.property section in the vDSO is not checked by the
+dynamic linker, discard the .note.gnu.property sections in the vDSO.
+
+Similar to commit 4caffe6a28d31 ("x86/vdso: Discard .note.gnu.property
+sections in vDSO"), but for arm64.
+
+Signed-off-by: Bill Wendling <morbo@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20210423205159.830854-1-morbo@google.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/fs_context.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm64/kernel/vdso/vdso.lds.S | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/fs_context.c
-+++ b/fs/nfs/fs_context.c
-@@ -938,6 +938,15 @@ static int nfs23_parse_monolithic(struct
- 			       sizeof(mntfh->data) - mntfh->size);
+diff --git a/arch/arm64/kernel/vdso/vdso.lds.S b/arch/arm64/kernel/vdso/vdso.lds.S
+index 7ad2d3a0cd48..815df253f96e 100644
+--- a/arch/arm64/kernel/vdso/vdso.lds.S
++++ b/arch/arm64/kernel/vdso/vdso.lds.S
+@@ -28,6 +28,13 @@ SECTIONS
+ 	.gnu.version_d	: { *(.gnu.version_d) }
+ 	.gnu.version_r	: { *(.gnu.version_r) }
  
- 		/*
-+		 * for proto == XPRT_TRANSPORT_UDP, which is what uses
-+		 * to_exponential, implying shift: limit the shift value
-+		 * to BITS_PER_LONG (majortimeo is unsigned long)
-+		 */
-+		if (!(data->flags & NFS_MOUNT_TCP)) /* this will be UDP */
-+			if (data->retrans >= 64) /* shift value is too large */
-+				goto out_invalid_data;
-+
-+		/*
- 		 * Translate to nfs_fs_context, which nfs_fill_super
- 		 * can deal with.
- 		 */
-@@ -1037,6 +1046,9 @@ out_no_address:
++	/*
++	 * Discard .note.gnu.property sections which are unused and have
++	 * different alignment requirement from vDSO note sections.
++	 */
++	/DISCARD/	: {
++		*(.note.GNU-stack .note.gnu.property)
++	}
+ 	.note		: { *(.note.*) }		:text	:note
  
- out_invalid_fh:
- 	return nfs_invalf(fc, "NFS: invalid root filehandle");
-+
-+out_invalid_data:
-+	return nfs_invalf(fc, "NFS: invalid binary mount data");
- }
+ 	. = ALIGN(16);
+@@ -48,7 +55,6 @@ SECTIONS
+ 	PROVIDE(end = .);
  
- #if IS_ENABLED(CONFIG_NFS_V4)
+ 	/DISCARD/	: {
+-		*(.note.GNU-stack)
+ 		*(.data .data.* .gnu.linkonce.d.* .sdata*)
+ 		*(.bss .sbss .dynbss .dynsbss)
+ 	}
+-- 
+2.30.2
+
 
 
