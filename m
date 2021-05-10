@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63540378719
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E21B378982
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234831AbhEJLNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:13:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46276 "EHLO mail.kernel.org"
+        id S239246AbhEJL0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:26:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235956AbhEJLHE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BBEB61971;
-        Mon, 10 May 2021 10:57:10 +0000 (UTC)
+        id S233628AbhEJLOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:14:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C02E36101A;
+        Mon, 10 May 2021 11:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644230;
-        bh=xYtFkeN39Orcq0WeEDTUJpCePQ2GI+uIcpy5yH+7+II=;
+        s=korg; t=1620645034;
+        bh=ReXTlROa2dmXApoHXaLjl227NwJNlQ2btegkFhmerT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSrm0c4GyCtgwygApo5WkY+sSgmtFfmmC+zUqGIXZXMNmjsjw3M0rWtQmSD86wrYF
-         73IEB8E80CUEuU5quGOzxs9udAdD33D4rwmoEDzNoSn/ncXDmds32OxY9ITnAjTKFr
-         Gdrn8EjMT/7XkK1eNFHOILT7mGixXiTL3filcuTg=
+        b=hLosoLLbXv0ctHoaaB3YIazdBYyeQco5dE98r0XwE1FA4KfoekP3Z8icIIHyhQJET
+         SCWIyu7CSQrKlmoX8mxSuqtU8qAUyPbLs3TBORNC6ckJ/Xq2u2PPeEG7R/3n/h42TA
+         fxpsj7y5IKi8XF740x8KYbx7lXY1BRv9VL8E02zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Hemant Kumar <hemantk@codeaurora.org>,
-        Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.11 323/342] usb: gadget: Fix double free of device descriptor pointers
+        stable@vger.kernel.org, Edward Cree <ecree.xilinx@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 324/384] sfc: farch: fix TX queue lookup in TX event handling
 Date:   Mon, 10 May 2021 12:21:53 +0200
-Message-Id: <20210510102020.787064356@linuxfoundation.org>
+Message-Id: <20210510102025.477331194@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hemant Kumar <hemantk@codeaurora.org>
+From: Edward Cree <ecree.xilinx@gmail.com>
 
-commit 43c4cab006f55b6ca549dd1214e22f5965a8675f upstream.
+commit 83b09a1807415608b387c7bc748d329fefc5617e upstream.
 
-Upon driver unbind usb_free_all_descriptors() function frees all
-speed descriptor pointers without setting them to NULL. In case
-gadget speed changes (i.e from super speed plus to super speed)
-after driver unbind only upto super speed descriptor pointers get
-populated. Super speed plus desc still holds the stale (already
-freed) pointer. Fix this issue by setting all descriptor pointers
-to NULL after freeing them in usb_free_all_descriptors().
+We're starting from a TXQ label, not a TXQ type, so
+ efx_channel_get_tx_queue() is inappropriate (and could return NULL,
+ leading to panics).
 
-Fixes: f5c61225cf29 ("usb: gadget: Update function for SuperSpeedPlus")
-cc: stable@vger.kernel.org
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Hemant Kumar <hemantk@codeaurora.org>
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1619034452-17334-1-git-send-email-wcheng@codeaurora.org
+Fixes: 12804793b17c ("sfc: decouple TXQ type from label")
+Cc: stable@vger.kernel.org
+Signed-off-by: Edward Cree <ecree.xilinx@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/config.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/sfc/farch.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/gadget/config.c
-+++ b/drivers/usb/gadget/config.c
-@@ -194,9 +194,13 @@ EXPORT_SYMBOL_GPL(usb_assign_descriptors
- void usb_free_all_descriptors(struct usb_function *f)
- {
- 	usb_free_descriptors(f->fs_descriptors);
-+	f->fs_descriptors = NULL;
- 	usb_free_descriptors(f->hs_descriptors);
-+	f->hs_descriptors = NULL;
- 	usb_free_descriptors(f->ss_descriptors);
-+	f->ss_descriptors = NULL;
- 	usb_free_descriptors(f->ssp_descriptors);
-+	f->ssp_descriptors = NULL;
- }
- EXPORT_SYMBOL_GPL(usb_free_all_descriptors);
+--- a/drivers/net/ethernet/sfc/farch.c
++++ b/drivers/net/ethernet/sfc/farch.c
+@@ -835,14 +835,14 @@ efx_farch_handle_tx_event(struct efx_cha
+ 		/* Transmit completion */
+ 		tx_ev_desc_ptr = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_DESC_PTR);
+ 		tx_ev_q_label = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_Q_LABEL);
+-		tx_queue = efx_channel_get_tx_queue(
+-			channel, tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
++		tx_queue = channel->tx_queue +
++				(tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
+ 		efx_xmit_done(tx_queue, tx_ev_desc_ptr);
+ 	} else if (EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_WQ_FF_FULL)) {
+ 		/* Rewrite the FIFO write pointer */
+ 		tx_ev_q_label = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_Q_LABEL);
+-		tx_queue = efx_channel_get_tx_queue(
+-			channel, tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
++		tx_queue = channel->tx_queue +
++				(tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
  
+ 		netif_tx_lock(efx->net_dev);
+ 		efx_farch_notify_tx_desc(tx_queue);
 
 
