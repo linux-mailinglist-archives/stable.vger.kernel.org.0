@@ -2,196 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52630378F20
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBD0378F22
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232509AbhEJN2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:28:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40827 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1346916AbhEJMdA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 08:33:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620649915;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=OzXgoi91kkjg0iDmQl0pH7Eo/tgHHTrwDnUOt/nBVvE=;
-        b=D1WnexVGLBrWxc80lPPnytbgHhcziFrY+tqEGKH1+bQ9pOadXNUCM1LoFvlAAMVdm8jH5K
-        BD31BHJypDvnLypfBg2agYDCqVU7UIxojQDJ9+tn4i+9atm6Iitfp2/c7+e2ZHZVjJtre7
-        e+hNBBDW0ZGmgUKH033ECdIgpbo5YCA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-5-yZK-lsp2PhCt1jDljdTn8g-1; Mon, 10 May 2021 08:31:51 -0400
-X-MC-Unique: yZK-lsp2PhCt1jDljdTn8g-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 47D1F8015DB
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 12:31:50 +0000 (UTC)
-Received: from sirius.home.kraxel.org (ovpn-112-11.ams2.redhat.com [10.36.112.11])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id CD47F5F707
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 12:31:49 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
-        id 34AE218000B9; Mon, 10 May 2021 14:31:48 +0200 (CEST)
-From:   Gerd Hoffmann <kraxel@redhat.com>
-To:     stable@vger.kernel.org
-Subject: [[PATCH for 5.10]] drm/qxl: use ttm bo priorities
-Date:   Mon, 10 May 2021 14:31:40 +0200
-Message-Id: <20210510123140.2200366-1-kraxel@redhat.com>
+        id S240744AbhEJN2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 09:28:33 -0400
+Received: from mail-dm6nam12on2040.outbound.protection.outlook.com ([40.107.243.40]:38881
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S240999AbhEJMna (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 08:43:30 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nZb6K45dr9KS12B6HtewSECkHum9KoKFKjbTyI2UPNxxRAZ2AJ4JYrr6OPMhfrK5phSCkHfgKtihCa68vIk+/2Mgs1AbMH+XJxaC1MlxOm/gWoQdw3jlQp2Cv1T2RdU05MOFNL9Y1KVYjf2YnpUQKWu1btlRwgu2zeCyJZRAvPd3oiVGhRtK7jwDOr9Z83K9CAFEXErkmYBIkrDKyzv5hrkRGaGix2dXtBQj+OkA67aB0FuqTJiF3e1lz4LzzC+WFxNOIHGzerKNAx3Y6TZ06Qlp2OLYsL0ZpgU19SLgiZcTbvJ2bbC5TNpWZnxPtuGdget7pI6IqxElwccRreKjKg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=17EjA2OnbOcrLlADnSIrZIv2UJs4nhIj4LPbPqTXuss=;
+ b=fZd0656Dh2N8Z2dxRBrPIkYIAkte+apykC8TxpPOcwRgmH96xXy84vJkD8RVGUBX3KeVRzAp4+p5wKmkxNujcXrV8OTc1x4Ph7Mf00x5jkuDoLnlWJMfUcMCRiIL9dYiWGuFmPZ2uKrh/eSyJkaUpXyEdmhsxTFAPmV3xqG7xtObDCOoP0yItnbDrObPNHW6FH6qHNTnwg7JUSzIomOBWAVpWSAdh/7hv8pT563WUskIPatfmxQOXFPyYjzm6Ck+ovXbRqDbygioAxcf0z0ccCvuQg21LsVF7CcmYvAs1iim7JP6Ug/l77n4maUhyukgZoswbNCO4Q8nUj6U04HncQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.36) smtp.rcpttodomain=linuxfoundation.org
+ smtp.mailfrom=nvidia.com; dmarc=pass (p=none sp=none pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=17EjA2OnbOcrLlADnSIrZIv2UJs4nhIj4LPbPqTXuss=;
+ b=dFjpIVWmG2T7R0nI7nsfCvKwv+XD/PRvzUrRZvdcuDoyPGvt+aO+5IyMWZtFow3RVvpdyJhoonAO3ObWKXdtK/G3JlHayuSNArFQ8rdY2bA9/FOUwlXupfjIxpF2tuukdyP4+yc5rjysXjkisxur1kuIBDNhomGqTJdipGjV0x8D8GhgKhJlW0jbHKBpvgyCQek2jCPVkfU7NeqqE+KLYGz/4832Oemq91RqFAmMt137iuN3PxCsbYPZMOKriNkIdB3jvHntXF602QCNurMCPTeadTnWruR/uxHupp8Sm7JWX80bxzd3xul11c1Hzm9jjWHrUJ0a/NLHpZtWYdfEuA==
+Received: from DS7PR03CA0240.namprd03.prod.outlook.com (2603:10b6:5:3ba::35)
+ by MN2PR12MB3037.namprd12.prod.outlook.com (2603:10b6:208:c2::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.27; Mon, 10 May
+ 2021 12:42:23 +0000
+Received: from DM6NAM11FT037.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:3ba:cafe::2d) by DS7PR03CA0240.outlook.office365.com
+ (2603:10b6:5:3ba::35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend
+ Transport; Mon, 10 May 2021 12:42:23 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
+ smtp.mailfrom=nvidia.com; linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=pass action=none
+ header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.36; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.36) by
+ DM6NAM11FT037.mail.protection.outlook.com (10.13.172.122) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4108.25 via Frontend Transport; Mon, 10 May 2021 12:42:23 +0000
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 10 May
+ 2021 12:42:23 +0000
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 10 May
+ 2021 12:42:22 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
+ Transport; Mon, 10 May 2021 12:42:22 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 000/184] 5.4.118-rc1 review
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Message-ID: <d0894ffb354344fc9a4775539d5e766f@HQMAIL111.nvidia.com>
+Date:   Mon, 10 May 2021 12:42:22 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 64ad840c-4535-4f2f-954b-08d913b10f57
+X-MS-TrafficTypeDiagnostic: MN2PR12MB3037:
+X-Microsoft-Antispam-PRVS: <MN2PR12MB303712E6547F121E20893DD4D9549@MN2PR12MB3037.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 3n2jTZcSZ07zdBWcyACEB25meWodamcSGC/IrWGIgQLx/NDnhMU9K+DQQVcpuRaYr6cgUEOI8S7nQnPq3LyeJka5ijjqnIeWXsu9Pn7is9vieEzBtikTzG2lDMjAnAU9wYa4PR1vl26aNjQd3xBysJQunFO+quyerNabC8jpX45n7qyzwJ3pCtvA6e0GO3Oy5U4jTAXkjxNGh2pFKAS+jDQIfnJWhEFlHNG67/KpBWSFoVWVC/HKIrv8RAkwwqll5B48m6MFkFlEFRoySQi0uXZ0YQ5pu9xHZ1vDSxPxvHTspIQafSvkv50Tq9oA/P1ph6s1jMsfVDG6iOPJ1PyslR2qxuCgDv2bz5WbMJ+v6h/Wkcolcax3TfdlbxiNTC8k0M95xy1cqJZ2JAadpfhvUGh8rVsSAVFjHwA2rmObktUnx2A4Rtzyk93UwTgRejCTVZaNMN0TyxaaPM0kiCQqXSUy3IfuayJB2Z9+kcRdwiLJG3Ym3WncZ0v2DRjS3AWZfXP2cUyFZRHIJ+g7RFNp/5kcswk6+A8OsaqV2J6DthZpDvxFAHPhzNXGk0gYQMA69jiR4sd64IZNLFm/5TJLUjifh7DUiNIOXyy3Ir4AQ2nNoN1Q+9ZGdv785a9g1O7nYYEpg8/4tlGj330ndujpjdWHYl4iz/OIthcMUcH2EIrX8PAh6DWGxjS/H6psLFIlh0ja5eK9omPEDiPKv1cc13RcvU7Nb0lkEyfbB+zztE0=
+X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(346002)(396003)(376002)(39860400002)(136003)(36840700001)(46966006)(6916009)(478600001)(966005)(26005)(8936002)(5660300002)(24736004)(108616005)(70206006)(70586007)(47076005)(2906002)(4326008)(86362001)(82310400003)(7416002)(82740400003)(7636003)(36860700001)(8676002)(356005)(54906003)(36906005)(426003)(186003)(336012)(316002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 May 2021 12:42:23.6163
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 64ad840c-4535-4f2f-954b-08d913b10f57
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT037.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3037
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Allow to set priorities for buffer objects.  Use priority 1 for surface
-and cursor command releases.  Use priority 0 for drawing command
-releases.  That way the short-living drawing commands are first in line
-when it comes to eviction, making it *much* less likely that
-ttm_bo_mem_force_space() picks something which can't be evicted and
-throws an error after waiting a while without success.
+On Mon, 10 May 2021 12:18:14 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.118 release.
+> There are 184 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 12 May 2021 10:19:23 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.118-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210217123213.2199186-4-kraxel@redhat.com
-(cherry-picked from 4fff19ae427548d8c37260c975a4b20d3c040ec6)
----
- drivers/gpu/drm/qxl/qxl_object.h  |  1 +
- drivers/gpu/drm/qxl/qxl_cmd.c     |  2 +-
- drivers/gpu/drm/qxl/qxl_display.c |  4 ++--
- drivers/gpu/drm/qxl/qxl_gem.c     |  2 +-
- drivers/gpu/drm/qxl/qxl_object.c  |  5 +++--
- drivers/gpu/drm/qxl/qxl_release.c | 18 ++++++++++++------
- 6 files changed, 20 insertions(+), 12 deletions(-)
+All tests passing for Tegra ...
 
-diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
-index 6b434e5ef795..5762ea40d047 100644
---- a/drivers/gpu/drm/qxl/qxl_object.h
-+++ b/drivers/gpu/drm/qxl/qxl_object.h
-@@ -84,6 +84,7 @@ static inline int qxl_bo_wait(struct qxl_bo *bo, u32 *mem_type,
- extern int qxl_bo_create(struct qxl_device *qdev,
- 			 unsigned long size,
- 			 bool kernel, bool pinned, u32 domain,
-+			 u32 priority,
- 			 struct qxl_surface *surf,
- 			 struct qxl_bo **bo_ptr);
- extern int qxl_bo_kmap(struct qxl_bo *bo, void **ptr);
-diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index 54e3c3a97440..741cc983daf1 100644
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -268,7 +268,7 @@ int qxl_alloc_bo_reserved(struct qxl_device *qdev,
- 	int ret;
- 
- 	ret = qxl_bo_create(qdev, size, false /* not kernel - device */,
--			    false, QXL_GEM_DOMAIN_VRAM, NULL, &bo);
-+			    false, QXL_GEM_DOMAIN_VRAM, 0, NULL, &bo);
- 	if (ret) {
- 		DRM_ERROR("failed to allocate VRAM BO\n");
- 		return ret;
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 6063f3a15329..3da41a91bb74 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -790,8 +790,8 @@ static int qxl_plane_prepare_fb(struct drm_plane *plane,
- 				qdev->dumb_shadow_bo = NULL;
- 			}
- 			qxl_bo_create(qdev, surf.height * surf.stride,
--				      true, true, QXL_GEM_DOMAIN_SURFACE, &surf,
--				      &qdev->dumb_shadow_bo);
-+				      true, true, QXL_GEM_DOMAIN_SURFACE, 0,
-+				      &surf, &qdev->dumb_shadow_bo);
- 		}
- 		if (user_bo->shadow != qdev->dumb_shadow_bo) {
- 			if (user_bo->shadow) {
-diff --git a/drivers/gpu/drm/qxl/qxl_gem.c b/drivers/gpu/drm/qxl/qxl_gem.c
-index 48e096285b4c..a08da0bd9098 100644
---- a/drivers/gpu/drm/qxl/qxl_gem.c
-+++ b/drivers/gpu/drm/qxl/qxl_gem.c
-@@ -55,7 +55,7 @@ int qxl_gem_object_create(struct qxl_device *qdev, int size,
- 	/* At least align on page size */
- 	if (alignment < PAGE_SIZE)
- 		alignment = PAGE_SIZE;
--	r = qxl_bo_create(qdev, size, kernel, false, initial_domain, surf, &qbo);
-+	r = qxl_bo_create(qdev, size, kernel, false, initial_domain, 0, surf, &qbo);
- 	if (r) {
- 		if (r != -ERESTARTSYS)
- 			DRM_ERROR(
-diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-index 2bc364412e8b..544a9e4df2a8 100644
---- a/drivers/gpu/drm/qxl/qxl_object.c
-+++ b/drivers/gpu/drm/qxl/qxl_object.c
-@@ -103,8 +103,8 @@ static const struct drm_gem_object_funcs qxl_object_funcs = {
- 	.print_info = drm_gem_ttm_print_info,
- };
- 
--int qxl_bo_create(struct qxl_device *qdev,
--		  unsigned long size, bool kernel, bool pinned, u32 domain,
-+int qxl_bo_create(struct qxl_device *qdev, unsigned long size,
-+		  bool kernel, bool pinned, u32 domain, u32 priority,
- 		  struct qxl_surface *surf,
- 		  struct qxl_bo **bo_ptr)
- {
-@@ -137,6 +137,7 @@ int qxl_bo_create(struct qxl_device *qdev,
- 
- 	qxl_ttm_placement_from_domain(bo, domain, pinned);
- 
-+	bo->tbo.priority = priority;
- 	r = ttm_bo_init(&qdev->mman.bdev, &bo->tbo, size, type,
- 			&bo->placement, 0, !kernel, size,
- 			NULL, NULL, &qxl_ttm_bo_destroy);
-diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
-index 4fae3e393da1..b2a475a0ca4a 100644
---- a/drivers/gpu/drm/qxl/qxl_release.c
-+++ b/drivers/gpu/drm/qxl/qxl_release.c
-@@ -199,11 +199,12 @@ qxl_release_free(struct qxl_device *qdev,
- }
- 
- static int qxl_release_bo_alloc(struct qxl_device *qdev,
--				struct qxl_bo **bo)
-+				struct qxl_bo **bo,
-+				u32 priority)
- {
- 	/* pin releases bo's they are too messy to evict */
- 	return qxl_bo_create(qdev, PAGE_SIZE, false, true,
--			     QXL_GEM_DOMAIN_VRAM, NULL, bo);
-+			     QXL_GEM_DOMAIN_VRAM, priority, NULL, bo);
- }
- 
- int qxl_release_list_add(struct qxl_release *release, struct qxl_bo *bo)
-@@ -326,13 +327,18 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
- 	int ret = 0;
- 	union qxl_release_info *info;
- 	int cur_idx;
-+	u32 priority;
- 
--	if (type == QXL_RELEASE_DRAWABLE)
-+	if (type == QXL_RELEASE_DRAWABLE) {
- 		cur_idx = 0;
--	else if (type == QXL_RELEASE_SURFACE_CMD)
-+		priority = 0;
-+	} else if (type == QXL_RELEASE_SURFACE_CMD) {
- 		cur_idx = 1;
--	else if (type == QXL_RELEASE_CURSOR_CMD)
-+		priority = 1;
-+	} else if (type == QXL_RELEASE_CURSOR_CMD) {
- 		cur_idx = 2;
-+		priority = 1;
-+	}
- 	else {
- 		DRM_ERROR("got illegal type: %d\n", type);
- 		return -EINVAL;
-@@ -352,7 +358,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
- 		qdev->current_release_bo[cur_idx] = NULL;
- 	}
- 	if (!qdev->current_release_bo[cur_idx]) {
--		ret = qxl_release_bo_alloc(qdev, &qdev->current_release_bo[cur_idx]);
-+		ret = qxl_release_bo_alloc(qdev, &qdev->current_release_bo[cur_idx], priority);
- 		if (ret) {
- 			mutex_unlock(&qdev->release_mutex);
- 			qxl_release_free(qdev, *release);
--- 
-2.31.1
+Test results for stable-v5.4:
+    12 builds:	12 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    59 tests:	59 pass, 0 fail
 
+Linux version:	5.4.118-rc1-geb078a943f97
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
