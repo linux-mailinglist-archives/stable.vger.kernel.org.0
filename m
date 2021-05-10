@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73982378879
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E54378699
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234047AbhEJLVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49986 "EHLO mail.kernel.org"
+        id S233951AbhEJLJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:09:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237121AbhEJLLY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82E5C616EB;
-        Mon, 10 May 2021 11:07:19 +0000 (UTC)
+        id S235313AbhEJLAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:00:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B2766186A;
+        Mon, 10 May 2021 10:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644840;
-        bh=hZRhIdshut3N2uZxyfckELlXm8/ocuNV6kXa/rDkrow=;
+        s=korg; t=1620643998;
+        bh=QFW2PpfndsL4yLPOv8wibmBs/SN33oj8abfed6abK/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsfNUkahFUIn4qLHzjWGtuu4Lx95zBHvJ06Spks7PRspVziagUcF+BmmhzlALaFuO
-         373Z9Uy2vhY65Iht8xrRvRcqQ1oNZ9zsZAd++2WQ9DxdS/03k9KjI8on0saHiSxUKi
-         Vj+oqcQjrHwwTe8RXe8pIc8irTOvNLbvPtxeDyDI=
+        b=WlQMtK3zWbPT4iPqalK3GyD7xyu14UHkWZFFPN2r5tIlH+fhuHHRim/mfPd8djF0h
+         SEsuxS+ZPcjHbO1ugGhMuSYkYNESgNh7qp3eNe+FbzaONBnIeSdcuHMWGqAQL8ALD5
+         2KsRoCtyYRVeRm9ejZnJ57cm4kS8XKKyfcvpajj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Anson Jacob <Anson.Jacob@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Jun Lei <Jun.Lei@amd.com>, Solomon Chiu <solomon.chiu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 245/384] drm/amd/display: Fix UBSAN: shift-out-of-bounds warning
-Date:   Mon, 10 May 2021 12:20:34 +0200
-Message-Id: <20210510102022.963706953@linuxfoundation.org>
+        stable@vger.kernel.org, Jonas Witschel <diabonas@archlinux.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 245/342] ALSA: hda/realtek: fix mute/micmute LEDs for HP ProBook 445 G7
+Date:   Mon, 10 May 2021 12:20:35 +0200
+Message-Id: <20210510102018.174585089@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,248 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Jacob <Anson.Jacob@amd.com>
+From: Jonas Witschel <diabonas@archlinux.org>
 
-[ Upstream commit 54718747a6e1037317a8b3610c3be40621b2b75e ]
+commit 75b62ab65d2715ce6ff0794033d61ab9dc4a2dfc upstream.
 
-[Why]
-On NAVI14 CONFIG_UBSAN reported shift-out-of-bounds at
-display_rq_dlg_calc_20v2.c:304:38
+The HP ProBook 445 G7 (17T32ES) uses ALC236. Like ALC236_FIXUP_HP_GPIO_LED,
+COEF index 0x34 bit 5 is used to control the playback mute LED, but the
+microphone mute LED is controlled using pin VREF instead of a COEF index.
 
-rq_param->misc.rq_c.blk256_height is 0 when chroma(*_c) is invalid.
-dml_log2 returns -1023 for log2(0), although log2(0) is undefined.
-
-Which ended up as:
-rq_param->dlg.rq_c.swath_height = 1 << -1023
-
-[How]
-Fix applied on all dml versions.
-1. Ensure dml_log2 is only called if the argument is greater than 0.
-2. Subtract req128_l/req128_c from log2_swath_height_l/log2_swath_height_c
-   only when it is greater than 0.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Solomon Chiu <solomon.chiu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+AlsaInfo: https://alsa-project.org/db/?f=0d3f4d1af39cc359f9fea9b550727ee87e5cf45a
+Signed-off-by: Jonas Witschel <diabonas@archlinux.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210416105852.52588-1-diabonas@archlinux.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../dc/dml/dcn20/display_rq_dlg_calc_20.c     | 28 +++++++++++++++----
- .../dc/dml/dcn20/display_rq_dlg_calc_20v2.c   | 28 +++++++++++++++----
- .../dc/dml/dcn21/display_rq_dlg_calc_21.c     | 28 +++++++++++++++----
- .../dc/dml/dcn30/display_rq_dlg_calc_30.c     | 28 +++++++++++++++----
- .../display/dc/dml/dml1_display_rq_dlg_calc.c | 28 +++++++++++++++----
- 5 files changed, 115 insertions(+), 25 deletions(-)
+ sound/pci/hda/patch_realtek.c |   25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-index 72423dc425dc..799bae229e67 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-@@ -293,13 +293,31 @@ static void handle_det_buf_split(struct display_mode_lib *mode_lib,
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4438,6 +4438,25 @@ static void alc236_fixup_hp_mute_led(str
+ 	alc236_fixup_hp_coef_micmute_led(codec, fix, action);
+ }
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-index 9c78446c3a9d..6a6d5970d1d5 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-@@ -293,13 +293,31 @@ static void handle_det_buf_split(struct display_mode_lib *mode_lib,
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
++static void alc236_fixup_hp_micmute_led_vref(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	struct alc_spec *spec = codec->spec;
 +
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
++	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
++		spec->cap_mute_led_nid = 0x1a;
++		snd_hda_gen_add_micmute_led_cdev(codec, vref_micmute_led_set);
++		codec->power_filter = led_power_filter;
++	}
++}
 +
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
++static void alc236_fixup_hp_mute_led_micmute_vref(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	alc236_fixup_hp_mute_led_coefbit(codec, fix, action);
++	alc236_fixup_hp_micmute_led_vref(codec, fix, action);
++}
 +
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-index edd41d358291..dc1c81a6e377 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-@@ -277,13 +277,31 @@ static void handle_det_buf_split(
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-index 0f14f205ebe5..04601a767a8f 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-@@ -237,13 +237,31 @@ static void handle_det_buf_split(struct display_mode_lib *mode_lib,
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c b/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-index 4c3e9cc30167..414da64f5734 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-@@ -344,13 +344,31 @@ static void handle_det_buf_split(
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
- 
--- 
-2.30.2
-
+ #if IS_REACHABLE(CONFIG_INPUT)
+ static void gpio2_mic_hotkey_event(struct hda_codec *codec,
+ 				   struct hda_jack_callback *event)
+@@ -6400,6 +6419,7 @@ enum {
+ 	ALC285_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_GPIO_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED,
++	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
+ 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
+@@ -7646,6 +7666,10 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc236_fixup_hp_mute_led,
+ 	},
++	[ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc236_fixup_hp_mute_led_micmute_vref,
++	},
+ 	[ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -8063,6 +8087,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x8730, "HP ProBook 445 G7", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+ 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
 
 
