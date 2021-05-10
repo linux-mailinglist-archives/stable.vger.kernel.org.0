@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD884378816
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F50E37881F
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238956AbhEJLUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
+        id S238987AbhEJLUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232753AbhEJLIy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232821AbhEJLIy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 07:08:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7DBB61A19;
-        Mon, 10 May 2021 11:04:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F66E6191B;
+        Mon, 10 May 2021 11:04:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644658;
-        bh=308qQXQhSWXSTdVFU1aE1Ow89JdTwneYMum15svZK/o=;
+        s=korg; t=1620644660;
+        bh=XCtJfkGFbC2VRs0fahHq2Xv98B7QeAWABesY4G/UWe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f4V1yFaB4cvYsyDRJx6w2FRl/rMP1JMTNcYdx5Q7+5H4dkPEworIM9R/FhgVNiocY
-         X9V6XVZLVWPvjIIvmPf75VaK9nSA5PRrOV0g+PcltT3cWC+0Y6trm49NtNoOEX+CjT
-         hwsSkjWwuqOSFi9DvMuZ37c3D7MGAc+XepxUysxY=
+        b=tRYrcrsWmj+QaobWVHP3+Pnb0CT01TOfy2udXBo0LrXC43egXJk0QcabveLB2FWhj
+         SBOGiG0uk62C7QpV5O3CtUFJdro31mksO/U+QDUfaLniYcs5x/yk+yuUQOXzFpg6Sm
+         P/cvr+sbK1+uOTtTeISrAjPeks7jqSePu4PzT4dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 171/384] media: imx: capture: Return -EPIPE from __capture_legacy_try_fmt()
-Date:   Mon, 10 May 2021 12:19:20 +0200
-Message-Id: <20210510102020.514783336@linuxfoundation.org>
+Subject: [PATCH 5.12 172/384] atomisp: dont let it go past pipes array
+Date:   Mon, 10 May 2021 12:19:21 +0200
+Message-Id: <20210510102020.548281396@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -43,37 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit cc271b6754691af74d710b761eaf027e3743e243 ]
+[ Upstream commit 1f6c45ac5fd70ab59136ab5babc7def269f3f509 ]
 
-The correct return code to report an invalid pipeline configuration is
--EPIPE. Return it instead of -EINVAL from __capture_legacy_try_fmt()
-when the capture format doesn't match the media bus format of the
-connected subdev.
+In practice, IA_CSS_PIPE_ID_NUM should never be used when
+calling atomisp_q_video_buffers_to_css(), as the driver should
+discover the right pipe before calling it.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Yet, if some pipe parsing issue happens, it could end using
+it.
+
+So, add a WARN_ON() to prevent such case.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx-media-capture.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/atomisp/pci/atomisp_fops.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/staging/media/imx/imx-media-capture.c b/drivers/staging/media/imx/imx-media-capture.c
-index e10ce103a5b4..94a0467d673b 100644
---- a/drivers/staging/media/imx/imx-media-capture.c
-+++ b/drivers/staging/media/imx/imx-media-capture.c
-@@ -557,7 +557,7 @@ static int capture_validate_fmt(struct capture_priv *priv)
- 		priv->vdev.fmt.fmt.pix.height != f.fmt.pix.height ||
- 		priv->vdev.cc->cs != cc->cs ||
- 		priv->vdev.compose.width != compose.width ||
--		priv->vdev.compose.height != compose.height) ? -EINVAL : 0;
-+		priv->vdev.compose.height != compose.height) ? -EPIPE : 0;
- }
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_fops.c b/drivers/staging/media/atomisp/pci/atomisp_fops.c
+index 453bb6913550..f1e6b2597853 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_fops.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_fops.c
+@@ -221,6 +221,9 @@ int atomisp_q_video_buffers_to_css(struct atomisp_sub_device *asd,
+ 	unsigned long irqflags;
+ 	int err = 0;
  
- static int capture_start_streaming(struct vb2_queue *vq, unsigned int count)
++	if (WARN_ON(css_pipe_id >= IA_CSS_PIPE_ID_NUM))
++		return -EINVAL;
++
+ 	while (pipe->buffers_in_css < ATOMISP_CSS_Q_DEPTH) {
+ 		struct videobuf_buffer *vb;
+ 
 -- 
 2.30.2
 
