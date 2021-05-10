@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 406843788ED
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C3893786F2
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235640AbhEJLZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54928 "EHLO mail.kernel.org"
+        id S233191AbhEJLMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:12:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233525AbhEJLMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:12:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B38E61139;
-        Mon, 10 May 2021 11:09:57 +0000 (UTC)
+        id S235732AbhEJLF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:05:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80A3061482;
+        Mon, 10 May 2021 10:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644997;
-        bh=nM82XFwB+Hv0Rbe30sfFpEmwyRJEFZjJt83JZ6zhF7s=;
+        s=korg; t=1620644157;
+        bh=jcQY+hQeCyRaAiIN0ruuZAsRzx2KPQ2e15Vdb/KsaFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9YSTGwGOaI0zWE7WIDJC3K4M2N4LjzeukiwhA7dT2yzgpbyUXH13azETGmXH0ubK
-         MI9MkGMdyKIOtCqhDd5eCtcvvqjMh7wICKDrknFc5ZJjv7W3Upptvwdc4XalPu9ABq
-         J7A+di50zfgg8rSTU6wvRJNHzcA4Dla1oNg7mmTk=
+        b=wkzRmOc4iZ1PHr6nNNr2hOb2gmGeW2B4mEUV3IWOzMHqVjwiV41V69Tk66ebcL6dE
+         yTnkk0fAcphprWkruOFKjaxIDHFXNMeViQNb6k+NmD+U6NB1RiDXuV3hGNnPmrdnOf
+         iWGE+HvaoazPDite4A3iX5zfttmDVOu4te/PDA6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rosen Penev <rosenp@gmail.com>,
-        Tony Ambardar <Tony.Ambardar@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.12 310/384] powerpc: fix EDEADLOCK redefinition error in uapi/asm/errno.h
-Date:   Mon, 10 May 2021 12:21:39 +0200
-Message-Id: <20210510102025.020262360@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Hulk Robot <hulkci@huawei.com>,
+        Xu Yihang <xuyihang@huawei.com>,
+        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.11 310/342] ext4: fix error return code in ext4_fc_perform_commit()
+Date:   Mon, 10 May 2021 12:21:40 +0200
+Message-Id: <20210510102020.348824950@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Ambardar <tony.ambardar@gmail.com>
+From: Xu Yihang <xuyihang@huawei.com>
 
-commit 7de21e679e6a789f3729e8402bc440b623a28eae upstream.
+commit e1262cd2e68a0870fb9fc95eb202d22e8f0074b7 upstream.
 
-A few archs like powerpc have different errno.h values for macros
-EDEADLOCK and EDEADLK. In code including both libc and linux versions of
-errno.h, this can result in multiple definitions of EDEADLOCK in the
-include chain. Definitions to the same value (e.g. seen with mips) do
-not raise warnings, but on powerpc there are redefinitions changing the
-value, which raise warnings and errors (if using "-Werror").
+In case of if not ext4_fc_add_tlv branch, an error return code is missing.
 
-Guard against these redefinitions to avoid build errors like the following,
-first seen cross-compiling libbpf v5.8.9 for powerpc using GCC 8.4.0 with
-musl 1.1.24:
-
-  In file included from ../../arch/powerpc/include/uapi/asm/errno.h:5,
-                   from ../../include/linux/err.h:8,
-                   from libbpf.c:29:
-  ../../include/uapi/asm-generic/errno.h:40: error: "EDEADLOCK" redefined [-Werror]
-   #define EDEADLOCK EDEADLK
-
-  In file included from toolchain-powerpc_8540_gcc-8.4.0_musl/include/errno.h:10,
-                   from libbpf.c:26:
-  toolchain-powerpc_8540_gcc-8.4.0_musl/include/bits/errno.h:58: note: this is the location of the previous definition
-   #define EDEADLOCK       58
-
-  cc1: all warnings being treated as errors
-
-Cc: Stable <stable@vger.kernel.org>
-Reported-by: Rosen Penev <rosenp@gmail.com>
-Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200917135437.1238787-1-Tony.Ambardar@gmail.com
+Cc: stable@kernel.org
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Xu Yihang <xuyihang@huawei.com>
+Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Link: https://lore.kernel.org/r/20210408070033.123047-1-xuyihang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/uapi/asm/errno.h |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/fast_commit.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/include/uapi/asm/errno.h
-+++ b/arch/powerpc/include/uapi/asm/errno.h
-@@ -2,6 +2,7 @@
- #ifndef _ASM_POWERPC_ERRNO_H
- #define _ASM_POWERPC_ERRNO_H
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1093,8 +1093,10 @@ static int ext4_fc_perform_commit(journa
+ 		head.fc_tid = cpu_to_le32(
+ 			sbi->s_journal->j_running_transaction->t_tid);
+ 		if (!ext4_fc_add_tlv(sb, EXT4_FC_TAG_HEAD, sizeof(head),
+-			(u8 *)&head, &crc))
++			(u8 *)&head, &crc)) {
++			ret = -ENOSPC;
+ 			goto out;
++		}
+ 	}
  
-+#undef	EDEADLOCK
- #include <asm-generic/errno.h>
- 
- #undef	EDEADLOCK
+ 	spin_lock(&sbi->s_fc_lock);
 
 
