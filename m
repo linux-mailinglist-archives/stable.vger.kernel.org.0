@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE5B1378728
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 768AD3787F8
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233414AbhEJLOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:14:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
+        id S238840AbhEJLUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:20:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236093AbhEJLHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 917916191E;
-        Mon, 10 May 2021 10:58:08 +0000 (UTC)
+        id S236114AbhEJLHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EF7D61927;
+        Mon, 10 May 2021 10:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644289;
-        bh=rQEo2YwU+00SnbgGaM7Djx95pfqgGL6aVw7u+Wc3sE4=;
+        s=korg; t=1620644291;
+        bh=SvxhWZ34ayENmMcCz/K3zPsrZ+A03KowhXP6NSbfnG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0MhnHHxYOROguKW1U8QuGzWfPmtDwnZ2YBE/6M61WOOkG1Wz0teBKB2OtEjMnDkEI
-         nsfzvk6oHGPLvJcqWo7deseVv++W4ydgJfJ2EJmDQ0YNoRGR83mQTfH80zg6TuGwox
-         p4C+0coZqZLiWTHS/a6S22cUVYLOmvQ5HJWNq7A8=
+        b=a6JKh8HmFdYcKITgoXtqKlFEj9eBZfDjf+XanRTcWrFUthWIMaFvz5QNCKtAw3xIq
+         U5WrhpGI41MjKocZBig/n7OjMqY4fdq6sXtSPbF6dMPhqBJcK3D+6XkOxi1vBEi80I
+         hmK9i//m8BkAyqX2VmHhllZuEeBuva89W5OXV8vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Subject: [PATCH 5.12 021/384] arm64: dts: mt8173: fix property typo of phys in dsi node
-Date:   Mon, 10 May 2021 12:16:50 +0200
-Message-Id: <20210510102015.574950163@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
+        Tyler Hicks <code@tyhicks.com>
+Subject: [PATCH 5.12 022/384] ecryptfs: fix kernel panic with null dev_name
+Date:   Mon, 10 May 2021 12:16:51 +0200
+Message-Id: <20210510102015.609315916@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,33 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
 
-commit e4e5d030bd779fb8321d3b8bd65406fbe0827037 upstream.
+commit 9046625511ad8dfbc8c6c2de16b3532c43d68d48 upstream.
 
-Use 'phys' instead of 'phy'.
+When mounting eCryptfs, a null "dev_name" argument to ecryptfs_mount()
+causes a kernel panic if the parsed options are valid. The easiest way to
+reproduce this is to call mount() from userspace with an existing
+eCryptfs mount's options and a "source" argument of 0.
 
-Fixes: 81ad4dbaf7af ("arm64: dts: mt8173: Add display subsystem related nodes")
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Reviewed-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210316092232.9806-5-chunfeng.yun@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Error out if "dev_name" is null in ecryptfs_mount()
+
+Fixes: 237fead61998 ("[PATCH] ecryptfs: fs/Makefile and fs/Kconfig")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+Signed-off-by: Tyler Hicks <code@tyhicks.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8173.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ecryptfs/main.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-@@ -1235,7 +1235,7 @@
- 				 <&mmsys CLK_MM_DSI1_DIGITAL>,
- 				 <&mipi_tx1>;
- 			clock-names = "engine", "digital", "hs";
--			phy = <&mipi_tx1>;
-+			phys = <&mipi_tx1>;
- 			phy-names = "dphy";
- 			status = "disabled";
- 		};
+--- a/fs/ecryptfs/main.c
++++ b/fs/ecryptfs/main.c
+@@ -492,6 +492,12 @@ static struct dentry *ecryptfs_mount(str
+ 		goto out;
+ 	}
+ 
++	if (!dev_name) {
++		rc = -EINVAL;
++		err = "Device name cannot be null";
++		goto out;
++	}
++
+ 	rc = ecryptfs_parse_options(sbi, raw_data, &check_ruid);
+ 	if (rc) {
+ 		err = "Error parsing options";
 
 
