@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF0BC378913
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4F05378910
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237576AbhEJLZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34362 "EHLO mail.kernel.org"
+        id S237463AbhEJLZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237825AbhEJLQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:16:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E3F261482;
-        Mon, 10 May 2021 11:11:30 +0000 (UTC)
+        id S237818AbhEJLQP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:16:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E876601FA;
+        Mon, 10 May 2021 11:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645091;
-        bh=udtgPzTMLmh5X6gl547QwXfChmJ1KypmNAfux/7KZUs=;
+        s=korg; t=1620645093;
+        bh=LuLsmtNBOVUVcPlscaaqrxu62cTFLbKV2lTknh3M/k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2fnPbW1wHy66/LWVHV98cn9VUM57IPPpPi8ixg70ssSfqoEImHhh3ZNo6obRz6iC
-         UKqkqk04fuK/WkcmSxVYPbNfkCPnzt7W9l3WPPMF2RlfvGDC4qOb9oQ4N1R55dnyYZ
-         IcxBDcldoqSHckHzBZ89x2KScQQKspgW4lYzz1N4=
+        b=VQOvDVLRbc4fkwxz0PgfldH3XqEJEqMPhoLKWZ0CIkSMMq0FUZYMSWCDTWOaRd4T+
+         CWmo9AmQePt6HGWf6AGTWlkQ6WQ9Y1FqrayOLXO9djcuttEnJBcm4JaulkRiNj74h6
+         SnCIuIqhGtHl+6Sh9DYgd0Sbc+hTKCry6O6ze/xU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.12 349/384] media: staging/intel-ipu3: Fix memory leak in imu_fmt
-Date:   Mon, 10 May 2021 12:22:18 +0200
-Message-Id: <20210510102026.270971108@linuxfoundation.org>
+Subject: [PATCH 5.12 350/384] media: staging/intel-ipu3: Fix set_fmt error handling
+Date:   Mon, 10 May 2021 12:22:19 +0200
+Message-Id: <20210510102026.299359050@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -42,10 +42,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 3630901933afba1d16c462b04d569b7576339223 upstream.
+commit ad91849996f9dd79741a961fd03585a683b08356 upstream.
 
-We are losing the reference to an allocated memory if try. Change the
-order of the check to avoid that.
+If there in an error during a set_fmt, do not overwrite the previous
+sizes with the invalid config.
+
+Without this patch, v4l2-compliance ends up allocating 4GiB of RAM and
+causing the following OOPs
+
+[   38.662975] ipu3-imgu 0000:00:05.0: swiotlb buffer is full (sz: 4096 bytes)
+[   38.662980] DMA: Out of SW-IOMMU space for 4096 bytes at device 0000:00:05.0
+[   38.663010] general protection fault: 0000 [#1] PREEMPT SMP
 
 Cc: stable@vger.kernel.org
 Fixes: 6d5f26f2e045 ("media: staging/intel-ipu3-v4l: reduce kernel stack usage")
@@ -54,35 +61,36 @@ Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/ipu3/ipu3-v4l2.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/staging/media/ipu3/ipu3-v4l2.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
 --- a/drivers/staging/media/ipu3/ipu3-v4l2.c
 +++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
-@@ -693,6 +693,13 @@ static int imgu_fmt(struct imgu_device *
- 		if (inode == IMGU_NODE_STAT_3A || inode == IMGU_NODE_PARAMS)
- 			continue;
+@@ -669,6 +669,7 @@ static int imgu_fmt(struct imgu_device *
+ 	struct imgu_css_pipe *css_pipe = &imgu->css.pipes[pipe];
+ 	struct imgu_media_pipe *imgu_pipe = &imgu->imgu_pipe[pipe];
+ 	struct imgu_v4l2_subdev *imgu_sd = &imgu_pipe->imgu_sd;
++	struct v4l2_pix_format_mplane fmt_backup;
  
-+		/* CSS expects some format on OUT queue */
-+		if (i != IPU3_CSS_QUEUE_OUT &&
-+		    !imgu_pipe->nodes[inode].enabled) {
-+			fmts[i] = NULL;
-+			continue;
-+		}
-+
- 		if (try) {
- 			fmts[i] = kmemdup(&imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp,
- 					  sizeof(struct v4l2_pix_format_mplane),
-@@ -705,10 +712,6 @@ static int imgu_fmt(struct imgu_device *
- 			fmts[i] = &imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp;
- 		}
+ 	dev_dbg(dev, "set fmt node [%u][%u](try = %u)", pipe, node, try);
  
--		/* CSS expects some format on OUT queue */
--		if (i != IPU3_CSS_QUEUE_OUT &&
--		    !imgu_pipe->nodes[inode].enabled)
--			fmts[i] = NULL;
+@@ -737,6 +738,7 @@ static int imgu_fmt(struct imgu_device *
+ 		ret = -EINVAL;
+ 		goto out;
  	}
++	fmt_backup = *fmts[css_q];
+ 	*fmts[css_q] = f->fmt.pix_mp;
  
- 	if (!try) {
+ 	if (try)
+@@ -744,6 +746,9 @@ static int imgu_fmt(struct imgu_device *
+ 	else
+ 		ret = imgu_css_fmt_set(&imgu->css, fmts, rects, pipe);
+ 
++	if (try || ret < 0)
++		*fmts[css_q] = fmt_backup;
++
+ 	/* ret is the binary number in the firmware blob */
+ 	if (ret < 0)
+ 		goto out;
 
 
