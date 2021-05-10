@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F4C3783D0
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D89983783D3
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbhEJKrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:47:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57592 "EHLO mail.kernel.org"
+        id S231276AbhEJKro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:47:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233228AbhEJKpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:45:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26921619A0;
-        Mon, 10 May 2021 10:35:26 +0000 (UTC)
+        id S233238AbhEJKpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:45:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 861E7617ED;
+        Mon, 10 May 2021 10:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642927;
-        bh=A1sqtSWQaf8zBLgegXJRFlueszPXuAONOOjH0VraFmI=;
+        s=korg; t=1620642930;
+        bh=kkZn66uEtrWL5Vl4tdi9AGp/h8d/LWjsdeIG/LbGNL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfYHNFBq+v+5owhBvW5shLyVP/U5N+7kYb7BpE4Vm8xO/n45+ZXFCkF1d6WqXvdaq
-         3Fj1Hin0BCPw/aKLbpvWc/EZCF9RnXvcK44zz0iX2Rchuz442iUxPb2ikCN/hox3Vq
-         JMz+UDMvfxysMLLRBsScSBSw266FuYYczh2BbTrE=
+        b=avoVDl9i+/YGLlJWdK2W+T5r+SPpw0VBv61BwVYp4xz/z5pbCeMQAkUathUZ16Uag
+         TttaI+wKtrgomMeNZO1Y2KXIQi+c1+3FoP2Bb2Ataw6Bh1tpRv7+mYKrtd2E6utEYo
+         tFinyQnw++ONNHqdk6dq/9iQfy6BilNIwSjgahQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 108/299] platform/x86: intel_pmc_core: Dont use global pmcdev in quirks
-Date:   Mon, 10 May 2021 12:18:25 +0200
-Message-Id: <20210510102008.507160403@linuxfoundation.org>
+Subject: [PATCH 5.10 109/299] spi: sync up initial chipselect state
+Date:   Mon, 10 May 2021 12:18:26 +0200
+Message-Id: <20210510102008.538475522@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -42,79 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David E. Box <david.e.box@linux.intel.com>
+From: David Bauer <mail@david-bauer.net>
 
-[ Upstream commit c9f86d6ca6b5e23d30d16ade4b9fff5b922a610a ]
+[ Upstream commit d347b4aaa1a042ea528e385d9070b74c77a14321 ]
 
-The DMI callbacks, used for quirks, currently access the PMC by getting
-the address a global pmc_dev struct. Instead, have the callbacks set a
-global quirk specific variable. In probe, after calling dmi_check_system(),
-pass pmc_dev to a function that will handle each quirk if its variable
-condition is met. This allows removing the global pmc_dev later.
+When initially probing the SPI slave device, the call for disabling an
+SPI device without the SPI_CS_HIGH flag is not applied, as the
+condition for checking whether or not the state to be applied equals the
+one currently set evaluates to true.
 
-Signed-off-by: David E. Box <david.e.box@linux.intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>
-Link: https://lore.kernel.org/r/20210417031252.3020837-2-david.e.box@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+This however might not necessarily be the case, as the chipselect might
+be active.
+
+Add a force flag to spi_set_cs which allows to override this
+early exit condition. Set it to false everywhere except when called
+from spi_setup to sync up the initial CS state.
+
+Fixes commit d40f0b6f2e21 ("spi: Avoid setting the chip select if we don't
+need to")
+
+Signed-off-by: David Bauer <mail@david-bauer.net>
+Link: https://lore.kernel.org/r/20210416195956.121811-1-mail@david-bauer.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmc_core.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/spi/spi.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_pmc_core.c b/drivers/platform/x86/intel_pmc_core.c
-index e06b36e87a33..ca32a4c80f62 100644
---- a/drivers/platform/x86/intel_pmc_core.c
-+++ b/drivers/platform/x86/intel_pmc_core.c
-@@ -1186,9 +1186,15 @@ static const struct pci_device_id pmc_pci_ids[] = {
-  * the platform BIOS enforces 24Mhz crystal to shutdown
-  * before PMC can assert SLP_S0#.
-  */
-+static bool xtal_ignore;
- static int quirk_xtal_ignore(const struct dmi_system_id *id)
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 4257a2d368f7..1eee8b3c1b38 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -787,7 +787,7 @@ int spi_register_board_info(struct spi_board_info const *info, unsigned n)
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+-static void spi_set_cs(struct spi_device *spi, bool enable)
++static void spi_set_cs(struct spi_device *spi, bool enable, bool force)
  {
--	struct pmc_dev *pmcdev = &pmc;
-+	xtal_ignore = true;
-+	return 0;
-+}
-+
-+static void pmc_core_xtal_ignore(struct pmc_dev *pmcdev)
-+{
- 	u32 value;
+ 	bool enable1 = enable;
  
- 	value = pmc_core_reg_read(pmcdev, pmcdev->map->pm_vric1_offset);
-@@ -1197,7 +1203,6 @@ static int quirk_xtal_ignore(const struct dmi_system_id *id)
- 	/* Low Voltage Mode Enable */
- 	value &= ~SPT_PMC_VRIC1_SLPS0LVEN;
- 	pmc_core_reg_write(pmcdev, pmcdev->map->pm_vric1_offset, value);
--	return 0;
- }
+@@ -795,7 +795,7 @@ static void spi_set_cs(struct spi_device *spi, bool enable)
+ 	 * Avoid calling into the driver (or doing delays) if the chip select
+ 	 * isn't actually changing from the last time this was called.
+ 	 */
+-	if ((spi->controller->last_cs_enable == enable) &&
++	if (!force && (spi->controller->last_cs_enable == enable) &&
+ 	    (spi->controller->last_cs_mode_high == (spi->mode & SPI_CS_HIGH)))
+ 		return;
  
- static const struct dmi_system_id pmc_core_dmi_table[]  = {
-@@ -1212,6 +1217,14 @@ static const struct dmi_system_id pmc_core_dmi_table[]  = {
- 	{}
- };
+@@ -1243,7 +1243,7 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
+ 	struct spi_statistics *statm = &ctlr->statistics;
+ 	struct spi_statistics *stats = &msg->spi->statistics;
  
-+static void pmc_core_do_dmi_quirks(struct pmc_dev *pmcdev)
-+{
-+	dmi_check_system(pmc_core_dmi_table);
-+
-+	if (xtal_ignore)
-+		pmc_core_xtal_ignore(pmcdev);
-+}
-+
- static int pmc_core_probe(struct platform_device *pdev)
- {
- 	static bool device_initialized;
-@@ -1253,7 +1266,7 @@ static int pmc_core_probe(struct platform_device *pdev)
- 	mutex_init(&pmcdev->lock);
- 	platform_set_drvdata(pdev, pmcdev);
- 	pmcdev->pmc_xram_read_bit = pmc_core_check_read_lock_bit();
--	dmi_check_system(pmc_core_dmi_table);
-+	pmc_core_do_dmi_quirks(pmcdev);
+-	spi_set_cs(msg->spi, true);
++	spi_set_cs(msg->spi, true, false);
  
- 	/*
- 	 * On TGL, due to a hardware limitation, the GBE LTR blocks PC10 when
+ 	SPI_STATISTICS_INCREMENT_FIELD(statm, messages);
+ 	SPI_STATISTICS_INCREMENT_FIELD(stats, messages);
+@@ -1311,9 +1311,9 @@ fallback_pio:
+ 					 &msg->transfers)) {
+ 				keep_cs = true;
+ 			} else {
+-				spi_set_cs(msg->spi, false);
++				spi_set_cs(msg->spi, false, false);
+ 				_spi_transfer_cs_change_delay(msg, xfer);
+-				spi_set_cs(msg->spi, true);
++				spi_set_cs(msg->spi, true, false);
+ 			}
+ 		}
+ 
+@@ -1322,7 +1322,7 @@ fallback_pio:
+ 
+ out:
+ 	if (ret != 0 || !keep_cs)
+-		spi_set_cs(msg->spi, false);
++		spi_set_cs(msg->spi, false, false);
+ 
+ 	if (msg->status == -EINPROGRESS)
+ 		msg->status = ret;
+@@ -3400,11 +3400,11 @@ int spi_setup(struct spi_device *spi)
+ 		 */
+ 		status = 0;
+ 
+-		spi_set_cs(spi, false);
++		spi_set_cs(spi, false, true);
+ 		pm_runtime_mark_last_busy(spi->controller->dev.parent);
+ 		pm_runtime_put_autosuspend(spi->controller->dev.parent);
+ 	} else {
+-		spi_set_cs(spi, false);
++		spi_set_cs(spi, false, true);
+ 	}
+ 
+ 	mutex_unlock(&spi->controller->io_mutex);
 -- 
 2.30.2
 
