@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13D5E378722
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F8C43787F2
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234535AbhEJLN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:13:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46128 "EHLO mail.kernel.org"
+        id S238809AbhEJLUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:20:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236057AbhEJLHY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BB326162C;
-        Mon, 10 May 2021 10:57:49 +0000 (UTC)
+        id S236053AbhEJLHZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C87E616E9;
+        Mon, 10 May 2021 10:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644269;
-        bh=e5Txl+1zqtYFWgxFlUuai+DrMzmZGEbycvdoUp51PyE=;
+        s=korg; t=1620644272;
+        bh=RWpexhPvp66+Tff5MbWUMpq+NMkNjRW/PLGWLjp8PVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GmPsI9VHEKe+gEJpvAt3waU3kY30BwnDPOsFjg9bqcTj4J5mwkrLpmh1JWPVjXLkT
-         nQJEBIVxJACtkEaBYhMAMcpKJS1IqlvYqVa+6FKy/gMsbOBYUH64Gj0YkAROn9l+rf
-         /KEsN5mvwSVmjGXdE0sQ+/6pnBsTuZj2A1xheKhQ=
+        b=Vtyfu+J1qzggQXlLNq9qbUy9xHWjZQ/lQWiPiULD/L+ZCPdOQmDRX+Yvn3xqMkXyu
+         d4+Mc2Kr+LMmp4qjoEeT8u1+yvwwyFF0NsrY0pFgVnQb52AvxHXnVCBjDiJS2EHUJA
+         NQ0Iny679AJTnPv6HsB1c0FgIAy0ylqDYroYoZEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.12 014/384] vhost-vdpa: fix vm_flags for virtqueue doorbell mapping
-Date:   Mon, 10 May 2021 12:16:43 +0200
-Message-Id: <20210510102015.347079704@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.12 015/384] tpm: acpi: Check eventlog signature before using it
+Date:   Mon, 10 May 2021 12:16:44 +0200
+Message-Id: <20210510102015.376463098@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -39,37 +39,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-commit 3a3e0fad16d40a2aa68ddf7eea4acdf48b22dd44 upstream.
+commit 3dcd15665aca80197333500a4be3900948afccc1 upstream.
 
-The virtqueue doorbell is usually implemented via registeres but we
-don't provide the necessary vma->flags like VM_PFNMAP. This may cause
-several issues e.g when userspace tries to map the doorbell via vhost
-IOTLB, kernel may panic due to the page is not backed by page
-structure. This patch fixes this by setting the necessary
-vm_flags. With this patch, try to map doorbell via IOTLB will fail
-with bad address.
+Check the eventlog signature before using it. This avoids using an
+empty log, as may be the case when QEMU created the ACPI tables,
+rather than probing the EFI log next. This resolves an issue where
+the EFI log was empty since an empty ACPI log was used.
 
 Cc: stable@vger.kernel.org
-Fixes: ddd89d0a059d ("vhost_vdpa: support doorbell mapping via mmap")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210413091557.29008-1-jasowang@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 85467f63a05c ("tpm: Add support for event log pointer found in TPM2 ACPI table")
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vdpa.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/tpm/eventlog/acpi.c |   33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
 
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -993,6 +993,7 @@ static int vhost_vdpa_mmap(struct file *
- 	if (vma->vm_end - vma->vm_start != notify.size)
- 		return -ENOTSUPP;
+--- a/drivers/char/tpm/eventlog/acpi.c
++++ b/drivers/char/tpm/eventlog/acpi.c
+@@ -41,6 +41,27 @@ struct acpi_tcpa {
+ 	};
+ };
  
-+	vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
- 	vma->vm_ops = &vhost_vdpa_vm_ops;
- 	return 0;
++/* Check that the given log is indeed a TPM2 log. */
++static bool tpm_is_tpm2_log(void *bios_event_log, u64 len)
++{
++	struct tcg_efi_specid_event_head *efispecid;
++	struct tcg_pcr_event *event_header;
++	int n;
++
++	if (len < sizeof(*event_header))
++		return false;
++	len -= sizeof(*event_header);
++	event_header = bios_event_log;
++
++	if (len < sizeof(*efispecid))
++		return false;
++	efispecid = (struct tcg_efi_specid_event_head *)event_header->event;
++
++	n = memcmp(efispecid->signature, TCG_SPECID_SIG,
++		   sizeof(TCG_SPECID_SIG));
++	return n == 0;
++}
++
+ /* read binary bios log */
+ int tpm_read_log_acpi(struct tpm_chip *chip)
+ {
+@@ -52,6 +73,7 @@ int tpm_read_log_acpi(struct tpm_chip *c
+ 	struct acpi_table_tpm2 *tbl;
+ 	struct acpi_tpm2_phy *tpm2_phy;
+ 	int format;
++	int ret;
+ 
+ 	log = &chip->log;
+ 
+@@ -112,6 +134,7 @@ int tpm_read_log_acpi(struct tpm_chip *c
+ 
+ 	log->bios_event_log_end = log->bios_event_log + len;
+ 
++	ret = -EIO;
+ 	virt = acpi_os_map_iomem(start, len);
+ 	if (!virt)
+ 		goto err;
+@@ -119,11 +142,19 @@ int tpm_read_log_acpi(struct tpm_chip *c
+ 	memcpy_fromio(log->bios_event_log, virt, len);
+ 
+ 	acpi_os_unmap_iomem(virt, len);
++
++	if (chip->flags & TPM_CHIP_FLAG_TPM2 &&
++	    !tpm_is_tpm2_log(log->bios_event_log, len)) {
++		/* try EFI log next */
++		ret = -ENODEV;
++		goto err;
++	}
++
+ 	return format;
+ 
+ err:
+ 	kfree(log->bios_event_log);
+ 	log->bios_event_log = NULL;
+-	return -EIO;
++	return ret;
+ 
  }
 
 
