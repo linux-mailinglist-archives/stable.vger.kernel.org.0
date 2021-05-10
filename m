@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44BEE37874F
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A451E378750
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237433AbhEJLPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237427AbhEJLPE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 May 2021 07:15:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236263AbhEJLHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236268AbhEJLHr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 07:07:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 276936194F;
-        Mon, 10 May 2021 10:59:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 924796195A;
+        Mon, 10 May 2021 10:59:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644373;
-        bh=acKmxj+Ujm6ClY3Q8Wr8ao8Ax4aed4EhrxYeDbHmBss=;
+        s=korg; t=1620644376;
+        bh=HjluC2N3I32cUFD4y6+oqHofg8Wl0e8qOQOIPhatPTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBas/jFO40y3pbuA19Un/sC6Mz8/rtawQ7EKbIJu0klAlhtsIU0UwMJPzriw6HuQR
-         6KBmAUY9EiQpsfYcjwaAS0GxrHzEZ13Y2uhQVStB5VM4P4EyXoD7zN22q7CJ7bOs1g
-         jS4c8f0yRwgzKzy0hjxMnZirgflPoCv9PWc8XHto=
+        b=b7KnDjamdolEltYq0BKE+oNWIA2UBC80fyScHUAE+q+KxsV8U4Lv0vZ1D8wQVDP08
+         etnfyGznAEaFlDEO0i/wHZKiZvDdG8Z3X0VNMleGv/kp4T/fzh3ZxLiZD3nB1btiQU
+         yTb7VUl5kyRzgSRdA/zKKnMj7Uo+1anNd/BQqMnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.12 056/384] smb2: fix use-after-free in smb2_ioctl_query_info()
-Date:   Mon, 10 May 2021 12:17:25 +0200
-Message-Id: <20210510102016.731255221@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 057/384] btrfs: handle remount to no compress during compression
+Date:   Mon, 10 May 2021 12:17:26 +0200
+Message-Id: <20210510102016.767998265@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -39,144 +39,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Aptel <aaptel@suse.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit ccd48ec3d4a6cc595b2d9c5146e63b6c23546701 upstream.
+commit 1d8ba9e7e785b6625f4d8e978e8a284b144a7077 upstream.
 
-* rqst[1,2,3] is allocated in vars
-* each rqst->rq_iov is also allocated in vars or using pooled memory
+[BUG]
+When running btrfs/071 with inode_need_compress() removed from
+compress_file_range(), we got the following crash:
 
-SMB2_open_free, SMB2_ioctl_free, SMB2_query_info_free are iterating on
-each rqst after vars has been freed (use-after-free), and they are
-freeing the kvec a second time (double-free).
+  BUG: kernel NULL pointer dereference, address: 0000000000000018
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  Workqueue: btrfs-delalloc btrfs_work_helper [btrfs]
+  RIP: 0010:compress_file_range+0x476/0x7b0 [btrfs]
+  Call Trace:
+   ? submit_compressed_extents+0x450/0x450 [btrfs]
+   async_cow_start+0x16/0x40 [btrfs]
+   btrfs_work_helper+0xf2/0x3e0 [btrfs]
+   process_one_work+0x278/0x5e0
+   worker_thread+0x55/0x400
+   ? process_one_work+0x5e0/0x5e0
+   kthread+0x168/0x190
+   ? kthread_create_worker_on_cpu+0x70/0x70
+   ret_from_fork+0x22/0x30
+  ---[ end trace 65faf4eae941fa7d ]---
 
-How to trigger:
+This is already after the patch "btrfs: inode: fix NULL pointer
+dereference if inode doesn't need compression."
 
-* compile with KASAN
-* mount a share
+[CAUSE]
+@pages is firstly created by kcalloc() in compress_file_extent():
+                pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
 
-$ smbinfo quota /mnt/foo
-Segmentation fault
-$ dmesg
+Then passed to btrfs_compress_pages() to be utilized there:
 
- ==================================================================
- BUG: KASAN: use-after-free in SMB2_open_free+0x1c/0xa0
- Read of size 8 at addr ffff888007b10c00 by task python3/1200
+                ret = btrfs_compress_pages(...
+                                           pages,
+                                           &nr_pages,
+                                           ...);
 
- CPU: 2 PID: 1200 Comm: python3 Not tainted 5.12.0-rc6+ #107
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.org 04/01/2014
- Call Trace:
-  dump_stack+0x93/0xc2
-  print_address_description.constprop.0+0x18/0x130
-  ? SMB2_open_free+0x1c/0xa0
-  ? SMB2_open_free+0x1c/0xa0
-  kasan_report.cold+0x7f/0x111
-  ? smb2_ioctl_query_info+0x240/0x990
-  ? SMB2_open_free+0x1c/0xa0
-  SMB2_open_free+0x1c/0xa0
-  smb2_ioctl_query_info+0x2bf/0x990
-  ? smb2_query_reparse_tag+0x600/0x600
-  ? cifs_mapchar+0x250/0x250
-  ? rcu_read_lock_sched_held+0x3f/0x70
-  ? cifs_strndup_to_utf16+0x12c/0x1c0
-  ? rwlock_bug.part.0+0x60/0x60
-  ? rcu_read_lock_sched_held+0x3f/0x70
-  ? cifs_convert_path_to_utf16+0xf8/0x140
-  ? smb2_check_message+0x6f0/0x6f0
-  cifs_ioctl+0xf18/0x16b0
-  ? smb2_query_reparse_tag+0x600/0x600
-  ? cifs_readdir+0x1800/0x1800
-  ? selinux_bprm_creds_for_exec+0x4d0/0x4d0
-  ? do_user_addr_fault+0x30b/0x950
-  ? __x64_sys_openat+0xce/0x140
-  __x64_sys_ioctl+0xb9/0xf0
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7fdcf1f4ba87
- Code: b3 66 90 48 8b 05 11 14 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d e1 13 2c 00 f7 d8 64 89 01 48
- RSP: 002b:00007ffef1ce7748 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
- RAX: ffffffffffffffda RBX: 00000000c018cf07 RCX: 00007fdcf1f4ba87
- RDX: 0000564c467c5590 RSI: 00000000c018cf07 RDI: 0000000000000003
- RBP: 00007ffef1ce7770 R08: 00007ffef1ce7420 R09: 00007fdcf0e0562b
- R10: 0000000000000100 R11: 0000000000000246 R12: 0000000000004018
- R13: 0000000000000001 R14: 0000000000000003 R15: 0000564c467c5590
+btrfs_compress_pages() will initialize each page as output, in
+zlib_compress_pages() we have:
 
- Allocated by task 1200:
-  kasan_save_stack+0x1b/0x40
-  __kasan_kmalloc+0x7a/0x90
-  smb2_ioctl_query_info+0x10e/0x990
-  cifs_ioctl+0xf18/0x16b0
-  __x64_sys_ioctl+0xb9/0xf0
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+                        pages[nr_pages] = out_page;
+                        nr_pages++;
 
- Freed by task 1200:
-  kasan_save_stack+0x1b/0x40
-  kasan_set_track+0x1c/0x30
-  kasan_set_free_info+0x20/0x30
-  __kasan_slab_free+0xe5/0x110
-  slab_free_freelist_hook+0x53/0x130
-  kfree+0xcc/0x320
-  smb2_ioctl_query_info+0x2ad/0x990
-  cifs_ioctl+0xf18/0x16b0
-  __x64_sys_ioctl+0xb9/0xf0
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+Normally this is completely fine, but there is a special case which
+is in btrfs_compress_pages() itself:
 
- The buggy address belongs to the object at ffff888007b10c00
-  which belongs to the cache kmalloc-512 of size 512
- The buggy address is located 0 bytes inside of
-  512-byte region [ffff888007b10c00, ffff888007b10e00)
- The buggy address belongs to the page:
- page:0000000044e14b75 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7b10
- head:0000000044e14b75 order:2 compound_mapcount:0 compound_pincount:0
- flags: 0x100000000010200(slab|head)
- raw: 0100000000010200 ffffea000015f500 0000000400000004 ffff888001042c80
- raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
+        switch (type) {
+        default:
+                return -E2BIG;
+        }
 
- Memory state around the buggy address:
-  ffff888007b10b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff888007b10b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- >ffff888007b10c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                    ^
-  ffff888007b10c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff888007b10d00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ==================================================================
+In this case, we didn't modify @pages nor @out_pages, leaving them
+untouched, then when we cleanup pages, the we can hit NULL pointer
+dereference again:
 
-Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+        if (pages) {
+                for (i = 0; i < nr_pages; i++) {
+                        WARN_ON(pages[i]->mapping);
+                        put_page(pages[i]);
+                }
+        ...
+        }
+
+Since pages[i] are all initialized to zero, and btrfs_compress_pages()
+doesn't change them at all, accessing pages[i]->mapping would lead to
+NULL pointer dereference.
+
+This is not possible for current kernel, as we check
+inode_need_compress() before doing pages allocation.
+But if we're going to remove that inode_need_compress() in
+compress_file_extent(), then it's going to be a problem.
+
+[FIX]
+When btrfs_compress_pages() hits its default case, modify @out_pages to
+0 to prevent such problem from happening.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212331
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c |   14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ fs/btrfs/compression.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1763,18 +1763,14 @@ smb2_ioctl_query_info(const unsigned int
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -80,10 +80,15 @@ static int compression_compress_pages(in
+ 	case BTRFS_COMPRESS_NONE:
+ 	default:
+ 		/*
+-		 * This can't happen, the type is validated several times
+-		 * before we get here. As a sane fallback, return what the
+-		 * callers will understand as 'no compression happened'.
++		 * This can happen when compression races with remount setting
++		 * it to 'no compress', while caller doesn't call
++		 * inode_need_compress() to check if we really need to
++		 * compress.
++		 *
++		 * Not a big deal, just need to inform caller that we
++		 * haven't allocated any pages yet.
+ 		 */
++		*out_pages = 0;
+ 		return -E2BIG;
  	}
- 
-  iqinf_exit:
--	kfree(vars);
--	kfree(buffer);
--	SMB2_open_free(&rqst[0]);
--	if (qi.flags & PASSTHRU_FSCTL)
--		SMB2_ioctl_free(&rqst[1]);
--	else
--		SMB2_query_info_free(&rqst[1]);
--
--	SMB2_close_free(&rqst[2]);
-+	cifs_small_buf_release(rqst[0].rq_iov[0].iov_base);
-+	cifs_small_buf_release(rqst[1].rq_iov[0].iov_base);
-+	cifs_small_buf_release(rqst[2].rq_iov[0].iov_base);
- 	free_rsp_buf(resp_buftype[0], rsp_iov[0].iov_base);
- 	free_rsp_buf(resp_buftype[1], rsp_iov[1].iov_base);
- 	free_rsp_buf(resp_buftype[2], rsp_iov[2].iov_base);
-+	kfree(vars);
-+	kfree(buffer);
- 	return rc;
- 
- e_fault:
+ }
 
 
