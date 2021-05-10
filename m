@@ -2,58 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BD08377E04
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5A31377E0A
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230151AbhEJIW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:22:57 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:46215 "EHLO
+        id S230145AbhEJIXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:23:34 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:41697 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230140AbhEJIW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:22:56 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C645319401AA;
-        Mon, 10 May 2021 04:21:51 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 10 May 2021 04:21:51 -0400
+        by vger.kernel.org with ESMTP id S230118AbhEJIXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:23:31 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 398FF19404FF;
+        Mon, 10 May 2021 04:22:26 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 10 May 2021 04:22:26 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=c8RvKZ
-        NERcFthOvpI1hK16pnKXt6ALjkVHJT678D8f0=; b=KTLrm52SDzjaETmS5hjL54
-        ryCqKavvCXprEj/7roc0IRCKM4d3adpdoi80vP7ajOvPfrkU4z2l/FuXfrtOILVe
-        sqBGbefnmWbKLT43m92hk5jEh3+agHK8vJkNM/8VSkXOrPewRmpwk/ZmNlASnNsV
-        y5EoXXBLSkOmB2YlUNFuP1wsWEBfqFRxSCoAacY64nWBDKYx28sFY67Rv0/zNv7N
-        5bMlXrAJYKBhxQOdKgcNhCz0vDatj2bRYGWmhHYEA4/wHcmFwwE5uFA1IDyDEr28
-        WY+Ek7l0VCdrE3n0cXbUKXVfDoEDTCKLSidCNHvucDfQrfWeUMH01WhDIoRfcGOA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fZPosB
+        U/bUNEvMjPg3KI51i+yVSlMqAUiS3tmG5taPE=; b=UegKIlWT4+h2r7+oQTMAtn
+        uI5KChs/zNqLzs/Z8es17xRYJlz5qqK59reE4AxhdFCBinUXlOvISp3nvXcD8OMq
+        kj5HgNzuzf59FEJU1BVjFZQtNPtCd4p0Pc6u2nVoFydNwPdE8gIo5dghKZW4w43S
+        gydZNGgkpf5uXmwpdADbcJynkOdQBd3huMDv3+Zw3D9ZVVqTZ0KY4XYldu3NxzJ/
+        Bg/ll4mkTsbkcmKKTk3ll1Sx+eCgYBm2v90SHuxvfypaLRrN1ox57XeQlX55gtcO
+        6A5uxiKOwUUGzWPy/pnMl1EWyNxLQSLwbG+YSPf+UBtSoKn5tDnWReaGXBbIY3Eg
         ==
-X-ME-Sender: <xms:H-2YYM624m9YDp_ArWVqFDOCZe6-yeoy-8T-FZp5gOUH8zEd5lwSog>
-    <xme:H-2YYN4Fo8VLh_riHJ9iJ64PDx8jYT8WrUdOITBw6QkA4XqN4BCOPSvE56XYAWQoC
-    oXGW50RByrUgA>
+X-ME-Sender: <xms:Qe2YYHDHYRwbMoY-D9vdmvphjykir3V9pUOzKq_u9rHOWfjzA4vmyA>
+    <xme:Qe2YYNimBjI7oI-1txtOUd42w0ziCczp-dWuG1KWliYfhZcy_vs2L-_TDb1covOPG
+    BB9lwG31CCqFQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:H-2YYLdLt4GjTpzOp_parPhYdflMl1MpW50F0JZ5KOr8tobN2odYZg>
-    <xmx:H-2YYBITqazLCgTOcEe9YA1IiQlNUUJQGjny4ANpr-r4JoyT4cfNBg>
-    <xmx:H-2YYAIP-9cGo3QPdMJXIVyNwdCx8_KCbRHVLWtEiwfn9ULCzyf3Lw>
-    <xmx:H-2YYI9rw-441qvCsV2GVZ_UupEtRY7cMEYDFHK91scg0WCaD8uKfA>
+X-ME-Proxy: <xmx:Qe2YYClyO12KaOcZCchUFXUtjsP7YE2RBF9LWCKCQTZG9JVwHePvZA>
+    <xmx:Qe2YYJzdjyvPTM7LatopC7K9l_jfPdiByoKzs94u3DGRwZ3XFpvOFg>
+    <xmx:Qe2YYMRHb52wLLox8QcpbT0XjjyM8R_lMqa1BzYxXkJgUIrlqnamxQ>
+    <xmx:Qu2YYHcJCkE5oBste3p8ripwqKhSiG6vPycsnCzp8JJstSgJVFqNWQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:21:51 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: dwc3: core: Do core softreset when switch mode" failed to apply to 4.14-stable tree
-To:     chenyu56@huawei.com, Thinh.Nguyen@synopsys.com,
-        andy.shevchenko@gmail.com, fntoth@gmail.com,
-        gregkh@linuxfoundation.org, john.stultz@linaro.org,
-        stable@vger.kernel.org, wcheng@codeaurora.org
+        Mon, 10 May 2021 04:22:25 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: dwc2: Fix partial power down exiting by system resume" failed to apply to 5.12-stable tree
+To:     Arthur.Petrosyan@synopsys.com, Minas.Harutyunyan@synopsys.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 10:21:40 +0200
-Message-ID: <1620634900144151@kroah.com>
+Date:   Mon, 10 May 2021 10:22:24 +0200
+Message-ID: <162063494497194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,155 +71,154 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f88359e1588b85cf0e8209ab7d6620085f3441d9 Mon Sep 17 00:00:00 2001
-From: Yu Chen <chenyu56@huawei.com>
-Date: Thu, 15 Apr 2021 15:20:30 -0700
-Subject: [PATCH] usb: dwc3: core: Do core softreset when switch mode
+From c74c26f6e398387cc953b3fdb54858f09bfb696b Mon Sep 17 00:00:00 2001
+From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Date: Thu, 8 Apr 2021 13:46:06 +0400
+Subject: [PATCH] usb: dwc2: Fix partial power down exiting by system resume
 
-From: John Stultz <john.stultz@linaro.org>
+Fixes the implementation of exiting from partial power down
+power saving mode when PC is resumed.
 
-According to the programming guide, to switch mode for DRD controller,
-the driver needs to do the following.
+Added port connection status checking which prevents exiting from
+Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
+Power Down mode.
 
-To switch from device to host:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(host mode)
-3. Reset the host with USBCMD.HCRESET
-4. Then follow up with the initializing host registers sequence
+Rearranged the implementation to get rid of many "if"
+statements.
 
-To switch from host to device:
-1. Reset controller with GCTL.CoreSoftReset
-2. Set GCTL.PrtCapDir(device mode)
-3. Reset the device with DCTL.CSftRst
-4. Then follow up with the initializing registers sequence
+NOTE: Switch case statement is used for hibernation partial
+power down and clock gating mode determination. In this patch
+only Partial Power Down is implemented the Hibernation and
+clock gating implementations are planned to be added.
 
-Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
-switching from host to device. John Stult reported a lockup issue seen
-with HiKey960 platform without these steps[1]. Similar issue is observed
-with Ferry's testing platform[2].
-
-So, apply the required steps along with some fixes to Yu Chen's and John
-Stultz's version. The main fixes to their versions are the missing wait
-for clocks synchronization before clearing GCTL.CoreSoftReset and only
-apply DCTL.CSftRst when switching from host to device.
-
-[1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
-[2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
-
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ferry Toth <fntoth@gmail.com>
-Cc: Wesley Cheng <wcheng@codeaurora.org>
+Fixes: 6f6d70597c15 ("usb: dwc2: bus suspend/resume for hosts with DWC2_POWER_DOWN_PARAM_NONE")
 Cc: <stable@vger.kernel.org>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Tested-by: Wesley Cheng <wcheng@codeaurora.org>
-Signed-off-by: Yu Chen <chenyu56@huawei.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Link: https://lore.kernel.org/r/20210408094607.1A9BAA0094@mailhost.synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 5c25e6a72dbd..2f118ad43571 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -114,6 +114,8 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u32 mode)
- 	dwc->current_dr_role = mode;
- }
- 
-+static int dwc3_core_soft_reset(struct dwc3 *dwc);
-+
- static void __dwc3_set_mode(struct work_struct *work)
+diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
+index 34030bafdff4..f096006df96f 100644
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -4427,7 +4427,7 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
  {
- 	struct dwc3 *dwc = work_to_dwc(work);
-@@ -121,6 +123,8 @@ static void __dwc3_set_mode(struct work_struct *work)
- 	int ret;
- 	u32 reg;
+ 	struct dwc2_hsotg *hsotg = dwc2_hcd_to_hsotg(hcd);
+ 	unsigned long flags;
+-	u32 pcgctl;
++	u32 hprt0;
+ 	int ret = 0;
  
-+	mutex_lock(&dwc->mutex);
-+
- 	pm_runtime_get_sync(dwc->dev);
+ 	spin_lock_irqsave(&hsotg->lock, flags);
+@@ -4438,11 +4438,40 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+ 	if (hsotg->lx_state != DWC2_L2)
+ 		goto unlock;
  
- 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
-@@ -154,6 +158,25 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		break;
- 	}
- 
-+	/* For DRD host or device mode only */
-+	if (dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg |= DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
+-	if (hsotg->params.power_down > DWC2_POWER_DOWN_PARAM_PARTIAL) {
++	hprt0 = dwc2_read_hprt0(hsotg);
 +
-+		/*
-+		 * Wait for internal clocks to synchronized. DWC_usb31 and
-+		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
-+		 * keep it consistent across different IPs, let's wait up to
-+		 * 100ms before clearing GCTL.CORESOFTRESET.
-+		 */
-+		msleep(100);
-+
-+		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
-+		reg &= ~DWC3_GCTL_CORESOFTRESET;
-+		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
++	/*
++	 * Added port connection status checking which prevents exiting from
++	 * Partial Power Down mode from _dwc2_hcd_resume() if not in Partial
++	 * Power Down mode.
++	 */
++	if (hprt0 & HPRT0_CONNSTS) {
++		hsotg->lx_state = DWC2_L0;
++		goto unlock;
 +	}
 +
- 	spin_lock_irqsave(&dwc->lock, flags);
++	switch (hsotg->params.power_down) {
++	case DWC2_POWER_DOWN_PARAM_PARTIAL:
++		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
++		if (ret)
++			dev_err(hsotg->dev,
++				"exit partial_power_down failed\n");
++		/*
++		 * Set HW accessible bit before powering on the controller
++		 * since an interrupt may rise.
++		 */
++		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
++		break;
++	case DWC2_POWER_DOWN_PARAM_HIBERNATION:
++	case DWC2_POWER_DOWN_PARAM_NONE:
++	default:
+ 		hsotg->lx_state = DWC2_L0;
+ 		goto unlock;
+ 	}
  
- 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
-@@ -178,6 +201,8 @@ static void __dwc3_set_mode(struct work_struct *work)
- 		}
- 		break;
- 	case DWC3_GCTL_PRTCAP_DEVICE:
-+		dwc3_core_soft_reset(dwc);
++	/* Change Root port status, as port status change occurred after resume.*/
++	hsotg->flags.b.port_suspend_change = 1;
 +
- 		dwc3_event_buffers_setup(dwc);
+ 	/*
+ 	 * Enable power if not already done.
+ 	 * This must not be spinlocked since duration
+@@ -4454,52 +4483,25 @@ static int _dwc2_hcd_resume(struct usb_hcd *hcd)
+ 		spin_lock_irqsave(&hsotg->lock, flags);
+ 	}
  
- 		if (dwc->usb2_phy)
-@@ -200,6 +225,7 @@ static void __dwc3_set_mode(struct work_struct *work)
- out:
- 	pm_runtime_mark_last_busy(dwc->dev);
- 	pm_runtime_put_autosuspend(dwc->dev);
-+	mutex_unlock(&dwc->mutex);
- }
+-	if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_PARTIAL) {
+-		/*
+-		 * Set HW accessible bit before powering on the controller
+-		 * since an interrupt may rise.
+-		 */
+-		set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+-
+-
+-		/* Exit partial_power_down */
+-		ret = dwc2_exit_partial_power_down(hsotg, 0, true);
+-		if (ret && (ret != -ENOTSUPP))
+-			dev_err(hsotg->dev, "exit partial_power_down failed\n");
+-	} else {
+-		pcgctl = readl(hsotg->regs + PCGCTL);
+-		pcgctl &= ~PCGCTL_STOPPCLK;
+-		writel(pcgctl, hsotg->regs + PCGCTL);
+-	}
+-
+-	hsotg->lx_state = DWC2_L0;
+-
++	/* Enable external vbus supply after resuming the port. */
+ 	spin_unlock_irqrestore(&hsotg->lock, flags);
++	dwc2_vbus_supply_init(hsotg);
  
- void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
-@@ -1553,6 +1579,7 @@ static int dwc3_probe(struct platform_device *pdev)
- 	dwc3_cache_hwparams(dwc);
+-	if (hsotg->bus_suspended) {
+-		spin_lock_irqsave(&hsotg->lock, flags);
+-		hsotg->flags.b.port_suspend_change = 1;
+-		spin_unlock_irqrestore(&hsotg->lock, flags);
+-		dwc2_port_resume(hsotg);
+-	} else {
+-		if (hsotg->params.power_down == DWC2_POWER_DOWN_PARAM_PARTIAL) {
+-			dwc2_vbus_supply_init(hsotg);
+-
+-			/* Wait for controller to correctly update D+/D- level */
+-			usleep_range(3000, 5000);
+-		}
++	/* Wait for controller to correctly update D+/D- level */
++	usleep_range(3000, 5000);
++	spin_lock_irqsave(&hsotg->lock, flags);
  
- 	spin_lock_init(&dwc->lock);
-+	mutex_init(&dwc->mutex);
+-		/*
+-		 * Clear Port Enable and Port Status changes.
+-		 * Enable Port Power.
+-		 */
+-		dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
+-				HPRT0_ENACHG, HPRT0);
+-		/* Wait for controller to detect Port Connect */
+-		usleep_range(5000, 7000);
+-	}
++	/*
++	 * Clear Port Enable and Port Status changes.
++	 * Enable Port Power.
++	 */
++	dwc2_writel(hsotg, HPRT0_PWR | HPRT0_CONNDET |
++			HPRT0_ENACHG, HPRT0);
  
- 	pm_runtime_set_active(dev);
- 	pm_runtime_use_autosuspend(dev);
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 695ff2d791e4..7e3afa5378e8 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -13,6 +13,7 @@
- 
- #include <linux/device.h>
- #include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/ioport.h>
- #include <linux/list.h>
- #include <linux/bitops.h>
-@@ -947,6 +948,7 @@ struct dwc3_scratchpad_array {
-  * @scratch_addr: dma address of scratchbuf
-  * @ep0_in_setup: one control transfer is completed and enter setup phase
-  * @lock: for synchronizing
-+ * @mutex: for mode switching
-  * @dev: pointer to our struct device
-  * @sysdev: pointer to the DMA-capable device
-  * @xhci: pointer to our xHCI child
-@@ -1088,6 +1090,9 @@ struct dwc3 {
- 	/* device lock */
- 	spinlock_t		lock;
- 
-+	/* mode switching lock */
-+	struct mutex		mutex;
-+
- 	struct device		*dev;
- 	struct device		*sysdev;
+-	return ret;
++	/* Wait for controller to detect Port Connect */
++	spin_unlock_irqrestore(&hsotg->lock, flags);
++	usleep_range(5000, 7000);
++	spin_lock_irqsave(&hsotg->lock, flags);
+ unlock:
+ 	spin_unlock_irqrestore(&hsotg->lock, flags);
  
 
