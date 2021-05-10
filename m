@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29660378794
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44DC537878C
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237716AbhEJLQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:16:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44332 "EHLO mail.kernel.org"
+        id S237685AbhEJLP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:15:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236595AbhEJLIU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:08:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70C5F619B4;
-        Mon, 10 May 2021 11:02:21 +0000 (UTC)
+        id S236575AbhEJLIT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D90C3619B5;
+        Mon, 10 May 2021 11:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644542;
-        bh=rSRYsYU6LjY9IU/72887jGrm1WEmFzQLbRlDlMqZj1c=;
+        s=korg; t=1620644544;
+        bh=6nfKnmaO/Jr+W8MVnfjgZR/sXWTOTqfJ8mZR4HK+ick=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p8b+ZOOncyI8IGaskz86/O2k5+MFqiLV3H0sIR70VeDcBCEQHIhZpOW7JhHQrGmif
-         QCZsY14IPvqhlBIwkaU1JTBPLQfx0CwtrH4mXI6riZ5LapTADbIGncqKcHQYOSEIE2
-         toOoLnt+hGSCiw9UYog4jh6tEQ8J1Xt1c7cMZ7QI=
+        b=mS8MG+EnP3lUdwySzr1S5QCVGN0+jpicXLlHTNQh1udPPg2fBYfmGqNowgTDxrucV
+         QsoTPbeyarEBKnf4U7+b8Y+INiUjwkFLdzGoc7QTr+jdC9l493tmCaJ98MytoThktB
+         xr2cPu5aMNEH1AFTJlcyqrcQ5XTwXpvEXesdOqbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Shixin Liu <liushixin2@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 125/384] crypto: sun4i-ss - Fix PM reference leak when pm_runtime_get_sync() fails
-Date:   Mon, 10 May 2021 12:18:34 +0200
-Message-Id: <20210510102019.020782068@linuxfoundation.org>
+Subject: [PATCH 5.12 126/384] crypto: sun8i-ss - Fix PM reference leak when pm_runtime_get_sync() fails
+Date:   Mon, 10 May 2021 12:18:35 +0200
+Message-Id: <20210510102019.052323944@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -42,7 +42,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shixin Liu <liushixin2@huawei.com>
 
-[ Upstream commit ac98fc5e1c321112dab9ccac9df892c154540f5d ]
+[ Upstream commit 06cd7423cf451d68bfab289278d7890c9ae01a14 ]
 
 pm_runtime_get_sync will increment pm usage counter even it failed.
 Forgetting to putting operation will result in reference leak here.
@@ -53,63 +53,35 @@ Signed-off-by: Shixin Liu <liushixin2@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c | 2 +-
- drivers/crypto/allwinner/sun4i-ss/sun4i-ss-core.c   | 2 +-
- drivers/crypto/allwinner/sun4i-ss/sun4i-ss-hash.c   | 2 +-
- drivers/crypto/allwinner/sun4i-ss/sun4i-ss-prng.c   | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c | 2 +-
+ drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-index c2e6f5ed1d79..dec79fa3ebaf 100644
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-@@ -561,7 +561,7 @@ int sun4i_ss_cipher_init(struct crypto_tfm *tfm)
- 				    sizeof(struct sun4i_cipher_req_ctx) +
- 				    crypto_skcipher_reqsize(op->fallback_tfm));
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
+index ed2a69f82e1c..7c355bc2fb06 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
+@@ -351,7 +351,7 @@ int sun8i_ss_cipher_init(struct crypto_tfm *tfm)
+ 	op->enginectx.op.prepare_request = NULL;
+ 	op->enginectx.op.unprepare_request = NULL;
  
 -	err = pm_runtime_get_sync(op->ss->dev);
 +	err = pm_runtime_resume_and_get(op->ss->dev);
- 	if (err < 0)
+ 	if (err < 0) {
+ 		dev_err(op->ss->dev, "pm error %d\n", err);
  		goto error_pm;
- 
-diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-core.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-core.c
-index 709905ec4680..02a2d34845f2 100644
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-core.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-core.c
-@@ -459,7 +459,7 @@ static int sun4i_ss_probe(struct platform_device *pdev)
- 	 * this info could be useful
- 	 */
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
+index e0ddc684798d..80e89066dbd1 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
+@@ -753,7 +753,7 @@ static int sun8i_ss_probe(struct platform_device *pdev)
+ 	if (err)
+ 		goto error_alg;
  
 -	err = pm_runtime_get_sync(ss->dev);
 +	err = pm_runtime_resume_and_get(ss->dev);
  	if (err < 0)
- 		goto error_pm;
- 
-diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-hash.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-hash.c
-index c1b4585e9bbc..d28292762b32 100644
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-hash.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-hash.c
-@@ -27,7 +27,7 @@ int sun4i_hash_crainit(struct crypto_tfm *tfm)
- 	algt = container_of(alg, struct sun4i_ss_alg_template, alg.hash);
- 	op->ss = algt->ss;
- 
--	err = pm_runtime_get_sync(op->ss->dev);
-+	err = pm_runtime_resume_and_get(op->ss->dev);
- 	if (err < 0)
- 		return err;
- 
-diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-prng.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-prng.c
-index 443160a114bb..491fcb7b81b4 100644
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-prng.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-prng.c
-@@ -29,7 +29,7 @@ int sun4i_ss_prng_generate(struct crypto_rng *tfm, const u8 *src,
- 	algt = container_of(alg, struct sun4i_ss_alg_template, alg.rng);
- 	ss = algt->ss;
- 
--	err = pm_runtime_get_sync(ss->dev);
-+	err = pm_runtime_resume_and_get(ss->dev);
- 	if (err < 0)
- 		return err;
+ 		goto error_alg;
  
 -- 
 2.30.2
