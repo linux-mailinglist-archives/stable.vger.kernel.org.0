@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C4D3785B3
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C623785B4
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235531AbhEJLBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235536AbhEJLBP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 May 2021 07:01:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52740 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234543AbhEJK4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6622261932;
-        Mon, 10 May 2021 10:46:58 +0000 (UTC)
+        id S234552AbhEJK4j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D111C6199E;
+        Mon, 10 May 2021 10:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643618;
-        bh=4mxuqyCEXFXKOYcs/KXX/g+YKtyaSXxBm6esFdHtqic=;
+        s=korg; t=1620643621;
+        bh=8tgUsdn4HF1BGHa0LfXohhQMOdZ30Xjhil89P8jwuBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YaTMvYdYHOP2mltc2t7WYixSWISpzPMFupucHnIcCOyA9O5CS7wlFwMvvJhO7tpBF
-         LR5YB5+CiF2xX/YTHn0vVHfR0IeQAFhMhVcjH5dHFtWp7a2R4NDIegKoSgLshTU1rf
-         bWrlpbdvRx7wyOACfpBE33MpfbqJHwe0316mArCQ=
+        b=uElQqKsICw3+UO3+famINSZKY1ef/ErrkQeePpXJ5U1kcF2qweuSIUX8VJu0UmHlC
+         dtlsBW8FsaFuymcyg1Qb+8V/hWVSc9ZYr/bIANF4ElTKEHVMWAFX2Ow4ELd6+eIT4l
+         I29mZbRI1Q1QDcipn/V3X5Zc4l/doJhreFtEvH80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         Borislav Petkov <bp@suse.de>, Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 087/342] x86/boot: Add $(CLANG_FLAGS) to compressed KBUILD_CFLAGS
-Date:   Mon, 10 May 2021 12:17:57 +0200
-Message-Id: <20210510102012.989517335@linuxfoundation.org>
+Subject: [PATCH 5.11 088/342] efi/libstub: Add $(CLANG_FLAGS) to x86 flags
+Date:   Mon, 10 May 2021 12:17:58 +0200
+Message-Id: <20210510102013.020823374@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -42,43 +42,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit d5cbd80e302dfea59726c44c56ab7957f822409f ]
+[ Upstream commit 58d746c119dfa28e72fc35aacaf3d2a3ac625cd0 ]
 
 When cross compiling x86 on an ARM machine with clang, there are several
 errors along the lines of:
 
-  arch/x86/include/asm/string_64.h:27:10: error: invalid output constraint '=&c' in asm
+  arch/x86/include/asm/page_64.h:52:7: error: invalid output constraint '=D' in asm
 
-This happens because the compressed boot Makefile reassigns KBUILD_CFLAGS
-and drops the clang flags that set the target architecture ('--target=')
-and the path to the GNU cross tools ('--prefix='), meaning that the host
-architecture is targeted.
+This happens because the x86 flags in the EFI stub are not derived from
+KBUILD_CFLAGS like the other architectures are and the clang flags that
+set the target architecture ('--target=') and the path to the GNU cross
+tools ('--prefix=') are not present, meaning that the host architecture
+is targeted.
 
 These flags are available as $(CLANG_FLAGS) from the main Makefile so
-add them to the compressed boot folder's KBUILD_CFLAGS so that cross
-compiling works as expected.
+add them to the cflags for x86 so that cross compiling works as expected.
 
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lkml.kernel.org/r/20210326000435.4785-3-nathan@kernel.org
+Link: https://lkml.kernel.org/r/20210326000435.4785-4-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/firmware/efi/libstub/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index e0bc3988c3fa..6e5522aebbbd 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -46,6 +46,7 @@ KBUILD_CFLAGS += -D__DISABLE_EXPORTS
- # Disable relocation relaxation in case the link is not PIE.
- KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
- KBUILD_CFLAGS += -include $(srctree)/include/linux/hidden.h
-+KBUILD_CFLAGS += $(CLANG_FLAGS)
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index 8a94388e38b3..a2ae9c3b9579 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -13,7 +13,8 @@ cflags-$(CONFIG_X86)		+= -m$(BITS) -D__KERNEL__ \
+ 				   -Wno-pointer-sign \
+ 				   $(call cc-disable-warning, address-of-packed-member) \
+ 				   $(call cc-disable-warning, gnu) \
+-				   -fno-asynchronous-unwind-tables
++				   -fno-asynchronous-unwind-tables \
++				   $(CLANG_FLAGS)
  
- # sev-es.c indirectly inludes inat-table.h which is generated during
- # compilation and stored in $(objtree). Add the directory to the includes so
+ # arm64 uses the full KBUILD_CFLAGS so it's necessary to explicitly
+ # disable the stackleak plugin
 -- 
 2.30.2
 
