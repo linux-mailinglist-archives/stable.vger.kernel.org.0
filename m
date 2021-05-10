@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C16C93782F1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A612D37830E
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231492AbhEJKlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:41:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48506 "EHLO mail.kernel.org"
+        id S232006AbhEJKlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:41:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230319AbhEJKh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:37:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE8876162D;
-        Mon, 10 May 2021 10:29:51 +0000 (UTC)
+        id S232064AbhEJKh6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:37:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7214D61944;
+        Mon, 10 May 2021 10:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642592;
-        bh=WTKI2LemnozNo8YCF8jCtSU3mH0J0X5GiG/cMWcmcJA=;
+        s=korg; t=1620642594;
+        bh=6aDdcVRD5XDeRzPu5cDpy+CeTozswdh322xviITHbFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1QTjQFTs5nJXYmOmK+B/jGWT6qA2Pab6fmyv8+LYmmTHc/EFHbddFDGR7xpOBQZg
-         RnrUeXt9wmba7AfJfiIwOQlnwAsTVE0Q088mCRPRQTXMuUoek4P8Fb4mykzujErRJY
-         fUxjNCxnRen8L9aimg0+ra0woUbsmaJasp81i+jQ=
+        b=cONWBwIpngOjyZ3aml8NRQsaFpKqlIKpApeWZmM7777pdO4O2oAc4cMGuyquS4b9G
+         54KIgTtFL/jj8uN0ERYyqIohbNsVQxRfPsvsYIEOPo0j0CVJV+/QZLQ5vbm6rFCxto
+         kUrZVNZgUjzYIl1HgS5UYoylDdXcTCw0HNqby8CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.4 156/184] fuse: fix write deadlock
-Date:   Mon, 10 May 2021 12:20:50 +0200
-Message-Id: <20210510101955.229171886@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Andrey Zhizhikin <andrey.z@gmail.com>
+Subject: [PATCH 5.4 157/184] security: commoncap: fix -Wstringop-overread warning
+Date:   Mon, 10 May 2021 12:20:51 +0200
+Message-Id: <20210510101955.260466315@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -40,162 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivek Goyal <vgoyal@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 4f06dd92b5d0a6f8eec6a34b8d6ef3e1f4ac1e10 upstream.
+commit 82e5d8cc768b0c7b03c551a9ab1f8f3f68d5f83f upstream.
 
-There are two modes for write(2) and friends in fuse:
+gcc-11 introdces a harmless warning for cap_inode_getsecurity:
 
-a) write through (update page cache, send sync WRITE request to userspace)
+security/commoncap.c: In function ‘cap_inode_getsecurity’:
+security/commoncap.c:440:33: error: ‘memcpy’ reading 16 bytes from a region of size 0 [-Werror=stringop-overread]
+  440 |                                 memcpy(&nscap->data, &cap->data, sizeof(__le32) * 2 * VFS_CAP_U32);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-b) buffered write (update page cache, async writeout later)
+The problem here is that tmpbuf is initialized to NULL, so gcc assumes
+it is not accessible unless it gets set by vfs_getxattr_alloc().  This is
+a legitimate warning as far as I can tell, but the code is correct since
+it correctly handles the error when that function fails.
 
-The write through method kept all the page cache pages locked that were
-used for the request.  Keeping more than one page locked is deadlock prone
-and Qian Cai demonstrated this with trinity fuzzing.
+Add a separate NULL check to tell gcc about it as well.
 
-The reason for keeping the pages locked is that concurrent mapped reads
-shouldn't try to pull possibly stale data into the page cache.
-
-For full page writes, the easy way to fix this is to make the cached page
-be the authoritative source by marking the page PG_uptodate immediately.
-After this the page can be safely unlocked, since mapped/cached reads will
-take the written data from the cache.
-
-Concurrent mapped writes will now cause data in the original WRITE request
-to be updated; this however doesn't cause any data inconsistency and this
-scenario should be exceedingly rare anyway.
-
-If the WRITE request returns with an error in the above case, currently the
-page is not marked uptodate; this means that a concurrent read will always
-read consistent data.  After this patch the page is uptodate between
-writing to the cache and receiving the error: there's window where a cached
-read will read the wrong data.  While theoretically this could be a
-regression, it is unlikely to be one in practice, since this is normal for
-buffered writes.
-
-In case of a partial page write to an already uptodate page the locking is
-also unnecessary, with the above caveats.
-
-Partial write of a not uptodate page still needs to be handled.  One way
-would be to read the complete page before doing the write.  This is not
-possible, since it might break filesystems that don't expect any READ
-requests when the file was opened O_WRONLY.
-
-The other solution is to serialize the synchronous write with reads from
-the partial pages.  The easiest way to do this is to keep the partial pages
-locked.  The problem is that a write() may involve two such pages (one head
-and one tail).  This patch fixes it by only locking the partial tail page.
-If there's a partial head page as well, then split that off as a separate
-WRITE request.
-
-Reported-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/linux-fsdevel/4794a3fa3742a5e84fb0f934944204b55730829b.camel@lca.pw/
-Fixes: ea9b9907b82a ("fuse: implement perform_write")
-Cc: <stable@vger.kernel.org> # v2.6.26
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: James Morris <jamorris@linux.microsoft.com>
+Cc: Andrey Zhizhikin <andrey.z@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/file.c   |   41 +++++++++++++++++++++++++++++------------
- fs/fuse/fuse_i.h |    1 +
- 2 files changed, 30 insertions(+), 12 deletions(-)
+ security/commoncap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -1108,6 +1108,7 @@ static ssize_t fuse_send_write_pages(str
- 	struct fuse_file *ff = file->private_data;
- 	struct fuse_conn *fc = ff->fc;
- 	unsigned int offset, i;
-+	bool short_write;
- 	int err;
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -391,7 +391,7 @@ int cap_inode_getsecurity(struct inode *
+ 				 &tmpbuf, size, GFP_NOFS);
+ 	dput(dentry);
  
- 	for (i = 0; i < ap->num_pages; i++)
-@@ -1120,32 +1121,38 @@ static ssize_t fuse_send_write_pages(str
- 	if (!err && ia->write.out.size > count)
- 		err = -EIO;
+-	if (ret < 0)
++	if (ret < 0 || !tmpbuf)
+ 		return ret;
  
-+	short_write = ia->write.out.size < count;
- 	offset = ap->descs[0].offset;
- 	count = ia->write.out.size;
- 	for (i = 0; i < ap->num_pages; i++) {
- 		struct page *page = ap->pages[i];
- 
--		if (!err && !offset && count >= PAGE_SIZE)
--			SetPageUptodate(page);
--
--		if (count > PAGE_SIZE - offset)
--			count -= PAGE_SIZE - offset;
--		else
--			count = 0;
--		offset = 0;
--
--		unlock_page(page);
-+		if (err) {
-+			ClearPageUptodate(page);
-+		} else {
-+			if (count >= PAGE_SIZE - offset)
-+				count -= PAGE_SIZE - offset;
-+			else {
-+				if (short_write)
-+					ClearPageUptodate(page);
-+				count = 0;
-+			}
-+			offset = 0;
-+		}
-+		if (ia->write.page_locked && (i == ap->num_pages - 1))
-+			unlock_page(page);
- 		put_page(page);
- 	}
- 
- 	return err;
- }
- 
--static ssize_t fuse_fill_write_pages(struct fuse_args_pages *ap,
-+static ssize_t fuse_fill_write_pages(struct fuse_io_args *ia,
- 				     struct address_space *mapping,
- 				     struct iov_iter *ii, loff_t pos,
- 				     unsigned int max_pages)
- {
-+	struct fuse_args_pages *ap = &ia->ap;
- 	struct fuse_conn *fc = get_fuse_conn(mapping->host);
- 	unsigned offset = pos & (PAGE_SIZE - 1);
- 	size_t count = 0;
-@@ -1198,6 +1205,16 @@ static ssize_t fuse_fill_write_pages(str
- 		if (offset == PAGE_SIZE)
- 			offset = 0;
- 
-+		/* If we copied full page, mark it uptodate */
-+		if (tmp == PAGE_SIZE)
-+			SetPageUptodate(page);
-+
-+		if (PageUptodate(page)) {
-+			unlock_page(page);
-+		} else {
-+			ia->write.page_locked = true;
-+			break;
-+		}
- 		if (!fc->big_writes)
- 			break;
- 	} while (iov_iter_count(ii) && count < fc->max_write &&
-@@ -1241,7 +1258,7 @@ static ssize_t fuse_perform_write(struct
- 			break;
- 		}
- 
--		count = fuse_fill_write_pages(ap, mapping, ii, pos, nr_pages);
-+		count = fuse_fill_write_pages(&ia, mapping, ii, pos, nr_pages);
- 		if (count <= 0) {
- 			err = count;
- 		} else {
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -845,6 +845,7 @@ struct fuse_io_args {
- 		struct {
- 			struct fuse_write_in in;
- 			struct fuse_write_out out;
-+			bool page_locked;
- 		} write;
- 	};
- 	struct fuse_args_pages ap;
+ 	fs_ns = inode->i_sb->s_user_ns;
 
 
