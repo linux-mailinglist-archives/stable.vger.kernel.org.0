@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3052C378873
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD04378695
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235299AbhEJLVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45870 "EHLO mail.kernel.org"
+        id S233781AbhEJLJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:09:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237111AbhEJLLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A28CD616E9;
-        Mon, 10 May 2021 11:07:09 +0000 (UTC)
+        id S235220AbhEJLA2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:00:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0ECB6195C;
+        Mon, 10 May 2021 10:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644830;
-        bh=Z2qFcwyxkrMbFdj6C9e+eOQCZl86x/w+6rNLoAKvwLI=;
+        s=korg; t=1620643991;
+        bh=gwPx88FQUSun16PDktMHt4w2R/nn90Cn3ZCyjqLPprA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O85mQM/wDHE83J+y//Rsjm7ymDRPomICNCDffK1wf3qBhMHSWmX+xww57JaOY9thh
-         j2rc/LFE5Ng3+tvAOCQhnvEnA/vlb5GQh1cGYmZqV316Ohbry7ThpV3A7H0oR31qPB
-         AHycbTwAefRzob8MLo5t/vgUNczkYc61HOQJx6t4=
+        b=jny98Pxul2FdxPyMGkF/3ZLUQamcx/BVyETbrIwAJGaaSiHCSa2xW29eSni9uE9nc
+         PjNURsnfFnotIafoVYZ1hdOkox/umhyyHPjNY1vOTtYY+ikM2tPwJF2ESm/t1QZNqe
+         EKl3KQ2nRenZQ/+haH5h/3VftBV7zF7ojorNxCsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Gomez <daniel@qtec.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 242/384] drm/amdgpu/ttm: Fix memory leak userptr pages
-Date:   Mon, 10 May 2021 12:20:31 +0200
-Message-Id: <20210510102022.860942870@linuxfoundation.org>
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 242/342] ALSA: sb: Fix two use after free in snd_sb_qsound_build
+Date:   Mon, 10 May 2021 12:20:32 +0200
+Message-Id: <20210510102018.081071581@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Gomez <daniel@qtec.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 0f6f9dd490d524930081a6ef1d60171ce39220b9 ]
+commit 4fb44dd2c1dda18606348acdfdb97e8759dde9df upstream.
 
-If userptr pages have been pinned but not bounded,
-they remain uncleared.
+In snd_sb_qsound_build, snd_ctl_add(..,p->qsound_switch...) and
+snd_ctl_add(..,p->qsound_space..) are called. But the second
+arguments of snd_ctl_add() could be freed via snd_ctl_add_replace()
+->snd_ctl_free_one(). After the error code is returned,
+snd_sb_qsound_destroy(p) is called in __error branch.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Daniel Gomez <daniel@qtec.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But in snd_sb_qsound_destroy(), the freed p->qsound_switch and
+p->qsound_space are still used by snd_ctl_remove().
+
+My patch set p->qsound_switch and p->qsound_space to NULL if
+snd_ctl_add() failed to avoid the uaf bugs. But these codes need
+to further be improved with the code style.
+
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210426145541.8070-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/isa/sb/sb16_csp.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 5efa331e3ee8..f61fd2cf3fee 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1162,13 +1162,13 @@ static void amdgpu_ttm_backend_unbind(struct ttm_bo_device *bdev,
- 	struct amdgpu_ttm_tt *gtt = (void *)ttm;
- 	int r;
+--- a/sound/isa/sb/sb16_csp.c
++++ b/sound/isa/sb/sb16_csp.c
+@@ -1045,10 +1045,14 @@ static int snd_sb_qsound_build(struct sn
  
--	if (!gtt->bound)
--		return;
--
- 	/* if the pages have userptr pinning then clear that first */
- 	if (gtt->userptr)
- 		amdgpu_ttm_tt_unpin_userptr(bdev, ttm);
+ 	spin_lock_init(&p->q_lock);
  
-+	if (!gtt->bound)
-+		return;
-+
- 	if (gtt->offset == AMDGPU_BO_INVALID_OFFSET)
- 		return;
+-	if ((err = snd_ctl_add(card, p->qsound_switch = snd_ctl_new1(&snd_sb_qsound_switch, p))) < 0)
++	if ((err = snd_ctl_add(card, p->qsound_switch = snd_ctl_new1(&snd_sb_qsound_switch, p))) < 0) {
++		p->qsound_switch = NULL;
+ 		goto __error;
+-	if ((err = snd_ctl_add(card, p->qsound_space = snd_ctl_new1(&snd_sb_qsound_space, p))) < 0)
++	}
++	if ((err = snd_ctl_add(card, p->qsound_space = snd_ctl_new1(&snd_sb_qsound_space, p))) < 0) {
++		p->qsound_space = NULL;
+ 		goto __error;
++	}
  
--- 
-2.30.2
-
+ 	return 0;
+ 
 
 
