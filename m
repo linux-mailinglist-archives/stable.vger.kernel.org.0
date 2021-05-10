@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2090537864A
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3B50378647
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234747AbhEJLFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:05:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53030 "EHLO mail.kernel.org"
+        id S234720AbhEJLFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:05:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231874AbhEJK5j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:57:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60D2961A19;
-        Mon, 10 May 2021 10:51:50 +0000 (UTC)
+        id S231621AbhEJK5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:57:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AB1261979;
+        Mon, 10 May 2021 10:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643910;
-        bh=OmAsP+tYBJDtFQWqX428dKjCzbn7jC2wicgTcopdX3E=;
+        s=korg; t=1620643913;
+        bh=vhNdZITQLLu1Vqwt/HaWW/3rsi9z4orMusNDvuWFim8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKmSqU9dOMq5uILdMG0JGWCzh00M6Z0y2SfMIqx8amB5BMwKVrZhE3f+qcfQeBSP3
-         T1SP04U3c7fYS94lX5r3RWoSr4CSC8614FmnFkXWb4EBNwYIbNyKLlAQ0x2nZQ4ZO8
-         FdOQnu6UG5dMCzofCu337qx1d/GRHoiJgM0pMh/4=
+        b=SriucXP5ESDihLwYDZwkn+3h++Npr30gddwJTjBZaFevAmPL6KUBIr81MjJOyDGqW
+         mFm3QdMs1zOlB6T3fIesHKzYOMQPxxOFI8JsJ064Pkg1bs+Dc12PgDgsbzmJdommEb
+         DYcfWLYEsNLTPEMaJ6FJ6Ed9Fo/JEbED5ALy2IG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Daniel Wagner <dwagner@suse.de>, Lee Duncan <lduncan@suse.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 175/342] scsi: qla2xxx: Always check the return value of qla24xx_get_isp_stats()
-Date:   Mon, 10 May 2021 12:19:25 +0200
-Message-Id: <20210510102015.888350454@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        syzbot+4fc21a003c8332eb0bdd@syzkaller.appspotmail.com,
+        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+        Melissa Wen <melissa.srw@gmail.com>,
+        Haneen Mohammed <hamohammed.sa@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 176/342] drm/vkms: fix misuse of WARN_ON
+Date:   Mon, 10 May 2021 12:19:26 +0200
+Message-Id: <20210510102015.920642905@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -44,57 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Dmitry Vyukov <dvyukov@google.com>
 
-[ Upstream commit a2b2cc660822cae08c351c7f6b452bfd1330a4f7 ]
+[ Upstream commit b4142fc4d52d051d4d8df1fb6c569e5b445d369e ]
 
-This patch fixes the following Coverity warning:
+vkms_vblank_simulate() uses WARN_ON for timing-dependent condition
+(timer overrun). This is a mis-use of WARN_ON, WARN_ON must be used
+to denote kernel bugs. Use pr_warn() instead.
 
-    CID 361199 (#1 of 1): Unchecked return value (CHECKED_RETURN)
-    3. check_return: Calling qla24xx_get_isp_stats without checking return
-    value (as is done elsewhere 4 out of 5 times).
-
-Link: https://lore.kernel.org/r/20210320232359.941-7-bvanassche@acm.org
-Cc: Quinn Tran <qutran@marvell.com>
-Cc: Mike Christie <michael.christie@oracle.com>
-Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-Cc: Daniel Wagner <dwagner@suse.de>
-Cc: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
+Reported-by: syzbot+4fc21a003c8332eb0bdd@syzkaller.appspotmail.com
+Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Cc: Melissa Wen <melissa.srw@gmail.com>
+Cc: Haneen Mohammed <hamohammed.sa@gmail.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org
+Acked-by: Melissa Wen <melissa.srw@gmail.com>
+Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210320132840.1315853-1-dvyukov@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vkms/vkms_crtc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
-index ab45ac1e5a72..6a2c4a6fcded 100644
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -2855,6 +2855,8 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
- 	vha->qla_stats.jiffies_at_last_reset = get_jiffies_64();
+diff --git a/drivers/gpu/drm/vkms/vkms_crtc.c b/drivers/gpu/drm/vkms/vkms_crtc.c
+index 0443b7deeaef..758d8a98d96b 100644
+--- a/drivers/gpu/drm/vkms/vkms_crtc.c
++++ b/drivers/gpu/drm/vkms/vkms_crtc.c
+@@ -18,7 +18,8 @@ static enum hrtimer_restart vkms_vblank_simulate(struct hrtimer *timer)
  
- 	if (IS_FWI2_CAPABLE(ha)) {
-+		int rval;
-+
- 		stats = dma_alloc_coherent(&ha->pdev->dev,
- 		    sizeof(*stats), &stats_dma, GFP_KERNEL);
- 		if (!stats) {
-@@ -2864,7 +2866,11 @@ qla2x00_reset_host_stats(struct Scsi_Host *shost)
- 		}
+ 	ret_overrun = hrtimer_forward_now(&output->vblank_hrtimer,
+ 					  output->period_ns);
+-	WARN_ON(ret_overrun != 1);
++	if (ret_overrun != 1)
++		pr_warn("%s: vblank timer overrun\n", __func__);
  
- 		/* reset firmware statistics */
--		qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
-+		rval = qla24xx_get_isp_stats(base_vha, stats, stats_dma, BIT_0);
-+		if (rval != QLA_SUCCESS)
-+			ql_log(ql_log_warn, vha, 0x70de,
-+			       "Resetting ISP statistics failed: rval = %d\n",
-+			       rval);
- 
- 		dma_free_coherent(&ha->pdev->dev, sizeof(*stats),
- 		    stats, stats_dma);
+ 	spin_lock(&output->lock);
+ 	ret = drm_crtc_handle_vblank(crtc);
 -- 
 2.30.2
 
