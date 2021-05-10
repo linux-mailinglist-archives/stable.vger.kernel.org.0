@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3293378769
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B501378740
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237538AbhEJLP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:15:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46278 "EHLO mail.kernel.org"
+        id S237367AbhEJLOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:14:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236372AbhEJLH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9484B61982;
-        Mon, 10 May 2021 11:00:27 +0000 (UTC)
+        id S236226AbhEJLHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E291B6193E;
+        Mon, 10 May 2021 10:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644428;
-        bh=oQT3PPvqxykPVhMPF6b9p3ASdg0cEpgtCmbnV8N2ChM=;
+        s=korg; t=1620644342;
+        bh=4Myl21CWU6U64fWgTeuorGSlIN0APLEr2lw40LdBvVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1vi3nkiRwAYyF3IE+Id1ejBEaQqPI8CpY/XIW6npGGKbiBa1AmI4VGTQHvvQoAX0
-         7DidG6pduFcopjGyM/uiVzoVxbr426T1ExpqwbJ5uTRMUHs88zlKYnOROVVV9RJvt1
-         Cr6tbAQhJM0DcpBuNlY9g+OZbGQAwxlFlmZqL7JI=
+        b=N9T3B89vEklMu3hgz9PaeVQ8SenwHhvZYhFe9YxthXyp0TdtMwv6Y9ancNG2LuE2B
+         GF9uFNdim+PYxrQydwpJWKKwkiFhxjZGRbE94ofs2EIYIL2Y15+pVbaT753Ju81VlB
+         gj3fRv2CKBFeUaEslZBgnQ1J+z2GFAel5t0WUcbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org, Kamal Mostafa <kamal@canonical.com>,
+        Aniruddha Tvs Rao <anrao@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Thierry Reding <treding@nvidia.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.12 043/384] mmc: sdhci-pci: Fix initialization of some SD cards for Intel BYT-based controllers
-Date:   Mon, 10 May 2021 12:17:12 +0200
-Message-Id: <20210510102016.284667669@linuxfoundation.org>
+Subject: [PATCH 5.12 044/384] mmc: sdhci-tegra: Add required callbacks to set/clear CQE_EN bit
+Date:   Mon, 10 May 2021 12:17:13 +0200
+Message-Id: <20210510102016.321117696@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -39,83 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Aniruddha Tvs Rao <anrao@nvidia.com>
 
-commit 2970134b927834e9249659a70aac48e62dff804a upstream.
+commit 5ec6fa5a6dc5e42a4aa782f3a81d5f08b0fac1e6 upstream.
 
-Bus power may control card power, but the full reset done by SDHCI at
-initialization still may not reset the power, whereas a direct write to
-SDHCI_POWER_CONTROL can. That might be needed to initialize correctly, if
-the card was left powered on previously.
+CMD8 is not supported with Command Queue Enabled. Add required callback
+to clear CQE_EN and CQE_INTR fields in the host controller register
+before sending CMD8. Add corresponding callback in the CQHCI resume path
+to re-enable CQE_EN and CQE_INTR fields.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210331081752.23621-1-adrian.hunter@intel.com
+Reported-by: Kamal Mostafa <kamal@canonical.com>
+Tested-by: Kamal Mostafa <kamal@canonical.com>
+Signed-off-by: Aniruddha Tvs Rao <anrao@nvidia.com>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20210407094617.770495-1-jonathanh@nvidia.com
+Cc: stable@vger.kernel.org # v5.10+
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pci-core.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/mmc/host/sdhci-tegra.c |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -516,6 +516,7 @@ struct intel_host {
- 	int	drv_strength;
- 	bool	d3_retune;
- 	bool	rpm_retune_ok;
-+	bool	needs_pwr_off;
- 	u32	glk_rx_ctrl1;
- 	u32	glk_tun_val;
- 	u32	active_ltr;
-@@ -643,9 +644,25 @@ out:
- static void sdhci_intel_set_power(struct sdhci_host *host, unsigned char mode,
- 				  unsigned short vdd)
- {
-+	struct sdhci_pci_slot *slot = sdhci_priv(host);
-+	struct intel_host *intel_host = sdhci_pci_priv(slot);
- 	int cntr;
- 	u8 reg;
+--- a/drivers/mmc/host/sdhci-tegra.c
++++ b/drivers/mmc/host/sdhci-tegra.c
+@@ -119,6 +119,10 @@
+ /* SDMMC CQE Base Address for Tegra Host Ver 4.1 and Higher */
+ #define SDHCI_TEGRA_CQE_BASE_ADDR			0xF000
  
-+	/*
-+	 * Bus power may control card power, but a full reset still may not
-+	 * reset the power, whereas a direct write to SDHCI_POWER_CONTROL can.
-+	 * That might be needed to initialize correctly, if the card was left
-+	 * powered on previously.
-+	 */
-+	if (intel_host->needs_pwr_off) {
-+		intel_host->needs_pwr_off = false;
-+		if (mode != MMC_POWER_OFF) {
-+			sdhci_writeb(host, 0, SDHCI_POWER_CONTROL);
-+			usleep_range(10000, 12500);
-+		}
-+	}
++#define SDHCI_TEGRA_CQE_TRNS_MODE	(SDHCI_TRNS_MULTI | \
++					 SDHCI_TRNS_BLK_CNT_EN | \
++					 SDHCI_TRNS_DMA)
 +
- 	sdhci_set_power(host, mode, vdd);
+ struct sdhci_tegra_soc_data {
+ 	const struct sdhci_pltfm_data *pdata;
+ 	u64 dma_mask;
+@@ -1156,6 +1160,7 @@ static void tegra_sdhci_voltage_switch(s
+ static void tegra_cqhci_writel(struct cqhci_host *cq_host, u32 val, int reg)
+ {
+ 	struct mmc_host *mmc = cq_host->mmc;
++	struct sdhci_host *host = mmc_priv(mmc);
+ 	u8 ctrl;
+ 	ktime_t timeout;
+ 	bool timed_out;
+@@ -1170,6 +1175,7 @@ static void tegra_cqhci_writel(struct cq
+ 	 */
+ 	if (reg == CQHCI_CTL && !(val & CQHCI_HALT) &&
+ 	    cqhci_readl(cq_host, CQHCI_CTL) & CQHCI_HALT) {
++		sdhci_writew(host, SDHCI_TEGRA_CQE_TRNS_MODE, SDHCI_TRANSFER_MODE);
+ 		sdhci_cqe_enable(mmc);
+ 		writel(val, cq_host->mmio + reg);
+ 		timeout = ktime_add_us(ktime_get(), 50);
+@@ -1205,6 +1211,7 @@ static void sdhci_tegra_update_dcmd_desc
+ static void sdhci_tegra_cqe_enable(struct mmc_host *mmc)
+ {
+ 	struct cqhci_host *cq_host = mmc->cqe_private;
++	struct sdhci_host *host = mmc_priv(mmc);
+ 	u32 val;
  
- 	if (mode == MMC_POWER_OFF)
-@@ -1135,6 +1152,14 @@ static int byt_sdio_probe_slot(struct sd
- 	return 0;
+ 	/*
+@@ -1218,6 +1225,7 @@ static void sdhci_tegra_cqe_enable(struc
+ 		if (val & CQHCI_ENABLE)
+ 			cqhci_writel(cq_host, (val & ~CQHCI_ENABLE),
+ 				     CQHCI_CFG);
++		sdhci_writew(host, SDHCI_TEGRA_CQE_TRNS_MODE, SDHCI_TRANSFER_MODE);
+ 		sdhci_cqe_enable(mmc);
+ 		if (val & CQHCI_ENABLE)
+ 			cqhci_writel(cq_host, val, CQHCI_CFG);
+@@ -1281,12 +1289,36 @@ static void tegra_sdhci_set_timeout(stru
+ 	__sdhci_set_timeout(host, cmd);
  }
  
-+static void byt_needs_pwr_off(struct sdhci_pci_slot *slot)
++static void sdhci_tegra_cqe_pre_enable(struct mmc_host *mmc)
 +{
-+	struct intel_host *intel_host = sdhci_pci_priv(slot);
-+	u8 reg = sdhci_readb(slot->host, SDHCI_POWER_CONTROL);
++	struct cqhci_host *cq_host = mmc->cqe_private;
++	u32 reg;
 +
-+	intel_host->needs_pwr_off = reg  & SDHCI_POWER_ON;
++	reg = cqhci_readl(cq_host, CQHCI_CFG);
++	reg |= CQHCI_ENABLE;
++	cqhci_writel(cq_host, reg, CQHCI_CFG);
 +}
 +
- static int byt_sd_probe_slot(struct sdhci_pci_slot *slot)
- {
- 	byt_probe_slot(slot);
-@@ -1152,6 +1177,8 @@ static int byt_sd_probe_slot(struct sdhc
- 	    slot->chip->pdev->subsystem_device == PCI_SUBDEVICE_ID_NI_78E3)
- 		slot->host->mmc->caps2 |= MMC_CAP2_AVOID_3_3V;
- 
-+	byt_needs_pwr_off(slot);
++static void sdhci_tegra_cqe_post_disable(struct mmc_host *mmc)
++{
++	struct cqhci_host *cq_host = mmc->cqe_private;
++	struct sdhci_host *host = mmc_priv(mmc);
++	u32 reg;
 +
- 	return 0;
- }
++	reg = cqhci_readl(cq_host, CQHCI_CFG);
++	reg &= ~CQHCI_ENABLE;
++	cqhci_writel(cq_host, reg, CQHCI_CFG);
++	sdhci_writew(host, 0x0, SDHCI_TRANSFER_MODE);
++}
++
+ static const struct cqhci_host_ops sdhci_tegra_cqhci_ops = {
+ 	.write_l    = tegra_cqhci_writel,
+ 	.enable	= sdhci_tegra_cqe_enable,
+ 	.disable = sdhci_cqe_disable,
+ 	.dumpregs = sdhci_tegra_dumpregs,
+ 	.update_dcmd_desc = sdhci_tegra_update_dcmd_desc,
++	.pre_enable = sdhci_tegra_cqe_pre_enable,
++	.post_disable = sdhci_tegra_cqe_post_disable,
+ };
  
+ static int tegra_sdhci_set_dma_mask(struct sdhci_host *host)
 
 
