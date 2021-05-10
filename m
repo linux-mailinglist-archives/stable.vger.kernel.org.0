@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F121378314
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FCC13782FA
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232053AbhEJKmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:42:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48220 "EHLO mail.kernel.org"
+        id S232071AbhEJKlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:41:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232274AbhEJKjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232280AbhEJKjj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:39:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5CD861951;
-        Mon, 10 May 2021 10:30:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7FB561940;
+        Mon, 10 May 2021 10:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642624;
-        bh=cDVS+BINQ8nzJWNY/rkDpJGB2hItd4qbsy17WPHv5ZU=;
+        s=korg; t=1620642627;
+        bh=DCIzqAeB5p8XEgiT4wN3qymGmvDevCf9ZA31PmZHwhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVD+5JWglmArqjPsVCfDDwVrxse80G4d+CaVQzcfdexagBP/6nW0mQB6ePKtaUaND
-         4prQthvcH9N394BRkf+PX0IHzYMG+XUrMKmiNcXLaNzLZCfT73OuOwjd9k1G13lvfU
-         yzCb3ZeRn9I8iM/668L7huxTPoGbY9FcRXEvCy0s=
+        b=XI4r30ZnBGmJZ3wnmQ/Uy7xrGMyrAiQ3SmCbVAnkrT3XRyIFAEZwAXp8w34LXfQKk
+         vFnKUitEXQlEnRZRLzGUb7mhnXdKYzijk+4VTq6QsWcijFcEuIIbtGHLlkv95tEqz5
+         iH1Sglo4aOsXLgiBUurhcUxvGP2P51x/7emFVg90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 171/184] media: staging/intel-ipu3: Fix race condition during set_fmt
-Date:   Mon, 10 May 2021 12:21:05 +0200
-Message-Id: <20210510101955.719591755@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+eb4674092e6cc8d9e0bd@syzkaller.appspotmail.com,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Anirudh Rayabharam <mail@anirudhrb.com>
+Subject: [PATCH 5.4 172/184] usb: gadget: dummy_hcd: fix gpf in gadget_setup
+Date:   Mon, 10 May 2021 12:21:06 +0200
+Message-Id: <20210510101955.762476341@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -41,105 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit dccfe2548746ca9cca3a20401ece4cf255d1f171 upstream.
+commit 4a5d797a9f9c4f18585544237216d7812686a71f upstream.
 
-Do not modify imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp, until the
-format has been correctly validated.
+Fix a general protection fault reported by syzbot due to a race between
+gadget_setup() and gadget_unbind() in raw_gadget.
 
-Otherwise, even if we use a backup variable, there is a period of time
-where imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp might have an invalid
-value that can be used by other functions.
+The gadget core is supposed to guarantee that there won't be any more
+callbacks to the gadget driver once the driver's unbind routine is
+called. That guarantee is enforced in usb_gadget_remove_driver as
+follows:
 
-Cc: stable@vger.kernel.org
-Fixes: ad91849996f9 ("media: staging/intel-ipu3: Fix set_fmt error handling")
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+        usb_gadget_disconnect(udc->gadget);
+        if (udc->gadget->irq)
+                synchronize_irq(udc->gadget->irq);
+        udc->driver->unbind(udc->gadget);
+        usb_gadget_udc_stop(udc);
+
+usb_gadget_disconnect turns off the pullup resistor, telling the host
+that the gadget is no longer connected and preventing the transmission
+of any more USB packets. Any packets that have already been received
+are sure to processed by the UDC driver's interrupt handler by the time
+synchronize_irq returns.
+
+But this doesn't work with dummy_hcd, because dummy_hcd doesn't use
+interrupts; it uses a timer instead. It does have code to emulate the
+effect of synchronize_irq, but that code doesn't get invoked at the
+right time -- it currently runs in usb_gadget_udc_stop, after the unbind
+callback instead of before. Indeed, there's no way for
+usb_gadget_remove_driver to invoke this code before the unbind callback.
+
+To fix this, move the synchronize_irq() emulation code to dummy_pullup
+so that it runs before unbind. Also, add a comment explaining why it is
+necessary to have it there.
+
+Reported-by: syzbot+eb4674092e6cc8d9e0bd@syzkaller.appspotmail.com
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210419033713.3021-1-mail@anirudhrb.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/ipu3/ipu3-v4l2.c |   30 ++++++++++++++----------------
- 1 file changed, 14 insertions(+), 16 deletions(-)
+ drivers/usb/gadget/udc/dummy_hcd.c |   23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
---- a/drivers/staging/media/ipu3/ipu3-v4l2.c
-+++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
-@@ -668,7 +668,6 @@ static int imgu_fmt(struct imgu_device *
- 	struct imgu_css_pipe *css_pipe = &imgu->css.pipes[pipe];
- 	struct imgu_media_pipe *imgu_pipe = &imgu->imgu_pipe[pipe];
- 	struct imgu_v4l2_subdev *imgu_sd = &imgu_pipe->imgu_sd;
--	struct v4l2_pix_format_mplane fmt_backup;
- 
- 	dev_dbg(dev, "set fmt node [%u][%u](try = %u)", pipe, node, try);
- 
-@@ -686,6 +685,7 @@ static int imgu_fmt(struct imgu_device *
- 
- 	dev_dbg(dev, "IPU3 pipe %u pipe_id = %u", pipe, css_pipe->pipe_id);
- 
-+	css_q = imgu_node_to_queue(node);
- 	for (i = 0; i < IPU3_CSS_QUEUES; i++) {
- 		unsigned int inode = imgu_map_node(imgu, i);
- 
-@@ -700,6 +700,11 @@ static int imgu_fmt(struct imgu_device *
- 			continue;
- 		}
- 
-+		if (i == css_q) {
-+			fmts[i] = &f->fmt.pix_mp;
-+			continue;
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -900,6 +900,21 @@ static int dummy_pullup(struct usb_gadge
+ 	spin_lock_irqsave(&dum->lock, flags);
+ 	dum->pullup = (value != 0);
+ 	set_link_state(dum_hcd);
++	if (value == 0) {
++		/*
++		 * Emulate synchronize_irq(): wait for callbacks to finish.
++		 * This seems to be the best place to emulate the call to
++		 * synchronize_irq() that's in usb_gadget_remove_driver().
++		 * Doing it in dummy_udc_stop() would be too late since it
++		 * is called after the unbind callback and unbind shouldn't
++		 * be invoked until all the other callbacks are finished.
++		 */
++		while (dum->callback_usage > 0) {
++			spin_unlock_irqrestore(&dum->lock, flags);
++			usleep_range(1000, 2000);
++			spin_lock_irqsave(&dum->lock, flags);
 +		}
-+
- 		if (try) {
- 			fmts[i] = kmemdup(&imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp,
- 					  sizeof(struct v4l2_pix_format_mplane),
-@@ -728,39 +733,32 @@ static int imgu_fmt(struct imgu_device *
- 		rects[IPU3_CSS_RECT_GDC]->height = pad_fmt.height;
- 	}
++	}
+ 	spin_unlock_irqrestore(&dum->lock, flags);
  
--	/*
--	 * imgu doesn't set the node to the value given by user
--	 * before we return success from this function, so set it here.
--	 */
--	css_q = imgu_node_to_queue(node);
- 	if (!fmts[css_q]) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	fmt_backup = *fmts[css_q];
--	*fmts[css_q] = f->fmt.pix_mp;
- 
- 	if (try)
- 		ret = imgu_css_fmt_try(&imgu->css, fmts, rects, pipe);
- 	else
- 		ret = imgu_css_fmt_set(&imgu->css, fmts, rects, pipe);
- 
--	if (try || ret < 0)
--		*fmts[css_q] = fmt_backup;
+ 	usb_hcd_poll_rh_status(dummy_hcd_to_hcd(dum_hcd));
+@@ -1001,14 +1016,6 @@ static int dummy_udc_stop(struct usb_gad
+ 	spin_lock_irq(&dum->lock);
+ 	dum->ints_enabled = 0;
+ 	stop_activity(dum);
 -
- 	/* ret is the binary number in the firmware blob */
- 	if (ret < 0)
- 		goto out;
+-	/* emulate synchronize_irq(): wait for callbacks to finish */
+-	while (dum->callback_usage > 0) {
+-		spin_unlock_irq(&dum->lock);
+-		usleep_range(1000, 2000);
+-		spin_lock_irq(&dum->lock);
+-	}
+-
+ 	dum->driver = NULL;
+ 	spin_unlock_irq(&dum->lock);
  
--	if (try)
--		f->fmt.pix_mp = *fmts[css_q];
--	else
--		f->fmt = imgu_pipe->nodes[node].vdev_fmt.fmt;
-+	/*
-+	 * imgu doesn't set the node to the value given by user
-+	 * before we return success from this function, so set it here.
-+	 */
-+	if (!try)
-+		imgu_pipe->nodes[node].vdev_fmt.fmt.pix_mp = f->fmt.pix_mp;
- 
- out:
- 	if (try) {
- 		for (i = 0; i < IPU3_CSS_QUEUES; i++)
--			kfree(fmts[i]);
-+			if (i != css_q)
-+				kfree(fmts[i]);
- 	}
- 
- 	return ret;
 
 
