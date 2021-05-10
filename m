@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69244378625
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 500F3378622
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233600AbhEJLEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:04:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52164 "EHLO mail.kernel.org"
+        id S233389AbhEJLEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:04:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234962AbhEJK5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:57:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5D0861C32;
-        Mon, 10 May 2021 10:50:38 +0000 (UTC)
+        id S234953AbhEJK5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:57:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46C0F619D0;
+        Mon, 10 May 2021 10:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643839;
-        bh=2NP5te+jZbVJI9Ngj88cWMuWA5RVvd7pvJ2s2BY2Bss=;
+        s=korg; t=1620643841;
+        bh=Qcr0qQ0OJlhO6CjKYZf6Xcbc6UvVmxB/7tGUiWRbDqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWccAKJPEvomS+Fk1oGrNxg5RdUzxAjRIhY+juqfPZVGHcL9V94RmlFaBKMkcXRmN
-         xDlU9aXLz2sDmocv7+fiRoSARqKsHh+NDdI49+p64BMduc067zPSFHTWgko4mRR73H
-         e5zbECiyB1Fr5rydOBkXmf63gSJRkQFZb+t3EqNg=
+        b=cr8L/cr9Glit1iYLdJCEhwxvtRQES5m8MEeDfvkGqeT5+eBrkMvJf7fTf1L9Ny/MR
+         GEUpK++AZfTxvhrons/iAGtaKhPV49V0D3e+6fV+trXDGAjFx+JxHvIALEvu8CPBkl
+         5H2xLpuMKTN/2exUT/DVXUWSO8XHPCeTmAquIMRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xingui Yang <yangxingui@huawei.com>,
-        Luo Jiaxing <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 181/342] ata: ahci: Disable SXS for Hisilicon Kunpeng920
-Date:   Mon, 10 May 2021 12:19:31 +0200
-Message-Id: <20210510102016.078739014@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Carsten Haitzler <carsten.haitzler@arm.com>,
+        Steven Price <steven.price@arm.com>,
+        James Qian Wang <james.qian.wang@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 182/342] drm/komeda: Fix bit check to import to value of proper type
+Date:   Mon, 10 May 2021 12:19:32 +0200
+Message-Id: <20210510102016.109576736@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -41,73 +43,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xingui Yang <yangxingui@huawei.com>
+From: Carsten Haitzler <carsten.haitzler@arm.com>
 
-[ Upstream commit 234e6d2c18f5b080cde874483c4c361f3ae7cffe ]
+[ Upstream commit a1c3be890440a1769ed6f822376a3e3ab0d42994 ]
 
-On Hisilicon Kunpeng920, ESP is set to 1 by default for all ports of
-SATA controller. In some scenarios, some ports are not external SATA ports,
-and it cause disks connected to these ports to be identified as removable
-disks. So disable the SXS capability on the software side to prevent users
-from mistakenly considering non-removable disks as removable disks and
-performing related operations.
+Another issue found by KASAN. The bit finding is buried inside the
+dp_for_each_set_bit() macro (that passes on to for_each_set_bit() that
+calls the bit stuff. These bit functions want an unsigned long pointer
+as input and just dumbly casting leads to out-of-bounds accesses.
+This fixes that.
 
-Signed-off-by: Xingui Yang <yangxingui@huawei.com>
-Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Link: https://lore.kernel.org/r/1615544676-61926-1-git-send-email-luojiaxing@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Carsten Haitzler <carsten.haitzler@arm.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Reviewed-by: James Qian Wang <james.qian.wang@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210204131102.68658-1-carsten.haitzler@foss.arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci.c    | 5 +++++
- drivers/ata/ahci.h    | 1 +
- drivers/ata/libahci.c | 5 +++++
- 3 files changed, 11 insertions(+)
+ .../drm/arm/display/include/malidp_utils.h    |  3 ---
+ .../drm/arm/display/komeda/komeda_pipeline.c  | 16 +++++++++++-----
+ .../display/komeda/komeda_pipeline_state.c    | 19 +++++++++++--------
+ 3 files changed, 22 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 00ba8e5a1ccc..33192a8f687d 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -1772,6 +1772,11 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		hpriv->flags |= AHCI_HFLAG_NO_DEVSLP;
+diff --git a/drivers/gpu/drm/arm/display/include/malidp_utils.h b/drivers/gpu/drm/arm/display/include/malidp_utils.h
+index 3bc383d5bf73..49a1d7f3539c 100644
+--- a/drivers/gpu/drm/arm/display/include/malidp_utils.h
++++ b/drivers/gpu/drm/arm/display/include/malidp_utils.h
+@@ -13,9 +13,6 @@
+ #define has_bit(nr, mask)	(BIT(nr) & (mask))
+ #define has_bits(bits, mask)	(((bits) & (mask)) == (bits))
  
- #ifdef CONFIG_ARM64
-+	if (pdev->vendor == PCI_VENDOR_ID_HUAWEI &&
-+	    pdev->device == 0xa235 &&
-+	    pdev->revision < 0x30)
-+		hpriv->flags |= AHCI_HFLAG_NO_SXS;
-+
- 	if (pdev->vendor == 0x177d && pdev->device == 0xa01c)
- 		hpriv->irq_handler = ahci_thunderx_irq_handler;
- #endif
-diff --git a/drivers/ata/ahci.h b/drivers/ata/ahci.h
-index 98b8baa47dc5..d1f284f0c83d 100644
---- a/drivers/ata/ahci.h
-+++ b/drivers/ata/ahci.h
-@@ -242,6 +242,7 @@ enum {
- 							suspend/resume */
- 	AHCI_HFLAG_IGN_NOTSUPP_POWER_ON	= (1 << 27), /* ignore -EOPNOTSUPP
- 							from phy_power_on() */
-+	AHCI_HFLAG_NO_SXS		= (1 << 28), /* SXS not supported */
+-#define dp_for_each_set_bit(bit, mask) \
+-	for_each_set_bit((bit), ((unsigned long *)&(mask)), sizeof(mask) * 8)
+-
+ #define dp_wait_cond(__cond, __tries, __min_range, __max_range)	\
+ ({							\
+ 	int num_tries = __tries;			\
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_pipeline.c b/drivers/gpu/drm/arm/display/komeda/komeda_pipeline.c
+index 719a79728e24..06c595378dda 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_pipeline.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_pipeline.c
+@@ -46,8 +46,9 @@ void komeda_pipeline_destroy(struct komeda_dev *mdev,
+ {
+ 	struct komeda_component *c;
+ 	int i;
++	unsigned long avail_comps = pipe->avail_comps;
  
- 	/* ap->flags bits */
- 
-diff --git a/drivers/ata/libahci.c b/drivers/ata/libahci.c
-index ea5bf5f4cbed..fec2e9754aed 100644
---- a/drivers/ata/libahci.c
-+++ b/drivers/ata/libahci.c
-@@ -493,6 +493,11 @@ void ahci_save_initial_config(struct device *dev, struct ahci_host_priv *hpriv)
- 		cap |= HOST_CAP_ALPM;
+-	dp_for_each_set_bit(i, pipe->avail_comps) {
++	for_each_set_bit(i, &avail_comps, 32) {
+ 		c = komeda_pipeline_get_component(pipe, i);
+ 		komeda_component_destroy(mdev, c);
  	}
+@@ -247,6 +248,7 @@ static void komeda_pipeline_dump(struct komeda_pipeline *pipe)
+ {
+ 	struct komeda_component *c;
+ 	int id;
++	unsigned long avail_comps = pipe->avail_comps;
  
-+	if ((cap & HOST_CAP_SXS) && (hpriv->flags & AHCI_HFLAG_NO_SXS)) {
-+		dev_info(dev, "controller does not support SXS, disabling CAP_SXS\n");
-+		cap &= ~HOST_CAP_SXS;
-+	}
-+
- 	if (hpriv->force_port_map && port_map != hpriv->force_port_map) {
- 		dev_info(dev, "forcing port_map 0x%x -> 0x%x\n",
- 			 port_map, hpriv->force_port_map);
+ 	DRM_INFO("Pipeline-%d: n_layers: %d, n_scalers: %d, output: %s.\n",
+ 		 pipe->id, pipe->n_layers, pipe->n_scalers,
+@@ -258,7 +260,7 @@ static void komeda_pipeline_dump(struct komeda_pipeline *pipe)
+ 		 pipe->of_output_links[1] ?
+ 		 pipe->of_output_links[1]->full_name : "none");
+ 
+-	dp_for_each_set_bit(id, pipe->avail_comps) {
++	for_each_set_bit(id, &avail_comps, 32) {
+ 		c = komeda_pipeline_get_component(pipe, id);
+ 
+ 		komeda_component_dump(c);
+@@ -270,8 +272,9 @@ static void komeda_component_verify_inputs(struct komeda_component *c)
+ 	struct komeda_pipeline *pipe = c->pipeline;
+ 	struct komeda_component *input;
+ 	int id;
++	unsigned long supported_inputs = c->supported_inputs;
+ 
+-	dp_for_each_set_bit(id, c->supported_inputs) {
++	for_each_set_bit(id, &supported_inputs, 32) {
+ 		input = komeda_pipeline_get_component(pipe, id);
+ 		if (!input) {
+ 			c->supported_inputs &= ~(BIT(id));
+@@ -302,8 +305,9 @@ static void komeda_pipeline_assemble(struct komeda_pipeline *pipe)
+ 	struct komeda_component *c;
+ 	struct komeda_layer *layer;
+ 	int i, id;
++	unsigned long avail_comps = pipe->avail_comps;
+ 
+-	dp_for_each_set_bit(id, pipe->avail_comps) {
++	for_each_set_bit(id, &avail_comps, 32) {
+ 		c = komeda_pipeline_get_component(pipe, id);
+ 		komeda_component_verify_inputs(c);
+ 	}
+@@ -355,13 +359,15 @@ void komeda_pipeline_dump_register(struct komeda_pipeline *pipe,
+ {
+ 	struct komeda_component *c;
+ 	u32 id;
++	unsigned long avail_comps;
+ 
+ 	seq_printf(sf, "\n======== Pipeline-%d ==========\n", pipe->id);
+ 
+ 	if (pipe->funcs && pipe->funcs->dump_register)
+ 		pipe->funcs->dump_register(pipe, sf);
+ 
+-	dp_for_each_set_bit(id, pipe->avail_comps) {
++	avail_comps = pipe->avail_comps;
++	for_each_set_bit(id, &avail_comps, 32) {
+ 		c = komeda_pipeline_get_component(pipe, id);
+ 
+ 		seq_printf(sf, "\n------%s------\n", c->name);
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_pipeline_state.c b/drivers/gpu/drm/arm/display/komeda/komeda_pipeline_state.c
+index 5c085116de3f..e672b9cffee3 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_pipeline_state.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_pipeline_state.c
+@@ -1231,14 +1231,15 @@ komeda_pipeline_unbound_components(struct komeda_pipeline *pipe,
+ 	struct komeda_pipeline_state *old = priv_to_pipe_st(pipe->obj.state);
+ 	struct komeda_component_state *c_st;
+ 	struct komeda_component *c;
+-	u32 disabling_comps, id;
++	u32 id;
++	unsigned long disabling_comps;
+ 
+ 	WARN_ON(!old);
+ 
+ 	disabling_comps = (~new->active_comps) & old->active_comps;
+ 
+ 	/* unbound all disabling component */
+-	dp_for_each_set_bit(id, disabling_comps) {
++	for_each_set_bit(id, &disabling_comps, 32) {
+ 		c = komeda_pipeline_get_component(pipe, id);
+ 		c_st = komeda_component_get_state_and_set_user(c,
+ 				drm_st, NULL, new->crtc);
+@@ -1286,7 +1287,8 @@ bool komeda_pipeline_disable(struct komeda_pipeline *pipe,
+ 	struct komeda_pipeline_state *old;
+ 	struct komeda_component *c;
+ 	struct komeda_component_state *c_st;
+-	u32 id, disabling_comps = 0;
++	u32 id;
++	unsigned long disabling_comps;
+ 
+ 	old = komeda_pipeline_get_old_state(pipe, old_state);
+ 
+@@ -1296,10 +1298,10 @@ bool komeda_pipeline_disable(struct komeda_pipeline *pipe,
+ 		disabling_comps = old->active_comps &
+ 				  pipe->standalone_disabled_comps;
+ 
+-	DRM_DEBUG_ATOMIC("PIPE%d: active_comps: 0x%x, disabling_comps: 0x%x.\n",
++	DRM_DEBUG_ATOMIC("PIPE%d: active_comps: 0x%x, disabling_comps: 0x%lx.\n",
+ 			 pipe->id, old->active_comps, disabling_comps);
+ 
+-	dp_for_each_set_bit(id, disabling_comps) {
++	for_each_set_bit(id, &disabling_comps, 32) {
+ 		c = komeda_pipeline_get_component(pipe, id);
+ 		c_st = priv_to_comp_st(c->obj.state);
+ 
+@@ -1330,16 +1332,17 @@ void komeda_pipeline_update(struct komeda_pipeline *pipe,
+ 	struct komeda_pipeline_state *new = priv_to_pipe_st(pipe->obj.state);
+ 	struct komeda_pipeline_state *old;
+ 	struct komeda_component *c;
+-	u32 id, changed_comps = 0;
++	u32 id;
++	unsigned long changed_comps;
+ 
+ 	old = komeda_pipeline_get_old_state(pipe, old_state);
+ 
+ 	changed_comps = new->active_comps | old->active_comps;
+ 
+-	DRM_DEBUG_ATOMIC("PIPE%d: active_comps: 0x%x, changed: 0x%x.\n",
++	DRM_DEBUG_ATOMIC("PIPE%d: active_comps: 0x%x, changed: 0x%lx.\n",
+ 			 pipe->id, new->active_comps, changed_comps);
+ 
+-	dp_for_each_set_bit(id, changed_comps) {
++	for_each_set_bit(id, &changed_comps, 32) {
+ 		c = komeda_pipeline_get_component(pipe, id);
+ 
+ 		if (new->active_comps & BIT(c->id))
 -- 
 2.30.2
 
