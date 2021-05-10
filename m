@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A95637816E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:25:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C661378183
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230506AbhEJK0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58886 "EHLO mail.kernel.org"
+        id S231466AbhEJK12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231365AbhEJK0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:26:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7381461075;
-        Mon, 10 May 2021 10:24:58 +0000 (UTC)
+        id S231468AbhEJK00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:26:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D6456143C;
+        Mon, 10 May 2021 10:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642299;
-        bh=lsQtnvg8mSO16p3n5+v4dArulbab2cr2n0yfB01NNzk=;
+        s=korg; t=1620642321;
+        bh=F9IXfXb8pPFjYdKBCOTGE3PkBfVpkRIV/tNoLcf3vkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTaY9kDQCoKhR3Lnqm50u1zVooNXPx9tKF7sUZkRvVSGHqLlqM7L7K4nMbBagoWpf
-         b48mFtrZ62r+7h3+v8zhKE73Ha1RTL/ctjpyrkUriQCEa/MKD+42V2ej9xwGU1C7+6
-         lTEbuIDbG2AUb7V6FyL6DScC9HiZkvhyL6WY9s5k=
+        b=XQ1TkeliGrNkDq7tb8XS3kVyvXxBe+SF4xez/5XJL51UA2qpiDa97r8OCA9hGIrjc
+         KPIz2wa0A6GkeG/XyGKS01krubK9wYbTEChe7i2x1ILVrN9ZFq8Vksk80w2GfBGOBX
+         PGcC02RHx/a8XKZcHwzcKDV4hk6X6NhbLJNMpli4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gao Xiang <hsiangkao@redhat.com>
-Subject: [PATCH 5.4 011/184] erofs: add unsupported inode i_format check
-Date:   Mon, 10 May 2021 12:18:25 +0200
-Message-Id: <20210510101950.580070203@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 012/184] spi: spi-ti-qspi: Free DMA resources
+Date:   Mon, 10 May 2021 12:18:26 +0200
+Message-Id: <20210510101950.613154127@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -38,52 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 24a806d849c0b0c1d0cd6a6b93ba4ae4c0ec9f08 upstream.
+commit 1d309cd688a76fb733f0089d36dc630327b32d59 upstream.
 
-If any unknown i_format fields are set (may be of some new incompat
-inode features), mark such inode as unsupported.
+Release the RX channel and free the dma coherent memory when
+devm_spi_register_master() fails.
 
-Just in case of any new incompat i_format fields added in the future.
-
-Link: https://lore.kernel.org/r/20210329003614.6583-1-hsiangkao@aol.com
-Fixes: 431339ba9042 ("staging: erofs: add inode operations")
-Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Fixes: 5720ec0a6d26 ("spi: spi-ti-qspi: Add DMA support for QSPI mmap read")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20210218130950.90155-1-tudor.ambarus@microchip.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/erofs/erofs_fs.h |    3 +++
- fs/erofs/inode.c    |    7 +++++++
- 2 files changed, 10 insertions(+)
+ drivers/spi/spi-ti-qspi.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -74,6 +74,9 @@ static inline bool erofs_inode_is_data_c
- #define EROFS_I_VERSION_BIT             0
- #define EROFS_I_DATALAYOUT_BIT          1
+--- a/drivers/spi/spi-ti-qspi.c
++++ b/drivers/spi/spi-ti-qspi.c
+@@ -656,6 +656,17 @@ static int ti_qspi_runtime_resume(struct
+ 	return 0;
+ }
  
-+#define EROFS_I_ALL	\
-+	((1 << (EROFS_I_DATALAYOUT_BIT + EROFS_I_DATALAYOUT_BITS)) - 1)
++static void ti_qspi_dma_cleanup(struct ti_qspi *qspi)
++{
++	if (qspi->rx_bb_addr)
++		dma_free_coherent(qspi->dev, QSPI_DMA_BUFFER_SIZE,
++				  qspi->rx_bb_addr,
++				  qspi->rx_bb_dma_addr);
 +
- /* 32-byte reduced form of an ondisk inode */
- struct erofs_inode_compact {
- 	__le16 i_format;	/* inode format hints */
---- a/fs/erofs/inode.c
-+++ b/fs/erofs/inode.c
-@@ -44,6 +44,13 @@ static struct page *erofs_read_inode(str
- 	dic = page_address(page) + *ofs;
- 	ifmt = le16_to_cpu(dic->i_format);
++	if (qspi->rx_chan)
++		dma_release_channel(qspi->rx_chan);
++}
++
+ static const struct of_device_id ti_qspi_match[] = {
+ 	{.compatible = "ti,dra7xxx-qspi" },
+ 	{.compatible = "ti,am4372-qspi" },
+@@ -809,6 +820,8 @@ no_dma:
+ 	if (!ret)
+ 		return 0;
  
-+	if (ifmt & ~EROFS_I_ALL) {
-+		erofs_err(inode->i_sb, "unsupported i_format %u of nid %llu",
-+			  ifmt, vi->nid);
-+		err = -EOPNOTSUPP;
-+		goto err_out;
-+	}
++	ti_qspi_dma_cleanup(qspi);
 +
- 	vi->datalayout = erofs_inode_datalayout(ifmt);
- 	if (vi->datalayout >= EROFS_INODE_DATALAYOUT_MAX) {
- 		erofs_err(inode->i_sb, "unsupported datalayout %u of nid %llu",
+ 	pm_runtime_disable(&pdev->dev);
+ free_master:
+ 	spi_master_put(master);
+@@ -827,12 +840,7 @@ static int ti_qspi_remove(struct platfor
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
+-	if (qspi->rx_bb_addr)
+-		dma_free_coherent(qspi->dev, QSPI_DMA_BUFFER_SIZE,
+-				  qspi->rx_bb_addr,
+-				  qspi->rx_bb_dma_addr);
+-	if (qspi->rx_chan)
+-		dma_release_channel(qspi->rx_chan);
++	ti_qspi_dma_cleanup(qspi);
+ 
+ 	return 0;
+ }
 
 
