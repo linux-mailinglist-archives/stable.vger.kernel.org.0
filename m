@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88805378856
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 131313786A0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239166AbhEJLVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46276 "EHLO mail.kernel.org"
+        id S234882AbhEJLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:09:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236989AbhEJLLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4732361492;
-        Mon, 10 May 2021 11:06:08 +0000 (UTC)
+        id S235543AbhEJLBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:01:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B17E61C19;
+        Mon, 10 May 2021 10:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644768;
-        bh=kzZv7Kyj1BQwK4gyBFFvCwusnu0T6du3DLebmXisGGg=;
+        s=korg; t=1620644011;
+        bh=BIQX3mrgQjYbqsK75Q+FnWt0J3RwnuA2FH8ieLqU8b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrkDbXmnh1dDESG39hEuXq/q9B7MTgTA3YD+Pr8HxKTpZlLciIQh9sBce8KS0TzMC
-         B+6A0DVmciFKL/o/l7N/K0wlggMaJ7hdb4atttedkFfHEK+U0RoadE2oYoDpAOClnL
-         PPABvvpO853LVpNkvOhKEtDNSKQFIAT1vBMAmLYE=
+        b=nqb0HJOd8pcC/0CDOZvkbBence7jeN9anDybsYU+LLYxF0QpdwZVoQS6tangRsIhV
+         rCyLB9kdoT/AN0yHuroDW5Ul0rCMrFxz8Tx4ZZZvgq58S4ome+qnQ4Hd+0Bf4FZu3I
+         v2HCJrZ+glywN+UczUSLu23VDhj/udlGtsd61I6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        John Garry <john.garry@huawei.com>,
-        Scott Benesh <scott.benesh@microchip.com>,
-        Scott Teel <scott.teel@microchip.com>,
-        Mike McGowen <mike.mcgowen@microchip.com>,
-        Kevin Barnett <kevin.barnett@microchip.com>,
-        Don Brace <don.brace@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Gomez <daniel@qtec.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 216/384] scsi: smartpqi: Use host-wide tag space
-Date:   Mon, 10 May 2021 12:20:05 +0200
-Message-Id: <20210510102022.016675180@linuxfoundation.org>
+Subject: [PATCH 5.11 216/342] drm/radeon/ttm: Fix memory leak userptr pages
+Date:   Mon, 10 May 2021 12:20:06 +0200
+Message-Id: <20210510102017.232164864@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Don Brace <don.brace@microchip.com>
+From: Daniel Gomez <daniel@qtec.com>
 
-[ Upstream commit c6d3ee209b9e863c6251f72101511340451ca324 ]
+[ Upstream commit 5aeaa43e0ef1006320c077cbc49f4a8229ca3460 ]
 
-Correct SCSI midlayer sending more requests than exposed host queue depth
-causing firmware ASSERT and lockup issues by enabling host-wide tags.
+If userptr pages have been pinned but not bounded,
+they remain uncleared.
 
-Note: This also results in better performance.
-
-Link: https://lore.kernel.org/r/161549369787.25025.8975999483518581619.stgit@brunhilda
-Suggested-by: Ming Lei <ming.lei@redhat.com>
-Suggested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
-Reviewed-by: Scott Teel <scott.teel@microchip.com>
-Reviewed-by: Mike McGowen <mike.mcgowen@microchip.com>
-Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
-Signed-off-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Daniel Gomez <daniel@qtec.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/radeon/radeon_ttm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index a1dacb6e993e..3795804ea869 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -6598,6 +6598,7 @@ static int pqi_register_scsi(struct pqi_ctrl_info *ctrl_info)
- 	shost->irq = pci_irq_vector(ctrl_info->pci_dev, 0);
- 	shost->unique_id = shost->irq;
- 	shost->nr_hw_queues = ctrl_info->num_queue_groups;
-+	shost->host_tagset = 1;
- 	shost->hostdata[0] = (unsigned long)ctrl_info;
+diff --git a/drivers/gpu/drm/radeon/radeon_ttm.c b/drivers/gpu/drm/radeon/radeon_ttm.c
+index 176cb55062be..08a015a36304 100644
+--- a/drivers/gpu/drm/radeon/radeon_ttm.c
++++ b/drivers/gpu/drm/radeon/radeon_ttm.c
+@@ -486,13 +486,14 @@ static void radeon_ttm_backend_unbind(struct ttm_bo_device *bdev, struct ttm_tt
+ 	struct radeon_ttm_tt *gtt = (void *)ttm;
+ 	struct radeon_device *rdev = radeon_get_rdev(bdev);
  
- 	rc = scsi_add_host(shost, &ctrl_info->pci_dev->dev);
++	if (gtt->userptr)
++		radeon_ttm_tt_unpin_userptr(bdev, ttm);
++
+ 	if (!gtt->bound)
+ 		return;
+ 
+ 	radeon_gart_unbind(rdev, gtt->offset, ttm->num_pages);
+ 
+-	if (gtt->userptr)
+-		radeon_ttm_tt_unpin_userptr(bdev, ttm);
+ 	gtt->bound = false;
+ }
+ 
 -- 
 2.30.2
 
