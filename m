@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A24378587
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A2F37858A
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235323AbhEJLAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:00:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
+        id S235349AbhEJLAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234354AbhEJK4R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E75A861624;
-        Mon, 10 May 2021 10:45:23 +0000 (UTC)
+        id S234380AbhEJK4T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 532D261987;
+        Mon, 10 May 2021 10:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643524;
-        bh=sqS4/lFrjIGbpONGxr9kDMrGcK8jhiMMJYnZOL9A3w0=;
+        s=korg; t=1620643526;
+        bh=MJr9DyL0JftSDbf++X7hYhJnObKfGFm5Ew+MNdvtqoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXNi8fg9kECD2JYiS9qV3qOA5jyjFJbNAMuT6Xadm1VpbUcUCZZ8XfIbLu41jG9OJ
-         5vqw+WOSpkZ1OYFmS0YCbphmXtK2Uy9xrO/TSMus/jlgWyaxZQ8BmRc9f7Q2d/PykS
-         wNkEJaLqE1Uqcl6MP2MvRZeMXSFwjnsaPcoYvFvY=
+        b=nqsXwG8bTrlo5Du+V7IIxTyL4yuPO06RSFkm18rjV374InQS5kKgEyDqCd/WqdvGA
+         yE7S0RWj8HDaDhCq2y7HOFahmEtgBiQ8EMw1f7vYHvV+GWRR4EYbA/7T8cT2y3TR8U
+         55b6n35To8H00yVvG1fL37GpdbKILoewcMRvMzA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        He Ying <heying24@huawei.com>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.11 048/342] irqchip/gic-v3: Do not enable irqs when handling spurious interrups
-Date:   Mon, 10 May 2021 12:17:18 +0200
-Message-Id: <20210510102011.723704472@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Aurich <paul@darkrain42.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.11 049/342] cifs: Return correct error code from smb2_get_enc_key
+Date:   Mon, 10 May 2021 12:17:19 +0200
+Message-Id: <20210510102011.753148357@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -39,116 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Ying <heying24@huawei.com>
+From: Paul Aurich <paul@darkrain42.org>
 
-commit a97709f563a078e259bf0861cd259aa60332890a upstream.
+commit 83728cbf366e334301091d5b808add468ab46b27 upstream.
 
-We triggered the following error while running our 4.19 kernel
-with the pseudo-NMI patches backported to it:
+Avoid a warning if the error percolates back up:
 
-[   14.816231] ------------[ cut here ]------------
-[   14.816231] kernel BUG at irq.c:99!
-[   14.816232] Internal error: Oops - BUG: 0 [#1] SMP
-[   14.816232] Process swapper/0 (pid: 0, stack limit = 0x(____ptrval____))
-[   14.816233] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      4.19.95.aarch64 #14
-[   14.816233] Hardware name: evb (DT)
-[   14.816234] pstate: 80400085 (Nzcv daIf +PAN -UAO)
-[   14.816234] pc : asm_nmi_enter+0x94/0x98
-[   14.816235] lr : asm_nmi_enter+0x18/0x98
-[   14.816235] sp : ffff000008003c50
-[   14.816235] pmr_save: 00000070
-[   14.816237] x29: ffff000008003c50 x28: ffff0000095f56c0
-[   14.816238] x27: 0000000000000000 x26: ffff000008004000
-[   14.816239] x25: 00000000015e0000 x24: ffff8008fb916000
-[   14.816240] x23: 0000000020400005 x22: ffff0000080817cc
-[   14.816241] x21: ffff000008003da0 x20: 0000000000000060
-[   14.816242] x19: 00000000000003ff x18: ffffffffffffffff
-[   14.816243] x17: 0000000000000008 x16: 003d090000000000
-[   14.816244] x15: ffff0000095ea6c8 x14: ffff8008fff5ab40
-[   14.816244] x13: ffff8008fff58b9d x12: 0000000000000000
-[   14.816245] x11: ffff000008c8a200 x10: 000000008e31fca5
-[   14.816246] x9 : ffff000008c8a208 x8 : 000000000000000f
-[   14.816247] x7 : 0000000000000004 x6 : ffff8008fff58b9e
-[   14.816248] x5 : 0000000000000000 x4 : 0000000080000000
-[   14.816249] x3 : 0000000000000000 x2 : 0000000080000000
-[   14.816250] x1 : 0000000000120000 x0 : ffff0000095f56c0
-[   14.816251] Call trace:
-[   14.816251]  asm_nmi_enter+0x94/0x98
-[   14.816251]  el1_irq+0x8c/0x180                    (IRQ C)
-[   14.816252]  gic_handle_irq+0xbc/0x2e4
-[   14.816252]  el1_irq+0xcc/0x180                    (IRQ B)
-[   14.816253]  arch_timer_handler_virt+0x38/0x58
-[   14.816253]  handle_percpu_devid_irq+0x90/0x240
-[   14.816253]  generic_handle_irq+0x34/0x50
-[   14.816254]  __handle_domain_irq+0x68/0xc0
-[   14.816254]  gic_handle_irq+0xf8/0x2e4
-[   14.816255]  el1_irq+0xcc/0x180                    (IRQ A)
-[   14.816255]  arch_cpu_idle+0x34/0x1c8
-[   14.816255]  default_idle_call+0x24/0x44
-[   14.816256]  do_idle+0x1d0/0x2c8
-[   14.816256]  cpu_startup_entry+0x28/0x30
-[   14.816256]  rest_init+0xb8/0xc8
-[   14.816257]  start_kernel+0x4c8/0x4f4
-[   14.816257] Code: 940587f1 d5384100 b9401001 36a7fd01 (d4210000)
-[   14.816258] Modules linked in: start_dp(O) smeth(O)
-[   15.103092] ---[ end trace 701753956cb14aa8 ]---
-[   15.103093] Kernel panic - not syncing: Fatal exception in interrupt
-[   15.103099] SMP: stopping secondary CPUs
-[   15.103100] Kernel Offset: disabled
-[   15.103100] CPU features: 0x36,a2400218
-[   15.103100] Memory Limit: none
+[440700.376476] CIFS VFS: \\otters.example.com crypt_message: Could not get encryption key
+[440700.386947] ------------[ cut here ]------------
+[440700.386948] err = 1
+[440700.386977] WARNING: CPU: 11 PID: 2733 at /build/linux-hwe-5.4-p6lk6L/linux-hwe-5.4-5.4.0/lib/errseq.c:74 errseq_set+0x5c/0x70
+...
+[440700.397304] CPU: 11 PID: 2733 Comm: tar Tainted: G           OE     5.4.0-70-generic #78~18.04.1-Ubuntu
+...
+[440700.397334] Call Trace:
+[440700.397346]  __filemap_set_wb_err+0x1a/0x70
+[440700.397419]  cifs_writepages+0x9c7/0xb30 [cifs]
+[440700.397426]  do_writepages+0x4b/0xe0
+[440700.397444]  __filemap_fdatawrite_range+0xcb/0x100
+[440700.397455]  filemap_write_and_wait+0x42/0xa0
+[440700.397486]  cifs_setattr+0x68b/0xf30 [cifs]
+[440700.397493]  notify_change+0x358/0x4a0
+[440700.397500]  utimes_common+0xe9/0x1c0
+[440700.397510]  do_utimes+0xc5/0x150
+[440700.397520]  __x64_sys_utimensat+0x88/0xd0
 
-which is cause by a 'BUG_ON(in_nmi())' in nmi_enter().
-
->From the call trace, we can find three interrupts (noted A, B, C above):
-interrupt (A) is preempted by (B), which is further interrupted by (C).
-
-Subsequent investigations show that (B) results in nmi_enter() being
-called, but that it actually is a spurious interrupt. Furthermore,
-interrupts are reenabled in the context of (B), and (C) fires with
-NMI priority. We end-up with a nested NMI situation, something
-we definitely do not want to (and cannot) handle.
-
-The bug here is that spurious interrupts should never result in any
-state change, and we should just return to the interrupted context.
-Moving the handling of spurious interrupts as early as possible in
-the GICv3 handler fixes this issue.
-
-Fixes: 3f1f3234bc2d ("irqchip/gic-v3: Switch to PMR masking before calling IRQ handler")
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: He Ying <heying24@huawei.com>
-[maz: rewrote commit message, corrected Fixes: tag]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210423083516.170111-1-heying24@huawei.com
-Cc: stable@vger.kernel.org
+Fixes: 61cfac6f267d ("CIFS: Fix possible use after free in demultiplex thread")
+Signed-off-by: Paul Aurich <paul@darkrain42.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-gic-v3.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/cifs/smb2ops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/irqchip/irq-gic-v3.c
-+++ b/drivers/irqchip/irq-gic-v3.c
-@@ -648,6 +648,10 @@ static asmlinkage void __exception_irq_e
- 
- 	irqnr = gic_read_iar();
- 
-+	/* Check for special IDs first */
-+	if ((irqnr >= 1020 && irqnr <= 1023))
-+		return;
-+
- 	if (gic_supports_nmi() &&
- 	    unlikely(gic_read_rpr() == GICD_INT_NMI_PRI)) {
- 		gic_handle_nmi(irqnr, regs);
-@@ -659,10 +663,6 @@ static asmlinkage void __exception_irq_e
- 		gic_arch_enable_irqs();
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -4117,7 +4117,7 @@ smb2_get_enc_key(struct TCP_Server_Info
  	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
  
--	/* Check for special IDs first */
--	if ((irqnr >= 1020 && irqnr <= 1023))
--		return;
--
- 	if (static_branch_likely(&supports_deactivate_key))
- 		gic_write_eoir(irqnr);
- 	else
+-	return 1;
++	return -EAGAIN;
+ }
+ /*
+  * Encrypt or decrypt @rqst message. @rqst[0] has the following format:
 
 
