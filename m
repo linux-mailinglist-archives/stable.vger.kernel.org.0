@@ -2,84 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00937377FC2
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 11:46:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F4C377FCA
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 11:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbhEJJrz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 05:47:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33204 "EHLO mail.kernel.org"
+        id S230157AbhEJJun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 05:50:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230093AbhEJJrz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 05:47:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B54960FDA;
-        Mon, 10 May 2021 09:46:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620640010;
-        bh=21GdrFSAMQTXMFVqvxpKiSR1Lz6xlfRm4Wzori0Wuyg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=caotaLPrm2BobhTu6NiJSLEk3GWqQuWfa8ZP7fUS671MX7PbGKUGdv7/M4475rDTp
-         tRAqHDBN/yQ1rI+qYO75gU7VUYwJj2Kp5d1gey/kBNzt2xgMJzVoxNSTwkPW7N1hep
-         xJd3RgAJKFL8qo2E9HocZdWhTrhxYevXfV3LSANM=
-Date:   Mon, 10 May 2021 11:46:48 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Russell King <linux@armlinux.org.uk>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Desaulniers <ndesaulniers@gooogle.com>,
-        Joe Perches <joe@perches.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH stable 5.10 0/3] ARM FDT relocation backports
-Message-ID: <YJkBCMUpKUax0idB@kroah.com>
-References: <20210509173029.1653182-1-f.fainelli@gmail.com>
- <CAMj1kXGt1zrRQused3xgXzhQYfDchgH325iRDCZrx+7o1+bUnA@mail.gmail.com>
- <5f8fed97-8c73-73b0-6576-bf3fbcdb1440@gmail.com>
- <YJjkOLg/Ivo2kMOS@kroah.com>
- <CACRpkdb+4OFpsJAPkEjTBBf_+VTUvKkzsDb9xaSOxqhNSWkeeg@mail.gmail.com>
+        id S230103AbhEJJun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 05:50:43 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A47461042;
+        Mon, 10 May 2021 09:49:35 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lg2Xd-000LFh-BX; Mon, 10 May 2021 10:49:33 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Zenghui Yu <yuzenghui@huawei.com>,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: [PATCH 1/2] KVM: arm64: Move __adjust_pc out of line
+Date:   Mon, 10 May 2021 10:49:14 +0100
+Message-Id: <20210510094915.1909484-2-maz@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210510094915.1909484-1-maz@kernel.org>
+References: <20210510094915.1909484-1-maz@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACRpkdb+4OFpsJAPkEjTBBf_+VTUvKkzsDb9xaSOxqhNSWkeeg@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, yuzenghui@huawei.com, james.morse@arm.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 10, 2021 at 11:37:01AM +0200, Linus Walleij wrote:
-> On Mon, May 10, 2021 at 9:43 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> > On Sun, May 09, 2021 at 06:22:05PM -0700, Florian Fainelli wrote:
-> 
-> > > This does not qualify as a regression in that it has never worked for
-> > > the specific platform that I have shown above until your 3 commits came
-> > > in and fixed that particular FDT placement. To me this qualifies as a
-> > > bug fix, and given that the 3 (now 4) commits applied without hunks, it
-> > > seems reasonable to me to back port those to stable.
-> >
-> > As this isn't a regression, why not just use 5.12 on these platforms?
-> > Why is 5.4 and 5.10 needed?
-> 
-> Actually I think it *is* a regression, but not a common one. The bug that
-> Ard is fixing can appear when the kernel grows over a certain size.
-> 
-> If a user compile in a new set of functionality and the kernel size
-> reach a tripping point so that the DTB ends up just outside the 1:1
-> lowmem map, disaster strikes.
-> 
-> This has been a long standing mysterious bug for people using
-> attached device trees.
+In order to make it easy to call __adjust_pc() from the EL1 code
+(in the case of nVHE), rename it to __kvm_adjust_pc() and move
+it out of line.
 
-Ok, then feel free to ack them when they get resubmitted.
+No expected functional change.
 
-thanks,
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # 5.11
+---
+ arch/arm64/include/asm/kvm_asm.h           |  2 ++
+ arch/arm64/kvm/hyp/exception.c             | 18 +++++++++++++++++-
+ arch/arm64/kvm/hyp/include/hyp/adjust_pc.h | 18 ------------------
+ arch/arm64/kvm/hyp/nvhe/switch.c           |  2 +-
+ arch/arm64/kvm/hyp/vhe/switch.c            |  2 +-
+ 5 files changed, 21 insertions(+), 21 deletions(-)
 
-greg k-h
+diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
+index cf8df032b9c3..d5b11037401d 100644
+--- a/arch/arm64/include/asm/kvm_asm.h
++++ b/arch/arm64/include/asm/kvm_asm.h
+@@ -201,6 +201,8 @@ extern void __kvm_timer_set_cntvoff(u64 cntvoff);
+ 
+ extern int __kvm_vcpu_run(struct kvm_vcpu *vcpu);
+ 
++extern void __kvm_adjust_pc(struct kvm_vcpu *vcpu);
++
+ extern u64 __vgic_v3_get_gic_config(void);
+ extern u64 __vgic_v3_read_vmcr(void);
+ extern void __vgic_v3_write_vmcr(u32 vmcr);
+diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
+index 73629094f903..0812a496725f 100644
+--- a/arch/arm64/kvm/hyp/exception.c
++++ b/arch/arm64/kvm/hyp/exception.c
+@@ -296,7 +296,7 @@ static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
+ 	*vcpu_pc(vcpu) = vect_offset;
+ }
+ 
+-void kvm_inject_exception(struct kvm_vcpu *vcpu)
++static void kvm_inject_exception(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu_el1_is_32bit(vcpu)) {
+ 		switch (vcpu->arch.flags & KVM_ARM64_EXCEPT_MASK) {
+@@ -329,3 +329,19 @@ void kvm_inject_exception(struct kvm_vcpu *vcpu)
+ 		}
+ 	}
+ }
++
++/*
++ * Adjust the guest PC on entry, depending on flags provided by EL1
++ * for the purpose of emulation (MMIO, sysreg) or exception injection.
++ */
++void __kvm_adjust_pc(struct kvm_vcpu *vcpu)
++{
++	if (vcpu->arch.flags & KVM_ARM64_PENDING_EXCEPTION) {
++		kvm_inject_exception(vcpu);
++		vcpu->arch.flags &= ~(KVM_ARM64_PENDING_EXCEPTION |
++				      KVM_ARM64_EXCEPT_MASK);
++	} else 	if (vcpu->arch.flags & KVM_ARM64_INCREMENT_PC) {
++		kvm_skip_instr(vcpu);
++		vcpu->arch.flags &= ~KVM_ARM64_INCREMENT_PC;
++	}
++}
+diff --git a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
+index 61716359035d..4fdfeabefeb4 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
++++ b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
+@@ -13,8 +13,6 @@
+ #include <asm/kvm_emulate.h>
+ #include <asm/kvm_host.h>
+ 
+-void kvm_inject_exception(struct kvm_vcpu *vcpu);
+-
+ static inline void kvm_skip_instr(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu_mode_is_32bit(vcpu)) {
+@@ -43,22 +41,6 @@ static inline void __kvm_skip_instr(struct kvm_vcpu *vcpu)
+ 	write_sysreg_el2(*vcpu_pc(vcpu), SYS_ELR);
+ }
+ 
+-/*
+- * Adjust the guest PC on entry, depending on flags provided by EL1
+- * for the purpose of emulation (MMIO, sysreg) or exception injection.
+- */
+-static inline void __adjust_pc(struct kvm_vcpu *vcpu)
+-{
+-	if (vcpu->arch.flags & KVM_ARM64_PENDING_EXCEPTION) {
+-		kvm_inject_exception(vcpu);
+-		vcpu->arch.flags &= ~(KVM_ARM64_PENDING_EXCEPTION |
+-				      KVM_ARM64_EXCEPT_MASK);
+-	} else 	if (vcpu->arch.flags & KVM_ARM64_INCREMENT_PC) {
+-		kvm_skip_instr(vcpu);
+-		vcpu->arch.flags &= ~KVM_ARM64_INCREMENT_PC;
+-	}
+-}
+-
+ /*
+  * Skip an instruction while host sysregs are live.
+  * Assumes host is always 64-bit.
+diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
+index e9f6ea704d07..b8ac123c3419 100644
+--- a/arch/arm64/kvm/hyp/nvhe/switch.c
++++ b/arch/arm64/kvm/hyp/nvhe/switch.c
+@@ -201,7 +201,7 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
+ 	 */
+ 	__debug_save_host_buffers_nvhe(vcpu);
+ 
+-	__adjust_pc(vcpu);
++	__kvm_adjust_pc(vcpu);
+ 
+ 	/*
+ 	 * We must restore the 32-bit state before the sysregs, thanks
+diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/switch.c
+index 7b8f7db5c1ed..3eafed0431f5 100644
+--- a/arch/arm64/kvm/hyp/vhe/switch.c
++++ b/arch/arm64/kvm/hyp/vhe/switch.c
+@@ -132,7 +132,7 @@ static int __kvm_vcpu_run_vhe(struct kvm_vcpu *vcpu)
+ 	__load_guest_stage2(vcpu->arch.hw_mmu);
+ 	__activate_traps(vcpu);
+ 
+-	__adjust_pc(vcpu);
++	__kvm_adjust_pc(vcpu);
+ 
+ 	sysreg_restore_guest_state_vhe(guest_ctxt);
+ 	__debug_switch_to_guest(vcpu);
+-- 
+2.29.2
+
