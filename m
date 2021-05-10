@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 922243788FF
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1C0537870E
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236598AbhEJLZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58324 "EHLO mail.kernel.org"
+        id S235112AbhEJLNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237438AbhEJLPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:15:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7B4F61108;
-        Mon, 10 May 2021 11:10:57 +0000 (UTC)
+        id S235873AbhEJLGo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:06:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39CB261606;
+        Mon, 10 May 2021 10:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645058;
-        bh=rAGappilp1e9ZWphv4CQintWd2/j0kzuJ2+3dx1DlRQ=;
+        s=korg; t=1620644208;
+        bh=DIItjvddofOd61EZziGfIY/0ApXe1STJV2zOgTiU0ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Id4VGtSE3FAwdvgJEh1lzj4B90BILiOfzBm59KAkys0n5L6aNu7cXrqRdq4d2o9My
-         3pn1meq1dWAXZF2O+kDfXOT9UnW1A4Rb4c4u/pUI4U9wmULt9jtNBem5sRfd7J6D1Y
-         u7RiDgcMDK7uOeTm3PAwZDZ2cZ3PbXdUf74TCyIM=
+        b=1svyPT7jjJVi1S5GNgNIN/V4sG47soDlrJNACALIVREwVdTyzsWo48facF3cSQ1Hl
+         u+QeXPKBhu2jV6123bjBQnHL7yPCO2BSp7VLAODAh7jsAPUmXa2TgP/+Hd1RAcBlQG
+         QpUcQ9IiH+7j3YEPQnrXap783HdITROaBRU09ncg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.12 333/384] futex: Do not apply time namespace adjustment on FUTEX_LOCK_PI
+        stable@vger.kernel.org, Calvin Walton <calvin.walton@kepstin.ca>,
+        Len Brown <len.brown@intel.com>
+Subject: [PATCH 5.11 332/342] tools/power turbostat: Fix offset overflow issue in index converting
 Date:   Mon, 10 May 2021 12:22:02 +0200
-Message-Id: <20210510102025.766946593@linuxfoundation.org>
+Message-Id: <20210510102021.074444936@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Calvin Walton <calvin.walton@kepstin.ca>
 
-commit cdf78db4070967869e4d027c11f4dd825d8f815a upstream.
+commit 13a779de4175df602366d129e41782ad7168cef0 upstream.
 
-FUTEX_LOCK_PI does not require to have the FUTEX_CLOCK_REALTIME bit set
-because it has been using CLOCK_REALTIME based absolute timeouts
-forever. Due to that, the time namespace adjustment which is applied when
-FUTEX_CLOCK_REALTIME is not set, will wrongly take place for FUTEX_LOCK_PI
-and wreckage the timeout.
+The idx_to_offset() function returns type int (32-bit signed), but
+MSR_PKG_ENERGY_STAT is u32 and would be interpreted as a negative number.
+The end result is that it hits the if (offset < 0) check in update_msr_sum()
+which prevents the timer callback from updating the stat in the background when
+long durations are used. The similar issue exists in offset_to_idx() and
+update_msr_sum(). Fix this issue by converting the 'int' to 'off_t' accordingly.
 
-Exclude it from that procedure.
-
-Fixes: c2f7d08cccf4 ("futex: Adjust absolute futex timeouts with per time namespace offset")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210422194704.984540159@linutronix.de
+Fixes: 9972d5d84d76 ("tools/power turbostat: Enable accumulate RAPL display")
+Signed-off-by: Calvin Walton <calvin.walton@kepstin.ca>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/futex.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/power/x86/turbostat/turbostat.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -3781,7 +3781,7 @@ SYSCALL_DEFINE6(futex, u32 __user *, uad
- 		t = timespec64_to_ktime(ts);
- 		if (cmd == FUTEX_WAIT)
- 			t = ktime_add_safe(ktime_get(), t);
--		else if (!(op & FUTEX_CLOCK_REALTIME))
-+		else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
- 			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
- 		tp = &t;
- 	}
-@@ -3975,7 +3975,7 @@ SYSCALL_DEFINE6(futex_time32, u32 __user
- 		t = timespec64_to_ktime(ts);
- 		if (cmd == FUTEX_WAIT)
- 			t = ktime_add_safe(ktime_get(), t);
--		else if (!(op & FUTEX_CLOCK_REALTIME))
-+		else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
- 			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
- 		tp = &t;
- 	}
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -291,9 +291,9 @@ struct msr_sum_array {
+ /* The percpu MSR sum array.*/
+ struct msr_sum_array *per_cpu_msr_sum;
+ 
+-int idx_to_offset(int idx)
++off_t idx_to_offset(int idx)
+ {
+-	int offset;
++	off_t offset;
+ 
+ 	switch (idx) {
+ 	case IDX_PKG_ENERGY:
+@@ -323,7 +323,7 @@ int idx_to_offset(int idx)
+ 	return offset;
+ }
+ 
+-int offset_to_idx(int offset)
++int offset_to_idx(off_t offset)
+ {
+ 	int idx;
+ 
+@@ -3276,7 +3276,7 @@ static int update_msr_sum(struct thread_
+ 
+ 	for (i = IDX_PKG_ENERGY; i < IDX_COUNT; i++) {
+ 		unsigned long long msr_cur, msr_last;
+-		int offset;
++		off_t offset;
+ 
+ 		if (!idx_valid(i))
+ 			continue;
+@@ -3285,7 +3285,8 @@ static int update_msr_sum(struct thread_
+ 			continue;
+ 		ret = get_msr(cpu, offset, &msr_cur);
+ 		if (ret) {
+-			fprintf(outf, "Can not update msr(0x%x)\n", offset);
++			fprintf(outf, "Can not update msr(0x%llx)\n",
++				(unsigned long long)offset);
+ 			continue;
+ 		}
+ 
 
 
