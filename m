@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925FC378983
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6EB378946
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239286AbhEJL0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:26:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34976 "EHLO mail.kernel.org"
+        id S239281AbhEJL0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:26:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238272AbhEJLRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:17:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A43A0616EA;
-        Mon, 10 May 2021 11:12:56 +0000 (UTC)
+        id S238275AbhEJLRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:17:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDD5F6162B;
+        Mon, 10 May 2021 11:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645177;
-        bh=NnXrD86QDaepdkZjCNN7ZgN4nfylby90UqM9E5K6xzI=;
+        s=korg; t=1620645179;
+        bh=B2vH7NJbtLKWWtienQ5S5qC1IhqOMtqm6mR+fPpiayk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOs9CJIoDEwQFl+n47fPM540l8oV8KdBv3VjyGhUP1Z9eDj63erAy2zeIcbjD+D8g
-         wemgnww4+gLuSLZ84cX8t7CNb+27LOVvXOl/nxg7bHtHSB6RaqqG111yDQNImM7Ziz
-         ifBhx3E2t5mcG4RwaCV8CJba7dr9CjW+MlNlFVQk=
+        b=ol6dOWtmpldbZMVHpgwTVxxb1gMZjjgeYEpmW7Z3rabOCkaJBDPIdS/1R/FRDk75X
+         Dac0BM4tcdtQee+dHQ9mh+RYAPbZQZshcUAE6a3q/se9cVqIN5iZbwQYN598A/i/lw
+         M+GAQBo59KmZUICFAHB4y3HaOcc2gpMRFhqm7pxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
-        Ming-Hung Tsai <mtsai@redhat.com>,
+        stable@vger.kernel.org, Tian Tao <tiantao6@hisilicon.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.12 377/384] dm space map common: fix division bug in sm_ll_find_free_block()
-Date:   Mon, 10 May 2021 12:22:46 +0200
-Message-Id: <20210510102027.203333857@linuxfoundation.org>
+Subject: [PATCH 5.12 378/384] dm integrity: fix missing goto in bitmap_flush_interval error handling
+Date:   Mon, 10 May 2021 12:22:47 +0200
+Message-Id: <20210510102027.236028374@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,33 +39,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Tian Tao <tiantao6@hisilicon.com>
 
-commit 5208692e80a1f3c8ce2063a22b675dd5589d1d80 upstream.
+commit 17e9e134a8efabbbf689a0904eee92bb5a868172 upstream.
 
-This division bug meant the search for free metadata space could skip
-the final allocation bitmap's worth of entries. Fix affects DM thinp,
-cache and era targets.
-
+Fixes: 468dfca38b1a ("dm integrity: add a bitmap mode")
 Cc: stable@vger.kernel.org
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Tested-by: Ming-Hung Tsai <mtsai@redhat.com>
+Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/persistent-data/dm-space-map-common.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-integrity.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/persistent-data/dm-space-map-common.c
-+++ b/drivers/md/persistent-data/dm-space-map-common.c
-@@ -339,6 +339,8 @@ int sm_ll_find_free_block(struct ll_disk
- 	 */
- 	begin = do_div(index_begin, ll->entries_per_block);
- 	end = do_div(end, ll->entries_per_block);
-+	if (end == 0)
-+		end = ll->entries_per_block;
- 
- 	for (i = index_begin; i < index_end; i++, begin = 0) {
- 		struct dm_block *blk;
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -4039,6 +4039,7 @@ static int dm_integrity_ctr(struct dm_ta
+ 			if (val >= (uint64_t)UINT_MAX * 1000 / HZ) {
+ 				r = -EINVAL;
+ 				ti->error = "Invalid bitmap_flush_interval argument";
++				goto bad;
+ 			}
+ 			ic->bitmap_flush_interval = msecs_to_jiffies(val);
+ 		} else if (!strncmp(opt_string, "internal_hash:", strlen("internal_hash:"))) {
 
 
