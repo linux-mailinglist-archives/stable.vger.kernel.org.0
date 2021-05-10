@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED7F3783AF
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3583783AB
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232636AbhEJKrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:47:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59296 "EHLO mail.kernel.org"
+        id S232564AbhEJKq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:46:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232925AbhEJKos (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232919AbhEJKos (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:44:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3342C6146E;
-        Mon, 10 May 2021 10:34:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 863B06144F;
+        Mon, 10 May 2021 10:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642842;
-        bh=B7y7D/LiS7FB1mZYocrh250FxubBhbxVNOQ3FRnbcoE=;
+        s=korg; t=1620642845;
+        bh=UB6rGC1hWa+SpXBF0qxDRUjT1wp4vp9vM/ZgpzcP+iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4CL1EQwH6GfPiUSPODpCiXrR0tpjqUsy5pYLRyF4Z2/SdaPjcrOWvmdKRtGtjHME
-         XkfpOd8yKuRPCb9oXlp5zZ6L92t5N4OGQGbD+etpi3ZP+w8ymA9kQrRnDJp5ym2y2f
-         kxtfJzyYe54MDRMkTCjxp1geWzocIjT/4dUt6D2c=
+        b=btZeBsWoTfOq5sjdZ/hWhrEomomIAOkS0Xlx8zfyxehEcC+w7RMbJ940R77OiE/ci
+         5ZjPTI0CFUAO+ujhD9n919IfKYkFyGx6GhWVnTCOnQdoL6D/OlDRApXTxbxPc1xfBS
+         tyfKh/2j0pvctouhq9A06mC/n6SV074Iuck3rX4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Millikin <john@john-millikin.com>,
-        Nathan Chancellor <nathan@kernel.org>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         Borislav Petkov <bp@suse.de>, Ard Biesheuvel <ardb@kernel.org>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/299] x86/build: Propagate $(CLANG_FLAGS) to $(REALMODE_FLAGS)
-Date:   Mon, 10 May 2021 12:17:50 +0200
-Message-Id: <20210510102007.328932593@linuxfoundation.org>
+Subject: [PATCH 5.10 074/299] x86/boot: Add $(CLANG_FLAGS) to compressed KBUILD_CFLAGS
+Date:   Mon, 10 May 2021 12:17:51 +0200
+Message-Id: <20210510102007.366346992@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -42,61 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Millikin <john@john-millikin.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 8abe7fc26ad8f28bfdf78adbed56acd1fa93f82d ]
+[ Upstream commit d5cbd80e302dfea59726c44c56ab7957f822409f ]
 
-When cross-compiling with Clang, the `$(CLANG_FLAGS)' variable
-contains additional flags needed to build C and assembly sources
-for the target platform. Normally this variable is automatically
-included in `$(KBUILD_CFLAGS)' via the top-level Makefile.
+When cross compiling x86 on an ARM machine with clang, there are several
+errors along the lines of:
 
-The x86 real-mode makefile builds `$(REALMODE_CFLAGS)' from a
-plain assignment and therefore drops the Clang flags. This causes
-Clang to not recognize x86-specific assembler directives:
+  arch/x86/include/asm/string_64.h:27:10: error: invalid output constraint '=&c' in asm
 
-  arch/x86/realmode/rm/header.S:36:1: error: unknown directive
-  .type real_mode_header STT_OBJECT ; .size real_mode_header, .-real_mode_header
-  ^
+This happens because the compressed boot Makefile reassigns KBUILD_CFLAGS
+and drops the clang flags that set the target architecture ('--target=')
+and the path to the GNU cross tools ('--prefix='), meaning that the host
+architecture is targeted.
 
-Explicit propagation of `$(CLANG_FLAGS)' to `$(REALMODE_CFLAGS)',
-which is inherited by real-mode make rules, fixes cross-compilation
-with Clang for x86 targets.
+These flags are available as $(CLANG_FLAGS) from the main Makefile so
+add them to the compressed boot folder's KBUILD_CFLAGS so that cross
+compiling works as expected.
 
-Relevant flags:
-
-* `--target' sets the target architecture when cross-compiling. This
-  flag must be set for both compilation and assembly (`KBUILD_AFLAGS')
-  to support architecture-specific assembler directives.
-
-* `-no-integrated-as' tells clang to assemble with GNU Assembler
-  instead of its built-in LLVM assembler. This flag is set by default
-  unless `LLVM_IAS=1' is set, because the LLVM assembler can't yet
-  parse certain GNU extensions.
-
-Signed-off-by: John Millikin <john@john-millikin.com>
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Link: https://lkml.kernel.org/r/20210326000435.4785-2-nathan@kernel.org
+Link: https://lkml.kernel.org/r/20210326000435.4785-3-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Makefile | 1 +
+ arch/x86/boot/compressed/Makefile | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 9c86f2dc16b1..8ed757d06f77 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -40,6 +40,7 @@ REALMODE_CFLAGS += -ffreestanding
- REALMODE_CFLAGS += -fno-stack-protector
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
-+REALMODE_CFLAGS += $(CLANG_FLAGS)
- export REALMODE_CFLAGS
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 40b8fd375d52..6004047d25fd 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -46,6 +46,7 @@ KBUILD_CFLAGS += -D__DISABLE_EXPORTS
+ # Disable relocation relaxation in case the link is not PIE.
+ KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
+ KBUILD_CFLAGS += -include $(srctree)/include/linux/hidden.h
++KBUILD_CFLAGS += $(CLANG_FLAGS)
  
- # BITS is used as extension for files which are available in a 32 bit
+ # sev-es.c indirectly inludes inat-table.h which is generated during
+ # compilation and stored in $(objtree). Add the directory to the includes so
 -- 
 2.30.2
 
