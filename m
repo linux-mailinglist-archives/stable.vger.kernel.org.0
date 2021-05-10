@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B6E37890E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD213786E5
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237341AbhEJLZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34066 "EHLO mail.kernel.org"
+        id S232445AbhEJLL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237723AbhEJLQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:16:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0A5D6145C;
-        Mon, 10 May 2021 11:11:23 +0000 (UTC)
+        id S235172AbhEJLFl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:05:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AA2561464;
+        Mon, 10 May 2021 10:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645084;
-        bh=Z3l4YmwAXxTeVKaGMy/bTcNl0d4GDdy4twdeXag1rbg=;
+        s=korg; t=1620644129;
+        bh=Zhgo775RobH0jK80dlY/sZcAE/GAS/5EMxlJHidUkpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MonjUAQEg+Gb28LC9Wwu2CvtrMJ3epfckL3XjBINydOV9me/eLjo7EUXAiLk5nMvU
-         QHuR/43SbrbX4KqVzJVB+XmcxClrlO5yDBAF780wU2LXRSoirOPkGXzmAzkaXB1DZY
-         UdJyCbsfIiddcc9utxFbMi8DeAC5j2HLRaGc03XM=
+        b=YwuBPhAMR/cKVRa40awF0xTehgRIrasVOCJCHyIpn+gz0gjtxzjjmMzqciintFzjk
+         B1c6BCFz0hN7vwuotWQMd8unpIz2c8scqh9nKIz6kGjl14sZ4iFLBtDM7MNPcbucw/
+         bKdDH7fcK28lPS+FlzlCY6d+D/VzKnCsUBQI3hRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.12 300/384] NFSv4: Dont discard segments marked for return in _pnfs_return_layout()
-Date:   Mon, 10 May 2021 12:21:29 +0200
-Message-Id: <20210510102024.698036932@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.11 300/342] futex: Do not apply time namespace adjustment on FUTEX_LOCK_PI
+Date:   Mon, 10 May 2021 12:21:30 +0200
+Message-Id: <20210510102020.015918637@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit de144ff4234f935bd2150108019b5d87a90a8a96 upstream.
+commit cdf78db4070967869e4d027c11f4dd825d8f815a upstream.
 
-If the pNFS layout segment is marked with the NFS_LSEG_LAYOUTRETURN
-flag, then the assumption is that it has some reporting requirement
-to perform through a layoutreturn (e.g. flexfiles layout stats or error
-information).
+FUTEX_LOCK_PI does not require to have the FUTEX_CLOCK_REALTIME bit set
+because it has been using CLOCK_REALTIME based absolute timeouts
+forever. Due to that, the time namespace adjustment which is applied when
+FUTEX_CLOCK_REALTIME is not set, will wrongly take place for FUTEX_LOCK_PI
+and wreckage the timeout.
 
-Fixes: 6d597e175012 ("pnfs: only tear down lsegs that precede seqid in LAYOUTRETURN args")
+Exclude it from that procedure.
+
+Fixes: c2f7d08cccf4 ("futex: Adjust absolute futex timeouts with per time namespace offset")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Link: https://lore.kernel.org/r/20210422194704.984540159@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/pnfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/futex.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1344,7 +1344,7 @@ _pnfs_return_layout(struct inode *ino)
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3782,7 +3782,7 @@ SYSCALL_DEFINE6(futex, u32 __user *, uad
+ 		t = timespec64_to_ktime(ts);
+ 		if (cmd == FUTEX_WAIT)
+ 			t = ktime_add_safe(ktime_get(), t);
+-		else if (!(op & FUTEX_CLOCK_REALTIME))
++		else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
+ 			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
+ 		tp = &t;
  	}
- 	valid_layout = pnfs_layout_is_valid(lo);
- 	pnfs_clear_layoutcommit(ino, &tmp_list);
--	pnfs_mark_matching_lsegs_invalid(lo, &tmp_list, NULL, 0);
-+	pnfs_mark_matching_lsegs_return(lo, &tmp_list, NULL, 0);
- 
- 	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range) {
- 		struct pnfs_layout_range range = {
+@@ -3976,7 +3976,7 @@ SYSCALL_DEFINE6(futex_time32, u32 __user
+ 		t = timespec64_to_ktime(ts);
+ 		if (cmd == FUTEX_WAIT)
+ 			t = ktime_add_safe(ktime_get(), t);
+-		else if (!(op & FUTEX_CLOCK_REALTIME))
++		else if (cmd != FUTEX_LOCK_PI && !(op & FUTEX_CLOCK_REALTIME))
+ 			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
+ 		tp = &t;
+ 	}
 
 
