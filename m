@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88CE83787EC
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F623788FD
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236654AbhEJLT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:19:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44226 "EHLO mail.kernel.org"
+        id S236110AbhEJLZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236013AbhEJLHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8821A61931;
-        Mon, 10 May 2021 10:57:22 +0000 (UTC)
+        id S233601AbhEJLOO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:14:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF49161424;
+        Mon, 10 May 2021 11:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644243;
-        bh=cFchhMaHYH8bR5GvCJ3hR1rSWQ9RiBBN8mveFISbNds=;
+        s=korg; t=1620645041;
+        bh=Rm//JxqJELkUL8BRgI54ulf7oVv8a4orV4V0NwUxU2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSHtoyU/K5uepT2ERd54jYaIbJvx4YXHKsxC084dvX3VTm4OJhhMtcgekuWEMY/Su
-         CefyPKvLtj6c47DIrDWgshBrW8uTeOtfTQYTBcH4LXsCD7PTo1/KcjhxU8WHjNIgRZ
-         aEDsdjBrgPBW0T6LJOG3lKj71E4P/kDQkJ7qK06Q=
+        b=Rvbd9EDQcJvCA3LstLbuNbssNwdOIkBL26Pk85IjUY0CyVoLE9sNnkVquZfkAGyHt
+         m1PftWr2tebvnjuCgvGG3pljCGvX0Hq7/iX6xJUezV5DyU26ZNZKT9HToKcbPTkRVK
+         tq0XRD7Wi2yvHwHVFnKkVS5tr/k8saeJn2SmAvhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.11 326/342] usb: dwc3: gadget: Fix START_TRANSFER link state check
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Andrey Zhizhikin <andrey.z@gmail.com>
+Subject: [PATCH 5.12 327/384] security: commoncap: fix -Wstringop-overread warning
 Date:   Mon, 10 May 2021 12:21:56 +0200
-Message-Id: <20210510102020.878230894@linuxfoundation.org>
+Message-Id: <20210510102025.573829288@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit c560e76319a94a3b9285bc426c609903408e4826 upstream.
+commit 82e5d8cc768b0c7b03c551a9ab1f8f3f68d5f83f upstream.
 
-The START_TRANSFER command needs to be executed while in ON/U0 link
-state (with an exception during register initialization). Don't use
-dwc->link_state to check this since the driver only tracks the link
-state when the link state change interrupt is enabled. Check the link
-state from DSTS register instead.
+gcc-11 introdces a harmless warning for cap_inode_getsecurity:
 
-Note that often the host already brings the device out of low power
-before it sends/requests the next transfer. So, the user won't see any
-issue when the device starts transfer then. This issue is more
-noticeable in cases when the device delays starting transfer, which can
-happen during delayed control status after the host put the device in
-low power.
+security/commoncap.c: In function ‘cap_inode_getsecurity’:
+security/commoncap.c:440:33: error: ‘memcpy’ reading 16 bytes from a region of size 0 [-Werror=stringop-overread]
+  440 |                                 memcpy(&nscap->data, &cap->data, sizeof(__le32) * 2 * VFS_CAP_U32);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fixes: 799e9dc82968 ("usb: dwc3: gadget: conditionally disable Link State change events")
-Cc: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/bcefaa9ecbc3e1936858c0baa14de6612960e909.1618884221.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The problem here is that tmpbuf is initialized to NULL, so gcc assumes
+it is not accessible unless it gets set by vfs_getxattr_alloc().  This is
+a legitimate warning as far as I can tell, but the code is correct since
+it correctly handles the error when that function fails.
+
+Add a separate NULL check to tell gcc about it as well.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: James Morris <jamorris@linux.microsoft.com>
+Cc: Andrey Zhizhikin <andrey.z@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ security/commoncap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -308,13 +308,12 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_
- 	}
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -400,7 +400,7 @@ int cap_inode_getsecurity(struct user_na
+ 				      &tmpbuf, size, GFP_NOFS);
+ 	dput(dentry);
  
- 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
--		int		needs_wakeup;
-+		int link_state;
+-	if (ret < 0)
++	if (ret < 0 || !tmpbuf)
+ 		return ret;
  
--		needs_wakeup = (dwc->link_state == DWC3_LINK_STATE_U1 ||
--				dwc->link_state == DWC3_LINK_STATE_U2 ||
--				dwc->link_state == DWC3_LINK_STATE_U3);
--
--		if (unlikely(needs_wakeup)) {
-+		link_state = dwc3_gadget_get_link_state(dwc);
-+		if (link_state == DWC3_LINK_STATE_U1 ||
-+		    link_state == DWC3_LINK_STATE_U2 ||
-+		    link_state == DWC3_LINK_STATE_U3) {
- 			ret = __dwc3_gadget_wakeup(dwc);
- 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
- 					ret);
-@@ -1975,6 +1974,8 @@ static int __dwc3_gadget_wakeup(struct d
- 	case DWC3_LINK_STATE_RESET:
- 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
- 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
-+	case DWC3_LINK_STATE_U2:	/* in HS, means Sleep (L1) */
-+	case DWC3_LINK_STATE_U1:
- 	case DWC3_LINK_STATE_RESUME:
- 		break;
- 	default:
+ 	fs_ns = inode->i_sb->s_user_ns;
 
 
