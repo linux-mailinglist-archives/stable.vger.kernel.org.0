@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F05378910
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D396378911
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237463AbhEJLZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60380 "EHLO mail.kernel.org"
+        id S237484AbhEJLZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237818AbhEJLQP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237819AbhEJLQP (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 07:16:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E876601FA;
-        Mon, 10 May 2021 11:11:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD97B61042;
+        Mon, 10 May 2021 11:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645093;
-        bh=LuLsmtNBOVUVcPlscaaqrxu62cTFLbKV2lTknh3M/k8=;
+        s=korg; t=1620645096;
+        bh=g4ALrrfM+EPrWkUEza8K2lEDd+k+oaGl1AtL97CyQ3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQOvDVLRbc4fkwxz0PgfldH3XqEJEqMPhoLKWZ0CIkSMMq0FUZYMSWCDTWOaRd4T+
-         CWmo9AmQePt6HGWf6AGTWlkQ6WQ9Y1FqrayOLXO9djcuttEnJBcm4JaulkRiNj74h6
-         SnCIuIqhGtHl+6Sh9DYgd0Sbc+hTKCry6O6ze/xU=
+        b=ZOAPn8RdxNHDrm2V3JDqFB5QnLoTHPBNorXYF6sbABBC7P858vi5WnFqEvPkKWggF
+         S4JNtty4X+sxcKDnhxDejR2Pkca/udaXd/sVnRYsaYlyeJ6AUqdKA4eahnGMrAX0NZ
+         bSrzXqyk/Vc6Wfxvfj0AKMysNPgYX07UsgyMMMg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
+        stable@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>,
+        Ricardo Ribalda <ribalda@chromium.org>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.12 350/384] media: staging/intel-ipu3: Fix set_fmt error handling
-Date:   Mon, 10 May 2021 12:22:19 +0200
-Message-Id: <20210510102026.299359050@linuxfoundation.org>
+Subject: [PATCH 5.12 351/384] media: staging/intel-ipu3: Fix race condition during set_fmt
+Date:   Mon, 10 May 2021 12:22:20 +0200
+Message-Id: <20210510102026.329295809@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -42,55 +43,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit ad91849996f9dd79741a961fd03585a683b08356 upstream.
+commit dccfe2548746ca9cca3a20401ece4cf255d1f171 upstream.
 
-If there in an error during a set_fmt, do not overwrite the previous
-sizes with the invalid config.
+Do not modify imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp, until the
+format has been correctly validated.
 
-Without this patch, v4l2-compliance ends up allocating 4GiB of RAM and
-causing the following OOPs
-
-[   38.662975] ipu3-imgu 0000:00:05.0: swiotlb buffer is full (sz: 4096 bytes)
-[   38.662980] DMA: Out of SW-IOMMU space for 4096 bytes at device 0000:00:05.0
-[   38.663010] general protection fault: 0000 [#1] PREEMPT SMP
+Otherwise, even if we use a backup variable, there is a period of time
+where imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp might have an invalid
+value that can be used by other functions.
 
 Cc: stable@vger.kernel.org
-Fixes: 6d5f26f2e045 ("media: staging/intel-ipu3-v4l: reduce kernel stack usage")
+Fixes: ad91849996f9 ("media: staging/intel-ipu3: Fix set_fmt error handling")
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
 Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/ipu3/ipu3-v4l2.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/staging/media/ipu3/ipu3-v4l2.c |   30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
 
 --- a/drivers/staging/media/ipu3/ipu3-v4l2.c
 +++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
-@@ -669,6 +669,7 @@ static int imgu_fmt(struct imgu_device *
+@@ -669,7 +669,6 @@ static int imgu_fmt(struct imgu_device *
  	struct imgu_css_pipe *css_pipe = &imgu->css.pipes[pipe];
  	struct imgu_media_pipe *imgu_pipe = &imgu->imgu_pipe[pipe];
  	struct imgu_v4l2_subdev *imgu_sd = &imgu_pipe->imgu_sd;
-+	struct v4l2_pix_format_mplane fmt_backup;
+-	struct v4l2_pix_format_mplane fmt_backup;
  
  	dev_dbg(dev, "set fmt node [%u][%u](try = %u)", pipe, node, try);
  
-@@ -737,6 +738,7 @@ static int imgu_fmt(struct imgu_device *
+@@ -687,6 +686,7 @@ static int imgu_fmt(struct imgu_device *
+ 
+ 	dev_dbg(dev, "IPU3 pipe %u pipe_id = %u", pipe, css_pipe->pipe_id);
+ 
++	css_q = imgu_node_to_queue(node);
+ 	for (i = 0; i < IPU3_CSS_QUEUES; i++) {
+ 		unsigned int inode = imgu_map_node(imgu, i);
+ 
+@@ -701,6 +701,11 @@ static int imgu_fmt(struct imgu_device *
+ 			continue;
+ 		}
+ 
++		if (i == css_q) {
++			fmts[i] = &f->fmt.pix_mp;
++			continue;
++		}
++
+ 		if (try) {
+ 			fmts[i] = kmemdup(&imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp,
+ 					  sizeof(struct v4l2_pix_format_mplane),
+@@ -729,39 +734,32 @@ static int imgu_fmt(struct imgu_device *
+ 		rects[IPU3_CSS_RECT_GDC]->height = pad_fmt.height;
+ 	}
+ 
+-	/*
+-	 * imgu doesn't set the node to the value given by user
+-	 * before we return success from this function, so set it here.
+-	 */
+-	css_q = imgu_node_to_queue(node);
+ 	if (!fmts[css_q]) {
  		ret = -EINVAL;
  		goto out;
  	}
-+	fmt_backup = *fmts[css_q];
- 	*fmts[css_q] = f->fmt.pix_mp;
+-	fmt_backup = *fmts[css_q];
+-	*fmts[css_q] = f->fmt.pix_mp;
  
  	if (try)
-@@ -744,6 +746,9 @@ static int imgu_fmt(struct imgu_device *
+ 		ret = imgu_css_fmt_try(&imgu->css, fmts, rects, pipe);
  	else
  		ret = imgu_css_fmt_set(&imgu->css, fmts, rects, pipe);
  
-+	if (try || ret < 0)
-+		*fmts[css_q] = fmt_backup;
-+
+-	if (try || ret < 0)
+-		*fmts[css_q] = fmt_backup;
+-
  	/* ret is the binary number in the firmware blob */
  	if (ret < 0)
  		goto out;
+ 
+-	if (try)
+-		f->fmt.pix_mp = *fmts[css_q];
+-	else
+-		f->fmt = imgu_pipe->nodes[node].vdev_fmt.fmt;
++	/*
++	 * imgu doesn't set the node to the value given by user
++	 * before we return success from this function, so set it here.
++	 */
++	if (!try)
++		imgu_pipe->nodes[node].vdev_fmt.fmt.pix_mp = f->fmt.pix_mp;
+ 
+ out:
+ 	if (try) {
+ 		for (i = 0; i < IPU3_CSS_QUEUES; i++)
+-			kfree(fmts[i]);
++			if (i != css_q)
++				kfree(fmts[i]);
+ 	}
+ 
+ 	return ret;
 
 
