@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93360378426
+	by mail.lfdr.de (Postfix) with ESMTP id 4A634378425
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231901AbhEJKur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:50:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59362 "EHLO mail.kernel.org"
+        id S230444AbhEJKuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:50:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232764AbhEJKrM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232714AbhEJKrM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:47:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E352B619AC;
-        Mon, 10 May 2021 10:37:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66D0C619AF;
+        Mon, 10 May 2021 10:37:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643038;
-        bh=c1XL8kzC2yP2Nq+PsuvD7ah+97YXIbGx7cHbBa2zjqg=;
+        s=korg; t=1620643040;
+        bh=aoZGLU3h/i0WadM2DxxNm7/BB1+HyOgT5g3s4onk+jI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T53ug5qVB1xA/0zfQsj3jmShXjaOTxD74E8eNF9CrHrLWBk4XkKlcTdI3rgGk36G8
-         DKYVFAYQukDuW9gahojDIh6ZqliT4E98R6m8Y4ZMSl+HBymunyjTgUcEO6hcwL6mRG
-         aUYrh9ijpO5Wwu48VoNKNLZryGk3x7KUQTFeGSno=
+        b=rsrXvWtEjgsS8UKQ5nI3CxXnQZ12sxRwSebbqdqVUf4QlEA9mBCDRlMQWCunQmBmQ
+         tpsGGKO4hJc33cWHYwxgCEE6ch/krSk2UrAwOvsnvBVoZt9fiqk0ydc8yj0DkpcGyC
+         3RF8BOHu5XM7RHiRkhOWdmpep2btUhHeXlm0TFu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bough Chen <haobo.chen@nxp.com>,
-        Alice Guo <alice.guo@nxp.com>, Peng Fan <peng.fan@nxp.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 151/299] mmc: sdhci-esdhc-imx: validate pinctrl before use it
-Date:   Mon, 10 May 2021 12:19:08 +0200
-Message-Id: <20210510102009.943657449@linuxfoundation.org>
+Subject: [PATCH 5.10 152/299] mmc: sdhci-pci: Add PCI IDs for Intel LKF
+Date:   Mon, 10 May 2021 12:19:09 +0200
+Message-Id: <20210510102009.973812026@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -41,42 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit f410ee0aa2df050a9505f5c261953e9b18e21206 ]
+[ Upstream commit ee629112be8b4eff71d4d3d108a28bc7dc877e13 ]
 
-When imx_data->pinctrl is not a valid pointer, pinctrl_lookup_state
-will trigger kernel panic.
+Add PCI IDs for Intel LKF eMMC and SD card host controllers.
 
-When we boot Dual OS on Jailhouse hypervisor, we let the 1st Linux to
-configure pinmux ready for the 2nd OS, so the 2nd OS not have pinctrl
-settings.
-
-Similar to this commit b62eee9f804e ("mmc: sdhci-esdhc-imx: no fail when no pinctrl available").
-
-Reviewed-by: Bough Chen <haobo.chen@nxp.com>
-Reviewed-by: Alice Guo <alice.guo@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1614222604-27066-6-git-send-email-peng.fan@oss.nxp.com
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20210322055356.24923-1-adrian.hunter@intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-core.c | 2 ++
+ drivers/mmc/host/sdhci-pci.h      | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index 5d9b3106d2f7..d28809e47962 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1504,7 +1504,7 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
+diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
+index 936e4db9060f..bf04a08eeba1 100644
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -1930,6 +1930,8 @@ static const struct pci_device_id pci_ids[] = {
+ 	SDHCI_PCI_DEVICE(INTEL, CMLH_SD,   intel_byt_sd),
+ 	SDHCI_PCI_DEVICE(INTEL, JSL_EMMC,  intel_glk_emmc),
+ 	SDHCI_PCI_DEVICE(INTEL, JSL_SD,    intel_byt_sd),
++	SDHCI_PCI_DEVICE(INTEL, LKF_EMMC,  intel_glk_emmc),
++	SDHCI_PCI_DEVICE(INTEL, LKF_SD,    intel_byt_sd),
+ 	SDHCI_PCI_DEVICE(O2, 8120,     o2),
+ 	SDHCI_PCI_DEVICE(O2, 8220,     o2),
+ 	SDHCI_PCI_DEVICE(O2, 8221,     o2),
+diff --git a/drivers/mmc/host/sdhci-pci.h b/drivers/mmc/host/sdhci-pci.h
+index d0ed232af0eb..8f90c4163bb5 100644
+--- a/drivers/mmc/host/sdhci-pci.h
++++ b/drivers/mmc/host/sdhci-pci.h
+@@ -57,6 +57,8 @@
+ #define PCI_DEVICE_ID_INTEL_CMLH_SD	0x06f5
+ #define PCI_DEVICE_ID_INTEL_JSL_EMMC	0x4dc4
+ #define PCI_DEVICE_ID_INTEL_JSL_SD	0x4df8
++#define PCI_DEVICE_ID_INTEL_LKF_EMMC	0x98c4
++#define PCI_DEVICE_ID_INTEL_LKF_SD	0x98f8
  
- 	mmc_of_parse_voltage(np, &host->ocr_mask);
- 
--	if (esdhc_is_usdhc(imx_data)) {
-+	if (esdhc_is_usdhc(imx_data) && !IS_ERR(imx_data->pinctrl)) {
- 		imx_data->pins_100mhz = pinctrl_lookup_state(imx_data->pinctrl,
- 						ESDHC_PINCTRL_STATE_100MHZ);
- 		imx_data->pins_200mhz = pinctrl_lookup_state(imx_data->pinctrl,
+ #define PCI_DEVICE_ID_SYSKONNECT_8000	0x8000
+ #define PCI_DEVICE_ID_VIA_95D0		0x95d0
 -- 
 2.30.2
 
