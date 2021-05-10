@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 550F1378433
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:50:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44BF1378430
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232752AbhEJKvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59424 "EHLO mail.kernel.org"
+        id S232350AbhEJKvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231975AbhEJKrv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:47:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 862B8619B8;
-        Mon, 10 May 2021 10:37:39 +0000 (UTC)
+        id S230430AbhEJKrs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:47:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE818619C0;
+        Mon, 10 May 2021 10:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643060;
-        bh=OiVkr2U5Omt7baOtEMh3LQxKl7nKQ3eY6sFFrL9m7fE=;
+        s=korg; t=1620643062;
+        bh=3kj4PJO8ex25VlM44hatwOl/Lp8XInGFtr40JCTQWx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XSz+nIq5/ddTXenGS7FqfkPMbJY8XGwHpzRAiO+KNhTM4BEE4V3qEefY3aaP55At4
-         q5WhjN9qF26C/oO3LGsBGHHQGKN1lAlsNlkqibBdgo8Px/9ZLlVBuBF1n3+6WLd1ak
-         ueRj7knORJH8s9wN1rzOYbg5GAgXqUgCVCtFMei4=
+        b=olm1l8rHvemgo8sNmU792jqahGNc68gFGyVmC4+SDYoerVHwOhx9Ajpv2iUPvD484
+         ZzVwjso2FTVsgvTof4N1rUL4ADZVzS2k20VKBI41bGRRDfBk7AzSYAviIFt0u0VMxp
+         C7PtOm+BOcmnQycOty3i7NsbpjRYwBD1r+klEWEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 126/299] sched/pelt: Fix task util_est update filtering
-Date:   Mon, 10 May 2021 12:18:43 +0200
-Message-Id: <20210510102009.141358382@linuxfoundation.org>
+Subject: [PATCH 5.10 127/299] kvfree_rcu: Use same set of GFP flags as does single-argument
+Date:   Mon, 10 May 2021 12:18:44 +0200
+Message-Id: <20210510102009.172462871@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -44,92 +41,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Donnefort <vincent.donnefort@arm.com>
+From: Uladzislau Rezki (Sony) <urezki@gmail.com>
 
-[ Upstream commit b89997aa88f0b07d8a6414c908af75062103b8c9 ]
+[ Upstream commit ee6ddf58475cce8a3d3697614679cd8cb4a6f583 ]
 
-Being called for each dequeue, util_est reduces the number of its updates
-by filtering out when the EWMA signal is different from the task util_avg
-by less than 1%. It is a problem for a sudden util_avg ramp-up. Due to the
-decay from a previous high util_avg, EWMA might now be close enough to
-the new util_avg. No update would then happen while it would leave
-ue.enqueued with an out-of-date value.
+Running an rcuscale stress-suite can lead to "Out of memory" of a
+system. This can happen under high memory pressure with a small amount
+of physical memory.
 
-Taking into consideration the two util_est members, EWMA and enqueued for
-the filtering, ensures, for both, an up-to-date value.
+For example, a KVM test configuration with 64 CPUs and 512 megabytes
+can result in OOM when running rcuscale with below parameters:
 
-This is for now an issue only for the trace probe that might return the
-stale value. Functional-wise, it isn't a problem, as the value is always
-accessed through max(enqueued, ewma).
+../kvm.sh --torture rcuscale --allcpus --duration 10 --kconfig CONFIG_NR_CPUS=64 \
+--bootargs "rcuscale.kfree_rcu_test=1 rcuscale.kfree_nthreads=16 rcuscale.holdoff=20 \
+  rcuscale.kfree_loops=10000 torture.disable_onoff_at_boot" --trust-make
 
-This problem has been observed using LISA's UtilConvergence:test_means on
-the sd845c board.
+<snip>
+[   12.054448] kworker/1:1H invoked oom-killer: gfp_mask=0x2cc0(GFP_KERNEL|__GFP_NOWARN), order=0, oom_score_adj=0
+[   12.055303] CPU: 1 PID: 377 Comm: kworker/1:1H Not tainted 5.11.0-rc3+ #510
+[   12.055416] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.12.0-1 04/01/2014
+[   12.056485] Workqueue: events_highpri fill_page_cache_func
+[   12.056485] Call Trace:
+[   12.056485]  dump_stack+0x57/0x6a
+[   12.056485]  dump_header+0x4c/0x30a
+[   12.056485]  ? del_timer_sync+0x20/0x30
+[   12.056485]  out_of_memory.cold.47+0xa/0x7e
+[   12.056485]  __alloc_pages_slowpath.constprop.123+0x82f/0xc00
+[   12.056485]  __alloc_pages_nodemask+0x289/0x2c0
+[   12.056485]  __get_free_pages+0x8/0x30
+[   12.056485]  fill_page_cache_func+0x39/0xb0
+[   12.056485]  process_one_work+0x1ed/0x3b0
+[   12.056485]  ? process_one_work+0x3b0/0x3b0
+[   12.060485]  worker_thread+0x28/0x3c0
+[   12.060485]  ? process_one_work+0x3b0/0x3b0
+[   12.060485]  kthread+0x138/0x160
+[   12.060485]  ? kthread_park+0x80/0x80
+[   12.060485]  ret_from_fork+0x22/0x30
+[   12.062156] Mem-Info:
+[   12.062350] active_anon:0 inactive_anon:0 isolated_anon:0
+[   12.062350]  active_file:0 inactive_file:0 isolated_file:0
+[   12.062350]  unevictable:0 dirty:0 writeback:0
+[   12.062350]  slab_reclaimable:2797 slab_unreclaimable:80920
+[   12.062350]  mapped:1 shmem:2 pagetables:8 bounce:0
+[   12.062350]  free:10488 free_pcp:1227 free_cma:0
+...
+[   12.101610] Out of memory and no killable processes...
+[   12.102042] Kernel panic - not syncing: System is deadlocked on memory
+[   12.102583] CPU: 1 PID: 377 Comm: kworker/1:1H Not tainted 5.11.0-rc3+ #510
+[   12.102600] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.12.0-1 04/01/2014
+<snip>
 
-No regression observed with Hackbench on sd845c and Perf-bench sched pipe
-on hikey/hikey960.
+Because kvfree_rcu() has a fallback path, memory allocation failure is
+not the end of the world.  Furthermore, the added overhead of aggressive
+GFP settings must be balanced against the overhead of the fallback path,
+which is a cache miss for double-argument kvfree_rcu() and a call to
+synchronize_rcu() for single-argument kvfree_rcu().  The current choice
+of GFP_KERNEL|__GFP_NOWARN can result in longer latencies than a call
+to synchronize_rcu(), so less-tenacious GFP flags would be helpful.
 
-Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lkml.kernel.org/r/20210225165820.1377125-1-vincent.donnefort@arm.com
+Here is the tradeoff that must be balanced:
+    a) Minimize use of the fallback path,
+    b) Avoid pushing the system into OOM,
+    c) Bound allocation latency to that of synchronize_rcu(), and
+    d) Leave the emergency reserves to use cases lacking fallbacks.
+
+This commit therefore changes GFP flags from GFP_KERNEL|__GFP_NOWARN to
+GFP_KERNEL|__GFP_NORETRY|__GFP_NOMEMALLOC|__GFP_NOWARN.  This combination
+leaves the emergency reserves alone and can initiate reclaim, but will
+not invoke the OOM killer.
+
+Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ kernel/rcu/tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 348605306027..8f5bbc1469ed 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3948,6 +3948,8 @@ static inline void util_est_dequeue(struct cfs_rq *cfs_rq,
- 	trace_sched_util_est_cfs_tp(cfs_rq);
- }
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 5dc36c6e80fd..8a5cc76ecac9 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -3386,7 +3386,7 @@ static void fill_page_cache_func(struct work_struct *work)
  
-+#define UTIL_EST_MARGIN (SCHED_CAPACITY_SCALE / 100)
-+
- /*
-  * Check if a (signed) value is within a specified (unsigned) margin,
-  * based on the observation that:
-@@ -3965,7 +3967,7 @@ static inline void util_est_update(struct cfs_rq *cfs_rq,
- 				   struct task_struct *p,
- 				   bool task_sleep)
- {
--	long last_ewma_diff;
-+	long last_ewma_diff, last_enqueued_diff;
- 	struct util_est ue;
+ 	for (i = 0; i < rcu_min_cached_objs; i++) {
+ 		bnode = (struct kvfree_rcu_bulk_data *)
+-			__get_free_page(GFP_KERNEL | __GFP_NOWARN);
++			__get_free_page(GFP_KERNEL | __GFP_NORETRY | __GFP_NOMEMALLOC | __GFP_NOWARN);
  
- 	if (!sched_feat(UTIL_EST))
-@@ -3986,6 +3988,8 @@ static inline void util_est_update(struct cfs_rq *cfs_rq,
- 	if (ue.enqueued & UTIL_AVG_UNCHANGED)
- 		return;
- 
-+	last_enqueued_diff = ue.enqueued;
-+
- 	/*
- 	 * Reset EWMA on utilization increases, the moving average is used only
- 	 * to smooth utilization decreases.
-@@ -3999,12 +4003,17 @@ static inline void util_est_update(struct cfs_rq *cfs_rq,
- 	}
- 
- 	/*
--	 * Skip update of task's estimated utilization when its EWMA is
-+	 * Skip update of task's estimated utilization when its members are
- 	 * already ~1% close to its last activation value.
- 	 */
- 	last_ewma_diff = ue.enqueued - ue.ewma;
--	if (within_margin(last_ewma_diff, (SCHED_CAPACITY_SCALE / 100)))
-+	last_enqueued_diff -= ue.enqueued;
-+	if (within_margin(last_ewma_diff, UTIL_EST_MARGIN)) {
-+		if (!within_margin(last_enqueued_diff, UTIL_EST_MARGIN))
-+			goto done;
-+
- 		return;
-+	}
- 
- 	/*
- 	 * To avoid overestimation of actual task utilization, skip updates if
+ 		if (bnode) {
+ 			raw_spin_lock_irqsave(&krcp->lock, flags);
 -- 
 2.30.2
 
