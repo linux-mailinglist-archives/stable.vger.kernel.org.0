@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A93378534
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C45378530
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233711AbhEJK7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:59:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52740 "EHLO mail.kernel.org"
+        id S233624AbhEJK7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:59:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233864AbhEJKzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:55:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDF006192D;
-        Mon, 10 May 2021 10:42:41 +0000 (UTC)
+        id S233852AbhEJKzb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:55:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 534F06197B;
+        Mon, 10 May 2021 10:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643362;
-        bh=cFchhMaHYH8bR5GvCJ3hR1rSWQ9RiBBN8mveFISbNds=;
+        s=korg; t=1620643364;
+        bh=VeoYrpX0w42wUk3oct7e9z8D++Z1g/izGdPTLk9JEf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GuQZj0/MuJtg7nRbn34MGHhlDXPKvf+0Hd8Z2jxKgnzqUVcM6siZ3rSq3fyluaCIb
-         UFTOwu3K1H17hndh/SJToxK3NMae21pqMeCwkyOwF09vB1GxJLtlatoHwhiaX0Gs7Z
-         H8+mA+oH4HIlKF7fh+PyILkdBQf4qcwLQUeg/6jY=
+        b=oPsLTiGO1it+RMYuFH8MQIjXAmlRHrX0aQUzxPgEIEeFJ8zxNz+dOGzcZqZlfUc8w
+         7vQ5ViolmNDAa1f2I+RwYMztYhR//G7jKlkAEc7J3CYqUnlwBwhoYDMxMwStZ5vj6L
+         rHcfvv0Pky8JF2tEPjVzitokm+TrR9VtRyR1Yt18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Ferry Toth <fntoth@gmail.com>,
+        Wesley Cheng <wcheng@codeaurora.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Yu Chen <chenyu56@huawei.com>,
         Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.10 285/299] usb: dwc3: gadget: Fix START_TRANSFER link state check
-Date:   Mon, 10 May 2021 12:21:22 +0200
-Message-Id: <20210510102014.335874319@linuxfoundation.org>
+Subject: [PATCH 5.10 286/299] usb: dwc3: core: Do core softreset when switch mode
+Date:   Mon, 10 May 2021 12:21:23 +0200
+Message-Id: <20210510102014.367763782@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -39,63 +44,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Yu Chen <chenyu56@huawei.com>
 
-commit c560e76319a94a3b9285bc426c609903408e4826 upstream.
+commit f88359e1588b85cf0e8209ab7d6620085f3441d9 upstream.
 
-The START_TRANSFER command needs to be executed while in ON/U0 link
-state (with an exception during register initialization). Don't use
-dwc->link_state to check this since the driver only tracks the link
-state when the link state change interrupt is enabled. Check the link
-state from DSTS register instead.
+From: John Stultz <john.stultz@linaro.org>
 
-Note that often the host already brings the device out of low power
-before it sends/requests the next transfer. So, the user won't see any
-issue when the device starts transfer then. This issue is more
-noticeable in cases when the device delays starting transfer, which can
-happen during delayed control status after the host put the device in
-low power.
+According to the programming guide, to switch mode for DRD controller,
+the driver needs to do the following.
 
-Fixes: 799e9dc82968 ("usb: dwc3: gadget: conditionally disable Link State change events")
+To switch from device to host:
+1. Reset controller with GCTL.CoreSoftReset
+2. Set GCTL.PrtCapDir(host mode)
+3. Reset the host with USBCMD.HCRESET
+4. Then follow up with the initializing host registers sequence
+
+To switch from host to device:
+1. Reset controller with GCTL.CoreSoftReset
+2. Set GCTL.PrtCapDir(device mode)
+3. Reset the device with DCTL.CSftRst
+4. Then follow up with the initializing registers sequence
+
+Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
+switching from host to device. John Stult reported a lockup issue seen
+with HiKey960 platform without these steps[1]. Similar issue is observed
+with Ferry's testing platform[2].
+
+So, apply the required steps along with some fixes to Yu Chen's and John
+Stultz's version. The main fixes to their versions are the missing wait
+for clocks synchronization before clearing GCTL.CoreSoftReset and only
+apply DCTL.CSftRst when switching from host to device.
+
+[1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
+[2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
+
+Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Ferry Toth <fntoth@gmail.com>
+Cc: Wesley Cheng <wcheng@codeaurora.org>
 Cc: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
+Tested-by: John Stultz <john.stultz@linaro.org>
+Tested-by: Wesley Cheng <wcheng@codeaurora.org>
+Signed-off-by: Yu Chen <chenyu56@huawei.com>
+Signed-off-by: John Stultz <john.stultz@linaro.org>
 Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/bcefaa9ecbc3e1936858c0baa14de6612960e909.1618884221.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/usb/dwc3/core.c |   27 +++++++++++++++++++++++++++
+ drivers/usb/dwc3/core.h |    5 +++++
+ 2 files changed, 32 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -308,13 +308,12 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -114,6 +114,8 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u
+ 	dwc->current_dr_role = mode;
+ }
+ 
++static int dwc3_core_soft_reset(struct dwc3 *dwc);
++
+ static void __dwc3_set_mode(struct work_struct *work)
+ {
+ 	struct dwc3 *dwc = work_to_dwc(work);
+@@ -121,6 +123,8 @@ static void __dwc3_set_mode(struct work_
+ 	int ret;
+ 	u32 reg;
+ 
++	mutex_lock(&dwc->mutex);
++
+ 	pm_runtime_get_sync(dwc->dev);
+ 
+ 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
+@@ -154,6 +158,25 @@ static void __dwc3_set_mode(struct work_
+ 		break;
  	}
  
- 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
--		int		needs_wakeup;
-+		int link_state;
++	/* For DRD host or device mode only */
++	if (dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
++		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
++		reg |= DWC3_GCTL_CORESOFTRESET;
++		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
++
++		/*
++		 * Wait for internal clocks to synchronized. DWC_usb31 and
++		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
++		 * keep it consistent across different IPs, let's wait up to
++		 * 100ms before clearing GCTL.CORESOFTRESET.
++		 */
++		msleep(100);
++
++		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
++		reg &= ~DWC3_GCTL_CORESOFTRESET;
++		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
++	}
++
+ 	spin_lock_irqsave(&dwc->lock, flags);
  
--		needs_wakeup = (dwc->link_state == DWC3_LINK_STATE_U1 ||
--				dwc->link_state == DWC3_LINK_STATE_U2 ||
--				dwc->link_state == DWC3_LINK_STATE_U3);
--
--		if (unlikely(needs_wakeup)) {
-+		link_state = dwc3_gadget_get_link_state(dwc);
-+		if (link_state == DWC3_LINK_STATE_U1 ||
-+		    link_state == DWC3_LINK_STATE_U2 ||
-+		    link_state == DWC3_LINK_STATE_U3) {
- 			ret = __dwc3_gadget_wakeup(dwc);
- 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
- 					ret);
-@@ -1975,6 +1974,8 @@ static int __dwc3_gadget_wakeup(struct d
- 	case DWC3_LINK_STATE_RESET:
- 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
- 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
-+	case DWC3_LINK_STATE_U2:	/* in HS, means Sleep (L1) */
-+	case DWC3_LINK_STATE_U1:
- 	case DWC3_LINK_STATE_RESUME:
+ 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
+@@ -178,6 +201,8 @@ static void __dwc3_set_mode(struct work_
+ 		}
  		break;
- 	default:
+ 	case DWC3_GCTL_PRTCAP_DEVICE:
++		dwc3_core_soft_reset(dwc);
++
+ 		dwc3_event_buffers_setup(dwc);
+ 
+ 		if (dwc->usb2_phy)
+@@ -200,6 +225,7 @@ static void __dwc3_set_mode(struct work_
+ out:
+ 	pm_runtime_mark_last_busy(dwc->dev);
+ 	pm_runtime_put_autosuspend(dwc->dev);
++	mutex_unlock(&dwc->mutex);
+ }
+ 
+ void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
+@@ -1529,6 +1555,7 @@ static int dwc3_probe(struct platform_de
+ 	dwc3_cache_hwparams(dwc);
+ 
+ 	spin_lock_init(&dwc->lock);
++	mutex_init(&dwc->mutex);
+ 
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_use_autosuspend(dev);
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -13,6 +13,7 @@
+ 
+ #include <linux/device.h>
+ #include <linux/spinlock.h>
++#include <linux/mutex.h>
+ #include <linux/ioport.h>
+ #include <linux/list.h>
+ #include <linux/bitops.h>
+@@ -942,6 +943,7 @@ struct dwc3_scratchpad_array {
+  * @scratch_addr: dma address of scratchbuf
+  * @ep0_in_setup: one control transfer is completed and enter setup phase
+  * @lock: for synchronizing
++ * @mutex: for mode switching
+  * @dev: pointer to our struct device
+  * @sysdev: pointer to the DMA-capable device
+  * @xhci: pointer to our xHCI child
+@@ -1078,6 +1080,9 @@ struct dwc3 {
+ 	/* device lock */
+ 	spinlock_t		lock;
+ 
++	/* mode switching lock */
++	struct mutex		mutex;
++
+ 	struct device		*dev;
+ 	struct device		*sysdev;
+ 
 
 
