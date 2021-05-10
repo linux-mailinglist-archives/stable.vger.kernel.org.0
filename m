@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54E7A37849C
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24420378294
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:35:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbhEJKx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:53:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46508 "EHLO mail.kernel.org"
+        id S231193AbhEJKgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:36:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233210AbhEJKwM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:52:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E20861613;
-        Mon, 10 May 2021 10:40:51 +0000 (UTC)
+        id S232100AbhEJKcq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:32:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C28161942;
+        Mon, 10 May 2021 10:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643251;
-        bh=Jtz0F+WJvYDVDzLcsIfgGOia+DL+n4RdqjTmRQueIJY=;
+        s=korg; t=1620642445;
+        bh=+aEUFmQ2/gouvFmjdy7jM2iVmPjAa9TSdmgdFJ1koDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/AxEpDCpY9etK7YOg47VkRHAQOX8Ohv3s73Zb2Qnv1SiPaK7rcZjGnlXVV84ulME
-         Pbzq2Sbhny/XbxizxKKPsRMD0rseSvmACfH93Rj9xc7bXmtZGItVHnkTQo8LcgUe1L
-         wOO1kL0PfF8Rjx8wFwfzxL6Eqyq6aAwKwpjhRCoE=
+        b=SVmIl8y1+Kjen8vl/DPoOfc0DyXyBElLG5wZrAVdH87naQZFkWl0BrK9rrLVn+npd
+         BZe1igMfO9qEQxj0pdKW5at3q7xZLIpDptjlpmJ2tlnEMhAHA2Quccq0pnfprlWkx3
+         xRSqpdm7BbEk/6wBt5VEERYqW3vVep9+QY71/BbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Scott Benesh <scott.benesh@microchip.com>,
+        Scott Teel <scott.teel@microchip.com>,
+        Martin Wilck <mwilck@suse.com>,
+        Kevin Barnett <kevin.barnett@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 195/299] drm/amdgpu: fix NULL pointer dereference
+Subject: [PATCH 5.4 098/184] scsi: smartpqi: Add new PCI IDs
 Date:   Mon, 10 May 2021 12:19:52 +0200
-Message-Id: <20210510102011.386072255@linuxfoundation.org>
+Message-Id: <20210510101953.407431337@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +44,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Kevin Barnett <kevin.barnett@microchip.com>
 
-[ Upstream commit 3c3dc654333f6389803cdcaf03912e94173ae510 ]
+[ Upstream commit 75fbeacca3ad30835e903002dba98dd909b4dfff ]
 
-ttm->sg needs to be checked before accessing its child member.
+Add support for newer hardware.
 
-Call Trace:
- amdgpu_ttm_backend_destroy+0x12/0x70 [amdgpu]
- ttm_bo_cleanup_memtype_use+0x3a/0x60 [ttm]
- ttm_bo_release+0x17d/0x300 [ttm]
- amdgpu_bo_unref+0x1a/0x30 [amdgpu]
- amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x78b/0x8b0 [amdgpu]
- kfd_ioctl_alloc_memory_of_gpu+0x118/0x220 [amdgpu]
- kfd_ioctl+0x222/0x400 [amdgpu]
- ? kfd_dev_is_large_bar+0x90/0x90 [amdgpu]
- __x64_sys_ioctl+0x8e/0xd0
- ? __context_tracking_exit+0x52/0x90
- do_syscall_64+0x33/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7f97f264d317
-Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffdb402c338 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007f97f3cc63a0 RCX: 00007f97f264d317
-RDX: 00007ffdb402c380 RSI: 00000000c0284b16 RDI: 0000000000000003
-RBP: 00007ffdb402c380 R08: 00007ffdb402c428 R09: 00000000c4000004
-R10: 00000000c4000004 R11: 0000000000000246 R12: 00000000c0284b16
-R13: 0000000000000003 R14: 00007f97f3cc63a0 R15: 00007f8836200000
-
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/161549386882.25025.2594251735886014958.stgit@brunhilda
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Acked-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Kevin Barnett <kevin.barnett@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 156 ++++++++++++++++++++++++++
+ 1 file changed, 156 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 06a662ea33dd..ab7755a3885a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1034,7 +1034,7 @@ static void amdgpu_ttm_tt_unpin_userptr(struct ttm_bo_device *bdev,
- 		DMA_BIDIRECTIONAL : DMA_TO_DEVICE;
- 
- 	/* double check that we don't free the table twice */
--	if (!ttm->sg->sgl)
-+	if (!ttm->sg || !ttm->sg->sgl)
- 		return;
- 
- 	/* unmap the pages mapped to the device */
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 3480a0a66771..9bc451004184 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -8146,6 +8146,10 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x152d, 0x8a37)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x193d, 0x8460)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x193d, 0x1104)
+@@ -8218,6 +8222,22 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x1bd4, 0x004f)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0051)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0052)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0053)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1bd4, 0x0054)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x19e5, 0xd227)
+@@ -8374,6 +8394,122 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADAPTEC2, 0x1380)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1400)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1402)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1410)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1411)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1412)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1420)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1430)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1440)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1441)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1450)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1452)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1460)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1461)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1462)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1470)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1471)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1472)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1480)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1490)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x1491)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14a0)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14a1)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14b0)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14b1)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14c0)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14c1)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14d0)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14e0)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_ADAPTEC2, 0x14f0)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_ADVANTECH, 0x8312)
+@@ -8438,6 +8574,10 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_HP, 0x1001)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       PCI_VENDOR_ID_HP, 0x1002)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_HP, 0x1100)
+@@ -8446,6 +8586,22 @@ static const struct pci_device_id pqi_pci_id_table[] = {
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       PCI_VENDOR_ID_HP, 0x1101)
+ 	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1590, 0x0294)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1590, 0x02db)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1590, 0x02dc)
++	},
++	{
++		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
++			       0x1590, 0x032e)
++	},
+ 	{
+ 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
+ 			       0x1d8d, 0x0800)
 -- 
 2.30.2
 
