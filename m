@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D0D3781A9
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CBA93781AB
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231712AbhEJK2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:28:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58886 "EHLO mail.kernel.org"
+        id S231449AbhEJK2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:28:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231600AbhEJK1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:27:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F4ED614A7;
-        Mon, 10 May 2021 10:26:20 +0000 (UTC)
+        id S231623AbhEJK1m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:27:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A67B6143C;
+        Mon, 10 May 2021 10:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642381;
-        bh=GECd6ZWGOLxXk6I6RpW1NsCGUbeOBhdBjmOBiu+231s=;
+        s=korg; t=1620642384;
+        bh=R4z/pEi3GiFfFhP0w1RPPxuvznQ43s/lLLRKX6g9rGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mt0sNOyrBkKaX5r9zd5ZRPLFoxcyi++ITf1MRzuNU3tJz/zCdwokaoqSsil+/SX3R
-         fyHVbelG3Z3bUmaoLgcDWRmIwZjfOkaHtK2AaIPcbR/7jPXMF+WTST+K1SKG7g6eAi
-         V+M+Tcvdrj38uHVTMWQAhPAs2LGByHhyFFggIknA=
+        b=009pabBi2F9ktLddsEinln/FfL52s6F2qjK3J6QCJa/lx/4fmu6t1NPA1XySBGJhj
+         e08O752lX5BEqEAn/k8QPBoIYb9def1vK1S9RAst8qdGyss6Tgs4TpMjCkeSiWABW5
+         84bJcgja8IPD5FxRHvo55+CdgV8XVo8i+TVABiH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jared Baldridge <jrb@expunge.us>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 071/184] drm: Added orientation quirk for OneGX1 Pro
-Date:   Mon, 10 May 2021 12:19:25 +0200
-Message-Id: <20210510101952.521942014@linuxfoundation.org>
+Subject: [PATCH 5.4 072/184] drm/qxl: release shadow on shutdown
+Date:   Mon, 10 May 2021 12:19:26 +0200
+Message-Id: <20210510101952.553399742@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -40,54 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jared Baldridge <jrb@expunge.us>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-[ Upstream commit 81ad7f9f78e4ff80e95be8282423f511b84f1166 ]
+[ Upstream commit 4ca77c513537700d3fae69030879f781dde1904c ]
 
-The OneGX1 Pro has a fairly unique combination of generic strings,
-but we additionally match on the BIOS date just to be safe.
+In case we have a shadow surface on shutdown release
+it so it doesn't leak.
 
-Signed-off-by: Jared Baldridge <jrb@expunge.us>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/41288ccb-1012-486b-81c1-a24c31850c91@www.fastmail.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210204145712.1531203-6-kraxel@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/gpu/drm/qxl/qxl_display.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 58f5dc2f6dd5..f6bdec7fa925 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -84,6 +84,13 @@ static const struct drm_dmi_panel_orientation_data itworks_tw891 = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
- };
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 9abf3dc5ef99..a6ee10cbcfdd 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -1237,6 +1237,10 @@ int qxl_modeset_init(struct qxl_device *qdev)
  
-+static const struct drm_dmi_panel_orientation_data onegx1_pro = {
-+	.width = 1200,
-+	.height = 1920,
-+	.bios_dates = (const char * const []){ "12/17/2020", NULL },
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
-+};
-+
- static const struct drm_dmi_panel_orientation_data lcd720x1280_rightside_up = {
- 	.width = 720,
- 	.height = 1280,
-@@ -211,6 +218,13 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
-+	}, {	/* OneGX1 Pro */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SYSTEM_MANUFACTURER"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SYSTEM_PRODUCT_NAME"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Default string"),
-+		},
-+		.driver_data = (void *)&onegx1_pro,
- 	}, {	/* VIOS LTH17 */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VIOS"),
+ void qxl_modeset_fini(struct qxl_device *qdev)
+ {
++	if (qdev->dumb_shadow_bo) {
++		drm_gem_object_put(&qdev->dumb_shadow_bo->tbo.base);
++		qdev->dumb_shadow_bo = NULL;
++	}
+ 	qxl_destroy_monitors_object(qdev);
+ 	drm_mode_config_cleanup(&qdev->ddev);
+ }
 -- 
 2.30.2
 
