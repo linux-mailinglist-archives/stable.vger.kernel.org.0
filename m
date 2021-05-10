@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9BA7378855
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDB2737869E
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239173AbhEJLVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
+        id S234804AbhEJLJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:09:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236984AbhEJLLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0913561481;
-        Mon, 10 May 2021 11:06:05 +0000 (UTC)
+        id S235464AbhEJLBE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:01:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 239E761A33;
+        Mon, 10 May 2021 10:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644766;
-        bh=e0S2A85wlodek6a8G+QkbEFovBexDzqXvWqjCdQgf9o=;
+        s=korg; t=1620644008;
+        bh=OkARmjPAlbBSi3Ph7vWs2MYqUbXqQONxZwDE2AT4MCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1GpFmcuy8BQj4kjoJsDFiol4hOWOoY2/gvFleSI1FzJ+FGPO2vlgBeyKoIF2j848P
-         85UBxPT0NYxE8X1WMxhJ+B0J6kPOGrnhljcTaemRjW2Md7q3XKlQeztKAINOMvxyXF
-         NRuVa3dXRkpEKMnEoB042opbluTI9vakkYe3NDxI=
+        b=qnR/vV+Cffu/zt78jlOeivYjj5GAxsbIqolpkseKazsM0p+tJYfZofhuwNC3XLuW2
+         Nvnd7T/05+1LyLKjPKZ1+XO2YpOUz5V27u4nTS5uMHcZkXZl7yL9qjsAX1F1X9c8dO
+         nC2NbkmiRZakvRviNmFgOQJdZkBmoUoquCkITlx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
-        Tony Lindgren <tony@atomide.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Gomez <daniel@qtec.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 215/384] power: supply: cpcap-charger: Add usleep to cpcap charger to avoid usb plug bounce
-Date:   Mon, 10 May 2021 12:20:04 +0200
-Message-Id: <20210510102021.975679809@linuxfoundation.org>
+Subject: [PATCH 5.11 215/342] drm/amdgpu/ttm: Fix memory leak userptr pages
+Date:   Mon, 10 May 2021 12:20:05 +0200
+Message-Id: <20210510102017.201346392@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carl Philipp Klemm <philipp@uvos.xyz>
+From: Daniel Gomez <daniel@qtec.com>
 
-[ Upstream commit 751faedf06e895a17e985a88ef5b6364ffd797ed ]
+[ Upstream commit 0f6f9dd490d524930081a6ef1d60171ce39220b9 ]
 
-Adds 80000 us sleep when the usb cable is plugged in to hopefully avoid
-bouncing contacts.
+If userptr pages have been pinned but not bounded,
+they remain uncleared.
 
-Upon pluging in the usb cable vbus will bounce for some time, causing cpcap to
-dissconnect charging due to detecting an undervoltage condition. This is a
-scope of vbus on xt894 while quickly inserting the usb cable with firm force,
-probed at the far side of the usb socket and vbus loaded with approx 1k:
-http://uvos.xyz/maserati/usbplug.jpg.
-
-As can clearly be seen, vbus is all over the place for the first 15 ms or so
-with a small blip at ~40 ms this causes the cpcap to trip up and disable
-charging again.
-
-The delay helps cpcap_usb_detect avoid the worst of this. It is, however, still
-not ideal as strong vibrations can cause the issue to reapear any time during
-charging. I have however not been able to cause the device to stop charging due
-to this in practice as it is hard to vibrate the device such that the vbus pins
-start bouncing again but cpcap_usb_detect is not called again due to a detected
-disconnect/reconnect event.
-
-Signed-off-by: Carl Philipp Klemm <philipp@uvos.xyz>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Daniel Gomez <daniel@qtec.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cpcap-charger.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/cpcap-charger.c b/drivers/power/supply/cpcap-charger.c
-index 3f06eb826ac2..2a8915c3e73e 100644
---- a/drivers/power/supply/cpcap-charger.c
-+++ b/drivers/power/supply/cpcap-charger.c
-@@ -668,6 +668,9 @@ static void cpcap_usb_detect(struct work_struct *work)
- 		return;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index 8b87991a0470..c074a81e8fae 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -1163,13 +1163,13 @@ static void amdgpu_ttm_backend_unbind(struct ttm_bo_device *bdev,
+ 	struct amdgpu_ttm_tt *gtt = (void *)ttm;
+ 	int r;
  
-+	/* Delay for 80ms to avoid vbus bouncing when usb cable is plugged in */
-+	usleep_range(80000, 120000);
+-	if (!gtt->bound)
+-		return;
+-
+ 	/* if the pages have userptr pinning then clear that first */
+ 	if (gtt->userptr)
+ 		amdgpu_ttm_tt_unpin_userptr(bdev, ttm);
+ 
++	if (!gtt->bound)
++		return;
 +
- 	/* Throttle chrgcurr2 interrupt for charger done and retry */
- 	switch (ddata->status) {
- 	case POWER_SUPPLY_STATUS_CHARGING:
+ 	if (gtt->offset == AMDGPU_BO_INVALID_OFFSET)
+ 		return;
+ 
 -- 
 2.30.2
 
