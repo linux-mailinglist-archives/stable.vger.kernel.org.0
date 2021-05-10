@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DCC237846E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9413782AE
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232916AbhEJKwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:52:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
+        id S232180AbhEJKgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:36:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233682AbhEJKub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:50:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AF8E616E9;
-        Mon, 10 May 2021 10:39:41 +0000 (UTC)
+        id S232389AbhEJKea (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:34:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3F5761075;
+        Mon, 10 May 2021 10:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643182;
-        bh=W4jsf7k3eBjDF7OUPqH+bVQTdM2ddfSmjemxqPJ8l3w=;
+        s=korg; t=1620642492;
+        bh=BCOE47gw0we5L3WlvPJTxVG0irZDJI/+FHR8ebkLFQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TxAt6ES8/ze2KO0TGvEX6C5z4p3VLdbcLhYvi79dwr4nflmAN8buQtZe+AtQJn3u6
-         6ZMnCGlEU4WhPev375kZHVZ4YoWuBzto1Z7Ujnisr/h4nbm2zEjSOqVcCGxiXp3Bsq
-         lJPjflOntWO2kDT5+kPBDud0FjWwn9/tXpdIarok=
+        b=eOWFpIiN1byhjLWpkVxHL6gRtlcMIj16u3syf21+gXhYEPw2sjVFOG5TMw8zwtnlf
+         Q+zzjxR13iNl+WJ4kVaTmvLdF1PJoTGSYhIEtahJqsVgLa5BM9fIZp+aOS9xECdEch
+         iqZZoAhzrspde/6xVDo80NRLAbNhRJvfafB13HJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geraldo Nascimento <geraldogabriel@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 212/299] ALSA: usb-audio: Explicitly set up the clock selector
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 115/184] drm/msm/mdp5: Do not multiply vclk line count by 100
 Date:   Mon, 10 May 2021 12:20:09 +0200
-Message-Id: <20210510102011.945422522@linuxfoundation.org>
+Message-Id: <20210510101953.954823470@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,86 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-commit d2e8f641257d0d3af6e45d6ac2d6f9d56b8ea964 upstream.
+[ Upstream commit 377569f82ea8228c421cef4da33e056a900b58ca ]
 
-In the current code, we have some assumption that the audio clock
-selector has been set up implicitly and don't want to touch it unless
-it's really needed for the fallback autoclock setup.  This works for
-most devices but some seem having a problem.  Partially this was
-covered for the devices with a single connector at the initialization
-phase (commit 086b957cc17f "ALSA: usb-audio: Skip the clock selector
-inquiry for single connections"), but also there are cases where the
-wrong clock set up is kept silently.  The latter seems to be the cause
-of the noises on Behringer devices.
+Neither vtotal nor drm_mode_vrefresh contain a value that is
+premultiplied by 100 making the x100 variable name incorrect and
+resulting in vclks_line to become 100 times larger than it is supposed
+to be.  The hardware counts 100 clockticks too many before tearcheck,
+leading to severe panel issues on at least the Sony Xperia lineup.
 
-In this patch, we explicitly set up the audio clock selector whenever
-the appropriate node is found.
+This is likely an artifact from the original MDSS DSI panel driver where
+the calculation [1] corrected for a premultiplied reference framerate by
+100 [2].  It does not appear that the above values were ever
+premultiplied in the history of the DRM MDP5 driver.
 
-Reported-by: Geraldo Nascimento <geraldogabriel@gmail.com>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199327
-Link: https://lore.kernel.org/r/CAEsQvcvF7LnO8PxyyCxuRCx=7jNeSCvFAd-+dE0g_rd1rOxxdw@mail.gmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210413084152.32325-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+With this change applied the value written to the SYNC_CONFIG_VSYNC
+register is now identical to downstream kernels.
+
+[1]: https://source.codeaurora.org/quic/la/kernel/msm-3.18/tree/drivers/video/msm/mdss/mdss_mdp_intf_cmd.c?h=LA.UM.8.6.c26-02400-89xx.0#n288
+[2]: https://source.codeaurora.org/quic/la/kernel/msm-3.18/tree/drivers/video/msm/mdss/mdss_dsi_panel.c?h=LA.UM.8.6.c26-02400-89xx.0#n1648
+
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Link: https://lore.kernel.org/r/20210406214726.131534-3-marijn.suijten@somainline.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/clock.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -296,7 +296,7 @@ static int __uac_clock_find_source(struc
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
+index 288f18cbf62d..0425400f44db 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cmd_encoder.c
+@@ -41,7 +41,7 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
+ {
+ 	struct mdp5_kms *mdp5_kms = get_kms(encoder);
+ 	struct device *dev = encoder->dev->dev;
+-	u32 total_lines_x100, vclks_line, cfg;
++	u32 total_lines, vclks_line, cfg;
+ 	long vsync_clk_speed;
+ 	struct mdp5_hw_mixer *mixer = mdp5_crtc_get_mixer(encoder->crtc);
+ 	int pp_id = mixer->pp;
+@@ -51,8 +51,8 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
+ 		return -EINVAL;
+ 	}
  
- 	selector = snd_usb_find_clock_selector(chip->ctrl_intf, entity_id);
- 	if (selector) {
--		int ret, i, cur;
-+		int ret, i, cur, err;
+-	total_lines_x100 = mode->vtotal * drm_mode_vrefresh(mode);
+-	if (!total_lines_x100) {
++	total_lines = mode->vtotal * drm_mode_vrefresh(mode);
++	if (!total_lines) {
+ 		DRM_DEV_ERROR(dev, "%s: vtotal(%d) or vrefresh(%d) is 0\n",
+ 			      __func__, mode->vtotal, drm_mode_vrefresh(mode));
+ 		return -EINVAL;
+@@ -64,7 +64,7 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
+ 							vsync_clk_speed);
+ 		return -EINVAL;
+ 	}
+-	vclks_line = vsync_clk_speed * 100 / total_lines_x100;
++	vclks_line = vsync_clk_speed / total_lines;
  
- 		/* the entity ID we are looking for is a selector.
- 		 * find out what it currently selects */
-@@ -318,13 +318,17 @@ static int __uac_clock_find_source(struc
- 		ret = __uac_clock_find_source(chip, fmt,
- 					      selector->baCSourceID[ret - 1],
- 					      visited, validate);
-+		if (ret > 0) {
-+			err = uac_clock_selector_set_val(chip, entity_id, cur);
-+			if (err < 0)
-+				return err;
-+		}
-+
- 		if (!validate || ret > 0 || !chip->autoclock)
- 			return ret;
- 
- 		/* The current clock source is invalid, try others. */
- 		for (i = 1; i <= selector->bNrInPins; i++) {
--			int err;
--
- 			if (i == cur)
- 				continue;
- 
-@@ -390,7 +394,7 @@ static int __uac3_clock_find_source(stru
- 
- 	selector = snd_usb_find_clock_selector_v3(chip->ctrl_intf, entity_id);
- 	if (selector) {
--		int ret, i, cur;
-+		int ret, i, cur, err;
- 
- 		/* the entity ID we are looking for is a selector.
- 		 * find out what it currently selects */
-@@ -412,6 +416,12 @@ static int __uac3_clock_find_source(stru
- 		ret = __uac3_clock_find_source(chip, fmt,
- 					       selector->baCSourceID[ret - 1],
- 					       visited, validate);
-+		if (ret > 0) {
-+			err = uac_clock_selector_set_val(chip, entity_id, cur);
-+			if (err < 0)
-+				return err;
-+		}
-+
- 		if (!validate || ret > 0 || !chip->autoclock)
- 			return ret;
- 
+ 	cfg = MDP5_PP_SYNC_CONFIG_VSYNC_COUNTER_EN
+ 		| MDP5_PP_SYNC_CONFIG_VSYNC_IN_EN;
+-- 
+2.30.2
+
 
 
