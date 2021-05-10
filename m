@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8431378654
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 985E6378623
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234880AbhEJLFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:05:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
+        id S233534AbhEJLEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:04:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232509AbhEJK5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:57:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3BD461C35;
-        Mon, 10 May 2021 10:51:59 +0000 (UTC)
+        id S234950AbhEJK5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:57:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 856D961C33;
+        Mon, 10 May 2021 10:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643920;
-        bh=aoZGLU3h/i0WadM2DxxNm7/BB1+HyOgT5g3s4onk+jI=;
+        s=korg; t=1620643837;
+        bh=gXiOxhMbUGRqAdnAYW3ioYWMt2JDeB0OfgFadacRKuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLuOzM6X63RkO5dzIpAnV8zawjFmA0u7jGURbBCQzmyF7MCv767B3vqpZO8Fkj7nE
-         qyAKqty7Df0wCPpPwcfATuFzJBOegDVVNjLvWuZU3/FkOOliWVm0KGMR4YHIw08x+t
-         0Dz8H9PzsoRsd596QEVEvqwdbouleKXwEJGQsFHI=
+        b=xuBD5dnvEVkPLHFfw2Ywe0OX3huBmdxwZyZheuXSTkxcx6UoQpuAtgseYJzwN37Gr
+         2RcqPRM5KEc8i8sara9VIbPvczHe6zpTNNfs9h+45GUsM52Q7KTuJs0q2MwmFAbEvl
+         If6gjU5ZbDHQYeOmTKXHw5Xv4bSKwFOfQ+xYLHI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 179/342] mmc: sdhci-pci: Add PCI IDs for Intel LKF
-Date:   Mon, 10 May 2021 12:19:29 +0200
-Message-Id: <20210510102016.017686994@linuxfoundation.org>
+Subject: [PATCH 5.11 180/342] mmc: sdhci-brcmstb: Remove CQE quirk
+Date:   Mon, 10 May 2021 12:19:30 +0200
+Message-Id: <20210510102016.047500206@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -40,47 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Al Cooper <alcooperx@gmail.com>
 
-[ Upstream commit ee629112be8b4eff71d4d3d108a28bc7dc877e13 ]
+[ Upstream commit f0bdf98fab058efe7bf49732f70a0f26d1143154 ]
 
-Add PCI IDs for Intel LKF eMMC and SD card host controllers.
+Remove the CQHCI_QUIRK_SHORT_TXFR_DESC_SZ quirk because the
+latest chips have this fixed and earlier chips have other
+CQE problems that prevent the feature from being enabled.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20210322055356.24923-1-adrian.hunter@intel.com
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210325192834.42955-1-alcooperx@gmail.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-pci-core.c | 2 ++
- drivers/mmc/host/sdhci-pci.h      | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/mmc/host/sdhci-brcmstb.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
-index 936e4db9060f..bf04a08eeba1 100644
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -1930,6 +1930,8 @@ static const struct pci_device_id pci_ids[] = {
- 	SDHCI_PCI_DEVICE(INTEL, CMLH_SD,   intel_byt_sd),
- 	SDHCI_PCI_DEVICE(INTEL, JSL_EMMC,  intel_glk_emmc),
- 	SDHCI_PCI_DEVICE(INTEL, JSL_SD,    intel_byt_sd),
-+	SDHCI_PCI_DEVICE(INTEL, LKF_EMMC,  intel_glk_emmc),
-+	SDHCI_PCI_DEVICE(INTEL, LKF_SD,    intel_byt_sd),
- 	SDHCI_PCI_DEVICE(O2, 8120,     o2),
- 	SDHCI_PCI_DEVICE(O2, 8220,     o2),
- 	SDHCI_PCI_DEVICE(O2, 8221,     o2),
-diff --git a/drivers/mmc/host/sdhci-pci.h b/drivers/mmc/host/sdhci-pci.h
-index d0ed232af0eb..8f90c4163bb5 100644
---- a/drivers/mmc/host/sdhci-pci.h
-+++ b/drivers/mmc/host/sdhci-pci.h
-@@ -57,6 +57,8 @@
- #define PCI_DEVICE_ID_INTEL_CMLH_SD	0x06f5
- #define PCI_DEVICE_ID_INTEL_JSL_EMMC	0x4dc4
- #define PCI_DEVICE_ID_INTEL_JSL_SD	0x4df8
-+#define PCI_DEVICE_ID_INTEL_LKF_EMMC	0x98c4
-+#define PCI_DEVICE_ID_INTEL_LKF_SD	0x98f8
+diff --git a/drivers/mmc/host/sdhci-brcmstb.c b/drivers/mmc/host/sdhci-brcmstb.c
+index f9780c65ebe9..f24623aac2db 100644
+--- a/drivers/mmc/host/sdhci-brcmstb.c
++++ b/drivers/mmc/host/sdhci-brcmstb.c
+@@ -199,7 +199,6 @@ static int sdhci_brcmstb_add_host(struct sdhci_host *host,
+ 	if (dma64) {
+ 		dev_dbg(mmc_dev(host->mmc), "Using 64 bit DMA\n");
+ 		cq_host->caps |= CQHCI_TASK_DESC_SZ_128;
+-		cq_host->quirks |= CQHCI_QUIRK_SHORT_TXFR_DESC_SZ;
+ 	}
  
- #define PCI_DEVICE_ID_SYSKONNECT_8000	0x8000
- #define PCI_DEVICE_ID_VIA_95D0		0x95d0
+ 	ret = cqhci_init(cq_host, host->mmc, dma64);
 -- 
 2.30.2
 
