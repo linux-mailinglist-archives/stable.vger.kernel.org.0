@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0583788E6
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E44073786F3
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235586AbhEJLYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:24:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46846 "EHLO mail.kernel.org"
+        id S233868AbhEJLMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:12:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233537AbhEJLMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:12:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8E8610C9;
-        Mon, 10 May 2021 11:09:59 +0000 (UTC)
+        id S235737AbhEJLF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:05:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EDD561490;
+        Mon, 10 May 2021 10:55:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645000;
-        bh=cccvPXStjqd+9m62K0FQoCSB956SlMxdLxO/1zn/KMk=;
+        s=korg; t=1620644159;
+        bh=Et9ybeFG/T13ZeHpjvXLj3rtpFizC+VnvgdSddpH7b0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOLJOe7LDTcfFc/kpH9qxlXeteZ98o/rFc59Y5IfisWPfyGutU2+4174omheNoqOQ
-         Una5d6ywgqUcvaEU8UJKR/PRSMsCGJFVQ9F6bNYANeh6/m+h4ypvEZWSqLjP32LouX
-         k6uk9tcjLJ4I6rgNWEG8/e+LXzn3Hepn9UWtalSA=
+        b=pZm69vjNdAH14uwLHkCUEn4m7mP4JeYukNRahXF2KxNaENwg1WydwqCU9PW5j8Vt0
+         Kefm0LeetfQXOBiCDml92k8NOKq5IrohRjfDj7fCpnhhC1w7vqv0ZoNhLanzTzIyhU
+         2Cv8Xo+rpP67HRx0uulgvEfhdqSMi4j/SmrDqfis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.12 311/384] powerpc/kvm: Fix PR KVM with KUAP/MEM_KEYS enabled
-Date:   Mon, 10 May 2021 12:21:40 +0200
-Message-Id: <20210510102025.050546957@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.11 311/342] ext4: allow the dax flag to be set and cleared on inline directories
+Date:   Mon, 10 May 2021 12:21:41 +0200
+Message-Id: <20210510102020.379721452@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,72 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit e4e8bc1df691ba5ba749d1e2b67acf9827e51a35 upstream.
+commit 4811d9929cdae4238baf5b2522247bd2f9fa7b50 upstream.
 
-The changes to add KUAP support with the hash MMU broke booting of KVM
-PR guests. The symptom is no visible progress of the guest, or possibly
-just "SLOF" being printed to the qemu console.
+This is needed to allow generic/607 to pass for file systems with the
+inline data_feature enabled, and it allows the use of file systems
+where the directories use inline_data, while the files are accessed
+via DAX.
 
-Host code is still executing, but breaking into xmon might show a stack
-trace such as:
-
-  __might_fault+0x84/0xe0 (unreliable)
-  kvm_read_guest+0x1c8/0x2f0 [kvm]
-  kvmppc_ld+0x1b8/0x2d0 [kvm]
-  kvmppc_load_last_inst+0x50/0xa0 [kvm]
-  kvmppc_exit_pr_progint+0x178/0x220 [kvm_pr]
-  kvmppc_handle_exit_pr+0x31c/0xe30 [kvm_pr]
-  after_sprg3_load+0x80/0x90 [kvm_pr]
-  kvmppc_vcpu_run_pr+0x104/0x260 [kvm_pr]
-  kvmppc_vcpu_run+0x34/0x48 [kvm]
-  kvm_arch_vcpu_ioctl_run+0x340/0x450 [kvm]
-  kvm_vcpu_ioctl+0x2ac/0x8c0 [kvm]
-  sys_ioctl+0x320/0x1060
-  system_call_exception+0x160/0x270
-  system_call_common+0xf0/0x27c
-
-Bisect points to commit b2ff33a10c8b ("powerpc/book3s64/hash/kuap:
-Enable kuap on hash"), but that's just the commit that enabled KUAP with
-hash and made the bug visible.
-
-The root cause seems to be that KVM PR is creating kernel mappings that
-don't use the correct key, since we switched to using key 3.
-
-We have a helper for adding the right key value, however it's designed
-to take a pteflags variable, which the KVM code doesn't have. But we can
-make it work by passing 0 for the pteflags, and tell it explicitly that
-it should use the kernel key.
-
-With that changed guests boot successfully.
-
-Fixes: d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3 for kernel mapping with hash translation")
-Cc: stable@vger.kernel.org # v5.11+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210419120139.1455937-1-mpe@ellerman.id.au
+Cc: stable@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_64_mmu_host.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/ext4/ialloc.c |    3 ++-
+ fs/ext4/ioctl.c  |    6 ++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_64_mmu_host.c
-+++ b/arch/powerpc/kvm/book3s_64_mmu_host.c
-@@ -12,6 +12,7 @@
- #include <asm/kvm_ppc.h>
- #include <asm/kvm_book3s.h>
- #include <asm/book3s/64/mmu-hash.h>
-+#include <asm/book3s/64/pkeys.h>
- #include <asm/machdep.h>
- #include <asm/mmu_context.h>
- #include <asm/hw_irq.h>
-@@ -133,6 +134,7 @@ int kvmppc_mmu_map_page(struct kvm_vcpu
- 	else
- 		kvmppc_mmu_flush_icache(pfn);
+--- a/fs/ext4/ialloc.c
++++ b/fs/ext4/ialloc.c
+@@ -1291,7 +1291,8 @@ got:
  
-+	rflags |= pte_to_hpte_pkey_bits(0, HPTE_USE_KERNEL_KEY);
- 	rflags = (rflags & ~HPTE_R_WIMG) | orig_pte->wimg;
- 
- 	/*
+ 	ei->i_extra_isize = sbi->s_want_extra_isize;
+ 	ei->i_inline_off = 0;
+-	if (ext4_has_feature_inline_data(sb))
++	if (ext4_has_feature_inline_data(sb) &&
++	    (!(ei->i_flags & EXT4_DAX_FL) || S_ISDIR(mode)))
+ 		ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+ 	ret = inode;
+ 	err = dquot_alloc_inode(inode);
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -312,6 +312,12 @@ static void ext4_dax_dontcache(struct in
+ static bool dax_compatible(struct inode *inode, unsigned int oldflags,
+ 			   unsigned int flags)
+ {
++	/* Allow the DAX flag to be changed on inline directories */
++	if (S_ISDIR(inode->i_mode)) {
++		flags &= ~EXT4_INLINE_DATA_FL;
++		oldflags &= ~EXT4_INLINE_DATA_FL;
++	}
++
+ 	if (flags & EXT4_DAX_FL) {
+ 		if ((oldflags & EXT4_DAX_MUT_EXCL) ||
+ 		     ext4_test_inode_state(inode,
 
 
