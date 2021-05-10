@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BAB4378526
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C59378527
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233441AbhEJK7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42240 "EHLO mail.kernel.org"
+        id S233462AbhEJK7L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:59:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233724AbhEJKzJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:55:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8F7861939;
-        Mon, 10 May 2021 10:42:19 +0000 (UTC)
+        id S233773AbhEJKzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:55:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3686361C1D;
+        Mon, 10 May 2021 10:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643340;
-        bh=sxdG9erlraFQgNi9ASTWqHeMNHqt4H+GmvkuDd2xkrk=;
+        s=korg; t=1620643342;
+        bh=acsZ0fQWrgwm+atbVh3Rw83PjOyKrKmsInSFMqaBH00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qh0KZ1eZExMZl3kKNUfh+jfRiGG+UJ4GXHUnX5f0uSEy15aPXllhI5DiUKe68uA26
-         mxhGgqXpHPw9IzyW7VQEDAPACv4zNaJbPl8UtHdzuGzUF70DgO2/XGXIu3R/L+chZa
-         i4sb6VXdtexN5//DRbfz0w1LHssCDaoyLFr76ubI=
+        b=p8x/jvhoZaecjInMxBfusEqq+dmNYrK1L2XPkHneTN8usht6UmIxX/q7g4ejBI+Gu
+         qMoLcO0SYZZ3JAbQKPw8BDlQB+HFlBW/IggS6uB3Am3B8n0F7Tnh1ACVS/w4IgVBpu
+         5PFHEa4DSy5yWhGVocEjQbYnpiDdw2ppXiL7UNOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dominic DeMarco <ddemarc@us.ibm.com>,
-        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        stable@vger.kernel.org, Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 240/299] powerpc/eeh: Fix EEH handling for hugepages in ioremap space.
-Date:   Mon, 10 May 2021 12:20:37 +0200
-Message-Id: <20210510102012.883917883@linuxfoundation.org>
+Subject: [PATCH 5.10 241/299] powerpc/kexec_file: Use current CPU info while setting up FDT
+Date:   Mon, 10 May 2021 12:20:38 +0200
+Message-Id: <20210510102012.922942800@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -41,119 +40,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+From: Sourabh Jain <sourabhjain@linux.ibm.com>
 
-commit 5ae5bc12d0728db60a0aa9b62160ffc038875f1a upstream.
+commit 40c753993e3aad51a12c21233486e2037417a4d6 upstream.
 
-During the EEH MMIO error checking, the current implementation fails to map
-the (virtual) MMIO address back to the pci device on radix with hugepage
-mappings for I/O. This results into failure to dispatch EEH event with no
-recovery even when EEH capability has been enabled on the device.
+kexec_file_load() uses initial_boot_params in setting up the device tree
+for the kernel to be loaded. Though initial_boot_params holds info about
+CPUs at the time of boot, it doesn't account for hot added CPUs.
 
-eeh_check_failure(token)		# token = virtual MMIO address
-  addr = eeh_token_to_phys(token);
-  edev = eeh_addr_cache_get_dev(addr);
-  if (!edev)
-	return 0;
-  eeh_dev_check_failure(edev);	<= Dispatch the EEH event
+So, kexec'ing with kexec_file_load() syscall leaves the kexec'ed kernel
+with inaccurate CPU info.
 
-In case of hugepage mappings, eeh_token_to_phys() has a bug in virt -> phys
-translation that results in wrong physical address, which is then passed to
-eeh_addr_cache_get_dev() to match it against cached pci I/O address ranges
-to get to a PCI device. Hence, it fails to find a match and the EEH event
-never gets dispatched leaving the device in failed state.
+If kdump kernel is loaded with kexec_file_load() syscall and the system
+crashes on a hot added CPU, the capture kernel hangs failing to identify
+the boot CPU, with no output.
 
-The commit 33439620680be ("powerpc/eeh: Handle hugepages in ioremap space")
-introduced following logic to translate virt to phys for hugepage mappings:
+To avoid this from happening, extract current CPU info from of_root
+device node and use it for setting up the fdt in kexec_file_load case.
 
-eeh_token_to_phys():
-+	pa = pte_pfn(*ptep);
-+
-+	/* On radix we can do hugepage mappings for io, so handle that */
-+       if (hugepage_shift) {
-+               pa <<= hugepage_shift;			<= This is wrong
-+               pa |= token & ((1ul << hugepage_shift) - 1);
-+       }
-
-This patch fixes the virt -> phys translation in eeh_token_to_phys()
-function.
-
-  $ cat /sys/kernel/debug/powerpc/eeh_address_cache
-  mem addr range [0x0000040080000000-0x00000400807fffff]: 0030:01:00.1
-  mem addr range [0x0000040080800000-0x0000040080ffffff]: 0030:01:00.1
-  mem addr range [0x0000040081000000-0x00000400817fffff]: 0030:01:00.0
-  mem addr range [0x0000040081800000-0x0000040081ffffff]: 0030:01:00.0
-  mem addr range [0x0000040082000000-0x000004008207ffff]: 0030:01:00.1
-  mem addr range [0x0000040082080000-0x00000400820fffff]: 0030:01:00.0
-  mem addr range [0x0000040082100000-0x000004008210ffff]: 0030:01:00.1
-  mem addr range [0x0000040082110000-0x000004008211ffff]: 0030:01:00.0
-
-Above is the list of cached io address ranges of pci 0030:01:00.<fn>.
-
-Before this patch:
-
-Tracing 'arg1' of function eeh_addr_cache_get_dev() during error injection
-clearly shows that 'addr=' contains wrong physical address:
-
-   kworker/u16:0-7       [001] ....   108.883775: eeh_addr_cache_get_dev:
-	   (eeh_addr_cache_get_dev+0xc/0xf0) addr=0x80103000a510
-
-dmesg shows no EEH recovery messages:
-
-  [  108.563768] bnx2x: [bnx2x_timer:5801(eth2)]MFW seems hanged: drv_pulse (0x9ae) != mcp_pulse (0x7fff)
-  [  108.563788] bnx2x: [bnx2x_hw_stats_update:870(eth2)]NIG timer max (4294967295)
-  [  108.883788] bnx2x: [bnx2x_acquire_hw_lock:2013(eth1)]lock_status 0xffffffff  resource_bit 0x1
-  [  108.884407] bnx2x 0030:01:00.0 eth1: MDC/MDIO access timeout
-  [  108.884976] bnx2x 0030:01:00.0 eth1: MDC/MDIO access timeout
-  <..>
-
-After this patch:
-
-eeh_addr_cache_get_dev() trace shows correct physical address:
-
-  <idle>-0       [001] ..s.  1043.123828: eeh_addr_cache_get_dev:
-	  (eeh_addr_cache_get_dev+0xc/0xf0) addr=0x40080bc7cd8
-
-dmesg logs shows EEH recovery getting triggerred:
-
-  [  964.323980] bnx2x: [bnx2x_timer:5801(eth2)]MFW seems hanged: drv_pulse (0x746f) != mcp_pulse (0x7fff)
-  [  964.323991] EEH: Recovering PHB#30-PE#10000
-  [  964.324002] EEH: PE location: N/A, PHB location: N/A
-  [  964.324006] EEH: Frozen PHB#30-PE#10000 detected
-  <..>
-
-Fixes: 33439620680b ("powerpc/eeh: Handle hugepages in ioremap space")
-Cc: stable@vger.kernel.org # v5.3+
-Reported-by: Dominic DeMarco <ddemarc@us.ibm.com>
-Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Fixes: 6ecd0163d360 ("powerpc/kexec_file: Add appropriate regions for memory reserve map")
+Cc: stable@vger.kernel.org # v5.9+
+Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
+Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/161821396263.48361.2796709239866588652.stgit@jupiter
+Link: https://lore.kernel.org/r/20210429060256.199714-1-sourabhjain@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/eeh.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ arch/powerpc/kexec/file_load_64.c |   92 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 92 insertions(+)
 
---- a/arch/powerpc/kernel/eeh.c
-+++ b/arch/powerpc/kernel/eeh.c
-@@ -362,14 +362,11 @@ static inline unsigned long eeh_token_to
- 	pa = pte_pfn(*ptep);
- 
- 	/* On radix we can do hugepage mappings for io, so handle that */
--	if (hugepage_shift) {
--		pa <<= hugepage_shift;
--		pa |= token & ((1ul << hugepage_shift) - 1);
--	} else {
--		pa <<= PAGE_SHIFT;
--		pa |= token & (PAGE_SIZE - 1);
--	}
-+	if (!hugepage_shift)
-+		hugepage_shift = PAGE_SHIFT;
- 
-+	pa <<= PAGE_SHIFT;
-+	pa |= token & ((1ul << hugepage_shift) - 1);
- 	return pa;
+--- a/arch/powerpc/kexec/file_load_64.c
++++ b/arch/powerpc/kexec/file_load_64.c
+@@ -961,6 +961,93 @@ unsigned int kexec_fdt_totalsize_ppc64(s
  }
  
+ /**
++ * add_node_props - Reads node properties from device node structure and add
++ *                  them to fdt.
++ * @fdt:            Flattened device tree of the kernel
++ * @node_offset:    offset of the node to add a property at
++ * @dn:             device node pointer
++ *
++ * Returns 0 on success, negative errno on error.
++ */
++static int add_node_props(void *fdt, int node_offset, const struct device_node *dn)
++{
++	int ret = 0;
++	struct property *pp;
++
++	if (!dn)
++		return -EINVAL;
++
++	for_each_property_of_node(dn, pp) {
++		ret = fdt_setprop(fdt, node_offset, pp->name, pp->value, pp->length);
++		if (ret < 0) {
++			pr_err("Unable to add %s property: %s\n", pp->name, fdt_strerror(ret));
++			return ret;
++		}
++	}
++	return ret;
++}
++
++/**
++ * update_cpus_node - Update cpus node of flattened device tree using of_root
++ *                    device node.
++ * @fdt:              Flattened device tree of the kernel.
++ *
++ * Returns 0 on success, negative errno on error.
++ */
++static int update_cpus_node(void *fdt)
++{
++	struct device_node *cpus_node, *dn;
++	int cpus_offset, cpus_subnode_offset, ret = 0;
++
++	cpus_offset = fdt_path_offset(fdt, "/cpus");
++	if (cpus_offset < 0 && cpus_offset != -FDT_ERR_NOTFOUND) {
++		pr_err("Malformed device tree: error reading /cpus node: %s\n",
++		       fdt_strerror(cpus_offset));
++		return cpus_offset;
++	}
++
++	if (cpus_offset > 0) {
++		ret = fdt_del_node(fdt, cpus_offset);
++		if (ret < 0) {
++			pr_err("Error deleting /cpus node: %s\n", fdt_strerror(ret));
++			return -EINVAL;
++		}
++	}
++
++	/* Add cpus node to fdt */
++	cpus_offset = fdt_add_subnode(fdt, fdt_path_offset(fdt, "/"), "cpus");
++	if (cpus_offset < 0) {
++		pr_err("Error creating /cpus node: %s\n", fdt_strerror(cpus_offset));
++		return -EINVAL;
++	}
++
++	/* Add cpus node properties */
++	cpus_node = of_find_node_by_path("/cpus");
++	ret = add_node_props(fdt, cpus_offset, cpus_node);
++	of_node_put(cpus_node);
++	if (ret < 0)
++		return ret;
++
++	/* Loop through all subnodes of cpus and add them to fdt */
++	for_each_node_by_type(dn, "cpu") {
++		cpus_subnode_offset = fdt_add_subnode(fdt, cpus_offset, dn->full_name);
++		if (cpus_subnode_offset < 0) {
++			pr_err("Unable to add %s subnode: %s\n", dn->full_name,
++			       fdt_strerror(cpus_subnode_offset));
++			ret = cpus_subnode_offset;
++			goto out;
++		}
++
++		ret = add_node_props(fdt, cpus_subnode_offset, dn);
++		if (ret < 0)
++			goto out;
++	}
++out:
++	of_node_put(dn);
++	return ret;
++}
++
++/**
+  * setup_new_fdt_ppc64 - Update the flattend device-tree of the kernel
+  *                       being loaded.
+  * @image:               kexec image being loaded.
+@@ -1020,6 +1107,11 @@ int setup_new_fdt_ppc64(const struct kim
+ 		}
+ 	}
+ 
++	/* Update cpus nodes information to account hotplug CPUs. */
++	ret =  update_cpus_node(fdt);
++	if (ret < 0)
++		goto out;
++
+ 	/* Update memory reserve map */
+ 	ret = get_reserved_memory_ranges(&rmem);
+ 	if (ret)
 
 
