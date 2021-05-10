@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A760378921
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F5EB378925
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238122AbhEJLZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55450 "EHLO mail.kernel.org"
+        id S238228AbhEJLZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238053AbhEJLQx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:16:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F308E61629;
-        Mon, 10 May 2021 11:12:13 +0000 (UTC)
+        id S238072AbhEJLQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:16:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D654614A5;
+        Mon, 10 May 2021 11:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645134;
-        bh=iGg2rkR9LvqocJcMaj2Kj1zQhYKuImPMlBsYVy7Kfbw=;
+        s=korg; t=1620645136;
+        bh=cFchhMaHYH8bR5GvCJ3hR1rSWQ9RiBBN8mveFISbNds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ew6plpzyeW2x8+mT7QuVkUsTgk2ZN/aiF54lKNYI0jZTIm2yiUElOfIONVM6XN/7D
-         nydbLksfsgsoboHXA6yqlifOwPnHemoP8Jnodsio7wjIZZ1g51BqzG2WMOgaiKfWp6
-         pLzagMib85YdEk5TuMCqFf6U25TEp/YFxZSr7fC4=
+        b=pgw+Wg3Yv0/2Eb1kosxAILKsdLWTNFiV0MPEOnz7ut152w9UMXiZ8P01M70nynreE
+         36i25J40pZcEM4Lw+SVO7UJZO2muH6irghLgOeE/NoVE6qoWajRwGhYg94yE3PgB8M
+         FOtRdmaFXZPbNzbfynhKoqSUole6VcxFEuQt4gzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
         Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.12 366/384] usb: dwc3: gadget: Remove FS bInterval_m1 limitation
-Date:   Mon, 10 May 2021 12:22:35 +0200
-Message-Id: <20210510102026.829882922@linuxfoundation.org>
+Subject: [PATCH 5.12 367/384] usb: dwc3: gadget: Fix START_TRANSFER link state check
+Date:   Mon, 10 May 2021 12:22:36 +0200
+Message-Id: <20210510102026.862512660@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,42 +41,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 3232a3ce55edfc0d7f8904543b4088a5339c2b2b upstream.
+commit c560e76319a94a3b9285bc426c609903408e4826 upstream.
 
-The programming guide incorrectly stated that the DCFG.bInterval_m1 must
-be set to 0 when operating in fullspeed. There's no such limitation for
-all IPs. See DWC_usb3x programming guide section 3.2.2.1.
+The START_TRANSFER command needs to be executed while in ON/U0 link
+state (with an exception during register initialization). Don't use
+dwc->link_state to check this since the driver only tracks the link
+state when the link state change interrupt is enabled. Check the link
+state from DSTS register instead.
 
-Fixes: a1679af85b2a ("usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1")
+Note that often the host already brings the device out of low power
+before it sends/requests the next transfer. So, the user won't see any
+issue when the device starts transfer then. This issue is more
+noticeable in cases when the device delays starting transfer, which can
+happen during delayed control status after the host put the device in
+low power.
+
+Fixes: 799e9dc82968 ("usb: dwc3: gadget: conditionally disable Link State change events")
 Cc: <stable@vger.kernel.org>
 Acked-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/5d4139ae89d810eb0a2d8577fb096fc88e87bfab.1618472454.git.Thinh.Nguyen@synopsys.com
+Link: https://lore.kernel.org/r/bcefaa9ecbc3e1936858c0baa14de6612960e909.1618884221.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/dwc3/gadget.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -608,12 +608,14 @@ static int dwc3_gadget_set_ep_config(str
- 		u8 bInterval_m1;
+@@ -308,13 +308,12 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_
+ 	}
  
- 		/*
--		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
--		 * must be set to 0 when the controller operates in full-speed.
-+		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13.
-+		 *
-+		 * NOTE: The programming guide incorrectly stated bInterval_m1
-+		 * must be set to 0 when operating in fullspeed. Internally the
-+		 * controller does not have this limitation. See DWC_usb3x
-+		 * programming guide section 3.2.2.1.
- 		 */
- 		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
--		if (dwc->gadget->speed == USB_SPEED_FULL)
--			bInterval_m1 = 0;
+ 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
+-		int		needs_wakeup;
++		int link_state;
  
- 		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
- 		    dwc->gadget->speed == USB_SPEED_FULL)
+-		needs_wakeup = (dwc->link_state == DWC3_LINK_STATE_U1 ||
+-				dwc->link_state == DWC3_LINK_STATE_U2 ||
+-				dwc->link_state == DWC3_LINK_STATE_U3);
+-
+-		if (unlikely(needs_wakeup)) {
++		link_state = dwc3_gadget_get_link_state(dwc);
++		if (link_state == DWC3_LINK_STATE_U1 ||
++		    link_state == DWC3_LINK_STATE_U2 ||
++		    link_state == DWC3_LINK_STATE_U3) {
+ 			ret = __dwc3_gadget_wakeup(dwc);
+ 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
+ 					ret);
+@@ -1975,6 +1974,8 @@ static int __dwc3_gadget_wakeup(struct d
+ 	case DWC3_LINK_STATE_RESET:
+ 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
+ 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
++	case DWC3_LINK_STATE_U2:	/* in HS, means Sleep (L1) */
++	case DWC3_LINK_STATE_U1:
+ 	case DWC3_LINK_STATE_RESUME:
+ 		break;
+ 	default:
 
 
