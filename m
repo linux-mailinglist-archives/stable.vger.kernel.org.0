@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9289A378588
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E637537858C
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235332AbhEJLAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:00:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53024 "EHLO mail.kernel.org"
+        id S235367AbhEJLAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234374AbhEJK4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1438361991;
-        Mon, 10 May 2021 10:45:30 +0000 (UTC)
+        id S234379AbhEJK4T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EC81619A4;
+        Mon, 10 May 2021 10:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643531;
-        bh=ZZGZsIdjP6OhAwYWvSF6Lf7Z15yVex5kaPiyarkXG+s=;
+        s=korg; t=1620643534;
+        bh=1YN+s86/A3wBK8DclWLxTTZe/V+2+wWyeumguiQT+L0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4yFiRMDWlkOVqNr1CxocgkddfDVN9yTEH79OSx3gjvAjY6cJsbSxzBARRs1fMpQm
-         ZjSAwiecJllCJECsC2yGn1ipl/ISiHPz+erypZI8VaQH0XcfYZznepAXqLu1TP86YU
-         BNX53sPW8tV6ayGcQqZOs7l7nkNSkFzK4zvmkHRw=
+        b=QS/kRxv2z0BnkQlm8Q5+1sAyVCtvBdjxw1EYIu4k0xmTqaplYrCe8wTMtAhGGUw64
+         4ynBR1AvR0x5tKm4Y+/QZTIjvAnpIeeyd76iJzoK4bDmELAC6fiAS8zq3e4KyaKi8K
+         6jAqaW9+KPOwTDll5rGfc4yvTg+G64f+zhAbsFjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Disseldorp <ddiss@suse.de>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.11 051/342] cifs: fix leak in cifs_smb3_do_mount() ctx
-Date:   Mon, 10 May 2021 12:17:21 +0200
-Message-Id: <20210510102011.813416272@linuxfoundation.org>
+Subject: [PATCH 5.11 052/342] cifs: detect dead connections only when echoes are enabled.
+Date:   Mon, 10 May 2021 12:17:22 +0200
+Message-Id: <20210510102011.845024708@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -41,59 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit 315db9a05b7a56810728589baa930864107e4634 upstream.
+commit f4916649f98e2c7bdba38c6597a98c456c17317d upstream.
 
-cifs_smb3_do_mount() calls smb3_fs_context_dup() and then
-cifs_setup_volume_info(). The latter's subsequent smb3_parse_devname()
-call overwrites the cifs_sb->ctx->UNC string already dup'ed by
-smb3_fs_context_dup(), resulting in a leak. E.g.
+We can detect server unresponsiveness only if echoes are enabled.
+Echoes can be disabled under two scenarios:
+1. The connection is low on credits, so we've disabled echoes/oplocks.
+2. The connection has not seen any request till now (other than
+negotiate/sess-setup), which is when we enable these two, based on
+the credits available.
 
-unreferenced object 0xffff888002980420 (size 32):
-  comm "mount", pid 160, jiffies 4294892541 (age 30.416s)
-  hex dump (first 32 bytes):
-    5c 5c 31 39 32 2e 31 36 38 2e 31 37 34 2e 31 30  \\192.168.174.10
-    34 5c 72 61 70 69 64 6f 2d 73 68 61 72 65 00 00  4\rapido-share..
-  backtrace:
-    [<00000000069e12f6>] kstrdup+0x28/0x50
-    [<00000000b61f4032>] smb3_fs_context_dup+0x127/0x1d0 [cifs]
-    [<00000000c6e3e3bf>] cifs_smb3_do_mount+0x77/0x660 [cifs]
-    [<0000000063467a6b>] smb3_get_tree+0xdf/0x220 [cifs]
-    [<00000000716f731e>] vfs_get_tree+0x1b/0x90
-    [<00000000491d3892>] path_mount+0x62a/0x910
-    [<0000000046b2e774>] do_mount+0x50/0x70
-    [<00000000ca7b64dd>] __x64_sys_mount+0x81/0xd0
-    [<00000000b5122496>] do_syscall_64+0x33/0x40
-    [<000000002dd397af>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+So this fix will check for dead connection, only when echo is enabled.
 
-This change is a bandaid until the cifs_setup_volume_info() TODO and
-error handling issues are resolved.
-
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-CC: <stable@vger.kernel.org> # v5.11+
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+CC: <stable@vger.kernel.org> # v5.8+
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsfs.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/cifs/connect.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -823,6 +823,12 @@ cifs_smb3_do_mount(struct file_system_ty
- 		goto out;
- 	}
- 
-+	/* cifs_setup_volume_info->smb3_parse_devname() redups UNC & prepath */
-+	kfree(cifs_sb->ctx->UNC);
-+	cifs_sb->ctx->UNC = NULL;
-+	kfree(cifs_sb->ctx->prepath);
-+	cifs_sb->ctx->prepath = NULL;
-+
- 	rc = cifs_setup_volume_info(cifs_sb->ctx, NULL, old_ctx->UNC);
- 	if (rc) {
- 		root = ERR_PTR(rc);
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -488,6 +488,7 @@ server_unresponsive(struct TCP_Server_In
+ 	 */
+ 	if ((server->tcpStatus == CifsGood ||
+ 	    server->tcpStatus == CifsNeedNegotiate) &&
++	    (!server->ops->can_echo || server->ops->can_echo(server)) &&
+ 	    time_after(jiffies, server->lstrp + 3 * server->echo_interval)) {
+ 		cifs_server_dbg(VFS, "has not responded in %lu seconds. Reconnecting...\n",
+ 			 (3 * server->echo_interval) / HZ);
 
 
