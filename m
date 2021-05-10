@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91B243788DC
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DF93786B0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235354AbhEJLYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:24:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
+        id S235291AbhEJLKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:10:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232864AbhEJLLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B95761939;
-        Mon, 10 May 2021 11:09:39 +0000 (UTC)
+        id S234292AbhEJLCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:02:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 379C26101D;
+        Mon, 10 May 2021 10:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644980;
-        bh=Ffa6ELVMUGV4itxSLyDqva7PAs6fN/3nhJDRmakNfq8=;
+        s=korg; t=1620644048;
+        bh=C1l21XK72hRsuz8PCOavxVI3pVZMJ9hB26W5tSOAJV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ur+lvfOS8Jt9n/Wr7FUgChKvZSi5nWoDbiHWKsOikJ5C2zvjJNJd0KRzRJmNcfH8
-         veLgJsxJoyCtTIJEEtN5I6RzU/VI8fLG5PYLKXePw60jInmGET4lQ6EiUdeXIvqZ6u
-         ly10n/m7YXLarlf01ASjkFpCJNUMbwVoxDQ/DWQs=
+        b=aVIl6GlnqAnBq+MIreX3IF3PhX6WdoiNF4uIxy9MjujCj6MLxpyKrnYVrXIDjKLRK
+         iNeUbnH9hXbOmlfCsjDpqisIHNiM2lRnqFyk/23pkyq7cLxPp01tGRD+iVCezaPxY6
+         KuTKgM7fnDaFxm0Qrg/z7I92QaculguAp9O8vgTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 267/384] s390/archrandom: add parameter check for s390_arch_random_generate
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.11 266/342] NFS: Dont discard pNFS layout segments that are marked for return
 Date:   Mon, 10 May 2021 12:20:56 +0200
-Message-Id: <20210510102023.648939431@linuxfoundation.org>
+Message-Id: <20210510102018.885679664@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 28096067686c5a5cbd4c35b079749bd805df5010 ]
+commit 39fd01863616964f009599e50ca5c6ea9ebf88d6 upstream.
 
-A review of the code showed, that this function which is exposed
-within the whole kernel should do a parameter check for the
-amount of bytes requested. If this requested bytes is too high
-an unsigned int overflow could happen causing this function to
-try to memcpy a really big memory chunk.
+If the pNFS layout segment is marked with the NFS_LSEG_LAYOUTRETURN
+flag, then the assumption is that it has some reporting requirement
+to perform through a layoutreturn (e.g. flexfiles layout stats or error
+information).
 
-This is not a security issue as there are only two invocations
-of this function from arch/s390/include/asm/archrandom.h and both
-are not exposed to userland.
-
-Reported-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e0b7d420f72a ("pNFS: Don't discard layout segments that are marked for return")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/crypto/arch_random.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfs/pnfs.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/s390/crypto/arch_random.c b/arch/s390/crypto/arch_random.c
-index 7b947728d57e..56007c763902 100644
---- a/arch/s390/crypto/arch_random.c
-+++ b/arch/s390/crypto/arch_random.c
-@@ -54,6 +54,10 @@ static DECLARE_DELAYED_WORK(arch_rng_work, arch_rng_refill_buffer);
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -2468,6 +2468,9 @@ pnfs_mark_matching_lsegs_return(struct p
  
- bool s390_arch_random_generate(u8 *buf, unsigned int nbytes)
- {
-+	/* max hunk is ARCH_RNG_BUF_SIZE */
-+	if (nbytes > ARCH_RNG_BUF_SIZE)
-+		return false;
+ 	assert_spin_locked(&lo->plh_inode->i_lock);
+ 
++	if (test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags))
++		tmp_list = &lo->plh_return_segs;
 +
- 	/* lock rng buffer */
- 	if (!spin_trylock(&arch_rng_lock))
- 		return false;
--- 
-2.30.2
-
+ 	list_for_each_entry_safe(lseg, next, &lo->plh_segs, pls_list)
+ 		if (pnfs_match_lseg_recall(lseg, return_range, seq)) {
+ 			dprintk("%s: marking lseg %p iomode %d "
+@@ -2475,6 +2478,8 @@ pnfs_mark_matching_lsegs_return(struct p
+ 				lseg, lseg->pls_range.iomode,
+ 				lseg->pls_range.offset,
+ 				lseg->pls_range.length);
++			if (test_bit(NFS_LSEG_LAYOUTRETURN, &lseg->pls_flags))
++				tmp_list = &lo->plh_return_segs;
+ 			if (mark_lseg_invalid(lseg, tmp_list))
+ 				continue;
+ 			remaining++;
 
 
