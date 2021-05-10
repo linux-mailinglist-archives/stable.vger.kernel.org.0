@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A141378E69
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92CBF378E6F
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241017AbhEJN27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:28:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54638 "EHLO mail.kernel.org"
+        id S242388AbhEJN3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 09:29:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242907AbhEJMoo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 08:44:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88FB160FF2;
-        Mon, 10 May 2021 12:43:38 +0000 (UTC)
+        id S1348771AbhEJMrG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 08:47:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AC7F60FF2;
+        Mon, 10 May 2021 12:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620650619;
-        bh=jBpXhoFQoTkdm7vnKeeyRktif/Yor1Enm4DEBlpLdqQ=;
+        s=korg; t=1620650761;
+        bh=qxQLaB8pah1n3ToTU1cMSTNKT26Fl/IME5uWUN71css=;
         h=Subject:To:From:Date:From;
-        b=wCnt5ITxwnDko8huitwYUPm2ctZp2FeTqw7fYw2KMpT5X8GKDGNrCDgALhA2M/y+d
-         Kv+bCCZcNuH8OLZe19g/5AaBBBGXOBVZYHXzA5KNt1qv988T+MMTBxWfhsUVoMeaQT
-         maA6DnlaL9DqHon9woKyYcEOEa4f4cZUFSqPCdFg=
-Subject: patch "cdc-wdm: untangle a circular dependency between callback and softint" added to usb-linus
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        b=mnfvmfxwx56lLT79gmUkXjoH6SpFHUu1rXkpWQxUIB+7pfiZvrIHoYXalU3Cdy2Zo
+         sNfMGXEM4RD7LGFsztsNyhcreL80596NBlKW6dNajQV1T+SahDkbz4LYe5/0JA6leu
+         qrlXSLfCiOoG9rEeuWUrCSO0Qo+J9/6nS4YrsdxU=
+Subject: patch "usb: dwc3: gadget: Enable suspend events" added to usb-linus
+To:     jackp@codeaurora.org, balbi@kernel.org, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 14:43:36 +0200
-Message-ID: <16206506160140@kroah.com>
+Date:   Mon, 10 May 2021 14:45:58 +0200
+Message-ID: <16206507588381@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    cdc-wdm: untangle a circular dependency between callback and softint
+    usb: dwc3: gadget: Enable suspend events
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,109 +51,44 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 18abf874367456540846319574864e6ff32752e2 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Mon, 26 Apr 2021 11:26:22 +0200
-Subject: cdc-wdm: untangle a circular dependency between callback and softint
+From d1d90dd27254c44d087ad3f8b5b3e4fff0571f45 Mon Sep 17 00:00:00 2001
+From: Jack Pham <jackp@codeaurora.org>
+Date: Wed, 28 Apr 2021 02:01:10 -0700
+Subject: usb: dwc3: gadget: Enable suspend events
 
-We have a cycle of callbacks scheduling works which submit
-URBs with those callbacks. This needs to be blocked, stopped
-and unblocked to untangle the circle.
+commit 72704f876f50 ("dwc3: gadget: Implement the suspend entry event
+handler") introduced (nearly 5 years ago!) an interrupt handler for
+U3/L1-L2 suspend events.  The problem is that these events aren't
+currently enabled in the DEVTEN register so the handler is never
+even invoked.  Fix this simply by enabling the corresponding bit
+in dwc3_gadget_enable_irq() using the same revision check as found
+in the handler.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20210426092622.20433-1-oneukum@suse.com
+Fixes: 72704f876f50 ("dwc3: gadget: Implement the suspend entry event handler")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
 Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428090111.3370-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-wdm.c | 30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+ drivers/usb/dwc3/gadget.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
-index 508b1c3f8b73..d1e4a7379beb 100644
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -321,12 +321,23 @@ static void wdm_int_callback(struct urb *urb)
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index dd80e5ca8c78..cab3a9184068 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2323,6 +2323,10 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
+ 	if (DWC3_VER_IS_PRIOR(DWC3, 250A))
+ 		reg |= DWC3_DEVTEN_ULSTCNGEN;
  
- }
- 
--static void kill_urbs(struct wdm_device *desc)
-+static void poison_urbs(struct wdm_device *desc)
- {
- 	/* the order here is essential */
--	usb_kill_urb(desc->command);
--	usb_kill_urb(desc->validity);
--	usb_kill_urb(desc->response);
-+	usb_poison_urb(desc->command);
-+	usb_poison_urb(desc->validity);
-+	usb_poison_urb(desc->response);
-+}
++	/* On 2.30a and above this bit enables U3/L2-L1 Suspend Events */
++	if (!DWC3_VER_IS_PRIOR(DWC3, 230A))
++		reg |= DWC3_DEVTEN_EOPFEN;
 +
-+static void unpoison_urbs(struct wdm_device *desc)
-+{
-+	/*
-+	 *  the order here is not essential
-+	 *  it is symmetrical just to be nice
-+	 */
-+	usb_unpoison_urb(desc->response);
-+	usb_unpoison_urb(desc->validity);
-+	usb_unpoison_urb(desc->command);
+ 	dwc3_writel(dwc->regs, DWC3_DEVTEN, reg);
  }
  
- static void free_urbs(struct wdm_device *desc)
-@@ -741,11 +752,12 @@ static int wdm_release(struct inode *inode, struct file *file)
- 	if (!desc->count) {
- 		if (!test_bit(WDM_DISCONNECTING, &desc->flags)) {
- 			dev_dbg(&desc->intf->dev, "wdm_release: cleanup\n");
--			kill_urbs(desc);
-+			poison_urbs(desc);
- 			spin_lock_irq(&desc->iuspin);
- 			desc->resp_count = 0;
- 			spin_unlock_irq(&desc->iuspin);
- 			desc->manage_power(desc->intf, 0);
-+			unpoison_urbs(desc);
- 		} else {
- 			/* must avoid dev_printk here as desc->intf is invalid */
- 			pr_debug(KBUILD_MODNAME " %s: device gone - cleaning up\n", __func__);
-@@ -1037,9 +1049,9 @@ static void wdm_disconnect(struct usb_interface *intf)
- 	wake_up_all(&desc->wait);
- 	mutex_lock(&desc->rlock);
- 	mutex_lock(&desc->wlock);
-+	poison_urbs(desc);
- 	cancel_work_sync(&desc->rxwork);
- 	cancel_work_sync(&desc->service_outs_intr);
--	kill_urbs(desc);
- 	mutex_unlock(&desc->wlock);
- 	mutex_unlock(&desc->rlock);
- 
-@@ -1080,9 +1092,10 @@ static int wdm_suspend(struct usb_interface *intf, pm_message_t message)
- 		set_bit(WDM_SUSPENDING, &desc->flags);
- 		spin_unlock_irq(&desc->iuspin);
- 		/* callback submits work - order is essential */
--		kill_urbs(desc);
-+		poison_urbs(desc);
- 		cancel_work_sync(&desc->rxwork);
- 		cancel_work_sync(&desc->service_outs_intr);
-+		unpoison_urbs(desc);
- 	}
- 	if (!PMSG_IS_AUTO(message)) {
- 		mutex_unlock(&desc->wlock);
-@@ -1140,7 +1153,7 @@ static int wdm_pre_reset(struct usb_interface *intf)
- 	wake_up_all(&desc->wait);
- 	mutex_lock(&desc->rlock);
- 	mutex_lock(&desc->wlock);
--	kill_urbs(desc);
-+	poison_urbs(desc);
- 	cancel_work_sync(&desc->rxwork);
- 	cancel_work_sync(&desc->service_outs_intr);
- 	return 0;
-@@ -1151,6 +1164,7 @@ static int wdm_post_reset(struct usb_interface *intf)
- 	struct wdm_device *desc = wdm_find_device(intf);
- 	int rv;
- 
-+	unpoison_urbs(desc);
- 	clear_bit(WDM_OVERFLOW, &desc->flags);
- 	clear_bit(WDM_RESETTING, &desc->flags);
- 	rv = recover_from_urb_loss(desc);
 -- 
 2.31.1
 
