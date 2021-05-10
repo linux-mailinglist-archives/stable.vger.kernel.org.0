@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9AFC378501
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7FD378502
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232049AbhEJK6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:58:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41768 "EHLO mail.kernel.org"
+        id S231834AbhEJK6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:58:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233337AbhEJKwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:52:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E81661A46;
-        Mon, 10 May 2021 10:41:07 +0000 (UTC)
+        id S231167AbhEJKwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:52:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C03461A33;
+        Mon, 10 May 2021 10:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643268;
-        bh=GP313qOubS9rto88V4AxPe+esMFnkQi8JAn6FdOn3f8=;
+        s=korg; t=1620643271;
+        bh=syKh//1zBxW2bsse+MyJ23bGnmI1eRoX+g3ccSSI15E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NgZndAOzntsrNxWcuwSGe+JydImc61huYf0hFIxu60MKjKMvrXsEWeaE9GMbcn8ip
-         BfyZyqcsnLPj4MA1njhTgKLuoRcF/MJGntHiIgeDvJe4+t3pWDl++zr9xtr62cReGx
-         Km/QTqelynUSRFCjrNRqemWic/t//xP8TZ1uk/Es=
+        b=aUPy/bzBoSQ8Kr4glNUXakkYeF2fO5Ne/uhF93zWkDD+k5Q8hJFtJYOwfYmliR1f5
+         giXISy3RfPKhQtUbsU5G1DWecwnUcOD2Xaf63sVOqAwgPx5TAraZRwtJFHUR/7KcrH
+         +08N1X7Bb2Y6KNgFvAbz/qVgZbzclhnkMv050hAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jessica Clarke <jrtc27@jrtc27.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.10 247/299] crypto: arm/curve25519 - Move .fpu after .arch
-Date:   Mon, 10 May 2021 12:20:44 +0200
-Message-Id: <20210510102013.119872788@linuxfoundation.org>
+Subject: [PATCH 5.10 248/299] crypto: rng - fix crypto_rng_reset() refcounting when !CRYPTO_STATS
+Date:   Mon, 10 May 2021 12:20:45 +0200
+Message-Id: <20210510102013.149821787@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -43,67 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 44200f2d9b8b52389c70e6c7bbe51e0dc6eaf938 upstream.
+commit 30d0f6a956fc74bb2e948398daf3278c6b08c7e9 upstream.
 
-Debian's clang carries a patch that makes the default FPU mode
-'vfp3-d16' instead of 'neon' for 'armv7-a' to avoid generating NEON
-instructions on hardware that does not support them:
+crypto_stats_get() is a no-op when the kernel is compiled without
+CONFIG_CRYPTO_STATS, so pairing it with crypto_alg_put() unconditionally
+(as crypto_rng_reset() does) is wrong.
 
-https://salsa.debian.org/pkg-llvm-team/llvm-toolchain/-/raw/5a61ca6f21b4ad8c6ac4970e5ea5a7b5b4486d22/debian/patches/clang-arm-default-vfp3-on-armv7a.patch
-https://bugs.debian.org/841474
-https://bugs.debian.org/842142
-https://bugs.debian.org/914268
+Fix this by moving the call to crypto_stats_get() to just before the
+actual algorithm operation which might need it.  This makes it always
+paired with crypto_stats_rng_seed().
 
-This results in the following build error when clang's integrated
-assembler is used because the '.arch' directive overrides the '.fpu'
-directive:
-
-arch/arm/crypto/curve25519-core.S:25:2: error: instruction requires: NEON
- vmov.i32 q0, #1
- ^
-arch/arm/crypto/curve25519-core.S:26:2: error: instruction requires: NEON
- vshr.u64 q1, q0, #7
- ^
-arch/arm/crypto/curve25519-core.S:27:2: error: instruction requires: NEON
- vshr.u64 q0, q0, #8
- ^
-arch/arm/crypto/curve25519-core.S:28:2: error: instruction requires: NEON
- vmov.i32 d4, #19
- ^
-
-Shuffle the order of the '.arch' and '.fpu' directives so that the code
-builds regardless of the default FPU mode. This has been tested against
-both clang with and without Debian's patch and GCC.
-
+Fixes: eed74b3eba9e ("crypto: rng - Fix a refcounting bug in crypto_rng_reset()")
 Cc: stable@vger.kernel.org
-Fixes: d8f1308a025f ("crypto: arm/curve25519 - wire up NEON implementation")
-Link: https://github.com/ClangBuiltLinux/continuous-integration2/issues/118
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Jessica Clarke <jrtc27@jrtc27.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/crypto/curve25519-core.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/rng.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/arch/arm/crypto/curve25519-core.S
-+++ b/arch/arm/crypto/curve25519-core.S
-@@ -10,8 +10,8 @@
- #include <linux/linkage.h>
+--- a/crypto/rng.c
++++ b/crypto/rng.c
+@@ -34,22 +34,18 @@ int crypto_rng_reset(struct crypto_rng *
+ 	u8 *buf = NULL;
+ 	int err;
  
- .text
--.fpu neon
- .arch armv7-a
-+.fpu neon
- .align 4
+-	crypto_stats_get(alg);
+ 	if (!seed && slen) {
+ 		buf = kmalloc(slen, GFP_KERNEL);
+-		if (!buf) {
+-			crypto_alg_put(alg);
++		if (!buf)
+ 			return -ENOMEM;
+-		}
  
- ENTRY(curve25519_neon)
+ 		err = get_random_bytes_wait(buf, slen);
+-		if (err) {
+-			crypto_alg_put(alg);
++		if (err)
+ 			goto out;
+-		}
+ 		seed = buf;
+ 	}
+ 
++	crypto_stats_get(alg);
+ 	err = crypto_rng_alg(tfm)->seed(tfm, seed, slen);
+ 	crypto_stats_rng_seed(alg, err);
+ out:
 
 
