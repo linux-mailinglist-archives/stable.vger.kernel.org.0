@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 494A3378812
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD884378816
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238948AbhEJLUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
+        id S238956AbhEJLUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:20:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232714AbhEJLIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:08:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 871406162B;
-        Mon, 10 May 2021 11:04:15 +0000 (UTC)
+        id S232753AbhEJLIy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7DBB61A19;
+        Mon, 10 May 2021 11:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644656;
-        bh=zF10B42BU7PZxpk8L9YI3lbTpw7BWdCgjXh1YWIYcew=;
+        s=korg; t=1620644658;
+        bh=308qQXQhSWXSTdVFU1aE1Ow89JdTwneYMum15svZK/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=phNeN61drW9QPPARijFbQH28pkLItZCJQMI5MBROn1Ca4lVPAk0qMOXhxl9Wdu+Gc
-         zv2dHjAgxvOQ85DCiZr2w6c9ZKZ7Xxk7WWTHpmnon3rDlYGKcny9OCez73ZxTeKc6X
-         DcxpndTYXU8aS+FEhbNf0ahY0gJzDOlaSs3PiKp8=
+        b=f4V1yFaB4cvYsyDRJx6w2FRl/rMP1JMTNcYdx5Q7+5H4dkPEworIM9R/FhgVNiocY
+         X9V6XVZLVWPvjIIvmPf75VaK9nSA5PRrOV0g+PcltT3cWC+0Y6trm49NtNoOEX+CjT
+         hwsSkjWwuqOSFi9DvMuZ37c3D7MGAc+XepxUysxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brad Love <brad@nextdimension.cc>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 170/384] media: cx23885: add more quirks for reset DMA on some AMD IOMMU
-Date:   Mon, 10 May 2021 12:19:19 +0200
-Message-Id: <20210510102020.483245389@linuxfoundation.org>
+Subject: [PATCH 5.12 171/384] media: imx: capture: Return -EPIPE from __capture_legacy_try_fmt()
+Date:   Mon, 10 May 2021 12:19:20 +0200
+Message-Id: <20210510102020.514783336@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,48 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brad Love <brad@nextdimension.cc>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 5f864cfbf59bfed2057bd214ce7fbf6ad420d54b ]
+[ Upstream commit cc271b6754691af74d710b761eaf027e3743e243 ]
 
-The folowing AMD IOMMU are affected by the RiSC engine stall, requiring a
-reset to maintain continual operation. After being added to the
-broken_dev_id list the systems are functional long term.
+The correct return code to report an invalid pipeline configuration is
+-EPIPE. Return it instead of -EINVAL from __capture_legacy_try_fmt()
+when the capture format doesn't match the media bus format of the
+connected subdev.
 
-0x1481 is the PCI ID for the IOMMU found on Starship/Matisse
-
-0x1419 is the PCI ID for the IOMMU found on 15h (Models 10h-1fh) family
-
-0x5a23 is the PCI ID for the IOMMU found on RD890S/RD990
-
-Signed-off-by: Brad Love <brad@nextdimension.cc>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx23885/cx23885-core.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/staging/media/imx/imx-media-capture.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/cx23885/cx23885-core.c b/drivers/media/pci/cx23885/cx23885-core.c
-index 22f55a7840a6..d0ca260ecf70 100644
---- a/drivers/media/pci/cx23885/cx23885-core.c
-+++ b/drivers/media/pci/cx23885/cx23885-core.c
-@@ -2077,6 +2077,15 @@ static struct {
- 	 * 0x1423 is the PCI ID for the IOMMU found on Kaveri
- 	 */
- 	{ PCI_VENDOR_ID_AMD, 0x1423 },
-+	/* 0x1481 is the PCI ID for the IOMMU found on Starship/Matisse
-+	 */
-+	{ PCI_VENDOR_ID_AMD, 0x1481 },
-+	/* 0x1419 is the PCI ID for the IOMMU found on 15h (Models 10h-1fh) family
-+	 */
-+	{ PCI_VENDOR_ID_AMD, 0x1419 },
-+	/* 0x5a23 is the PCI ID for the IOMMU found on RD890S/RD990
-+	 */
-+	{ PCI_VENDOR_ID_ATI, 0x5a23 },
- };
+diff --git a/drivers/staging/media/imx/imx-media-capture.c b/drivers/staging/media/imx/imx-media-capture.c
+index e10ce103a5b4..94a0467d673b 100644
+--- a/drivers/staging/media/imx/imx-media-capture.c
++++ b/drivers/staging/media/imx/imx-media-capture.c
+@@ -557,7 +557,7 @@ static int capture_validate_fmt(struct capture_priv *priv)
+ 		priv->vdev.fmt.fmt.pix.height != f.fmt.pix.height ||
+ 		priv->vdev.cc->cs != cc->cs ||
+ 		priv->vdev.compose.width != compose.width ||
+-		priv->vdev.compose.height != compose.height) ? -EINVAL : 0;
++		priv->vdev.compose.height != compose.height) ? -EPIPE : 0;
+ }
  
- static bool cx23885_does_need_dma_reset(void)
+ static int capture_start_streaming(struct vb2_queue *vq, unsigned int count)
 -- 
 2.30.2
 
