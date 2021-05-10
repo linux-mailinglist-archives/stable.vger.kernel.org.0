@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB54337880D
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D6733787D8
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238922AbhEJLU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
+        id S233876AbhEJLTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:19:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236667AbhEJLI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:08:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B29A619B1;
-        Mon, 10 May 2021 11:03:00 +0000 (UTC)
+        id S236692AbhEJLIf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 584AC619CD;
+        Mon, 10 May 2021 11:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644580;
-        bh=jAp4gb9NGpPWN1wVCjD1tzyOhWefvb5pIYs3Jpfd0PM=;
+        s=korg; t=1620644604;
+        bh=C2H65WP07QgvE+W6suGNJ0L+SwhbQURawXPM8DVvPM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQrk7CQ+xC/leFNM0gXfP2BUWYWd6sxhXFL9bd9T254scZdG5L833KQqLIL7Ddw2z
-         i/Z8u+D+gFwB/aI7N8qjTBy4+8lvaLplOtzXlQABAoXUn7M2RMvKG3pvJY4mhWJI+j
-         FNPhFCOmp6Sb/YlqyPfxKtSKhylmHOklg9CpNyhE=
+        b=PLuTMMD1m1Cs1IZF4WwCefAFsN0HoBQUQtZ6ClqI4OXwv6Zq7SLrbslepBPA+E/1k
+         qCkbUvuOmhNLV2w9cu2tvluMOq4Cxy39V5PHB8J5tB1+HVvTbacFnFUUfksPn53Q3l
+         tLCSCCtwmlkWVn9Lpabg/nTDnjCwZElDUZAfFobQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Angela Czubak <acz@semihalf.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 113/384] resource: Prevent irqresource_disabled() from erasing flags
-Date:   Mon, 10 May 2021 12:18:22 +0200
-Message-Id: <20210510102018.621884564@linuxfoundation.org>
+Subject: [PATCH 5.12 114/384] spi: dln2: Fix reference leak to master
+Date:   Mon, 10 May 2021 12:18:23 +0200
+Message-Id: <20210510102018.654811770@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,66 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angela Czubak <acz@semihalf.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit d08a745729646f407277e904b02991458f20d261 ]
+[ Upstream commit 9b844b087124c1538d05f40fda8a4fec75af55be ]
 
-Some Chromebooks use hard-coded interrupts in their ACPI tables.
-This is an excerpt as dumped on Relm:
+Call spi_master_get() holds the reference count to master device, thus
+we need an additional spi_master_put() call to reduce the reference
+count, otherwise we will leak a reference to master.
 
-...
-            Name (_HID, "ELAN0001")  // _HID: Hardware ID
-            Name (_DDN, "Elan Touchscreen ")  // _DDN: DOS Device Name
-            Name (_UID, 0x05)  // _UID: Unique ID
-            Name (ISTP, Zero)
-            Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-            {
-                Name (BUF0, ResourceTemplate ()
-                {
-                    I2cSerialBusV2 (0x0010, ControllerInitiated, 0x00061A80,
-                        AddressingMode7Bit, "\\_SB.I2C1",
-                        0x00, ResourceConsumer, , Exclusive,
-                        )
-                    Interrupt (ResourceConsumer, Edge, ActiveLow, Exclusive, ,, )
-                    {
-                        0x000000B8,
-                    }
-                })
-                Return (BUF0) /* \_SB_.I2C1.ETSA._CRS.BUF0 */
-            }
-...
+This commit fix it by removing the unnecessary spi_master_get().
 
-This interrupt is hard-coded to 0xB8 = 184 which is too high to be mapped
-to IO-APIC, so no triggering information is propagated as acpi_register_gsi()
-fails and irqresource_disabled() is issued, which leads to erasing triggering
-and polarity information.
-
-Do not overwrite flags as it leads to erasing triggering and polarity
-information which might be useful in case of hard-coded interrupts.
-This way the information can be read later on even though mapping to
-APIC domain failed.
-
-Signed-off-by: Angela Czubak <acz@semihalf.com>
-[ rjw: Changelog rearrangement ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20210409082955.2907950-1-weiyongjun1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ioport.h | 2 +-
+ drivers/spi/spi-dln2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 55de385c839c..647744d8514e 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -331,7 +331,7 @@ static inline void irqresource_disabled(struct resource *res, u32 irq)
- {
- 	res->start = irq;
- 	res->end = irq;
--	res->flags = IORESOURCE_IRQ | IORESOURCE_DISABLED | IORESOURCE_UNSET;
-+	res->flags |= IORESOURCE_IRQ | IORESOURCE_DISABLED | IORESOURCE_UNSET;
- }
+diff --git a/drivers/spi/spi-dln2.c b/drivers/spi/spi-dln2.c
+index 75b33d7d14b0..9a4d942fafcf 100644
+--- a/drivers/spi/spi-dln2.c
++++ b/drivers/spi/spi-dln2.c
+@@ -780,7 +780,7 @@ exit_free_master:
  
- extern struct address_space *iomem_get_mapping(void);
+ static int dln2_spi_remove(struct platform_device *pdev)
+ {
+-	struct spi_master *master = spi_master_get(platform_get_drvdata(pdev));
++	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct dln2_spi *dln2 = spi_master_get_devdata(master);
+ 
+ 	pm_runtime_disable(&pdev->dev);
 -- 
 2.30.2
 
