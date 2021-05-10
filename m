@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD583787E9
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC553788FA
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236172AbhEJLTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:19:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
+        id S235795AbhEJLZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236029AbhEJLHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C94661936;
-        Mon, 10 May 2021 10:57:34 +0000 (UTC)
+        id S235285AbhEJLN6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:13:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61E036108B;
+        Mon, 10 May 2021 11:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644255;
-        bh=w56GKKRSKsUXp2KwYjgoI/xukSB8s82weg6AdfZw8fE=;
+        s=korg; t=1620645031;
+        bh=tP1U7H4312HGX/MWFARpFwLuhVw15lE1SvLcNcr+1OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R7WylEerVNtDBtjac9Lzo/8pIc+BR/1rEFHV559btb8UC7LgCPMj9wEDAx+KXdQPy
-         nMZfl+/LEqZPFsPzwG2rhTF5ZwKua2ZYCXK0SIkL6mjEXFvy0NEv5tPGnlbmhnuITT
-         AaJfi3+YuAM7Zb4QlFTIdhtwiZGDzbjbKjW/Nq2I=
+        b=q7g8/QcJgzfgXnDKWKox20A9Gtmwn24O3R/Bt4hQ8ykmEULUAL42+7RT/1tnVPECh
+         78jbTdyqqIbpBu4FPj+AiQ9wFAEYpxH/GsyilJ8MYFgmptWn0oDVt+qbuHzATPwr27
+         5aMpKGh6tcXGs4qLKSH/ZI/1BucZlTNJPt37MUnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.11 321/342] media: venus: hfi_parser: Dont initialize parser on v1
-Date:   Mon, 10 May 2021 12:21:51 +0200
-Message-Id: <20210510102020.724146053@linuxfoundation.org>
+        stable@vger.kernel.org, Trevor Hemsley <themsley@voiceflex.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 323/384] sfc: farch: fix TX queue lookup in TX flush done handling
+Date:   Mon, 10 May 2021 12:21:52 +0200
+Message-Id: <20210510102025.446234284@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+From: Edward Cree <ecree.xilinx@gmail.com>
 
-commit 834124c596e2dddbbdba06620835710ccca32fd0 upstream.
+commit 5b1faa92289b53cad654123ed2bc8e10f6ddd4ac upstream.
 
-The Venus v1 behaves differently comparing with the other Venus
-version in respect to capability parsing and when they are send
-to the driver. So we don't need to initialize hfi parser for
-multiple invocations like what we do for > v1 Venus versions.
+We're starting from a TXQ instance number ('qid'), not a TXQ type, so
+ efx_get_tx_queue() is inappropriate (and could return NULL, leading
+ to panics).
 
-Fixes: 10865c98986b ("media: venus: parser: Prepare parser for multiple invocations")
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 12804793b17c ("sfc: decouple TXQ type from label")
+Reported-by: Trevor Hemsley <themsley@voiceflex.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Edward Cree <ecree.xilinx@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/qcom/venus/hfi_parser.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/sfc/farch.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/media/platform/qcom/venus/hfi_parser.c
-+++ b/drivers/media/platform/qcom/venus/hfi_parser.c
-@@ -239,8 +239,10 @@ u32 hfi_parser(struct venus_core *core,
+--- a/drivers/net/ethernet/sfc/farch.c
++++ b/drivers/net/ethernet/sfc/farch.c
+@@ -1081,16 +1081,16 @@ static void
+ efx_farch_handle_tx_flush_done(struct efx_nic *efx, efx_qword_t *event)
+ {
+ 	struct efx_tx_queue *tx_queue;
++	struct efx_channel *channel;
+ 	int qid;
  
- 	parser_init(inst, &codecs, &domain);
+ 	qid = EFX_QWORD_FIELD(*event, FSF_AZ_DRIVER_EV_SUBDATA);
+ 	if (qid < EFX_MAX_TXQ_PER_CHANNEL * (efx->n_tx_channels + efx->n_extra_tx_channels)) {
+-		tx_queue = efx_get_tx_queue(efx, qid / EFX_MAX_TXQ_PER_CHANNEL,
+-					    qid % EFX_MAX_TXQ_PER_CHANNEL);
+-		if (atomic_cmpxchg(&tx_queue->flush_outstanding, 1, 0)) {
++		channel = efx_get_tx_channel(efx, qid / EFX_MAX_TXQ_PER_CHANNEL);
++		tx_queue = channel->tx_queue + (qid % EFX_MAX_TXQ_PER_CHANNEL);
++		if (atomic_cmpxchg(&tx_queue->flush_outstanding, 1, 0))
+ 			efx_farch_magic_event(tx_queue->channel,
+ 					      EFX_CHANNEL_MAGIC_TX_DRAIN(tx_queue));
+-		}
+ 	}
+ }
  
--	core->codecs_count = 0;
--	memset(core->caps, 0, sizeof(core->caps));
-+	if (core->res->hfi_version > HFI_VERSION_1XX) {
-+		core->codecs_count = 0;
-+		memset(core->caps, 0, sizeof(core->caps));
-+	}
- 
- 	while (words_count) {
- 		data = word + 1;
 
 
