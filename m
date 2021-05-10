@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 630E3378322
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590D5378324
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232276AbhEJKmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:42:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
+        id S232297AbhEJKmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:42:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232944AbhEJKku (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:40:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB25961876;
-        Mon, 10 May 2021 10:31:26 +0000 (UTC)
+        id S232976AbhEJKky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:40:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20F696191A;
+        Mon, 10 May 2021 10:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642687;
-        bh=rDeV4pD5ot8q4zhQBP6w7BmQ58bXAPMEj/Lcf5TNEnY=;
+        s=korg; t=1620642689;
+        bh=DkoOxMJz8YpuchWQL/RtRgbH0rxYa/FDFDv2JcYcdZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wt0dBZTtBGxygNNcj3fE+nZfqCQwsywW8avcL/Lr+fLudMWvfiCao9yxib3q0HNlz
-         v5FmyxM6uv6aKyqDA7VtYYkoPHWP8gpYQhEU4TgekjOYnyt5CxtzDJ2We6b25QvpF3
-         +wMf6HFuZCe412RoGfPNfG5oAyzj0Qe87Lnzs+rw=
+        b=oP9rPBiTWDAlIbHLxMTGn38LlLemBBs7C4GIjdyVS/Ie/5GN9IU1Xt9n9mjLsHhcU
+         H0ItzIG3TV5QyAbLBJRjbci6xmBqxEO4EtdmAhMgetlwyMVCUQmfvLLpEC6EhDdpkg
+         z48SCGQQeZpo0jSlzhpJ924xGg9oVuIRnqzMm9+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffrey Hugo <jhugo@codeaurora.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Hemant Kumar <hemantk@codeaurora.org>
-Subject: [PATCH 5.10 003/299] bus: mhi: core: Sanity check values from remote device before use
-Date:   Mon, 10 May 2021 12:16:40 +0200
-Message-Id: <20210510102004.938603379@linuxfoundation.org>
+        stable@vger.kernel.org, Mathias Krause <minipli@grsecurity.net>,
+        Andra Paraschiv <andraprs@amazon.com>
+Subject: [PATCH 5.10 004/299] nitro_enclaves: Fix stale file descriptors on failed usercopy
+Date:   Mon, 10 May 2021 12:16:41 +0200
+Message-Id: <20210510102004.973967515@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -40,209 +39,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <jhugo@codeaurora.org>
+From: Mathias Krause <minipli@grsecurity.net>
 
-commit ec32332df7645e0ba463a08d483fe97665167071 upstream.
+commit f1ce3986baa62cffc3c5be156994de87524bab99 upstream.
 
-When parsing the structures in the shared memory, there are values which
-come from the remote device.  For example, a transfer completion event
-will have a pointer to the tre in the relevant channel's transfer ring.
-As another example, event ring elements may specify a channel in which
-the event occurred, however the specified channel value may not be valid
-as no channel is defined at that index even though the index may be less
-than the maximum allowed index.  Such values should be considered to be
-untrusted, and validated before use.  If we blindly use such values, we
-may access invalid data or crash if the values are corrupted.
+A failing usercopy of the slot uid will lead to a stale entry in the
+file descriptor table as put_unused_fd() won't release it. This enables
+userland to refer to a dangling 'file' object through that still valid
+file descriptor, leading to all kinds of use-after-free exploitation
+scenarios.
 
-If validation fails, drop the relevant event.
+Exchanging put_unused_fd() for close_fd(), ksys_close() or alike won't
+solve the underlying issue, as the file descriptor might have been
+replaced in the meantime, e.g. via userland calling close() on it
+(leading to a NULL pointer dereference in the error handling code as
+'fget(enclave_fd)' will return a NULL pointer) or by dup2()'ing a
+completely different file object to that very file descriptor, leading
+to the same situation: a dangling file descriptor pointing to a freed
+object -- just in this case to a file object of user's choosing.
 
-Signed-off-by: Jeffrey Hugo <jhugo@codeaurora.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
-Link: https://lore.kernel.org/r/1615411855-15053-1-git-send-email-jhugo@codeaurora.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Generally speaking, after the call to fd_install() the file descriptor
+is live and userland is free to do whatever with it. We cannot rely on
+it to still refer to our enclave object afterwards. In fact, by abusing
+userfaultfd() userland can hit the condition without any racing and
+abuse the error handling in the nitro code as it pleases.
+
+To fix the above issues, defer the call to fd_install() until all
+possible errors are handled. In this case it's just the usercopy, so do
+it directly in ne_create_vm_ioctl() itself.
+
+Signed-off-by: Mathias Krause <minipli@grsecurity.net>
+Signed-off-by: Andra Paraschiv <andraprs@amazon.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210429165941.27020-2-andraprs@amazon.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/core/main.c |   81 ++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 74 insertions(+), 7 deletions(-)
+ drivers/virt/nitro_enclaves/ne_misc_dev.c |   43 +++++++++++-------------------
+ 1 file changed, 17 insertions(+), 26 deletions(-)
 
---- a/drivers/bus/mhi/core/main.c
-+++ b/drivers/bus/mhi/core/main.c
-@@ -220,6 +220,11 @@ static void mhi_del_ring_element(struct
- 	smp_wmb();
- }
- 
-+static bool is_valid_ring_ptr(struct mhi_ring *ring, dma_addr_t addr)
-+{
-+	return addr >= ring->iommu_base && addr < ring->iommu_base + ring->len;
-+}
-+
- int mhi_destroy_device(struct device *dev, void *data)
+--- a/drivers/virt/nitro_enclaves/ne_misc_dev.c
++++ b/drivers/virt/nitro_enclaves/ne_misc_dev.c
+@@ -1524,7 +1524,8 @@ static const struct file_operations ne_e
+  *			  enclave file descriptor to be further used for enclave
+  *			  resources handling e.g. memory regions and CPUs.
+  * @ne_pci_dev :	Private data associated with the PCI device.
+- * @slot_uid:		Generated unique slot id associated with an enclave.
++ * @slot_uid:		User pointer to store the generated unique slot id
++ *			associated with an enclave to.
+  *
+  * Context: Process context. This function is called with the ne_pci_dev enclave
+  *	    mutex held.
+@@ -1532,7 +1533,7 @@ static const struct file_operations ne_e
+  * * Enclave fd on success.
+  * * Negative return value on failure.
+  */
+-static int ne_create_vm_ioctl(struct ne_pci_dev *ne_pci_dev, u64 *slot_uid)
++static int ne_create_vm_ioctl(struct ne_pci_dev *ne_pci_dev, u64 __user *slot_uid)
  {
- 	struct mhi_device *mhi_dev;
-@@ -349,7 +354,16 @@ irqreturn_t mhi_irq_handler(int irq_numb
- 	struct mhi_event_ctxt *er_ctxt =
- 		&mhi_cntrl->mhi_ctxt->er_ctxt[mhi_event->er_index];
- 	struct mhi_ring *ev_ring = &mhi_event->ring;
--	void *dev_rp = mhi_to_virtual(ev_ring, er_ctxt->rp);
-+	dma_addr_t ptr = er_ctxt->rp;
-+	void *dev_rp;
+ 	struct ne_pci_dev_cmd_reply cmd_reply = {};
+ 	int enclave_fd = -1;
+@@ -1634,7 +1635,18 @@ static int ne_create_vm_ioctl(struct ne_
+ 
+ 	list_add(&ne_enclave->enclave_list_entry, &ne_pci_dev->enclaves_list);
+ 
+-	*slot_uid = ne_enclave->slot_uid;
++	if (copy_to_user(slot_uid, &ne_enclave->slot_uid, sizeof(ne_enclave->slot_uid))) {
++		/*
++		 * As we're holding the only reference to 'enclave_file', fput()
++		 * will call ne_enclave_release() which will do a proper cleanup
++		 * of all so far allocated resources, leaving only the unused fd
++		 * for us to free.
++		 */
++		fput(enclave_file);
++		put_unused_fd(enclave_fd);
 +
-+	if (!is_valid_ring_ptr(ev_ring, ptr)) {
-+		dev_err(&mhi_cntrl->mhi_dev->dev,
-+			"Event ring rp points outside of the event ring\n");
-+		return IRQ_HANDLED;
++		return -EFAULT;
 +	}
-+
-+	dev_rp = mhi_to_virtual(ev_ring, ptr);
  
- 	/* Only proceed if event ring has pending events */
- 	if (ev_ring->rp == dev_rp)
-@@ -498,6 +512,11 @@ static int parse_xfer_event(struct mhi_c
- 		struct mhi_buf_info *buf_info;
- 		u16 xfer_len;
+ 	fd_install(enclave_fd, enclave_file);
  
-+		if (!is_valid_ring_ptr(tre_ring, ptr)) {
-+			dev_err(&mhi_cntrl->mhi_dev->dev,
-+				"Event element points outside of the tre ring\n");
-+			break;
-+		}
- 		/* Get the TRB this event points to */
- 		ev_tre = mhi_to_virtual(tre_ring, ptr);
+@@ -1671,34 +1683,13 @@ static long ne_ioctl(struct file *file,
+ 	switch (cmd) {
+ 	case NE_CREATE_VM: {
+ 		int enclave_fd = -1;
+-		struct file *enclave_file = NULL;
+ 		struct ne_pci_dev *ne_pci_dev = ne_devs.ne_pci_dev;
+-		int rc = -EINVAL;
+-		u64 slot_uid = 0;
++		u64 __user *slot_uid = (void __user *)arg;
  
-@@ -657,6 +676,12 @@ static void mhi_process_cmd_completion(s
- 	struct mhi_chan *mhi_chan;
- 	u32 chan;
+ 		mutex_lock(&ne_pci_dev->enclaves_list_mutex);
+-
+-		enclave_fd = ne_create_vm_ioctl(ne_pci_dev, &slot_uid);
+-		if (enclave_fd < 0) {
+-			rc = enclave_fd;
+-
+-			mutex_unlock(&ne_pci_dev->enclaves_list_mutex);
+-
+-			return rc;
+-		}
+-
++		enclave_fd = ne_create_vm_ioctl(ne_pci_dev, slot_uid);
+ 		mutex_unlock(&ne_pci_dev->enclaves_list_mutex);
  
-+	if (!is_valid_ring_ptr(mhi_ring, ptr)) {
-+		dev_err(&mhi_cntrl->mhi_dev->dev,
-+			"Event element points outside of the cmd ring\n");
-+		return;
-+	}
-+
- 	cmd_pkt = mhi_to_virtual(mhi_ring, ptr);
- 
- 	chan = MHI_TRE_GET_CMD_CHID(cmd_pkt);
-@@ -681,6 +706,7 @@ int mhi_process_ctrl_ev_ring(struct mhi_
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
- 	u32 chan;
- 	int count = 0;
-+	dma_addr_t ptr = er_ctxt->rp;
- 
- 	/*
- 	 * This is a quick check to avoid unnecessary event processing
-@@ -690,7 +716,13 @@ int mhi_process_ctrl_ev_ring(struct mhi_
- 	if (unlikely(MHI_EVENT_ACCESS_INVALID(mhi_cntrl->pm_state)))
- 		return -EIO;
- 
--	dev_rp = mhi_to_virtual(ev_ring, er_ctxt->rp);
-+	if (!is_valid_ring_ptr(ev_ring, ptr)) {
-+		dev_err(&mhi_cntrl->mhi_dev->dev,
-+			"Event ring rp points outside of the event ring\n");
-+		return -EIO;
-+	}
-+
-+	dev_rp = mhi_to_virtual(ev_ring, ptr);
- 	local_rp = ev_ring->rp;
- 
- 	while (dev_rp != local_rp) {
-@@ -801,6 +833,8 @@ int mhi_process_ctrl_ev_ring(struct mhi_
- 			 */
- 			if (chan < mhi_cntrl->max_chan) {
- 				mhi_chan = &mhi_cntrl->mhi_chan[chan];
-+				if (!mhi_chan->configured)
-+					break;
- 				parse_xfer_event(mhi_cntrl, local_rp, mhi_chan);
- 				event_quota--;
- 			}
-@@ -812,7 +846,15 @@ int mhi_process_ctrl_ev_ring(struct mhi_
- 
- 		mhi_recycle_ev_ring_element(mhi_cntrl, ev_ring);
- 		local_rp = ev_ring->rp;
--		dev_rp = mhi_to_virtual(ev_ring, er_ctxt->rp);
-+
-+		ptr = er_ctxt->rp;
-+		if (!is_valid_ring_ptr(ev_ring, ptr)) {
-+			dev_err(&mhi_cntrl->mhi_dev->dev,
-+				"Event ring rp points outside of the event ring\n");
-+			return -EIO;
-+		}
-+
-+		dev_rp = mhi_to_virtual(ev_ring, ptr);
- 		count++;
+-		if (copy_to_user((void __user *)arg, &slot_uid, sizeof(slot_uid))) {
+-			enclave_file = fget(enclave_fd);
+-			/* Decrement file refs to have release() called. */
+-			fput(enclave_file);
+-			fput(enclave_file);
+-			put_unused_fd(enclave_fd);
+-
+-			return -EFAULT;
+-		}
+-
+ 		return enclave_fd;
  	}
  
-@@ -835,11 +877,18 @@ int mhi_process_data_event_ring(struct m
- 	int count = 0;
- 	u32 chan;
- 	struct mhi_chan *mhi_chan;
-+	dma_addr_t ptr = er_ctxt->rp;
- 
- 	if (unlikely(MHI_EVENT_ACCESS_INVALID(mhi_cntrl->pm_state)))
- 		return -EIO;
- 
--	dev_rp = mhi_to_virtual(ev_ring, er_ctxt->rp);
-+	if (!is_valid_ring_ptr(ev_ring, ptr)) {
-+		dev_err(&mhi_cntrl->mhi_dev->dev,
-+			"Event ring rp points outside of the event ring\n");
-+		return -EIO;
-+	}
-+
-+	dev_rp = mhi_to_virtual(ev_ring, ptr);
- 	local_rp = ev_ring->rp;
- 
- 	while (dev_rp != local_rp && event_quota > 0) {
-@@ -853,7 +902,8 @@ int mhi_process_data_event_ring(struct m
- 		 * Only process the event ring elements whose channel
- 		 * ID is within the maximum supported range.
- 		 */
--		if (chan < mhi_cntrl->max_chan) {
-+		if (chan < mhi_cntrl->max_chan &&
-+		    mhi_cntrl->mhi_chan[chan].configured) {
- 			mhi_chan = &mhi_cntrl->mhi_chan[chan];
- 
- 			if (likely(type == MHI_PKT_TYPE_TX_EVENT)) {
-@@ -867,7 +917,15 @@ int mhi_process_data_event_ring(struct m
- 
- 		mhi_recycle_ev_ring_element(mhi_cntrl, ev_ring);
- 		local_rp = ev_ring->rp;
--		dev_rp = mhi_to_virtual(ev_ring, er_ctxt->rp);
-+
-+		ptr = er_ctxt->rp;
-+		if (!is_valid_ring_ptr(ev_ring, ptr)) {
-+			dev_err(&mhi_cntrl->mhi_dev->dev,
-+				"Event ring rp points outside of the event ring\n");
-+			return -EIO;
-+		}
-+
-+		dev_rp = mhi_to_virtual(ev_ring, ptr);
- 		count++;
- 	}
- 	read_lock_bh(&mhi_cntrl->pm_lock);
-@@ -1394,6 +1452,7 @@ static void mhi_mark_stale_events(struct
- 	struct mhi_ring *ev_ring;
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
- 	unsigned long flags;
-+	dma_addr_t ptr;
- 
- 	dev_dbg(dev, "Marking all events for chan: %d as stale\n", chan);
- 
-@@ -1401,7 +1460,15 @@ static void mhi_mark_stale_events(struct
- 
- 	/* mark all stale events related to channel as STALE event */
- 	spin_lock_irqsave(&mhi_event->lock, flags);
--	dev_rp = mhi_to_virtual(ev_ring, er_ctxt->rp);
-+
-+	ptr = er_ctxt->rp;
-+	if (!is_valid_ring_ptr(ev_ring, ptr)) {
-+		dev_err(&mhi_cntrl->mhi_dev->dev,
-+			"Event ring rp points outside of the event ring\n");
-+		dev_rp = ev_ring->rp;
-+	} else {
-+		dev_rp = mhi_to_virtual(ev_ring, ptr);
-+	}
- 
- 	local_rp = ev_ring->rp;
- 	while (dev_rp != local_rp) {
 
 
