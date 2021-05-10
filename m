@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E78137887D
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE573786C1
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234188AbhEJLVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
+        id S236802AbhEJLK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:10:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237137AbhEJLL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AE8861864;
-        Mon, 10 May 2021 11:07:31 +0000 (UTC)
+        id S232147AbhEJLDw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:03:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 806BA6191C;
+        Mon, 10 May 2021 10:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644852;
-        bh=Uue73P2CCD+HKmLk4FjmAwNtBdF6wSFYVPw16mUU0O0=;
+        s=korg; t=1620644073;
+        bh=dRcBh40usbpUAMrJQwi6LYe34sL2xU+NSNEIES2cWn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVIV2CU5BnP1V0rmnTLBE2GDP6lIRIYakyu4orxF3mJJGRYQjdQkZZW6QxYvmFQrh
-         VFm3pPPkQ6UUtVujTCmdPbVAIq7mhiaav4X6TpM0F5SOlJlkm4RIhoUOIIJ5YTB9KW
-         0fEw1dU2TzmMaOja1m+tQt8g2GvRVSYP9vgQvCHg=
+        b=haZGVBd61gASpl0lFTqbOVdtqryg5Rs5tB55O53uH3pKgspfgG4kwWe1cOeN963c1
+         76mRNgj5ej3DHHbbftTIh7dxbZbmSazjKTjAhlkpG5zNOk1MM190DRPNeSTw4z7ytf
+         J6NzBCuSua5eRMxdrv6Tl22QH0vUvvDPaPYwtwQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Werner Sembach <wse@tuxedocomputers.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 250/384] drm/amd/display: Try YCbCr420 color when YCbCr444 fails
+        stable@vger.kernel.org, Sami Loone <sami@loone.fi>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 249/342] ALSA: hda/realtek: fix static noise on ALC285 Lenovo laptops
 Date:   Mon, 10 May 2021 12:20:39 +0200
-Message-Id: <20210510102023.124676468@linuxfoundation.org>
+Message-Id: <20210510102018.315475197@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Sami Loone <sami@loone.fi>
 
-[ Upstream commit 68eb3ae3c63708f823aeeb63bb15197c727bd9bf ]
+commit 9bbb94e57df135ef61bef075d9c99b8d9e89e246 upstream.
 
-When encoder validation of a display mode fails, retry with less bandwidth
-heavy YCbCr420 color mode, if available. This enables some HDMI 1.4 setups
-to support 4k60Hz output, which previously failed silently.
+Remove a duplicate vendor+subvendor pin fixup entry as one is masking
+the other and making it unreachable. Consider the more specific newcomer
+as a second chance instead.
 
-On some setups, while the monitor and the gpu support display modes with
-pixel clocks of up to 600MHz, the link encoder might not. This prevents
-YCbCr444 and RGB encoding for 4k60Hz, but YCbCr420 encoding might still be
-possible. However, which color mode is used is decided before the link
-encoder capabilities are checked. This patch fixes the problem by retrying
-to find a display mode with YCbCr420 enforced and using it, if it is
-valid.
+The generic entry is made less strict to also match for laptops with
+slightly different 0x12 pin configuration. Tested on Lenovo Yoga 6 (AMD)
+where 0x12 is 0x40000000.
 
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 607184cb1635 ("ALSA: hda/realtek - Add supported for more Lenovo ALC285 Headset Button")
+Signed-off-by: Sami Loone <sami@loone.fi>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YIXS+GT/dGI/LtK6@yoga
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/pci/hda/patch_realtek.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 9c243f66867a..29ca1708458c 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -5872,6 +5872,15 @@ create_validate_stream_for_sink(struct amdgpu_dm_connector *aconnector,
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8774,12 +8774,7 @@ static const struct snd_hda_pin_quirk al
+ 		{0x12, 0x90a60130},
+ 		{0x19, 0x03a11020},
+ 		{0x21, 0x0321101f}),
+-	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
+-		{0x14, 0x90170110},
+-		{0x19, 0x04a11040},
+-		{0x21, 0x04211020}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_LENOVO_PC_BEEP_IN_NOISE,
+-		{0x12, 0x90a60130},
+ 		{0x14, 0x90170110},
+ 		{0x19, 0x04a11040},
+ 		{0x21, 0x04211020}),
+@@ -8950,6 +8945,10 @@ static const struct snd_hda_pin_quirk al
+ 	SND_HDA_PIN_QUIRK(0x10ec0274, 0x1028, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
+ 		{0x19, 0x40000000},
+ 		{0x1a, 0x40000000}),
++	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
++		{0x14, 0x90170110},
++		{0x19, 0x04a11040},
++		{0x21, 0x04211020}),
+ 	{}
+ };
  
- 	} while (stream == NULL && requested_bpc >= 6);
- 
-+	if (dc_result == DC_FAIL_ENC_VALIDATE && !aconnector->force_yuv420_output) {
-+		DRM_DEBUG_KMS("Retry forcing YCbCr420 encoding\n");
-+
-+		aconnector->force_yuv420_output = true;
-+		stream = create_validate_stream_for_sink(aconnector, drm_mode,
-+						dm_state, old_stream);
-+		aconnector->force_yuv420_output = false;
-+	}
-+
- 	return stream;
- }
- 
--- 
-2.30.2
-
 
 
