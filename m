@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF053788D4
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6973E3786AE
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235218AbhEJLYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:24:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46128 "EHLO mail.kernel.org"
+        id S235056AbhEJLKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:10:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231620AbhEJLLv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1713461933;
-        Mon, 10 May 2021 11:09:15 +0000 (UTC)
+        id S234204AbhEJLCa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:02:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3695F61C58;
+        Mon, 10 May 2021 10:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644956;
-        bh=ziNBxzhKZPutONo3f4ou2khFKiqLnOtDZul7o3GCZCM=;
+        s=korg; t=1620644043;
+        bh=vilD/NhNhxVHwOqy0EVvW3IzXtsRYJyK1DbRLXetq2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGCpNPVqUlYWFiqWG5jc7+EwHGM27OwIN0vzO+MFylvYwbw5m08jGwwTWh/w/krWh
-         Nq+ZtFxVic42uRdCZDxkhR2vUoUPqbNy8fa2YIHn/DlRZXEpduw5IaOTpMt+MH+GT0
-         Ec3OTeed2JHhZ7lWluYqBnYCfuxSimzpFq9KEiRg=
+        b=mekWRATYlRCc0WvWRARy/DFvCKf/g0CWlHPvbbh3FrGMP16djt8xyqUg1vaifrhU4
+         Kl3fsGZYf1zyT+SEwMT4M7lS5zOpYfA3emWPQHDvxCcijJC3qKPnunxo/vjz/a7SZ3
+         lMC3D/l+JJs1ICLGW9zSz4WOHnWdtUvVww5njhMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 265/384] block/rnbd-clt: Fix missing a memory free when unloading the module
-Date:   Mon, 10 May 2021 12:20:54 +0200
-Message-Id: <20210510102023.589067933@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+ba2e91df8f74809417fa@syzkaller.appspotmail.com,
+        syzbot+f3a0fa110fd630ab56c8@syzkaller.appspotmail.com,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        linux-nfs@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.11 265/342] NFS: fs_context: validate UDP retrans to prevent shift out-of-bounds
+Date:   Mon, 10 May 2021 12:20:55 +0200
+Message-Id: <20210510102018.854477314@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 12b06533104e802df73c1fbe159437c19933d6c0 ]
+commit c09f11ef35955785f92369e25819bf0629df2e59 upstream.
 
-When unloading the rnbd-clt module, it does not free a memory
-including the filename of the symbolic link to /sys/block/rnbdX.
+Fix shift out-of-bounds in xprt_calc_majortimeo(). This is caused
+by a garbage timeout (retrans) mount option being passed to nfs mount,
+in this case from syzkaller.
 
-It is found by kmemleak as below.
+If the protocol is XPRT_TRANSPORT_UDP, then 'retrans' is a shift
+value for a 64-bit long integer, so 'retrans' cannot be >= 64.
+If it is >= 64, fail the mount and return an error.
 
-unreferenced object 0xffff9f1a83d3c740 (size 16):
-  comm "bash", pid 736, jiffies 4295179665 (age 9841.310s)
-  hex dump (first 16 bytes):
-    21 64 65 76 21 6e 75 6c 6c 62 30 40 62 6c 61 00  !dev!nullb0@bla.
-  backtrace:
-    [<0000000039f0c55e>] 0xffffffffc0456c24
-    [<000000001aab9513>] kernfs_fop_write+0xcf/0x1c0
-    [<00000000db5aa4b3>] vfs_write+0xdb/0x1d0
-    [<000000007a2e2207>] ksys_write+0x65/0xe0
-    [<00000000055e280a>] do_syscall_64+0x50/0x1b0
-    [<00000000c2b51831>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Link: https://lore.kernel.org/r/20210419073722.15351-13-gi-oh.kim@ionos.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9954bf92c0cd ("NFS: Move mount parameterisation bits into their own file")
+Reported-by: syzbot+ba2e91df8f74809417fa@syzkaller.appspotmail.com
+Reported-by: syzbot+f3a0fa110fd630ab56c8@syzkaller.appspotmail.com
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Anna Schumaker <anna.schumaker@netapp.com>
+Cc: linux-nfs@vger.kernel.org
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/rnbd/rnbd-clt-sysfs.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/nfs/fs_context.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/block/rnbd/rnbd-clt-sysfs.c b/drivers/block/rnbd/rnbd-clt-sysfs.c
-index d4aa6bfc9555..526c77cd7a50 100644
---- a/drivers/block/rnbd/rnbd-clt-sysfs.c
-+++ b/drivers/block/rnbd/rnbd-clt-sysfs.c
-@@ -432,10 +432,14 @@ void rnbd_clt_remove_dev_symlink(struct rnbd_clt_dev *dev)
- 	 * i.e. rnbd_clt_unmap_dev_store() leading to a sysfs warning because
- 	 * of sysfs link already was removed already.
- 	 */
--	if (dev->blk_symlink_name && try_module_get(THIS_MODULE)) {
--		sysfs_remove_link(rnbd_devs_kobj, dev->blk_symlink_name);
-+	if (dev->blk_symlink_name) {
-+		if (try_module_get(THIS_MODULE)) {
-+			sysfs_remove_link(rnbd_devs_kobj, dev->blk_symlink_name);
-+			module_put(THIS_MODULE);
-+		}
-+		/* It should be freed always. */
- 		kfree(dev->blk_symlink_name);
--		module_put(THIS_MODULE);
-+		dev->blk_symlink_name = NULL;
- 	}
+--- a/fs/nfs/fs_context.c
++++ b/fs/nfs/fs_context.c
+@@ -941,6 +941,15 @@ static int nfs23_parse_monolithic(struct
+ 			       sizeof(mntfh->data) - mntfh->size);
+ 
+ 		/*
++		 * for proto == XPRT_TRANSPORT_UDP, which is what uses
++		 * to_exponential, implying shift: limit the shift value
++		 * to BITS_PER_LONG (majortimeo is unsigned long)
++		 */
++		if (!(data->flags & NFS_MOUNT_TCP)) /* this will be UDP */
++			if (data->retrans >= 64) /* shift value is too large */
++				goto out_invalid_data;
++
++		/*
+ 		 * Translate to nfs_fs_context, which nfs_fill_super
+ 		 * can deal with.
+ 		 */
+@@ -1040,6 +1049,9 @@ out_no_address:
+ 
+ out_invalid_fh:
+ 	return nfs_invalf(fc, "NFS: invalid root filehandle");
++
++out_invalid_data:
++	return nfs_invalf(fc, "NFS: invalid binary mount data");
  }
  
--- 
-2.30.2
-
+ #if IS_ENABLED(CONFIG_NFS_V4)
 
 
