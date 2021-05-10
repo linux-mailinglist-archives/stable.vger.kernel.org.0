@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7AC137882C
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73504378835
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239031AbhEJLUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:20:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45870 "EHLO mail.kernel.org"
+        id S239054AbhEJLU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:20:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233727AbhEJLJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:09:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C3D661933;
-        Mon, 10 May 2021 11:04:42 +0000 (UTC)
+        id S234784AbhEJLJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:09:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CD0E61966;
+        Mon, 10 May 2021 11:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644683;
-        bh=Rn0EJ/oyshipWSTP5vZpeIKbNoRmk7qGzBjufqOYjCI=;
+        s=korg; t=1620644685;
+        bh=kZ0q9YGabM3J/o0LN3EKKSVXsyyUbL6NpGeKKOOayeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAHZU28vMcsrxm6z3ADe3Y1dLtMQXgRHT/gWn2CPzSBIN7dGEY5NxA0Ig5iDuANzo
-         ICuExVeNf9u0dAOQ0e0IIkzGAphMZRbqqsAgMIPxU9tj5oYc61AWJBwczJ55ZmXPax
-         fKhdegLMTtpSdO6t+tmN8yz6WI0cUXAi8z1MxYcM=
+        b=ybMt0oHV7ZZCIFU5sTHGtO5u+A7Ziv3Z+GCF3W9ITxNfAjiWlhZN+stofD2cG28Qk
+         F14gKVkQHL9zqEwKcchq8XvjMgTHWHV+0LSIrLsc620z5vjR/o0oN/Gp33vJ69suYH
+         aHUCiZED7Axwo2Xt7uzcNh9pwiJkGc8K50qy6ksk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, dongjian <dongjian@yulong.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 180/384] media: v4l2-ctrls.c: initialize flags field of p_fwht_params
-Date:   Mon, 10 May 2021 12:19:29 +0200
-Message-Id: <20210510102020.824853634@linuxfoundation.org>
+Subject: [PATCH 5.12 181/384] power: supply: Use IRQF_ONESHOT
+Date:   Mon, 10 May 2021 12:19:30 +0200
+Message-Id: <20210510102020.860060460@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,38 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: dongjian <dongjian@yulong.com>
 
-[ Upstream commit ea1611ba3a544b34f89ffa3d1e833caab30a3f09 ]
+[ Upstream commit 2469b836fa835c67648acad17d62bc805236a6ea ]
 
-The V4L2_CID_STATELESS_FWHT_PARAMS compound control was missing a
-proper initialization of the flags field, so after loading the vicodec
-module for the first time, running v4l2-compliance for the stateless
-decoder would fail on this control because the initial control value
-was considered invalid by the vicodec driver.
+Fixes coccicheck error:
 
-Initializing the flags field to sane values fixes this.
+drivers/power/supply/pm2301_charger.c:1089:7-27: ERROR:
+drivers/power/supply/lp8788-charger.c:502:8-28: ERROR:
+drivers/power/supply/tps65217_charger.c:239:8-33: ERROR:
+drivers/power/supply/tps65090-charger.c:303:8-33: ERROR:
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Threaded IRQ with no primary handler requested without IRQF_ONESHOT
+
+Signed-off-by: dongjian <dongjian@yulong.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/power/supply/lp8788-charger.c   | 2 +-
+ drivers/power/supply/pm2301_charger.c   | 2 +-
+ drivers/power/supply/tps65090-charger.c | 2 +-
+ drivers/power/supply/tps65217_charger.c | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
-index 016cf6204cbb..77f63773096e 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -1675,6 +1675,8 @@ static void std_init_compound(const struct v4l2_ctrl *ctrl, u32 idx,
- 		p_fwht_params->version = V4L2_FWHT_VERSION;
- 		p_fwht_params->width = 1280;
- 		p_fwht_params->height = 720;
-+		p_fwht_params->flags = V4L2_FWHT_FL_PIXENC_YUV |
-+			(2 << V4L2_FWHT_FL_COMPONENTS_NUM_OFFSET);
- 		break;
+diff --git a/drivers/power/supply/lp8788-charger.c b/drivers/power/supply/lp8788-charger.c
+index e7931ffb7151..397e5a03b7d9 100644
+--- a/drivers/power/supply/lp8788-charger.c
++++ b/drivers/power/supply/lp8788-charger.c
+@@ -501,7 +501,7 @@ static int lp8788_set_irqs(struct platform_device *pdev,
+ 
+ 		ret = request_threaded_irq(virq, NULL,
+ 					lp8788_charger_irq_thread,
+-					0, name, pchg);
++					IRQF_ONESHOT, name, pchg);
+ 		if (ret)
+ 			break;
  	}
- }
+diff --git a/drivers/power/supply/pm2301_charger.c b/drivers/power/supply/pm2301_charger.c
+index ac06ecf7fc9c..a3bfb9612b17 100644
+--- a/drivers/power/supply/pm2301_charger.c
++++ b/drivers/power/supply/pm2301_charger.c
+@@ -1089,7 +1089,7 @@ static int pm2xxx_wall_charger_probe(struct i2c_client *i2c_client,
+ 	ret = request_threaded_irq(gpio_to_irq(pm2->pdata->gpio_irq_number),
+ 				NULL,
+ 				pm2xxx_charger_irq[0].isr,
+-				pm2->pdata->irq_type,
++				pm2->pdata->irq_type | IRQF_ONESHOT,
+ 				pm2xxx_charger_irq[0].name, pm2);
+ 
+ 	if (ret != 0) {
+diff --git a/drivers/power/supply/tps65090-charger.c b/drivers/power/supply/tps65090-charger.c
+index 6b0098e5a88b..0990b2fa6cd8 100644
+--- a/drivers/power/supply/tps65090-charger.c
++++ b/drivers/power/supply/tps65090-charger.c
+@@ -301,7 +301,7 @@ static int tps65090_charger_probe(struct platform_device *pdev)
+ 
+ 	if (irq != -ENXIO) {
+ 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+-			tps65090_charger_isr, 0, "tps65090-charger", cdata);
++			tps65090_charger_isr, IRQF_ONESHOT, "tps65090-charger", cdata);
+ 		if (ret) {
+ 			dev_err(cdata->dev,
+ 				"Unable to register irq %d err %d\n", irq,
+diff --git a/drivers/power/supply/tps65217_charger.c b/drivers/power/supply/tps65217_charger.c
+index 814c2b81fdfe..ba33d1617e0b 100644
+--- a/drivers/power/supply/tps65217_charger.c
++++ b/drivers/power/supply/tps65217_charger.c
+@@ -238,7 +238,7 @@ static int tps65217_charger_probe(struct platform_device *pdev)
+ 	for (i = 0; i < NUM_CHARGER_IRQS; i++) {
+ 		ret = devm_request_threaded_irq(&pdev->dev, irq[i], NULL,
+ 						tps65217_charger_irq,
+-						0, "tps65217-charger",
++						IRQF_ONESHOT, "tps65217-charger",
+ 						charger);
+ 		if (ret) {
+ 			dev_err(charger->dev,
 -- 
 2.30.2
 
