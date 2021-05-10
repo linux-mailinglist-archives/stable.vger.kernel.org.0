@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 135B33783A4
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B23D3783A3
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232304AbhEJKqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
+        id S231953AbhEJKqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232852AbhEJKom (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232853AbhEJKom (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:44:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8E8361424;
-        Mon, 10 May 2021 10:33:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09CBB61464;
+        Mon, 10 May 2021 10:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642831;
-        bh=k/pRZHn03ltkEqiDlQTlo9GPXH09K9UfKaFoHBqrYyU=;
+        s=korg; t=1620642835;
+        bh=L8Mq9F8NhmcMlt+HJ8dj+qsv/EiXcUScL+urgJmpI1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cemd2aD6ciDjjI0sAPs5siC6Oo40HR09RsOA7l2wjnnDtQ3iczicX4GfUQoKk1F4p
-         on/9F6lKlr0zUWiSEnOZ/6jeHX40gVCz9HQJIHsN8+oCJ0+Db63TfOUTT+5kw3FFAg
-         ljVBNAQJWB0ESZ/aCAK8qo4HZmnq9UJZWXtEIGA4=
+        b=aSsgi0CKy3sapyJzFAz4l6Wc4N5jhIHmncIlWRtWzBORXvfmIg9QztfNSx+lXqIwr
+         kP9mHj8hCgy9DIlkbm05xyUoBv+aH3HIYUnwgWbdTiPwxflpUrfbfCX9cxDYsZfLW/
+         /nI1AwAqyXHK16Yz3HeFH/ErAh5BZ8AYKOw7hY48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/299] PCI: PM: Do not read power state in pci_enable_device_flags()
-Date:   Mon, 10 May 2021 12:17:46 +0200
-Message-Id: <20210510102007.192995884@linuxfoundation.org>
+Subject: [PATCH 5.10 071/299] ARM: dts: BCM5301X: fix "reg" formatting in /memory node
+Date:   Mon, 10 May 2021 12:17:48 +0200
+Message-Id: <20210510102007.258863825@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -41,70 +41,388 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 4514d991d99211f225d83b7e640285f29f0755d0 ]
+[ Upstream commit 43986f38818278bb71a7fef6de689637bb734afe ]
 
-It should not be necessary to update the current_state field of
-struct pci_dev in pci_enable_device_flags() before calling
-do_pci_enable_device() for the device, because none of the
-code between that point and the pci_set_power_state() call in
-do_pci_enable_device() invoked later depends on it.
+This fixes warnings/errors like:
+arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dt.yaml: /: memory@0:reg:0: [0, 134217728, 2281701376, 402653184] is too long
+        From schema: /lib/python3.6/site-packages/dtschema/schemas/reg.yaml
 
-Moreover, doing that is actively harmful in some cases.  For example,
-if the given PCI device depends on an ACPI power resource whose _STA
-method initially returns 0 ("off"), but the config space of the PCI
-device is accessible and the power state retrieved from the
-PCI_PM_CTRL register is D0, the current_state field in the struct
-pci_dev representing that device will get out of sync with the
-power.state of its ACPI companion object and that will lead to
-power management issues going forward.
-
-To avoid such issues it is better to leave the current_state value
-as is until it is changed to PCI_D0 by do_pci_enable_device() as
-appropriate.  However, the power state of the device is not changed
-to PCI_D0 if it is already enabled when pci_enable_device_flags()
-gets called for it, so update its current_state in that case, but
-use pci_update_current_state() covering platform PM too for that.
-
-Link: https://lore.kernel.org/lkml/20210314000439.3138941-1-luzmaximilian@gmail.com/
-Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
-Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts        | 4 ++--
+ arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts        | 4 ++--
+ arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts  | 4 ++--
+ arch/arm/boot/dts/bcm4708-netgear-r6250.dts        | 4 ++--
+ arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts     | 4 ++--
+ arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts      | 4 ++--
+ arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts        | 4 ++--
+ arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts | 4 ++--
+ arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts  | 4 ++--
+ arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts        | 4 ++--
+ arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts  | 4 ++--
+ arch/arm/boot/dts/bcm4709-linksys-ea9200.dts       | 4 ++--
+ arch/arm/boot/dts/bcm4709-netgear-r7000.dts        | 4 ++--
+ arch/arm/boot/dts/bcm4709-netgear-r8000.dts        | 4 ++--
+ arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts      | 4 ++--
+ arch/arm/boot/dts/bcm47094-linksys-panamera.dts    | 4 ++--
+ arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts      | 4 ++--
+ arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts      | 4 ++--
+ arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts      | 4 ++--
+ arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts      | 4 ++--
+ arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts   | 4 ++--
+ arch/arm/boot/dts/bcm47094-netgear-r8500.dts       | 4 ++--
+ arch/arm/boot/dts/bcm47094-phicomm-k3.dts          | 4 ++--
+ 23 files changed, 46 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 9e971fffeb6a..d5d9ea864fe6 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1874,20 +1874,10 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
- 	int err;
- 	int i, bars = 0;
+diff --git a/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts b/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts
+index 6a96655d8626..8ed403767540 100644
+--- a/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts
++++ b/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts
+@@ -21,8 +21,8 @@
  
--	/*
--	 * Power state could be unknown at this point, either due to a fresh
--	 * boot or a device removal call.  So get the current power state
--	 * so that things like MSI message writing will behave as expected
--	 * (e.g. if the device really is in D0 at enable time).
--	 */
--	if (dev->pm_cap) {
--		u16 pmcsr;
--		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
--		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
--	}
--
--	if (atomic_inc_return(&dev->enable_cnt) > 1)
-+	if (atomic_inc_return(&dev->enable_cnt) > 1) {
-+		pci_update_current_state(dev, dev->current_state);
- 		return 0;		/* already enabled */
-+	}
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
  
- 	bridge = pci_upstream_bridge(dev);
- 	if (bridge)
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts b/arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts
+index 3b0029e61b4c..667b118ba4ee 100644
+--- a/arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts
++++ b/arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts b/arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts
+index 90f57bad6b24..ff31ce45831a 100644
+--- a/arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts
++++ b/arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x18000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x18000000>;
+ 	};
+ 
+ 	spi {
+diff --git a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
+index fed75e6ab58c..61c7b137607e 100644
+--- a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
++++ b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
+@@ -22,8 +22,8 @@
+ 
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts b/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts
+index 79542e18915c..4c60eda296d9 100644
+--- a/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts
++++ b/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts b/arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts
+index abd35a518046..7d46561fca3c 100644
+--- a/arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts
++++ b/arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts b/arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts
+index c29950b43a95..0e273c598732 100644
+--- a/arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts
++++ b/arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts b/arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts
+index 4dcec6865469..083ec4036bd7 100644
+--- a/arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts
++++ b/arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	spi {
+diff --git a/arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts b/arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts
+index 0e349e39f608..8b1a05a0f1a1 100644
+--- a/arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts
++++ b/arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	spi {
+diff --git a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
+index 8f1e565c3db4..6c6bb7b17d27 100644
+--- a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
++++ b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
+index ce888b1835d1..d29e7f80ea6a 100644
+--- a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
++++ b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x18000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x18000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
+index ed8619b54d69..38fbefdf2e4e 100644
+--- a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
++++ b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
+@@ -18,8 +18,8 @@
+ 
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	gpio-keys {
+diff --git a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
+index 1f87993eae1d..7989a53597d4 100644
+--- a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
++++ b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
+index 6c6199a53d09..87b655be674c 100644
+--- a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
++++ b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
+@@ -32,8 +32,8 @@
+ 
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts b/arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts
+index 911c65fbf251..e635a15041dd 100644
+--- a/arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts
++++ b/arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts
+@@ -21,8 +21,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	nand: nand@18028000 {
+diff --git a/arch/arm/boot/dts/bcm47094-linksys-panamera.dts b/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
+index 0faae8950375..36d63beba8cd 100644
+--- a/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
++++ b/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
+@@ -18,8 +18,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	gpio-keys {
+diff --git a/arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts b/arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts
+index 50f7cd08cfbb..a6dc99955e19 100644
+--- a/arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts
++++ b/arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts
+@@ -18,8 +18,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x18000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x18000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts b/arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts
+index bcc420f85b56..ff98837bc0db 100644
+--- a/arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts
++++ b/arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts
+@@ -18,8 +18,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x18000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x18000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
+index 9ae815ddbb4b..2666195b6ffe 100644
+--- a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
++++ b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
+@@ -18,8 +18,8 @@
+ 
+ 	memory {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x18000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x18000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts b/arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts
+index a21b2d185596..9f798025748b 100644
+--- a/arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts
++++ b/arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts
+@@ -18,8 +18,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x08000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x08000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts b/arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts
+index 4d5c5aa7dc42..c8dfa4c58d2f 100644
+--- a/arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts
++++ b/arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts
+@@ -18,8 +18,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x18000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x18000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47094-netgear-r8500.dts b/arch/arm/boot/dts/bcm47094-netgear-r8500.dts
+index f42a1703f4ab..42097a4c2659 100644
+--- a/arch/arm/boot/dts/bcm47094-netgear-r8500.dts
++++ b/arch/arm/boot/dts/bcm47094-netgear-r8500.dts
+@@ -18,8 +18,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x18000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x18000000>;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/bcm47094-phicomm-k3.dts b/arch/arm/boot/dts/bcm47094-phicomm-k3.dts
+index ac3a4483dcb3..a2566ad4619c 100644
+--- a/arch/arm/boot/dts/bcm47094-phicomm-k3.dts
++++ b/arch/arm/boot/dts/bcm47094-phicomm-k3.dts
+@@ -15,8 +15,8 @@
+ 
+ 	memory@0 {
+ 		device_type = "memory";
+-		reg = <0x00000000 0x08000000
+-		       0x88000000 0x18000000>;
++		reg = <0x00000000 0x08000000>,
++		      <0x88000000 0x18000000>;
+ 	};
+ 
+ 	gpio-keys {
 -- 
 2.30.2
 
