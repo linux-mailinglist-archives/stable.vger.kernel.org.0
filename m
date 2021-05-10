@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D544A378316
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 267E5378301
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232100AbhEJKmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
+        id S232098AbhEJKl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:41:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232363AbhEJKjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C63646162E;
-        Mon, 10 May 2021 10:30:36 +0000 (UTC)
+        id S232468AbhEJKju (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:39:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E6F461961;
+        Mon, 10 May 2021 10:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642637;
-        bh=3GvK6IdFfpr0M4VNNzbYiiMkr/Q/DR3Xvlrb7qN4ivE=;
+        s=korg; t=1620642639;
+        bh=TIiq/pHHgOQCOAKHMUok9hJryVaR2uaKJCFuMpxqsL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yC2ZBnCfyEgm/TEH5Jp/JbeES3r1eMzi/j60VrUy+5T60uDpNiWPkQ37Qo0Qxz0P6
-         YeSNLMj0PhpYSR8XZDAnFXaRuAYO8lEv9RtICiayox6Sk9woZ75Nw4oJpxBJXOeXrL
-         x4tJ5mr/agvRiBTY/+7URSAhtgcQfqHSrbf/OCOA=
+        b=h5qARkRlV0HkPD+64+gEVnTq9ze+txt0WLB4HhFGZ/XU5+WhxHJ2PhiK5c5si+WvW
+         CiNiRYHNIFwAQsEffh3o/lDYrg4nTM234dRbij9UpEuXptKQMiVZfScCmFMMZ7qiFA
+         UJdZ4xvDqsOk4b0i+LYk+Dd8HvsoE7AZMIi8WcNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Subject: [PATCH 5.4 176/184] usb: dwc2: Fix session request interrupt handler
-Date:   Mon, 10 May 2021 12:21:10 +0200
-Message-Id: <20210510101955.888484061@linuxfoundation.org>
+        syzbot+bcc922b19ccc64240b42@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>
+Subject: [PATCH 5.4 177/184] tty: fix memory leak in vc_deallocate
+Date:   Mon, 10 May 2021 12:21:11 +0200
+Message-Id: <20210510101955.919827869@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -40,47 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 42b32b164acecd850edef010915a02418345a033 upstream.
+commit 211b4d42b70f1c1660feaa968dac0efc2a96ac4d upstream.
 
-According to programming guide in host mode, port
-power must be turned on in session request
-interrupt handlers.
+syzbot reported memory leak in tty/vt.
+The problem was in VT_DISALLOCATE ioctl cmd.
+After allocating unimap with PIO_UNIMAP it wasn't
+freed via VT_DISALLOCATE, but vc_cons[currcons].d was
+zeroed.
 
-Fixes: 21795c826a45 ("usb: dwc2: exit hibernation on session request")
-Cc: <stable@vger.kernel.org>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Link: https://lore.kernel.org/r/20210408094550.75484A0094@mailhost.synopsys.com
+Reported-by: syzbot+bcc922b19ccc64240b42@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210327214443.21548-1-paskripkin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/core_intr.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/vt/vt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc2/core_intr.c
-+++ b/drivers/usb/dwc2/core_intr.c
-@@ -312,6 +312,7 @@ static void dwc2_handle_conn_id_status_c
- static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
- {
- 	int ret;
-+	u32 hprt0;
- 
- 	/* Clear interrupt */
- 	dwc2_writel(hsotg, GINTSTS_SESSREQINT, GINTSTS);
-@@ -332,6 +333,13 @@ static void dwc2_handle_session_req_intr
- 		 * established
- 		 */
- 		dwc2_hsotg_disconnect(hsotg);
-+	} else {
-+		/* Turn on the port power bit. */
-+		hprt0 = dwc2_read_hprt0(hsotg);
-+		hprt0 |= HPRT0_PWR;
-+		dwc2_writel(hsotg, hprt0, HPRT0);
-+		/* Connect hcd after port power is set. */
-+		dwc2_hcd_connect(hsotg);
- 	}
- }
- 
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1377,6 +1377,7 @@ struct vc_data *vc_deallocate(unsigned i
+ 		atomic_notifier_call_chain(&vt_notifier_list, VT_DEALLOCATE, &param);
+ 		vcs_remove_sysfs(currcons);
+ 		visual_deinit(vc);
++		con_free_unimap(vc);
+ 		put_pid(vc->vt_pid);
+ 		vc_uniscr_set(vc, NULL);
+ 		kfree(vc->vc_screenbuf);
 
 
