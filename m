@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD3C6378458
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45DAE37845A
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233074AbhEJKvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:51:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42174 "EHLO mail.kernel.org"
+        id S233110AbhEJKvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:51:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233492AbhEJKuI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233490AbhEJKuI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:50:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7A296162D;
-        Mon, 10 May 2021 10:38:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D44561606;
+        Mon, 10 May 2021 10:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643136;
-        bh=1s7zG+opQmdVGNdmgz7kGgq4vv8ggW+wB6M1alua5zo=;
+        s=korg; t=1620643138;
+        bh=AAcA8OdPJl+ilu/dPnGtwVxONE61/5EAHLfi0bMQ3Q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9hi1WogJG9UNR1qCWUf4XnLTADBbiqESe0w3yBzsDh2BdSnL2MTsgvsSOZvzmHuk
-         pstnER7+XzWXHHtjfLr07Ejvzh42JsextvrqANPox4VDMcJDOXY5smAmWOrC2Yokyf
-         U7kFHgyCL/UbfSe5q7mH4XQeVgal67nQPXs9P3UQ=
+        b=jLQ0EAQOFS4XAkfcb6DqeDk44/iWl3c6E490kOAEe1b1iGzciEZqDssxZW6TfUTwG
+         v4ysF1V/mC8yZjXWi5M61BetFA+3E/fGdefdNM/eBVQAFO3ZRHLpxQDDDav7jSFfmt
+         Zl3QSFyLptTopo0gwsn141Vzlat4HRw6KedHFEvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Anson Jacob <Anson.Jacob@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Jun Lei <Jun.Lei@amd.com>, Solomon Chiu <solomon.chiu@amd.com>,
+        stable@vger.kernel.org, Qu Huang <jinsdb@126.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 191/299] drm/amd/display: Fix UBSAN: shift-out-of-bounds warning
-Date:   Mon, 10 May 2021 12:19:48 +0200
-Message-Id: <20210510102011.260112477@linuxfoundation.org>
+Subject: [PATCH 5.10 192/299] drm/amdkfd: Fix cat debugfs hang_hws file causes system crash bug
+Date:   Mon, 10 May 2021 12:19:49 +0200
+Message-Id: <20210510102011.291527484@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -43,246 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Jacob <Anson.Jacob@amd.com>
+From: Qu Huang <jinsdb@126.com>
 
-[ Upstream commit 54718747a6e1037317a8b3610c3be40621b2b75e ]
+[ Upstream commit d73610211eec8aa027850982b1a48980aa1bc96e ]
 
-[Why]
-On NAVI14 CONFIG_UBSAN reported shift-out-of-bounds at
-display_rq_dlg_calc_20v2.c:304:38
+Here is the system crash log:
+[ 1272.884438] BUG: unable to handle kernel NULL pointer dereference at
+(null)
+[ 1272.884444] IP: [<          (null)>]           (null)
+[ 1272.884447] PGD 825b09067 PUD 8267c8067 PMD 0
+[ 1272.884452] Oops: 0010 [#1] SMP
+[ 1272.884509] CPU: 13 PID: 3485 Comm: cat Kdump: loaded Tainted: G
+[ 1272.884515] task: ffff9a38dbd4d140 ti: ffff9a37cd3b8000 task.ti:
+ffff9a37cd3b8000
+[ 1272.884517] RIP: 0010:[<0000000000000000>]  [<          (null)>]
+(null)
+[ 1272.884520] RSP: 0018:ffff9a37cd3bbe68  EFLAGS: 00010203
+[ 1272.884522] RAX: 0000000000000000 RBX: 0000000000000000 RCX:
+0000000000014d5f
+[ 1272.884524] RDX: fffffffffffffff4 RSI: 0000000000000001 RDI:
+ffff9a38aca4d200
+[ 1272.884526] RBP: ffff9a37cd3bbed0 R08: ffff9a38dcd5f1a0 R09:
+ffff9a31ffc07300
+[ 1272.884527] R10: ffff9a31ffc07300 R11: ffffffffaddd5e9d R12:
+ffff9a38b4e0fb00
+[ 1272.884529] R13: 0000000000000001 R14: ffff9a37cd3bbf18 R15:
+ffff9a38aca4d200
+[ 1272.884532] FS:  00007feccaa67740(0000) GS:ffff9a38dcd40000(0000)
+knlGS:0000000000000000
+[ 1272.884534] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1272.884536] CR2: 0000000000000000 CR3: 00000008267c0000 CR4:
+00000000003407e0
+[ 1272.884537] Call Trace:
+[ 1272.884544]  [<ffffffffade68940>] ? seq_read+0x130/0x440
+[ 1272.884548]  [<ffffffffade40f8f>] vfs_read+0x9f/0x170
+[ 1272.884552]  [<ffffffffade41e4f>] SyS_read+0x7f/0xf0
+[ 1272.884557]  [<ffffffffae374ddb>] system_call_fastpath+0x22/0x27
+[ 1272.884558] Code:  Bad RIP value.
+[ 1272.884562] RIP  [<          (null)>]           (null)
+[ 1272.884564]  RSP <ffff9a37cd3bbe68>
+[ 1272.884566] CR2: 0000000000000000
 
-rq_param->misc.rq_c.blk256_height is 0 when chroma(*_c) is invalid.
-dml_log2 returns -1023 for log2(0), although log2(0) is undefined.
-
-Which ended up as:
-rq_param->dlg.rq_c.swath_height = 1 << -1023
-
-[How]
-Fix applied on all dml versions.
-1. Ensure dml_log2 is only called if the argument is greater than 0.
-2. Subtract req128_l/req128_c from log2_swath_height_l/log2_swath_height_c
-   only when it is greater than 0.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Solomon Chiu <solomon.chiu@amd.com>
+Signed-off-by: Qu Huang <jinsdb@126.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dc/dml/dcn20/display_rq_dlg_calc_20.c     | 28 +++++++++++++++----
- .../dc/dml/dcn20/display_rq_dlg_calc_20v2.c   | 28 +++++++++++++++----
- .../dc/dml/dcn21/display_rq_dlg_calc_21.c     | 28 +++++++++++++++----
- .../dc/dml/dcn30/display_rq_dlg_calc_30.c     | 28 +++++++++++++++----
- .../display/dc/dml/dml1_display_rq_dlg_calc.c | 28 +++++++++++++++----
- 5 files changed, 115 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-index 72423dc425dc..799bae229e67 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-@@ -293,13 +293,31 @@ static void handle_det_buf_split(struct display_mode_lib *mode_lib,
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c b/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
+index 511712c2e382..673d5e34f213 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_debugfs.c
+@@ -33,6 +33,11 @@ static int kfd_debugfs_open(struct inode *inode, struct file *file)
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-index 9c78446c3a9d..6a6d5970d1d5 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-@@ -293,13 +293,31 @@ static void handle_det_buf_split(struct display_mode_lib *mode_lib,
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
+ 	return single_open(file, show, NULL);
+ }
++static int kfd_debugfs_hang_hws_read(struct seq_file *m, void *data)
++{
++	seq_printf(m, "echo gpu_id > hang_hws\n");
++	return 0;
++}
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-index edd41d358291..dc1c81a6e377 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-@@ -277,13 +277,31 @@ static void handle_det_buf_split(
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
+ static ssize_t kfd_debugfs_hang_hws_write(struct file *file,
+ 	const char __user *user_buf, size_t size, loff_t *ppos)
+@@ -94,7 +99,7 @@ void kfd_debugfs_init(void)
+ 	debugfs_create_file("rls", S_IFREG | 0444, debugfs_root,
+ 			    kfd_debugfs_rls_by_device, &kfd_debugfs_fops);
+ 	debugfs_create_file("hang_hws", S_IFREG | 0200, debugfs_root,
+-			    NULL, &kfd_debugfs_hang_hws_fops);
++			    kfd_debugfs_hang_hws_read, &kfd_debugfs_hang_hws_fops);
+ }
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-index 416bf6fb67bd..58c312f80a07 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-@@ -237,13 +237,31 @@ static void handle_det_buf_split(struct display_mode_lib *mode_lib,
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c b/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-index 4c3e9cc30167..414da64f5734 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-@@ -344,13 +344,31 @@ static void handle_det_buf_split(
- 	if (surf_linear) {
- 		log2_swath_height_l = 0;
- 		log2_swath_height_c = 0;
--	} else if (!surf_vert) {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_height) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_height) - req128_c;
- 	} else {
--		log2_swath_height_l = dml_log2(rq_param->misc.rq_l.blk256_width) - req128_l;
--		log2_swath_height_c = dml_log2(rq_param->misc.rq_c.blk256_width) - req128_c;
-+		unsigned int swath_height_l;
-+		unsigned int swath_height_c;
-+
-+		if (!surf_vert) {
-+			swath_height_l = rq_param->misc.rq_l.blk256_height;
-+			swath_height_c = rq_param->misc.rq_c.blk256_height;
-+		} else {
-+			swath_height_l = rq_param->misc.rq_l.blk256_width;
-+			swath_height_c = rq_param->misc.rq_c.blk256_width;
-+		}
-+
-+		if (swath_height_l > 0)
-+			log2_swath_height_l = dml_log2(swath_height_l);
-+
-+		if (req128_l && log2_swath_height_l > 0)
-+			log2_swath_height_l -= 1;
-+
-+		if (swath_height_c > 0)
-+			log2_swath_height_c = dml_log2(swath_height_c);
-+
-+		if (req128_c && log2_swath_height_c > 0)
-+			log2_swath_height_c -= 1;
- 	}
-+
- 	rq_param->dlg.rq_l.swath_height = 1 << log2_swath_height_l;
- 	rq_param->dlg.rq_c.swath_height = 1 << log2_swath_height_c;
- 
+ void kfd_debugfs_fini(void)
 -- 
 2.30.2
 
