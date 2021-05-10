@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D3CA377E00
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82CAF377E02
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230093AbhEJIWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:22:45 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:52045 "EHLO
+        id S230135AbhEJIWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:22:55 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:34183 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230059AbhEJIWp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:22:45 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id AD3751940274;
-        Mon, 10 May 2021 04:21:40 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 10 May 2021 04:21:40 -0400
+        by vger.kernel.org with ESMTP id S230106AbhEJIWy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:22:54 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0C7C01940146;
+        Mon, 10 May 2021 04:21:50 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Mon, 10 May 2021 04:21:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/6DetR
-        MZ8rS1DJ1sPQ/0K1Zi60xUF39B6asXAbOq/IM=; b=BsODk2w6ChXHP5Mg4kMrmr
-        tUyGMdjK0IL5AH8+Tu6mQQqVNwp60XMHrVSmbbJxInOveL6IIH8SWpbkt5VVvnvn
-        vjmeXmhtR58ET5ePM52+WvMXhDjIsRU16Y37HgDzxaI6BzVhFJb2yYkRdfrUdRvu
-        sh29UlCPqoGssFmoCsDXPMofCoapSSZIuid/iZvSSsD5jiST/2b7OFbaDDwszKyf
-        cK+dazqFOK78GFek8oHxqg5yifEDcNVCQPfyvj4BIYT7qbjQtsfEe1wUnwJoFGKf
-        TO7TGH5vhubAJyaqUY80lXJYXfVbkZ/skratZLwm0uCjDly11Z5wouGAQYKUuLGA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8mm/Lp
+        WzUMTpaNsfSasCtHwKgkFb0hiUlkEQUSDfm40=; b=Vm7KoXnliUZT5j67vhJd0B
+        uzV9hTYz7ahbaBk0BEOE+S40aiUfl/+VLJisHSEVXOEB+9OQJHPZ47+iZU9sIjSY
+        e4xlhCiw2iAKxDsOyaWYdgC+KsYUmAGOUmwc+7jvsbPSyiqAkwNxLmFmvTpYH07S
+        JQnp4wxeVRob22/POoX1lzmT3zUmpLQo4h0jsWEfjvpoqM8ML9SqqEYVGU/fc0eR
+        ChfvWzb40zcYrMOLbQ3nPuOqdNyeALS4U2N8i+PYz20wkaF/IXCfCbkhzCr+fK51
+        A7hs+bJJD1CJd9uLhpjBoWVnzHZUZpSF2HuvKzNX73m95t3SA+99xdfWahcs7Qmg
         ==
-X-ME-Sender: <xms:FO2YYF-u3qo5awZKsgq8fgSj3SOLxX_Ek6QuMXEhz4p4PcIr9UGXlQ>
-    <xme:FO2YYJu0Azs-MdEo_Thfrx-i4QRgrk_soTTgKwSrpfouO5SYo3uvQWhlufHSev7kf
-    wdM7Oq0dQF_Aw>
+X-ME-Sender: <xms:He2YYAniIV2XWqiU6qLLZYrloP_9famvKf6J7FP1oKMc4ArIEXshJQ>
+    <xme:He2YYP1vw47YZI6yheZ6dvQ77q1B1W8CtGTL7xoj-bOCowVr5gM2-G7Y4nusQrqv3
+    CUMerQNbia04w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:FO2YYDCAG1UQoCfMcm6io1iVqW6j3-KMwuRPnQWkKF-wJBpfrHoAiw>
-    <xmx:FO2YYJcgBAPWTg2a2WAkYp0L0HvtGGUFDJKXlQv6sWO5ROEYZnUOWQ>
-    <xmx:FO2YYKNOgTdWVFwL9MtaV8NLV74QqLb7oxywUhJXEm3iuTTOsRVEsw>
-    <xmx:FO2YYGBpYG73PAf8XNwAtscH8CHRNWOVx_93lIDOaO2CzjUCn2ffCA>
+X-ME-Proxy: <xmx:He2YYOpUcPoZUnonPT4LDW62nRwboDNVLSVd2tfDLUGXsZDxqqn7RA>
+    <xmx:He2YYMnPuQbFgZvxUR-gtc3YqAlFJA1Y163aZnXBkXMrPwCGuGVzkw>
+    <xmx:He2YYO3SW-VbfhEORCBTIy5ADAQv6TnCSP8I3uJl6AE7iKaVfZmheA>
+    <xmx:Hu2YYIrb32CTFKpmtXpUNOUwegcr-cNTrjEEyZFZRWs_XMYRNdqE8w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:21:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: dwc3: core: Do core softreset when switch mode" failed to apply to 5.4-stable tree
+        Mon, 10 May 2021 04:21:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: dwc3: core: Do core softreset when switch mode" failed to apply to 4.19-stable tree
 To:     chenyu56@huawei.com, Thinh.Nguyen@synopsys.com,
         andy.shevchenko@gmail.com, fntoth@gmail.com,
         gregkh@linuxfoundation.org, john.stultz@linaro.org,
         stable@vger.kernel.org, wcheng@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 10:21:38 +0200
-Message-ID: <1620634898781@kroah.com>
+Date:   Mon, 10 May 2021 10:21:39 +0200
+Message-ID: <1620634899134223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
