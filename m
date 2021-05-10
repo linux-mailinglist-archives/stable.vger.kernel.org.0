@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517CC378495
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D43AC3782DD
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232149AbhEJKxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:53:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
+        id S231508AbhEJKir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:38:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232871AbhEJKvQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:51:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FD0C6194E;
-        Mon, 10 May 2021 10:40:31 +0000 (UTC)
+        id S231490AbhEJKfl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:35:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7D0B6193B;
+        Mon, 10 May 2021 10:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643231;
-        bh=5fuRqTcKIiPzxbE9ZPKDhNPvkmZlbtvNlweGkPwV8cQ=;
+        s=korg; t=1620642533;
+        bh=t0bm0qmPSnTBAlftlPxJrWy8R3HFt9molkH+dve+l1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eP0JSKdScNyo7BUbLXymaSXa5mQg+5OzCkPPdhrq1q6NSSHKpqoyAaw13dGzBzD/F
-         gwp0aTF05W/jEkr2PErULyvxqXJt4/H1VIorlv8SWxtlvV3F29X7ftZPgg2AL7HMOO
-         IMPmb4iLoi2VDiJDt4jiUkWIkNRuVDesnY1/3jh0=
+        b=DJ0IcGMsN0hql+IHVb3H9sFQOwK117aKeY/7R8dqW2V8tFc0pbWqXwHBRqnhUvZAF
+         OpMNKlzRAXGYt1iRo01VEohwKjwxEVKjQjq9NJ1eBzpkAVVRfA4HvWRmYDuA9yaWb4
+         BWw69oM2u89evCuV47gkxcLyr4lhtPBySsEIrhtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 230/299] mlxsw: spectrum_mr: Update egress RIF list before routes action
-Date:   Mon, 10 May 2021 12:20:27 +0200
-Message-Id: <20210510102012.557689924@linuxfoundation.org>
+        stable@vger.kernel.org, Eckhart Mohr <e.mohr@tuxedocomputers.com>,
+        Werner Sembach <wse@tuxedocomputers.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 134/184] ALSA: hda/realtek: Add quirk for Intel Clevo PCx0Dx
+Date:   Mon, 10 May 2021 12:20:28 +0200
+Message-Id: <20210510101954.550912742@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,99 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Eckhart Mohr <e.mohr@tuxedocomputers.com>
 
-commit cbaf3f6af9c268caf558c8e7ec52bcb35c5455dd upstream.
+commit 970e3012c04c96351c413f193a9c909e6d871ce2 upstream.
 
-Each multicast route that is forwarding packets (as opposed to trapping
-them) points to a list of egress router interfaces (RIFs) through which
-packets are replicated.
+This applies a SND_PCI_QUIRK(...) to the Clevo PCx0Dx barebones. This
+fix enables audio output over the headset jack and ensures that a
+microphone connected via the headset combo jack is correctly recognized
+when pluged in.
 
-A route's action can transition from trap to forward when a RIF is
-created for one of the route's egress virtual interfaces (eVIF). When
-this happens, the route's action is first updated and only later the
-list of egress RIFs is committed to the device.
+[ Rearranged the list entries in a sorted order -- tiwai ]
 
-This results in the route pointing to an invalid list. In case the list
-pointer is out of range (due to uninitialized memory), the device will
-complain:
-
-mlxsw_spectrum2 0000:06:00.0: EMAD reg access failed (tid=5733bf490000905c,reg_id=300f(pefa),type=write,status=7(bad parameter))
-
-Fix this by first committing the list of egress RIFs to the device and
-only later update the route's action.
-
-Note that a fix is not needed in the reverse function (i.e.,
-mlxsw_sp_mr_route_evif_unresolve()), as there the route's action is
-first updated and only later the RIF is removed from the list.
-
-Cc: stable@vger.kernel.org
-Fixes: c011ec1bbfd6 ("mlxsw: spectrum: Add the multicast routing offloading logic")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/20210506072308.3834303-1-idosch@idosch.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Eckhart Mohr <e.mohr@tuxedocomputers.com>
+Co-developed-by: Werner Sembach <wse@tuxedocomputers.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210427153025.451118-1-wse@tuxedocomputers.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c |   30 +++++++++++-----------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-@@ -535,6 +535,16 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 	u16 erif_index = 0;
- 	int err;
- 
-+	/* Add the eRIF */
-+	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
-+		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
-+		err = mr->mr_ops->route_erif_add(mlxsw_sp,
-+						 rve->mr_route->route_priv,
-+						 erif_index);
-+		if (err)
-+			return err;
-+	}
-+
- 	/* Update the route action, as the new eVIF can be a tunnel or a pimreg
- 	 * device which will require updating the action.
- 	 */
-@@ -544,17 +554,7 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 						      rve->mr_route->route_priv,
- 						      route_action);
- 		if (err)
--			return err;
--	}
--
--	/* Add the eRIF */
--	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
--		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
--		err = mr->mr_ops->route_erif_add(mlxsw_sp,
--						 rve->mr_route->route_priv,
--						 erif_index);
--		if (err)
--			goto err_route_erif_add;
-+			goto err_route_action_update;
- 	}
- 
- 	/* Update the minimum MTU */
-@@ -572,14 +572,14 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 	return 0;
- 
- err_route_min_mtu_update:
--	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
--		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
--					   erif_index);
--err_route_erif_add:
- 	if (route_action != rve->mr_route->route_action)
- 		mr->mr_ops->route_action_update(mlxsw_sp,
- 						rve->mr_route->route_priv,
- 						rve->mr_route->route_action);
-+err_route_action_update:
-+	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
-+		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
-+					   erif_index);
- 	return err;
- }
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2542,8 +2542,10 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x65d2, "Clevo PB51R[CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x65e1, "Clevo PB51[ED][DF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
 
 
