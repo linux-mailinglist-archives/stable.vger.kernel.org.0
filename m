@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 901EF378685
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17AF63788BE
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232270AbhEJLIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:08:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52794 "EHLO mail.kernel.org"
+        id S234598AbhEJLX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:23:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233519AbhEJK7Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:59:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C96B961C40;
-        Mon, 10 May 2021 10:52:38 +0000 (UTC)
+        id S237206AbhEJLLf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D71146192C;
+        Mon, 10 May 2021 11:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643959;
-        bh=MhnKdDO3EoebFgSsizSZjcagHXoeCi2YwTd5PJAXvaU=;
+        s=korg; t=1620644891;
+        bh=jSFnpPCMOcIv5/ncZmQy4KGPp60iGDNp1gQ4t8bTZgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZMTBxj26ZfPyXBO4Bu+VygazvZpbeE4M3a/p10j/tnq3+7JX5bPHP4kI6V4CX5Lx
-         0bqWPebgyjQsCb69f0m/zklBOIJLVLHSSYK5v07bKfd/rRxv8L8XmiTO47DjVI7A0O
-         /1PyGk0lms0Xb72EVDslAvYT4AJT8op5pT6S//DU=
+        b=DLXMlkJnb+d+qsDdCiDpXhkyoZoEph8Vcj0C3AOT+p6TCXQClmhgwUpo3Zeae53AH
+         x3DuzxqWltHYP87CEYgXYGuQX6qr6hfa8ua5nOoLrQXI/VJlqr4NiAKENeWq4qRpIy
+         04+XKUY6oU/erM+q7AIzAytTtkTbM3DS2mTRe75k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hubert Streidl <hubert.streidl@de.bosch.com>,
-        Mark Jonas <mark.jonas@de.bosch.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 230/342] mfd: da9063: Support SMBus and I2C mode
-Date:   Mon, 10 May 2021 12:20:20 +0200
-Message-Id: <20210510102017.695088403@linuxfoundation.org>
+Subject: [PATCH 5.12 232/384] media: i2c: tda1997: Fix possible use-after-free in tda1997x_remove()
+Date:   Mon, 10 May 2021 12:20:21 +0200
+Message-Id: <20210510102022.541210100@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hubert Streidl <hubert.streidl@de.bosch.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 586478bfc9f7e16504d6f64cf18bcbdf6fd0cbc9 ]
+[ Upstream commit 7f820ab5d4eebfe2d970d32a76ae496a6c286f0f ]
 
-By default the PMIC DA9063 2-wire interface is SMBus compliant. This
-means the PMIC will automatically reset the interface when the clock
-signal ceases for more than the SMBus timeout of 35 ms.
+This driver's remove path calls cancel_delayed_work(). However, that
+function does not wait until the work function finishes. This means
+that the callback function may still be running after the driver's
+remove function has finished, which would result in a use-after-free.
 
-If the I2C driver / device is not capable of creating atomic I2C
-transactions, a context change can cause a ceasing of the clock signal.
-This can happen if for example a real-time thread is scheduled. Then
-the DA9063 in SMBus mode will reset the 2-wire interface. Subsequently
-a write message could end up in the wrong register. This could cause
-unpredictable system behavior.
+Fix by calling cancel_delayed_work_sync(), which ensures that
+the work is properly cancelled, no longer running, and unable
+to re-schedule itself.
 
-The DA9063 PMIC also supports an I2C compliant mode for the 2-wire
-interface. This mode does not reset the interface when the clock
-signal ceases. Thus the problem depicted above does not occur.
-
-This patch tests for the bus functionality "I2C_FUNC_I2C". It can
-reasonably be assumed that the bus cannot obey SMBus timings if
-this functionality is set. SMBus commands most probably are emulated
-in this case which is prone to the latency issue described above.
-
-This patch enables the I2C bus mode if I2C_FUNC_I2C is set or
-otherwise keeps the default SMBus mode.
-
-Signed-off-by: Hubert Streidl <hubert.streidl@de.bosch.com>
-Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/da9063-i2c.c             | 10 ++++++++++
- include/linux/mfd/da9063/registers.h |  3 +++
- 2 files changed, 13 insertions(+)
+ drivers/media/i2c/tda1997x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/da9063-i2c.c b/drivers/mfd/da9063-i2c.c
-index 3781d0bb7786..783a14af18e2 100644
---- a/drivers/mfd/da9063-i2c.c
-+++ b/drivers/mfd/da9063-i2c.c
-@@ -442,6 +442,16 @@ static int da9063_i2c_probe(struct i2c_client *i2c,
- 		return ret;
- 	}
+diff --git a/drivers/media/i2c/tda1997x.c b/drivers/media/i2c/tda1997x.c
+index a09bf0a39d05..89bb7e6dc7a4 100644
+--- a/drivers/media/i2c/tda1997x.c
++++ b/drivers/media/i2c/tda1997x.c
+@@ -2804,7 +2804,7 @@ static int tda1997x_remove(struct i2c_client *client)
+ 	media_entity_cleanup(&sd->entity);
+ 	v4l2_ctrl_handler_free(&state->hdl);
+ 	regulator_bulk_disable(TDA1997X_NUM_SUPPLIES, state->supplies);
+-	cancel_delayed_work(&state->delayed_work_enable_hpd);
++	cancel_delayed_work_sync(&state->delayed_work_enable_hpd);
+ 	mutex_destroy(&state->page_lock);
+ 	mutex_destroy(&state->lock);
  
-+	/* If SMBus is not available and only I2C is possible, enter I2C mode */
-+	if (i2c_check_functionality(i2c->adapter, I2C_FUNC_I2C)) {
-+		ret = regmap_clear_bits(da9063->regmap, DA9063_REG_CONFIG_J,
-+					DA9063_TWOWIRE_TO);
-+		if (ret < 0) {
-+			dev_err(da9063->dev, "Failed to set Two-Wire Bus Mode.\n");
-+			return -EIO;
-+		}
-+	}
-+
- 	return da9063_device_init(da9063, i2c->irq);
- }
- 
-diff --git a/include/linux/mfd/da9063/registers.h b/include/linux/mfd/da9063/registers.h
-index 1dbabf1b3cb8..6e0f66a2e727 100644
---- a/include/linux/mfd/da9063/registers.h
-+++ b/include/linux/mfd/da9063/registers.h
-@@ -1037,6 +1037,9 @@
- #define		DA9063_NONKEY_PIN_AUTODOWN	0x02
- #define		DA9063_NONKEY_PIN_AUTOFLPRT	0x03
- 
-+/* DA9063_REG_CONFIG_J (addr=0x10F) */
-+#define DA9063_TWOWIRE_TO			0x40
-+
- /* DA9063_REG_MON_REG_5 (addr=0x116) */
- #define DA9063_MON_A8_IDX_MASK			0x07
- #define		DA9063_MON_A8_IDX_NONE		0x00
 -- 
 2.30.2
 
