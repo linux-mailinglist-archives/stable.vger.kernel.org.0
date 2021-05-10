@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1939937829B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:35:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B841637844D
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232401AbhEJKge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:36:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
+        id S232632AbhEJKv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:51:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231569AbhEJKdj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:33:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 617C76147F;
-        Mon, 10 May 2021 10:27:40 +0000 (UTC)
+        id S233208AbhEJKtv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:49:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE428619CD;
+        Mon, 10 May 2021 10:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642460;
-        bh=Uz6pSn0OahnFxDtAvlu/orHdqvVlgWzmt0UFYg52VB8=;
+        s=korg; t=1620643113;
+        bh=MUVpAbIDpHgX4tBtKUQo8bni9gOy8VJ4MiQLiHFiun0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDcT+NHVVDDWStUPu+il8aaFrYAIUgb7hu9uCL8/zl5P8VnM8zOJf+8L0XSpiXiM6
-         H5ARfPRU/rH9xsHV59khyIrXYIYGrnBBJrft7fr3g47mM5fxZ+iem7vrlQEWLPnuCG
-         ecu0HdgqJuumIt1JLTun8bryluaNA9VoqQ5yNFPU=
+        b=bg+6Fk/Ui2YzCz0VeebQDcDzl8EIMJS15Hf6N4q5tVX85bKX+nnwTGW97OoCr/Dl6
+         ts+XeODsr+h7sMaRZeNE1odDM5iHA6mV7gBYpqon3JvQER/pyEEqzgTAbX1IhITyCo
+         qdpGPoC7rdk0wNi5UXhFxhZzs3KyI4fx2akRRe3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dongjian <dongjian@yulong.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+3c2be7424cea3b932b0e@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/184] power: supply: Use IRQF_ONESHOT
+Subject: [PATCH 5.10 183/299] media: dvb-usb: fix memory leak in dvb_usb_adapter_init
 Date:   Mon, 10 May 2021 12:19:40 +0200
-Message-Id: <20210510101952.998207447@linuxfoundation.org>
+Message-Id: <20210510102011.008455848@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
-References: <20210510101950.200777181@linuxfoundation.org>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+References: <20210510102004.821838356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dongjian <dongjian@yulong.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 2469b836fa835c67648acad17d62bc805236a6ea ]
+[ Upstream commit b7cd0da982e3043f2eec7235ac5530cb18d6af1d ]
 
-Fixes coccicheck error:
+syzbot reported memory leak in dvb-usb. The problem was
+in invalid error handling in dvb_usb_adapter_init().
 
-drivers/power/supply/pm2301_charger.c:1089:7-27: ERROR:
-drivers/power/supply/lp8788-charger.c:502:8-28: ERROR:
-drivers/power/supply/tps65217_charger.c:239:8-33: ERROR:
-drivers/power/supply/tps65090-charger.c:303:8-33: ERROR:
+for (n = 0; n < d->props.num_adapters; n++) {
+....
+	if ((ret = dvb_usb_adapter_stream_init(adap)) ||
+		(ret = dvb_usb_adapter_dvb_init(adap, adapter_nrs)) ||
+		(ret = dvb_usb_adapter_frontend_init(adap))) {
+		return ret;
+	}
+...
+	d->num_adapters_initialized++;
+...
+}
 
-Threaded IRQ with no primary handler requested without IRQF_ONESHOT
+In case of error in dvb_usb_adapter_dvb_init() or
+dvb_usb_adapter_dvb_init() d->num_adapters_initialized won't be
+incremented, but dvb_usb_adapter_exit() relies on it:
 
-Signed-off-by: dongjian <dongjian@yulong.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+	for (n = 0; n < d->num_adapters_initialized; n++)
+
+So, allocated objects won't be freed.
+
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reported-by: syzbot+3c2be7424cea3b932b0e@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/lp8788-charger.c   | 2 +-
- drivers/power/supply/pm2301_charger.c   | 2 +-
- drivers/power/supply/tps65090-charger.c | 2 +-
- drivers/power/supply/tps65217_charger.c | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/usb/dvb-usb/dvb-usb-init.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/power/supply/lp8788-charger.c b/drivers/power/supply/lp8788-charger.c
-index e7931ffb7151..397e5a03b7d9 100644
---- a/drivers/power/supply/lp8788-charger.c
-+++ b/drivers/power/supply/lp8788-charger.c
-@@ -501,7 +501,7 @@ static int lp8788_set_irqs(struct platform_device *pdev,
+diff --git a/drivers/media/usb/dvb-usb/dvb-usb-init.c b/drivers/media/usb/dvb-usb/dvb-usb-init.c
+index c1a7634e27b4..adc8b287326b 100644
+--- a/drivers/media/usb/dvb-usb/dvb-usb-init.c
++++ b/drivers/media/usb/dvb-usb/dvb-usb-init.c
+@@ -79,11 +79,17 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
+ 			}
+ 		}
  
- 		ret = request_threaded_irq(virq, NULL,
- 					lp8788_charger_irq_thread,
--					0, name, pchg);
-+					IRQF_ONESHOT, name, pchg);
- 		if (ret)
- 			break;
+-		if ((ret = dvb_usb_adapter_stream_init(adap)) ||
+-			(ret = dvb_usb_adapter_dvb_init(adap, adapter_nrs)) ||
+-			(ret = dvb_usb_adapter_frontend_init(adap))) {
++		ret = dvb_usb_adapter_stream_init(adap);
++		if (ret)
+ 			return ret;
+-		}
++
++		ret = dvb_usb_adapter_dvb_init(adap, adapter_nrs);
++		if (ret)
++			goto dvb_init_err;
++
++		ret = dvb_usb_adapter_frontend_init(adap);
++		if (ret)
++			goto frontend_init_err;
+ 
+ 		/* use exclusive FE lock if there is multiple shared FEs */
+ 		if (adap->fe_adap[1].fe)
+@@ -103,6 +109,12 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
  	}
-diff --git a/drivers/power/supply/pm2301_charger.c b/drivers/power/supply/pm2301_charger.c
-index 17749fc90e16..d2aff1cf4f79 100644
---- a/drivers/power/supply/pm2301_charger.c
-+++ b/drivers/power/supply/pm2301_charger.c
-@@ -1095,7 +1095,7 @@ static int pm2xxx_wall_charger_probe(struct i2c_client *i2c_client,
- 	ret = request_threaded_irq(gpio_to_irq(pm2->pdata->gpio_irq_number),
- 				NULL,
- 				pm2xxx_charger_irq[0].isr,
--				pm2->pdata->irq_type,
-+				pm2->pdata->irq_type | IRQF_ONESHOT,
- 				pm2xxx_charger_irq[0].name, pm2);
  
- 	if (ret != 0) {
-diff --git a/drivers/power/supply/tps65090-charger.c b/drivers/power/supply/tps65090-charger.c
-index 6b0098e5a88b..0990b2fa6cd8 100644
---- a/drivers/power/supply/tps65090-charger.c
-+++ b/drivers/power/supply/tps65090-charger.c
-@@ -301,7 +301,7 @@ static int tps65090_charger_probe(struct platform_device *pdev)
+ 	return 0;
++
++frontend_init_err:
++	dvb_usb_adapter_dvb_exit(adap);
++dvb_init_err:
++	dvb_usb_adapter_stream_exit(adap);
++	return ret;
+ }
  
- 	if (irq != -ENXIO) {
- 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
--			tps65090_charger_isr, 0, "tps65090-charger", cdata);
-+			tps65090_charger_isr, IRQF_ONESHOT, "tps65090-charger", cdata);
- 		if (ret) {
- 			dev_err(cdata->dev,
- 				"Unable to register irq %d err %d\n", irq,
-diff --git a/drivers/power/supply/tps65217_charger.c b/drivers/power/supply/tps65217_charger.c
-index 814c2b81fdfe..ba33d1617e0b 100644
---- a/drivers/power/supply/tps65217_charger.c
-+++ b/drivers/power/supply/tps65217_charger.c
-@@ -238,7 +238,7 @@ static int tps65217_charger_probe(struct platform_device *pdev)
- 	for (i = 0; i < NUM_CHARGER_IRQS; i++) {
- 		ret = devm_request_threaded_irq(&pdev->dev, irq[i], NULL,
- 						tps65217_charger_irq,
--						0, "tps65217-charger",
-+						IRQF_ONESHOT, "tps65217-charger",
- 						charger);
- 		if (ret) {
- 			dev_err(charger->dev,
+ static int dvb_usb_adapter_exit(struct dvb_usb_device *d)
 -- 
 2.30.2
 
