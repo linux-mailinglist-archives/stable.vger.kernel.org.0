@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C32437854B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE6E8378556
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:23:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235091AbhEJK77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:59:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
+        id S235128AbhEJLAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234053AbhEJKzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:55:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A456F6197D;
-        Mon, 10 May 2021 10:43:40 +0000 (UTC)
+        id S234118AbhEJKzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:55:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEDCA61942;
+        Mon, 10 May 2021 10:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643421;
-        bh=/ZyQaTHux2q5HyOFnWfZ38CYshcWNR6eS8Xbzte5JH4=;
+        s=korg; t=1620643441;
+        bh=6WOdkPsQYZBDcJfOvrypH5JwGTTshM4KvXQCarVyXKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0bC3ympM/+XjziT+B7Dg0wdlgCDUwqvqKfDKs/owl6dF3c2i8rHDYAcwOzq6wOLYd
-         RHXPMb/nwE2xspHJcCdIxVVSCEpJUIfkPAjBz85MlqIy6NK12EkDPj4+6PemJNFFra
-         O6sou6JxuMv7hPQTIsN9FgtfjN9g3zEAHcw7/m3c=
+        b=W8s+HHkIvZq4joaVwec0ObRl6/MwBeq/grU0Y3rL/YqyKEqhlUfnZXfKzdRwb7ob0
+         LmFiLR0wDWxz4uf2Ocgr4HPOcs5r3Nt5+tEdSyDEoxrTPP2sz6bLLlOxsiw8B2Sl4B
+         VUguBqS7+hwz8CRpxa+Tn9svyrcx/PzDyKuYeAhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffrey Hugo <jhugo@codeaurora.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
+        stable@vger.kernel.org, Bhaumik Bhatt <bbhatt@codeaurora.org>,
+        Hemant Kumar <hemantk@codeaurora.org>,
         Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 5.11 001/342] bus: mhi: core: Fix check for syserr at power_up
-Date:   Mon, 10 May 2021 12:16:31 +0200
-Message-Id: <20210510102010.145680596@linuxfoundation.org>
+Subject: [PATCH 5.11 002/342] bus: mhi: core: Clear configuration from channel context during reset
+Date:   Mon, 10 May 2021 12:16:32 +0200
+Message-Id: <20210510102010.181906665@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,37 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <jhugo@codeaurora.org>
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
 
-commit 6403298c58d4858d93648f553abf0bcbd2dfaca2 upstream.
+commit 47705c08465931923e2f2b506986ca0bdf80380d upstream.
 
-The check to see if we have reset the device after detecting syserr at
-power_up is inverted.  wait_for_event_timeout() returns 0 on failure,
-and a positive value on success.  The check is looking for non-zero
-as a failure, which is likely to incorrectly cause a device init failure
-if syserr was detected at power_up.  Fix this.
+When clearing up the channel context after client drivers are
+done using channels, the configuration is currently not being
+reset entirely. Ensure this is done to appropriately handle
+issues where clients unaware of the context state end up calling
+functions which expect a context.
 
-Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
-Signed-off-by: Jeffrey Hugo <jhugo@codeaurora.org>
-Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
 Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/1613165243-23359-1-git-send-email-jhugo@codeaurora.org
+Link: https://lore.kernel.org/r/1617311778-1254-7-git-send-email-bbhatt@codeaurora.org
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/core/pm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/mhi/core/init.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -1092,7 +1092,7 @@ int mhi_async_power_up(struct mhi_contro
- 							   &val) ||
- 					!val,
- 				msecs_to_jiffies(mhi_cntrl->timeout_ms));
--		if (ret) {
-+		if (!ret) {
- 			ret = -EIO;
- 			dev_info(dev, "Failed to reset MHI due to syserr state\n");
- 			goto error_bhi_offset;
+--- a/drivers/bus/mhi/core/init.c
++++ b/drivers/bus/mhi/core/init.c
+@@ -547,6 +547,7 @@ void mhi_deinit_chan_ctxt(struct mhi_con
+ 	struct mhi_ring *buf_ring;
+ 	struct mhi_ring *tre_ring;
+ 	struct mhi_chan_ctxt *chan_ctxt;
++	u32 tmp;
+ 
+ 	buf_ring = &mhi_chan->buf_ring;
+ 	tre_ring = &mhi_chan->tre_ring;
+@@ -560,7 +561,19 @@ void mhi_deinit_chan_ctxt(struct mhi_con
+ 	vfree(buf_ring->base);
+ 
+ 	buf_ring->base = tre_ring->base = NULL;
++	tre_ring->ctxt_wp = NULL;
+ 	chan_ctxt->rbase = 0;
++	chan_ctxt->rlen = 0;
++	chan_ctxt->rp = 0;
++	chan_ctxt->wp = 0;
++
++	tmp = chan_ctxt->chcfg;
++	tmp &= ~CHAN_CTX_CHSTATE_MASK;
++	tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
++	chan_ctxt->chcfg = tmp;
++
++	/* Update to all cores */
++	smp_wmb();
+ }
+ 
+ int mhi_init_chan_ctxt(struct mhi_controller *mhi_cntrl,
 
 
