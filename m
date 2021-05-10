@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17429378571
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7584D378577
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235203AbhEJLA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53006 "EHLO mail.kernel.org"
+        id S235239AbhEJLAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234219AbhEJK4E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D16316146E;
-        Mon, 10 May 2021 10:44:43 +0000 (UTC)
+        id S234232AbhEJK4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 496D761574;
+        Mon, 10 May 2021 10:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643484;
-        bh=EjTHARZUOvtQqgDKUnAcNNGV5PbgFHJBUkMh9j2gy9Y=;
+        s=korg; t=1620643486;
+        bh=/z5dTUJjzmVUsgl8hevEc3fL8woqrdFfRIFbIj23xeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ReRMRuxb2Pzo8iRzGglpT0cyEi6/JA2h5Szfx17hP7769u1IOk1e4Hq3KWO1ivgf3
-         hgNjWsyR5bAXpcyn05uGPjkqCbdcvAcmGc80A3nrI0Ccmp/0VStKzNlDOLuBW/c0pz
-         ubHtiLvq9ng2TcCTGGxwzpqXv0QIsPKWB5qCfkJg=
+        b=fkr3Sdm3fyCxKRAn1w9+4BPoRbpmwJJOmXy2OX6P6G6jJd3Lu4+tWHSWl+C0rUlFB
+         46oEdBC2bheKFYz8vbd2RbFYQ1h8F45+ZM++51gNRpvBDTe9AW2351f6wB6O5jB/Yh
+         QSKgeSaBhgfCx9TA2AnARGMxYcSD+qqe0Qm3YhVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
+        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.11 034/342] scsi: lpfc: Fix rmmod crash due to bad ring pointers to abort_iotag
-Date:   Mon, 10 May 2021 12:17:04 +0200
-Message-Id: <20210510102011.227174361@linuxfoundation.org>
+Subject: [PATCH 5.11 035/342] scsi: qla2xxx: Fix crash in qla2xxx_mqueuecommand()
+Date:   Mon, 10 May 2021 12:17:05 +0200
+Message-Id: <20210510102011.258028893@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -40,156 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 078c68b87a717b9fcd8e0f2109f73456fbc55490 upstream.
+commit 6641df81ab799f28a5d564f860233dd26cca0d93 upstream.
 
-Rmmod on SLI-4 adapters is sometimes hitting a bad ptr dereference in
-lpfc_els_free_iocb().
+    RIP: 0010:kmem_cache_free+0xfa/0x1b0
+    Call Trace:
+       qla2xxx_mqueuecommand+0x2b5/0x2c0 [qla2xxx]
+       scsi_queue_rq+0x5e2/0xa40
+       __blk_mq_try_issue_directly+0x128/0x1d0
+       blk_mq_request_issue_directly+0x4e/0xb0
 
-A prior patch refactored the lpfc_sli_abort_iocb() routine. One of the
-changes was to convert from building/sending an abort within the routine to
-using a common routine. The reworked routine passes, without modification,
-the pring ptr to the new common routine. The older routine had logic to
-check SLI-3 vs SLI-4 and adapt the pring ptr if necessary as callers were
-passing SLI-3 pointers even when not on an SLI-4 adapter. The new routine
-is missing this check and adapt, so the SLI-3 ring pointers are being used
-in SLI-4 paths.
+Fix incorrect call to free srb in qla2xxx_mqueuecommand(), as srb is now
+allocated by upper layers. This fixes smatch warning of srb unintended
+free.
 
-Fix by cleaning up the calling routines. In review, there is no need to
-pass the ring ptr argument to abort_iocb at all. The routine can look at
-the adapter type itself and reference the proper ring.
-
-Link: https://lore.kernel.org/r/20210412013127.2387-2-jsmart2021@gmail.com
-Fixes: db7531d2b377 ("scsi: lpfc: Convert abort handling to SLI-3 and SLI-4 handlers")
-Cc: <stable@vger.kernel.org> # v5.11+
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Link: https://lore.kernel.org/r/20210329085229.4367-7-njavali@marvell.com
+Fixes: af2a0c51b120 ("scsi: qla2xxx: Fix SRB leak on switch command timeout")
+Cc: stable@vger.kernel.org # 5.5
+Reported-by: Laurence Oberman <loberman@redhat.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_crtn.h      |    4 ++--
- drivers/scsi/lpfc/lpfc_hbadisc.c   |   10 +++-------
- drivers/scsi/lpfc/lpfc_nportdisc.c |    4 +---
- drivers/scsi/lpfc/lpfc_sli.c       |   20 +++++++++++++++-----
- 4 files changed, 21 insertions(+), 17 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc_crtn.h
-+++ b/drivers/scsi/lpfc/lpfc_crtn.h
-@@ -352,8 +352,8 @@ int lpfc_sli_hbq_size(void);
- int lpfc_sli_issue_abort_iotag(struct lpfc_hba *, struct lpfc_sli_ring *,
- 			       struct lpfc_iocbq *, void *);
- int lpfc_sli_sum_iocb(struct lpfc_vport *, uint16_t, uint64_t, lpfc_ctx_cmd);
--int lpfc_sli_abort_iocb(struct lpfc_vport *, struct lpfc_sli_ring *, uint16_t,
--			uint64_t, lpfc_ctx_cmd);
-+int lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
-+			lpfc_ctx_cmd abort_cmd);
- int
- lpfc_sli_abort_taskmgmt(struct lpfc_vport *, struct lpfc_sli_ring *,
- 			uint16_t, uint64_t, lpfc_ctx_cmd);
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -130,11 +130,8 @@ lpfc_terminate_rport_io(struct fc_rport
- 			      "rport terminate: sid:x%x did:x%x flg:x%x",
- 			      ndlp->nlp_sid, ndlp->nlp_DID, ndlp->nlp_flag);
- 
--	if (ndlp->nlp_sid != NLP_NO_SID) {
--		lpfc_sli_abort_iocb(vport,
--				    &vport->phba->sli.sli3_ring[LPFC_FCP_RING],
--				    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
--	}
-+	if (ndlp->nlp_sid != NLP_NO_SID)
-+		lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
- }
- 
- /*
-@@ -289,8 +286,7 @@ lpfc_dev_loss_tmo_handler(struct lpfc_no
- 
- 	if (ndlp->nlp_sid != NLP_NO_SID) {
- 		warn_on = 1;
--		lpfc_sli_abort_iocb(vport, &phba->sli.sli3_ring[LPFC_FCP_RING],
--				    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
-+		lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -1008,8 +1008,6 @@ qla2xxx_mqueuecommand(struct Scsi_Host *
+ 	if (rval != QLA_SUCCESS) {
+ 		ql_dbg(ql_dbg_io + ql_dbg_verbose, vha, 0x3078,
+ 		    "Start scsi failed rval=%d for cmd=%p.\n", rval, cmd);
+-		if (rval == QLA_INTERFACE_ERROR)
+-			goto qc24_free_sp_fail_command;
+ 		goto qc24_host_busy_free_sp;
  	}
  
- 	if (warn_on) {
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -2614,12 +2614,10 @@ static uint32_t
- lpfc_rcv_prlo_mapped_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 			  void *arg, uint32_t evt)
- {
--	struct lpfc_hba  *phba = vport->phba;
- 	struct lpfc_iocbq *cmdiocb = (struct lpfc_iocbq *) arg;
+@@ -1021,11 +1019,6 @@ qc24_host_busy_free_sp:
+ qc24_target_busy:
+ 	return SCSI_MLQUEUE_TARGET_BUSY;
  
- 	/* flush the target */
--	lpfc_sli_abort_iocb(vport, &phba->sli.sli3_ring[LPFC_FCP_RING],
--			    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
-+	lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+-qc24_free_sp_fail_command:
+-	sp->free(sp);
+-	CMD_SP(cmd) = NULL;
+-	qla2xxx_rel_qpair_sp(sp->qpair, sp);
+-
+ qc24_fail_command:
+ 	cmd->scsi_done(cmd);
  
- 	/* Treat like rcv logo */
- 	lpfc_rcv_logo(vport, ndlp, cmdiocb, ELS_CMD_PRLO);
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -11639,7 +11639,7 @@ lpfc_sli_issue_abort_iotag(struct lpfc_h
- 	icmd = &cmdiocb->iocb;
- 	if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
- 	    icmd->ulpCommand == CMD_CLOSE_XRI_CN ||
--	    (cmdiocb->iocb_flag & LPFC_DRIVER_ABORTED) != 0)
-+	    cmdiocb->iocb_flag & LPFC_DRIVER_ABORTED)
- 		return IOCB_ABORTING;
- 
- 	if (!pring) {
-@@ -11937,7 +11937,6 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba
- /**
-  * lpfc_sli_abort_iocb - issue abort for all commands on a host/target/LUN
-  * @vport: Pointer to virtual port.
-- * @pring: Pointer to driver SLI ring object.
-  * @tgt_id: SCSI ID of the target.
-  * @lun_id: LUN ID of the scsi device.
-  * @abort_cmd: LPFC_CTX_LUN/LPFC_CTX_TGT/LPFC_CTX_HOST.
-@@ -11952,18 +11951,22 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba
-  * FCP iocbs associated with SCSI target specified by tgt_id parameter.
-  * When abort_cmd == LPFC_CTX_HOST, the function sends abort to all
-  * FCP iocbs associated with virtual port.
-+ * The pring used for SLI3 is sli3_ring[LPFC_FCP_RING], for SLI4
-+ * lpfc_sli4_calc_ring is used.
-  * This function returns number of iocbs it failed to abort.
-  * This function is called with no locks held.
-  **/
- int
--lpfc_sli_abort_iocb(struct lpfc_vport *vport, struct lpfc_sli_ring *pring,
--		    uint16_t tgt_id, uint64_t lun_id, lpfc_ctx_cmd abort_cmd)
-+lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
-+		    lpfc_ctx_cmd abort_cmd)
- {
- 	struct lpfc_hba *phba = vport->phba;
-+	struct lpfc_sli_ring *pring = NULL;
- 	struct lpfc_iocbq *iocbq;
- 	int errcnt = 0, ret_val = 0;
- 	unsigned long iflags;
- 	int i;
-+	void *fcp_cmpl = NULL;
- 
- 	/* all I/Os are in process of being flushed */
- 	if (phba->hba_flag & HBA_IOQ_FLUSH)
-@@ -11977,8 +11980,15 @@ lpfc_sli_abort_iocb(struct lpfc_vport *v
- 			continue;
- 
- 		spin_lock_irqsave(&phba->hbalock, iflags);
-+		if (phba->sli_rev == LPFC_SLI_REV3) {
-+			pring = &phba->sli.sli3_ring[LPFC_FCP_RING];
-+			fcp_cmpl = lpfc_sli_abort_fcp_cmpl;
-+		} else if (phba->sli_rev == LPFC_SLI_REV4) {
-+			pring = lpfc_sli4_calc_ring(phba, iocbq);
-+			fcp_cmpl = lpfc_sli4_abort_fcp_cmpl;
-+		}
- 		ret_val = lpfc_sli_issue_abort_iotag(phba, pring, iocbq,
--						     lpfc_sli_abort_fcp_cmpl);
-+						     fcp_cmpl);
- 		spin_unlock_irqrestore(&phba->hbalock, iflags);
- 		if (ret_val != IOCB_SUCCESS)
- 			errcnt++;
 
 
