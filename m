@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1BFC3787E6
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 563A0378908
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235579AbhEJLTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:19:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
+        id S236996AbhEJLZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235611AbhEJLFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4284961363;
-        Mon, 10 May 2021 10:55:36 +0000 (UTC)
+        id S237585AbhEJLPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:15:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2CDA61433;
+        Mon, 10 May 2021 11:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644136;
-        bh=Z0wYcN899ocdNzLotbRtqJ4W0IGmBtUATHKOr3zkWxg=;
+        s=korg; t=1620645070;
+        bh=kRO3lm8l9UCNAyh5e5A8RGipnDr50spmKgfSNMrzpDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YnURsUa/INweoSyZDtswqVsiPRliA7yz38QPiNyNYmkC80qH4WrNnGCHPITx+HJra
-         SQph/u+5c4sR2QYLeSRt7g2nRdqFGFVNoEqQ61bhIl7S268PsTH1Xjqmse+SscKrKA
-         A5oZzFNmEF4vqw9mLmgi+4wZnmy/T7+w6h+V0qig=
+        b=rmvli9filArYtPSyo98VVltvs+g57y15hHyQD9lPp5jXQBYFDjG/DFZ1oRuTgkQ8S
+         UOU7Y9Vwaq3WLVBI8dV0kBfv9MsVsMUd37Q9Nz25RiWA/EktJrTtGZ2b1AHgQ8Tm6q
+         +g4wGB1xkfOzHhAcQ1RX4Cc8kzEbmCbTVYaXde+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        syzbot+30774a6acf6a2cf6d535@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.11 303/342] ext4: annotate data race in start_this_handle()
+        stable@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        "Gonglei (Arei)" <arei.gonglei@huawei.com>,
+        "Longpeng(Mike)" <longpeng2@huawei.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.12 304/384] iommu/vt-d: Force to flush iotlb before creating superpage
 Date:   Mon, 10 May 2021 12:21:33 +0200
-Message-Id: <20210510102020.115773414@linuxfoundation.org>
+Message-Id: <20210510102024.825156161@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +46,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Longpeng(Mike) <longpeng2@huawei.com>
 
-commit 3b1833e92baba135923af4a07e73fe6e54be5a2f upstream.
+commit 38c527aeb41926c71902dd42f788a8b093b21416 upstream.
 
-Access to journal->j_running_transaction is not protected by appropriate
-lock and thus is racy. We are well aware of that and the code handles
-the race properly. Just add a comment and data_race() annotation.
+The translation caches may preserve obsolete data when the
+mapping size is changed, suppose the following sequence which
+can reveal the problem with high probability.
 
-Cc: stable@kernel.org
-Reported-by: syzbot+30774a6acf6a2cf6d535@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210406161804.20150-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+1.mmap(4GB,MAP_HUGETLB)
+2.
+  while (1) {
+   (a)    DMA MAP   0,0xa0000
+   (b)    DMA UNMAP 0,0xa0000
+   (c)    DMA MAP   0,0xc0000000
+             * DMA read IOVA 0 may failure here (Not present)
+             * if the problem occurs.
+   (d)    DMA UNMAP 0,0xc0000000
+  }
+
+The page table(only focus on IOVA 0) after (a) is:
+ PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
+  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
+   PDE: 0x1a30a72003  entry:0xffff89b39cacb000
+    PTE: 0x21d200803  entry:0xffff89b3b0a72000
+
+The page table after (b) is:
+ PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
+  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
+   PDE: 0x1a30a72003  entry:0xffff89b39cacb000
+    PTE: 0x0          entry:0xffff89b3b0a72000
+
+The page table after (c) is:
+ PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
+  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
+   PDE: 0x21d200883   entry:0xffff89b39cacb000 (*)
+
+Because the PDE entry after (b) is present, it won't be
+flushed even if the iommu driver flush cache when unmap,
+so the obsolete data may be preserved in cache, which
+would cause the wrong translation at end.
+
+However, we can see the PDE entry is finally switch to
+2M-superpage mapping, but it does not transform
+to 0x21d200883 directly:
+
+1. PDE: 0x1a30a72003
+2. __domain_mapping
+     dma_pte_free_pagetable
+       Set the PDE entry to ZERO
+     Set the PDE entry to 0x21d200883
+
+So we must flush the cache after the entry switch to ZERO
+to avoid the obsolete info be preserved.
+
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Kevin Tian <kevin.tian@intel.com>
+Cc: Gonglei (Arei) <arei.gonglei@huawei.com>
+
+Fixes: 6491d4d02893 ("intel-iommu: Free old page tables before creating superpage")
+Cc: <stable@vger.kernel.org> # v3.0+
+Link: https://lore.kernel.org/linux-iommu/670baaf8-4ff8-4e84-4be3-030b95ab5a5e@huawei.com/
+Suggested-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20210415004628.1779-1-longpeng2@huawei.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jbd2/transaction.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/iommu/intel/iommu.c |   52 ++++++++++++++++++++++++++++++++------------
+ 1 file changed, 38 insertions(+), 14 deletions(-)
 
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -349,7 +349,12 @@ static int start_this_handle(journal_t *
- 	}
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -2289,6 +2289,41 @@ static inline int hardware_largepage_cap
+ 	return level;
+ }
  
- alloc_transaction:
--	if (!journal->j_running_transaction) {
-+	/*
-+	 * This check is racy but it is just an optimization of allocating new
-+	 * transaction early if there are high chances we'll need it. If we
-+	 * guess wrong, we'll retry or free unused transaction.
-+	 */
-+	if (!data_race(journal->j_running_transaction)) {
- 		/*
- 		 * If __GFP_FS is not present, then we may be being called from
- 		 * inside the fs writeback layer, so we MUST NOT fail.
++/*
++ * Ensure that old small page tables are removed to make room for superpage(s).
++ * We're going to add new large pages, so make sure we don't remove their parent
++ * tables. The IOTLB/devTLBs should be flushed if any PDE/PTEs are cleared.
++ */
++static void switch_to_super_page(struct dmar_domain *domain,
++				 unsigned long start_pfn,
++				 unsigned long end_pfn, int level)
++{
++	unsigned long lvl_pages = lvl_to_nr_pages(level);
++	struct dma_pte *pte = NULL;
++	int i;
++
++	while (start_pfn <= end_pfn) {
++		if (!pte)
++			pte = pfn_to_dma_pte(domain, start_pfn, &level);
++
++		if (dma_pte_present(pte)) {
++			dma_pte_free_pagetable(domain, start_pfn,
++					       start_pfn + lvl_pages - 1,
++					       level + 1);
++
++			for_each_domain_iommu(i, domain)
++				iommu_flush_iotlb_psi(g_iommus[i], domain,
++						      start_pfn, lvl_pages,
++						      0, 0);
++		}
++
++		pte++;
++		start_pfn += lvl_pages;
++		if (first_pte_in_page(pte))
++			pte = NULL;
++	}
++}
++
+ static int
+ __domain_mapping(struct dmar_domain *domain, unsigned long iov_pfn,
+ 		 unsigned long phys_pfn, unsigned long nr_pages, int prot)
+@@ -2329,22 +2364,11 @@ __domain_mapping(struct dmar_domain *dom
+ 				return -ENOMEM;
+ 			/* It is large page*/
+ 			if (largepage_lvl > 1) {
+-				unsigned long nr_superpages, end_pfn;
++				unsigned long end_pfn;
+ 
+ 				pteval |= DMA_PTE_LARGE_PAGE;
+-				lvl_pages = lvl_to_nr_pages(largepage_lvl);
+-
+-				nr_superpages = nr_pages / lvl_pages;
+-				end_pfn = iov_pfn + nr_superpages * lvl_pages - 1;
+-
+-				/*
+-				 * Ensure that old small page tables are
+-				 * removed to make room for superpage(s).
+-				 * We're adding new large pages, so make sure
+-				 * we don't remove their parent tables.
+-				 */
+-				dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
+-						       largepage_lvl + 1);
++				end_pfn = ((iov_pfn + nr_pages) & level_mask(largepage_lvl)) - 1;
++				switch_to_super_page(domain, iov_pfn, end_pfn, largepage_lvl);
+ 			} else {
+ 				pteval &= ~(uint64_t)DMA_PTE_LARGE_PAGE;
+ 			}
 
 
