@@ -2,111 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAD7E3779A1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 03:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5FB13779A5
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 03:12:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230114AbhEJBMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 May 2021 21:12:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:34484 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229941AbhEJBMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 May 2021 21:12:03 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 8656EAE63;
-        Mon, 10 May 2021 01:10:58 +0000 (UTC)
+        id S230073AbhEJBNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 May 2021 21:13:31 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:2606 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230096AbhEJBNb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 May 2021 21:13:31 -0400
+Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4Fdjdz0tPBzlcpf;
+        Mon, 10 May 2021 09:10:15 +0800 (CST)
+Received: from [10.67.77.175] (10.67.77.175) by DGGEMS413-HUB.china.huawei.com
+ (10.3.19.213) with Microsoft SMTP Server id 14.3.498.0; Mon, 10 May 2021
+ 09:12:22 +0800
+Subject: Re: [PATCH] Revert "irqbypass: do not start cons/prod when failed
+ connect"
+To:     Marc Zyngier <maz@kernel.org>,
+        Zhu Lingshan <lingshan.zhu@intel.com>
+CC:     <jasowang@redhat.com>, <mst@redhat.com>,
+        <alex.williamson@redhat.com>, <kvm@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <kvmarm@lists.cs.columbia.edu>, <cohuck@redhat.com>,
+        <stable@vger.kernel.org>
+References: <20210508071152.722425-1-lingshan.zhu@intel.com>
+ <8735uxvajh.wl-maz@kernel.org>
+From:   Shaokun Zhang <zhangshaokun@hisilicon.com>
+Message-ID: <cfb68374-a7bf-1eb4-86cf-77c57f7fe9e5@hisilicon.com>
+Date:   Mon, 10 May 2021 09:12:22 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Date:   Sun, 09 May 2021 18:10:57 -0700
-From:   Davidlohr Bueso <dbueso@suse.de>
-To:     Manfred Spraul <manfred@colorfullife.com>
-Cc:     Varad Gautam <varad.gautam@suse.com>, linux-kernel@vger.kernel.org,
-        Matthias von Faber <matthias.vonfaber@aox-tech.de>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Serge Hallyn <serge@hallyn.com>
-Subject: Re: [PATCH v3] ipc/mqueue: Avoid relying on a stack reference past
- its expiry
-In-Reply-To: <71c74711-75d6-494e-6ff7-2be49b274477@colorfullife.com>
-References: <20210507133805.11678-1-varad.gautam@suse.com>
- <71c74711-75d6-494e-6ff7-2be49b274477@colorfullife.com>
-User-Agent: Roundcube Webmail
-Message-ID: <6d36d89bc8f299a76efe8fce9c07e7b5@suse.de>
-X-Sender: dbueso@suse.de
-Organization: SUSE Labs
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+In-Reply-To: <8735uxvajh.wl-maz@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.77.175]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-05-08 12:23, Manfred Spraul wrote:
-> Hi Varad,
+Hi Marc,
+
+On 2021/5/8 17:29, Marc Zyngier wrote:
+> On Sat, 08 May 2021 08:11:52 +0100,
+> Zhu Lingshan <lingshan.zhu@intel.com> wrote:
+>>
+>> This reverts commit a979a6aa009f3c99689432e0cdb5402a4463fb88.
+>>
+>> The reverted commit may cause VM freeze on arm64 platform.
+>> Because on arm64 platform, stop a consumer will suspend the VM,
+>> the VM will freeze without a start consumer
 > 
-> On 5/7/21 3:38 PM, Varad Gautam wrote:
->> @@ -1005,11 +1022,9 @@ static inline void __pipelined_op(struct 
->> wake_q_head *wake_q,
->>   				  struct ext_wait_queue *this)
->>   {
->>   	list_del(&this->list);
->> -	get_task_struct(this->task);
->> -
->> +	wake_q_add(wake_q, this->task);
->>   	/* see MQ_BARRIER for purpose/pairing */
->>   	smp_store_release(&this->state, STATE_READY);
->> -	wake_q_add_safe(wake_q, this->task);
->>   }
->>     /* pipelined_send() - send a message directly to the task waiting 
->> in
+> It also unconditionally calls del_consumer on the producer, which
+> isn't exactly expected.
 > 
-> First, I was too fast: I had assumed that wake_q_add() before
-> smp_store_release() would be a potential lost wakeup.
-
-Yeah you need wake_up_q() to actually wake anything up.
-
+>>
+>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 > 
-> As __pipelined_op() is called within spin_lock(&info->lock), and as
-> wq_sleep() will reread this->state after acquiring
-> spin_lock(&info->lock), I do not see a bug anymore.
+> Reported-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
 
-Right, and when I proposed this version of the fix I was mostly focusing 
-on STATE_READY
-being set as the last operation, but the fact of the matter is we had 
-moved to the
-wake_q_add_safe() version for two reasons:
+Thanks for the tag, it works with this patch, So:
+Tested-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
 
-(1) Ensuring the ->state = STATE_READY is done after the reference count 
-and avoid
-racing with exit. In mqueue's original use of wake_q we were relying on 
-the call's
-implied barrier from wake_q_add() in order to avoid reordering of 
-setting the state.
-But this turned out to be insufficient hence the explicit 
-smp_store_release().
+I shall invite you to have a drink for the quick debug.
+Anyway, thank you again.
 
-(2) In order to prevent a potential lost wakeup when the blocked task is 
-already queued
-for wakeup by another task (the failed cmpxchg case in wake_q_add), and 
-therefore we need
-to set the return condition (->state = STATE_READY) before adding the 
-task to the wake_q.
+Shaokun
 
-But I'm not seeing how race (2) can happen in mqueue. The race was 
-always theoretical to
-begin with, with the exception of rwsems[1] in which actually the wakee 
-task could end up in
-the waker's wake_q without actually blocking.
-
-So all in all I now agree that we should keep the order of how we 
-currently have things,
-just to be on the safer side, if nothing else.
-
-[1] 
-https://lore.kernel.org/lkml/1543495830-2644-1-git-send-email-xieyongji@baidu.com
-
-Thanks,
-Davidlohr
+> Suggested-by: Marc Zyngier <maz@kernel.org>
+> Acked-by: Marc Zyngier <maz@kernel.org>
+> Fixes: a979a6aa009f ("irqbypass: do not start cons/prod when failed connect")
+> Link: https://lore.kernel.org/r/3a2c66d6-6ca0-8478-d24b-61e8e3241b20@hisilicon.com
+> Cc: stable@vger.kernel.org
+> 
+> Thanks,
+> 
+> 	M.
+> 
