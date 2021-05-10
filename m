@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A9337872B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9310637873C
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233825AbhEJLOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:14:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45870 "EHLO mail.kernel.org"
+        id S237352AbhEJLOr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:14:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236118AbhEJLHi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 165B66192F;
-        Mon, 10 May 2021 10:58:27 +0000 (UTC)
+        id S236157AbhEJLHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC3FF61934;
+        Mon, 10 May 2021 10:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644308;
-        bh=+hon7tRePnHNKSbakAjM6yRj1+EL6QAEwD/NoxkqwHg=;
+        s=korg; t=1620644313;
+        bh=IRG8d4vowIAaGqZfnkozIZe9SalBzyrS24k59EHczvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z3Po00jlh83bcfnpZuGeEQ4nCYwhJs4xBcjDk3crKH043j3GRvk4xZB5sgtEqqp0r
-         n9719eCW6Vh/sj91AvTlNjv56fGBmZjvj4YNmKqzCpuLOI/VUv8T2sk6s56xGnPr2c
-         iJMPd0vHCQC4fEtchy6ekqN2o8X2OwEdazuRWlTo=
+        b=SFQp+v+DjT3QLjOz+nIoSu0ovXuUR1b3rEa1iHfqh5KXK5ZIiqRMGLF7HfdhmOaW+
+         uUFuZ8lFiSnLxCQ5knnmRRI4nJaDJ7htcZPfkltb4CIMDL6dBuMghtVCesL2aRBdwB
+         4k5weiusxQA8VFVF9JbP7BCW3qeB4Luc0jrLX9C8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.12 029/384] mtd: physmap: physmap-bt1-rom: Fix unintentional stack access
-Date:   Mon, 10 May 2021 12:16:58 +0200
-Message-Id: <20210510102015.826123394@linuxfoundation.org>
+        stable@vger.kernel.org, Gao Xiang <hsiangkao@redhat.com>
+Subject: [PATCH 5.12 030/384] erofs: add unsupported inode i_format check
+Date:   Mon, 10 May 2021 12:16:59 +0200
+Message-Id: <20210510102015.856471910@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,39 +38,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-commit 683313993dbe1651c7aa00bb42a041d70e914925 upstream.
+commit 24a806d849c0b0c1d0cd6a6b93ba4ae4c0ec9f08 upstream.
 
-Cast &data to (char *) in order to avoid unintentionally accessing
-the stack.
+If any unknown i_format fields are set (may be of some new incompat
+inode features), mark such inode as unsupported.
 
-Notice that data is of type u32, so any increment to &data
-will be in the order of 4-byte chunks, and this piece of code
-is actually intended to be a byte offset.
+Just in case of any new incompat i_format fields added in the future.
 
-Fixes: b3e79e7682e0 ("mtd: physmap: Add Baikal-T1 physically mapped ROM support")
-Addresses-Coverity-ID: 1497765 ("Out-of-bounds access")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Acked-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210212104022.GA242669@embeddedor
+Link: https://lore.kernel.org/r/20210329003614.6583-1-hsiangkao@aol.com
+Fixes: 431339ba9042 ("staging: erofs: add inode operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/maps/physmap-bt1-rom.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/erofs/erofs_fs.h |    3 +++
+ fs/erofs/inode.c    |    7 +++++++
+ 2 files changed, 10 insertions(+)
 
---- a/drivers/mtd/maps/physmap-bt1-rom.c
-+++ b/drivers/mtd/maps/physmap-bt1-rom.c
-@@ -79,7 +79,7 @@ static void __xipram bt1_rom_map_copy_fr
- 	if (shift) {
- 		chunk = min_t(ssize_t, 4 - shift, len);
- 		data = readl_relaxed(src - shift);
--		memcpy(to, &data + shift, chunk);
-+		memcpy(to, (char *)&data + shift, chunk);
- 		src += chunk;
- 		to += chunk;
- 		len -= chunk;
+--- a/fs/erofs/erofs_fs.h
++++ b/fs/erofs/erofs_fs.h
+@@ -75,6 +75,9 @@ static inline bool erofs_inode_is_data_c
+ #define EROFS_I_VERSION_BIT             0
+ #define EROFS_I_DATALAYOUT_BIT          1
+ 
++#define EROFS_I_ALL	\
++	((1 << (EROFS_I_DATALAYOUT_BIT + EROFS_I_DATALAYOUT_BITS)) - 1)
++
+ /* 32-byte reduced form of an ondisk inode */
+ struct erofs_inode_compact {
+ 	__le16 i_format;	/* inode format hints */
+--- a/fs/erofs/inode.c
++++ b/fs/erofs/inode.c
+@@ -44,6 +44,13 @@ static struct page *erofs_read_inode(str
+ 	dic = page_address(page) + *ofs;
+ 	ifmt = le16_to_cpu(dic->i_format);
+ 
++	if (ifmt & ~EROFS_I_ALL) {
++		erofs_err(inode->i_sb, "unsupported i_format %u of nid %llu",
++			  ifmt, vi->nid);
++		err = -EOPNOTSUPP;
++		goto err_out;
++	}
++
+ 	vi->datalayout = erofs_inode_datalayout(ifmt);
+ 	if (vi->datalayout >= EROFS_INODE_DATALAYOUT_MAX) {
+ 		erofs_err(inode->i_sb, "unsupported datalayout %u of nid %llu",
 
 
