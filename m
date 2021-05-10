@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 033C83781AF
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A8D3781AD
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231732AbhEJK2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:28:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60542 "EHLO mail.kernel.org"
+        id S231605AbhEJK2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:28:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231504AbhEJK1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231634AbhEJK1q (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:27:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE7DB61466;
-        Mon, 10 May 2021 10:26:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ECFC61482;
+        Mon, 10 May 2021 10:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642386;
-        bh=9D/Q0VxAMiYdeIcFr/NNyxXHgJsYy4ABWVkzL6zh4CI=;
+        s=korg; t=1620642388;
+        bh=gN9GJmqlsrU4t32+jfOOugZd3Z8iZ5ZBvoL4PeSYVpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zlv6N2QgYBj9XB2HNVUArnz74s/ntSLXb7zN022Yf/UIrTEvHkpROzyfsOhE1G1u9
-         94SeydxU2ys7tMxtv92Rl8Gi2q15eDp7cUiPDkqyVSU2UhGpiut+8LkqJ2V/AFs2HN
-         p1ZBrOhd/hNKr9F0eO4TUGFyEo6e+ZtWa78QhQrs=
+        b=V7GrXFL7BrKcr1vGqQRUCi34JAwjrcI0Vdlk67PLviMoxjkQo+gLW8qB0v79iGo1L
+         /fZ2y5TDRHWe8a8iN3Ji4su+3Fb19ohBTyUbmXhqTkU+4opC1Ek4Jis0QziOM5jhQX
+         f5lAyfmF2eAgMsmfFQ0ymO8GNdUObb1MEHF2otuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eryk Brol <eryk.brol@amd.com>,
+        stable@vger.kernel.org, Aric Cyr <aric.cyr@amd.com>,
         Bindu Ramamurthy <bindu.r@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/184] drm/amd/display: Check for DSC support instead of ASIC revision
-Date:   Mon, 10 May 2021 12:19:27 +0200
-Message-Id: <20210510101952.583144113@linuxfoundation.org>
+Subject: [PATCH 5.4 074/184] drm/amd/display: Dont optimize bandwidth before disabling planes
+Date:   Mon, 10 May 2021 12:19:28 +0200
+Message-Id: <20210510101952.614548942@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -42,42 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Brol <eryk.brol@amd.com>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit 349a19b2f1b01e713268c7de9944ad669ccdf369 ]
+[ Upstream commit 6ad98e8aeb0106f453bb154933e8355849244990 ]
 
-[why]
-This check for ASIC revision is no longer useful and causes
-lightup issues after a topology change in MST DSC scenario.
-In this case, DSC configs should be recalculated for the new
-topology. This check prevented that from happening on certain
-ASICs that do, in fact, support DSC.
+[Why]
+There is a window of time where we optimize bandwidth due to no streams
+enabled will enable PSTATE changing but HUBPs are not disabled yet.
+This results in underflow counter increasing in some hotplug scenarios.
 
-[how]
-Change the ASIC revision to instead check if DSC is supported.
+[How]
+Set the optimize-bandwidth flag for later processing once all the HUBPs
+are properly disabled.
 
-Signed-off-by: Eryk Brol <eryk.brol@amd.com>
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
 Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index fbbe611d4873..2626aacf492f 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -7330,7 +7330,7 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
- 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 68d56a91d44b..092db590087c 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -1961,7 +1961,8 @@ static void commit_planes_do_stream_update(struct dc *dc,
+ 					if (pipe_ctx->stream_res.audio && !dc->debug.az_endpoint_mute_only)
+ 						pipe_ctx->stream_res.audio->funcs->az_disable(pipe_ctx->stream_res.audio);
  
- #if defined(CONFIG_DRM_AMD_DC_DCN)
--	if (adev->asic_type >= CHIP_NAVI10) {
-+	if (dc_resource_is_dsc_encoding_supported(dc)) {
- 		for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
- 			if (drm_atomic_crtc_needs_modeset(new_crtc_state)) {
- 				ret = add_affected_mst_dsc_crtcs(state, crtc);
+-					dc->hwss.optimize_bandwidth(dc, dc->current_state);
++					dc->optimized_required = true;
++
+ 				} else {
+ 					if (!dc->optimize_seamless_boot)
+ 						dc->hwss.prepare_bandwidth(dc, dc->current_state);
 -- 
 2.30.2
 
