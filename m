@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517F837875B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC93E3787FC
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237475AbhEJLPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:15:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45870 "EHLO mail.kernel.org"
+        id S238851AbhEJLUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:20:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236317AbhEJLHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236324AbhEJLHv (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 07:07:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D9F861964;
-        Mon, 10 May 2021 10:59:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9CA061965;
+        Mon, 10 May 2021 10:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644390;
-        bh=oNEkuB1crDCj52S8PqF3My2ygtpN99A3+nwuI+eQwro=;
+        s=korg; t=1620644395;
+        bh=SdSFpBpRgPfkm5XJGFFr1af15UgE2cUoz/UoKCzuSdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FOuitlWvl+qViPQi6NXQjNuqTPTYIox08HbUncBIKM8K1TOYEGlHs2Hab0qXdrZSi
-         SInW3TZp+Fh8RG+Dv02qGcFGTKylTwiIh41uvHphCP9Pda3Ez1PIE/yaGaYqMkKVOe
-         bfsCimNkaLI+GQsIp1IkwqxhY81BDuoe2mcrtrgw=
+        b=pAJE/ymx9X+NFSZUSZucQ42xs+SgvDaJAusUL2MhOjdn40QlOk6VEPSgo3/xuaS0a
+         cy1vkwb9dVqjgRV4WpTsu4v/TWdgZZPuO4iAlQwEWpjiN7QC5im94aTzfkeOjABh41
+         CWv+zPouwylv+1iJRotCPrUHMS2QVcWeCg4wf6zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.12 063/384] btrfs: zoned: fail mount if the device does not support zone append
-Date:   Mon, 10 May 2021 12:17:32 +0200
-Message-Id: <20210510102016.964787694@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Jun <chenjun102@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Richard Cochran <richardcochran@gmail.com>
+Subject: [PATCH 5.12 064/384] posix-timers: Preserve return value in clock_adjtime32()
+Date:   Mon, 10 May 2021 12:17:33 +0200
+Message-Id: <20210510102016.995934693@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,42 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-commit 1d68128c107a0b8c0c9125cb05d4771ddc438369 upstream.
+commit 2d036dfa5f10df9782f5278fc591d79d283c1fad upstream.
 
-For zoned btrfs, zone append is mandatory to write to a sequential write
-only zone, otherwise parallel writes to the same zone could result in
-unaligned write errors.
+The return value on success (>= 0) is overwritten by the return value of
+put_old_timex32(). That works correct in the fault case, but is wrong for
+the success case where put_old_timex32() returns 0.
 
-If a zoned block device does not support zone append (e.g. a dm-crypt
-zoned device using a non-NULL IV cypher), fail to mount.
+Just check the return value of put_old_timex32() and return -EFAULT in case
+it is not zero.
 
-CC: stable@vger.kernel.org # 5.12
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+[ tglx: Massage changelog ]
+
+Fixes: 3a4d44b61625 ("ntp: Move adjtimex related compat syscalls to native counterparts")
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Richard Cochran <richardcochran@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210414030449.90692-1-chenjun102@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/zoned.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/time/posix-timers.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -342,6 +342,13 @@ int btrfs_get_dev_zone_info(struct btrfs
- 	if (!IS_ALIGNED(nr_sectors, zone_sectors))
- 		zone_info->nr_zones++;
+--- a/kernel/time/posix-timers.c
++++ b/kernel/time/posix-timers.c
+@@ -1191,8 +1191,8 @@ SYSCALL_DEFINE2(clock_adjtime32, clockid
  
-+	if (bdev_is_zoned(bdev) && zone_info->max_zone_append_size == 0) {
-+		btrfs_err(fs_info, "zoned: device %pg does not support zone append",
-+			  bdev);
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
- 	zone_info->seq_zones = bitmap_zalloc(zone_info->nr_zones, GFP_KERNEL);
- 	if (!zone_info->seq_zones) {
- 		ret = -ENOMEM;
+ 	err = do_clock_adjtime(which_clock, &ktx);
+ 
+-	if (err >= 0)
+-		err = put_old_timex32(utp, &ktx);
++	if (err >= 0 && put_old_timex32(utp, &ktx))
++		return -EFAULT;
+ 
+ 	return err;
+ }
 
 
