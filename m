@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 784D73785D2
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB27C3785D0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233892AbhEJLCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:02:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52794 "EHLO mail.kernel.org"
+        id S233834AbhEJLB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:01:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234660AbhEJK4q (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234661AbhEJK4q (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:56:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE800619A1;
-        Mon, 10 May 2021 10:47:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17C49619A7;
+        Mon, 10 May 2021 10:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643669;
-        bh=ZSqH0HKaES/cRWmAqrfBEeb5+bXwFPujDyAIfNZi+lw=;
+        s=korg; t=1620643671;
+        bh=8OtG/F8cU+J7mfuCZ/3SGDj8rPkvLtAgPnVdD02rLjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uSnlXbp7avvkutv1crK7csYp+MkcdeygnO0lB6GwmTzB6Fl/mNmVsIj8BEIncfqB7
-         xhcDm4wuExJ6/fwZ/AFQ3grL9LrOkD30H5MRdFO/TXEfFWbHbI+5Su3zRqFM2MU7xN
-         8gjREhIv8mH1dCiO2oWDAGP1G3dVoGxPO0RaKrl4=
+        b=iqC5Kh04VyUF+JJYUWEIwFFKuYuofRjVXe9x70XZnWaTNZnqNklA2i8SrS+UW59cf
+         efb1+6asyICLJ6BTetHe0tXaMzJK1iwbgiTKKR/TZMeUTsrAceZWB76xg3Va9q74bZ
+         ylN4U5rWKacDORVK0E6ShnR9UVxY679YL/T4Zcd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 110/342] usb: gadget: tegra-xudc: Fix possible use-after-free in tegra_xudc_remove()
-Date:   Mon, 10 May 2021 12:18:20 +0200
-Message-Id: <20210510102013.726499174@linuxfoundation.org>
+Subject: [PATCH 5.11 111/342] usb: musb: fix PM reference leak in musb_irq_work()
+Date:   Mon, 10 May 2021 12:18:21 +0200
+Message-Id: <20210510102013.756476423@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -40,41 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit a932ee40c276767cd55fadec9e38829bf441db41 ]
+[ Upstream commit 9535b99533904e9bc1607575aa8e9539a55435d7 ]
 
-This driver's remove path calls cancel_delayed_work(). However, that
-function does not wait until the work function finishes. This means
-that the callback function may still be running after the driver's
-remove function has finished, which would result in a use-after-free.
-
-Fix by calling cancel_delayed_work_sync(), which ensures that
-the work is properly cancelled, no longer running, and unable
-to re-schedule itself.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+thus a pairing decrement is needed.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210407092947.3271507-1-yangyingliang@huawei.com
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Link: https://lore.kernel.org/r/20210408091836.55227-1-cuibixuan@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/tegra-xudc.c | 2 +-
+ drivers/usb/musb/musb_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/tegra-xudc.c b/drivers/usb/gadget/udc/tegra-xudc.c
-index 580bef8eb4cb..2319c9737c2b 100644
---- a/drivers/usb/gadget/udc/tegra-xudc.c
-+++ b/drivers/usb/gadget/udc/tegra-xudc.c
-@@ -3883,7 +3883,7 @@ static int tegra_xudc_remove(struct platform_device *pdev)
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index fc0457db62e1..8f09a387b773 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2070,7 +2070,7 @@ static void musb_irq_work(struct work_struct *data)
+ 	struct musb *musb = container_of(data, struct musb, irq_work.work);
+ 	int error;
  
- 	pm_runtime_get_sync(xudc->dev);
+-	error = pm_runtime_get_sync(musb->controller);
++	error = pm_runtime_resume_and_get(musb->controller);
+ 	if (error < 0) {
+ 		dev_err(musb->controller, "Could not enable: %i\n", error);
  
--	cancel_delayed_work(&xudc->plc_reset_work);
-+	cancel_delayed_work_sync(&xudc->plc_reset_work);
- 	cancel_work_sync(&xudc->usb_role_sw_work);
- 
- 	usb_del_gadget_udc(&xudc->gadget);
 -- 
 2.30.2
 
