@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C8E378518
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99BF637851A
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233055AbhEJK6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:58:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41486 "EHLO mail.kernel.org"
+        id S233101AbhEJK6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:58:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233051AbhEJKyZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:54:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CE7161933;
-        Mon, 10 May 2021 10:41:48 +0000 (UTC)
+        id S233072AbhEJKy0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:54:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CC5061966;
+        Mon, 10 May 2021 10:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643309;
-        bh=tr9yYa5f4GwkbODbc3zriXL7cBsTAh7UDLGF811eowE=;
+        s=korg; t=1620643312;
+        bh=PU5iZOcjK6E1Q14E4kwHGgYB1LJBMOyO6IAkkBaODDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEfXclDAqgkkl1szc7aZPF7tfyGGp288mZsjej14vyfJVtD1ZCPIi8IMtMGMHnwHY
-         /KGUV/bcWX4sCq63AVPn5qmCB8lidmiYsR4fEh+jPGupTuSIuS507F/m01yTVgdxCC
-         suCv28XOf4mtL3qVib6f3jcD1rpgnT89ClqzPC+M=
+        b=UCSg1i42ZgKQVsLOMWRCI3dEopYIR/K2cclaDJrHEftqYFlRxMj1vsm2B5cjaidOa
+         ErKHG9mIw9I/Wm0+PY3oAyquHxHk08TA29GgPwlwNmT0qdXvv3cRRJOn9oF2EM2Ci4
+         HnkBDQzcmyuEJZonAHV7OlgLOb+zySghvgpFEwgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 262/299] x86/cpu: Initialize MSR_TSC_AUX if RDTSCP *or* RDPID is supported
-Date:   Mon, 10 May 2021 12:20:59 +0200
-Message-Id: <20210510102013.604060138@linuxfoundation.org>
+        stable@vger.kernel.org, Elliot Berman <eberman@codeaurora.org>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.10 263/299] kbuild: update config_data.gz only when the content of .config is changed
+Date:   Mon, 10 May 2021 12:21:00 +0200
+Message-Id: <20210510102013.633312253@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -39,43 +39,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit b6b4fbd90b155a0025223df2c137af8a701d53b3 upstream.
+commit 46b41d5dd8019b264717978c39c43313a524d033 upstream.
 
-Initialize MSR_TSC_AUX with CPU node information if RDTSCP or RDPID is
-supported.  This fixes a bug where vdso_read_cpunode() will read garbage
-via RDPID if RDPID is supported but RDTSCP is not.  While no known CPU
-supports RDPID but not RDTSCP, both Intel's SDM and AMD's APM allow for
-RDPID to exist without RDTSCP, e.g. it's technically a legal CPU model
-for a virtual machine.
+If the timestamp of the .config file is updated, config_data.gz is
+regenerated, then vmlinux is re-linked. This occurs even if the content
+of the .config has not changed at all.
 
-Note, technically MSR_TSC_AUX could be initialized if and only if RDPID
-is supported since RDTSCP is currently not used to retrieve the CPU node.
-But, the cost of the superfluous WRMSR is negigible, whereas leaving
-MSR_TSC_AUX uninitialized is just asking for future breakage if someone
-decides to utilize RDTSCP.
+This issue was mitigated by commit 67424f61f813 ("kconfig: do not write
+.config if the content is the same"); Kconfig does not update the
+.config when it ends up with the identical configuration.
 
-Fixes: a582c540ac1b ("x86/vdso: Use RDPID in preference to LSL when available")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210504225632.1532621-2-seanjc@google.com
+The issue is remaining when the .config is created by *_defconfig with
+some config fragment(s) applied on top.
+
+This is typical for powerpc and mips, where several *_defconfig targets
+are constructed by using merge_config.sh.
+
+One workaround is to have the copy of the .config. The filechk rule
+updates the copy, kernel/config_data, by checking the content instead
+of the timestamp.
+
+With this commit, the second run with the same configuration avoids
+the needless rebuilds.
+
+  $ make ARCH=mips defconfig all
+   [ snip ]
+  $ make ARCH=mips defconfig all
+  *** Default configuration is based on target '32r2el_defconfig'
+  Using ./arch/mips/configs/generic_defconfig as base
+  Merging arch/mips/configs/generic/32r2.config
+  Merging arch/mips/configs/generic/el.config
+  Merging ./arch/mips/configs/generic/board-boston.config
+  Merging ./arch/mips/configs/generic/board-ni169445.config
+  Merging ./arch/mips/configs/generic/board-ocelot.config
+  Merging ./arch/mips/configs/generic/board-ranchu.config
+  Merging ./arch/mips/configs/generic/board-sead-3.config
+  Merging ./arch/mips/configs/generic/board-xilfpga.config
+  #
+  # configuration written to .config
+  #
+    SYNC    include/config/auto.conf
+    CALL    scripts/checksyscalls.sh
+    CALL    scripts/atomic/check-atomics.sh
+    CHK     include/generated/compile.h
+    CHK     include/generated/autoksyms.h
+
+Reported-by: Elliot Berman <eberman@codeaurora.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/common.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/.gitignore |    1 +
+ kernel/Makefile   |    9 +++++++--
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1847,7 +1847,7 @@ static inline void setup_getcpu(int cpu)
- 	unsigned long cpudata = vdso_encode_cpunode(cpu, early_cpu_to_node(cpu));
- 	struct desc_struct d = { };
+--- a/kernel/.gitignore
++++ b/kernel/.gitignore
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
++/config_data
+ kheaders.md5
+ timeconst.h
+ hz.bc
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -134,10 +134,15 @@ obj-$(CONFIG_SCF_TORTURE_TEST) += scftor
  
--	if (boot_cpu_has(X86_FEATURE_RDTSCP))
-+	if (boot_cpu_has(X86_FEATURE_RDTSCP) || boot_cpu_has(X86_FEATURE_RDPID))
- 		write_rdtscp_aux(cpudata);
+ $(obj)/configs.o: $(obj)/config_data.gz
  
- 	/* Store CPU and node number in limit. */
+-targets += config_data.gz
+-$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
++targets += config_data config_data.gz
++$(obj)/config_data.gz: $(obj)/config_data FORCE
+ 	$(call if_changed,gzip)
+ 
++filechk_cat = cat $<
++
++$(obj)/config_data: $(KCONFIG_CONFIG) FORCE
++	$(call filechk,cat)
++
+ $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
+ 
+ quiet_cmd_genikh = CHK     $(obj)/kheaders_data.tar.xz
 
 
