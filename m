@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6EBB378E75
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61E0B378E7A
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242626AbhEJN3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:29:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51230 "EHLO mail.kernel.org"
+        id S242647AbhEJN3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 09:29:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350763AbhEJNBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 09:01:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C3CA611BD;
-        Mon, 10 May 2021 13:00:14 +0000 (UTC)
+        id S235755AbhEJNDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 09:03:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E66FB611CE;
+        Mon, 10 May 2021 13:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620651615;
-        bh=royZP2niyaD07jbWOHD2jSH7U4+HKs7fh5uVumkSKHs=;
+        s=korg; t=1620651749;
+        bh=68ftXjk1rpWTPJnkIv4ifbUIN/9h2e5XbLVHG3Gdqpw=;
         h=Subject:To:From:Date:From;
-        b=M5NCe3GTOvyEIRjUUDE+iixxLFY1jUEn2mlp08SHwdEGsswc0jcGeZKs2VSopZsjO
-         W6dX3O7/vutFL+nImuf6TjFcVQ+Keko1W6Csxu9XkF5R7486AAjm4jxV3LsJ/wJEYn
-         GEpu+7wqaG8z/tR7Xh7wjkfNV1lI0/K7WhgOCMro=
-Subject: patch "usb: typec: tcpm: Fix wrong handling in GET_SINK_CAP" added to usb-linus
-To:     kyletso@google.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        stable@vger.kernel.org
+        b=wtBqyHHKrQoXAU6/wjBJdXTHZSv+wCK7yeRypZSmMb7ZZRocrAVUpRSg5UEcrVf3f
+         fCzk71X2AWkP9VZvgoc3cfJu9C1QtVEEEmtEWgOER9TLDwIEPbhtu7k4C6PZh+fRFN
+         4DtBqO5mvD5NIK0mmvf/DLM9NWGIvSumcVs0X93Y=
+Subject: patch "usb: typec: ucsi: Put fwnode in any case during ->probe()" added to usb-linus
+To:     andy.shevchenko@gmail.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 15:00:12 +0200
-Message-ID: <162065161212240@kroah.com>
+Date:   Mon, 10 May 2021 15:02:27 +0200
+Message-ID: <16206517473731@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: typec: tcpm: Fix wrong handling in GET_SINK_CAP
+    usb: typec: ucsi: Put fwnode in any case during ->probe()
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -52,41 +51,55 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 2e2b8d15adc2f6ab2d4aa0550e241b9742a436a0 Mon Sep 17 00:00:00 2001
-From: Kyle Tso <kyletso@google.com>
-Date: Tue, 4 May 2021 01:18:49 +0800
-Subject: usb: typec: tcpm: Fix wrong handling in GET_SINK_CAP
+From b9a0866a5bdf6a4643a52872ada6be6184c6f4f2 Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Wed, 5 May 2021 01:23:37 +0300
+Subject: usb: typec: ucsi: Put fwnode in any case during ->probe()
 
-After receiving Sink Capabilities Message in GET_SINK_CAP AMS, it is
-incorrect to call tcpm_pd_handle_state because the Message is expected
-and the current state is not Ready states. The result of this incorrect
-operation ends in Soft Reset which is definitely wrong. Simply
-forwarding to Ready States is enough to finish the AMS.
+device_for_each_child_node() bumps a reference counting of a returned variable.
+We have to balance it whenever we return to the caller.
 
-Fixes: 8dea75e11380 ("usb: typec: tcpm: Protocol Error handling")
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Kyle Tso <kyletso@google.com>
+Fixes: c1b0bc2dabfa ("usb: typec: Add support for UCSI interface")
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210504222337.3151726-1-andy.shevchenko@gmail.com
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503171849.2605302-1-kyletso@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/typec/ucsi/ucsi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index c4fdc00a3bc8..68e04e397e92 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -2390,7 +2390,7 @@ static void tcpm_pd_data_request(struct tcpm_port *port,
- 		port->nr_sink_caps = cnt;
- 		port->sink_cap_done = true;
- 		if (port->ams == GET_SINK_CAPABILITIES)
--			tcpm_pd_handle_state(port, ready_state(port), NONE_AMS, 0);
-+			tcpm_set_state(port, ready_state(port), 0);
- 		/* Unexpected Sink Capabilities */
- 		else
- 			tcpm_pd_handle_msg(port,
+diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+index 282c3c825c13..0e1cec346e0f 100644
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -999,6 +999,7 @@ static const struct typec_operations ucsi_ops = {
+ 	.pr_set = ucsi_pr_swap
+ };
+ 
++/* Caller must call fwnode_handle_put() after use */
+ static struct fwnode_handle *ucsi_find_fwnode(struct ucsi_connector *con)
+ {
+ 	struct fwnode_handle *fwnode;
+@@ -1033,7 +1034,7 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+ 	command |= UCSI_CONNECTOR_NUMBER(con->num);
+ 	ret = ucsi_send_command(ucsi, command, &con->cap, sizeof(con->cap));
+ 	if (ret < 0)
+-		goto out;
++		goto out_unlock;
+ 
+ 	if (con->cap.op_mode & UCSI_CONCAP_OPMODE_DRP)
+ 		cap->data = TYPEC_PORT_DRD;
+@@ -1151,6 +1152,8 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+ 	trace_ucsi_register_port(con->num, &con->status);
+ 
+ out:
++	fwnode_handle_put(cap->fwnode);
++out_unlock:
+ 	mutex_unlock(&con->lock);
+ 	return ret;
+ }
 -- 
 2.31.1
 
