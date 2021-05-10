@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A6E0378878
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB7E3786DE
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234017AbhEJLVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
+        id S231824AbhEJLLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:11:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237128AbhEJLLZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D88CB616ED;
-        Mon, 10 May 2021 11:07:21 +0000 (UTC)
+        id S234728AbhEJLFQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:05:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77CBF61090;
+        Mon, 10 May 2021 10:55:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644842;
-        bh=tRWyyhcBXBvFUc+HVNLYEexxfPmuLpkO+e4d3RvyVO8=;
+        s=korg; t=1620644110;
+        bh=+O1awEC6LLjUZL7jHfPVU/co9F9cpQMtrow0VxvOvkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FslNKLbcJMCw9xCRlecdDeXcXQRtH2myQ16lhtPNJw5msafTi2z0+uHw8lhnxl3Kn
-         5bA74cQNv0uNRsnKr99yiPeAjClP8me6VpL2zVEBsGWFCmYSpW7ZFmQk9U71xsr+/S
-         oKTtZ+UNzn4IIMRJ4lbGs5vb7VBeeoeMOOcDfC1o=
+        b=i7MsYj8lZ9mOF/kCgybTXbrSum3l2tnwg4nCOcjVLuGOIPPQ0QYtBQ8muFoAVqx61
+         b4hAFmnwQ79Bg4gyNlPuLxoqKAoRlzgcDjsSt0YsnSyYtK+Z8cnpNuUkfDIj/kyDvI
+         JNRQB1kn68RS9C4l1jloGgBkS7Q83xRk82beCmz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Tong Zhang <ztong0001@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 246/384] drm/radeon: dont evict if not initialized
-Date:   Mon, 10 May 2021 12:20:35 +0200
-Message-Id: <20210510102022.992843928@linuxfoundation.org>
+        stable@vger.kernel.org, Luke D Jones <luke@ljones.dev>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 246/342] ALSA: hda/realtek: GA503 use same quirks as GA401
+Date:   Mon, 10 May 2021 12:20:36 +0200
+Message-Id: <20210510102018.205659470@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Luke D Jones <luke@ljones.dev>
 
-[ Upstream commit 05eacc0f8f6c7e27f1841343611f4bed9ee178c1 ]
+commit 76fae6185f5456865ff1bcb647709d44fd987eb6 upstream.
 
-TTM_PL_VRAM may not initialized at all when calling
-radeon_bo_evict_vram(). We need to check before doing eviction.
+The GA503 has almost exactly the same default setup as the GA401
+model with the same issues. The GA401 quirks solve all the issues
+so we will use the full quirk chain.
 
-[    2.160837] BUG: kernel NULL pointer dereference, address: 0000000000000020
-[    2.161212] #PF: supervisor read access in kernel mode
-[    2.161490] #PF: error_code(0x0000) - not-present page
-[    2.161767] PGD 0 P4D 0
-[    2.163088] RIP: 0010:ttm_resource_manager_evict_all+0x70/0x1c0 [ttm]
-[    2.168506] Call Trace:
-[    2.168641]  radeon_bo_evict_vram+0x1c/0x20 [radeon]
-[    2.168936]  radeon_device_fini+0x28/0xf9 [radeon]
-[    2.169224]  radeon_driver_unload_kms+0x44/0xa0 [radeon]
-[    2.169534]  radeon_driver_load_kms+0x174/0x210 [radeon]
-[    2.169843]  drm_dev_register+0xd9/0x1c0 [drm]
-[    2.170104]  radeon_pci_probe+0x117/0x1a0 [radeon]
-
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Suggested-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Luke D Jones <luke@ljones.dev>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210419030411.28304-1-luke@ljones.dev
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/radeon_object.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_object.c b/drivers/gpu/drm/radeon/radeon_object.c
-index 9b81786782de..499ce55e34cc 100644
---- a/drivers/gpu/drm/radeon/radeon_object.c
-+++ b/drivers/gpu/drm/radeon/radeon_object.c
-@@ -384,6 +384,8 @@ int radeon_bo_evict_vram(struct radeon_device *rdev)
- 	}
- #endif
- 	man = ttm_manager_type(bdev, TTM_PL_VRAM);
-+	if (!man)
-+		return 0;
- 	return ttm_resource_manager_evict_all(bdev, man);
- }
- 
--- 
-2.30.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8138,6 +8138,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
++	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
 
 
