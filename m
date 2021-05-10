@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14FC03787E2
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C81B378881
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235545AbhEJLTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:19:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34426 "EHLO mail.kernel.org"
+        id S233002AbhEJLVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234477AbhEJLEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:04:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBB3C6162A;
-        Mon, 10 May 2021 10:54:54 +0000 (UTC)
+        id S237145AbhEJLL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A587D6186A;
+        Mon, 10 May 2021 11:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644095;
-        bh=sFNkAUFqPkld7N7J8ph5F7w+KUBRpZjz87UnLlxrk8c=;
+        s=korg; t=1620644857;
+        bh=Qyk2IEPJuLpo6zdXnrXDFwAdBeuuV8vcZB58RRXKzHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JgK4djrDvsrA4Pz7gT2kyn55B/1W625ar3LU+XW1pntDaUA9Im9llAHYfsFuNWEu
-         N7ZfAfGfeJU83hYkq7LS6IHHQVvFfsTbkHmp7bKKjjz/qJeYN6h76aD89+dP9hkl0B
-         ICrti4VrKyHlaF+xFM39yMtdfFCASIFfzLOvGO1Y=
+        b=E/qH25b+ukJVy2zNTMoTgWv7fTsZBApsH3PLRfaGLranZwoipfDPzgP86eTx8qN1g
+         ZxH8NtNqfGPwxeP7h98v/48KQDPkKPLzV5Q/fXqz03ARpfFwLOipY3Fik7+lu7BKhR
+         nfvOntrX20qkP5NUnGrkzKuZd0zlv5rPoPdwF93U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eckhart Mohr <e.mohr@tuxedocomputers.com>,
-        Werner Sembach <wse@tuxedocomputers.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 250/342] ALSA: hda/realtek: Add quirk for Intel Clevo PCx0Dx
-Date:   Mon, 10 May 2021 12:20:40 +0200
-Message-Id: <20210510102018.355074578@linuxfoundation.org>
+        stable@vger.kernel.org, Joshua Aberback <joshua.aberback@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 252/384] drm/amd/display: Update DCN302 SR Exit Latency
+Date:   Mon, 10 May 2021 12:20:41 +0200
+Message-Id: <20210510102023.190475339@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eckhart Mohr <e.mohr@tuxedocomputers.com>
+From: Joshua Aberback <joshua.aberback@amd.com>
 
-commit 970e3012c04c96351c413f193a9c909e6d871ce2 upstream.
+[ Upstream commit 79f02534810c9557fb3217b538616dc42a1de3b9 ]
 
-This applies a SND_PCI_QUIRK(...) to the Clevo PCx0Dx barebones. This
-fix enables audio output over the headset jack and ensures that a
-microphone connected via the headset combo jack is correctly recognized
-when pluged in.
+[Why&How]
+Update SR Exit Latency to fix screen flickering caused due to OTG
+underflow. This is the recommended value given by the hardware IP team.
 
-[ Rearranged the list entries in a sorted order -- tiwai ]
-
-Signed-off-by: Eckhart Mohr <e.mohr@tuxedocomputers.com>
-Co-developed-by: Werner Sembach <wse@tuxedocomputers.com>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210427153025.451118-1-wse@tuxedocomputers.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Joshua Aberback <joshua.aberback@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn302/dcn302_resource.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2552,8 +2552,10 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65d2, "Clevo PB51R[CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65e1, "Clevo PB51[ED][DF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn302/dcn302_resource.c b/drivers/gpu/drm/amd/display/dc/dcn302/dcn302_resource.c
+index 4b659b63f75b..d03b1975e417 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn302/dcn302_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn302/dcn302_resource.c
+@@ -164,7 +164,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn3_02_soc = {
+ 
+ 		.min_dcfclk = 500.0, /* TODO: set this to actual min DCFCLK */
+ 		.num_states = 1,
+-		.sr_exit_time_us = 12,
++		.sr_exit_time_us = 15.5,
+ 		.sr_enter_plus_exit_time_us = 20,
+ 		.urgent_latency_us = 4.0,
+ 		.urgent_latency_pixel_data_only_us = 4.0,
+-- 
+2.30.2
+
 
 
