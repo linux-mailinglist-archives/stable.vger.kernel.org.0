@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B98D37860E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E55E337861B
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232158AbhEJLDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52744 "EHLO mail.kernel.org"
+        id S231838AbhEJLD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:03:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234848AbhEJK5L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:57:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D387619C4;
-        Mon, 10 May 2021 10:49:56 +0000 (UTC)
+        id S234917AbhEJK5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:57:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA6C6616E9;
+        Mon, 10 May 2021 10:50:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643796;
-        bh=0PaCOtLrQBGr+8tY+o5O/Wn8N9gMmISX7EmabCtUb6Q=;
+        s=korg; t=1620643818;
+        bh=W62i6CrwGSgX/r2q61j7DL9jH5FuXJv+/rFvjPsUtaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pYn1S3dOWE7KsGctDaYPr5wlo7imcNlR7AQ9/PH0QaBbGgb8r1FnXhlFfXK3PJ00+
-         81Hu/SXTCOJMhOIOwX8jbACbuy2RPPzPp48SG1J5fYR+uaXtaLvk60LnaXDeTjWs5l
-         jhRbOsbN4WqykLRUbHBUi1Wgc0qYFNhnD6gm0Fo4=
+        b=mbPP7kQJKWO4FSYF6nniRLkio0DENmhcK3L6yyB+BOYtGAjx5h3mGAp+FBPlm47g+
+         TZSeh+8CKK6VvAB01e0C4e1GXtWpyV7UfBsHgBVQz/H8uwummnR1YC+p/KkA6ZyMnQ
+         fgH9ANIHmHMbFM/y99DCewqNXfCDwm8XCXj5svM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Eryk Brol <eryk.brol@amd.com>,
+        Bindu Ramamurthy <bindu.r@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 135/342] drm/ast: fix memory leak when unload the driver
-Date:   Mon, 10 May 2021 12:18:45 +0200
-Message-Id: <20210510102014.532268451@linuxfoundation.org>
+Subject: [PATCH 5.11 136/342] drm/amd/display: Check for DSC support instead of ASIC revision
+Date:   Mon, 10 May 2021 12:18:46 +0200
+Message-Id: <20210510102014.562490308@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -40,91 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Eryk Brol <eryk.brol@amd.com>
 
-[ Upstream commit dc739820ff90acccd013f6bb420222978a982791 ]
+[ Upstream commit 349a19b2f1b01e713268c7de9944ad669ccdf369 ]
 
-a connector is leaked upon module unload, it seems that we should do
-similar to sample driver as suggested in drm_drv.c.
+[why]
+This check for ASIC revision is no longer useful and causes
+lightup issues after a topology change in MST DSC scenario.
+In this case, DSC configs should be recalculated for the new
+topology. This check prevented that from happening on certain
+ASICs that do, in fact, support DSC.
 
-Adding drm_atomic_helper_shutdown() in ast_pci_remove to prevent leaking.
+[how]
+Change the ASIC revision to instead check if DSC is supported.
 
-[  153.822134] WARNING: CPU: 0 PID: 173 at drivers/gpu/drm/drm_mode_config.c:504 drm_mode_config_cle0
-[  153.822698] Modules linked in: ast(-) drm_vram_helper drm_ttm_helper ttm [last unloaded: ttm]
-[  153.823197] CPU: 0 PID: 173 Comm: modprobe Tainted: G        W         5.11.0-03615-g55f62bc873474
-[  153.823708] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda519-4
-[  153.824333] RIP: 0010:drm_mode_config_cleanup+0x418/0x470
-[  153.824637] Code: 0c 00 00 00 00 48 8b 84 24 a8 00 00 00 65 48 33 04 25 28 00 00 00 75 65 48 81 c0
-[  153.825668] RSP: 0018:ffff888103c9fb70 EFLAGS: 00010212
-[  153.825962] RAX: ffff888102b0d100 RBX: ffff888102b0c298 RCX: ffffffff818d8b2b
-[  153.826356] RDX: dffffc0000000000 RSI: 000000007fffffff RDI: ffff888102b0c298
-[  153.826748] RBP: ffff888103c9fba0 R08: 0000000000000001 R09: ffffed1020561857
-[  153.827146] R10: ffff888102b0c2b7 R11: ffffed1020561856 R12: ffff888102b0c000
-[  153.827538] R13: ffff888102b0c2d8 R14: ffff888102b0c2d8 R15: 1ffff11020793f70
-[  153.827935] FS:  00007f24bff456a0(0000) GS:ffff88815b400000(0000) knlGS:0000000000000000
-[  153.828380] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  153.828697] CR2: 0000000001c39018 CR3: 0000000103c90000 CR4: 00000000000006f0
-[  153.829096] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  153.829486] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  153.829883] Call Trace:
-[  153.830024]  ? drmm_mode_config_init+0x930/0x930
-[  153.830281]  ? cpumask_next+0x16/0x20
-[  153.830488]  ? mnt_get_count+0x66/0x80
-[  153.830699]  ? drm_mode_config_cleanup+0x470/0x470
-[  153.830972]  drm_managed_release+0xed/0x1c0
-[  153.831208]  drm_dev_release+0x3a/0x50
-[  153.831420]  release_nodes+0x39e/0x410
-[  153.831631]  ? devres_release+0x40/0x40
-[  153.831852]  device_release_driver_internal+0x158/0x270
-[  153.832143]  driver_detach+0x76/0xe0
-[  153.832344]  bus_remove_driver+0x7e/0x100
-[  153.832568]  pci_unregister_driver+0x28/0xf0
-[  153.832821]  __x64_sys_delete_module+0x268/0x300
-[  153.833086]  ? __ia32_sys_delete_module+0x300/0x300
-[  153.833357]  ? call_rcu+0x372/0x4f0
-[  153.833553]  ? fpregs_assert_state_consistent+0x4d/0x60
-[  153.833840]  ? exit_to_user_mode_prepare+0x2f/0x130
-[  153.834118]  do_syscall_64+0x33/0x40
-[  153.834317]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  153.834597] RIP: 0033:0x7f24bfec7cf7
-[  153.834797] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f7 48 89 d6 41
-[  153.835812] RSP: 002b:00007fff72e6cb58 EFLAGS: 00000202 ORIG_RAX: 00000000000000b0
-[  153.836234] RAX: ffffffffffffffda RBX: 00007f24bff45690 RCX: 00007f24bfec7cf7
-[  153.836623] RDX: 00000000ffffffff RSI: 0000000000000080 RDI: 0000000001c2fb10
-[  153.837018] RBP: 0000000001c2fac0 R08: 2f2f2f2f2f2f2f2f R09: 0000000001c2fac0
-[  153.837408] R10: fefefefefefefeff R11: 0000000000000202 R12: 0000000001c2fac0
-[  153.837798] R13: 0000000001c2f9d0 R14: 0000000000000000 R15: 0000000000000001
-[  153.838194] ---[ end trace b92031513bbe596c ]---
-[  153.838441] [drm:drm_mode_config_cleanup] *ERROR* connector VGA-1 leaked!
-
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210222023322.984885-1-ztong0001@gmail.com
+Signed-off-by: Eryk Brol <eryk.brol@amd.com>
+Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ast/ast_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/ast/ast_drv.c b/drivers/gpu/drm/ast/ast_drv.c
-index 667b450606ef..b047c0ea43e8 100644
---- a/drivers/gpu/drm/ast/ast_drv.c
-+++ b/drivers/gpu/drm/ast/ast_drv.c
-@@ -30,6 +30,7 @@
- #include <linux/module.h>
- #include <linux/pci.h>
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 62a637c03f60..fc2763745ae1 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -9216,7 +9216,7 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 	}
  
-+#include <drm/drm_atomic_helper.h>
- #include <drm/drm_crtc_helper.h>
- #include <drm/drm_drv.h>
- #include <drm/drm_fb_helper.h>
-@@ -138,6 +139,7 @@ static void ast_pci_remove(struct pci_dev *pdev)
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 
- 	drm_dev_unregister(dev);
-+	drm_atomic_helper_shutdown(dev);
- }
- 
- static int ast_drm_freeze(struct drm_device *dev)
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
+-	if (adev->asic_type >= CHIP_NAVI10) {
++	if (dc_resource_is_dsc_encoding_supported(dc)) {
+ 		for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
+ 			if (drm_atomic_crtc_needs_modeset(new_crtc_state)) {
+ 				ret = add_affected_mst_dsc_crtcs(state, crtc);
 -- 
 2.30.2
 
