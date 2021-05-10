@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA1D3786DB
+	by mail.lfdr.de (Postfix) with ESMTP id E8B093786DD
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231864AbhEJLLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:11:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35242 "EHLO mail.kernel.org"
+        id S232038AbhEJLLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:11:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234612AbhEJLFF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A614C61075;
-        Mon, 10 May 2021 10:55:04 +0000 (UTC)
+        id S234684AbhEJLFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:05:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21D83610A7;
+        Mon, 10 May 2021 10:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644105;
-        bh=bfeEcT9P6kGTP+n3dZVdN1PO9w41CUA/HggeoDp0q2Q=;
+        s=korg; t=1620644107;
+        bh=C1dqAl8yM/FcmpKUv7/eSkotv/kH+Fip/4XB2HDQ1OA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IcbS9on5cLTsmWgZk54sS0knnaT3rpFkOkk32Z97JSy3+IxaLxMTRD5quzEySHgv
-         RUFF19IIl9NLB52DeRLr/KAOuYNHuV9svRFIAg5szQjdKFY/YfSoVx8FJY0OeGwVup
-         rtmzXrFU7CwIMjnr8Cnr9KfFzZ2e8ORpbtGDZXw0=
+        b=2ZrFvDkrrTYQGEao0EzcC7CxC0kf0W2oLVRC0fy/czA7it6/2q3Ckw8aM6YFtVDMG
+         /hOC0xmACZlXI5BycIAEuznyYsQiE8eQEFgsRStH6fYXqXPnq5dC43dczw2y3xqChh
+         v8GcttqTsBIDqmI9P6coaNirGrNdQ2SyYkQGWb7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.11 254/342] Makefile: Move -Wno-unused-but-set-variable out of GCC only block
-Date:   Mon, 10 May 2021 12:20:44 +0200
-Message-Id: <20210510102018.489144480@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.11 255/342] fs: fix reporting supported extra file attributes for statx()
+Date:   Mon, 10 May 2021 12:20:45 +0200
+Message-Id: <20210510102018.528621214@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -40,49 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 885480b084696331bea61a4f7eba10652999a9c1 upstream.
+commit 5afa7e8b70d65819245fece61a65fd753b4aae33 upstream.
 
-Currently, -Wunused-but-set-variable is only supported by GCC so it is
-disabled unconditionally in a GCC only block (it is enabled with W=1).
-clang currently has its implementation for this warning in review so
-preemptively move this statement out of the GCC only block and wrap it
-with cc-disable-warning so that both compilers function the same.
+statx(2) notes that any attribute that is not indicated as supported
+by stx_attributes_mask has no usable value.  Commits 801e523796004
+("fs: move generic stat response attr handling to vfs_getattr_nosec")
+and 712b2698e4c02 ("fs/stat: Define DAX statx attribute") sets
+STATX_ATTR_AUTOMOUNT and STATX_ATTR_DAX, respectively, without setting
+stx_attributes_mask, which can cause xfstests generic/532 to fail.
 
-Cc: stable@vger.kernel.org
-Link: https://reviews.llvm.org/D100581
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fix this in the same way as commit 1b9598c8fb99 ("xfs: fix reporting
+supported extra file attributes for statx()")
+
+Fixes: 801e523796004 ("fs: move generic stat response attr handling to vfs_getattr_nosec")
+Fixes: 712b2698e4c02 ("fs/stat: Define DAX statx attribute")
+Cc: stable@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/stat.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -774,16 +774,16 @@ KBUILD_CFLAGS += -Wno-gnu
- KBUILD_CFLAGS += -mno-global-merge
- else
- 
--# These warnings generated too much noise in a regular build.
--# Use make W=1 to enable them (see scripts/Makefile.extrawarn)
--KBUILD_CFLAGS += -Wno-unused-but-set-variable
--
- # Warn about unmarked fall-throughs in switch statement.
- # Disabled for clang while comment to attribute conversion happens and
- # https://github.com/ClangBuiltLinux/linux/issues/636 is discussed.
- KBUILD_CFLAGS += $(call cc-option,-Wimplicit-fallthrough,)
- endif
- 
-+# These warnings generated too much noise in a regular build.
-+# Use make W=1 to enable them (see scripts/Makefile.extrawarn)
-+KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
+--- a/fs/stat.c
++++ b/fs/stat.c
+@@ -77,12 +77,20 @@ int vfs_getattr_nosec(const struct path
+ 	/* SB_NOATIME means filesystem supplies dummy atime value */
+ 	if (inode->i_sb->s_flags & SB_NOATIME)
+ 		stat->result_mask &= ~STATX_ATIME;
 +
- KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
- ifdef CONFIG_FRAME_POINTER
- KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
++	/*
++	 * Note: If you add another clause to set an attribute flag, please
++	 * update attributes_mask below.
++	 */
+ 	if (IS_AUTOMOUNT(inode))
+ 		stat->attributes |= STATX_ATTR_AUTOMOUNT;
+ 
+ 	if (IS_DAX(inode))
+ 		stat->attributes |= STATX_ATTR_DAX;
+ 
++	stat->attributes_mask |= (STATX_ATTR_AUTOMOUNT |
++				  STATX_ATTR_DAX);
++
+ 	if (inode->i_op->getattr)
+ 		return inode->i_op->getattr(path, stat, request_mask,
+ 					    query_flags);
 
 
