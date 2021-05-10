@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E01A3788C5
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0F603786BC
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234705AbhEJLXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:23:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
+        id S236784AbhEJLK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:10:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237284AbhEJLLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B12D61928;
-        Mon, 10 May 2021 11:08:33 +0000 (UTC)
+        id S231480AbhEJLDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:03:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EE206101E;
+        Mon, 10 May 2021 10:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644913;
-        bh=QFW2PpfndsL4yLPOv8wibmBs/SN33oj8abfed6abK/A=;
+        s=korg; t=1620644070;
+        bh=acsZ0fQWrgwm+atbVh3Rw83PjOyKrKmsInSFMqaBH00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJ0v+6mDIxtEcLmvtF10PICbgT7DRn5RVhJGeCynxPyzMvh4/4PPdkQfqSDh7dwQ7
-         fx7dGoQNBVRQ2vUSiu818GWRp5sx4CyOzmnhh1bz/MMyUBVcI7L9JW2YWvo84u7oQR
-         HgxjtPm/Gk05yu9fBMO+a78vmZPcH6QBf8JKFXkk=
+        b=KvQi3UFCTJ35NS5CCz5ZLTYLlQnMI8XZhHduFt6x7BwLOsLdK7SuOAmoGmMUqcDDd
+         j1QLc8VtOev27MNCE9Mub8OWw+hL+CazQRm7qxQbcQfZaj/WqimV5KvwG55OTU2xWm
+         kBujm+KeBugEOGxdmSj6ZzM5N2AJqGMTDIYCtqI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Witschel <diabonas@archlinux.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 276/384] ALSA: hda/realtek: fix mute/micmute LEDs for HP ProBook 445 G7
+        stable@vger.kernel.org, Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.11 275/342] powerpc/kexec_file: Use current CPU info while setting up FDT
 Date:   Mon, 10 May 2021 12:21:05 +0200
-Message-Id: <20210510102023.929346496@linuxfoundation.org>
+Message-Id: <20210510102019.190623492@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +40,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Witschel <diabonas@archlinux.org>
+From: Sourabh Jain <sourabhjain@linux.ibm.com>
 
-commit 75b62ab65d2715ce6ff0794033d61ab9dc4a2dfc upstream.
+commit 40c753993e3aad51a12c21233486e2037417a4d6 upstream.
 
-The HP ProBook 445 G7 (17T32ES) uses ALC236. Like ALC236_FIXUP_HP_GPIO_LED,
-COEF index 0x34 bit 5 is used to control the playback mute LED, but the
-microphone mute LED is controlled using pin VREF instead of a COEF index.
+kexec_file_load() uses initial_boot_params in setting up the device tree
+for the kernel to be loaded. Though initial_boot_params holds info about
+CPUs at the time of boot, it doesn't account for hot added CPUs.
 
-AlsaInfo: https://alsa-project.org/db/?f=0d3f4d1af39cc359f9fea9b550727ee87e5cf45a
-Signed-off-by: Jonas Witschel <diabonas@archlinux.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210416105852.52588-1-diabonas@archlinux.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+So, kexec'ing with kexec_file_load() syscall leaves the kexec'ed kernel
+with inaccurate CPU info.
+
+If kdump kernel is loaded with kexec_file_load() syscall and the system
+crashes on a hot added CPU, the capture kernel hangs failing to identify
+the boot CPU, with no output.
+
+To avoid this from happening, extract current CPU info from of_root
+device node and use it for setting up the fdt in kexec_file_load case.
+
+Fixes: 6ecd0163d360 ("powerpc/kexec_file: Add appropriate regions for memory reserve map")
+Cc: stable@vger.kernel.org # v5.9+
+Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
+Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210429060256.199714-1-sourabhjain@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ arch/powerpc/kexec/file_load_64.c |   92 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 92 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4438,6 +4438,25 @@ static void alc236_fixup_hp_mute_led(str
- 	alc236_fixup_hp_coef_micmute_led(codec, fix, action);
+--- a/arch/powerpc/kexec/file_load_64.c
++++ b/arch/powerpc/kexec/file_load_64.c
+@@ -961,6 +961,93 @@ unsigned int kexec_fdt_totalsize_ppc64(s
  }
  
-+static void alc236_fixup_hp_micmute_led_vref(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
+ /**
++ * add_node_props - Reads node properties from device node structure and add
++ *                  them to fdt.
++ * @fdt:            Flattened device tree of the kernel
++ * @node_offset:    offset of the node to add a property at
++ * @dn:             device node pointer
++ *
++ * Returns 0 on success, negative errno on error.
++ */
++static int add_node_props(void *fdt, int node_offset, const struct device_node *dn)
 +{
-+	struct alc_spec *spec = codec->spec;
++	int ret = 0;
++	struct property *pp;
 +
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->cap_mute_led_nid = 0x1a;
-+		snd_hda_gen_add_micmute_led_cdev(codec, vref_micmute_led_set);
-+		codec->power_filter = led_power_filter;
++	if (!dn)
++		return -EINVAL;
++
++	for_each_property_of_node(dn, pp) {
++		ret = fdt_setprop(fdt, node_offset, pp->name, pp->value, pp->length);
++		if (ret < 0) {
++			pr_err("Unable to add %s property: %s\n", pp->name, fdt_strerror(ret));
++			return ret;
++		}
 +	}
++	return ret;
 +}
 +
-+static void alc236_fixup_hp_mute_led_micmute_vref(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
++/**
++ * update_cpus_node - Update cpus node of flattened device tree using of_root
++ *                    device node.
++ * @fdt:              Flattened device tree of the kernel.
++ *
++ * Returns 0 on success, negative errno on error.
++ */
++static int update_cpus_node(void *fdt)
 +{
-+	alc236_fixup_hp_mute_led_coefbit(codec, fix, action);
-+	alc236_fixup_hp_micmute_led_vref(codec, fix, action);
++	struct device_node *cpus_node, *dn;
++	int cpus_offset, cpus_subnode_offset, ret = 0;
++
++	cpus_offset = fdt_path_offset(fdt, "/cpus");
++	if (cpus_offset < 0 && cpus_offset != -FDT_ERR_NOTFOUND) {
++		pr_err("Malformed device tree: error reading /cpus node: %s\n",
++		       fdt_strerror(cpus_offset));
++		return cpus_offset;
++	}
++
++	if (cpus_offset > 0) {
++		ret = fdt_del_node(fdt, cpus_offset);
++		if (ret < 0) {
++			pr_err("Error deleting /cpus node: %s\n", fdt_strerror(ret));
++			return -EINVAL;
++		}
++	}
++
++	/* Add cpus node to fdt */
++	cpus_offset = fdt_add_subnode(fdt, fdt_path_offset(fdt, "/"), "cpus");
++	if (cpus_offset < 0) {
++		pr_err("Error creating /cpus node: %s\n", fdt_strerror(cpus_offset));
++		return -EINVAL;
++	}
++
++	/* Add cpus node properties */
++	cpus_node = of_find_node_by_path("/cpus");
++	ret = add_node_props(fdt, cpus_offset, cpus_node);
++	of_node_put(cpus_node);
++	if (ret < 0)
++		return ret;
++
++	/* Loop through all subnodes of cpus and add them to fdt */
++	for_each_node_by_type(dn, "cpu") {
++		cpus_subnode_offset = fdt_add_subnode(fdt, cpus_offset, dn->full_name);
++		if (cpus_subnode_offset < 0) {
++			pr_err("Unable to add %s subnode: %s\n", dn->full_name,
++			       fdt_strerror(cpus_subnode_offset));
++			ret = cpus_subnode_offset;
++			goto out;
++		}
++
++		ret = add_node_props(fdt, cpus_subnode_offset, dn);
++		if (ret < 0)
++			goto out;
++	}
++out:
++	of_node_put(dn);
++	return ret;
 +}
 +
- #if IS_REACHABLE(CONFIG_INPUT)
- static void gpio2_mic_hotkey_event(struct hda_codec *codec,
- 				   struct hda_jack_callback *event)
-@@ -6400,6 +6419,7 @@ enum {
- 	ALC285_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_GPIO_LED,
- 	ALC236_FIXUP_HP_MUTE_LED,
-+	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
-@@ -7646,6 +7666,10 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc236_fixup_hp_mute_led,
- 	},
-+	[ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc236_fixup_hp_mute_led_micmute_vref,
-+	},
- 	[ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -8063,6 +8087,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8730, "HP ProBook 445 G7", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
++/**
+  * setup_new_fdt_ppc64 - Update the flattend device-tree of the kernel
+  *                       being loaded.
+  * @image:               kexec image being loaded.
+@@ -1020,6 +1107,11 @@ int setup_new_fdt_ppc64(const struct kim
+ 		}
+ 	}
+ 
++	/* Update cpus nodes information to account hotplug CPUs. */
++	ret =  update_cpus_node(fdt);
++	if (ret < 0)
++		goto out;
++
+ 	/* Update memory reserve map */
+ 	ret = get_reserved_memory_ranges(&rmem);
+ 	if (ret)
 
 
