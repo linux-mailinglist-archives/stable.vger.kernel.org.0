@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 981DD378516
+	by mail.lfdr.de (Postfix) with ESMTP id E7C47378517
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232971AbhEJK63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:58:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41711 "EHLO mail.kernel.org"
+        id S233003AbhEJK6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:58:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233058AbhEJKyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233086AbhEJKyZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:54:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00FDE6191C;
-        Mon, 10 May 2021 10:41:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 700476101E;
+        Mon, 10 May 2021 10:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643314;
-        bh=Z0wYcN899ocdNzLotbRtqJ4W0IGmBtUATHKOr3zkWxg=;
+        s=korg; t=1620643317;
+        bh=b+X48dCloFuRbRgUeHgCfH6mM1EbHUpVAf6wPUprbmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+jYZXKr0rqh80gNADq8yppSU7lyYjuQ3M/x8Rx4VJeWv5ajMw0uOMWIni6/K5VHQ
-         0i80X6g7KBzSN37d7k3pD9WhOqbgYj8j5f+IVBHesT2ic9YeLSgeI7kHt/BjoMOROs
-         AJDfHePvPkWEHa/mSRSTM7pHuaMPa1quzjLGPXjs=
+        b=s3D/2ej/kbpC47UvC++IzBRmUzHL3vW3rDo93hN3AZwtZf2h+hZoEcrGHEHahppJE
+         Ryb6jVRHSQijkgwaNhUKspJ/LwlXQfqDVrznNwgAOqag/SeJ3wLUHmmDjx2cQv1cWj
+         zzXNBc9VFy0YLBB42+deTov6jQdAKnn5b4vSQ6Fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        syzbot+30774a6acf6a2cf6d535@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 264/299] ext4: annotate data race in start_this_handle()
-Date:   Mon, 10 May 2021 12:21:01 +0200
-Message-Id: <20210510102013.664483002@linuxfoundation.org>
+        Hao Sun <sunhao.th@gmail.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 265/299] ext4: annotate data race in jbd2_journal_dirty_metadata()
+Date:   Mon, 10 May 2021 12:21:02 +0200
+Message-Id: <20210510102013.696784393@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -42,37 +42,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit 3b1833e92baba135923af4a07e73fe6e54be5a2f upstream.
+commit 83fe6b18b8d04c6c849379005e1679bac9752466 upstream.
 
-Access to journal->j_running_transaction is not protected by appropriate
-lock and thus is racy. We are well aware of that and the code handles
-the race properly. Just add a comment and data_race() annotation.
+Assertion checks in jbd2_journal_dirty_metadata() are known to be racy
+but we don't want to be grabbing locks just for them.  We thus recheck
+them under b_state_lock only if it looks like they would fail. Annotate
+the checks with data_race().
 
 Cc: stable@kernel.org
-Reported-by: syzbot+30774a6acf6a2cf6d535@syzkaller.appspotmail.com
+Reported-by: Hao Sun <sunhao.th@gmail.com>
 Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210406161804.20150-1-jack@suse.cz
+Link: https://lore.kernel.org/r/20210406161804.20150-2-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jbd2/transaction.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/jbd2/transaction.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 --- a/fs/jbd2/transaction.c
 +++ b/fs/jbd2/transaction.c
-@@ -349,7 +349,12 @@ static int start_this_handle(journal_t *
+@@ -1479,8 +1479,8 @@ int jbd2_journal_dirty_metadata(handle_t
+ 	 * crucial to catch bugs so let's do a reliable check until the
+ 	 * lockless handling is fully proven.
+ 	 */
+-	if (jh->b_transaction != transaction &&
+-	    jh->b_next_transaction != transaction) {
++	if (data_race(jh->b_transaction != transaction &&
++	    jh->b_next_transaction != transaction)) {
+ 		spin_lock(&jh->b_state_lock);
+ 		J_ASSERT_JH(jh, jh->b_transaction == transaction ||
+ 				jh->b_next_transaction == transaction);
+@@ -1488,8 +1488,8 @@ int jbd2_journal_dirty_metadata(handle_t
  	}
- 
- alloc_transaction:
--	if (!journal->j_running_transaction) {
-+	/*
-+	 * This check is racy but it is just an optimization of allocating new
-+	 * transaction early if there are high chances we'll need it. If we
-+	 * guess wrong, we'll retry or free unused transaction.
-+	 */
-+	if (!data_race(journal->j_running_transaction)) {
- 		/*
- 		 * If __GFP_FS is not present, then we may be being called from
- 		 * inside the fs writeback layer, so we MUST NOT fail.
+ 	if (jh->b_modified == 1) {
+ 		/* If it's in our transaction it must be in BJ_Metadata list. */
+-		if (jh->b_transaction == transaction &&
+-		    jh->b_jlist != BJ_Metadata) {
++		if (data_race(jh->b_transaction == transaction &&
++		    jh->b_jlist != BJ_Metadata)) {
+ 			spin_lock(&jh->b_state_lock);
+ 			if (jh->b_transaction == transaction &&
+ 			    jh->b_jlist != BJ_Metadata)
 
 
