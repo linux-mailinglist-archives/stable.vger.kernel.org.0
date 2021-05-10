@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2002C378597
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3271137856E
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235420AbhEJLBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:01:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52164 "EHLO mail.kernel.org"
+        id S235194AbhEJLAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234408AbhEJK4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED1316199F;
-        Mon, 10 May 2021 10:45:52 +0000 (UTC)
+        id S234178AbhEJK4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B337761464;
+        Mon, 10 May 2021 10:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643553;
-        bh=59LsXGdZyP/PDtSD8U1o/gxSemZL1om5QmAcjhwY9Fc=;
+        s=korg; t=1620643467;
+        bh=+hon7tRePnHNKSbakAjM6yRj1+EL6QAEwD/NoxkqwHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHTUanK+I2zXcFwctu0TKcKVT35QX3qljgXUhJ7rW/3OX8bDAqw20YRFdONHRXHY7
-         4sdPb+SI06eTsbSuLZAYOHj8yFi/nJt2O/10VDj9qLqzrNiITzlf7+eQsCViBT3Y0I
-         q8p/0myJz5UatEwWQW/koTkwWrfcOXKd9FxcrGHM=
+        b=NyIqweKU9vVubIdvBHKnOADFaMp9qFsEAaLy7wiP4ULc4q5Zf3CMCopiFaqwOguz+
+         Ja+aHVnG6SoQefXfPoGVNsF9DrnWexDmMhk0ytsTOf2x1Qhxz0ZxzhvVsOH9GKSKiu
+         PdIO0vdy2kSzBvUt0GIYsx3Ulu0nMRGrjev/5IA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Kai Stuhlemmer (ebee Engineering)" <kai.stuhlemmer@ebee.de>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Serge Semin <fancer.lancer@gmail.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.11 026/342] mtd: rawnand: atmel: Update ecc_stats.corrected counter
-Date:   Mon, 10 May 2021 12:16:56 +0200
-Message-Id: <20210510102010.974542189@linuxfoundation.org>
+Subject: [PATCH 5.11 027/342] mtd: physmap: physmap-bt1-rom: Fix unintentional stack access
+Date:   Mon, 10 May 2021 12:16:57 +0200
+Message-Id: <20210510102011.004875267@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -41,39 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Stuhlemmer (ebee Engineering) <kai.stuhlemmer@ebee.de>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-commit 33cebf701e98dd12b01d39d1c644387b27c1a627 upstream.
+commit 683313993dbe1651c7aa00bb42a041d70e914925 upstream.
 
-Update MTD ECC statistics with the number of corrected bits.
+Cast &data to (char *) in order to avoid unintentionally accessing
+the stack.
 
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
+Notice that data is of type u32, so any increment to &data
+will be in the order of 4-byte chunks, and this piece of code
+is actually intended to be a byte offset.
+
+Fixes: b3e79e7682e0 ("mtd: physmap: Add Baikal-T1 physically mapped ROM support")
+Addresses-Coverity-ID: 1497765 ("Out-of-bounds access")
 Cc: stable@vger.kernel.org
-Signed-off-by: Kai Stuhlemmer (ebee Engineering) <kai.stuhlemmer@ebee.de>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Acked-by: Serge Semin <fancer.lancer@gmail.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210322150714.101585-1-tudor.ambarus@microchip.com
+Link: https://lore.kernel.org/linux-mtd/20210212104022.GA242669@embeddedor
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/atmel/nand-controller.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/mtd/maps/physmap-bt1-rom.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/atmel/nand-controller.c
-+++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
-@@ -883,10 +883,12 @@ static int atmel_nand_pmecc_correct_data
- 							  NULL, 0,
- 							  chip->ecc.strength);
- 
--		if (ret >= 0)
-+		if (ret >= 0) {
-+			mtd->ecc_stats.corrected += ret;
- 			max_bitflips = max(ret, max_bitflips);
--		else
-+		} else {
- 			mtd->ecc_stats.failed++;
-+		}
- 
- 		databuf += chip->ecc.size;
- 		eccbuf += chip->ecc.bytes;
+--- a/drivers/mtd/maps/physmap-bt1-rom.c
++++ b/drivers/mtd/maps/physmap-bt1-rom.c
+@@ -79,7 +79,7 @@ static void __xipram bt1_rom_map_copy_fr
+ 	if (shift) {
+ 		chunk = min_t(ssize_t, 4 - shift, len);
+ 		data = readl_relaxed(src - shift);
+-		memcpy(to, &data + shift, chunk);
++		memcpy(to, (char *)&data + shift, chunk);
+ 		src += chunk;
+ 		to += chunk;
+ 		len -= chunk;
 
 
