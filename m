@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 125203782C9
+	by mail.lfdr.de (Postfix) with ESMTP id D0C923782CA
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231147AbhEJKiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:38:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40904 "EHLO mail.kernel.org"
+        id S230444AbhEJKiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:38:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232047AbhEJKfy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:35:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B090461626;
-        Mon, 10 May 2021 10:29:02 +0000 (UTC)
+        id S232008AbhEJKf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:35:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 260706193D;
+        Mon, 10 May 2021 10:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642543;
-        bh=/LogAFM6LnjxbranjfGc8t6rHE8tXrgUBthEQ/zuHOU=;
+        s=korg; t=1620642546;
+        bh=j+yJxaDaNg+0dsAfuh4blpsx95zm7XMjaysqroZ6ZpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6rFVFXg7ptyi13ItJqvyv5m6d4qfkagJp94fzGtTmJxaJHEwUtIzrqSHBpHgaobK
-         AxZjRkVukf4ziEcQIpCS0LHrRsh+3wv4rdP0sXc3MJTj4rDm2tcuYb7fEJTx41Jp2w
-         i7xebVLjjq4Eg7cDuuQDs8Bx4r4EGXlcysWGtuzc=
+        b=fuXQJJAXhEmv1MBIkYtnB0yI0IONwl5tGIR7FKLcGAlZy2HBGigzc/7twQDV6l9iI
+         SYg+pE+NJomf9MjtJ81gdycOF4L3QOlgapjChfe+yKXWPTxVM/ObcC6jj3JprZufnX
+         7rpLx7+lfGC3+6Hpl4ewU43Ckd6n0Y2/BKnYHDPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.de>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.4 138/184] virtiofs: fix memory leak in virtio_fs_probe()
-Date:   Mon, 10 May 2021 12:20:32 +0200
-Message-Id: <20210510101954.673106194@linuxfoundation.org>
+        stable@vger.kernel.org, Guochun Mao <guochun.mao@mediatek.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.4 139/184] ubifs: Only check replay with inode type to judge if inode linked
+Date:   Mon, 10 May 2021 12:20:33 +0200
+Message-Id: <20210510101954.704669590@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -41,59 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <lhenriques@suse.de>
+From: Guochun Mao <guochun.mao@mediatek.com>
 
-commit c79c5e0178922a9e092ec8fed026750f39dcaef4 upstream.
+commit 3e903315790baf4a966436e7f32e9c97864570ac upstream.
 
-When accidentally passing twice the same tag to qemu, kmemleak ended up
-reporting a memory leak in virtiofs.  Also, looking at the log I saw the
-following error (that's when I realised the duplicated tag):
+Conside the following case, it just write a big file into flash,
+when complete writing, delete the file, and then power off promptly.
+Next time power on, we'll get a replay list like:
+...
+LEB 1105:211344 len 4144 deletion 0 sqnum 428783 key type 1 inode 80
+LEB 15:233544 len 160 deletion 1 sqnum 428785 key type 0 inode 80
+LEB 1105:215488 len 4144 deletion 0 sqnum 428787 key type 1 inode 80
+...
+In the replay list, data nodes' deletion are 0, and the inode node's
+deletion is 1. In current logic, the file's dentry will be removed,
+but inode and the flash space it occupied will be reserved.
+User will see that much free space been disappeared.
 
-  virtiofs: probe of virtio5 failed with error -17
+We only need to check the deletion value of the following inode type
+node of the replay entry.
 
-Here's the kmemleak log for reference:
-
-unreferenced object 0xffff888103d47800 (size 1024):
-  comm "systemd-udevd", pid 118, jiffies 4294893780 (age 18.340s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff 80 90 02 a0 ff ff ff ff  ................
-  backtrace:
-    [<000000000ebb87c1>] virtio_fs_probe+0x171/0x7ae [virtiofs]
-    [<00000000f8aca419>] virtio_dev_probe+0x15f/0x210
-    [<000000004d6baf3c>] really_probe+0xea/0x430
-    [<00000000a6ceeac8>] device_driver_attach+0xa8/0xb0
-    [<00000000196f47a7>] __driver_attach+0x98/0x140
-    [<000000000b20601d>] bus_for_each_dev+0x7b/0xc0
-    [<00000000399c7b7f>] bus_add_driver+0x11b/0x1f0
-    [<0000000032b09ba7>] driver_register+0x8f/0xe0
-    [<00000000cdd55998>] 0xffffffffa002c013
-    [<000000000ea196a2>] do_one_initcall+0x64/0x2e0
-    [<0000000008f727ce>] do_init_module+0x5c/0x260
-    [<000000003cdedab6>] __do_sys_finit_module+0xb5/0x120
-    [<00000000ad2f48c6>] do_syscall_64+0x33/0x40
-    [<00000000809526b5>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
+Fixes: e58725d51fa8 ("ubifs: Handle re-linking of inodes correctly while recovery")
 Cc: stable@vger.kernel.org
-Signed-off-by: Luis Henriques <lhenriques@suse.de>
-Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Guochun Mao <guochun.mao@mediatek.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/virtio_fs.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ubifs/replay.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -667,6 +667,7 @@ static int virtio_fs_probe(struct virtio
- out_vqs:
- 	vdev->config->reset(vdev);
- 	virtio_fs_cleanup_vqs(vdev, fs);
-+	kfree(fs->vqs);
+--- a/fs/ubifs/replay.c
++++ b/fs/ubifs/replay.c
+@@ -223,7 +223,8 @@ static bool inode_still_linked(struct ub
+ 	 */
+ 	list_for_each_entry_reverse(r, &c->replay_list, list) {
+ 		ubifs_assert(c, r->sqnum >= rino->sqnum);
+-		if (key_inum(c, &r->key) == key_inum(c, &rino->key))
++		if (key_inum(c, &r->key) == key_inum(c, &rino->key) &&
++		    key_type(c, &r->key) == UBIFS_INO_KEY)
+ 			return r->deletion == 0;
  
- out:
- 	vdev->priv = NULL;
+ 	}
 
 
