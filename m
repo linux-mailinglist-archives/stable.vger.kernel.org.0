@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CECE6378470
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D6D63782B2
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbhEJKwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:52:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42174 "EHLO mail.kernel.org"
+        id S231338AbhEJKg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:36:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233692AbhEJKub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:50:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 766616194B;
-        Mon, 10 May 2021 10:39:47 +0000 (UTC)
+        id S232819AbhEJKfN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:35:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15FDD61922;
+        Mon, 10 May 2021 10:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643188;
-        bh=QFW2PpfndsL4yLPOv8wibmBs/SN33oj8abfed6abK/A=;
+        s=korg; t=1620642499;
+        bh=xaY0MHIR9143KmI75c50pWTwSZOaC+O3togLGV+jeGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Htz1dLZ4ZqJJ3fyorrzO0NUTcftuPGR1/x6Gh3FceMGx+fmEh6xe1JLlwBC981Ych
-         uRQWjko5XWKZ/29zkymPikmsnTxb341QXWgmyGLzmEdrua98XcgxTFlTpocmF75nWc
-         dtmvwXnp8TfI649ClEeBB08iNBfW8ycwGLM5dqhg=
+        b=MtWEI7VxJ5t1UMjg7Zdn7yYI1BqGh35SYbAFHsJ7u0rQjt7yo6xsvFHXXVG3k4xnX
+         jPdPgouCUWfx9d5P8/+GpdRYA5R7HkznVa89q8ADgwm7/egscUYWS+t177h4/9Vzbk
+         1gEIT3jHQ+C1YmDB4keCUqimnArQ1MBDk3yRZ0sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Witschel <diabonas@archlinux.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 214/299] ALSA: hda/realtek: fix mute/micmute LEDs for HP ProBook 445 G7
-Date:   Mon, 10 May 2021 12:20:11 +0200
-Message-Id: <20210510102012.013817323@linuxfoundation.org>
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 118/184] drm/amdgpu: fix NULL pointer dereference
+Date:   Mon, 10 May 2021 12:20:12 +0200
+Message-Id: <20210510101954.049055925@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
-References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+References: <20210510101950.200777181@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Witschel <diabonas@archlinux.org>
+From: Guchun Chen <guchun.chen@amd.com>
 
-commit 75b62ab65d2715ce6ff0794033d61ab9dc4a2dfc upstream.
+[ Upstream commit 3c3dc654333f6389803cdcaf03912e94173ae510 ]
 
-The HP ProBook 445 G7 (17T32ES) uses ALC236. Like ALC236_FIXUP_HP_GPIO_LED,
-COEF index 0x34 bit 5 is used to control the playback mute LED, but the
-microphone mute LED is controlled using pin VREF instead of a COEF index.
+ttm->sg needs to be checked before accessing its child member.
 
-AlsaInfo: https://alsa-project.org/db/?f=0d3f4d1af39cc359f9fea9b550727ee87e5cf45a
-Signed-off-by: Jonas Witschel <diabonas@archlinux.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210416105852.52588-1-diabonas@archlinux.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Call Trace:
+ amdgpu_ttm_backend_destroy+0x12/0x70 [amdgpu]
+ ttm_bo_cleanup_memtype_use+0x3a/0x60 [ttm]
+ ttm_bo_release+0x17d/0x300 [ttm]
+ amdgpu_bo_unref+0x1a/0x30 [amdgpu]
+ amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x78b/0x8b0 [amdgpu]
+ kfd_ioctl_alloc_memory_of_gpu+0x118/0x220 [amdgpu]
+ kfd_ioctl+0x222/0x400 [amdgpu]
+ ? kfd_dev_is_large_bar+0x90/0x90 [amdgpu]
+ __x64_sys_ioctl+0x8e/0xd0
+ ? __context_tracking_exit+0x52/0x90
+ do_syscall_64+0x33/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7f97f264d317
+Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
+RSP: 002b:00007ffdb402c338 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007f97f3cc63a0 RCX: 00007f97f264d317
+RDX: 00007ffdb402c380 RSI: 00000000c0284b16 RDI: 0000000000000003
+RBP: 00007ffdb402c380 R08: 00007ffdb402c428 R09: 00000000c4000004
+R10: 00000000c4000004 R11: 0000000000000246 R12: 00000000c0284b16
+R13: 0000000000000003 R14: 00007f97f3cc63a0 R15: 00007f8836200000
+
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4438,6 +4438,25 @@ static void alc236_fixup_hp_mute_led(str
- 	alc236_fixup_hp_coef_micmute_led(codec, fix, action);
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index c6a1dfe79e80..91e3a87b1de8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -984,7 +984,7 @@ static void amdgpu_ttm_tt_unpin_userptr(struct ttm_tt *ttm)
+ 		DMA_BIDIRECTIONAL : DMA_TO_DEVICE;
  
-+static void alc236_fixup_hp_micmute_led_vref(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->cap_mute_led_nid = 0x1a;
-+		snd_hda_gen_add_micmute_led_cdev(codec, vref_micmute_led_set);
-+		codec->power_filter = led_power_filter;
-+	}
-+}
-+
-+static void alc236_fixup_hp_mute_led_micmute_vref(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	alc236_fixup_hp_mute_led_coefbit(codec, fix, action);
-+	alc236_fixup_hp_micmute_led_vref(codec, fix, action);
-+}
-+
- #if IS_REACHABLE(CONFIG_INPUT)
- static void gpio2_mic_hotkey_event(struct hda_codec *codec,
- 				   struct hda_jack_callback *event)
-@@ -6400,6 +6419,7 @@ enum {
- 	ALC285_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_GPIO_LED,
- 	ALC236_FIXUP_HP_MUTE_LED,
-+	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
- 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
- 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
-@@ -7646,6 +7666,10 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc236_fixup_hp_mute_led,
- 	},
-+	[ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc236_fixup_hp_mute_led_micmute_vref,
-+	},
- 	[ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -8063,6 +8087,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8730, "HP ProBook 445 G7", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
+ 	/* double check that we don't free the table twice */
+-	if (!ttm->sg->sgl)
++	if (!ttm->sg || !ttm->sg->sgl)
+ 		return;
+ 
+ 	/* unmap the pages mapped to the device */
+-- 
+2.30.2
+
 
 
