@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1766D378898
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FE33786C0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231851AbhEJLWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:22:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46276 "EHLO mail.kernel.org"
+        id S236797AbhEJLK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:10:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237287AbhEJLLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A6CD6192D;
-        Mon, 10 May 2021 11:08:37 +0000 (UTC)
+        id S232176AbhEJLDw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:03:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F30C461933;
+        Mon, 10 May 2021 10:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644918;
-        bh=C0kbrCsgyDr8o88l0aKatdUORPeRqWEa/ybH6nlAdZs=;
+        s=korg; t=1620644078;
+        bh=nM82XFwB+Hv0Rbe30sfFpEmwyRJEFZjJt83JZ6zhF7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zF8nZac5pk14n+xpzn/HcXZxNgyUYXst6+Jlf5Ef2R7/XBeIlBQztlzU8VMHETKy5
-         0BSKdi64lBMi3L09XpioO4mfQNwxcUUldqSFP8jCHNjMLBZcCTtdppukHuneJLLQzs
-         rrY5fU2XpGTkhtN2rnX/snOXtWbOtFlK8OWaNz1s=
+        b=tsXpAS+5p17ZRQ3Q11nBCUE/K5kleWSW8H2e+krvMIrRflSij0vMByj8MMMKzrinK
+         YBK7D1KqTrYhGaMuwImOEder3poKVkyqBmbLrky8WS67Ur2l9oMj0IQym1wO2+3voq
+         VAqCe/Ks9cMduPoN/t4hhEXj4TFQgy0RmNYeuAyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Calvin <phil@philcalvin.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 278/384] ALSA: hda/realtek: fix mic boost on Intel NUC 8
+        stable@vger.kernel.org, Rosen Penev <rosenp@gmail.com>,
+        Tony Ambardar <Tony.Ambardar@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.11 277/342] powerpc: fix EDEADLOCK redefinition error in uapi/asm/errno.h
 Date:   Mon, 10 May 2021 12:21:07 +0200
-Message-Id: <20210510102023.992246430@linuxfoundation.org>
+Message-Id: <20210510102019.256875629@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,77 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Calvin <phil@philcalvin.com>
+From: Tony Ambardar <tony.ambardar@gmail.com>
 
-commit d1ee66c5d3c5a0498dd5e3f2af5b8c219a98bba5 upstream.
+commit 7de21e679e6a789f3729e8402bc440b623a28eae upstream.
 
-Fix two bugs with the Intel HDA Realtek ALC233 sound codec
-present in Intel NUC NUC8i7BEH and probably a few other similar
-NUC models.
+A few archs like powerpc have different errno.h values for macros
+EDEADLOCK and EDEADLK. In code including both libc and linux versions of
+errno.h, this can result in multiple definitions of EDEADLOCK in the
+include chain. Definitions to the same value (e.g. seen with mips) do
+not raise warnings, but on powerpc there are redefinitions changing the
+value, which raise warnings and errors (if using "-Werror").
 
-These codecs advertise a 4-level microphone input boost amplifier on
-pin 0x19, but the highest two boost settings do not work correctly,
-and produce only low analog noise that does not seem to contain any
-discernible signal. There is an existing fixup for this exact problem
-but for a different PCI subsystem ID, so we re-use that logic.
+Guard against these redefinitions to avoid build errors like the following,
+first seen cross-compiling libbpf v5.8.9 for powerpc using GCC 8.4.0 with
+musl 1.1.24:
 
-Changing the boost level also triggers a DC spike in the input signal
-that bleeds off over about a second and overwhelms any input during
-that time. Thankfully, the existing fixup has the side effect of
-making the boost control show up in userspace as a mute/unmute switch,
-and this keeps (e.g.) PulseAudio from fiddling with it during normal
-input volume adjustments.
+  In file included from ../../arch/powerpc/include/uapi/asm/errno.h:5,
+                   from ../../include/linux/err.h:8,
+                   from libbpf.c:29:
+  ../../include/uapi/asm-generic/errno.h:40: error: "EDEADLOCK" redefined [-Werror]
+   #define EDEADLOCK EDEADLK
 
-Finally, the NUC hardware has built-in inverted stereo mics. This
-patch also enables the usual fixup for this so the two channels cancel
-noise instead of the actual signal.
+  In file included from toolchain-powerpc_8540_gcc-8.4.0_musl/include/errno.h:10,
+                   from libbpf.c:26:
+  toolchain-powerpc_8540_gcc-8.4.0_musl/include/bits/errno.h:58: note: this is the location of the previous definition
+   #define EDEADLOCK       58
 
-[ Re-ordered the quirk entry point by tiwai ]
+  cc1: all warnings being treated as errors
 
-Signed-off-by: Phil Calvin <phil@philcalvin.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/80dc5663-7734-e7e5-25ef-15b5df24511a@philcalvin.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Stable <stable@vger.kernel.org>
+Reported-by: Rosen Penev <rosenp@gmail.com>
+Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200917135437.1238787-1-Tony.Ambardar@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/powerpc/include/uapi/asm/errno.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6435,6 +6435,8 @@ enum {
- 	ALC269_FIXUP_LEMOTE_A1802,
- 	ALC269_FIXUP_LEMOTE_A190X,
- 	ALC256_FIXUP_INTEL_NUC8_RUGGED,
-+	ALC233_FIXUP_INTEL_NUC8_DMIC,
-+	ALC233_FIXUP_INTEL_NUC8_BOOST,
- 	ALC256_FIXUP_INTEL_NUC10,
- 	ALC255_FIXUP_XIAOMI_HEADSET_MIC,
- 	ALC274_FIXUP_HP_MIC,
-@@ -7156,6 +7158,16 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc233_fixup_lenovo_line2_mic_hotkey,
- 	},
-+	[ALC233_FIXUP_INTEL_NUC8_DMIC] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc_fixup_inv_dmic,
-+		.chained = true,
-+		.chain_id = ALC233_FIXUP_INTEL_NUC8_BOOST,
-+	},
-+	[ALC233_FIXUP_INTEL_NUC8_BOOST] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc269_fixup_limit_int_mic_boost
-+	},
- 	[ALC255_FIXUP_DELL_SPK_NOISE] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc_fixup_disable_aamix,
-@@ -8305,6 +8317,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
- 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
-+	SND_PCI_QUIRK(0x8086, 0x2074, "Intel NUC 8", ALC233_FIXUP_INTEL_NUC8_DMIC),
- 	SND_PCI_QUIRK(0x8086, 0x2080, "Intel NUC 8 Rugged", ALC256_FIXUP_INTEL_NUC8_RUGGED),
- 	SND_PCI_QUIRK(0x8086, 0x2081, "Intel NUC 10", ALC256_FIXUP_INTEL_NUC10),
+--- a/arch/powerpc/include/uapi/asm/errno.h
++++ b/arch/powerpc/include/uapi/asm/errno.h
+@@ -2,6 +2,7 @@
+ #ifndef _ASM_POWERPC_ERRNO_H
+ #define _ASM_POWERPC_ERRNO_H
  
++#undef	EDEADLOCK
+ #include <asm-generic/errno.h>
+ 
+ #undef	EDEADLOCK
 
 
