@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F005A3787DF
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 747A03788CE
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235455AbhEJLTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:19:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
+        id S234981AbhEJLYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233095AbhEJLD7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:03:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C569161970;
-        Mon, 10 May 2021 10:54:47 +0000 (UTC)
+        id S237318AbhEJLLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93A7861931;
+        Mon, 10 May 2021 11:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644088;
-        bh=Jt5EiUEh7mJTWxku/OtT7jTesUR66OVrgO5rF0CQvAw=;
+        s=korg; t=1620644932;
+        bh=C6LzDeT77xCN7lbU3u03G5Ls4LwvgmbO3cY/DTI8pvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j99yj8KQj+eg7HcWbuoyOcEndhD84Ek1s+RU7n9a7008IXbrDe/GphtwmPjrxfL3P
-         bKXwXIn0YbTF8uWgefOmQJiDfdKv5Goucwv7WwpwhtLsZEO+lbFeSsypD+btiV8PEj
-         l5yEyUtDwuPV4dVmnSTW0NUTWoBBW2H8BSFucYcg=
+        b=midzy1h5qz4EG5f3diggxN5NOgIPMFIy5DEzU265YLDHvG4tpf+0yn9ge2YgleGGy
+         o7N+Dqkf7IKUldMeB+5qnUHsdqrPP30en9jTchzad885elb+BgLJp4h7CBEtw1j4YP
+         UZPJ0tXnBckZ72hU/Uvn1mFyGNpFYDsTFmWeFGNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.11 281/342] tpm: efi: Use local variable for calculating final log size
+        stable@vger.kernel.org, youling257 <youling257@gmail.com>,
+        Kurt Garloff <kurt@garloff.de>,
+        Bingsong Si <owen.si@ucloud.cn>,
+        "Artem S. Tashkinov" <aros@gmx.com>,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        Chen Yu <yu.c.chen@intel.com>, Len Brown <len.brown@intel.com>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Terry Bowman <terry.bowman@amd.com>
+Subject: [PATCH 5.12 282/384] tools/power/turbostat: Fix turbostat for AMD Zen CPUs
 Date:   Mon, 10 May 2021 12:21:11 +0200
-Message-Id: <20210510102019.388342282@linuxfoundation.org>
+Message-Id: <20210510102024.117262974@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,119 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
 
-commit 48cff270b037022e37835d93361646205ca25101 upstream.
+commit 301b1d3a9104f4f3a8ab4171cf88d0f55d632b41 upstream.
 
-When tpm_read_log_efi is called multiple times, which happens when
-one loads and unloads a TPM2 driver multiple times, then the global
-variable efi_tpm_final_log_size will at some point become a negative
-number due to the subtraction of final_events_preboot_size occurring
-each time. Use a local variable to avoid this integer underflow.
+It was reported that on Zen+ system turbostat started exiting,
+which was tracked down to the MSR_PKG_ENERGY_STAT read failing because
+offset_to_idx wasn't returning a non-negative index.
 
-The following issue is now resolved:
+This patch combined the modification from Bingsong Si and
+Bas Nieuwenhuizen and addd the MSR to the index system as alternative for
+MSR_PKG_ENERGY_STATUS.
 
-Mar  8 15:35:12 hibinst kernel: Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-Mar  8 15:35:12 hibinst kernel: Workqueue: tpm-vtpm vtpm_proxy_work [tpm_vtpm_proxy]
-Mar  8 15:35:12 hibinst kernel: RIP: 0010:__memcpy+0x12/0x20
-Mar  8 15:35:12 hibinst kernel: Code: 00 b8 01 00 00 00 85 d2 74 0a c7 05 44 7b ef 00 0f 00 00 00 c3 cc cc cc 66 66 90 66 90 48 89 f8 48 89 d1 48 c1 e9 03 83 e2 07 <f3> 48 a5 89 d1 f3 a4 c3 66 0f 1f 44 00 00 48 89 f8 48 89 d1 f3 a4
-Mar  8 15:35:12 hibinst kernel: RSP: 0018:ffff9ac4c0fcfde0 EFLAGS: 00010206
-Mar  8 15:35:12 hibinst kernel: RAX: ffff88f878cefed5 RBX: ffff88f878ce9000 RCX: 1ffffffffffffe0f
-Mar  8 15:35:12 hibinst kernel: RDX: 0000000000000003 RSI: ffff9ac4c003bff9 RDI: ffff88f878cf0e4d
-Mar  8 15:35:12 hibinst kernel: RBP: ffff9ac4c003b000 R08: 0000000000001000 R09: 000000007e9d6073
-Mar  8 15:35:12 hibinst kernel: R10: ffff9ac4c003b000 R11: ffff88f879ad3500 R12: 0000000000000ed5
-Mar  8 15:35:12 hibinst kernel: R13: ffff88f878ce9760 R14: 0000000000000002 R15: ffff88f77de7f018
-Mar  8 15:35:12 hibinst kernel: FS:  0000000000000000(0000) GS:ffff88f87bd00000(0000) knlGS:0000000000000000
-Mar  8 15:35:12 hibinst kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-Mar  8 15:35:12 hibinst kernel: CR2: ffff9ac4c003c000 CR3: 00000001785a6004 CR4: 0000000000060ee0
-Mar  8 15:35:12 hibinst kernel: Call Trace:
-Mar  8 15:35:12 hibinst kernel: tpm_read_log_efi+0x152/0x1a7
-Mar  8 15:35:12 hibinst kernel: tpm_bios_log_setup+0xc8/0x1c0
-Mar  8 15:35:12 hibinst kernel: tpm_chip_register+0x8f/0x260
-Mar  8 15:35:12 hibinst kernel: vtpm_proxy_work+0x16/0x60 [tpm_vtpm_proxy]
-Mar  8 15:35:12 hibinst kernel: process_one_work+0x1b4/0x370
-Mar  8 15:35:12 hibinst kernel: worker_thread+0x53/0x3e0
-Mar  8 15:35:12 hibinst kernel: ? process_one_work+0x370/0x370
-
-Cc: stable@vger.kernel.org
-Fixes: 166a2809d65b ("tpm: Don't duplicate events from the final event log in the TCG2 log")
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: 9972d5d84d76 ("tools/power turbostat: Enable accumulate RAPL display")
+Reported-by: youling257 <youling257@gmail.com>
+Tested-by: youling257 <youling257@gmail.com>
+Tested-by: Kurt Garloff <kurt@garloff.de>
+Tested-by: Bingsong Si <owen.si@ucloud.cn>
+Tested-by: Artem S. Tashkinov <aros@gmx.com>
+Co-developed-by: Bingsong Si <owen.si@ucloud.cn>
+Co-developed-by: Terry Bowman <terry.bowman@amd.com>
+Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Reviewed-by: Chen Yu <yu.c.chen@intel.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
+Cc: Salvatore Bonaccorso <carnil@debian.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/eventlog/efi.c |   29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ tools/power/x86/turbostat/turbostat.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/char/tpm/eventlog/efi.c
-+++ b/drivers/char/tpm/eventlog/efi.c
-@@ -17,6 +17,7 @@ int tpm_read_log_efi(struct tpm_chip *ch
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -297,7 +297,10 @@ int idx_to_offset(int idx)
+ 
+ 	switch (idx) {
+ 	case IDX_PKG_ENERGY:
+-		offset = MSR_PKG_ENERGY_STATUS;
++		if (do_rapl & RAPL_AMD_F17H)
++			offset = MSR_PKG_ENERGY_STAT;
++		else
++			offset = MSR_PKG_ENERGY_STATUS;
+ 		break;
+ 	case IDX_DRAM_ENERGY:
+ 		offset = MSR_DRAM_ENERGY_STATUS;
+@@ -326,6 +329,7 @@ int offset_to_idx(int offset)
+ 
+ 	switch (offset) {
+ 	case MSR_PKG_ENERGY_STATUS:
++	case MSR_PKG_ENERGY_STAT:
+ 		idx = IDX_PKG_ENERGY;
+ 		break;
+ 	case MSR_DRAM_ENERGY_STATUS:
+@@ -353,7 +357,7 @@ int idx_valid(int idx)
  {
- 
- 	struct efi_tcg2_final_events_table *final_tbl = NULL;
-+	int final_events_log_size = efi_tpm_final_log_size;
- 	struct linux_efi_tpm_eventlog *log_tbl;
- 	struct tpm_bios_log *log;
- 	u32 log_size;
-@@ -66,12 +67,12 @@ int tpm_read_log_efi(struct tpm_chip *ch
- 	ret = tpm_log_version;
- 
- 	if (efi.tpm_final_log == EFI_INVALID_TABLE_ADDR ||
--	    efi_tpm_final_log_size == 0 ||
-+	    final_events_log_size == 0 ||
- 	    tpm_log_version != EFI_TCG2_EVENT_LOG_FORMAT_TCG_2)
- 		goto out;
- 
- 	final_tbl = memremap(efi.tpm_final_log,
--			     sizeof(*final_tbl) + efi_tpm_final_log_size,
-+			     sizeof(*final_tbl) + final_events_log_size,
- 			     MEMREMAP_WB);
- 	if (!final_tbl) {
- 		pr_err("Could not map UEFI TPM final log\n");
-@@ -80,10 +81,18 @@ int tpm_read_log_efi(struct tpm_chip *ch
- 		goto out;
- 	}
- 
--	efi_tpm_final_log_size -= log_tbl->final_events_preboot_size;
-+	/*
-+	 * The 'final events log' size excludes the 'final events preboot log'
-+	 * at its beginning.
-+	 */
-+	final_events_log_size -= log_tbl->final_events_preboot_size;
- 
-+	/*
-+	 * Allocate memory for the 'combined log' where we will append the
-+	 * 'final events log' to.
-+	 */
- 	tmp = krealloc(log->bios_event_log,
--		       log_size + efi_tpm_final_log_size,
-+		       log_size + final_events_log_size,
- 		       GFP_KERNEL);
- 	if (!tmp) {
- 		kfree(log->bios_event_log);
-@@ -94,15 +103,19 @@ int tpm_read_log_efi(struct tpm_chip *ch
- 	log->bios_event_log = tmp;
- 
- 	/*
--	 * Copy any of the final events log that didn't also end up in the
--	 * main log. Events can be logged in both if events are generated
-+	 * Append any of the 'final events log' that didn't also end up in the
-+	 * 'main log'. Events can be logged in both if events are generated
- 	 * between GetEventLog() and ExitBootServices().
- 	 */
- 	memcpy((void *)log->bios_event_log + log_size,
- 	       final_tbl->events + log_tbl->final_events_preboot_size,
--	       efi_tpm_final_log_size);
-+	       final_events_log_size);
-+	/*
-+	 * The size of the 'combined log' is the size of the 'main log' plus
-+	 * the size of the 'final events log'.
-+	 */
- 	log->bios_event_log_end = log->bios_event_log +
--		log_size + efi_tpm_final_log_size;
-+		log_size + final_events_log_size;
- 
- out:
- 	memunmap(final_tbl);
+ 	switch (idx) {
+ 	case IDX_PKG_ENERGY:
+-		return do_rapl & RAPL_PKG;
++		return do_rapl & (RAPL_PKG | RAPL_AMD_F17H);
+ 	case IDX_DRAM_ENERGY:
+ 		return do_rapl & RAPL_DRAM;
+ 	case IDX_PP0_ENERGY:
 
 
