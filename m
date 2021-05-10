@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 375AD3783F7
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0732D3783F4
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232294AbhEJKsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:48:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33618 "EHLO mail.kernel.org"
+        id S232209AbhEJKsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:48:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232256AbhEJKp5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232362AbhEJKp5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:45:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 413BF6157E;
-        Mon, 10 May 2021 10:36:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6FF4616EA;
+        Mon, 10 May 2021 10:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643000;
-        bh=B6WblkSrQ9P/g3aJe8LqLVWa3NPPMKSXaO9IbXnTVvk=;
+        s=korg; t=1620643006;
+        bh=+8Ak/gQ7R3xd2xD7Jm1k0nim9o8CSWY+VD9ZmUUgU00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcoL3T9aV36J3VuiW+W1hfoQXjvFrh134mqZ/fAEL7LJVGZHi/NMGadAyYLu88r0V
-         lB/DNsw00OjNyXrv+UpoMq4hI1I8S8MCfgMv/REQWf6FQh6pwhBT+MY6DN0GRcEAUl
-         eys7vhEufiZEVC3a+CmA8XCrH+x8nnf+aVKPc6HQ=
+        b=wPZsqKGrOFnLgPV79AHkZIC9VbhrYxz4xuIDFbbL3fD6GzhxMQ6nu3GH2lKDX6eBV
+         SfLJGubaKYEBpDVgOreb1SvLnC3W9N556IWWgAsewcrzeEOp5D0VHCkkMesxWa52XO
+         Nop5QP01rvJRFAvw/S7KrbwKVUBYPOgs5NQO7fIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dongjian <dongjian@yulong.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Obeida Shamoun <oshmoun100@googlemail.com>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Kiran Gunda <kgunda@codeaurora.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 138/299] power: supply: Use IRQF_ONESHOT
-Date:   Mon, 10 May 2021 12:18:55 +0200
-Message-Id: <20210510102009.524884681@linuxfoundation.org>
+Subject: [PATCH 5.10 139/299] backlight: qcom-wled: Use sink_addr for sync toggle
+Date:   Mon, 10 May 2021 12:18:56 +0200
+Message-Id: <20210510102009.557708168@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -40,81 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dongjian <dongjian@yulong.com>
+From: Obeida Shamoun <oshmoun100@googlemail.com>
 
-[ Upstream commit 2469b836fa835c67648acad17d62bc805236a6ea ]
+[ Upstream commit cdfd4c689e2a52c313b35ddfc1852ff274f91acb ]
 
-Fixes coccicheck error:
+WLED3_SINK_REG_SYNC is, as the name implies, a sink register offset.
+Therefore, use the sink address as base instead of the ctrl address.
 
-drivers/power/supply/pm2301_charger.c:1089:7-27: ERROR:
-drivers/power/supply/lp8788-charger.c:502:8-28: ERROR:
-drivers/power/supply/tps65217_charger.c:239:8-33: ERROR:
-drivers/power/supply/tps65090-charger.c:303:8-33: ERROR:
+This fixes the sync toggle on wled4, which can be observed by the fact
+that adjusting brightness now works.
 
-Threaded IRQ with no primary handler requested without IRQF_ONESHOT
+It has no effect on wled3 because sink and ctrl base addresses are the
+same.  This allows adjusting the brightness without having to disable
+then reenable the module.
 
-Signed-off-by: dongjian <dongjian@yulong.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Obeida Shamoun <oshmoun100@googlemail.com>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Acked-by: Kiran Gunda <kgunda@codeaurora.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/lp8788-charger.c   | 2 +-
- drivers/power/supply/pm2301_charger.c   | 2 +-
- drivers/power/supply/tps65090-charger.c | 2 +-
- drivers/power/supply/tps65217_charger.c | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/video/backlight/qcom-wled.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/lp8788-charger.c b/drivers/power/supply/lp8788-charger.c
-index e7931ffb7151..397e5a03b7d9 100644
---- a/drivers/power/supply/lp8788-charger.c
-+++ b/drivers/power/supply/lp8788-charger.c
-@@ -501,7 +501,7 @@ static int lp8788_set_irqs(struct platform_device *pdev,
+diff --git a/drivers/video/backlight/qcom-wled.c b/drivers/video/backlight/qcom-wled.c
+index 3bc7800eb0a9..83a187fdaa1d 100644
+--- a/drivers/video/backlight/qcom-wled.c
++++ b/drivers/video/backlight/qcom-wled.c
+@@ -336,13 +336,13 @@ static int wled3_sync_toggle(struct wled *wled)
+ 	unsigned int mask = GENMASK(wled->max_string_count - 1, 0);
  
- 		ret = request_threaded_irq(virq, NULL,
- 					lp8788_charger_irq_thread,
--					0, name, pchg);
-+					IRQF_ONESHOT, name, pchg);
- 		if (ret)
- 			break;
- 	}
-diff --git a/drivers/power/supply/pm2301_charger.c b/drivers/power/supply/pm2301_charger.c
-index 2df6a2459d1f..34f168f62178 100644
---- a/drivers/power/supply/pm2301_charger.c
-+++ b/drivers/power/supply/pm2301_charger.c
-@@ -1090,7 +1090,7 @@ static int pm2xxx_wall_charger_probe(struct i2c_client *i2c_client,
- 	ret = request_threaded_irq(gpio_to_irq(pm2->pdata->gpio_irq_number),
- 				NULL,
- 				pm2xxx_charger_irq[0].isr,
--				pm2->pdata->irq_type,
-+				pm2->pdata->irq_type | IRQF_ONESHOT,
- 				pm2xxx_charger_irq[0].name, pm2);
+ 	rc = regmap_update_bits(wled->regmap,
+-				wled->ctrl_addr + WLED3_SINK_REG_SYNC,
++				wled->sink_addr + WLED3_SINK_REG_SYNC,
+ 				mask, mask);
+ 	if (rc < 0)
+ 		return rc;
  
- 	if (ret != 0) {
-diff --git a/drivers/power/supply/tps65090-charger.c b/drivers/power/supply/tps65090-charger.c
-index 6b0098e5a88b..0990b2fa6cd8 100644
---- a/drivers/power/supply/tps65090-charger.c
-+++ b/drivers/power/supply/tps65090-charger.c
-@@ -301,7 +301,7 @@ static int tps65090_charger_probe(struct platform_device *pdev)
+ 	rc = regmap_update_bits(wled->regmap,
+-				wled->ctrl_addr + WLED3_SINK_REG_SYNC,
++				wled->sink_addr + WLED3_SINK_REG_SYNC,
+ 				mask, WLED3_SINK_REG_SYNC_CLEAR);
  
- 	if (irq != -ENXIO) {
- 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
--			tps65090_charger_isr, 0, "tps65090-charger", cdata);
-+			tps65090_charger_isr, IRQF_ONESHOT, "tps65090-charger", cdata);
- 		if (ret) {
- 			dev_err(cdata->dev,
- 				"Unable to register irq %d err %d\n", irq,
-diff --git a/drivers/power/supply/tps65217_charger.c b/drivers/power/supply/tps65217_charger.c
-index 814c2b81fdfe..ba33d1617e0b 100644
---- a/drivers/power/supply/tps65217_charger.c
-+++ b/drivers/power/supply/tps65217_charger.c
-@@ -238,7 +238,7 @@ static int tps65217_charger_probe(struct platform_device *pdev)
- 	for (i = 0; i < NUM_CHARGER_IRQS; i++) {
- 		ret = devm_request_threaded_irq(&pdev->dev, irq[i], NULL,
- 						tps65217_charger_irq,
--						0, "tps65217-charger",
-+						IRQF_ONESHOT, "tps65217-charger",
- 						charger);
- 		if (ret) {
- 			dev_err(charger->dev,
+ 	return rc;
 -- 
 2.30.2
 
