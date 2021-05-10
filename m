@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD55E377ECD
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:58:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 044F5377ECE
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:58:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbhEJI7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:59:51 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:52567 "EHLO
+        id S230098AbhEJI77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:59:59 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:35561 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230098AbhEJI7v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:59:51 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C590E1940BDE;
-        Mon, 10 May 2021 04:58:46 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 10 May 2021 04:58:46 -0400
+        by vger.kernel.org with ESMTP id S230049AbhEJI77 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:59:59 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id CEB501940BE6;
+        Mon, 10 May 2021 04:58:54 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 10 May 2021 04:58:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=qkmYDw
-        9KgwBshZjAyjRnqzdd6b61cw5mrsUfzTpcuSs=; b=YxsxTXW2TlYLK7S8RaoJ5O
-        lwrO6/hiVrTgNfw4Mez0VRT3K0zP3M+uMp3U935TiqcDRqmjtgJorDe3xDDqvrwg
-        WwamFzkQt738EpyZ4IoZb/GVL9QXNUpl/TURS6mgLVK4+24gLzn/hWdPjspjEPSu
-        78EiF6BOH4eMFTkYSUJKXJej0wY48Qwf9V8ctvy2n+KTMXqeKk4RcGjnRgniehUl
-        Mbr1qADm27Mrd7uSkWntcr3eEvuQPh7gLdLojACYMCn5I4YTSmC7LPIS9pYRJrTO
-        T+dSI+hoCVUGM0nwr0n1PBKfid+Y0utHGUu7kJLMGMomTGxjDzwSvUh4A/I7GJrw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yli9Am
+        L8UQlgI49oJEmCYygVjGdkByorAQK6nM8CRXo=; b=U2rUgeu5Dnthv5uc+iAN3E
+        6qmnsIExEyR3u2uDGdIiGNCUUxaxDyPhaiSsUzX78OaOVje7++3PiwsvjDJwsjO5
+        gk5sXuhQlfnEwuM2cu8efYbHIqkkBSKbguT3/7MjhUz5CPilRF192FbztUUceVkE
+        b7c60al7lTZEICpNnfrrMPqI+3Q3jIpwFBRdwfcVDefjZw5bpqSneYhhXO/NAHjC
+        1HKCjWqh1NaxHmEOeFxVZupSzqoP31qVRCdwTw8iUrz8uzDzTw8yrvENyfLtgWTK
+        IeFEhidMleQGu1F/1LeLMolF5OpheBVZrEYO6VvOagfeBZwpT357ZoCOtevbwJxA
         ==
-X-ME-Sender: <xms:xfWYYHBkKP_HZ_ebtbFfjymEkeH4lvOlYpTL_Bj_0f5aKHxEvc_NEA>
-    <xme:xfWYYNh_pe2-Xakunnd5TD1MStHfwipdFEne4ZqGhQIYfu5SXJ5DU03R2BWglHVD2
-    iILhyRPb-wsVA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedguddtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:zvWYYDMGrKiKobgXLlJO87zp3smCXESc8jotheOlhmCG9k9bWnlAmw>
+    <xme:zvWYYN-RypfjmBIosGyUtDMxEx2Dj6z_OILFh6yixfFbA2XnEi2_naWab7wQDOkuD
+    BknVM15QPpreA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedguddtucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:xfWYYCnX0wK1UODru6Os_1vkBX38Su8y3dcaX73RUsN__zVACT4erg>
-    <xmx:xfWYYJzeMLStBYgFWaM3_3CBBLfMVT8AE16XgeMt3EFHXhM7D7YxNw>
-    <xmx:xfWYYMS04lxlmP6xqGihTOL18gVG3uSsJ53yyFztpkqco2sonPwnzQ>
-    <xmx:xvWYYHcWnmBOuUveqatPCb9CJhVeWlc4xDg8_DkVx1DzklXbyBg5Xg>
+X-ME-Proxy: <xmx:zvWYYCTOQnNittqcfISNdgAQ_F2F0TeS6G1aLMY0CqT5IpiqhsWGNQ>
+    <xmx:zvWYYHuJuZ6XJrdSZ3cH6ddOOs4hV1tfAEyRFoGdWMm5oRTFpve2bw>
+    <xmx:zvWYYLfPK-rqh2NmpK8NvrWRXRNk4QLvHXakqrPR7J0HfP0PVphLmw>
+    <xmx:zvWYYMp85tB2NbDjPgfWjbO383HjSyYZ_cbar8KywVU7oUSMr8YiPA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:58:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] thermal/drivers/cpufreq_cooling: Fix slab OOB issue" failed to apply to 5.4-stable tree
+        Mon, 10 May 2021 04:58:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] thermal/drivers/cpufreq_cooling: Fix slab OOB issue" failed to apply to 4.14-stable tree
 To:     brian-sy.yang@mediatek.com, daniel.lezcano@linaro.org,
         lukasz.luba@arm.com, michael.kao@mediatek.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 10 May 2021 10:58:44 +0200
-Message-ID: <162063712461143@kroah.com>
+Message-ID: <1620637124141140@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
