@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190FB378305
+	by mail.lfdr.de (Postfix) with ESMTP id 9081F378306
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231654AbhEJKlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:41:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48982 "EHLO mail.kernel.org"
+        id S231925AbhEJKlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:41:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232741AbhEJKj7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:39:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69A066190A;
-        Mon, 10 May 2021 10:30:49 +0000 (UTC)
+        id S232753AbhEJKkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:40:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF95F61959;
+        Mon, 10 May 2021 10:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642649;
-        bh=3XajU10dEMXk9toIBhGzvm02aQA3tpd2LUqRYNKKr64=;
+        s=korg; t=1620642652;
+        bh=Iu+n9JsXKTp3CbzqBVUQxZ1DMRkaPClel+mrPh+YlV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4JvZgxwpFFnuvauzM4s2SEEhDay9RH2/HF3jwc754TpCmlaQ9DMULDl8Tjc88dxl
-         PagTrap+kbtyk5X/S6dqaBdikehhZmen2/4/YTelpGVYmxIOnHM9W5KXDxuk0NNUv+
-         CQuZ1t+65BZ1UmXvC2OMUybnSzI+kkjJGBB+YcVc=
+        b=d6TLQ2tDKJqYQwkUk1LEDMT0eCkuWi7gLhPAWRZ1eJxfZ4m6KQtyMnOXeIpIkSTWr
+         NFpIzZEyeVmcGLGImzEaHc561L4PDy80x2FGzVGe7qm0fclU4NuDiKpZbezHmxbLZo
+         OwITwbffDE/P5tCZebdq1SyB7yHkNS1lbjy7uYSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Konstantin Kharlamov <hi-angel@yandex.ru>,
-        Todd Brandt <todd.e.brandt@linux.intel.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 180/184] tracing: Restructure trace_clock_global() to never block
-Date:   Mon, 10 May 2021 12:21:14 +0200
-Message-Id: <20210510101956.012537586@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 181/184] dm persistent data: packed struct should have an aligned() attribute too
+Date:   Mon, 10 May 2021 12:21:15 +0200
+Message-Id: <20210510101956.049174862@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -40,150 +39,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Joe Thornber <ejt@redhat.com>
 
-commit aafe104aa9096827a429bc1358f8260ee565b7cc upstream.
+commit a88b2358f1da2c9f9fcc432f2e0a79617fea397c upstream.
 
-It was reported that a fix to the ring buffer recursion detection would
-cause a hung machine when performing suspend / resume testing. The
-following backtrace was extracted from debugging that case:
-
-Call Trace:
- trace_clock_global+0x91/0xa0
- __rb_reserve_next+0x237/0x460
- ring_buffer_lock_reserve+0x12a/0x3f0
- trace_buffer_lock_reserve+0x10/0x50
- __trace_graph_return+0x1f/0x80
- trace_graph_return+0xb7/0xf0
- ? trace_clock_global+0x91/0xa0
- ftrace_return_to_handler+0x8b/0xf0
- ? pv_hash+0xa0/0xa0
- return_to_handler+0x15/0x30
- ? ftrace_graph_caller+0xa0/0xa0
- ? trace_clock_global+0x91/0xa0
- ? __rb_reserve_next+0x237/0x460
- ? ring_buffer_lock_reserve+0x12a/0x3f0
- ? trace_event_buffer_lock_reserve+0x3c/0x120
- ? trace_event_buffer_reserve+0x6b/0xc0
- ? trace_event_raw_event_device_pm_callback_start+0x125/0x2d0
- ? dpm_run_callback+0x3b/0xc0
- ? pm_ops_is_empty+0x50/0x50
- ? platform_get_irq_byname_optional+0x90/0x90
- ? trace_device_pm_callback_start+0x82/0xd0
- ? dpm_run_callback+0x49/0xc0
-
-With the following RIP:
-
-RIP: 0010:native_queued_spin_lock_slowpath+0x69/0x200
-
-Since the fix to the recursion detection would allow a single recursion to
-happen while tracing, this lead to the trace_clock_global() taking a spin
-lock and then trying to take it again:
-
-ring_buffer_lock_reserve() {
-  trace_clock_global() {
-    arch_spin_lock() {
-      queued_spin_lock_slowpath() {
-        /* lock taken */
-        (something else gets traced by function graph tracer)
-          ring_buffer_lock_reserve() {
-            trace_clock_global() {
-              arch_spin_lock() {
-                queued_spin_lock_slowpath() {
-                /* DEAD LOCK! */
-
-Tracing should *never* block, as it can lead to strange lockups like the
-above.
-
-Restructure the trace_clock_global() code to instead of simply taking a
-lock to update the recorded "prev_time" simply use it, as two events
-happening on two different CPUs that calls this at the same time, really
-doesn't matter which one goes first. Use a trylock to grab the lock for
-updating the prev_time, and if it fails, simply try again the next time.
-If it failed to be taken, that means something else is already updating
-it.
-
-Link: https://lkml.kernel.org/r/20210430121758.650b6e8a@gandalf.local.home
+Otherwise most non-x86 architectures (e.g. riscv, arm) will resort to
+byte-by-byte access.
 
 Cc: stable@vger.kernel.org
-Tested-by: Konstantin Kharlamov <hi-angel@yandex.ru>
-Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
-Fixes: b02414c8f045 ("ring-buffer: Fix recursion protection transitions between interrupt context") # started showing the problem
-Fixes: 14131f2f98ac3 ("tracing: implement trace_clock_*() APIs") # where the bug happened
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212761
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_clock.c |   48 ++++++++++++++++++++++++++++++---------------
- 1 file changed, 32 insertions(+), 16 deletions(-)
+ drivers/md/persistent-data/dm-btree-internal.h   |    4 ++--
+ drivers/md/persistent-data/dm-space-map-common.h |    8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/kernel/trace/trace_clock.c
-+++ b/kernel/trace/trace_clock.c
-@@ -95,33 +95,49 @@ u64 notrace trace_clock_global(void)
- {
- 	unsigned long flags;
- 	int this_cpu;
--	u64 now;
-+	u64 now, prev_time;
+--- a/drivers/md/persistent-data/dm-btree-internal.h
++++ b/drivers/md/persistent-data/dm-btree-internal.h
+@@ -34,12 +34,12 @@ struct node_header {
+ 	__le32 max_entries;
+ 	__le32 value_size;
+ 	__le32 padding;
+-} __packed;
++} __attribute__((packed, aligned(8)));
  
- 	raw_local_irq_save(flags);
+ struct btree_node {
+ 	struct node_header header;
+ 	__le64 keys[0];
+-} __packed;
++} __attribute__((packed, aligned(8)));
  
- 	this_cpu = raw_smp_processor_id();
--	now = sched_clock_cpu(this_cpu);
-+
- 	/*
--	 * If in an NMI context then dont risk lockups and return the
--	 * cpu_clock() time:
-+	 * The global clock "guarantees" that the events are ordered
-+	 * between CPUs. But if two events on two different CPUS call
-+	 * trace_clock_global at roughly the same time, it really does
-+	 * not matter which one gets the earlier time. Just make sure
-+	 * that the same CPU will always show a monotonic clock.
-+	 *
-+	 * Use a read memory barrier to get the latest written
-+	 * time that was recorded.
- 	 */
--	if (unlikely(in_nmi()))
--		goto out;
-+	smp_rmb();
-+	prev_time = READ_ONCE(trace_clock_struct.prev_time);
-+	now = sched_clock_cpu(this_cpu);
  
--	arch_spin_lock(&trace_clock_struct.lock);
-+	/* Make sure that now is always greater than prev_time */
-+	if ((s64)(now - prev_time) < 0)
-+		now = prev_time + 1;
+ /*
+--- a/drivers/md/persistent-data/dm-space-map-common.h
++++ b/drivers/md/persistent-data/dm-space-map-common.h
+@@ -33,7 +33,7 @@ struct disk_index_entry {
+ 	__le64 blocknr;
+ 	__le32 nr_free;
+ 	__le32 none_free_before;
+-} __packed;
++} __attribute__ ((packed, aligned(8)));
  
- 	/*
--	 * TODO: if this happens often then maybe we should reset
--	 * my_scd->clock to prev_time+1, to make sure
--	 * we start ticking with the local clock from now on?
-+	 * If in an NMI context then dont risk lockups and simply return
-+	 * the current time.
- 	 */
--	if ((s64)(now - trace_clock_struct.prev_time) < 0)
--		now = trace_clock_struct.prev_time + 1;
--
--	trace_clock_struct.prev_time = now;
--
--	arch_spin_unlock(&trace_clock_struct.lock);
-+	if (unlikely(in_nmi()))
-+		goto out;
  
-+	/* Tracing can cause strange recursion, always use a try lock */
-+	if (arch_spin_trylock(&trace_clock_struct.lock)) {
-+		/* Reread prev_time in case it was already updated */
-+		prev_time = READ_ONCE(trace_clock_struct.prev_time);
-+		if ((s64)(now - prev_time) < 0)
-+			now = prev_time + 1;
-+
-+		trace_clock_struct.prev_time = now;
-+
-+		/* The unlock acts as the wmb for the above rmb */
-+		arch_spin_unlock(&trace_clock_struct.lock);
-+	}
-  out:
- 	raw_local_irq_restore(flags);
+ #define MAX_METADATA_BITMAPS 255
+@@ -43,7 +43,7 @@ struct disk_metadata_index {
+ 	__le64 blocknr;
  
+ 	struct disk_index_entry index[MAX_METADATA_BITMAPS];
+-} __packed;
++} __attribute__ ((packed, aligned(8)));
+ 
+ struct ll_disk;
+ 
+@@ -86,7 +86,7 @@ struct disk_sm_root {
+ 	__le64 nr_allocated;
+ 	__le64 bitmap_root;
+ 	__le64 ref_count_root;
+-} __packed;
++} __attribute__ ((packed, aligned(8)));
+ 
+ #define ENTRIES_PER_BYTE 4
+ 
+@@ -94,7 +94,7 @@ struct disk_bitmap_header {
+ 	__le32 csum;
+ 	__le32 not_used;
+ 	__le64 blocknr;
+-} __packed;
++} __attribute__ ((packed, aligned(8)));
+ 
+ enum allocation_event {
+ 	SM_NONE,
 
 
