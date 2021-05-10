@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 368493788D8
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 770BB378708
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235335AbhEJLY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:24:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
+        id S234588AbhEJLNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232047AbhEJLLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F26061937;
-        Mon, 10 May 2021 11:09:23 +0000 (UTC)
+        id S235854AbhEJLGW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:06:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A930D60FE3;
+        Mon, 10 May 2021 10:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644963;
-        bh=5fuRqTcKIiPzxbE9ZPKDhNPvkmZlbtvNlweGkPwV8cQ=;
+        s=korg; t=1620644199;
+        bh=6aDdcVRD5XDeRzPu5cDpy+CeTozswdh322xviITHbFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIvnVIFNY+VnOsUGFaW9R3QtlKNSwrdL3rf5CzRlL8JCuYUb7jNb6GtyBCvppAlmU
-         NQ90zQ0oYwyWHdDbiZUfLTFCDb7m7EzUF11a4eVr66Ae37RA0ijO20lpjXL95BV5WI
-         E/RIkBhubgvRZ1lC/fnY6Yn9mwi+ckwVJbHYa2Yw=
+        b=wpXnFVeeKCC2tns4e0LHH3pFZegfLWpAJQoXjMv6MsqzyKSuCqotc7nkOGXIzEikz
+         SvUI0OGsVftVKxmy7DtIeut0iTDIvFlJ+qtmMTqiIK3WUEBIk3FcZpI94zPOdhx+4w
+         6QB/7luv9Z7olwx7e5aTr16rHvH5kHH3gR2Y2EEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.12 294/384] mlxsw: spectrum_mr: Update egress RIF list before routes action
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Andrey Zhizhikin <andrey.z@gmail.com>
+Subject: [PATCH 5.11 293/342] security: commoncap: fix -Wstringop-overread warning
 Date:   Mon, 10 May 2021 12:21:23 +0200
-Message-Id: <20210510102024.507462856@linuxfoundation.org>
+Message-Id: <20210510102019.796657790@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,99 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit cbaf3f6af9c268caf558c8e7ec52bcb35c5455dd upstream.
+commit 82e5d8cc768b0c7b03c551a9ab1f8f3f68d5f83f upstream.
 
-Each multicast route that is forwarding packets (as opposed to trapping
-them) points to a list of egress router interfaces (RIFs) through which
-packets are replicated.
+gcc-11 introdces a harmless warning for cap_inode_getsecurity:
 
-A route's action can transition from trap to forward when a RIF is
-created for one of the route's egress virtual interfaces (eVIF). When
-this happens, the route's action is first updated and only later the
-list of egress RIFs is committed to the device.
+security/commoncap.c: In function ‘cap_inode_getsecurity’:
+security/commoncap.c:440:33: error: ‘memcpy’ reading 16 bytes from a region of size 0 [-Werror=stringop-overread]
+  440 |                                 memcpy(&nscap->data, &cap->data, sizeof(__le32) * 2 * VFS_CAP_U32);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This results in the route pointing to an invalid list. In case the list
-pointer is out of range (due to uninitialized memory), the device will
-complain:
+The problem here is that tmpbuf is initialized to NULL, so gcc assumes
+it is not accessible unless it gets set by vfs_getxattr_alloc().  This is
+a legitimate warning as far as I can tell, but the code is correct since
+it correctly handles the error when that function fails.
 
-mlxsw_spectrum2 0000:06:00.0: EMAD reg access failed (tid=5733bf490000905c,reg_id=300f(pefa),type=write,status=7(bad parameter))
+Add a separate NULL check to tell gcc about it as well.
 
-Fix this by first committing the list of egress RIFs to the device and
-only later update the route's action.
-
-Note that a fix is not needed in the reverse function (i.e.,
-mlxsw_sp_mr_route_evif_unresolve()), as there the route's action is
-first updated and only later the RIF is removed from the list.
-
-Cc: stable@vger.kernel.org
-Fixes: c011ec1bbfd6 ("mlxsw: spectrum: Add the multicast routing offloading logic")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/20210506072308.3834303-1-idosch@idosch.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: James Morris <jamorris@linux.microsoft.com>
+Cc: Andrey Zhizhikin <andrey.z@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c |   30 +++++++++++-----------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ security/commoncap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-@@ -535,6 +535,16 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 	u16 erif_index = 0;
- 	int err;
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -391,7 +391,7 @@ int cap_inode_getsecurity(struct inode *
+ 				 &tmpbuf, size, GFP_NOFS);
+ 	dput(dentry);
  
-+	/* Add the eRIF */
-+	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
-+		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
-+		err = mr->mr_ops->route_erif_add(mlxsw_sp,
-+						 rve->mr_route->route_priv,
-+						 erif_index);
-+		if (err)
-+			return err;
-+	}
-+
- 	/* Update the route action, as the new eVIF can be a tunnel or a pimreg
- 	 * device which will require updating the action.
- 	 */
-@@ -544,17 +554,7 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 						      rve->mr_route->route_priv,
- 						      route_action);
- 		if (err)
--			return err;
--	}
--
--	/* Add the eRIF */
--	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
--		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
--		err = mr->mr_ops->route_erif_add(mlxsw_sp,
--						 rve->mr_route->route_priv,
--						 erif_index);
--		if (err)
--			goto err_route_erif_add;
-+			goto err_route_action_update;
- 	}
+-	if (ret < 0)
++	if (ret < 0 || !tmpbuf)
+ 		return ret;
  
- 	/* Update the minimum MTU */
-@@ -572,14 +572,14 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 	return 0;
- 
- err_route_min_mtu_update:
--	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
--		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
--					   erif_index);
--err_route_erif_add:
- 	if (route_action != rve->mr_route->route_action)
- 		mr->mr_ops->route_action_update(mlxsw_sp,
- 						rve->mr_route->route_priv,
- 						rve->mr_route->route_action);
-+err_route_action_update:
-+	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
-+		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
-+					   erif_index);
- 	return err;
- }
- 
+ 	fs_ns = inode->i_sb->s_user_ns;
 
 
