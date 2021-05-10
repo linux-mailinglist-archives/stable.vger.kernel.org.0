@@ -2,142 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F286377CF1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 09:09:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9DAB377CF0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 09:09:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230122AbhEJHLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230116AbhEJHLC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 May 2021 03:11:02 -0400
-Received: from mga06.intel.com ([134.134.136.31]:35503 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230076AbhEJHLC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 03:11:02 -0400
-IronPort-SDR: tB5UBB5572ApdpQmqxgJhfz/e60o2QKOojwptGdVqlRdioJznMkj1qxMUq7HaeAXjAsQXGn1P2
- GlA66FE/kFdQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,9979"; a="260395544"
-X-IronPort-AV: E=Sophos;i="5.82,286,1613462400"; 
-   d="scan'208";a="260395544"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2021 00:09:56 -0700
-IronPort-SDR: o0cXtX7zzu3uW9T2hJ+jaCGwDlWLBh+AsAvwRMc7EH2cGJ2bNXhLg1+iE3YSh74xWeRrtgnppO
- 4P3A9+apSpHw==
-X-IronPort-AV: E=Sophos;i="5.82,287,1613462400"; 
-   d="scan'208";a="470697844"
-Received: from lingshan-mobl5.ccr.corp.intel.com (HELO [10.254.212.136]) ([10.254.212.136])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2021 00:09:50 -0700
-Subject: Re: [PATCH] Revert "irqbypass: do not start cons/prod when failed
- connect"
-To:     Jason Wang <jasowang@redhat.com>, mst@redhat.com, maz@kernel.org,
-        alex.williamson@redhat.com
-Cc:     kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        kvmarm@lists.cs.columbia.edu, cohuck@redhat.com,
-        stable@vger.kernel.org
-References: <20210508071152.722425-1-lingshan.zhu@intel.com>
- <b309c02d-9570-6400-9a0c-63030aed7ff7@redhat.com>
- <a659fc6f-2c7a-23d2-9c34-0044d5a31861@intel.com>
- <e5d63867-7a4a-963f-9fbd-741ccd3ec360@redhat.com>
-From:   "Zhu, Lingshan" <lingshan.zhu@intel.com>
-Message-ID: <b822cde1-7970-dac0-26cc-da1daa0b622f@intel.com>
-Date:   Mon, 10 May 2021 15:09:47 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49870 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230002AbhEJHLA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 03:11:00 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C797FC061573
+        for <stable@vger.kernel.org>; Mon, 10 May 2021 00:09:54 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id t4so22975460ejo.0
+        for <stable@vger.kernel.org>; Mon, 10 May 2021 00:09:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=pYbNpjnnqjc+Xi/bRrpptmfJ508WVQ/5TiSYG5equZ4=;
+        b=Oyhk7C6T6j+hQAcTIwPGCn6QsWXmUaKQi/u0DdazwquMI4wFhrRtRPrhaSrKL7iIsc
+         AqWhRd6lf4hoofCKn2vQLdRG7cTnK+9CRvWuk0xhnosl9sikdnyl8ppeFzNqi/60dVw/
+         5MBcBBh1YfWf6qi8a+Q3/O9+IyWm0X5cGBiJD0CGaOkpl5RsJO/9zMyD/o+qFvikd+9F
+         YEMr+38YoHQ4KPYAt2u/yPbzlw5kB4s7VMjtcq6n2n87mbFFaeWG+xz30CtbMBmJspnj
+         lehshceDl6NFOIXav5z2BDqiA8iwLQuktryUStYjhD4DcWdcORUottEG0UUGuNKuwlWw
+         Vmtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=pYbNpjnnqjc+Xi/bRrpptmfJ508WVQ/5TiSYG5equZ4=;
+        b=UP2RrGGcf0CDkO+Pa1138l6krZEGhBDuOFF0jf/HT3ZhpHbfbeMPaXOPLo/x4SLL1d
+         /Z9To/fEYhF03VpiJLqi9WxEKOtjUhzxiATd2jawla9WywkVuH7KRJJ2RboWESesROkp
+         K8iYRg1Vj3eSL2kDyr2cIdLQhj4DU/F/ZJBxuobK7BAXgy1C45VLQG1/6LbzMqmmi3dS
+         BsuavF7UGWi4Pw2EqAI0N/ueqATC9U+FWUUn2YWC/KTeFJ+LXsi01LRByGEJHjn0zgjr
+         yUJQKRQ4QFzz87yIYsyQokWb1Erpqf3s29stnYvFR+Yw4yNwRM9MuSdUh1Ec2g3+kNaV
+         R3kg==
+X-Gm-Message-State: AOAM533mKuOrhKkQWggq+r4wP9Jeaua5mKimV1qa6k7tjtVmIGx4Jjny
+        ZaQj5WzXOWsspGfCfvHFpFYpmE1wZQR09wZN9MM=
+X-Google-Smtp-Source: ABdhPJzoKAWSLu6sWWcF7JkeGXWkYJyrZLaVQlB6fbAIg6K9rIBjBNrsrgutAwB8pPqBgC+nG2TMZZCj4Q1IhW89RFk=
+X-Received: by 2002:a17:906:2ec6:: with SMTP id s6mr812211eji.65.1620630593462;
+ Mon, 10 May 2021 00:09:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <e5d63867-7a4a-963f-9fbd-741ccd3ec360@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Sender: infopublicarsfileimfinfop@gmail.com
+Received: by 2002:aa7:ca4e:0:0:0:0:0 with HTTP; Mon, 10 May 2021 00:09:53
+ -0700 (PDT)
+From:   "Mr. Dabire Basole" <mrdabirebasole@gmail.com>
+Date:   Mon, 10 May 2021 00:09:53 -0700
+X-Google-Sender-Auth: 38LmsrQlwcZHkkHaw3_96yNoX6Q
+Message-ID: <CAL35FyHTgpZtGk38-Hr56Efq7DPj0N8Zg6D0GByiCT6_LD7jUw@mail.gmail.com>
+Subject: PERSONAL TREAT AS URGENT.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+FROM MR. DABIRE BASOLE
+AUDIT & ACCOUNT MANAGER
+BANK OF AFRICA (B.O.A)
+OUAGADOUGOU BURKINA FASO
+WEST AFRICA.
 
+Dear Friend,
 
-On 5/10/2021 12:34 PM, Jason Wang wrote:
->
-> 在 2021/5/10 上午11:00, Zhu, Lingshan 写道:
->>
->>
->> On 5/10/2021 10:43 AM, Jason Wang wrote:
->>>
->>> 在 2021/5/8 下午3:11, Zhu Lingshan 写道:
->>>> This reverts commit a979a6aa009f3c99689432e0cdb5402a4463fb88.
->>>>
->>>> The reverted commit may cause VM freeze on arm64 platform.
->>>> Because on arm64 platform, stop a consumer will suspend the VM,
->>>> the VM will freeze without a start consumer
->>>>
->>>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->>>
->>>
->>> Acked-by: Jason Wang <jasowang@redhat.com>
->>>
->>> Please resubmit with the formal process of stable 
->>> (stable-kernel-rules.rst).
->> sure, I will re-submit it to stable kernel once it is merged into 
->> Linus tree.
->>
->> Thanks
->
->
-> I think it's better to resubmit (option 1), see how 
-> stable-kernel-rules.rst said:
->
-> ""
->
-> :ref:`option_1` is **strongly** preferred, is the easiest and most 
-> common.
-> :ref:`option_2` and :ref:`option_3` are more useful if the patch isn't 
-> deemed
-> worthy at the time it is applied to a public git tree (for instance, 
-> because
-> it deserves more regression testing first).
->
-> """
->
-> Thanks
-OK, works for me, I will add cc stable, and resubmit it soon
+With due respect, I have decided to contact you on a business
+transaction that will be beneficial to both of us. At the bank last
+account and auditing evaluation, my staffs came across an old account
+which was being maintained by a foreign client who we learn was among
+the deceased passengers of motor accident on November.2003, the
+deceased was unable to run this account since his death. The account
+has remained dormant without the knowledge of his family since it was
+put in a safe deposit account in the bank for future investment by the
+client.
 
-Thanks!
->
->
->>>
->>> Thanks
->>>
->>>
->>>> ---
->>>>   virt/lib/irqbypass.c | 16 ++++++----------
->>>>   1 file changed, 6 insertions(+), 10 deletions(-)
->>>>
->>>> diff --git a/virt/lib/irqbypass.c b/virt/lib/irqbypass.c
->>>> index c9bb3957f58a..28fda42e471b 100644
->>>> --- a/virt/lib/irqbypass.c
->>>> +++ b/virt/lib/irqbypass.c
->>>> @@ -40,21 +40,17 @@ static int __connect(struct irq_bypass_producer 
->>>> *prod,
->>>>       if (prod->add_consumer)
->>>>           ret = prod->add_consumer(prod, cons);
->>>>   -    if (ret)
->>>> -        goto err_add_consumer;
->>>> -
->>>> -    ret = cons->add_producer(cons, prod);
->>>> -    if (ret)
->>>> -        goto err_add_producer;
->>>> +    if (!ret) {
->>>> +        ret = cons->add_producer(cons, prod);
->>>> +        if (ret && prod->del_consumer)
->>>> +            prod->del_consumer(prod, cons);
->>>> +    }
->>>>         if (cons->start)
->>>>           cons->start(cons);
->>>>       if (prod->start)
->>>>           prod->start(prod);
->>>> -err_add_producer:
->>>> -    if (prod->del_consumer)
->>>> -        prod->del_consumer(prod, cons);
->>>> -err_add_consumer:
->>>> +
->>>>       return ret;
->>>>   }
->>>
->>
->
+Since his demise, even the members of his family haven't applied for
+claims over this fund and it has been in the safe deposit account
+until I discovered that it cannot be claimed since our client is a
+foreign national and we are sure that he has no next of kin here to
+file claims over the money. As the director of the department, this
+discovery was brought to my office so as to decide what is to be done.
+I decided to seek ways through which to transfer this money out of the
+bank and out of the country too.
 
+The total amount in the account is USD$18.6 ( Eighteen Million Six Hundred
+Thousand United Stated Dollars) with my positions as
+staffs of the bank, I am handicapped because I cannot operate foreign
+accounts and cannot lay bonafide claim over this money. The client was
+a foreign national and you will only be asked to act as his next of
+kin and I will supply you with all the necessary information and bank
+data to assist you in being able to transfer this money to any bank of
+your choice where this money could be transferred into.
+
+The total sum will be shared as follows: 50% for me, 50% for you,
+while 10% will map aside for any expenses incidental occur during the
+transfering of this fund into your bank account. and the expenses
+should be the first thing to be remove before sharing of this fund
+according to our percentages . The transfer is risk free on both sides
+hence you are going to follow my instruction till the fund transfer to
+your account. Since I work in this bank that is why you should be
+confident in the success of this transaction because you will be
+updated with information as at when desired.
+
+I will wish you to keep this transaction secret and confidential as I
+am hoping to retire with my share of this money at the end of
+transaction which will be when this money is safety in your account. I
+will then come over to your country for sharing according to the
+previously agreed percentages. You might even have to advise me on
+possibilities of investment in your country or elsewhere of our
+choice. May God help you to help me to a restive retirement, Amen,
+
+Please for further information and inquires feel free to contact me
+back immediately for more explanation and better understanding I want
+you to assure me your capability of handling this project with trust
+by providing me your following information details such as:
+
+(1)NAME..............
+(2)AGE:................
+(3)SEX:.....................
+(4)PHONE NUMBER:.................
+(5)OCCUPATION:................ .....
+(6)YOUR COUNTRY:.....................
+
+Yours sincerely,
+
+Mr. Dabire Basole.
