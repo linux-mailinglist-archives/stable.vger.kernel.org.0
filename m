@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6763377EC3
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A130D377EC5
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:57:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbhEJI5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:57:36 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:50599 "EHLO
+        id S230106AbhEJI6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:58:14 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:54327 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230049AbhEJI5g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:57:36 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 57A171940A40;
-        Mon, 10 May 2021 04:56:29 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S230145AbhEJI6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:58:14 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 9B3951940A40;
+        Mon, 10 May 2021 04:57:08 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 10 May 2021 04:56:29 -0400
+  by compute3.internal (MEProxy); Mon, 10 May 2021 04:57:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rSlrlV
-        KHK0sqTj/iKWSlyPwhlWT72mhGw3+jTvmXekw=; b=v0DdfcPibK4vjJ5DNOfXQM
-        ITag6iibAu2lNhDsfrb5bYMi9M2Xs65DHFdLFNFq8xdRDZFYOCCKrCGiGsJszzCJ
-        MpsoQCInZkCi7fdIE5blNR3LhMiY4eWDdXYted6ZJISyVhpWCaPWhGt5KMVQeggd
-        7fDHqedMyKzXzm8GlVuG/mkJrmUeTOZIKrj8+Ktp0vsKOWNpxakT+LcQcpBuCSXm
-        B9krGQU4FlRpqx4ziU8dy5XWPjhlPjf8ru1OCSJDFngYxS2BEC/wrk7EpTGICfhL
-        Q1CuiCM2wNB358Uyx9IVWHYkkx/SlvYfbmbyLfW3vgN5XFURdkBDKXvaGI1N0p0A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=sadJJc
+        qlj4rohcsqgohInHR19ndjNpx+/XVgMyxO/DU=; b=cJhbAs3U2GjPQ7YZMk39xr
+        0QkprL7FGSQ4ZXxVI3Dbpx9Z4TQfO3rUUHENo1KUfKZzVSDU+P5LnIxznoVKuk2f
+        ehIOibntvXz6z27bjO92OmTgZrq9IDDJ04Hakz/duik2XJIe7ck+5VuC5gDeJIoF
+        N6DC9uj/ixzIXOaAS7lC9zMs46uRBh5Dj1MHmMO5OTJth4B/TD2f29wNU1eOhgdN
+        nJ4Ml7a19o1CDA/o/mpsd2mXoTfusD+u4tre97Xz2LraLWcpukacXLerlHQHof3p
+        a5PkgVzR8ISo5cdr1ajxZJAPk6SkSvalpqKhVzFY8uOQlYHd757cKWM7g+XCs4WA
         ==
-X-ME-Sender: <xms:PfWYYLV57f8Xut9bm-seHTTEMGeBAaZSkyVp-Dt_DZNCUsd5GjjZGQ>
-    <xme:PfWYYDmMR8TBZNZ_puPDJ1TtrvMIeFSuE_GJ3T7wjQiFKQAliXyZA_3daDMqkMXhX
-    _d-AO3geFXm7Q>
+X-ME-Sender: <xms:ZPWYYOWG7FSBnFYOXj4bfU5tdyD0AA0ce_1MNd4VY4Fii0A8BDG82w>
+    <xme:ZPWYYKlJ-eKuihE4_KrWC-vovNJnKuPkxcsUyU__ANDBXKBOimzKbzt3y3ue3K8M4
+    WRz9CqRxs0tMw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepkeejgffftefgveeggeehudfgleehkedthedtiefhie
     elieetveejvdfgvdeljeelnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:PfWYYHZCXoRJEy6TbvpbrwVtc_uCvhYsYEk4o3548BfM7h1paxSuCA>
-    <xmx:PfWYYGW8g-lqdnf4G9ZjSVRpuhWyIXUm8tOKxgbhVVxiCSpNXTdQLg>
-    <xmx:PfWYYFm5uUfo3E3_-8TY3WZd_23B1aQk8atMR5oiXvsloXWH9hIqJw>
-    <xmx:PfWYYLiyfM7MBsqjb9a_v7i2SPzNtaWOiImPgFX0b0357WCDM3viKA>
+X-ME-Proxy: <xmx:ZPWYYCaLfgmg6Dol_GZKNbj_BDyTgSJSCwevK6dpsZTG8HD5BAD5cg>
+    <xmx:ZPWYYFXP0Dunng_8T0S9F0Hoxg_NHlXSiBIeUeIZ2tePvZZjliliiw>
+    <xmx:ZPWYYIlpziZkLSRcJSQ2pN6vmGJmueJCgvYfHnCtbljQMBDKejwAPQ>
+    <xmx:ZPWYYCj17AgmgaomqVkhTpy9XhB_YzWA9R0JrmiJ5gtHh9Al4iZ1Kg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:56:28 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] pinctrl: Ingenic: Add missing pins to the JZ4770 MAC MII" failed to apply to 5.4-stable tree
+        Mon, 10 May 2021 04:57:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] pinctrl: Ingenic: Add support for read the pin configuration" failed to apply to 5.10-stable tree
 To:     zhouyanjie@wanyeetech.com, andy.shevchenko@gmail.com,
         linus.walleij@linaro.org, paul@crapouillou.net,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 10:56:11 +0200
-Message-ID: <162063697114297@kroah.com>
+Date:   Mon, 10 May 2021 10:56:31 +0200
+Message-ID: <162063699165220@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,40 +72,95 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 65afd97630a9d6dd9ea83ff182dfdb15bc58c5d1 Mon Sep 17 00:00:00 2001
+From 1d0bd580ef83b78a10c0b37f3313eaa59d8c80db Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20=28Zhou=20Yanjie=29?=
  <zhouyanjie@wanyeetech.com>
-Date: Sun, 18 Apr 2021 22:44:22 +0800
-Subject: [PATCH] pinctrl: Ingenic: Add missing pins to the JZ4770 MAC MII
- group.
+Date: Sun, 18 Apr 2021 22:44:23 +0800
+Subject: [PATCH] pinctrl: Ingenic: Add support for read the pin configuration
+ of X1830.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The MII group of JZ4770's MAC should have 7 pins, add missing
-pins to the MII group.
+Add X1830 support in "ingenic_pinconf_get()", so that it can read the
+configuration of X1830 SoC correctly.
 
-Fixes: 5de1a73e78ed ("Pinctrl: Ingenic: Add missing parts for JZ4770 and JZ4780.")
+Fixes: d7da2a1e4e08 ("pinctrl: Ingenic: Add pinctrl driver for X1830.")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Reviewed-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/1618757073-1724-2-git-send-email-zhouyanjie@wanyeetech.com
+Link: https://lore.kernel.org/r/1618757073-1724-3-git-send-email-zhouyanjie@wanyeetech.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
 diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
-index c8ecd014cf19..f15ef814b75a 100644
+index f15ef814b75a..02729da8abd6 100644
 --- a/drivers/pinctrl/pinctrl-ingenic.c
 +++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -667,7 +667,9 @@ static int jz4770_pwm_pwm7_pins[] = { 0x6b, };
- static int jz4770_mac_rmii_pins[] = {
- 	0xa9, 0xab, 0xaa, 0xac, 0xa5, 0xa4, 0xad, 0xae, 0xa6, 0xa8,
- };
--static int jz4770_mac_mii_pins[] = { 0xa7, 0xaf, };
-+static int jz4770_mac_mii_pins[] = {
-+	0x7b, 0x7a, 0x7d, 0x7c, 0xa7, 0x24, 0xaf,
-+};
+@@ -2109,26 +2109,48 @@ static int ingenic_pinconf_get(struct pinctrl_dev *pctldev,
+ 	enum pin_config_param param = pinconf_to_config_param(*config);
+ 	unsigned int idx = pin % PINS_PER_GPIO_CHIP;
+ 	unsigned int offt = pin / PINS_PER_GPIO_CHIP;
+-	bool pull;
++	unsigned int bias;
++	bool pull, pullup, pulldown;
  
- static const struct group_desc jz4770_groups[] = {
- 	INGENIC_PIN_GROUP("uart0-data", jz4770_uart0_data, 0),
+-	if (jzpc->info->version >= ID_JZ4770)
+-		pull = !ingenic_get_pin_config(jzpc, pin, JZ4770_GPIO_PEN);
+-	else
+-		pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
++	if (jzpc->info->version >= ID_X1830) {
++		unsigned int half = PINS_PER_GPIO_CHIP / 2;
++		unsigned int idxh = (pin % half) * 2;
++
++		if (idx < half)
++			regmap_read(jzpc->map, offt * jzpc->info->reg_offset +
++					X1830_GPIO_PEL, &bias);
++		else
++			regmap_read(jzpc->map, offt * jzpc->info->reg_offset +
++					X1830_GPIO_PEH, &bias);
++
++		bias = (bias >> idxh) & (GPIO_PULL_UP | GPIO_PULL_DOWN);
++
++		pullup = (bias == GPIO_PULL_UP) && (jzpc->info->pull_ups[offt] & BIT(idx));
++		pulldown = (bias == GPIO_PULL_DOWN) && (jzpc->info->pull_downs[offt] & BIT(idx));
++
++	} else {
++		if (jzpc->info->version >= ID_JZ4770)
++			pull = !ingenic_get_pin_config(jzpc, pin, JZ4770_GPIO_PEN);
++		else
++			pull = !ingenic_get_pin_config(jzpc, pin, JZ4740_GPIO_PULL_DIS);
++
++		pullup = pull && (jzpc->info->pull_ups[offt] & BIT(idx));
++		pulldown = pull && (jzpc->info->pull_downs[offt] & BIT(idx));
++	}
+ 
+ 	switch (param) {
+ 	case PIN_CONFIG_BIAS_DISABLE:
+-		if (pull)
++		if (pullup || pulldown)
+ 			return -EINVAL;
+ 		break;
+ 
+ 	case PIN_CONFIG_BIAS_PULL_UP:
+-		if (!pull || !(jzpc->info->pull_ups[offt] & BIT(idx)))
++		if (!pullup)
+ 			return -EINVAL;
+ 		break;
+ 
+ 	case PIN_CONFIG_BIAS_PULL_DOWN:
+-		if (!pull || !(jzpc->info->pull_downs[offt] & BIT(idx)))
++		if (!pulldown)
+ 			return -EINVAL;
+ 		break;
+ 
+@@ -2146,7 +2168,7 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
+ 	if (jzpc->info->version >= ID_X1830) {
+ 		unsigned int idx = pin % PINS_PER_GPIO_CHIP;
+ 		unsigned int half = PINS_PER_GPIO_CHIP / 2;
+-		unsigned int idxh = pin % half * 2;
++		unsigned int idxh = (pin % half) * 2;
+ 		unsigned int offt = pin / PINS_PER_GPIO_CHIP;
+ 
+ 		if (idx < half) {
 
