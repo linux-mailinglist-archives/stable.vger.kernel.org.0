@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB7E63783B0
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D55A63783B3
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232697AbhEJKrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:47:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59426 "EHLO mail.kernel.org"
+        id S232658AbhEJKrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:47:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232943AbhEJKot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:44:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3312461090;
-        Mon, 10 May 2021 10:34:20 +0000 (UTC)
+        id S232963AbhEJKou (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:44:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D44F61075;
+        Mon, 10 May 2021 10:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642860;
-        bh=q0wtzpkP3KFxFH8c3OrkuxNjeHg3usQD1DCsFaStQlo=;
+        s=korg; t=1620642863;
+        bh=SdSFpBpRgPfkm5XJGFFr1af15UgE2cUoz/UoKCzuSdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1sIorm49/BRHPdRDGwWWXVSnz10pRDA5ULOkqPuZN06sThUbMtjsbwZc5EjFhwB2
-         5lAX4Swc3aCtiSw9h/QNzBiESPSZr+B92VxwfkZHUvn0sJPo+MtLEIhGlL6G8lo/Bv
-         CGVqvTUpN84RsWJtmj54jGz4P9TPlKyqfWoIPWeQ=
+        b=n7mUHYRUE+DaDvScMn5B7Szc/vmxFVzpPHxJul5YrUnnIUIjlzWnQL+Eev9RnivoD
+         odDXS3bjxo+nfaDxHgvUyawObksw7sb52aCOPNyVI0TviCvB/Ydfrbf2c27dxM5VCZ
+         wymGT53ab5RoneY0m/SAcuwQwxVJQQ/rbY/IDLbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 047/299] btrfs: fix race between transaction aborts and fsyncs leading to use-after-free
-Date:   Mon, 10 May 2021 12:17:24 +0200
-Message-Id: <20210510102006.419364064@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Jun <chenjun102@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Richard Cochran <richardcochran@gmail.com>
+Subject: [PATCH 5.10 048/299] posix-timers: Preserve return value in clock_adjtime32()
+Date:   Mon, 10 May 2021 12:17:25 +0200
+Message-Id: <20210510102006.451877033@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -40,151 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-commit 061dde8245356d8864d29e25207aa4daa0be4d3c upstream.
+commit 2d036dfa5f10df9782f5278fc591d79d283c1fad upstream.
 
-There is a race between a task aborting a transaction during a commit,
-a task doing an fsync and the transaction kthread, which leads to an
-use-after-free of the log root tree. When this happens, it results in a
-stack trace like the following:
+The return value on success (>= 0) is overwritten by the return value of
+put_old_timex32(). That works correct in the fault case, but is wrong for
+the success case where put_old_timex32() returns 0.
 
-  BTRFS info (device dm-0): forced readonly
-  BTRFS warning (device dm-0): Skipping commit of aborted transaction.
-  BTRFS: error (device dm-0) in cleanup_transaction:1958: errno=-5 IO failure
-  BTRFS warning (device dm-0): lost page write due to IO error on /dev/mapper/error-test (-5)
-  BTRFS warning (device dm-0): Skipping commit of aborted transaction.
-  BTRFS warning (device dm-0): direct IO failed ino 261 rw 0,0 sector 0xa4e8 len 4096 err no 10
-  BTRFS error (device dm-0): error writing primary super block to device 1
-  BTRFS warning (device dm-0): direct IO failed ino 261 rw 0,0 sector 0x12e000 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 261 rw 0,0 sector 0x12e008 len 4096 err no 10
-  BTRFS warning (device dm-0): direct IO failed ino 261 rw 0,0 sector 0x12e010 len 4096 err no 10
-  BTRFS: error (device dm-0) in write_all_supers:4110: errno=-5 IO failure (1 errors while writing supers)
-  BTRFS: error (device dm-0) in btrfs_sync_log:3308: errno=-5 IO failure
-  general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b6b68: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
-  CPU: 2 PID: 2458471 Comm: fsstress Not tainted 5.12.0-rc5-btrfs-next-84 #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:__mutex_lock+0x139/0xa40
-  Code: c0 74 19 (...)
-  RSP: 0018:ffff9f18830d7b00 EFLAGS: 00010202
-  RAX: 6b6b6b6b6b6b6b68 RBX: 0000000000000001 RCX: 0000000000000002
-  RDX: ffffffffb9c54d13 RSI: 0000000000000000 RDI: 0000000000000000
-  RBP: ffff9f18830d7bc0 R08: 0000000000000000 R09: 0000000000000000
-  R10: ffff9f18830d7be0 R11: 0000000000000001 R12: ffff8c6cd199c040
-  R13: ffff8c6c95821358 R14: 00000000fffffffb R15: ffff8c6cbcf01358
-  FS:  00007fa9140c2b80(0000) GS:ffff8c6fac600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fa913d52000 CR3: 000000013d2b4003 CR4: 0000000000370ee0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   ? __btrfs_handle_fs_error+0xde/0x146 [btrfs]
-   ? btrfs_sync_log+0x7c1/0xf20 [btrfs]
-   ? btrfs_sync_log+0x7c1/0xf20 [btrfs]
-   btrfs_sync_log+0x7c1/0xf20 [btrfs]
-   btrfs_sync_file+0x40c/0x580 [btrfs]
-   do_fsync+0x38/0x70
-   __x64_sys_fsync+0x10/0x20
-   do_syscall_64+0x33/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7fa9142a55c3
-  Code: 8b 15 09 (...)
-  RSP: 002b:00007fff26278d48 EFLAGS: 00000246 ORIG_RAX: 000000000000004a
-  RAX: ffffffffffffffda RBX: 0000563c83cb4560 RCX: 00007fa9142a55c3
-  RDX: 00007fff26278cb0 RSI: 00007fff26278cb0 RDI: 0000000000000005
-  RBP: 0000000000000005 R08: 0000000000000001 R09: 00007fff26278d5c
-  R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000340
-  R13: 00007fff26278de0 R14: 00007fff26278d96 R15: 0000563c83ca57c0
-  Modules linked in: btrfs dm_zero dm_snapshot dm_thin_pool (...)
-  ---[ end trace ee2f1b19327d791d ]---
+Just check the return value of put_old_timex32() and return -EFAULT in case
+it is not zero.
 
-The steps that lead to this crash are the following:
+[ tglx: Massage changelog ]
 
-1) We are at transaction N;
-
-2) We have two tasks with a transaction handle attached to transaction N.
-   Task A and Task B. Task B is doing an fsync;
-
-3) Task B is at btrfs_sync_log(), and has saved fs_info->log_root_tree
-   into a local variable named 'log_root_tree' at the top of
-   btrfs_sync_log(). Task B is about to call write_all_supers(), but
-   before that...
-
-4) Task A calls btrfs_commit_transaction(), and after it sets the
-   transaction state to TRANS_STATE_COMMIT_START, an error happens before
-   it waits for the transaction's 'num_writers' counter to reach a value
-   of 1 (no one else attached to the transaction), so it jumps to the
-   label "cleanup_transaction";
-
-5) Task A then calls cleanup_transaction(), where it aborts the
-   transaction, setting BTRFS_FS_STATE_TRANS_ABORTED on fs_info->fs_state,
-   setting the ->aborted field of the transaction and the handle to an
-   errno value and also setting BTRFS_FS_STATE_ERROR on fs_info->fs_state.
-
-   After that, at cleanup_transaction(), it deletes the transaction from
-   the list of transactions (fs_info->trans_list), sets the transaction
-   to the state TRANS_STATE_COMMIT_DOING and then waits for the number
-   of writers to go down to 1, as it's currently 2 (1 for task A and 1
-   for task B);
-
-6) The transaction kthread is running and sees that BTRFS_FS_STATE_ERROR
-   is set in fs_info->fs_state, so it calls btrfs_cleanup_transaction().
-
-   There it sees the list fs_info->trans_list is empty, and then proceeds
-   into calling btrfs_drop_all_logs(), which frees the log root tree with
-   a call to btrfs_free_log_root_tree();
-
-7) Task B calls write_all_supers() and, shortly after, under the label
-   'out_wake_log_root', it deferences the pointer stored in
-   'log_root_tree', which was already freed in the previous step by the
-   transaction kthread. This results in a use-after-free leading to a
-   crash.
-
-Fix this by deleting the transaction from the list of transactions at
-cleanup_transaction() only after setting the transaction state to
-TRANS_STATE_COMMIT_DOING and waiting for all existing tasks that are
-attached to the transaction to release their transaction handles.
-This makes the transaction kthread wait for all the tasks attached to
-the transaction to be done with the transaction before dropping the
-log roots and doing other cleanups.
-
-Fixes: ef67963dac255b ("btrfs: drop logs when we've aborted a transaction")
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 3a4d44b61625 ("ntp: Move adjtimex related compat syscalls to native counterparts")
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Richard Cochran <richardcochran@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210414030449.90692-1-chenjun102@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/transaction.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ kernel/time/posix-timers.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -1950,7 +1950,6 @@ static void cleanup_transaction(struct b
- 	 */
- 	BUG_ON(list_empty(&cur_trans->list));
+--- a/kernel/time/posix-timers.c
++++ b/kernel/time/posix-timers.c
+@@ -1191,8 +1191,8 @@ SYSCALL_DEFINE2(clock_adjtime32, clockid
  
--	list_del_init(&cur_trans->list);
- 	if (cur_trans == fs_info->running_transaction) {
- 		cur_trans->state = TRANS_STATE_COMMIT_DOING;
- 		spin_unlock(&fs_info->trans_lock);
-@@ -1959,6 +1958,17 @@ static void cleanup_transaction(struct b
+ 	err = do_clock_adjtime(which_clock, &ktx);
  
- 		spin_lock(&fs_info->trans_lock);
- 	}
-+
-+	/*
-+	 * Now that we know no one else is still using the transaction we can
-+	 * remove the transaction from the list of transactions. This avoids
-+	 * the transaction kthread from cleaning up the transaction while some
-+	 * other task is still using it, which could result in a use-after-free
-+	 * on things like log trees, as it forces the transaction kthread to
-+	 * wait for this transaction to be cleaned up by us.
-+	 */
-+	list_del_init(&cur_trans->list);
-+
- 	spin_unlock(&fs_info->trans_lock);
+-	if (err >= 0)
+-		err = put_old_timex32(utp, &ktx);
++	if (err >= 0 && put_old_timex32(utp, &ktx))
++		return -EFAULT;
  
- 	btrfs_cleanup_one_transaction(trans->transaction, fs_info);
+ 	return err;
+ }
 
 
