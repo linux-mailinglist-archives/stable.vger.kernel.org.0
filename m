@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E190378317
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D544A378316
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232131AbhEJKmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48330 "EHLO mail.kernel.org"
+        id S232100AbhEJKmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232357AbhEJKjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232363AbhEJKjp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFD6E61953;
-        Mon, 10 May 2021 10:30:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C63646162E;
+        Mon, 10 May 2021 10:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642634;
-        bh=ibVnBzgSzFXZ8BDNUFeMqNbg73fRLw1pxvE+LdU2vys=;
+        s=korg; t=1620642637;
+        bh=3GvK6IdFfpr0M4VNNzbYiiMkr/Q/DR3Xvlrb7qN4ivE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6lJPwfm/vulCigvynJsUvTTkTZu6ADzYKePNXFF0PuiFJx59dLc3mQDgBeUrxfUH
-         TEAi7v88tzSkS1bzVpXA3iR5Zab0OEs5cnt2wYOAOvBREkIOZGNXALkDUhUDzeegTC
-         JfzJ8zvEvHkSY3YyYzfiJ8hw4lzThHs85V/9wIYQ=
+        b=yC2ZBnCfyEgm/TEH5Jp/JbeES3r1eMzi/j60VrUy+5T60uDpNiWPkQ37Qo0Qxz0P6
+         YeSNLMj0PhpYSR8XZDAnFXaRuAYO8lEv9RtICiayox6Sk9woZ75Nw4oJpxBJXOeXrL
+         x4tJ5mr/agvRiBTY/+7URSAhtgcQfqHSrbf/OCOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.4 175/184] usb: dwc3: gadget: Fix START_TRANSFER link state check
-Date:   Mon, 10 May 2021 12:21:09 +0200
-Message-Id: <20210510101955.854977660@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Subject: [PATCH 5.4 176/184] usb: dwc2: Fix session request interrupt handler
+Date:   Mon, 10 May 2021 12:21:10 +0200
+Message-Id: <20210510101955.888484061@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -39,63 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
 
-commit c560e76319a94a3b9285bc426c609903408e4826 upstream.
+commit 42b32b164acecd850edef010915a02418345a033 upstream.
 
-The START_TRANSFER command needs to be executed while in ON/U0 link
-state (with an exception during register initialization). Don't use
-dwc->link_state to check this since the driver only tracks the link
-state when the link state change interrupt is enabled. Check the link
-state from DSTS register instead.
+According to programming guide in host mode, port
+power must be turned on in session request
+interrupt handlers.
 
-Note that often the host already brings the device out of low power
-before it sends/requests the next transfer. So, the user won't see any
-issue when the device starts transfer then. This issue is more
-noticeable in cases when the device delays starting transfer, which can
-happen during delayed control status after the host put the device in
-low power.
-
-Fixes: 799e9dc82968 ("usb: dwc3: gadget: conditionally disable Link State change events")
+Fixes: 21795c826a45 ("usb: dwc2: exit hibernation on session request")
 Cc: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/bcefaa9ecbc3e1936858c0baa14de6612960e909.1618884221.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Link: https://lore.kernel.org/r/20210408094550.75484A0094@mailhost.synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/usb/dwc2/core_intr.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -304,13 +304,12 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -312,6 +312,7 @@ static void dwc2_handle_conn_id_status_c
+ static void dwc2_handle_session_req_intr(struct dwc2_hsotg *hsotg)
+ {
+ 	int ret;
++	u32 hprt0;
+ 
+ 	/* Clear interrupt */
+ 	dwc2_writel(hsotg, GINTSTS_SESSREQINT, GINTSTS);
+@@ -332,6 +333,13 @@ static void dwc2_handle_session_req_intr
+ 		 * established
+ 		 */
+ 		dwc2_hsotg_disconnect(hsotg);
++	} else {
++		/* Turn on the port power bit. */
++		hprt0 = dwc2_read_hprt0(hsotg);
++		hprt0 |= HPRT0_PWR;
++		dwc2_writel(hsotg, hprt0, HPRT0);
++		/* Connect hcd after port power is set. */
++		dwc2_hcd_connect(hsotg);
  	}
+ }
  
- 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
--		int		needs_wakeup;
-+		int link_state;
- 
--		needs_wakeup = (dwc->link_state == DWC3_LINK_STATE_U1 ||
--				dwc->link_state == DWC3_LINK_STATE_U2 ||
--				dwc->link_state == DWC3_LINK_STATE_U3);
--
--		if (unlikely(needs_wakeup)) {
-+		link_state = dwc3_gadget_get_link_state(dwc);
-+		if (link_state == DWC3_LINK_STATE_U1 ||
-+		    link_state == DWC3_LINK_STATE_U2 ||
-+		    link_state == DWC3_LINK_STATE_U3) {
- 			ret = __dwc3_gadget_wakeup(dwc);
- 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
- 					ret);
-@@ -1862,6 +1861,8 @@ static int __dwc3_gadget_wakeup(struct d
- 	case DWC3_LINK_STATE_RESET:
- 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
- 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
-+	case DWC3_LINK_STATE_U2:	/* in HS, means Sleep (L1) */
-+	case DWC3_LINK_STATE_U1:
- 	case DWC3_LINK_STATE_RESUME:
- 		break;
- 	default:
 
 
