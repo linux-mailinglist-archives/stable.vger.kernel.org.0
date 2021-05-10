@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9250037856C
+	by mail.lfdr.de (Postfix) with ESMTP id DAD9F37856D
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235185AbhEJLAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:00:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52794 "EHLO mail.kernel.org"
+        id S235191AbhEJLAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234167AbhEJK4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234171AbhEJK4B (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:56:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 365E961361;
-        Mon, 10 May 2021 10:44:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EECE610A7;
+        Mon, 10 May 2021 10:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643469;
-        bh=IRG8d4vowIAaGqZfnkozIZe9SalBzyrS24k59EHczvo=;
+        s=korg; t=1620643472;
+        bh=dVDuS0/JAk3BBVKWAnP1KZ9W/o1EEu+0rnNq1zwcQUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRQ+75STSYtom0RuS4G7Mf/1dip/x+EpVVZV9sVRv8qTaSJ3g7JFKAhnxdrTrAAPh
-         xtdby7z1bHfTiKCKw43BjMLN+glGlvuFBrTk0SqZJwLF6bFlUnVowtHusw23vuVD0f
-         Dmqgn0uhB3FoueLElBwjfiyiv/J2k7OGxOV23dPo=
+        b=olf9gz2BktHUemjO/nVbbAhng5Zl32txnbUWeQE0TZhWomeKnTp0dpeG8inlG6yd1
+         SEN8Y09aiItAEtK6PUzMxzM+y7LYmuFTjkrZvgFmYKvpaWO85QvjQt8m+SaUkSFxbJ
+         G1VktM5hXI/tlIyZuGAVJtEN8EAOpo5hrQO1aPo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gao Xiang <hsiangkao@redhat.com>
-Subject: [PATCH 5.11 028/342] erofs: add unsupported inode i_format check
-Date:   Mon, 10 May 2021 12:16:58 +0200
-Message-Id: <20210510102011.037123687@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Kerello <christophe.kerello@foss.st.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.11 029/342] spi: stm32-qspi: fix pm_runtime usage_count counter
+Date:   Mon, 10 May 2021 12:16:59 +0200
+Message-Id: <20210510102011.067763891@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -38,52 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Christophe Kerello <christophe.kerello@foss.st.com>
 
-commit 24a806d849c0b0c1d0cd6a6b93ba4ae4c0ec9f08 upstream.
+commit 102e9d1936569d43f55dd1ea89be355ad207143c upstream.
 
-If any unknown i_format fields are set (may be of some new incompat
-inode features), mark such inode as unsupported.
+pm_runtime usage_count counter is not well managed.
+pm_runtime_put_autosuspend callback drops the usage_counter but this
+one has never been increased. Add pm_runtime_get_sync callback to bump up
+the usage counter. It is also needed to use pm_runtime_force_suspend and
+pm_runtime_force_resume APIs to handle properly the clock.
 
-Just in case of any new incompat i_format fields added in the future.
-
-Link: https://lore.kernel.org/r/20210329003614.6583-1-hsiangkao@aol.com
-Fixes: 431339ba9042 ("staging: erofs: add inode operations")
-Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Fixes: 9d282c17b023 ("spi: stm32-qspi: Add pm_runtime support")
+Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210419121541.11617-2-patrice.chotard@foss.st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/erofs/erofs_fs.h |    3 +++
- fs/erofs/inode.c    |    7 +++++++
- 2 files changed, 10 insertions(+)
+ drivers/spi/spi-stm32-qspi.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/fs/erofs/erofs_fs.h
-+++ b/fs/erofs/erofs_fs.h
-@@ -75,6 +75,9 @@ static inline bool erofs_inode_is_data_c
- #define EROFS_I_VERSION_BIT             0
- #define EROFS_I_DATALAYOUT_BIT          1
+--- a/drivers/spi/spi-stm32-qspi.c
++++ b/drivers/spi/spi-stm32-qspi.c
+@@ -727,21 +727,31 @@ static int __maybe_unused stm32_qspi_sus
+ {
+ 	pinctrl_pm_select_sleep_state(dev);
  
-+#define EROFS_I_ALL	\
-+	((1 << (EROFS_I_DATALAYOUT_BIT + EROFS_I_DATALAYOUT_BITS)) - 1)
+-	return 0;
++	return pm_runtime_force_suspend(dev);
+ }
+ 
+ static int __maybe_unused stm32_qspi_resume(struct device *dev)
+ {
+ 	struct stm32_qspi *qspi = dev_get_drvdata(dev);
++	int ret;
 +
- /* 32-byte reduced form of an ondisk inode */
- struct erofs_inode_compact {
- 	__le16 i_format;	/* inode format hints */
---- a/fs/erofs/inode.c
-+++ b/fs/erofs/inode.c
-@@ -44,6 +44,13 @@ static struct page *erofs_read_inode(str
- 	dic = page_address(page) + *ofs;
- 	ifmt = le16_to_cpu(dic->i_format);
++	ret = pm_runtime_force_resume(dev);
++	if (ret < 0)
++		return ret;
  
-+	if (ifmt & ~EROFS_I_ALL) {
-+		erofs_err(inode->i_sb, "unsupported i_format %u of nid %llu",
-+			  ifmt, vi->nid);
-+		err = -EOPNOTSUPP;
-+		goto err_out;
+ 	pinctrl_pm_select_default_state(dev);
+-	clk_prepare_enable(qspi->clk);
++
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
++		return ret;
 +	}
-+
- 	vi->datalayout = erofs_inode_datalayout(ifmt);
- 	if (vi->datalayout >= EROFS_INODE_DATALAYOUT_MAX) {
- 		erofs_err(inode->i_sb, "unsupported datalayout %u of nid %llu",
+ 
+ 	writel_relaxed(qspi->cr_reg, qspi->io_base + QSPI_CR);
+ 	writel_relaxed(qspi->dcr_reg, qspi->io_base + QSPI_DCR);
+ 
+-	pm_runtime_mark_last_busy(qspi->dev);
+-	pm_runtime_put_autosuspend(qspi->dev);
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
+ 
+ 	return 0;
+ }
 
 
