@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 515A03785F0
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF793785EF
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234222AbhEJLCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53024 "EHLO mail.kernel.org"
+        id S234207AbhEJLCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:02:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234764AbhEJK5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234766AbhEJK5B (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:57:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 195F761481;
-        Mon, 10 May 2021 10:48:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A74D619B9;
+        Mon, 10 May 2021 10:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643736;
-        bh=L3gxnrR/qpr8HoeAqCEQcL9VfvyQy5lGhB/iMYR/Vqk=;
+        s=korg; t=1620643739;
+        bh=cFzoFc2FSTUDTJ9I0MNr5aMOG8GsOPwuxgKpJxNMDgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W62dIyvjlQ5xU0J7nc80/wj38DWZCi1P3L39yPSZ/R9u0mXyoeNhPUv7kmOEVeomy
-         RtJpQ+uE8JjCWYdF8fqFLo+soVTZIWwvp/cCzcDedmT/rCXIUpDyEn7YK7NxiO1d9M
-         ghGfUuf4u5zNFHvVtv2VyP2UJJWpJZikTtfg61dc=
+        b=vPksT3RMo1JbiI+U6s2IFOIk3hiTGnm8pobxuOX/HfvCOZ9enkNsj3KYluAWOJams
+         30R4Al5NsNLqPPUCE2TJn5qMkQcpZwPaxqUHn9NhLYKAfKaDaz/Ro2im4JhLXmP0ym
+         qmXXNfB0oiVAu7iAKXrhABihCgxnWpJj+vhh7v2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 102/342] ARM: dts: at91: change the key code of the gpio key
-Date:   Mon, 10 May 2021 12:18:12 +0200
-Message-Id: <20210510102013.475418131@linuxfoundation.org>
+Subject: [PATCH 5.11 103/342] tools/power/x86/intel-speed-select: Increase string size
+Date:   Mon, 10 May 2021 12:18:13 +0200
+Message-Id: <20210510102013.507691332@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -41,219 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit ca7a049ad1a72ec5f03d1330b53575237fcb727c ]
+[ Upstream commit 2e70b710f36c80b6e78cf32a5c30b46dbb72213c ]
 
-Having a button code and not a key code causes issues with libinput.
-udev won't set ID_INPUT_KEY. If it is forced, then it causes a bug
-within libinput.
+The current string size to print cpulist can accommodate upto 80
+logical CPUs per package. But this limit is not enough. So increase
+the string size. Also prevent buffer overflow, if the string size
+reaches limit.
 
-Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20210402130227.21478-1-nicolas.ferre@microchip.com
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sam9x60ek.dts          | 3 ++-
- arch/arm/boot/dts/at91-sama5d27_som1_ek.dts   | 3 ++-
- arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts | 3 ++-
- arch/arm/boot/dts/at91-sama5d2_icp.dts        | 3 ++-
- arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts     | 3 ++-
- arch/arm/boot/dts/at91-sama5d2_xplained.dts   | 3 ++-
- arch/arm/boot/dts/at91-sama5d3_xplained.dts   | 3 ++-
- arch/arm/boot/dts/at91sam9260ek.dts           | 3 ++-
- arch/arm/boot/dts/at91sam9g20ek_common.dtsi   | 3 ++-
- 9 files changed, 18 insertions(+), 9 deletions(-)
+ tools/power/x86/intel-speed-select/isst-display.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-sam9x60ek.dts b/arch/arm/boot/dts/at91-sam9x60ek.dts
-index 775ceb3acb6c..edca66c232c1 100644
---- a/arch/arm/boot/dts/at91-sam9x60ek.dts
-+++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
-@@ -8,6 +8,7 @@
-  */
- /dts-v1/;
- #include "sam9x60.dtsi"
-+#include <dt-bindings/input/input.h>
+diff --git a/tools/power/x86/intel-speed-select/isst-display.c b/tools/power/x86/intel-speed-select/isst-display.c
+index e105fece47b6..f32ce0362eb7 100644
+--- a/tools/power/x86/intel-speed-select/isst-display.c
++++ b/tools/power/x86/intel-speed-select/isst-display.c
+@@ -25,10 +25,14 @@ static void printcpulist(int str_len, char *str, int mask_size,
+ 			index = snprintf(&str[curr_index],
+ 					 str_len - curr_index, ",");
+ 			curr_index += index;
++			if (curr_index >= str_len)
++				break;
+ 		}
+ 		index = snprintf(&str[curr_index], str_len - curr_index, "%d",
+ 				 i);
+ 		curr_index += index;
++		if (curr_index >= str_len)
++			break;
+ 		first = 0;
+ 	}
+ }
+@@ -64,10 +68,14 @@ static void printcpumask(int str_len, char *str, int mask_size,
+ 		index = snprintf(&str[curr_index], str_len - curr_index, "%08x",
+ 				 mask[i]);
+ 		curr_index += index;
++		if (curr_index >= str_len)
++			break;
+ 		if (i) {
+ 			strncat(&str[curr_index], ",", str_len - curr_index);
+ 			curr_index++;
+ 		}
++		if (curr_index >= str_len)
++			break;
+ 	}
  
- / {
- 	model = "Microchip SAM9X60-EK";
-@@ -84,7 +85,7 @@
- 		sw1 {
- 			label = "SW1";
- 			gpios = <&pioD 18 GPIO_ACTIVE_LOW>;
--			linux,code=<0x104>;
-+			linux,code=<KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
-diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-index 0e159f879c15..d3cd2443ba25 100644
---- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-@@ -11,6 +11,7 @@
- #include "at91-sama5d27_som1.dtsi"
- #include <dt-bindings/mfd/atmel-flexcom.h>
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
+ 	free(mask);
+@@ -185,7 +193,7 @@ static void _isst_pbf_display_information(int cpu, FILE *outf, int level,
+ 					  int disp_level)
+ {
+ 	char header[256];
+-	char value[256];
++	char value[512];
  
- / {
- 	model = "Atmel SAMA5D27 SOM1 EK";
-@@ -467,7 +468,7 @@
- 		pb4 {
- 			label = "USER";
- 			gpios = <&pioA PIN_PA29 GPIO_ACTIVE_LOW>;
--			linux,code = <0x104>;
-+			linux,code = <KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
-diff --git a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-index 6b38fa3f5568..4883b84b4ede 100644
---- a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-@@ -8,6 +8,7 @@
-  */
- /dts-v1/;
- #include "at91-sama5d27_wlsom1.dtsi"
-+#include <dt-bindings/input/input.h>
+ 	snprintf(header, sizeof(header), "speed-select-base-freq-properties");
+ 	format_and_print(outf, disp_level, header, NULL);
+@@ -349,7 +357,7 @@ void isst_ctdp_display_information(int cpu, FILE *outf, int tdp_level,
+ 				   struct isst_pkg_ctdp *pkg_dev)
+ {
+ 	char header[256];
+-	char value[256];
++	char value[512];
+ 	static int level;
+ 	int i;
  
- / {
- 	model = "Microchip SAMA5D27 WLSOM1 EK";
-@@ -35,7 +36,7 @@
- 		sw4 {
- 			label = "USER BUTTON";
- 			gpios = <&pioA PIN_PB2 GPIO_ACTIVE_LOW>;
--			linux,code = <0x104>;
-+			linux,code = <KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
-diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-index 6783cf16ff81..19bb50f50c1f 100644
---- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-@@ -12,6 +12,7 @@
- #include "sama5d2.dtsi"
- #include "sama5d2-pinfunc.h"
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
- #include <dt-bindings/mfd/atmel-flexcom.h>
- 
- / {
-@@ -51,7 +52,7 @@
- 		sw4 {
- 			label = "USER_PB1";
- 			gpios = <&pioA PIN_PD0 GPIO_ACTIVE_LOW>;
--			linux,code = <0x104>;
-+			linux,code = <KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
-diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-index c894c7c788a9..1c6361ba1aca 100644
---- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-@@ -11,6 +11,7 @@
- #include "sama5d2-pinfunc.h"
- #include <dt-bindings/mfd/atmel-flexcom.h>
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
- #include <dt-bindings/pinctrl/at91.h>
- 
- / {
-@@ -403,7 +404,7 @@
- 		bp1 {
- 			label = "PB_USER";
- 			gpios = <&pioA PIN_PA10 GPIO_ACTIVE_LOW>;
--			linux,code = <0x104>;
-+			linux,code = <KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
-diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-index 058fae1b4a76..d767968ae217 100644
---- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-@@ -10,6 +10,7 @@
- #include "sama5d2-pinfunc.h"
- #include <dt-bindings/mfd/atmel-flexcom.h>
- #include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
- #include <dt-bindings/regulator/active-semi,8945a-regulator.h>
- 
- / {
-@@ -713,7 +714,7 @@
- 		bp1 {
- 			label = "PB_USER";
- 			gpios = <&pioA PIN_PB9 GPIO_ACTIVE_LOW>;
--			linux,code = <0x104>;
-+			linux,code = <KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
-diff --git a/arch/arm/boot/dts/at91-sama5d3_xplained.dts b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-index 5179258f9247..9c55a921263b 100644
---- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-@@ -7,6 +7,7 @@
-  */
- /dts-v1/;
- #include "sama5d36.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	model = "SAMA5D3 Xplained";
-@@ -354,7 +355,7 @@
- 		bp3 {
- 			label = "PB_USER";
- 			gpios = <&pioE 29 GPIO_ACTIVE_LOW>;
--			linux,code = <0x104>;
-+			linux,code = <KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
-diff --git a/arch/arm/boot/dts/at91sam9260ek.dts b/arch/arm/boot/dts/at91sam9260ek.dts
-index d3446e42b598..ce96345d28a3 100644
---- a/arch/arm/boot/dts/at91sam9260ek.dts
-+++ b/arch/arm/boot/dts/at91sam9260ek.dts
-@@ -7,6 +7,7 @@
-  */
- /dts-v1/;
- #include "at91sam9260.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	model = "Atmel at91sam9260ek";
-@@ -156,7 +157,7 @@
- 		btn4 {
- 			label = "Button 4";
- 			gpios = <&pioA 31 GPIO_ACTIVE_LOW>;
--			linux,code = <0x104>;
-+			linux,code = <KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
-diff --git a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-index 6e6e672c0b86..87bb39060e8b 100644
---- a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-+++ b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-@@ -5,6 +5,7 @@
-  * Copyright (C) 2012 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-  */
- #include "at91sam9g20.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 
-@@ -234,7 +235,7 @@
- 		btn4 {
- 			label = "Button 4";
- 			gpios = <&pioA 31 GPIO_ACTIVE_LOW>;
--			linux,code = <0x104>;
-+			linux,code = <KEY_PROG1>;
- 			wakeup-source;
- 		};
- 	};
 -- 
 2.30.2
 
