@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE573786C1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BF237887B
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236802AbhEJLK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:10:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36600 "EHLO mail.kernel.org"
+        id S234082AbhEJLVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232147AbhEJLDw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:03:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 806BA6191C;
-        Mon, 10 May 2021 10:54:32 +0000 (UTC)
+        id S237139AbhEJLL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4877F6101A;
+        Mon, 10 May 2021 11:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644073;
-        bh=dRcBh40usbpUAMrJQwi6LYe34sL2xU+NSNEIES2cWn4=;
+        s=korg; t=1620644854;
+        bh=PLHir7BlYJev2eOS/p8EW7LSggaowbYU+8cErOPa6sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haZGVBd61gASpl0lFTqbOVdtqryg5Rs5tB55O53uH3pKgspfgG4kwWe1cOeN963c1
-         76mRNgj5ej3DHHbbftTIh7dxbZbmSazjKTjAhlkpG5zNOk1MM190DRPNeSTw4z7ytf
-         J6NzBCuSua5eRMxdrv6Tl22QH0vUvvDPaPYwtwQs=
+        b=1y0QhzYCrOSreqlId7wkFL3MHLALQrBG/ayBxPlAzjrBkGClG2pRedlktxmqsx+Qu
+         UxZaZLUffEi2EJXpDTVVUNnjsvK356IKLEONcc+udCk+R3/jSJDj+ZpHFyEcYpYBoS
+         z8395le6lKppuBCntiz0t7KpRNW83KK3PdZPGKlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Loone <sami@loone.fi>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 249/342] ALSA: hda/realtek: fix static noise on ALC285 Lenovo laptops
-Date:   Mon, 10 May 2021 12:20:39 +0200
-Message-Id: <20210510102018.315475197@linuxfoundation.org>
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 251/384] drm/amdgpu: fix NULL pointer dereference
+Date:   Mon, 10 May 2021 12:20:40 +0200
+Message-Id: <20210510102023.158865963@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Loone <sami@loone.fi>
+From: Guchun Chen <guchun.chen@amd.com>
 
-commit 9bbb94e57df135ef61bef075d9c99b8d9e89e246 upstream.
+[ Upstream commit 3c3dc654333f6389803cdcaf03912e94173ae510 ]
 
-Remove a duplicate vendor+subvendor pin fixup entry as one is masking
-the other and making it unreachable. Consider the more specific newcomer
-as a second chance instead.
+ttm->sg needs to be checked before accessing its child member.
 
-The generic entry is made less strict to also match for laptops with
-slightly different 0x12 pin configuration. Tested on Lenovo Yoga 6 (AMD)
-where 0x12 is 0x40000000.
+Call Trace:
+ amdgpu_ttm_backend_destroy+0x12/0x70 [amdgpu]
+ ttm_bo_cleanup_memtype_use+0x3a/0x60 [ttm]
+ ttm_bo_release+0x17d/0x300 [ttm]
+ amdgpu_bo_unref+0x1a/0x30 [amdgpu]
+ amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x78b/0x8b0 [amdgpu]
+ kfd_ioctl_alloc_memory_of_gpu+0x118/0x220 [amdgpu]
+ kfd_ioctl+0x222/0x400 [amdgpu]
+ ? kfd_dev_is_large_bar+0x90/0x90 [amdgpu]
+ __x64_sys_ioctl+0x8e/0xd0
+ ? __context_tracking_exit+0x52/0x90
+ do_syscall_64+0x33/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7f97f264d317
+Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
+RSP: 002b:00007ffdb402c338 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007f97f3cc63a0 RCX: 00007f97f264d317
+RDX: 00007ffdb402c380 RSI: 00000000c0284b16 RDI: 0000000000000003
+RBP: 00007ffdb402c380 R08: 00007ffdb402c428 R09: 00000000c4000004
+R10: 00000000c4000004 R11: 0000000000000246 R12: 00000000c0284b16
+R13: 0000000000000003 R14: 00007f97f3cc63a0 R15: 00007f8836200000
 
-Fixes: 607184cb1635 ("ALSA: hda/realtek - Add supported for more Lenovo ALC285 Headset Button")
-Signed-off-by: Sami Loone <sami@loone.fi>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YIXS+GT/dGI/LtK6@yoga
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8774,12 +8774,7 @@ static const struct snd_hda_pin_quirk al
- 		{0x12, 0x90a60130},
- 		{0x19, 0x03a11020},
- 		{0x21, 0x0321101f}),
--	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
--		{0x14, 0x90170110},
--		{0x19, 0x04a11040},
--		{0x21, 0x04211020}),
- 	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_LENOVO_PC_BEEP_IN_NOISE,
--		{0x12, 0x90a60130},
- 		{0x14, 0x90170110},
- 		{0x19, 0x04a11040},
- 		{0x21, 0x04211020}),
-@@ -8950,6 +8945,10 @@ static const struct snd_hda_pin_quirk al
- 	SND_HDA_PIN_QUIRK(0x10ec0274, 0x1028, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
- 		{0x19, 0x40000000},
- 		{0x1a, 0x40000000}),
-+	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
-+		{0x14, 0x90170110},
-+		{0x19, 0x04a11040},
-+		{0x21, 0x04211020}),
- 	{}
- };
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index f61fd2cf3fee..383c178cf074 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -942,7 +942,7 @@ static void amdgpu_ttm_tt_unpin_userptr(struct ttm_bo_device *bdev,
+ 		DMA_BIDIRECTIONAL : DMA_TO_DEVICE;
  
+ 	/* double check that we don't free the table twice */
+-	if (!ttm->sg->sgl)
++	if (!ttm->sg || !ttm->sg->sgl)
+ 		return;
+ 
+ 	/* unmap the pages mapped to the device */
+-- 
+2.30.2
+
 
 
