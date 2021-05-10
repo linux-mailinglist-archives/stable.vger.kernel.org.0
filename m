@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44DAD3787E8
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4C263788F3
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235903AbhEJLTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
+        id S235764AbhEJLZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235788AbhEJLGI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:06:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C051861480;
-        Mon, 10 May 2021 10:56:18 +0000 (UTC)
+        id S233961AbhEJLNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:13:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15FC761001;
+        Mon, 10 May 2021 11:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644179;
-        bh=g4ALrrfM+EPrWkUEza8K2lEDd+k+oaGl1AtL97CyQ3s=;
+        s=korg; t=1620645024;
+        bh=Y/0rLeqEAJt39Pc6q+Q6GoEZMWLKTJHlkz7WamKnJs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ra64Dz60/ZqwQQSneDSdAUof5ZCC2H584h5che7YwDhQAIRefMa9L822pD+cXuTsf
-         IaNqCKGTW/ajbyK4WzyTQ+BP5QcJPnzg77/7JvH6gNXIsWrE8DKvpgaR5CCA7fJYh2
-         Pc5p7RK29fhJwAA5bTOsuTU8npbGvJSZg2BMVbpA=
+        b=BKQyxdbB3bQX7iMzeLM1Hn53/ZhJfTQiVJNKhSRmifn88NYCmLiLAabJdK5qILXUM
+         JPcjYgG2Xxa0w5XnE2eEFOq0JfFGw32asqF/v7FHMJCDRd/hNkwBt1V3ut6D6Og8qo
+         XaU5bf3Cu4Ln161KD+ULcWDKg+poaqMMa73DJJUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.11 318/342] media: staging/intel-ipu3: Fix race condition during set_fmt
-Date:   Mon, 10 May 2021 12:21:48 +0200
-Message-Id: <20210510102020.624642092@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.12 320/384] fuse: fix write deadlock
+Date:   Mon, 10 May 2021 12:21:49 +0200
+Message-Id: <20210510102025.345824191@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,105 +40,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Vivek Goyal <vgoyal@redhat.com>
 
-commit dccfe2548746ca9cca3a20401ece4cf255d1f171 upstream.
+commit 4f06dd92b5d0a6f8eec6a34b8d6ef3e1f4ac1e10 upstream.
 
-Do not modify imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp, until the
-format has been correctly validated.
+There are two modes for write(2) and friends in fuse:
 
-Otherwise, even if we use a backup variable, there is a period of time
-where imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp might have an invalid
-value that can be used by other functions.
+a) write through (update page cache, send sync WRITE request to userspace)
 
-Cc: stable@vger.kernel.org
-Fixes: ad91849996f9 ("media: staging/intel-ipu3: Fix set_fmt error handling")
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+b) buffered write (update page cache, async writeout later)
+
+The write through method kept all the page cache pages locked that were
+used for the request.  Keeping more than one page locked is deadlock prone
+and Qian Cai demonstrated this with trinity fuzzing.
+
+The reason for keeping the pages locked is that concurrent mapped reads
+shouldn't try to pull possibly stale data into the page cache.
+
+For full page writes, the easy way to fix this is to make the cached page
+be the authoritative source by marking the page PG_uptodate immediately.
+After this the page can be safely unlocked, since mapped/cached reads will
+take the written data from the cache.
+
+Concurrent mapped writes will now cause data in the original WRITE request
+to be updated; this however doesn't cause any data inconsistency and this
+scenario should be exceedingly rare anyway.
+
+If the WRITE request returns with an error in the above case, currently the
+page is not marked uptodate; this means that a concurrent read will always
+read consistent data.  After this patch the page is uptodate between
+writing to the cache and receiving the error: there's window where a cached
+read will read the wrong data.  While theoretically this could be a
+regression, it is unlikely to be one in practice, since this is normal for
+buffered writes.
+
+In case of a partial page write to an already uptodate page the locking is
+also unnecessary, with the above caveats.
+
+Partial write of a not uptodate page still needs to be handled.  One way
+would be to read the complete page before doing the write.  This is not
+possible, since it might break filesystems that don't expect any READ
+requests when the file was opened O_WRONLY.
+
+The other solution is to serialize the synchronous write with reads from
+the partial pages.  The easiest way to do this is to keep the partial pages
+locked.  The problem is that a write() may involve two such pages (one head
+and one tail).  This patch fixes it by only locking the partial tail page.
+If there's a partial head page as well, then split that off as a separate
+WRITE request.
+
+Reported-by: Qian Cai <cai@lca.pw>
+Link: https://lore.kernel.org/linux-fsdevel/4794a3fa3742a5e84fb0f934944204b55730829b.camel@lca.pw/
+Fixes: ea9b9907b82a ("fuse: implement perform_write")
+Cc: <stable@vger.kernel.org> # v2.6.26
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/ipu3/ipu3-v4l2.c |   30 ++++++++++++++----------------
- 1 file changed, 14 insertions(+), 16 deletions(-)
+ fs/fuse/file.c   |   41 +++++++++++++++++++++++++++++------------
+ fs/fuse/fuse_i.h |    1 +
+ 2 files changed, 30 insertions(+), 12 deletions(-)
 
---- a/drivers/staging/media/ipu3/ipu3-v4l2.c
-+++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
-@@ -669,7 +669,6 @@ static int imgu_fmt(struct imgu_device *
- 	struct imgu_css_pipe *css_pipe = &imgu->css.pipes[pipe];
- 	struct imgu_media_pipe *imgu_pipe = &imgu->imgu_pipe[pipe];
- 	struct imgu_v4l2_subdev *imgu_sd = &imgu_pipe->imgu_sd;
--	struct v4l2_pix_format_mplane fmt_backup;
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1099,6 +1099,7 @@ static ssize_t fuse_send_write_pages(str
+ 	struct fuse_file *ff = file->private_data;
+ 	struct fuse_mount *fm = ff->fm;
+ 	unsigned int offset, i;
++	bool short_write;
+ 	int err;
  
- 	dev_dbg(dev, "set fmt node [%u][%u](try = %u)", pipe, node, try);
+ 	for (i = 0; i < ap->num_pages; i++)
+@@ -1113,32 +1114,38 @@ static ssize_t fuse_send_write_pages(str
+ 	if (!err && ia->write.out.size > count)
+ 		err = -EIO;
  
-@@ -687,6 +686,7 @@ static int imgu_fmt(struct imgu_device *
++	short_write = ia->write.out.size < count;
+ 	offset = ap->descs[0].offset;
+ 	count = ia->write.out.size;
+ 	for (i = 0; i < ap->num_pages; i++) {
+ 		struct page *page = ap->pages[i];
  
- 	dev_dbg(dev, "IPU3 pipe %u pipe_id = %u", pipe, css_pipe->pipe_id);
+-		if (!err && !offset && count >= PAGE_SIZE)
+-			SetPageUptodate(page);
+-
+-		if (count > PAGE_SIZE - offset)
+-			count -= PAGE_SIZE - offset;
+-		else
+-			count = 0;
+-		offset = 0;
+-
+-		unlock_page(page);
++		if (err) {
++			ClearPageUptodate(page);
++		} else {
++			if (count >= PAGE_SIZE - offset)
++				count -= PAGE_SIZE - offset;
++			else {
++				if (short_write)
++					ClearPageUptodate(page);
++				count = 0;
++			}
++			offset = 0;
++		}
++		if (ia->write.page_locked && (i == ap->num_pages - 1))
++			unlock_page(page);
+ 		put_page(page);
+ 	}
  
-+	css_q = imgu_node_to_queue(node);
- 	for (i = 0; i < IPU3_CSS_QUEUES; i++) {
- 		unsigned int inode = imgu_map_node(imgu, i);
+ 	return err;
+ }
  
-@@ -701,6 +701,11 @@ static int imgu_fmt(struct imgu_device *
- 			continue;
+-static ssize_t fuse_fill_write_pages(struct fuse_args_pages *ap,
++static ssize_t fuse_fill_write_pages(struct fuse_io_args *ia,
+ 				     struct address_space *mapping,
+ 				     struct iov_iter *ii, loff_t pos,
+ 				     unsigned int max_pages)
+ {
++	struct fuse_args_pages *ap = &ia->ap;
+ 	struct fuse_conn *fc = get_fuse_conn(mapping->host);
+ 	unsigned offset = pos & (PAGE_SIZE - 1);
+ 	size_t count = 0;
+@@ -1191,6 +1198,16 @@ static ssize_t fuse_fill_write_pages(str
+ 		if (offset == PAGE_SIZE)
+ 			offset = 0;
+ 
++		/* If we copied full page, mark it uptodate */
++		if (tmp == PAGE_SIZE)
++			SetPageUptodate(page);
++
++		if (PageUptodate(page)) {
++			unlock_page(page);
++		} else {
++			ia->write.page_locked = true;
++			break;
++		}
+ 		if (!fc->big_writes)
+ 			break;
+ 	} while (iov_iter_count(ii) && count < fc->max_write &&
+@@ -1234,7 +1251,7 @@ static ssize_t fuse_perform_write(struct
+ 			break;
  		}
  
-+		if (i == css_q) {
-+			fmts[i] = &f->fmt.pix_mp;
-+			continue;
-+		}
-+
- 		if (try) {
- 			fmts[i] = kmemdup(&imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp,
- 					  sizeof(struct v4l2_pix_format_mplane),
-@@ -729,39 +734,32 @@ static int imgu_fmt(struct imgu_device *
- 		rects[IPU3_CSS_RECT_GDC]->height = pad_fmt.height;
- 	}
- 
--	/*
--	 * imgu doesn't set the node to the value given by user
--	 * before we return success from this function, so set it here.
--	 */
--	css_q = imgu_node_to_queue(node);
- 	if (!fmts[css_q]) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	fmt_backup = *fmts[css_q];
--	*fmts[css_q] = f->fmt.pix_mp;
- 
- 	if (try)
- 		ret = imgu_css_fmt_try(&imgu->css, fmts, rects, pipe);
- 	else
- 		ret = imgu_css_fmt_set(&imgu->css, fmts, rects, pipe);
- 
--	if (try || ret < 0)
--		*fmts[css_q] = fmt_backup;
--
- 	/* ret is the binary number in the firmware blob */
- 	if (ret < 0)
- 		goto out;
- 
--	if (try)
--		f->fmt.pix_mp = *fmts[css_q];
--	else
--		f->fmt = imgu_pipe->nodes[node].vdev_fmt.fmt;
-+	/*
-+	 * imgu doesn't set the node to the value given by user
-+	 * before we return success from this function, so set it here.
-+	 */
-+	if (!try)
-+		imgu_pipe->nodes[node].vdev_fmt.fmt.pix_mp = f->fmt.pix_mp;
- 
- out:
- 	if (try) {
- 		for (i = 0; i < IPU3_CSS_QUEUES; i++)
--			kfree(fmts[i]);
-+			if (i != css_q)
-+				kfree(fmts[i]);
- 	}
- 
- 	return ret;
+-		count = fuse_fill_write_pages(ap, mapping, ii, pos, nr_pages);
++		count = fuse_fill_write_pages(&ia, mapping, ii, pos, nr_pages);
+ 		if (count <= 0) {
+ 			err = count;
+ 		} else {
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -912,6 +912,7 @@ struct fuse_io_args {
+ 		struct {
+ 			struct fuse_write_in in;
+ 			struct fuse_write_out out;
++			bool page_locked;
+ 		} write;
+ 	};
+ 	struct fuse_args_pages ap;
 
 
