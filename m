@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6EF63786F7
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A14378701
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231533AbhEJLM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36544 "EHLO mail.kernel.org"
+        id S234104AbhEJLMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:12:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235760AbhEJLGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:06:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B26E06145C;
-        Mon, 10 May 2021 10:56:06 +0000 (UTC)
+        id S235815AbhEJLGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:06:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EA2A61554;
+        Mon, 10 May 2021 10:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644167;
-        bh=Y/0rLeqEAJt39Pc6q+Q6GoEZMWLKTJHlkz7WamKnJs4=;
+        s=korg; t=1620644186;
+        bh=so06xh22x+eOvI3lB5XXERypi5HW9pgp260kwFsvtCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBowiinpvfaWvVLiZSMWygSPmUr/qEbzY50fKUVGmgxk9Ky4EfUR3zI5pV7hKJOaT
-         QbmBLJ7mJ4j/Tyq9/n8aMjaX4wyqH0TVSRi62G86xAbN5cnRj5Y+2Ei3xNzis8PiiQ
-         RBU5dnb9iQp2K0QmMm5ckUHmWrmmlB+kVQdCWj2I=
+        b=bfKQZdJ7vIT5tPpsHv3DEwWkY0n/BJjmA8PlO1mPCJBM+V5jCyLVIQvwYqTQVJ16S
+         gg33NpBZ8E5f3AeOk2/IlQJfU+UZ8myudOjaChRYFU5PsBb1THmfrLwycTN+Oexeec
+         inzUIWaPhSQtMVkMrV06jdqo9UTSns7LDV/ohgXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.11 287/342] fuse: fix write deadlock
-Date:   Mon, 10 May 2021 12:21:17 +0200
-Message-Id: <20210510102019.586577209@linuxfoundation.org>
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 288/342] mm: page_alloc: ignore init_on_free=1 for debug_pagealloc=1
+Date:   Mon, 10 May 2021 12:21:18 +0200
+Message-Id: <20210510102019.633534202@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -40,162 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivek Goyal <vgoyal@redhat.com>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-commit 4f06dd92b5d0a6f8eec6a34b8d6ef3e1f4ac1e10 upstream.
+commit 9df65f522536719682bccd24245ff94db956256c upstream.
 
-There are two modes for write(2) and friends in fuse:
+On !ARCH_SUPPORTS_DEBUG_PAGEALLOC (like ia64) debug_pagealloc=1 implies
+page_poison=on:
 
-a) write through (update page cache, send sync WRITE request to userspace)
+    if (page_poisoning_enabled() ||
+         (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+          debug_pagealloc_enabled()))
+            static_branch_enable(&_page_poisoning_enabled);
 
-b) buffered write (update page cache, async writeout later)
+page_poison=on needs to override init_on_free=1.
 
-The write through method kept all the page cache pages locked that were
-used for the request.  Keeping more than one page locked is deadlock prone
-and Qian Cai demonstrated this with trinity fuzzing.
+Before the change it did not work as expected for the following case:
+- have PAGE_POISONING=y
+- have page_poison unset
+- have !ARCH_SUPPORTS_DEBUG_PAGEALLOC arch (like ia64)
+- have init_on_free=1
+- have debug_pagealloc=1
 
-The reason for keeping the pages locked is that concurrent mapped reads
-shouldn't try to pull possibly stale data into the page cache.
+That way we get both keys enabled:
+- static_branch_enable(&init_on_free);
+- static_branch_enable(&_page_poisoning_enabled);
 
-For full page writes, the easy way to fix this is to make the cached page
-be the authoritative source by marking the page PG_uptodate immediately.
-After this the page can be safely unlocked, since mapped/cached reads will
-take the written data from the cache.
+which leads to poisoned pages returned for __GFP_ZERO pages.
 
-Concurrent mapped writes will now cause data in the original WRITE request
-to be updated; this however doesn't cause any data inconsistency and this
-scenario should be exceedingly rare anyway.
+After the change we execute only:
+- static_branch_enable(&_page_poisoning_enabled);
+  and ignore init_on_free=1.
 
-If the WRITE request returns with an error in the above case, currently the
-page is not marked uptodate; this means that a concurrent read will always
-read consistent data.  After this patch the page is uptodate between
-writing to the cache and receiving the error: there's window where a cached
-read will read the wrong data.  While theoretically this could be a
-regression, it is unlikely to be one in practice, since this is normal for
-buffered writes.
-
-In case of a partial page write to an already uptodate page the locking is
-also unnecessary, with the above caveats.
-
-Partial write of a not uptodate page still needs to be handled.  One way
-would be to read the complete page before doing the write.  This is not
-possible, since it might break filesystems that don't expect any READ
-requests when the file was opened O_WRONLY.
-
-The other solution is to serialize the synchronous write with reads from
-the partial pages.  The easiest way to do this is to keep the partial pages
-locked.  The problem is that a write() may involve two such pages (one head
-and one tail).  This patch fixes it by only locking the partial tail page.
-If there's a partial head page as well, then split that off as a separate
-WRITE request.
-
-Reported-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/linux-fsdevel/4794a3fa3742a5e84fb0f934944204b55730829b.camel@lca.pw/
-Fixes: ea9b9907b82a ("fuse: implement perform_write")
-Cc: <stable@vger.kernel.org> # v2.6.26
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Link: https://lkml.kernel.org/r/20210329222555.3077928-1-slyfox@gentoo.org
+Link: https://lkml.org/lkml/2021/3/26/443
+Fixes: 8db26a3d4735 ("mm, page_poison: use static key more efficiently")
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/file.c   |   41 +++++++++++++++++++++++++++++------------
- fs/fuse/fuse_i.h |    1 +
- 2 files changed, 30 insertions(+), 12 deletions(-)
+ mm/page_alloc.c |   30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -1099,6 +1099,7 @@ static ssize_t fuse_send_write_pages(str
- 	struct fuse_file *ff = file->private_data;
- 	struct fuse_mount *fm = ff->fm;
- 	unsigned int offset, i;
-+	bool short_write;
- 	int err;
- 
- 	for (i = 0; i < ap->num_pages; i++)
-@@ -1113,32 +1114,38 @@ static ssize_t fuse_send_write_pages(str
- 	if (!err && ia->write.out.size > count)
- 		err = -EIO;
- 
-+	short_write = ia->write.out.size < count;
- 	offset = ap->descs[0].offset;
- 	count = ia->write.out.size;
- 	for (i = 0; i < ap->num_pages; i++) {
- 		struct page *page = ap->pages[i];
- 
--		if (!err && !offset && count >= PAGE_SIZE)
--			SetPageUptodate(page);
--
--		if (count > PAGE_SIZE - offset)
--			count -= PAGE_SIZE - offset;
--		else
--			count = 0;
--		offset = 0;
--
--		unlock_page(page);
-+		if (err) {
-+			ClearPageUptodate(page);
-+		} else {
-+			if (count >= PAGE_SIZE - offset)
-+				count -= PAGE_SIZE - offset;
-+			else {
-+				if (short_write)
-+					ClearPageUptodate(page);
-+				count = 0;
-+			}
-+			offset = 0;
-+		}
-+		if (ia->write.page_locked && (i == ap->num_pages - 1))
-+			unlock_page(page);
- 		put_page(page);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -764,32 +764,36 @@ static inline void clear_page_guard(stru
+  */
+ void init_mem_debugging_and_hardening(void)
+ {
++	bool page_poisoning_requested = false;
++
++#ifdef CONFIG_PAGE_POISONING
++	/*
++	 * Page poisoning is debug page alloc for some arches. If
++	 * either of those options are enabled, enable poisoning.
++	 */
++	if (page_poisoning_enabled() ||
++	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
++	      debug_pagealloc_enabled())) {
++		static_branch_enable(&_page_poisoning_enabled);
++		page_poisoning_requested = true;
++	}
++#endif
++
+ 	if (_init_on_alloc_enabled_early) {
+-		if (page_poisoning_enabled())
++		if (page_poisoning_requested)
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_alloc\n");
+ 		else
+ 			static_branch_enable(&init_on_alloc);
+ 	}
+ 	if (_init_on_free_enabled_early) {
+-		if (page_poisoning_enabled())
++		if (page_poisoning_requested)
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_free\n");
+ 		else
+ 			static_branch_enable(&init_on_free);
  	}
  
- 	return err;
- }
- 
--static ssize_t fuse_fill_write_pages(struct fuse_args_pages *ap,
-+static ssize_t fuse_fill_write_pages(struct fuse_io_args *ia,
- 				     struct address_space *mapping,
- 				     struct iov_iter *ii, loff_t pos,
- 				     unsigned int max_pages)
- {
-+	struct fuse_args_pages *ap = &ia->ap;
- 	struct fuse_conn *fc = get_fuse_conn(mapping->host);
- 	unsigned offset = pos & (PAGE_SIZE - 1);
- 	size_t count = 0;
-@@ -1191,6 +1198,16 @@ static ssize_t fuse_fill_write_pages(str
- 		if (offset == PAGE_SIZE)
- 			offset = 0;
- 
-+		/* If we copied full page, mark it uptodate */
-+		if (tmp == PAGE_SIZE)
-+			SetPageUptodate(page);
-+
-+		if (PageUptodate(page)) {
-+			unlock_page(page);
-+		} else {
-+			ia->write.page_locked = true;
-+			break;
-+		}
- 		if (!fc->big_writes)
- 			break;
- 	} while (iov_iter_count(ii) && count < fc->max_write &&
-@@ -1234,7 +1251,7 @@ static ssize_t fuse_perform_write(struct
- 			break;
- 		}
- 
--		count = fuse_fill_write_pages(ap, mapping, ii, pos, nr_pages);
-+		count = fuse_fill_write_pages(&ia, mapping, ii, pos, nr_pages);
- 		if (count <= 0) {
- 			err = count;
- 		} else {
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -912,6 +912,7 @@ struct fuse_io_args {
- 		struct {
- 			struct fuse_write_in in;
- 			struct fuse_write_out out;
-+			bool page_locked;
- 		} write;
- 	};
- 	struct fuse_args_pages ap;
+-#ifdef CONFIG_PAGE_POISONING
+-	/*
+-	 * Page poisoning is debug page alloc for some arches. If
+-	 * either of those options are enabled, enable poisoning.
+-	 */
+-	if (page_poisoning_enabled() ||
+-	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+-	      debug_pagealloc_enabled()))
+-		static_branch_enable(&_page_poisoning_enabled);
+-#endif
+-
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+ 	if (!debug_pagealloc_enabled())
+ 		return;
 
 
