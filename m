@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5412E3786F1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 406843788ED
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232934AbhEJLMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:12:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35242 "EHLO mail.kernel.org"
+        id S235640AbhEJLZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235711AbhEJLFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9117A61458;
-        Mon, 10 May 2021 10:55:53 +0000 (UTC)
+        id S233525AbhEJLMO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:12:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B38E61139;
+        Mon, 10 May 2021 11:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644154;
-        bh=9UxqKxbzLJfVW1nRZBSiPPEQqqBLd5TtF5qWnJvu8aU=;
+        s=korg; t=1620644997;
+        bh=nM82XFwB+Hv0Rbe30sfFpEmwyRJEFZjJt83JZ6zhF7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLjQrsoYoUrHDW4106h5ki4Nu7lgyCxAn/hsX7+FRBUGKFiGuFvHkcRhQBSSOIGyM
-         3Ayo5x1aAYdRBQBM3bZM6+nffR3gvlYrSPeHt65MCeKIle18v6F1oIsYWRMmv153jb
-         lonpU9kK03EIexZaVS0dVjYbMNdTM2eP6bcaJEcY=
+        b=v9YSTGwGOaI0zWE7WIDJC3K4M2N4LjzeukiwhA7dT2yzgpbyUXH13azETGmXH0ubK
+         MI9MkGMdyKIOtCqhDd5eCtcvvqjMh7wICKDrknFc5ZJjv7W3Upptvwdc4XalPu9ABq
+         J7A+di50zfgg8rSTU6wvRJNHzcA4Dla1oNg7mmTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Liu Zhi Qiang <liuzhiqiang26@huawei.com>,
-        Ye Bin <yebin10@huawei.com>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.11 309/342] ext4: fix ext4_error_err save negative errno into superblock
+        stable@vger.kernel.org, Rosen Penev <rosenp@gmail.com>,
+        Tony Ambardar <Tony.Ambardar@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.12 310/384] powerpc: fix EDEADLOCK redefinition error in uapi/asm/errno.h
 Date:   Mon, 10 May 2021 12:21:39 +0200
-Message-Id: <20210510102020.313946561@linuxfoundation.org>
+Message-Id: <20210510102025.020262360@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Tony Ambardar <tony.ambardar@gmail.com>
 
-commit 6810fad956df9e5467e8e8a5ac66fda0836c71fa upstream.
+commit 7de21e679e6a789f3729e8402bc440b623a28eae upstream.
 
-Fix As write_mmp_block() so that it returns -EIO instead of 1, so that
-the correct error gets saved into the superblock.
+A few archs like powerpc have different errno.h values for macros
+EDEADLOCK and EDEADLK. In code including both libc and linux versions of
+errno.h, this can result in multiple definitions of EDEADLOCK in the
+include chain. Definitions to the same value (e.g. seen with mips) do
+not raise warnings, but on powerpc there are redefinitions changing the
+value, which raise warnings and errors (if using "-Werror").
 
-Cc: stable@kernel.org
-Fixes: 54d3adbc29f0 ("ext4: save all error info in save_error_info() and drop ext4_set_errno()")
-Reported-by: Liu Zhi Qiang <liuzhiqiang26@huawei.com>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20210406025331.148343-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Guard against these redefinitions to avoid build errors like the following,
+first seen cross-compiling libbpf v5.8.9 for powerpc using GCC 8.4.0 with
+musl 1.1.24:
+
+  In file included from ../../arch/powerpc/include/uapi/asm/errno.h:5,
+                   from ../../include/linux/err.h:8,
+                   from libbpf.c:29:
+  ../../include/uapi/asm-generic/errno.h:40: error: "EDEADLOCK" redefined [-Werror]
+   #define EDEADLOCK EDEADLK
+
+  In file included from toolchain-powerpc_8540_gcc-8.4.0_musl/include/errno.h:10,
+                   from libbpf.c:26:
+  toolchain-powerpc_8540_gcc-8.4.0_musl/include/bits/errno.h:58: note: this is the location of the previous definition
+   #define EDEADLOCK       58
+
+  cc1: all warnings being treated as errors
+
+Cc: Stable <stable@vger.kernel.org>
+Reported-by: Rosen Penev <rosenp@gmail.com>
+Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200917135437.1238787-1-Tony.Ambardar@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mmp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/uapi/asm/errno.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/mmp.c
-+++ b/fs/ext4/mmp.c
-@@ -56,7 +56,7 @@ static int write_mmp_block(struct super_
- 	wait_on_buffer(bh);
- 	sb_end_write(sb);
- 	if (unlikely(!buffer_uptodate(bh)))
--		return 1;
-+		return -EIO;
+--- a/arch/powerpc/include/uapi/asm/errno.h
++++ b/arch/powerpc/include/uapi/asm/errno.h
+@@ -2,6 +2,7 @@
+ #ifndef _ASM_POWERPC_ERRNO_H
+ #define _ASM_POWERPC_ERRNO_H
  
- 	return 0;
- }
++#undef	EDEADLOCK
+ #include <asm-generic/errno.h>
+ 
+ #undef	EDEADLOCK
 
 
