@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A62378510
+	by mail.lfdr.de (Postfix) with ESMTP id E50E1378511
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232745AbhEJK6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:58:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41652 "EHLO mail.kernel.org"
+        id S232773AbhEJK6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232382AbhEJKxt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:53:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0F526162B;
-        Mon, 10 May 2021 10:41:36 +0000 (UTC)
+        id S232830AbhEJKx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:53:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 624876142D;
+        Mon, 10 May 2021 10:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643297;
-        bh=LrpWikjAJmVDEgKRQhs4/S4vGblFHh9JVcW3zUzIXvI=;
+        s=korg; t=1620643299;
+        bh=XBY718aeLLfgEynBg4op5j+VG2Vw2BF1/Yw7EmWk8g8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XGKALcU4Tv/jDmkCXXbV8wJn2rhyF/oX54sXwTY2AF58EqYivaI39MjP8SdiintKz
-         BQhOnI0ZCeBFlbNexpLTBWwkA8cG0NBwvENagpvu9XJM0IZPVAWkrld/9xUKL0e7GZ
-         Kb6cSS46d0FEudFp5ZVpKLAXc75E85CXnl7yTod4=
+        b=DPSvaPC7u4pEldkMSlmhVKT5qSQ0yoJX/cUxTM9BeiWfKLadyt/xOiWib1jeG7sTu
+         9ZLOhFAbuX458tmbUfpkr9GXQ1Fk0JkJI/ufs2iEv7gSLf27ta+X12/wUk4EN2F1N4
+         wvkaOR6LCnOrOw9hNyUGH/auGlp089lcRvhJU1Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Talpey <tom@talpey.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Tom Talpey <tom@talpey.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 258/299] smb3: when mounting with multichannel include it in requested capabilities
-Date:   Mon, 10 May 2021 12:20:55 +0200
-Message-Id: <20210510102013.470319072@linuxfoundation.org>
+Subject: [PATCH 5.10 259/299] smb3: do not attempt multichannel to server which does not support it
+Date:   Mon, 10 May 2021 12:20:56 +0200
+Message-Id: <20210510102013.507543604@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -42,45 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steve French <stfrench@microsoft.com>
 
-commit 679971e7213174efb56abc8fab1299d0a88db0e8 upstream.
+commit 9c2dc11df50d1c8537075ff6b98472198e24438e upstream.
 
-In the SMB3/SMB3.1.1 negotiate protocol request, we are supposed to
-advertise CAP_MULTICHANNEL capability when establishing multiple
-channels has been requested by the user doing the mount. See MS-SMB2
-sections 2.2.3 and 3.2.5.2
+We were ignoring CAP_MULTI_CHANNEL in the server response - if the
+server doesn't support multichannel we should not be attempting it.
 
-Without setting it there is some risk that multichannel could fail
-if the server interpreted the field strictly.
+See MS-SMB2 section 3.2.5.2
 
-Reviewed-By: Tom Talpey <tom@talpey.com>
 Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-By: Tom Talpey <tom@talpey.com>
 Cc: <stable@vger.kernel.org> # v5.8+
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2pdu.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/cifs/sess.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -840,6 +840,8 @@ SMB2_negotiate(const unsigned int xid, s
- 		req->SecurityMode = 0;
+--- a/fs/cifs/sess.c
++++ b/fs/cifs/sess.c
+@@ -92,6 +92,12 @@ int cifs_try_adding_channels(struct cifs
+ 		return 0;
+ 	}
  
- 	req->Capabilities = cpu_to_le32(server->vals->req_capabilities);
-+	if (ses->chan_max > 1)
-+		req->Capabilities |= cpu_to_le32(SMB2_GLOBAL_CAP_MULTI_CHANNEL);
- 
- 	/* ClientGUID must be zero for SMB2.02 dialect */
- 	if (server->vals->protocol_id == SMB20_PROT_ID)
-@@ -1025,6 +1027,9 @@ int smb3_validate_negotiate(const unsign
- 
- 	pneg_inbuf->Capabilities =
- 			cpu_to_le32(server->vals->req_capabilities);
-+	if (tcon->ses->chan_max > 1)
-+		pneg_inbuf->Capabilities |= cpu_to_le32(SMB2_GLOBAL_CAP_MULTI_CHANNEL);
++	if (!(ses->server->capabilities & SMB2_GLOBAL_CAP_MULTI_CHANNEL)) {
++		cifs_dbg(VFS, "server %s does not support multichannel\n", ses->server->hostname);
++		ses->chan_max = 1;
++		return 0;
++	}
 +
- 	memcpy(pneg_inbuf->Guid, server->client_guid,
- 					SMB2_CLIENT_GUID_SIZE);
- 
+ 	/*
+ 	 * Make a copy of the iface list at the time and use that
+ 	 * instead so as to not hold the iface spinlock for opening
 
 
