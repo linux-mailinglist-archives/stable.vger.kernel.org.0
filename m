@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07C453787C9
+	by mail.lfdr.de (Postfix) with ESMTP id BC4253787CB
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231609AbhEJLSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:18:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
+        id S232859AbhEJLSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:18:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236643AbhEJLIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:08:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEBC8619B8;
-        Mon, 10 May 2021 11:02:45 +0000 (UTC)
+        id S236639AbhEJLIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37A776101A;
+        Mon, 10 May 2021 11:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644566;
-        bh=yD7Fzm9gIZ8+icEuOs7G8uu6AxACr7qsrAAvtRqBKbQ=;
+        s=korg; t=1620644568;
+        bh=psiVtoqPr9Q4aeX7cnyuf8xlm2rXv1Wl9ZOIJLCZb4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQsPcg9+FujSgXnVUswxOhdd7lFRsAwFPyY9z0Y/MCRbTj2h2BEVS8MNXaBK2GGOx
-         peMCrlQBZ+aT4BLcebT/BRXwXCFWN+rVV6Fl4xmeKKcYUwrP1F/U8fsglncRTVOAI9
-         hut0IcrUCmKVP3kwFQL4ttGx3zxMSoHsBulyeiZw=
+        b=0LA0t3P/TBCGvcLbFbkPeIGzkyyjoH6xFIFUBe3dh0O2Tzz12UiA/tDu4gXSUpTPc
+         80CLMYraM6297rnhvtJDei8kK6oXk2Es9ueDewrvUjo09Lf2DW61ugp/zbwJE7PCpb
+         zViXfWb4kPOlQz2YvFtDiNif8Z1sqcQMrhLi6ylQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 134/384] btrfs: use btrfs_inode_lock/btrfs_inode_unlock inode lock helpers
-Date:   Mon, 10 May 2021 12:18:43 +0200
-Message-Id: <20210510102019.316424281@linuxfoundation.org>
+Subject: [PATCH 5.12 135/384] btrfs: fix race between marking inode needs to be logged and log syncing
+Date:   Mon, 10 May 2021 12:18:44 +0200
+Message-Id: <20210510102019.349997611@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,281 +40,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 64708539cd23b31d0f235a2c12a0cf782f95908a ]
+[ Upstream commit bc0939fcfab0d7efb2ed12896b1af3d819954a14 ]
 
-A few places we intermix btrfs_inode_lock with a inode_unlock, and some
-places we just use inode_lock/inode_unlock instead of btrfs_inode_lock.
+We have a race between marking that an inode needs to be logged, either
+at btrfs_set_inode_last_trans() or at btrfs_page_mkwrite(), and between
+btrfs_sync_log(). The following steps describe how the race happens.
 
-None of these places are using this incorrectly, but as we adjust some
-of these callers it would be nice to keep everything consistent, so
-convert everybody to use btrfs_inode_lock/btrfs_inode_unlock.
+1) We are at transaction N;
 
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+2) Inode I was previously fsynced in the current transaction so it has:
+
+    inode->logged_trans set to N;
+
+3) The inode's root currently has:
+
+   root->log_transid set to 1
+   root->last_log_commit set to 0
+
+   Which means only one log transaction was committed to far, log
+   transaction 0. When a log tree is created we set ->log_transid and
+   ->last_log_commit of its parent root to 0 (at btrfs_add_log_tree());
+
+4) One more range of pages is dirtied in inode I;
+
+5) Some task A starts an fsync against some other inode J (same root), and
+   so it joins log transaction 1.
+
+   Before task A calls btrfs_sync_log()...
+
+6) Task B starts an fsync against inode I, which currently has the full
+   sync flag set, so it starts delalloc and waits for the ordered extent
+   to complete before calling btrfs_inode_in_log() at btrfs_sync_file();
+
+7) During ordered extent completion we have btrfs_update_inode() called
+   against inode I, which in turn calls btrfs_set_inode_last_trans(),
+   which does the following:
+
+     spin_lock(&inode->lock);
+     inode->last_trans = trans->transaction->transid;
+     inode->last_sub_trans = inode->root->log_transid;
+     inode->last_log_commit = inode->root->last_log_commit;
+     spin_unlock(&inode->lock);
+
+   So ->last_trans is set to N and ->last_sub_trans set to 1.
+   But before setting ->last_log_commit...
+
+8) Task A is at btrfs_sync_log():
+
+   - it increments root->log_transid to 2
+   - starts writeback for all log tree extent buffers
+   - waits for the writeback to complete
+   - writes the super blocks
+   - updates root->last_log_commit to 1
+
+   It's a lot of slow steps between updating root->log_transid and
+   root->last_log_commit;
+
+9) The task doing the ordered extent completion, currently at
+   btrfs_set_inode_last_trans(), then finally runs:
+
+     inode->last_log_commit = inode->root->last_log_commit;
+     spin_unlock(&inode->lock);
+
+   Which results in inode->last_log_commit being set to 1.
+   The ordered extent completes;
+
+10) Task B is resumed, and it calls btrfs_inode_in_log() which returns
+    true because we have all the following conditions met:
+
+    inode->logged_trans == N which matches fs_info->generation &&
+    inode->last_subtrans (1) <= inode->last_log_commit (1) &&
+    inode->last_subtrans (1) <= root->last_log_commit (1) &&
+    list inode->extent_tree.modified_extents is empty
+
+    And as a consequence we return without logging the inode, so the
+    existing logged version of the inode does not point to the extent
+    that was written after the previous fsync.
+
+It should be impossible in practice for one task be able to do so much
+progress in btrfs_sync_log() while another task is at
+btrfs_set_inode_last_trans() right after it reads root->log_transid and
+before it reads root->last_log_commit. Even if kernel preemption is enabled
+we know the task at btrfs_set_inode_last_trans() can not be preempted
+because it is holding the inode's spinlock.
+
+However there is another place where we do the same without holding the
+spinlock, which is in the memory mapped write path at:
+
+  vm_fault_t btrfs_page_mkwrite(struct vm_fault *vmf)
+  {
+     (...)
+     BTRFS_I(inode)->last_trans = fs_info->generation;
+     BTRFS_I(inode)->last_sub_trans = BTRFS_I(inode)->root->log_transid;
+     BTRFS_I(inode)->last_log_commit = BTRFS_I(inode)->root->last_log_commit;
+     (...)
+
+So with preemption happening after setting ->last_sub_trans and before
+setting ->last_log_commit, it is less of a stretch to have another task
+do enough progress at btrfs_sync_log() such that the task doing the memory
+mapped write ends up with ->last_sub_trans and ->last_log_commit set to
+the same value. It is still a big stretch to get there, as the task doing
+btrfs_sync_log() has to start writeback, wait for its completion and write
+the super blocks.
+
+So fix this in two different ways:
+
+1) For btrfs_set_inode_last_trans(), simply set ->last_log_commit to the
+   value of ->last_sub_trans minus 1;
+
+2) For btrfs_page_mkwrite() only set the inode's ->last_sub_trans, just
+   like we do for buffered and direct writes at btrfs_file_write_iter(),
+   which is all we need to make sure multiple writes and fsyncs to an
+   inode in the same transaction never result in an fsync missing that
+   the inode changed and needs to be logged. Turn this into a helper
+   function and use it both at btrfs_page_mkwrite() and at
+   btrfs_file_write_iter() - this also fixes the problem that at
+   btrfs_page_mkwrite() we were setting those fields without the
+   protection of the inode's spinlock.
+
+This is an extremely unlikely race to happen in practice.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/delayed-inode.c |  4 ++--
- fs/btrfs/file.c          | 18 +++++++++---------
- fs/btrfs/ioctl.c         | 26 +++++++++++++-------------
- fs/btrfs/reflink.c       |  4 ++--
- fs/btrfs/relocation.c    |  4 ++--
- 5 files changed, 28 insertions(+), 28 deletions(-)
+ fs/btrfs/btrfs_inode.h | 15 +++++++++++++++
+ fs/btrfs/file.c        | 10 ++--------
+ fs/btrfs/inode.c       |  4 +---
+ fs/btrfs/transaction.h |  2 +-
+ 4 files changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
-index bf25401c9768..c1d2b6786129 100644
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -1589,8 +1589,8 @@ bool btrfs_readdir_get_delayed_items(struct inode *inode,
- 	 * We can only do one readdir with delayed items at a time because of
- 	 * item->readdir_list.
- 	 */
--	inode_unlock_shared(inode);
--	inode_lock(inode);
-+	btrfs_inode_unlock(inode, BTRFS_ILOCK_SHARED);
-+	btrfs_inode_lock(inode, 0);
+diff --git a/fs/btrfs/btrfs_inode.h b/fs/btrfs/btrfs_inode.h
+index 28e202e89660..418903604936 100644
+--- a/fs/btrfs/btrfs_inode.h
++++ b/fs/btrfs/btrfs_inode.h
+@@ -299,6 +299,21 @@ static inline void btrfs_mod_outstanding_extents(struct btrfs_inode *inode,
+ 						  mod);
+ }
  
- 	mutex_lock(&delayed_node->mutex);
- 	item = __btrfs_first_delayed_insertion_item(delayed_node);
++/*
++ * Called every time after doing a buffered, direct IO or memory mapped write.
++ *
++ * This is to ensure that if we write to a file that was previously fsynced in
++ * the current transaction, then try to fsync it again in the same transaction,
++ * we will know that there were changes in the file and that it needs to be
++ * logged.
++ */
++static inline void btrfs_set_inode_last_sub_trans(struct btrfs_inode *inode)
++{
++	spin_lock(&inode->lock);
++	inode->last_sub_trans = inode->root->log_transid;
++	spin_unlock(&inode->lock);
++}
++
+ static inline int btrfs_inode_in_log(struct btrfs_inode *inode, u64 generation)
+ {
+ 	int ret = 0;
 diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 0e155f013839..6d4e15222775 100644
+index 6d4e15222775..4130523a77c9 100644
 --- a/fs/btrfs/file.c
 +++ b/fs/btrfs/file.c
-@@ -2122,7 +2122,7 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
- 	if (ret)
- 		goto out;
- 
--	inode_lock(inode);
-+	btrfs_inode_lock(inode, 0);
- 
- 	atomic_inc(&root->log_batch);
- 
-@@ -2154,7 +2154,7 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
- 	 */
- 	ret = start_ordered_ops(inode, start, end);
- 	if (ret) {
--		inode_unlock(inode);
-+		btrfs_inode_unlock(inode, 0);
- 		goto out;
- 	}
- 
-@@ -2255,7 +2255,7 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
- 	 * file again, but that will end up using the synchronization
- 	 * inside btrfs_sync_log to keep things safe.
- 	 */
--	inode_unlock(inode);
-+	btrfs_inode_unlock(inode, 0);
- 
- 	if (ret != BTRFS_NO_LOG_SYNC) {
- 		if (!ret) {
-@@ -2285,7 +2285,7 @@ out:
- 
- out_release_extents:
- 	btrfs_release_log_ctx_extents(&ctx);
--	inode_unlock(inode);
-+	btrfs_inode_unlock(inode, 0);
- 	goto out;
- }
- 
-@@ -2868,7 +2868,7 @@ static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
- 	if (ret)
- 		return ret;
- 
--	inode_lock(inode);
-+	btrfs_inode_lock(inode, 0);
- 	ino_size = round_up(inode->i_size, fs_info->sectorsize);
- 	ret = find_first_non_hole(BTRFS_I(inode), &offset, &len);
- 	if (ret < 0)
-@@ -2908,7 +2908,7 @@ static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
- 		truncated_block = true;
- 		ret = btrfs_truncate_block(BTRFS_I(inode), offset, 0, 0);
- 		if (ret) {
--			inode_unlock(inode);
-+			btrfs_inode_unlock(inode, 0);
- 			return ret;
- 		}
- 	}
-@@ -3009,7 +3009,7 @@ out_only_mutex:
- 				ret = ret2;
- 		}
- 	}
--	inode_unlock(inode);
-+	btrfs_inode_unlock(inode, 0);
- 	return ret;
- }
- 
-@@ -3377,7 +3377,7 @@ static long btrfs_fallocate(struct file *file, int mode,
- 
- 	if (mode & FALLOC_FL_ZERO_RANGE) {
- 		ret = btrfs_zero_range(inode, offset, len, mode);
--		inode_unlock(inode);
-+		btrfs_inode_unlock(inode, 0);
- 		return ret;
- 	}
- 
-@@ -3487,7 +3487,7 @@ out_unlock:
- 	unlock_extent_cached(&BTRFS_I(inode)->io_tree, alloc_start, locked_end,
- 			     &cached_state);
- out:
--	inode_unlock(inode);
-+	btrfs_inode_unlock(inode, 0);
- 	/* Let go of our reservation. */
- 	if (ret != 0 && !(mode & FALLOC_FL_ZERO_RANGE))
- 		btrfs_free_reserved_data_space(BTRFS_I(inode), data_reserved,
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 49fea3d945f4..5efd6c7fe620 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -226,7 +226,7 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
- 	if (ret)
- 		return ret;
- 
--	inode_lock(inode);
-+	btrfs_inode_lock(inode, 0);
- 	fsflags = btrfs_mask_fsflags_for_type(inode, fsflags);
- 	old_fsflags = btrfs_inode_flags_to_fsflags(binode->flags);
- 
-@@ -353,7 +353,7 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
-  out_end_trans:
- 	btrfs_end_transaction(trans);
-  out_unlock:
--	inode_unlock(inode);
-+	btrfs_inode_unlock(inode, 0);
- 	mnt_drop_write_file(file);
- 	return ret;
- }
-@@ -449,7 +449,7 @@ static int btrfs_ioctl_fssetxattr(struct file *file, void __user *arg)
- 	if (ret)
- 		return ret;
- 
--	inode_lock(inode);
-+	btrfs_inode_lock(inode, 0);
- 
- 	old_flags = binode->flags;
- 	old_i_flags = inode->i_flags;
-@@ -501,7 +501,7 @@ out_unlock:
- 		inode->i_flags = old_i_flags;
- 	}
- 
--	inode_unlock(inode);
-+	btrfs_inode_unlock(inode, 0);
- 	mnt_drop_write_file(file);
- 
- 	return ret;
-@@ -1026,7 +1026,7 @@ out_up_read:
- out_dput:
- 	dput(dentry);
- out_unlock:
--	inode_unlock(dir);
-+	btrfs_inode_unlock(dir, 0);
- 	return error;
- }
- 
-@@ -1624,7 +1624,7 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
- 			ra_index += cluster;
- 		}
- 
--		inode_lock(inode);
-+		btrfs_inode_lock(inode, 0);
- 		if (IS_SWAPFILE(inode)) {
- 			ret = -ETXTBSY;
- 		} else {
-@@ -1633,13 +1633,13 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
- 			ret = cluster_pages_for_defrag(inode, pages, i, cluster);
- 		}
- 		if (ret < 0) {
--			inode_unlock(inode);
-+			btrfs_inode_unlock(inode, 0);
- 			goto out_ra;
- 		}
- 
- 		defrag_count += ret;
- 		balance_dirty_pages_ratelimited(inode->i_mapping);
--		inode_unlock(inode);
-+		btrfs_inode_unlock(inode, 0);
- 
- 		if (newer_than) {
- 			if (newer_off == (u64)-1)
-@@ -1687,9 +1687,9 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
- 
- out_ra:
- 	if (do_compress) {
--		inode_lock(inode);
-+		btrfs_inode_lock(inode, 0);
- 		BTRFS_I(inode)->defrag_compress = BTRFS_COMPRESS_NONE;
--		inode_unlock(inode);
-+		btrfs_inode_unlock(inode, 0);
- 	}
- 	if (!file)
- 		kfree(ra);
-@@ -3124,9 +3124,9 @@ static noinline int btrfs_ioctl_snap_destroy(struct file *file,
- 		goto out_dput;
- 	}
- 
--	inode_lock(inode);
-+	btrfs_inode_lock(inode, 0);
- 	err = btrfs_delete_subvolume(dir, dentry);
--	inode_unlock(inode);
-+	btrfs_inode_unlock(inode, 0);
- 	if (!err) {
- 		fsnotify_rmdir(dir, dentry);
- 		d_delete(dentry);
-@@ -3135,7 +3135,7 @@ static noinline int btrfs_ioctl_snap_destroy(struct file *file,
- out_dput:
- 	dput(dentry);
- out_unlock_dir:
--	inode_unlock(dir);
-+	btrfs_inode_unlock(dir, 0);
- free_subvol_name:
- 	kfree(subvol_name_ptr);
- free_parent:
-diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
-index 762881b777b3..0abbf050580d 100644
---- a/fs/btrfs/reflink.c
-+++ b/fs/btrfs/reflink.c
-@@ -833,7 +833,7 @@ loff_t btrfs_remap_file_range(struct file *src_file, loff_t off,
- 		return -EINVAL;
- 
- 	if (same_inode)
--		inode_lock(src_inode);
-+		btrfs_inode_lock(src_inode, 0);
+@@ -2014,14 +2014,8 @@ static ssize_t btrfs_file_write_iter(struct kiocb *iocb,
  	else
- 		lock_two_nondirectories(src_inode, dst_inode);
+ 		num_written = btrfs_buffered_write(iocb, from);
  
-@@ -849,7 +849,7 @@ loff_t btrfs_remap_file_range(struct file *src_file, loff_t off,
+-	/*
+-	 * We also have to set last_sub_trans to the current log transid,
+-	 * otherwise subsequent syncs to a file that's been synced in this
+-	 * transaction will appear to have already occurred.
+-	 */
+-	spin_lock(&inode->lock);
+-	inode->last_sub_trans = inode->root->log_transid;
+-	spin_unlock(&inode->lock);
++	btrfs_set_inode_last_sub_trans(inode);
++
+ 	if (num_written > 0)
+ 		num_written = generic_write_sync(iocb, num_written);
  
- out_unlock:
- 	if (same_inode)
--		inode_unlock(src_inode);
-+		btrfs_inode_unlock(src_inode, 0);
- 	else
- 		unlock_two_nondirectories(src_inode, dst_inode);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index a520775949a0..a922c3bcb65e 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8619,9 +8619,7 @@ again:
+ 	set_page_dirty(page);
+ 	SetPageUptodate(page);
  
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index 232d5da7b7be..bf269ee17e68 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -2578,7 +2578,7 @@ static noinline_for_stack int prealloc_file_extent_cluster(
- 		return btrfs_end_transaction(trans);
- 	}
+-	BTRFS_I(inode)->last_trans = fs_info->generation;
+-	BTRFS_I(inode)->last_sub_trans = BTRFS_I(inode)->root->log_transid;
+-	BTRFS_I(inode)->last_log_commit = BTRFS_I(inode)->root->last_log_commit;
++	btrfs_set_inode_last_sub_trans(BTRFS_I(inode));
  
--	inode_lock(&inode->vfs_inode);
-+	btrfs_inode_lock(&inode->vfs_inode, 0);
- 	for (nr = 0; nr < cluster->nr; nr++) {
- 		start = cluster->boundary[nr] - offset;
- 		if (nr + 1 < cluster->nr)
-@@ -2596,7 +2596,7 @@ static noinline_for_stack int prealloc_file_extent_cluster(
- 		if (ret)
- 			break;
- 	}
--	inode_unlock(&inode->vfs_inode);
-+	btrfs_inode_unlock(&inode->vfs_inode, 0);
+ 	unlock_extent_cached(io_tree, page_start, page_end, &cached_state);
  
- 	if (cur_offset < prealloc_end)
- 		btrfs_free_reserved_data_space_noquota(inode->root->fs_info,
+diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
+index 6335716e513f..dd7c3eea08ad 100644
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -175,7 +175,7 @@ static inline void btrfs_set_inode_last_trans(struct btrfs_trans_handle *trans,
+ 	spin_lock(&inode->lock);
+ 	inode->last_trans = trans->transaction->transid;
+ 	inode->last_sub_trans = inode->root->log_transid;
+-	inode->last_log_commit = inode->root->last_log_commit;
++	inode->last_log_commit = inode->last_sub_trans - 1;
+ 	spin_unlock(&inode->lock);
+ }
+ 
 -- 
 2.30.2
 
