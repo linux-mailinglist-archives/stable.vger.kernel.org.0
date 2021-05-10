@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D25378751
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44BEE37874F
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237439AbhEJLPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:15:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
+        id S237433AbhEJLPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:15:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236275AbhEJLHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8C1E61958;
-        Mon, 10 May 2021 10:59:30 +0000 (UTC)
+        id S236263AbhEJLHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 276936194F;
+        Mon, 10 May 2021 10:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644371;
-        bh=Mg6h6tYQVc6DTNKkINiy1TBDhryAgpq7+VHBIm5i/GA=;
+        s=korg; t=1620644373;
+        bh=acKmxj+Ujm6ClY3Q8Wr8ao8Ax4aed4EhrxYeDbHmBss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZ4dgich5ReXAWHje7+GXCBzPwcIXQHWLDR9hNdX3NYvKblYgUsogBjcclJIMg2wg
-         5YEdLbod56M/5J+cKVq0YGJw7yvj11hsNcbDV3K0Vz2LF2Lc7XkuRI5QI5BiRE+ACs
-         pGsRtq+5R13PGrh+WmOS32A4EFYQNM3lxPL5C5HA=
+        b=bBas/jFO40y3pbuA19Un/sC6Mz8/rtawQ7EKbIJu0klAlhtsIU0UwMJPzriw6HuQR
+         6KBmAUY9EiQpsfYcjwaAS0GxrHzEZ13Y2uhQVStB5VM4P4EyXoD7zN22q7CJ7bOs1g
+         jS4c8f0yRwgzKzy0hjxMnZirgflPoCv9PWc8XHto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        David Disseldorp <ddiss@suse.de>,
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.12 055/384] cifs: fix regression when mounting shares with prefix paths
-Date:   Mon, 10 May 2021 12:17:24 +0200
-Message-Id: <20210510102016.690879265@linuxfoundation.org>
+Subject: [PATCH 5.12 056/384] smb2: fix use-after-free in smb2_ioctl_query_info()
+Date:   Mon, 10 May 2021 12:17:25 +0200
+Message-Id: <20210510102016.731255221@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,119 +39,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Aurelien Aptel <aaptel@suse.com>
 
-commit 5c1acf3fe05ce443edba5e2110c9e581765f66a8 upstream.
+commit ccd48ec3d4a6cc595b2d9c5146e63b6c23546701 upstream.
 
-The commit 315db9a05b7a ("cifs: fix leak in cifs_smb3_do_mount() ctx")
-revealed an existing bug when mounting shares that contain a prefix
-path or DFS links.
+* rqst[1,2,3] is allocated in vars
+* each rqst->rq_iov is also allocated in vars or using pooled memory
 
-cifs_setup_volume_info() requires the @devname to contain the full
-path (UNC + prefix) to update the fs context with the new UNC and
-prepath values, however we were passing only the UNC
-path (old_ctx->UNC) in @device thus discarding any prefix paths.
+SMB2_open_free, SMB2_ioctl_free, SMB2_query_info_free are iterating on
+each rqst after vars has been freed (use-after-free), and they are
+freeing the kvec a second time (double-free).
 
-Instead of concatenating both old_ctx->{UNC,prepath} and pass it in
-@devname, just keep the dup'ed values of UNC and prepath in
-cifs_sb->ctx after calling smb3_fs_context_dup(), and fix
-smb3_parse_devname() to correctly parse and not leak the new UNC and
-prefix paths.
+How to trigger:
 
-Cc: <stable@vger.kernel.org> # v5.11+
-Fixes: 315db9a05b7a ("cifs: fix leak in cifs_smb3_do_mount() ctx")
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Acked-by: David Disseldorp <ddiss@suse.de>
+* compile with KASAN
+* mount a share
+
+$ smbinfo quota /mnt/foo
+Segmentation fault
+$ dmesg
+
+ ==================================================================
+ BUG: KASAN: use-after-free in SMB2_open_free+0x1c/0xa0
+ Read of size 8 at addr ffff888007b10c00 by task python3/1200
+
+ CPU: 2 PID: 1200 Comm: python3 Not tainted 5.12.0-rc6+ #107
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.org 04/01/2014
+ Call Trace:
+  dump_stack+0x93/0xc2
+  print_address_description.constprop.0+0x18/0x130
+  ? SMB2_open_free+0x1c/0xa0
+  ? SMB2_open_free+0x1c/0xa0
+  kasan_report.cold+0x7f/0x111
+  ? smb2_ioctl_query_info+0x240/0x990
+  ? SMB2_open_free+0x1c/0xa0
+  SMB2_open_free+0x1c/0xa0
+  smb2_ioctl_query_info+0x2bf/0x990
+  ? smb2_query_reparse_tag+0x600/0x600
+  ? cifs_mapchar+0x250/0x250
+  ? rcu_read_lock_sched_held+0x3f/0x70
+  ? cifs_strndup_to_utf16+0x12c/0x1c0
+  ? rwlock_bug.part.0+0x60/0x60
+  ? rcu_read_lock_sched_held+0x3f/0x70
+  ? cifs_convert_path_to_utf16+0xf8/0x140
+  ? smb2_check_message+0x6f0/0x6f0
+  cifs_ioctl+0xf18/0x16b0
+  ? smb2_query_reparse_tag+0x600/0x600
+  ? cifs_readdir+0x1800/0x1800
+  ? selinux_bprm_creds_for_exec+0x4d0/0x4d0
+  ? do_user_addr_fault+0x30b/0x950
+  ? __x64_sys_openat+0xce/0x140
+  __x64_sys_ioctl+0xb9/0xf0
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7fdcf1f4ba87
+ Code: b3 66 90 48 8b 05 11 14 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d e1 13 2c 00 f7 d8 64 89 01 48
+ RSP: 002b:00007ffef1ce7748 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+ RAX: ffffffffffffffda RBX: 00000000c018cf07 RCX: 00007fdcf1f4ba87
+ RDX: 0000564c467c5590 RSI: 00000000c018cf07 RDI: 0000000000000003
+ RBP: 00007ffef1ce7770 R08: 00007ffef1ce7420 R09: 00007fdcf0e0562b
+ R10: 0000000000000100 R11: 0000000000000246 R12: 0000000000004018
+ R13: 0000000000000001 R14: 0000000000000003 R15: 0000564c467c5590
+
+ Allocated by task 1200:
+  kasan_save_stack+0x1b/0x40
+  __kasan_kmalloc+0x7a/0x90
+  smb2_ioctl_query_info+0x10e/0x990
+  cifs_ioctl+0xf18/0x16b0
+  __x64_sys_ioctl+0xb9/0xf0
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+ Freed by task 1200:
+  kasan_save_stack+0x1b/0x40
+  kasan_set_track+0x1c/0x30
+  kasan_set_free_info+0x20/0x30
+  __kasan_slab_free+0xe5/0x110
+  slab_free_freelist_hook+0x53/0x130
+  kfree+0xcc/0x320
+  smb2_ioctl_query_info+0x2ad/0x990
+  cifs_ioctl+0xf18/0x16b0
+  __x64_sys_ioctl+0xb9/0xf0
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+ The buggy address belongs to the object at ffff888007b10c00
+  which belongs to the cache kmalloc-512 of size 512
+ The buggy address is located 0 bytes inside of
+  512-byte region [ffff888007b10c00, ffff888007b10e00)
+ The buggy address belongs to the page:
+ page:0000000044e14b75 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7b10
+ head:0000000044e14b75 order:2 compound_mapcount:0 compound_pincount:0
+ flags: 0x100000000010200(slab|head)
+ raw: 0100000000010200 ffffea000015f500 0000000400000004 ffff888001042c80
+ raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  ffff888007b10b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff888007b10b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ >ffff888007b10c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                    ^
+  ffff888007b10c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff888007b10d00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ==================================================================
+
+Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+CC: <stable@vger.kernel.org>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsfs.c     |    8 +-------
- fs/cifs/connect.c    |   24 ++++++++++++++++++------
- fs/cifs/fs_context.c |    4 ++++
- 3 files changed, 23 insertions(+), 13 deletions(-)
+ fs/cifs/smb2ops.c |   14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -834,13 +834,7 @@ cifs_smb3_do_mount(struct file_system_ty
- 		goto out;
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1763,18 +1763,14 @@ smb2_ioctl_query_info(const unsigned int
  	}
  
--	/* cifs_setup_volume_info->smb3_parse_devname() redups UNC & prepath */
--	kfree(cifs_sb->ctx->UNC);
--	cifs_sb->ctx->UNC = NULL;
--	kfree(cifs_sb->ctx->prepath);
--	cifs_sb->ctx->prepath = NULL;
+  iqinf_exit:
+-	kfree(vars);
+-	kfree(buffer);
+-	SMB2_open_free(&rqst[0]);
+-	if (qi.flags & PASSTHRU_FSCTL)
+-		SMB2_ioctl_free(&rqst[1]);
+-	else
+-		SMB2_query_info_free(&rqst[1]);
 -
--	rc = cifs_setup_volume_info(cifs_sb->ctx, NULL, old_ctx->UNC);
-+	rc = cifs_setup_volume_info(cifs_sb->ctx, NULL, NULL);
- 	if (rc) {
- 		root = ERR_PTR(rc);
- 		goto out;
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3176,17 +3176,29 @@ out:
- int
- cifs_setup_volume_info(struct smb3_fs_context *ctx, const char *mntopts, const char *devname)
- {
--	int rc = 0;
-+	int rc;
+-	SMB2_close_free(&rqst[2]);
++	cifs_small_buf_release(rqst[0].rq_iov[0].iov_base);
++	cifs_small_buf_release(rqst[1].rq_iov[0].iov_base);
++	cifs_small_buf_release(rqst[2].rq_iov[0].iov_base);
+ 	free_rsp_buf(resp_buftype[0], rsp_iov[0].iov_base);
+ 	free_rsp_buf(resp_buftype[1], rsp_iov[1].iov_base);
+ 	free_rsp_buf(resp_buftype[2], rsp_iov[2].iov_base);
++	kfree(vars);
++	kfree(buffer);
+ 	return rc;
  
--	smb3_parse_devname(devname, ctx);
-+	if (devname) {
-+		cifs_dbg(FYI, "%s: devname=%s\n", __func__, devname);
-+		rc = smb3_parse_devname(devname, ctx);
-+		if (rc) {
-+			cifs_dbg(VFS, "%s: failed to parse %s: %d\n", __func__, devname, rc);
-+			return rc;
-+		}
-+	}
- 
- 	if (mntopts) {
- 		char *ip;
- 
--		cifs_dbg(FYI, "%s: mntopts=%s\n", __func__, mntopts);
- 		rc = smb3_parse_opt(mntopts, "ip", &ip);
--		if (!rc && !cifs_convert_address((struct sockaddr *)&ctx->dstaddr, ip,
--						 strlen(ip))) {
-+		if (rc) {
-+			cifs_dbg(VFS, "%s: failed to parse ip options: %d\n", __func__, rc);
-+			return rc;
-+		}
-+
-+		rc = cifs_convert_address((struct sockaddr *)&ctx->dstaddr, ip, strlen(ip));
-+		kfree(ip);
-+		if (!rc) {
- 			cifs_dbg(VFS, "%s: failed to convert ip address\n", __func__);
- 			return -EINVAL;
- 		}
-@@ -3206,7 +3218,7 @@ cifs_setup_volume_info(struct smb3_fs_co
- 		return -EINVAL;
- 	}
- 
--	return rc;
-+	return 0;
- }
- 
- static int
---- a/fs/cifs/fs_context.c
-+++ b/fs/cifs/fs_context.c
-@@ -475,6 +475,7 @@ smb3_parse_devname(const char *devname,
- 
- 	/* move "pos" up to delimiter or NULL */
- 	pos += len;
-+	kfree(ctx->UNC);
- 	ctx->UNC = kstrndup(devname, pos - devname, GFP_KERNEL);
- 	if (!ctx->UNC)
- 		return -ENOMEM;
-@@ -485,6 +486,9 @@ smb3_parse_devname(const char *devname,
- 	if (*pos == '/' || *pos == '\\')
- 		pos++;
- 
-+	kfree(ctx->prepath);
-+	ctx->prepath = NULL;
-+
- 	/* If pos is NULL then no prepath */
- 	if (!*pos)
- 		return 0;
+ e_fault:
 
 
