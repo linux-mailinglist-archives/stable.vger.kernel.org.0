@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF2E37852A
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E8037852C
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233487AbhEJK7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:59:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46508 "EHLO mail.kernel.org"
+        id S233539AbhEJK72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:59:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233791AbhEJKzN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233803AbhEJKzN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:55:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 738B561C20;
-        Mon, 10 May 2021 10:42:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D40D961C21;
+        Mon, 10 May 2021 10:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643350;
-        bh=w56GKKRSKsUXp2KwYjgoI/xukSB8s82weg6AdfZw8fE=;
+        s=korg; t=1620643352;
+        bh=j8ZAVh+4owLROopi+7mVLqIA4y5/4WyTB2uWaa5L3uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBpHrOD3Wy2x27lDmkuxLiOevsF4uxt+2g52KjyV4VzNmHHCCbU0cvwmc/EGgK8uF
-         QY1eW0lhgYkeGERsPq8v7MHRfnv0dp4HY7n5CpBxCWRrlizVeYoXmsj+SQocZ+4m1r
-         lPVz1Y+5f7JqtT81x0/b6/yNr7iJbyHmZzskNSW8=
+        b=wKPw9MSFvT+q7CbDYo42DmgQy5iLvC3oeMISFKkaHcAANxYWGEfMvcJjwABOviPDK
+         rJvdqx6YfZwhD7/pTv3O9J7JqAExWgVMoaltZSJkNvIMQufKuSA/et7+NL8MrHBrWj
+         5LIL/HgpOicPssvXffXbNGzLFcCceNkP6PTaz9ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 280/299] media: venus: hfi_parser: Dont initialize parser on v1
-Date:   Mon, 10 May 2021 12:21:17 +0200
-Message-Id: <20210510102014.181272991@linuxfoundation.org>
+        syzbot+eb4674092e6cc8d9e0bd@syzkaller.appspotmail.com,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Anirudh Rayabharam <mail@anirudhrb.com>
+Subject: [PATCH 5.10 281/299] usb: gadget: dummy_hcd: fix gpf in gadget_setup
+Date:   Mon, 10 May 2021 12:21:18 +0200
+Message-Id: <20210510102014.213277954@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -41,39 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 834124c596e2dddbbdba06620835710ccca32fd0 upstream.
+commit 4a5d797a9f9c4f18585544237216d7812686a71f upstream.
 
-The Venus v1 behaves differently comparing with the other Venus
-version in respect to capability parsing and when they are send
-to the driver. So we don't need to initialize hfi parser for
-multiple invocations like what we do for > v1 Venus versions.
+Fix a general protection fault reported by syzbot due to a race between
+gadget_setup() and gadget_unbind() in raw_gadget.
 
-Fixes: 10865c98986b ("media: venus: parser: Prepare parser for multiple invocations")
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The gadget core is supposed to guarantee that there won't be any more
+callbacks to the gadget driver once the driver's unbind routine is
+called. That guarantee is enforced in usb_gadget_remove_driver as
+follows:
+
+        usb_gadget_disconnect(udc->gadget);
+        if (udc->gadget->irq)
+                synchronize_irq(udc->gadget->irq);
+        udc->driver->unbind(udc->gadget);
+        usb_gadget_udc_stop(udc);
+
+usb_gadget_disconnect turns off the pullup resistor, telling the host
+that the gadget is no longer connected and preventing the transmission
+of any more USB packets. Any packets that have already been received
+are sure to processed by the UDC driver's interrupt handler by the time
+synchronize_irq returns.
+
+But this doesn't work with dummy_hcd, because dummy_hcd doesn't use
+interrupts; it uses a timer instead. It does have code to emulate the
+effect of synchronize_irq, but that code doesn't get invoked at the
+right time -- it currently runs in usb_gadget_udc_stop, after the unbind
+callback instead of before. Indeed, there's no way for
+usb_gadget_remove_driver to invoke this code before the unbind callback.
+
+To fix this, move the synchronize_irq() emulation code to dummy_pullup
+so that it runs before unbind. Also, add a comment explaining why it is
+necessary to have it there.
+
+Reported-by: syzbot+eb4674092e6cc8d9e0bd@syzkaller.appspotmail.com
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210419033713.3021-1-mail@anirudhrb.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/qcom/venus/hfi_parser.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/dummy_hcd.c |   23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
---- a/drivers/media/platform/qcom/venus/hfi_parser.c
-+++ b/drivers/media/platform/qcom/venus/hfi_parser.c
-@@ -239,8 +239,10 @@ u32 hfi_parser(struct venus_core *core,
- 
- 	parser_init(inst, &codecs, &domain);
- 
--	core->codecs_count = 0;
--	memset(core->caps, 0, sizeof(core->caps));
-+	if (core->res->hfi_version > HFI_VERSION_1XX) {
-+		core->codecs_count = 0;
-+		memset(core->caps, 0, sizeof(core->caps));
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -901,6 +901,21 @@ static int dummy_pullup(struct usb_gadge
+ 	spin_lock_irqsave(&dum->lock, flags);
+ 	dum->pullup = (value != 0);
+ 	set_link_state(dum_hcd);
++	if (value == 0) {
++		/*
++		 * Emulate synchronize_irq(): wait for callbacks to finish.
++		 * This seems to be the best place to emulate the call to
++		 * synchronize_irq() that's in usb_gadget_remove_driver().
++		 * Doing it in dummy_udc_stop() would be too late since it
++		 * is called after the unbind callback and unbind shouldn't
++		 * be invoked until all the other callbacks are finished.
++		 */
++		while (dum->callback_usage > 0) {
++			spin_unlock_irqrestore(&dum->lock, flags);
++			usleep_range(1000, 2000);
++			spin_lock_irqsave(&dum->lock, flags);
++		}
 +	}
+ 	spin_unlock_irqrestore(&dum->lock, flags);
  
- 	while (words_count) {
- 		data = word + 1;
+ 	usb_hcd_poll_rh_status(dummy_hcd_to_hcd(dum_hcd));
+@@ -1002,14 +1017,6 @@ static int dummy_udc_stop(struct usb_gad
+ 	spin_lock_irq(&dum->lock);
+ 	dum->ints_enabled = 0;
+ 	stop_activity(dum);
+-
+-	/* emulate synchronize_irq(): wait for callbacks to finish */
+-	while (dum->callback_usage > 0) {
+-		spin_unlock_irq(&dum->lock);
+-		usleep_range(1000, 2000);
+-		spin_lock_irq(&dum->lock);
+-	}
+-
+ 	dum->driver = NULL;
+ 	spin_unlock_irq(&dum->lock);
+ 
 
 
