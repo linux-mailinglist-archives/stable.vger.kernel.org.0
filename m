@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C6043788F2
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44DAD3787E8
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235653AbhEJLZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53450 "EHLO mail.kernel.org"
+        id S235903AbhEJLTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:19:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233098AbhEJLNa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:13:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CD1A60FE3;
-        Mon, 10 May 2021 11:10:19 +0000 (UTC)
+        id S235788AbhEJLGI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:06:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C051861480;
+        Mon, 10 May 2021 10:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645019;
-        bh=cYBlNz+rssiIDYLv8kRcjlaaHBL9HZUPloQL2Eed8GQ=;
+        s=korg; t=1620644179;
+        bh=g4ALrrfM+EPrWkUEza8K2lEDd+k+oaGl1AtL97CyQ3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S0dmOplcZCIgWjG4c/d1wRmldkRG0XcaAn0elt/U4S3exTUKvQSdhRVFHFTz9Y/GN
-         Qd9UjlrPjgO21PoBIqGjcRyEfJOSRP/J1gCb1pwMqCriNa0gjvOPhFWvEnLWJ0GpzG
-         F/EVr7a6mzAlWCGFHVKNzb89Ijet9Ld5aEp7eeXo=
+        b=ra64Dz60/ZqwQQSneDSdAUof5ZCC2H584h5che7YwDhQAIRefMa9L822pD+cXuTsf
+         IaNqCKGTW/ajbyK4WzyTQ+BP5QcJPnzg77/7JvH6gNXIsWrE8DKvpgaR5CCA7fJYh2
+         Pc5p7RK29fhJwAA5bTOsuTU8npbGvJSZg2BMVbpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heinz Mauelshagen <heinzm@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.12 319/384] dm raid: fix inconclusive reshape layout on fast raid4/5/6 table reload sequences
+        stable@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.11 318/342] media: staging/intel-ipu3: Fix race condition during set_fmt
 Date:   Mon, 10 May 2021 12:21:48 +0200
-Message-Id: <20210510102025.308849679@linuxfoundation.org>
+Message-Id: <20210510102020.624642092@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,134 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heinz Mauelshagen <heinzm@redhat.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit f99a8e4373eeacb279bc9696937a55adbff7a28a upstream.
+commit dccfe2548746ca9cca3a20401ece4cf255d1f171 upstream.
 
-If fast table reloads occur during an ongoing reshape of raid4/5/6
-devices the target may race reading a superblock vs the the MD resync
-thread; causing an inconclusive reshape state to be read in its
-constructor.
+Do not modify imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp, until the
+format has been correctly validated.
 
-lvm2 test lvconvert-raid-reshape-stripes-load-reload.sh can cause
-BUG_ON() to trigger in md_run(), e.g.:
-"kernel BUG at drivers/md/raid5.c:7567!".
-
-Scenario triggering the bug:
-
-1. the MD sync thread calls end_reshape() from raid5_sync_request()
-   when done reshaping. However end_reshape() _only_ updates the
-   reshape position to MaxSector keeping the changed layout
-   configuration though (i.e. any delta disks, chunk sector or RAID
-   algorithm changes). That inconclusive configuration is stored in
-   the superblock.
-
-2. dm-raid constructs a mapping, loading named inconsistent superblock
-   as of step 1 before step 3 is able to finish resetting the reshape
-   state completely, and calls md_run() which leads to mentioned bug
-   in raid5.c.
-
-3. the MD RAID personality's finish_reshape() is called; which resets
-   the reshape information on chunk sectors, delta disks, etc. This
-   explains why the bug is rarely seen on multi-core machines, as MD's
-   finish_reshape() superblock update races with the dm-raid
-   constructor's superblock load in step 2.
-
-Fix identifies inconclusive superblock content in the dm-raid
-constructor and resets it before calling md_run(), factoring out
-identifying checks into rs_is_layout_change() to share in existing
-rs_reshape_requested() and new rs_reset_inclonclusive_reshape(). Also
-enhance a comment and remove an empty line.
+Otherwise, even if we use a backup variable, there is a period of time
+where imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp might have an invalid
+value that can be used by other functions.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Heinz Mauelshagen <heinzm@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: ad91849996f9 ("media: staging/intel-ipu3: Fix set_fmt error handling")
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-raid.c |   34 ++++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ drivers/staging/media/ipu3/ipu3-v4l2.c |   30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
 
---- a/drivers/md/dm-raid.c
-+++ b/drivers/md/dm-raid.c
-@@ -1868,6 +1868,14 @@ static bool rs_takeover_requested(struct
- 	return rs->md.new_level != rs->md.level;
- }
+--- a/drivers/staging/media/ipu3/ipu3-v4l2.c
++++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
+@@ -669,7 +669,6 @@ static int imgu_fmt(struct imgu_device *
+ 	struct imgu_css_pipe *css_pipe = &imgu->css.pipes[pipe];
+ 	struct imgu_media_pipe *imgu_pipe = &imgu->imgu_pipe[pipe];
+ 	struct imgu_v4l2_subdev *imgu_sd = &imgu_pipe->imgu_sd;
+-	struct v4l2_pix_format_mplane fmt_backup;
  
-+/* True if layout is set to reshape. */
-+static bool rs_is_layout_change(struct raid_set *rs, bool use_mddev)
-+{
-+	return (use_mddev ? rs->md.delta_disks : rs->delta_disks) ||
-+	       rs->md.new_layout != rs->md.layout ||
-+	       rs->md.new_chunk_sectors != rs->md.chunk_sectors;
-+}
+ 	dev_dbg(dev, "set fmt node [%u][%u](try = %u)", pipe, node, try);
+ 
+@@ -687,6 +686,7 @@ static int imgu_fmt(struct imgu_device *
+ 
+ 	dev_dbg(dev, "IPU3 pipe %u pipe_id = %u", pipe, css_pipe->pipe_id);
+ 
++	css_q = imgu_node_to_queue(node);
+ 	for (i = 0; i < IPU3_CSS_QUEUES; i++) {
+ 		unsigned int inode = imgu_map_node(imgu, i);
+ 
+@@ -701,6 +701,11 @@ static int imgu_fmt(struct imgu_device *
+ 			continue;
+ 		}
+ 
++		if (i == css_q) {
++			fmts[i] = &f->fmt.pix_mp;
++			continue;
++		}
 +
- /* True if @rs is requested to reshape by ctr */
- static bool rs_reshape_requested(struct raid_set *rs)
- {
-@@ -1880,9 +1888,7 @@ static bool rs_reshape_requested(struct
- 	if (rs_is_raid0(rs))
- 		return false;
- 
--	change = mddev->new_layout != mddev->layout ||
--		 mddev->new_chunk_sectors != mddev->chunk_sectors ||
--		 rs->delta_disks;
-+	change = rs_is_layout_change(rs, false);
- 
- 	/* Historical case to support raid1 reshape without delta disks */
- 	if (rs_is_raid1(rs)) {
-@@ -2817,7 +2823,7 @@ static sector_t _get_reshape_sectors(str
- }
- 
- /*
-- *
-+ * Reshape:
-  * - change raid layout
-  * - change chunk size
-  * - add disks
-@@ -2927,6 +2933,20 @@ static int rs_setup_reshape(struct raid_
- }
- 
- /*
-+ * If the md resync thread has updated superblock with max reshape position
-+ * at the end of a reshape but not (yet) reset the layout configuration
-+ * changes -> reset the latter.
-+ */
-+static void rs_reset_inconclusive_reshape(struct raid_set *rs)
-+{
-+	if (!rs_is_reshaping(rs) && rs_is_layout_change(rs, true)) {
-+		rs_set_cur(rs);
-+		rs->md.delta_disks = 0;
-+		rs->md.reshape_backwards = 0;
-+	}
-+}
-+
-+/*
-  * Enable/disable discard support on RAID set depending on
-  * RAID level and discard properties of underlying RAID members.
-  */
-@@ -3212,11 +3232,14 @@ size_check:
- 	if (r)
- 		goto bad;
- 
-+	/* Catch any inconclusive reshape superblock content. */
-+	rs_reset_inconclusive_reshape(rs);
-+
- 	/* Start raid set read-only and assumed clean to change in raid_resume() */
- 	rs->md.ro = 1;
- 	rs->md.in_sync = 1;
- 
--	/* Keep array frozen */
-+	/* Keep array frozen until resume. */
- 	set_bit(MD_RECOVERY_FROZEN, &rs->md.recovery);
- 
- 	/* Has to be held on running the array */
-@@ -3230,7 +3253,6 @@ size_check:
+ 		if (try) {
+ 			fmts[i] = kmemdup(&imgu_pipe->nodes[inode].vdev_fmt.fmt.pix_mp,
+ 					  sizeof(struct v4l2_pix_format_mplane),
+@@ -729,39 +734,32 @@ static int imgu_fmt(struct imgu_device *
+ 		rects[IPU3_CSS_RECT_GDC]->height = pad_fmt.height;
  	}
  
- 	r = md_start(&rs->md);
+-	/*
+-	 * imgu doesn't set the node to the value given by user
+-	 * before we return success from this function, so set it here.
+-	 */
+-	css_q = imgu_node_to_queue(node);
+ 	if (!fmts[css_q]) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+-	fmt_backup = *fmts[css_q];
+-	*fmts[css_q] = f->fmt.pix_mp;
+ 
+ 	if (try)
+ 		ret = imgu_css_fmt_try(&imgu->css, fmts, rects, pipe);
+ 	else
+ 		ret = imgu_css_fmt_set(&imgu->css, fmts, rects, pipe);
+ 
+-	if (try || ret < 0)
+-		*fmts[css_q] = fmt_backup;
 -
- 	if (r) {
- 		ti->error = "Failed to start raid array";
- 		mddev_unlock(&rs->md);
+ 	/* ret is the binary number in the firmware blob */
+ 	if (ret < 0)
+ 		goto out;
+ 
+-	if (try)
+-		f->fmt.pix_mp = *fmts[css_q];
+-	else
+-		f->fmt = imgu_pipe->nodes[node].vdev_fmt.fmt;
++	/*
++	 * imgu doesn't set the node to the value given by user
++	 * before we return success from this function, so set it here.
++	 */
++	if (!try)
++		imgu_pipe->nodes[node].vdev_fmt.fmt.pix_mp = f->fmt.pix_mp;
+ 
+ out:
+ 	if (try) {
+ 		for (i = 0; i < IPU3_CSS_QUEUES; i++)
+-			kfree(fmts[i]);
++			if (i != css_q)
++				kfree(fmts[i]);
+ 	}
+ 
+ 	return ret;
 
 
