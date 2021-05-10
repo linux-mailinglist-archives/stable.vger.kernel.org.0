@@ -2,56 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C31C377DFE
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D3CA377E00
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230193AbhEJIWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:22:03 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:57375 "EHLO
+        id S230093AbhEJIWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:22:45 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:52045 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230093AbhEJIWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:22:03 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 9AF8819401A7;
-        Mon, 10 May 2021 04:20:58 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S230059AbhEJIWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:22:45 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id AD3751940274;
+        Mon, 10 May 2021 04:21:40 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Mon, 10 May 2021 04:20:58 -0400
+  by compute4.internal (MEProxy); Mon, 10 May 2021 04:21:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=sRdfpQ
-        NA1sQktumV4Ue2zHAjiK2rXi/XsT2UOgx/pp8=; b=aIKurta5IumLp7yNM4MRyK
-        GkgsVTqISbElzX+59XVzz/6Yg6jK0hKG4z+JrSYZx/vh7X9rEmHeEYgJlJ/yEcHM
-        VtPjYBVyYPu4NQSnZs3Q/pZc6nHtGZF94E2TwkxYn7qsuWjRodks/Y42XOQOBW6C
-        To04BLxQ+AuIi5gmR8lKe5IIq9KLpE3SpPDCH4PGIKIf/BGHE9fKjTzEKoMaL7Fp
-        +x6TqzACiHPmhTjVyU7khsoWZKudjFhUPzdYDTFBGJawXmDNBi48qbcebeOBVrs2
-        vn+IYx8XJtM0Jss8ZK24eblsmxXNXuPirWQu+JHBwLr0/P0JfmDyJUWlPy+rbadA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/6DetR
+        MZ8rS1DJ1sPQ/0K1Zi60xUF39B6asXAbOq/IM=; b=BsODk2w6ChXHP5Mg4kMrmr
+        tUyGMdjK0IL5AH8+Tu6mQQqVNwp60XMHrVSmbbJxInOveL6IIH8SWpbkt5VVvnvn
+        vjmeXmhtR58ET5ePM52+WvMXhDjIsRU16Y37HgDzxaI6BzVhFJb2yYkRdfrUdRvu
+        sh29UlCPqoGssFmoCsDXPMofCoapSSZIuid/iZvSSsD5jiST/2b7OFbaDDwszKyf
+        cK+dazqFOK78GFek8oHxqg5yifEDcNVCQPfyvj4BIYT7qbjQtsfEe1wUnwJoFGKf
+        TO7TGH5vhubAJyaqUY80lXJYXfVbkZ/skratZLwm0uCjDly11Z5wouGAQYKUuLGA
         ==
-X-ME-Sender: <xms:6uyYYBHKgED8T0005E2vF5NH3zgwNI4jMhi4Lgzmy-H9_VMLwFgQFg>
-    <xme:6uyYYGVrA3q_lgaYadoN6u6lWWzYlWQe8umCWf3nXGcWAUjjkdcpdlkeTXcNDSf6n
-    Wz5GnleRGzptg>
+X-ME-Sender: <xms:FO2YYF-u3qo5awZKsgq8fgSj3SOLxX_Ek6QuMXEhz4p4PcIr9UGXlQ>
+    <xme:FO2YYJu0Azs-MdEo_Thfrx-i4QRgrk_soTTgKwSrpfouO5SYo3uvQWhlufHSev7kf
+    wdM7Oq0dQF_Aw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:6uyYYDLQbZRrmlhfExf2bllykvO8TXzlHbGvI2O6mnGKYSkEZ7ILhg>
-    <xmx:6uyYYHH9yWpTiyr1B3cKfWhYLa3bUePWPn0izCk81t2Lmikv-hkqYg>
-    <xmx:6uyYYHUzJNBSbf3SeH1AzJ3OBwb-26tS5AT87z1sCc02b3a3Gyei1g>
-    <xmx:6uyYYEhaVChpQx2zy1zpfCngGYQEL8QQ8strPAXKuGQ28_vHmPWLGA>
+X-ME-Proxy: <xmx:FO2YYDCAG1UQoCfMcm6io1iVqW6j3-KMwuRPnQWkKF-wJBpfrHoAiw>
+    <xmx:FO2YYJcgBAPWTg2a2WAkYp0L0HvtGGUFDJKXlQv6sWO5ROEYZnUOWQ>
+    <xmx:FO2YYKNOgTdWVFwL9MtaV8NLV74QqLb7oxywUhJXEm3iuTTOsRVEsw>
+    <xmx:FO2YYGBpYG73PAf8XNwAtscH8CHRNWOVx_93lIDOaO2CzjUCn2ffCA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:20:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Remove FS bInterval_m1 limitation" failed to apply to 5.4-stable tree
-To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        Mon, 10 May 2021 04:21:40 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: dwc3: core: Do core softreset when switch mode" failed to apply to 5.4-stable tree
+To:     chenyu56@huawei.com, Thinh.Nguyen@synopsys.com,
+        andy.shevchenko@gmail.com, fntoth@gmail.com,
+        gregkh@linuxfoundation.org, john.stultz@linaro.org,
+        stable@vger.kernel.org, wcheng@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 10:20:46 +0200
-Message-ID: <162063484620137@kroah.com>
+Date:   Mon, 10 May 2021 10:21:38 +0200
+Message-ID: <1620634898781@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,43 +73,155 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3232a3ce55edfc0d7f8904543b4088a5339c2b2b Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Thu, 15 Apr 2021 00:41:58 -0700
-Subject: [PATCH] usb: dwc3: gadget: Remove FS bInterval_m1 limitation
+From f88359e1588b85cf0e8209ab7d6620085f3441d9 Mon Sep 17 00:00:00 2001
+From: Yu Chen <chenyu56@huawei.com>
+Date: Thu, 15 Apr 2021 15:20:30 -0700
+Subject: [PATCH] usb: dwc3: core: Do core softreset when switch mode
 
-The programming guide incorrectly stated that the DCFG.bInterval_m1 must
-be set to 0 when operating in fullspeed. There's no such limitation for
-all IPs. See DWC_usb3x programming guide section 3.2.2.1.
+From: John Stultz <john.stultz@linaro.org>
 
-Fixes: a1679af85b2a ("usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1")
+According to the programming guide, to switch mode for DRD controller,
+the driver needs to do the following.
+
+To switch from device to host:
+1. Reset controller with GCTL.CoreSoftReset
+2. Set GCTL.PrtCapDir(host mode)
+3. Reset the host with USBCMD.HCRESET
+4. Then follow up with the initializing host registers sequence
+
+To switch from host to device:
+1. Reset controller with GCTL.CoreSoftReset
+2. Set GCTL.PrtCapDir(device mode)
+3. Reset the device with DCTL.CSftRst
+4. Then follow up with the initializing registers sequence
+
+Currently we're missing step 1) to do GCTL.CoreSoftReset and step 3) of
+switching from host to device. John Stult reported a lockup issue seen
+with HiKey960 platform without these steps[1]. Similar issue is observed
+with Ferry's testing platform[2].
+
+So, apply the required steps along with some fixes to Yu Chen's and John
+Stultz's version. The main fixes to their versions are the missing wait
+for clocks synchronization before clearing GCTL.CoreSoftReset and only
+apply DCTL.CSftRst when switching from host to device.
+
+[1] https://lore.kernel.org/linux-usb/20210108015115.27920-1-john.stultz@linaro.org/
+[2] https://lore.kernel.org/linux-usb/0ba7a6ba-e6a7-9cd4-0695-64fc927e01f1@gmail.com/
+
+Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Ferry Toth <fntoth@gmail.com>
+Cc: Wesley Cheng <wcheng@codeaurora.org>
 Cc: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
+Tested-by: John Stultz <john.stultz@linaro.org>
+Tested-by: Wesley Cheng <wcheng@codeaurora.org>
+Signed-off-by: Yu Chen <chenyu56@huawei.com>
+Signed-off-by: John Stultz <john.stultz@linaro.org>
 Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/5d4139ae89d810eb0a2d8577fb096fc88e87bfab.1618472454.git.Thinh.Nguyen@synopsys.com
+Link: https://lore.kernel.org/r/374440f8dcd4f06c02c2caf4b1efde86774e02d9.1618521663.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 1a632a3faf7f..90f4f9e69b22 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -607,12 +607,14 @@ static int dwc3_gadget_set_ep_config(struct dwc3_ep *dep, unsigned int action)
- 		u8 bInterval_m1;
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 5c25e6a72dbd..2f118ad43571 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -114,6 +114,8 @@ void dwc3_set_prtcap(struct dwc3 *dwc, u32 mode)
+ 	dwc->current_dr_role = mode;
+ }
  
- 		/*
--		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
--		 * must be set to 0 when the controller operates in full-speed.
-+		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13.
-+		 *
-+		 * NOTE: The programming guide incorrectly stated bInterval_m1
-+		 * must be set to 0 when operating in fullspeed. Internally the
-+		 * controller does not have this limitation. See DWC_usb3x
-+		 * programming guide section 3.2.2.1.
- 		 */
- 		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
--		if (dwc->gadget->speed == USB_SPEED_FULL)
--			bInterval_m1 = 0;
++static int dwc3_core_soft_reset(struct dwc3 *dwc);
++
+ static void __dwc3_set_mode(struct work_struct *work)
+ {
+ 	struct dwc3 *dwc = work_to_dwc(work);
+@@ -121,6 +123,8 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 	int ret;
+ 	u32 reg;
  
- 		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
- 		    dwc->gadget->speed == USB_SPEED_FULL)
++	mutex_lock(&dwc->mutex);
++
+ 	pm_runtime_get_sync(dwc->dev);
+ 
+ 	if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_OTG)
+@@ -154,6 +158,25 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 		break;
+ 	}
+ 
++	/* For DRD host or device mode only */
++	if (dwc->desired_dr_role != DWC3_GCTL_PRTCAP_OTG) {
++		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
++		reg |= DWC3_GCTL_CORESOFTRESET;
++		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
++
++		/*
++		 * Wait for internal clocks to synchronized. DWC_usb31 and
++		 * DWC_usb32 may need at least 50ms (less for DWC_usb3). To
++		 * keep it consistent across different IPs, let's wait up to
++		 * 100ms before clearing GCTL.CORESOFTRESET.
++		 */
++		msleep(100);
++
++		reg = dwc3_readl(dwc->regs, DWC3_GCTL);
++		reg &= ~DWC3_GCTL_CORESOFTRESET;
++		dwc3_writel(dwc->regs, DWC3_GCTL, reg);
++	}
++
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 
+ 	dwc3_set_prtcap(dwc, dwc->desired_dr_role);
+@@ -178,6 +201,8 @@ static void __dwc3_set_mode(struct work_struct *work)
+ 		}
+ 		break;
+ 	case DWC3_GCTL_PRTCAP_DEVICE:
++		dwc3_core_soft_reset(dwc);
++
+ 		dwc3_event_buffers_setup(dwc);
+ 
+ 		if (dwc->usb2_phy)
+@@ -200,6 +225,7 @@ static void __dwc3_set_mode(struct work_struct *work)
+ out:
+ 	pm_runtime_mark_last_busy(dwc->dev);
+ 	pm_runtime_put_autosuspend(dwc->dev);
++	mutex_unlock(&dwc->mutex);
+ }
+ 
+ void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
+@@ -1553,6 +1579,7 @@ static int dwc3_probe(struct platform_device *pdev)
+ 	dwc3_cache_hwparams(dwc);
+ 
+ 	spin_lock_init(&dwc->lock);
++	mutex_init(&dwc->mutex);
+ 
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_use_autosuspend(dev);
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 695ff2d791e4..7e3afa5378e8 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -13,6 +13,7 @@
+ 
+ #include <linux/device.h>
+ #include <linux/spinlock.h>
++#include <linux/mutex.h>
+ #include <linux/ioport.h>
+ #include <linux/list.h>
+ #include <linux/bitops.h>
+@@ -947,6 +948,7 @@ struct dwc3_scratchpad_array {
+  * @scratch_addr: dma address of scratchbuf
+  * @ep0_in_setup: one control transfer is completed and enter setup phase
+  * @lock: for synchronizing
++ * @mutex: for mode switching
+  * @dev: pointer to our struct device
+  * @sysdev: pointer to the DMA-capable device
+  * @xhci: pointer to our xHCI child
+@@ -1088,6 +1090,9 @@ struct dwc3 {
+ 	/* device lock */
+ 	spinlock_t		lock;
+ 
++	/* mode switching lock */
++	struct mutex		mutex;
++
+ 	struct device		*dev;
+ 	struct device		*sysdev;
+ 
 
