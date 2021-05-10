@@ -2,22 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E763791A5
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 16:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C45163791A6
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 16:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233213AbhEJO5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 10:57:03 -0400
-Received: from foss.arm.com ([217.140.110.172]:60256 "EHLO foss.arm.com"
+        id S233456AbhEJO5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 10:57:07 -0400
+Received: from foss.arm.com ([217.140.110.172]:60280 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234485AbhEJOzs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 10:55:48 -0400
+        id S234589AbhEJOzt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 10:55:49 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7908A15BE;
-        Mon, 10 May 2021 07:54:36 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F00ED1688;
+        Mon, 10 May 2021 07:54:43 -0700 (PDT)
 Received: from [192.168.0.110] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 422713F719;
-        Mon, 10 May 2021 07:54:35 -0700 (PDT)
-Subject: Re: [PATCH 1/2] KVM: arm64: Move __adjust_pc out of line
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id B8D483F719;
+        Mon, 10 May 2021 07:54:42 -0700 (PDT)
+Subject: Re: [PATCH 2/2] KVM: arm64: Commit pending PC adjustemnts before
+ returning to userspace
 To:     Marc Zyngier <maz@kernel.org>, kvm@vger.kernel.org,
         kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
 Cc:     Zenghui Yu <yuzenghui@huawei.com>,
@@ -25,14 +26,14 @@ Cc:     Zenghui Yu <yuzenghui@huawei.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         kernel-team@android.com, stable@vger.kernel.org
 References: <20210510094915.1909484-1-maz@kernel.org>
- <20210510094915.1909484-2-maz@kernel.org>
+ <20210510094915.1909484-3-maz@kernel.org>
 From:   Alexandru Elisei <alexandru.elisei@arm.com>
-Message-ID: <01c646f1-e342-b9fc-39b3-e8649862b4ac@arm.com>
-Date:   Mon, 10 May 2021 15:55:16 +0100
+Message-ID: <7a0f43c8-cc36-810e-0b8e-ffe66672ca82@arm.com>
+Date:   Mon, 10 May 2021 15:55:28 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <20210510094915.1909484-2-maz@kernel.org>
+In-Reply-To: <20210510094915.1909484-3-maz@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Content-Language: en-US
@@ -43,151 +44,126 @@ X-Mailing-List: stable@vger.kernel.org
 Hi Marc,
 
 On 5/10/21 10:49 AM, Marc Zyngier wrote:
-> In order to make it easy to call __adjust_pc() from the EL1 code
-> (in the case of nVHE), rename it to __kvm_adjust_pc() and move
-> it out of line.
+> KVM currently updates PC (and the corresponding exception state)
+> using a two phase approach: first by setting a set of flags,
+> then by converting these flags into a state update when the vcpu
+> is about to enter the guest.
 >
-> No expected functional change.
+> However, this creates a disconnect with userspace if the vcpu thread
+> returns there with any exception/PC flag set. In this case, the exposed
 
-It does look to me like they're functionally identical. Minor comments below.
+The code seems to handle only the KVM_ARM64_PENDING_EXCEPTION flag. Is the "PC
+flag" a reference to the KVM_ARM64_INCREMENT_PC flag?
 
+> context is wrong, as userpsace doesn't have access to these flags
+
+s/userpsace/userspace
+
+> (they aren't architectural). It also means that these flags are
+> preserved across a reset, which isn't expected.
 >
+> To solve this problem, force an explicit synchronisation of the
+> exception state on vcpu exit to userspace. As an optimisation
+> for nVHE systems, only perform this when there is something pending.
+>
+> Reported-by: Zenghui Yu <yuzenghui@huawei.com>
 > Signed-off-by: Marc Zyngier <maz@kernel.org>
 > Cc: stable@vger.kernel.org # 5.11
 > ---
->  arch/arm64/include/asm/kvm_asm.h           |  2 ++
->  arch/arm64/kvm/hyp/exception.c             | 18 +++++++++++++++++-
->  arch/arm64/kvm/hyp/include/hyp/adjust_pc.h | 18 ------------------
->  arch/arm64/kvm/hyp/nvhe/switch.c           |  2 +-
->  arch/arm64/kvm/hyp/vhe/switch.c            |  2 +-
->  5 files changed, 21 insertions(+), 21 deletions(-)
+>  arch/arm64/include/asm/kvm_asm.h   |  1 +
+>  arch/arm64/kvm/arm.c               | 10 ++++++++++
+>  arch/arm64/kvm/hyp/exception.c     |  4 ++--
+>  arch/arm64/kvm/hyp/nvhe/hyp-main.c |  8 ++++++++
+>  4 files changed, 21 insertions(+), 2 deletions(-)
 >
 > diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
-> index cf8df032b9c3..d5b11037401d 100644
+> index d5b11037401d..5e9b33cbac51 100644
 > --- a/arch/arm64/include/asm/kvm_asm.h
 > +++ b/arch/arm64/include/asm/kvm_asm.h
-> @@ -201,6 +201,8 @@ extern void __kvm_timer_set_cntvoff(u64 cntvoff);
+> @@ -63,6 +63,7 @@
+>  #define __KVM_HOST_SMCCC_FUNC___pkvm_cpu_set_vector		18
+>  #define __KVM_HOST_SMCCC_FUNC___pkvm_prot_finalize		19
+>  #define __KVM_HOST_SMCCC_FUNC___pkvm_mark_hyp			20
+> +#define __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc			21
 >  
->  extern int __kvm_vcpu_run(struct kvm_vcpu *vcpu);
+>  #ifndef __ASSEMBLY__
 >  
-> +extern void __kvm_adjust_pc(struct kvm_vcpu *vcpu);
+> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+> index 1cb39c0803a4..d62a7041ebd1 100644
+> --- a/arch/arm64/kvm/arm.c
+> +++ b/arch/arm64/kvm/arm.c
+> @@ -897,6 +897,16 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+>  
+>  	kvm_sigset_deactivate(vcpu);
+>  
+> +	/*
+> +	 * In the unlikely event that we are returning to userspace
+> +	 * with pending exceptions or PC adjustment, commit these
 
-It looks pretty strange to have the file
-arch/arm64/kvm/hyp/include/hyp/adjust_pc.h, but the function __kvm_adjust_pc() in
-another header. I guess this was done because arch/arm64/kvm/arm.c will use the
-function in the next patch. I was thinking that maybe renaming
-adjust_pc.h->skip_instr.h would make more sense, what do you think? I can send a
-patch on top of this series with the rename if you prefer.
+I'm going to assume "PC adjustment" means the KVM_ARM64_INCREMENT_PC flag. Please
+correct me if that's not true, but if that's the case, then the flag isn't handled
+below.
 
-> +
->  extern u64 __vgic_v3_get_gic_config(void);
->  extern u64 __vgic_v3_read_vmcr(void);
->  extern void __vgic_v3_write_vmcr(u32 vmcr);
-> diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
-> index 73629094f903..0812a496725f 100644
-> --- a/arch/arm64/kvm/hyp/exception.c
-> +++ b/arch/arm64/kvm/hyp/exception.c
-> @@ -296,7 +296,7 @@ static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
->  	*vcpu_pc(vcpu) = vect_offset;
->  }
->  
-> -void kvm_inject_exception(struct kvm_vcpu *vcpu)
-> +static void kvm_inject_exception(struct kvm_vcpu *vcpu)
->  {
->  	if (vcpu_el1_is_32bit(vcpu)) {
->  		switch (vcpu->arch.flags & KVM_ARM64_EXCEPT_MASK) {
-> @@ -329,3 +329,19 @@ void kvm_inject_exception(struct kvm_vcpu *vcpu)
->  		}
->  	}
->  }
-> +
-> +/*
-> + * Adjust the guest PC on entry, depending on flags provided by EL1
+> +	 * adjustments in order to give userspace a consistent view of
+> +	 * the vcpu state.
+> +	 */
+> +	if (unlikely(vcpu->arch.flags & (KVM_ARM64_PENDING_EXCEPTION |
+> +					 KVM_ARM64_EXCEPT_MASK)))
 
-This is also called by the VHE code running at EL2, but the comment is reworded in
-the next patch, so it doesn't really matter, and keeping the diff a straight move
-makes it easier to read.
-
-> + * for the purpose of emulation (MMIO, sysreg) or exception injection.
-> + */
-> +void __kvm_adjust_pc(struct kvm_vcpu *vcpu)
-> +{
-> +	if (vcpu->arch.flags & KVM_ARM64_PENDING_EXCEPTION) {
-> +		kvm_inject_exception(vcpu);
-> +		vcpu->arch.flags &= ~(KVM_ARM64_PENDING_EXCEPTION |
-> +				      KVM_ARM64_EXCEPT_MASK);
-> +	} else 	if (vcpu->arch.flags & KVM_ARM64_INCREMENT_PC) {
-> +		kvm_skip_instr(vcpu);
-> +		vcpu->arch.flags &= ~KVM_ARM64_INCREMENT_PC;
-> +	}
-> +}
-> diff --git a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
-> index 61716359035d..4fdfeabefeb4 100644
-> --- a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
-> +++ b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
-> @@ -13,8 +13,6 @@
->  #include <asm/kvm_emulate.h>
->  #include <asm/kvm_host.h>
->  
-> -void kvm_inject_exception(struct kvm_vcpu *vcpu);
-> -
->  static inline void kvm_skip_instr(struct kvm_vcpu *vcpu)
->  {
->  	if (vcpu_mode_is_32bit(vcpu)) {
-> @@ -43,22 +41,6 @@ static inline void __kvm_skip_instr(struct kvm_vcpu *vcpu)
->  	write_sysreg_el2(*vcpu_pc(vcpu), SYS_ELR);
->  }
->  
-> -/*
-> - * Adjust the guest PC on entry, depending on flags provided by EL1
-> - * for the purpose of emulation (MMIO, sysreg) or exception injection.
-> - */
-> -static inline void __adjust_pc(struct kvm_vcpu *vcpu)
-> -{
-> -	if (vcpu->arch.flags & KVM_ARM64_PENDING_EXCEPTION) {
-> -		kvm_inject_exception(vcpu);
-> -		vcpu->arch.flags &= ~(KVM_ARM64_PENDING_EXCEPTION |
-> -				      KVM_ARM64_EXCEPT_MASK);
-> -	} else 	if (vcpu->arch.flags & KVM_ARM64_INCREMENT_PC) {
-> -		kvm_skip_instr(vcpu);
-> -		vcpu->arch.flags &= ~KVM_ARM64_INCREMENT_PC;
-> -	}
-> -}
-> -
->  /*
->   * Skip an instruction while host sysregs are live.
->   * Assumes host is always 64-bit.
-> diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
-> index e9f6ea704d07..b8ac123c3419 100644
-> --- a/arch/arm64/kvm/hyp/nvhe/switch.c
-> +++ b/arch/arm64/kvm/hyp/nvhe/switch.c
-> @@ -201,7 +201,7 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
->  	 */
->  	__debug_save_host_buffers_nvhe(vcpu);
->  
-> -	__adjust_pc(vcpu);
-> +	__kvm_adjust_pc(vcpu);
->  
->  	/*
->  	 * We must restore the 32-bit state before the sysregs, thanks
-> diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/switch.c
-> index 7b8f7db5c1ed..3eafed0431f5 100644
-> --- a/arch/arm64/kvm/hyp/vhe/switch.c
-> +++ b/arch/arm64/kvm/hyp/vhe/switch.c
-> @@ -132,7 +132,7 @@ static int __kvm_vcpu_run_vhe(struct kvm_vcpu *vcpu)
->  	__load_guest_stage2(vcpu->arch.hw_mmu);
->  	__activate_traps(vcpu);
->  
-> -	__adjust_pc(vcpu);
-> +	__kvm_adjust_pc(vcpu);
-
-With the function now moved to kvm_asm.h, the header include adjust_pc.h is not
-needed. Same for the nvhe version of switch.c.
+The condition seems to suggest that it is valid to set
+KVM_ARM64_EXCEPT_{AA32,AA64}_* without setting KVM_ARM64_PENDING_EXCEPTION, which
+looks rather odd to me. Is that a valid use of the KVM_ARM64_EXCEPT_MASK bits? If
+it's not (the existing code always sets the exception type with the
+KVM_ARM64_PENDING_EXCEPTION), that I was thinking that checking only the
+KVM_ARM64_PENDING_EXCEPTION flag would make the intention clearer.
 
 Thanks,
 
 Alex
 
+> +		kvm_call_hyp(__kvm_adjust_pc, vcpu);
+> +
+>  	vcpu_put(vcpu);
+>  	return ret;
+>  }
+> diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
+> index 0812a496725f..11541b94b328 100644
+> --- a/arch/arm64/kvm/hyp/exception.c
+> +++ b/arch/arm64/kvm/hyp/exception.c
+> @@ -331,8 +331,8 @@ static void kvm_inject_exception(struct kvm_vcpu *vcpu)
+>  }
 >  
->  	sysreg_restore_guest_state_vhe(guest_ctxt);
->  	__debug_switch_to_guest(vcpu);
+>  /*
+> - * Adjust the guest PC on entry, depending on flags provided by EL1
+> - * for the purpose of emulation (MMIO, sysreg) or exception injection.
+> + * Adjust the guest PC (and potentially exception state) depending on
+> + * flags provided by the emulation code.
+>   */
+>  void __kvm_adjust_pc(struct kvm_vcpu *vcpu)
+>  {
+> diff --git a/arch/arm64/kvm/hyp/nvhe/hyp-main.c b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
+> index f36420a80474..1632f001f4ed 100644
+> --- a/arch/arm64/kvm/hyp/nvhe/hyp-main.c
+> +++ b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
+> @@ -28,6 +28,13 @@ static void handle___kvm_vcpu_run(struct kvm_cpu_context *host_ctxt)
+>  	cpu_reg(host_ctxt, 1) =  __kvm_vcpu_run(kern_hyp_va(vcpu));
+>  }
+>  
+> +static void handle___kvm_adjust_pc(struct kvm_cpu_context *host_ctxt)
+> +{
+> +	DECLARE_REG(struct kvm_vcpu *, vcpu, host_ctxt, 1);
+> +
+> +	__kvm_adjust_pc(kern_hyp_va(vcpu));
+> +}
+> +
+>  static void handle___kvm_flush_vm_context(struct kvm_cpu_context *host_ctxt)
+>  {
+>  	__kvm_flush_vm_context();
+> @@ -170,6 +177,7 @@ typedef void (*hcall_t)(struct kvm_cpu_context *);
+>  
+>  static const hcall_t host_hcall[] = {
+>  	HANDLE_FUNC(__kvm_vcpu_run),
+> +	HANDLE_FUNC(__kvm_adjust_pc),
+>  	HANDLE_FUNC(__kvm_flush_vm_context),
+>  	HANDLE_FUNC(__kvm_tlb_flush_vmid_ipa),
+>  	HANDLE_FUNC(__kvm_tlb_flush_vmid),
