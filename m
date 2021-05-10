@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 235F637878A
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:39:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5B67378793
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237676AbhEJLP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:15:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
+        id S237712AbhEJLQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:16:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236552AbhEJLIR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:08:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C52A86199F;
-        Mon, 10 May 2021 11:02:05 +0000 (UTC)
+        id S236603AbhEJLIU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A552E619B6;
+        Mon, 10 May 2021 11:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644526;
-        bh=TgVC4UPVRHZNBIu5csNjWVaW5ddsvCz1lELdgxWi99I=;
+        s=korg; t=1620644554;
+        bh=U5VH1FjoHIBdj44rOau1N1EsQ+mJhMw5NKpHZphx7UI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nwE4ycgck8y5T80Aazgf5pYKsD7fQxRe2OBpA8XspB/oQHK+g0B5pYaF9hElueSQJ
-         GVL63pGMtyHSsMQOrKaTtD3zJe9T5HWtLVFnL1AG2xF7HEUadXTs78/dpfhvdLU5IW
-         C2cejvt6kXiEBRC4BhrdrrorsDANoUbRBQ6gApBA=
+        b=BQEpaupf+y+N+ecIPS8xQFn4i5WGjE3At8k0Ug5m12ynVo8cN3j2ziKVBFCAK+ved
+         Ips/7PeWNPo9tBWbzzvyyy/12o0cLXh0JrdB3iSd3I/SGLQZnFsbSSuOVo3DPVN8Oo
+         zI/TJK6f3fN3tPekVWF2nPIWI7GkuXfUNuZPbhm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 111/384] platform/x86: ISST: Account for increased timeout in some cases
-Date:   Mon, 10 May 2021 12:18:20 +0200
-Message-Id: <20210510102018.561089412@linuxfoundation.org>
+Subject: [PATCH 5.12 112/384] clocksource/drivers/dw_apb_timer_of: Add handling for potential memory leak
+Date:   Mon, 10 May 2021 12:18:21 +0200
+Message-Id: <20210510102018.591114191@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,114 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit 5c782817a981981917ec3c647cf521022ee07143 ]
+[ Upstream commit 397dc6f7ca3c858dc95800f299357311ccf679e6 ]
 
-In some cases when firmware is busy or updating, some mailbox commands
-still timeout on some newer CPUs. To fix this issue, change how we
-process timeout.
+Add calls to disable the clock and unmap the timer base address in case
+of any failures.
 
-With this change, replaced timeout from using simple count with real
-timeout in micro-seconds using ktime. When the command response takes
-more than average processing time, yield to other tasks. The worst case
-timeout is extended upto 1 milli-second.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Link: https://lore.kernel.org/r/20210330220840.3113959-1-srinivas.pandruvada@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210322121844.2271041-1-dinguyen@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../intel_speed_select_if/isst_if_mbox_pci.c  | 33 +++++++++++++------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ drivers/clocksource/dw_apb_timer_of.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c b/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
-index a2a2d923e60c..df1fc6c719f3 100644
---- a/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
-+++ b/drivers/platform/x86/intel_speed_select_if/isst_if_mbox_pci.c
-@@ -21,12 +21,16 @@
- #define PUNIT_MAILBOX_BUSY_BIT		31
+diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
+index 42e7e43b8fcd..b1e2b697b21b 100644
+--- a/drivers/clocksource/dw_apb_timer_of.c
++++ b/drivers/clocksource/dw_apb_timer_of.c
+@@ -52,18 +52,34 @@ static int __init timer_get_base_and_rate(struct device_node *np,
+ 		return 0;
  
- /*
-- * The average time to complete some commands is about 40us. The current
-- * count is enough to satisfy 40us. But when the firmware is very busy, this
-- * causes timeout occasionally.  So increase to deal with some worst case
-- * scenarios. Most of the command still complete in few us.
-+ * The average time to complete mailbox commands is less than 40us. Most of
-+ * the commands complete in few micro seconds. But the same firmware handles
-+ * requests from all power management features.
-+ * We can create a scenario where we flood the firmware with requests then
-+ * the mailbox response can be delayed for 100s of micro seconds. So define
-+ * two timeouts. One for average case and one for long.
-+ * If the firmware is taking more than average, just call cond_resched().
-  */
--#define OS_MAILBOX_RETRY_COUNT		100
-+#define OS_MAILBOX_TIMEOUT_AVG_US	40
-+#define OS_MAILBOX_TIMEOUT_MAX_US	1000
+ 	timer_clk = of_clk_get_by_name(np, "timer");
+-	if (IS_ERR(timer_clk))
+-		return PTR_ERR(timer_clk);
++	if (IS_ERR(timer_clk)) {
++		ret = PTR_ERR(timer_clk);
++		goto out_pclk_disable;
++	}
  
- struct isst_if_device {
- 	struct mutex mutex;
-@@ -35,11 +39,13 @@ struct isst_if_device {
- static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 			    struct isst_if_mbox_cmd *mbox_cmd)
- {
--	u32 retries, data;
-+	s64 tm_delta = 0;
-+	ktime_t tm;
-+	u32 data;
- 	int ret;
- 
- 	/* Poll for rb bit == 0 */
--	retries = OS_MAILBOX_RETRY_COUNT;
-+	tm = ktime_get();
- 	do {
- 		ret = pci_read_config_dword(pdev, PUNIT_MAILBOX_INTERFACE,
- 					    &data);
-@@ -48,11 +54,14 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 
- 		if (data & BIT_ULL(PUNIT_MAILBOX_BUSY_BIT)) {
- 			ret = -EBUSY;
-+			tm_delta = ktime_us_delta(ktime_get(), tm);
-+			if (tm_delta > OS_MAILBOX_TIMEOUT_AVG_US)
-+				cond_resched();
- 			continue;
- 		}
- 		ret = 0;
- 		break;
--	} while (--retries);
-+	} while (tm_delta < OS_MAILBOX_TIMEOUT_MAX_US);
- 
+ 	ret = clk_prepare_enable(timer_clk);
  	if (ret)
- 		return ret;
-@@ -74,7 +83,8 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 		return ret;
+-		return ret;
++		goto out_timer_clk_put;
  
- 	/* Poll for rb bit == 0 */
--	retries = OS_MAILBOX_RETRY_COUNT;
-+	tm_delta = 0;
-+	tm = ktime_get();
- 	do {
- 		ret = pci_read_config_dword(pdev, PUNIT_MAILBOX_INTERFACE,
- 					    &data);
-@@ -83,6 +93,9 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
+ 	*rate = clk_get_rate(timer_clk);
+-	if (!(*rate))
+-		return -EINVAL;
++	if (!(*rate)) {
++		ret = -EINVAL;
++		goto out_timer_clk_disable;
++	}
  
- 		if (data & BIT_ULL(PUNIT_MAILBOX_BUSY_BIT)) {
- 			ret = -EBUSY;
-+			tm_delta = ktime_us_delta(ktime_get(), tm);
-+			if (tm_delta > OS_MAILBOX_TIMEOUT_AVG_US)
-+				cond_resched();
- 			continue;
- 		}
- 
-@@ -96,7 +109,7 @@ static int isst_if_mbox_cmd(struct pci_dev *pdev,
- 		mbox_cmd->resp_data = data;
- 		ret = 0;
- 		break;
--	} while (--retries);
-+	} while (tm_delta < OS_MAILBOX_TIMEOUT_MAX_US);
- 
- 	return ret;
+ 	return 0;
++
++out_timer_clk_disable:
++	clk_disable_unprepare(timer_clk);
++out_timer_clk_put:
++	clk_put(timer_clk);
++out_pclk_disable:
++	if (!IS_ERR(pclk)) {
++		clk_disable_unprepare(pclk);
++		clk_put(pclk);
++	}
++	iounmap(*base);
++	return ret;
  }
+ 
+ static int __init add_clockevent(struct device_node *event_timer)
 -- 
 2.30.2
 
