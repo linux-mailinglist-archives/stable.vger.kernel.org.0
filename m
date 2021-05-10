@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E76378656
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 649BA37852B
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234927AbhEJLFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:05:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52744 "EHLO mail.kernel.org"
+        id S233479AbhEJK7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:59:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232943AbhEJK62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:58:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9804561C43;
-        Mon, 10 May 2021 10:52:24 +0000 (UTC)
+        id S233774AbhEJKzL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:55:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9573461C1E;
+        Mon, 10 May 2021 10:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643945;
-        bh=gTjLa+Brssx6efEzCSxRi4RQ51FVS4CAo6dzZdqi0yo=;
+        s=korg; t=1620643345;
+        bh=8TUX8ebQCnnosyGIob6anlDtDbTdnqT6huL51mjRUGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXy37ft2xowVm3RLsXlkgJNTzBAWb69SquT2YOFRplwY1oIJrFVxngSi12ZgkCOCh
-         xx4eJYqkUwYN6p8of9JqrUmGlZnQfRJ430A4iUw122F0Oded/Tmc4i19QgCwy0VqLG
-         JFH4xspyWTx2h5245cHCLFb/SjT3jzzQRbywj/s4=
+        b=BEURpvZh4hvc6FlqJvRt/PNbpo3oBl5daDNi19gmk1fROGMXZ0RsEor8bw0GEpBmv
+         O85+maKxQK/2P7qmy4sgpYiXsIAoVk9IA9EeOCeKxTHL5dm0paqHN2Nvg7DcFWetg2
+         vHtzPZRJzQs/gdxD19L2Bm4qxx6hgsMMrlFw29Vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 225/342] scsi: lpfc: Fix crash when a REG_RPI mailbox fails triggering a LOGO response
-Date:   Mon, 10 May 2021 12:20:15 +0200
-Message-Id: <20210510102017.524147027@linuxfoundation.org>
+        stable@vger.kernel.org, dann frazier <dann.frazier@canonical.com>,
+        Marc Zyngier <maz@kernel.org>, Fu Wei <wefu@redhat.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.10 232/299] ACPI: GTDT: Dont corrupt interrupt mappings on watchdow probe failure
+Date:   Mon, 10 May 2021 12:20:29 +0200
+Message-Id: <20210510102012.624630596@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+References: <20210510102004.821838356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit fffd18ec6579c2d9c72b212169259062fe747888 ]
+commit 1ecd5b129252249b9bc03d7645a7bda512747277 upstream.
 
-Fix a crash caused by a double put on the node when the driver completed an
-ACC for an unsolicted abort on the same node.  The second put was executed
-by lpfc_nlp_not_used() and is wrong because the completion routine executes
-the nlp_put when the iocbq was released.  Additionally, the driver is
-issuing a LOGO then immediately calls lpfc_nlp_set_state to put the node
-into NPR.  This call does nothing.
+When failing the driver probe because of invalid firmware properties,
+the GTDT driver unmaps the interrupt that it mapped earlier.
 
-Remove the lpfc_nlp_not_used call and additional set_state in the
-completion routine.  Remove the lpfc_nlp_set_state post issue_logo.  Isn't
-necessary.
+However, it never checks whether the mapping of the interrupt actially
+succeeded. Even more, should the firmware report an illegal interrupt
+number that overlaps with the GIC SGI range, this can result in an
+IPI being unmapped, and subsequent fireworks (as reported by Dann
+Frazier).
 
-Link: https://lore.kernel.org/r/20210412013127.2387-3-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Rework the driver to have a slightly saner behaviour and actually
+check whether the interrupt has been mapped before unmapping things.
+
+Reported-by: dann frazier <dann.frazier@canonical.com>
+Fixes: ca9ae5ec4ef0 ("acpi/arm64: Add SBSA Generic Watchdog support in GTDT driver")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/YH87dtTfwYgavusz@xps13.dannf
+Cc: <stable@vger.kernel.org>
+Cc: Fu Wei <wefu@redhat.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: dann frazier <dann.frazier@canonical.com>
+Tested-by: Hanjun Guo <guohanjun@huawei.com>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/20210421164317.1718831-2-maz@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_nportdisc.c | 2 --
- drivers/scsi/lpfc/lpfc_sli.c       | 1 -
- 2 files changed, 3 deletions(-)
+ drivers/acpi/arm64/gtdt.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index b5ea5e032a74..b414c4210ce6 100644
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -1874,8 +1874,6 @@ lpfc_cmpl_reglogin_reglogin_issue(struct lpfc_vport *vport,
- 		ndlp->nlp_last_elscmd = ELS_CMD_PLOGI;
+--- a/drivers/acpi/arm64/gtdt.c
++++ b/drivers/acpi/arm64/gtdt.c
+@@ -329,7 +329,7 @@ static int __init gtdt_import_sbsa_gwdt(
+ 					int index)
+ {
+ 	struct platform_device *pdev;
+-	int irq = map_gt_gsi(wd->timer_interrupt, wd->timer_flags);
++	int irq;
  
- 		lpfc_issue_els_logo(vport, ndlp, 0);
--		ndlp->nlp_prev_state = NLP_STE_REG_LOGIN_ISSUE;
--		lpfc_nlp_set_state(vport, ndlp, NLP_STE_NPR_NODE);
- 		return ndlp->nlp_state;
+ 	/*
+ 	 * According to SBSA specification the size of refresh and control
+@@ -338,7 +338,7 @@ static int __init gtdt_import_sbsa_gwdt(
+ 	struct resource res[] = {
+ 		DEFINE_RES_MEM(wd->control_frame_address, SZ_4K),
+ 		DEFINE_RES_MEM(wd->refresh_frame_address, SZ_4K),
+-		DEFINE_RES_IRQ(irq),
++		{},
+ 	};
+ 	int nr_res = ARRAY_SIZE(res);
+ 
+@@ -348,10 +348,11 @@ static int __init gtdt_import_sbsa_gwdt(
+ 
+ 	if (!(wd->refresh_frame_address && wd->control_frame_address)) {
+ 		pr_err(FW_BUG "failed to get the Watchdog base address.\n");
+-		acpi_unregister_gsi(wd->timer_interrupt);
+ 		return -EINVAL;
  	}
  
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 8fca15549ea5..8cb60c5703d0 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -18033,7 +18033,6 @@ lpfc_sli4_seq_abort_rsp_cmpl(struct lpfc_hba *phba,
- 	if (cmd_iocbq) {
- 		ndlp = (struct lpfc_nodelist *)cmd_iocbq->context1;
- 		lpfc_nlp_put(ndlp);
--		lpfc_nlp_not_used(ndlp);
- 		lpfc_sli_release_iocbq(phba, cmd_iocbq);
++	irq = map_gt_gsi(wd->timer_interrupt, wd->timer_flags);
++	res[2] = (struct resource)DEFINE_RES_IRQ(irq);
+ 	if (irq <= 0) {
+ 		pr_warn("failed to map the Watchdog interrupt.\n");
+ 		nr_res--;
+@@ -364,7 +365,8 @@ static int __init gtdt_import_sbsa_gwdt(
+ 	 */
+ 	pdev = platform_device_register_simple("sbsa-gwdt", index, res, nr_res);
+ 	if (IS_ERR(pdev)) {
+-		acpi_unregister_gsi(wd->timer_interrupt);
++		if (irq > 0)
++			acpi_unregister_gsi(wd->timer_interrupt);
+ 		return PTR_ERR(pdev);
  	}
  
--- 
-2.30.2
-
 
 
