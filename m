@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CFF6377EC2
+	by mail.lfdr.de (Postfix) with ESMTP id A6763377EC3
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230049AbhEJI5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:57:37 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:50825 "EHLO
+        id S230050AbhEJI5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:57:36 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:50599 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230118AbhEJI5g (ORCPT
+        by vger.kernel.org with ESMTP id S230049AbhEJI5g (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:57:36 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 0134A1940A43;
-        Mon, 10 May 2021 04:56:31 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 10 May 2021 04:56:31 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 57A171940A40;
+        Mon, 10 May 2021 04:56:29 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 10 May 2021 04:56:29 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lQdLk7
-        bC9LPpnnZnpphp0scw1Uf/gBRjumvp8w94i5s=; b=hQ4e5+29BZd9cdBGLSiFak
-        IQiO+PQ1arXW6hoM8NdfXXk53xkod0ZRu+beBXibLA7M5p2lQ4vCVfaIntbqkRo4
-        vItCsV7eTABTfJHD4tilfQw6qRiPCsKiIqe79en1FtmDFKBZZXeF3F5OrTZFSIsq
-        jLQZ+paC/5HfCBpVjyc/xnD2o5BRQwFw8gUeq4rtaYqObM9+2M3WSC6tV6WmkBxu
-        LYI4PPQmdWx3GqIsGOu6Cr9+Y73OJND7HNU8j8xl+YhyHN5VU5MyHQIF9djG3ENM
-        Dyt44LkUxRJc/QKJEYXLimdVneproPMDgShOfXAaHPcybnNYSM88UAkywfkhAr4A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rSlrlV
+        KHK0sqTj/iKWSlyPwhlWT72mhGw3+jTvmXekw=; b=v0DdfcPibK4vjJ5DNOfXQM
+        ITag6iibAu2lNhDsfrb5bYMi9M2Xs65DHFdLFNFq8xdRDZFYOCCKrCGiGsJszzCJ
+        MpsoQCInZkCi7fdIE5blNR3LhMiY4eWDdXYted6ZJISyVhpWCaPWhGt5KMVQeggd
+        7fDHqedMyKzXzm8GlVuG/mkJrmUeTOZIKrj8+Ktp0vsKOWNpxakT+LcQcpBuCSXm
+        B9krGQU4FlRpqx4ziU8dy5XWPjhlPjf8ru1OCSJDFngYxS2BEC/wrk7EpTGICfhL
+        Q1CuiCM2wNB358Uyx9IVWHYkkx/SlvYfbmbyLfW3vgN5XFURdkBDKXvaGI1N0p0A
         ==
-X-ME-Sender: <xms:PvWYYLzBnla52-WG8xQspQml_m_fKfmlM2mNQG9RXuTYPiyhVcz67A>
-    <xme:PvWYYDSB7WxkpD5GDsHnkypWrayJ9FN16fERaP7Tyy358IQVVjpc2nrauEDQUpfma
-    BrmWk1GdOEdgw>
+X-ME-Sender: <xms:PfWYYLV57f8Xut9bm-seHTTEMGeBAaZSkyVp-Dt_DZNCUsd5GjjZGQ>
+    <xme:PfWYYDmMR8TBZNZ_puPDJ1TtrvMIeFSuE_GJ3T7wjQiFKQAliXyZA_3daDMqkMXhX
+    _d-AO3geFXm7Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,21 +38,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtdelucetufdoteggod
     elieetveejvdfgvdeljeelnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:PvWYYFUThe6xpJxEHu2THGOHHXncGF812uWP0X3uJioOYkh4T1sjbQ>
-    <xmx:PvWYYFgFR-uC-Mzj61tE0Q-qkjPP4lqbn9cpPx3ec9afVnvWpZpr8Q>
-    <xmx:PvWYYNAabnWWbBqx75O_uKAPt1PqLxzkuBQAA6hm_KV4biPdKibxwA>
-    <xmx:PvWYYMOGNGxd5WROE0G4lQyOF5QKssNsI9V52KQdcb2k5HMKlDE4rw>
+X-ME-Proxy: <xmx:PfWYYHZCXoRJEy6TbvpbrwVtc_uCvhYsYEk4o3548BfM7h1paxSuCA>
+    <xmx:PfWYYGW8g-lqdnf4G9ZjSVRpuhWyIXUm8tOKxgbhVVxiCSpNXTdQLg>
+    <xmx:PfWYYFm5uUfo3E3_-8TY3WZd_23B1aQk8atMR5oiXvsloXWH9hIqJw>
+    <xmx:PfWYYLiyfM7MBsqjb9a_v7i2SPzNtaWOiImPgFX0b0357WCDM3viKA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:56:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] pinctrl: Ingenic: Add missing pins to the JZ4770 MAC MII" failed to apply to 5.11-stable tree
+        Mon, 10 May 2021 04:56:28 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] pinctrl: Ingenic: Add missing pins to the JZ4770 MAC MII" failed to apply to 5.4-stable tree
 To:     zhouyanjie@wanyeetech.com, andy.shevchenko@gmail.com,
         linus.walleij@linaro.org, paul@crapouillou.net,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 10 May 2021 10:56:11 +0200
-Message-ID: <16206369715299@kroah.com>
+Message-ID: <162063697114297@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
