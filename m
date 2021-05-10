@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FF20378869
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D858837868C
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234902AbhEJLVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46276 "EHLO mail.kernel.org"
+        id S233280AbhEJLI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:08:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237101AbhEJLLV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DC3261628;
-        Mon, 10 May 2021 11:06:57 +0000 (UTC)
+        id S233659AbhEJK7q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:59:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAC9F61C4F;
+        Mon, 10 May 2021 10:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644817;
-        bh=r8UFkN2AuDgHpPR55vbdoKDopD8eGlpX6lyOUa+cLq4=;
+        s=korg; t=1620643974;
+        bh=ziNBxzhKZPutONo3f4ou2khFKiqLnOtDZul7o3GCZCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iq9UN2WXXSSzOFzPzYqVpEFOl0020i6s5D8/WPSL1EIif81oEsthOx3YlR3WwtgAB
-         8wNunuJSU+5zDqOLmwYU5jhmmjfc+e+U9OKusRdh9KKeIajcTOUJDllqp+Us0wYgaJ
-         fmtkzT+RpKnTt/h4Cd/PcsdJ1KGi5NNAB/RLjuhI=
+        b=sD6vR5X+HWkPHNcd3Y65Fv4pqMdlkpZ06jRpxIESP7vD8yYBC/zeGnDd0yBVxRjPE
+         XzftDEcrSLuhj28mzNrcHfOgoOaojqXi08rVtqcTDMgVWkucA6mgh+zjnjCq3Z7hK0
+         Jt85QFY8KhB2CeIii0ZqnQlvhj0WTwImHaAZV8DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+e7f4c64a4248a0340c37@syzkaller.appspotmail.com
-Subject: [PATCH 5.12 237/384] media: gscpa/stv06xx: fix memory leak
+        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 236/342] block/rnbd-clt: Fix missing a memory free when unloading the module
 Date:   Mon, 10 May 2021 12:20:26 +0200
-Message-Id: <20210510102022.699390759@linuxfoundation.org>
+Message-Id: <20210510102017.876970042@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
 
-[ Upstream commit 4f4e6644cd876c844cdb3bea2dd7051787d5ae25 ]
+[ Upstream commit 12b06533104e802df73c1fbe159437c19933d6c0 ]
 
-For two of the supported sensors the stv06xx driver allocates memory which
-is stored in sd->sensor_priv. This memory is freed on a disconnect, but if
-the probe() fails, then it isn't freed and so this leaks memory.
+When unloading the rnbd-clt module, it does not free a memory
+including the filename of the symbolic link to /sys/block/rnbdX.
 
-Add a new probe_error() op that drivers can use to free any allocated
-memory in case there was a probe failure.
+It is found by kmemleak as below.
 
-Thanks to Pavel Skripkin <paskripkin@gmail.com> for discovering the cause
-of the memory leak.
+unreferenced object 0xffff9f1a83d3c740 (size 16):
+  comm "bash", pid 736, jiffies 4295179665 (age 9841.310s)
+  hex dump (first 16 bytes):
+    21 64 65 76 21 6e 75 6c 6c 62 30 40 62 6c 61 00  !dev!nullb0@bla.
+  backtrace:
+    [<0000000039f0c55e>] 0xffffffffc0456c24
+    [<000000001aab9513>] kernfs_fop_write+0xcf/0x1c0
+    [<00000000db5aa4b3>] vfs_write+0xdb/0x1d0
+    [<000000007a2e2207>] ksys_write+0x65/0xe0
+    [<00000000055e280a>] do_syscall_64+0x50/0x1b0
+    [<00000000c2b51831>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Reported-and-tested-by: syzbot+e7f4c64a4248a0340c37@syzkaller.appspotmail.com
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Link: https://lore.kernel.org/r/20210419073722.15351-13-gi-oh.kim@ionos.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/gspca.c           | 2 ++
- drivers/media/usb/gspca/gspca.h           | 1 +
- drivers/media/usb/gspca/stv06xx/stv06xx.c | 9 +++++++++
- 3 files changed, 12 insertions(+)
+ drivers/block/rnbd/rnbd-clt-sysfs.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/gspca.c b/drivers/media/usb/gspca/gspca.c
-index 158c8e28ed2c..47d8f28bfdfc 100644
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -1576,6 +1576,8 @@ out:
- #endif
- 	v4l2_ctrl_handler_free(gspca_dev->vdev.ctrl_handler);
- 	v4l2_device_unregister(&gspca_dev->v4l2_dev);
-+	if (sd_desc->probe_error)
-+		sd_desc->probe_error(gspca_dev);
- 	kfree(gspca_dev->usb_buf);
- 	kfree(gspca_dev);
- 	return ret;
-diff --git a/drivers/media/usb/gspca/gspca.h b/drivers/media/usb/gspca/gspca.h
-index b0ced2e14006..a6554d5e9e1a 100644
---- a/drivers/media/usb/gspca/gspca.h
-+++ b/drivers/media/usb/gspca/gspca.h
-@@ -105,6 +105,7 @@ struct sd_desc {
- 	cam_cf_op config;	/* called on probe */
- 	cam_op init;		/* called on probe and resume */
- 	cam_op init_controls;	/* called on probe */
-+	cam_v_op probe_error;	/* called if probe failed, do cleanup here */
- 	cam_op start;		/* called on stream on after URBs creation */
- 	cam_pkt_op pkt_scan;
- /* optional operations */
-diff --git a/drivers/media/usb/gspca/stv06xx/stv06xx.c b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-index 95673fc0a99c..d9bc2aacc885 100644
---- a/drivers/media/usb/gspca/stv06xx/stv06xx.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-@@ -529,12 +529,21 @@ static int sd_int_pkt_scan(struct gspca_dev *gspca_dev,
- static int stv06xx_config(struct gspca_dev *gspca_dev,
- 			  const struct usb_device_id *id);
+diff --git a/drivers/block/rnbd/rnbd-clt-sysfs.c b/drivers/block/rnbd/rnbd-clt-sysfs.c
+index d4aa6bfc9555..526c77cd7a50 100644
+--- a/drivers/block/rnbd/rnbd-clt-sysfs.c
++++ b/drivers/block/rnbd/rnbd-clt-sysfs.c
+@@ -432,10 +432,14 @@ void rnbd_clt_remove_dev_symlink(struct rnbd_clt_dev *dev)
+ 	 * i.e. rnbd_clt_unmap_dev_store() leading to a sysfs warning because
+ 	 * of sysfs link already was removed already.
+ 	 */
+-	if (dev->blk_symlink_name && try_module_get(THIS_MODULE)) {
+-		sysfs_remove_link(rnbd_devs_kobj, dev->blk_symlink_name);
++	if (dev->blk_symlink_name) {
++		if (try_module_get(THIS_MODULE)) {
++			sysfs_remove_link(rnbd_devs_kobj, dev->blk_symlink_name);
++			module_put(THIS_MODULE);
++		}
++		/* It should be freed always. */
+ 		kfree(dev->blk_symlink_name);
+-		module_put(THIS_MODULE);
++		dev->blk_symlink_name = NULL;
+ 	}
+ }
  
-+static void stv06xx_probe_error(struct gspca_dev *gspca_dev)
-+{
-+	struct sd *sd = (struct sd *)gspca_dev;
-+
-+	kfree(sd->sensor_priv);
-+	sd->sensor_priv = NULL;
-+}
-+
- /* sub-driver description */
- static const struct sd_desc sd_desc = {
- 	.name = MODULE_NAME,
- 	.config = stv06xx_config,
- 	.init = stv06xx_init,
- 	.init_controls = stv06xx_init_controls,
-+	.probe_error = stv06xx_probe_error,
- 	.start = stv06xx_start,
- 	.stopN = stv06xx_stopN,
- 	.pkt_scan = stv06xx_pkt_scan,
 -- 
 2.30.2
 
