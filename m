@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D6D63782B2
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE215378479
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231338AbhEJKg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:36:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41272 "EHLO mail.kernel.org"
+        id S232578AbhEJKwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:52:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232819AbhEJKfN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:35:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15FDD61922;
-        Mon, 10 May 2021 10:28:18 +0000 (UTC)
+        id S233730AbhEJKud (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:50:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 543DD616EB;
+        Mon, 10 May 2021 10:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642499;
-        bh=xaY0MHIR9143KmI75c50pWTwSZOaC+O3togLGV+jeGo=;
+        s=korg; t=1620643192;
+        bh=+O1awEC6LLjUZL7jHfPVU/co9F9cpQMtrow0VxvOvkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MtWEI7VxJ5t1UMjg7Zdn7yYI1BqGh35SYbAFHsJ7u0rQjt7yo6xsvFHXXVG3k4xnX
-         jPdPgouCUWfx9d5P8/+GpdRYA5R7HkznVa89q8ADgwm7/egscUYWS+t177h4/9Vzbk
-         1gEIT3jHQ+C1YmDB4keCUqimnArQ1MBDk3yRZ0sk=
+        b=HB+yZxOaMchrVkhA9gpiJQJT+KUzswyG0k01qB0jcYXPc11P7Ue/IT9G5jkyn8/u0
+         vBZ/G9TG5hQKu7AbMPE4ciLTkOkpJhK2e6k5REcTnwbB9Tqa5gHeJDKL+pntuFNnPO
+         Ca6Cn/MFpL5xzFiR3/EpjGlnfnuLa+j+O5DJVUXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 118/184] drm/amdgpu: fix NULL pointer dereference
+        stable@vger.kernel.org, Luke D Jones <luke@ljones.dev>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 215/299] ALSA: hda/realtek: GA503 use same quirks as GA401
 Date:   Mon, 10 May 2021 12:20:12 +0200
-Message-Id: <20210510101954.049055925@linuxfoundation.org>
+Message-Id: <20210510102012.044465327@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
-References: <20210510101950.200777181@linuxfoundation.org>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+References: <20210510102004.821838356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Luke D Jones <luke@ljones.dev>
 
-[ Upstream commit 3c3dc654333f6389803cdcaf03912e94173ae510 ]
+commit 76fae6185f5456865ff1bcb647709d44fd987eb6 upstream.
 
-ttm->sg needs to be checked before accessing its child member.
+The GA503 has almost exactly the same default setup as the GA401
+model with the same issues. The GA401 quirks solve all the issues
+so we will use the full quirk chain.
 
-Call Trace:
- amdgpu_ttm_backend_destroy+0x12/0x70 [amdgpu]
- ttm_bo_cleanup_memtype_use+0x3a/0x60 [ttm]
- ttm_bo_release+0x17d/0x300 [ttm]
- amdgpu_bo_unref+0x1a/0x30 [amdgpu]
- amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x78b/0x8b0 [amdgpu]
- kfd_ioctl_alloc_memory_of_gpu+0x118/0x220 [amdgpu]
- kfd_ioctl+0x222/0x400 [amdgpu]
- ? kfd_dev_is_large_bar+0x90/0x90 [amdgpu]
- __x64_sys_ioctl+0x8e/0xd0
- ? __context_tracking_exit+0x52/0x90
- do_syscall_64+0x33/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7f97f264d317
-Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffdb402c338 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007f97f3cc63a0 RCX: 00007f97f264d317
-RDX: 00007ffdb402c380 RSI: 00000000c0284b16 RDI: 0000000000000003
-RBP: 00007ffdb402c380 R08: 00007ffdb402c428 R09: 00000000c4000004
-R10: 00000000c4000004 R11: 0000000000000246 R12: 00000000c0284b16
-R13: 0000000000000003 R14: 00007f97f3cc63a0 R15: 00007f8836200000
-
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Luke D Jones <luke@ljones.dev>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210419030411.28304-1-luke@ljones.dev
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index c6a1dfe79e80..91e3a87b1de8 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -984,7 +984,7 @@ static void amdgpu_ttm_tt_unpin_userptr(struct ttm_tt *ttm)
- 		DMA_BIDIRECTIONAL : DMA_TO_DEVICE;
- 
- 	/* double check that we don't free the table twice */
--	if (!ttm->sg->sgl)
-+	if (!ttm->sg || !ttm->sg->sgl)
- 		return;
- 
- 	/* unmap the pages mapped to the device */
--- 
-2.30.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8138,6 +8138,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
++	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
 
 
