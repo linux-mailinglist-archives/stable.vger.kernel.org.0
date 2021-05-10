@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1DD3786FE
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 394223788F0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233997AbhEJLMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:12:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36852 "EHLO mail.kernel.org"
+        id S235675AbhEJLZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235807AbhEJLGM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:06:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 309EF614A5;
-        Mon, 10 May 2021 10:56:21 +0000 (UTC)
+        id S235751AbhEJLNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:13:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C6276101B;
+        Mon, 10 May 2021 11:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644181;
-        bh=pLJRRYmGLRA4CtUFUwDxRK/I2+39f4JcR7BShCAhMFo=;
+        s=korg; t=1620645027;
+        bh=so06xh22x+eOvI3lB5XXERypi5HW9pgp260kwFsvtCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dlrgGVoEZTd3zGdFxEuhztvemp3YmW//YBECm5644OkzS6cHfjjZTsaqAPWKWNgrE
-         FgHQWTTgyNcngT1WJ6zTCzXqic8XxkqSPRzelUBcaTxX94C8p6FOlFXF2pknhT2fJh
-         OXKLKWBSAr0HUncmWGmEfreeH5y1HyqAnCMh7waw=
+        b=l5qiTtX+V3Z+S+FWFSlAi94GHMe6DHmf+dYoKE0YH8LNIhphuX5HJQaWCaHzVaa5G
+         lWuJx1ptJ8mzmZ8DcICYZ1dXD+drEeMBw5KW9e5LML7U+gMJAzIvqXzBtTLDLcsBr0
+         lT1WfpNsbf4D7yUcSM0nBy3vurMbV+hCWJI6dshI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Alexandre Courbot <acourbot@chromium.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.11 319/342] media: v4l2-ctrls: fix reference to freed memory
-Date:   Mon, 10 May 2021 12:21:49 +0200
-Message-Id: <20210510102020.659098936@linuxfoundation.org>
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 321/384] mm: page_alloc: ignore init_on_free=1 for debug_pagealloc=1
+Date:   Mon, 10 May 2021 12:21:50 +0200
+Message-Id: <20210510102025.378166191@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,330 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-commit ac34b79da14d67a9b494f6125186becbd067e225 upstream.
+commit 9df65f522536719682bccd24245ff94db956256c upstream.
 
-When controls are used together with the Request API, then for
-each request a v4l2_ctrl_handler struct is allocated. This contains
-the controls that can be set in a request. If a control is *not* set in
-the request, then the value used in the most recent previous request
-must be used, or the current value if it is not found in any outstanding
-requests.
+On !ARCH_SUPPORTS_DEBUG_PAGEALLOC (like ia64) debug_pagealloc=1 implies
+page_poison=on:
 
-The framework tried to find such a previous request and it would set
-the 'req' pointer in struct v4l2_ctrl_ref to the v4l2_ctrl_ref of the
-control in such a previous request. So far, so good. However, when that
-previous request was applied to the hardware, returned to userspace, and
-then userspace would re-init or free that request, any 'ref' pointer in
-still-queued requests would suddenly point to freed memory.
+    if (page_poisoning_enabled() ||
+         (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+          debug_pagealloc_enabled()))
+            static_branch_enable(&_page_poisoning_enabled);
 
-This was not noticed before since the drivers that use this expected
-that each request would always have the controls set, so there was
-never any need to find a control in older requests. This requirement
-was relaxed, and now this bug surfaced.
+page_poison=on needs to override init_on_free=1.
 
-It was also made worse by changeset
-2fae4d6aabc8 ("media: v4l2-ctrls: v4l2_ctrl_request_complete() should always set ref->req")
-which increased the chance of this happening.
+Before the change it did not work as expected for the following case:
+- have PAGE_POISONING=y
+- have page_poison unset
+- have !ARCH_SUPPORTS_DEBUG_PAGEALLOC arch (like ia64)
+- have init_on_free=1
+- have debug_pagealloc=1
 
-The use of the 'req' pointer in v4l2_ctrl_ref was very fragile, so
-drop this entirely. Instead add a valid_p_req bool to indicate that
-p_req contains a valid value for this control. And if it is false,
-then just use the current value of the control.
+That way we get both keys enabled:
+- static_branch_enable(&init_on_free);
+- static_branch_enable(&_page_poisoning_enabled);
 
-Note that VIDIOC_G_EXT_CTRLS will always return -EACCES when attempting
-to get a control from a request until the request is completed. And in
-that case, all controls in the request will have the control value set
-(i.e. valid_p_req is true). This means that the whole 'find the most
-recent previous request containing a control' idea is pointless, and
-the code can be simplified considerably.
+which leads to poisoned pages returned for __GFP_ZERO pages.
 
-The v4l2_g_ext_ctrls_common() function was refactored a bit to make
-it more understandable. It also avoids updating volatile controls
-in a completed request since that was already done when the request
-was completed.
+After the change we execute only:
+- static_branch_enable(&_page_poisoning_enabled);
+  and ignore init_on_free=1.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 2fae4d6aabc8 ("media: v4l2-ctrls: v4l2_ctrl_request_complete() should always set ref->req")
-Fixes: 6fa6f831f095 ("media: v4l2-ctrls: add core request support")
-Cc: <stable@vger.kernel.org>      # for v5.9 and up
-Tested-by: Alexandre Courbot <acourbot@chromium.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lkml.kernel.org/r/20210329222555.3077928-1-slyfox@gentoo.org
+Link: https://lkml.org/lkml/2021/3/26/443
+Fixes: 8db26a3d4735 ("mm, page_poison: use static key more efficiently")
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c |  137 ++++++++++++++++-------------------
- include/media/v4l2-ctrls.h           |   12 +--
- 2 files changed, 70 insertions(+), 79 deletions(-)
+ mm/page_alloc.c |   30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -2381,7 +2381,16 @@ static void new_to_req(struct v4l2_ctrl_
- 	if (!ref)
- 		return;
- 	ptr_to_ptr(ref->ctrl, ref->ctrl->p_new, ref->p_req);
--	ref->req = ref;
-+	ref->valid_p_req = true;
-+}
-+
-+/* Copy the current value to the request value */
-+static void cur_to_req(struct v4l2_ctrl_ref *ref)
-+{
-+	if (!ref)
-+		return;
-+	ptr_to_ptr(ref->ctrl, ref->ctrl->p_cur, ref->p_req);
-+	ref->valid_p_req = true;
- }
- 
- /* Copy the request value to the new value */
-@@ -2389,8 +2398,8 @@ static void req_to_new(struct v4l2_ctrl_
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -764,32 +764,36 @@ static inline void clear_page_guard(stru
+  */
+ void init_mem_debugging_and_hardening(void)
  {
- 	if (!ref)
- 		return;
--	if (ref->req)
--		ptr_to_ptr(ref->ctrl, ref->req->p_req, ref->ctrl->p_new);
-+	if (ref->valid_p_req)
-+		ptr_to_ptr(ref->ctrl, ref->p_req, ref->ctrl->p_new);
- 	else
- 		ptr_to_ptr(ref->ctrl, ref->ctrl->p_cur, ref->ctrl->p_new);
- }
-@@ -3557,39 +3566,8 @@ static void v4l2_ctrl_request_queue(stru
- 	struct v4l2_ctrl_handler *hdl =
- 		container_of(obj, struct v4l2_ctrl_handler, req_obj);
- 	struct v4l2_ctrl_handler *main_hdl = obj->priv;
--	struct v4l2_ctrl_handler *prev_hdl = NULL;
--	struct v4l2_ctrl_ref *ref_ctrl, *ref_ctrl_prev = NULL;
++	bool page_poisoning_requested = false;
++
++#ifdef CONFIG_PAGE_POISONING
++	/*
++	 * Page poisoning is debug page alloc for some arches. If
++	 * either of those options are enabled, enable poisoning.
++	 */
++	if (page_poisoning_enabled() ||
++	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
++	      debug_pagealloc_enabled())) {
++		static_branch_enable(&_page_poisoning_enabled);
++		page_poisoning_requested = true;
++	}
++#endif
++
+ 	if (_init_on_alloc_enabled_early) {
+-		if (page_poisoning_enabled())
++		if (page_poisoning_requested)
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_alloc\n");
+ 		else
+ 			static_branch_enable(&init_on_alloc);
+ 	}
+ 	if (_init_on_free_enabled_early) {
+-		if (page_poisoning_enabled())
++		if (page_poisoning_requested)
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_free\n");
+ 		else
+ 			static_branch_enable(&init_on_free);
+ 	}
  
- 	mutex_lock(main_hdl->lock);
--	if (list_empty(&main_hdl->requests_queued))
--		goto queue;
--
--	prev_hdl = list_last_entry(&main_hdl->requests_queued,
--				   struct v4l2_ctrl_handler, requests_queued);
+-#ifdef CONFIG_PAGE_POISONING
 -	/*
--	 * Note: prev_hdl and hdl must contain the same list of control
--	 * references, so if any differences are detected then that is a
--	 * driver bug and the WARN_ON is triggered.
+-	 * Page poisoning is debug page alloc for some arches. If
+-	 * either of those options are enabled, enable poisoning.
 -	 */
--	mutex_lock(prev_hdl->lock);
--	ref_ctrl_prev = list_first_entry(&prev_hdl->ctrl_refs,
--					 struct v4l2_ctrl_ref, node);
--	list_for_each_entry(ref_ctrl, &hdl->ctrl_refs, node) {
--		if (ref_ctrl->req)
--			continue;
--		while (ref_ctrl_prev->ctrl->id < ref_ctrl->ctrl->id) {
--			/* Should never happen, but just in case... */
--			if (list_is_last(&ref_ctrl_prev->node,
--					 &prev_hdl->ctrl_refs))
--				break;
--			ref_ctrl_prev = list_next_entry(ref_ctrl_prev, node);
--		}
--		if (WARN_ON(ref_ctrl_prev->ctrl->id != ref_ctrl->ctrl->id))
--			break;
--		ref_ctrl->req = ref_ctrl_prev->req;
--	}
--	mutex_unlock(prev_hdl->lock);
--queue:
- 	list_add_tail(&hdl->requests_queued, &main_hdl->requests_queued);
- 	hdl->request_is_queued = true;
- 	mutex_unlock(main_hdl->lock);
-@@ -3646,7 +3624,7 @@ v4l2_ctrl_request_hdl_ctrl_find(struct v
- {
- 	struct v4l2_ctrl_ref *ref = find_ref_lock(hdl, id);
- 
--	return (ref && ref->req == ref) ? ref->ctrl : NULL;
-+	return (ref && ref->valid_p_req) ? ref->ctrl : NULL;
- }
- EXPORT_SYMBOL_GPL(v4l2_ctrl_request_hdl_ctrl_find);
- 
-@@ -3832,7 +3810,13 @@ static int class_check(struct v4l2_ctrl_
- 	return find_ref_lock(hdl, which | 1) ? 0 : -EINVAL;
- }
- 
--/* Get extended controls. Allocates the helpers array if needed. */
-+/*
-+ * Get extended controls. Allocates the helpers array if needed.
-+ *
-+ * Note that v4l2_g_ext_ctrls_common() with 'which' set to
-+ * V4L2_CTRL_WHICH_REQUEST_VAL is only called if the request was
-+ * completed, and in that case valid_p_req is true for all controls.
-+ */
- static int v4l2_g_ext_ctrls_common(struct v4l2_ctrl_handler *hdl,
- 				   struct v4l2_ext_controls *cs,
- 				   struct video_device *vdev)
-@@ -3841,9 +3825,10 @@ static int v4l2_g_ext_ctrls_common(struc
- 	struct v4l2_ctrl_helper *helpers = helper;
- 	int ret;
- 	int i, j;
--	bool def_value;
-+	bool is_default, is_request;
- 
--	def_value = (cs->which == V4L2_CTRL_WHICH_DEF_VAL);
-+	is_default = (cs->which == V4L2_CTRL_WHICH_DEF_VAL);
-+	is_request = (cs->which == V4L2_CTRL_WHICH_REQUEST_VAL);
- 
- 	cs->error_idx = cs->count;
- 	cs->which = V4L2_CTRL_ID2WHICH(cs->which);
-@@ -3869,11 +3854,9 @@ static int v4l2_g_ext_ctrls_common(struc
- 			ret = -EACCES;
- 
- 	for (i = 0; !ret && i < cs->count; i++) {
--		int (*ctrl_to_user)(struct v4l2_ext_control *c,
--				    struct v4l2_ctrl *ctrl);
- 		struct v4l2_ctrl *master;
+-	if (page_poisoning_enabled() ||
+-	     (!IS_ENABLED(CONFIG_ARCH_SUPPORTS_DEBUG_PAGEALLOC) &&
+-	      debug_pagealloc_enabled()))
+-		static_branch_enable(&_page_poisoning_enabled);
+-#endif
 -
--		ctrl_to_user = def_value ? def_to_user : cur_to_user;
-+		bool is_volatile = false;
-+		u32 idx = i;
- 
- 		if (helpers[i].mref == NULL)
- 			continue;
-@@ -3883,31 +3866,48 @@ static int v4l2_g_ext_ctrls_common(struc
- 
- 		v4l2_ctrl_lock(master);
- 
--		/* g_volatile_ctrl will update the new control values */
--		if (!def_value &&
-+		/*
-+		 * g_volatile_ctrl will update the new control values.
-+		 * This makes no sense for V4L2_CTRL_WHICH_DEF_VAL and
-+		 * V4L2_CTRL_WHICH_REQUEST_VAL. In the case of requests
-+		 * it is v4l2_ctrl_request_complete() that copies the
-+		 * volatile controls at the time of request completion
-+		 * to the request, so you don't want to do that again.
-+		 */
-+		if (!is_default && !is_request &&
- 		    ((master->flags & V4L2_CTRL_FLAG_VOLATILE) ||
- 		    (master->has_volatiles && !is_cur_manual(master)))) {
- 			for (j = 0; j < master->ncontrols; j++)
- 				cur_to_new(master->cluster[j]);
- 			ret = call_op(master, g_volatile_ctrl);
--			ctrl_to_user = new_to_user;
-+			is_volatile = true;
- 		}
--		/* If OK, then copy the current (for non-volatile controls)
--		   or the new (for volatile controls) control values to the
--		   caller */
--		if (!ret) {
--			u32 idx = i;
- 
--			do {
--				if (helpers[idx].ref->req)
--					ret = req_to_user(cs->controls + idx,
--						helpers[idx].ref->req);
--				else
--					ret = ctrl_to_user(cs->controls + idx,
--						helpers[idx].ref->ctrl);
--				idx = helpers[idx].next;
--			} while (!ret && idx);
-+		if (ret) {
-+			v4l2_ctrl_unlock(master);
-+			break;
- 		}
-+
-+		/*
-+		 * Copy the default value (if is_default is true), the
-+		 * request value (if is_request is true and p_req is valid),
-+		 * the new volatile value (if is_volatile is true) or the
-+		 * current value.
-+		 */
-+		do {
-+			struct v4l2_ctrl_ref *ref = helpers[idx].ref;
-+
-+			if (is_default)
-+				ret = def_to_user(cs->controls + idx, ref->ctrl);
-+			else if (is_request && ref->valid_p_req)
-+				ret = req_to_user(cs->controls + idx, ref);
-+			else if (is_volatile)
-+				ret = new_to_user(cs->controls + idx, ref->ctrl);
-+			else
-+				ret = cur_to_user(cs->controls + idx, ref->ctrl);
-+			idx = helpers[idx].next;
-+		} while (!ret && idx);
-+
- 		v4l2_ctrl_unlock(master);
- 	}
- 
-@@ -4550,8 +4550,6 @@ void v4l2_ctrl_request_complete(struct m
- 		unsigned int i;
- 
- 		if (ctrl->flags & V4L2_CTRL_FLAG_VOLATILE) {
--			ref->req = ref;
--
- 			v4l2_ctrl_lock(master);
- 			/* g_volatile_ctrl will update the current control values */
- 			for (i = 0; i < master->ncontrols; i++)
-@@ -4561,21 +4559,12 @@ void v4l2_ctrl_request_complete(struct m
- 			v4l2_ctrl_unlock(master);
- 			continue;
- 		}
--		if (ref->req == ref)
-+		if (ref->valid_p_req)
- 			continue;
- 
-+		/* Copy the current control value into the request */
- 		v4l2_ctrl_lock(ctrl);
--		if (ref->req) {
--			ptr_to_ptr(ctrl, ref->req->p_req, ref->p_req);
--		} else {
--			ptr_to_ptr(ctrl, ctrl->p_cur, ref->p_req);
--			/*
--			 * Set ref->req to ensure that when userspace wants to
--			 * obtain the controls of this request it will take
--			 * this value and not the current value of the control.
--			 */
--			ref->req = ref;
--		}
-+		cur_to_req(ref);
- 		v4l2_ctrl_unlock(ctrl);
- 	}
- 
-@@ -4639,7 +4628,7 @@ int v4l2_ctrl_request_setup(struct media
- 				struct v4l2_ctrl_ref *r =
- 					find_ref(hdl, master->cluster[i]->id);
- 
--				if (r->req && r == r->req) {
-+				if (r->valid_p_req) {
- 					have_new_data = true;
- 					break;
- 				}
---- a/include/media/v4l2-ctrls.h
-+++ b/include/media/v4l2-ctrls.h
-@@ -301,12 +301,14 @@ struct v4l2_ctrl {
-  *		the control has been applied. This prevents applying controls
-  *		from a cluster with multiple controls twice (when the first
-  *		control of a cluster is applied, they all are).
-- * @req:	If set, this refers to another request that sets this control.
-+ * @valid_p_req: If set, then p_req contains the control value for the request.
-  * @p_req:	If the control handler containing this control reference
-  *		is bound to a media request, then this points to the
-- *		value of the control that should be applied when the request
-+ *		value of the control that must be applied when the request
-  *		is executed, or to the value of the control at the time
-- *		that the request was completed.
-+ *		that the request was completed. If @valid_p_req is false,
-+ *		then this control was never set for this request and the
-+ *		control will not be updated when this request is applied.
-  *
-  * Each control handler has a list of these refs. The list_head is used to
-  * keep a sorted-by-control-ID list of all controls, while the next pointer
-@@ -319,7 +321,7 @@ struct v4l2_ctrl_ref {
- 	struct v4l2_ctrl_helper *helper;
- 	bool from_other_dev;
- 	bool req_done;
--	struct v4l2_ctrl_ref *req;
-+	bool valid_p_req;
- 	union v4l2_ctrl_ptr p_req;
- };
- 
-@@ -346,7 +348,7 @@ struct v4l2_ctrl_ref {
-  * @error:	The error code of the first failed control addition.
-  * @request_is_queued: True if the request was queued.
-  * @requests:	List to keep track of open control handler request objects.
-- *		For the parent control handler (@req_obj.req == NULL) this
-+ *		For the parent control handler (@req_obj.ops == NULL) this
-  *		is the list header. When the parent control handler is
-  *		removed, it has to unbind and put all these requests since
-  *		they refer to the parent.
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+ 	if (!debug_pagealloc_enabled())
+ 		return;
 
 
