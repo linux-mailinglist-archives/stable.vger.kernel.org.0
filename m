@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F51F3785D7
+	by mail.lfdr.de (Postfix) with ESMTP id F0C233785D9
 	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233971AbhEJLCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:02:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53024 "EHLO mail.kernel.org"
+        id S234009AbhEJLCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:02:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234686AbhEJK4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234688AbhEJK4v (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:56:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2FD1619B7;
-        Mon, 10 May 2021 10:48:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78D29619AF;
+        Mon, 10 May 2021 10:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643688;
-        bh=6nfKnmaO/Jr+W8MVnfjgZR/sXWTOTqfJ8mZR4HK+ick=;
+        s=korg; t=1620643690;
+        bh=qvblGfmtxj+gEH5BY1Zj5qnAC8tMmxJXYplIdEgeS/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFCbkz+Kh+v1XupMSjo3b8UkMmiJtBGb7ULsv4cjVrOqkyeWj8yAOSJgXnO/+Q3+i
-         SXM2ZPbkQOUAfPSAdiGRzl9n2fZOnolh4ZYRsdSryr5V1smOiKJLuLLQn+85qtz1U4
-         840j/P3xrT0eVcmrqgKbLORzxwaa1ZyhbjA9UY4Q=
+        b=sMwgqTJLEChMpl8w+aPJI6kUO7FOTUw4ojJIyR8d34qjnKS83Ydpeuc4m10PPzYi8
+         2Nmau1XvVnyMTwYNTSIocedqj0xbOa+Y43pezAORIhSiapHtH7F6GacwgZ/ts4pNtu
+         UvrDvskCRE+OBuu7mhjmz3EUygH/mguYcpYMlehA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Shixin Liu <liushixin2@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 117/342] crypto: sun8i-ss - Fix PM reference leak when pm_runtime_get_sync() fails
-Date:   Mon, 10 May 2021 12:18:27 +0200
-Message-Id: <20210510102013.952852255@linuxfoundation.org>
+Subject: [PATCH 5.11 118/342] crypto: sun8i-ce - Fix PM reference leak in sun8i_ce_probe()
+Date:   Mon, 10 May 2021 12:18:28 +0200
+Message-Id: <20210510102013.984689991@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -42,7 +42,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shixin Liu <liushixin2@huawei.com>
 
-[ Upstream commit 06cd7423cf451d68bfab289278d7890c9ae01a14 ]
+[ Upstream commit cc987ae9150c255352660d235ab27c834aa527be ]
 
 pm_runtime_get_sync will increment pm usage counter even it failed.
 Forgetting to putting operation will result in reference leak here.
@@ -53,33 +53,19 @@ Signed-off-by: Shixin Liu <liushixin2@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c | 2 +-
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-index ed2a69f82e1c..7c355bc2fb06 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-cipher.c
-@@ -351,7 +351,7 @@ int sun8i_ss_cipher_init(struct crypto_tfm *tfm)
- 	op->enginectx.op.prepare_request = NULL;
- 	op->enginectx.op.unprepare_request = NULL;
- 
--	err = pm_runtime_get_sync(op->ss->dev);
-+	err = pm_runtime_resume_and_get(op->ss->dev);
- 	if (err < 0) {
- 		dev_err(op->ss->dev, "pm error %d\n", err);
- 		goto error_pm;
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-index e0ddc684798d..80e89066dbd1 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-core.c
-@@ -753,7 +753,7 @@ static int sun8i_ss_probe(struct platform_device *pdev)
+diff --git a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c
+index 158422ff5695..00194d1d9ae6 100644
+--- a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c
++++ b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-core.c
+@@ -932,7 +932,7 @@ static int sun8i_ce_probe(struct platform_device *pdev)
  	if (err)
  		goto error_alg;
  
--	err = pm_runtime_get_sync(ss->dev);
-+	err = pm_runtime_resume_and_get(ss->dev);
+-	err = pm_runtime_get_sync(ce->dev);
++	err = pm_runtime_resume_and_get(ce->dev);
  	if (err < 0)
  		goto error_alg;
  
