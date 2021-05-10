@@ -2,220 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A3A53796F1
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 20:20:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DB6C3796FE
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 20:26:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232386AbhEJSVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 14:21:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59716 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231982AbhEJSVR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 14:21:17 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 480C2C061760
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 11:20:11 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id n25so19839769edr.5
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 11:20:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=c3QbbaRgr8o8EX1t84khRzMUdSHXWmV3lu/xPgAS6HQ=;
-        b=Xw2LrNe/QHmdP61IQs4q6ounUN9gzRRTYXyIU+EIzwyOeNb6QMY//7TSoMbvb0GveK
-         oujKlv3QVYbEZ/uGDZseTxmnIkCaxy/biI3oHuOLlNJZFaTV92N5r74G1k6qe+WU6bMS
-         oOwiYVVHg/9QTBFjxHj+Q0UzLnkLB0Nw3WfoQbdYp3LGMJUuJJGdg1G9kY/CMh7qQAzZ
-         /GY/ZnVHpAjm392cpmH/NYv+9cBjfCUnegz+9VEtiNbvnAgxXUjzrqPy/W69fikS4sSq
-         8FuAMxcPwGGto5nfi1FuHATQhFAigY35becQxj33IO+KY9GreRXCOcdXTYYyiM4L1o4r
-         pvhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=c3QbbaRgr8o8EX1t84khRzMUdSHXWmV3lu/xPgAS6HQ=;
-        b=Tt70pstDiCb8JqBVRh0aQ5vb+RjIyV498uapY+2c6ljwSdxW+zh7DnV3KPaxMi+ayY
-         i0DjI6/97J8DSeXtKJ8yiX1Uk1QNTt9lFxUzpXZ4k+OifE1bLY0uyY6+DDPbieoJfrtj
-         DL6rQs2I0kTHowZ7PqjTBTjyJB+qpX2xqgKdBme/oXnEhBfS8JXacyKQOSe83rheBWIF
-         O0gk+X2fSQAggAOUaz2pn/PJIPaMcT1GAUqR1w7w+Qv2LVqkPWXHHrUpkAcXq49XpY+h
-         KGyGJID/H9zzb0vc55dRtHOvT4e7gl4RI3mOa2IcJw24SNQg+RlofqKCa4mnDuQGafwu
-         Rzvw==
-X-Gm-Message-State: AOAM530B0wwXjnGkyBEbXequ61TLqESHe44yG12LctodgGBUXK4WagAC
-        8Mxed6/XV0E0yO1F+shzrJaG5DqNwjCeQD8OkHvI+w==
-X-Google-Smtp-Source: ABdhPJw0L5zSdlCIMQlwgizUs6glrL2uuSyaQl6assfbZbOQ2AZjRygRJy2bC1a6GIYwafty8jugzuHhWolJoRhK2l4=
-X-Received: by 2002:a05:6402:12d3:: with SMTP id k19mr30703281edx.52.1620670809825;
- Mon, 10 May 2021 11:20:09 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210510102014.849075526@linuxfoundation.org>
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 10 May 2021 23:49:58 +0530
-Message-ID: <CA+G9fYs00AkMdMJ33ysycLH5_bpc6G1VXoGQQ1_xr1tAv=Vu8w@mail.gmail.com>
-Subject: Re: [PATCH 5.12 000/384] 5.12.3-rc1 review
+        id S231815AbhEJS1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 14:27:48 -0400
+Received: from ofcsgdbm.dwd.de ([141.38.3.245]:43523 "EHLO ofcsgdbm.dwd.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231400AbhEJS1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 14:27:47 -0400
+X-Greylist: delayed 341 seconds by postgrey-1.27 at vger.kernel.org; Mon, 10 May 2021 14:27:47 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by ofcsg2dn1.dwd.de (Postfix) with ESMTP id 4Ff8WH3V3Wz1y49
+        for <stable@vger.kernel.org>; Mon, 10 May 2021 18:20:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=dwd.de; h=
+        content-type:content-type:mime-version:references:message-id
+        :in-reply-to:subject:subject:from:from:date:date:received
+        :received:received:received:received:received:received:received;
+         s=dwd-csg20210107; t=1620670859; x=1621880460; bh=PbGEd7xJw/Xar
+        rUAaFNwZLS1XW5vHHllPWQ9YX0h19M=; b=RlmY4DjRwgMOqbsqMlVZT8dYOL7pR
+        nZslItqCQwyjcbrRU1RtgyPLFEz6TOHyWo8KXzfkxc2omrzyXmcDtmTzPY1iQzxu
+        5rmr6+NDorWGJbU7yidYOKZnWW+OlXudh+KNdehseMaAwf/0wwvUly31vs7ddnyy
+        kSBDiY4R0dNzWFmz2VsWoh5lW/tfx/0aZihgRtywIUKMYpkVt3wcc23JAd0Y+QWs
+        9iIfPgZl02BT2X3rMTyZWbS5bSZU6MrvNGLRId9tSoFURc+rgfBcUj1NDfoAHvRD
+        7bYGpIKWtQAGbbJdnGNLCIhQxGrLOtrx4iauRvjry5CteiOnpJIiriozQ==
+X-Virus-Scanned: by amavisd-new at csg.dwd.de
+Received: from ofcsg2cteh1.dwd.de ([172.30.232.65])
+        by localhost (ofcsg2dn1.dwd.de [172.30.232.24]) (amavisd-new, port 10024)
+        with ESMTP id j-uw7dBeWYfV for <stable@vger.kernel.org>;
+        Mon, 10 May 2021 18:20:59 +0000 (UTC)
+Received: from ofcsg2cteh1.dwd.de (unknown [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 2C5A5C90297C
+        for <root@ofcsg2dn1.dwd.de>; Mon, 10 May 2021 18:20:59 +0000 (UTC)
+Received: from ofcsg2cteh1.dwd.de (unknown [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 2A2D4C90296F
+        for <root@ofcsg2dn1.dwd.de>; Mon, 10 May 2021 18:20:59 +0000 (UTC)
+Received: from ofcsgdbm.dwd.de (unknown [172.30.232.24])
+        by ofcsg2cteh1.dwd.de (Postfix) with ESMTP
+        for <root@ofcsg2dn1.dwd.de>; Mon, 10 May 2021 18:20:59 +0000 (UTC)
+Received: from ofcsgdbm.dwd.de by localhost (Postfix XFORWARD proxy);
+ Mon, 10 May 2021 18:20:59 -0000
+Received: from ofcsg2dvf2.dwd.de (ofcsg2dvf2.dwd.de [172.30.232.11])
+        by ofcsg2dn1.dwd.de (Postfix) with ESMTPS id 4Ff8WH0jP6z1y49;
+        Mon, 10 May 2021 18:20:59 +0000 (UTC)
+Received: from ofmailhub.dwd.de (ofldap.dwd.de [141.38.39.208])
+        by ofcsg2dvf2.dwd.de  with ESMTP id 14AIKwqu001871-14AIKwqv001871;
+        Mon, 10 May 2021 18:20:58 GMT
+Received: from diagnostix.dwd.de (diagnostix.dwd.de [141.38.44.45])
+        by ofmailhub.dwd.de (Postfix) with ESMTP id CF0FF45351;
+        Mon, 10 May 2021 18:20:58 +0000 (UTC)
+Date:   Mon, 10 May 2021 18:20:58 +0000 (GMT)
+From:   Holger Kiehl <Holger.Kiehl@dwd.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        xinhui pan <xinhui.pan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.12 195/384] drm/amdgpu: Fix memory leak
+In-Reply-To: <20210510102021.305484238@linuxfoundation.org>
+Message-ID: <8681a9f2-62e6-3aa-d169-653db617f60@diagnostix.dwd.de>
+References: <20210510102014.849075526@linuxfoundation.org> <20210510102021.305484238@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+X-FE-Policy-ID: 2:2:1:SYSTEM
+X-TMASE-Version: DDEI-5.0-8.6.1014-26144.001
+X-TMASE-Result: 10--10.347500-10.000000
+X-TMASE-MatchedRID: 6lay9u8oTUNlpmlM1IvJ9vZvT2zYoYOwC/ExpXrHizzkCKFvqJHeydyZ
+        D8zO5nCSbIc+aNIzEOkmeKn5slpXrmTVdE6PJsztGtFkgOqGCyBUV5Q8COx3xmww+4tkH8hH035
+        U7xRHgyFGO66u731D0o9CL1e45ag4Q+7j+FblbzfG+nS24MzHed2Emh5Z2S/NfvYkgEq56SkSTP
+        F1kz6wXNqLGPjfCuopFdd8sIB6r/3jKCpN2c+oPoQ1YU70UZ+oUNr9nJzA3WRG7aLtT3oj++oAT
+        1YIElsK6LvuV9SL7QV6KN36LuKEFewy2NhRsPybT7O/YHJhINACzX46RgRBb6ShvRjfn4cUD0nH
+        BPteW4qGScsSBcYgtwIrJOPBAlx1Mz0EFG5lnW+lpSWqiMt78k+crEA4+nhZ/+ypkpmpen/X7Qq
+        xdrFbPuLzNWBegCW2QiE5bJj38wBt1O49r1VEa8RB0bsfrpPIfiAqrjYtFiRQDwPh5j959+wy3l
+        QAx/lZ1XIK12hWQCV+nmXCkpGK3H7cGd19dSFd
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-12:0,22:0,33:0,34:0-0
+X-TMASE-INERTIA: 0-0;;;;
+X-TMASE-XGENCLOUD: afad1a19-20f5-4841-bc36-a3cf9f728327-0-0-200-0
+X-DDEI-PROCESSED-RESULT: Safe
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 May 2021 at 16:29, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.12.3 release.
-> There are 384 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 12 May 2021 10:19:23 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.12.3-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.12.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, 10 May 2021, Greg Kroah-Hartman wrote:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> From: xinhui pan <xinhui.pan@amd.com>
+> 
+> [ Upstream commit 79fcd446e7e182c52c2c808c76f8de3eb6714349 ]
+> 
+> drm_gem_object_put() should be paired with drm_gem_object_lookup().
+> 
+> All gem objs are saved in fb->base.obj[]. Need put the old first before
+> assign a new obj.
+> 
+> Trigger VRAM leak by running command below
+> $ service gdm restart
+> 
+> Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+> Acked-by: Alex Deucher <alexander.deucher@amd.com>
+> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> index f753e04fee99..cbe050436c7b 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> @@ -910,8 +910,9 @@ int amdgpu_display_framebuffer_init(struct drm_device *dev,
+>  	}
+>  
+>  	for (i = 1; i < rfb->base.format->num_planes; ++i) {
+> +		drm_gem_object_get(rfb->base.obj[0]);
+> +		drm_gem_object_put(rfb->base.obj[i]);
+>  		rfb->base.obj[i] = rfb->base.obj[0];
+> -		drm_gem_object_get(rfb->base.obj[i]);
+>  	}
+>  
+>  	return 0;
+> @@ -960,6 +961,7 @@ amdgpu_display_user_framebuffer_create(struct drm_device *dev,
+>  		return ERR_PTR(ret);
+>  	}
+>  
+> +	drm_gem_object_put(obj);
+>  	return &amdgpu_fb->base;
+>  }
+>  
+> -- 
+> 2.30.2
+> 
+This causes the following error on a AMD APU Ryzen 7 4750G:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+   May 10 19:29:50 bb8 kernel: [    2.730473] [drm] Initialized amdgpu 3.40.0 20150101 for 0000:04:00.0 on minor 0
+   May 10 19:29:50 bb8 kernel: [    2.748000] ------------[ cut here ]------------
+   May 10 19:29:50 bb8 kernel: [    2.748003] refcount_t: underflow; use-after-free.
+   May 10 19:29:50 bb8 kernel: [    2.748008] WARNING: CPU: 10 PID: 513 at lib/refcount.c:28 refcount_warn_saturate+0xa6/0xf0
+   May 10 19:29:50 bb8 kernel: [    2.748014] Modules linked in: amdgpu raid1 raid0 md_mod drm_ttm_helper ttm mfd_core iommu_v2 gpu_sched i2c_algo_bit crct10dif_pclmul crc32_pclmul crc32c_intel drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops cec ghash_clmulni_intel drm r8169 ccp realtek pinctrl_amd fuse ecryptfs
+   May 10 19:29:50 bb8 kernel: [    2.748029] CPU: 10 PID: 513 Comm: plymouthd Not tainted 5.12.3 #1
+   May 10 19:29:50 bb8 kernel: [    2.748031] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./X300M-STX, BIOS P1.60 04/29/2021
+   May 10 19:29:50 bb8 kernel: [    2.748032] RIP: 0010:refcount_warn_saturate+0xa6/0xf0
+   May 10 19:29:50 bb8 kernel: [    2.748034] Code: 05 79 34 17 01 01 e8 cd 51 4a 00 0f 0b c3 80 3d 67 34 17 01 00 75 95 48 c7 c7 a0 90 13 99 c6 05 57 34 17 01 01 e8 ae 51 4a 00 <0f> 0b c3 80 3d 46 34 17 01 00 0f 85 72 ff ff ff 48 c7 c7 f8 90 13
+   May 10 19:29:50 bb8 kernel: [    2.748036] RSP: 0018:ffffb2ccc07f7d58 EFLAGS: 00010292
+   May 10 19:29:50 bb8 kernel: [    2.748038] RAX: 0000000000000026 RBX: ffff90d28d313000 RCX: 0000000000000027
+   May 10 19:29:50 bb8 kernel: [    2.748039] RDX: ffff90e081c975c8 RSI: 0000000000000001 RDI: ffff90e081c975c0
+   May 10 19:29:50 bb8 kernel: [    2.748040] RBP: ffff90d290b1b458 R08: 0000000000000000 R09: ffffb2ccc07f7b98
+   May 10 19:29:50 bb8 kernel: [    2.748040] R10: 0000000000000001 R11: 0000000000000001 R12: ffff90d28d313000
+   May 10 19:29:50 bb8 kernel: [    2.748041] R13: ffff90d28d313128 R14: ffff90d28d313050 R15: ffff90d28d313000
+   May 10 19:29:50 bb8 kernel: [    2.748042] FS:  00007fa31f454800(0000) GS:ffff90e081c80000(0000) knlGS:0000000000000000
+   May 10 19:29:50 bb8 kernel: [    2.748043] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+   May 10 19:29:50 bb8 kernel: [    2.748044] CR2: 00007fa31f42e000 CR3: 000000010e1d2000 CR4: 0000000000350ee0
+   May 10 19:29:50 bb8 kernel: [    2.748046] Call Trace:
+   May 10 19:29:50 bb8 kernel: [    2.748049]  drm_gem_object_release_handle+0x6b/0x80 [drm]
+   May 10 19:29:50 bb8 kernel: [    2.748068]  ? drm_mode_destroy_dumb+0x40/0x40 [drm]
+   May 10 19:29:50 bb8 kernel: [    2.748086]  drm_gem_handle_delete+0x4f/0x80 [drm]
+   May 10 19:29:50 bb8 kernel: [    2.748101]  ? drm_mode_destroy_dumb+0x40/0x40 [drm]
+   May 10 19:29:50 bb8 kernel: [    2.748117]  drm_ioctl_kernel+0x87/0xd0 [drm]
+   May 10 19:29:50 bb8 kernel: [    2.748133]  drm_ioctl+0x205/0x3a0 [drm]
+   May 10 19:29:50 bb8 kernel: [    2.748149]  ? drm_mode_destroy_dumb+0x40/0x40 [drm]
+   May 10 19:29:50 bb8 kernel: [    2.748164]  amdgpu_drm_ioctl+0x49/0x80 [amdgpu]
+   May 10 19:29:50 bb8 kernel: [    2.748263]  __x64_sys_ioctl+0x82/0xb0
+   May 10 19:29:50 bb8 kernel: [    2.748266]  do_syscall_64+0x33/0x40
+   May 10 19:29:50 bb8 kernel: [    2.748269]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+   May 10 19:29:50 bb8 kernel: [    2.748271] RIP: 0033:0x7fa31f7d30ab
+   May 10 19:29:50 bb8 kernel: [    2.748273] Code: ff ff ff 85 c0 79 9b 49 c7 c4 ff ff ff ff 5b 5d 4c 89 e0 41 5c c3 66 0f 1f 84 00 00 00 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 95 bd 0c 00 f7 d8 64 89 01 48
+   May 10 19:29:50 bb8 kernel: [    2.748274] RSP: 002b:00007ffe145fb638 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+   May 10 19:29:50 bb8 kernel: [    2.748275] RAX: ffffffffffffffda RBX: 00007ffe145fb67c RCX: 00007fa31f7d30ab
+   May 10 19:29:50 bb8 kernel: [    2.748276] RDX: 00007ffe145fb67c RSI: 00000000c00464b4 RDI: 000000000000000a
+   May 10 19:29:50 bb8 kernel: [    2.748277] RBP: 00000000c00464b4 R08: 00005620f7832c40 R09: 0000000000000007
+   May 10 19:29:50 bb8 kernel: [    2.748278] R10: 00005620f7832c40 R11: 0000000000000246 R12: 0000000000000001
+   May 10 19:29:50 bb8 kernel: [    2.748278] R13: 000000000000000a R14: 000000000000000b R15: 00007fa31f8c6e20
+   May 10 19:29:50 bb8 kernel: [    2.748280] ---[ end trace 57825da3e46ebfc7 ]---
 
-## Build
-* kernel: 5.12.3-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.12.y
-* git commit: 47db4685df6206a3e39f7d56d6402b56e151373b
-* git describe: v5.12.2-385-g47db4685df62
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
-.2-385-g47db4685df62
+On another system with a Ryzen 5 3400G a reboot will hang.
 
-## No regressions (compared to v5.12.2-284-g66353c8ef656)
+If I remove this patch the system boots fine and there is no error
+message.
 
-## No fixes (compared to v5.12.2-284-g66353c8ef656)
-
-## Test result summary
- total: 76372, pass: 64454, fail: 1319, skip: 10599, xfail: 0,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* i386: 26 total, 26 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Regards,
+Holger
