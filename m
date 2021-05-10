@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A761437832A
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C44AD37832D
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:41:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232366AbhEJKm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:42:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48980 "EHLO mail.kernel.org"
+        id S232394AbhEJKmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233014AbhEJKlA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:41:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3EC961288;
-        Mon, 10 May 2021 10:31:41 +0000 (UTC)
+        id S231264AbhEJKlC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:41:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5C006191B;
+        Mon, 10 May 2021 10:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642702;
-        bh=ABg27/KuCtxNVCKLZIB70j1evir5XI3Ogh0w7OMh47U=;
+        s=korg; t=1620642705;
+        bh=Zc+odPENmvZ3jba+MZBcpCe6km+OfUduITkYNJZdoZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ObTDX2OuIQd7ZaQ/Vhz+1viAl48/XLHzHasRlQv+vdBVka6nVdxeceFOY3T2f/dEI
-         2SmJgs2xmbqnuqq2q3iLXbAnwNtT/KuEtEK9kWM4HK3p2MtuIbHpRmkehPfYZ0UfKg
-         xF1l1Xc0+rShBzMGfWDtsBVwnkhkTKKN2VHPYAq0=
+        b=LU3Lpw9HEVb37JZpmmfTyl5F4tMIBVRFmTlr5jVZUAi83HpkplsT9QJgt2voNRj2U
+         f2C7QUK6l+pTFpncYCzhqrU8Q7yd7PKufkBJ5DflLMj/ID1Zwn+t2S6U/fd8Sp1Gaq
+         jmitvz/blj28t9d8eOgzRb5utn/0JeiARgGhE224=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davidlohr Bueso <dbueso@suse.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Jason Baron <jbaron@akamai.com>,
-        Roman Penyaev <rpenyaev@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 017/299] fs/epoll: restore waking from ep_done_scan()
-Date:   Mon, 10 May 2021 12:16:54 +0200
-Message-Id: <20210510102005.414063403@linuxfoundation.org>
+        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Michael Walle <michael@walle.cc>
+Subject: [PATCH 5.10 018/299] mtd: spi-nor: core: Fix an issue of releasing resources during read/write
+Date:   Mon, 10 May 2021 12:16:55 +0200
+Message-Id: <20210510102005.445088604@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -43,52 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davidlohr Bueso <dave@stgolabs.net>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-commit 7fab29e356309ff93a4b30ecc466129682ec190b upstream.
+commit be94215be1ab19e5d38f50962f611c88d4bfc83a upstream.
 
-Commit 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested
-epoll") changed the userspace visible behavior of exclusive waiters
-blocked on a common epoll descriptor upon a single event becoming ready.
+If rmmod the driver during read or write, the driver will release the
+resources which are used during read or write, so it is possible to
+refer to NULL pointer.
 
-Previously, all tasks doing epoll_wait would awake, and now only one is
-awoken, potentially causing missed wakeups on applications that rely on
-this behavior, such as Apache Qpid.
+Use the testcase "mtd_debug read /dev/mtd0 0xc00000 0x400000 dest_file &
+sleep 0.5;rmmod spi_hisi_sfc_v3xx.ko", the issue can be reproduced in
+hisi_sfc_v3xx driver.
 
-While the aforementioned commit aims at having only a wakeup single path
-in ep_poll_callback (with the exceptions of epoll_ctl cases), we need to
-restore the wakeup in what was the old ep_scan_ready_list() such that
-the next thread can be awoken, in a cascading style, after the waker's
-corresponding ep_send_events().
+To avoid the issue, fill the interface _get_device and _put_device of
+mtd_info to grab the reference to the spi controller driver module, so
+the request of rmmod the driver is rejected before read/write is finished.
 
-Link: https://lkml.kernel.org/r/20210405231025.33829-3-dave@stgolabs.net
-Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
-Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: Roman Penyaev <rpenyaev@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b199489d37b2 ("mtd: spi-nor: add the framework for SPI NOR")
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Tested-by: Michael Walle <michael@walle.cc>
+Tested-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Reviewed-by: Michael Walle <michael@walle.cc>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1617262486-4223-1-git-send-email-yangyicong@hisilicon.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/eventpoll.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mtd/spi-nor/core.c |   33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -746,6 +746,12 @@ static __poll_t ep_scan_ready_list(struc
- 	 */
- 	list_splice(&txlist, &ep->rdllist);
- 	__pm_relax(ep->ws);
-+
-+	if (!list_empty(&ep->rdllist)) {
-+		if (waitqueue_active(&ep->wq))
-+			wake_up(&ep->wq);
-+	}
-+
- 	write_unlock_irq(&ep->lock);
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -2981,6 +2981,37 @@ static void spi_nor_resume(struct mtd_in
+ 		dev_err(dev, "resume() failed\n");
+ }
  
- 	if (!ep_locked)
++static int spi_nor_get_device(struct mtd_info *mtd)
++{
++	struct mtd_info *master = mtd_get_master(mtd);
++	struct spi_nor *nor = mtd_to_spi_nor(master);
++	struct device *dev;
++
++	if (nor->spimem)
++		dev = nor->spimem->spi->controller->dev.parent;
++	else
++		dev = nor->dev;
++
++	if (!try_module_get(dev->driver->owner))
++		return -ENODEV;
++
++	return 0;
++}
++
++static void spi_nor_put_device(struct mtd_info *mtd)
++{
++	struct mtd_info *master = mtd_get_master(mtd);
++	struct spi_nor *nor = mtd_to_spi_nor(master);
++	struct device *dev;
++
++	if (nor->spimem)
++		dev = nor->spimem->spi->controller->dev.parent;
++	else
++		dev = nor->dev;
++
++	module_put(dev->driver->owner);
++}
++
+ void spi_nor_restore(struct spi_nor *nor)
+ {
+ 	/* restore the addressing mode */
+@@ -3157,6 +3188,8 @@ int spi_nor_scan(struct spi_nor *nor, co
+ 	mtd->_erase = spi_nor_erase;
+ 	mtd->_read = spi_nor_read;
+ 	mtd->_resume = spi_nor_resume;
++	mtd->_get_device = spi_nor_get_device;
++	mtd->_put_device = spi_nor_put_device;
+ 
+ 	if (nor->params->locking_ops) {
+ 		mtd->_lock = spi_nor_lock;
 
 
