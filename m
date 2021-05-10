@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A328537875F
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1EB378787
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:39:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237497AbhEJLPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:15:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
+        id S237663AbhEJLPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:15:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236348AbhEJLHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00B656197D;
-        Mon, 10 May 2021 11:00:11 +0000 (UTC)
+        id S236539AbhEJLIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59304619A3;
+        Mon, 10 May 2021 11:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644412;
-        bh=P1eG6K6NN2oEpjR+HPDeABt2ux4J8L1hfYpC4vevT14=;
+        s=korg; t=1620644523;
+        bh=zlDxtjNdbeRRwWDcTeypqSStBOCtkBABkPsoBY+Loi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wI0AwBWiLXu1Z2FmjM34KfRosKBGmfvz91q63EIQBO4i8NQI5b74nB7hBAx4UR1sJ
-         RSQo8SgRXZs/0WmnDF3qZGpZgD33RmAN8v95m4RBdYJJfw1XpFQZZ7JPn3CdYe4eG9
-         +0YPYOHoKt00S/VdG/zbhsKSLvU8kZHRuo5TlGWw=
+        b=JDh13HKHNdAealxG27GrTbXR/yhqIn9y9+B2ounyQ76Z+XWaolRgV9YrMsy4WL0WM
+         Pr6umFKZp8FxdoFZjUmUoC5+H9S8KvDlNsySzr/5dp+0Xr1LeE+aOHYRYeojnudX+u
+         qmZFoC+EAgRuo7uJNoMh8/zfplMzJ5uC+sOn/n7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        stable@vger.kernel.org, Bhaumik Bhatt <bbhatt@codeaurora.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Hemant Kumar <hemantk@codeaurora.org>,
         Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 071/384] bus: mhi: pci_generic: No-Op for device_wake operations
-Date:   Mon, 10 May 2021 12:17:40 +0200
-Message-Id: <20210510102017.231071083@linuxfoundation.org>
+Subject: [PATCH 5.12 072/384] bus: mhi: core: Destroy SBL devices when moving to mission mode
+Date:   Mon, 10 May 2021 12:17:41 +0200
+Message-Id: <20210510102017.265503966@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,84 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Bhaumik Bhatt <bbhatt@codeaurora.org>
 
-[ Upstream commit e3e5e6508fc1c0e98a5a264853713dd30a60e5e5 ]
+[ Upstream commit 925089c1900f588615db5bf4e1d9064a5f2c18c7 ]
 
-The wake_db register presence is highly speculative and can fuze MHI
-devices. Indeed, currently the wake_db register address is defined at
-entry 127 of the 'Channel doorbell array', thus writing to this address
-is equivalent to ringing the doorbell for channel 127, causing trouble
-with some devics (e.g. SDX24 based modems) that get an unexpected
-channel 127 doorbell interrupt.
+Currently, client devices are created in SBL or AMSS (mission
+mode) and only destroyed after power down or SYS ERROR. When
+moving between certain execution environments, such as from SBL
+to AMSS, no clean-up is required. This presents an issue where
+SBL-specific channels are left open and client drivers now run in
+an execution environment where they cannot operate. Fix this by
+expanding the mhi_destroy_device() to do an execution environment
+specific clean-up if one is requested. Close the gap and destroy
+devices in such scenarios that allow SBL client drivers to clean
+up once device enters mission mode.
 
-This change fixes that issue by setting wake get/put as no-op for
-pci_generic devices. The wake device sideband mechanism seems really
-specific to each device, and is AFAIK not defined by the MHI spec.
-
-It also removes zeroing initialization of wake_db register during MMIO
-initialization, the register being set via wake_get/put accessors few
-cycles later during M0 transition.
-
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
 Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/1614971808-22156-4-git-send-email-loic.poulain@linaro.org
+Link: https://lore.kernel.org/r/1614208985-20851-2-git-send-email-bbhatt@codeaurora.org
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mhi/core/init.c   |  2 --
- drivers/bus/mhi/pci_generic.c | 18 ++++++++++++++++++
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ drivers/bus/mhi/core/main.c | 29 +++++++++++++++++++++++++----
+ drivers/bus/mhi/core/pm.c   |  3 +++
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
-index 419d026197ad..6cb0d67fc921 100644
---- a/drivers/bus/mhi/core/init.c
-+++ b/drivers/bus/mhi/core/init.c
-@@ -508,8 +508,6 @@ int mhi_init_mmio(struct mhi_controller *mhi_cntrl)
+diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
+index 34dd430624e4..bd71a2b6f984 100644
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -249,8 +249,10 @@ static bool is_valid_ring_ptr(struct mhi_ring *ring, dma_addr_t addr)
  
- 	/* Setup wake db */
- 	mhi_cntrl->wake_db = base + val + (8 * MHI_DEV_WAKE_DB);
--	mhi_write_reg(mhi_cntrl, mhi_cntrl->wake_db, 4, 0);
--	mhi_write_reg(mhi_cntrl, mhi_cntrl->wake_db, 0, 0);
- 	mhi_cntrl->wake_set = false;
- 
- 	/* Setup channel db address for each channel in tre_ring */
-diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index 20673a4b4a3c..356c19ce4bbf 100644
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
-@@ -230,6 +230,21 @@ static void mhi_pci_status_cb(struct mhi_controller *mhi_cntrl,
- 	}
- }
- 
-+static void mhi_pci_wake_get_nop(struct mhi_controller *mhi_cntrl, bool force)
-+{
-+	/* no-op */
-+}
-+
-+static void mhi_pci_wake_put_nop(struct mhi_controller *mhi_cntrl, bool override)
-+{
-+	/* no-op */
-+}
-+
-+static void mhi_pci_wake_toggle_nop(struct mhi_controller *mhi_cntrl)
-+{
-+	/* no-op */
-+}
-+
- static bool mhi_pci_is_alive(struct mhi_controller *mhi_cntrl)
+ int mhi_destroy_device(struct device *dev, void *data)
  {
- 	struct pci_dev *pdev = to_pci_dev(mhi_cntrl->cntrl_dev);
-@@ -433,6 +448,9 @@ static int mhi_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	mhi_cntrl->status_cb = mhi_pci_status_cb;
- 	mhi_cntrl->runtime_get = mhi_pci_runtime_get;
- 	mhi_cntrl->runtime_put = mhi_pci_runtime_put;
-+	mhi_cntrl->wake_get = mhi_pci_wake_get_nop;
-+	mhi_cntrl->wake_put = mhi_pci_wake_put_nop;
-+	mhi_cntrl->wake_toggle = mhi_pci_wake_toggle_nop;
++	struct mhi_chan *ul_chan, *dl_chan;
+ 	struct mhi_device *mhi_dev;
+ 	struct mhi_controller *mhi_cntrl;
++	enum mhi_ee_type ee = MHI_EE_MAX;
  
- 	err = mhi_pci_claim(mhi_cntrl, info->bar_num, DMA_BIT_MASK(info->dma_data_width));
- 	if (err)
+ 	if (dev->bus != &mhi_bus_type)
+ 		return 0;
+@@ -262,6 +264,17 @@ int mhi_destroy_device(struct device *dev, void *data)
+ 	if (mhi_dev->dev_type == MHI_DEVICE_CONTROLLER)
+ 		return 0;
+ 
++	ul_chan = mhi_dev->ul_chan;
++	dl_chan = mhi_dev->dl_chan;
++
++	/*
++	 * If execution environment is specified, remove only those devices that
++	 * started in them based on ee_mask for the channels as we move on to a
++	 * different execution environment
++	 */
++	if (data)
++		ee = *(enum mhi_ee_type *)data;
++
+ 	/*
+ 	 * For the suspend and resume case, this function will get called
+ 	 * without mhi_unregister_controller(). Hence, we need to drop the
+@@ -269,11 +282,19 @@ int mhi_destroy_device(struct device *dev, void *data)
+ 	 * be sure that there will be no instances of mhi_dev left after
+ 	 * this.
+ 	 */
+-	if (mhi_dev->ul_chan)
+-		put_device(&mhi_dev->ul_chan->mhi_dev->dev);
++	if (ul_chan) {
++		if (ee != MHI_EE_MAX && !(ul_chan->ee_mask & BIT(ee)))
++			return 0;
+ 
+-	if (mhi_dev->dl_chan)
+-		put_device(&mhi_dev->dl_chan->mhi_dev->dev);
++		put_device(&ul_chan->mhi_dev->dev);
++	}
++
++	if (dl_chan) {
++		if (ee != MHI_EE_MAX && !(dl_chan->ee_mask & BIT(ee)))
++			return 0;
++
++		put_device(&dl_chan->mhi_dev->dev);
++	}
+ 
+ 	dev_dbg(&mhi_cntrl->mhi_dev->dev, "destroy device for chan:%s\n",
+ 		 mhi_dev->name);
+diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+index 36ab7aa14174..1edce7917b6b 100644
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -377,6 +377,7 @@ static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
+ {
+ 	struct mhi_event *mhi_event;
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
++	enum mhi_ee_type current_ee = mhi_cntrl->ee;
+ 	int i, ret;
+ 
+ 	dev_dbg(dev, "Processing Mission Mode transition\n");
+@@ -395,6 +396,8 @@ static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
+ 
+ 	wake_up_all(&mhi_cntrl->state_event);
+ 
++	device_for_each_child(&mhi_cntrl->mhi_dev->dev, &current_ee,
++			      mhi_destroy_device);
+ 	mhi_cntrl->status_cb(mhi_cntrl, MHI_CB_EE_MISSION_MODE);
+ 
+ 	/* Force MHI to be in M0 state before continuing */
 -- 
 2.30.2
 
