@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B33D3378852
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:43:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76D4F37869F
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239156AbhEJLVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S234913AbhEJLJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:09:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236998AbhEJLLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8135B6147D;
-        Mon, 10 May 2021 11:06:15 +0000 (UTC)
+        id S235560AbhEJLBX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:01:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A1EB61919;
+        Mon, 10 May 2021 10:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644776;
-        bh=Sht9UlYuc1zR0I48Z9NL0+YGbKIspwqwADzI2nXB2+Q=;
+        s=korg; t=1620644013;
+        bh=aksJYiXtEhdOEY0EzaCAAaLIdQuHmgCVJbEGGIacBPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AfD9qhygyiErizlfXvASxAgqY0PH3cdDXEz0R+2PzLjLQvuf01wPLV0MyaXguVv3N
-         CYjEzNWKVGDw+r+rSJuJpaq5HmpWLvovOcLw7FcIMExLWYn8VcAhEbeDkt1kS92Hyk
-         Pow7YhLtTL+tSZ6tF9K04pOlSCW9lTUKkdSkQDw0=
+        b=fMpB/+SRrVI2HPRpJj+DlqLWG8+IR55maBX14XTLpllhaREvI4OIrIGsHvQWgxwsF
+         ELNBHZn7An8ubXC3mDZfmt0JTPRXypYqQr+00dVSvpMYpSnGfpQWiXKs0HPEvUxjac
+         Whwl9A+b4L6mk/BiHhzKGADy7hY4SBRPtpKy5bYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Benesh <scott.benesh@microchip.com>,
-        Scott Teel <scott.teel@microchip.com>,
-        Martin Wilck <mwilck@suse.com>,
-        Kevin Barnett <kevin.barnett@microchip.com>,
-        Don Brace <don.brace@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Fangzhi Zuo <Jerry.Zuo@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Solomon Chiu <solomon.chiu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 218/384] scsi: smartpqi: Add new PCI IDs
+Subject: [PATCH 5.11 217/342] drm/amd/display: Fix debugfs link_settings entry
 Date:   Mon, 10 May 2021 12:20:07 +0200
-Message-Id: <20210510102022.088105814@linuxfoundation.org>
+Message-Id: <20210510102017.262377461@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,219 +43,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Barnett <kevin.barnett@microchip.com>
+From: Fangzhi Zuo <Jerry.Zuo@amd.com>
 
-[ Upstream commit 75fbeacca3ad30835e903002dba98dd909b4dfff ]
+[ Upstream commit c006a1c00de29e8cdcde1d0254ac23433ed3fee9 ]
 
-Add support for newer hardware.
+1. Catch invalid link_rate and link_count settings
+2. Call dc interface to overwrite preferred link settings, and wait
+until next stream update to apply the new settings.
 
-Link: https://lore.kernel.org/r/161549386882.25025.2594251735886014958.stgit@brunhilda
-Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
-Reviewed-by: Scott Teel <scott.teel@microchip.com>
-Acked-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Kevin Barnett <kevin.barnett@microchip.com>
-Signed-off-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Fangzhi Zuo <Jerry.Zuo@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Solomon Chiu <solomon.chiu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 156 ++++++++++++++++++++++++++
- 1 file changed, 156 insertions(+)
+ .../drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 52e4d5618dc7..c30f6047410f 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -8221,6 +8221,10 @@ static const struct pci_device_id pqi_pci_id_table[] = {
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       0x152d, 0x8a37)
- 	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x193d, 0x8460)
-+	},
- 	{
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       0x193d, 0x1104)
-@@ -8293,6 +8297,22 @@ static const struct pci_device_id pqi_pci_id_table[] = {
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       0x1bd4, 0x004f)
- 	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x1bd4, 0x0051)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x1bd4, 0x0052)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x1bd4, 0x0053)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x1bd4, 0x0054)
-+	},
- 	{
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       0x19e5, 0xd227)
-@@ -8453,6 +8473,122 @@ static const struct pci_device_id pqi_pci_id_table[] = {
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       PCI_VENDOR_ID_ADAPTEC2, 0x1380)
- 	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1400)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1402)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1410)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1411)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1412)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1420)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1430)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1440)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1441)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1450)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1452)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1460)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1461)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1462)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1470)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1471)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1472)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1480)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1490)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x1491)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14a0)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14a1)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14b0)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14b1)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14c0)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14c1)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14d0)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14e0)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_ADAPTEC2, 0x14f0)
-+	},
- 	{
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       PCI_VENDOR_ID_ADVANTECH, 0x8312)
-@@ -8517,6 +8653,10 @@ static const struct pci_device_id pqi_pci_id_table[] = {
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       PCI_VENDOR_ID_HP, 0x1001)
- 	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       PCI_VENDOR_ID_HP, 0x1002)
-+	},
- 	{
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       PCI_VENDOR_ID_HP, 0x1100)
-@@ -8525,6 +8665,22 @@ static const struct pci_device_id pqi_pci_id_table[] = {
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       PCI_VENDOR_ID_HP, 0x1101)
- 	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x1590, 0x0294)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x1590, 0x02db)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x1590, 0x02dc)
-+	},
-+	{
-+		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
-+			       0x1590, 0x032e)
-+	},
- 	{
- 		PCI_DEVICE_SUB(PCI_VENDOR_ID_ADAPTEC2, 0x028f,
- 			       0x1d8d, 0x0800)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+index 11459fb09a37..a559ced7c2e0 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+@@ -150,7 +150,7 @@ static int parse_write_buffer_into_params(char *wr_buf, uint32_t wr_buf_size,
+  *
+  * --- to get dp configuration
+  *
+- * cat link_settings
++ * cat /sys/kernel/debug/dri/0/DP-x/link_settings
+  *
+  * It will list current, verified, reported, preferred dp configuration.
+  * current -- for current video mode
+@@ -163,7 +163,7 @@ static int parse_write_buffer_into_params(char *wr_buf, uint32_t wr_buf_size,
+  * echo <lane_count>  <link_rate> > link_settings
+  *
+  * for example, to force to  2 lane, 2.7GHz,
+- * echo 4 0xa > link_settings
++ * echo 4 0xa > /sys/kernel/debug/dri/0/DP-x/link_settings
+  *
+  * spread_spectrum could not be changed dynamically.
+  *
+@@ -171,7 +171,7 @@ static int parse_write_buffer_into_params(char *wr_buf, uint32_t wr_buf_size,
+  * done. please check link settings after force operation to see if HW get
+  * programming.
+  *
+- * cat link_settings
++ * cat /sys/kernel/debug/dri/0/DP-x/link_settings
+  *
+  * check current and preferred settings.
+  *
+@@ -255,7 +255,7 @@ static ssize_t dp_link_settings_write(struct file *f, const char __user *buf,
+ 	int max_param_num = 2;
+ 	uint8_t param_nums = 0;
+ 	long param[2];
+-	bool valid_input = false;
++	bool valid_input = true;
+ 
+ 	if (size == 0)
+ 		return -EINVAL;
+@@ -282,9 +282,9 @@ static ssize_t dp_link_settings_write(struct file *f, const char __user *buf,
+ 	case LANE_COUNT_ONE:
+ 	case LANE_COUNT_TWO:
+ 	case LANE_COUNT_FOUR:
+-		valid_input = true;
+ 		break;
+ 	default:
++		valid_input = false;
+ 		break;
+ 	}
+ 
+@@ -294,9 +294,9 @@ static ssize_t dp_link_settings_write(struct file *f, const char __user *buf,
+ 	case LINK_RATE_RBR2:
+ 	case LINK_RATE_HIGH2:
+ 	case LINK_RATE_HIGH3:
+-		valid_input = true;
+ 		break;
+ 	default:
++		valid_input = false;
+ 		break;
+ 	}
+ 
+@@ -310,10 +310,11 @@ static ssize_t dp_link_settings_write(struct file *f, const char __user *buf,
+ 	 * spread spectrum will not be changed
+ 	 */
+ 	prefer_link_settings.link_spread = link->cur_link_settings.link_spread;
++	prefer_link_settings.use_link_rate_set = false;
+ 	prefer_link_settings.lane_count = param[0];
+ 	prefer_link_settings.link_rate = param[1];
+ 
+-	dc_link_set_preferred_link_settings(dc, &prefer_link_settings, link);
++	dc_link_set_preferred_training_settings(dc, &prefer_link_settings, NULL, link, true);
+ 
+ 	kfree(wr_buf);
+ 	return size;
 -- 
 2.30.2
 
