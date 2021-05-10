@@ -2,77 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D059B378F0B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47A86378F0C
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 15:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234701AbhEJN11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 09:27:27 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:55146 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343499AbhEJMNq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 08:13:46 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 806821C0B79; Mon, 10 May 2021 14:12:40 +0200 (CEST)
-Date:   Mon, 10 May 2021 14:12:40 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 108/299] platform/x86: intel_pmc_core: Dont use
- global pmcdev in quirks
-Message-ID: <20210510121240.GD3547@duo.ucw.cz>
-References: <20210510102004.821838356@linuxfoundation.org>
- <20210510102008.507160403@linuxfoundation.org>
+        id S232463AbhEJN1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 09:27:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56208 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233864AbhEJMQW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 08:16:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2238261400;
+        Mon, 10 May 2021 12:15:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1620648918;
+        bh=OBCMH2gcLZFjPPaEZDZmxxA+rCGW/962pSkO5GoIyQI=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=oc1CyaCt7sXCmwG298GGY2FnbRGcaFQh9JZWKboHatgf+XuEg2F8Bo+SwPrGWOfRb
+         SDCuP/ofAEFvd5wfxh5vV+7/qyVXZPEkxfd2bTwNlrJapnA5bP8kybnhjWUts038J7
+         Nj48WuK73z8LWQeQR3sHaRneqN5fITSjdioAFr72ir4CKOvdgPRVVdDqw0w9xtXNvP
+         UYEd5Sq5/re/3lifi5HltSu+TtXA/kR8BAb9AUnrDl6aNvpYd9zAaWNqZ5K6ROZ7Vc
+         q1MqIxFdH+R0AXrs/6RO5UTNwJeeWwW8JgjPaDoNTVIbesPwWRJwuOjZy647lziVHf
+         X2rl1NEly/MXQ==
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Wesley Cheng <wcheng@codeaurora.org>, gregkh@linuxfoundation.org
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Thinh.Nguyen@synopsys.com, jackp@codeaurora.org,
+        Wesley Cheng <wcheng@codeaurora.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] usb: dwc3: gadget: Return success always for kick
+ transfer in ep queue
+In-Reply-To: <1620410119-24971-1-git-send-email-wcheng@codeaurora.org>
+References: <1620410119-24971-1-git-send-email-wcheng@codeaurora.org>
+Date:   Mon, 10 May 2021 15:15:08 +0300
+Message-ID: <8735uuhjjn.fsf@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="EY/WZ/HvNxOox07X"
-Content-Disposition: inline
-In-Reply-To: <20210510102008.507160403@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---EY/WZ/HvNxOox07X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-=-=
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
+Wesley Cheng <wcheng@codeaurora.org> writes:
 
-> From: David E. Box <david.e.box@linux.intel.com>
->=20
-> [ Upstream commit c9f86d6ca6b5e23d30d16ade4b9fff5b922a610a ]
->=20
-> The DMI callbacks, used for quirks, currently access the PMC by getting
-> the address a global pmc_dev struct. Instead, have the callbacks set a
-> global quirk specific variable. In probe, after calling dmi_check_system(=
-),
-> pass pmc_dev to a function that will handle each quirk if its variable
-> condition is met. This allows removing the global pmc_dev later.
+> If an error is received when issuing a start or update transfer
+> command, the error handler will stop all active requests (including
+> the current USB request), and call dwc3_gadget_giveback() to notify
+> function drivers of the requests which have been stopped.  Avoid
+> returning an error for kick transfer during EP queue, to remove
+> duplicate cleanup operations on the request being queued.
+>
+> Fixes: 8d99087c2db8 ("usb: dwc3: gadget: Properly handle failed kick_tran=
+sfer")
+> cc: stable@vger.kernel.org
 
-This does not fix a bug.. it is preparation for further cleanups that
-are not queued to 5.10 stable. So this should not be in 5.10 either.
+Wrong format here, should be:
 
-Best regards,
-								Pavel
+Cc: <stable@vger.kernel.org>
 
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Other than that:
 
---EY/WZ/HvNxOox07X
+Acked-by: Felipe Balbi <balbi@kernel.org>
+
+=2D-=20
+balbi
+
+--=-=-=
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYJkjOAAKCRAw5/Bqldv6
-8pDnAJ9gKppI4pC9TTb4erKtW2Z4q5ES+gCgwHYngmR60ODKvSO4uoBGpmQ4X3M=
-=IF1o
+iQFFBAEBCAAvFiEE9DumQ60WEZ09LIErzlfNM9wDzUgFAmCZI8wRHGJhbGJpQGtl
+cm5lbC5vcmcACgkQzlfNM9wDzUg8QAf+MvA/NY33hQlXDIQjnnR8fWFWI3ATCYWE
+P+qUXO679ytbX5ftkSgJs2E9YCnoA4GzEIGue2fmBVhfr5TXDitPj4+tKeZtYjr8
+wfNxpcVhxB7Phq4jKK+pGMPSzfXvPlQNTGpY4LdrOwIvIT94ry+DI8w1qF31RkYk
+UC+1rpYqp83zHMurJRQEQd2kbMIBm6wkylUQmAlNH888bYQQP77VIIXe+DjEsBLb
+JlolHK8A+/iz0JLiYY1Qf0MoPdExS96xZJLNJ2fOT2IbHy9Yo1Op3whVByZdthX8
+LqH7sSOviFG9349Mn/N6tR9HcEH8dih6t6XzKzz78tzaCK2Kr/zKuA==
+=jEvl
 -----END PGP SIGNATURE-----
-
---EY/WZ/HvNxOox07X--
+--=-=-=--
