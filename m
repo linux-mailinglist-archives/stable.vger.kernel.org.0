@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6CF3785B6
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B54733785B5
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235544AbhEJLBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
+        id S235540AbhEJLBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:01:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234561AbhEJK4j (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234565AbhEJK4j (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:56:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9DC361985;
-        Mon, 10 May 2021 10:47:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BBBD61931;
+        Mon, 10 May 2021 10:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643626;
-        bh=xUnd5hseQQRNaFMUpf6sZYL5fQh6wgZ6i5EKSwdr364=;
+        s=korg; t=1620643628;
+        bh=0B3ppj/Z+oUjmrvE4pPZDD4gi3C+apA+BcViiJEhQUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgVtXTtJjM26IU5s1a5EqFrv12zEuAamSfWBbBtaRK32wckZOoe4hEKYWfBf59HaZ
-         fJsU57xevRzY9Z75951LJbbKugjRyaj9GTx8CjY22+hc8gFbM3Pk9lvfrub8Fjx+1a
-         0f5HU+zqB30GiC1qWLuf5kzVnANPaD25qwQ5SVwM=
+        b=WLwtiviKzGnU209CdTlLHE8zgZs5Puqp3ZtvI6+XJVdl5TU51Tz0w4AS0lKWKO+2l
+         +no8s2Wvn+cz+66be6v5alipCFqmBQ1vRhrsVzjSjbaPp7LtqvTHDlxUlXn+iLeBYj
+         T7HAvynWHCkWRj356ctgP4nvhN78LWbVx12FgWvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Jerome Forissier <jerome@forissier.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 090/342] arm64: dts: imx8mq-librem5-r3: Mark buck3 as always on
-Date:   Mon, 10 May 2021 12:18:00 +0200
-Message-Id: <20210510102013.081530895@linuxfoundation.org>
+Subject: [PATCH 5.11 091/342] tee: optee: do not check memref size on return from Secure World
+Date:   Mon, 10 May 2021 12:18:01 +0200
+Message-Id: <20210510102013.112041891@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -42,41 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+From: Jerome Forissier <jerome@forissier.org>
 
-[ Upstream commit a362b0cc94d476b097ba0ff466958c1d4e27e219 ]
+[ Upstream commit c650b8dc7a7910eb25af0aac1720f778b29e679d ]
 
-Commit 99e71c029213 ("arm64: dts: imx8mq-librem5: Don't mark buck3 as always on")
-removed always-on marking from GPU regulator, which is great for power
-saving - however it introduces additional i2c0 traffic which can be deadly
-for devices from the Dogwood batch.
+When Secure World returns, it may have changed the size attribute of the
+memory references passed as [in/out] parameters. The GlobalPlatform TEE
+Internal Core API specification does not restrict the values that this
+size can take. In particular, Secure World may increase the value to be
+larger than the size of the input buffer to indicate that it needs more.
 
-To workaround the i2c0 shutdown issue on Dogwood, this commit marks
-buck3 as always-on again - but only for Dogwood (r3).
+Therefore, the size check in optee_from_msg_param() is incorrect and
+needs to be removed. This fixes a number of failed test cases in the
+GlobalPlatform TEE Initial Configuratiom Test Suite v2_0_0_0-2017_06_09
+when OP-TEE is compiled without dynamic shared memory support
+(CFG_CORE_DYN_SHM=n).
 
-Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Suggested-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Jerome Forissier <jerome@forissier.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq-librem5-r3.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tee/optee/core.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq-librem5-r3.dts b/arch/arm64/boot/dts/freescale/imx8mq-librem5-r3.dts
-index 6704ea2c72a3..cc29223ca188 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq-librem5-r3.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mq-librem5-r3.dts
-@@ -22,6 +22,10 @@
- 	ti,termination-current = <144000>;  /* uA */
- };
- 
-+&buck3_reg {
-+	regulator-always-on;
-+};
-+
- &proximity {
- 	proximity-near-level = <25>;
- };
+diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
+index cf4718c6d35d..63542c1cc291 100644
+--- a/drivers/tee/optee/core.c
++++ b/drivers/tee/optee/core.c
+@@ -79,16 +79,6 @@ int optee_from_msg_param(struct tee_param *params, size_t num_params,
+ 				return rc;
+ 			p->u.memref.shm_offs = mp->u.tmem.buf_ptr - pa;
+ 			p->u.memref.shm = shm;
+-
+-			/* Check that the memref is covered by the shm object */
+-			if (p->u.memref.size) {
+-				size_t o = p->u.memref.shm_offs +
+-					   p->u.memref.size - 1;
+-
+-				rc = tee_shm_get_pa(shm, o, NULL);
+-				if (rc)
+-					return rc;
+-			}
+ 			break;
+ 		case OPTEE_MSG_ATTR_TYPE_RMEM_INPUT:
+ 		case OPTEE_MSG_ATTR_TYPE_RMEM_OUTPUT:
 -- 
 2.30.2
 
