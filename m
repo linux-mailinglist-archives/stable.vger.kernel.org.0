@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA043786B7
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66F3637888D
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236765AbhEJLKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:10:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
+        id S231767AbhEJLWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:22:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233413AbhEJLDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:03:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28C356191A;
-        Mon, 10 May 2021 10:54:20 +0000 (UTC)
+        id S237236AbhEJLLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B56CA6188B;
+        Mon, 10 May 2021 11:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644060;
-        bh=qEAZwf33f4+0K31n2LAtyuviAMwGTjTrupPYT6lXrm8=;
+        s=korg; t=1620644906;
+        bh=gwPx88FQUSun16PDktMHt4w2R/nn90Cn3ZCyjqLPprA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFjdUrRyVlQ/lmV+6w399G+IkB0SqbpUs+tsoJ1PUsgKrmXB2mscCJM8/h0URkYUC
-         A+q9vRjgX3nLR1brC4lxidPEkTYuqKqFrCLpJtuDe4WV5ZguCO4Db5BON9eZTbtQhi
-         jM9Juz4ElklIr4a/K1XfA+MDidnwebk/nHwWNHkE=
+        b=rvoW9VKqhXNnDk6c+QSMiyiWfKc90vYmtWcaP57iTVBmnGgKQ/LweuqbqZnOTabyA
+         lAJrvCu6nRfxQNjiJtVi9QVu1W9NTepIY4jHrblleHFjUldrBbbwiuvYv9viCaSV01
+         EwklIcWO49PlU33r8kZrb2qnGeLGdz4vTsb81gJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        "Gonglei (Arei)" <arei.gonglei@huawei.com>,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.11 271/342] iommu/vt-d: Force to flush iotlb before creating superpage
-Date:   Mon, 10 May 2021 12:21:01 +0200
-Message-Id: <20210510102019.051377362@linuxfoundation.org>
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 273/384] ALSA: sb: Fix two use after free in snd_sb_qsound_build
+Date:   Mon, 10 May 2021 12:21:02 +0200
+Message-Id: <20210510102023.837046269@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,150 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 38c527aeb41926c71902dd42f788a8b093b21416 upstream.
+commit 4fb44dd2c1dda18606348acdfdb97e8759dde9df upstream.
 
-The translation caches may preserve obsolete data when the
-mapping size is changed, suppose the following sequence which
-can reveal the problem with high probability.
+In snd_sb_qsound_build, snd_ctl_add(..,p->qsound_switch...) and
+snd_ctl_add(..,p->qsound_space..) are called. But the second
+arguments of snd_ctl_add() could be freed via snd_ctl_add_replace()
+->snd_ctl_free_one(). After the error code is returned,
+snd_sb_qsound_destroy(p) is called in __error branch.
 
-1.mmap(4GB,MAP_HUGETLB)
-2.
-  while (1) {
-   (a)    DMA MAP   0,0xa0000
-   (b)    DMA UNMAP 0,0xa0000
-   (c)    DMA MAP   0,0xc0000000
-             * DMA read IOVA 0 may failure here (Not present)
-             * if the problem occurs.
-   (d)    DMA UNMAP 0,0xc0000000
-  }
+But in snd_sb_qsound_destroy(), the freed p->qsound_switch and
+p->qsound_space are still used by snd_ctl_remove().
 
-The page table(only focus on IOVA 0) after (a) is:
- PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
-  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
-   PDE: 0x1a30a72003  entry:0xffff89b39cacb000
-    PTE: 0x21d200803  entry:0xffff89b3b0a72000
+My patch set p->qsound_switch and p->qsound_space to NULL if
+snd_ctl_add() failed to avoid the uaf bugs. But these codes need
+to further be improved with the code style.
 
-The page table after (b) is:
- PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
-  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
-   PDE: 0x1a30a72003  entry:0xffff89b39cacb000
-    PTE: 0x0          entry:0xffff89b3b0a72000
-
-The page table after (c) is:
- PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
-  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
-   PDE: 0x21d200883   entry:0xffff89b39cacb000 (*)
-
-Because the PDE entry after (b) is present, it won't be
-flushed even if the iommu driver flush cache when unmap,
-so the obsolete data may be preserved in cache, which
-would cause the wrong translation at end.
-
-However, we can see the PDE entry is finally switch to
-2M-superpage mapping, but it does not transform
-to 0x21d200883 directly:
-
-1. PDE: 0x1a30a72003
-2. __domain_mapping
-     dma_pte_free_pagetable
-       Set the PDE entry to ZERO
-     Set the PDE entry to 0x21d200883
-
-So we must flush the cache after the entry switch to ZERO
-to avoid the obsolete info be preserved.
-
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Cc: Gonglei (Arei) <arei.gonglei@huawei.com>
-
-Fixes: 6491d4d02893 ("intel-iommu: Free old page tables before creating superpage")
-Cc: <stable@vger.kernel.org> # v3.0+
-Link: https://lore.kernel.org/linux-iommu/670baaf8-4ff8-4e84-4be3-030b95ab5a5e@huawei.com/
-Suggested-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210415004628.1779-1-longpeng2@huawei.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210426145541.8070-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/iommu.c |   52 ++++++++++++++++++++++++++++++++------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ sound/isa/sb/sb16_csp.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -2294,6 +2294,41 @@ static inline int hardware_largepage_cap
- 	return level;
- }
+--- a/sound/isa/sb/sb16_csp.c
++++ b/sound/isa/sb/sb16_csp.c
+@@ -1045,10 +1045,14 @@ static int snd_sb_qsound_build(struct sn
  
-+/*
-+ * Ensure that old small page tables are removed to make room for superpage(s).
-+ * We're going to add new large pages, so make sure we don't remove their parent
-+ * tables. The IOTLB/devTLBs should be flushed if any PDE/PTEs are cleared.
-+ */
-+static void switch_to_super_page(struct dmar_domain *domain,
-+				 unsigned long start_pfn,
-+				 unsigned long end_pfn, int level)
-+{
-+	unsigned long lvl_pages = lvl_to_nr_pages(level);
-+	struct dma_pte *pte = NULL;
-+	int i;
-+
-+	while (start_pfn <= end_pfn) {
-+		if (!pte)
-+			pte = pfn_to_dma_pte(domain, start_pfn, &level);
-+
-+		if (dma_pte_present(pte)) {
-+			dma_pte_free_pagetable(domain, start_pfn,
-+					       start_pfn + lvl_pages - 1,
-+					       level + 1);
-+
-+			for_each_domain_iommu(i, domain)
-+				iommu_flush_iotlb_psi(g_iommus[i], domain,
-+						      start_pfn, lvl_pages,
-+						      0, 0);
-+		}
-+
-+		pte++;
-+		start_pfn += lvl_pages;
-+		if (first_pte_in_page(pte))
-+			pte = NULL;
+ 	spin_lock_init(&p->q_lock);
+ 
+-	if ((err = snd_ctl_add(card, p->qsound_switch = snd_ctl_new1(&snd_sb_qsound_switch, p))) < 0)
++	if ((err = snd_ctl_add(card, p->qsound_switch = snd_ctl_new1(&snd_sb_qsound_switch, p))) < 0) {
++		p->qsound_switch = NULL;
+ 		goto __error;
+-	if ((err = snd_ctl_add(card, p->qsound_space = snd_ctl_new1(&snd_sb_qsound_space, p))) < 0)
 +	}
-+}
-+
- static int
- __domain_mapping(struct dmar_domain *domain, unsigned long iov_pfn,
- 		 unsigned long phys_pfn, unsigned long nr_pages, int prot)
-@@ -2327,22 +2362,11 @@ __domain_mapping(struct dmar_domain *dom
- 				return -ENOMEM;
- 			/* It is large page*/
- 			if (largepage_lvl > 1) {
--				unsigned long nr_superpages, end_pfn;
-+				unsigned long end_pfn;
++	if ((err = snd_ctl_add(card, p->qsound_space = snd_ctl_new1(&snd_sb_qsound_space, p))) < 0) {
++		p->qsound_space = NULL;
+ 		goto __error;
++	}
  
- 				pteval |= DMA_PTE_LARGE_PAGE;
--				lvl_pages = lvl_to_nr_pages(largepage_lvl);
--
--				nr_superpages = nr_pages / lvl_pages;
--				end_pfn = iov_pfn + nr_superpages * lvl_pages - 1;
--
--				/*
--				 * Ensure that old small page tables are
--				 * removed to make room for superpage(s).
--				 * We're adding new large pages, so make sure
--				 * we don't remove their parent tables.
--				 */
--				dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
--						       largepage_lvl + 1);
-+				end_pfn = ((iov_pfn + nr_pages) & level_mask(largepage_lvl)) - 1;
-+				switch_to_super_page(domain, iov_pfn, end_pfn, largepage_lvl);
- 			} else {
- 				pteval &= ~(uint64_t)DMA_PTE_LARGE_PAGE;
- 			}
+ 	return 0;
+ 
 
 
