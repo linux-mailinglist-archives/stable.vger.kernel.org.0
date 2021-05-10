@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B23D3783A3
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C869E3783A6
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231953AbhEJKqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58292 "EHLO mail.kernel.org"
+        id S232515AbhEJKq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:46:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232853AbhEJKom (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:44:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09CBB61464;
-        Mon, 10 May 2021 10:33:54 +0000 (UTC)
+        id S232858AbhEJKon (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:44:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CCB56147F;
+        Mon, 10 May 2021 10:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642835;
-        bh=L8Mq9F8NhmcMlt+HJ8dj+qsv/EiXcUScL+urgJmpI1k=;
+        s=korg; t=1620642837;
+        bh=RTVKMu38CsacE5dSCpTjPWE/fao9P9Fzu0/N5gnhw40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aSsgi0CKy3sapyJzFAz4l6Wc4N5jhIHmncIlWRtWzBORXvfmIg9QztfNSx+lXqIwr
-         kP9mHj8hCgy9DIlkbm05xyUoBv+aH3HIYUnwgWbdTiPwxflpUrfbfCX9cxDYsZfLW/
-         /nI1AwAqyXHK16Yz3HeFH/ErAh5BZ8AYKOw7hY48=
+        b=iJEF0ME0Zm9+E54ZI8bPAuS9vqlRZm+zykmu7a/gYl9uBD6/1D67sVm6xwqKGypjo
+         tqXQ2JC0DipOupa8AbvPtUqrqVKZBS1K+o9XLKf33G18RFaT0eqgpCVdlI56++Z/h4
+         67a4XIMEqVYpEbXLk5ki1/FVZcWMvrZGencI7yOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/299] ARM: dts: BCM5301X: fix "reg" formatting in /memory node
-Date:   Mon, 10 May 2021 12:17:48 +0200
-Message-Id: <20210510102007.258863825@linuxfoundation.org>
+Subject: [PATCH 5.10 072/299] ARM: dts: ux500: Fix up TVK R3 sensors
+Date:   Mon, 10 May 2021 12:17:49 +0200
+Message-Id: <20210510102007.297924261@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -41,388 +39,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 43986f38818278bb71a7fef6de689637bb734afe ]
+[ Upstream commit aeceecd40d94ed3c00bfe1cfe59dd1bfac2fc6fe ]
 
-This fixes warnings/errors like:
-arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dt.yaml: /: memory@0:reg:0: [0, 134217728, 2281701376, 402653184] is too long
-        From schema: /lib/python3.6/site-packages/dtschema/schemas/reg.yaml
+The TVK1281618 R3 sensors are different from the R2 board,
+some incorrectness is fixed and some new sensors added, we
+also rename the nodes appropriately with accelerometer@
+etc.
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts        | 4 ++--
- arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts        | 4 ++--
- arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts  | 4 ++--
- arch/arm/boot/dts/bcm4708-netgear-r6250.dts        | 4 ++--
- arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts     | 4 ++--
- arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts      | 4 ++--
- arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts        | 4 ++--
- arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts | 4 ++--
- arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts  | 4 ++--
- arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts        | 4 ++--
- arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts  | 4 ++--
- arch/arm/boot/dts/bcm4709-linksys-ea9200.dts       | 4 ++--
- arch/arm/boot/dts/bcm4709-netgear-r7000.dts        | 4 ++--
- arch/arm/boot/dts/bcm4709-netgear-r8000.dts        | 4 ++--
- arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts      | 4 ++--
- arch/arm/boot/dts/bcm47094-linksys-panamera.dts    | 4 ++--
- arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts      | 4 ++--
- arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts      | 4 ++--
- arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts      | 4 ++--
- arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts      | 4 ++--
- arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts   | 4 ++--
- arch/arm/boot/dts/bcm47094-netgear-r8500.dts       | 4 ++--
- arch/arm/boot/dts/bcm47094-phicomm-k3.dts          | 4 ++--
- 23 files changed, 46 insertions(+), 46 deletions(-)
+ arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi | 73 +++++++++++++------
+ 1 file changed, 50 insertions(+), 23 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts b/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts
-index 6a96655d8626..8ed403767540 100644
---- a/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts
-+++ b/arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts
-@@ -21,8 +21,8 @@
+diff --git a/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi b/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
+index 9f285c7cf914..c0de1337bdaa 100644
+--- a/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
++++ b/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
+@@ -8,37 +8,43 @@
+ / {
+ 	soc {
+ 		i2c@80128000 {
+-			/* Marked:
+-			 * 129
+-			 * M35
+-			 * L3GD20
+-			 */
+-			l3gd20@6a {
+-				/* Gyroscope */
+-				compatible = "st,l3gd20";
+-				status = "disabled";
++			accelerometer@19 {
++				compatible = "st,lsm303dlhc-accel";
+ 				st,drdy-int-pin = <1>;
+-				drive-open-drain;
+-				reg = <0x6a>; // 0x6a or 0x6b
++				reg = <0x19>;
+ 				vdd-supply = <&ab8500_ldo_aux1_reg>;
+ 				vddio-supply = <&db8500_vsmps2_reg>;
++				interrupt-parent = <&gpio2>;
++				interrupts = <18 IRQ_TYPE_EDGE_RISING>,
++					     <19 IRQ_TYPE_EDGE_RISING>;
++				pinctrl-names = "default";
++				pinctrl-0 = <&accel_tvk_mode>;
+ 			};
+-			/*
+-			 * Marked:
+-			 * 2122
+-			 * C3H
+-			 * DQEEE
+-			 * LIS3DH?
+-			 */
+-			lis3dh@18 {
+-				/* Accelerometer */
+-				compatible = "st,lis3dh-accel";
++			magnetometer@1e {
++				compatible = "st,lsm303dlm-magn";
+ 				st,drdy-int-pin = <1>;
+-				reg = <0x18>;
++				reg = <0x1e>;
+ 				vdd-supply = <&ab8500_ldo_aux1_reg>;
+ 				vddio-supply = <&db8500_vsmps2_reg>;
++				// This interrupt is not properly working with the driver
++				// interrupt-parent = <&gpio1>;
++				// interrupts = <0 IRQ_TYPE_EDGE_RISING>;
+ 				pinctrl-names = "default";
+-				pinctrl-0 = <&accel_tvk_mode>;
++				pinctrl-0 = <&magn_tvk_mode>;
++			};
++			gyroscope@68 {
++				/* Gyroscope */
++				compatible = "st,l3g4200d-gyro";
++				reg = <0x68>;
++				vdd-supply = <&ab8500_ldo_aux1_reg>;
++				vddio-supply = <&db8500_vsmps2_reg>;
++			};
++			pressure@5c {
++				/* Barometer/pressure sensor */
++				compatible = "st,lps001wp-press";
++				reg = <0x5c>;
++				vdd-supply = <&ab8500_ldo_aux1_reg>;
++				vddio-supply = <&db8500_vsmps2_reg>;
+ 			};
+ 		};
  
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
+@@ -54,5 +60,26 @@
+ 				};
+ 			};
+ 		};
++
++		pinctrl {
++			accelerometer {
++				accel_tvk_mode: accel_tvk {
++					/* Accelerometer interrupt lines 1 & 2 */
++					tvk_cfg {
++						pins = "GPIO82_C1", "GPIO83_D3";
++						ste,config = <&gpio_in_pd>;
++					};
++				};
++			};
++			magnetometer {
++				magn_tvk_mode: magn_tvk {
++					/* GPIO 32 used for DRDY, pull this down */
++					tvk_cfg {
++						pins = "GPIO32_V2";
++						ste,config = <&gpio_in_pd>;
++					};
++				};
++			};
++		};
  	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts b/arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts
-index 3b0029e61b4c..667b118ba4ee 100644
---- a/arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts
-+++ b/arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts
-@@ -21,8 +21,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts b/arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts
-index 90f57bad6b24..ff31ce45831a 100644
---- a/arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts
-+++ b/arch/arm/boot/dts/bcm4708-buffalo-wzr-1750dhp.dts
-@@ -21,8 +21,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x18000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x18000000>;
- 	};
- 
- 	spi {
-diff --git a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
-index fed75e6ab58c..61c7b137607e 100644
---- a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
-+++ b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
-@@ -22,8 +22,8 @@
- 
- 	memory {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts b/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts
-index 79542e18915c..4c60eda296d9 100644
---- a/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts
-+++ b/arch/arm/boot/dts/bcm4708-netgear-r6300-v2.dts
-@@ -21,8 +21,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts b/arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts
-index abd35a518046..7d46561fca3c 100644
---- a/arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts
-+++ b/arch/arm/boot/dts/bcm4708-smartrg-sr400ac.dts
-@@ -21,8 +21,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts b/arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts
-index c29950b43a95..0e273c598732 100644
---- a/arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts
-+++ b/arch/arm/boot/dts/bcm47081-asus-rt-n18u.dts
-@@ -21,8 +21,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts b/arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts
-index 4dcec6865469..083ec4036bd7 100644
---- a/arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts
-+++ b/arch/arm/boot/dts/bcm47081-buffalo-wzr-600dhp2.dts
-@@ -21,8 +21,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	spi {
-diff --git a/arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts b/arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts
-index 0e349e39f608..8b1a05a0f1a1 100644
---- a/arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts
-+++ b/arch/arm/boot/dts/bcm47081-buffalo-wzr-900dhp.dts
-@@ -21,8 +21,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	spi {
-diff --git a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
-index 8f1e565c3db4..6c6bb7b17d27 100644
---- a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
-+++ b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
-@@ -21,8 +21,8 @@
- 
- 	memory {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
-index ce888b1835d1..d29e7f80ea6a 100644
---- a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
-+++ b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
-@@ -21,8 +21,8 @@
- 
- 	memory {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x18000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x18000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
-index ed8619b54d69..38fbefdf2e4e 100644
---- a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
-+++ b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
-@@ -18,8 +18,8 @@
- 
- 	memory {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	gpio-keys {
-diff --git a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
-index 1f87993eae1d..7989a53597d4 100644
---- a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
-+++ b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
-@@ -21,8 +21,8 @@
- 
- 	memory {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
-index 6c6199a53d09..87b655be674c 100644
---- a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
-+++ b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
-@@ -32,8 +32,8 @@
- 
- 	memory {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts b/arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts
-index 911c65fbf251..e635a15041dd 100644
---- a/arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts
-+++ b/arch/arm/boot/dts/bcm47094-dlink-dir-885l.dts
-@@ -21,8 +21,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	nand: nand@18028000 {
-diff --git a/arch/arm/boot/dts/bcm47094-linksys-panamera.dts b/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
-index 0faae8950375..36d63beba8cd 100644
---- a/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
-+++ b/arch/arm/boot/dts/bcm47094-linksys-panamera.dts
-@@ -18,8 +18,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	gpio-keys {
-diff --git a/arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts b/arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts
-index 50f7cd08cfbb..a6dc99955e19 100644
---- a/arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts
-+++ b/arch/arm/boot/dts/bcm47094-luxul-abr-4500.dts
-@@ -18,8 +18,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x18000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x18000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts b/arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts
-index bcc420f85b56..ff98837bc0db 100644
---- a/arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts
-+++ b/arch/arm/boot/dts/bcm47094-luxul-xbr-4500.dts
-@@ -18,8 +18,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x18000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x18000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
-index 9ae815ddbb4b..2666195b6ffe 100644
---- a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
-+++ b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
-@@ -18,8 +18,8 @@
- 
- 	memory {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x18000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x18000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts b/arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts
-index a21b2d185596..9f798025748b 100644
---- a/arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts
-+++ b/arch/arm/boot/dts/bcm47094-luxul-xwr-3100.dts
-@@ -18,8 +18,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x08000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x08000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts b/arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts
-index 4d5c5aa7dc42..c8dfa4c58d2f 100644
---- a/arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts
-+++ b/arch/arm/boot/dts/bcm47094-luxul-xwr-3150-v1.dts
-@@ -18,8 +18,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x18000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x18000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47094-netgear-r8500.dts b/arch/arm/boot/dts/bcm47094-netgear-r8500.dts
-index f42a1703f4ab..42097a4c2659 100644
---- a/arch/arm/boot/dts/bcm47094-netgear-r8500.dts
-+++ b/arch/arm/boot/dts/bcm47094-netgear-r8500.dts
-@@ -18,8 +18,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x18000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x18000000>;
- 	};
- 
- 	leds {
-diff --git a/arch/arm/boot/dts/bcm47094-phicomm-k3.dts b/arch/arm/boot/dts/bcm47094-phicomm-k3.dts
-index ac3a4483dcb3..a2566ad4619c 100644
---- a/arch/arm/boot/dts/bcm47094-phicomm-k3.dts
-+++ b/arch/arm/boot/dts/bcm47094-phicomm-k3.dts
-@@ -15,8 +15,8 @@
- 
- 	memory@0 {
- 		device_type = "memory";
--		reg = <0x00000000 0x08000000
--		       0x88000000 0x18000000>;
-+		reg = <0x00000000 0x08000000>,
-+		      <0x88000000 0x18000000>;
- 	};
- 
- 	gpio-keys {
+ };
 -- 
 2.30.2
 
