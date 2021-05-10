@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB7AB3786AA
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 858013788B1
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235004AbhEJLJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36656 "EHLO mail.kernel.org"
+        id S234406AbhEJLXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:23:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233729AbhEJLBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:01:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34EC261C56;
-        Mon, 10 May 2021 10:53:50 +0000 (UTC)
+        id S237200AbhEJLLe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4661B61285;
+        Mon, 10 May 2021 11:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644030;
-        bh=SazSPzs5QYkhkh9ZRALGQGCqAO1Pns+VgbkxVJtPXBY=;
+        s=korg; t=1620644881;
+        bh=/zM04TnIe3i8ugoTjV5c3/lmKk8e7uKbmdy3oHOQvAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m9OUbNDROfoCkgikYPGDKa09eIM3Ua81pljDXXhYuRH2Bs6bynP0gxQQnoBV84NzA
-         z70Rx2BPt9hjU+M8fqu2ylTfdSqFB7EV47IWNR4uML4VWv8W3VI4gphC+NX2aji40x
-         KyFDamni2ahjZJLcIq05R8Jg2DJpb0JCD/GBeu34=
+        b=GtJ46Cj1nI07Ls54AaxhC+n93l3W9z+HXaM+eTiR5cu64ilr0DWnXB/yXffMfKF76
+         T4N84FmKrb+Q8/bP1VChs4v0YLCKDvzz3Xu/Fzvc7nXrbnsUzVSri3Zl/xJOjviFgr
+         Wt4Clip4VgjwsV6V54y2aoQMpbpj8Qm/boRFGU6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Subject: [PATCH 5.11 260/342] f2fs: fix to avoid out-of-bounds memory access
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 261/384] scsi: libfc: Fix a format specifier
 Date:   Mon, 10 May 2021 12:20:50 +0200
-Message-Id: <20210510102018.688077182@linuxfoundation.org>
+Message-Id: <20210510102023.467113404@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit b862676e371715456c9dade7990c8004996d0d9e upstream.
+[ Upstream commit 90d6697810f06aceea9de71ad836a8c7669789cd ]
 
-butt3rflyh4ck <butterflyhuangxx@gmail.com> reported a bug found by
-syzkaller fuzzer with custom modifications in 5.12.0-rc3+ [1]:
+Since the 'mfs' member has been declared as 'u32' in include/scsi/libfc.h,
+use the %u format specifier instead of %hu. This patch fixes the following
+clang compiler warning:
 
- dump_stack+0xfa/0x151 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x82/0x32c mm/kasan/report.c:232
- __kasan_report mm/kasan/report.c:399 [inline]
- kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
- f2fs_test_bit fs/f2fs/f2fs.h:2572 [inline]
- current_nat_addr fs/f2fs/node.h:213 [inline]
- get_next_nat_page fs/f2fs/node.c:123 [inline]
- __flush_nat_entry_set fs/f2fs/node.c:2888 [inline]
- f2fs_flush_nat_entries+0x258e/0x2960 fs/f2fs/node.c:2991
- f2fs_write_checkpoint+0x1372/0x6a70 fs/f2fs/checkpoint.c:1640
- f2fs_issue_checkpoint+0x149/0x410 fs/f2fs/checkpoint.c:1807
- f2fs_sync_fs+0x20f/0x420 fs/f2fs/super.c:1454
- __sync_filesystem fs/sync.c:39 [inline]
- sync_filesystem fs/sync.c:67 [inline]
- sync_filesystem+0x1b5/0x260 fs/sync.c:48
- generic_shutdown_super+0x70/0x370 fs/super.c:448
- kill_block_super+0x97/0xf0 fs/super.c:1394
+warning: format specifies type
+      'unsigned short' but the argument has type 'u32' (aka 'unsigned int')
+      [-Wformat]
+                             "lport->mfs:%hu\n", mfs, lport->mfs);
+                                         ~~~          ^~~~~~~~~~
+                                         %u
 
-The root cause is, if nat entry in checkpoint journal area is corrupted,
-e.g. nid of journalled nat entry exceeds max nid value, during checkpoint,
-once it tries to flush nat journal to NAT area, get_next_nat_page() may
-access out-of-bounds memory on nat_bitmap due to it uses wrong nid value
-as bitmap offset.
-
-[1] https://lore.kernel.org/lkml/CAFcO6XOMWdr8pObek6eN6-fs58KG9doRFadgJj-FnF-1x43s2g@mail.gmail.com/T/#u
-
-Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210415220826.29438-8-bvanassche@acm.org
+Cc: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/node.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/libfc/fc_lport.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2787,6 +2787,9 @@ static void remove_nats_in_journal(struc
- 		struct f2fs_nat_entry raw_ne;
- 		nid_t nid = le32_to_cpu(nid_in_journal(journal, i));
+diff --git a/drivers/scsi/libfc/fc_lport.c b/drivers/scsi/libfc/fc_lport.c
+index 22826544da7e..9989669beec3 100644
+--- a/drivers/scsi/libfc/fc_lport.c
++++ b/drivers/scsi/libfc/fc_lport.c
+@@ -1731,7 +1731,7 @@ void fc_lport_flogi_resp(struct fc_seq *sp, struct fc_frame *fp,
  
-+		if (f2fs_check_nid_range(sbi, nid))
-+			continue;
-+
- 		raw_ne = nat_in_journal(journal, i);
- 
- 		ne = __lookup_nat_cache(nm_i, nid);
+ 	if (mfs < FC_SP_MIN_MAX_PAYLOAD || mfs > FC_SP_MAX_MAX_PAYLOAD) {
+ 		FC_LPORT_DBG(lport, "FLOGI bad mfs:%hu response, "
+-			     "lport->mfs:%hu\n", mfs, lport->mfs);
++			     "lport->mfs:%u\n", mfs, lport->mfs);
+ 		fc_lport_error(lport, fp);
+ 		goto out;
+ 	}
+-- 
+2.30.2
+
 
 
