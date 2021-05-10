@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC4253787CB
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 104DB3787CC
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232859AbhEJLSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232774AbhEJLSz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 May 2021 07:18:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236639AbhEJLIX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:08:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37A776101A;
-        Mon, 10 May 2021 11:02:48 +0000 (UTC)
+        id S236642AbhEJLIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:08:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B510619C5;
+        Mon, 10 May 2021 11:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644568;
-        bh=psiVtoqPr9Q4aeX7cnyuf8xlm2rXv1Wl9ZOIJLCZb4Q=;
+        s=korg; t=1620644571;
+        bh=yg0G8d/4QXzFQuLzDOWe1U3JrO46IIbUmdJ6mEBbzZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0LA0t3P/TBCGvcLbFbkPeIGzkyyjoH6xFIFUBe3dh0O2Tzz12UiA/tDu4gXSUpTPc
-         80CLMYraM6297rnhvtJDei8kK6oXk2Es9ueDewrvUjo09Lf2DW61ugp/zbwJE7PCpb
-         zViXfWb4kPOlQz2YvFtDiNif8Z1sqcQMrhLi6ylQ=
+        b=Vo3hOKSBTIzviEH3TdedMYzJ5X3/AbfkAXQvT7BTXVpLUZE/h2x6Y6WRq8lO+aS8k
+         js9hqsOuL2qjRtwDQSAxcQj3L7kHvBa/ncF9fGZvE8DcP6Y4xZPQU87oKaR26ZCmWD
+         1huqnQg2tjs3dhtc9ugZYEX/V5IbTPQmTnReYFUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 135/384] btrfs: fix race between marking inode needs to be logged and log syncing
-Date:   Mon, 10 May 2021 12:18:44 +0200
-Message-Id: <20210510102019.349997611@linuxfoundation.org>
+Subject: [PATCH 5.12 136/384] btrfs: fix exhaustion of the system chunk array due to concurrent allocations
+Date:   Mon, 10 May 2021 12:18:45 +0200
+Message-Id: <20210510102019.380147838@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -42,211 +42,317 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit bc0939fcfab0d7efb2ed12896b1af3d819954a14 ]
+[ Upstream commit eafa4fd0ad06074da8be4e28ff93b4dca9ffa407 ]
 
-We have a race between marking that an inode needs to be logged, either
-at btrfs_set_inode_last_trans() or at btrfs_page_mkwrite(), and between
-btrfs_sync_log(). The following steps describe how the race happens.
+When we are running out of space for updating the chunk tree, that is,
+when we are low on available space in the system space info, if we have
+many task concurrently allocating block groups, via fallocate for example,
+many of them can end up all allocating new system chunks when only one is
+needed. In extreme cases this can lead to exhaustion of the system chunk
+array, which has a size limit of 2048 bytes, and results in a transaction
+abort with errno EFBIG, producing a trace in dmesg like the following,
+which was triggered on a PowerPC machine with a node/leaf size of 64K:
 
-1) We are at transaction N;
+  [1359.518899] ------------[ cut here ]------------
+  [1359.518980] BTRFS: Transaction aborted (error -27)
+  [1359.519135] WARNING: CPU: 3 PID: 16463 at ../fs/btrfs/block-group.c:1968 btrfs_create_pending_block_groups+0x340/0x3c0 [btrfs]
+  [1359.519152] Modules linked in: (...)
+  [1359.519239] Supported: Yes, External
+  [1359.519252] CPU: 3 PID: 16463 Comm: stress-ng Tainted: G               X    5.3.18-47-default #1 SLE15-SP3
+  [1359.519274] NIP:  c008000000e36fe8 LR: c008000000e36fe4 CTR: 00000000006de8e8
+  [1359.519293] REGS: c00000056890b700 TRAP: 0700   Tainted: G               X     (5.3.18-47-default)
+  [1359.519317] MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 48008222  XER: 00000007
+  [1359.519356] CFAR: c00000000013e170 IRQMASK: 0
+  [1359.519356] GPR00: c008000000e36fe4 c00000056890b990 c008000000e83200 0000000000000026
+  [1359.519356] GPR04: 0000000000000000 0000000000000000 0000d52a3b027651 0000000000000007
+  [1359.519356] GPR08: 0000000000000003 0000000000000001 0000000000000007 0000000000000000
+  [1359.519356] GPR12: 0000000000008000 c00000063fe44600 000000001015e028 000000001015dfd0
+  [1359.519356] GPR16: 000000000000404f 0000000000000001 0000000000010000 0000dd1e287affff
+  [1359.519356] GPR20: 0000000000000001 c000000637c9a000 ffffffffffffffe5 0000000000000000
+  [1359.519356] GPR24: 0000000000000004 0000000000000000 0000000000000100 ffffffffffffffc0
+  [1359.519356] GPR28: c000000637c9a000 c000000630e09230 c000000630e091d8 c000000562188b08
+  [1359.519561] NIP [c008000000e36fe8] btrfs_create_pending_block_groups+0x340/0x3c0 [btrfs]
+  [1359.519613] LR [c008000000e36fe4] btrfs_create_pending_block_groups+0x33c/0x3c0 [btrfs]
+  [1359.519626] Call Trace:
+  [1359.519671] [c00000056890b990] [c008000000e36fe4] btrfs_create_pending_block_groups+0x33c/0x3c0 [btrfs] (unreliable)
+  [1359.519729] [c00000056890ba90] [c008000000d68d44] __btrfs_end_transaction+0xbc/0x2f0 [btrfs]
+  [1359.519782] [c00000056890bae0] [c008000000e309ac] btrfs_alloc_data_chunk_ondemand+0x154/0x610 [btrfs]
+  [1359.519844] [c00000056890bba0] [c008000000d8a0fc] btrfs_fallocate+0xe4/0x10e0 [btrfs]
+  [1359.519891] [c00000056890bd00] [c0000000004a23b4] vfs_fallocate+0x174/0x350
+  [1359.519929] [c00000056890bd50] [c0000000004a3cf8] ksys_fallocate+0x68/0xf0
+  [1359.519957] [c00000056890bda0] [c0000000004a3da8] sys_fallocate+0x28/0x40
+  [1359.519988] [c00000056890bdc0] [c000000000038968] system_call_exception+0xe8/0x170
+  [1359.520021] [c00000056890be20] [c00000000000cb70] system_call_common+0xf0/0x278
+  [1359.520037] Instruction dump:
+  [1359.520049] 7d0049ad 40c2fff4 7c0004ac 71490004 40820024 2f83fffb 419e0048 3c620000
+  [1359.520082] e863bcb8 7ec4b378 48010d91 e8410018 <0fe00000> 3c820000 e884bcc8 7ec6b378
+  [1359.520122] ---[ end trace d6c186e151022e20 ]---
 
-2) Inode I was previously fsynced in the current transaction so it has:
+The following steps explain how we can end up in this situation:
 
-    inode->logged_trans set to N;
+1) Task A is at check_system_chunk(), either because it is allocating a
+   new data or metadata block group, at btrfs_chunk_alloc(), or because
+   it is removing a block group or turning a block group RO. It does not
+   matter why;
 
-3) The inode's root currently has:
+2) Task A sees that there is not enough free space in the system
+   space_info object, that is 'left' is < 'thresh'. And at this point
+   the system space_info has a value of 0 for its 'bytes_may_use'
+   counter;
 
-   root->log_transid set to 1
-   root->last_log_commit set to 0
+3) As a consequence task A calls btrfs_alloc_chunk() in order to allocate
+   a new system block group (chunk) and then reserves 'thresh' bytes in
+   the chunk block reserve with the call to btrfs_block_rsv_add(). This
+   changes the chunk block reserve's 'reserved' and 'size' counters by an
+   amount of 'thresh', and changes the 'bytes_may_use' counter of the
+   system space_info object from 0 to 'thresh'.
 
-   Which means only one log transaction was committed to far, log
-   transaction 0. When a log tree is created we set ->log_transid and
-   ->last_log_commit of its parent root to 0 (at btrfs_add_log_tree());
+   Also during its call to btrfs_alloc_chunk(), we end up increasing the
+   value of the 'total_bytes' counter of the system space_info object by
+   8MiB (the size of a system chunk stripe). This happens through the
+   call chain:
 
-4) One more range of pages is dirtied in inode I;
+   btrfs_alloc_chunk()
+       create_chunk()
+           btrfs_make_block_group()
+               btrfs_update_space_info()
 
-5) Some task A starts an fsync against some other inode J (same root), and
-   so it joins log transaction 1.
+4) After it finishes the first phase of the block group allocation, at
+   btrfs_chunk_alloc(), task A unlocks the chunk mutex;
 
-   Before task A calls btrfs_sync_log()...
+5) At this point the new system block group was added to the transaction
+   handle's list of new block groups, but its block group item, device
+   items and chunk item were not yet inserted in the extent, device and
+   chunk trees, respectively. That only happens later when we call
+   btrfs_finish_chunk_alloc() through a call to
+   btrfs_create_pending_block_groups();
 
-6) Task B starts an fsync against inode I, which currently has the full
-   sync flag set, so it starts delalloc and waits for the ordered extent
-   to complete before calling btrfs_inode_in_log() at btrfs_sync_file();
+   Note that only when we update the chunk tree, through the call to
+   btrfs_finish_chunk_alloc(), we decrement the 'reserved' counter
+   of the chunk block reserve as we COW/allocate extent buffers,
+   through:
 
-7) During ordered extent completion we have btrfs_update_inode() called
-   against inode I, which in turn calls btrfs_set_inode_last_trans(),
-   which does the following:
+   btrfs_alloc_tree_block()
+      btrfs_use_block_rsv()
+         btrfs_block_rsv_use_bytes()
 
-     spin_lock(&inode->lock);
-     inode->last_trans = trans->transaction->transid;
-     inode->last_sub_trans = inode->root->log_transid;
-     inode->last_log_commit = inode->root->last_log_commit;
-     spin_unlock(&inode->lock);
+   And the system space_info's 'bytes_may_use' is decremented everytime
+   we allocate an extent buffer for COW operations on the chunk tree,
+   through:
 
-   So ->last_trans is set to N and ->last_sub_trans set to 1.
-   But before setting ->last_log_commit...
+   btrfs_alloc_tree_block()
+      btrfs_reserve_extent()
+         find_free_extent()
+            btrfs_add_reserved_bytes()
 
-8) Task A is at btrfs_sync_log():
+   If we end up COWing less chunk btree nodes/leaves than expected, which
+   is the typical case since the amount of space we reserve is always
+   pessimistic to account for the worst possible case, we release the
+   unused space through:
 
-   - it increments root->log_transid to 2
-   - starts writeback for all log tree extent buffers
-   - waits for the writeback to complete
-   - writes the super blocks
-   - updates root->last_log_commit to 1
+   btrfs_create_pending_block_groups()
+      btrfs_trans_release_chunk_metadata()
+         btrfs_block_rsv_release()
+            block_rsv_release_bytes()
+                btrfs_space_info_free_bytes_may_use()
 
-   It's a lot of slow steps between updating root->log_transid and
-   root->last_log_commit;
+   But before task A gets into btrfs_create_pending_block_groups()...
 
-9) The task doing the ordered extent completion, currently at
-   btrfs_set_inode_last_trans(), then finally runs:
+6) Many other tasks start allocating new block groups through fallocate,
+   each one does the first phase of block group allocation in a
+   serialized way, since btrfs_chunk_alloc() takes the chunk mutex
+   before calling check_system_chunk() and btrfs_alloc_chunk().
 
-     inode->last_log_commit = inode->root->last_log_commit;
-     spin_unlock(&inode->lock);
+   However before everyone enters the final phase of the block group
+   allocation, that is, before calling btrfs_create_pending_block_groups(),
+   new tasks keep coming to allocate new block groups and while at
+   check_system_chunk(), the system space_info's 'bytes_may_use' keeps
+   increasing each time a task reserves space in the chunk block reserve.
+   This means that eventually some other task can end up not seeing enough
+   free space in the system space_info and decide to allocate yet another
+   system chunk.
 
-   Which results in inode->last_log_commit being set to 1.
-   The ordered extent completes;
+   This may repeat several times if yet more new tasks keep allocating
+   new block groups before task A, and all the other tasks, finish the
+   creation of the pending block groups, which is when reserved space
+   in excess is released. Eventually this can result in exhaustion of
+   system chunk array in the superblock, with btrfs_add_system_chunk()
+   returning EFBIG, resulting later in a transaction abort.
 
-10) Task B is resumed, and it calls btrfs_inode_in_log() which returns
-    true because we have all the following conditions met:
+   Even when we don't reach the extreme case of exhausting the system
+   array, most, if not all, unnecessarily created system block groups
+   end up being unused since when finishing creation of the first
+   pending system block group, the creation of the following ones end
+   up not needing to COW nodes/leaves of the chunk tree, so we never
+   allocate and deallocate from them, resulting in them never being
+   added to the list of unused block groups - as a consequence they
+   don't get deleted by the cleaner kthread - the only exceptions are
+   if we unmount and mount the filesystem again, which adds any unused
+   block groups to the list of unused block groups, if a scrub is
+   run, which also adds unused block groups to the unused list, and
+   under some circumstances when using a zoned filesystem or async
+   discard, which may also add unused block groups to the unused list.
 
-    inode->logged_trans == N which matches fs_info->generation &&
-    inode->last_subtrans (1) <= inode->last_log_commit (1) &&
-    inode->last_subtrans (1) <= root->last_log_commit (1) &&
-    list inode->extent_tree.modified_extents is empty
+So fix this by:
 
-    And as a consequence we return without logging the inode, so the
-    existing logged version of the inode does not point to the extent
-    that was written after the previous fsync.
+*) Tracking the number of reserved bytes for the chunk tree per
+   transaction, which is the sum of reserved chunk bytes by each
+   transaction handle currently being used;
 
-It should be impossible in practice for one task be able to do so much
-progress in btrfs_sync_log() while another task is at
-btrfs_set_inode_last_trans() right after it reads root->log_transid and
-before it reads root->last_log_commit. Even if kernel preemption is enabled
-we know the task at btrfs_set_inode_last_trans() can not be preempted
-because it is holding the inode's spinlock.
-
-However there is another place where we do the same without holding the
-spinlock, which is in the memory mapped write path at:
-
-  vm_fault_t btrfs_page_mkwrite(struct vm_fault *vmf)
-  {
-     (...)
-     BTRFS_I(inode)->last_trans = fs_info->generation;
-     BTRFS_I(inode)->last_sub_trans = BTRFS_I(inode)->root->log_transid;
-     BTRFS_I(inode)->last_log_commit = BTRFS_I(inode)->root->last_log_commit;
-     (...)
-
-So with preemption happening after setting ->last_sub_trans and before
-setting ->last_log_commit, it is less of a stretch to have another task
-do enough progress at btrfs_sync_log() such that the task doing the memory
-mapped write ends up with ->last_sub_trans and ->last_log_commit set to
-the same value. It is still a big stretch to get there, as the task doing
-btrfs_sync_log() has to start writeback, wait for its completion and write
-the super blocks.
-
-So fix this in two different ways:
-
-1) For btrfs_set_inode_last_trans(), simply set ->last_log_commit to the
-   value of ->last_sub_trans minus 1;
-
-2) For btrfs_page_mkwrite() only set the inode's ->last_sub_trans, just
-   like we do for buffered and direct writes at btrfs_file_write_iter(),
-   which is all we need to make sure multiple writes and fsyncs to an
-   inode in the same transaction never result in an fsync missing that
-   the inode changed and needs to be logged. Turn this into a helper
-   function and use it both at btrfs_page_mkwrite() and at
-   btrfs_file_write_iter() - this also fixes the problem that at
-   btrfs_page_mkwrite() we were setting those fields without the
-   protection of the inode's spinlock.
-
-This is an extremely unlikely race to happen in practice.
+*) When there is not enough free space in the system space_info,
+   if there are other transaction handles which reserved chunk space,
+   wait for some of them to complete in order to have enough excess
+   reserved space released, and then try again. Otherwise proceed with
+   the creation of a new system chunk.
 
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/btrfs_inode.h | 15 +++++++++++++++
- fs/btrfs/file.c        | 10 ++--------
- fs/btrfs/inode.c       |  4 +---
- fs/btrfs/transaction.h |  2 +-
- 4 files changed, 19 insertions(+), 12 deletions(-)
+ fs/btrfs/block-group.c | 58 +++++++++++++++++++++++++++++++++++++++++-
+ fs/btrfs/transaction.c |  5 ++++
+ fs/btrfs/transaction.h |  7 +++++
+ 3 files changed, 69 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/btrfs_inode.h b/fs/btrfs/btrfs_inode.h
-index 28e202e89660..418903604936 100644
---- a/fs/btrfs/btrfs_inode.h
-+++ b/fs/btrfs/btrfs_inode.h
-@@ -299,6 +299,21 @@ static inline void btrfs_mod_outstanding_extents(struct btrfs_inode *inode,
- 						  mod);
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 744b99ddc28c..a7d9e147dee6 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -3269,6 +3269,7 @@ static u64 get_profile_num_devs(struct btrfs_fs_info *fs_info, u64 type)
+  */
+ void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
+ {
++	struct btrfs_transaction *cur_trans = trans->transaction;
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_space_info *info;
+ 	u64 left;
+@@ -3283,6 +3284,7 @@ void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
+ 	lockdep_assert_held(&fs_info->chunk_mutex);
+ 
+ 	info = btrfs_find_space_info(fs_info, BTRFS_BLOCK_GROUP_SYSTEM);
++again:
+ 	spin_lock(&info->lock);
+ 	left = info->total_bytes - btrfs_space_info_used(info, true);
+ 	spin_unlock(&info->lock);
+@@ -3301,6 +3303,58 @@ void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
+ 
+ 	if (left < thresh) {
+ 		u64 flags = btrfs_system_alloc_profile(fs_info);
++		u64 reserved = atomic64_read(&cur_trans->chunk_bytes_reserved);
++
++		/*
++		 * If there's not available space for the chunk tree (system
++		 * space) and there are other tasks that reserved space for
++		 * creating a new system block group, wait for them to complete
++		 * the creation of their system block group and release excess
++		 * reserved space. We do this because:
++		 *
++		 * *) We can end up allocating more system chunks than necessary
++		 *    when there are multiple tasks that are concurrently
++		 *    allocating block groups, which can lead to exhaustion of
++		 *    the system array in the superblock;
++		 *
++		 * *) If we allocate extra and unnecessary system block groups,
++		 *    despite being empty for a long time, and possibly forever,
++		 *    they end not being added to the list of unused block groups
++		 *    because that typically happens only when deallocating the
++		 *    last extent from a block group - which never happens since
++		 *    we never allocate from them in the first place. The few
++		 *    exceptions are when mounting a filesystem or running scrub,
++		 *    which add unused block groups to the list of unused block
++		 *    groups, to be deleted by the cleaner kthread.
++		 *    And even when they are added to the list of unused block
++		 *    groups, it can take a long time until they get deleted,
++		 *    since the cleaner kthread might be sleeping or busy with
++		 *    other work (deleting subvolumes, running delayed iputs,
++		 *    defrag scheduling, etc);
++		 *
++		 * This is rare in practice, but can happen when too many tasks
++		 * are allocating blocks groups in parallel (via fallocate())
++		 * and before the one that reserved space for a new system block
++		 * group finishes the block group creation and releases the space
++		 * reserved in excess (at btrfs_create_pending_block_groups()),
++		 * other tasks end up here and see free system space temporarily
++		 * not enough for updating the chunk tree.
++		 *
++		 * We unlock the chunk mutex before waiting for such tasks and
++		 * lock it again after the wait, otherwise we would deadlock.
++		 * It is safe to do so because allocating a system chunk is the
++		 * first thing done while allocating a new block group.
++		 */
++		if (reserved > trans->chunk_bytes_reserved) {
++			const u64 min_needed = reserved - thresh;
++
++			mutex_unlock(&fs_info->chunk_mutex);
++			wait_event(cur_trans->chunk_reserve_wait,
++			   atomic64_read(&cur_trans->chunk_bytes_reserved) <=
++			   min_needed);
++			mutex_lock(&fs_info->chunk_mutex);
++			goto again;
++		}
+ 
+ 		/*
+ 		 * Ignore failure to create system chunk. We might end up not
+@@ -3315,8 +3369,10 @@ void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
+ 		ret = btrfs_block_rsv_add(fs_info->chunk_root,
+ 					  &fs_info->chunk_block_rsv,
+ 					  thresh, BTRFS_RESERVE_NO_FLUSH);
+-		if (!ret)
++		if (!ret) {
++			atomic64_add(thresh, &cur_trans->chunk_bytes_reserved);
+ 			trans->chunk_bytes_reserved += thresh;
++		}
+ 	}
  }
  
-+/*
-+ * Called every time after doing a buffered, direct IO or memory mapped write.
-+ *
-+ * This is to ensure that if we write to a file that was previously fsynced in
-+ * the current transaction, then try to fsync it again in the same transaction,
-+ * we will know that there were changes in the file and that it needs to be
-+ * logged.
-+ */
-+static inline void btrfs_set_inode_last_sub_trans(struct btrfs_inode *inode)
-+{
-+	spin_lock(&inode->lock);
-+	inode->last_sub_trans = inode->root->log_transid;
-+	spin_unlock(&inode->lock);
-+}
-+
- static inline int btrfs_inode_in_log(struct btrfs_inode *inode, u64 generation)
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index 3f2c4ee3e762..d56d3e7ca324 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -260,6 +260,7 @@ static inline int extwriter_counter_read(struct btrfs_transaction *trans)
+ void btrfs_trans_release_chunk_metadata(struct btrfs_trans_handle *trans)
  {
- 	int ret = 0;
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 6d4e15222775..4130523a77c9 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2014,14 +2014,8 @@ static ssize_t btrfs_file_write_iter(struct kiocb *iocb,
- 	else
- 		num_written = btrfs_buffered_write(iocb, from);
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
++	struct btrfs_transaction *cur_trans = trans->transaction;
  
--	/*
--	 * We also have to set last_sub_trans to the current log transid,
--	 * otherwise subsequent syncs to a file that's been synced in this
--	 * transaction will appear to have already occurred.
--	 */
--	spin_lock(&inode->lock);
--	inode->last_sub_trans = inode->root->log_transid;
--	spin_unlock(&inode->lock);
-+	btrfs_set_inode_last_sub_trans(inode);
-+
- 	if (num_written > 0)
- 		num_written = generic_write_sync(iocb, num_written);
+ 	if (!trans->chunk_bytes_reserved)
+ 		return;
+@@ -268,6 +269,8 @@ void btrfs_trans_release_chunk_metadata(struct btrfs_trans_handle *trans)
  
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index a520775949a0..a922c3bcb65e 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -8619,9 +8619,7 @@ again:
- 	set_page_dirty(page);
- 	SetPageUptodate(page);
+ 	btrfs_block_rsv_release(fs_info, &fs_info->chunk_block_rsv,
+ 				trans->chunk_bytes_reserved, NULL);
++	atomic64_sub(trans->chunk_bytes_reserved, &cur_trans->chunk_bytes_reserved);
++	cond_wake_up(&cur_trans->chunk_reserve_wait);
+ 	trans->chunk_bytes_reserved = 0;
+ }
  
--	BTRFS_I(inode)->last_trans = fs_info->generation;
--	BTRFS_I(inode)->last_sub_trans = BTRFS_I(inode)->root->log_transid;
--	BTRFS_I(inode)->last_log_commit = BTRFS_I(inode)->root->last_log_commit;
-+	btrfs_set_inode_last_sub_trans(BTRFS_I(inode));
- 
- 	unlock_extent_cached(io_tree, page_start, page_end, &cached_state);
- 
+@@ -383,6 +386,8 @@ loop:
+ 	spin_lock_init(&cur_trans->dropped_roots_lock);
+ 	INIT_LIST_HEAD(&cur_trans->releasing_ebs);
+ 	spin_lock_init(&cur_trans->releasing_ebs_lock);
++	atomic64_set(&cur_trans->chunk_bytes_reserved, 0);
++	init_waitqueue_head(&cur_trans->chunk_reserve_wait);
+ 	list_add_tail(&cur_trans->list, &fs_info->trans_list);
+ 	extent_io_tree_init(fs_info, &cur_trans->dirty_pages,
+ 			IO_TREE_TRANS_DIRTY_PAGES, fs_info->btree_inode);
 diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
-index 6335716e513f..dd7c3eea08ad 100644
+index dd7c3eea08ad..364cfbb4c5c5 100644
 --- a/fs/btrfs/transaction.h
 +++ b/fs/btrfs/transaction.h
-@@ -175,7 +175,7 @@ static inline void btrfs_set_inode_last_trans(struct btrfs_trans_handle *trans,
- 	spin_lock(&inode->lock);
- 	inode->last_trans = trans->transaction->transid;
- 	inode->last_sub_trans = inode->root->log_transid;
--	inode->last_log_commit = inode->root->last_log_commit;
-+	inode->last_log_commit = inode->last_sub_trans - 1;
- 	spin_unlock(&inode->lock);
- }
+@@ -96,6 +96,13 @@ struct btrfs_transaction {
  
+ 	spinlock_t releasing_ebs_lock;
+ 	struct list_head releasing_ebs;
++
++	/*
++	 * The number of bytes currently reserved, by all transaction handles
++	 * attached to this transaction, for metadata extents of the chunk tree.
++	 */
++	atomic64_t chunk_bytes_reserved;
++	wait_queue_head_t chunk_reserve_wait;
+ };
+ 
+ #define __TRANS_FREEZABLE	(1U << 0)
 -- 
 2.30.2
 
