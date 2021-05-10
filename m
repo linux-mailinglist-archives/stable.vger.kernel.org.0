@@ -2,153 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE49377E42
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:33:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11DD8377E92
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230312AbhEJIeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:34:04 -0400
-Received: from mga05.intel.com ([192.55.52.43]:42326 "EHLO mga05.intel.com"
+        id S230141AbhEJIu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:50:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230215AbhEJIeD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 04:34:03 -0400
-IronPort-SDR: 7ijODCU5M6GnOcM9l/OGgmtYoS0LHGYz39FUWEUS/j9ifonRg6mxl+rFPItaIfKfTu0PFDkm7D
- tA+CRdRsdMXg==
-X-IronPort-AV: E=McAfee;i="6200,9189,9979"; a="284626354"
-X-IronPort-AV: E=Sophos;i="5.82,287,1613462400"; 
-   d="scan'208";a="284626354"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2021 01:32:59 -0700
-IronPort-SDR: EI6UBs0GHV3icPsMda52IPH37BYgVnWhaaGj5zqVCose/og3/4GEBs4LFn3kLp+v2Feg7yeNcq
- l7DNyidfXprg==
-X-IronPort-AV: E=Sophos;i="5.82,287,1613462400"; 
-   d="scan'208";a="470722622"
-Received: from lingshan-mobl5.ccr.corp.intel.com (HELO [10.254.212.136]) ([10.254.212.136])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2021 01:32:56 -0700
-Subject: Re: [PATCH] Revert "irqbypass: do not start cons/prod when failed
- connect"
-From:   "Zhu, Lingshan" <lingshan.zhu@intel.com>
-To:     Jason Wang <jasowang@redhat.com>, mst@redhat.com, maz@kernel.org,
-        alex.williamson@redhat.com
-Cc:     kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        kvmarm@lists.cs.columbia.edu, cohuck@redhat.com,
-        stable@vger.kernel.org
-References: <20210508071152.722425-1-lingshan.zhu@intel.com>
- <b309c02d-9570-6400-9a0c-63030aed7ff7@redhat.com>
- <a659fc6f-2c7a-23d2-9c34-0044d5a31861@intel.com>
- <e5d63867-7a4a-963f-9fbd-741ccd3ec360@redhat.com>
- <b822cde1-7970-dac0-26cc-da1daa0b622f@intel.com>
-Message-ID: <feee2889-6e91-46f3-123f-826a9c4ef43c@intel.com>
-Date:   Mon, 10 May 2021 16:32:54 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        id S229566AbhEJIu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 04:50:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED65E61352;
+        Mon, 10 May 2021 08:49:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1620636560;
+        bh=eMD4GbtaIGcsx4BXW3r60ermPqVUcq+Cp4oJe/0ld20=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QYXppFx96BDka+TkgLo1hedMhl2HzXtBvq88DaUfqForvQTQg+PtvsSMQAfmzbRiK
+         HlIJBFduwUeQiPbs0N4QWPWRr3a1MClbMilDip7YUe2eaYQxnEVCJ9DdmACnKwFr8Z
+         SgzUBd58RImWL6B5UNPtaFQxGBph28IZImy3A50c=
+Date:   Mon, 10 May 2021 10:49:18 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chen Yu <yu.c.chen@intel.com>
+Cc:     Salvatore Bonaccorso <carnil@debian.org>,
+        stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        Len Brown <len.brown@intel.com>
+Subject: Re: Please apply commit 301b1d3a9104 ("tools/power/turbostat: Fix
+ turbostat for AMD Zen CPUs") to v5.10.y and later
+Message-ID: <YJjzjknxzP4IEuKR@kroah.com>
+References: <YJaTXf1b9IPj/5If@eldamar.lan>
+ <YJa4fUfMY9/suEkm@kroah.com>
+ <20210508175852.GA197041@chenyu-desktop>
+ <YJjliqXkAwR6A+b9@kroah.com>
+ <20210510081143.GA228962@chenyu-desktop>
 MIME-Version: 1.0
-In-Reply-To: <b822cde1-7970-dac0-26cc-da1daa0b622f@intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210510081143.GA228962@chenyu-desktop>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, May 10, 2021 at 04:11:43PM +0800, Chen Yu wrote:
+> On Mon, May 10, 2021 at 09:49:30AM +0200, Greg Kroah-Hartman wrote:
+> > On Sun, May 09, 2021 at 01:58:52AM +0800, Chen Yu wrote:
+> > > On Sat, May 08, 2021 at 06:12:45PM +0200, Greg Kroah-Hartman wrote:
+> > > > On Sat, May 08, 2021 at 03:34:21PM +0200, Salvatore Bonaccorso wrote:
+> > > > > Hi
+> > > > > 
+> > > > > the following was commited in Linus tree a couple of days ago, but so
+> > > > > is not yet in a tagged version. 
+> > > > > 
+> > > > > But still please consider to queue up 301b1d3a9104
+> > > > > ("tools/power/turbostat: Fix turbostat for AMD Zen CPUs") to v5.10.y
+> > > > > and later for the next round of updates, as it turbostat no lonwer
+> > > > > worked on those Zen based systems since 5.10.
+> > > > > 
+> > > > > Thank you for considering, I can otherwise reping once 5.13-rc1 is
+> > > > > tagged and released.
+> > > > 
+> > > > Now queued up, thanks.
+> > > >
+> > > Thanks Greg. Besides this patch, could you please also queue
+> > > commit 8167875a1d68 ("tools/power turbostat: Fix offset overflow issue in index converting")
+> > > to 5.10+ stable which could work with 301b1d3a9104 to fix the regression on Zen.
+> > 
+> > There is no such git id in Linus's tree :(
+> >
+> Should be this one:
+> commit 13a779de4175 ("tools/power turbostat: Fix offset overflow issue in index converting")
 
+That's better, now queued up.
 
-On 5/10/2021 3:09 PM, Zhu, Lingshan wrote:
->
->
-> On 5/10/2021 12:34 PM, Jason Wang wrote:
->>
->> 在 2021/5/10 上午11:00, Zhu, Lingshan 写道:
->>>
->>>
->>> On 5/10/2021 10:43 AM, Jason Wang wrote:
->>>>
->>>> 在 2021/5/8 下午3:11, Zhu Lingshan 写道:
->>>>> This reverts commit a979a6aa009f3c99689432e0cdb5402a4463fb88.
->>>>>
->>>>> The reverted commit may cause VM freeze on arm64 platform.
->>>>> Because on arm64 platform, stop a consumer will suspend the VM,
->>>>> the VM will freeze without a start consumer
->>>>>
->>>>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->>>>
->>>>
->>>> Acked-by: Jason Wang <jasowang@redhat.com>
->>>>
->>>> Please resubmit with the formal process of stable 
->>>> (stable-kernel-rules.rst).
->>> sure, I will re-submit it to stable kernel once it is merged into 
->>> Linus tree.
->>>
->>> Thanks
->>
->>
->> I think it's better to resubmit (option 1), see how 
->> stable-kernel-rules.rst said:
->>
->> ""
->>
->> :ref:`option_1` is **strongly** preferred, is the easiest and most 
->> common.
->> :ref:`option_2` and :ref:`option_3` are more useful if the patch 
->> isn't deemed
->> worthy at the time it is applied to a public git tree (for instance, 
->> because
->> it deserves more regression testing first).
->>
->> """
->>
->> Thanks
-> OK, works for me, I will add cc stable, and resubmit it soon
->
-> Thanks!
-I just seeMarc has already added "Cc: stable@vger.kernel.org", and he 
-would take the patch in his tree,
-so I think no need to resend.
-
-Thanks,
-Zhu Lingshan
->>
->>
->>>>
->>>> Thanks
->>>>
->>>>
->>>>> ---
->>>>>   virt/lib/irqbypass.c | 16 ++++++----------
->>>>>   1 file changed, 6 insertions(+), 10 deletions(-)
->>>>>
->>>>> diff --git a/virt/lib/irqbypass.c b/virt/lib/irqbypass.c
->>>>> index c9bb3957f58a..28fda42e471b 100644
->>>>> --- a/virt/lib/irqbypass.c
->>>>> +++ b/virt/lib/irqbypass.c
->>>>> @@ -40,21 +40,17 @@ static int __connect(struct 
->>>>> irq_bypass_producer *prod,
->>>>>       if (prod->add_consumer)
->>>>>           ret = prod->add_consumer(prod, cons);
->>>>>   -    if (ret)
->>>>> -        goto err_add_consumer;
->>>>> -
->>>>> -    ret = cons->add_producer(cons, prod);
->>>>> -    if (ret)
->>>>> -        goto err_add_producer;
->>>>> +    if (!ret) {
->>>>> +        ret = cons->add_producer(cons, prod);
->>>>> +        if (ret && prod->del_consumer)
->>>>> +            prod->del_consumer(prod, cons);
->>>>> +    }
->>>>>         if (cons->start)
->>>>>           cons->start(cons);
->>>>>       if (prod->start)
->>>>>           prod->start(prod);
->>>>> -err_add_producer:
->>>>> -    if (prod->del_consumer)
->>>>> -        prod->del_consumer(prod, cons);
->>>>> -err_add_consumer:
->>>>> +
->>>>>       return ret;
->>>>>   }
->>>>
->>>
->>
->
-
+greg k-h
