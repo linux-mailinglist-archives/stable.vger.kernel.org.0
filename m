@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3602E37871D
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1934F378902
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235850AbhEJLNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:13:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
+        id S236470AbhEJLZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236025AbhEJLHR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF6B961944;
-        Mon, 10 May 2021 10:57:29 +0000 (UTC)
+        id S233693AbhEJLOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:14:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1A24613D6;
+        Mon, 10 May 2021 11:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644250;
-        bh=mrxv9A38FANIUx0s566WXspDiCL3kAfq/zU5fvwKeN0=;
+        s=korg; t=1620645051;
+        bh=QANS0ljvnCnbRtvgpWtW/mVl6DnT7ZXLlvRU1ul8g3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hrqB3t/28EcwntA7+WUPaUtZvqs8Mv8zqI8YLcNoKDPHmT0h20bpIVUD9BvwYffcq
-         M4MaFomV3TC9/F0p8mKZKJLRPRy2tOeOTMNxQJroAPfKewdwjd+KYggGMk3KTtgB+E
-         su+m8uxHJ5bPJoY7NUHyP/hoep/FeyXwBNx2s6Ak=
+        b=XD+9r+hN13Pnu7EBm2hQcWK/GOhwVlX0FOWwP2Frcp8FXcx7w/bRVE7j+fewMgmys
+         kLx94Peogsjam8ssRnK+PN6s756vTjhJL0qXRGM2z+4II8g8qye/nEJ32Y3DiAwBc8
+         RIdi/Q7Y3DEZHkwGOHq+8Nk1IyUHr6RObZqd9+Y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.11 329/342] PCI: dwc: Move iATU detection earlier
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Tom Talpey <tom@talpey.com>,
+        Shyam Prasad N <sprasad@microsoft.com>
+Subject: [PATCH 5.12 330/384] smb3: if max_channels set to more than one channel request multichannel
 Date:   Mon, 10 May 2021 12:21:59 +0200
-Message-Id: <20210510102020.973975164@linuxfoundation.org>
+Message-Id: <20210510102025.672915080@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit 8bcca26585585ae4b44d25d30f351ad0afa4976b upstream.
+commit c1f8a398b6d661b594556a91224b096d92293061 upstream.
 
-dw_pcie_ep_init() depends on the detected iATU region numbers to allocate
-the in/outbound window management bitmap.  It fails after 281f1f99cf3a
-("PCI: dwc: Detect number of iATU windows").
+Mounting with "multichannel" is obviously implied if user requested
+more than one channel on mount (ie mount parm max_channels>1).
+Currently both have to be specified. Fix that so that if max_channels
+is greater than 1 on mount, enable multichannel rather than silently
+falling back to non-multichannel.
 
-Move the iATU region detection into a new function, move the detection to
-the very beginning of dw_pcie_host_init() and dw_pcie_ep_init().  Also
-remove it from the dw_pcie_setup(), since it's more like a software
-initialization step than hardware setup.
-
-Link: https://lore.kernel.org/r/20210125044803.4310-1-Zhiqiang.Hou@nxp.com
-Link: https://lore.kernel.org/linux-pci/20210407131255.702054-1-dmitry.baryshkov@linaro.org
-Link: https://lore.kernel.org/r/20210413142219.2301430-1-dmitry.baryshkov@linaro.org
-Fixes: 281f1f99cf3a ("PCI: dwc: Detect number of iATU windows")
-Tested-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
-[DB: moved dw_pcie_iatu_detect to happen after host_init callback]
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Cc: stable@vger.kernel.org	# v5.11+
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-By: Tom Talpey <tom@talpey.com>
+Cc: <stable@vger.kernel.org> # v5.11+
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-designware-ep.c   |    2 ++
- drivers/pci/controller/dwc/pcie-designware-host.c |    1 +
- drivers/pci/controller/dwc/pcie-designware.c      |   11 ++++++++---
- drivers/pci/controller/dwc/pcie-designware.h      |    1 +
- 4 files changed, 12 insertions(+), 3 deletions(-)
+ fs/cifs/fs_context.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/pci/controller/dwc/pcie-designware-ep.c
-+++ b/drivers/pci/controller/dwc/pcie-designware-ep.c
-@@ -707,6 +707,8 @@ int dw_pcie_ep_init(struct dw_pcie_ep *e
+--- a/fs/cifs/fs_context.c
++++ b/fs/cifs/fs_context.c
+@@ -999,6 +999,9 @@ static int smb3_fs_context_parse_param(s
+ 			goto cifs_parse_mount_err;
  		}
- 	}
- 
-+	dw_pcie_iatu_detect(pci);
-+
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "addr_space");
- 	if (!res)
- 		return -EINVAL;
---- a/drivers/pci/controller/dwc/pcie-designware-host.c
-+++ b/drivers/pci/controller/dwc/pcie-designware-host.c
-@@ -421,6 +421,7 @@ int dw_pcie_host_init(struct pcie_port *
- 		if (ret)
- 			goto err_free_msi;
- 	}
-+	dw_pcie_iatu_detect(pci);
- 
- 	dw_pcie_setup_rc(pp);
- 	dw_pcie_msi_init(pp);
---- a/drivers/pci/controller/dwc/pcie-designware.c
-+++ b/drivers/pci/controller/dwc/pcie-designware.c
-@@ -610,11 +610,9 @@ static void dw_pcie_iatu_detect_regions(
- 	pci->num_ob_windows = ob;
- }
- 
--void dw_pcie_setup(struct dw_pcie *pci)
-+void dw_pcie_iatu_detect(struct dw_pcie *pci)
- {
--	u32 val;
- 	struct device *dev = pci->dev;
--	struct device_node *np = dev->of_node;
- 	struct platform_device *pdev = to_platform_device(dev);
- 
- 	if (pci->version >= 0x480A || (!pci->version &&
-@@ -643,6 +641,13 @@ void dw_pcie_setup(struct dw_pcie *pci)
- 
- 	dev_info(pci->dev, "Detected iATU regions: %u outbound, %u inbound",
- 		 pci->num_ob_windows, pci->num_ib_windows);
-+}
-+
-+void dw_pcie_setup(struct dw_pcie *pci)
-+{
-+	u32 val;
-+	struct device *dev = pci->dev;
-+	struct device_node *np = dev->of_node;
- 
- 	if (pci->link_gen > 0)
- 		dw_pcie_link_set_max_speed(pci, pci->link_gen);
---- a/drivers/pci/controller/dwc/pcie-designware.h
-+++ b/drivers/pci/controller/dwc/pcie-designware.h
-@@ -304,6 +304,7 @@ int dw_pcie_prog_inbound_atu(struct dw_p
- void dw_pcie_disable_atu(struct dw_pcie *pci, int index,
- 			 enum dw_pcie_region_type type);
- void dw_pcie_setup(struct dw_pcie *pci);
-+void dw_pcie_iatu_detect(struct dw_pcie *pci);
- 
- static inline void dw_pcie_writel_dbi(struct dw_pcie *pci, u32 reg, u32 val)
- {
+ 		ctx->max_channels = result.uint_32;
++		/* If more than one channel requested ... they want multichan */
++		if (result.uint_32 > 1)
++			ctx->multichannel = true;
+ 		break;
+ 	case Opt_handletimeout:
+ 		ctx->handle_timeout = result.uint_32;
 
 
