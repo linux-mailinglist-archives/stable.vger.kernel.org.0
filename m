@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27BF237887B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14FC03787E2
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234082AbhEJLVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
+        id S235545AbhEJLTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:19:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237139AbhEJLL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4877F6101A;
-        Mon, 10 May 2021 11:07:34 +0000 (UTC)
+        id S234477AbhEJLEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:04:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBB3C6162A;
+        Mon, 10 May 2021 10:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644854;
-        bh=PLHir7BlYJev2eOS/p8EW7LSggaowbYU+8cErOPa6sg=;
+        s=korg; t=1620644095;
+        bh=sFNkAUFqPkld7N7J8ph5F7w+KUBRpZjz87UnLlxrk8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1y0QhzYCrOSreqlId7wkFL3MHLALQrBG/ayBxPlAzjrBkGClG2pRedlktxmqsx+Qu
-         UxZaZLUffEi2EJXpDTVVUNnjsvK356IKLEONcc+udCk+R3/jSJDj+ZpHFyEcYpYBoS
-         z8395le6lKppuBCntiz0t7KpRNW83KK3PdZPGKlE=
+        b=2JgK4djrDvsrA4Pz7gT2kyn55B/1W625ar3LU+XW1pntDaUA9Im9llAHYfsFuNWEu
+         N7ZfAfGfeJU83hYkq7LS6IHHQVvFfsTbkHmp7bKKjjz/qJeYN6h76aD89+dP9hkl0B
+         ICrti4VrKyHlaF+xFM39yMtdfFCASIFfzLOvGO1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 251/384] drm/amdgpu: fix NULL pointer dereference
+        stable@vger.kernel.org, Eckhart Mohr <e.mohr@tuxedocomputers.com>,
+        Werner Sembach <wse@tuxedocomputers.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 250/342] ALSA: hda/realtek: Add quirk for Intel Clevo PCx0Dx
 Date:   Mon, 10 May 2021 12:20:40 +0200
-Message-Id: <20210510102023.158865963@linuxfoundation.org>
+Message-Id: <20210510102018.355074578@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Eckhart Mohr <e.mohr@tuxedocomputers.com>
 
-[ Upstream commit 3c3dc654333f6389803cdcaf03912e94173ae510 ]
+commit 970e3012c04c96351c413f193a9c909e6d871ce2 upstream.
 
-ttm->sg needs to be checked before accessing its child member.
+This applies a SND_PCI_QUIRK(...) to the Clevo PCx0Dx barebones. This
+fix enables audio output over the headset jack and ensures that a
+microphone connected via the headset combo jack is correctly recognized
+when pluged in.
 
-Call Trace:
- amdgpu_ttm_backend_destroy+0x12/0x70 [amdgpu]
- ttm_bo_cleanup_memtype_use+0x3a/0x60 [ttm]
- ttm_bo_release+0x17d/0x300 [ttm]
- amdgpu_bo_unref+0x1a/0x30 [amdgpu]
- amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x78b/0x8b0 [amdgpu]
- kfd_ioctl_alloc_memory_of_gpu+0x118/0x220 [amdgpu]
- kfd_ioctl+0x222/0x400 [amdgpu]
- ? kfd_dev_is_large_bar+0x90/0x90 [amdgpu]
- __x64_sys_ioctl+0x8e/0xd0
- ? __context_tracking_exit+0x52/0x90
- do_syscall_64+0x33/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7f97f264d317
-Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
-RSP: 002b:00007ffdb402c338 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007f97f3cc63a0 RCX: 00007f97f264d317
-RDX: 00007ffdb402c380 RSI: 00000000c0284b16 RDI: 0000000000000003
-RBP: 00007ffdb402c380 R08: 00007ffdb402c428 R09: 00000000c4000004
-R10: 00000000c4000004 R11: 0000000000000246 R12: 00000000c0284b16
-R13: 0000000000000003 R14: 00007f97f3cc63a0 R15: 00007f8836200000
+[ Rearranged the list entries in a sorted order -- tiwai ]
 
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Eckhart Mohr <e.mohr@tuxedocomputers.com>
+Co-developed-by: Werner Sembach <wse@tuxedocomputers.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210427153025.451118-1-wse@tuxedocomputers.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index f61fd2cf3fee..383c178cf074 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -942,7 +942,7 @@ static void amdgpu_ttm_tt_unpin_userptr(struct ttm_bo_device *bdev,
- 		DMA_BIDIRECTIONAL : DMA_TO_DEVICE;
- 
- 	/* double check that we don't free the table twice */
--	if (!ttm->sg->sgl)
-+	if (!ttm->sg || !ttm->sg->sgl)
- 		return;
- 
- 	/* unmap the pages mapped to the device */
--- 
-2.30.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2552,8 +2552,10 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x65d2, "Clevo PB51R[CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x65e1, "Clevo PB51[ED][DF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
 
 
