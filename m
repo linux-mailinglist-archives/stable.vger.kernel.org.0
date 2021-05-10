@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22AEF3788DE
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A783786B2
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235369AbhEJLYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49986 "EHLO mail.kernel.org"
+        id S235462AbhEJLKO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:10:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232879AbhEJLLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EDDF6193A;
-        Mon, 10 May 2021 11:09:42 +0000 (UTC)
+        id S234298AbhEJLCw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:02:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1CED61285;
+        Mon, 10 May 2021 10:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644983;
-        bh=kwOyVJpLtd8gheGbQRqdFlIORGINOYnXM+3NvNS/wfs=;
+        s=korg; t=1620644051;
+        bh=Z3l4YmwAXxTeVKaGMy/bTcNl0d4GDdy4twdeXag1rbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y6aEp0X36dpTMoRmBa4IDRLWX9gx4pv5Yb6GfQBCE9ECiEuQyXRRQce82tbNs5Adu
-         cxxa3B4FTM9j48EzX9DgOSZiCAQbTaRHJ+c37Up6hQ4tY5cPLqTp2v0E9R+szUeQ+2
-         0qStWgfIruKRKYnwZUV+11E3VsO32yZTntWYZ93U=
+        b=HrqAGIkGGs39MN/oj88goHIYJJvI9kMYqqlJl2Ysu+3JPQ3dJHAytgkdxqu2ZHR8H
+         0slP9Cc6ICklL5oBEeE3aosqy7oYiCRjSUtD+0CdaQf5KcQ/aTDx7IgbTXwkaSzUOw
+         F9ZeEHCv8U8wIRJWWORR94eJe030pGXZfcGKr4KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 268/384] sched,psi: Handle potential task count underflow bugs more gracefully
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.11 267/342] NFSv4: Dont discard segments marked for return in _pnfs_return_layout()
 Date:   Mon, 10 May 2021 12:20:57 +0200
-Message-Id: <20210510102023.682497731@linuxfoundation.org>
+Message-Id: <20210510102018.921897282@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 9d10a13d1e4c349b76f1c675a874a7f981d6d3b4 ]
+commit de144ff4234f935bd2150108019b5d87a90a8a96 upstream.
 
-psi_group_cpu->tasks, represented by the unsigned int, stores the
-number of tasks that could be stalled on a psi resource(io/mem/cpu).
-Decrementing these counters at zero leads to wrapping which further
-leads to the psi_group_cpu->state_mask is being set with the
-respective pressure state. This could result into the unnecessary time
-sampling for the pressure state thus cause the spurious psi events.
-This can further lead to wrong actions being taken at the user land
-based on these psi events.
+If the pNFS layout segment is marked with the NFS_LSEG_LAYOUTRETURN
+flag, then the assumption is that it has some reporting requirement
+to perform through a layoutreturn (e.g. flexfiles layout stats or error
+information).
 
-Though psi_bug is set under these conditions but that just for debug
-purpose. Fix it by decrementing the ->tasks count only when it is
-non-zero.
-
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Link: https://lkml.kernel.org/r/1618585336-37219-1-git-send-email-charante@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6d597e175012 ("pnfs: only tear down lsegs that precede seqid in LAYOUTRETURN args")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/psi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/nfs/pnfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-index 967732c0766c..651218ded981 100644
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -711,14 +711,15 @@ static void psi_group_change(struct psi_group *group, int cpu,
- 	for (t = 0, m = clear; m; m &= ~(1 << t), t++) {
- 		if (!(m & (1 << t)))
- 			continue;
--		if (groupc->tasks[t] == 0 && !psi_bug) {
-+		if (groupc->tasks[t]) {
-+			groupc->tasks[t]--;
-+		} else if (!psi_bug) {
- 			printk_deferred(KERN_ERR "psi: task underflow! cpu=%d t=%d tasks=[%u %u %u %u] clear=%x set=%x\n",
- 					cpu, t, groupc->tasks[0],
- 					groupc->tasks[1], groupc->tasks[2],
- 					groupc->tasks[3], clear, set);
- 			psi_bug = 1;
- 		}
--		groupc->tasks[t]--;
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -1344,7 +1344,7 @@ _pnfs_return_layout(struct inode *ino)
  	}
+ 	valid_layout = pnfs_layout_is_valid(lo);
+ 	pnfs_clear_layoutcommit(ino, &tmp_list);
+-	pnfs_mark_matching_lsegs_invalid(lo, &tmp_list, NULL, 0);
++	pnfs_mark_matching_lsegs_return(lo, &tmp_list, NULL, 0);
  
- 	for (t = 0; set; set &= ~(1 << t), t++)
--- 
-2.30.2
-
+ 	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range) {
+ 		struct pnfs_layout_range range = {
 
 
