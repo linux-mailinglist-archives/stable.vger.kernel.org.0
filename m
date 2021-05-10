@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0157B378747
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D594D378743
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237391AbhEJLOv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:14:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
+        id S237371AbhEJLOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:14:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236240AbhEJLHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF6DC61946;
-        Mon, 10 May 2021 10:59:06 +0000 (UTC)
+        id S236232AbhEJLHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 202886194C;
+        Mon, 10 May 2021 10:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644347;
-        bh=87qMDg3U5qvN5IKmRC0LGY0HZy8fUZNWiM3D+zNMpp4=;
+        s=korg; t=1620644349;
+        bh=cjYmadvisRlbnmhUnTrmSlx8qsCsZ8JWYvX7c5F2rV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdoCZuvGHyBp4Ai0v1Qnw5qvhq3k/7vHqNw2CXM+yJeFV7UX0I5S6OD/82LS9PQNL
-         Zp5JfNsc5CscNsIHWKr/bsG3GSdPzOMdAGMTfeQHmrnFhJBJpYi0hKz0s1JOa90REr
-         etQAHC0Covi9IZ1QCcbqTvd9jbd6YgqSFz054r64=
+        b=FgHTzJnsmGM3dgDOqW4uyu9/tIhBNqfCQkZeXxHng/G01XfzNm8pXwn3yiwbMHvGA
+         HtJbVYXY2L5NjmpdJ18zUUe5GdV7yzhrXmtw/FXz5NADv9u43InZo+/4QWOb/9zdh1
+         +HjCCv0ITvbLTwo3qFcNwIFl0nftnkIN22608NkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Peter <bpeter@lytx.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org, DooHyun Hwang <dh0421.hwang@samsung.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.12 046/384] mmc: block: Issue a cache flush only when its enabled
-Date:   Mon, 10 May 2021 12:17:15 +0200
-Message-Id: <20210510102016.398867222@linuxfoundation.org>
+Subject: [PATCH 5.12 047/384] mmc: core: Do a power cycle when the CMD11 fails
+Date:   Mon, 10 May 2021 12:17:16 +0200
+Message-Id: <20210510102016.428509404@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,109 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avri Altman <avri.altman@wdc.com>
+From: DooHyun Hwang <dh0421.hwang@samsung.com>
 
-commit 97fce126e279690105ee15be652b465fd96f9997 upstream.
+commit 147186f531ae49c18b7a9091a2c40e83b3d95649 upstream.
 
-In command queueing mode, the cache isn't flushed via the mmc_flush_cache()
-function, but instead by issuing a CMDQ_TASK_MGMT (CMD48) with a
-FLUSH_CACHE opcode. In this path, we need to check if cache has been
-enabled, before deciding to flush the cache, along the lines of what's
-being done in mmc_flush_cache().
+A CMD11 is sent to the SD/SDIO card to start the voltage switch procedure
+into 1.8V I/O. According to the SD spec a power cycle is needed of the
+card, if it turns out that the CMD11 fails. Let's fix this, to allow a
+retry of the initialization without the voltage switch, to succeed.
 
-To fix this problem, let's add a new bus ops callback ->cache_enabled() and
-implement it for the mmc bus type. In this way, the mmc block device driver
-can call it to know whether cache flushing should be done.
+Note that, whether it makes sense to also retry with the voltage switch
+after the power cycle is a bit more difficult to know. At this point, we
+treat it like the CMD11 isn't supported and therefore we skip it when
+retrying.
 
-Fixes: 1e8e55b67030 (mmc: block: Add CQE support)
+Signed-off-by: DooHyun Hwang <dh0421.hwang@samsung.com>
+Link: https://lore.kernel.org/r/20210210045936.7809-1-dh0421.hwang@samsung.com
 Cc: stable@vger.kernel.org
-Reported-by: Brendan Peter <bpeter@lytx.com>
-Signed-off-by: Avri Altman <avri.altman@wdc.com>
-Tested-by: Brendan Peter <bpeter@lytx.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20210425060207.2591-2-avri.altman@wdc.com
-Link: https://lore.kernel.org/r/20210425060207.2591-3-avri.altman@wdc.com
-[Ulf: Squashed the two patches and made some minor updates]
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/block.c   |    4 ++++
- drivers/mmc/core/core.h    |    9 +++++++++
- drivers/mmc/core/mmc.c     |    7 +++++++
- drivers/mmc/core/mmc_ops.c |    4 +---
- 4 files changed, 21 insertions(+), 3 deletions(-)
+ drivers/mmc/core/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -2236,6 +2236,10 @@ enum mmc_issued mmc_blk_mq_issue_rq(stru
- 	case MMC_ISSUE_ASYNC:
- 		switch (req_op(req)) {
- 		case REQ_OP_FLUSH:
-+			if (!mmc_cache_enabled(host)) {
-+				blk_mq_end_request(req, BLK_STS_OK);
-+				return MMC_REQ_FINISHED;
-+			}
- 			ret = mmc_blk_cqe_issue_flush(mq, req);
- 			break;
- 		case REQ_OP_READ:
---- a/drivers/mmc/core/core.h
-+++ b/drivers/mmc/core/core.h
-@@ -29,6 +29,7 @@ struct mmc_bus_ops {
- 	int (*shutdown)(struct mmc_host *);
- 	int (*hw_reset)(struct mmc_host *);
- 	int (*sw_reset)(struct mmc_host *);
-+	bool (*cache_enabled)(struct mmc_host *);
- };
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -1207,7 +1207,7 @@ int mmc_set_uhs_voltage(struct mmc_host
  
- void mmc_attach_bus(struct mmc_host *host, const struct mmc_bus_ops *ops);
-@@ -171,4 +172,12 @@ static inline void mmc_post_req(struct m
- 		host->ops->post_req(host, mrq, err);
- }
+ 	err = mmc_wait_for_cmd(host, &cmd, 0);
+ 	if (err)
+-		return err;
++		goto power_cycle;
  
-+static inline bool mmc_cache_enabled(struct mmc_host *host)
-+{
-+	if (host->bus_ops->cache_enabled)
-+		return host->bus_ops->cache_enabled(host);
-+
-+	return false;
-+}
-+
- #endif
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -2029,6 +2029,12 @@ static void mmc_detect(struct mmc_host *
- 	}
- }
- 
-+static bool _mmc_cache_enabled(struct mmc_host *host)
-+{
-+	return host->card->ext_csd.cache_size > 0 &&
-+	       host->card->ext_csd.cache_ctrl & 1;
-+}
-+
- static int _mmc_suspend(struct mmc_host *host, bool is_suspend)
- {
- 	int err = 0;
-@@ -2208,6 +2214,7 @@ static const struct mmc_bus_ops mmc_ops
- 	.alive = mmc_alive,
- 	.shutdown = mmc_shutdown,
- 	.hw_reset = _mmc_hw_reset,
-+	.cache_enabled = _mmc_cache_enabled,
- };
- 
- /*
---- a/drivers/mmc/core/mmc_ops.c
-+++ b/drivers/mmc/core/mmc_ops.c
-@@ -988,9 +988,7 @@ int mmc_flush_cache(struct mmc_card *car
- {
- 	int err = 0;
- 
--	if (mmc_card_mmc(card) &&
--			(card->ext_csd.cache_size > 0) &&
--			(card->ext_csd.cache_ctrl & 1)) {
-+	if (mmc_cache_enabled(card->host)) {
- 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
- 				 EXT_CSD_FLUSH_CACHE, 1,
- 				 MMC_CACHE_FLUSH_TIMEOUT_MS);
+ 	if (!mmc_host_is_spi(host) && (cmd.resp[0] & R1_ERROR))
+ 		return -EIO;
 
 
