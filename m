@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1233785AD
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD6C3785B1
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235508AbhEJLBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52682 "EHLO mail.kernel.org"
+        id S235527AbhEJLBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:01:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234517AbhEJK4g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96813616EA;
-        Mon, 10 May 2021 10:46:53 +0000 (UTC)
+        id S234524AbhEJK4h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C51B61930;
+        Mon, 10 May 2021 10:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643614;
-        bh=JABW8bHj77nAZdL1EpbuBYuo87vndIsCkb1TU4sIQfY=;
+        s=korg; t=1620643616;
+        bh=aBpsSd7d87QLin4Qv4pI6AYUQkUOVtxcebFzJpbq9d0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJW0/bpyYan2Inp85xBHJXiXRg/WGgzzxqIxnHRnfpN/FNTQ/ec1Lm6//7gcnVhhW
-         zvlmubCusP1PLzMYonb+v8Yd/ta/IQt+8ayZ0+6NRjjKlJC8FP2WZemEOhc5IuIGaJ
-         yhluuq86Oly0FVA8sIwfy+ZOItfAeiRMrVww3oc0=
+        b=EB3Pb4U44c9Ku2vshiIpES0riZJGX/eXMWIcBsB/04FRf5m0iw3QbldpOFmnXLN9k
+         Y1KMwQAlU7XaISpwL/85AfP/GOvnieX9MW3csKhpQK3cfxPHznWSDJ1aWCvoUGbvVo
+         bloJsn74cvboyOwCRVnT4qmvHrziE/SPPAT4PVJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, John Millikin <john@john-millikin.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Ard Biesheuvel <ardb@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 085/342] ARM: dts: ux500: Fix up TVK R3 sensors
-Date:   Mon, 10 May 2021 12:17:55 +0200
-Message-Id: <20210510102012.921387793@linuxfoundation.org>
+Subject: [PATCH 5.11 086/342] x86/build: Propagate $(CLANG_FLAGS) to $(REALMODE_FLAGS)
+Date:   Mon, 10 May 2021 12:17:56 +0200
+Message-Id: <20210510102012.957682690@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -39,119 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: John Millikin <john@john-millikin.com>
 
-[ Upstream commit aeceecd40d94ed3c00bfe1cfe59dd1bfac2fc6fe ]
+[ Upstream commit 8abe7fc26ad8f28bfdf78adbed56acd1fa93f82d ]
 
-The TVK1281618 R3 sensors are different from the R2 board,
-some incorrectness is fixed and some new sensors added, we
-also rename the nodes appropriately with accelerometer@
-etc.
+When cross-compiling with Clang, the `$(CLANG_FLAGS)' variable
+contains additional flags needed to build C and assembly sources
+for the target platform. Normally this variable is automatically
+included in `$(KBUILD_CFLAGS)' via the top-level Makefile.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+The x86 real-mode makefile builds `$(REALMODE_CFLAGS)' from a
+plain assignment and therefore drops the Clang flags. This causes
+Clang to not recognize x86-specific assembler directives:
+
+  arch/x86/realmode/rm/header.S:36:1: error: unknown directive
+  .type real_mode_header STT_OBJECT ; .size real_mode_header, .-real_mode_header
+  ^
+
+Explicit propagation of `$(CLANG_FLAGS)' to `$(REALMODE_CFLAGS)',
+which is inherited by real-mode make rules, fixes cross-compilation
+with Clang for x86 targets.
+
+Relevant flags:
+
+* `--target' sets the target architecture when cross-compiling. This
+  flag must be set for both compilation and assembly (`KBUILD_AFLAGS')
+  to support architecture-specific assembler directives.
+
+* `-no-integrated-as' tells clang to assemble with GNU Assembler
+  instead of its built-in LLVM assembler. This flag is set by default
+  unless `LLVM_IAS=1' is set, because the LLVM assembler can't yet
+  parse certain GNU extensions.
+
+Signed-off-by: John Millikin <john@john-millikin.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Link: https://lkml.kernel.org/r/20210326000435.4785-2-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi | 73 +++++++++++++------
- 1 file changed, 50 insertions(+), 23 deletions(-)
+ arch/x86/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi b/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
-index cb3677f0a1cb..b580397ede83 100644
---- a/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
-+++ b/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
-@@ -8,37 +8,43 @@
- / {
- 	soc {
- 		i2c@80128000 {
--			/* Marked:
--			 * 129
--			 * M35
--			 * L3GD20
--			 */
--			l3gd20@6a {
--				/* Gyroscope */
--				compatible = "st,l3gd20";
--				status = "disabled";
-+			accelerometer@19 {
-+				compatible = "st,lsm303dlhc-accel";
- 				st,drdy-int-pin = <1>;
--				drive-open-drain;
--				reg = <0x6a>; // 0x6a or 0x6b
-+				reg = <0x19>;
- 				vdd-supply = <&ab8500_ldo_aux1_reg>;
- 				vddio-supply = <&db8500_vsmps2_reg>;
-+				interrupt-parent = <&gpio2>;
-+				interrupts = <18 IRQ_TYPE_EDGE_RISING>,
-+					     <19 IRQ_TYPE_EDGE_RISING>;
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&accel_tvk_mode>;
- 			};
--			/*
--			 * Marked:
--			 * 2122
--			 * C3H
--			 * DQEEE
--			 * LIS3DH?
--			 */
--			lis3dh@18 {
--				/* Accelerometer */
--				compatible = "st,lis3dh-accel";
-+			magnetometer@1e {
-+				compatible = "st,lsm303dlm-magn";
- 				st,drdy-int-pin = <1>;
--				reg = <0x18>;
-+				reg = <0x1e>;
- 				vdd-supply = <&ab8500_ldo_aux1_reg>;
- 				vddio-supply = <&db8500_vsmps2_reg>;
-+				// This interrupt is not properly working with the driver
-+				// interrupt-parent = <&gpio1>;
-+				// interrupts = <0 IRQ_TYPE_EDGE_RISING>;
- 				pinctrl-names = "default";
--				pinctrl-0 = <&accel_tvk_mode>;
-+				pinctrl-0 = <&magn_tvk_mode>;
-+			};
-+			gyroscope@68 {
-+				/* Gyroscope */
-+				compatible = "st,l3g4200d-gyro";
-+				reg = <0x68>;
-+				vdd-supply = <&ab8500_ldo_aux1_reg>;
-+				vddio-supply = <&db8500_vsmps2_reg>;
-+			};
-+			pressure@5c {
-+				/* Barometer/pressure sensor */
-+				compatible = "st,lps001wp-press";
-+				reg = <0x5c>;
-+				vdd-supply = <&ab8500_ldo_aux1_reg>;
-+				vddio-supply = <&db8500_vsmps2_reg>;
- 			};
- 		};
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 828f24d547b2..708b2d23d9f4 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -33,6 +33,7 @@ REALMODE_CFLAGS += -ffreestanding
+ REALMODE_CFLAGS += -fno-stack-protector
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
++REALMODE_CFLAGS += $(CLANG_FLAGS)
+ export REALMODE_CFLAGS
  
-@@ -54,5 +60,26 @@
- 				};
- 			};
- 		};
-+
-+		pinctrl {
-+			accelerometer {
-+				accel_tvk_mode: accel_tvk {
-+					/* Accelerometer interrupt lines 1 & 2 */
-+					tvk_cfg {
-+						pins = "GPIO82_C1", "GPIO83_D3";
-+						ste,config = <&gpio_in_pd>;
-+					};
-+				};
-+			};
-+			magnetometer {
-+				magn_tvk_mode: magn_tvk {
-+					/* GPIO 32 used for DRDY, pull this down */
-+					tvk_cfg {
-+						pins = "GPIO32_V2";
-+						ste,config = <&gpio_in_pd>;
-+					};
-+				};
-+			};
-+		};
- 	};
- };
+ # BITS is used as extension for files which are available in a 32 bit
 -- 
 2.30.2
 
