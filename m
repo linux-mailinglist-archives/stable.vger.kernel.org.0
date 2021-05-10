@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A46378162
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:25:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DC2F378166
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231419AbhEJK0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59230 "EHLO mail.kernel.org"
+        id S231465AbhEJK0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:26:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231285AbhEJKZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:25:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDB2E6144F;
-        Mon, 10 May 2021 10:24:40 +0000 (UTC)
+        id S231339AbhEJKZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:25:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6746F6147F;
+        Mon, 10 May 2021 10:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642281;
-        bh=bM5vnLEX9oW3SHbz0ddTRPsiZuD0vRSfgOYjYyjAByo=;
+        s=korg; t=1620642283;
+        bh=13kadjPl5r4QnZrdnw/U7qO6V4vOzzrEKRTnqkhF3vI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UfQ0i1BKBDUWzj+15YA7uLvYdqLuDs8Yucdpvy85FXJ8LDr43oMjjqC7C2X422boJ
-         5rZGWaXV5gxHsQcWH60UMqLfhXnMsdqAnpWLCxYshOo5S51cCHayg5MKsxZ5yNWUCy
-         Kq9C5i3jdoYOKBCCS/xjgmpi4T0Q80Z/1/Z8oK9E=
+        b=muGNUVVrOqZa8P9QpTDXHDPGVEJym4AdN5koxjgQneOuJkrqrf6w8UEZyB+9tjw6c
+         0CoF48gHCI/tCJFRpPP0Vhpk2o8duodAvoh/LcTCkQxxbS/WgDJRubkwX1+rAg4L+T
+         kShGUjWkON41bC+/SW00yErtD2YwwXo6ZuMrF4hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Christoph Hellwig <hch@lst.de>, Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 5.4 031/184] modules: inherit TAINT_PROPRIETARY_MODULE
-Date:   Mon, 10 May 2021 12:18:45 +0200
-Message-Id: <20210510101951.249384110@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        He Ying <heying24@huawei.com>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 032/184] irqchip/gic-v3: Do not enable irqs when handling spurious interrups
+Date:   Mon, 10 May 2021 12:18:46 +0200
+Message-Id: <20210510101951.278759765@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -39,82 +39,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: He Ying <heying24@huawei.com>
 
-commit 262e6ae7081df304fc625cf368d5c2cbba2bb991 upstream.
+commit a97709f563a078e259bf0861cd259aa60332890a upstream.
 
-If a TAINT_PROPRIETARY_MODULE exports symbol, inherit the taint flag
-for all modules importing these symbols, and don't allow loading
-symbols from TAINT_PROPRIETARY_MODULE modules if the module previously
-imported gplonly symbols.  Add a anti-circumvention devices so people
-don't accidentally get themselves into trouble this way.
+We triggered the following error while running our 4.19 kernel
+with the pseudo-NMI patches backported to it:
 
-Comment from Greg:
-  "Ah, the proven-to-be-illegal "GPL Condom" defense :)"
+[   14.816231] ------------[ cut here ]------------
+[   14.816231] kernel BUG at irq.c:99!
+[   14.816232] Internal error: Oops - BUG: 0 [#1] SMP
+[   14.816232] Process swapper/0 (pid: 0, stack limit = 0x(____ptrval____))
+[   14.816233] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      4.19.95.aarch64 #14
+[   14.816233] Hardware name: evb (DT)
+[   14.816234] pstate: 80400085 (Nzcv daIf +PAN -UAO)
+[   14.816234] pc : asm_nmi_enter+0x94/0x98
+[   14.816235] lr : asm_nmi_enter+0x18/0x98
+[   14.816235] sp : ffff000008003c50
+[   14.816235] pmr_save: 00000070
+[   14.816237] x29: ffff000008003c50 x28: ffff0000095f56c0
+[   14.816238] x27: 0000000000000000 x26: ffff000008004000
+[   14.816239] x25: 00000000015e0000 x24: ffff8008fb916000
+[   14.816240] x23: 0000000020400005 x22: ffff0000080817cc
+[   14.816241] x21: ffff000008003da0 x20: 0000000000000060
+[   14.816242] x19: 00000000000003ff x18: ffffffffffffffff
+[   14.816243] x17: 0000000000000008 x16: 003d090000000000
+[   14.816244] x15: ffff0000095ea6c8 x14: ffff8008fff5ab40
+[   14.816244] x13: ffff8008fff58b9d x12: 0000000000000000
+[   14.816245] x11: ffff000008c8a200 x10: 000000008e31fca5
+[   14.816246] x9 : ffff000008c8a208 x8 : 000000000000000f
+[   14.816247] x7 : 0000000000000004 x6 : ffff8008fff58b9e
+[   14.816248] x5 : 0000000000000000 x4 : 0000000080000000
+[   14.816249] x3 : 0000000000000000 x2 : 0000000080000000
+[   14.816250] x1 : 0000000000120000 x0 : ffff0000095f56c0
+[   14.816251] Call trace:
+[   14.816251]  asm_nmi_enter+0x94/0x98
+[   14.816251]  el1_irq+0x8c/0x180                    (IRQ C)
+[   14.816252]  gic_handle_irq+0xbc/0x2e4
+[   14.816252]  el1_irq+0xcc/0x180                    (IRQ B)
+[   14.816253]  arch_timer_handler_virt+0x38/0x58
+[   14.816253]  handle_percpu_devid_irq+0x90/0x240
+[   14.816253]  generic_handle_irq+0x34/0x50
+[   14.816254]  __handle_domain_irq+0x68/0xc0
+[   14.816254]  gic_handle_irq+0xf8/0x2e4
+[   14.816255]  el1_irq+0xcc/0x180                    (IRQ A)
+[   14.816255]  arch_cpu_idle+0x34/0x1c8
+[   14.816255]  default_idle_call+0x24/0x44
+[   14.816256]  do_idle+0x1d0/0x2c8
+[   14.816256]  cpu_startup_entry+0x28/0x30
+[   14.816256]  rest_init+0xb8/0xc8
+[   14.816257]  start_kernel+0x4c8/0x4f4
+[   14.816257] Code: 940587f1 d5384100 b9401001 36a7fd01 (d4210000)
+[   14.816258] Modules linked in: start_dp(O) smeth(O)
+[   15.103092] ---[ end trace 701753956cb14aa8 ]---
+[   15.103093] Kernel panic - not syncing: Fatal exception in interrupt
+[   15.103099] SMP: stopping secondary CPUs
+[   15.103100] Kernel Offset: disabled
+[   15.103100] CPU features: 0x36,a2400218
+[   15.103100] Memory Limit: none
 
-[jeyu: pr_info -> pr_err and pr_warn as per discussion]
-Link: http://lore.kernel.org/r/20200730162957.GA22469@lst.de
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+which is cause by a 'BUG_ON(in_nmi())' in nmi_enter().
+
+>From the call trace, we can find three interrupts (noted A, B, C above):
+interrupt (A) is preempted by (B), which is further interrupted by (C).
+
+Subsequent investigations show that (B) results in nmi_enter() being
+called, but that it actually is a spurious interrupt. Furthermore,
+interrupts are reenabled in the context of (B), and (C) fires with
+NMI priority. We end-up with a nested NMI situation, something
+we definitely do not want to (and cannot) handle.
+
+The bug here is that spurious interrupts should never result in any
+state change, and we should just return to the interrupted context.
+Moving the handling of spurious interrupts as early as possible in
+the GICv3 handler fixes this issue.
+
+Fixes: 3f1f3234bc2d ("irqchip/gic-v3: Switch to PMR masking before calling IRQ handler")
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: He Ying <heying24@huawei.com>
+[maz: rewrote commit message, corrected Fixes: tag]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210423083516.170111-1-heying24@huawei.com
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/module.h |    1 +
- kernel/module.c        |   26 ++++++++++++++++++++++++++
- 2 files changed, 27 insertions(+)
+ drivers/irqchip/irq-gic-v3.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -376,6 +376,7 @@ struct module {
- 	unsigned int num_gpl_syms;
- 	const struct kernel_symbol *gpl_syms;
- 	const s32 *gpl_crcs;
-+	bool using_gplonly_symbols;
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -621,6 +621,10 @@ static asmlinkage void __exception_irq_e
  
- #ifdef CONFIG_UNUSED_SYMBOLS
- 	/* unused exported symbols. */
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1429,6 +1429,24 @@ static int verify_namespace_is_imported(
- 	return 0;
- }
+ 	irqnr = gic_read_iar();
  
-+static bool inherit_taint(struct module *mod, struct module *owner)
-+{
-+	if (!owner || !test_bit(TAINT_PROPRIETARY_MODULE, &owner->taints))
-+		return true;
++	/* Check for special IDs first */
++	if ((irqnr >= 1020 && irqnr <= 1023))
++		return;
 +
-+	if (mod->using_gplonly_symbols) {
-+		pr_err("%s: module using GPL-only symbols uses symbols from proprietary module %s.\n",
-+			mod->name, owner->name);
-+		return false;
-+	}
-+
-+	if (!test_bit(TAINT_PROPRIETARY_MODULE, &mod->taints)) {
-+		pr_warn("%s: module uses symbols from proprietary module %s, inheriting taint.\n",
-+			mod->name, owner->name);
-+		set_bit(TAINT_PROPRIETARY_MODULE, &mod->taints);
-+	}
-+	return true;
-+}
+ 	if (gic_supports_nmi() &&
+ 	    unlikely(gic_read_rpr() == GICD_INT_NMI_PRI)) {
+ 		gic_handle_nmi(irqnr, regs);
+@@ -632,10 +636,6 @@ static asmlinkage void __exception_irq_e
+ 		gic_arch_enable_irqs();
+ 	}
  
- /* Resolve a symbol for this module.  I.e. if we find one, record usage. */
- static const struct kernel_symbol *resolve_symbol(struct module *mod,
-@@ -1454,6 +1472,14 @@ static const struct kernel_symbol *resol
- 	if (!sym)
- 		goto unlock;
- 
-+	if (license == GPL_ONLY)
-+		mod->using_gplonly_symbols = true;
-+
-+	if (!inherit_taint(mod, owner)) {
-+		sym = NULL;
-+		goto getname;
-+	}
-+
- 	if (!check_version(info, name, mod, crc)) {
- 		sym = ERR_PTR(-EINVAL);
- 		goto getname;
+-	/* Check for special IDs first */
+-	if ((irqnr >= 1020 && irqnr <= 1023))
+-		return;
+-
+ 	/* Treat anything but SGIs in a uniform way */
+ 	if (likely(irqnr > 15)) {
+ 		int err;
 
 
