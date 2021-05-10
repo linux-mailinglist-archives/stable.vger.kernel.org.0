@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CCF437891A
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B1C2378718
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237871AbhEJLZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33470 "EHLO mail.kernel.org"
+        id S235954AbhEJLNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:13:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237986AbhEJLQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:16:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6622C61376;
-        Mon, 10 May 2021 11:11:52 +0000 (UTC)
+        id S235947AbhEJLHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D98A26190A;
+        Mon, 10 May 2021 10:57:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645112;
-        bh=U34j+TrFogrOrDROvDuMaPEkYSRCDC3GOxwpZsUAbPA=;
+        s=korg; t=1620644228;
+        bh=ahQev9HGYs11+GX2q1VKcRSLanEQ+OQUkZvga66ODYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r0aSi1tW5ji9F2jxIKKdjvvQdDrDA3VUqs7zD7zv/C9qsmlRthBdArwbMGVhwnduK
-         1VYgVCS+RH2c010IaH+LVrK5w+ZTwpCDjACixk0oHCY3u3loFWB3DmLOvW0DOVO5/A
-         lWakT/5EhCMLGtR9D+dHZT4T/mnvaUpQe1w0XV/4=
+        b=oERnNQF/iqxytmbsuTfePtD5uLpijk7cY52Mv8mLz2esXUchtyxzXxMIulUrKy2i+
+         +KIvCu7PNHM5sjLMWwZR6LFN09jGYSrpaZo0DxEkSwkagSklrrv8BYUpdI44BTtBcm
+         wtzwVTRCQJSjzB0SDb/FxHIL8qBGUktzS13QGDe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.12 340/384] ext4: always panic when errors=panic is specified
-Date:   Mon, 10 May 2021 12:22:09 +0200
-Message-Id: <20210510102025.987901117@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Petr Mladek <pmladek@suse.com>
+Subject: [PATCH 5.11 340/342] lib/vsprintf.c: remove leftover f and F cases from bstr_printf()
+Date:   Mon, 10 May 2021 12:22:10 +0200
+Message-Id: <20210510102021.343919869@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit ac2f7ca51b0929461ea49918f27c11b680f28995 upstream.
+commit 84696cfaf4d90945eb2a8302edc6cf627db56b84 upstream.
 
-Before commit 014c9caa29d3 ("ext4: make ext4_abort() use
-__ext4_error()"), the following series of commands would trigger a
-panic:
+Commit 9af7706492f9 ("lib/vsprintf: Remove support for %pF and %pf in
+favour of %pS and %ps") removed support for %pF and %pf, and correctly
+removed the handling of those cases in vbin_printf(). However, the
+corresponding cases in bstr_printf() were left behind.
 
-1. mount /dev/sda -o ro,errors=panic test
-2. mount /dev/sda -o remount,abort test
+In the same series, %pf was re-purposed for dealing with
+fwnodes (3bd32d6a2ee6, "lib/vsprintf: Add %pfw conversion specifier
+for printing fwnode names").
 
-After commit 014c9caa29d3, remounting a file system using the test
-mount option "abort" will no longer trigger a panic.  This commit will
-restore the behaviour immediately before commit 014c9caa29d3.
-(However, note that the Linux kernel's behavior has not been
-consistent; some previous kernel versions, including 5.4 and 4.19
-similarly did not panic after using the mount option "abort".)
+So should anyone use %pf with the binary printf routines,
+vbin_printf() would (correctly, as it involves dereferencing the
+pointer) do the string formatting to the u32 array, but bstr_printf()
+would not copy the string from the u32 array, but instead interpret
+the first sizeof(void*) bytes of the formatted string as a pointer -
+which generally won't end well (also, all subsequent get_args would be
+out of sync).
 
-This also makes a change to long-standing behaviour; namely, the
-following series commands will now cause a panic, when previously it
-did not:
-
-1. mount /dev/sda -o ro,errors=panic test
-2. echo test > /sys/fs/ext4/sda/trigger_fs_error
-
-However, this makes ext4's behaviour much more consistent, so this is
-a good thing.
-
-Cc: stable@kernel.org
-Fixes: 014c9caa29d3 ("ext4: make ext4_abort() use __ext4_error()")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20210401081903.3421208-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 9af7706492f9 ("lib/vsprintf: Remove support for %pF and %pf in favour of %pS and %ps")
+Cc: stable@vger.kernel.org
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210423094529.1862521-1-linux@rasmusvillemoes.dk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ lib/vsprintf.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -667,9 +667,6 @@ static void ext4_handle_error(struct sup
- 			ext4_commit_super(sb);
- 	}
- 
--	if (sb_rdonly(sb) || continue_fs)
--		return;
--
- 	/*
- 	 * We force ERRORS_RO behavior when system is rebooting. Otherwise we
- 	 * could panic during 'reboot -f' as the underlying device got already
-@@ -679,6 +676,10 @@ static void ext4_handle_error(struct sup
- 		panic("EXT4-fs (device %s): panic forced after error\n",
- 			sb->s_id);
- 	}
-+
-+	if (sb_rdonly(sb) || continue_fs)
-+		return;
-+
- 	ext4_msg(sb, KERN_CRIT, "Remounting filesystem read-only");
- 	/*
- 	 * Make sure updated value of ->s_mount_flags will be visible before
+--- a/lib/vsprintf.c
++++ b/lib/vsprintf.c
+@@ -3103,8 +3103,6 @@ int bstr_printf(char *buf, size_t size,
+ 			switch (*fmt) {
+ 			case 'S':
+ 			case 's':
+-			case 'F':
+-			case 'f':
+ 			case 'x':
+ 			case 'K':
+ 			case 'e':
 
 
