@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E21B378982
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F1B237893E
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239246AbhEJL0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239250AbhEJL0K (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 10 May 2021 07:26:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54898 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233628AbhEJLOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233618AbhEJLOA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 07:14:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C02E36101A;
-        Mon, 10 May 2021 11:10:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28A9E61364;
+        Mon, 10 May 2021 11:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645034;
-        bh=ReXTlROa2dmXApoHXaLjl227NwJNlQ2btegkFhmerT4=;
+        s=korg; t=1620645036;
+        bh=HYPQr5De+BztxcVMQkTJ1B1kSN3YQXCcudGHqQcosso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLosoLLbXv0ctHoaaB3YIazdBYyeQco5dE98r0XwE1FA4KfoekP3Z8icIIHyhQJET
-         SCWIyu7CSQrKlmoX8mxSuqtU8qAUyPbLs3TBORNC6ckJ/Xq2u2PPeEG7R/3n/h42TA
-         fxpsj7y5IKi8XF740x8KYbx7lXY1BRv9VL8E02zI=
+        b=i4lKYZMhXX2R5vGzunDwZFZOSZAsZUdRipKAk+pEWVuIgaeZLlKZ2HNwBCO74EeyL
+         wf/m8TjMV3hL4o5IVkZc7nVIpT7hYzZkQRgRIea4WoygA1xDol4RUMojf4GEKF2qyV
+         hbAcYOnsu1/s8TD0MEF/XJH1DX5iRgARwQqRUqLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Cree <ecree.xilinx@gmail.com>,
+        stable@vger.kernel.org, Ignat Korchagin <ignat@cloudflare.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 324/384] sfc: farch: fix TX queue lookup in TX event handling
-Date:   Mon, 10 May 2021 12:21:53 +0200
-Message-Id: <20210510102025.477331194@linuxfoundation.org>
+Subject: [PATCH 5.12 325/384] sfc: adjust efx->xdp_tx_queue_count with the real number of initialized queues
+Date:   Mon, 10 May 2021 12:21:54 +0200
+Message-Id: <20210510102025.510535787@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -39,43 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Cree <ecree.xilinx@gmail.com>
+From: Ignat Korchagin <ignat@cloudflare.com>
 
-commit 83b09a1807415608b387c7bc748d329fefc5617e upstream.
+commit 99ba0ea616aabdc8e26259fd722503e012199a76 upstream.
 
-We're starting from a TXQ label, not a TXQ type, so
- efx_channel_get_tx_queue() is inappropriate (and could return NULL,
- leading to panics).
+efx->xdp_tx_queue_count is initially initialized to num_possible_cpus() and is
+later used to allocate and traverse efx->xdp_tx_queues lookup array. However,
+we may end up not initializing all the array slots with real queues during
+probing. This results, for example, in a NULL pointer dereference, when running
+"# ethtool -S <iface>", similar to below
 
-Fixes: 12804793b17c ("sfc: decouple TXQ type from label")
-Cc: stable@vger.kernel.org
-Signed-off-by: Edward Cree <ecree.xilinx@gmail.com>
+[2570283.664955][T4126959] BUG: kernel NULL pointer dereference, address: 00000000000000f8
+[2570283.681283][T4126959] #PF: supervisor read access in kernel mode
+[2570283.695678][T4126959] #PF: error_code(0x0000) - not-present page
+[2570283.710013][T4126959] PGD 0 P4D 0
+[2570283.721649][T4126959] Oops: 0000 [#1] SMP PTI
+[2570283.734108][T4126959] CPU: 23 PID: 4126959 Comm: ethtool Tainted: G           O      5.10.20-cloudflare-2021.3.1 #1
+[2570283.752641][T4126959] Hardware name: <redacted>
+[2570283.781408][T4126959] RIP: 0010:efx_ethtool_get_stats+0x2ca/0x330 [sfc]
+[2570283.796073][T4126959] Code: 00 85 c0 74 39 48 8b 95 a8 0f 00 00 48 85 d2 74 2d 31 c0 eb 07 48 8b 95 a8 0f 00 00 48 63 c8 49 83 c4 08 83 c0 01 48 8b 14 ca <48> 8b 92 f8 00 00 00 49 89 54 24 f8 39 85 a0 0f 00 00 77 d7 48 8b
+[2570283.831259][T4126959] RSP: 0018:ffffb79a77657ce8 EFLAGS: 00010202
+[2570283.845121][T4126959] RAX: 0000000000000019 RBX: ffffb799cd0c9280 RCX: 0000000000000018
+[2570283.860872][T4126959] RDX: 0000000000000000 RSI: ffff96dd970ce000 RDI: 0000000000000005
+[2570283.876525][T4126959] RBP: ffff96dd86f0a000 R08: ffff96dd970ce480 R09: 000000000000005f
+[2570283.892014][T4126959] R10: ffffb799cd0c9fff R11: ffffb799cd0c9000 R12: ffffb799cd0c94f8
+[2570283.907406][T4126959] R13: ffffffffc11b1090 R14: ffff96dd970ce000 R15: ffffffffc11cd66c
+[2570283.922705][T4126959] FS:  00007fa7723f8740(0000) GS:ffff96f51fac0000(0000) knlGS:0000000000000000
+[2570283.938848][T4126959] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[2570283.952524][T4126959] CR2: 00000000000000f8 CR3: 0000001a73e6e006 CR4: 00000000007706e0
+[2570283.967529][T4126959] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[2570283.982400][T4126959] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[2570283.997308][T4126959] PKRU: 55555554
+[2570284.007649][T4126959] Call Trace:
+[2570284.017598][T4126959]  dev_ethtool+0x1832/0x2830
+
+Fix this by adjusting efx->xdp_tx_queue_count after probing to reflect the true
+value of initialized slots in efx->xdp_tx_queues.
+
+Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
+Fixes: e26ca4b53582 ("sfc: reduce the number of requested xdp ev queues")
+Cc: <stable@vger.kernel.org> # 5.12.x
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/farch.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/sfc/efx_channels.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/sfc/farch.c
-+++ b/drivers/net/ethernet/sfc/farch.c
-@@ -835,14 +835,14 @@ efx_farch_handle_tx_event(struct efx_cha
- 		/* Transmit completion */
- 		tx_ev_desc_ptr = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_DESC_PTR);
- 		tx_ev_q_label = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_Q_LABEL);
--		tx_queue = efx_channel_get_tx_queue(
--			channel, tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
-+		tx_queue = channel->tx_queue +
-+				(tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
- 		efx_xmit_done(tx_queue, tx_ev_desc_ptr);
- 	} else if (EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_WQ_FF_FULL)) {
- 		/* Rewrite the FIFO write pointer */
- 		tx_ev_q_label = EFX_QWORD_FIELD(*event, FSF_AZ_TX_EV_Q_LABEL);
--		tx_queue = efx_channel_get_tx_queue(
--			channel, tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
-+		tx_queue = channel->tx_queue +
-+				(tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -914,6 +914,8 @@ int efx_set_channels(struct efx_nic *efx
+ 			}
+ 		}
+ 	}
++	if (xdp_queue_number)
++		efx->xdp_tx_queue_count = xdp_queue_number;
  
- 		netif_tx_lock(efx->net_dev);
- 		efx_farch_notify_tx_desc(tx_queue);
+ 	rc = netif_set_real_num_tx_queues(efx->net_dev, efx->n_tx_channels);
+ 	if (rc)
 
 
