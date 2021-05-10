@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 879AC3786B9
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 287F437888F
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236774AbhEJLKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36380 "EHLO mail.kernel.org"
+        id S232058AbhEJLWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:22:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234437AbhEJLDq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:03:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B751A61924;
-        Mon, 10 May 2021 10:54:22 +0000 (UTC)
+        id S237247AbhEJLLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C0F461879;
+        Mon, 10 May 2021 11:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644063;
-        bh=Yx5RTY2lf33uARZzG8bGd1pDhHnoydyh7Xeta8p9pq8=;
+        s=korg; t=1620644908;
+        bh=2UG/nlHqSK72KX7mMr/KbK8F7icZvugEvKN7RYAV2l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2acuDYei66CFPFi50CyuiE95Dl+KosLZRq9uenh6V34+mFhLOqjCpLxKg/qiVOgmc
-         a/XnNl938Jcea0pDHtoVZpHx2Q+ME+ezN5wKdfGMR8doC+Dg2Owqea/6xuyY84TYf2
-         VzqP21I+NMPGY2Uwojevzd2IgmTK2GJrBs2dmjJU=
+        b=T03+NiLb0pQGVbZNnXOhWgRdkCSU11Qc3bK+5q6Eon3BCNBcznGvt6nzNtYtLRG+4
+         Gx8exLHJMzFu9wjBB7WfB+kBP1X2OCehRcjnedSv4iRmPI2qf1qQbCq9r6C5hTm+fr
+         Db+//OxHVtfiZFnJobEGRvVhi9zJyKlNMBVCC2/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Safonov <dima@arista.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Andrei Vagin <avagin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 5.11 272/342] powerpc/vdso: Separate vvar vma from vdso
-Date:   Mon, 10 May 2021 12:21:02 +0200
-Message-Id: <20210510102019.083428334@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geraldo Nascimento <geraldogabriel@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 274/384] ALSA: usb-audio: Explicitly set up the clock selector
+Date:   Mon, 10 May 2021 12:21:03 +0200
+Message-Id: <20210510102023.869143211@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,182 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Safonov <dima@arista.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 1c4bce6753857dc409a0197342d18764e7f4b741 upstream.
+commit d2e8f641257d0d3af6e45d6ac2d6f9d56b8ea964 upstream.
 
-Since commit 511157ab641e ("powerpc/vdso: Move vdso datapage up front")
-VVAR page is in front of the VDSO area. In result it breaks CRIU
-(Checkpoint Restore In Userspace) [1], where CRIU expects that "[vdso]"
-from /proc/../maps points at ELF/vdso image, rather than at VVAR data page.
-Laurent made a patch to keep CRIU working (by reading aux vector).
-But I think it still makes sence to separate two mappings into different
-VMAs. It will also make ppc64 less "special" for userspace and as
-a side-bonus will make VVAR page un-writable by debugger (which previously
-would COW page and can be unexpected).
+In the current code, we have some assumption that the audio clock
+selector has been set up implicitly and don't want to touch it unless
+it's really needed for the fallback autoclock setup.  This works for
+most devices but some seem having a problem.  Partially this was
+covered for the devices with a single connector at the initialization
+phase (commit 086b957cc17f "ALSA: usb-audio: Skip the clock selector
+inquiry for single connections"), but also there are cases where the
+wrong clock set up is kept silently.  The latter seems to be the cause
+of the noises on Behringer devices.
 
-I opportunistically Cc stable on it: I understand that usually such
-stuff isn't a stable material, but that will allow us in CRIU have
-one workaround less that is needed just for one release (v5.11) on
-one platform (ppc64), which we otherwise have to maintain.
-I wouldn't go as far as to say that the commit 511157ab641e is ABI
-regression as no other userspace got broken, but I'd really appreciate
-if it gets backported to v5.11 after v5.12 is released, so as not
-to complicate already non-simple CRIU-vdso code. Thanks!
+In this patch, we explicitly set up the audio clock selector whenever
+the appropriate node is found.
 
-[1]: https://github.com/checkpoint-restore/criu/issues/1417
-
-Cc: stable@vger.kernel.org # v5.11
-Signed-off-by: Dmitry Safonov <dima@arista.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com> # vDSO parts.
-Acked-by: Andrei Vagin <avagin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/f401eb1ebc0bfc4d8f0e10dc8e525fd409eb68e2.1617209142.git.christophe.leroy@csgroup.eu
+Reported-by: Geraldo Nascimento <geraldogabriel@gmail.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199327
+Link: https://lore.kernel.org/r/CAEsQvcvF7LnO8PxyyCxuRCx=7jNeSCvFAd-+dE0g_rd1rOxxdw@mail.gmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210413084152.32325-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/mmu_context.h |    2 -
- arch/powerpc/kernel/vdso.c             |   54 +++++++++++++++++++++++----------
- 2 files changed, 40 insertions(+), 16 deletions(-)
+ sound/usb/clock.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/include/asm/mmu_context.h
-+++ b/arch/powerpc/include/asm/mmu_context.h
-@@ -263,7 +263,7 @@ extern void arch_exit_mmap(struct mm_str
- static inline void arch_unmap(struct mm_struct *mm,
- 			      unsigned long start, unsigned long end)
- {
--	unsigned long vdso_base = (unsigned long)mm->context.vdso - PAGE_SIZE;
-+	unsigned long vdso_base = (unsigned long)mm->context.vdso;
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -296,7 +296,7 @@ static int __uac_clock_find_source(struc
  
- 	if (start <= vdso_base && vdso_base < end)
- 		mm->context.vdso = NULL;
---- a/arch/powerpc/kernel/vdso.c
-+++ b/arch/powerpc/kernel/vdso.c
-@@ -55,10 +55,10 @@ static int vdso_mremap(const struct vm_s
- {
- 	unsigned long new_size = new_vma->vm_end - new_vma->vm_start;
+ 	selector = snd_usb_find_clock_selector(chip->ctrl_intf, entity_id);
+ 	if (selector) {
+-		int ret, i, cur;
++		int ret, i, cur, err;
  
--	if (new_size != text_size + PAGE_SIZE)
-+	if (new_size != text_size)
- 		return -EINVAL;
- 
--	current->mm->context.vdso = (void __user *)new_vma->vm_start + PAGE_SIZE;
-+	current->mm->context.vdso = (void __user *)new_vma->vm_start;
- 
- 	return 0;
- }
-@@ -73,6 +73,10 @@ static int vdso64_mremap(const struct vm
- 	return vdso_mremap(sm, new_vma, &vdso64_end - &vdso64_start);
- }
- 
-+static struct vm_special_mapping vvar_spec __ro_after_init = {
-+	.name = "[vvar]",
-+};
+ 		if (selector->bNrInPins == 1) {
+ 			ret = 1;
+@@ -324,13 +324,17 @@ static int __uac_clock_find_source(struc
+ 		ret = __uac_clock_find_source(chip, fmt,
+ 					      selector->baCSourceID[ret - 1],
+ 					      visited, validate);
++		if (ret > 0) {
++			err = uac_clock_selector_set_val(chip, entity_id, cur);
++			if (err < 0)
++				return err;
++		}
 +
- static struct vm_special_mapping vdso32_spec __ro_after_init = {
- 	.name = "[vdso]",
- 	.mremap = vdso32_mremap,
-@@ -89,11 +93,11 @@ static struct vm_special_mapping vdso64_
-  */
- static int __arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
- {
--	struct mm_struct *mm = current->mm;
-+	unsigned long vdso_size, vdso_base, mappings_size;
- 	struct vm_special_mapping *vdso_spec;
-+	unsigned long vvar_size = PAGE_SIZE;
-+	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
--	unsigned long vdso_size;
--	unsigned long vdso_base;
+ 		if (!validate || ret > 0 || !chip->autoclock)
+ 			return ret;
  
- 	if (is_32bit_task()) {
- 		vdso_spec = &vdso32_spec;
-@@ -110,8 +114,8 @@ static int __arch_setup_additional_pages
- 		vdso_base = 0;
- 	}
- 
--	/* Add a page to the vdso size for the data page */
--	vdso_size += PAGE_SIZE;
-+	mappings_size = vdso_size + vvar_size;
-+	mappings_size += (VDSO_ALIGNMENT - 1) & PAGE_MASK;
- 
- 	/*
- 	 * pick a base address for the vDSO in process space. We try to put it
-@@ -119,9 +123,7 @@ static int __arch_setup_additional_pages
- 	 * and end up putting it elsewhere.
- 	 * Add enough to the size so that the result can be aligned.
- 	 */
--	vdso_base = get_unmapped_area(NULL, vdso_base,
--				      vdso_size + ((VDSO_ALIGNMENT - 1) & PAGE_MASK),
--				      0, 0);
-+	vdso_base = get_unmapped_area(NULL, vdso_base, mappings_size, 0, 0);
- 	if (IS_ERR_VALUE(vdso_base))
- 		return vdso_base;
- 
-@@ -133,7 +135,13 @@ static int __arch_setup_additional_pages
- 	 * install_special_mapping or the perf counter mmap tracking code
- 	 * will fail to recognise it as a vDSO.
- 	 */
--	mm->context.vdso = (void __user *)vdso_base + PAGE_SIZE;
-+	mm->context.vdso = (void __user *)vdso_base + vvar_size;
-+
-+	vma = _install_special_mapping(mm, vdso_base, vvar_size,
-+				       VM_READ | VM_MAYREAD | VM_IO |
-+				       VM_DONTDUMP | VM_PFNMAP, &vvar_spec);
-+	if (IS_ERR(vma))
-+		return PTR_ERR(vma);
- 
- 	/*
- 	 * our vma flags don't have VM_WRITE so by default, the process isn't
-@@ -145,9 +153,12 @@ static int __arch_setup_additional_pages
- 	 * It's fine to use that for setting breakpoints in the vDSO code
- 	 * pages though.
- 	 */
--	vma = _install_special_mapping(mm, vdso_base, vdso_size,
-+	vma = _install_special_mapping(mm, vdso_base + vvar_size, vdso_size,
- 				       VM_READ | VM_EXEC | VM_MAYREAD |
- 				       VM_MAYWRITE | VM_MAYEXEC, vdso_spec);
-+	if (IS_ERR(vma))
-+		do_munmap(mm, vdso_base, vvar_size, NULL);
-+
- 	return PTR_ERR_OR_ZERO(vma);
- }
- 
-@@ -249,11 +260,22 @@ static struct page ** __init vdso_setup_
- 	if (!pagelist)
- 		panic("%s: Cannot allocate page list for VDSO", __func__);
- 
--	pagelist[0] = virt_to_page(vdso_data);
+ 		/* The current clock source is invalid, try others. */
+ 		for (i = 1; i <= selector->bNrInPins; i++) {
+-			int err;
 -
- 	for (i = 0; i < pages; i++)
--		pagelist[i + 1] = virt_to_page(start + i * PAGE_SIZE);
-+		pagelist[i] = virt_to_page(start + i * PAGE_SIZE);
-+
-+	return pagelist;
-+}
-+
-+static struct page ** __init vvar_setup_pages(void)
-+{
-+	struct page **pagelist;
+ 			if (i == cur)
+ 				continue;
  
-+	/* .pages is NULL-terminated */
-+	pagelist = kcalloc(2, sizeof(struct page *), GFP_KERNEL);
-+	if (!pagelist)
-+		panic("%s: Cannot allocate page list for VVAR", __func__);
+@@ -396,7 +400,7 @@ static int __uac3_clock_find_source(stru
+ 
+ 	selector = snd_usb_find_clock_selector_v3(chip->ctrl_intf, entity_id);
+ 	if (selector) {
+-		int ret, i, cur;
++		int ret, i, cur, err;
+ 
+ 		/* the entity ID we are looking for is a selector.
+ 		 * find out what it currently selects */
+@@ -418,6 +422,12 @@ static int __uac3_clock_find_source(stru
+ 		ret = __uac3_clock_find_source(chip, fmt,
+ 					       selector->baCSourceID[ret - 1],
+ 					       visited, validate);
++		if (ret > 0) {
++			err = uac_clock_selector_set_val(chip, entity_id, cur);
++			if (err < 0)
++				return err;
++		}
 +
-+	pagelist[0] = virt_to_page(vdso_data);
- 	return pagelist;
- }
+ 		if (!validate || ret > 0 || !chip->autoclock)
+ 			return ret;
  
-@@ -295,6 +317,8 @@ static int __init vdso_init(void)
- 	if (IS_ENABLED(CONFIG_PPC64))
- 		vdso64_spec.pages = vdso_setup_pages(&vdso64_start, &vdso64_end);
- 
-+	vvar_spec.pages = vvar_setup_pages();
-+
- 	smp_wmb();
- 
- 	return 0;
 
 
