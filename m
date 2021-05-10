@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C885F378461
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FA8437845D
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233162AbhEJKvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:51:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33618 "EHLO mail.kernel.org"
+        id S233034AbhEJKvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:51:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233523AbhEJKuL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233521AbhEJKuL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:50:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F592619E6;
-        Mon, 10 May 2021 10:39:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA085619EE;
+        Mon, 10 May 2021 10:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643151;
-        bh=iHP5PI9dFvN+iJnh0PXIZUJf03sir2CeqLFELWPo6tY=;
+        s=korg; t=1620643153;
+        bh=ac/ECm5ssDNwfZVOirucWzBGrSsQR/PGlfv7yDn6bOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GCazAY9pfKHc0EoCAwl3N4DTXm6+AcdHmhLAsaZyfFcELsuMmr2xyS7C2dFneEs+
-         BdjRdGmdZ2TVU7S2DR0w9puuxiQ3dmFVILzZaR/0z0iklsTVi7gNUxpok/3SoknZgw
-         1HNGXdgx3Jc2rz5ThJFKjBhP+S3e/rTKummAFl0g=
+        b=XJVCqrMhsMTjTnxonD3ne2dRv7NLpD0gEaryw69a97dR/Udls/ki7oJTe4lvogAxR
+         aFHjX0TMXrorIKkwS68SOptUTXSXi0x5kZ3NNU01pfl55X3xRX9AxSqVkjVSkfwKf4
+         tkdQPgsGCTORaKWcmK4icvFsJ84VDuUngdESY5Is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Reinette Chatre <reinette.chatre@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Babu Moger <babu.moger@amd.com>,
         Fenghua Yu <fenghua.yu@intel.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 163/299] selftests/resctrl: Fix incorrect parsing of iMC counters
-Date:   Mon, 10 May 2021 12:19:20 +0200
-Message-Id: <20210510102010.340979798@linuxfoundation.org>
+Subject: [PATCH 5.10 164/299] selftests/resctrl: Fix checking for < 0 for unsigned values
+Date:   Mon, 10 May 2021 12:19:21 +0200
+Message-Id: <20210510102010.371693121@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
 References: <20210510102004.821838356@linuxfoundation.org>
@@ -45,75 +44,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fenghua Yu <fenghua.yu@intel.com>
 
-[ Upstream commit d81343b5eedf84be71a4313e8fd073d0c510afcf ]
+[ Upstream commit 1205b688c92558a04d8dd4cbc2b213e0fceba5db ]
 
-iMC (Integrated Memory Controller) counters are usually at
-"/sys/bus/event_source/devices/" and are named as "uncore_imc_<n>".
-num_of_imcs() function tries to count number of such iMC counters so that
-it could appropriately initialize required number of perf_attr structures
-that could be used to read these iMC counters.
+Dan reported following static checker warnings
 
-num_of_imcs() function assumes that all the directories under this path
-that start with "uncore_imc" are iMC counters. But, on some systems there
-could be directories named as "uncore_imc_free_running" which aren't iMC
-counters. Trying to read from such directories will result in "not found
-file" errors and MBM/MBA tests will fail.
+tools/testing/selftests/resctrl/resctrl_val.c:545 measure_vals()
+warn: 'bw_imc' unsigned <= 0
 
-Hence, fix the logic in num_of_imcs() such that it looks at the first
-character after "uncore_imc_" to check if it's a numerical digit or not. If
-it's a digit then the directory represents an iMC counter, else, skip the
-directory.
+tools/testing/selftests/resctrl/resctrl_val.c:549 measure_vals()
+warn: 'bw_resc_end' unsigned <= 0
 
-Reported-by: Reinette Chatre <reinette.chatre@intel.com>
+These warnings are reported because
+1. measure_vals() declares 'bw_imc' and 'bw_resc_end' as unsigned long
+   variables
+2. Return value of get_mem_bw_imc() and get_mem_bw_resctrl() are assigned
+   to 'bw_imc' and 'bw_resc_end' respectively
+3. The returned values are checked for <= 0 to see if the calls failed
+
+Checking for < 0 for an unsigned value doesn't make any sense.
+
+Fix this issue by changing the implementation of get_mem_bw_imc() and
+get_mem_bw_resctrl() such that they now accept reference to a variable
+and set the variable appropriately upon success and return 0, else return
+< 0 on error.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 Tested-by: Babu Moger <babu.moger@amd.com>
 Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/resctrl/resctrl_val.c | 22 +++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ tools/testing/selftests/resctrl/resctrl_val.c | 41 +++++++++++--------
+ 1 file changed, 23 insertions(+), 18 deletions(-)
 
 diff --git a/tools/testing/selftests/resctrl/resctrl_val.c b/tools/testing/selftests/resctrl/resctrl_val.c
-index aed71fd0713b..5478c23c62ba 100644
+index 5478c23c62ba..8df557894059 100644
 --- a/tools/testing/selftests/resctrl/resctrl_val.c
 +++ b/tools/testing/selftests/resctrl/resctrl_val.c
-@@ -221,8 +221,8 @@ static int read_from_imc_dir(char *imc_dir, int count)
+@@ -300,9 +300,9 @@ static int initialize_mem_bw_imc(void)
+  * Memory B/W utilized by a process on a socket can be calculated using
+  * iMC counters. Perf events are used to read these counters.
+  *
+- * Return: >= 0 on success. < 0 on failure.
++ * Return: = 0 on success. < 0 on failure.
   */
- static int num_of_imcs(void)
+-static float get_mem_bw_imc(int cpu_no, char *bw_report)
++static int get_mem_bw_imc(int cpu_no, char *bw_report, float *bw_imc)
  {
-+	char imc_dir[512], *temp;
- 	unsigned int count = 0;
--	char imc_dir[512];
- 	struct dirent *ep;
+ 	float reads, writes, of_mul_read, of_mul_write;
+ 	int imc, j, ret;
+@@ -373,13 +373,18 @@ static float get_mem_bw_imc(int cpu_no, char *bw_report)
+ 		close(imc_counters_config[imc][WRITE].fd);
+ 	}
+ 
+-	if (strcmp(bw_report, "reads") == 0)
+-		return reads;
++	if (strcmp(bw_report, "reads") == 0) {
++		*bw_imc = reads;
++		return 0;
++	}
+ 
+-	if (strcmp(bw_report, "writes") == 0)
+-		return writes;
++	if (strcmp(bw_report, "writes") == 0) {
++		*bw_imc = writes;
++		return 0;
++	}
+ 
+-	return (reads + writes);
++	*bw_imc = reads + writes;
++	return 0;
+ }
+ 
+ void set_mbm_path(const char *ctrlgrp, const char *mongrp, int resource_id)
+@@ -438,9 +443,8 @@ static void initialize_mem_bw_resctrl(const char *ctrlgrp, const char *mongrp,
+  * 1. If con_mon grp is given, then read from it
+  * 2. If con_mon grp is not given, then read from root con_mon grp
+  */
+-static unsigned long get_mem_bw_resctrl(void)
++static int get_mem_bw_resctrl(unsigned long *mbm_total)
+ {
+-	unsigned long mbm_total = 0;
+ 	FILE *fp;
+ 
+ 	fp = fopen(mbm_total_path, "r");
+@@ -449,7 +453,7 @@ static unsigned long get_mem_bw_resctrl(void)
+ 
+ 		return -1;
+ 	}
+-	if (fscanf(fp, "%lu", &mbm_total) <= 0) {
++	if (fscanf(fp, "%lu", mbm_total) <= 0) {
+ 		perror("Could not get mbm local bytes");
+ 		fclose(fp);
+ 
+@@ -457,7 +461,7 @@ static unsigned long get_mem_bw_resctrl(void)
+ 	}
+ 	fclose(fp);
+ 
+-	return mbm_total;
++	return 0;
+ }
+ 
+ pid_t bm_pid, ppid;
+@@ -549,7 +553,8 @@ static void initialize_llc_occu_resctrl(const char *ctrlgrp, const char *mongrp,
+ static int
+ measure_vals(struct resctrl_val_param *param, unsigned long *bw_resc_start)
+ {
+-	unsigned long bw_imc, bw_resc, bw_resc_end;
++	unsigned long bw_resc, bw_resc_end;
++	float bw_imc;
  	int ret;
- 	DIR *dp;
-@@ -230,7 +230,25 @@ static int num_of_imcs(void)
- 	dp = opendir(DYN_PMU_PATH);
- 	if (dp) {
- 		while ((ep = readdir(dp))) {
--			if (strstr(ep->d_name, UNCORE_IMC)) {
-+			temp = strstr(ep->d_name, UNCORE_IMC);
-+			if (!temp)
-+				continue;
-+
-+			/*
-+			 * imc counters are named as "uncore_imc_<n>", hence
-+			 * increment the pointer to point to <n>. Note that
-+			 * sizeof(UNCORE_IMC) would count for null character as
-+			 * well and hence the last underscore character in
-+			 * uncore_imc'_' need not be counted.
-+			 */
-+			temp = temp + sizeof(UNCORE_IMC);
-+
-+			/*
-+			 * Some directories under "DYN_PMU_PATH" could have
-+			 * names like "uncore_imc_free_running", hence, check if
-+			 * first character is a numerical digit or not.
-+			 */
-+			if (temp[0] >= '0' && temp[0] <= '9') {
- 				sprintf(imc_dir, "%s/%s/", DYN_PMU_PATH,
- 					ep->d_name);
- 				ret = read_from_imc_dir(imc_dir, count);
+ 
+ 	/*
+@@ -559,13 +564,13 @@ measure_vals(struct resctrl_val_param *param, unsigned long *bw_resc_start)
+ 	 * Compare the two values to validate resctrl value.
+ 	 * It takes 1sec to measure the data.
+ 	 */
+-	bw_imc = get_mem_bw_imc(param->cpu_no, param->bw_report);
+-	if (bw_imc <= 0)
+-		return bw_imc;
++	ret = get_mem_bw_imc(param->cpu_no, param->bw_report, &bw_imc);
++	if (ret < 0)
++		return ret;
+ 
+-	bw_resc_end = get_mem_bw_resctrl();
+-	if (bw_resc_end <= 0)
+-		return bw_resc_end;
++	ret = get_mem_bw_resctrl(&bw_resc_end);
++	if (ret < 0)
++		return ret;
+ 
+ 	bw_resc = (bw_resc_end - *bw_resc_start) / MB;
+ 	ret = print_results_bw(param->filename, bm_pid, bw_imc, bw_resc);
 -- 
 2.30.2
 
