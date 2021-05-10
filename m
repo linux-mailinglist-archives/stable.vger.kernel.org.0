@@ -2,39 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E353378744
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C348B378752
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237375AbhEJLOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:14:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44332 "EHLO mail.kernel.org"
+        id S237442AbhEJLPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:15:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236221AbhEJLHm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5395961943;
-        Mon, 10 May 2021 10:58:59 +0000 (UTC)
+        id S236271AbhEJLHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEC2561955;
+        Mon, 10 May 2021 10:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644340;
-        bh=afdQf9/aM8BWPCZOv3p4IUfP0aOisSy9AmlRKgNsLOQ=;
+        s=korg; t=1620644366;
+        bh=rAm9k8zoVWVPU3XudGh3S/zA9it7DrbIJ+jMGBn5kJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06yFqEqDjlLv3BV5xsXq5Y7D5seOFxg++Eu4PSwJdAnRKDjNigKWJXeVSOZlPWTBM
-         53XJzTE9JhPOEtgsXyV6pjxIOn18K3PZ4q6cUX3UWISTVBN9kqDkoet1e0SuWjjOTc
-         szkKgD1qs6ice8Jv558jsO8H1fQgAbG0yf1AQEi4=
+        b=lUWqT/hEj5PKXpoojyr1EPR+EDXYd/kGjXXBvIB/Jhkv0mYYaj2J0HMI9PV9pYgLH
+         77ZGYVVSbcyp1iAfVn8tbWLZbdHby82P4+CqfPECW6vryhQQZlqG5vvyPpM5P1jgyV
+         jj92mlJ/BWqUzR7JR7/v5O87c9uV9Z7h+Lo7Zr3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wagner <daniel.wagner@suse.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Aleksandr Volkov <a.y.volkov@yadro.com>,
-        Aleksandr Miloserdov <a.miloserdov@yadro.com>,
-        Daniel Wagner <dwagner@suse.de>,
-        Roman Bolshakov <r.bolshakov@yadro.com>
-Subject: [PATCH 5.12 035/384] scsi: qla2xxx: Reserve extra IRQ vectors
-Date:   Mon, 10 May 2021 12:17:04 +0200
-Message-Id: <20210510102016.028114971@linuxfoundation.org>
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.12 036/384] scsi: lpfc: Fix rmmod crash due to bad ring pointers to abort_iotag
+Date:   Mon, 10 May 2021 12:17:05 +0200
+Message-Id: <20210510102016.063584845@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -46,112 +40,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit f02d4086a8f36a0e1aaebf559b54cf24a177a486 upstream.
+commit 078c68b87a717b9fcd8e0f2109f73456fbc55490 upstream.
 
-Commit a6dcfe08487e ("scsi: qla2xxx: Limit interrupt vectors to number of
-CPUs") lowers the number of allocated MSI-X vectors to the number of CPUs.
+Rmmod on SLI-4 adapters is sometimes hitting a bad ptr dereference in
+lpfc_els_free_iocb().
 
-That breaks vector allocation assumptions in qla83xx_iospace_config(),
-qla24xx_enable_msix() and qla2x00_iospace_config(). Either of the functions
-computes maximum number of qpairs as:
+A prior patch refactored the lpfc_sli_abort_iocb() routine. One of the
+changes was to convert from building/sending an abort within the routine to
+using a common routine. The reworked routine passes, without modification,
+the pring ptr to the new common routine. The older routine had logic to
+check SLI-3 vs SLI-4 and adapt the pring ptr if necessary as callers were
+passing SLI-3 pointers even when not on an SLI-4 adapter. The new routine
+is missing this check and adapt, so the SLI-3 ring pointers are being used
+in SLI-4 paths.
 
-  ha->max_qpairs = ha->msix_count - 1 (MB interrupt) - 1 (default
-                   response queue) - 1 (ATIO, in dual or pure target mode)
+Fix by cleaning up the calling routines. In review, there is no need to
+pass the ring ptr argument to abort_iocb at all. The routine can look at
+the adapter type itself and reference the proper ring.
 
-max_qpairs is set to zero in case of two CPUs and initiator mode. The
-number is then used to allocate ha->queue_pair_map inside
-qla2x00_alloc_queues(). No allocation happens and ha->queue_pair_map is
-left NULL but the driver thinks there are queue pairs available.
-
-qla2xxx_queuecommand() tries to find a qpair in the map and crashes:
-
-  if (ha->mqenable) {
-          uint32_t tag;
-          uint16_t hwq;
-          struct qla_qpair *qpair = NULL;
-
-          tag = blk_mq_unique_tag(cmd->request);
-          hwq = blk_mq_unique_tag_to_hwq(tag);
-          qpair = ha->queue_pair_map[hwq]; # <- HERE
-
-          if (qpair)
-                  return qla2xxx_mqueuecommand(host, cmd, qpair);
-  }
-
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  CPU: 0 PID: 72 Comm: kworker/u4:3 Tainted: G        W         5.10.0-rc1+ #25
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.0.0-prebuilt.qemu-project.org 04/01/2014
-  Workqueue: scsi_wq_7 fc_scsi_scan_rport [scsi_transport_fc]
-  RIP: 0010:qla2xxx_queuecommand+0x16b/0x3f0 [qla2xxx]
-  Call Trace:
-   scsi_queue_rq+0x58c/0xa60
-   blk_mq_dispatch_rq_list+0x2b7/0x6f0
-   ? __sbitmap_get_word+0x2a/0x80
-   __blk_mq_sched_dispatch_requests+0xb8/0x170
-   blk_mq_sched_dispatch_requests+0x2b/0x50
-   __blk_mq_run_hw_queue+0x49/0xb0
-   __blk_mq_delay_run_hw_queue+0xfb/0x150
-   blk_mq_sched_insert_request+0xbe/0x110
-   blk_execute_rq+0x45/0x70
-   __scsi_execute+0x10e/0x250
-   scsi_probe_and_add_lun+0x228/0xda0
-   __scsi_scan_target+0xf4/0x620
-   ? __pm_runtime_resume+0x4f/0x70
-   scsi_scan_target+0x100/0x110
-   fc_scsi_scan_rport+0xa1/0xb0 [scsi_transport_fc]
-   process_one_work+0x1ea/0x3b0
-   worker_thread+0x28/0x3b0
-   ? process_one_work+0x3b0/0x3b0
-   kthread+0x112/0x130
-   ? kthread_park+0x80/0x80
-   ret_from_fork+0x22/0x30
-
-The driver should allocate enough vectors to provide every CPU it's own HW
-queue and still handle reserved (MB, RSP, ATIO) interrupts.
-
-The change fixes the crash on dual core VM and prevents unbalanced QP
-allocation where nr_hw_queues is two less than the number of CPUs.
-
-Link: https://lore.kernel.org/r/20210412165740.39318-1-r.bolshakov@yadro.com
-Fixes: a6dcfe08487e ("scsi: qla2xxx: Limit interrupt vectors to number of CPUs")
-Cc: Daniel Wagner <daniel.wagner@suse.com>
-Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-Cc: Quinn Tran <qutran@marvell.com>
-Cc: Nilesh Javali <njavali@marvell.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: stable@vger.kernel.org # 5.11+
-Reported-by: Aleksandr Volkov <a.y.volkov@yadro.com>
-Reported-by: Aleksandr Miloserdov <a.miloserdov@yadro.com>
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Link: https://lore.kernel.org/r/20210412013127.2387-2-jsmart2021@gmail.com
+Fixes: db7531d2b377 ("scsi: lpfc: Convert abort handling to SLI-3 and SLI-4 handlers")
+Cc: <stable@vger.kernel.org> # v5.11+
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_crtn.h      |    4 ++--
+ drivers/scsi/lpfc/lpfc_hbadisc.c   |   10 +++-------
+ drivers/scsi/lpfc/lpfc_nportdisc.c |    4 +---
+ drivers/scsi/lpfc/lpfc_sli.c       |   20 +++++++++++++++-----
+ 4 files changed, 21 insertions(+), 17 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -4005,11 +4005,11 @@ qla24xx_enable_msix(struct qla_hw_data *
- 	if (USER_CTRL_IRQ(ha) || !ha->mqiobase) {
- 		/* user wants to control IRQ setting for target mode */
- 		ret = pci_alloc_irq_vectors(ha->pdev, min_vecs,
--		    min((u16)ha->msix_count, (u16)num_online_cpus()),
-+		    min((u16)ha->msix_count, (u16)(num_online_cpus() + min_vecs)),
- 		    PCI_IRQ_MSIX);
- 	} else
- 		ret = pci_alloc_irq_vectors_affinity(ha->pdev, min_vecs,
--		    min((u16)ha->msix_count, (u16)num_online_cpus()),
-+		    min((u16)ha->msix_count, (u16)(num_online_cpus() + min_vecs)),
- 		    PCI_IRQ_MSIX | PCI_IRQ_AFFINITY,
- 		    &desc);
+--- a/drivers/scsi/lpfc/lpfc_crtn.h
++++ b/drivers/scsi/lpfc/lpfc_crtn.h
+@@ -351,8 +351,8 @@ int lpfc_sli_hbq_size(void);
+ int lpfc_sli_issue_abort_iotag(struct lpfc_hba *, struct lpfc_sli_ring *,
+ 			       struct lpfc_iocbq *, void *);
+ int lpfc_sli_sum_iocb(struct lpfc_vport *, uint16_t, uint64_t, lpfc_ctx_cmd);
+-int lpfc_sli_abort_iocb(struct lpfc_vport *, struct lpfc_sli_ring *, uint16_t,
+-			uint64_t, lpfc_ctx_cmd);
++int lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
++			lpfc_ctx_cmd abort_cmd);
+ int
+ lpfc_sli_abort_taskmgmt(struct lpfc_vport *, struct lpfc_sli_ring *,
+ 			uint16_t, uint64_t, lpfc_ctx_cmd);
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -140,11 +140,8 @@ lpfc_terminate_rport_io(struct fc_rport
+ 			      "rport terminate: sid:x%x did:x%x flg:x%x",
+ 			      ndlp->nlp_sid, ndlp->nlp_DID, ndlp->nlp_flag);
  
+-	if (ndlp->nlp_sid != NLP_NO_SID) {
+-		lpfc_sli_abort_iocb(vport,
+-				    &vport->phba->sli.sli3_ring[LPFC_FCP_RING],
+-				    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+-	}
++	if (ndlp->nlp_sid != NLP_NO_SID)
++		lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+ }
+ 
+ /*
+@@ -299,8 +296,7 @@ lpfc_dev_loss_tmo_handler(struct lpfc_no
+ 
+ 	if (ndlp->nlp_sid != NLP_NO_SID) {
+ 		warn_on = 1;
+-		lpfc_sli_abort_iocb(vport, &phba->sli.sli3_ring[LPFC_FCP_RING],
+-				    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
++		lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+ 	}
+ 
+ 	if (warn_on) {
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -2633,12 +2633,10 @@ static uint32_t
+ lpfc_rcv_prlo_mapped_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 			  void *arg, uint32_t evt)
+ {
+-	struct lpfc_hba  *phba = vport->phba;
+ 	struct lpfc_iocbq *cmdiocb = (struct lpfc_iocbq *) arg;
+ 
+ 	/* flush the target */
+-	lpfc_sli_abort_iocb(vport, &phba->sli.sli3_ring[LPFC_FCP_RING],
+-			    ndlp->nlp_sid, 0, LPFC_CTX_TGT);
++	lpfc_sli_abort_iocb(vport, ndlp->nlp_sid, 0, LPFC_CTX_TGT);
+ 
+ 	/* Treat like rcv logo */
+ 	lpfc_rcv_logo(vport, ndlp, cmdiocb, ELS_CMD_PRLO);
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -11647,7 +11647,7 @@ lpfc_sli_issue_abort_iotag(struct lpfc_h
+ 	icmd = &cmdiocb->iocb;
+ 	if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
+ 	    icmd->ulpCommand == CMD_CLOSE_XRI_CN ||
+-	    (cmdiocb->iocb_flag & LPFC_DRIVER_ABORTED) != 0)
++	    cmdiocb->iocb_flag & LPFC_DRIVER_ABORTED)
+ 		return IOCB_ABORTING;
+ 
+ 	if (!pring) {
+@@ -11945,7 +11945,6 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba
+ /**
+  * lpfc_sli_abort_iocb - issue abort for all commands on a host/target/LUN
+  * @vport: Pointer to virtual port.
+- * @pring: Pointer to driver SLI ring object.
+  * @tgt_id: SCSI ID of the target.
+  * @lun_id: LUN ID of the scsi device.
+  * @abort_cmd: LPFC_CTX_LUN/LPFC_CTX_TGT/LPFC_CTX_HOST.
+@@ -11960,18 +11959,22 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba
+  * FCP iocbs associated with SCSI target specified by tgt_id parameter.
+  * When abort_cmd == LPFC_CTX_HOST, the function sends abort to all
+  * FCP iocbs associated with virtual port.
++ * The pring used for SLI3 is sli3_ring[LPFC_FCP_RING], for SLI4
++ * lpfc_sli4_calc_ring is used.
+  * This function returns number of iocbs it failed to abort.
+  * This function is called with no locks held.
+  **/
+ int
+-lpfc_sli_abort_iocb(struct lpfc_vport *vport, struct lpfc_sli_ring *pring,
+-		    uint16_t tgt_id, uint64_t lun_id, lpfc_ctx_cmd abort_cmd)
++lpfc_sli_abort_iocb(struct lpfc_vport *vport, u16 tgt_id, u64 lun_id,
++		    lpfc_ctx_cmd abort_cmd)
+ {
+ 	struct lpfc_hba *phba = vport->phba;
++	struct lpfc_sli_ring *pring = NULL;
+ 	struct lpfc_iocbq *iocbq;
+ 	int errcnt = 0, ret_val = 0;
+ 	unsigned long iflags;
+ 	int i;
++	void *fcp_cmpl = NULL;
+ 
+ 	/* all I/Os are in process of being flushed */
+ 	if (phba->hba_flag & HBA_IOQ_FLUSH)
+@@ -11985,8 +11988,15 @@ lpfc_sli_abort_iocb(struct lpfc_vport *v
+ 			continue;
+ 
+ 		spin_lock_irqsave(&phba->hbalock, iflags);
++		if (phba->sli_rev == LPFC_SLI_REV3) {
++			pring = &phba->sli.sli3_ring[LPFC_FCP_RING];
++			fcp_cmpl = lpfc_sli_abort_fcp_cmpl;
++		} else if (phba->sli_rev == LPFC_SLI_REV4) {
++			pring = lpfc_sli4_calc_ring(phba, iocbq);
++			fcp_cmpl = lpfc_sli4_abort_fcp_cmpl;
++		}
+ 		ret_val = lpfc_sli_issue_abort_iotag(phba, pring, iocbq,
+-						     lpfc_sli_abort_fcp_cmpl);
++						     fcp_cmpl);
+ 		spin_unlock_irqrestore(&phba->hbalock, iflags);
+ 		if (ret_val != IOCB_SUCCESS)
+ 			errcnt++;
 
 
