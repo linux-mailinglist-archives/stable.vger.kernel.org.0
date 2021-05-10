@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81DE4377E9C
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 128B6377EA0
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 10:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbhEJIvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 04:51:53 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:58155 "EHLO
+        id S230141AbhEJIxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 04:53:51 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:49171 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230049AbhEJIvw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:51:52 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id EE0CA1940B81;
-        Mon, 10 May 2021 04:50:46 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 10 May 2021 04:50:46 -0400
+        by vger.kernel.org with ESMTP id S229566AbhEJIxu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 04:53:50 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id DB64B1940231;
+        Mon, 10 May 2021 04:52:45 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 10 May 2021 04:52:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=f72E3h
-        lz5bAJcowmL/FmrgqErqrg+trD1pCM7kRrQXI=; b=bnEO2nyPmcLrEDCvKUg4HQ
-        yBJ8Gqi+H6bPsLHcz7CwH0jbH4GGSQh66TkAzPrPSqv3UzkCpkPCW+V2QSLU5JrZ
-        DtL+JIIxE3LboIXPs4Bm1+Q2NwfFa2aHn7Qga2WuV297zTiQAYBcxB4wXxKLk9ST
-        1S1XYsOB5rcr9s+uAwWnA3sGNcxoBktgt32ZPqntK9lORK05Xtl+UEub5JcgOu0p
-        TQJVIAQis9kg7owlMWjG5IXotMTosCUEVSFS0QnRvLajQTDglbodtbzRUdY8t9WU
-        rOySydpBH7k8cFxs8EUYnROMjiF7+vP2VceFQRcYVmINAKAdSzKH+IfG7JRsXPYw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=XgmGXq
+        Qg+VxWw9J2NaRiOrygC9/3ecyx3X6/JXyWVl8=; b=I88qeQgGPnwj7S3BuOX2yx
+        ll3s8cJm7GBXHfn5rHEi+u0jiAK/qysWVBsozmEAsVL5dGhIt95aHO9J9XH5puZw
+        T5XPyObBK1//Imuvh1n+xC4eFI+H6ctxh/QTUHm0zVv/4sGLyfMinzBdVl0xOiDB
+        GgttcTUNdqrX3FcTdilk2IWkyuhzKZuUXOVpOYgVRwWKMICFaIWkD+6qv4r0V7xs
+        m4mK1cGXH9HoNitmOGD+waG4cK42HEx4NLnmN62zeqRCqUUdwsF4Zq55shsl2vm4
+        DIkzQsLwxUYMIC/yFm/h96LogLZhVTPsbkq6oANBHGeWQyXv16mQFxmVRdXlYFZw
         ==
-X-ME-Sender: <xms:5vOYYNFy_FxUwt3FjkWeNeK_vz9B3C0DBZI7e64rasoaNq3nkbYlSg>
-    <xme:5vOYYCXFRsVaxU27QWTNwFK91Qy7puXdOo-2Lc5Di3U8EF5Qw08Ph3sZpf9FSXQP8
-    yZ3AMpoqSCR2w>
+X-ME-Sender: <xms:XfSYYIlqnf_c66HMJC3IGQ_MSnp1zRbt_zWNLJVlErT4qVLMlUJGfw>
+    <xme:XfSYYH2O_48C6eC0Y9xEiRzAyBQPpVXGuV6TW5u4gfzM0tNWX1yNGHBD6-5YNibga
+    nj8XQ_E7vOlPQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegkedgtdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:5vOYYPKGvV_RDDb_tM2ixwbAM-Dv4qdq472sLGgv_Bghl2veDYQecg>
-    <xmx:5vOYYDFN65J0qEeRuqmI543jrSPlA9JG_JeZsVm0fjGe5vjxNSg_zQ>
-    <xmx:5vOYYDWo-dgMzGafYGXn0SbLtz8kbWfQYUu-x8XkJpA1VzYa-3ifFA>
-    <xmx:5vOYYKdtssePkOpJBTykt5sqtTyj7xrLy3JbgJHRC9KBaarwi0wg0w>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:XfSYYGpRcKIyt61g8bAGgUq_noBWWCoeR62kao-nHnx0zrdz8Uj3_A>
+    <xmx:XfSYYElSk1HRBSQIM6_hJub8nGhAldtV_NUgIo7aaHfzsANznlLDTg>
+    <xmx:XfSYYG1jN32ff2Tqgsxo-P87BCbdFdSaJY3zJHhKmq8p6oo-cLf6-g>
+    <xmx:XfSYYL9xqnVVo4iwlL3Tv84-lWaq2BgHqq1dEU-ZLWK2Ud-7Usx0YQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 04:50:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tracing: Restructure trace_clock_global() to never block" failed to apply to 4.14-stable tree
-To:     rostedt@goodmis.org, hi-angel@yandex.ru,
-        todd.e.brandt@linux.intel.com
+        Mon, 10 May 2021 04:52:45 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm integrity: fix missing goto in bitmap_flush_interval error" failed to apply to 4.19-stable tree
+To:     tiantao6@hisilicon.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 10:50:42 +0200
-Message-ID: <162063664219298@kroah.com>
+Date:   Mon, 10 May 2021 10:52:42 +0200
+Message-ID: <162063676224091@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,146 +70,27 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From aafe104aa9096827a429bc1358f8260ee565b7cc Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Fri, 30 Apr 2021 12:17:58 -0400
-Subject: [PATCH] tracing: Restructure trace_clock_global() to never block
+From 17e9e134a8efabbbf689a0904eee92bb5a868172 Mon Sep 17 00:00:00 2001
+From: Tian Tao <tiantao6@hisilicon.com>
+Date: Wed, 14 Apr 2021 09:43:44 +0800
+Subject: [PATCH] dm integrity: fix missing goto in bitmap_flush_interval error
+ handling
 
-It was reported that a fix to the ring buffer recursion detection would
-cause a hung machine when performing suspend / resume testing. The
-following backtrace was extracted from debugging that case:
-
-Call Trace:
- trace_clock_global+0x91/0xa0
- __rb_reserve_next+0x237/0x460
- ring_buffer_lock_reserve+0x12a/0x3f0
- trace_buffer_lock_reserve+0x10/0x50
- __trace_graph_return+0x1f/0x80
- trace_graph_return+0xb7/0xf0
- ? trace_clock_global+0x91/0xa0
- ftrace_return_to_handler+0x8b/0xf0
- ? pv_hash+0xa0/0xa0
- return_to_handler+0x15/0x30
- ? ftrace_graph_caller+0xa0/0xa0
- ? trace_clock_global+0x91/0xa0
- ? __rb_reserve_next+0x237/0x460
- ? ring_buffer_lock_reserve+0x12a/0x3f0
- ? trace_event_buffer_lock_reserve+0x3c/0x120
- ? trace_event_buffer_reserve+0x6b/0xc0
- ? trace_event_raw_event_device_pm_callback_start+0x125/0x2d0
- ? dpm_run_callback+0x3b/0xc0
- ? pm_ops_is_empty+0x50/0x50
- ? platform_get_irq_byname_optional+0x90/0x90
- ? trace_device_pm_callback_start+0x82/0xd0
- ? dpm_run_callback+0x49/0xc0
-
-With the following RIP:
-
-RIP: 0010:native_queued_spin_lock_slowpath+0x69/0x200
-
-Since the fix to the recursion detection would allow a single recursion to
-happen while tracing, this lead to the trace_clock_global() taking a spin
-lock and then trying to take it again:
-
-ring_buffer_lock_reserve() {
-  trace_clock_global() {
-    arch_spin_lock() {
-      queued_spin_lock_slowpath() {
-        /* lock taken */
-        (something else gets traced by function graph tracer)
-          ring_buffer_lock_reserve() {
-            trace_clock_global() {
-              arch_spin_lock() {
-                queued_spin_lock_slowpath() {
-                /* DEAD LOCK! */
-
-Tracing should *never* block, as it can lead to strange lockups like the
-above.
-
-Restructure the trace_clock_global() code to instead of simply taking a
-lock to update the recorded "prev_time" simply use it, as two events
-happening on two different CPUs that calls this at the same time, really
-doesn't matter which one goes first. Use a trylock to grab the lock for
-updating the prev_time, and if it fails, simply try again the next time.
-If it failed to be taken, that means something else is already updating
-it.
-
-Link: https://lkml.kernel.org/r/20210430121758.650b6e8a@gandalf.local.home
-
+Fixes: 468dfca38b1a ("dm integrity: add a bitmap mode")
 Cc: stable@vger.kernel.org
-Tested-by: Konstantin Kharlamov <hi-angel@yandex.ru>
-Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
-Fixes: b02414c8f045 ("ring-buffer: Fix recursion protection transitions between interrupt context") # started showing the problem
-Fixes: 14131f2f98ac3 ("tracing: implement trace_clock_*() APIs") # where the bug happened
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212761
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 
-diff --git a/kernel/trace/trace_clock.c b/kernel/trace/trace_clock.c
-index aaf6793ededa..c1637f90c8a3 100644
---- a/kernel/trace/trace_clock.c
-+++ b/kernel/trace/trace_clock.c
-@@ -95,33 +95,49 @@ u64 notrace trace_clock_global(void)
- {
- 	unsigned long flags;
- 	int this_cpu;
--	u64 now;
-+	u64 now, prev_time;
- 
- 	raw_local_irq_save(flags);
- 
- 	this_cpu = raw_smp_processor_id();
--	now = sched_clock_cpu(this_cpu);
-+
- 	/*
--	 * If in an NMI context then dont risk lockups and return the
--	 * cpu_clock() time:
-+	 * The global clock "guarantees" that the events are ordered
-+	 * between CPUs. But if two events on two different CPUS call
-+	 * trace_clock_global at roughly the same time, it really does
-+	 * not matter which one gets the earlier time. Just make sure
-+	 * that the same CPU will always show a monotonic clock.
-+	 *
-+	 * Use a read memory barrier to get the latest written
-+	 * time that was recorded.
- 	 */
--	if (unlikely(in_nmi()))
--		goto out;
-+	smp_rmb();
-+	prev_time = READ_ONCE(trace_clock_struct.prev_time);
-+	now = sched_clock_cpu(this_cpu);
- 
--	arch_spin_lock(&trace_clock_struct.lock);
-+	/* Make sure that now is always greater than prev_time */
-+	if ((s64)(now - prev_time) < 0)
-+		now = prev_time + 1;
- 
- 	/*
--	 * TODO: if this happens often then maybe we should reset
--	 * my_scd->clock to prev_time+1, to make sure
--	 * we start ticking with the local clock from now on?
-+	 * If in an NMI context then dont risk lockups and simply return
-+	 * the current time.
- 	 */
--	if ((s64)(now - trace_clock_struct.prev_time) < 0)
--		now = trace_clock_struct.prev_time + 1;
-+	if (unlikely(in_nmi()))
-+		goto out;
- 
--	trace_clock_struct.prev_time = now;
-+	/* Tracing can cause strange recursion, always use a try lock */
-+	if (arch_spin_trylock(&trace_clock_struct.lock)) {
-+		/* Reread prev_time in case it was already updated */
-+		prev_time = READ_ONCE(trace_clock_struct.prev_time);
-+		if ((s64)(now - prev_time) < 0)
-+			now = prev_time + 1;
- 
--	arch_spin_unlock(&trace_clock_struct.lock);
-+		trace_clock_struct.prev_time = now;
- 
-+		/* The unlock acts as the wmb for the above rmb */
-+		arch_spin_unlock(&trace_clock_struct.lock);
-+	}
-  out:
- 	raw_local_irq_restore(flags);
- 
+diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+index fed8a7ccd7f9..6977422454a4 100644
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -4049,6 +4049,7 @@ static int dm_integrity_ctr(struct dm_target *ti, unsigned argc, char **argv)
+ 			if (val >= (uint64_t)UINT_MAX * 1000 / HZ) {
+ 				r = -EINVAL;
+ 				ti->error = "Invalid bitmap_flush_interval argument";
++				goto bad;
+ 			}
+ 			ic->bitmap_flush_interval = msecs_to_jiffies(val);
+ 		} else if (!strncmp(opt_string, "internal_hash:", strlen("internal_hash:"))) {
 
