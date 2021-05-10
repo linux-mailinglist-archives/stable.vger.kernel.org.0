@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1B237893E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F2937871C
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239250AbhEJL0K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:26:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49920 "EHLO mail.kernel.org"
+        id S234922AbhEJLNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:13:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233618AbhEJLOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:14:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28A9E61364;
-        Mon, 10 May 2021 11:10:35 +0000 (UTC)
+        id S235964AbhEJLHG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEF976162D;
+        Mon, 10 May 2021 10:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645036;
-        bh=HYPQr5De+BztxcVMQkTJ1B1kSN3YQXCcudGHqQcosso=;
+        s=korg; t=1620644238;
+        bh=BnQ2WjSQ5Q+TNsP6SxVor3xEFQL6n8L3r6/lM4WX5ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4lKYZMhXX2R5vGzunDwZFZOSZAsZUdRipKAk+pEWVuIgaeZLlKZ2HNwBCO74EeyL
-         wf/m8TjMV3hL4o5IVkZc7nVIpT7hYzZkQRgRIea4WoygA1xDol4RUMojf4GEKF2qyV
-         hbAcYOnsu1/s8TD0MEF/XJH1DX5iRgARwQqRUqLE=
+        b=bawCVYpxq7MfriyLO8hLdnle5wYtbtg6n2RbyfrJ65bLBU1uxHbJlakAyZpskpVP6
+         Uvt1cyzUX6h71R+ugkZIQzeScJ5MUaWZeO4woVZqp7MHAGYG0QryGkzg6NxfJGDP09
+         8J6hQod5SIDZWSdK8X8A2f3qdblhBHS0tOyOlIOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ignat Korchagin <ignat@cloudflare.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 325/384] sfc: adjust efx->xdp_tx_queue_count with the real number of initialized queues
+        stable@vger.kernel.org, Dean Anderson <dean@sensoray.com>
+Subject: [PATCH 5.11 324/342] usb: gadget/function/f_fs string table fix for multiple languages
 Date:   Mon, 10 May 2021 12:21:54 +0200
-Message-Id: <20210510102025.510535787@linuxfoundation.org>
+Message-Id: <20210510102020.818049337@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +38,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ignat Korchagin <ignat@cloudflare.com>
+From: Dean Anderson <dean@sensoray.com>
 
-commit 99ba0ea616aabdc8e26259fd722503e012199a76 upstream.
+commit 55b74ce7d2ce0b0058f3e08cab185a0afacfe39e upstream.
 
-efx->xdp_tx_queue_count is initially initialized to num_possible_cpus() and is
-later used to allocate and traverse efx->xdp_tx_queues lookup array. However,
-we may end up not initializing all the array slots with real queues during
-probing. This results, for example, in a NULL pointer dereference, when running
-"# ethtool -S <iface>", similar to below
+Fixes bug with the handling of more than one language in
+the string table in f_fs.c.
+str_count was not reset for subsequent language codes.
+str_count-- "rolls under" and processes u32 max strings on
+the processing of the second language entry.
+The existing bug can be reproduced by adding a second language table
+to the structure "strings" in tools/usb/ffs-test.c.
 
-[2570283.664955][T4126959] BUG: kernel NULL pointer dereference, address: 00000000000000f8
-[2570283.681283][T4126959] #PF: supervisor read access in kernel mode
-[2570283.695678][T4126959] #PF: error_code(0x0000) - not-present page
-[2570283.710013][T4126959] PGD 0 P4D 0
-[2570283.721649][T4126959] Oops: 0000 [#1] SMP PTI
-[2570283.734108][T4126959] CPU: 23 PID: 4126959 Comm: ethtool Tainted: G           O      5.10.20-cloudflare-2021.3.1 #1
-[2570283.752641][T4126959] Hardware name: <redacted>
-[2570283.781408][T4126959] RIP: 0010:efx_ethtool_get_stats+0x2ca/0x330 [sfc]
-[2570283.796073][T4126959] Code: 00 85 c0 74 39 48 8b 95 a8 0f 00 00 48 85 d2 74 2d 31 c0 eb 07 48 8b 95 a8 0f 00 00 48 63 c8 49 83 c4 08 83 c0 01 48 8b 14 ca <48> 8b 92 f8 00 00 00 49 89 54 24 f8 39 85 a0 0f 00 00 77 d7 48 8b
-[2570283.831259][T4126959] RSP: 0018:ffffb79a77657ce8 EFLAGS: 00010202
-[2570283.845121][T4126959] RAX: 0000000000000019 RBX: ffffb799cd0c9280 RCX: 0000000000000018
-[2570283.860872][T4126959] RDX: 0000000000000000 RSI: ffff96dd970ce000 RDI: 0000000000000005
-[2570283.876525][T4126959] RBP: ffff96dd86f0a000 R08: ffff96dd970ce480 R09: 000000000000005f
-[2570283.892014][T4126959] R10: ffffb799cd0c9fff R11: ffffb799cd0c9000 R12: ffffb799cd0c94f8
-[2570283.907406][T4126959] R13: ffffffffc11b1090 R14: ffff96dd970ce000 R15: ffffffffc11cd66c
-[2570283.922705][T4126959] FS:  00007fa7723f8740(0000) GS:ffff96f51fac0000(0000) knlGS:0000000000000000
-[2570283.938848][T4126959] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[2570283.952524][T4126959] CR2: 00000000000000f8 CR3: 0000001a73e6e006 CR4: 00000000007706e0
-[2570283.967529][T4126959] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[2570283.982400][T4126959] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[2570283.997308][T4126959] PKRU: 55555554
-[2570284.007649][T4126959] Call Trace:
-[2570284.017598][T4126959]  dev_ethtool+0x1832/0x2830
-
-Fix this by adjusting efx->xdp_tx_queue_count after probing to reflect the true
-value of initialized slots in efx->xdp_tx_queues.
-
-Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
-Fixes: e26ca4b53582 ("sfc: reduce the number of requested xdp ev queues")
-Cc: <stable@vger.kernel.org> # 5.12.x
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dean Anderson <dean@sensoray.com>
+Link: https://lore.kernel.org/r/20210317224109.21534-1-dean@sensoray.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/efx_channels.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/gadget/function/f_fs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/sfc/efx_channels.c
-+++ b/drivers/net/ethernet/sfc/efx_channels.c
-@@ -914,6 +914,8 @@ int efx_set_channels(struct efx_nic *efx
- 			}
- 		}
- 	}
-+	if (xdp_queue_number)
-+		efx->xdp_tx_queue_count = xdp_queue_number;
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -2640,6 +2640,7 @@ static int __ffs_data_got_strings(struct
  
- 	rc = netif_set_real_num_tx_queues(efx->net_dev, efx->n_tx_channels);
- 	if (rc)
+ 	do { /* lang_count > 0 so we can use do-while */
+ 		unsigned needed = needed_count;
++		u32 str_per_lang = str_count;
+ 
+ 		if (len < 3)
+ 			goto error_free;
+@@ -2675,7 +2676,7 @@ static int __ffs_data_got_strings(struct
+ 
+ 			data += length + 1;
+ 			len -= length + 1;
+-		} while (--str_count);
++		} while (--str_per_lang);
+ 
+ 		s->id = 0;   /* terminator */
+ 		s->s = NULL;
 
 
