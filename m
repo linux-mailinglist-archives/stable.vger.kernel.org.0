@@ -2,110 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5515377D58
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 09:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E08377D5C
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 09:43:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230106AbhEJHoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 03:44:19 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:43317 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229852AbhEJHoS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 03:44:18 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3C6A3194059A;
-        Mon, 10 May 2021 03:43:14 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 10 May 2021 03:43:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YQu4yF
-        743M6wl8DkeRCDjRMWgXsg9U/nT6ywXS7JLFo=; b=iRy3E/ojmSdZJYjHJULL15
-        rtOIcosBMVo88G+opuAPiqnjdBakWL/pZ4KamQWpsy4velCWexxGp79RmBbMoI5J
-        tCz7r8xCU0z4RHw3YPrZATvQG5lEcXPY2lMJnAQQmnuC70CTo0uUufsx2a6M1myI
-        g32XPBbUiHizLFnZzA2HIiKtHwyuUGDUuY06AbOtTEtZ2aYzHo+GVOK1d/D2hCbQ
-        wr5NxEsw9BcC67SD8usm/9hE5QHsSbzjZYMnKmJvLwMfxeijBIIutW1NrfpqvQRt
-        tDeq1dhaoHme4Qldq3wod0Y6ngFTcibMBng+8N0/eQnWwHqOh4ulaysJ4WO7ZQZw
-        ==
-X-ME-Sender: <xms:EuSYYJeEEdYRQ_hFo6ZrrXJ1nAJWcCnHcCLCtAjDPC67umXFvLrHrQ>
-    <xme:EuSYYHM6v1dypYQTiTxD26_fPguUmBdcnEsEmRfsmLHxhqWjChj3fyFd7E_Dg28rU
-    AL6Z1bMVhF3Qw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegjedguddulecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:EuSYYCiNU74I_6UHxqFq6qGPEn4smyjAHofnpPa0xCVQ7aSCdZQ-Bw>
-    <xmx:EuSYYC92KDAbgyoY322lz9AJUDHFPLIULBA7yeauTtUUGJE2Fcz_Kg>
-    <xmx:EuSYYFtQAM1mXs3Qd5G7Inwl4izS9u4QybkDHH-TX8vYnUeSzHnFTQ>
-    <xmx:EuSYYD0nhtTmhruOLMjMtNTv6CY9yCueMMhK6jXs9EmUoBVVJA81ug>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 03:43:13 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/cpu: Initialize MSR_TSC_AUX if RDTSCP *or* RDPID is" failed to apply to 4.19-stable tree
-To:     seanjc@google.com, tglx@linutronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 May 2021 09:43:00 +0200
-Message-ID: <16206325801382@kroah.com>
+        id S230111AbhEJHpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 03:45:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51716 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229852AbhEJHpA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 03:45:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72FEB61432;
+        Mon, 10 May 2021 07:43:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1620632635;
+        bh=YceyRvX1NNA1NSeo7fUGpx6VBE/Ls+2Bt+2HbYnKf20=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bJFIaEz1MiWXCTWqZGUuZSncMfFFxSU926DEulZPSQyuS5RikCVA84oqlr3i4/9F8
+         ohv6r3+xWA6kEHswpHwzN04Nv0hMsq7DK8Iy95nwtqJgE2nQQZ6PsDthEqoKXoHo0T
+         ZPJH2pA4NF/V/JQSd9kRIi5RgTrGjmR04QCssQh0=
+Date:   Mon, 10 May 2021 09:43:52 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Russell King <linux@armlinux.org.uk>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nick Desaulniers <ndesaulniers@gooogle.com>,
+        Joe Perches <joe@perches.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Tian Tao <tiantao6@hisilicon.com>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH stable 5.10 0/3] ARM FDT relocation backports
+Message-ID: <YJjkOLg/Ivo2kMOS@kroah.com>
+References: <20210509173029.1653182-1-f.fainelli@gmail.com>
+ <CAMj1kXGt1zrRQused3xgXzhQYfDchgH325iRDCZrx+7o1+bUnA@mail.gmail.com>
+ <5f8fed97-8c73-73b0-6576-bf3fbcdb1440@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5f8fed97-8c73-73b0-6576-bf3fbcdb1440@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, May 09, 2021 at 06:22:05PM -0700, Florian Fainelli wrote:
+> 
+> 
+> On 5/9/2021 12:17 PM, Ard Biesheuvel wrote:
+> > On Sun, 9 May 2021 at 19:30, Florian Fainelli <f.fainelli@gmail.com> wrote:
+> >>
+> >> Hi Greg, Sasha,
+> >>
+> >> These patches were not marked with a Fixes: tag but they do fix booting
+> >> ARM 32-bit platforms that have specific FDT placement and would cause
+> >> boot failures like these:
+> >>
+> > 
+> > I don't have any objections to backporting these changes, but it would
+> > be helpful if you could explain why this is a regression. Also, you'll
+> > need to pull in the following patch as well
+> 
+> This does not qualify as a regression in that it has never worked for
+> the specific platform that I have shown above until your 3 commits came
+> in and fixed that particular FDT placement. To me this qualifies as a
+> bug fix, and given that the 3 (now 4) commits applied without hunks, it
+> seems reasonable to me to back port those to stable.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+As this isn't a regression, why not just use 5.12 on these platforms?
+Why is 5.4 and 5.10 needed?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From b6b4fbd90b155a0025223df2c137af8a701d53b3 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 4 May 2021 15:56:31 -0700
-Subject: [PATCH] x86/cpu: Initialize MSR_TSC_AUX if RDTSCP *or* RDPID is
- supported
-
-Initialize MSR_TSC_AUX with CPU node information if RDTSCP or RDPID is
-supported.  This fixes a bug where vdso_read_cpunode() will read garbage
-via RDPID if RDPID is supported but RDTSCP is not.  While no known CPU
-supports RDPID but not RDTSCP, both Intel's SDM and AMD's APM allow for
-RDPID to exist without RDTSCP, e.g. it's technically a legal CPU model
-for a virtual machine.
-
-Note, technically MSR_TSC_AUX could be initialized if and only if RDPID
-is supported since RDTSCP is currently not used to retrieve the CPU node.
-But, the cost of the superfluous WRMSR is negigible, whereas leaving
-MSR_TSC_AUX uninitialized is just asking for future breakage if someone
-decides to utilize RDTSCP.
-
-Fixes: a582c540ac1b ("x86/vdso: Use RDPID in preference to LSL when available")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210504225632.1532621-2-seanjc@google.com
-
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 6bdb69a9a7dc..490bed07fe35 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1851,7 +1851,7 @@ static inline void setup_getcpu(int cpu)
- 	unsigned long cpudata = vdso_encode_cpunode(cpu, early_cpu_to_node(cpu));
- 	struct desc_struct d = { };
- 
--	if (boot_cpu_has(X86_FEATURE_RDTSCP))
-+	if (boot_cpu_has(X86_FEATURE_RDTSCP) || boot_cpu_has(X86_FEATURE_RDPID))
- 		write_rdtscp_aux(cpudata);
- 
- 	/* Store CPU and node number in limit. */
-
