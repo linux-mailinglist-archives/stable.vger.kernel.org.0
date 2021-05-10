@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C733782D0
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A143C3782D9
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 12:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231584AbhEJKiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 06:38:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41322 "EHLO mail.kernel.org"
+        id S231996AbhEJKim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 06:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232257AbhEJKgL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:36:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C7C161458;
-        Mon, 10 May 2021 10:29:10 +0000 (UTC)
+        id S232398AbhEJKge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:36:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24E1761483;
+        Mon, 10 May 2021 10:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620642550;
-        bh=SYlE30wYHz6hoXRJYV9/E8DRKDkO1zINApCXxlEA6H0=;
+        s=korg; t=1620642555;
+        bh=3pF6W8M8NKL42jiOcj0bMVkhNSGsy7B4vfgEBbzB7Ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9WTpHlEt+XC5ZkA+aPpC9yUnPzTAaCljOz/1vK85K47fE/Oh/yM2RF93n34uSxAs
-         aeL35Q6UkiHP18IRN2AnRZ4aa+q0GHeMO2L7mHX10rQMUrIUwsEn4JErShHDOef1WB
-         pv20u5GbA9ErqQcHa1wDpjGRLrHwSpYuapXm9RY8=
+        b=FFZThfUGNT7atfzY7xu0cPYVNd6hITiZ8SQ8EG3JRsISOZoAdDZC2HUVJwIGXqonU
+         cOln7Yk4M8CGObPiiXRCPObI24A513e9I6zqkSRtbXToPop1SA4eHJsexGRWcFfFeK
+         y64QMdor46TNiuI7n+pecx8hju+XiY1NuairKQWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 141/184] mlxsw: spectrum_mr: Update egress RIF list before routes action
-Date:   Mon, 10 May 2021 12:20:35 +0200
-Message-Id: <20210510101954.763919966@linuxfoundation.org>
+        stable@vger.kernel.org, Eelco Chaudron <echaudro@redhat.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 142/184] openvswitch: fix stack OOB read while fragmenting IPv4 packets
+Date:   Mon, 10 May 2021 12:20:36 +0200
+Message-Id: <20210510101954.793363299@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
 References: <20210510101950.200777181@linuxfoundation.org>
@@ -40,99 +40,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit cbaf3f6af9c268caf558c8e7ec52bcb35c5455dd upstream.
+commit 7c0ea5930c1c211931819d83cfb157bff1539a4c upstream.
 
-Each multicast route that is forwarding packets (as opposed to trapping
-them) points to a list of egress router interfaces (RIFs) through which
-packets are replicated.
+running openvswitch on kernels built with KASAN, it's possible to see the
+following splat while testing fragmentation of IPv4 packets:
 
-A route's action can transition from trap to forward when a RIF is
-created for one of the route's egress virtual interfaces (eVIF). When
-this happens, the route's action is first updated and only later the
-list of egress RIFs is committed to the device.
+ BUG: KASAN: stack-out-of-bounds in ip_do_fragment+0x1b03/0x1f60
+ Read of size 1 at addr ffff888112fc713c by task handler2/1367
 
-This results in the route pointing to an invalid list. In case the list
-pointer is out of range (due to uninitialized memory), the device will
-complain:
+ CPU: 0 PID: 1367 Comm: handler2 Not tainted 5.12.0-rc6+ #418
+ Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+ Call Trace:
+  dump_stack+0x92/0xc1
+  print_address_description.constprop.7+0x1a/0x150
+  kasan_report.cold.13+0x7f/0x111
+  ip_do_fragment+0x1b03/0x1f60
+  ovs_fragment+0x5bf/0x840 [openvswitch]
+  do_execute_actions+0x1bd5/0x2400 [openvswitch]
+  ovs_execute_actions+0xc8/0x3d0 [openvswitch]
+  ovs_packet_cmd_execute+0xa39/0x1150 [openvswitch]
+  genl_family_rcv_msg_doit.isra.15+0x227/0x2d0
+  genl_rcv_msg+0x287/0x490
+  netlink_rcv_skb+0x120/0x380
+  genl_rcv+0x24/0x40
+  netlink_unicast+0x439/0x630
+  netlink_sendmsg+0x719/0xbf0
+  sock_sendmsg+0xe2/0x110
+  ____sys_sendmsg+0x5ba/0x890
+  ___sys_sendmsg+0xe9/0x160
+  __sys_sendmsg+0xd3/0x170
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f957079db07
+ Code: c3 66 90 41 54 41 89 d4 55 48 89 f5 53 89 fb 48 83 ec 10 e8 eb ec ff ff 44 89 e2 48 89 ee 89 df 41 89 c0 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 35 44 89 c7 48 89 44 24 08 e8 24 ed ff ff 48
+ RSP: 002b:00007f956ce35a50 EFLAGS: 00000293 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 0000000000000019 RCX: 00007f957079db07
+ RDX: 0000000000000000 RSI: 00007f956ce35ae0 RDI: 0000000000000019
+ RBP: 00007f956ce35ae0 R08: 0000000000000000 R09: 00007f9558006730
+ R10: 0000000000000000 R11: 0000000000000293 R12: 0000000000000000
+ R13: 00007f956ce37308 R14: 00007f956ce35f80 R15: 00007f956ce35ae0
 
-mlxsw_spectrum2 0000:06:00.0: EMAD reg access failed (tid=5733bf490000905c,reg_id=300f(pefa),type=write,status=7(bad parameter))
+ The buggy address belongs to the page:
+ page:00000000af2a1d93 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x112fc7
+ flags: 0x17ffffc0000000()
+ raw: 0017ffffc0000000 0000000000000000 dead000000000122 0000000000000000
+ raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+ page dumped because: kasan: bad access detected
 
-Fix this by first committing the list of egress RIFs to the device and
-only later update the route's action.
+ addr ffff888112fc713c is located in stack of task handler2/1367 at offset 180 in frame:
+  ovs_fragment+0x0/0x840 [openvswitch]
 
-Note that a fix is not needed in the reverse function (i.e.,
-mlxsw_sp_mr_route_evif_unresolve()), as there the route's action is
-first updated and only later the RIF is removed from the list.
+ this frame has 2 objects:
+  [32, 144) 'ovs_dst'
+  [192, 424) 'ovs_rt'
 
-Cc: stable@vger.kernel.org
-Fixes: c011ec1bbfd6 ("mlxsw: spectrum: Add the multicast routing offloading logic")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/20210506072308.3834303-1-idosch@idosch.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ Memory state around the buggy address:
+  ffff888112fc7000: f3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff888112fc7080: 00 f1 f1 f1 f1 00 00 00 00 00 00 00 00 00 00 00
+ >ffff888112fc7100: 00 00 00 f2 f2 f2 f2 f2 f2 00 00 00 00 00 00 00
+                                         ^
+  ffff888112fc7180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff888112fc7200: 00 00 00 00 00 00 f2 f2 f2 00 00 00 00 00 00 00
+
+for IPv4 packets, ovs_fragment() uses a temporary struct dst_entry. Then,
+in the following call graph:
+
+  ip_do_fragment()
+    ip_skb_dst_mtu()
+      ip_dst_mtu_maybe_forward()
+        ip_mtu_locked()
+
+the pointer to struct dst_entry is used as pointer to struct rtable: this
+turns the access to struct members like rt_mtu_locked into an OOB read in
+the stack. Fix this changing the temporary variable used for IPv4 packets
+in ovs_fragment(), similarly to what is done for IPv6 few lines below.
+
+Fixes: d52e5a7e7ca4 ("ipv4: lock mtu in fnhe when received PMTU < net.ipv4.route.min_pmt")
+Cc: <stable@vger.kernel.org>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c |   30 +++++++++++-----------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ net/openvswitch/actions.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
-@@ -524,6 +524,16 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 	u16 erif_index = 0;
- 	int err;
- 
-+	/* Add the eRIF */
-+	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
-+		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
-+		err = mr->mr_ops->route_erif_add(mlxsw_sp,
-+						 rve->mr_route->route_priv,
-+						 erif_index);
-+		if (err)
-+			return err;
-+	}
-+
- 	/* Update the route action, as the new eVIF can be a tunnel or a pimreg
- 	 * device which will require updating the action.
- 	 */
-@@ -533,17 +543,7 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 						      rve->mr_route->route_priv,
- 						      route_action);
- 		if (err)
--			return err;
--	}
--
--	/* Add the eRIF */
--	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
--		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
--		err = mr->mr_ops->route_erif_add(mlxsw_sp,
--						 rve->mr_route->route_priv,
--						 erif_index);
--		if (err)
--			goto err_route_erif_add;
-+			goto err_route_action_update;
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -831,17 +831,17 @@ static void ovs_fragment(struct net *net
  	}
  
- 	/* Update the minimum MTU */
-@@ -561,14 +561,14 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
- 	return 0;
+ 	if (key->eth.type == htons(ETH_P_IP)) {
+-		struct dst_entry ovs_dst;
++		struct rtable ovs_rt = { 0 };
+ 		unsigned long orig_dst;
  
- err_route_min_mtu_update:
--	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
--		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
--					   erif_index);
--err_route_erif_add:
- 	if (route_action != rve->mr_route->route_action)
- 		mr->mr_ops->route_action_update(mlxsw_sp,
- 						rve->mr_route->route_priv,
- 						rve->mr_route->route_action);
-+err_route_action_update:
-+	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
-+		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
-+					   erif_index);
- 	return err;
- }
+ 		prepare_frag(vport, skb, orig_network_offset,
+ 			     ovs_key_mac_proto(key));
+-		dst_init(&ovs_dst, &ovs_dst_ops, NULL, 1,
++		dst_init(&ovs_rt.dst, &ovs_dst_ops, NULL, 1,
+ 			 DST_OBSOLETE_NONE, DST_NOCOUNT);
+-		ovs_dst.dev = vport->dev;
++		ovs_rt.dst.dev = vport->dev;
  
+ 		orig_dst = skb->_skb_refdst;
+-		skb_dst_set_noref(skb, &ovs_dst);
++		skb_dst_set_noref(skb, &ovs_rt.dst);
+ 		IPCB(skb)->frag_max_size = mru;
+ 
+ 		ip_do_fragment(net, skb->sk, skb, ovs_vport_output);
 
 
