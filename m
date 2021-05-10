@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35CC937873E
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B6DE378739
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237358AbhEJLOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:14:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
+        id S237340AbhEJLOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:14:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236181AbhEJLHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:07:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D4936193A;
-        Mon, 10 May 2021 10:58:47 +0000 (UTC)
+        id S236161AbhEJLHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:07:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A89B861939;
+        Mon, 10 May 2021 10:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644327;
-        bh=Kv21liz6kGlRfMPdOLsKA+J6Fros0SuGVrZIwFWt+sM=;
+        s=korg; t=1620644330;
+        bh=FLTjyOyqJvwchvnf8FfR7GtTTxii4g1YA1EfzgPKwug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LII8cGmsIUx+bnlPFkX+QrLrVjae5QaMT0lLqx6yQp5gaiZx0ko6+Q3NsWe7M4y0Q
-         OKA2sT6p1rE0MBHpkcKmMwCLZxXAe30bnrOl+JiSlc1gEFfkLz0bEu6NczDduqeGdT
-         cMNkQCNPaiIH6lm02XQ0+Il6p2HxN1XRBOTCpMhg=
+        b=UnWk2rmiVjSXdJxhvn6YW/0P4X0KSSTQnRZ//lM8E90fzKpSDX/KEvWcdfE5VdWlb
+         gLovVPavu39iaFPE8Fz6QZBMX23qbZi/B84DqvxOYmp0Z0ldwVTaizgkgC/Gq0l1Jw
+         POlyU+davBoQZ52Etuj7yCdEvWb17DyoEzriKUB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        Jeffrey Hugo <jhugo@codeaurora.org>,
+        Bhaumik Bhatt <bbhatt@codeaurora.org>,
         Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 5.12 006/384] bus: mhi: core: Fix MHI runtime_pm behavior
-Date:   Mon, 10 May 2021 12:16:35 +0200
-Message-Id: <20210510102015.083891508@linuxfoundation.org>
+Subject: [PATCH 5.12 007/384] bus: mhi: core: Fix invalid error returning in mhi_queue
+Date:   Mon, 10 May 2021 12:16:36 +0200
+Message-Id: <20210510102015.115375535@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -41,76 +43,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Loic Poulain <loic.poulain@linaro.org>
 
-commit 4547a749be997eb12ea7edcf361ec2a5329f7aec upstream.
+commit 0ecc1c70dcd32c0f081b173a1a5d89952686f271 upstream.
 
-This change ensures that PM reference is always get during packet
-queueing and released either after queuing completion (RX) or once
-the buffer has been consumed (TX). This guarantees proper update for
-underlying MHI controller runtime status (e.g. last_busy timestamp)
-and prevents suspend to be triggered while TX packets are flying,
-or before we completed update of the RX ring.
+mhi_queue returns an error when the doorbell is not accessible in
+the current state. This can happen when the device is in non M0
+state, like M3, and needs to be waken-up prior ringing the DB. This
+case is managed earlier by triggering an asynchronous M3 exit via
+controller resume/suspend callbacks, that in turn will cause M0
+transition and DB update.
 
+So, since it's not an error but just delaying of doorbell update, there
+is no reason to return an error.
+
+This also fixes a use after free error for skb case, indeed a caller
+queuing skb will try to free the skb if the queueing fails, but in
+that case queueing has been done.
+
+Fixes: a8f75cb348fd ("mhi: core: Factorize mhi queuing")
 Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Reviewed-by: Jeffrey Hugo <jhugo@codeaurora.org>
+Reviewed-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
 Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/1617700315-12492-1-git-send-email-loic.poulain@linaro.org
+Link: https://lore.kernel.org/r/1614336782-5809-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/core/main.c |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/bus/mhi/core/main.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
 --- a/drivers/bus/mhi/core/main.c
 +++ b/drivers/bus/mhi/core/main.c
-@@ -589,8 +589,11 @@ static int parse_xfer_event(struct mhi_c
- 			/* notify client */
- 			mhi_chan->xfer_cb(mhi_chan->mhi_dev, &result);
+@@ -1077,12 +1077,8 @@ static int mhi_queue(struct mhi_device *
+ 	if (mhi_chan->dir == DMA_TO_DEVICE)
+ 		atomic_inc(&mhi_cntrl->pending_pkts);
  
--			if (mhi_chan->dir == DMA_TO_DEVICE)
-+			if (mhi_chan->dir == DMA_TO_DEVICE) {
- 				atomic_dec(&mhi_cntrl->pending_pkts);
-+				/* Release the reference got from mhi_queue() */
-+				mhi_cntrl->runtime_put(mhi_cntrl);
-+			}
+-	if (unlikely(!MHI_DB_ACCESS_VALID(mhi_cntrl))) {
+-		ret = -EIO;
+-		goto exit_unlock;
+-	}
+-
+-	mhi_ring_chan_db(mhi_cntrl, mhi_chan);
++	if (likely(MHI_DB_ACCESS_VALID(mhi_cntrl)))
++		mhi_ring_chan_db(mhi_cntrl, mhi_chan);
  
- 			/*
- 			 * Recycle the buffer if buffer is pre-allocated,
-@@ -1062,9 +1065,11 @@ static int mhi_queue(struct mhi_device *
- 	if (unlikely(ret))
- 		goto exit_unlock;
- 
--	/* trigger M3 exit if necessary */
--	if (MHI_PM_IN_SUSPEND_STATE(mhi_cntrl->pm_state))
--		mhi_trigger_resume(mhi_cntrl);
-+	/* Packet is queued, take a usage ref to exit M3 if necessary
-+	 * for host->device buffer, balanced put is done on buffer completion
-+	 * for device->host buffer, balanced put is after ringing the DB
-+	 */
-+	mhi_cntrl->runtime_get(mhi_cntrl);
- 
- 	/* Assert dev_wake (to exit/prevent M1/M2)*/
- 	mhi_cntrl->wake_toggle(mhi_cntrl);
-@@ -1079,6 +1084,9 @@ static int mhi_queue(struct mhi_device *
- 
- 	mhi_ring_chan_db(mhi_cntrl, mhi_chan);
- 
-+	if (dir == DMA_FROM_DEVICE)
-+		mhi_cntrl->runtime_put(mhi_cntrl);
-+
- exit_unlock:
- 	read_unlock_irqrestore(&mhi_cntrl->pm_lock, flags);
- 
-@@ -1470,8 +1478,11 @@ static void mhi_reset_data_chan(struct m
- 	while (tre_ring->rp != tre_ring->wp) {
- 		struct mhi_buf_info *buf_info = buf_ring->rp;
- 
--		if (mhi_chan->dir == DMA_TO_DEVICE)
-+		if (mhi_chan->dir == DMA_TO_DEVICE) {
- 			atomic_dec(&mhi_cntrl->pending_pkts);
-+			/* Release the reference got from mhi_queue() */
-+			mhi_cntrl->runtime_put(mhi_cntrl);
-+		}
- 
- 		if (!buf_info->pre_mapped)
- 			mhi_cntrl->unmap_single(mhi_cntrl, buf_info);
+ 	if (dir == DMA_FROM_DEVICE)
+ 		mhi_cntrl->runtime_put(mhi_cntrl);
 
 
