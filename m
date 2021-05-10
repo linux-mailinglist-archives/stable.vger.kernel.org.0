@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D9637885B
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB7A23788BD
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239194AbhEJLVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:21:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49986 "EHLO mail.kernel.org"
+        id S234572AbhEJLXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:23:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237034AbhEJLLM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65B7361581;
-        Mon, 10 May 2021 11:06:30 +0000 (UTC)
+        id S237223AbhEJLLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 165436190A;
+        Mon, 10 May 2021 11:08:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644790;
-        bh=x9QvwcMUriwz5L2DA6a+cYKWavVW1n8+/4S4UeHFsE0=;
+        s=korg; t=1620644899;
+        bh=9nmZ9Pr/nDgFEeeAliQu9uMjuWaXNj3UsCrrHaNqzEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqKT9R7V9ZiJrfA3MUK0Y4qWqR8fE1Qmg+k4BsXHcTuxzt8k6uFE8o1B7BpsK0Ups
-         Z2aKHCStRB3/LGxOh7K5ZWm8hslzDndoaBZFBCLROYr422ylDMiAoFZw89UgYQUl+S
-         TSQ7WMiKva3X5EaTHxJJnJE5jO+5Ff9ZMdkO7yS4=
+        b=kKfY9KGeAI7sNo9oXlH8q9+ZlXQ4O0rtC1AdiCZd0qP1qVThukQvtLB5d6gWJ+c72
+         j4itD3DXlvbYfV8PTaZUP7V72cBYnpvjD4AQ7dJpr8Q/Xb2xnPgP1u9tDZai3xxrbG
+         uQB0nhSMgT2u6RXCpY6kXo+9de7/Q0sEtJc4eJhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Akhil P Oommen <akhilpo@codeaurora.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Abhinav Kumar <abhinavk@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
         Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 224/384] drm/msm/a6xx: Fix perfcounter oob timeout
-Date:   Mon, 10 May 2021 12:20:13 +0200
-Message-Id: <20210510102022.286064522@linuxfoundation.org>
+Subject: [PATCH 5.12 225/384] drm/msm/dp: Fix incorrect NULL check kbot warnings in DP driver
+Date:   Mon, 10 May 2021 12:20:14 +0200
+Message-Id: <20210510102022.316278079@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
 References: <20210510102014.849075526@linuxfoundation.org>
@@ -40,81 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akhil P Oommen <akhilpo@codeaurora.org>
+From: Abhinav Kumar <abhinavk@codeaurora.org>
 
-[ Upstream commit 2fc8a92e0a22c483e749232d4f13c77a92139aa7 ]
+[ Upstream commit 7d649cfe0314aad2ba18042885ab9de2f13ad809 ]
 
-We were not programing the correct bit while clearing the perfcounter oob.
-So, clear it correctly using the new 'clear' bit. This fixes the below
-error:
+Fix an incorrect NULL check reported by kbot in the MSM DP driver
 
-[drm:a6xx_gmu_set_oob] *ERROR* Timeout waiting for GMU OOB set PERFCOUNTER: 0x80000000
+smatch warnings:
+drivers/gpu/drm/msm/dp/dp_hpd.c:37 dp_hpd_connect()
+error: we previously assumed 'hpd_priv->dp_cb' could be null
+(see line 37)
 
-Signed-off-by: Akhil P Oommen <akhilpo@codeaurora.org>
-Link: https://lore.kernel.org/r/1617630433-36506-1-git-send-email-akhilpo@codeaurora.org
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Abhinav Kumar <abhinavk@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1614971839-2686-2-git-send-email-abhinavk@codeaurora.org
 Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_hpd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-index 91cf46f84025..3d55e153fa9c 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-@@ -246,7 +246,7 @@ static int a6xx_gmu_hfi_start(struct a6xx_gmu *gmu)
- }
+diff --git a/drivers/gpu/drm/msm/dp/dp_hpd.c b/drivers/gpu/drm/msm/dp/dp_hpd.c
+index 5b8fe32022b5..e1c90fa47411 100644
+--- a/drivers/gpu/drm/msm/dp/dp_hpd.c
++++ b/drivers/gpu/drm/msm/dp/dp_hpd.c
+@@ -34,8 +34,8 @@ int dp_hpd_connect(struct dp_usbpd *dp_usbpd, bool hpd)
  
- struct a6xx_gmu_oob_bits {
--	int set, ack, set_new, ack_new;
-+	int set, ack, set_new, ack_new, clear, clear_new;
- 	const char *name;
- };
+ 	dp_usbpd->hpd_high = hpd;
  
-@@ -260,6 +260,8 @@ static const struct a6xx_gmu_oob_bits a6xx_gmu_oob_bits[] = {
- 		.ack = 24,
- 		.set_new = 30,
- 		.ack_new = 31,
-+		.clear = 24,
-+		.clear_new = 31,
- 	},
- 
- 	[GMU_OOB_PERFCOUNTER_SET] = {
-@@ -268,18 +270,22 @@ static const struct a6xx_gmu_oob_bits a6xx_gmu_oob_bits[] = {
- 		.ack = 25,
- 		.set_new = 28,
- 		.ack_new = 30,
-+		.clear = 25,
-+		.clear_new = 29,
- 	},
- 
- 	[GMU_OOB_BOOT_SLUMBER] = {
- 		.name = "BOOT_SLUMBER",
- 		.set = 22,
- 		.ack = 30,
-+		.clear = 30,
- 	},
- 
- 	[GMU_OOB_DCVS_SET] = {
- 		.name = "GPU_DCVS",
- 		.set = 23,
- 		.ack = 31,
-+		.clear = 31,
- 	},
- };
- 
-@@ -335,9 +341,9 @@ void a6xx_gmu_clear_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state)
- 		return;
- 
- 	if (gmu->legacy)
--		bit = a6xx_gmu_oob_bits[state].ack;
-+		bit = a6xx_gmu_oob_bits[state].clear;
- 	else
--		bit = a6xx_gmu_oob_bits[state].ack_new;
-+		bit = a6xx_gmu_oob_bits[state].clear_new;
- 
- 	gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET, 1 << bit);
- }
+-	if (!hpd_priv->dp_cb && !hpd_priv->dp_cb->configure
+-				&& !hpd_priv->dp_cb->disconnect) {
++	if (!hpd_priv->dp_cb || !hpd_priv->dp_cb->configure
++				|| !hpd_priv->dp_cb->disconnect) {
+ 		pr_err("hpd dp_cb not initialized\n");
+ 		return -EINVAL;
+ 	}
 -- 
 2.30.2
 
