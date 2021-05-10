@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0FAF3786E2
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E28833788D7
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232984AbhEJLLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:11:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36488 "EHLO mail.kernel.org"
+        id S235325AbhEJLYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:24:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234986AbhEJLFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:05:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 246A561424;
-        Mon, 10 May 2021 10:55:16 +0000 (UTC)
+        id S232167AbhEJLLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1138A617C9;
+        Mon, 10 May 2021 11:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644117;
-        bh=gl4LTxeDSpZKZS21MVfhx8fcKg+TJblp7rcu6FDOc1M=;
+        s=korg; t=1620644968;
+        bh=7wyvuPCGg3CPemcp3jRXn9sODfvAvVXg5O5JDqfqpr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wD7MmMCD12eXxohazxD+zSoeWSeIh0bPYopPM0i/QC8l3cWZu7lMdFyfKx6Odl1dH
-         nR8YFkB1TN5vcahOQhn0sSzzeey0JugSa95kvTdpg+QIqZkLdVh6WZTnMzabB9VLSL
-         PZR/mdq7vDqwsnlbWbTBBOOShiUZJSlbRWKzu8u8=
+        b=yUfIBPlegm4C4zwvzpxkvpBDdRdHMpJN6rzN9IFy9oXPxxIUCvM3WLbTfYX7/GIHP
+         CZWvpUzq6j6qk7jvlcgoKCRAOhVcBZVREHUIuVRVTfX8PY/J98dkft2fCWHgr5Kd2S
+         RBaln/6PgV/wC8U7sAKLYAD73/2fqspumnDj/0R4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yang <yang.yang29@zte.com.cn>,
-        Joel Stanley <joel@jms.id.au>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.11 295/342] jffs2: check the validity of dstlen in jffs2_zlib_compress()
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 296/384] net/sched: sch_frag: fix stack OOB read while fragmenting IPv4 packets
 Date:   Mon, 10 May 2021 12:21:25 +0200
-Message-Id: <20210510102019.860756604@linuxfoundation.org>
+Message-Id: <20210510102024.568335076@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +42,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yang <yang.yang29@zte.com.cn>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit 90ada91f4610c5ef11bc52576516d96c496fc3f1 upstream.
+commit 31fe34a0118e0acc958c802e830ad5d37ef6b1d3 upstream.
 
-KASAN reports a BUG when download file in jffs2 filesystem.It is
-because when dstlen == 1, cpage_out will write array out of bounds.
-Actually, data will not be compressed in jffs2_zlib_compress() if
-data's length less than 4.
+when 'act_mirred' tries to fragment IPv4 packets that had been previously
+re-assembled using 'act_ct', splats like the following can be observed on
+kernels built with KASAN:
 
-[  393.799778] BUG: KASAN: slab-out-of-bounds in jffs2_rtime_compress+0x214/0x2f0 at addr ffff800062e3b281
-[  393.809166] Write of size 1 by task tftp/2918
-[  393.813526] CPU: 3 PID: 2918 Comm: tftp Tainted: G    B           4.9.115-rt93-EMBSYS-CGEL-6.1.R6-dirty #1
-[  393.823173] Hardware name: LS1043A RDB Board (DT)
-[  393.827870] Call trace:
-[  393.830322] [<ffff20000808c700>] dump_backtrace+0x0/0x2f0
-[  393.835721] [<ffff20000808ca04>] show_stack+0x14/0x20
-[  393.840774] [<ffff2000086ef700>] dump_stack+0x90/0xb0
-[  393.845829] [<ffff20000827b19c>] kasan_object_err+0x24/0x80
-[  393.851402] [<ffff20000827b404>] kasan_report_error+0x1b4/0x4d8
-[  393.857323] [<ffff20000827bae8>] kasan_report+0x38/0x40
-[  393.862548] [<ffff200008279d44>] __asan_store1+0x4c/0x58
-[  393.867859] [<ffff2000084ce2ec>] jffs2_rtime_compress+0x214/0x2f0
-[  393.873955] [<ffff2000084bb3b0>] jffs2_selected_compress+0x178/0x2a0
-[  393.880308] [<ffff2000084bb530>] jffs2_compress+0x58/0x478
-[  393.885796] [<ffff2000084c5b34>] jffs2_write_inode_range+0x13c/0x450
-[  393.892150] [<ffff2000084be0b8>] jffs2_write_end+0x2a8/0x4a0
-[  393.897811] [<ffff2000081f3008>] generic_perform_write+0x1c0/0x280
-[  393.903990] [<ffff2000081f5074>] __generic_file_write_iter+0x1c4/0x228
-[  393.910517] [<ffff2000081f5210>] generic_file_write_iter+0x138/0x288
-[  393.916870] [<ffff20000829ec1c>] __vfs_write+0x1b4/0x238
-[  393.922181] [<ffff20000829ff00>] vfs_write+0xd0/0x238
-[  393.927232] [<ffff2000082a1ba8>] SyS_write+0xa0/0x110
-[  393.932283] [<ffff20000808429c>] __sys_trace_return+0x0/0x4
-[  393.937851] Object at ffff800062e3b280, in cache kmalloc-64 size: 64
-[  393.944197] Allocated:
-[  393.946552] PID = 2918
-[  393.948913]  save_stack_trace_tsk+0x0/0x220
-[  393.953096]  save_stack_trace+0x18/0x20
-[  393.956932]  kasan_kmalloc+0xd8/0x188
-[  393.960594]  __kmalloc+0x144/0x238
-[  393.963994]  jffs2_selected_compress+0x48/0x2a0
-[  393.968524]  jffs2_compress+0x58/0x478
-[  393.972273]  jffs2_write_inode_range+0x13c/0x450
-[  393.976889]  jffs2_write_end+0x2a8/0x4a0
-[  393.980810]  generic_perform_write+0x1c0/0x280
-[  393.985251]  __generic_file_write_iter+0x1c4/0x228
-[  393.990040]  generic_file_write_iter+0x138/0x288
-[  393.994655]  __vfs_write+0x1b4/0x238
-[  393.998228]  vfs_write+0xd0/0x238
-[  394.001543]  SyS_write+0xa0/0x110
-[  394.004856]  __sys_trace_return+0x0/0x4
-[  394.008684] Freed:
-[  394.010691] PID = 2918
-[  394.013051]  save_stack_trace_tsk+0x0/0x220
-[  394.017233]  save_stack_trace+0x18/0x20
-[  394.021069]  kasan_slab_free+0x88/0x188
-[  394.024902]  kfree+0x6c/0x1d8
-[  394.027868]  jffs2_sum_write_sumnode+0x2c4/0x880
-[  394.032486]  jffs2_do_reserve_space+0x198/0x598
-[  394.037016]  jffs2_reserve_space+0x3f8/0x4d8
-[  394.041286]  jffs2_write_inode_range+0xf0/0x450
-[  394.045816]  jffs2_write_end+0x2a8/0x4a0
-[  394.049737]  generic_perform_write+0x1c0/0x280
-[  394.054179]  __generic_file_write_iter+0x1c4/0x228
-[  394.058968]  generic_file_write_iter+0x138/0x288
-[  394.063583]  __vfs_write+0x1b4/0x238
-[  394.067157]  vfs_write+0xd0/0x238
-[  394.070470]  SyS_write+0xa0/0x110
-[  394.073783]  __sys_trace_return+0x0/0x4
-[  394.077612] Memory state around the buggy address:
-[  394.082404]  ffff800062e3b180: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
-[  394.089623]  ffff800062e3b200: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
-[  394.096842] >ffff800062e3b280: 01 fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  394.104056]                    ^
-[  394.107283]  ffff800062e3b300: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-[  394.114502]  ffff800062e3b380: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-[  394.121718] ==================================================================
+ BUG: KASAN: stack-out-of-bounds in ip_do_fragment+0x1b03/0x1f60
+ Read of size 1 at addr ffff888147009574 by task ping/947
 
-Signed-off-by: Yang Yang <yang.yang29@zte.com.cn>
-Cc: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+ CPU: 0 PID: 947 Comm: ping Not tainted 5.12.0-rc6+ #418
+ Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+ Call Trace:
+  <IRQ>
+  dump_stack+0x92/0xc1
+  print_address_description.constprop.7+0x1a/0x150
+  kasan_report.cold.13+0x7f/0x111
+  ip_do_fragment+0x1b03/0x1f60
+  sch_fragment+0x4bf/0xe40
+  tcf_mirred_act+0xc3d/0x11a0 [act_mirred]
+  tcf_action_exec+0x104/0x3e0
+  fl_classify+0x49a/0x5e0 [cls_flower]
+  tcf_classify_ingress+0x18a/0x820
+  __netif_receive_skb_core+0xae7/0x3340
+  __netif_receive_skb_one_core+0xb6/0x1b0
+  process_backlog+0x1ef/0x6c0
+  __napi_poll+0xaa/0x500
+  net_rx_action+0x702/0xac0
+  __do_softirq+0x1e4/0x97f
+  do_softirq+0x71/0x90
+  </IRQ>
+  __local_bh_enable_ip+0xdb/0xf0
+  ip_finish_output2+0x760/0x2120
+  ip_do_fragment+0x15a5/0x1f60
+  __ip_finish_output+0x4c2/0xea0
+  ip_output+0x1ca/0x4d0
+  ip_send_skb+0x37/0xa0
+  raw_sendmsg+0x1c4b/0x2d00
+  sock_sendmsg+0xdb/0x110
+  __sys_sendto+0x1d7/0x2b0
+  __x64_sys_sendto+0xdd/0x1b0
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f82e13853eb
+ Code: 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 f3 0f 1e fa 48 8d 05 75 42 2c 00 41 89 ca 8b 00 85 c0 75 14 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 75 c3 0f 1f 40 00 41 57 4d 89 c7 41 56 41 89
+ RSP: 002b:00007ffe01fad888 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+ RAX: ffffffffffffffda RBX: 00005571aac13700 RCX: 00007f82e13853eb
+ RDX: 0000000000002330 RSI: 00005571aac13700 RDI: 0000000000000003
+ RBP: 0000000000002330 R08: 00005571aac10500 R09: 0000000000000010
+ R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffe01faefb0
+ R13: 00007ffe01fad890 R14: 00007ffe01fad980 R15: 00005571aac0f0a0
+
+ The buggy address belongs to the page:
+ page:000000001dff2e03 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x147009
+ flags: 0x17ffffc0001000(reserved)
+ raw: 0017ffffc0001000 ffffea00051c0248 ffffea00051c0248 0000000000000000
+ raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  ffff888147009400: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff888147009480: f1 f1 f1 f1 04 f2 f2 f2 f2 f2 f2 f2 00 00 00 00
+ >ffff888147009500: 00 00 00 00 00 00 00 00 00 00 f2 f2 f2 f2 f2 f2
+                                                              ^
+  ffff888147009580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff888147009600: 00 00 00 00 00 00 00 00 00 00 00 00 00 f2 f2 f2
+
+for IPv4 packets, sch_fragment() uses a temporary struct dst_entry. Then,
+in the following call graph:
+
+  ip_do_fragment()
+    ip_skb_dst_mtu()
+      ip_dst_mtu_maybe_forward()
+        ip_mtu_locked()
+
+the pointer to struct dst_entry is used as pointer to struct rtable: this
+turns the access to struct members like rt_mtu_locked into an OOB read in
+the stack. Fix this changing the temporary variable used for IPv4 packets
+in sch_fragment(), similarly to what is done for IPv6 few lines below.
+
+Fixes: c129412f74e9 ("net/sched: sch_frag: add generic packet fragment support.")
+Cc: <stable@vger.kernel.org> # 5.11
+Reported-by: Shuang Li <shuali@redhat.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Acked-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jffs2/compr_rtime.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sched/sch_frag.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/jffs2/compr_rtime.c
-+++ b/fs/jffs2/compr_rtime.c
-@@ -37,6 +37,9 @@ static int jffs2_rtime_compress(unsigned
- 	int outpos = 0;
- 	int pos=0;
+--- a/net/sched/sch_frag.c
++++ b/net/sched/sch_frag.c
+@@ -90,16 +90,16 @@ static int sch_fragment(struct net *net,
+ 	}
  
-+	if (*dstlen <= 3)
-+		return -1;
-+
- 	memset(positions,0,sizeof(positions));
+ 	if (skb_protocol(skb, true) == htons(ETH_P_IP)) {
+-		struct dst_entry sch_frag_dst;
++		struct rtable sch_frag_rt = { 0 };
+ 		unsigned long orig_dst;
  
- 	while (pos < (*sourcelen) && outpos <= (*dstlen)-2) {
+ 		sch_frag_prepare_frag(skb, xmit);
+-		dst_init(&sch_frag_dst, &sch_frag_dst_ops, NULL, 1,
++		dst_init(&sch_frag_rt.dst, &sch_frag_dst_ops, NULL, 1,
+ 			 DST_OBSOLETE_NONE, DST_NOCOUNT);
+-		sch_frag_dst.dev = skb->dev;
++		sch_frag_rt.dst.dev = skb->dev;
+ 
+ 		orig_dst = skb->_skb_refdst;
+-		skb_dst_set_noref(skb, &sch_frag_dst);
++		skb_dst_set_noref(skb, &sch_frag_rt.dst);
+ 		IPCB(skb)->frag_max_size = mru;
+ 
+ 		ret = ip_do_fragment(net, skb->sk, skb, sch_frag_xmit);
 
 
