@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD96537860F
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53C6F378611
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232866AbhEJLDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54598 "EHLO mail.kernel.org"
+        id S233642AbhEJLDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:03:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234858AbhEJK5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234857AbhEJK5L (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 10 May 2021 06:57:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C46AF61C34;
-        Mon, 10 May 2021 10:49:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 223F3619C0;
+        Mon, 10 May 2021 10:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643799;
-        bh=5LnsDbENCZlQF4nCWMHw2rIS0V68TkYnwy3mGlCDfCc=;
+        s=korg; t=1620643801;
+        bh=qcarRuFNmv3/mRHWtu6Dq8OHL5WzVoDuAExRRu4EuXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1wzMQ+HXM2zjNRFUeuh9eTWfElR+hJ3LKsevWlUl4Muw6fmet5wzOGDHCS4SI9FC
-         DZgoL4sDITSIh2bYY1Rlx/02uJT2R/DbURqFQc16Ws2JswgDlFhIK+9IGjnwNrTCEn
-         elbZrrQDxqF73xtkkMBTpk5Nt4fjbtdlPdueP/Hg=
+        b=ExJ9fZXecpaYEJ1JZwGADLIxgO8yy2xWoAWwCqKREOJ3azPMFdyrcTr5gcnTQn28l
+         vBVokLs2ChlFpIumFRGVgImlNjNrVY3Bmp5pQYIFtRseJyTNziuNXtFe9Mtcj5iN4W
+         61QDjow3a4iXeEfPuBdFHclk62b16SiHPbFbnlTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        syzbot+a4e309017a5f3a24c7b3@syzkaller.appspotmail.com,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 162/342] media: gspca/sq905.c: fix uninitialized variable
-Date:   Mon, 10 May 2021 12:19:12 +0200
-Message-Id: <20210510102015.447820644@linuxfoundation.org>
+Subject: [PATCH 5.11 163/342] media: v4l2-ctrls.c: initialize flags field of p_fwht_params
+Date:   Mon, 10 May 2021 12:19:13 +0200
+Message-Id: <20210510102015.478646916@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -43,32 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit eaaea4681984c79d2b2b160387b297477f0c1aab ]
+[ Upstream commit ea1611ba3a544b34f89ffa3d1e833caab30a3f09 ]
 
-act_len can be uninitialized if usb_bulk_msg() returns an error.
-Set it to 0 to avoid a KMSAN error.
+The V4L2_CID_STATELESS_FWHT_PARAMS compound control was missing a
+proper initialization of the flags field, so after loading the vicodec
+module for the first time, running v4l2-compliance for the stateless
+decoder would fail on this control because the initial control value
+was considered invalid by the vicodec driver.
+
+Initializing the flags field to sane values fixes this.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: syzbot+a4e309017a5f3a24c7b3@syzkaller.appspotmail.com
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/sq905.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-ctrls.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/usb/gspca/sq905.c b/drivers/media/usb/gspca/sq905.c
-index 97799cfb832e..949111070971 100644
---- a/drivers/media/usb/gspca/sq905.c
-+++ b/drivers/media/usb/gspca/sq905.c
-@@ -158,7 +158,7 @@ static int
- sq905_read_data(struct gspca_dev *gspca_dev, u8 *data, int size, int need_lock)
- {
- 	int ret;
--	int act_len;
-+	int act_len = 0;
- 
- 	gspca_dev->usb_buf[0] = '\0';
- 	if (need_lock)
+diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
+index 9dc151431a5c..584c5b33690e 100644
+--- a/drivers/media/v4l2-core/v4l2-ctrls.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls.c
+@@ -1659,6 +1659,8 @@ static void std_init_compound(const struct v4l2_ctrl *ctrl, u32 idx,
+ 		p_fwht_params->version = V4L2_FWHT_VERSION;
+ 		p_fwht_params->width = 1280;
+ 		p_fwht_params->height = 720;
++		p_fwht_params->flags = V4L2_FWHT_FL_PIXENC_YUV |
++			(2 << V4L2_FWHT_FL_COMPONENTS_NUM_OFFSET);
+ 		break;
+ 	}
+ }
 -- 
 2.30.2
 
