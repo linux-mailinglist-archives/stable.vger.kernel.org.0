@@ -2,92 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C248377D31
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 09:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33CBD377D4B
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 09:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230153AbhEJHff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 03:35:35 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:47089 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230158AbhEJHff (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 03:35:35 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 77A415C0145;
-        Mon, 10 May 2021 03:34:30 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Mon, 10 May 2021 03:34:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=M
-        gzGV2kQgNQylL/+aGD6XS2IKaJapAZ8/XfT9g2ZKOQ=; b=nQgU8/Z70JgrmbbPJ
-        akBBzPvtVVm7rQc9umimnT1RCpH0bAkHJVSx9vxoIQUc27MRxlzMtvxjCHRS7oew
-        g5mChV5nxoNH3kkgZ50EXQVtrdQf+MOYAwlMvfrQIoukxJmaC4RLG+qdvLPv4Avh
-        BiklnCqxsLWPoJqSVNEeOcXcPNs8CHyIT3fCSwg2dhEYnR3C99oG5oIssEVPTfqU
-        WsIjBw1Y1V6FRCBpd9zXDcp0ATiSBVJKAcBIVRnAFpBuMo8eaVdgSA8qs9Uz9xf2
-        yKDdEFa1/BCZigSCx5R/F9yteypYP0rTR1k2ovaDvj3nSW5XEfzvgx031gb+1oGn
-        rnBFw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=MgzGV2kQgNQylL/+aGD6XS2IKaJapAZ8/XfT9g2ZK
-        OQ=; b=k8Wt4wHg2Ae/HVp8DwspzWRDU9Ywc0qcLitIlZd37q8/O5J+jiZHjBIfR
-        OZyPQtREQVM8MJyU9GeXhoSY+CUy7v/SS/nurvf+tqDEUIW/U4UDa0Lsh3EDmxgZ
-        QSQTpg3yDqCiVk38GJTj/NZTFjxwAjztdCbHOEd6HEJjTRin/tgNiCB7QeyB+Oqk
-        HCADv4t9obq2OHQx7T30lBN2ZQDM2JijgWDhKey3Eg3qhY/1yaBrRBEqX/KQHja9
-        dUmIq2mBqKzddHsaDzD+m6HDyiCV+2s4hDPOt/QSoRX1GQbNHA3l1UzK5EjQ+UgE
-        5vl6fF4ava0EotbdNRbMX8wGOy1EA==
-X-ME-Sender: <xms:BeKYYO0rMvPaxRN1F12nodYyQHCT37K5rrBobeO2zuZpCXMTk2-UBg>
-    <xme:BeKYYBG-RexTnQZT48ftyF7qA44a886w73GDC2-37cQWrDmcQpXGm1L92WHgh2Fon
-    5UZxTY18H4uDg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdegjedguddukecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevtd
-    eileeuteeggefgueefhfevgfdttefgtefgtddvgeejheeiuddvtdekffehffenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:BeKYYG6LgS8V6GOPfHcPFkea3Px7Rp1ABTRR-F9LEWbUKHiPxQfIvw>
-    <xmx:BeKYYP2duM9Ajv2IahiuvabHl5C4Yfzg4zuL44b_SeeS7WeHBKP24Q>
-    <xmx:BeKYYBFXDJcfSQgNKHimZURmze0_yKFsLCUTPGFp3E0Oxq6YWqvqwQ>
-    <xmx:BuKYYBC94yVh5gPbv2qQsLjqskMIBo9V55XYj1bafiTl1le6EQIxXA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 10 May 2021 03:34:29 -0400 (EDT)
-Date:   Mon, 10 May 2021 09:34:27 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Richard Weinberger <richard@nod.at>
-Cc:     Joel Stanley <joel@jms.id.au>, stable <stable@vger.kernel.org>
-Subject: Re: JFFS2 Backports
-Message-ID: <YJjiA7EaAOgPEHUV@kroah.com>
-References: <CACPK8Xe9K5QzfY5RnfhGeX_x7x7r69+uYSZLnafbh7j4B525jA@mail.gmail.com>
- <1496964795.7092.1620629026246.JavaMail.zimbra@nod.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1496964795.7092.1620629026246.JavaMail.zimbra@nod.at>
+        id S230137AbhEJHlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 03:41:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49650 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230001AbhEJHlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 03:41:06 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 761426128E;
+        Mon, 10 May 2021 07:40:02 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lg0WG-000JiN-9o; Mon, 10 May 2021 08:40:00 +0100
+Date:   Mon, 10 May 2021 08:39:59 +0100
+Message-ID: <8735uvox4g.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Shaokun Zhang <zhangshaokun@hisilicon.com>
+Cc:     Zhu Lingshan <lingshan.zhu@intel.com>, <jasowang@redhat.com>,
+        <mst@redhat.com>, <alex.williamson@redhat.com>,
+        <kvm@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        <kvmarm@lists.cs.columbia.edu>, <cohuck@redhat.com>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH] Revert "irqbypass: do not start cons/prod when failed connect"
+In-Reply-To: <cfb68374-a7bf-1eb4-86cf-77c57f7fe9e5@hisilicon.com>
+References: <20210508071152.722425-1-lingshan.zhu@intel.com>
+        <8735uxvajh.wl-maz@kernel.org>
+        <cfb68374-a7bf-1eb4-86cf-77c57f7fe9e5@hisilicon.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: zhangshaokun@hisilicon.com, lingshan.zhu@intel.com, jasowang@redhat.com, mst@redhat.com, alex.williamson@redhat.com, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, cohuck@redhat.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 10, 2021 at 08:43:46AM +0200, Richard Weinberger wrote:
-> ----- Ursprüngliche Mail -----
-> > Can we please have the following jffs2 patches added to the stable tree:
+On Mon, 10 May 2021 02:12:22 +0100,
+Shaokun Zhang <zhangshaokun@hisilicon.com> wrote:
+> 
+> Hi Marc,
+> 
+> On 2021/5/8 17:29, Marc Zyngier wrote:
+> > On Sat, 08 May 2021 08:11:52 +0100,
+> > Zhu Lingshan <lingshan.zhu@intel.com> wrote:
+> >>
+> >> This reverts commit a979a6aa009f3c99689432e0cdb5402a4463fb88.
+> >>
+> >> The reverted commit may cause VM freeze on arm64 platform.
+> >> Because on arm64 platform, stop a consumer will suspend the VM,
+> >> the VM will freeze without a start consumer
 > > 
-> > 960b9a8a7676 "jffs2: Fix kasan slab-out-of-bounds problem"
+> > It also unconditionally calls del_consumer on the producer, which
+> > isn't exactly expected.
+> > 
+> >>
+> >> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> > 
+> > Reported-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
 > 
-> This one is already marked for stable inclusion.
-
-And it's already queued up everywhere.
-
-> > 90ada91f4610 "jffs2: check the validity of dstlen in jffs2_zlib_compress()"
+> Thanks for the tag, it works with this patch, So:
+> Tested-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
 > 
-> Acked-by: Richard Weinberger <richard@nod.at>
+> I shall invite you to have a drink for the quick debug.
+> Anyway, thank you again.
 
-Now queued up.  It is already in 5.12.
+No worries, glad we were able to root-cause the problem quickly
+enough.
 
-thanks,
+Thanks,
 
-greg k-h
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
