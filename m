@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D47C3785C4
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7F78378596
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:28:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233297AbhEJLBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46508 "EHLO mail.kernel.org"
+        id S235415AbhEJLA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234603AbhEJK4l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:56:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B117E61458;
-        Mon, 10 May 2021 10:47:29 +0000 (UTC)
+        id S234415AbhEJK4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:56:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F5F961958;
+        Mon, 10 May 2021 10:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643650;
-        bh=HjluC2N3I32cUFD4y6+oqHofg8Wl0e8qOQOIPhatPTo=;
+        s=korg; t=1620643558;
+        bh=/ARZpvL4BUSxzvdfGTSR8Zys8eUaom2AjoGrpYK+df8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/Ga/xVmhZZkKuR5ZvLVcVPaRTFOEr0Rx/dWD/BXbZzG3/gXAsAD7KoMVLLovQw2B
-         0Y/xtSpzsha/qGgH174sCETmGcz7Mct0fSlaLTyyqjRZ07MXcUF4by6gZAiRVXXxuD
-         /vckZo2wRAkhQVRMpPzSen3jThlahubDMHhmp990=
+        b=O/ubqk8g1Lx+r1BrFcMGwh1AGCb4Xr1BEZ0D+j1uiLmF7h5w+XtbIVHjRDJnWRoL6
+         9oEesKKghbyUPEhKzciKfxpk7OyBvuwSOYUjRTAZ83GM2nbi/9LJEUomP6iFG735LP
+         z9/0v1QWrzQ/6UUsH/Rf34CoK8V+oeVUh3YvPpD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.11 055/342] btrfs: handle remount to no compress during compression
-Date:   Mon, 10 May 2021 12:17:25 +0200
-Message-Id: <20210510102011.941048658@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.11 056/342] x86/build: Disable HIGHMEM64G selection for M486SX
+Date:   Mon, 10 May 2021 12:17:26 +0200
+Message-Id: <20210510102011.977922491@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -39,115 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 1d8ba9e7e785b6625f4d8e978e8a284b144a7077 upstream.
+commit 0ef3439cd80ba7770723edb0470d15815914bb62 upstream.
 
-[BUG]
-When running btrfs/071 with inode_need_compress() removed from
-compress_file_range(), we got the following crash:
+Fix a regression caused by making the 486SX separately selectable in
+Kconfig, for which the HIGHMEM64G setting has not been updated and
+therefore has become exposed as a user-selectable option for the M486SX
+configuration setting unlike with original M486 and all the other
+settings that choose non-PAE-enabled processors:
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000018
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  Workqueue: btrfs-delalloc btrfs_work_helper [btrfs]
-  RIP: 0010:compress_file_range+0x476/0x7b0 [btrfs]
-  Call Trace:
-   ? submit_compressed_extents+0x450/0x450 [btrfs]
-   async_cow_start+0x16/0x40 [btrfs]
-   btrfs_work_helper+0xf2/0x3e0 [btrfs]
-   process_one_work+0x278/0x5e0
-   worker_thread+0x55/0x400
-   ? process_one_work+0x5e0/0x5e0
-   kthread+0x168/0x190
-   ? kthread_create_worker_on_cpu+0x70/0x70
-   ret_from_fork+0x22/0x30
-  ---[ end trace 65faf4eae941fa7d ]---
+  High Memory Support
+  > 1. off (NOHIGHMEM)
+    2. 4GB (HIGHMEM4G)
+    3. 64GB (HIGHMEM64G)
+  choice[1-3?]:
 
-This is already after the patch "btrfs: inode: fix NULL pointer
-dereference if inode doesn't need compression."
+With the fix in place the setting is now correctly removed:
 
-[CAUSE]
-@pages is firstly created by kcalloc() in compress_file_extent():
-                pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+  High Memory Support
+  > 1. off (NOHIGHMEM)
+    2. 4GB (HIGHMEM4G)
+  choice[1-2?]:
 
-Then passed to btrfs_compress_pages() to be utilized there:
+ [ bp: Massage commit message. ]
 
-                ret = btrfs_compress_pages(...
-                                           pages,
-                                           &nr_pages,
-                                           ...);
-
-btrfs_compress_pages() will initialize each page as output, in
-zlib_compress_pages() we have:
-
-                        pages[nr_pages] = out_page;
-                        nr_pages++;
-
-Normally this is completely fine, but there is a special case which
-is in btrfs_compress_pages() itself:
-
-        switch (type) {
-        default:
-                return -E2BIG;
-        }
-
-In this case, we didn't modify @pages nor @out_pages, leaving them
-untouched, then when we cleanup pages, the we can hit NULL pointer
-dereference again:
-
-        if (pages) {
-                for (i = 0; i < nr_pages; i++) {
-                        WARN_ON(pages[i]->mapping);
-                        put_page(pages[i]);
-                }
-        ...
-        }
-
-Since pages[i] are all initialized to zero, and btrfs_compress_pages()
-doesn't change them at all, accessing pages[i]->mapping would lead to
-NULL pointer dereference.
-
-This is not possible for current kernel, as we check
-inode_need_compress() before doing pages allocation.
-But if we're going to remove that inode_need_compress() in
-compress_file_extent(), then it's going to be a problem.
-
-[FIX]
-When btrfs_compress_pages() hits its default case, modify @out_pages to
-0 to prevent such problem from happening.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212331
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 87d6021b8143 ("x86/math-emu: Limit MATH_EMULATION to 486SX compatibles")
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org # v5.5+
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.2104141221340.44318@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/compression.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -80,10 +80,15 @@ static int compression_compress_pages(in
- 	case BTRFS_COMPRESS_NONE:
- 	default:
- 		/*
--		 * This can't happen, the type is validated several times
--		 * before we get here. As a sane fallback, return what the
--		 * callers will understand as 'no compression happened'.
-+		 * This can happen when compression races with remount setting
-+		 * it to 'no compress', while caller doesn't call
-+		 * inode_need_compress() to check if we really need to
-+		 * compress.
-+		 *
-+		 * Not a big deal, just need to inform caller that we
-+		 * haven't allocated any pages yet.
- 		 */
-+		*out_pages = 0;
- 		return -E2BIG;
- 	}
- }
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1416,7 +1416,7 @@ config HIGHMEM4G
+ 
+ config HIGHMEM64G
+ 	bool "64GB"
+-	depends on !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !WINCHIP3D && !MK6
++	depends on !M486SX && !M486 && !M586 && !M586TSC && !M586MMX && !MGEODE_LX && !MGEODEGX1 && !MCYRIXIII && !MELAN && !MWINCHIPC6 && !WINCHIP3D && !MK6
+ 	select X86_PAE
+ 	help
+ 	  Select this if you have a 32-bit processor and more than 4
 
 
