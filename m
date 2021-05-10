@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8D033785FC
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C623785FF
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:30:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234324AbhEJLDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52740 "EHLO mail.kernel.org"
+        id S234326AbhEJLDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:03:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234803AbhEJK5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 06:57:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C512261628;
-        Mon, 10 May 2021 10:49:22 +0000 (UTC)
+        id S234811AbhEJK5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:57:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 806BF619BE;
+        Mon, 10 May 2021 10:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643763;
-        bh=Etj5HNpgOpYf10PfWhvmQ7mY025ULDvcMk3hlMAlskA=;
+        s=korg; t=1620643766;
+        bh=VkO9kDar+T5480JzDWlIRMDbg+VsBAidXambrt3br0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xya3ZiwBjI2pgyEpNO7o25kWThCayaVNIc9RIwhkfPHXTAT7IPMoySJjar/xen/AA
-         cVVqxhRejYDOauyuOhc1NFKMKb32xLcOzX9QbgQNfBryTroRRgJUuOzvyZdKIgUKjC
-         6fBlTfQ37VcmmTrWe5+t2aC+1zmhkz55ED2y8rP8=
+        b=lwLh7ztGBUmbgBsTV5i3TxnoAroi3ymPn3AXZAwafTf7DZmuVNwodEjtbdKZ2mNYP
+         9rUH2zWPEYr5DGe9Kch/wciEIlMDTJGuBHsaKrgVpYG94sVeANJ0TOABi0ZRLhPSK6
+         mIZtPqgAVhBNJ/tb5MtFs49iKxNkO0kjd9Q2XNKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, xndcn <xndchn@gmail.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 149/342] kvfree_rcu: Use same set of GFP flags as does single-argument
-Date:   Mon, 10 May 2021 12:18:59 +0200
-Message-Id: <20210510102015.012294263@linuxfoundation.org>
+Subject: [PATCH 5.11 150/342] drm/virtio: fix possible leak/unlock virtio_gpu_object_array
+Date:   Mon, 10 May 2021 12:19:00 +0200
+Message-Id: <20210510102015.050097610@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
 References: <20210510102010.096403571@linuxfoundation.org>
@@ -41,95 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uladzislau Rezki (Sony) <urezki@gmail.com>
+From: xndcn <xndchn@gmail.com>
 
-[ Upstream commit ee6ddf58475cce8a3d3697614679cd8cb4a6f583 ]
+[ Upstream commit 377f8331d0565e6f71ba081c894029a92d0c7e77 ]
 
-Running an rcuscale stress-suite can lead to "Out of memory" of a
-system. This can happen under high memory pressure with a small amount
-of physical memory.
+virtio_gpu_object array is not freed or unlocked in some
+failed cases.
 
-For example, a KVM test configuration with 64 CPUs and 512 megabytes
-can result in OOM when running rcuscale with below parameters:
-
-../kvm.sh --torture rcuscale --allcpus --duration 10 --kconfig CONFIG_NR_CPUS=64 \
---bootargs "rcuscale.kfree_rcu_test=1 rcuscale.kfree_nthreads=16 rcuscale.holdoff=20 \
-  rcuscale.kfree_loops=10000 torture.disable_onoff_at_boot" --trust-make
-
-<snip>
-[   12.054448] kworker/1:1H invoked oom-killer: gfp_mask=0x2cc0(GFP_KERNEL|__GFP_NOWARN), order=0, oom_score_adj=0
-[   12.055303] CPU: 1 PID: 377 Comm: kworker/1:1H Not tainted 5.11.0-rc3+ #510
-[   12.055416] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.12.0-1 04/01/2014
-[   12.056485] Workqueue: events_highpri fill_page_cache_func
-[   12.056485] Call Trace:
-[   12.056485]  dump_stack+0x57/0x6a
-[   12.056485]  dump_header+0x4c/0x30a
-[   12.056485]  ? del_timer_sync+0x20/0x30
-[   12.056485]  out_of_memory.cold.47+0xa/0x7e
-[   12.056485]  __alloc_pages_slowpath.constprop.123+0x82f/0xc00
-[   12.056485]  __alloc_pages_nodemask+0x289/0x2c0
-[   12.056485]  __get_free_pages+0x8/0x30
-[   12.056485]  fill_page_cache_func+0x39/0xb0
-[   12.056485]  process_one_work+0x1ed/0x3b0
-[   12.056485]  ? process_one_work+0x3b0/0x3b0
-[   12.060485]  worker_thread+0x28/0x3c0
-[   12.060485]  ? process_one_work+0x3b0/0x3b0
-[   12.060485]  kthread+0x138/0x160
-[   12.060485]  ? kthread_park+0x80/0x80
-[   12.060485]  ret_from_fork+0x22/0x30
-[   12.062156] Mem-Info:
-[   12.062350] active_anon:0 inactive_anon:0 isolated_anon:0
-[   12.062350]  active_file:0 inactive_file:0 isolated_file:0
-[   12.062350]  unevictable:0 dirty:0 writeback:0
-[   12.062350]  slab_reclaimable:2797 slab_unreclaimable:80920
-[   12.062350]  mapped:1 shmem:2 pagetables:8 bounce:0
-[   12.062350]  free:10488 free_pcp:1227 free_cma:0
-...
-[   12.101610] Out of memory and no killable processes...
-[   12.102042] Kernel panic - not syncing: System is deadlocked on memory
-[   12.102583] CPU: 1 PID: 377 Comm: kworker/1:1H Not tainted 5.11.0-rc3+ #510
-[   12.102600] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.12.0-1 04/01/2014
-<snip>
-
-Because kvfree_rcu() has a fallback path, memory allocation failure is
-not the end of the world.  Furthermore, the added overhead of aggressive
-GFP settings must be balanced against the overhead of the fallback path,
-which is a cache miss for double-argument kvfree_rcu() and a call to
-synchronize_rcu() for single-argument kvfree_rcu().  The current choice
-of GFP_KERNEL|__GFP_NOWARN can result in longer latencies than a call
-to synchronize_rcu(), so less-tenacious GFP flags would be helpful.
-
-Here is the tradeoff that must be balanced:
-    a) Minimize use of the fallback path,
-    b) Avoid pushing the system into OOM,
-    c) Bound allocation latency to that of synchronize_rcu(), and
-    d) Leave the emergency reserves to use cases lacking fallbacks.
-
-This commit therefore changes GFP flags from GFP_KERNEL|__GFP_NOWARN to
-GFP_KERNEL|__GFP_NORETRY|__GFP_NOMEMALLOC|__GFP_NOWARN.  This combination
-leaves the emergency reserves alone and can initiate reclaim, but will
-not invoke the OOM killer.
-
-Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: xndcn <xndchn@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210305151819.14330-1-xndchn@gmail.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_object.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index ce17b8477442..84a3fe09630b 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -3439,7 +3439,7 @@ static void fill_page_cache_func(struct work_struct *work)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 23eb6d772e40..669f2ee39515 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -174,7 +174,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+ 		if (!sync_file) {
+ 			dma_fence_put(&out_fence->f);
+ 			ret = -ENOMEM;
+-			goto out_memdup;
++			goto out_unresv;
+ 		}
  
- 	for (i = 0; i < rcu_min_cached_objs; i++) {
- 		bnode = (struct kvfree_rcu_bulk_data *)
--			__get_free_page(GFP_KERNEL | __GFP_NOWARN);
-+			__get_free_page(GFP_KERNEL | __GFP_NORETRY | __GFP_NOMEMALLOC | __GFP_NOWARN);
+ 		exbuf->fence_fd = out_fence_fd;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index d69a5b6da553..4ff1ec28e630 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -248,6 +248,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
  
- 		if (bnode) {
- 			raw_spin_lock_irqsave(&krcp->lock, flags);
+ 	ret = virtio_gpu_object_shmem_init(vgdev, bo, &ents, &nents);
+ 	if (ret != 0) {
++		virtio_gpu_array_put_free(objs);
+ 		virtio_gpu_free_object(&shmem_obj->base);
+ 		return ret;
+ 	}
 -- 
 2.30.2
 
