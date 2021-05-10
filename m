@@ -2,133 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9D8379127
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 16:44:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E763791A5
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 16:56:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231470AbhEJOpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 10:45:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37838 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233578AbhEJOnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 10:43:02 -0400
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0870BC08EACA
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 07:01:50 -0700 (PDT)
-Received: by mail-lj1-x22b.google.com with SMTP id w4so20935155ljw.9
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 07:01:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=DQsuL10ttGgvUSSdwEEABCcNLhZF92QzGWTDfsTdZC0=;
-        b=qNtWaLjGIXQMeTIChrMNYPp2/WjHnGPearQQprE05w3lsIY390FY2r1cFDsNdyxCNZ
-         jrXtwIa2MpTAokF2DjIfBEnGEnFcNeKYhs/jcoPOwoWKck8/JKhBYwPkLF+7hPxoCSie
-         WvdtEleVqiDOuLhvesR3tOU4j8ErY0Hxzn6dCO2MZ8Pr0I7BabiZpd1qQwKAE/+hxSY3
-         nknoLINClx20aEJImVjqx37XthuTT1uHfzMX2Tt5c37QBi00j991nCh0BrlPoRevPo55
-         I4W84RAKkx+qkHsUG7mmdZpFhUW4jCYGkFJ0Nxhg+ZFFjj6pOIzn5jPKD89sKNyn1/xB
-         z6kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=DQsuL10ttGgvUSSdwEEABCcNLhZF92QzGWTDfsTdZC0=;
-        b=XHcefB0UdgEJKTTc6/6LBpmEv4z7EvkLCR1cnI+6vfKJHoHQGeesstsqwzj98eQHa9
-         dOQ0cC0fhhFjo7K02Q/MU8g6wrf2UuLwRhlT92+XMJFssR1yVDzlqjpcuJP4hq1afDqG
-         sVi6cbuwNlZaWgltNuUV5YkpGjjuZAHwedAB9mBeXQxEVjreoxttEU0FyrJ4LglwIlfq
-         PjFhnYo1ykcaYLS7NOI1fNdJf5rtERirtyLoyRFndnf55ywzJYSxSdatsqrKLpoR1ygU
-         iqbrd2ki8fN0XzUvd319Q0JlBcNybkgAzsxUFTapm4o5iPasq1x6kZIhZroKq/clsvoc
-         XAmA==
-X-Gm-Message-State: AOAM530rYGtiNXLSBQ2uyttLmgvRPYpoR2rWamxylKefJKAkmy0vRr0+
-        kJRVKWLJ30TowjiE1rjWnhq2jyZUf7sNSRNSimkriw==
-X-Google-Smtp-Source: ABdhPJzTAghL8Sdb1Gw9MPXcbmOW24XGnOJcMCgtYTxm5f97ovoej8TmEINBWT+FiI25beskbGWOdasTt0AKNmWY6l8=
-X-Received: by 2002:a05:651c:22b:: with SMTP id z11mr19730326ljn.182.1620655306896;
- Mon, 10 May 2021 07:01:46 -0700 (PDT)
+        id S233213AbhEJO5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 10:57:03 -0400
+Received: from foss.arm.com ([217.140.110.172]:60256 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234485AbhEJOzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 10:55:48 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7908A15BE;
+        Mon, 10 May 2021 07:54:36 -0700 (PDT)
+Received: from [192.168.0.110] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 422713F719;
+        Mon, 10 May 2021 07:54:35 -0700 (PDT)
+Subject: Re: [PATCH 1/2] KVM: arm64: Move __adjust_pc out of line
+To:     Marc Zyngier <maz@kernel.org>, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
+Cc:     Zenghui Yu <yuzenghui@huawei.com>,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+References: <20210510094915.1909484-1-maz@kernel.org>
+ <20210510094915.1909484-2-maz@kernel.org>
+From:   Alexandru Elisei <alexandru.elisei@arm.com>
+Message-ID: <01c646f1-e342-b9fc-39b3-e8649862b4ac@arm.com>
+Date:   Mon, 10 May 2021 15:55:16 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-References: <20210319121357.255176-1-huobean@gmail.com> <20210319121357.255176-3-huobean@gmail.com>
- <CAPDyKFrU591aeH5GyuuQW8tPeNc9wav=t8wqF1EdTBbCc9xheg@mail.gmail.com>
- <79ec60974875d4ac17589ea4575e36ec1204f881.camel@gmail.com> <9b7ecf8a74e7e04174181aed0c5f0e356d0ed280.camel@gmail.com>
-In-Reply-To: <9b7ecf8a74e7e04174181aed0c5f0e356d0ed280.camel@gmail.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Mon, 10 May 2021 16:01:10 +0200
-Message-ID: <CAPDyKFqd03GZVtxmoiY3NFS_EggLQLMGk62AneZLoOn_20BDJQ@mail.gmail.com>
-Subject: Re: [PATCH v1 2/2] mmc: cavium: Remove redundant if-statement checkup
-To:     Bean Huo <huobean@gmail.com>
-Cc:     rric@kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "Bean Huo (beanhuo)" <beanhuo@micron.com>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210510094915.1909484-2-maz@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 29 Apr 2021 at 22:30, Bean Huo <huobean@gmail.com> wrote:
->
-> On Fri, 2021-03-19 at 16:42 +0100, Bean Huo wrote:
-> > On Fri, 2021-03-19 at 15:09 +0100, Ulf Hansson wrote:
-> >
-> > > On Fri, 19 Mar 2021 at 13:14, Bean Huo <huobean@gmail.com> wrote:
-> > > > From: Bean Huo <beanhuo@micron.com>
-> > > > Currently, we have two ways to issue multiple-block read/write
-> > > > the
-> > > > command to the eMMC. One is by normal IO request path fs->block-
-> > > > > mmc.
-> > > > Another one is that we can issue multiple-block read/write
-> > > > through
-> > > > MMC ioctl interface. For the first path, mrq->stop, and mrq-
-> > > > >stop-
-> > > > > opcode
-> > > > will be initialized in mmc_blk_data_prep(). However, for the
-> > > > second
-> > > > IO
-> > > > path, mrq->stop is not initialized since it is a pre-defined
-> > > > multiple
-> > > > blocks read/write.
-> > > As a matter of fact this way is also supported for the regular
-> > > block
-> > > I/O path. To make the mmc block driver to use it, mmc host drivers
-> > > need to announce that it's supported by setting MMC_CAP_CMD23.
-> > > It looks like that is what your patch should be targeted towards,
-> > > can
-> > > you have a look at this instead?
-> >
-> >
-> > Hi Ulf,
-> >
-> > Thanks for your comments. I will look at that as your suggestion.
-> >
-> > The patch [1/2] is accepted, so I will just update this patch to
-> >
-> > the next version.
-> >
-> >
-> >
-> > Kind regards,
-> >
-> > Bean
->
->
-> Hi Uffe,
-> Could you please firstly accept this patch? let the customer update
-> their kernel. As I tried to develop the next version of the patch
-> according to your suggestion, more changes will be involved. Also, no
-> matter how to make the change general, below mrq->stop checkup should
-> be deleted since it is obsolete. In the data transmission completion
-> interrupt, mrq->stop will be checked again.
->
-> -       if (!mrq->data || !mrq->data->sg || !mrq->data->sg_len ||
-> -           !mrq->stop || mrq->stop->opcode != MMC_STOP_TRANSMISSION) {
-> +       if (!mrq->data || !mrq->data->sg || !mrq->data->sg_len) {
->
+Hi Marc,
 
-Well, I don't think the above checks are incorrect. Instead I think it
-points out that the cavium mmc driver lacks support for CMD23, while
-only open ended data transfers are supported.
+On 5/10/21 10:49 AM, Marc Zyngier wrote:
+> In order to make it easy to call __adjust_pc() from the EL1 code
+> (in the case of nVHE), rename it to __kvm_adjust_pc() and move
+> it out of line.
+>
+> No expected functional change.
 
-The proper way forward is instead to implement CMD23 support to the
-cavium mmc driver. In the same patch adding that support, you should
-be able to remove the above checks.
+It does look to me like they're functionally identical. Minor comments below.
 
-Kind regards
-Uffe
+>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: stable@vger.kernel.org # 5.11
+> ---
+>  arch/arm64/include/asm/kvm_asm.h           |  2 ++
+>  arch/arm64/kvm/hyp/exception.c             | 18 +++++++++++++++++-
+>  arch/arm64/kvm/hyp/include/hyp/adjust_pc.h | 18 ------------------
+>  arch/arm64/kvm/hyp/nvhe/switch.c           |  2 +-
+>  arch/arm64/kvm/hyp/vhe/switch.c            |  2 +-
+>  5 files changed, 21 insertions(+), 21 deletions(-)
+>
+> diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
+> index cf8df032b9c3..d5b11037401d 100644
+> --- a/arch/arm64/include/asm/kvm_asm.h
+> +++ b/arch/arm64/include/asm/kvm_asm.h
+> @@ -201,6 +201,8 @@ extern void __kvm_timer_set_cntvoff(u64 cntvoff);
+>  
+>  extern int __kvm_vcpu_run(struct kvm_vcpu *vcpu);
+>  
+> +extern void __kvm_adjust_pc(struct kvm_vcpu *vcpu);
+
+It looks pretty strange to have the file
+arch/arm64/kvm/hyp/include/hyp/adjust_pc.h, but the function __kvm_adjust_pc() in
+another header. I guess this was done because arch/arm64/kvm/arm.c will use the
+function in the next patch. I was thinking that maybe renaming
+adjust_pc.h->skip_instr.h would make more sense, what do you think? I can send a
+patch on top of this series with the rename if you prefer.
+
+> +
+>  extern u64 __vgic_v3_get_gic_config(void);
+>  extern u64 __vgic_v3_read_vmcr(void);
+>  extern void __vgic_v3_write_vmcr(u32 vmcr);
+> diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
+> index 73629094f903..0812a496725f 100644
+> --- a/arch/arm64/kvm/hyp/exception.c
+> +++ b/arch/arm64/kvm/hyp/exception.c
+> @@ -296,7 +296,7 @@ static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
+>  	*vcpu_pc(vcpu) = vect_offset;
+>  }
+>  
+> -void kvm_inject_exception(struct kvm_vcpu *vcpu)
+> +static void kvm_inject_exception(struct kvm_vcpu *vcpu)
+>  {
+>  	if (vcpu_el1_is_32bit(vcpu)) {
+>  		switch (vcpu->arch.flags & KVM_ARM64_EXCEPT_MASK) {
+> @@ -329,3 +329,19 @@ void kvm_inject_exception(struct kvm_vcpu *vcpu)
+>  		}
+>  	}
+>  }
+> +
+> +/*
+> + * Adjust the guest PC on entry, depending on flags provided by EL1
+
+This is also called by the VHE code running at EL2, but the comment is reworded in
+the next patch, so it doesn't really matter, and keeping the diff a straight move
+makes it easier to read.
+
+> + * for the purpose of emulation (MMIO, sysreg) or exception injection.
+> + */
+> +void __kvm_adjust_pc(struct kvm_vcpu *vcpu)
+> +{
+> +	if (vcpu->arch.flags & KVM_ARM64_PENDING_EXCEPTION) {
+> +		kvm_inject_exception(vcpu);
+> +		vcpu->arch.flags &= ~(KVM_ARM64_PENDING_EXCEPTION |
+> +				      KVM_ARM64_EXCEPT_MASK);
+> +	} else 	if (vcpu->arch.flags & KVM_ARM64_INCREMENT_PC) {
+> +		kvm_skip_instr(vcpu);
+> +		vcpu->arch.flags &= ~KVM_ARM64_INCREMENT_PC;
+> +	}
+> +}
+> diff --git a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
+> index 61716359035d..4fdfeabefeb4 100644
+> --- a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
+> +++ b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
+> @@ -13,8 +13,6 @@
+>  #include <asm/kvm_emulate.h>
+>  #include <asm/kvm_host.h>
+>  
+> -void kvm_inject_exception(struct kvm_vcpu *vcpu);
+> -
+>  static inline void kvm_skip_instr(struct kvm_vcpu *vcpu)
+>  {
+>  	if (vcpu_mode_is_32bit(vcpu)) {
+> @@ -43,22 +41,6 @@ static inline void __kvm_skip_instr(struct kvm_vcpu *vcpu)
+>  	write_sysreg_el2(*vcpu_pc(vcpu), SYS_ELR);
+>  }
+>  
+> -/*
+> - * Adjust the guest PC on entry, depending on flags provided by EL1
+> - * for the purpose of emulation (MMIO, sysreg) or exception injection.
+> - */
+> -static inline void __adjust_pc(struct kvm_vcpu *vcpu)
+> -{
+> -	if (vcpu->arch.flags & KVM_ARM64_PENDING_EXCEPTION) {
+> -		kvm_inject_exception(vcpu);
+> -		vcpu->arch.flags &= ~(KVM_ARM64_PENDING_EXCEPTION |
+> -				      KVM_ARM64_EXCEPT_MASK);
+> -	} else 	if (vcpu->arch.flags & KVM_ARM64_INCREMENT_PC) {
+> -		kvm_skip_instr(vcpu);
+> -		vcpu->arch.flags &= ~KVM_ARM64_INCREMENT_PC;
+> -	}
+> -}
+> -
+>  /*
+>   * Skip an instruction while host sysregs are live.
+>   * Assumes host is always 64-bit.
+> diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
+> index e9f6ea704d07..b8ac123c3419 100644
+> --- a/arch/arm64/kvm/hyp/nvhe/switch.c
+> +++ b/arch/arm64/kvm/hyp/nvhe/switch.c
+> @@ -201,7 +201,7 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
+>  	 */
+>  	__debug_save_host_buffers_nvhe(vcpu);
+>  
+> -	__adjust_pc(vcpu);
+> +	__kvm_adjust_pc(vcpu);
+>  
+>  	/*
+>  	 * We must restore the 32-bit state before the sysregs, thanks
+> diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/switch.c
+> index 7b8f7db5c1ed..3eafed0431f5 100644
+> --- a/arch/arm64/kvm/hyp/vhe/switch.c
+> +++ b/arch/arm64/kvm/hyp/vhe/switch.c
+> @@ -132,7 +132,7 @@ static int __kvm_vcpu_run_vhe(struct kvm_vcpu *vcpu)
+>  	__load_guest_stage2(vcpu->arch.hw_mmu);
+>  	__activate_traps(vcpu);
+>  
+> -	__adjust_pc(vcpu);
+> +	__kvm_adjust_pc(vcpu);
+
+With the function now moved to kvm_asm.h, the header include adjust_pc.h is not
+needed. Same for the nvhe version of switch.c.
+
+Thanks,
+
+Alex
+
+>  
+>  	sysreg_restore_guest_state_vhe(guest_ctxt);
+>  	__debug_switch_to_guest(vcpu);
