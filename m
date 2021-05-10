@@ -2,140 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C991379549
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 19:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5919C3795F8
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 19:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232592AbhEJRXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 13:23:17 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6184 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232296AbhEJRXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 13:23:16 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14AHDgqd144288;
-        Mon, 10 May 2021 13:22:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=XkhLN/aUiRbMi4S98i2Vo6Fs5eJk3vJleHFVFpeRNPs=;
- b=Xx81k4K8RvaR/QbS1+j9M6bkEyV96wXKmDsun59ZBTdElP6T6bH9mJXyuWsFokrydpaW
- 7cGQ/NjS6fS6b861mWXNeV9yj4ZoOCHeg7kGtvcZm/NEduaY50LBj/T3DArSYy/vM+3d
- aJCZpH9l9JJa+JMkHGNfn//6CDztHakcEW82UIlCam7T/gfiDOvgPt3V3uu75vZg8TiD
- /KNInrLzrw/XnwZnULyKId8aYbKnO0q11STbGUmrIkRTdoFYBqYgJfv4WyFQ+wbla+rc
- JaZxZqqIn65y2FQlOW8L743A+Uny8kH4dzJO+9ud/gahfTMrOgUD9V2SdKrLKt5aNDKv VA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38f91s86yv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 May 2021 13:22:09 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14AHFYNK149181;
-        Mon, 10 May 2021 13:22:08 -0400
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38f91s86y5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 May 2021 13:22:08 -0400
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14AHLoaK019739;
-        Mon, 10 May 2021 17:22:08 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma02wdc.us.ibm.com with ESMTP id 38dj997wr1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 10 May 2021 17:22:08 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14AHM7jZ13631938
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 10 May 2021 17:22:07 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 95BE711207A;
-        Mon, 10 May 2021 17:22:07 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ECC2411207B;
-        Mon, 10 May 2021 17:22:06 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.140.234])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon, 10 May 2021 17:22:06 +0000 (GMT)
-Subject: Re: [PATCH] s390/vfio-ap: fix memory leak in mdev remove callback
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        jgg@nvidia.com, alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-References: <20210505172826.105304-1-akrowiak@linux.ibm.com>
- <7b20afce-5782-53c6-beab-ae852ae69b40@de.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <509218be-9564-7b25-9d56-cab752abdaa4@linux.ibm.com>
-Date:   Mon, 10 May 2021 13:22:06 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S232996AbhEJRcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 13:32:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57326 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233161AbhEJRa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 13:30:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B2161480;
+        Mon, 10 May 2021 17:29:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1620667792;
+        bh=NoxUUko7kkDexDD5edlKRqf2fLj5/AWQ8YjAVuYS6OQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LukAma3aFFyGx8i4+loOHRxDbffMAvVyuiHZVZ2mJeqKoCuoTdbvYCCNzHPQ4gomh
+         uMvEoOZajrYL+bXQEb915DiK4vFCezP2N8A5dE1tlOAafstcRrpcIKLyxS7YEJOj7t
+         PJrizpIib9bImbBAtpMPUdXwUQhl5IqJYfFhe7uucW8ktZ6GTuToMjjr62Q3G1nXZ0
+         45TzRlA3mq9if+mNcihgnozkIgnMRFrsN7+gru/u+eMfTCxRCHFUWFUWmgJYsAXDeq
+         r/TEQu15K1/X4JBUTfWe2hgcpIZgDLaahl//3qqerIk1nEeoqdIs1DdKCwsEKcIswU
+         wPWxW9Bp4KBgw==
+Date:   Mon, 10 May 2021 10:29:35 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     heyunlei@hihonor.com, jaegeuk@kernel.org, stable@vger.kernel.org,
+        yuchao0@huawei.com
+Subject: Re: FAILED: patch "[PATCH] f2fs: fix error handling in
+ f2fs_end_enable_verity()" failed to apply to 5.4-stable tree
+Message-ID: <YJltfzQoLKumJvpa@gmail.com>
+References: <1620554944177170@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <7b20afce-5782-53c6-beab-ae852ae69b40@de.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: uGsoq002xb1glzrQiijkEZqqPFEZxlma
-X-Proofpoint-GUID: JffRP5eTMs3o21UYgQQ0zNevo5b5odWT
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-10_11:2021-05-10,2021-05-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 impostorscore=0 clxscore=1015 spamscore=0 mlxlogscore=854
- bulkscore=0 malwarescore=0 lowpriorityscore=0 mlxscore=0 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105100114
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1620554944177170@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, May 09, 2021 at 12:09:04PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> >From 3c0315424f5e3d2a4113c7272367bee1e8e6a174 Mon Sep 17 00:00:00 2001
+> From: Eric Biggers <ebiggers@google.com>
+> Date: Thu, 4 Mar 2021 21:43:10 -0800
+> Subject: [PATCH] f2fs: fix error handling in f2fs_end_enable_verity()
+> 
+> f2fs didn't properly clean up if verity failed to be enabled on a file:
+> 
+> - It left verity metadata (pages past EOF) in the page cache, which
+>   would be exposed to userspace if the file was later extended.
+> 
+> - It didn't truncate the verity metadata at all (either from cache or
+>   from disk) if an error occurred while setting the verity bit.
+> 
+> Fix these bugs by adding a call to truncate_inode_pages() and ensuring
+> that we truncate the verity metadata (both from cache and from disk) in
+> all error paths.  Also rework the code to cleanly separate the success
+> path from the error paths, which makes it much easier to understand.
+> 
+> Finally, log a message if f2fs_truncate() fails, since it might
+> otherwise fail silently.
+> 
+> Reported-by: Yunlei He <heyunlei@hihonor.com>
+> Fixes: 95ae251fe828 ("f2fs: add fs-verity support")
+> Cc: <stable@vger.kernel.org> # v5.4+
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> Reviewed-by: Chao Yu <yuchao0@huawei.com>
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> 
 
+This is a clean cherry-pick, and it compiles.  So I don't see what the problem
+is.
 
-On 5/5/21 1:44 PM, Christian Borntraeger wrote:
->
->
-> On 05.05.21 19:28, Tony Krowiak wrote:
->> The mdev remove callback for the vfio_ap device driver bails out with
->> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
->> to prevent the mdev from being removed while in use; however, 
->> returning a
->> non-zero rc does not prevent removal. This could result in a memory leak
->> of the resources allocated when the mdev was created. In addition, the
->> KVM guest will still have access to the AP devices assigned to the mdev
->> even though the mdev no longer exists.
->>
->> To prevent this scenario, cleanup will be done - including unplugging 
->> the
->> AP adapters, domains and control domains - regardless of whether the 
->> mdev
->> is in use by a KVM guest or not.
-> [...]
->>   static int vfio_ap_mdev_create(struct mdev_device *mdev)
->>   {
->>       struct ap_matrix_mdev *matrix_mdev;
->> @@ -366,16 +392,9 @@ static int vfio_ap_mdev_remove(struct 
->> mdev_device *mdev)
->>       struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->>         mutex_lock(&matrix_dev->lock);
->> -
->> -    /*
->> -     * If the KVM pointer is in flux or the guest is running, disallow
->> -     * un-assignment of control domain.
->> -     */
->> -    if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
->> -        mutex_unlock(&matrix_dev->lock);
->> -        return -EBUSY;
->> -    }
->> -
->> +    WARN(vfio_ap_mdev_has_crycb(matrix_mdev),
->> +         "Removing mdev leaves KVM guest without any crypto devices");
->> +    vfio_ap_mdev_clear_apcb(matrix_mdev);
->
-> Triggering a kernel warning due to an administrative task is not good.
-> Can't you simply clear the crycb? Maybe do a printk, but not a WARN.
-
-I'll take the warning out.
-
->
->>       vfio_ap_mdev_reset_queues(mdev);
->>       list_del(&matrix_mdev->node);
->>       kfree(matrix_mdev);
->>
-
+- Eric
