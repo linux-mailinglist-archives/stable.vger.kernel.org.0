@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 563A0378908
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:50:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15A9F3786EB
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236996AbhEJLZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:25:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
+        id S233477AbhEJLMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:12:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237585AbhEJLPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:15:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2CDA61433;
-        Mon, 10 May 2021 11:11:09 +0000 (UTC)
+        id S235669AbhEJLFv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:05:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E0F861076;
+        Mon, 10 May 2021 10:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620645070;
-        bh=kRO3lm8l9UCNAyh5e5A8RGipnDr50spmKgfSNMrzpDY=;
+        s=korg; t=1620644141;
+        bh=b+X48dCloFuRbRgUeHgCfH6mM1EbHUpVAf6wPUprbmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmvli9filArYtPSyo98VVltvs+g57y15hHyQD9lPp5jXQBYFDjG/DFZ1oRuTgkQ8S
-         UOU7Y9Vwaq3WLVBI8dV0kBfv9MsVsMUd37Q9Nz25RiWA/EktJrTtGZ2b1AHgQ8Tm6q
-         +g4wGB1xkfOzHhAcQ1RX4Cc8kzEbmCbTVYaXde+g=
+        b=fCHeLfd1DWH0yneJxxMgUYZsIhX3KUKSJrMvK3risLJ17usNWgoOY6oeneHFxowvp
+         gaMSd54cR7l3EdW7LLK8PJYCJrrYQotoY8F8HShbKJbCBrvkCdEPr3F+3Iy9qYNqAl
+         JxpmDbs9lISnNTAyhyMdV0R/ncZwbodHBZpffpYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Kevin Tian <kevin.tian@intel.com>,
-        "Gonglei (Arei)" <arei.gonglei@huawei.com>,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.12 304/384] iommu/vt-d: Force to flush iotlb before creating superpage
-Date:   Mon, 10 May 2021 12:21:33 +0200
-Message-Id: <20210510102024.825156161@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Hao Sun <sunhao.th@gmail.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.11 304/342] ext4: annotate data race in jbd2_journal_dirty_metadata()
+Date:   Mon, 10 May 2021 12:21:34 +0200
+Message-Id: <20210510102020.154457803@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,150 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 38c527aeb41926c71902dd42f788a8b093b21416 upstream.
+commit 83fe6b18b8d04c6c849379005e1679bac9752466 upstream.
 
-The translation caches may preserve obsolete data when the
-mapping size is changed, suppose the following sequence which
-can reveal the problem with high probability.
+Assertion checks in jbd2_journal_dirty_metadata() are known to be racy
+but we don't want to be grabbing locks just for them.  We thus recheck
+them under b_state_lock only if it looks like they would fail. Annotate
+the checks with data_race().
 
-1.mmap(4GB,MAP_HUGETLB)
-2.
-  while (1) {
-   (a)    DMA MAP   0,0xa0000
-   (b)    DMA UNMAP 0,0xa0000
-   (c)    DMA MAP   0,0xc0000000
-             * DMA read IOVA 0 may failure here (Not present)
-             * if the problem occurs.
-   (d)    DMA UNMAP 0,0xc0000000
-  }
-
-The page table(only focus on IOVA 0) after (a) is:
- PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
-  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
-   PDE: 0x1a30a72003  entry:0xffff89b39cacb000
-    PTE: 0x21d200803  entry:0xffff89b3b0a72000
-
-The page table after (b) is:
- PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
-  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
-   PDE: 0x1a30a72003  entry:0xffff89b39cacb000
-    PTE: 0x0          entry:0xffff89b3b0a72000
-
-The page table after (c) is:
- PML4: 0x19db5c1003   entry:0xffff899bdcd2f000
-  PDPE: 0x1a1cacb003  entry:0xffff89b35b5c1000
-   PDE: 0x21d200883   entry:0xffff89b39cacb000 (*)
-
-Because the PDE entry after (b) is present, it won't be
-flushed even if the iommu driver flush cache when unmap,
-so the obsolete data may be preserved in cache, which
-would cause the wrong translation at end.
-
-However, we can see the PDE entry is finally switch to
-2M-superpage mapping, but it does not transform
-to 0x21d200883 directly:
-
-1. PDE: 0x1a30a72003
-2. __domain_mapping
-     dma_pte_free_pagetable
-       Set the PDE entry to ZERO
-     Set the PDE entry to 0x21d200883
-
-So we must flush the cache after the entry switch to ZERO
-to avoid the obsolete info be preserved.
-
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Cc: Gonglei (Arei) <arei.gonglei@huawei.com>
-
-Fixes: 6491d4d02893 ("intel-iommu: Free old page tables before creating superpage")
-Cc: <stable@vger.kernel.org> # v3.0+
-Link: https://lore.kernel.org/linux-iommu/670baaf8-4ff8-4e84-4be3-030b95ab5a5e@huawei.com/
-Suggested-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210415004628.1779-1-longpeng2@huawei.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: stable@kernel.org
+Reported-by: Hao Sun <sunhao.th@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210406161804.20150-2-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/iommu.c |   52 ++++++++++++++++++++++++++++++++------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ fs/jbd2/transaction.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -2289,6 +2289,41 @@ static inline int hardware_largepage_cap
- 	return level;
- }
- 
-+/*
-+ * Ensure that old small page tables are removed to make room for superpage(s).
-+ * We're going to add new large pages, so make sure we don't remove their parent
-+ * tables. The IOTLB/devTLBs should be flushed if any PDE/PTEs are cleared.
-+ */
-+static void switch_to_super_page(struct dmar_domain *domain,
-+				 unsigned long start_pfn,
-+				 unsigned long end_pfn, int level)
-+{
-+	unsigned long lvl_pages = lvl_to_nr_pages(level);
-+	struct dma_pte *pte = NULL;
-+	int i;
-+
-+	while (start_pfn <= end_pfn) {
-+		if (!pte)
-+			pte = pfn_to_dma_pte(domain, start_pfn, &level);
-+
-+		if (dma_pte_present(pte)) {
-+			dma_pte_free_pagetable(domain, start_pfn,
-+					       start_pfn + lvl_pages - 1,
-+					       level + 1);
-+
-+			for_each_domain_iommu(i, domain)
-+				iommu_flush_iotlb_psi(g_iommus[i], domain,
-+						      start_pfn, lvl_pages,
-+						      0, 0);
-+		}
-+
-+		pte++;
-+		start_pfn += lvl_pages;
-+		if (first_pte_in_page(pte))
-+			pte = NULL;
-+	}
-+}
-+
- static int
- __domain_mapping(struct dmar_domain *domain, unsigned long iov_pfn,
- 		 unsigned long phys_pfn, unsigned long nr_pages, int prot)
-@@ -2329,22 +2364,11 @@ __domain_mapping(struct dmar_domain *dom
- 				return -ENOMEM;
- 			/* It is large page*/
- 			if (largepage_lvl > 1) {
--				unsigned long nr_superpages, end_pfn;
-+				unsigned long end_pfn;
- 
- 				pteval |= DMA_PTE_LARGE_PAGE;
--				lvl_pages = lvl_to_nr_pages(largepage_lvl);
--
--				nr_superpages = nr_pages / lvl_pages;
--				end_pfn = iov_pfn + nr_superpages * lvl_pages - 1;
--
--				/*
--				 * Ensure that old small page tables are
--				 * removed to make room for superpage(s).
--				 * We're adding new large pages, so make sure
--				 * we don't remove their parent tables.
--				 */
--				dma_pte_free_pagetable(domain, iov_pfn, end_pfn,
--						       largepage_lvl + 1);
-+				end_pfn = ((iov_pfn + nr_pages) & level_mask(largepage_lvl)) - 1;
-+				switch_to_super_page(domain, iov_pfn, end_pfn, largepage_lvl);
- 			} else {
- 				pteval &= ~(uint64_t)DMA_PTE_LARGE_PAGE;
- 			}
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -1479,8 +1479,8 @@ int jbd2_journal_dirty_metadata(handle_t
+ 	 * crucial to catch bugs so let's do a reliable check until the
+ 	 * lockless handling is fully proven.
+ 	 */
+-	if (jh->b_transaction != transaction &&
+-	    jh->b_next_transaction != transaction) {
++	if (data_race(jh->b_transaction != transaction &&
++	    jh->b_next_transaction != transaction)) {
+ 		spin_lock(&jh->b_state_lock);
+ 		J_ASSERT_JH(jh, jh->b_transaction == transaction ||
+ 				jh->b_next_transaction == transaction);
+@@ -1488,8 +1488,8 @@ int jbd2_journal_dirty_metadata(handle_t
+ 	}
+ 	if (jh->b_modified == 1) {
+ 		/* If it's in our transaction it must be in BJ_Metadata list. */
+-		if (jh->b_transaction == transaction &&
+-		    jh->b_jlist != BJ_Metadata) {
++		if (data_race(jh->b_transaction == transaction &&
++		    jh->b_jlist != BJ_Metadata)) {
+ 			spin_lock(&jh->b_state_lock);
+ 			if (jh->b_transaction == transaction &&
+ 			    jh->b_jlist != BJ_Metadata)
 
 
