@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5DA9378694
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3052C378873
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232808AbhEJLJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:09:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54598 "EHLO mail.kernel.org"
+        id S235299AbhEJLVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235140AbhEJLAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:00:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60F6461C44;
-        Mon, 10 May 2021 10:53:08 +0000 (UTC)
+        id S237111AbhEJLLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 07:11:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A28CD616E9;
+        Mon, 10 May 2021 11:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620643988;
-        bh=LBmAsoDSCELvhHwUH7si4iiI+m4X7cBv1jP7nCTK1Qw=;
+        s=korg; t=1620644830;
+        bh=Z2qFcwyxkrMbFdj6C9e+eOQCZl86x/w+6rNLoAKvwLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=to+Pi2b634Wq5GxDVCXO4InRQYwgf75f+bJlXXyfRzMUUactlqHtIMQcdXjxAWo3K
-         JOqSAu0gQvDkx/iMaWkt5Jlg3+Jd7rpnmjHct/cxr9yGtrqgv43IBPSEMs7pVtmhGe
-         nqN/XWxpMyY9mqxHQnEmPsShgyZtcJWXlzDQc2Ao=
+        b=O85mQM/wDHE83J+y//Rsjm7ymDRPomICNCDffK1wf3qBhMHSWmX+xww57JaOY9thh
+         j2rc/LFE5Ng3+tvAOCQhnvEnA/vlb5GQh1cGYmZqV316Ohbry7ThpV3A7H0oR31qPB
+         AHycbTwAefRzob8MLo5t/vgUNczkYc61HOQJx6t4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 241/342] ALSA: hda/conexant: Re-order CX5066 quirk table entries
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Gomez <daniel@qtec.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 242/384] drm/amdgpu/ttm: Fix memory leak userptr pages
 Date:   Mon, 10 May 2021 12:20:31 +0200
-Message-Id: <20210510102018.049388916@linuxfoundation.org>
+Message-Id: <20210510102022.860942870@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
-References: <20210510102010.096403571@linuxfoundation.org>
+In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
+References: <20210510102014.849075526@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,51 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Daniel Gomez <daniel@qtec.com>
 
-commit 2e6a731296be9d356fdccee9fb6ae345dad96438 upstream.
+[ Upstream commit 0f6f9dd490d524930081a6ef1d60171ce39220b9 ]
 
-Just re-order the cx5066_fixups[] entries for HP devices for avoiding
-the oversight of the duplicated or unapplied item in future.
-No functional changes.
+If userptr pages have been pinned but not bounded,
+they remain uncleared.
 
-Also Cc-to-stable for the further patch applications.
-
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210428112704.23967-14-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Daniel Gomez <daniel@qtec.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_conexant.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -930,18 +930,18 @@ static const struct snd_pci_quirk cxt506
- 	SND_PCI_QUIRK(0x103c, 0x8079, "HP EliteBook 840 G3", CXT_FIXUP_HP_DOCK),
- 	SND_PCI_QUIRK(0x103c, 0x807C, "HP EliteBook 820 G3", CXT_FIXUP_HP_DOCK),
- 	SND_PCI_QUIRK(0x103c, 0x80FD, "HP ProBook 640 G2", CXT_FIXUP_HP_DOCK),
--	SND_PCI_QUIRK(0x103c, 0x828c, "HP EliteBook 840 G4", CXT_FIXUP_HP_DOCK),
--	SND_PCI_QUIRK(0x103c, 0x83b2, "HP EliteBook 840 G5", CXT_FIXUP_HP_DOCK),
--	SND_PCI_QUIRK(0x103c, 0x83b3, "HP EliteBook 830 G5", CXT_FIXUP_HP_DOCK),
--	SND_PCI_QUIRK(0x103c, 0x83d3, "HP ProBook 640 G4", CXT_FIXUP_HP_DOCK),
--	SND_PCI_QUIRK(0x103c, 0x8174, "HP Spectre x360", CXT_FIXUP_HP_SPECTRE),
- 	SND_PCI_QUIRK(0x103c, 0x8115, "HP Z1 Gen3", CXT_FIXUP_HP_GATE_MIC),
- 	SND_PCI_QUIRK(0x103c, 0x814f, "HP ZBook 15u G3", CXT_FIXUP_MUTE_LED_GPIO),
-+	SND_PCI_QUIRK(0x103c, 0x8174, "HP Spectre x360", CXT_FIXUP_HP_SPECTRE),
- 	SND_PCI_QUIRK(0x103c, 0x822e, "HP ProBook 440 G4", CXT_FIXUP_MUTE_LED_GPIO),
--	SND_PCI_QUIRK(0x103c, 0x836e, "HP ProBook 455 G5", CXT_FIXUP_MUTE_LED_GPIO),
--	SND_PCI_QUIRK(0x103c, 0x837f, "HP ProBook 470 G5", CXT_FIXUP_MUTE_LED_GPIO),
-+	SND_PCI_QUIRK(0x103c, 0x828c, "HP EliteBook 840 G4", CXT_FIXUP_HP_DOCK),
- 	SND_PCI_QUIRK(0x103c, 0x8299, "HP 800 G3 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x829a, "HP 800 G3 DM", CXT_FIXUP_HP_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x103c, 0x836e, "HP ProBook 455 G5", CXT_FIXUP_MUTE_LED_GPIO),
-+	SND_PCI_QUIRK(0x103c, 0x837f, "HP ProBook 470 G5", CXT_FIXUP_MUTE_LED_GPIO),
-+	SND_PCI_QUIRK(0x103c, 0x83b2, "HP EliteBook 840 G5", CXT_FIXUP_HP_DOCK),
-+	SND_PCI_QUIRK(0x103c, 0x83b3, "HP EliteBook 830 G5", CXT_FIXUP_HP_DOCK),
-+	SND_PCI_QUIRK(0x103c, 0x83d3, "HP ProBook 640 G4", CXT_FIXUP_HP_DOCK),
- 	SND_PCI_QUIRK(0x103c, 0x8402, "HP ProBook 645 G4", CXT_FIXUP_MUTE_LED_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x8427, "HP ZBook Studio G5", CXT_FIXUP_HP_ZBOOK_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x844f, "HP ZBook Studio G5", CXT_FIXUP_HP_ZBOOK_MUTE_LED),
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index 5efa331e3ee8..f61fd2cf3fee 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -1162,13 +1162,13 @@ static void amdgpu_ttm_backend_unbind(struct ttm_bo_device *bdev,
+ 	struct amdgpu_ttm_tt *gtt = (void *)ttm;
+ 	int r;
+ 
+-	if (!gtt->bound)
+-		return;
+-
+ 	/* if the pages have userptr pinning then clear that first */
+ 	if (gtt->userptr)
+ 		amdgpu_ttm_tt_unpin_userptr(bdev, ttm);
+ 
++	if (!gtt->bound)
++		return;
++
+ 	if (gtt->offset == AMDGPU_BO_INVALID_OFFSET)
+ 		return;
+ 
+-- 
+2.30.2
+
 
 
