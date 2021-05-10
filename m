@@ -2,1380 +2,920 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C93F8379934
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 23:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB8F137993B
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 23:37:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231381AbhEJVca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 17:32:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46100 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230248AbhEJVca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 17:32:30 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B89C061574
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 14:31:24 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id h7so9807336plt.1
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 14:31:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=H/H9Pj2qCTChdZZHRRwLIi7tCLgBWeY1zUpyJNh8Ca0=;
-        b=sPl+c6FRYmkn0YyONo0eac51UW561th41hg6FNJIAVORTAPbooYboZVqzSlLw1wbrj
-         YwmM585fhZsRUffOjQnOt9i1ggj/Z6/UVd8FPwpA8smPw7VR/Qe5mfRUlZtVffkt6yZ5
-         DxpdtWrKhefsmTduayKA2jMQ06PpeJvIJ/WGF5XvSHnBEOr6ENXQVNY1VZ9er/pLYQd0
-         /wPMGZ3RcfivJygVPb+d3tQ1B1wbNPJt5j+icwZhZnxkgpjXSltUUBpzndzmiNaCuZLu
-         cyjMNAOutG8nCPJLuyRvqKB5asa32z7NloF6ymF2PR5yw20NASnhmneRLWzsHpP8eXYQ
-         cWJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=H/H9Pj2qCTChdZZHRRwLIi7tCLgBWeY1zUpyJNh8Ca0=;
-        b=q6FA1rNmC1HtvUVfgFRKHazGyTs5IZKTsMVzm8ogOSAVsKKqyudqLxQYahJrU19Ux7
-         dscpJbaIYJiLLLRuUwKFQY3iD7CACmvL3L1YGk6T/TbfiANDm00sz+RM/Sh8WKd4omEw
-         Lo/KWh324ydZTqoK0CcevyCQ0LOcNWPz6iVYpZkPp/WoudMgKRYsHpp4fQYTeVZSymUh
-         f33yFQZVwHPQ904fJ3rrsPGmBxVXzf90zz4NhZPIfOemAMVWkgsPWBH6vHLdSRdOp5Qa
-         rroYqbAyW6tKmDRG4ZrFAsngfI1zemWCuGl3A+sQ1wz4c4ehumS9wewCCIpjHbPRXiAw
-         I4/Q==
-X-Gm-Message-State: AOAM533U5TjwR0b8Aj9cIBzJGjSVrpL+dUl5jyHnNNx8V5GPJQP6oIxj
-        rI0hBgSF8Ias+7JXl688jUd1ltiL8VkEQaEp
-X-Google-Smtp-Source: ABdhPJygp3ou/XzMauqy9nQad0CgLHuG4WZ3mMV9deNd/wZE4QZhq4BDuF7moyZebVf2BS/HwkTTrA==
-X-Received: by 2002:a17:90a:8991:: with SMTP id v17mr1241727pjn.132.1620682282910;
-        Mon, 10 May 2021 14:31:22 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z23sm11923248pjh.44.2021.05.10.14.31.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 14:31:22 -0700 (PDT)
-Message-ID: <6099a62a.1c69fb81.c5ee8.505e@mx.google.com>
-Date:   Mon, 10 May 2021 14:31:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232316AbhEJViJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 17:38:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48936 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230165AbhEJViJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 17:38:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05AE060FE7;
+        Mon, 10 May 2021 21:37:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1620682623;
+        bh=kmHz3dnx+tZGwdCDQydqEpQ0ThMTu4BeAVnfxhla6iM=;
+        h=Date:From:To:Cc:Subject:From;
+        b=DzIS2oVdhBzDKGQGVCVIT0SdFcHFaB4n8WLtRxo15NGT11iTRHUJSF1ngGEpMsHH9
+         GMW53XkLxbmW5ZhIJj59HdxPhtGnbceRki4S5Ax708mDhfFdZpMHf4prBF1Ww4QVzN
+         cPrBDK7QtsaVZGE9tsc6uH+DzO/zp8wN1s5wsZXHdDveHfVVeoWrtx0j4xG2Ul7vfP
+         JY3xKNPcv3By1EwVXNkyOz/kmDXGSMOLd/oCrKtgaS+H8uOBLh+RYKeoYBP6Hj3nwC
+         FzZXS/pDZJbZi0X52Lpw4c3q40iURwDzZxErVUTSdiSilrwUxJbFfQEXN9C21XECVa
+         u53QdTtKCOiVw==
+Date:   Mon, 10 May 2021 14:36:58 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Jian Cai <jiancai@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        clang-built-linux@googlegroups.com, stable@vger.kernel.org
+Subject: Backport of 1139aeb1c521 for all supported stable branches
+Message-ID: <YJmneuxxFWIrqyWN@archlinux-ax161>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: build
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.232-103-gef4d7d89ccd99
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y build: 192 builds: 0 failed, 192 passed,
- 63 warnings (v4.14.232-103-gef4d7d89ccd99)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/mixed; boundary="fLKwDDoTK2blPOcV"
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y build: 192 builds: 0 failed, 192 passed, 63 warnings=
- (v4.14.232-103-gef4d7d89ccd99)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.232-103-gef4d7d89ccd99/
-
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.232-103-gef4d7d89ccd99
-Git Commit: ef4d7d89ccd993fc468dbe81035502c34d69deee
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Warnings Detected:
-
-arc:
-    allnoconfig (gcc-8): 1 warning
-    axs103_defconfig (gcc-8): 1 warning
-    axs103_smp_defconfig (gcc-8): 1 warning
-    haps_hs_defconfig (gcc-8): 1 warning
-    haps_hs_smp_defconfig (gcc-8): 1 warning
-    hsdk_defconfig (gcc-8): 1 warning
-    nsim_hs_defconfig (gcc-8): 1 warning
-    nsim_hs_smp_defconfig (gcc-8): 1 warning
-    nsimosci_hs_defconfig (gcc-8): 1 warning
-    nsimosci_hs_smp_defconfig (gcc-8): 1 warning
-    tinyconfig (gcc-8): 1 warning
-    vdk_hs38_defconfig (gcc-8): 1 warning
-    vdk_hs38_smp_defconfig (gcc-8): 1 warning
-
-arm64:
-
-arm:
-    am200epdkit_defconfig (gcc-8): 1 warning
-    cm_x2xx_defconfig (gcc-8): 1 warning
-    colibri_pxa300_defconfig (gcc-8): 1 warning
-    corgi_defconfig (gcc-8): 1 warning
-    efm32_defconfig (gcc-8): 1 warning
-    eseries_pxa_defconfig (gcc-8): 1 warning
-    h5000_defconfig (gcc-8): 1 warning
-    integrator_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    lpd270_defconfig (gcc-8): 1 warning
-    lubbock_defconfig (gcc-8): 1 warning
-    magician_defconfig (gcc-8): 1 warning
-    mainstone_defconfig (gcc-8): 1 warning
-    multi_v4t_defconfig (gcc-8): 1 warning
-    palmz72_defconfig (gcc-8): 1 warning
-    pcm027_defconfig (gcc-8): 1 warning
-    prima2_defconfig (gcc-8): 1 warning
-    pxa168_defconfig (gcc-8): 1 warning
-    pxa255-idp_defconfig (gcc-8): 1 warning
-    pxa3xx_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    raumfeld_defconfig (gcc-8): 1 warning
-    s3c2410_defconfig (gcc-8): 1 warning
-    s3c6400_defconfig (gcc-8): 1 warning
-    s5pv210_defconfig (gcc-8): 1 warning
-    spitz_defconfig (gcc-8): 1 warning
-    stm32_defconfig (gcc-8): 1 warning
-    tango4_defconfig (gcc-8): 1 warning
-    tct_hammer_defconfig (gcc-8): 1 warning
-    versatile_defconfig (gcc-8): 1 warning
-    viper_defconfig (gcc-8): 1 warning
-    vt8500_v6_v7_defconfig (gcc-8): 1 warning
-    xcep_defconfig (gcc-8): 1 warning
-    zeus_defconfig (gcc-8): 1 warning
-
-i386:
-
-mips:
-    db1xxx_defconfig (gcc-8): 1 warning
-    jmr3927_defconfig (gcc-8): 1 warning
-    malta_defconfig (gcc-8): 1 warning
-    malta_kvm_guest_defconfig (gcc-8): 1 warning
-    malta_qemu_32r6_defconfig (gcc-8): 2 warnings
-    maltaaprp_defconfig (gcc-8): 1 warning
-    maltasmvp_defconfig (gcc-8): 1 warning
-    maltasmvp_eva_defconfig (gcc-8): 1 warning
-    maltaup_defconfig (gcc-8): 1 warning
-    maltaup_xpa_defconfig (gcc-8): 1 warning
-    pic32mzda_defconfig (gcc-8): 1 warning
-    xilfpga_defconfig (gcc-8): 1 warning
-
-x86_64:
-    allnoconfig (gcc-8): 1 warning
-    tinyconfig (gcc-8): 1 warning
-    x86_64_defconfig (gcc-8): 1 warning
-
-
-Warnings summary:
-
-    59   drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 de=
-fined but not used [-Wunused-variable]
-    3    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
-' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
-    1    {standard input}:29: Warning: macro instruction expanded into mult=
-iple instructions
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warning=
-s, 0 section mismatches
-
-Warnings:
-    {standard input}:29: Warning: macro instruction expanded into multiple =
-instructions
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
+--fLKwDDoTK2blPOcV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Greg and Sasha,
+
+Please find attached backports of commit 1139aeb1c521 ("smp: Fix
+smp_call_function_single_async prototype") upstream, which resolves a
+serious looking clang warning seen across several different builds. It
+has been build tested with gcc and clang for x86_64 defconfig and
+allmodconfig.
+
+Please let me know if there are any problems.
+
+Cheers,
+Nathan
+
+--fLKwDDoTK2blPOcV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="1139aeb1c521-4.14.patch"
+
+From 13d0c736b29a5364eec1a7ec21e31f291dec9939 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 5 May 2021 23:12:42 +0200
+Subject: [PATCH 4.14] smp: Fix smp_call_function_single_async prototype
+
+commit 1139aeb1c521eb4a050920ce6c64c36c4f2a3ab7 upstream.
+
+As of commit 966a967116e6 ("smp: Avoid using two cache lines for struct
+call_single_data"), the smp code prefers 32-byte aligned call_single_data
+objects for performance reasons, but the block layer includes an instance
+of this structure in the main 'struct request' that is more senstive
+to size than to performance here, see 4ccafe032005 ("block: unalign
+call_single_data in struct request").
+
+The result is a violation of the calling conventions that clang correctly
+points out:
+
+block/blk-mq.c:630:39: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
+                smp_call_function_single_async(cpu, &rq->csd);
+
+It does seem that the usage of the call_single_data without cache line
+alignment should still be allowed by the smp code, so just change the
+function prototype so it accepts both, but leave the default alignment
+unchanged for the other users. This seems better to me than adding
+a local hack to shut up an otherwise correct warning in the caller.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210505211300.3174456-1-arnd@kernel.org
+[nc: Fix conflicts]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ include/linux/smp.h |  2 +-
+ kernel/smp.c        | 10 +++++-----
+ kernel/up.c         |  2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index 9fb239e12b82..6bb7f07bc1dd 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -53,7 +53,7 @@ void on_each_cpu_cond(bool (*cond_func)(int cpu, void *info),
+ 		smp_call_func_t func, void *info, bool wait,
+ 		gfp_t gfp_flags);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd);
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd);
+ 
+ #ifdef CONFIG_SMP
+ 
+diff --git a/kernel/smp.c b/kernel/smp.c
+index c94dd85c8d41..f9d95d59b7ed 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -103,12 +103,12 @@ void __init call_function_init(void)
+  * previous function call. For multi-cpu calls its even more interesting
+  * as we'll have to ensure no other cpu is observing our csd.
+  */
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	smp_cond_load_acquire(&csd->flags, !(VAL & CSD_FLAG_LOCK));
+ }
+ 
+-static __always_inline void csd_lock(call_single_data_t *csd)
++static __always_inline void csd_lock(struct __call_single_data *csd)
+ {
+ 	csd_lock_wait(csd);
+ 	csd->flags |= CSD_FLAG_LOCK;
+@@ -121,7 +121,7 @@ static __always_inline void csd_lock(call_single_data_t *csd)
+ 	smp_wmb();
+ }
+ 
+-static __always_inline void csd_unlock(call_single_data_t *csd)
++static __always_inline void csd_unlock(struct __call_single_data *csd)
+ {
+ 	WARN_ON(!(csd->flags & CSD_FLAG_LOCK));
+ 
+@@ -138,7 +138,7 @@ static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
+  * for execution on the given CPU. data must already have
+  * ->func, ->info, and ->flags set.
+  */
+-static int generic_exec_single(int cpu, call_single_data_t *csd,
++static int generic_exec_single(int cpu, struct __call_single_data *csd,
+ 			       smp_call_func_t func, void *info)
+ {
+ 	if (cpu == smp_processor_id()) {
+@@ -323,7 +323,7 @@ EXPORT_SYMBOL(smp_call_function_single);
+  * NOTE: Be careful, there is unfortunately no current debugging facility to
+  * validate the correctness of this serialization.
+  */
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	int err = 0;
+ 
+diff --git a/kernel/up.c b/kernel/up.c
+index 42c46bf3e0a5..2080f75e0e65 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -23,7 +23,7 @@ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+ }
+ EXPORT_SYMBOL(smp_call_function_single);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	unsigned long flags;
+ 
+
+base-commit: 7d7d1c0ab3eb7c8d8f63a126535018007823b207
+-- 
+2.31.1.527.g2d677e5b15
+
+
+--fLKwDDoTK2blPOcV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="1139aeb1c521-4.19.patch"
+
+From b996825ca37f3104a7ff70f8ec707cf3003f8cce Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 5 May 2021 23:12:42 +0200
+Subject: [PATCH 4.19] smp: Fix smp_call_function_single_async prototype
+
+commit 1139aeb1c521eb4a050920ce6c64c36c4f2a3ab7 upstream.
+
+As of commit 966a967116e6 ("smp: Avoid using two cache lines for struct
+call_single_data"), the smp code prefers 32-byte aligned call_single_data
+objects for performance reasons, but the block layer includes an instance
+of this structure in the main 'struct request' that is more senstive
+to size than to performance here, see 4ccafe032005 ("block: unalign
+call_single_data in struct request").
+
+The result is a violation of the calling conventions that clang correctly
+points out:
+
+block/blk-mq.c:630:39: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
+                smp_call_function_single_async(cpu, &rq->csd);
+
+It does seem that the usage of the call_single_data without cache line
+alignment should still be allowed by the smp code, so just change the
+function prototype so it accepts both, but leave the default alignment
+unchanged for the other users. This seems better to me than adding
+a local hack to shut up an otherwise correct warning in the caller.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210505211300.3174456-1-arnd@kernel.org
+[nc: Fix conflicts]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ include/linux/smp.h |  2 +-
+ kernel/smp.c        | 10 +++++-----
+ kernel/up.c         |  2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index 9fb239e12b82..6bb7f07bc1dd 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -53,7 +53,7 @@ void on_each_cpu_cond(bool (*cond_func)(int cpu, void *info),
+ 		smp_call_func_t func, void *info, bool wait,
+ 		gfp_t gfp_flags);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd);
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd);
+ 
+ #ifdef CONFIG_SMP
+ 
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 084c8b3a2681..00d208ef07c7 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -103,12 +103,12 @@ void __init call_function_init(void)
+  * previous function call. For multi-cpu calls its even more interesting
+  * as we'll have to ensure no other cpu is observing our csd.
+  */
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	smp_cond_load_acquire(&csd->flags, !(VAL & CSD_FLAG_LOCK));
+ }
+ 
+-static __always_inline void csd_lock(call_single_data_t *csd)
++static __always_inline void csd_lock(struct __call_single_data *csd)
+ {
+ 	csd_lock_wait(csd);
+ 	csd->flags |= CSD_FLAG_LOCK;
+@@ -121,7 +121,7 @@ static __always_inline void csd_lock(call_single_data_t *csd)
+ 	smp_wmb();
+ }
+ 
+-static __always_inline void csd_unlock(call_single_data_t *csd)
++static __always_inline void csd_unlock(struct __call_single_data *csd)
+ {
+ 	WARN_ON(!(csd->flags & CSD_FLAG_LOCK));
+ 
+@@ -138,7 +138,7 @@ static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
+  * for execution on the given CPU. data must already have
+  * ->func, ->info, and ->flags set.
+  */
+-static int generic_exec_single(int cpu, call_single_data_t *csd,
++static int generic_exec_single(int cpu, struct __call_single_data *csd,
+ 			       smp_call_func_t func, void *info)
+ {
+ 	if (cpu == smp_processor_id()) {
+@@ -323,7 +323,7 @@ EXPORT_SYMBOL(smp_call_function_single);
+  * NOTE: Be careful, there is unfortunately no current debugging facility to
+  * validate the correctness of this serialization.
+  */
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	int err = 0;
+ 
+diff --git a/kernel/up.c b/kernel/up.c
+index 42c46bf3e0a5..2080f75e0e65 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -23,7 +23,7 @@ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+ }
+ EXPORT_SYMBOL(smp_call_function_single);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	unsigned long flags;
+ 
+
+base-commit: 3c8c23092588a23bf1856a64f58c37f477a413be
+-- 
+2.31.1.527.g2d677e5b15
+
+
+--fLKwDDoTK2blPOcV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="1139aeb1c521-5.4.patch"
+
+From 127fde6df531e95e79ffa77b13818bd809a97a82 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 5 May 2021 23:12:42 +0200
+Subject: [PATCH 5.4] smp: Fix smp_call_function_single_async prototype
+
+commit 1139aeb1c521eb4a050920ce6c64c36c4f2a3ab7 upstream.
+
+As of commit 966a967116e6 ("smp: Avoid using two cache lines for struct
+call_single_data"), the smp code prefers 32-byte aligned call_single_data
+objects for performance reasons, but the block layer includes an instance
+of this structure in the main 'struct request' that is more senstive
+to size than to performance here, see 4ccafe032005 ("block: unalign
+call_single_data in struct request").
+
+The result is a violation of the calling conventions that clang correctly
+points out:
+
+block/blk-mq.c:630:39: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
+                smp_call_function_single_async(cpu, &rq->csd);
+
+It does seem that the usage of the call_single_data without cache line
+alignment should still be allowed by the smp code, so just change the
+function prototype so it accepts both, but leave the default alignment
+unchanged for the other users. This seems better to me than adding
+a local hack to shut up an otherwise correct warning in the caller.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210505211300.3174456-1-arnd@kernel.org
+[nc: Fix conflicts]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ include/linux/smp.h |  2 +-
+ kernel/smp.c        | 10 +++++-----
+ kernel/up.c         |  2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index 6fc856c9eda5..36a9da719110 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -57,7 +57,7 @@ void on_each_cpu_cond_mask(bool (*cond_func)(int cpu, void *info),
+ 		smp_call_func_t func, void *info, bool wait,
+ 		gfp_t gfp_flags, const struct cpumask *mask);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd);
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd);
+ 
+ #ifdef CONFIG_SMP
+ 
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 7dbcb402c2fc..3a390932f8b2 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -104,12 +104,12 @@ void __init call_function_init(void)
+  * previous function call. For multi-cpu calls its even more interesting
+  * as we'll have to ensure no other cpu is observing our csd.
+  */
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	smp_cond_load_acquire(&csd->flags, !(VAL & CSD_FLAG_LOCK));
+ }
+ 
+-static __always_inline void csd_lock(call_single_data_t *csd)
++static __always_inline void csd_lock(struct __call_single_data *csd)
+ {
+ 	csd_lock_wait(csd);
+ 	csd->flags |= CSD_FLAG_LOCK;
+@@ -122,7 +122,7 @@ static __always_inline void csd_lock(call_single_data_t *csd)
+ 	smp_wmb();
+ }
+ 
+-static __always_inline void csd_unlock(call_single_data_t *csd)
++static __always_inline void csd_unlock(struct __call_single_data *csd)
+ {
+ 	WARN_ON(!(csd->flags & CSD_FLAG_LOCK));
+ 
+@@ -139,7 +139,7 @@ static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
+  * for execution on the given CPU. data must already have
+  * ->func, ->info, and ->flags set.
+  */
+-static int generic_exec_single(int cpu, call_single_data_t *csd,
++static int generic_exec_single(int cpu, struct __call_single_data *csd,
+ 			       smp_call_func_t func, void *info)
+ {
+ 	if (cpu == smp_processor_id()) {
+@@ -332,7 +332,7 @@ EXPORT_SYMBOL(smp_call_function_single);
+  * NOTE: Be careful, there is unfortunately no current debugging facility to
+  * validate the correctness of this serialization.
+  */
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	int err = 0;
+ 
+diff --git a/kernel/up.c b/kernel/up.c
+index 862b460ab97a..8e8551c8b285 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -24,7 +24,7 @@ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+ }
+ EXPORT_SYMBOL(smp_call_function_single);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	unsigned long flags;
+ 
+
+base-commit: b5dbcd05792a4bad2c9bb3c4658c854e72c444b7
+-- 
+2.31.1.527.g2d677e5b15
+
+
+--fLKwDDoTK2blPOcV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="1139aeb1c521-5.10.patch"
+
+From 22ffbe67cfd260ab78bec93ad02901932c286d5c Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 5 May 2021 23:12:42 +0200
+Subject: [PATCH 5.10] smp: Fix smp_call_function_single_async prototype
+
+commit 1139aeb1c521eb4a050920ce6c64c36c4f2a3ab7 upstream.
+
+As of commit 966a967116e6 ("smp: Avoid using two cache lines for struct
+call_single_data"), the smp code prefers 32-byte aligned call_single_data
+objects for performance reasons, but the block layer includes an instance
+of this structure in the main 'struct request' that is more senstive
+to size than to performance here, see 4ccafe032005 ("block: unalign
+call_single_data in struct request").
+
+The result is a violation of the calling conventions that clang correctly
+points out:
+
+block/blk-mq.c:630:39: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
+                smp_call_function_single_async(cpu, &rq->csd);
+
+It does seem that the usage of the call_single_data without cache line
+alignment should still be allowed by the smp code, so just change the
+function prototype so it accepts both, but leave the default alignment
+unchanged for the other users. This seems better to me than adding
+a local hack to shut up an otherwise correct warning in the caller.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210505211300.3174456-1-arnd@kernel.org
+[nc: Fix conflicts, modify rq_csd_init]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ include/linux/smp.h |  2 +-
+ kernel/sched/core.c |  2 +-
+ kernel/smp.c        | 20 ++++++++++----------
+ kernel/up.c         |  2 +-
+ 4 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index 9f13966d3d92..04f44e0aa2e0 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -74,7 +74,7 @@ void on_each_cpu_cond(smp_cond_func_t cond_func, smp_call_func_t func,
+ void on_each_cpu_cond_mask(smp_cond_func_t cond_func, smp_call_func_t func,
+ 			   void *info, bool wait, const struct cpumask *mask);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd);
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd);
+ 
+ #ifdef CONFIG_SMP
+ 
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 3a150445e0cb..3c3554d9ee50 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -321,7 +321,7 @@ void update_rq_clock(struct rq *rq)
+ }
+ 
+ static inline void
+-rq_csd_init(struct rq *rq, call_single_data_t *csd, smp_call_func_t func)
++rq_csd_init(struct rq *rq, struct __call_single_data *csd, smp_call_func_t func)
+ {
+ 	csd->flags = 0;
+ 	csd->func = func;
+diff --git a/kernel/smp.c b/kernel/smp.c
+index 25240fb2df94..f73a597c8e4c 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -110,7 +110,7 @@ static DEFINE_PER_CPU(void *, cur_csd_info);
+ static atomic_t csd_bug_count = ATOMIC_INIT(0);
+ 
+ /* Record current CSD work for current CPU, NULL to erase. */
+-static void csd_lock_record(call_single_data_t *csd)
++static void csd_lock_record(struct __call_single_data *csd)
+ {
+ 	if (!csd) {
+ 		smp_mb(); /* NULL cur_csd after unlock. */
+@@ -125,7 +125,7 @@ static void csd_lock_record(call_single_data_t *csd)
+ 		  /* Or before unlock, as the case may be. */
+ }
+ 
+-static __always_inline int csd_lock_wait_getcpu(call_single_data_t *csd)
++static __always_inline int csd_lock_wait_getcpu(struct __call_single_data *csd)
+ {
+ 	unsigned int csd_type;
+ 
+@@ -140,7 +140,7 @@ static __always_inline int csd_lock_wait_getcpu(call_single_data_t *csd)
+  * the CSD_TYPE_SYNC/ASYNC types provide the destination CPU,
+  * so waiting on other types gets much less information.
+  */
+-static __always_inline bool csd_lock_wait_toolong(call_single_data_t *csd, u64 ts0, u64 *ts1, int *bug_id)
++static __always_inline bool csd_lock_wait_toolong(struct __call_single_data *csd, u64 ts0, u64 *ts1, int *bug_id)
+ {
+ 	int cpu = -1;
+ 	int cpux;
+@@ -204,7 +204,7 @@ static __always_inline bool csd_lock_wait_toolong(call_single_data_t *csd, u64 t
+  * previous function call. For multi-cpu calls its even more interesting
+  * as we'll have to ensure no other cpu is observing our csd.
+  */
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	int bug_id = 0;
+ 	u64 ts0, ts1;
+@@ -219,17 +219,17 @@ static __always_inline void csd_lock_wait(call_single_data_t *csd)
+ }
+ 
+ #else
+-static void csd_lock_record(call_single_data_t *csd)
++static void csd_lock_record(struct __call_single_data *csd)
+ {
+ }
+ 
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	smp_cond_load_acquire(&csd->flags, !(VAL & CSD_FLAG_LOCK));
+ }
+ #endif
+ 
+-static __always_inline void csd_lock(call_single_data_t *csd)
++static __always_inline void csd_lock(struct __call_single_data *csd)
+ {
+ 	csd_lock_wait(csd);
+ 	csd->flags |= CSD_FLAG_LOCK;
+@@ -242,7 +242,7 @@ static __always_inline void csd_lock(call_single_data_t *csd)
+ 	smp_wmb();
+ }
+ 
+-static __always_inline void csd_unlock(call_single_data_t *csd)
++static __always_inline void csd_unlock(struct __call_single_data *csd)
+ {
+ 	WARN_ON(!(csd->flags & CSD_FLAG_LOCK));
+ 
+@@ -276,7 +276,7 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
+  * for execution on the given CPU. data must already have
+  * ->func, ->info, and ->flags set.
+  */
+-static int generic_exec_single(int cpu, call_single_data_t *csd)
++static int generic_exec_single(int cpu, struct __call_single_data *csd)
+ {
+ 	if (cpu == smp_processor_id()) {
+ 		smp_call_func_t func = csd->func;
+@@ -542,7 +542,7 @@ EXPORT_SYMBOL(smp_call_function_single);
+  * NOTE: Be careful, there is unfortunately no current debugging facility to
+  * validate the correctness of this serialization.
+  */
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	int err = 0;
+ 
+diff --git a/kernel/up.c b/kernel/up.c
+index c6f323dcd45b..4edd5493eba2 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -25,7 +25,7 @@ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+ }
+ EXPORT_SYMBOL(smp_call_function_single);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	unsigned long flags;
+ 
+
+base-commit: f53a3a4808625f876aebc5a0bfb354480bbf0c21
+-- 
+2.31.1.527.g2d677e5b15
+
+
+--fLKwDDoTK2blPOcV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="1139aeb1c521-5.11.patch"
+
+From b49fcd6c8198e8c6c18712a7cac4ad1400593159 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 5 May 2021 23:12:42 +0200
+Subject: [PATCH 5.11] smp: Fix smp_call_function_single_async prototype
+
+commit 1139aeb1c521eb4a050920ce6c64c36c4f2a3ab7 upstream.
+
+As of commit 966a967116e6 ("smp: Avoid using two cache lines for struct
+call_single_data"), the smp code prefers 32-byte aligned call_single_data
+objects for performance reasons, but the block layer includes an instance
+of this structure in the main 'struct request' that is more senstive
+to size than to performance here, see 4ccafe032005 ("block: unalign
+call_single_data in struct request").
+
+The result is a violation of the calling conventions that clang correctly
+points out:
+
+block/blk-mq.c:630:39: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
+                smp_call_function_single_async(cpu, &rq->csd);
+
+It does seem that the usage of the call_single_data without cache line
+alignment should still be allowed by the smp code, so just change the
+function prototype so it accepts both, but leave the default alignment
+unchanged for the other users. This seems better to me than adding
+a local hack to shut up an otherwise correct warning in the caller.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210505211300.3174456-1-arnd@kernel.org
+[nc: Fix conflicts]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ include/linux/smp.h |  2 +-
+ kernel/smp.c        | 20 ++++++++++----------
+ kernel/up.c         |  2 +-
+ 3 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index 70c6f6284dcf..238a3f97a415 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -73,7 +73,7 @@ void on_each_cpu_cond(smp_cond_func_t cond_func, smp_call_func_t func,
+ void on_each_cpu_cond_mask(smp_cond_func_t cond_func, smp_call_func_t func,
+ 			   void *info, bool wait, const struct cpumask *mask);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd);
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd);
+ 
+ #ifdef CONFIG_SMP
+ 
+diff --git a/kernel/smp.c b/kernel/smp.c
+index aeb0adfa0606..c678589fbb76 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -110,7 +110,7 @@ static DEFINE_PER_CPU(void *, cur_csd_info);
+ static atomic_t csd_bug_count = ATOMIC_INIT(0);
+ 
+ /* Record current CSD work for current CPU, NULL to erase. */
+-static void csd_lock_record(call_single_data_t *csd)
++static void csd_lock_record(struct __call_single_data *csd)
+ {
+ 	if (!csd) {
+ 		smp_mb(); /* NULL cur_csd after unlock. */
+@@ -125,7 +125,7 @@ static void csd_lock_record(call_single_data_t *csd)
+ 		  /* Or before unlock, as the case may be. */
+ }
+ 
+-static __always_inline int csd_lock_wait_getcpu(call_single_data_t *csd)
++static __always_inline int csd_lock_wait_getcpu(struct __call_single_data *csd)
+ {
+ 	unsigned int csd_type;
+ 
+@@ -140,7 +140,7 @@ static __always_inline int csd_lock_wait_getcpu(call_single_data_t *csd)
+  * the CSD_TYPE_SYNC/ASYNC types provide the destination CPU,
+  * so waiting on other types gets much less information.
+  */
+-static __always_inline bool csd_lock_wait_toolong(call_single_data_t *csd, u64 ts0, u64 *ts1, int *bug_id)
++static __always_inline bool csd_lock_wait_toolong(struct __call_single_data *csd, u64 ts0, u64 *ts1, int *bug_id)
+ {
+ 	int cpu = -1;
+ 	int cpux;
+@@ -204,7 +204,7 @@ static __always_inline bool csd_lock_wait_toolong(call_single_data_t *csd, u64 t
+  * previous function call. For multi-cpu calls its even more interesting
+  * as we'll have to ensure no other cpu is observing our csd.
+  */
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	int bug_id = 0;
+ 	u64 ts0, ts1;
+@@ -219,17 +219,17 @@ static __always_inline void csd_lock_wait(call_single_data_t *csd)
+ }
+ 
+ #else
+-static void csd_lock_record(call_single_data_t *csd)
++static void csd_lock_record(struct __call_single_data *csd)
+ {
+ }
+ 
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	smp_cond_load_acquire(&csd->node.u_flags, !(VAL & CSD_FLAG_LOCK));
+ }
+ #endif
+ 
+-static __always_inline void csd_lock(call_single_data_t *csd)
++static __always_inline void csd_lock(struct __call_single_data *csd)
+ {
+ 	csd_lock_wait(csd);
+ 	csd->node.u_flags |= CSD_FLAG_LOCK;
+@@ -242,7 +242,7 @@ static __always_inline void csd_lock(call_single_data_t *csd)
+ 	smp_wmb();
+ }
+ 
+-static __always_inline void csd_unlock(call_single_data_t *csd)
++static __always_inline void csd_unlock(struct __call_single_data *csd)
+ {
+ 	WARN_ON(!(csd->node.u_flags & CSD_FLAG_LOCK));
+ 
+@@ -276,7 +276,7 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
+  * for execution on the given CPU. data must already have
+  * ->func, ->info, and ->flags set.
+  */
+-static int generic_exec_single(int cpu, call_single_data_t *csd)
++static int generic_exec_single(int cpu, struct __call_single_data *csd)
+ {
+ 	if (cpu == smp_processor_id()) {
+ 		smp_call_func_t func = csd->func;
+@@ -542,7 +542,7 @@ EXPORT_SYMBOL(smp_call_function_single);
+  * NOTE: Be careful, there is unfortunately no current debugging facility to
+  * validate the correctness of this serialization.
+  */
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	int err = 0;
+ 
+diff --git a/kernel/up.c b/kernel/up.c
+index c6f323dcd45b..4edd5493eba2 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -25,7 +25,7 @@ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+ }
+ EXPORT_SYMBOL(smp_call_function_single);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	unsigned long flags;
+ 
+
+base-commit: 44a3370d47be9adf7532431a6d69583bb350ee57
+-- 
+2.31.1.527.g2d677e5b15
+
+
+--fLKwDDoTK2blPOcV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="1139aeb1c521-5.12.patch"
+
+From 0032c9cbd15817bad8cee70e6d6441e4b0f9c638 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 5 May 2021 23:12:42 +0200
+Subject: [PATCH 5.12] smp: Fix smp_call_function_single_async prototype
+
+commit 1139aeb1c521eb4a050920ce6c64c36c4f2a3ab7 upstream.
+
+As of commit 966a967116e6 ("smp: Avoid using two cache lines for struct
+call_single_data"), the smp code prefers 32-byte aligned call_single_data
+objects for performance reasons, but the block layer includes an instance
+of this structure in the main 'struct request' that is more senstive
+to size than to performance here, see 4ccafe032005 ("block: unalign
+call_single_data in struct request").
+
+The result is a violation of the calling conventions that clang correctly
+points out:
+
+block/blk-mq.c:630:39: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
+                smp_call_function_single_async(cpu, &rq->csd);
+
+It does seem that the usage of the call_single_data without cache line
+alignment should still be allowed by the smp code, so just change the
+function prototype so it accepts both, but leave the default alignment
+unchanged for the other users. This seems better to me than adding
+a local hack to shut up an otherwise correct warning in the caller.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210505211300.3174456-1-arnd@kernel.org
+[nc: Fix conflicts]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ include/linux/smp.h |  2 +-
+ kernel/smp.c        | 20 ++++++++++----------
+ kernel/up.c         |  2 +-
+ 3 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index 70c6f6284dcf..238a3f97a415 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -73,7 +73,7 @@ void on_each_cpu_cond(smp_cond_func_t cond_func, smp_call_func_t func,
+ void on_each_cpu_cond_mask(smp_cond_func_t cond_func, smp_call_func_t func,
+ 			   void *info, bool wait, const struct cpumask *mask);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd);
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd);
+ 
+ #ifdef CONFIG_SMP
+ 
+diff --git a/kernel/smp.c b/kernel/smp.c
+index aeb0adfa0606..c678589fbb76 100644
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -110,7 +110,7 @@ static DEFINE_PER_CPU(void *, cur_csd_info);
+ static atomic_t csd_bug_count = ATOMIC_INIT(0);
+ 
+ /* Record current CSD work for current CPU, NULL to erase. */
+-static void csd_lock_record(call_single_data_t *csd)
++static void csd_lock_record(struct __call_single_data *csd)
+ {
+ 	if (!csd) {
+ 		smp_mb(); /* NULL cur_csd after unlock. */
+@@ -125,7 +125,7 @@ static void csd_lock_record(call_single_data_t *csd)
+ 		  /* Or before unlock, as the case may be. */
+ }
+ 
+-static __always_inline int csd_lock_wait_getcpu(call_single_data_t *csd)
++static __always_inline int csd_lock_wait_getcpu(struct __call_single_data *csd)
+ {
+ 	unsigned int csd_type;
+ 
+@@ -140,7 +140,7 @@ static __always_inline int csd_lock_wait_getcpu(call_single_data_t *csd)
+  * the CSD_TYPE_SYNC/ASYNC types provide the destination CPU,
+  * so waiting on other types gets much less information.
+  */
+-static __always_inline bool csd_lock_wait_toolong(call_single_data_t *csd, u64 ts0, u64 *ts1, int *bug_id)
++static __always_inline bool csd_lock_wait_toolong(struct __call_single_data *csd, u64 ts0, u64 *ts1, int *bug_id)
+ {
+ 	int cpu = -1;
+ 	int cpux;
+@@ -204,7 +204,7 @@ static __always_inline bool csd_lock_wait_toolong(call_single_data_t *csd, u64 t
+  * previous function call. For multi-cpu calls its even more interesting
+  * as we'll have to ensure no other cpu is observing our csd.
+  */
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	int bug_id = 0;
+ 	u64 ts0, ts1;
+@@ -219,17 +219,17 @@ static __always_inline void csd_lock_wait(call_single_data_t *csd)
+ }
+ 
+ #else
+-static void csd_lock_record(call_single_data_t *csd)
++static void csd_lock_record(struct __call_single_data *csd)
+ {
+ }
+ 
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	smp_cond_load_acquire(&csd->node.u_flags, !(VAL & CSD_FLAG_LOCK));
+ }
+ #endif
+ 
+-static __always_inline void csd_lock(call_single_data_t *csd)
++static __always_inline void csd_lock(struct __call_single_data *csd)
+ {
+ 	csd_lock_wait(csd);
+ 	csd->node.u_flags |= CSD_FLAG_LOCK;
+@@ -242,7 +242,7 @@ static __always_inline void csd_lock(call_single_data_t *csd)
+ 	smp_wmb();
+ }
+ 
+-static __always_inline void csd_unlock(call_single_data_t *csd)
++static __always_inline void csd_unlock(struct __call_single_data *csd)
+ {
+ 	WARN_ON(!(csd->node.u_flags & CSD_FLAG_LOCK));
+ 
+@@ -276,7 +276,7 @@ void __smp_call_single_queue(int cpu, struct llist_node *node)
+  * for execution on the given CPU. data must already have
+  * ->func, ->info, and ->flags set.
+  */
+-static int generic_exec_single(int cpu, call_single_data_t *csd)
++static int generic_exec_single(int cpu, struct __call_single_data *csd)
+ {
+ 	if (cpu == smp_processor_id()) {
+ 		smp_call_func_t func = csd->func;
+@@ -542,7 +542,7 @@ EXPORT_SYMBOL(smp_call_function_single);
+  * NOTE: Be careful, there is unfortunately no current debugging facility to
+  * validate the correctness of this serialization.
+  */
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	int err = 0;
+ 
+diff --git a/kernel/up.c b/kernel/up.c
+index c6f323dcd45b..4edd5493eba2 100644
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -25,7 +25,7 @@ int smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+ }
+ EXPORT_SYMBOL(smp_call_function_single);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	unsigned long flags;
+ 
+
+base-commit: 96e86bea450b3a00af5dc7ba5382f1b241e4306a
+-- 
+2.31.1.527.g2d677e5b15
+
+
+--fLKwDDoTK2blPOcV--
