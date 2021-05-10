@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 077483788AD
-	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81380378688
+	for <lists+stable@lfdr.de>; Mon, 10 May 2021 13:31:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234341AbhEJLWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 07:22:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53450 "EHLO mail.kernel.org"
+        id S232617AbhEJLIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 07:08:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237073AbhEJLLS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 07:11:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44EFA61624;
-        Mon, 10 May 2021 11:06:52 +0000 (UTC)
+        id S233595AbhEJK7n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 06:59:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F172161961;
+        Mon, 10 May 2021 10:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620644812;
-        bh=Flj2XUniNDbetaM18kcPy5NuPj9fV4e9/VoYPU8LiEk=;
+        s=korg; t=1620643969;
+        bh=La6yCjbBEzmNOP6fI+72qP59ziPo375ytd/ldfg9EsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WEkLcqr73hPsv2sjA0UCkCwQ5DbRvFNw+O2KK45/t3rWqR2zuhVEMYoCQfNPUqAyj
-         9QGIu7X16Mq9LwP4jZVA8vMj4RKbDufkJ8pHWvvumwhx4vnRlyGqnQpZYfexJff2RC
-         nS1kiUadY++1af8eaqLUeQ9XpdbcDfmW64xnkBEY=
+        b=mKKeVHalvxg574+H73fJCI7Q1nIFQpXC/6kPO+yJ5LHP5dt0TUMYgq/xiYf43ydm+
+         Nri24R1vsxfIzu7Flnzmpj45wisHIoxwO7qmx746em08aklroJalrPUVVH3z5vfybT
+         KAj/s8VtbqWtf9ffiPFK3ybI3kffjtyfRtIGhzfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 235/384] media: sun8i-di: Fix runtime PM imbalance in deinterlace_start_streaming
+Subject: [PATCH 5.11 234/342] sched,fair: Alternative sched_slice()
 Date:   Mon, 10 May 2021 12:20:24 +0200
-Message-Id: <20210510102022.635672292@linuxfoundation.org>
+Message-Id: <20210510102017.817306222@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210510102014.849075526@linuxfoundation.org>
-References: <20210510102014.849075526@linuxfoundation.org>
+In-Reply-To: <20210510102010.096403571@linuxfoundation.org>
+References: <20210510102010.096403571@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit f1995d5e43cf897f63b4d7a7f84a252d891ae820 ]
+[ Upstream commit 0c2de3f054a59f15e01804b75a04355c48de628c ]
 
-pm_runtime_get_sync() will increase the runtime PM counter
-even it returns an error. Thus a pairing decrement is needed
-to prevent refcount leak. Fix this by replacing this API with
-pm_runtime_resume_and_get(), which will not change the runtime
-PM counter on error.
+The current sched_slice() seems to have issues; there's two possible
+things that could be improved:
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+ - the 'nr_running' used for __sched_period() is daft when cgroups are
+   considered. Using the RQ wide h_nr_running seems like a much more
+   consistent number.
+
+ - (esp) cgroups can slice it real fine, which makes for easy
+   over-scheduling, ensure min_gran is what the name says.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20210412102001.611897312@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sunxi/sun8i-di/sun8i-di.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c     | 12 +++++++++++-
+ kernel/sched/features.h |  3 +++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/sunxi/sun8i-di/sun8i-di.c b/drivers/media/platform/sunxi/sun8i-di/sun8i-di.c
-index ed863bf5ea80..671e4a928993 100644
---- a/drivers/media/platform/sunxi/sun8i-di/sun8i-di.c
-+++ b/drivers/media/platform/sunxi/sun8i-di/sun8i-di.c
-@@ -589,7 +589,7 @@ static int deinterlace_start_streaming(struct vb2_queue *vq, unsigned int count)
- 	int ret;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 8c82019d9c6f..828978320e44 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -700,7 +700,13 @@ static u64 __sched_period(unsigned long nr_running)
+  */
+ static u64 sched_slice(struct cfs_rq *cfs_rq, struct sched_entity *se)
+ {
+-	u64 slice = __sched_period(cfs_rq->nr_running + !se->on_rq);
++	unsigned int nr_running = cfs_rq->nr_running;
++	u64 slice;
++
++	if (sched_feat(ALT_PERIOD))
++		nr_running = rq_of(cfs_rq)->cfs.h_nr_running;
++
++	slice = __sched_period(nr_running + !se->on_rq);
  
- 	if (V4L2_TYPE_IS_OUTPUT(vq->type)) {
--		ret = pm_runtime_get_sync(dev);
-+		ret = pm_runtime_resume_and_get(dev);
- 		if (ret < 0) {
- 			dev_err(dev, "Failed to enable module\n");
+ 	for_each_sched_entity(se) {
+ 		struct load_weight *load;
+@@ -717,6 +723,10 @@ static u64 sched_slice(struct cfs_rq *cfs_rq, struct sched_entity *se)
+ 		}
+ 		slice = __calc_delta(slice, se->load.weight, load);
+ 	}
++
++	if (sched_feat(BASE_SLICE))
++		slice = max(slice, (u64)sysctl_sched_min_granularity);
++
+ 	return slice;
+ }
  
+diff --git a/kernel/sched/features.h b/kernel/sched/features.h
+index 68d369cba9e4..f1bf5e12d889 100644
+--- a/kernel/sched/features.h
++++ b/kernel/sched/features.h
+@@ -90,3 +90,6 @@ SCHED_FEAT(WA_BIAS, true)
+  */
+ SCHED_FEAT(UTIL_EST, true)
+ SCHED_FEAT(UTIL_EST_FASTUP, true)
++
++SCHED_FEAT(ALT_PERIOD, true)
++SCHED_FEAT(BASE_SLICE, true)
 -- 
 2.30.2
 
