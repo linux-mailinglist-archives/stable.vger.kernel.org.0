@@ -2,195 +2,564 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B3237AAF2
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 17:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9253437AB1A
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 17:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbhEKPmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 11:42:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39618 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231561AbhEKPmX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 May 2021 11:42:23 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9ECE616EB;
-        Tue, 11 May 2021 15:41:16 +0000 (UTC)
-Date:   Tue, 11 May 2021 11:41:15 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     <gregkh@linuxfoundation.org>
-Cc:     hi-angel@yandex.ru, todd.e.brandt@linux.intel.com,
-        <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] tracing: Restructure
- trace_clock_global() to never block" failed to apply to 4.14-stable tree
-Message-ID: <20210511114115.2a8ea027@gandalf.local.home>
-In-Reply-To: <162063664219298@kroah.com>
-References: <162063664219298@kroah.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        id S231946AbhEKPth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 11:49:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38650 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231561AbhEKPtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 11:49:36 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07143C061760
+        for <stable@vger.kernel.org>; Tue, 11 May 2021 08:48:30 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id h16so3610295pfk.0
+        for <stable@vger.kernel.org>; Tue, 11 May 2021 08:48:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=p0avR/Q7Tu89zS5qgGuhcMysIeOGFPsc/0EAR5T+B3g=;
+        b=FeAgM+kG8jlMHOs4XSnsfMdFeZK3ImSaxbs/x04eyC5+1ifKBJPOhimbEorXEGT0Jn
+         9/c4cSxUhvaHPV0/nSCqGD7KVE98KiQPOS9OBk8FYxr2h43bYBz3sQW4k4v355CfwqcU
+         sWZocBAVoRFs++Ej7Ot2tpRYjfnVT9kwWZ/TXv9COpRvHRdnUJKl1rGhAZLp7W5etJ7Q
+         9+IIlSqs2ZDSqoRHKk1nj+kOxeA6GvUItp8eAY1v5X2+Yie5y5zO40+P6RXjXldF9gPN
+         /kYPM0D51GjQxNCLtNtzK0GPFy54tfT/I/lKtv0hgy2xUXbfcDRV7/4zLfy4mlFwSmPe
+         1d7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=p0avR/Q7Tu89zS5qgGuhcMysIeOGFPsc/0EAR5T+B3g=;
+        b=YqX0OqrgJJjouP4mzOYXKbItjWEI+6J0gHUGG7P02kxzN5XO2k/CypKkDDOERK0nwu
+         lIErxS4kPVulawKS/Ke1QKV410cqJ0NuK8nRCljcj2t96QkFFKBRMua4qmsuiWfy11BS
+         T1AAFoAmIm7l7oGSH20SCI1UfWOhirVRJ66vfVgSP1tvg7FqzIoi5LmhQH8p0+xkmo8W
+         YsB8ujxOzd577X6B3FbVi2u2E7aW8LutNV8JgnIYwT+hWY0lpUFF185eugPXa03ifntr
+         aZKsipaPTfaaoOOQkGzbYkcG8wq6mdqyL/0+RxFpHuXTlvX98Qe9fOl/xTF4l9IN4N4e
+         QppA==
+X-Gm-Message-State: AOAM532RLbLXudGlPZlorW8dtXxpSl9qQ6D0IajLQRjZ3Cy9O8JVMEfe
+        SONooBY55J327D4R/m1GqBu17+5VsHqcofyp
+X-Google-Smtp-Source: ABdhPJwJNc3YypEW5LpZboaZFoHeWHOqMXjbxlxy48w0gNEQtzhcT6x4wN+HE5mlyI4poK/K4KsjuQ==
+X-Received: by 2002:a62:2bc6:0:b029:2cc:242f:ab69 with SMTP id r189-20020a622bc60000b02902cc242fab69mr1595735pfr.16.1620748109154;
+        Tue, 11 May 2021 08:48:29 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j79sm12156026pfd.184.2021.05.11.08.48.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 May 2021 08:48:28 -0700 (PDT)
+Message-ID: <609aa74c.1c69fb81.afb16.55d2@mx.google.com>
+Date:   Tue, 11 May 2021 08:48:28 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.232-110-g75bb6a54e5924
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Report-Type: build
+Subject: stable-rc/queue/4.14 build: 71 builds: 0 failed, 71 passed,
+ 22 warnings (v4.14.232-110-g75bb6a54e5924)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 May 2021 10:50:42 +0200
-<gregkh@linuxfoundation.org> wrote:
+stable-rc/queue/4.14 build: 71 builds: 0 failed, 71 passed, 22 warnings (v4=
+.14.232-110-g75bb6a54e5924)
 
-> The patch below does not apply to the 4.14-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+4/kernel/v4.14.232-110-g75bb6a54e5924/
 
-This should work for 4.14, 4.9 and 4.4.
+Tree: stable-rc
+Branch: queue/4.14
+Git Describe: v4.14.232-110-g75bb6a54e5924
+Git Commit: 75bb6a54e59248742fff03e3c9bf969826d9f603
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 4 unique architectures
 
--- Steve
+Warnings Detected:
+
+arc:
+    haps_hs_smp_defconfig (gcc-8): 1 warning
+    hsdk_defconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
+
+arm:
+    am200epdkit_defconfig (gcc-8): 1 warning
+    colibri_pxa300_defconfig (gcc-8): 1 warning
+    efm32_defconfig (gcc-8): 1 warning
+    integrator_defconfig (gcc-8): 1 warning
+    lpd270_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    prima2_defconfig (gcc-8): 1 warning
+    pxa910_defconfig (gcc-8): 1 warning
+    s5pv210_defconfig (gcc-8): 1 warning
+    spitz_defconfig (gcc-8): 1 warning
+    tango4_defconfig (gcc-8): 1 warning
+    zeus_defconfig (gcc-8): 1 warning
+
+i386:
+
+mips:
+    db1xxx_defconfig (gcc-8): 1 warning
+    malta_kvm_guest_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 2 warnings
+    maltasmvp_defconfig (gcc-8): 1 warning
+    maltasmvp_eva_defconfig (gcc-8): 1 warning
+    maltaup_defconfig (gcc-8): 1 warning
 
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Fri, 30 Apr 2021 12:17:58 -0400
-Subject: [PATCH] tracing: Restructure trace_clock_global() to never block
+Warnings summary:
 
-It was reported that a fix to the ring buffer recursion detection would
-cause a hung machine when performing suspend / resume testing. The
-following backtrace was extracted from debugging that case:
+    21   drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 de=
+fined but not used [-Wunused-variable]
+    1    {standard input}:29: Warning: macro instruction expanded into mult=
+iple instructions
 
-Call Trace:
- trace_clock_global+0x91/0xa0
- __rb_reserve_next+0x237/0x460
- ring_buffer_lock_reserve+0x12a/0x3f0
- trace_buffer_lock_reserve+0x10/0x50
- __trace_graph_return+0x1f/0x80
- trace_graph_return+0xb7/0xf0
- ? trace_clock_global+0x91/0xa0
- ftrace_return_to_handler+0x8b/0xf0
- ? pv_hash+0xa0/0xa0
- return_to_handler+0x15/0x30
- ? ftrace_graph_caller+0xa0/0xa0
- ? trace_clock_global+0x91/0xa0
- ? __rb_reserve_next+0x237/0x460
- ? ring_buffer_lock_reserve+0x12a/0x3f0
- ? trace_event_buffer_lock_reserve+0x3c/0x120
- ? trace_event_buffer_reserve+0x6b/0xc0
- ? trace_event_raw_event_device_pm_callback_start+0x125/0x2d0
- ? dpm_run_callback+0x3b/0xc0
- ? pm_ops_is_empty+0x50/0x50
- ? platform_get_irq_byname_optional+0x90/0x90
- ? trace_device_pm_callback_start+0x82/0xd0
- ? dpm_run_callback+0x49/0xc0
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
 
-With the following RIP:
+Detailed per-defconfig build reports:
 
-RIP: 0010:native_queued_spin_lock_slowpath+0x69/0x200
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
-Since the fix to the recursion detection would allow a single recursion to
-happen while tracing, this lead to the trace_clock_global() taking a spin
-lock and then trying to take it again:
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
-ring_buffer_lock_reserve() {
-  trace_clock_global() {
-    arch_spin_lock() {
-      queued_spin_lock_slowpath() {
-        /* lock taken */
-        (something else gets traced by function graph tracer)
-          ring_buffer_lock_reserve() {
-            trace_clock_global() {
-              arch_spin_lock() {
-                queued_spin_lock_slowpath() {
-                /* DEAD LOCK! */
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
 
-Tracing should *never* block, as it can lead to strange lockups like the
-above.
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
-Restructure the trace_clock_global() code to instead of simply taking a
-lock to update the recorded "prev_time" simply use it, as two events
-happening on two different CPUs that calls this at the same time, really
-doesn't matter which one goes first. Use a trylock to grab the lock for
-updating the prev_time, and if it fails, simply try again the next time.
-If it failed to be taken, that means something else is already updating
-it.
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
-Link: https://lkml.kernel.org/r/20210430121758.650b6e8a@gandalf.local.home
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-Cc: stable@vger.kernel.org
-Tested-by: Konstantin Kharlamov <hi-angel@yandex.ru>
-Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
-Fixes: b02414c8f045 ("ring-buffer: Fix recursion protection transitions between interrupt context") # started showing the problem
-Fixes: 14131f2f98ac3 ("tracing: implement trace_clock_*() APIs") # where the bug happened
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212761
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
-Index: linux-test.git/kernel/trace/trace_clock.c
-===================================================================
---- linux-test.git.orig/kernel/trace/trace_clock.c
-+++ linux-test.git/kernel/trace/trace_clock.c
-@@ -93,33 +93,49 @@ u64 notrace trace_clock_global(void)
- {
- 	unsigned long flags;
- 	int this_cpu;
--	u64 now;
-+	u64 now, prev_time;
- 
- 	local_irq_save(flags);
- 
- 	this_cpu = raw_smp_processor_id();
--	now = sched_clock_cpu(this_cpu);
-+
- 	/*
--	 * If in an NMI context then dont risk lockups and return the
--	 * cpu_clock() time:
-+	 * The global clock "guarantees" that the events are ordered
-+	 * between CPUs. But if two events on two different CPUS call
-+	 * trace_clock_global at roughly the same time, it really does
-+	 * not matter which one gets the earlier time. Just make sure
-+	 * that the same CPU will always show a monotonic clock.
-+	 *
-+	 * Use a read memory barrier to get the latest written
-+	 * time that was recorded.
- 	 */
--	if (unlikely(in_nmi()))
--		goto out;
-+	smp_rmb();
-+	prev_time = READ_ONCE(trace_clock_struct.prev_time);
-+	now = sched_clock_cpu(this_cpu);
- 
--	arch_spin_lock(&trace_clock_struct.lock);
-+	/* Make sure that now is always greater than prev_time */
-+	if ((s64)(now - prev_time) < 0)
-+		now = prev_time + 1;
- 
- 	/*
--	 * TODO: if this happens often then maybe we should reset
--	 * my_scd->clock to prev_time+1, to make sure
--	 * we start ticking with the local clock from now on?
-+	 * If in an NMI context then dont risk lockups and simply return
-+	 * the current time.
- 	 */
--	if ((s64)(now - trace_clock_struct.prev_time) < 0)
--		now = trace_clock_struct.prev_time + 1;
--
--	trace_clock_struct.prev_time = now;
--
--	arch_spin_unlock(&trace_clock_struct.lock);
-+	if (unlikely(in_nmi()))
-+		goto out;
- 
-+	/* Tracing can cause strange recursion, always use a try lock */
-+	if (arch_spin_trylock(&trace_clock_struct.lock)) {
-+		/* Reread prev_time in case it was already updated */
-+		prev_time = READ_ONCE(trace_clock_struct.prev_time);
-+		if ((s64)(now - prev_time) < 0)
-+			now = prev_time + 1;
-+
-+		trace_clock_struct.prev_time = now;
-+
-+		/* The unlock acts as the wmb for the above rmb */
-+		arch_spin_unlock(&trace_clock_struct.lock);
-+	}
-  out:
- 	local_irq_restore(flags);
- 
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warning=
+s, 0 section mismatches
+
+Warnings:
+    {standard input}:29: Warning: macro instruction expanded into multiple =
+instructions
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+atches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---
+For more info write to <info@kernelci.org>
