@@ -2,308 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2FF1379BCD
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 03:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B1E379BCE
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 03:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229840AbhEKBBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 21:01:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36524 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229628AbhEKBBy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 21:01:54 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14051C061574
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 18:00:49 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id y32so14547583pga.11
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 18:00:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=LCI5B8sdcASSP0EMOhdHCf3laiyqcj/Q9VYHcH5c8vE=;
-        b=RNCC+paPB+6bRZAkmBiW5WiGyLMZxh261693sJHlqZ+99+QdsrW79lrHoP4ylKxnfO
-         DGGP0O/b5fRizP/0vaSd/yRxCORkGALJd33frUxhMkExhshxGXHAlJouJ/8fN5lv6t0z
-         IaywVYenRRU4kwNzlqeL1v7J0xi5TCjKaEVmQ6ngEEGxP4yp74GBxT65K3ibbc9p5SP1
-         /kl2mrIn/rdCdwhdHilwlY05emc0TX+mSsTqZS/Q9bpmBjCsh9PidexoTM2dIEBonaaC
-         KLIEOl2UKyljDBU3vhABENhxRIgusOaVrS21R0Yvo1k+iSZJApRjdhtxufIP1MfC5sPC
-         3ibQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=LCI5B8sdcASSP0EMOhdHCf3laiyqcj/Q9VYHcH5c8vE=;
-        b=HNvpWG+ES+SAeFaEesWin9kjfeVzRBqqaZLMVG06O1r1LElAlOKpMDB/WyzP3QXybG
-         ETjAXTmBt9t1mkovoSZbRvvVXjjvQMPQV2OB/D8MZ2BqMx/TbmMcboZZgapMCmvY9V2i
-         ueCw6WKzMT5XXBqvKj6WLRKf7Th6l1en5NL3w3DqLNKsBmNDwyYcs0Y23Fn5mDbnr1l3
-         ifTQ5dIb0l4dsDdM9yfwBs939a8yu/8MlREJi0woXCkOM7Id6WDVO7eBSRXH4/62ggAo
-         wj+x68S5VnQsw8xTTWLVmrsHTULqpGot/ng6VhJBAQymZWR93d/KGPwB9gdNyxucd6sf
-         VEHQ==
-X-Gm-Message-State: AOAM5337CTdc9APg6wdBWiM8g0r5CQQonUc63R+SAI54KicKuWxFvzsY
-        psdFIgHvIZ5n5ozSrbUAw3mYaBB1Uk94lNsw
-X-Google-Smtp-Source: ABdhPJwbxtDljdZwdBQpZOsolM8lU41vQ+msf8heY/GRBzUA6hcfGq5gqM5GcFeqZ+ulKgl0a39tIA==
-X-Received: by 2002:a63:8f17:: with SMTP id n23mr28371438pgd.82.1620694848355;
-        Mon, 10 May 2021 18:00:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m14sm12602555pff.17.2021.05.10.18.00.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 18:00:48 -0700 (PDT)
-Message-ID: <6099d740.1c69fb81.e46e5.6f2d@mx.google.com>
-Date:   Mon, 10 May 2021 18:00:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.232-103-gef4d7d89ccd99
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y baseline: 123 runs,
- 6 regressions (v4.14.232-103-gef4d7d89ccd99)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S229920AbhEKBEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 21:04:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229628AbhEKBEW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 21:04:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF03E61613;
+        Tue, 11 May 2021 01:03:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1620694996;
+        bh=6xyZ0PXSGA7w0A/O8UPA3RjDuRJjvBCSsAsCqruje1c=;
+        h=Date:From:To:Subject:From;
+        b=Nea1O16jfKK9ZVSP7qnZTIg8LB8oD/QOOFnKhckHGd2RJTxlY1+uVU2HLGc/UjUTn
+         f5yr+ErnJNHM2J49V/CfkGZKtGUDeusFIMM5Sa3VgsGagVxryHSquDzrKS+r4/88ZR
+         jsSPkJTMl1gyAD80LPzP3BQjt8/tQrLDCbAXg4wg=
+Date:   Mon, 10 May 2021 18:03:15 -0700
+From:   akpm@linux-foundation.org
+To:     brouer@redhat.com, ilias.apalodimas@linaro.org,
+        mcroce@linux.microsoft.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, vbabka@suse.cz, willy@infradead.org
+Subject:  + mm-fix-struct-page-layout-on-32-bit-systems.patch added
+ to -mm tree
+Message-ID: <20210511010315.6rVNNKQr3%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 123 runs, 6 regressions (v4.14.232-103-gef=
-4d7d89ccd99)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm: fix struct page layout on 32-bit systems
+has been added to the -mm tree.  Its filename is
+     mm-fix-struct-page-layout-on-32-bit-systems.patch
+
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-fix-struct-page-layout-on-32-bit-systems.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-struct-page-layout-on-32-bit-systems.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: mm: fix struct page layout on 32-bit systems
+
+32-bit architectures which expect 8-byte alignment for 8-byte integers and
+need 64-bit DMA addresses (arm, mips, ppc) had their struct page
+inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
+the alignment of the union to 8 bytes, which inserted a 4 byte gap between
+'flags' and the union.
+
+Fix this by storing the dma_addr_t in one or two adjacent unsigned longs.
+This restores the alignment to that of an unsigned long.  We always
+store the low bits in the first word to prevent the PageTail bit from
+being inadvertently set on a big endian platform.  If that happened,
+get_user_pages_fast() racing against a page which was freed and
+reallocated to the page_pool could dereference a bogus compound_head(),
+which would be hard to trace back to this cause.
+
+Link: https://lkml.kernel.org/r/20210510153211.1504886-1-willy@infradead.org
+Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Tested-by: Matteo Croce <mcroce@linux.microsoft.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/mm_types.h |    4 ++--
+ include/net/page_pool.h  |   12 +++++++++++-
+ net/core/page_pool.c     |   12 +++++++-----
+ 3 files changed, 20 insertions(+), 8 deletions(-)
+
+--- a/include/linux/mm_types.h~mm-fix-struct-page-layout-on-32-bit-systems
++++ a/include/linux/mm_types.h
+@@ -97,10 +97,10 @@ struct page {
+ 		};
+ 		struct {	/* page_pool used by netstack */
+ 			/**
+-			 * @dma_addr: might require a 64-bit value even on
++			 * @dma_addr: might require a 64-bit value on
+ 			 * 32-bit architectures.
+ 			 */
+-			dma_addr_t dma_addr;
++			unsigned long dma_addr[2];
+ 		};
+ 		struct {	/* slab, slob and slub */
+ 			union {
+--- a/include/net/page_pool.h~mm-fix-struct-page-layout-on-32-bit-systems
++++ a/include/net/page_pool.h
+@@ -198,7 +198,17 @@ static inline void page_pool_recycle_dir
+ 
+ static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
+ {
+-	return page->dma_addr;
++	dma_addr_t ret = page->dma_addr[0];
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
++	return ret;
++}
++
++static inline void page_pool_set_dma_addr(struct page *page, dma_addr_t addr)
++{
++	page->dma_addr[0] = addr;
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		page->dma_addr[1] = upper_32_bits(addr);
+ }
+ 
+ static inline bool is_page_pool_compiled_in(void)
+--- a/net/core/page_pool.c~mm-fix-struct-page-layout-on-32-bit-systems
++++ a/net/core/page_pool.c
+@@ -174,8 +174,10 @@ static void page_pool_dma_sync_for_devic
+ 					  struct page *page,
+ 					  unsigned int dma_sync_size)
+ {
++	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
++
+ 	dma_sync_size = min(dma_sync_size, pool->p.max_len);
+-	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
++	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
+ 					 pool->p.offset, dma_sync_size,
+ 					 pool->p.dma_dir);
+ }
+@@ -195,7 +197,7 @@ static bool page_pool_dma_map(struct pag
+ 	if (dma_mapping_error(pool->p.dev, dma))
+ 		return false;
+ 
+-	page->dma_addr = dma;
++	page_pool_set_dma_addr(page, dma);
+ 
+ 	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
+ 		page_pool_dma_sync_for_device(pool, page, pool->p.max_len);
+@@ -331,13 +333,13 @@ void page_pool_release_page(struct page_
+ 		 */
+ 		goto skip_dma_unmap;
+ 
+-	dma = page->dma_addr;
++	dma = page_pool_get_dma_addr(page);
+ 
+-	/* When page is unmapped, it cannot be returned our pool */
++	/* When page is unmapped, it cannot be returned to our pool */
+ 	dma_unmap_page_attrs(pool->p.dev, dma,
+ 			     PAGE_SIZE << pool->p.order, pool->p.dma_dir,
+ 			     DMA_ATTR_SKIP_CPU_SYNC);
+-	page->dma_addr = 0;
++	page_pool_set_dma_addr(page, 0);
+ skip_dma_unmap:
+ 	/* This may be the last page returned, releasing the pool, so
+ 	 * it is not safe to reference pool afterwards.
+_
+
+Patches currently in -mm which might be from willy@infradead.org are
+
+mm-fix-struct-page-layout-on-32-bit-systems.patch
+mm-make-__dump_page-static.patch
+mm-debug-factor-pagepoisoned-out-of-__dump_page.patch
+mm-page_owner-constify-dump_page_owner.patch
+mm-make-compound_head-const-preserving.patch
+mm-constify-get_pfnblock_flags_mask-and-get_pfnblock_migratetype.patch
+mm-constify-page_count-and-page_ref_count.patch
+mm-optimise-nth_page-for-contiguous-memmap.patch
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.232-103-gef4d7d89ccd99/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.232-103-gef4d7d89ccd99
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ef4d7d89ccd993fc468dbe81035502c34d69deee =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099b571eee25aa77c6f5475
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxb=
-b-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxb=
-b-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099b571eee25aa77c6f5=
-476
-        failing since 405 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099aeb5e27f4b069e6f549d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm=
--q200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm=
--q200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099aeb5e27f4b069e6f5=
-49e
-        failing since 46 days (last pass: v4.14.226-44-gdbfdb55a0970, first=
- fail: v4.14.227) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099a1f344c40c94be6f5468
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-q=
-emu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-q=
-emu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099a1f344c40c94be6f5=
-469
-        failing since 177 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099a1eebd02572c8a6f5467
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099a1eebd02572c8a6f5=
-468
-        failing since 177 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099a214f6c77b387a6f54d3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099a214f6c77b387a6f5=
-4d4
-        failing since 177 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099a189057c711d996f547a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-=
-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-103-gef4d7d89ccd99/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-=
-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099a189057c711d996f5=
-47b
-        failing since 177 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =20
