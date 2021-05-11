@@ -2,103 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88DFA37A6D2
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 14:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D2037A766
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 15:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231388AbhEKMhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 08:37:05 -0400
-Received: from szxga07-in.huawei.com ([45.249.212.35]:2444 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230436AbhEKMhE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 08:37:04 -0400
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Ffclc1cMrzCr9G;
-        Tue, 11 May 2021 20:33:16 +0800 (CST)
-Received: from [10.174.177.243] (10.174.177.243) by
- DGGEMS401-HUB.china.huawei.com (10.3.19.201) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 11 May 2021 20:35:48 +0800
-Subject: Re: [PATCH stable v5.10 0/7] arm64: Default to 32-bit wide ZONE_DMA
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>
-CC:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        <catalin.marinas@arm.com>, <will@kernel.org>,
-        <akpm@linux-foundation.org>, <paul.walmsley@sifive.com>,
-        <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>, <rppt@kernel.org>,
-        <lorenzo.pieralisi@arm.com>, <guohanjun@huawei.com>,
-        <sudeep.holla@arm.com>, <rjw@rjwysocki.net>, <lenb@kernel.org>,
-        <song.bao.hua@hisilicon.com>, <ardb@kernel.org>,
-        <anshuman.khandual@arm.com>, <bhelgaas@google.com>, <guro@fb.com>,
-        <robh+dt@kernel.org>, <stable@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <frowand.list@gmail.com>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, <linux-riscv@lists.infradead.org>
-References: <20210303073319.2215839-1-jingxiangfeng@huawei.com>
- <YEDkmj6cchMPAq2h@kroah.com>
- <9bc396116372de5b538d71d8f9ae9c3259f1002e.camel@suse.de>
- <YEDr/lYZHew88/Ip@kroah.com>
- <827b317d7f5da6e048806922098291faacdb19f9.camel@suse.de>
- <YETwL6QGWFyJTAzk@kroah.com> <604597E3.5000605@huawei.com>
- <YEX1OcbVNSqwwusF@kroah.com>
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-Message-ID: <31cd8432-2466-555d-7617-ae48cbcd4244@huawei.com>
-Date:   Tue, 11 May 2021 20:35:47 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S230514AbhEKNTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 09:19:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57152 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230483AbhEKNTt (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 11 May 2021 09:19:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46BD3613CD;
+        Tue, 11 May 2021 13:18:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1620739122;
+        bh=lqTgSgss4xmc03Y3rVSFgKThv9O5t6kKAVwzIA1AX6A=;
+        h=Subject:To:From:Date:From;
+        b=vjX0pNrLyz32YTI2PIvfK+jVOehonQlI8+Lg7JRCLu4Pk0CCHlzKpYHrLAgDUuTgS
+         Q55TTzKsoe50sF2C4RMC/SwfygI9Nf3Des96AEidPdGDhmtpzhZz3Wa1PJ5snCs2C+
+         OTSzdeVz89CDI34VB1rs7CbL8VuOuCiWCyv4beok=
+Subject: patch "iio: core: fix ioctl handlers removal" added to staging-linus
+To:     tomasz.duszynski@octakon.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, ardeleanalex@gmail.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 11 May 2021 15:18:23 +0200
+Message-ID: <162073910315876@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <YEX1OcbVNSqwwusF@kroah.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.177.243]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+This is a note to let you know that I've just added the patch titled
 
-On 2021/3/8 17:58, Greg KH wrote:
-> On Mon, Mar 08, 2021 at 11:20:03AM +0800, Jing Xiangfeng wrote:
->>
->>
->> On 2021/3/7 23:24, Greg KH wrote:
->>> On Thu, Mar 04, 2021 at 04:09:28PM +0100, Nicolas Saenz Julienne wrote:
->>>> On Thu, 2021-03-04 at 15:17 +0100, Greg KH wrote:
->>>>> On Thu, Mar 04, 2021 at 03:05:32PM +0100, Nicolas Saenz Julienne wrote:
->>>>>> Hi Greg.
->>>>>>
->>>>>> On Thu, 2021-03-04 at 14:46 +0100, Greg KH wrote:
->>>>>>> On Wed, Mar 03, 2021 at 03:33:12PM +0800, Jing Xiangfeng wrote:
->>>>>>>> Using two distinct DMA zones turned out to be problematic. Here's an
->>>>>>>> attempt go back to a saner default.
->>>>>>> What problem does this solve?  How does this fit into the stable kernel
->>>>>>> rules?
->>>>>> We changed the way we setup memory zones in arm64 in order to cater for
->>>>>> Raspberry Pi 4's weird DMA constraints: ZONE_DMA spans the lower 1GB of memory
->>>>>> and ZONE_DMA32 the rest of the 32bit address space. Since you can't allocate
->>>>>> memory that crosses zone boundaries, this broke crashkernel allocations on big
->>>>>> machines. This series fixes all this by parsing the HW description and checking
->>>>>> for DMA constrained buses. When not found, the unnecessary zone creation is
->>>>>> skipped.
->>>>> What kernel/commit caused this "breakage"?
->>>> 1a8e1cef7603 arm64: use both ZONE_DMA and ZONE_DMA32
->>> Thanks for the info, all now queued up.
->> There is a fix in 5.11. Please consider applying the following commit to
->> 5.10.y:
->>
->> aed5041ef9a3 of: unittest: Fix build on architectures without
->> CONFIG_OF_ADDRES
-> 
-> Thanks, now queued up.
+    iio: core: fix ioctl handlers removal
 
-Hi Grep, another commit d78050ee3544 "arm64: Remove 
-arm64_dma32_phys_limit and its uses" should be involved, thanks.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
 
-"Prior to this patch, disabling CONFIG_ZONE_DMA32 leads to CMA
-allocation from the whole RAM as arm64_dma32_phys_limit becomes
-PHYS_MASK+1." from Catalin, see more from the link
-https://www.spinics.net/lists/arm-kernel/msg867356.html
-> 
-> greg k-h
-> .
-> 
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 901f84de0e16bde10a72d7eb2f2eb73fcde8fa1a Mon Sep 17 00:00:00 2001
+From: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+Date: Fri, 23 Apr 2021 10:02:44 +0200
+Subject: iio: core: fix ioctl handlers removal
+
+Currently ioctl handlers are removed twice. For the first time during
+iio_device_unregister() then later on inside
+iio_device_unregister_eventset() and iio_buffers_free_sysfs_and_mask().
+Double free leads to kernel panic.
+
+Fix this by not touching ioctl handlers list directly but rather
+letting code responsible for registration call the matching cleanup
+routine itself.
+
+Fixes: 8dedcc3eee3ac ("iio: core: centralize ioctl() calls to the main chardev")
+Signed-off-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+Acked-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210423080244.2790-1-tomasz.duszynski@octakon.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/industrialio-core.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index d92c58a94fe4..9e59f5da3d28 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -1926,9 +1926,6 @@ EXPORT_SYMBOL(__iio_device_register);
+  **/
+ void iio_device_unregister(struct iio_dev *indio_dev)
+ {
+-	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+-	struct iio_ioctl_handler *h, *t;
+-
+ 	cdev_device_del(&indio_dev->chrdev, &indio_dev->dev);
+ 
+ 	mutex_lock(&indio_dev->info_exist_lock);
+@@ -1939,9 +1936,6 @@ void iio_device_unregister(struct iio_dev *indio_dev)
+ 
+ 	indio_dev->info = NULL;
+ 
+-	list_for_each_entry_safe(h, t, &iio_dev_opaque->ioctl_handlers, entry)
+-		list_del(&h->entry);
+-
+ 	iio_device_wakeup_eventset(indio_dev);
+ 	iio_buffer_wakeup_poll(indio_dev);
+ 
+-- 
+2.31.1
+
+
