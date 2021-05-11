@@ -2,156 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58A6037B071
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 23:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F7A37B072
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 23:04:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbhEKVFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 17:05:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:50672 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229637AbhEKVFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 May 2021 17:05:12 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id B63A8AEE7;
-        Tue, 11 May 2021 21:04:04 +0000 (UTC)
+        id S229920AbhEKVF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 17:05:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54024 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229784AbhEKVF1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 17:05:27 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D636C06174A
+        for <stable@vger.kernel.org>; Tue, 11 May 2021 14:04:20 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id z17so2399785wrq.7
+        for <stable@vger.kernel.org>; Tue, 11 May 2021 14:04:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UAz7SZxg1EiMj8MPMMpKdaA1DXterUsKEbt3TioJwwc=;
+        b=apxT21xHlDNwKH/iXSaHXhNwUqpcSWq8kGqUQxwwSDwUdZ8g80a6xhTq3H1BefG067
+         p4nJPtAS/erVVBcnamsPfdazDSVyq0iwaCdcDOFj9XFls3/YD9vVZH00cHxJ2MkJ3ZuD
+         a6c7l4f6W0ZKlDVxb4FqnmAprQ3dSCZhy5Ozc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UAz7SZxg1EiMj8MPMMpKdaA1DXterUsKEbt3TioJwwc=;
+        b=KFbcb5IFitemNQK47CcFSGvHb7zn67Ml/wxD7IQehrF/udxC0fi5S/qiQqiMuasNnK
+         DZNJGENNlAg0ivZUUN2tzg7kzCEiSF2ddw55QYYDJABubzMFb0ukESVD8lAUrbEnrQr6
+         BN/l+r33u3LRT7vtf2MZXXbSlnJxFtxEtuAqorTmjEHBTuIwZBlJiYjCg2VUDHYqylYx
+         O92La2om1rLomf9ZMIm2NuzayZgfreBl8Unr7ZsDNzuKbHHIQvA/Zsn1yf14rclHXcJk
+         OnD55CcN1Qr7Nsyg02fIeV5qH15i4CuVwwPUO9jTGbuC1s8quQP1aPtvRdhjgHSjrcnY
+         11Ng==
+X-Gm-Message-State: AOAM531Vpq8j6kqFpNhADShvMfinY9PNQ8rTnOZELF81H3XB6CjfJQCi
+        mg+hdaOu0kXL3th0cVXg3EcwakPZ7wRsWwdSrK+kmQ==
+X-Google-Smtp-Source: ABdhPJxPH8PX+jGSu+VhI7aemEZkfJsBx5LjFbybXsZBRuUCI3dNSKe9Vdav1Xo8HITrToUisnJF1Ta/kz8h2vcAf38=
+X-Received: by 2002:a5d:6752:: with SMTP id l18mr39422003wrw.422.1620767058628;
+ Tue, 11 May 2021 14:04:18 -0700 (PDT)
 MIME-Version: 1.0
-Date:   Tue, 11 May 2021 14:04:04 -0700
-From:   Davidlohr Bueso <dbueso@suse.de>
-To:     akpm@linux-foundation.org
-Cc:     christian.brauner@ubuntu.com, ebiederm@xmission.com,
-        manfred@colorfullife.com, matthias.vonfaber@aox-tech.de,
-        mm-commits@vger.kernel.org, oleg@redhat.com,
-        stable@vger.kernel.org, varad.gautam@suse.com
-Subject: Re: +
- ipc-mqueue-msg-sem-avoid-relying-on-a-stack-reference-past-its-expiry.patch
- added to -mm tree
-In-Reply-To: <20210511014124.mT4-_WhMQ%akpm@linux-foundation.org>
-References: <20210511014124.mT4-_WhMQ%akpm@linux-foundation.org>
-User-Agent: Roundcube Webmail
-Message-ID: <25914fcd8bd2586a6b12e2847d5aa7dc@suse.de>
-X-Sender: dbueso@suse.de
-Organization: SUSE Labs
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20210510102010.096403571@linuxfoundation.org> <396382a7-9a50-7ea1-53a9-8898bf640c46@linuxfoundation.org>
+ <YJqIOajso0EyqgjO@kroah.com> <3244bd40-3afa-8386-3378-220ff2e2527d@linuxfoundation.org>
+ <YJq0yCirpEV+bgC/@kroah.com>
+In-Reply-To: <YJq0yCirpEV+bgC/@kroah.com>
+From:   Justin Forbes <jmforbes@linuxtx.org>
+Date:   Tue, 11 May 2021 16:04:07 -0500
+Message-ID: <CAFxkdArDSNDxWKLVVjYDnZ_Wuu3ceik6cCoyBJ5ibCXZdQDX2Q@mail.gmail.com>
+Subject: Re: [PATCH 5.11 000/342] 5.11.20-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Shuah Khan <skhan@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-05-10 18:41, akpm@linux-foundation.org wrote:
-> The patch titled
->      Subject: ipc/mqueue, msg, sem: Avoid relying on a stack reference
-> past its expiry
-> has been added to the -mm tree.  Its filename is
->      
-> ipc-mqueue-msg-sem-avoid-relying-on-a-stack-reference-past-its-expiry.patch
-> 
-> This patch should soon appear at
-> 
-> https://ozlabs.org/~akpm/mmots/broken-out/ipc-mqueue-msg-sem-avoid-relying-on-a-stack-reference-past-its-expiry.patch
-> and later at
-> 
-> https://ozlabs.org/~akpm/mmotm/broken-out/ipc-mqueue-msg-sem-avoid-relying-on-a-stack-reference-past-its-expiry.patch
-> 
-> Before you just go and hit "reply", please:
->    a) Consider who else should be cc'ed
->    b) Prefer to cc a suitable mailing list as well
->    c) Ideally: find the original patch on the mailing list and do a
->       reply-to-all to that, adding suitable additional cc's
-> 
-> *** Remember to use Documentation/process/submit-checklist.rst when
-> testing your code ***
-> 
-> The -mm tree is included into linux-next and is updated
-> there every 3-4 working days
-> 
-> ------------------------------------------------------
-> From: Varad Gautam <varad.gautam@suse.com>
-> Subject: ipc/mqueue, msg, sem: Avoid relying on a stack reference past
-> its expiry
-> 
-> do_mq_timedreceive calls wq_sleep with a stack local address.  The 
-> sender
-> (do_mq_timedsend) uses this address to later call pipelined_send.
-> 
-> This leads to a very hard to trigger race where a do_mq_timedreceive 
-> call
-> might return and leave do_mq_timedsend to rely on an invalid address,
-> causing the following crash:
-> 
-> [  240.739977] RIP: 0010:wake_q_add_safe+0x13/0x60
-> [  240.739991] Call Trace:
-> [  240.739999]  __x64_sys_mq_timedsend+0x2a9/0x490
-> [  240.740003]  ? auditd_test_task+0x38/0x40
-> [  240.740007]  ? auditd_test_task+0x38/0x40
-> [  240.740011]  do_syscall_64+0x80/0x680
-> [  240.740017]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> [  240.740019] RIP: 0033:0x7f5928e40343
-> 
-> The race occurs as:
-> 
-> 1. do_mq_timedreceive calls wq_sleep with the address of `struct
->    ext_wait_queue` on function stack (aliased as `ewq_addr` here) - it
->    holds a valid `struct ext_wait_queue *` as long as the stack has not
->    been overwritten.
-> 
-> 2. `ewq_addr` gets added to info->e_wait_q[RECV].list in wq_add, and
->    do_mq_timedsend receives it via wq_get_first_waiter(info, RECV) to 
-> call
->    __pipelined_op.
-> 
-> 3. Sender calls __pipelined_op::smp_store_release(&this->state,
->    STATE_READY).  Here is where the race window begins.  (`this` is
->    `ewq_addr`.)
-> 
-> 4. If the receiver wakes up now in do_mq_timedreceive::wq_sleep, it
->    will see `state == STATE_READY` and break.
-> 
-> 5. do_mq_timedreceive returns, and `ewq_addr` is no longer guaranteed
->    to be a `struct ext_wait_queue *` since it was on 
-> do_mq_timedreceive's
->    stack.  (Although the address may not get overwritten until another
->    function happens to touch it, which means it can persist around for 
-> an
->    indefinite time.)
-> 
-> 6. do_mq_timedsend::__pipelined_op() still believes `ewq_addr` is a
->    `struct ext_wait_queue *`, and uses it to find a task_struct to pass 
-> to
->    the wake_q_add_safe call.  In the lucky case where nothing has
->    overwritten `ewq_addr` yet, `ewq_addr->task` is the right 
-> task_struct.
->    In the unlucky case, __pipelined_op::wake_q_add_safe gets handed a
->    bogus address as the receiver's task_struct causing the crash.
-> 
-> do_mq_timedsend::__pipelined_op() should not dereference `this` after
-> setting STATE_READY, as the receiver counterpart is now free to return.
-> Change __pipelined_op to call wake_q_add_safe on the receiver's
-> task_struct returned by get_task_struct, instead of dereferencing 
-> `this`
-> which sits on the receiver's stack.
-> 
-> As Manfred pointed out, the race potentially also exists in
-> ipc/msg.c::expunge_all and ipc/sem.c::wake_up_sem_queue_prepare.  Fix
-> those in the same way.
-> 
-> Link: 
-> https://lkml.kernel.org/r/20210510102950.12551-1-varad.gautam@suse.com
-> Fixes: c5b2cbdbdac563 ("ipc/mqueue.c: update/document memory barriers")
-> Fixes: 8116b54e7e23ef ("ipc/sem.c: document and update memory 
-> barriers")
-> Fixes: 0d97a82ba830d8 ("ipc/msg.c: update and document memory 
-> barriers")
-> Signed-off-by: Varad Gautam <varad.gautam@suse.com>
-> Reported-by: Matthias von Faber <matthias.vonfaber@aox-tech.de>
-> Cc: Christian Brauner <christian.brauner@ubuntu.com>
-> Cc: Oleg Nesterov <oleg@redhat.com>
-> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-> Cc: Manfred Spraul <manfred@colorfullife.com>
-> Cc: Davidlohr Bueso <dbueso@suse.de>
-> Cc: Manfred Spraul <manfred@colorfullife.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+On Tue, May 11, 2021 at 11:46 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, May 11, 2021 at 10:16:00AM -0600, Shuah Khan wrote:
+> > On 5/11/21 7:35 AM, Greg Kroah-Hartman wrote:
+> > > On Mon, May 10, 2021 at 04:48:01PM -0600, Shuah Khan wrote:
+> > > > On 5/10/21 4:16 AM, Greg Kroah-Hartman wrote:
+> > > > > This is the start of the stable review cycle for the 5.11.20 release.
+> > > > > There are 342 patches in this series, all will be posted as a response
+> > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > let me know.
+> > > > >
+> > > > > Responses should be made by Wed, 12 May 2021 10:19:23 +0000.
+> > > > > Anything received after that time might be too late.
+> > > > >
+> > > > > The whole patch series can be found in one patch at:
+> > > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.20-rc1.gz
+> > > > > or in the git tree and branch at:
+> > > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
+> > > > > and the diffstat can be found below.
+> > > > >
+> > > > > thanks,
+> > > > >
+> > > > > greg k-h
+> > > > >
+> > > >
+> > > > Compiled and doesn't boot. Dies in kmem_cache_alloc_node() called
+> > > > from alloc_skb_with_frags()
+> > > >
+> > > > I will start bisect.
+> > > >
+> > > > Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+> > >
+> > > It might be due to 79fcd446e7e1 ("drm/amdgpu: Fix memory leak") which I
+> > > have reverted from 5.12 and 5.11 queues now and pushed out a -rc2.  If
+> > > you could test those to verify this or not, that would be great.
+> > >
+> >
+> > I am seeing other display issues as well. This might be it.
+> >
+> > I couldn't find rc2. Checking out
+> > git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> > linux-5.11.y
+>
+> Ah, sorry, pushed the -rc2 patch out now, but the -rc git tree has it as
+> well.
+>
 
-Acked-by: Davidlohr Bueso <dbueso@suse.de>
+Tested rc2 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions.
+
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
