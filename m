@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDB5337AD91
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 20:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C66537AD93
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 20:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231891AbhEKSEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231907AbhEKSEY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 11 May 2021 14:04:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41160 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231645AbhEKSEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 14:04:21 -0400
+        with ESMTP id S231777AbhEKSEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 14:04:22 -0400
 Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBA6EC061761;
-        Tue, 11 May 2021 11:03:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 188E5C061763;
+        Tue, 11 May 2021 11:03:12 -0700 (PDT)
 Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
         (Exim 4.94.2)
         (envelope-from <johannes@sipsolutions.net>)
-        id 1lgWir-007aAS-I9; Tue, 11 May 2021 20:03:09 +0200
+        id 1lgWir-007aAS-S1; Tue, 11 May 2021 20:03:09 +0200
 From:   Johannes Berg <johannes@sipsolutions.net>
 To:     linux-wireless@vger.kernel.org
-Cc:     Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>, stable@vger.kernel.org
-Subject: [PATCH 04/18] cfg80211: mitigate A-MSDU aggregation attacks
-Date:   Tue, 11 May 2021 20:02:45 +0200
-Message-Id: <20210511200110.25d93176ddaf.I9e265b597f2cd23eb44573f35b625947b386a9de@changeid>
+Cc:     Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 05/18] mac80211: drop A-MSDUs on old ciphers
+Date:   Tue, 11 May 2021 20:02:46 +0200
+Message-Id: <20210511200110.076543300172.I548e6e71f1ee9cad4b9a37bf212ae7db723587aa@changeid>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210511180259.159598-1-johannes@sipsolutions.net>
 References: <20210511180259.159598-1-johannes@sipsolutions.net>
@@ -33,48 +33,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: Johannes Berg <johannes.berg@intel.com>
 
-Mitigate A-MSDU injection attacks (CVE-2020-24588) by detecting if the
-destination address of a subframe equals an RFC1042 (i.e., LLC/SNAP)
-header, and if so dropping the complete A-MSDU frame. This mitigates
-known attacks, although new (unknown) aggregation-based attacks may
-remain possible.
+With old ciphers (WEP and TKIP) we shouldn't be using A-MSDUs
+since A-MSDUs are only supported if we know that they are, and
+the only practical way for that is HT support which doesn't
+support old ciphers.
 
-This defense works because in A-MSDU aggregation injection attacks, a
-normal encrypted Wi-Fi frame is turned into an A-MSDU frame. This means
-the first 6 bytes of the first A-MSDU subframe correspond to an RFC1042
-header. In other words, the destination MAC address of the first A-MSDU
-subframe contains the start of an RFC1042 header during an aggregation
-attack. We can detect this and thereby prevent this specific attack.
-For details, see Section 7.2 of "Fragment and Forge: Breaking Wi-Fi
-Through Frame Aggregation and Fragmentation".
-
-Note that for kernel 4.9 and above this patch depends on "mac80211:
-properly handle A-MSDUs that start with a rfc1042 header". Otherwise
-this patch has no impact and attacks will remain possible.
+However, we would normally accept them anyway. Since we check
+the MMIC before deaggregating A-MSDUs, and the A-MSDU bit in
+the QoS header is not protected in TKIP (or WEP), this enables
+attacks similar to CVE-2020-24588. To prevent that, drop A-MSDUs
+completely with old ciphers.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 ---
- net/wireless/util.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/mac80211/rx.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 39966a873e40..7ec021a610ae 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -771,6 +771,9 @@ void ieee80211_amsdu_to_8023s(struct sk_buff *skb, struct sk_buff_head *list,
- 		remaining = skb->len - offset;
- 		if (subframe_len > remaining)
- 			goto purge;
-+		/* mitigate A-MSDU aggregation injection attacks */
-+		if (ether_addr_equal(eth.h_dest, rfc1042_header))
-+			goto purge;
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index f14d32a5001d..8a72d48ad6e0 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -6,7 +6,7 @@
+  * Copyright 2007-2010	Johannes Berg <johannes@sipsolutions.net>
+  * Copyright 2013-2014  Intel Mobile Communications GmbH
+  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
+- * Copyright (C) 2018-2020 Intel Corporation
++ * Copyright (C) 2018-2021 Intel Corporation
+  */
  
- 		offset += sizeof(struct ethhdr);
- 		last = remaining <= subframe_len + padding;
+ #include <linux/jiffies.h>
+@@ -2739,6 +2739,23 @@ ieee80211_rx_h_amsdu(struct ieee80211_rx_data *rx)
+ 	if (is_multicast_ether_addr(hdr->addr1))
+ 		return RX_DROP_UNUSABLE;
+ 
++	if (rx->key) {
++		/*
++		 * We should not receive A-MSDUs on pre-HT connections,
++		 * and HT connections cannot use old ciphers. Thus drop
++		 * them, as in those cases we couldn't even have SPP
++		 * A-MSDUs or such.
++		 */
++		switch (rx->key->conf.cipher) {
++		case WLAN_CIPHER_SUITE_WEP40:
++		case WLAN_CIPHER_SUITE_WEP104:
++		case WLAN_CIPHER_SUITE_TKIP:
++			return RX_DROP_UNUSABLE;
++		default:
++			break;
++		}
++	}
++
+ 	return __ieee80211_rx_h_amsdu(rx, 0);
+ }
+ 
 -- 
 2.30.2
 
