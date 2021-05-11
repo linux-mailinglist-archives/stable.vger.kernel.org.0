@@ -2,234 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3684437A0DA
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 09:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EBF837A115
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 09:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230424AbhEKHdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 03:33:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39064 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230421AbhEKHdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 03:33:54 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988BBC06175F
-        for <stable@vger.kernel.org>; Tue, 11 May 2021 00:32:47 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id u21so28228641ejo.13
-        for <stable@vger.kernel.org>; Tue, 11 May 2021 00:32:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=wtv9JlgiKwZDuaWLRXAz0cY/XF7zX41X4Yq/U8V+SfU=;
-        b=UDydojnafge0s9etN06up8ZovG4+1a+1BK6/eo8NGnW5tpapUMdM9lLabZMaL7VZeT
-         O2oCuDS0RPXsqEwN4YwqAg6VAkpLcVMlCAZNrg9ZQRpHnn4YPyuSnOwBr1f+8LemyMGU
-         CAk9kHlz5rhu8EQmi8WJj47AtuvEw1jFg446Z0vvPTcNrKj3o9fApPO8xv16yoi57TqR
-         5DBb/2IUyIAYk416w0y49JJmGIyHdM4sp3fmY5jOodbQCnpDtieh5tD69iuruJoo3Fyq
-         fMU5e3/2JzL5/Okbv0hVsWiuqvw/iOT3OoadscvYWpIQAkxA8w0KVepTIflWp+YvaoMK
-         bHqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=wtv9JlgiKwZDuaWLRXAz0cY/XF7zX41X4Yq/U8V+SfU=;
-        b=Owr6QG444fJcc6KQPskX7jlVGd5w1JGjUHR1TvK1bx6OKMgbMWWsN+S5AaVdPxEKDG
-         CJwb4gTpajQBgG6fwMHjLtnsLJuR85jnuzKj3fwU/HKPKNojB2u/b16P2Lymbyy4k0uj
-         LVuKiBYxFfE6ZWaB7oBDNwFUJgl/BXfwnSQP2Ip7IZK4hnOovi9wEnxQnmeUHddzZYMn
-         amYKLQNsTrdCrZsmehIAH4xjC0Vrt/4B9jvmctVuWQv0C336/ld3NB/EInHsOAjWr9A+
-         N/wpLbDJ3kOqstDQflRUAgZSAIQ2yPAqIFbqPt/dVdnuBgw0o+0liGplZ0S5x9+D126r
-         actQ==
-X-Gm-Message-State: AOAM533Ixq5I0w54HZXEg6KjSXFw+Ty2Ir1Qy9Gl2fM3nNtOZwpjUKGK
-        sinf6UtWJPlKaajrW6GsklzbwpaRFCju8x3eQvubjQ==
-X-Google-Smtp-Source: ABdhPJzpEtCNOiJgtRubSem31v9t/olVej5qvHh0jL/NqOZdJ+PTTDBqhUQJ9bICOR3g0Rvxx2MIEZwLclz/FopBzB4=
-X-Received: by 2002:a17:906:11d4:: with SMTP id o20mr30141723eja.247.1620718366230;
- Tue, 11 May 2021 00:32:46 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210510101950.200777181@linuxfoundation.org>
-In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 11 May 2021 13:02:35 +0530
-Message-ID: <CA+G9fYtDAFAVWSt+BUO=CUPbU7bPE-zOXfP5xnKTSHMDRcKc8w@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/184] 5.4.118-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S229710AbhEKHp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 03:45:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37748 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229917AbhEKHp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 May 2021 03:45:58 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4E4861026;
+        Tue, 11 May 2021 07:44:52 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lgN4U-000cdO-F7; Tue, 11 May 2021 08:44:50 +0100
+Date:   Tue, 11 May 2021 08:44:49 +0100
+Message-ID: <87o8dhogsu.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Alexandru Elisei <alexandru.elisei@arm.com>
+Cc:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] KVM: arm64: Commit pending PC adjustemnts before returning to userspace
+In-Reply-To: <65b5cad7-13d8-13a9-9502-7c21e0b72761@arm.com>
+References: <20210510094915.1909484-1-maz@kernel.org>
+        <20210510094915.1909484-3-maz@kernel.org>
+        <7a0f43c8-cc36-810e-0b8e-ffe66672ca82@arm.com>
+        <87v97qociy.wl-maz@kernel.org>
+        <65b5cad7-13d8-13a9-9502-7c21e0b72761@arm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: alexandru.elisei@arm.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, yuzenghui@huawei.com, james.morse@arm.com, suzuki.poulose@arm.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 May 2021 at 15:54, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.118 release.
-> There are 184 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 12 May 2021 10:19:23 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.118-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, 10 May 2021 16:14:37 +0100,
+Alexandru Elisei <alexandru.elisei@arm.com> wrote:
+> 
+> Hi Marc,
+> 
+> On 5/10/21 4:04 PM, Marc Zyngier wrote:
+> > On Mon, 10 May 2021 15:55:28 +0100,
+> > Alexandru Elisei <alexandru.elisei@arm.com> wrote:
+> >> Hi Marc,
+> >>
+> >> On 5/10/21 10:49 AM, Marc Zyngier wrote:
+> >>> KVM currently updates PC (and the corresponding exception state)
+> >>> using a two phase approach: first by setting a set of flags,
+> >>> then by converting these flags into a state update when the vcpu
+> >>> is about to enter the guest.
+> >>>
+> >>> However, this creates a disconnect with userspace if the vcpu thread
+> >>> returns there with any exception/PC flag set. In this case, the exposed
+> >> The code seems to handle only the KVM_ARM64_PENDING_EXCEPTION
+> >> flag. Is the "PC flag" a reference to the KVM_ARM64_INCREMENT_PC
+> >> flag?
+> > No, it does handle both exception and PC increment, unless I have
+> > completely bodged something (entirely possible).
+> 
+> The message is correct, my bad.
+> 
+> >
+> >>> context is wrong, as userpsace doesn't have access to these flags
+> >> s/userpsace/userspace
+> >>
+> >>> (they aren't architectural). It also means that these flags are
+> >>> preserved across a reset, which isn't expected.
+> >>>
+> >>> To solve this problem, force an explicit synchronisation of the
+> >>> exception state on vcpu exit to userspace. As an optimisation
+> >>> for nVHE systems, only perform this when there is something pending.
+> >>>
+> >>> Reported-by: Zenghui Yu <yuzenghui@huawei.com>
+> >>> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> >>> Cc: stable@vger.kernel.org # 5.11
+> >>> ---
+> >>>  arch/arm64/include/asm/kvm_asm.h   |  1 +
+> >>>  arch/arm64/kvm/arm.c               | 10 ++++++++++
+> >>>  arch/arm64/kvm/hyp/exception.c     |  4 ++--
+> >>>  arch/arm64/kvm/hyp/nvhe/hyp-main.c |  8 ++++++++
+> >>>  4 files changed, 21 insertions(+), 2 deletions(-)
+> >>>
+> >>> diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
+> >>> index d5b11037401d..5e9b33cbac51 100644
+> >>> --- a/arch/arm64/include/asm/kvm_asm.h
+> >>> +++ b/arch/arm64/include/asm/kvm_asm.h
+> >>> @@ -63,6 +63,7 @@
+> >>>  #define __KVM_HOST_SMCCC_FUNC___pkvm_cpu_set_vector		18
+> >>>  #define __KVM_HOST_SMCCC_FUNC___pkvm_prot_finalize		19
+> >>>  #define __KVM_HOST_SMCCC_FUNC___pkvm_mark_hyp			20
+> >>> +#define __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc			21
+> >>>  
+> >>>  #ifndef __ASSEMBLY__
+> >>>  
+> >>> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+> >>> index 1cb39c0803a4..d62a7041ebd1 100644
+> >>> --- a/arch/arm64/kvm/arm.c
+> >>> +++ b/arch/arm64/kvm/arm.c
+> >>> @@ -897,6 +897,16 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+> >>>  
+> >>>  	kvm_sigset_deactivate(vcpu);
+> >>>  
+> >>> +	/*
+> >>> +	 * In the unlikely event that we are returning to userspace
+> >>> +	 * with pending exceptions or PC adjustment, commit these
+> >> I'm going to assume "PC adjustment" means the KVM_ARM64_INCREMENT_PC
+> >> flag. Please correct me if that's not true, but if that's the case,
+> >> then the flag isn't handled below.
+> >>
+> >>> +	 * adjustments in order to give userspace a consistent view of
+> >>> +	 * the vcpu state.
+> >>> +	 */
+> >>> +	if (unlikely(vcpu->arch.flags & (KVM_ARM64_PENDING_EXCEPTION |
+> >>> +					 KVM_ARM64_EXCEPT_MASK)))
+> >> The condition seems to suggest that it is valid to set
+> >> KVM_ARM64_EXCEPT_{AA32,AA64}_* without setting
+> >> KVM_ARM64_PENDING_EXCEPTION, which looks rather odd to me.
+> >> Is that a valid use of the KVM_ARM64_EXCEPT_MASK bits? If it's not
+> >> (the existing code always sets the exception type with the
+> >> KVM_ARM64_PENDING_EXCEPTION), that I was thinking that checking only
+> >> the KVM_ARM64_PENDING_EXCEPTION flag would make the intention
+> >> clearer.
+> > No, you are missing this (subtle) comment in kvm_host.h:
+> >
+> > <quote>
+> > /*
+> >  * Overlaps with KVM_ARM64_EXCEPT_MASK on purpose so that it can't be
+> >  * set together with an exception...
+> >  */
+> > #define KVM_ARM64_INCREMENT_PC		(1 << 9) /* Increment PC */
+> > </quote>
+> >
+> > So (KVM_ARM64_PENDING_EXCEPTION | KVM_ARM64_EXCEPT_MASK) checks for
+> > *both* an exception and a PC increment.
+> 
+> Then how about explicitly checking for the
+> KVM_ARM64_PENDING_EXCEPTION and KVM_ARM64_INCREMENT_PC flags, like
+> it's done in __kvm_adjust_pc? That would certainly make the code
+> easier to understand, as it's not immediately obvious that the
+> EXCEPT mask includes the INCREMENT_PC flag.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Fair enough. I'll fix that in v2.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Another thing I wondered about: we now rely on __kvm_adjust_pc() to be
+preemption safe. That's always the case in nVHE (we're at EL2), but
+VHE can be preempted at any point. The code we call is preemption
+safe, but it takes some effort to be convinced of it.
 
-## Build
-* kernel: 5.4.118-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.4.y
-* git commit: eb078a943f9777461b67e3f61b4b6376593eb08c
-* git describe: v5.4.117-185-geb078a943f97
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-17-185-geb078a943f97
+Do you have a good suggestion on how to express this requirement?  I
+could throw a preempt_disable()/enable() at the call for the sake of
+being in the same context between VHE and nVHE, but that's not
+strictly necessary for now.
 
-## No regressions (compared to v5.4.117-135-g07e3ee575ce0)
+Thanks,
 
-## No fixes (compared to v5.4.117-135-g07e3ee575ce0)
+	M.
 
-## Test result summary
- total: 78227, pass: 63083, fail: 2683, skip: 12195, xfail: 266,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 192 total, 192 passed, 0 failed
-* arm64: 26 total, 26 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 14 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 26 total, 26 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Without deviation from the norm, progress is not possible.
