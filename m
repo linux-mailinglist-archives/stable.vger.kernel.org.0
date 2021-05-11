@@ -2,154 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED8537A5E6
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 13:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D84CA37A61B
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 13:55:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231382AbhEKLlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 07:41:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36776 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230501AbhEKLln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 07:41:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620733237;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ncq1izqydNckE7NiVEP46RrlkQeeb/1vqOvW8nfMruE=;
-        b=caWueLgNf68bUHa9SPMotjSEQVlfOcmZgkAhwdXiBvW+FmByzYCblEC7TfEQIk3g0RCY5+
-        FESYVXJ/oHsmTYMlB0XXTdG369buGwV54Brg/YCZVl1LVia/LQn5IF254Sjbv6ajRpOGB5
-        FbDPJy9Uu/tqfQVGSgVnWb6oYwwOXEs=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-338-z_Hx_T6WMouPCENNj63-Nw-1; Tue, 11 May 2021 07:40:34 -0400
-X-MC-Unique: z_Hx_T6WMouPCENNj63-Nw-1
-Received: by mail-ed1-f71.google.com with SMTP id g7-20020aa7c5870000b02903888f809d62so10816369edq.23
-        for <stable@vger.kernel.org>; Tue, 11 May 2021 04:40:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Ncq1izqydNckE7NiVEP46RrlkQeeb/1vqOvW8nfMruE=;
-        b=FLRr2jBBoeVF9CugdwCv9OfsKbq4m2PfDSkoMxr1qUOfaJzIg47Y9zb8tdM/0cISMT
-         tLKg/voc3hXOXVkWlF7WtyfaWafeaXmggBoe1X8zGqS3EOabwwmWzdV9mm93tmsvsESB
-         0n4mA3bwPQs/UQhSr5TpwJooDP+vCUOSWSTnKkgz9M135gEd5Dhso/FeNlGMecoik5YX
-         DC/GxP1dIM1v5UixRfJOdGbfSnGZATG8RjJJZUqAvemW6eJ3KZ1oFYfyFoqGqLvQwsjz
-         EE8p3orHu1CVeEqrUywAZ70LcrXSyVgkx04hpUux0hNWEgcj1BW4g4b6THOt6q2XdIa0
-         fbqQ==
-X-Gm-Message-State: AOAM532+cR+FdWtW1N/2c4PI0RxxNhgnd1YRN7fyzWA8SB5hRbATPcXX
-        LMmny8UntxoTJOXLJ4yMW5sm77dCIJua1XlpQM+DeNjPdY6pIwvrMDlGt+Xr3VCOzrnbu96WfD8
-        OE4476lnO3bfKEEvhu+3jDgfPEiOPCmcHNBQiu3eOgukNjGdrSzq+YYfOlgjMqMWqjFks
-X-Received: by 2002:a17:906:251a:: with SMTP id i26mr31417258ejb.367.1620733233328;
-        Tue, 11 May 2021 04:40:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxPx/RS9hDStJjMK8lRD4A5gKLEotw8heDtcm657cpEnwLGimqD245wNLkvMCbltzDgIPu64Q==
-X-Received: by 2002:a17:906:251a:: with SMTP id i26mr31417233ejb.367.1620733232993;
-        Tue, 11 May 2021 04:40:32 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id 20sm5803517ejm.72.2021.05.11.04.40.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 May 2021 04:40:32 -0700 (PDT)
-Subject: Re: [PATCH] platform/x86: ideapad-laptop: fix method name typo
-To:     =?UTF-8?Q?Barnab=c3=a1s_P=c5=91cze?= <pobrn@protonmail.com>,
-        mgross@linux.intel.com, ike.pan@canonical.com,
-        platform-driver-x86@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20210507235333.286505-1-pobrn@protonmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <28b37604-856f-d65e-af49-a5b505678461@redhat.com>
-Date:   Tue, 11 May 2021 13:40:32 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S231317AbhEKL4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 07:56:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230519AbhEKL4O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 May 2021 07:56:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B978611CE;
+        Tue, 11 May 2021 11:55:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1620734107;
+        bh=tmtzaEnnQ53WPoq28nQwKpDaKHGtSVcdQWAFnV8IjgI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=enIE1IheTE/n/jkU7UV6Eay3I77tqcJO5VZBvPAbJR1eIJNoCRtBWERpmcyN7iJJL
+         JNZnMl67nyIelq2ZsxMO3d8kbsb/zz+j11kce2L8UgA533kVXkfVgqVwZKTe1sGmlC
+         pOdC6+uOO7fhcv/lkWdRcyR1iRv9D31Xf1umPk14=
+Date:   Tue, 11 May 2021 13:55:05 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Deucher, Alexander" <Alexander.Deucher@amd.com>
+Cc:     Holger Kiehl <Holger.Kiehl@dwd.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.12 195/384] drm/amdgpu: Fix memory leak
+Message-ID: <YJpwmbfnQIYZFgXD@kroah.com>
+References: <20210510102014.849075526@linuxfoundation.org>
+ <20210510102021.305484238@linuxfoundation.org>
+ <8681a9f2-62e6-3aa-d169-653db617f60@diagnostix.dwd.de>
+ <MN2PR12MB4488A0EC34EBCE766199AB3DF7549@MN2PR12MB4488.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <20210507235333.286505-1-pobrn@protonmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MN2PR12MB4488A0EC34EBCE766199AB3DF7549@MN2PR12MB4488.namprd12.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On 5/8/21 1:53 AM, Barnabás Pőcze wrote:
-> "smbc" should be "sbmc". `eval_smbc()` incorrectly called
-> the SMBC ACPI method instead of SBMC. This resulted in
-> partial loss of functionality. Rectify that by calling
-> the correct ACPI method (SBMC), and also rename
-> methods and constants.
+On Mon, May 10, 2021 at 07:56:30PM +0000, Deucher, Alexander wrote:
+> [AMD Public Use]
 > 
-> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212985
-> Fixes: 0b765671cb80 ("platform/x86: ideapad-laptop: group and separate (un)related constants into enums")
-> Fixes: ff36b0d953dc ("platform/x86: ideapad-laptop: rework and create new ACPI helpers")
-> Cc: stable@vger.kernel.org # 5.12
-> Signed-off-by: Barnabás Pőcze <pobrn@protonmail.com>
-
-Thank you I've added this to my review-hans branch.
-I'll also add this to my fixes branch and include it in
-a future pdx86 fixes pull-req for Linus for 5.13.
-
-Thank you for your patch, I've applied this patch to my review-hans 
-branch:
-https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=review-hans
-
-Note it will show up in my review-hans branch once I've pushed my
-local branch there, which might take a while.
-
-Once I've run some tests on this branch the patches there will be
-added to the platform-drivers-x86/for-next branch and eventually
-will be included in the pdx86 pull-request to Linus for the next
-merge-window.
-
-Regards,
-
-Hans
-
-
-
-> ---
->  drivers/platform/x86/ideapad-laptop.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+> > -----Original Message-----
+> > From: Holger Kiehl <Holger.Kiehl@dwd.de>
+> > Sent: Monday, May 10, 2021 2:21 PM
+> > To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: linux-kernel@vger.kernel.org; stable@vger.kernel.org; Pan, Xinhui
+> > <Xinhui.Pan@amd.com>; Deucher, Alexander
+> > <Alexander.Deucher@amd.com>; Sasha Levin <sashal@kernel.org>
+> > Subject: Re: [PATCH 5.12 195/384] drm/amdgpu: Fix memory leak
+> > 
+> > On Mon, 10 May 2021, Greg Kroah-Hartman wrote:
+> > 
+> > > From: xinhui pan <xinhui.pan@amd.com>
+> > >
+> > > [ Upstream commit 79fcd446e7e182c52c2c808c76f8de3eb6714349 ]
+> > >
+> > > drm_gem_object_put() should be paired with drm_gem_object_lookup().
+> > >
+> > > All gem objs are saved in fb->base.obj[]. Need put the old first
+> > > before assign a new obj.
+> > >
+> > > Trigger VRAM leak by running command below $ service gdm restart
+> > >
+> > > Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+> > > Acked-by: Alex Deucher <alexander.deucher@amd.com>
+> > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >  drivers/gpu/drm/amd/amdgpu/amdgpu_display.c | 4 +++-
+> > >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> > > b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> > > index f753e04fee99..cbe050436c7b 100644
+> > > --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> > > +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
+> > > @@ -910,8 +910,9 @@ int amdgpu_display_framebuffer_init(struct
+> > drm_device *dev,
+> > >  	}
+> > >
+> > >  	for (i = 1; i < rfb->base.format->num_planes; ++i) {
+> > > +		drm_gem_object_get(rfb->base.obj[0]);
+> > > +		drm_gem_object_put(rfb->base.obj[i]);
+> > >  		rfb->base.obj[i] = rfb->base.obj[0];
+> > > -		drm_gem_object_get(rfb->base.obj[i]);
+> > >  	}
+> > >
+> > >  	return 0;
+> > > @@ -960,6 +961,7 @@ amdgpu_display_user_framebuffer_create(struct
+> > drm_device *dev,
+> > >  		return ERR_PTR(ret);
+> > >  	}
+> > >
+> > > +	drm_gem_object_put(obj);
+> > >  	return &amdgpu_fb->base;
+> > >  }
+> > >
+> > > --
+> > > 2.30.2
+> > >
+> > This causes the following error on a AMD APU Ryzen 7 4750G:
+> > 
+> >    May 10 19:29:50 bb8 kernel: [    2.730473] [drm] Initialized amdgpu 3.40.0
+> > 20150101 for 0000:04:00.0 on minor 0
+> >    May 10 19:29:50 bb8 kernel: [    2.748000] ------------[ cut here ]------------
+> >    May 10 19:29:50 bb8 kernel: [    2.748003] refcount_t: underflow; use-after-
+> > free.
+> >    May 10 19:29:50 bb8 kernel: [    2.748008] WARNING: CPU: 10 PID: 513 at
+> > lib/refcount.c:28 refcount_warn_saturate+0xa6/0xf0
+> >    May 10 19:29:50 bb8 kernel: [    2.748014] Modules linked in: amdgpu raid1
+> > raid0 md_mod drm_ttm_helper ttm mfd_core iommu_v2 gpu_sched
+> > i2c_algo_bit crct10dif_pclmul crc32_pclmul crc32c_intel drm_kms_helper
+> > syscopyarea sysfillrect sysimgblt fb_sys_fops cec ghash_clmulni_intel drm
+> > r8169 ccp realtek pinctrl_amd fuse ecryptfs
+> >    May 10 19:29:50 bb8 kernel: [    2.748029] CPU: 10 PID: 513 Comm:
+> > plymouthd Not tainted 5.12.3 #1
+> >    May 10 19:29:50 bb8 kernel: [    2.748031] Hardware name: To Be Filled By
+> > O.E.M. To Be Filled By O.E.M./X300M-STX, BIOS P1.60 04/29/2021
+> >    May 10 19:29:50 bb8 kernel: [    2.748032] RIP:
+> > 0010:refcount_warn_saturate+0xa6/0xf0
+> >    May 10 19:29:50 bb8 kernel: [    2.748034] Code: 05 79 34 17 01 01 e8 cd 51 4a
+> > 00 0f 0b c3 80 3d 67 34 17 01 00 75 95 48 c7 c7 a0 90 13 99 c6 05 57 34 17 01 01 e8
+> > ae 51 4a 00 <0f> 0b c3 80 3d 46 34 17 01 00 0f 85 72 ff ff ff 48 c7 c7 f8 90 13
+> >    May 10 19:29:50 bb8 kernel: [    2.748036] RSP: 0018:ffffb2ccc07f7d58
+> > EFLAGS: 00010292
+> >    May 10 19:29:50 bb8 kernel: [    2.748038] RAX: 0000000000000026 RBX:
+> > ffff90d28d313000 RCX: 0000000000000027
+> >    May 10 19:29:50 bb8 kernel: [    2.748039] RDX: ffff90e081c975c8 RSI:
+> > 0000000000000001 RDI: ffff90e081c975c0
+> >    May 10 19:29:50 bb8 kernel: [    2.748040] RBP: ffff90d290b1b458 R08:
+> > 0000000000000000 R09: ffffb2ccc07f7b98
+> >    May 10 19:29:50 bb8 kernel: [    2.748040] R10: 0000000000000001 R11:
+> > 0000000000000001 R12: ffff90d28d313000
+> >    May 10 19:29:50 bb8 kernel: [    2.748041] R13: ffff90d28d313128 R14:
+> > ffff90d28d313050 R15: ffff90d28d313000
+> >    May 10 19:29:50 bb8 kernel: [    2.748042] FS:  00007fa31f454800(0000)
+> > GS:ffff90e081c80000(0000) knlGS:0000000000000000
+> >    May 10 19:29:50 bb8 kernel: [    2.748043] CS:  0010 DS: 0000 ES: 0000 CR0:
+> > 0000000080050033
+> >    May 10 19:29:50 bb8 kernel: [    2.748044] CR2: 00007fa31f42e000 CR3:
+> > 000000010e1d2000 CR4: 0000000000350ee0
+> >    May 10 19:29:50 bb8 kernel: [    2.748046] Call Trace:
+> >    May 10 19:29:50 bb8 kernel: [    2.748049]
+> > drm_gem_object_release_handle+0x6b/0x80 [drm]
+> >    May 10 19:29:50 bb8 kernel: [    2.748068]  ?
+> > drm_mode_destroy_dumb+0x40/0x40 [drm]
+> >    May 10 19:29:50 bb8 kernel: [    2.748086]
+> > drm_gem_handle_delete+0x4f/0x80 [drm]
+> >    May 10 19:29:50 bb8 kernel: [    2.748101]  ?
+> > drm_mode_destroy_dumb+0x40/0x40 [drm]
+> >    May 10 19:29:50 bb8 kernel: [    2.748117]  drm_ioctl_kernel+0x87/0xd0
+> > [drm]
+> >    May 10 19:29:50 bb8 kernel: [    2.748133]  drm_ioctl+0x205/0x3a0 [drm]
+> >    May 10 19:29:50 bb8 kernel: [    2.748149]  ?
+> > drm_mode_destroy_dumb+0x40/0x40 [drm]
+> >    May 10 19:29:50 bb8 kernel: [    2.748164]  amdgpu_drm_ioctl+0x49/0x80
+> > [amdgpu]
+> >    May 10 19:29:50 bb8 kernel: [    2.748263]  __x64_sys_ioctl+0x82/0xb0
+> >    May 10 19:29:50 bb8 kernel: [    2.748266]  do_syscall_64+0x33/0x40
+> >    May 10 19:29:50 bb8 kernel: [    2.748269]
+> > entry_SYSCALL_64_after_hwframe+0x44/0xae
+> >    May 10 19:29:50 bb8 kernel: [    2.748271] RIP: 0033:0x7fa31f7d30ab
+> >    May 10 19:29:50 bb8 kernel: [    2.748273] Code: ff ff ff 85 c0 79 9b 49 c7 c4 ff
+> > ff ff ff 5b 5d 4c 89 e0 41 5c c3 66 0f 1f 84 00 00 00 00 00 f3 0f 1e fa b8 10 00 00 00
+> > 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 95 bd 0c 00 f7 d8 64 89 01 48
+> >    May 10 19:29:50 bb8 kernel: [    2.748274] RSP: 002b:00007ffe145fb638
+> > EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> >    May 10 19:29:50 bb8 kernel: [    2.748275] RAX: ffffffffffffffda RBX:
+> > 00007ffe145fb67c RCX: 00007fa31f7d30ab
+> >    May 10 19:29:50 bb8 kernel: [    2.748276] RDX: 00007ffe145fb67c RSI:
+> > 00000000c00464b4 RDI: 000000000000000a
+> >    May 10 19:29:50 bb8 kernel: [    2.748277] RBP: 00000000c00464b4 R08:
+> > 00005620f7832c40 R09: 0000000000000007
+> >    May 10 19:29:50 bb8 kernel: [    2.748278] R10: 00005620f7832c40 R11:
+> > 0000000000000246 R12: 0000000000000001
+> >    May 10 19:29:50 bb8 kernel: [    2.748278] R13: 000000000000000a R14:
+> > 000000000000000b R15: 00007fa31f8c6e20
+> >    May 10 19:29:50 bb8 kernel: [    2.748280] ---[ end trace 57825da3e46ebfc7 ]-
+> > --
+> > 
+> > On another system with a Ryzen 5 3400G a reboot will hang.
+> > 
+> > If I remove this patch the system boots fine and there is no error message.
 > 
-> diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-> index 6cb5ad4be231..8472aa4c5017 100644
-> --- a/drivers/platform/x86/ideapad-laptop.c
-> +++ b/drivers/platform/x86/ideapad-laptop.c
-> @@ -57,8 +57,8 @@ enum {
->  };
-> 
->  enum {
-> -	SMBC_CONSERVATION_ON  = 3,
-> -	SMBC_CONSERVATION_OFF = 5,
-> +	SBMC_CONSERVATION_ON  = 3,
-> +	SBMC_CONSERVATION_OFF = 5,
->  };
-> 
->  enum {
-> @@ -182,9 +182,9 @@ static int eval_gbmd(acpi_handle handle, unsigned long *res)
->  	return eval_int(handle, "GBMD", res);
->  }
-> 
-> -static int exec_smbc(acpi_handle handle, unsigned long arg)
-> +static int exec_sbmc(acpi_handle handle, unsigned long arg)
->  {
-> -	return exec_simple_method(handle, "SMBC", arg);
-> +	return exec_simple_method(handle, "SBMC", arg);
->  }
-> 
->  static int eval_hals(acpi_handle handle, unsigned long *res)
-> @@ -477,7 +477,7 @@ static ssize_t conservation_mode_store(struct device *dev,
->  	if (err)
->  		return err;
-> 
-> -	err = exec_smbc(priv->adev->handle, state ? SMBC_CONSERVATION_ON : SMBC_CONSERVATION_OFF);
-> +	err = exec_sbmc(priv->adev->handle, state ? SBMC_CONSERVATION_ON : SBMC_CONSERVATION_OFF);
->  	if (err)
->  		return err;
-> 
-> --
-> 2.31.1
-> 
-> 
+> This patch is a fix specifically for:
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f258907fdd835e1aed6d666b00cdd0f186676b7c
+> It does not make sense on it's own.
 
+Thanks for the information, now dropped.
+
+greg k-h
