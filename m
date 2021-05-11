@@ -2,115 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 377AC37A81C
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 15:49:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D684C37A8A7
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 16:12:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231744AbhEKNuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 09:50:32 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40632 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231735AbhEKNu3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 09:50:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620740962;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=xlYUYivVwZu0HgRsx1CoZu2G2/J6YkrE3+YrJXbAxyc=;
-        b=AOdQ+spCiP6XL2Vja+lfMNS7LlP8O/8e6XAOWpP9EfqaJtjgv4Rq5djy4EzG7LpzXdOyfY
-        PYKvGTjANiv1femkQVEjDB0KbgVP+HSulCv8KX0/cja1DKafeCJB+F3d5D1FWZ4v9phHNj
-        xEJFzPJOQ7I2jbjPBBlqURQvMmn28XQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-585-UUg13M_NN5mekbMl_cdiCQ-1; Tue, 11 May 2021 09:49:20 -0400
-X-MC-Unique: UUg13M_NN5mekbMl_cdiCQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 66C081097FF4;
-        Tue, 11 May 2021 13:49:11 +0000 (UTC)
-Received: from max.com (unknown [10.40.195.97])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 485EE5C1A3;
-        Tue, 11 May 2021 13:49:10 +0000 (UTC)
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-To:     cluster-devel@redhat.com
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH] gfs2: Fix mmap + page fault deadlock
-Date:   Tue, 11 May 2021 15:49:08 +0200
-Message-Id: <20210511134908.1225322-1-agruenba@redhat.com>
+        id S231732AbhEKONS convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 11 May 2021 10:13:18 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3060 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231661AbhEKONR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 10:13:17 -0400
+Received: from fraeml711-chm.china.huawei.com (unknown [172.18.147.201])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4Fffm65Tryz6877F;
+        Tue, 11 May 2021 22:03:50 +0800 (CST)
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ fraeml711-chm.china.huawei.com (10.206.15.60) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Tue, 11 May 2021 16:12:06 +0200
+Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
+ fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.2176.012;
+ Tue, 11 May 2021 16:12:06 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        "mjg59@google.com" <mjg59@google.com>
+CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v6 03/11] evm: Refuse EVM_ALLOW_METADATA_WRITES only if an
+ HMAC key is loaded
+Thread-Topic: [PATCH v6 03/11] evm: Refuse EVM_ALLOW_METADATA_WRITES only if
+ an HMAC key is loaded
+Thread-Index: AQHXQaH+gJYK7G6CpEWWiKFKXoh7XareMf4AgAAoMpA=
+Date:   Tue, 11 May 2021 14:12:06 +0000
+Message-ID: <1f0530bc9b974951ae0bb1e2beb02422@huawei.com>
+References: <20210505112935.1410679-1-roberto.sassu@huawei.com>
+         <20210505112935.1410679-4-roberto.sassu@huawei.com>
+ <6f5603489b16918de5d3cbb73c1a7c0e835f0671.camel@linux.ibm.com>
+In-Reply-To: <6f5603489b16918de5d3cbb73c1a7c0e835f0671.camel@linux.ibm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.221.98.153]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 20f829999c38 has moved the inode glock taking from gfs2_readpage and
-gfs2_readahead into gfs2_file_read_iter and gfs2_fault.  In gfs2_fault, we
-didn't take into account that page faults can occur while holding the inode
-glock, for example,
+> From: Mimi Zohar [mailto:zohar@linux.ibm.com]
+> Sent: Tuesday, May 11, 2021 3:42 PM
+> On Wed, 2021-05-05 at 13:29 +0200, Roberto Sassu wrote:
+> > EVM_ALLOW_METADATA_WRITES is an EVM initialization flag that can be
+> set to
+> > temporarily disable metadata verification until all xattrs/attrs necessary
+> > to verify an EVM portable signature are copied to the file. This flag is
+> > cleared when EVM is initialized with an HMAC key, to avoid that the HMAC is
+> > calculated on unverified xattrs/attrs.
+> >
+> > Currently EVM unnecessarily denies setting this flag if EVM is initialized
+> > with a public key, which is not a concern as it cannot be used to trust
+> > xattrs/attrs updates. This patch removes this limitation.
+> >
+> > Cc: stable@vger.kernel.org # 4.16.x
+> > Fixes: ae1ba1676b88e ("EVM: Allow userland to permit modification of EVM-
+> protected metadata")
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> Once the comments below are addressed,
+> 
+> Reviewed-by:  Mimi Zohar <zohar@linux.ibm.com>
+> 
+> > ---
+> >  Documentation/ABI/testing/evm      | 5 +++--
+> >  security/integrity/evm/evm_secfs.c | 5 ++---
+> >  2 files changed, 5 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/Documentation/ABI/testing/evm
+> b/Documentation/ABI/testing/evm
+> > index 3c477ba48a31..eb6d70fd6fa2 100644
+> > --- a/Documentation/ABI/testing/evm
+> > +++ b/Documentation/ABI/testing/evm
+> > @@ -49,8 +49,9 @@ Description:
+> >  		modification of EVM-protected metadata and
+> >  		disable all further modification of policy
+> >
+> > -		Note that once a key has been loaded, it will no longer be
+> > -		possible to enable metadata modification.
+> > +		Note that once an HMAC key has been loaded, it will no longer
+> > +		be possible to enable metadata modification and, if it is
+> > +		already enabled, it will be disabled.
+> 
+> It's worth mentioning that echo'ing a new value is additive.  Once EVM
+> metadata modification is enabled, the only way of disabling it is by
+> enabling an HMAC key.  It's also worth mentioning that metadata writes
+> are only permitted once further changes to the EVM policy are disabled.
 
-  gfs2_file_read_iter
-    [grabs inode glock]
-    generic_file_read_iter
-      filemap_read
-        copy_page_to_iter
-          gfs2_fault
-            [tries to grab inode glock again]
+If I'm not wrong, it is not required to set EVM_SETUP_COMPLETE to allow
+metadata writes. I think the original idea was to boot a system in a way
+that portable signatures can be written, and then to enable enforcement.
 
-  gfs2_file_write_iter
-    iomap_file_buffered_write
-      iomap_apply
-        iomap_ops->iomap_begin
-          [grabs inode glock]
-        iomap_write_actor
-          iov_iter_fault_in_readable
-            gfs2_fault
-              [tries to grab inode glock again]
+Roberto
 
-Fix that by checking if we're holding the inode glock already.
+HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
+Managing Director: Li Peng, Li Jian, Shi Yanli
 
-Reported-by: Jan Kara <jack@suse.cz>
-Fixes: 20f829999c38 ("gfs2: Rework read and page fault locking")
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
----
- fs/gfs2/file.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
-
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 3ebc9af39a04..658fed79d65a 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -538,18 +538,22 @@ static vm_fault_t gfs2_fault(struct vm_fault *vmf)
- {
- 	struct inode *inode = file_inode(vmf->vma->vm_file);
- 	struct gfs2_inode *ip = GFS2_I(inode);
-+	bool recursive = gfs2_glock_is_locked_by_me(ip->i_gl);
- 	struct gfs2_holder gh;
- 	vm_fault_t ret;
- 	int err;
- 
- 	gfs2_holder_init(ip->i_gl, LM_ST_SHARED, 0, &gh);
--	err = gfs2_glock_nq(&gh);
--	if (err) {
--		ret = block_page_mkwrite_return(err);
--		goto out_uninit;
-+	if (likely(!recursive)) {
-+		err = gfs2_glock_nq(&gh);
-+		if (err) {
-+			ret = block_page_mkwrite_return(err);
-+			goto out_uninit;
-+		}
- 	}
- 	ret = filemap_fault(vmf);
--	gfs2_glock_dq(&gh);
-+	if (likely(!recursive))
-+		gfs2_glock_dq(&gh);
- out_uninit:
- 	gfs2_holder_uninit(&gh);
- 	return ret;
--- 
-2.26.3
+> Perhaps the best way of explaining this is by including a new example -
+> echo 6> <securityfs>/evm.
+> 
+> >
+> >  		Until key loading has been signaled EVM can not create
+> >  		or validate the 'security.evm' xattr, but returns
+> > diff --git a/security/integrity/evm/evm_secfs.c
+> b/security/integrity/evm/evm_secfs.c
+> > index bbc85637e18b..860c48b9a0c3 100644
+> > --- a/security/integrity/evm/evm_secfs.c
+> > +++ b/security/integrity/evm/evm_secfs.c
+> > @@ -81,11 +81,10 @@ static ssize_t evm_write_key(struct file *file, const
+> char __user *buf,
+> >  		return -EINVAL;
+> >
+> >  	/* Don't allow a request to freshly enable metadata writes if
+> > -	 * keys are loaded.
+> > +	 * an HMAC key is loaded.
+> >  	 */
+> 
+> Please drop the word "freshly".  While updating the comment, please
+> move the sentence starting with "Don't" to a new line.
+> 
+> >  	if ((i & EVM_ALLOW_METADATA_WRITES) &&
+> > -	    ((evm_initialized & EVM_KEY_MASK) != 0) &&
+> > -	    !(evm_initialized & EVM_ALLOW_METADATA_WRITES))
+> > +	    (evm_initialized & EVM_INIT_HMAC) != 0)
+> >  		return -EPERM;
+> >
+> >  	if (i & EVM_INIT_HMAC) {
+> 
 
