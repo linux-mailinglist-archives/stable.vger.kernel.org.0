@@ -2,64 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 144F737A627
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 13:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8D2337A637
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 14:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231283AbhEKL6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 07:58:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231132AbhEKL6e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 May 2021 07:58:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E97161007;
-        Tue, 11 May 2021 11:57:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620734247;
-        bh=6WMcv2xd6VsBSIHKu0Ob2YKNaIqY4ZBocnGR8jWPXfg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Velce/SBQYGXz4Bg/7MEcnrC8mePdPHBrP4IMe4Tpsax5sLl6YyaI71oMDf3fz+kg
-         ygCu/riXXrPEFlt8H0bnpxiOEjpI74RMzM6Ck7hSb8hnBv6BN8JxnfKRwl6iwbyawV
-         3iFX9unUIIRRf70XxgGvOnAODX+8wsSURNF6FWuA=
-Date:   Tue, 11 May 2021 13:57:24 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 108/299] platform/x86: intel_pmc_core: Dont use
- global pmcdev in quirks
-Message-ID: <YJpxJPVLp803CaBt@kroah.com>
-References: <20210510102004.821838356@linuxfoundation.org>
- <20210510102008.507160403@linuxfoundation.org>
- <20210510121240.GD3547@duo.ucw.cz>
+        id S231336AbhEKME1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 08:04:27 -0400
+Received: from szxga07-in.huawei.com ([45.249.212.35]:2443 "EHLO
+        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230225AbhEKME0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 08:04:26 -0400
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Ffc1z0277zCqvN;
+        Tue, 11 May 2021 20:00:39 +0800 (CST)
+Received: from [10.174.178.208] (10.174.178.208) by
+ DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
+ 14.3.498.0; Tue, 11 May 2021 20:03:14 +0800
+Subject: Re: [PATCH 5.4 000/184] 5.4.118-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210510101950.200777181@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <53da0289-04a3-f79f-ed45-5278a853f9f8@huawei.com>
+Date:   Tue, 11 May 2021 20:03:13 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210510121240.GD3547@duo.ucw.cz>
+In-Reply-To: <20210510101950.200777181@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 10, 2021 at 02:12:40PM +0200, Pavel Machek wrote:
-> Hi!
+
+
+On 2021/5/10 18:18, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.118 release.
+> There are 184 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> > From: David E. Box <david.e.box@linux.intel.com>
-> > 
-> > [ Upstream commit c9f86d6ca6b5e23d30d16ade4b9fff5b922a610a ]
-> > 
-> > The DMI callbacks, used for quirks, currently access the PMC by getting
-> > the address a global pmc_dev struct. Instead, have the callbacks set a
-> > global quirk specific variable. In probe, after calling dmi_check_system(),
-> > pass pmc_dev to a function that will handle each quirk if its variable
-> > condition is met. This allows removing the global pmc_dev later.
+> Responses should be made by Wed, 12 May 2021 10:19:23 +0000.
+> Anything received after that time might be too late.
 > 
-> This does not fix a bug.. it is preparation for further cleanups that
-> are not queued to 5.10 stable. So this should not be in 5.10 either.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.118-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-I'll leave this for now, it will be helpful for later.
+Tested on arm64 and x86 for 5.4.118-rc1,
 
-thanks,
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.118-rc1
+Commit: eb078a943f9777461b67e3f61b4b6376593eb08c
+Compiler: gcc version 7.3.0 (GCC)
 
-greg k-h
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8476
+passed: 8476
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8476
+passed: 8476
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
