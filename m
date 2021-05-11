@@ -2,176 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBF837A115
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 09:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C40F37A155
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 10:04:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229710AbhEKHp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 03:45:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37748 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229917AbhEKHp6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 May 2021 03:45:58 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4E4861026;
-        Tue, 11 May 2021 07:44:52 +0000 (UTC)
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <maz@kernel.org>)
-        id 1lgN4U-000cdO-F7; Tue, 11 May 2021 08:44:50 +0100
-Date:   Tue, 11 May 2021 08:44:49 +0100
-Message-ID: <87o8dhogsu.wl-maz@kernel.org>
-From:   Marc Zyngier <maz@kernel.org>
-To:     Alexandru Elisei <alexandru.elisei@arm.com>
-Cc:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel@lists.infradead.org,
+        id S229917AbhEKIF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 04:05:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46046 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230238AbhEKIFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 04:05:25 -0400
+Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43486C06175F
+        for <stable@vger.kernel.org>; Tue, 11 May 2021 01:04:18 -0700 (PDT)
+Received: by mail-oo1-xc31.google.com with SMTP id l25-20020a4a35190000b029020a54735152so75488ooa.4
+        for <stable@vger.kernel.org>; Tue, 11 May 2021 01:04:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vqWqlRo1t8unIB3Z/gPDCFXryTe+VxOxmZbywII60x4=;
+        b=RsARpI9kPbe8fGR56PQ4skYG8c9j7c835d7rOcGai/qr7PmvAFxTBwMPg0n2VNOOJ5
+         KkP+xqxkTWNxfq5af47pwFhxQ+gI535/8Hg4Py+5tIBUnpVpw+uUqHNdiGy1We0e6P7C
+         U3pDYJNh9iAbAGww3qtuHQ2C6EI76iWRqwRdduT/OiYZNMX9ZOvWrl/LOZQlW9gSIr1c
+         Lza0R/5guKEDeTbh4LO7VrsbCV1JlyXIRO9IliK93CHvkIlqHwTidtABkP6MtO1RLgI8
+         0futdZOP85C/BHdhcmoHGmhTFD1t2/pn5mxbgN3B6aATye6KVk+2Hm+OkS0WCKlV7WAR
+         mPUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vqWqlRo1t8unIB3Z/gPDCFXryTe+VxOxmZbywII60x4=;
+        b=CEF1f9V9cqTZgcKVvIQU0NgKCH+FrvfewyLRJAVkf0cqcGTPneACSOG0FVa6tZjK9i
+         cxZW5jOLSJGh+i5Dh+kHPYHn3ReGq+F1d27VbqtuBGvRxXwmRaWSKq/j2UWBzN5VZw+u
+         LOY8tziEfvoL8RC7fjMH2497ChdvdJg/+8Oj3QLRjXVPHa/bizNhRjZ5AYoKvqmazF4M
+         UnRqeKcTQ6yI6/3NXiwgzln+/Fyy82OPJpLPSbGspsEvkQ6YgXAdFFKUaqak4zwy1XrS
+         VqxOTmtK7PQn6FaC7PmS66v8fJUeJmU6R+FLI8vn24hQ8XDkdZUlXIMdbTonk+Ui3Qv3
+         xFow==
+X-Gm-Message-State: AOAM532bgGctmVyuzol1gTB9Fmg45iMV9pRmybSNZQJ6fI10RZxWyvw6
+        VbraPntYovp3j24Vtht2dgLPpCZ/9OQLfMq9s3uycw==
+X-Google-Smtp-Source: ABdhPJwiG5f14ptUggSSt+hUanG2tnouIAtbpU1JD68oO5A0s7qMCGnueWGVnCFx9fN6AZ33rumu5oXEfhtT2qh7sVs=
+X-Received: by 2002:a4a:ea2b:: with SMTP id y11mr285770ood.42.1620720257457;
+ Tue, 11 May 2021 01:04:17 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210510094915.1909484-1-maz@kernel.org> <20210510094915.1909484-3-maz@kernel.org>
+In-Reply-To: <20210510094915.1909484-3-maz@kernel.org>
+From:   Fuad Tabba <tabba@google.com>
+Date:   Tue, 11 May 2021 09:03:40 +0100
+Message-ID: <CA+EHjTzcfmt4mxh05a_P+nheQ_A2FuXhpgvKXuV5__pZP0SxkA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] KVM: arm64: Commit pending PC adjustemnts before
+ returning to userspace
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     kvm@vger.kernel.org,
+        "open list:KERNEL VIRTUAL MACHINE FOR ARM64 (KVM/arm64)" 
+        <kvmarm@lists.cs.columbia.edu>,
+        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" 
+        <linux-arm-kernel@lists.infradead.org>,
         Zenghui Yu <yuzenghui@huawei.com>,
         James Morse <james.morse@arm.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
         kernel-team@android.com, stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] KVM: arm64: Commit pending PC adjustemnts before returning to userspace
-In-Reply-To: <65b5cad7-13d8-13a9-9502-7c21e0b72761@arm.com>
-References: <20210510094915.1909484-1-maz@kernel.org>
-        <20210510094915.1909484-3-maz@kernel.org>
-        <7a0f43c8-cc36-810e-0b8e-ffe66672ca82@arm.com>
-        <87v97qociy.wl-maz@kernel.org>
-        <65b5cad7-13d8-13a9-9502-7c21e0b72761@arm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
- (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: alexandru.elisei@arm.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, yuzenghui@huawei.com, james.morse@arm.com, suzuki.poulose@arm.com, kernel-team@android.com, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 May 2021 16:14:37 +0100,
-Alexandru Elisei <alexandru.elisei@arm.com> wrote:
-> 
-> Hi Marc,
-> 
-> On 5/10/21 4:04 PM, Marc Zyngier wrote:
-> > On Mon, 10 May 2021 15:55:28 +0100,
-> > Alexandru Elisei <alexandru.elisei@arm.com> wrote:
-> >> Hi Marc,
-> >>
-> >> On 5/10/21 10:49 AM, Marc Zyngier wrote:
-> >>> KVM currently updates PC (and the corresponding exception state)
-> >>> using a two phase approach: first by setting a set of flags,
-> >>> then by converting these flags into a state update when the vcpu
-> >>> is about to enter the guest.
-> >>>
-> >>> However, this creates a disconnect with userspace if the vcpu thread
-> >>> returns there with any exception/PC flag set. In this case, the exposed
-> >> The code seems to handle only the KVM_ARM64_PENDING_EXCEPTION
-> >> flag. Is the "PC flag" a reference to the KVM_ARM64_INCREMENT_PC
-> >> flag?
-> > No, it does handle both exception and PC increment, unless I have
-> > completely bodged something (entirely possible).
-> 
-> The message is correct, my bad.
-> 
-> >
-> >>> context is wrong, as userpsace doesn't have access to these flags
-> >> s/userpsace/userspace
-> >>
-> >>> (they aren't architectural). It also means that these flags are
-> >>> preserved across a reset, which isn't expected.
-> >>>
-> >>> To solve this problem, force an explicit synchronisation of the
-> >>> exception state on vcpu exit to userspace. As an optimisation
-> >>> for nVHE systems, only perform this when there is something pending.
-> >>>
-> >>> Reported-by: Zenghui Yu <yuzenghui@huawei.com>
-> >>> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> >>> Cc: stable@vger.kernel.org # 5.11
-> >>> ---
-> >>>  arch/arm64/include/asm/kvm_asm.h   |  1 +
-> >>>  arch/arm64/kvm/arm.c               | 10 ++++++++++
-> >>>  arch/arm64/kvm/hyp/exception.c     |  4 ++--
-> >>>  arch/arm64/kvm/hyp/nvhe/hyp-main.c |  8 ++++++++
-> >>>  4 files changed, 21 insertions(+), 2 deletions(-)
-> >>>
-> >>> diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
-> >>> index d5b11037401d..5e9b33cbac51 100644
-> >>> --- a/arch/arm64/include/asm/kvm_asm.h
-> >>> +++ b/arch/arm64/include/asm/kvm_asm.h
-> >>> @@ -63,6 +63,7 @@
-> >>>  #define __KVM_HOST_SMCCC_FUNC___pkvm_cpu_set_vector		18
-> >>>  #define __KVM_HOST_SMCCC_FUNC___pkvm_prot_finalize		19
-> >>>  #define __KVM_HOST_SMCCC_FUNC___pkvm_mark_hyp			20
-> >>> +#define __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc			21
-> >>>  
-> >>>  #ifndef __ASSEMBLY__
-> >>>  
-> >>> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-> >>> index 1cb39c0803a4..d62a7041ebd1 100644
-> >>> --- a/arch/arm64/kvm/arm.c
-> >>> +++ b/arch/arm64/kvm/arm.c
-> >>> @@ -897,6 +897,16 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
-> >>>  
-> >>>  	kvm_sigset_deactivate(vcpu);
-> >>>  
-> >>> +	/*
-> >>> +	 * In the unlikely event that we are returning to userspace
-> >>> +	 * with pending exceptions or PC adjustment, commit these
-> >> I'm going to assume "PC adjustment" means the KVM_ARM64_INCREMENT_PC
-> >> flag. Please correct me if that's not true, but if that's the case,
-> >> then the flag isn't handled below.
-> >>
-> >>> +	 * adjustments in order to give userspace a consistent view of
-> >>> +	 * the vcpu state.
-> >>> +	 */
-> >>> +	if (unlikely(vcpu->arch.flags & (KVM_ARM64_PENDING_EXCEPTION |
-> >>> +					 KVM_ARM64_EXCEPT_MASK)))
-> >> The condition seems to suggest that it is valid to set
-> >> KVM_ARM64_EXCEPT_{AA32,AA64}_* without setting
-> >> KVM_ARM64_PENDING_EXCEPTION, which looks rather odd to me.
-> >> Is that a valid use of the KVM_ARM64_EXCEPT_MASK bits? If it's not
-> >> (the existing code always sets the exception type with the
-> >> KVM_ARM64_PENDING_EXCEPTION), that I was thinking that checking only
-> >> the KVM_ARM64_PENDING_EXCEPTION flag would make the intention
-> >> clearer.
-> > No, you are missing this (subtle) comment in kvm_host.h:
-> >
-> > <quote>
-> > /*
-> >  * Overlaps with KVM_ARM64_EXCEPT_MASK on purpose so that it can't be
-> >  * set together with an exception...
-> >  */
-> > #define KVM_ARM64_INCREMENT_PC		(1 << 9) /* Increment PC */
-> > </quote>
-> >
-> > So (KVM_ARM64_PENDING_EXCEPTION | KVM_ARM64_EXCEPT_MASK) checks for
-> > *both* an exception and a PC increment.
-> 
-> Then how about explicitly checking for the
-> KVM_ARM64_PENDING_EXCEPTION and KVM_ARM64_INCREMENT_PC flags, like
-> it's done in __kvm_adjust_pc? That would certainly make the code
-> easier to understand, as it's not immediately obvious that the
-> EXCEPT mask includes the INCREMENT_PC flag.
+Hi Marc,
 
-Fair enough. I'll fix that in v2.
+> KVM: arm64: Commit pending PC adjustemnts before returning to userspace
 
-Another thing I wondered about: we now rely on __kvm_adjust_pc() to be
-preemption safe. That's always the case in nVHE (we're at EL2), but
-VHE can be preempted at any point. The code we call is preemption
-safe, but it takes some effort to be convinced of it.
+s/adjustments/adjustments
 
-Do you have a good suggestion on how to express this requirement?  I
-could throw a preempt_disable()/enable() at the call for the sake of
-being in the same context between VHE and nVHE, but that's not
-strictly necessary for now.
+On Mon, May 10, 2021 at 10:49 AM Marc Zyngier <maz@kernel.org> wrote:
+>
+> KVM currently updates PC (and the corresponding exception state)
+> using a two phase approach: first by setting a set of flags,
+> then by converting these flags into a state update when the vcpu
+> is about to enter the guest.
+>
+> However, this creates a disconnect with userspace if the vcpu thread
+> returns there with any exception/PC flag set. In this case, the exposed
+> context is wrong, as userpsace doesn't have access to these flags
+> (they aren't architectural). It also means that these flags are
+> preserved across a reset, which isn't expected.
+>
+> To solve this problem, force an explicit synchronisation of the
+> exception state on vcpu exit to userspace. As an optimisation
+> for nVHE systems, only perform this when there is something pending.
 
-Thanks,
+I've tested this with a few nvhe and vhe tests that exercise both
+__kvm_adjust_pc call paths (__kvm_vcpu_run and
+kvm_arch_vcpu_ioctl_run), and the tests ran as expected.  I'll do the
+same for v2 when you send it out.
 
-	M.
-
--- 
-Without deviation from the norm, progress is not possible.
+Cheers,
+/fuad
