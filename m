@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B1E379BCE
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 03:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 857D2379BD7
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 03:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229920AbhEKBEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 21:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
+        id S230129AbhEKBIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 21:08:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229628AbhEKBEW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 May 2021 21:04:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF03E61613;
-        Tue, 11 May 2021 01:03:15 +0000 (UTC)
+        id S229980AbhEKBIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 May 2021 21:08:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E570E60233;
+        Tue, 11 May 2021 01:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1620694996;
-        bh=6xyZ0PXSGA7w0A/O8UPA3RjDuRJjvBCSsAsCqruje1c=;
+        s=korg; t=1620695261;
+        bh=1P0A/juxApCbGcb1l92JF4R6ZtsOKmECl/OWI/nPPUM=;
         h=Date:From:To:Subject:From;
-        b=Nea1O16jfKK9ZVSP7qnZTIg8LB8oD/QOOFnKhckHGd2RJTxlY1+uVU2HLGc/UjUTn
-         f5yr+ErnJNHM2J49V/CfkGZKtGUDeusFIMM5Sa3VgsGagVxryHSquDzrKS+r4/88ZR
-         jsSPkJTMl1gyAD80LPzP3BQjt8/tQrLDCbAXg4wg=
-Date:   Mon, 10 May 2021 18:03:15 -0700
+        b=ImNmQSHFty3nFY7aUrHAAm4KFXo26zfk0syUCTwVO17M2Teq30pVzRvLhEmZh4yhN
+         6JP+ViCmneIJ7INpHI0i5Sd5ksP4iQVVk3yRdwgOPt9qWxZEIvXF/m/XMXG7JXgTBE
+         eqAIL2WTysU0uoIecS6NcP2rdsxq3UInfio+Hffg=
+Date:   Mon, 10 May 2021 18:07:40 -0700
 From:   akpm@linux-foundation.org
-To:     brouer@redhat.com, ilias.apalodimas@linaro.org,
-        mcroce@linux.microsoft.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, vbabka@suse.cz, willy@infradead.org
-Subject:  + mm-fix-struct-page-layout-on-32-bit-systems.patch added
- to -mm tree
-Message-ID: <20210511010315.6rVNNKQr3%akpm@linux-foundation.org>
+To:     andreyknvl@gmail.com, eugenis@google.com, georgepope@android.com,
+        glider@google.com, lenaptr@google.com, mm-commits@vger.kernel.org,
+        pcc@google.com, stable@vger.kernel.org
+Subject:  +
+ kasan-fix-unit-tests-with-config_ubsan_local_bounds-enabled.patch added to
+ -mm tree
+Message-ID: <20210511010740.WUw2o87jx%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -35,14 +36,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: fix struct page layout on 32-bit systems
+     Subject: kasan: fix unit tests with CONFIG_UBSAN_LOCAL_BOUNDS enabled
 has been added to the -mm tree.  Its filename is
-     mm-fix-struct-page-layout-on-32-bit-systems.patch
+     kasan-fix-unit-tests-with-config_ubsan_local_bounds-enabled.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-fix-struct-page-layout-on-32-bit-systems.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/kasan-fix-unit-tests-with-config_ubsan_local_bounds-enabled.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-struct-page-layout-on-32-bit-systems.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/kasan-fix-unit-tests-with-config_ubsan_local_bounds-enabled.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -56,125 +57,99 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: mm: fix struct page layout on 32-bit systems
+From: Peter Collingbourne <pcc@google.com>
+Subject: kasan: fix unit tests with CONFIG_UBSAN_LOCAL_BOUNDS enabled
 
-32-bit architectures which expect 8-byte alignment for 8-byte integers and
-need 64-bit DMA addresses (arm, mips, ppc) had their struct page
-inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
-the alignment of the union to 8 bytes, which inserted a 4 byte gap between
-'flags' and the union.
+These tests deliberately access these arrays out of bounds, which will
+cause the dynamic local bounds checks inserted by
+CONFIG_UBSAN_LOCAL_BOUNDS to fail and panic the kernel.  To avoid this
+problem, access the arrays via volatile pointers, which will prevent the
+compiler from being able to determine the array bounds.
 
-Fix this by storing the dma_addr_t in one or two adjacent unsigned longs.
-This restores the alignment to that of an unsigned long.  We always
-store the low bits in the first word to prevent the PageTail bit from
-being inadvertently set on a big endian platform.  If that happened,
-get_user_pages_fast() racing against a page which was freed and
-reallocated to the page_pool could dereference a bogus compound_head(),
-which would be hard to trace back to this cause.
+These accesses use volatile pointers to char (char *volatile) rather than
+the more conventional pointers to volatile char (volatile char *) because
+we want to prevent the compiler from making inferences about the pointer
+itself (i.e.  its array bounds), not the data that it refers to.
 
-Link: https://lkml.kernel.org/r/20210510153211.1504886-1-willy@infradead.org
-Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Tested-by: Matteo Croce <mcroce@linux.microsoft.com>
+Link: https://lkml.kernel.org/r/20210507025915.1464056-1-pcc@google.com
+Link: https://linux-review.googlesource.com/id/I90b1713fbfa1bf68ff895aef099ea77b98a7c3b9
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Tested-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Peter Collingbourne <pcc@google.com>
+Cc: George Popescu <georgepope@android.com>
+Cc: Elena Petrova <lenaptr@google.com>
+Cc: Evgenii Stepanov <eugenis@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/mm_types.h |    4 ++--
- include/net/page_pool.h  |   12 +++++++++++-
- net/core/page_pool.c     |   12 +++++++-----
- 3 files changed, 20 insertions(+), 8 deletions(-)
+ lib/test_kasan.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
---- a/include/linux/mm_types.h~mm-fix-struct-page-layout-on-32-bit-systems
-+++ a/include/linux/mm_types.h
-@@ -97,10 +97,10 @@ struct page {
- 		};
- 		struct {	/* page_pool used by netstack */
- 			/**
--			 * @dma_addr: might require a 64-bit value even on
-+			 * @dma_addr: might require a 64-bit value on
- 			 * 32-bit architectures.
- 			 */
--			dma_addr_t dma_addr;
-+			unsigned long dma_addr[2];
- 		};
- 		struct {	/* slab, slob and slub */
- 			union {
---- a/include/net/page_pool.h~mm-fix-struct-page-layout-on-32-bit-systems
-+++ a/include/net/page_pool.h
-@@ -198,7 +198,17 @@ static inline void page_pool_recycle_dir
+--- a/lib/test_kasan.c~kasan-fix-unit-tests-with-config_ubsan_local_bounds-enabled
++++ a/lib/test_kasan.c
+@@ -654,8 +654,20 @@ static char global_array[10];
  
- static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
+ static void kasan_global_oob(struct kunit *test)
  {
--	return page->dma_addr;
-+	dma_addr_t ret = page->dma_addr[0];
-+	if (sizeof(dma_addr_t) > sizeof(unsigned long))
-+		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
-+	return ret;
-+}
-+
-+static inline void page_pool_set_dma_addr(struct page *page, dma_addr_t addr)
-+{
-+	page->dma_addr[0] = addr;
-+	if (sizeof(dma_addr_t) > sizeof(unsigned long))
-+		page->dma_addr[1] = upper_32_bits(addr);
- }
+-	volatile int i = 3;
+-	char *p = &global_array[ARRAY_SIZE(global_array) + i];
++	/*
++	 * Deliberate out-of-bounds access. To prevent CONFIG_UBSAN_LOCAL_BOUNDS
++	 * from failing here and panicing the kernel, access the array via a
++	 * volatile pointer, which will prevent the compiler from being able to
++	 * determine the array bounds.
++	 *
++	 * This access uses a volatile pointer to char (char *volatile) rather
++	 * than the more conventional pointer to volatile char (volatile char *)
++	 * because we want to prevent the compiler from making inferences about
++	 * the pointer itself (i.e. its array bounds), not the data that it
++	 * refers to.
++	 */
++	char *volatile array = global_array;
++	char *p = &array[ARRAY_SIZE(global_array) + 3];
  
- static inline bool is_page_pool_compiled_in(void)
---- a/net/core/page_pool.c~mm-fix-struct-page-layout-on-32-bit-systems
-+++ a/net/core/page_pool.c
-@@ -174,8 +174,10 @@ static void page_pool_dma_sync_for_devic
- 					  struct page *page,
- 					  unsigned int dma_sync_size)
+ 	/* Only generic mode instruments globals. */
+ 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
+@@ -703,8 +715,9 @@ static void ksize_uaf(struct kunit *test
+ static void kasan_stack_oob(struct kunit *test)
  {
-+	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
-+
- 	dma_sync_size = min(dma_sync_size, pool->p.max_len);
--	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
-+	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
- 					 pool->p.offset, dma_sync_size,
- 					 pool->p.dma_dir);
- }
-@@ -195,7 +197,7 @@ static bool page_pool_dma_map(struct pag
- 	if (dma_mapping_error(pool->p.dev, dma))
- 		return false;
+ 	char stack_array[10];
+-	volatile int i = OOB_TAG_OFF;
+-	char *p = &stack_array[ARRAY_SIZE(stack_array) + i];
++	/* See comment in kasan_global_oob. */
++	char *volatile array = stack_array;
++	char *p = &array[ARRAY_SIZE(stack_array) + OOB_TAG_OFF];
  
--	page->dma_addr = dma;
-+	page_pool_set_dma_addr(page, dma);
+ 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_STACK);
  
- 	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
- 		page_pool_dma_sync_for_device(pool, page, pool->p.max_len);
-@@ -331,13 +333,13 @@ void page_pool_release_page(struct page_
- 		 */
- 		goto skip_dma_unmap;
+@@ -715,7 +728,9 @@ static void kasan_alloca_oob_left(struct
+ {
+ 	volatile int i = 10;
+ 	char alloca_array[i];
+-	char *p = alloca_array - 1;
++	/* See comment in kasan_global_oob. */
++	char *volatile array = alloca_array;
++	char *p = array - 1;
  
--	dma = page->dma_addr;
-+	dma = page_pool_get_dma_addr(page);
+ 	/* Only generic mode instruments dynamic allocas. */
+ 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
+@@ -728,7 +743,9 @@ static void kasan_alloca_oob_right(struc
+ {
+ 	volatile int i = 10;
+ 	char alloca_array[i];
+-	char *p = alloca_array + i;
++	/* See comment in kasan_global_oob. */
++	char *volatile array = alloca_array;
++	char *p = array + i;
  
--	/* When page is unmapped, it cannot be returned our pool */
-+	/* When page is unmapped, it cannot be returned to our pool */
- 	dma_unmap_page_attrs(pool->p.dev, dma,
- 			     PAGE_SIZE << pool->p.order, pool->p.dma_dir,
- 			     DMA_ATTR_SKIP_CPU_SYNC);
--	page->dma_addr = 0;
-+	page_pool_set_dma_addr(page, 0);
- skip_dma_unmap:
- 	/* This may be the last page returned, releasing the pool, so
- 	 * it is not safe to reference pool afterwards.
+ 	/* Only generic mode instruments dynamic allocas. */
+ 	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
 _
 
-Patches currently in -mm which might be from willy@infradead.org are
+Patches currently in -mm which might be from pcc@google.com are
 
-mm-fix-struct-page-layout-on-32-bit-systems.patch
-mm-make-__dump_page-static.patch
-mm-debug-factor-pagepoisoned-out-of-__dump_page.patch
-mm-page_owner-constify-dump_page_owner.patch
-mm-make-compound_head-const-preserving.patch
-mm-constify-get_pfnblock_flags_mask-and-get_pfnblock_migratetype.patch
-mm-constify-page_count-and-page_ref_count.patch
-mm-optimise-nth_page-for-contiguous-memmap.patch
+kasan-fix-unit-tests-with-config_ubsan_local_bounds-enabled.patch
+mm-improve-mprotectrw-efficiency-on-pages-referenced-once.patch
 
