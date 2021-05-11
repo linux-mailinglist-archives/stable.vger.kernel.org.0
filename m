@@ -2,236 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A88A9379DF9
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 05:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6266F379DFA
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 05:55:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229900AbhEKDz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 May 2021 23:55:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47006 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229465AbhEKDz6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 23:55:58 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2CE0C061574
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 20:54:51 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id t2-20020a17090ae502b029015b0fbfbc50so352073pjy.3
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 20:54:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=NCKPtGiBobiVk31EqthggvpQB5APwMLsnAjPe2mqULY=;
-        b=CXtWu617t2TVRMws2cNtPp64VmtcZnVaAYKsjE31K+uwNsfYLMkpKf6RlX1a5SqmMN
-         lsD9fhYtvWRLIJmGoZpLF4DqqqcxNla/AkwtCV9HWT7vAzCNf/yoOb6CB04fGJR82lB3
-         RBqWpjSa7YKLxPKfyxglDuYw/QVGo7v+bnDNkZ4Gv6GvKOaI+xoSi7onUic73feyp0oW
-         NqeVLHUtFL28O3d912S6qVavlCR6z8EhyUc652Vu8/fFbwcQwtZByUlkjDJGEtlAbR+Q
-         /CZGW9OS+IaBYg0LvjQSDxpCc3G0RoQklOuvpsOtVzpJTtypqXPWDVaAoQA1CIiz6QYy
-         DPXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=NCKPtGiBobiVk31EqthggvpQB5APwMLsnAjPe2mqULY=;
-        b=ga3LiCUD3pvU0+RG9QmEdYPm0MZP5SWRrAI8zxcVF6kQy7XJf4cYSncVfSOfgYRJK9
-         CN0MOGIe8Q5CcYEtbBCZT0RQeUeJ7Vt0Ka0INnmebBG3czCoJyk5hQ4OYQUxn8RReOf3
-         mMjUbbwNTfvBWCME/OuyLL6NXoZNCCULTUTTgknT/CILDIvpfp5US9EyfrdNT8z8rquv
-         zxJMgxU56T/DIYn3r/8F4pv9ctNVDbLFcA9HzjH48y64EHb8iqsaYajwKpdFuLbUFoBO
-         eiFWiYqIobLRzVz8o+jfWWp9DbOGpVKG+qhndAE3WaklElCUiEeCZoHVQJJiWs3zq4Js
-         xITQ==
-X-Gm-Message-State: AOAM533yG0mv1T2NiVwFvDz6JMlfhZAl/MRTom/n/dVhJyMDOa517xpN
-        KJq1HZ7KTuSNa7yi1E9mYuYNntS7MCy/CCna
-X-Google-Smtp-Source: ABdhPJxWtY4HbX36FJPGfpRjYcMWG9lLRD0uy+2d6cL1ascj0cSYZhsvkdpOUtbuDXDN6QuoIbdekw==
-X-Received: by 2002:a17:902:e891:b029:ee:fa93:9546 with SMTP id w17-20020a170902e891b02900eefa939546mr27691682plg.23.1620705291042;
-        Mon, 10 May 2021 20:54:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g6sm12515592pfr.213.2021.05.10.20.54.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 20:54:50 -0700 (PDT)
-Message-ID: <609a000a.1c69fb81.6c420.62a6@mx.google.com>
-Date:   Mon, 10 May 2021 20:54:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229920AbhEKD47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 May 2021 23:56:59 -0400
+Received: from szxga08-in.huawei.com ([45.249.212.255]:2297 "EHLO
+        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229465AbhEKD46 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 May 2021 23:56:58 -0400
+Received: from dggeml716-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4FfP9j3K2pz19NW8;
+        Tue, 11 May 2021 11:51:37 +0800 (CST)
+Received: from dggpemm500009.china.huawei.com (7.185.36.225) by
+ dggeml716-chm.china.huawei.com (10.3.17.127) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Tue, 11 May 2021 11:55:50 +0800
+Received: from [10.174.179.24] (10.174.179.24) by
+ dggpemm500009.china.huawei.com (7.185.36.225) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Tue, 11 May 2021 11:55:50 +0800
+Subject: Re: [PATCH 5.10 105/299] crypto: stm32/cryp - Fix PM reference leak
+ on stm32-cryp.c
+To:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <20210510102004.821838356@linuxfoundation.org>
+ <20210510102008.407819731@linuxfoundation.org>
+ <20210510120742.GC3547@duo.ucw.cz>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+From:   Liu Shixin <liushixin2@huawei.com>
+Message-ID: <d01d5e9e-45c7-52e7-ef56-0350ff7a618e@huawei.com>
+Date:   Tue, 11 May 2021 11:55:48 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101
+ Thunderbird/45.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.190-119-g5602d5adbd0a8
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 136 runs,
- 4 regressions (v4.19.190-119-g5602d5adbd0a8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20210510120742.GC3547@duo.ucw.cz>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.179.24]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpemm500009.china.huawei.com (7.185.36.225)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 136 runs, 4 regressions (v4.19.190-119-g5602=
-d5adbd0a8)
+On 2021/5/10 20:07, Pavel Machek wrote:
+> On Mon 2021-05-10 12:18:22, Greg Kroah-Hartman wrote:
+>> From: Shixin Liu <liushixin2@huawei.com>
+>>
+>> [ Upstream commit 747bf30fd944f02f341b5f3bc7d97a13f2ae2fbe ]
+>>
+>> pm_runtime_get_sync will increment pm usage counter even it failed.
+>> Forgetting to putting operation will result in reference leak here.
+>> Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+>> counter balanced.
+> Yes, but that only works when code checks the return value.
+Thank you for the correction. Yes, You are right that if we carry out runtime resume
+failed on the path where the return value is not checked, the pm usage counter will
+be put in later path.
 
-Regressions Summary
--------------------
+But I have another question. Why don't we check the return values in these path?
+Does that mean these resumes will never fail?
+>> +++ b/drivers/crypto/stm32/stm32-cryp.c
+>> @@ -542,7 +542,7 @@ static int stm32_cryp_hw_init(struct stm32_cryp *cryp)
+>>  	int ret;
+>>  	u32 cfg, hw_mode;
+>>  
+>> -	pm_runtime_get_sync(cryp->dev);
+>> +	pm_runtime_resume_and_get(cryp->dev);
+>>  
+>>  	/* Disable interrupt */
+>>  	stm32_cryp_write(cryp, CRYP_IMSCR, 0);
+> Again, this is wrong.
+>
+>> @@ -2043,7 +2043,7 @@ static int stm32_cryp_remove(struct platform_device *pdev)
+>>  	if (!cryp)
+>>  		return -ENODEV;
+>>  
+>> -	ret = pm_runtime_get_sync(cryp->dev);
+>> +	ret = pm_runtime_resume_and_get(cryp->dev);
+>>  	if (ret < 0)
+>>  		return ret;
+>>  
+> But this may be right.
+>
+> Best regards,
+> 								Pavel
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.190-119-g5602d5adbd0a8/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.190-119-g5602d5adbd0a8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5602d5adbd0a8700d63ab892a06fba68753abc90 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099cada0b6722184f6f5492
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--119-g5602d5adbd0a8/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--119-g5602d5adbd0a8/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099cada0b6722184f6f5=
-493
-        failing since 178 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099cadb0b6722184f6f5496
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--119-g5602d5adbd0a8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--119-g5602d5adbd0a8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099cadb0b6722184f6f5=
-497
-        failing since 178 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099cadd15ca6d63c16f5478
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--119-g5602d5adbd0a8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--119-g5602d5adbd0a8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099cadd15ca6d63c16f5=
-479
-        failing since 178 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6099ca67a2703273af6f5472
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--119-g5602d5adbd0a8/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--119-g5602d5adbd0a8/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6099ca67a2703273af6f5=
-473
-        failing since 178 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
