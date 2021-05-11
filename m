@@ -2,121 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3294379F9C
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 08:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AB3B37A0CB
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 09:26:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230247AbhEKGSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 02:18:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50316 "EHLO
+        id S230375AbhEKH1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 03:27:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229957AbhEKGSk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 02:18:40 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15CE9C06175F
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 23:17:35 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id s22so15019743pgk.6
-        for <stable@vger.kernel.org>; Mon, 10 May 2021 23:17:35 -0700 (PDT)
+        with ESMTP id S229637AbhEKH1v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 03:27:51 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50481C061574
+        for <stable@vger.kernel.org>; Tue, 11 May 2021 00:26:45 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id t4so28343937ejo.0
+        for <stable@vger.kernel.org>; Tue, 11 May 2021 00:26:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=AOOECJmoTbTt+X+zG3enL4M4MkOVVAHjD7IsOUOhMHw=;
-        b=SVxhIJVYyPsi0WU477NLuHvTkRc2820o9pPtL1XxAeaNeVGTp7MpuXxj3wEUSwrbai
-         M0QP2D32BezQok8Wh2Y3jyj1r7++arYeYd0HSSlPluD7UUixDyARN7WwDNBvOjnIKHyg
-         LS5zKannPRJ9tR4Rjsdn/niwTOEbJl+/lQWsknadGb8lTVPjK4Ohjn0+cXXEnsk4JjHU
-         kRdkWytM7tQcstfoo/CxO4PVsQpGECKKiYgdWrjipxdRiUc0SbTKUUAKUvHvGEcTbmeE
-         a+5K2qykZtgGaR4HeNY/80TA+xIFl7hm48VRF/moIJZdtLhz6BpLCOEr1CkMu5nmSOvm
-         Fhpw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=yQUbhz7/E0lEtqCvmWvWa4PResjc+TajMFwGZfaN1M0=;
+        b=ZhNP9Zja5NU6NpiGCaZ50LvYsMQt1kCvPFezLCYyFPH/gNyWaNX1r9v88P8G0hNyU/
+         arjjOWQmAJLpxx7MI/JxoL67XzvmC3o9hi7ALxOLSVZ6rMWKtUnLI+jncozRRXS5iek1
+         /7AG4Fngpq1zcr23d0Lxo7CHnA4K/WYVFf/OuPL907PippiP/GBPeLnqsNn/CnBCskh3
+         WyY1vvsFcc2dGukV1v++f7cwmdlv+lzE9a0iF4M7O8Zd/6ILn7KpfTobMe3KKuI2MTZp
+         nU9u52v+fsd93pkKCBsHIxn0WXPYJvFcqdE2IrqFAf3TZ+2uMjd9UrQbz2no3yubUTP1
+         ysTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=AOOECJmoTbTt+X+zG3enL4M4MkOVVAHjD7IsOUOhMHw=;
-        b=UqOK2TbE7g6dEv3zm9JhmI53Sc99og3s8AU5Ud81lxwj4AatjGcb67/gp4WdGbgXtz
-         U5zPv7uYWT94mJk9QRp4R+/rKCm1PWkO+Myr6/+byMgCGBZUKuNovb0VjnrWqLmtPTqP
-         AdpZY3VCP6LTnivp20gEVjFhuzIXLEp9B4emmxfNZNu27QimftT9CF58mAr1kGwS902w
-         bzrLVWsxF58MRsWbscbxxwlGZX5b5QSJeP+f+kXC2gR5NdiTwYonYBHcR37WDZNPwZSU
-         Qu9fNmK5uv9mavsxvMBMvyM4sP8MoskbESNeQl9RK8fce0Bq2mhDasKo696e11jXB6OM
-         aftg==
-X-Gm-Message-State: AOAM533kAlziGAKwYNRv5OTkU9bCu1su5vwxupXhzEX5MpvuU/K31St1
-        EPSl8gpJZN6EQ1IFHIRp7a/Q
-X-Google-Smtp-Source: ABdhPJzt8ycvexQ4T785y94gGLJhJRVCmx1vV+uaIyAW/gudp8rofaxMrPx1rthg/Ri1wzCgZFebXA==
-X-Received: by 2002:a63:4f50:: with SMTP id p16mr28879873pgl.40.1620713854429;
-        Mon, 10 May 2021 23:17:34 -0700 (PDT)
-Received: from thinkpad ([2409:4072:719:5450:3d7b:2d59:40f7:9f7a])
-        by smtp.gmail.com with ESMTPSA id u1sm12770129pgh.80.2021.05.10.23.17.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 May 2021 23:17:33 -0700 (PDT)
-Date:   Tue, 11 May 2021 11:47:28 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Pavel Machek <pavel@denx.de>, bbhatt@codeaurora.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Hemant Kumar <hemantk@codeaurora.org>
-Subject: Re: [PATCH 5.10 002/299] bus: mhi: core: Clear configuration from
- channel context during reset
-Message-ID: <20210511061623.GA8651@thinkpad>
-References: <20210510102004.821838356@linuxfoundation.org>
- <20210510102004.900838842@linuxfoundation.org>
- <20210510205650.GA17966@amd>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=yQUbhz7/E0lEtqCvmWvWa4PResjc+TajMFwGZfaN1M0=;
+        b=rf/DpStqKNYEVIP1utPJQXNnbcvvX/xrC598Z2kTRL9BBVMC94BGKLzaKnnIz+8HES
+         SWMon6hhz+gLs77yedHw0V41m9ZB+U3VVB+O7TsW403pff39TOrXetH3xslcUg6ZEoRt
+         2yMWgtO0pmNqy8uyotwCAFNCbpF7pJgfsfbBGa5hj2lzAjVXJuaxxPcTaCXAwTUXEddQ
+         LLCXzKZRTS9XDfsV388bBIQ+rSApDBKzJmDzkaphRe2l88qMMxA1wGbImW7QxHzOJ/lU
+         Mkd+WqxdwzVVE2O8z3z2cVYaNN9sw3sK/F3d1b07HFezzeky74t2+/DPlX+ZybyXjBpO
+         43aw==
+X-Gm-Message-State: AOAM530f90WI0tCnQOhLoC8fsSDX+qALlKmV2/elh+uPmxhFe1QT1uD0
+        zTmSw8huxDDnv8/B65Grig97B3RGVTltDhNO3G6EdA==
+X-Google-Smtp-Source: ABdhPJwbsaDcTM51zcSzyqxeFri7oUU6LjsfE6BfGESLkYeAgVA+O68N5hKg71kj2kWczEJ5QmAb227UflYnYsmSv9Y=
+X-Received: by 2002:a17:906:11d4:: with SMTP id o20mr30114432eja.247.1620718003845;
+ Tue, 11 May 2021 00:26:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210510205650.GA17966@amd>
+References: <20210510102004.821838356@linuxfoundation.org>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 11 May 2021 12:56:31 +0530
+Message-ID: <CA+G9fYtPHaM5Dsdfh8ci8-+bL4YwdbW2SJ72D4t727qOOpV4XA@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/299] 5.10.36-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Pavel,
+On Mon, 10 May 2021 at 16:01, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.36 release.
+> There are 299 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 12 May 2021 10:19:23 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.36-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On Mon, May 10, 2021 at 10:56:50PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Bhaumik Bhatt <bbhatt@codeaurora.org>
-> > 
-> > commit 47705c08465931923e2f2b506986ca0bdf80380d upstream.
-> > 
-> > When clearing up the channel context after client drivers are
-> > done using channels, the configuration is currently not being
-> > reset entirely. Ensure this is done to appropriately handle
-> > issues where clients unaware of the context state end up calling
-> > functions which expect a context.
-> 
-> > +++ b/drivers/bus/mhi/core/init.c
-> > @@ -544,6 +544,7 @@ void mhi_deinit_chan_ctxt(struct mhi_con
-> > +	u32 tmp;
-> > @@ -554,7 +555,19 @@ void mhi_deinit_chan_ctxt(struct mhi_con
-> ...
-> > +	tmp = chan_ctxt->chcfg;
-> > +	tmp &= ~CHAN_CTX_CHSTATE_MASK;
-> > +	tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
-> > +	chan_ctxt->chcfg = tmp;
-> > +
-> > +	/* Update to all cores */
-> > +	smp_wmb();
-> >  }
-> 
-> This is really interesting code; author was careful to make sure chcfg
-> is updated atomically, but C compiler is free to undo that. Plus, this
-> will make all kinds of checkers angry.
-> 
-> Does the file need to use READ_ONCE and WRITE_ONCE?
-> 
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Thanks for looking into this.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I agree that the order could be mangled between chcfg read & write and
-using READ_ONCE & WRITE_ONCE seems to be a good option.
+## Build
+* kernel: 5.10.36-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.10.y
+* git commit: 4edc8f7e8676bbfdec9d67dc6b90ec72fd3bacaa
+* git describe: v5.10.35-300-g4edc8f7e8676
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.35-300-g4edc8f7e8676
 
-Bhaumik, can you please submit a patch and tag stable?
+## No regressions (compared to v5.10.35-221-gbb0eba64e018)
 
-Thanks,
-Mani
+## No fixes (compared to v5.10.35-221-gbb0eba64e018)
 
-> Best regards,
-> 								Pavel
-> -- 
-> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+## Test result summary
+ total: 78630, pass: 64381, fail: 2948, skip: 11032, xfail: 269,
 
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 26 total, 26 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
 
+## Test suites summary
+* fwts
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
