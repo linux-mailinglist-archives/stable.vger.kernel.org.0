@@ -2,104 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D60C37A412
-	for <lists+stable@lfdr.de>; Tue, 11 May 2021 11:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5803A37A498
+	for <lists+stable@lfdr.de>; Tue, 11 May 2021 12:29:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbhEKJzM convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 11 May 2021 05:55:12 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:5099 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231189AbhEKJzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 05:55:11 -0400
-Received: from dggeml713-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FfY912jvlzYgPT;
-        Tue, 11 May 2021 17:51:33 +0800 (CST)
-Received: from dggpemm100008.china.huawei.com (7.185.36.125) by
- dggeml713-chm.china.huawei.com (10.3.17.124) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Tue, 11 May 2021 17:54:00 +0800
-Received: from dggpeml500016.china.huawei.com (7.185.36.70) by
- dggpemm100008.china.huawei.com (7.185.36.125) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Tue, 11 May 2021 17:54:00 +0800
-Received: from dggpeml500016.china.huawei.com ([7.185.36.70]) by
- dggpeml500016.china.huawei.com ([7.185.36.70]) with mapi id 15.01.2176.012;
- Tue, 11 May 2021 17:54:00 +0800
-From:   "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
-        <longpeng2@huawei.com>
-To:     "Gonglei (Arei)" <arei.gonglei@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "Jason Wang" <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v3 0/3] crypto: virtio: Fix three  issues                   
-Thread-Topic: [PATCH v3 0/3] crypto: virtio: Fix three  issues                   
-Thread-Index: AQHXRkk0w4OU06xmfEyPSVletHG+xareB7SA
-Date:   Tue, 11 May 2021 09:54:00 +0000
-Message-ID: <4bd6e679041046a58d18e84f0ce33d26@huawei.com>
-References: <20210511093654.596-1-longpeng2@huawei.com>
-In-Reply-To: <20210511093654.596-1-longpeng2@huawei.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.174.148.223]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S230481AbhEKKaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 06:30:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50704 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229935AbhEKKaI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 06:30:08 -0400
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F82C061574;
+        Tue, 11 May 2021 03:29:02 -0700 (PDT)
+Received: by mail-ot1-x331.google.com with SMTP id q7-20020a9d57870000b02902a5c2bd8c17so17081940oth.5;
+        Tue, 11 May 2021 03:29:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zQB0PqP12TFHAd0NTVcth9DgppuMURJYYCn1jtkYIJ8=;
+        b=NHjn3pGyGWaimt9x9gYKbRfEtgKJWgkBh17mD8PILXdnCpWzdRkqoZDl+ncj/G8tzr
+         HA4NbjE9UJuDWBFL+gf5KrCP/3ZlWJjZD5+ElfgS1l6ElA5p5AWl7hsSXDibAXUXaJCB
+         cV4LHTvY/gAlIZXkYtNoIi/PxCx70vnfKgEgGgEblmz0lmpWZHh/Xal0Vy3kYivOeHzh
+         cXXzrz0cd8YxnXEbcklLpiiygCHz1+fnNJg9aOuT2D8iTWWDDriYmSdsWMCx6TcyuBze
+         0+eiXgcw+QQGA3TrcWKvYGV/mDIierY8A8diPYoSf2Tgknssn5v/Y47GCyw5UXsaKwDJ
+         9YqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zQB0PqP12TFHAd0NTVcth9DgppuMURJYYCn1jtkYIJ8=;
+        b=Z6sVBeLA2DMC8w3iDuG10vr8DCdo1EV1cvg8A2r2RX8oSAgC2tpjErYmXlCfZiiuXr
+         vhBmLGX185R8HBjD+6AKQEcRwcLCdMkH0TAHI1ZXeSAN86ngJmG6H56lmXE226BxeBcD
+         FwmuZU+nrEVE6Phf1JmV1FdEXYhBSkS/FGzX8rUDB9G+AO1r3NGgMoLQkoQLLdEpK9sv
+         4TqoXQxtcBcfZqkEAUUYIOhr2stILYpg+Bta5W6V057ber613PQysUNXxil3QMHkGJ0s
+         U0qkrnGfNTiIdarh+yRnKnVoOHxezpf7VkPcd7N85VAP9Ap1oCKLqagFYsN1ORLTPMId
+         ydPQ==
+X-Gm-Message-State: AOAM532kpDPxbDiA7dJjTa+y743RK+Td49VETe/Y+JjnijdLYNMVDaLe
+        vsDCdiX4eBXUdSqBEiUrSofx3Mf2LHUTe0B1xgU=
+X-Google-Smtp-Source: ABdhPJwDiPFrAqSihqHv5/98X7pipyq2E0feML6An2J40zbxI50aiU+jKseH8mNVFGtmOPyR2IPZ9Mna0dKw4gSommY=
+X-Received: by 2002:a9d:7a88:: with SMTP id l8mr17468192otn.185.1620728942017;
+ Tue, 11 May 2021 03:29:02 -0700 (PDT)
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+References: <1620466310-8428-1-git-send-email-wanpengli@tencent.com>
+ <1620466310-8428-3-git-send-email-wanpengli@tencent.com> <YJnNPpalqYwERwEL@google.com>
+In-Reply-To: <YJnNPpalqYwERwEL@google.com>
+From:   Wanpeng Li <kernellwp@gmail.com>
+Date:   Tue, 11 May 2021 18:28:51 +0800
+Message-ID: <CANRm+Cy55bgvETx2gdVEFnaciEvi=1p-uUWojZdsn2_2X1AWUQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3] KVM: X86: Fix vCPU preempted state from guest point
+ of view
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        "# v3 . 10+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-misoperation, sorry for that, please ignore.
+On Tue, 11 May 2021 at 08:18, Sean Christopherson <seanjc@google.com> wrote:
+>
+> On Sat, May 08, 2021, Wanpeng Li wrote:
+> > From: Wanpeng Li <wanpengli@tencent.com>
+> >
+> > Commit 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's
+> > CPUID) avoids to access pv tlb shootdown host side logic when this pv feature
+> > is not exposed to guest, however, kvm_steal_time.preempted not only leveraged
+> > by pv tlb shootdown logic but also mitigate the lock holder preemption issue.
+> > From guest point of view, vCPU is always preempted since we lose the reset of
+> > kvm_steal_time.preempted before vmentry if pv tlb shootdown feature is not
+> > exposed. This patch fixes it by clearing kvm_steal_time.preempted before
+> > vmentry.
+> >
+> > Fixes: 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's CPUID)
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+> > ---
+> >  arch/x86/kvm/x86.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> > index c0244a6..c38e990 100644
+> > --- a/arch/x86/kvm/x86.c
+> > +++ b/arch/x86/kvm/x86.c
+> > @@ -3105,7 +3105,8 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
+> >                                      st->preempted & KVM_VCPU_FLUSH_TLB);
+> >               if (xchg(&st->preempted, 0) & KVM_VCPU_FLUSH_TLB)
+> >                       kvm_vcpu_flush_tlb_guest(vcpu);
+> > -     }
+> > +     } else
+> > +             st->preempted = 0;
+>
+> Curly braces needed since the if-statment needs 'em.  Other than that,
 
-> -----Original Message-----
-> From: Longpeng (Mike, Cloud Infrastructure Service Product Dept.)
-> Sent: Tuesday, May 11, 2021 5:37 PM
-> To: Longpeng (Mike, Cloud Infrastructure Service Product Dept.)
-> <longpeng2@huawei.com>
-> Cc: Gonglei (Arei) <arei.gonglei@huawei.com>; Herbert Xu
-> <herbert@gondor.apana.org.au>; Michael S. Tsirkin <mst@redhat.com>; Jason
-> Wang <jasowang@redhat.com>; David S. Miller <davem@davemloft.net>;
-> virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org;
-> stable@vger.kernel.org
-> Subject: [PATCH v3 0/3] crypto: virtio: Fix three issues
-> 
-> Patch 1 & 2: fix two crash issues, Link: https://lkml.org/lkml/2020/1/23/205
-> Patch 3: fix another functional issue
-> 
-> Changes since v2:
->  - put another bugfix together
-> 
-> Changes since v1:
->  - remove some redundant checks [Jason]
->  - normalize the commit message [Markus]
-> 
-> Cc: Gonglei <arei.gonglei@huawei.com>
-> Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> 
-> Longpeng(Mike) (3):
->   crypto: virtio: Fix src/dst scatterlist calculation in
->     __virtio_crypto_skcipher_do_req()
->   crypto: virtio: Fix use-after-free in
->     virtio_crypto_skcipher_finalize_req()
->   crypto: virtio: Fix dest length calculation in
->     __virtio_crypto_skcipher_do_req()
-> 
->  drivers/crypto/virtio/virtio_crypto_algs.c | 21 ++++++++++++++-------
->  1 file changed, 14 insertions(+), 7 deletions(-)
-> 
-> --
-> 1.8.3.1
+Will send out a new version after 1-2 get reviewed. :)
 
+>
+> Reviewed-by: Sean Christopherson <seanjc@google.com>
+>
+> >
+> >       vcpu->arch.st.preempted = 0;
+> >
+> > --
+> > 2.7.4
+> >
