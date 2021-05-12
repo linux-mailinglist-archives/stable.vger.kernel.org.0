@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1263537C480
+	by mail.lfdr.de (Postfix) with ESMTP id 5A95C37C481
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233748AbhELPb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:31:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
+        id S233758AbhELPb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:31:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235297AbhELP13 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:27:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFC1A61432;
-        Wed, 12 May 2021 15:12:21 +0000 (UTC)
+        id S235299AbhELP1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:27:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2995B61AC0;
+        Wed, 12 May 2021 15:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832342;
-        bh=TffKJI8KAmcyDmLPVib2/8wDzsgHdlux5bMi96Gdqn8=;
+        s=korg; t=1620832344;
+        bh=bME7cUGweBvzQ7c7y/JPK8QS7iBPZOIG/OEuLVjhu40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZZW50Dpz7Mgi2AX8pjHoEAqH7c17yX4qMq3cIhgu2Na5vw2HRsZp02lWf07e6Bih
-         i2fkBtKRFhMK0GyXjb+MPksJHGpmWBZkbGa7UJA/W0b4pdnaU5SlPRUjEv40GLFBVO
-         j7VGOS9zIONSXJa6UL5lE77TIsvF+eQgIbIcanbs=
+        b=DCUKfqwyIHNcXzoO/HdXNxB0pSTHpOS5Onh8YzN64+GwRcO+fcVV5FUsUkPOOzQjF
+         wCPusjHIhxQWFeCs5dfujr1J74WslT4iZLc2dWm7ETMEwnZt2OKTavrpgAd+26WbFj
+         6xUM7ghtczmi/iVYNOcAkPNse+nx7ZGeAmWkjEJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Quanyang Wang <quanyang.wang@windriver.com>,
-        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Li <wangli74@huawei.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 240/530] spi: spi-zynqmp-gqspi: fix incorrect operating mode in zynqmp_qspi_read_op
-Date:   Wed, 12 May 2021 16:45:50 +0200
-Message-Id: <20210512144827.729399031@linuxfoundation.org>
+Subject: [PATCH 5.10 241/530] spi: fsl-lpspi: Fix PM reference leak in lpspi_prepare_xfer_hardware()
+Date:   Wed, 12 May 2021 16:45:51 +0200
+Message-Id: <20210512144827.761097770@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,45 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Wang Li <wangli74@huawei.com>
 
-[ Upstream commit 41d310930084502433fcb3c4baf219e7424b7734 ]
+[ Upstream commit a03675497970a93fcf25d81d9d92a59c2d7377a7 ]
 
-When starting a read operation, we should call zynqmp_qspi_setuprxdma
-first to set xqspi->mode according to xqspi->bytes_to_receive and
-to calculate correct xqspi->dma_rx_bytes. Then in the function
-zynqmp_qspi_fillgenfifo, generate the appropriate command with
-operating mode and bytes to transfer, and fill the GENFIFO with
-the command to perform the read operation.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-Calling zynqmp_qspi_fillgenfifo before zynqmp_qspi_setuprxdma will
-result in incorrect transfer length and operating mode. So change
-the calling order to fix this issue.
-
-Fixes: 1c26372e5aa9 ("spi: spi-zynqmp-gqspi: Update driver to use spi-mem framework")
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Reviewed-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
-Link: https://lore.kernel.org/r/20210408040223.23134-5-quanyang.wang@windriver.com
+Fixes: 944c01a889d9 ("spi: lpspi: enable runtime pm for lpspi")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Li <wangli74@huawei.com>
+Link: https://lore.kernel.org/r/20210409095430.29868-1-wangli74@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 2 +-
+ drivers/spi/spi-fsl-lpspi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index cf73a069b759..036d8ae41c06 100644
---- a/drivers/spi/spi-zynqmp-gqspi.c
-+++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -827,8 +827,8 @@ static void zynqmp_qspi_write_op(struct zynqmp_qspi *xqspi, u8 tx_nbits,
- static void zynqmp_qspi_read_op(struct zynqmp_qspi *xqspi, u8 rx_nbits,
- 				u32 genfifoentry)
- {
--	zynqmp_qspi_fillgenfifo(xqspi, rx_nbits, genfifoentry);
- 	zynqmp_qspi_setuprxdma(xqspi);
-+	zynqmp_qspi_fillgenfifo(xqspi, rx_nbits, genfifoentry);
- }
+diff --git a/drivers/spi/spi-fsl-lpspi.c b/drivers/spi/spi-fsl-lpspi.c
+index a2886ee44e4c..5d98611dd999 100644
+--- a/drivers/spi/spi-fsl-lpspi.c
++++ b/drivers/spi/spi-fsl-lpspi.c
+@@ -200,7 +200,7 @@ static int lpspi_prepare_xfer_hardware(struct spi_controller *controller)
+ 				spi_controller_get_devdata(controller);
+ 	int ret;
  
- /**
+-	ret = pm_runtime_get_sync(fsl_lpspi->dev);
++	ret = pm_runtime_resume_and_get(fsl_lpspi->dev);
+ 	if (ret < 0) {
+ 		dev_err(fsl_lpspi->dev, "failed to enable clock\n");
+ 		return ret;
 -- 
 2.30.2
 
