@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9862537B726
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 09:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 150D637B72A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 09:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230305AbhELH4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 03:56:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57770 "EHLO
+        id S230323AbhELH4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 03:56:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230280AbhELH4U (ORCPT
+        with ESMTP id S230272AbhELH4U (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 03:56:20 -0400
 Received: from theia.8bytes.org (8bytes.org [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89473C061574;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A3EDC06175F;
         Wed, 12 May 2021 00:55:12 -0700 (PDT)
 Received: from cap.home.8bytes.org (p549ad305.dip0.t-ipconnect.de [84.154.211.5])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id 7C80E2DA;
-        Wed, 12 May 2021 09:55:08 +0200 (CEST)
+        by theia.8bytes.org (Postfix) with ESMTPSA id 14ABF3E6;
+        Wed, 12 May 2021 09:55:09 +0200 (CEST)
 From:   Joerg Roedel <joro@8bytes.org>
 To:     x86@kernel.org, Hyunwook Baek <baekhw@google.com>
 Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
@@ -41,9 +41,9 @@ Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
         Arvind Sankar <nivedita@alum.mit.edu>,
         linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
-Subject: [PATCH 2/6] x86/sev-es: Forward page-faults which happen during emulation
-Date:   Wed, 12 May 2021 09:54:41 +0200
-Message-Id: <20210512075445.18935-3-joro@8bytes.org>
+Subject: [PATCH 3/6] x86/sev-es: Use __put_user()/__get_user
+Date:   Wed, 12 May 2021 09:54:42 +0200
+Message-Id: <20210512075445.18935-4-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512075445.18935-1-joro@8bytes.org>
 References: <20210512075445.18935-1-joro@8bytes.org>
@@ -55,32 +55,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-When emulating guest instructions for MMIO or IOIO accesses the #VC
-handler might get a page-fault and will not be able to complete. Forward
-the page-fault in this case to the correct handler instead of killing
-the machine.
+The put_user() and get_user() functions do checks on the address which is
+passed to them. They check whether the address is actually a user-space
+address and whether its fine to access it. They also call might_fault()
+to indicate that they could fault and possibly sleep.
 
-Fixes: 0786138c78e7 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+All of these checks are neither wanted nor required in the #VC exception
+handler, which can be invoked from almost any context and also for MMIO
+instructions from kernel space on kernel memory. All the #VC handler
+wants to know is whether a fault happened when the access was tried.
+
+This is provided by __put_user()/__get_user(), which just do the access
+no matter what.
+
+Fixes: f980f9c31a92 ("x86/sev-es: Compile early handler code into kernel image")
 Cc: stable@vger.kernel.org # v5.10+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/sev.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index c49270c7669e..6530a844eb61 100644
+index 6530a844eb61..110b39345b40 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -1265,6 +1265,10 @@ static __always_inline void vc_forward_exception(struct es_em_ctxt *ctxt)
- 	case X86_TRAP_UD:
- 		exc_invalid_op(ctxt->regs);
+@@ -342,22 +342,22 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
+ 	switch (size) {
+ 	case 1:
+ 		memcpy(&d1, buf, 1);
+-		if (put_user(d1, target))
++		if (__put_user(d1, target))
+ 			goto fault;
  		break;
-+	case X86_TRAP_PF:
-+		write_cr2(ctxt->fi.cr2);
-+		exc_page_fault(ctxt->regs, error_code);
-+		break;
- 	case X86_TRAP_AC:
- 		exc_alignment_check(ctxt->regs, error_code);
+ 	case 2:
+ 		memcpy(&d2, buf, 2);
+-		if (put_user(d2, target))
++		if (__put_user(d2, target))
+ 			goto fault;
+ 		break;
+ 	case 4:
+ 		memcpy(&d4, buf, 4);
+-		if (put_user(d4, target))
++		if (__put_user(d4, target))
+ 			goto fault;
+ 		break;
+ 	case 8:
+ 		memcpy(&d8, buf, 8);
+-		if (put_user(d8, target))
++		if (__put_user(d8, target))
+ 			goto fault;
+ 		break;
+ 	default:
+@@ -396,22 +396,22 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+ 
+ 	switch (size) {
+ 	case 1:
+-		if (get_user(d1, s))
++		if (__get_user(d1, s))
+ 			goto fault;
+ 		memcpy(buf, &d1, 1);
+ 		break;
+ 	case 2:
+-		if (get_user(d2, s))
++		if (__get_user(d2, s))
+ 			goto fault;
+ 		memcpy(buf, &d2, 2);
+ 		break;
+ 	case 4:
+-		if (get_user(d4, s))
++		if (__get_user(d4, s))
+ 			goto fault;
+ 		memcpy(buf, &d4, 4);
+ 		break;
+ 	case 8:
+-		if (get_user(d8, s))
++		if (__get_user(d8, s))
+ 			goto fault;
+ 		memcpy(buf, &d8, 8);
  		break;
 -- 
 2.31.1
