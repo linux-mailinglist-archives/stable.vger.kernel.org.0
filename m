@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA8A737CD51
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7962837CDE5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237179AbhELQy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:54:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36542 "EHLO mail.kernel.org"
+        id S234030AbhELQ7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:59:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243753AbhELQmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C9DC6195A;
-        Wed, 12 May 2021 16:06:21 +0000 (UTC)
+        id S243763AbhELQmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B2BB6192B;
+        Wed, 12 May 2021 16:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835582;
-        bh=jJBfcZSMxzOu0I1FuITNhDs/2GeZ66Y0fPfWyvKslnA=;
+        s=korg; t=1620835604;
+        bh=2zWcmAgQ9bjXTUIYZLN/Gfg/0sz4RI2iBgchK/DDHbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V8wcJS9b37JzbDpjStmFPswWA9fx9/1CuuSGCMWXIxiPo0hNQx875AvNH2bplPSCE
-         YGcom5m/dqZZhCXmnTawaVkIcjhk+Sa2FfyysBvZgINyR190x4fxA7wyEUVzOQmVQ3
-         JO73l0NiplXrvdEKWsf0ew4df0hb8I4Fd2j5KmR0=
+        b=FIb/sC18oNyPSUWOcPMrENcW3qTCp3775dkiBgCSNDXviB3r82m41qUyE24UWI4ni
+         /B2kDoTB8KV9TEDRntbpYDPrxT+92piTMWRPWBVMLmCsSYD9wkAvh2vuLnWI2ti5qL
+         tsCVa2KJZ3wBS/zQqKWPTcseerYs/uC+j/KTnNiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 375/677] drm/omap: dsi: Add missing IRQF_ONESHOT
-Date:   Wed, 12 May 2021 16:47:01 +0200
-Message-Id: <20210512144849.791650274@linuxfoundation.org>
+Subject: [PATCH 5.12 376/677] selftests: fix prepending $(OUTPUT) to $(TEST_PROGS)
+Date:   Wed, 12 May 2021 16:47:02 +0200
+Message-Id: <20210512144849.824914080@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,39 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 0cafc8d88e6df446751669ec15adc9b807af4501 ]
+[ Upstream commit cb4969e6f9f5ee12521aec764fa3d4bbd91bc797 ]
 
-fixed the following coccicheck:
-./drivers/gpu/drm/omapdrm/dss/dsi.c:4329:7-27: ERROR: Threaded IRQ with
-no primary handler requested without IRQF_ONESHOT
+Currently the following command produces an error message:
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Fixes: 4c1b935fea54 ("drm/omap: dsi: move TE GPIO handling into core")
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1616492093-68237-1-git-send-email-yang.lee@linux.alibaba.com
+    linux# make kselftest TARGETS=bpf O=/mnt/linux-build
+    # selftests: bpf: test_libbpf.sh
+    # ./test_libbpf.sh: line 23: ./test_libbpf_open: No such file or directory
+    # test_libbpf: failed at file test_l4lb.o
+    # selftests: test_libbpf [FAILED]
+
+The error message might not affect the return code of make, therefore
+one needs to grep make output in order to detect it.
+
+This is not the only instance of the same underlying problem; any test
+with more than one element in $(TEST_PROGS) fails the same way. Another
+example:
+
+    linux# make O=/mnt/linux-build TARGETS=splice kselftest
+    [...]
+    # ./short_splice_read.sh: 15: ./splice_read: not found
+    # FAIL: /sys/module/test_module/sections/.init.text 2
+    not ok 2 selftests: splice: short_splice_read.sh # exit=1
+
+The current logic prepends $(OUTPUT) only to the first member of
+$(TEST_PROGS). After that, run_one() does
+
+   cd `dirname $TEST`
+
+For all tests except the first one, `dirname $TEST` is ., which means
+they cannot access the files generated in $(OUTPUT).
+
+Fix by using $(addprefix) to prepend $(OUTPUT)/ to each member of
+$(TEST_PROGS).
+
+Fixes: 1a940687e424 ("selftests: lib.mk: copy test scripts and test files for make O=dir run")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/dss/dsi.c | 3 ++-
+ tools/testing/selftests/lib.mk | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/dss/dsi.c b/drivers/gpu/drm/omapdrm/dss/dsi.c
-index b31d750c425a..5f1722b040f4 100644
---- a/drivers/gpu/drm/omapdrm/dss/dsi.c
-+++ b/drivers/gpu/drm/omapdrm/dss/dsi.c
-@@ -4327,7 +4327,8 @@ static int omap_dsi_register_te_irq(struct dsi_data *dsi,
- 	irq_set_status_flags(te_irq, IRQ_NOAUTOEN);
- 
- 	err = request_threaded_irq(te_irq, NULL, omap_dsi_te_irq_handler,
--				   IRQF_TRIGGER_RISING, "TE", dsi);
-+				   IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-+				   "TE", dsi);
- 	if (err) {
- 		dev_err(dsi->dev, "request irq failed with %d\n", err);
- 		gpiod_put(dsi->te_gpio);
+diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+index a5ce26d548e4..be17462fe146 100644
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -74,7 +74,8 @@ ifdef building_out_of_srctree
+ 		rsync -aq $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(OUTPUT); \
+ 	fi
+ 	@if [ "X$(TEST_PROGS)" != "X" ]; then \
+-		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(OUTPUT)/$(TEST_PROGS)) ; \
++		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) \
++				  $(addprefix $(OUTPUT)/,$(TEST_PROGS))) ; \
+ 	else \
+ 		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS)); \
+ 	fi
 -- 
 2.30.2
 
