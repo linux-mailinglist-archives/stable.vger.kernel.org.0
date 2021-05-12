@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8901637C9FB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D6837C9BD
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236990AbhELQXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:23:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53912 "EHLO mail.kernel.org"
+        id S236204AbhELQVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:21:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239965AbhELQQj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:16:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 989BE61D61;
-        Wed, 12 May 2021 15:42:57 +0000 (UTC)
+        id S239976AbhELQQk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:16:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FA2061D64;
+        Wed, 12 May 2021 15:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834178;
-        bh=3wKZGAE2na+RHOc7ImlLNBOKC2OrFtGU3peSdJACK80=;
+        s=korg; t=1620834180;
+        bh=dB/NnrlTJp2ohdNhdlVc3Z2YiSmthIDPHKH8GTisx94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aqf0hXovvS7rwVRsVpCNn1OdPLzNvYcw80gn56y3Pa30vbt9JejonNDfwYHPVxCy9
-         ksVb15+eWsP5hw7/wFNhZlGtFIb9Gz3oZ90s9fzoPr7Y74SteuGRAdFzpCmsoHZ1Dx
-         C5GkINvnaB00tXPj+x/aaUhHx4G1BtGNGtigWHQs=
+        b=0TASAYMzyHnLHWHYQjXUfqub4JOa42Sf5AJKkJjNdzlUAGI6TuWeEo8Tb2Lce6owY
+         xcZ8vbvS3StHLVHFuts8fyuzzxJKSaT06Ynapyx5Ht9x91HWcOekyA64qjZSVLc3Ek
+         THQywwKixjCaGObnsKvJqM4BQWi2knRDK4AZEaq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rajesh Sankaran <rajesh.sankaran@intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 438/601] iommu/vt-d: Report right snoop capability when using FL for IOVA
-Date:   Wed, 12 May 2021 16:48:35 +0200
-Message-Id: <20210512144842.266441311@linuxfoundation.org>
+Subject: [PATCH 5.11 439/601] iommu/vt-d: Report the right page fault address
+Date:   Wed, 12 May 2021 16:48:36 +0200
+Message-Id: <20210512144842.298512566@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -45,113 +41,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit 6c00612d0cba10f7d0917cf1f73c945003ed4cd7 ]
+[ Upstream commit 03d205094af45bca4f8e0498c461a893aa3ec6d9 ]
 
-The Intel VT-d driver checks wrong register to report snoop capablility
-when using first level page table for GPA to HPA translation. This might
-lead the IOMMU driver to say that it supports snooping control, but in
-reality, it does not. Fix this by always setting PASID-table-entry.PGSNP
-whenever a pasid entry is setting up for GPA to HPA translation so that
-the IOMMU driver could report snoop capability as long as it runs in the
-scalable mode.
+The Address field of the Page Request Descriptor only keeps bit [63:12]
+of the offending address. Convert it to a full address before reporting
+it to device drivers.
 
-Fixes: b802d070a52a1 ("iommu/vt-d: Use iova over first level")
-Suggested-by: Rajesh Sankaran <rajesh.sankaran@intel.com>
-Suggested-by: Kevin Tian <kevin.tian@intel.com>
-Suggested-by: Ashok Raj <ashok.raj@intel.com>
+Fixes: eb8d93ea3c1d3 ("iommu/vt-d: Report page request faults for guest SVA")
 Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210330021145.13824-1-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20210320025415.641201-2-baolu.lu@linux.intel.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 12 +++++++++++-
- drivers/iommu/intel/pasid.c | 16 ++++++++++++++++
- drivers/iommu/intel/pasid.h |  1 +
- 3 files changed, 28 insertions(+), 1 deletion(-)
+ drivers/iommu/intel/svm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 005daf50107d..026041308409 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -647,7 +647,14 @@ static int domain_update_iommu_snooping(struct intel_iommu *skip)
- 	rcu_read_lock();
- 	for_each_active_iommu(iommu, drhd) {
- 		if (iommu != skip) {
--			if (!ecap_sc_support(iommu->ecap)) {
-+			/*
-+			 * If the hardware is operating in the scalable mode,
-+			 * the snooping control is always supported since we
-+			 * always set PASID-table-entry.PGSNP bit if the domain
-+			 * is managed outside (UNMANAGED).
-+			 */
-+			if (!sm_supported(iommu) &&
-+			    !ecap_sc_support(iommu->ecap)) {
- 				ret = 0;
- 				break;
- 			}
-@@ -2546,6 +2553,9 @@ static int domain_setup_first_level(struct intel_iommu *iommu,
- 
- 	flags |= (level == 5) ? PASID_FLAG_FL5LP : 0;
- 
-+	if (domain->domain.type == IOMMU_DOMAIN_UNMANAGED)
-+		flags |= PASID_FLAG_PAGE_SNOOP;
-+
- 	return intel_pasid_setup_first_level(iommu, dev, (pgd_t *)pgd, pasid,
- 					     domain->iommu_did[iommu->seq_id],
- 					     flags);
-diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index b92af83b79bd..ce4ef2d245e3 100644
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -411,6 +411,16 @@ static inline void pasid_set_page_snoop(struct pasid_entry *pe, bool value)
- 	pasid_set_bits(&pe->val[1], 1 << 23, value << 23);
- }
- 
-+/*
-+ * Setup the Page Snoop (PGSNP) field (Bit 88) of a scalable mode
-+ * PASID entry.
-+ */
-+static inline void
-+pasid_set_pgsnp(struct pasid_entry *pe)
-+{
-+	pasid_set_bits(&pe->val[1], 1ULL << 24, 1ULL << 24);
-+}
-+
- /*
-  * Setup the First Level Page table Pointer field (Bit 140~191)
-  * of a scalable mode PASID entry.
-@@ -579,6 +589,9 @@ int intel_pasid_setup_first_level(struct intel_iommu *iommu,
- 		}
- 	}
- 
-+	if (flags & PASID_FLAG_PAGE_SNOOP)
-+		pasid_set_pgsnp(pte);
-+
- 	pasid_set_domain_id(pte, did);
- 	pasid_set_address_width(pte, iommu->agaw);
- 	pasid_set_page_snoop(pte, !!ecap_smpwc(iommu->ecap));
-@@ -657,6 +670,9 @@ int intel_pasid_setup_second_level(struct intel_iommu *iommu,
- 	pasid_set_fault_enable(pte);
- 	pasid_set_page_snoop(pte, !!ecap_smpwc(iommu->ecap));
- 
-+	if (domain->domain.type == IOMMU_DOMAIN_UNMANAGED)
-+		pasid_set_pgsnp(pte);
-+
- 	/*
- 	 * Since it is a second level only translation setup, we should
- 	 * set SRE bit as well (addresses are expected to be GPAs).
-diff --git a/drivers/iommu/intel/pasid.h b/drivers/iommu/intel/pasid.h
-index 444c0bec221a..086ebd697319 100644
---- a/drivers/iommu/intel/pasid.h
-+++ b/drivers/iommu/intel/pasid.h
-@@ -48,6 +48,7 @@
-  */
- #define PASID_FLAG_SUPERVISOR_MODE	BIT(0)
- #define PASID_FLAG_NESTED		BIT(1)
-+#define PASID_FLAG_PAGE_SNOOP		BIT(2)
- 
- /*
-  * The PASID_FLAG_FL5LP flag Indicates using 5-level paging for first-
+diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
+index ac86509a0a73..4260bb089b2c 100644
+--- a/drivers/iommu/intel/svm.c
++++ b/drivers/iommu/intel/svm.c
+@@ -899,7 +899,7 @@ intel_svm_prq_report(struct device *dev, struct page_req_dsc *desc)
+ 	/* Fill in event data for device specific processing */
+ 	memset(&event, 0, sizeof(struct iommu_fault_event));
+ 	event.fault.type = IOMMU_FAULT_PAGE_REQ;
+-	event.fault.prm.addr = desc->addr;
++	event.fault.prm.addr = (u64)desc->addr << VTD_PAGE_SHIFT;
+ 	event.fault.prm.pasid = desc->pasid;
+ 	event.fault.prm.grpid = desc->prg_index;
+ 	event.fault.prm.perm = prq_to_iommu_prot(desc);
 -- 
 2.30.2
 
