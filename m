@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D752437CCC0
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 348DE37CCC1
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233873AbhELQrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:47:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
+        id S235309AbhELQrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:47:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243484AbhELQlS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:41:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B5EF61954;
-        Wed, 12 May 2021 16:04:27 +0000 (UTC)
+        id S243502AbhELQlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:41:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAF3161C47;
+        Wed, 12 May 2021 16:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835468;
-        bh=3fP+vBQIPJ60+SOvxG67l1Ouj6EAL//zbQx0rbQpVEU=;
+        s=korg; t=1620835470;
+        bh=xbT2XW6PjQa5RHI8VVnGO+ghPxl1pI3m+7GNfWb011w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2qpoFQ1XjruHuhA7kyKrB4LB6ugfljvEiQNribTiGT6OQN4akyIA7jbTu0Cnv3iW
-         LVhtpsNJVMRuwd8GPl2rDRMfxvDgGaK0gjmR6YM/Er0a7JxQj0d1Q0WELjBGhkLAl0
-         U38kp18k3UGV4yai/n+03sMDv1hIEsOKQX45EA7g=
+        b=fheViBufTZe2XQT2duWjilMpyKzONj0YSeGmGEiaBAsba9UVGRVAMuMjR0Usej5/V
+         sbgl4ehy2QhgkK5vqPFmHkLoJ8nVIWkuPTm3sxlL1CpVnglAn47R3/aU66YTONn+wx
+         gCd7+z51yxk0SEL7UrZzDocZ5JUzcav57su9ZIwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Eddie James <eajames@linux.ibm.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 356/677] media: aspeed: fix clock handling logic
-Date:   Wed, 12 May 2021 16:46:42 +0200
-Message-Id: <20210512144849.146481175@linuxfoundation.org>
+Subject: [PATCH 5.12 357/677] drm/panel-simple: Undo enable if HPD never asserts
+Date:   Wed, 12 May 2021 16:46:43 +0200
+Message-Id: <20210512144849.185582802@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -45,109 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 3536169f8531c2c5b153921dc7d1ac9fd570cda7 ]
+[ Upstream commit 5e7222a3674ea7422370779884dd53aabe9e4a9d ]
 
-Video engine uses eclk and vclk for its clock sources and its reset
-control is coupled with eclk so the current clock enabling sequence works
-like below.
+If the HPD signal never asserts in panel_simple_prepare() and we
+return an error, we should unset the enable GPIO and disable the
+regulator to make it consistent for the caller.
 
- Enable eclk
- De-assert Video Engine reset
- 10ms delay
- Enable vclk
+At the moment I have some hardware where HPD sometimes doesn't assert.
+Obviously that needs to be debugged, but this patch makes it so that
+if I add a retry that I can make things work.
 
-It introduces improper reset on the Video Engine hardware and eventually
-the hardware generates unexpected DMA memory transfers that can corrupt
-memory region in random and sporadic patterns. This issue is observed
-very rarely on some specific AST2500 SoCs but it causes a critical
-kernel panic with making a various shape of signature so it's extremely
-hard to debug. Moreover, the issue is observed even when the video
-engine is not actively used because udevd turns on the video engine
-hardware for a short time to make a query in every boot.
-
-To fix this issue, this commit changes the clock handling logic to make
-the reset de-assertion triggered after enabling both eclk and vclk. Also,
-it adds clk_unprepare call for a case when probe fails.
-
-clk: ast2600: fix reset settings for eclk and vclk
-Video engine reset setting should be coupled with eclk to match it
-with the setting for previous Aspeed SoCs which is defined in
-clk-aspeed.c since all Aspeed SoCs are sharing a single video engine
-driver. Also, reset bit 6 is defined as 'Video Engine' reset in
-datasheet so it should be de-asserted when eclk is enabled. This
-commit fixes the setting.
-
-Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Eddie James <eajames@linux.ibm.com>
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 48834e6084f1 ("drm/panel-simple: Support hpd-gpios for delaying prepare()")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210115144345.v2.1.I33fcbd64ab409cfe4f9491bf449f51925a4d3281@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c             | 4 ++--
- drivers/media/platform/aspeed-video.c | 9 ++++++---
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/panel/panel-simple.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index a55b37fc2c8b..bc3be5f3eae1 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -61,10 +61,10 @@ static void __iomem *scu_g6_base;
- static const struct aspeed_gate_data aspeed_g6_gates[] = {
- 	/*				    clk rst  name		parent	 flags */
- 	[ASPEED_CLK_GATE_MCLK]		= {  0, -1, "mclk-gate",	"mpll",	 CLK_IS_CRITICAL }, /* SDRAM */
--	[ASPEED_CLK_GATE_ECLK]		= {  1, -1, "eclk-gate",	"eclk",	 0 },	/* Video Engine */
-+	[ASPEED_CLK_GATE_ECLK]		= {  1,  6, "eclk-gate",	"eclk",	 0 },	/* Video Engine */
- 	[ASPEED_CLK_GATE_GCLK]		= {  2,  7, "gclk-gate",	NULL,	 0 },	/* 2D engine */
- 	/* vclk parent - dclk/d1clk/hclk/mclk */
--	[ASPEED_CLK_GATE_VCLK]		= {  3,  6, "vclk-gate",	NULL,	 0 },	/* Video Capture */
-+	[ASPEED_CLK_GATE_VCLK]		= {  3, -1, "vclk-gate",	NULL,	 0 },	/* Video Capture */
- 	[ASPEED_CLK_GATE_BCLK]		= {  4,  8, "bclk-gate",	"bclk",	 0 }, /* PCIe/PCI */
- 	/* From dpll */
- 	[ASPEED_CLK_GATE_DCLK]		= {  5, -1, "dclk-gate",	NULL,	 CLK_IS_CRITICAL }, /* DAC */
-diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index f2c4dadd6a0e..7bb6babdcade 100644
---- a/drivers/media/platform/aspeed-video.c
-+++ b/drivers/media/platform/aspeed-video.c
-@@ -514,8 +514,8 @@ static void aspeed_video_off(struct aspeed_video *video)
- 	aspeed_video_write(video, VE_INTERRUPT_STATUS, 0xffffffff);
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 4e2dad314c79..e8b1a0e873ea 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -406,7 +406,7 @@ static int panel_simple_prepare(struct drm_panel *panel)
+ 		if (IS_ERR(p->hpd_gpio)) {
+ 			err = panel_simple_get_hpd_gpio(panel->dev, p, false);
+ 			if (err)
+-				return err;
++				goto error;
+ 		}
  
- 	/* Turn off the relevant clocks */
--	clk_disable(video->vclk);
- 	clk_disable(video->eclk);
-+	clk_disable(video->vclk);
+ 		err = readx_poll_timeout(gpiod_get_value_cansleep, p->hpd_gpio,
+@@ -418,13 +418,20 @@ static int panel_simple_prepare(struct drm_panel *panel)
+ 		if (err) {
+ 			dev_err(panel->dev,
+ 				"error waiting for hpd GPIO: %d\n", err);
+-			return err;
++			goto error;
+ 		}
+ 	}
  
- 	clear_bit(VIDEO_CLOCKS_ON, &video->flags);
- }
-@@ -526,8 +526,8 @@ static void aspeed_video_on(struct aspeed_video *video)
- 		return;
- 
- 	/* Turn on the relevant clocks */
--	clk_enable(video->eclk);
- 	clk_enable(video->vclk);
-+	clk_enable(video->eclk);
- 
- 	set_bit(VIDEO_CLOCKS_ON, &video->flags);
- }
-@@ -1719,8 +1719,11 @@ static int aspeed_video_probe(struct platform_device *pdev)
- 		return rc;
- 
- 	rc = aspeed_video_setup_video(video);
--	if (rc)
-+	if (rc) {
-+		clk_unprepare(video->vclk);
-+		clk_unprepare(video->eclk);
- 		return rc;
-+	}
+ 	p->prepared_time = ktime_get();
  
  	return 0;
++
++error:
++	gpiod_set_value_cansleep(p->enable_gpio, 0);
++	regulator_disable(p->supply);
++	p->unprepared_time = ktime_get();
++
++	return err;
  }
+ 
+ static int panel_simple_enable(struct drm_panel *panel)
 -- 
 2.30.2
 
