@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 348DE37CCC1
+	by mail.lfdr.de (Postfix) with ESMTP id A3C9D37CCC2
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235309AbhELQrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:47:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
+        id S235322AbhELQrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243502AbhELQlW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:41:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAF3161C47;
-        Wed, 12 May 2021 16:04:29 +0000 (UTC)
+        id S243531AbhELQl3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:41:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DEC061CDB;
+        Wed, 12 May 2021 16:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835470;
-        bh=xbT2XW6PjQa5RHI8VVnGO+ghPxl1pI3m+7GNfWb011w=;
+        s=korg; t=1620835472;
+        bh=+fdpF4ceR9o7Lg5jDJOEU23yKQ0PnMiZJJ1nz2EbVf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fheViBufTZe2XQT2duWjilMpyKzONj0YSeGmGEiaBAsba9UVGRVAMuMjR0Usej5/V
-         sbgl4ehy2QhgkK5vqPFmHkLoJ8nVIWkuPTm3sxlL1CpVnglAn47R3/aU66YTONn+wx
-         gCd7+z51yxk0SEL7UrZzDocZ5JUzcav57su9ZIwg=
+        b=FnpwyzxEz5pxl7KlY1Glv1DzeLOmwaMZaJ+KoUDl0mndWUDubfrD/tS7vQJD4eSZB
+         bZBVQkFjbTfS0Abvj8ujbiEg5eEd4fOeZ9sN5WtSp0XdKQfqUJ+oBAHT2M32uaER9s
+         5b4LxEUTg6dacPUZqCbSNxPt0AoevDAJ4Xo+EOok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 357/677] drm/panel-simple: Undo enable if HPD never asserts
-Date:   Wed, 12 May 2021 16:46:43 +0200
-Message-Id: <20210512144849.185582802@linuxfoundation.org>
+Subject: [PATCH 5.12 358/677] power: supply: bq27xxx: fix sign of current_now for newer ICs
+Date:   Wed, 12 May 2021 16:46:44 +0200
+Message-Id: <20210512144849.219586070@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,64 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit 5e7222a3674ea7422370779884dd53aabe9e4a9d ]
+[ Upstream commit b67fdcb7099e9c640bad625c4dd6399debb3376a ]
 
-If the HPD signal never asserts in panel_simple_prepare() and we
-return an error, we should unset the enable GPIO and disable the
-regulator to make it consistent for the caller.
+Commit cd060b4d0868 ("power: supply: bq27xxx: fix polarity of current_now")
+changed the sign of current_now for all bq27xxx variants, but on BQ28Z610
+I'm now seeing negated values *with* that patch.
 
-At the moment I have some hardware where HPD sometimes doesn't assert.
-Obviously that needs to be debugged, but this patch makes it so that
-if I add a retry that I can make things work.
+The GTA04/Openmoko device that was used for testing uses a BQ27000 or
+BQ27010 IC, so I assume only the BQ27XXX_O_ZERO code path was incorrect.
+Revert the behaviour for newer ICs.
 
-Fixes: 48834e6084f1 ("drm/panel-simple: Support hpd-gpios for delaying prepare()")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210115144345.v2.1.I33fcbd64ab409cfe4f9491bf449f51925a4d3281@changeid
+Fixes: cd060b4d0868 "power: supply: bq27xxx: fix polarity of current_now"
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/power/supply/bq27xxx_battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 4e2dad314c79..e8b1a0e873ea 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -406,7 +406,7 @@ static int panel_simple_prepare(struct drm_panel *panel)
- 		if (IS_ERR(p->hpd_gpio)) {
- 			err = panel_simple_get_hpd_gpio(panel->dev, p, false);
- 			if (err)
--				return err;
-+				goto error;
- 		}
- 
- 		err = readx_poll_timeout(gpiod_get_value_cansleep, p->hpd_gpio,
-@@ -418,13 +418,20 @@ static int panel_simple_prepare(struct drm_panel *panel)
- 		if (err) {
- 			dev_err(panel->dev,
- 				"error waiting for hpd GPIO: %d\n", err);
--			return err;
-+			goto error;
- 		}
+diff --git a/drivers/power/supply/bq27xxx_battery.c b/drivers/power/supply/bq27xxx_battery.c
+index 0262109ac285..20e1dc8a87cf 100644
+--- a/drivers/power/supply/bq27xxx_battery.c
++++ b/drivers/power/supply/bq27xxx_battery.c
+@@ -1804,7 +1804,7 @@ static int bq27xxx_battery_current(struct bq27xxx_device_info *di,
+ 		val->intval = curr * BQ27XXX_CURRENT_CONSTANT / BQ27XXX_RS;
+ 	} else {
+ 		/* Other gauges return signed value */
+-		val->intval = -(int)((s16)curr) * 1000;
++		val->intval = (int)((s16)curr) * 1000;
  	}
  
- 	p->prepared_time = ktime_get();
- 
  	return 0;
-+
-+error:
-+	gpiod_set_value_cansleep(p->enable_gpio, 0);
-+	regulator_disable(p->supply);
-+	p->unprepared_time = ktime_get();
-+
-+	return err;
- }
- 
- static int panel_simple_enable(struct drm_panel *panel)
 -- 
 2.30.2
 
