@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 325F237C34F
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 204EB37C354
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233417AbhELPSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
+        id S232844AbhELPSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234296AbhELPQY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A32F61956;
-        Wed, 12 May 2021 15:06:17 +0000 (UTC)
+        id S234318AbhELPQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BB1261969;
+        Wed, 12 May 2021 15:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831977;
-        bh=UAK33Sh/HLW9bz9idD2jMhCNxKDgLJ1x0r5wsk6b1Uk=;
+        s=korg; t=1620831980;
+        bh=h59MSIG9erklP9in9YiIPm0y8p9QmQYL0ytDECAvG+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5nmRZzTIOTeptz9rBBVjrsmwV1ck3W3W8An+zSGQo/hUdF7P7fNpBQPzYKf7tm4N
-         AuhvO7EM9gOLij7R++QSDWc6AJaIETBrJh4Gsleg8PpxjlIx0IJcEnBbWID4otVD8s
-         7+VZNxHA+fH12arQHNmCC/xsAS6kDQ7zUkwBTNYo=
+        b=ZIJFFGfNVjbhIEzjbNWVBSLzuAeZCMKMEV4pJXahsP89fdM7PnrlUcnbh2AKWrIzZ
+         aL9e7CohXhz6lex2QaIST36iWMayTuzRE7hJ+YQBvDytrxcF8EIYpa61GIGk+ug+fk
+         yRosxETjP/l0w2z/9xB5OI+b3zHOa1qVYct34WM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        stable@vger.kernel.org, Babu Moger <babu.moger@amd.com>,
         Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 091/530] KVM: x86/mmu: Alloc page for PDPTEs when shadowing 32-bit NPT with 64-bit
-Date:   Wed, 12 May 2021 16:43:21 +0200
-Message-Id: <20210512144822.780532373@linuxfoundation.org>
+Subject: [PATCH 5.10 092/530] KVM: x86: Remove emulators broken checks on CR0/CR3/CR4 loads
+Date:   Wed, 12 May 2021 16:43:22 +0200
+Message-Id: <20210512144822.819785618@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,116 +42,130 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 04d45551a1eefbea42655da52f56e846c0af721a upstream.
+commit d0fe7b6404408835ed60232cb3bf28324b2f95db upstream.
 
-Allocate the so called pae_root page on-demand, along with the lm_root
-page, when shadowing 32-bit NPT with 64-bit NPT, i.e. when running a
-32-bit L1.  KVM currently only allocates the page when NPT is disabled,
-or when L0 is 32-bit (using PAE paging).
+Remove the emulator's checks for illegal CR0, CR3, and CR4 values, as
+the checks are redundant, outdated, and in the case of SEV's C-bit,
+broken.  The emulator manually calculates MAXPHYADDR from CPUID and
+neglects to mask off the C-bit.  For all other checks, kvm_set_cr*() are
+a superset of the emulator checks, e.g. see CR4.LA57.
 
-Note, there is an existing memory leak involving the MMU roots, as KVM
-fails to free the PAE roots on failure.  This will be addressed in a
-future commit.
-
-Fixes: ee6268ba3a68 ("KVM: x86: Skip pae_root shadow allocation if tdp enabled")
-Fixes: b6b80c78af83 ("KVM: x86/mmu: Allocate PAE root array when using SVM's 32-bit NPT")
-Cc: stable@vger.kernel.org
-Reviewed-by: Ben Gardon <bgardon@google.com>
+Fixes: a780a3ea6282 ("KVM: X86: Fix reserved bits check for MOV to CR3")
+Cc: Babu Moger <babu.moger@amd.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210305011101.3597423-3-seanjc@google.com>
+Message-Id: <20210422022128.3464144-2-seanjc@google.com>
+Cc: stable@vger.kernel.org
+[Unify check_cr_read and check_cr_write. - Paolo]
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |   44 +++++++++++++++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 15 deletions(-)
+ arch/x86/kvm/emulate.c |   80 +------------------------------------------------
+ 1 file changed, 3 insertions(+), 77 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -3195,14 +3195,14 @@ void kvm_mmu_free_roots(struct kvm_vcpu
- 		if (mmu->shadow_root_level >= PT64_ROOT_4LEVEL &&
- 		    (mmu->root_level >= PT64_ROOT_4LEVEL || mmu->direct_map)) {
- 			mmu_free_root_page(kvm, &mmu->root_hpa, &invalid_list);
--		} else {
-+		} else if (mmu->pae_root) {
- 			for (i = 0; i < 4; ++i)
- 				if (mmu->pae_root[i] != 0)
- 					mmu_free_root_page(kvm,
- 							   &mmu->pae_root[i],
- 							   &invalid_list);
--			mmu->root_hpa = INVALID_PAGE;
- 		}
-+		mmu->root_hpa = INVALID_PAGE;
- 		mmu->root_pgd = 0;
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -4220,7 +4220,7 @@ static bool valid_cr(int nr)
  	}
+ }
  
-@@ -3314,9 +3314,23 @@ static int mmu_alloc_shadow_roots(struct
- 	 * the shadow page table may be a PAE or a long mode page table.
- 	 */
- 	pm_mask = PT_PRESENT_MASK;
--	if (vcpu->arch.mmu->shadow_root_level == PT64_ROOT_4LEVEL)
-+	if (vcpu->arch.mmu->shadow_root_level == PT64_ROOT_4LEVEL) {
- 		pm_mask |= PT_ACCESSED_MASK | PT_WRITABLE_MASK | PT_USER_MASK;
+-static int check_cr_read(struct x86_emulate_ctxt *ctxt)
++static int check_cr_access(struct x86_emulate_ctxt *ctxt)
+ {
+ 	if (!valid_cr(ctxt->modrm_reg))
+ 		return emulate_ud(ctxt);
+@@ -4228,80 +4228,6 @@ static int check_cr_read(struct x86_emul
+ 	return X86EMUL_CONTINUE;
+ }
  
-+		/*
-+		 * Allocate the page for the PDPTEs when shadowing 32-bit NPT
-+		 * with 64-bit only when needed.  Unlike 32-bit NPT, it doesn't
-+		 * need to be in low mem.  See also lm_root below.
-+		 */
-+		if (!vcpu->arch.mmu->pae_root) {
-+			WARN_ON_ONCE(!tdp_enabled);
-+
-+			vcpu->arch.mmu->pae_root = (void *)get_zeroed_page(GFP_KERNEL_ACCOUNT);
-+			if (!vcpu->arch.mmu->pae_root)
-+				return -ENOMEM;
-+		}
-+	}
-+
- 	for (i = 0; i < 4; ++i) {
- 		MMU_WARN_ON(VALID_PAGE(vcpu->arch.mmu->pae_root[i]));
- 		if (vcpu->arch.mmu->root_level == PT32E_ROOT_LEVEL) {
-@@ -3339,21 +3353,19 @@ static int mmu_alloc_shadow_roots(struct
- 	vcpu->arch.mmu->root_hpa = __pa(vcpu->arch.mmu->pae_root);
- 
- 	/*
--	 * If we shadow a 32 bit page table with a long mode page
--	 * table we enter this path.
-+	 * When shadowing 32-bit or PAE NPT with 64-bit NPT, the PML4 and PDP
-+	 * tables are allocated and initialized at MMU creation as there is no
-+	 * equivalent level in the guest's NPT to shadow.  Allocate the tables
-+	 * on demand, as running a 32-bit L1 VMM is very rare.  The PDP is
-+	 * handled above (to share logic with PAE), deal with the PML4 here.
- 	 */
- 	if (vcpu->arch.mmu->shadow_root_level == PT64_ROOT_4LEVEL) {
- 		if (vcpu->arch.mmu->lm_root == NULL) {
--			/*
--			 * The additional page necessary for this is only
--			 * allocated on demand.
--			 */
+-static int check_cr_write(struct x86_emulate_ctxt *ctxt)
+-{
+-	u64 new_val = ctxt->src.val64;
+-	int cr = ctxt->modrm_reg;
+-	u64 efer = 0;
 -
- 			u64 *lm_root;
- 
- 			lm_root = (void*)get_zeroed_page(GFP_KERNEL_ACCOUNT);
--			if (lm_root == NULL)
--				return 1;
-+			if (!lm_root)
-+				return -ENOMEM;
- 
- 			lm_root[0] = __pa(vcpu->arch.mmu->pae_root) | pm_mask;
- 
-@@ -5297,9 +5309,11 @@ static int __kvm_mmu_create(struct kvm_v
- 	 * while the PDP table is a per-vCPU construct that's allocated at MMU
- 	 * creation.  When emulating 32-bit mode, cr3 is only 32 bits even on
- 	 * x86_64.  Therefore we need to allocate the PDP table in the first
--	 * 4GB of memory, which happens to fit the DMA32 zone.  Except for
--	 * SVM's 32-bit NPT support, TDP paging doesn't use PAE paging and can
--	 * skip allocating the PDP table.
-+	 * 4GB of memory, which happens to fit the DMA32 zone.  TDP paging
-+	 * generally doesn't use PAE paging and can skip allocating the PDP
-+	 * table.  The main exception, handled here, is SVM's 32-bit NPT.  The
-+	 * other exception is for shadowing L1's 32-bit or PAE NPT on 64-bit
-+	 * KVM; that horror is handled on-demand by mmu_alloc_shadow_roots().
- 	 */
- 	if (tdp_enabled && kvm_mmu_get_tdp_level(vcpu) > PT32E_ROOT_LEVEL)
- 		return 0;
+-	static u64 cr_reserved_bits[] = {
+-		0xffffffff00000000ULL,
+-		0, 0, 0, /* CR3 checked later */
+-		CR4_RESERVED_BITS,
+-		0, 0, 0,
+-		CR8_RESERVED_BITS,
+-	};
+-
+-	if (!valid_cr(cr))
+-		return emulate_ud(ctxt);
+-
+-	if (new_val & cr_reserved_bits[cr])
+-		return emulate_gp(ctxt, 0);
+-
+-	switch (cr) {
+-	case 0: {
+-		u64 cr4;
+-		if (((new_val & X86_CR0_PG) && !(new_val & X86_CR0_PE)) ||
+-		    ((new_val & X86_CR0_NW) && !(new_val & X86_CR0_CD)))
+-			return emulate_gp(ctxt, 0);
+-
+-		cr4 = ctxt->ops->get_cr(ctxt, 4);
+-		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
+-
+-		if ((new_val & X86_CR0_PG) && (efer & EFER_LME) &&
+-		    !(cr4 & X86_CR4_PAE))
+-			return emulate_gp(ctxt, 0);
+-
+-		break;
+-		}
+-	case 3: {
+-		u64 rsvd = 0;
+-
+-		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
+-		if (efer & EFER_LMA) {
+-			u64 maxphyaddr;
+-			u32 eax, ebx, ecx, edx;
+-
+-			eax = 0x80000008;
+-			ecx = 0;
+-			if (ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx,
+-						 &edx, true))
+-				maxphyaddr = eax & 0xff;
+-			else
+-				maxphyaddr = 36;
+-			rsvd = rsvd_bits(maxphyaddr, 63);
+-			if (ctxt->ops->get_cr(ctxt, 4) & X86_CR4_PCIDE)
+-				rsvd &= ~X86_CR3_PCID_NOFLUSH;
+-		}
+-
+-		if (new_val & rsvd)
+-			return emulate_gp(ctxt, 0);
+-
+-		break;
+-		}
+-	case 4: {
+-		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
+-
+-		if ((efer & EFER_LMA) && !(new_val & X86_CR4_PAE))
+-			return emulate_gp(ctxt, 0);
+-
+-		break;
+-		}
+-	}
+-
+-	return X86EMUL_CONTINUE;
+-}
+-
+ static int check_dr7_gd(struct x86_emulate_ctxt *ctxt)
+ {
+ 	unsigned long dr7;
+@@ -4841,10 +4767,10 @@ static const struct opcode twobyte_table
+ 	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* 8 * reserved NOP */
+ 	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* NOP + 7 * reserved NOP */
+ 	/* 0x20 - 0x2F */
+-	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_read),
++	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_access),
+ 	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, dr_read, check_dr_read),
+ 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_cr_write, cr_write,
+-						check_cr_write),
++						check_cr_access),
+ 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_dr_write, dr_write,
+ 						check_dr_write),
+ 	N, N, N, N,
 
 
