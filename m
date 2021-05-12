@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0031537CC6F
+	by mail.lfdr.de (Postfix) with ESMTP id 8615E37CC6E
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239507AbhELQpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:45:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
+        id S239464AbhELQpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243021AbhELQg3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:36:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D1B561E11;
-        Wed, 12 May 2021 16:00:25 +0000 (UTC)
+        id S243029AbhELQgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:36:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9173E61E19;
+        Wed, 12 May 2021 16:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835225;
-        bh=EKZbvhZ0+Azxy2e6fOx3WypInf4KrvRIww0WF03OK1M=;
+        s=korg; t=1620835228;
+        bh=JlXLj6P4TCHKC3vxX1LUQC7INnGWZl6c2J5fCPGITyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQy7Gt9HCU3ss828XmQeqmmsfsIteC1lqv/uDKVA1ZBrCQTmsFndjougMVgVjRDgH
-         L7+0tgzVviXdTZ+GxClejPVswpx6Sjwx2AuFt2voCsqy9apRFPYWKwD8PJerVDzW+l
-         aLg3/3K6ifGvfrKTAQiRfP8i5P+dNUZnHXGmUAsw=
+        b=rBd28pHd71RiQ5cmVNNx9fgfIoOI0Nb71ZeYkke4RtVNgevfLL1KTFTMsWSW2PsOG
+         jVg9vbOi94amX69h5oiZgHzWyG1/x5j1O+E5M2av+YgsFKvKWIe9pmCV3fs5u2yKhR
+         iIt9NmKEMIjHZ6YPEhUo5NjYjVCeImzVmmSvp3Gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Pavone <pavone@retrodev.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Elliot Berman <eberman@codeaurora.org>,
+        Brian Masney <masneyb@onstation.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Jeffrey Hugo <jhugo@codeaurora.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 257/677] m68k: mvme147,mvme16x: Dont wipe PCC timer config bits
-Date:   Wed, 12 May 2021 16:45:03 +0200
-Message-Id: <20210512144845.775287519@linuxfoundation.org>
+Subject: [PATCH 5.12 258/677] firmware: qcom_scm: Make __qcom_scm_is_call_available() return bool
+Date:   Wed, 12 May 2021 16:45:04 +0200
+Message-Id: <20210512144845.810074132@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,121 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 43262178c043032e7c42d00de44c818ba05f9967 ]
+[ Upstream commit 9d11af8b06a811c5c4878625f51ce109e2af4e80 ]
 
-Don't clear the timer 1 configuration bits when clearing the interrupt flag
-and counter overflow. As Michael reported, "This results in no timer
-interrupts being delivered after the first. Initialization then hangs
-in calibrate_delay as the jiffies counter is not updated."
+Make __qcom_scm_is_call_available() return bool instead of int. The
+function has "is" in the name, so it should return a bool to indicate
+the truth of the call being available. Unfortunately, it can return a
+number < 0 which also looks "true", but not all callers expect that and
+thus they think a call is available when really the check to see if the
+call is available failed to figure it out.
 
-On mvme16x, enable the timer after requesting the irq, consistent with
-mvme147.
-
-Cc: Michael Pavone <pavone@retrodev.com>
-Fixes: 7529b90d051e ("m68k: mvme147: Handle timer counter overflow")
-Fixes: 19999a8b8782 ("m68k: mvme16x: Handle timer counter overflow")
-Reported-and-tested-by: Michael Pavone <pavone@retrodev.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Link: https://lore.kernel.org/r/4fdaa113db089b8fb607f7dd818479f8cdcc4547.1617089871.git.fthain@telegraphics.com.au
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Elliot Berman <eberman@codeaurora.org>
+Cc: Brian Masney <masneyb@onstation.org>
+Cc: Stephan Gerhold <stephan@gerhold.net>
+Cc: Jeffrey Hugo <jhugo@codeaurora.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Fixes: 0f206514749b ("scsi: firmware: qcom_scm: Add support for programming inline crypto keys")
+Fixes: 0434a4061471 ("firmware: qcom: scm: add support to restore secure config to qcm_scm-32")
+Fixes: b0a1614fb1f5 ("firmware: qcom: scm: add OCMEM lock/unlock interface")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210223214539.1336155-2-swboyd@chromium.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/mvme147hw.h |  3 +++
- arch/m68k/mvme147/config.c        | 14 ++++++++------
- arch/m68k/mvme16x/config.c        | 14 ++++++++------
- 3 files changed, 19 insertions(+), 12 deletions(-)
+ drivers/firmware/qcom_scm.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/arch/m68k/include/asm/mvme147hw.h b/arch/m68k/include/asm/mvme147hw.h
-index 257b29184af9..e28eb1c0e0bf 100644
---- a/arch/m68k/include/asm/mvme147hw.h
-+++ b/arch/m68k/include/asm/mvme147hw.h
-@@ -66,6 +66,9 @@ struct pcc_regs {
- #define PCC_INT_ENAB		0x08
- 
- #define PCC_TIMER_INT_CLR	0x80
-+
-+#define PCC_TIMER_TIC_EN	0x01
-+#define PCC_TIMER_COC_EN	0x02
- #define PCC_TIMER_CLR_OVF	0x04
- 
- #define PCC_LEVEL_ABORT		0x07
-diff --git a/arch/m68k/mvme147/config.c b/arch/m68k/mvme147/config.c
-index cfdc7f912e14..e1e90c49a496 100644
---- a/arch/m68k/mvme147/config.c
-+++ b/arch/m68k/mvme147/config.c
-@@ -114,8 +114,10 @@ static irqreturn_t mvme147_timer_int (int irq, void *dev_id)
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
--	m147_pcc->t1_int_cntrl = PCC_TIMER_INT_CLR;
--	m147_pcc->t1_cntrl = PCC_TIMER_CLR_OVF;
-+	m147_pcc->t1_cntrl = PCC_TIMER_CLR_OVF | PCC_TIMER_COC_EN |
-+			     PCC_TIMER_TIC_EN;
-+	m147_pcc->t1_int_cntrl = PCC_INT_ENAB | PCC_TIMER_INT_CLR |
-+				 PCC_LEVEL_TIMER1;
- 	clk_total += PCC_TIMER_CYCLES;
- 	legacy_timer_tick(1);
- 	local_irq_restore(flags);
-@@ -133,10 +135,10 @@ void mvme147_sched_init (void)
- 	/* Init the clock with a value */
- 	/* The clock counter increments until 0xFFFF then reloads */
- 	m147_pcc->t1_preload = PCC_TIMER_PRELOAD;
--	m147_pcc->t1_cntrl = 0x0;	/* clear timer */
--	m147_pcc->t1_cntrl = 0x3;	/* start timer */
--	m147_pcc->t1_int_cntrl = PCC_TIMER_INT_CLR;  /* clear pending ints */
--	m147_pcc->t1_int_cntrl = PCC_INT_ENAB|PCC_LEVEL_TIMER1;
-+	m147_pcc->t1_cntrl = PCC_TIMER_CLR_OVF | PCC_TIMER_COC_EN |
-+			     PCC_TIMER_TIC_EN;
-+	m147_pcc->t1_int_cntrl = PCC_INT_ENAB | PCC_TIMER_INT_CLR |
-+				 PCC_LEVEL_TIMER1;
- 
- 	clocksource_register_hz(&mvme147_clk, PCC_TIMER_CLOCK_FREQ);
+diff --git a/drivers/firmware/qcom_scm.c b/drivers/firmware/qcom_scm.c
+index f57779fc7ee9..2be5573dce53 100644
+--- a/drivers/firmware/qcom_scm.c
++++ b/drivers/firmware/qcom_scm.c
+@@ -113,9 +113,6 @@ static void qcom_scm_clk_disable(void)
+ 	clk_disable_unprepare(__scm->bus_clk);
  }
-diff --git a/arch/m68k/mvme16x/config.c b/arch/m68k/mvme16x/config.c
-index 30357fe4ba6c..b59593c7cfb9 100644
---- a/arch/m68k/mvme16x/config.c
-+++ b/arch/m68k/mvme16x/config.c
-@@ -366,6 +366,7 @@ static u32 clk_total;
- #define PCCTOVR1_COC_EN      0x02
- #define PCCTOVR1_OVR_CLR     0x04
  
-+#define PCCTIC1_INT_LEVEL    6
- #define PCCTIC1_INT_CLR      0x08
- #define PCCTIC1_INT_EN       0x10
+-static int __qcom_scm_is_call_available(struct device *dev, u32 svc_id,
+-					u32 cmd_id);
+-
+ enum qcom_scm_convention qcom_scm_convention;
+ static bool has_queried __read_mostly;
+ static DEFINE_SPINLOCK(query_lock);
+@@ -219,8 +216,8 @@ static int qcom_scm_call_atomic(struct device *dev,
+ 	}
+ }
  
-@@ -374,8 +375,8 @@ static irqreturn_t mvme16x_timer_int (int irq, void *dev_id)
- 	unsigned long flags;
+-static int __qcom_scm_is_call_available(struct device *dev, u32 svc_id,
+-					u32 cmd_id)
++static bool __qcom_scm_is_call_available(struct device *dev, u32 svc_id,
++					 u32 cmd_id)
+ {
+ 	int ret;
+ 	struct qcom_scm_desc desc = {
+@@ -247,7 +244,7 @@ static int __qcom_scm_is_call_available(struct device *dev, u32 svc_id,
  
- 	local_irq_save(flags);
--	out_8(PCCTIC1, in_8(PCCTIC1) | PCCTIC1_INT_CLR);
--	out_8(PCCTOVR1, PCCTOVR1_OVR_CLR);
-+	out_8(PCCTOVR1, PCCTOVR1_OVR_CLR | PCCTOVR1_TIC_EN | PCCTOVR1_COC_EN);
-+	out_8(PCCTIC1, PCCTIC1_INT_EN | PCCTIC1_INT_CLR | PCCTIC1_INT_LEVEL);
- 	clk_total += PCC_TIMER_CYCLES;
- 	legacy_timer_tick(1);
- 	local_irq_restore(flags);
-@@ -389,14 +390,15 @@ void mvme16x_sched_init(void)
-     int irq;
+ 	ret = qcom_scm_call(dev, &desc, &res);
  
-     /* Using PCCchip2 or MC2 chip tick timer 1 */
--    out_be32(PCCTCNT1, 0);
--    out_be32(PCCTCMP1, PCC_TIMER_CYCLES);
--    out_8(PCCTOVR1, in_8(PCCTOVR1) | PCCTOVR1_TIC_EN | PCCTOVR1_COC_EN);
--    out_8(PCCTIC1, PCCTIC1_INT_EN | 6);
-     if (request_irq(MVME16x_IRQ_TIMER, mvme16x_timer_int, IRQF_TIMER, "timer",
-                     NULL))
- 	panic ("Couldn't register timer int");
+-	return ret ? : res.result[0];
++	return ret ? false : !!res.result[0];
+ }
  
-+    out_be32(PCCTCNT1, 0);
-+    out_be32(PCCTCMP1, PCC_TIMER_CYCLES);
-+    out_8(PCCTOVR1, PCCTOVR1_OVR_CLR | PCCTOVR1_TIC_EN | PCCTOVR1_COC_EN);
-+    out_8(PCCTIC1, PCCTIC1_INT_EN | PCCTIC1_INT_CLR | PCCTIC1_INT_LEVEL);
-+
-     clocksource_register_hz(&mvme16x_clk, PCC_TIMER_CLOCK_FREQ);
+ /**
+@@ -585,9 +582,8 @@ bool qcom_scm_pas_supported(u32 peripheral)
+ 	};
+ 	struct qcom_scm_res res;
  
-     if (brdno == 0x0162 || brdno == 0x172)
+-	ret = __qcom_scm_is_call_available(__scm->dev, QCOM_SCM_SVC_PIL,
+-					   QCOM_SCM_PIL_PAS_IS_SUPPORTED);
+-	if (ret <= 0)
++	if (!__qcom_scm_is_call_available(__scm->dev, QCOM_SCM_SVC_PIL,
++					  QCOM_SCM_PIL_PAS_IS_SUPPORTED))
+ 		return false;
+ 
+ 	ret = qcom_scm_call(__scm->dev, &desc, &res);
+@@ -1060,17 +1056,18 @@ EXPORT_SYMBOL(qcom_scm_ice_set_key);
+  */
+ bool qcom_scm_hdcp_available(void)
+ {
++	bool avail;
+ 	int ret = qcom_scm_clk_enable();
+ 
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = __qcom_scm_is_call_available(__scm->dev, QCOM_SCM_SVC_HDCP,
++	avail = __qcom_scm_is_call_available(__scm->dev, QCOM_SCM_SVC_HDCP,
+ 						QCOM_SCM_HDCP_INVOKE);
+ 
+ 	qcom_scm_clk_disable();
+ 
+-	return ret > 0;
++	return avail;
+ }
+ EXPORT_SYMBOL(qcom_scm_hdcp_available);
+ 
 -- 
 2.30.2
 
