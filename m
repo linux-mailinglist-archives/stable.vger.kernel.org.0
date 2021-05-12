@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9438937C246
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2651B37C24A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:07:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232753AbhELPId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59076 "EHLO mail.kernel.org"
+        id S231645AbhELPIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:08:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232784AbhELPG3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:06:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4BFD61434;
-        Wed, 12 May 2021 15:01:10 +0000 (UTC)
+        id S232808AbhELPGc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:06:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AE0F6195D;
+        Wed, 12 May 2021 15:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831671;
-        bh=VIjfpJRN1YKm5fUqy2sljdQWhp1yPdeIpfemmghl7Ek=;
+        s=korg; t=1620831673;
+        bh=eCZDnkW9P19r0JkVfYRHvmC944E+FgZlf8cOSvhBm8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AjcAsgwVVlZtehoto+8GxEp9syr85al1Bm2P7IiMuVI0xYJWAcY7ZfUj87JAwIG4O
-         lRPwC68SOPhoGooDZFA5k1QSTlf8mlNm46Yk/MXGKIsspJhUXhrzfJaf9bQrHKbmL5
-         VPc4GmdYq1+hFxj3B0ADViKSdTvCpXfbqbtzkCSw=
+        b=j3uW27f5YILWZ42geJnqXLrgis0HqEOWvhB2mFO3goIeLf3cPPu5cYBrvrhVH5SXh
+         31GTk4f9OriWQKCUAGqeOBThD8/2sT5F4Gpg4hi7k2uNoJcTbcFLJCsRR+ti+eyFCR
+         Jg8E8RmoeIvbPsJO5kZYhsM0pdMkHPikL/jfNtvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 213/244] mwl8k: Fix a double Free in mwl8k_probe_hw
-Date:   Wed, 12 May 2021 16:49:44 +0200
-Message-Id: <20210512144749.808793434@linuxfoundation.org>
+Subject: [PATCH 5.4 214/244] vsock/vmci: log once the failed queue pair allocation
+Date:   Wed, 12 May 2021 16:49:45 +0200
+Message-Id: <20210512144749.839626570@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,39 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit a8e083ee8e2a6c94c29733835adae8bf5b832748 ]
+[ Upstream commit e16edc99d658cd41c60a44cc14d170697aa3271f ]
 
-In mwl8k_probe_hw, hw->priv->txq is freed at the first time by
-dma_free_coherent() in the call chain:
-if(!priv->ap_fw)->mwl8k_init_txqs(hw)->mwl8k_txq_init(hw, i).
+VMCI feature is not supported in conjunction with the vSphere Fault
+Tolerance (FT) feature.
 
-Then in err_free_queues of mwl8k_probe_hw, hw->priv->txq is freed
-at the second time by mwl8k_txq_deinit(hw, i)->dma_free_coherent().
+VMware Tools can repeatedly try to create a vsock connection. If FT is
+enabled the kernel logs is flooded with the following messages:
 
-My patch set txq->txd to NULL after the first free to avoid the
-double free.
+    qp_alloc_hypercall result = -20
+    Could not attach to queue pair with -20
 
-Fixes: a66098daacee2 ("mwl8k: Marvell TOPDOG wireless driver")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210402182627.4256-1-lyl2019@mail.ustc.edu.cn
+"qp_alloc_hypercall result = -20" was hidden by commit e8266c4c3307
+("VMCI: Stop log spew when qp allocation isn't possible"), but "Could
+not attach to queue pair with -20" is still there flooding the log.
+
+Since the error message can be useful in some cases, print it only once.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwl8k.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/vmw_vsock/vmci_transport.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwl8k.c b/drivers/net/wireless/marvell/mwl8k.c
-index c4db6417748f..1b76b2419186 100644
---- a/drivers/net/wireless/marvell/mwl8k.c
-+++ b/drivers/net/wireless/marvell/mwl8k.c
-@@ -1469,6 +1469,7 @@ static int mwl8k_txq_init(struct ieee80211_hw *hw, int index)
- 	txq->skb = kcalloc(MWL8K_TX_DESCS, sizeof(*txq->skb), GFP_KERNEL);
- 	if (txq->skb == NULL) {
- 		pci_free_consistent(priv->pdev, size, txq->txd, txq->txd_dma);
-+		txq->txd = NULL;
- 		return -ENOMEM;
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 8c9c4ed90fa7..aaabcd84268a 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -576,8 +576,7 @@ vmci_transport_queue_pair_alloc(struct vmci_qp **qpair,
+ 			       peer, flags, VMCI_NO_PRIVILEGE_FLAGS);
+ out:
+ 	if (err < 0) {
+-		pr_err("Could not attach to queue pair with %d\n",
+-		       err);
++		pr_err_once("Could not attach to queue pair with %d\n", err);
+ 		err = vmci_transport_error_to_vsock_error(err);
  	}
  
 -- 
