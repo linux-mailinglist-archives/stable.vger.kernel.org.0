@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18FAE37D2DB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8C1837D2E2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242028AbhELSOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:14:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55186 "EHLO mail.kernel.org"
+        id S242071AbhELSO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:14:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234279AbhELSIJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:08:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C1D261628;
-        Wed, 12 May 2021 18:04:53 +0000 (UTC)
+        id S241618AbhELSIs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:08:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E10C61622;
+        Wed, 12 May 2021 18:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842694;
-        bh=LBtwEOIaJ4nCZqsS9YG3HNUNAC92HZWxjQNO35KTYu0=;
+        s=k20201202; t=1620842696;
+        bh=GoRF33lxi4Sv6gTiTfm+CXnbmD2PPLK6dO2vDYEaNyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VaUmO8+IRjd0e+Ja7er7XKjmZ/2dd2SmtH20MDW0oNgHZ+57Zt3YTiAj4IPuNiYmN
-         uYV1FHGbDyGMYkkF4H0hCWzzqzQw4NYBb4TM7AzeW3O3b8dlrT+dM6Wx2Jt11GTm1e
-         zKdkDX3uD01aHqoket6C1bKPkfDxyWVUoAGreyMI6uJZymsyoSR/OyThdXJTFchPn/
-         08YXjkYgIbk55SrbDY9AQbq+xte4fOqoP8rcILY+ruI8crjQ95nzdrxrC6rx+ldsDd
-         CGIZvi1M4qSScS/Cs1wmLN3qZF8KpfEmnkS0uOgEOAKoalYuDMxBI0l+VXouegBv+V
-         J2az9se3wiLyw==
+        b=kRMe3tjPI3ij3U47HgNTU0rljYmlKPBNqdbUm7aTdfyo9ysulaZfJ+XUCdcJt8qad
+         LdrmWhG85vOQB5TcH5f4FS2Cr2wnML1dX+4jv1FaAMZLzVudtuyxfYowahmq2s/L0L
+         pozA/ZbEo0uSi5lzCXinVXt9yNosudAF7x8QZCez3wWynGHPYq2vNXigCshKnXlSIY
+         djtePqsR7MHdW2KWu+dkQVD6vDNKMlXSLhodD4sqPrNcc8kfFATnfL5teyspPtZQ2V
+         zCJ3FWnZY/LoGcI2C4/vdCJwW2yTMM5Llf1xee1LQkCuxHpCHPrB7X4fSJ3HTzMmAc
+         7K4TpR5N/9juw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Bjorn Helgaas <bhelgaas@google.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Robert Richter <rric@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+Cc:     "louis.wang" <liang26812@gmail.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 02/18] PCI: thunder: Fix compile testing
-Date:   Wed, 12 May 2021 14:04:33 -0400
-Message-Id: <20210512180450.665586-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/18] ARM: 9066/1: ftrace: pause/unpause function graph tracer in cpu_suspend()
+Date:   Wed, 12 May 2021 14:04:34 -0400
+Message-Id: <20210512180450.665586-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180450.665586-1-sashal@kernel.org>
 References: <20210512180450.665586-1-sashal@kernel.org>
@@ -45,99 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: "louis.wang" <liang26812@gmail.com>
 
-[ Upstream commit 16f7ae5906dfbeff54f74ec75d0563bb3a87ab0b ]
+[ Upstream commit 8252ca87c7a2111502ee13994956f8c309faad7f ]
 
-Compile-testing these drivers is currently broken. Enabling it causes a
-couple of build failures though:
+Enabling function_graph tracer on ARM causes kernel panic, because the
+function graph tracer updates the "return address" of a function in order
+to insert a trace callback on function exit, it saves the function's
+original return address in a return trace stack, but cpu_suspend() may not
+return through the normal return path.
 
-  drivers/pci/controller/pci-thunder-ecam.c:119:30: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
-  drivers/pci/controller/pci-thunder-pem.c:54:2: error: implicit declaration of function 'writeq' [-Werror,-Wimplicit-function-declaration]
-  drivers/pci/controller/pci-thunder-pem.c:392:8: error: implicit declaration of function 'acpi_get_rc_resources' [-Werror,-Wimplicit-function-declaration]
+cpu_suspend() will resume directly via the cpu_resume path, but the return
+trace stack has been set-up by the subfunctions of cpu_suspend(), which
+makes the "return address" inconsistent with cpu_suspend().
 
-Fix them with the obvious one-line changes.
+This patch refers to Commit de818bd4522c40ea02a81b387d2fa86f989c9623
+("arm64: kernel: pause/unpause function graph tracer in cpu_suspend()"),
 
-Link: https://lore.kernel.org/r/20210308152501.2135937-2-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Reviewed-by: Robert Richter <rric@kernel.org>
+fixes the issue by pausing/resuming the function graph tracer on the thread
+executing cpu_suspend(), so that the function graph tracer state is kept
+consistent across functions that enter power down states and never return
+by effectively disabling graph tracer while they are executing.
+
+Signed-off-by: louis.wang <liang26812@gmail.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-thunder-ecam.c |  2 +-
- drivers/pci/controller/pci-thunder-pem.c  | 13 +++++++------
- drivers/pci/pci.h                         |  6 ++++++
- 3 files changed, 14 insertions(+), 7 deletions(-)
+ arch/arm/kernel/suspend.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-thunder-ecam.c b/drivers/pci/controller/pci-thunder-ecam.c
-index 32d1d7b81ef4..18715d2ce022 100644
---- a/drivers/pci/controller/pci-thunder-ecam.c
-+++ b/drivers/pci/controller/pci-thunder-ecam.c
-@@ -116,7 +116,7 @@ static int thunder_ecam_p2_config_read(struct pci_bus *bus, unsigned int devfn,
- 	 * the config space access window.  Since we are working with
- 	 * the high-order 32 bits, shift everything down by 32 bits.
+diff --git a/arch/arm/kernel/suspend.c b/arch/arm/kernel/suspend.c
+index d08099269e35..e126386fb78a 100644
+--- a/arch/arm/kernel/suspend.c
++++ b/arch/arm/kernel/suspend.c
+@@ -1,4 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
++#include <linux/ftrace.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/mm_types.h>
+@@ -26,6 +27,13 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
+ 	if (!idmap_pgd)
+ 		return -EINVAL;
+ 
++	/*
++	 * Function graph tracer state gets incosistent when the kernel
++	 * calls functions that never return (aka suspend finishers) hence
++	 * disable graph tracing during their execution.
++	 */
++	pause_graph_tracing();
++
+ 	/*
+ 	 * Provide a temporary page table with an identity mapping for
+ 	 * the MMU-enable code, required for resuming.  On successful
+@@ -33,6 +41,9 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
+ 	 * back to the correct page tables.
  	 */
--	node_bits = (cfg->res.start >> 32) & (1 << 12);
-+	node_bits = upper_32_bits(cfg->res.start) & (1 << 12);
- 
- 	v |= node_bits;
- 	set_val(v, where, size, val);
-diff --git a/drivers/pci/controller/pci-thunder-pem.c b/drivers/pci/controller/pci-thunder-pem.c
-index f127ce8bd4ef..1650ec2c35f9 100644
---- a/drivers/pci/controller/pci-thunder-pem.c
-+++ b/drivers/pci/controller/pci-thunder-pem.c
-@@ -11,6 +11,7 @@
- #include <linux/pci-acpi.h>
- #include <linux/pci-ecam.h>
- #include <linux/platform_device.h>
-+#include <linux/io-64-nonatomic-lo-hi.h>
- #include "../pci.h"
- 
- #if defined(CONFIG_PCI_HOST_THUNDER_PEM) || (defined(CONFIG_ACPI) && defined(CONFIG_PCI_QUIRKS))
-@@ -314,9 +315,9 @@ static int thunder_pem_init(struct device *dev, struct pci_config_window *cfg,
- 	 * structure here for the BAR.
- 	 */
- 	bar4_start = res_pem->start + 0xf00000;
--	pem_pci->ea_entry[0] = (u32)bar4_start | 2;
--	pem_pci->ea_entry[1] = (u32)(res_pem->end - bar4_start) & ~3u;
--	pem_pci->ea_entry[2] = (u32)(bar4_start >> 32);
-+	pem_pci->ea_entry[0] = lower_32_bits(bar4_start) | 2;
-+	pem_pci->ea_entry[1] = lower_32_bits(res_pem->end - bar4_start) & ~3u;
-+	pem_pci->ea_entry[2] = upper_32_bits(bar4_start);
- 
- 	cfg->priv = pem_pci;
- 	return 0;
-@@ -324,9 +325,9 @@ static int thunder_pem_init(struct device *dev, struct pci_config_window *cfg,
- 
- #if defined(CONFIG_ACPI) && defined(CONFIG_PCI_QUIRKS)
- 
--#define PEM_RES_BASE		0x87e0c0000000UL
--#define PEM_NODE_MASK		GENMASK(45, 44)
--#define PEM_INDX_MASK		GENMASK(26, 24)
-+#define PEM_RES_BASE		0x87e0c0000000ULL
-+#define PEM_NODE_MASK		GENMASK_ULL(45, 44)
-+#define PEM_INDX_MASK		GENMASK_ULL(26, 24)
- #define PEM_MIN_DOM_IN_NODE	4
- #define PEM_MAX_DOM_IN_NODE	10
- 
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index e9ede82ee2c2..39725b71300f 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -473,6 +473,12 @@ static inline int pci_dev_specific_reset(struct pci_dev *dev, int probe)
- #if defined(CONFIG_PCI_QUIRKS) && defined(CONFIG_ARM64)
- int acpi_get_rc_resources(struct device *dev, const char *hid, u16 segment,
- 			  struct resource *res);
-+#else
-+static inline int acpi_get_rc_resources(struct device *dev, const char *hid,
-+					u16 segment, struct resource *res)
-+{
-+	return -ENODEV;
-+}
+ 	ret = __cpu_suspend(arg, fn, __mpidr);
++
++	unpause_graph_tracing();
++
+ 	if (ret == 0) {
+ 		cpu_switch_mm(mm->pgd, mm);
+ 		local_flush_bp_all();
+@@ -46,7 +57,13 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
+ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
+ {
+ 	u32 __mpidr = cpu_logical_map(smp_processor_id());
+-	return __cpu_suspend(arg, fn, __mpidr);
++	int ret;
++
++	pause_graph_tracing();
++	ret = __cpu_suspend(arg, fn, __mpidr);
++	unpause_graph_tracing();
++
++	return ret;
+ }
+ #define	idmap_pgd	NULL
  #endif
- 
- u32 pci_rebar_get_possible_sizes(struct pci_dev *pdev, int bar);
 -- 
 2.30.2
 
