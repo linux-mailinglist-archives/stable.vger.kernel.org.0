@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C1EA37D2DE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E45FB37D2DD
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242049AbhELSOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:14:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
+        id S242043AbhELSOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:14:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241631AbhELSIs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241687AbhELSIs (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 14:08:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B69BF61412;
-        Wed, 12 May 2021 18:05:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92917616ED;
+        Wed, 12 May 2021 18:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842704;
-        bh=UiHprfsDhBPlWYXfRFyYrCW+JLjI9ilyBToEENB948E=;
+        s=k20201202; t=1620842706;
+        bh=xO9XK9Tn+qJGOfd2RkV/VZWWHNps1oUzT1w5ix6vWmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tuxU54He6yZ1wbU1lNXgI8tW1JkBBHfy6gaqIoVK8PtIcxCMEwlFEXTiXX1frKhuJ
-         eMsjaZs5fSemu+1qtNWis6KiW4nNUhIiHsnNzPATid/m35T9H7rEdSXtGAfknqSnss
-         ADOgMHhmuQGbHGVCNSBX7soVczqwONntD/kuj7hUDNSBJ0Cu5yCheuqIrhKbeILUOh
-         7pENYJgqMaT+O+cb7rGFee2P3ix94ZQwYzXMHaRK22ToqVrbkMe+3DshbGKiXOQmb3
-         oI8pLvwOyHjGzaIclz2bTlX6ApzwONGS8j7X4euwlrQDfAXItdj8rpfCMJBQF0tey4
-         z/GL6teSzDrVQ==
+        b=KpKjSEmwbiQ5WOeVSEeak7Ar5nCCDL9Qug/Zo7qYnFjRGBMgd6jhcHawVmvJlLI3r
+         /HaeNy6UHady/Lpk+Pwq3o/Csidj2Txfm7yd7+1cfvDwyc5I4PX7lqlKINjE3ZFN9Q
+         v6eq7afKw6ufq4Vxu8D2H+KPWRshZH2/+V0aur2Y1KGL4aPLivS5pFH+cBlGCag9SQ
+         snkOC+4n5r1yrygwRlarZElMZOj1nt1nNGYiveDEH8ezBxWh2uS3O7udvro+OQ/JKh
+         8g4PfimbMc/F/NRDcpDiBG5+tJqHSwSz/Qnkcyz01os91XMpiGrcjJprDt0VUIbmfK
+         g3n+gYmBoLktw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Ritesh Raj Sarraf <rrs@debian.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 08/18] um: Mark all kernel symbols as local
-Date:   Wed, 12 May 2021 14:04:39 -0400
-Message-Id: <20210512180450.665586-8-sashal@kernel.org>
+Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 09/18] ARM: 9075/1: kernel: Fix interrupted SMC calls
+Date:   Wed, 12 May 2021 14:04:40 -0400
+Message-Id: <20210512180450.665586-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180450.665586-1-sashal@kernel.org>
 References: <20210512180450.665586-1-sashal@kernel.org>
@@ -44,109 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit d5027ca63e0e778b641cf23e3f5c6d6212cf412b ]
+[ Upstream commit 57ac51667d8cd62731223d687e5fe7b41c502f89 ]
 
-Ritesh reported a bug [1] against UML, noting that it crashed on
-startup. The backtrace shows the following (heavily redacted):
+On Qualcomm ARM32 platforms, the SMC call can return before it has
+completed. If this occurs, the call can be restarted, but it requires
+using the returned session ID value from the interrupted SMC call.
 
-(gdb) bt
-...
- #26 0x0000000060015b5d in sem_init () at ipc/sem.c:268
- #27 0x00007f89906d92f7 in ?? () from /lib/x86_64-linux-gnu/libcom_err.so.2
- #28 0x00007f8990ab8fb2 in call_init (...) at dl-init.c:72
-...
- #40 0x00007f89909bf3a6 in nss_load_library (...) at nsswitch.c:359
-...
- #44 0x00007f8990895e35 in _nss_compat_getgrnam_r (...) at nss_compat/compat-grp.c:486
- #45 0x00007f8990968b85 in __getgrnam_r [...]
- #46 0x00007f89909d6b77 in grantpt [...]
- #47 0x00007f8990a9394e in __GI_openpty [...]
- #48 0x00000000604a1f65 in openpty_cb (...) at arch/um/os-Linux/sigio.c:407
- #49 0x00000000604a58d0 in start_idle_thread (...) at arch/um/os-Linux/skas/process.c:598
- #50 0x0000000060004a3d in start_uml () at arch/um/kernel/skas/process.c:45
- #51 0x00000000600047b2 in linux_main (...) at arch/um/kernel/um_arch.c:334
- #52 0x000000006000574f in main (...) at arch/um/os-Linux/main.c:144
+The ARM32 SMCC code already has the provision to add platform specific
+quirks for things like this. So let's make use of it and add the
+Qualcomm specific quirk (ARM_SMCCC_QUIRK_QCOM_A6) used by the QCOM_SCM
+driver.
 
-indicating that the UML function openpty_cb() calls openpty(),
-which internally calls __getgrnam_r(), which causes the nsswitch
-machinery to get started.
+This change is similar to the below one added for ARM64 a while ago:
+commit 82bcd087029f ("firmware: qcom: scm: Fix interrupted SCM calls")
 
-This loads, through lots of indirection that I snipped, the
-libcom_err.so.2 library, which (in an unknown function, "??")
-calls sem_init().
+Without this change, the Qualcomm ARM32 platforms like SDX55 will return
+-EINVAL for SMC calls used for modem firmware loading and validation.
 
-Now, of course it wants to get libpthread's sem_init(), since
-it's linked against libpthread. However, the dynamic linker
-looks up that symbol against the binary first, and gets the
-kernel's sem_init().
-
-Hajime Tazaki noted that "objcopy -L" can localize a symbol,
-so the dynamic linker wouldn't do the lookup this way. I tried,
-but for some reason that didn't seem to work.
-
-Doing the same thing in the linker script instead does seem to
-work, though I cannot entirely explain - it *also* works if I
-just add "VERSION { { global: *; }; }" instead, indicating that
-something else is happening that I don't really understand. It
-may be that explicitly doing that marks them with some kind of
-empty version, and that's different from the default.
-
-Explicitly marking them with a version breaks kallsyms, so that
-doesn't seem to be possible.
-
-Marking all the symbols as local seems correct, and does seem
-to address the issue, so do that. Also do it for static link,
-nsswitch libraries could still be loaded there.
-
-[1] https://bugs.debian.org/983379
-
-Reported-by: Ritesh Raj Sarraf <rrs@debian.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Tested-By: Ritesh Raj Sarraf <rrs@debian.org>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/dyn.lds.S | 6 ++++++
- arch/um/kernel/uml.lds.S | 6 ++++++
- 2 files changed, 12 insertions(+)
+ arch/arm/kernel/asm-offsets.c |  3 +++
+ arch/arm/kernel/smccc-call.S  | 11 ++++++++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
-index 5568cf882371..899233625467 100644
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -6,6 +6,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
+diff --git a/arch/arm/kernel/asm-offsets.c b/arch/arm/kernel/asm-offsets.c
+index ae85f67a6352..40afe953a0e2 100644
+--- a/arch/arm/kernel/asm-offsets.c
++++ b/arch/arm/kernel/asm-offsets.c
+@@ -30,6 +30,7 @@
+ #include <asm/vdso_datapage.h>
+ #include <asm/hardware/cache-l2x0.h>
+ #include <linux/kbuild.h>
++#include <linux/arm-smccc.h>
+ #include "signal.h"
  
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
- {
-   PROVIDE (__executable_start = START);
-diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
-index 36b07ec09742..22ff701d9b71 100644
---- a/arch/um/kernel/uml.lds.S
-+++ b/arch/um/kernel/uml.lds.S
-@@ -7,6 +7,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
+ /*
+@@ -159,6 +160,8 @@ int main(void)
+   DEFINE(SLEEP_SAVE_SP_PHYS,	offsetof(struct sleep_save_sp, save_ptr_stash_phys));
+   DEFINE(SLEEP_SAVE_SP_VIRT,	offsetof(struct sleep_save_sp, save_ptr_stash));
+ #endif
++  DEFINE(ARM_SMCCC_QUIRK_ID_OFFS,	offsetof(struct arm_smccc_quirk, id));
++  DEFINE(ARM_SMCCC_QUIRK_STATE_OFFS,	offsetof(struct arm_smccc_quirk, state));
+   BLANK();
+   DEFINE(DMA_BIDIRECTIONAL,	DMA_BIDIRECTIONAL);
+   DEFINE(DMA_TO_DEVICE,		DMA_TO_DEVICE);
+diff --git a/arch/arm/kernel/smccc-call.S b/arch/arm/kernel/smccc-call.S
+index e5d43066b889..13d307cd364c 100644
+--- a/arch/arm/kernel/smccc-call.S
++++ b/arch/arm/kernel/smccc-call.S
+@@ -12,7 +12,9 @@
+  *
+  */
+ #include <linux/linkage.h>
++#include <linux/arm-smccc.h>
  
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
- {
-   /* This must contain the right address - not quite the default ELF one.*/
++#include <asm/asm-offsets.h>
+ #include <asm/opcodes-sec.h>
+ #include <asm/opcodes-virt.h>
+ #include <asm/unwind.h>
+@@ -36,7 +38,14 @@ UNWIND(	.fnstart)
+ UNWIND(	.save	{r4-r7})
+ 	ldm	r12, {r4-r7}
+ 	\instr
+-	pop	{r4-r7}
++	ldr	r4, [sp, #36]
++	cmp	r4, #0
++	beq	1f			// No quirk structure
++	ldr     r5, [r4, #ARM_SMCCC_QUIRK_ID_OFFS]
++	cmp     r5, #ARM_SMCCC_QUIRK_QCOM_A6
++	bne	1f			// No quirk present
++	str	r6, [r4, #ARM_SMCCC_QUIRK_STATE_OFFS]
++1:	pop	{r4-r7}
+ 	ldr	r12, [sp, #(4 * 4)]
+ 	stm	r12, {r0-r3}
+ 	bx	lr
 -- 
 2.30.2
 
