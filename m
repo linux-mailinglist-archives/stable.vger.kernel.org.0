@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAD5A37CAEE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEDF937CAF0
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238918AbhELQdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:33:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43696 "EHLO mail.kernel.org"
+        id S239000AbhELQdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241305AbhELQ1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241300AbhELQ1A (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:27:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 807566162A;
-        Wed, 12 May 2021 15:51:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F249061625;
+        Wed, 12 May 2021 15:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834689;
-        bh=dNBDmRVLWEf+T2YMip7beI75nQYpYaiIIkQ7sh/4L7M=;
+        s=korg; t=1620834691;
+        bh=6QQ2TqVHf3CmrVi6DFUE6LljiPYNFvr21qXvzOq5xl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/CBPaniGLb3LfBYBuURaogDLgZVdfKFWZ1W1XvGvdWbOS0+qZ0En2pe5fIlb2ey0
-         2+0RRo6f7WtbJlz3cAA9QwxOHO4l9tBoiQcGB1v+O3yD5YXocewCxb0ih1dtqbOd9d
-         7qCAi/7nhucIvgfUZ4aBJUfWO9C99wp10KqpOASY=
+        b=Ws5nK61lmRXuXnOeXQ1EqkmFheAi1Qoa78wQ5BDbrWJ9jESYThjPqbbaP6PAyBy7T
+         6thekljS+tKqkSOSg54yPOfujoTtCZGjw3N5Hf0ayXMUbcRbKrMt6KBueJv79WAaDx
+         Fy/KSGBrxs5tUshPV8F3pOLp0W3rt6kMTjF5O2w8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
+        Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.12 045/677] iio: sx9310: Fix access to variable DT array
-Date:   Wed, 12 May 2021 16:41:31 +0200
-Message-Id: <20210512144838.705796293@linuxfoundation.org>
+Subject: [PATCH 5.12 046/677] iio: hid-sensor-rotation: Fix quaternion data not correct
+Date:   Wed, 12 May 2021 16:41:32 +0200
+Message-Id: <20210512144838.738510534@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,91 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gwendal Grignou <gwendal@chromium.org>
+From: Ye Xiang <xiang.ye@intel.com>
 
-commit 6f0078ae704d94b1a93e5f3d0a44cf3d8090fa91 upstream.
+commit 6c3b615379d7cd90d2f70b3cf9860c5a4910546a upstream.
 
-With the current code, we want to read 4 entries from DT array
-"semtech,combined-sensors". If there are less, we silently fail as
-of_property_read_u32_array() returns -EOVERFLOW.
+Because the data of HID_USAGE_SENSOR_ORIENT_QUATERNION defined by ISH FW
+is s16, but quaternion data type is in_rot_quaternion_type(le:s16/32X4>>0),
+need to transform data type from s16 to s32
 
-First count the number of entries and if between 1 and 4, collect the
-content of the array.
+May require manual backporting.
 
-Fixes: 5b19ca2c78a0 ("iio: sx9310: Set various settings from DT")
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210326184603.251683-2-gwendal@chromium.org
-Cc: <stable@vger.kernel.org>
+Fixes: fc18dddc0625 ("iio: hid-sensors: Added device rotation support")
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
+Link: https://lore.kernel.org/r/20210130102546.31397-1-xiang.ye@intel.com
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/proximity/sx9310.c |   40 ++++++++++++++++++++++++++++------------
- 1 file changed, 28 insertions(+), 12 deletions(-)
+ drivers/iio/orientation/hid-sensor-rotation.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/proximity/sx9310.c
-+++ b/drivers/iio/proximity/sx9310.c
-@@ -1221,17 +1221,17 @@ static int sx9310_init_compensation(stru
- }
+--- a/drivers/iio/orientation/hid-sensor-rotation.c
++++ b/drivers/iio/orientation/hid-sensor-rotation.c
+@@ -21,7 +21,7 @@ struct dev_rot_state {
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info quaternion;
+ 	struct {
+-		u32 sampled_vals[4] __aligned(16);
++		s32 sampled_vals[4] __aligned(16);
+ 		u64 timestamp __aligned(8);
+ 	} scan;
+ 	int scale_pre_decml;
+@@ -170,8 +170,15 @@ static int dev_rot_capture_sample(struct
+ 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
  
- static const struct sx9310_reg_default *
--sx9310_get_default_reg(struct sx9310_data *data, int i,
-+sx9310_get_default_reg(struct sx9310_data *data, int idx,
- 		       struct sx9310_reg_default *reg_def)
- {
--	int ret;
- 	const struct device_node *np = data->client->dev.of_node;
--	u32 combined[SX9310_NUM_CHANNELS] = { 4, 4, 4, 4 };
-+	u32 combined[SX9310_NUM_CHANNELS];
-+	u32 start = 0, raw = 0, pos = 0;
- 	unsigned long comb_mask = 0;
-+	int ret, i, count;
- 	const char *res;
--	u32 start = 0, raw = 0, pos = 0;
- 
--	memcpy(reg_def, &sx9310_default_regs[i], sizeof(*reg_def));
-+	memcpy(reg_def, &sx9310_default_regs[idx], sizeof(*reg_def));
- 	if (!np)
- 		return reg_def;
- 
-@@ -1242,15 +1242,31 @@ sx9310_get_default_reg(struct sx9310_dat
- 			reg_def->def |= SX9310_REG_PROX_CTRL2_SHIELDEN_GROUND;
- 		}
- 
--		reg_def->def &= ~SX9310_REG_PROX_CTRL2_COMBMODE_MASK;
--		of_property_read_u32_array(np, "semtech,combined-sensors",
--					   combined, ARRAY_SIZE(combined));
--		for (i = 0; i < ARRAY_SIZE(combined); i++) {
--			if (combined[i] <= SX9310_NUM_CHANNELS)
--				comb_mask |= BIT(combined[i]);
-+		count = of_property_count_elems_of_size(np, "semtech,combined-sensors",
-+							sizeof(u32));
-+		if (count > 0 && count <= ARRAY_SIZE(combined)) {
-+			ret = of_property_read_u32_array(np, "semtech,combined-sensors",
-+							 combined, count);
-+			if (ret)
-+				break;
+ 	if (usage_id == HID_USAGE_SENSOR_ORIENT_QUATERNION) {
+-		memcpy(&rot_state->scan.sampled_vals, raw_data,
+-		       sizeof(rot_state->scan.sampled_vals));
++		if (raw_len / 4 == sizeof(s16)) {
++			rot_state->scan.sampled_vals[0] = ((s16 *)raw_data)[0];
++			rot_state->scan.sampled_vals[1] = ((s16 *)raw_data)[1];
++			rot_state->scan.sampled_vals[2] = ((s16 *)raw_data)[2];
++			rot_state->scan.sampled_vals[3] = ((s16 *)raw_data)[3];
 +		} else {
-+			/*
-+			 * Either the property does not exist in the DT or the
-+			 * number of entries is incorrect.
-+			 */
-+			break;
- 		}
-+		for (i = 0; i < count; i++) {
-+			if (combined[i] >= SX9310_NUM_CHANNELS) {
-+				/* Invalid sensor (invalid DT). */
-+				break;
-+			}
-+			comb_mask |= BIT(combined[i]);
++			memcpy(&rot_state->scan.sampled_vals, raw_data,
++			       sizeof(rot_state->scan.sampled_vals));
 +		}
-+		if (i < count)
-+			break;
  
--		comb_mask &= 0xf;
-+		reg_def->def &= ~SX9310_REG_PROX_CTRL2_COMBMODE_MASK;
- 		if (comb_mask == (BIT(3) | BIT(2) | BIT(1) | BIT(0)))
- 			reg_def->def |= SX9310_REG_PROX_CTRL2_COMBMODE_CS0_CS1_CS2_CS3;
- 		else if (comb_mask == (BIT(1) | BIT(2)))
+ 		dev_dbg(&indio_dev->dev, "Recd Quat len:%zu::%zu\n", raw_len,
+ 			sizeof(rot_state->scan.sampled_vals));
 
 
