@@ -2,175 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6C037BF01
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 15:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5820E37BF23
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231168AbhELN6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 09:58:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56934 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230382AbhELN6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 09:58:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C279A613E6;
-        Wed, 12 May 2021 13:56:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620827812;
-        bh=/SwytpLER53SoKzsVJV7vjHf+tL0HeRqhOfb5H2UgdE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=COSfFeTxRcJc1odUwvtipkiiOeYT4ZyF7gHFY0Z0hQfA0xVDrFUIYuUeyqNNp6dNf
-         ul3krEiHIX40EsAAQHE3/TEAspzMU01SmtLbJ0dmBWiC3CeAXb7jZX4Rz6haRPhi2R
-         RL1+UU8RbEOlTjxDr6oIpjmJ3W+IlTA2I8yY+pfs=
-Date:   Wed, 12 May 2021 15:56:49 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     lucien.xin@gmail.com, davem@davemloft.net,
-        orcohen@paloaltonetworks.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] sctp: delay auto_asconf init until
- binding the first addr" failed to apply to 5.12-stable tree
-Message-ID: <YJveoauWrzbeJ6U/@kroah.com>
-References: <162082148164230@kroah.com>
- <YJvLguBJ8zTUptlX@eldamar.lan>
- <YJvMxr1XwARM1ClT@eldamar.lan>
+        id S230362AbhELOCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55866 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231144AbhELOCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 10:02:40 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F76C061574
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 07:01:31 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id gj14so13559223pjb.5
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 07:01:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=DyPIkJoGy7Qa0iWsv90g65hXdzNbNO/iSlqeqpAjSSQ=;
+        b=Ot5uj3CUsFU6FQE1WoIq0mDpo8sD1dZ2RlQ4ym3XTtakRM0epIjXSyqq/KwEFePWPA
+         YvlQLpebBoaBKjHXEXmaAA/YeM5s62LwqsXct5+X00CfkJaCwUvrUFhurLkAWBcCKWlp
+         C4ocQrA90LX+5Hr1H0g1FbpAEVDq5mF9Jw+NwpHNAYY7dukuzonLB8FQL7Cx4fwtCInU
+         upGlORomJuptujhfU1hv6RDc3UWtgpkIghZiP8Q02xj1Wu2fQYP8JpM8/G7U2ZO+Ovbs
+         mX21OSLDGJTcHSYfSoRLZ2zIFnF870HB70lPH9MbzZheVxFsVqGY8H9LKikIXcDqoqc+
+         8vlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=DyPIkJoGy7Qa0iWsv90g65hXdzNbNO/iSlqeqpAjSSQ=;
+        b=V7cl8OTGg3PWbnQqKlLuSiSXJxXzKYqjFM0/SZ6nfLuC1DUPuJRrwFwPIKqA6MMtjX
+         1i74+y0aCKb/vloUbEZvWGBDo4Pj+FOGB37+Vm6/HVQpRqgJj/h4fkam8Pzb+qnMyeoN
+         lNzLjo1bgkuyuUYSok3NuX5WmMHPhBmLMuxX+oQuPzMrsHVOP431T94JUq3RwbV/744Q
+         NjftVC145nbTwC4OJ4e5nYVdGJclCeYUoWwH15fvGKBIp7hMYt5uLluwMxyo7mF12Q3J
+         DYMFwQgNc7YDph/oaANDU8+O+GprFLSelHVrYRtQIEJGgAsJ31PlFT48waAk+L4RHRuZ
+         c/LA==
+X-Gm-Message-State: AOAM531ZtvV1udISKegVGV+BpW918woccFNfKOU/wpdVkrIyDihD/4I/
+        //JDy920R58/CPWiCFypQwOiC9yunXhDYimO
+X-Google-Smtp-Source: ABdhPJw1dmKqVgiIC6UPZ6/1gGJAMTERzqetu2ynJwDot19G81aDBZ5Tjb/2LR79itgIrmMv9ybVFg==
+X-Received: by 2002:a17:90a:cf09:: with SMTP id h9mr11025174pju.186.1620828090820;
+        Wed, 12 May 2021 07:01:30 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l62sm42946pfl.88.2021.05.12.07.01.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 May 2021 07:01:30 -0700 (PDT)
+Message-ID: <609bdfba.1c69fb81.2cb4d.0212@mx.google.com>
+Date:   Wed, 12 May 2021 07:01:30 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YJvMxr1XwARM1ClT@eldamar.lan>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.190-149-geb6fd4906c9ef
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 161 runs,
+ 5 regressions (v4.19.190-149-geb6fd4906c9ef)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 12, 2021 at 02:40:38PM +0200, Salvatore Bonaccorso wrote:
-> Hi,
-> 
-> On Wed, May 12, 2021 at 02:35:16PM +0200, Salvatore Bonaccorso wrote:
-> > Hi Greg,
-> > 
-> > [disclaimer, just commenting as a bystander, noticing this failed
-> > apply]
-> > 
-> > On Wed, May 12, 2021 at 02:11:21PM +0200, gregkh@linuxfoundation.org wrote:
-> > > 
-> > > The patch below does not apply to the 5.12-stable tree.
-> > > If someone wants it applied there, or to any other stable or longterm
-> > > tree, then please email the backport, including the original git commit
-> > > id to <stable@vger.kernel.org>.
-> > > 
-> > > thanks,
-> > > 
-> > > greg k-h
-> > > 
-> > > ------------------ original commit in Linus's tree ------------------
-> > > 
-> > > From 34e5b01186858b36c4d7c87e1a025071e8e2401f Mon Sep 17 00:00:00 2001
-> > > From: Xin Long <lucien.xin@gmail.com>
-> > > Date: Mon, 3 May 2021 05:11:42 +0800
-> > > Subject: [PATCH] sctp: delay auto_asconf init until binding the first addr
-> > > 
-> > > As Or Cohen described:
-> > > 
-> > >   If sctp_destroy_sock is called without sock_net(sk)->sctp.addr_wq_lock
-> > >   held and sp->do_auto_asconf is true, then an element is removed
-> > >   from the auto_asconf_splist without any proper locking.
-> > > 
-> > >   This can happen in the following functions:
-> > >   1. In sctp_accept, if sctp_sock_migrate fails.
-> > >   2. In inet_create or inet6_create, if there is a bpf program
-> > >      attached to BPF_CGROUP_INET_SOCK_CREATE which denies
-> > >      creation of the sctp socket.
-> > > 
-> > > This patch is to fix it by moving the auto_asconf init out of
-> > > sctp_init_sock(), by which inet_create()/inet6_create() won't
-> > > need to operate it in sctp_destroy_sock() when calling
-> > > sk_common_release().
-> > > 
-> > > It also makes more sense to do auto_asconf init while binding the
-> > > first addr, as auto_asconf actually requires an ANY addr bind,
-> > > see it in sctp_addr_wq_timeout_handler().
-> > > 
-> > > This addresses CVE-2021-23133.
-> > > 
-> > > Fixes: 610236587600 ("bpf: Add new cgroup attach type to enable sock modifications")
-> > > Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-> > > Signed-off-by: Xin Long <lucien.xin@gmail.com>
-> > > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > > 
-> > > diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-> > > index 76a388b5021c..40f9f6c4a0a1 100644
-> > > --- a/net/sctp/socket.c
-> > > +++ b/net/sctp/socket.c
-> > > @@ -357,6 +357,18 @@ static struct sctp_af *sctp_sockaddr_af(struct sctp_sock *opt,
-> > >  	return af;
-> > >  }
-> > >  
-> > > +static void sctp_auto_asconf_init(struct sctp_sock *sp)
-> > > +{
-> > > +	struct net *net = sock_net(&sp->inet.sk);
-> > > +
-> > > +	if (net->sctp.default_auto_asconf) {
-> > > +		spin_lock(&net->sctp.addr_wq_lock);
-> > > +		list_add_tail(&sp->auto_asconf_list, &net->sctp.auto_asconf_splist);
-> > > +		spin_unlock(&net->sctp.addr_wq_lock);
-> > > +		sp->do_auto_asconf = 1;
-> > > +	}
-> > > +}
-> > > +
-> > >  /* Bind a local address either to an endpoint or to an association.  */
-> > >  static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
-> > >  {
-> > > @@ -418,8 +430,10 @@ static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
-> > >  		return -EADDRINUSE;
-> > >  
-> > >  	/* Refresh ephemeral port.  */
-> > > -	if (!bp->port)
-> > > +	if (!bp->port) {
-> > >  		bp->port = inet_sk(sk)->inet_num;
-> > > +		sctp_auto_asconf_init(sp);
-> > > +	}
-> > >  
-> > >  	/* Add the address to the bind address list.
-> > >  	 * Use GFP_ATOMIC since BHs will be disabled.
-> > > @@ -4993,19 +5007,6 @@ static int sctp_init_sock(struct sock *sk)
-> > >  	sk_sockets_allocated_inc(sk);
-> > >  	sock_prot_inuse_add(net, sk->sk_prot, 1);
-> > >  
-> > > -	/* Nothing can fail after this block, otherwise
-> > > -	 * sctp_destroy_sock() will be called without addr_wq_lock held
-> > > -	 */
-> > > -	if (net->sctp.default_auto_asconf) {
-> > > -		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
-> > > -		list_add_tail(&sp->auto_asconf_list,
-> > > -		    &net->sctp.auto_asconf_splist);
-> > > -		sp->do_auto_asconf = 1;
-> > > -		spin_unlock(&sock_net(sk)->sctp.addr_wq_lock);
-> > > -	} else {
-> > > -		sp->do_auto_asconf = 0;
-> > > -	}
-> > > -
-> > >  	local_bh_enable();
-> > >  
-> > >  	return 0;
-> > > @@ -9401,6 +9402,8 @@ static int sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
-> > >  			return err;
-> > >  	}
-> > >  
-> > > +	sctp_auto_asconf_init(newsp);
-> > > +
-> > >  	/* Move any messages in the old socket's receive queue that are for the
-> > >  	 * peeled off association to the new socket's receive queue.
-> > >  	 */
-> > > 
-> > 
-> > Before applying this patch one needs to revert first
-> > b166a20b07382b8bc1dcee2a448715c9c2c81b5b .
-> > 
-> > So first apply 01bfe5e8e428 ("Revert "net/sctp: fix race condition in
-> > sctp_destroy_sock"") and then apply 34e5b0118685 ("sctp: delay
-> > auto_asconf init until binding the first addr").
-> 
-> Forgot to mention: At least for back to 5.10.y this should be the
-> problem for the patch not applying. Not checked for older series
-> further.
+stable-rc/queue/4.19 baseline: 161 runs, 5 regressions (v4.19.190-149-geb6f=
+d4906c9ef)
 
-Thank you, that worked!
+Regressions Summary
+-------------------
 
-greg k-h
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.190-149-geb6fd4906c9ef/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.190-149-geb6fd4906c9ef
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      eb6fd4906c9ef549c4d279b91bb65f995c213804 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609badc13c948aa292d08f2b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609badc13c948aa292d08=
+f2c
+        failing since 179 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609bad383d424ff6d9d08f63
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609bad383d424ff6d9d08=
+f64
+        failing since 179 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609bc59604111f4238d08f2d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609bc59604111f4238d08=
+f2e
+        failing since 179 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609bad853703c72645d08f9b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609bad853703c72645d08=
+f9c
+        failing since 179 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609bbc29159951bd8dd08f31
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-=
+qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
+-149-geb6fd4906c9ef/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-=
+qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609bbc29159951bd8dd08=
+f32
+        failing since 179 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
