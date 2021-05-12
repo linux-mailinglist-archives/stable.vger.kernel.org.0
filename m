@@ -2,121 +2,245 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A111D37B8AA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2534137B8BC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230352AbhELIyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:54:46 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:58747 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230145AbhELIyp (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 12 May 2021 04:54:45 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id C009F445;
-        Wed, 12 May 2021 04:53:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 May 2021 04:53:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YyibJo
-        FDD8wwoDTaU6LQsw1FnduP1oBukJRIS+qfVpM=; b=sp7T7Ucv3rnqb893IO1v5c
-        Ynj4yH+3W8we9FLu9LnAfOEl4DXYmgFM7itUoqs4os70fnc6vII8bC26dBhRIZMr
-        kD4eW4A4JXN1rlVWi0cdNOLMTSPKklUgomtYMTtauOi9PQDTnPi/ZBF1fARPv/we
-        CXLWoY+QRtm2orIYG4S9ZQbgOnXRDoY4DYP1eke3fRfZTZLEw4xiTzkyluGJSamx
-        +H5oD6pTe1iiiJpjvEj20iXsnT7uHlsmcUyo8VcQc8fuiRXjB3WL2XwMaW0ddqvo
-        2KEaf/cJRJpLdIjgQUpHjkpLH1gbtKCt4tevLwXhPV8lnEmARjqZrEBRcpeFuAeg
-        ==
-X-ME-Sender: <xms:kJebYCagtJRraeWcrnspt2uhIGjqRcnZFKcmc_W9AhrxTFGD1iE0Zg>
-    <xme:kJebYFZwyHcDd887ziLSV-3yDzWE3BXDOpHrUCG3pAMfje4uXCUO1oTSiGLpUN5ah
-    h12HdlV2mQnng>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgtdehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:kJebYM9w7S_ylSTzRB8vG-oGpzT_XpMNh-nUMNWtUQkXWIfBDNf9Pw>
-    <xmx:kJebYEpuKoEAa3ogfAvNCffvSdC3tGbtfdjsmRwINDDzKIHhKD86gg>
-    <xmx:kJebYNo1ozJbvvdRhwmWKk4rIyOiJ1bxcOuYBRFO9ik6wRxMZ_nPqA>
-    <xmx:kJebYOA4AQM38KNTM_J_DlSJ3_XIJx5fe88kC3Fcqealv1Hxxr1Ddx0jQb8>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:53:35 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: hid-sensor-rotation: Fix quaternion data not correct" failed to apply to 5.10-stable tree
-To:     xiang.ye@intel.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:53:19 +0200
-Message-ID: <16208095997559@kroah.com>
+        id S230427AbhELI7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:59:31 -0400
+Received: from mx2.suse.de ([195.135.220.15]:51126 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230114AbhELI7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 04:59:31 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1620809902; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=JEJAAsKoE0eQiF5+PV8maq1zsojULuNLbEi3O1AKMDg=;
+        b=ikOA9KwajAvJksUs8B6GDYRFCEDJxCIlsjlTMGl8bRShnvBHR+eXOI9k9tH4K59ZfP9GZ3
+        Q/o3Xl6hWissygU2sNZqKTyHTDRBHhw+u4GqunrXtwYT/PQiZw9zf7AX+cotqixcMrnrrj
+        NlETytXv3qpkn56hoKPjQZPmJQhPdXc=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 37B7FAF83;
+        Wed, 12 May 2021 08:58:22 +0000 (UTC)
+Subject: Re: [PATCH 3/6] x86/sev-es: Use __put_user()/__get_user
+To:     'Joerg Roedel' <joro@8bytes.org>
+Cc:     David Laight <David.Laight@aculab.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        Hyunwook Baek <baekhw@google.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        "linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>
+References: <20210512075445.18935-1-joro@8bytes.org>
+ <20210512075445.18935-4-joro@8bytes.org>
+ <0496626f018d4d27a8034a4822170222@AcuMS.aculab.com>
+ <fcb2c501-70ca-1a54-4a75-8ab05c21ee30@suse.com> <YJuW4TtRJKZ+OIhj@8bytes.org>
+From:   Juergen Gross <jgross@suse.com>
+Message-ID: <92244e37-4443-98bd-24aa-bf59548aab47@suse.com>
+Date:   Wed, 12 May 2021 10:58:20 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <YJuW4TtRJKZ+OIhj@8bytes.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Mwe7cqnRl5LMoKqZofkx6utlnEwQnFKIy"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Mwe7cqnRl5LMoKqZofkx6utlnEwQnFKIy
+Content-Type: multipart/mixed; boundary="vVru1iItKcksFetZ4S5P4j44F1owgvmO4";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: 'Joerg Roedel' <joro@8bytes.org>
+Cc: David Laight <David.Laight@aculab.com>, "x86@kernel.org"
+ <x86@kernel.org>, Hyunwook Baek <baekhw@google.com>,
+ Joerg Roedel <jroedel@suse.de>,
+ "stable@vger.kernel.org" <stable@vger.kernel.org>,
+ "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>,
+ Dan Williams <dan.j.williams@intel.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Kees Cook <keescook@chromium.org>,
+ David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>,
+ Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>,
+ Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
+ Martin Radev <martin.b.radev@gmail.com>,
+ Arvind Sankar <nivedita@alum.mit.edu>,
+ "linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
+Message-ID: <92244e37-4443-98bd-24aa-bf59548aab47@suse.com>
+Subject: Re: [PATCH 3/6] x86/sev-es: Use __put_user()/__get_user
+References: <20210512075445.18935-1-joro@8bytes.org>
+ <20210512075445.18935-4-joro@8bytes.org>
+ <0496626f018d4d27a8034a4822170222@AcuMS.aculab.com>
+ <fcb2c501-70ca-1a54-4a75-8ab05c21ee30@suse.com> <YJuW4TtRJKZ+OIhj@8bytes.org>
+In-Reply-To: <YJuW4TtRJKZ+OIhj@8bytes.org>
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--vVru1iItKcksFetZ4S5P4j44F1owgvmO4
+Content-Type: multipart/mixed;
+ boundary="------------00DC2C3A42AE2C6F417F0B4A"
+Content-Language: en-US
 
-thanks,
+This is a multi-part message in MIME format.
+--------------00DC2C3A42AE2C6F417F0B4A
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+On 12.05.21 10:50, 'Joerg Roedel' wrote:
+> On Wed, May 12, 2021 at 10:16:12AM +0200, Juergen Gross wrote:
+>> You want something like xen_safe_[read|write]_ulong().
+>=20
+>  From a first glance I can't see it, what is the difference between the=
 
------------------- original commit in Linus's tree ------------------
+> xen_safe_*_ulong() functions and __get_user()/__put_user()? The only
+> difference I can see is that __get/__put_user() support different acces=
+s
+> sizes, but neither of those disables page-faults by itself, for example=
+=2E
+>=20
+> Couldn't these xen-specific functions not also be replaces by
+> __get_user()/__put_user()?
 
-From 6c3b615379d7cd90d2f70b3cf9860c5a4910546a Mon Sep 17 00:00:00 2001
-From: Ye Xiang <xiang.ye@intel.com>
-Date: Sat, 30 Jan 2021 18:25:46 +0800
-Subject: [PATCH] iio: hid-sensor-rotation: Fix quaternion data not correct
+No, those were used before, but commit 9da3f2b7405440 broke Xen's use
+case. That is why I did commit 1457d8cf7664f.
 
-Because the data of HID_USAGE_SENSOR_ORIENT_QUATERNION defined by ISH FW
-is s16, but quaternion data type is in_rot_quaternion_type(le:s16/32X4>>0),
-need to transform data type from s16 to s32
 
-May require manual backporting.
+Juergen
 
-Fixes: fc18dddc0625 ("iio: hid-sensors: Added device rotation support")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Link: https://lore.kernel.org/r/20210130102546.31397-1-xiang.ye@intel.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+--------------00DC2C3A42AE2C6F417F0B4A
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
 
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index 18e4ef060096..c087d8f72a54 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -21,7 +21,7 @@ struct dev_rot_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info quaternion;
- 	struct {
--		u32 sampled_vals[4] __aligned(16);
-+		s32 sampled_vals[4] __aligned(16);
- 		u64 timestamp __aligned(8);
- 	} scan;
- 	int scale_pre_decml;
-@@ -170,8 +170,15 @@ static int dev_rot_capture_sample(struct hid_sensor_hub_device *hsdev,
- 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
- 
- 	if (usage_id == HID_USAGE_SENSOR_ORIENT_QUATERNION) {
--		memcpy(&rot_state->scan.sampled_vals, raw_data,
--		       sizeof(rot_state->scan.sampled_vals));
-+		if (raw_len / 4 == sizeof(s16)) {
-+			rot_state->scan.sampled_vals[0] = ((s16 *)raw_data)[0];
-+			rot_state->scan.sampled_vals[1] = ((s16 *)raw_data)[1];
-+			rot_state->scan.sampled_vals[2] = ((s16 *)raw_data)[2];
-+			rot_state->scan.sampled_vals[3] = ((s16 *)raw_data)[3];
-+		} else {
-+			memcpy(&rot_state->scan.sampled_vals, raw_data,
-+			       sizeof(rot_state->scan.sampled_vals));
-+		}
- 
- 		dev_dbg(&indio_dev->dev, "Recd Quat len:%zu::%zu\n", raw_len,
- 			sizeof(rot_state->scan.sampled_vals));
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------00DC2C3A42AE2C6F417F0B4A--
+
+--vVru1iItKcksFetZ4S5P4j44F1owgvmO4--
+
+--Mwe7cqnRl5LMoKqZofkx6utlnEwQnFKIy
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmCbmKwFAwAAAAAACgkQsN6d1ii/Ey+T
+agf/dgkxQzWwx9IxjzEN4UUlZqZclhyavYmiOz3heeucG8Cku/wXibw++S2EfQlqGEd0YoW3WW2k
+xGHlodcv1QthdJvVrFOeqEvmd7uHHsrw7/6HKUqyxnpqDaGoU7BAq1dx5QenBL1XmQ0aK0tzJ3Fd
+AztrTpez+F5Bfho3+OWeANu3n72Er/1iC6J7v+nZiwI/jjks+FvrhCxUlVz+0SKTQWZZIUUIHRT1
+Tu+kGNOd5QCzhqEKAuR1cE7Q2w8/aFqMQ5BrDWUwIA9Z9dSnXX4eKiNim2392WuPdz0KFs1BWuCz
+7DB1opX3uuDFpdrABnIz6Wv4naIJwtHA6R/YKXFfiA==
+=ifSl
+-----END PGP SIGNATURE-----
+
+--Mwe7cqnRl5LMoKqZofkx6utlnEwQnFKIy--
