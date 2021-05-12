@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5906D37CC25
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC79A37CC23
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbhELQnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49666 "EHLO mail.kernel.org"
+        id S234955AbhELQnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:43:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242459AbhELQev (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242461AbhELQev (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:34:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B53161956;
-        Wed, 12 May 2021 15:59:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 018E261973;
+        Wed, 12 May 2021 15:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835176;
-        bh=Sqj3YWST87hmXhuhOXg2T/RXQkYW65pVPk0SVR/NFjo=;
+        s=korg; t=1620835178;
+        bh=AU8BdlX6r6JvG4Iev0e1gijtSbHKk0qiK/xH1Vqw/BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QRRjW3TxSyT+LW2C/yA3MZpHZlajo9doegEKZ9NlhFF0Ss0VSdBeMla65AguQAyY3
-         J1yyjWMGRPk7/+8wTLf11+KELMFrqL9clF0aMHbJEuKnikgT9/KgUMUKwbylA4Vuso
-         mNm2suXJVV5ymrEJg97zFsT3dgnKTPZ2jr5RriqE=
+        b=E9cSemgYTWEc163uqZYjR4ujNS6OLv6jbE44K2Y9ikUDtm0MWZJD2yfInj5JE4HOJ
+         +bd8il/5Odxn7n7ToOc0f02JcWE18lXEFSLneM9cc5+bt+7x62L+ivAMYI59GSN57f
+         8SXtC0Ew17VWzPBmD7V4nDJ/05EIkrEePGsbf6IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 239/677] phy: ti: j721e-wiz: Delete "clk_div_sel" clk provider during cleanup
-Date:   Wed, 12 May 2021 16:44:45 +0200
-Message-Id: <20210512144845.178280949@linuxfoundation.org>
+Subject: [PATCH 5.12 240/677] phy: ralink: phy-mt7621-pci: fix XTAL bitmask
+Date:   Wed, 12 May 2021 16:44:46 +0200
+Message-Id: <20210512144845.210862581@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,41 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-[ Upstream commit 7e52a39f1942b771213678c56002ce90a2f126d2 ]
+[ Upstream commit 982313c38f2f3793b6435ff50997ae96a2274f5a ]
 
-commit 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module
-present in TI J721E SoC") modeled both MUX clocks and DIVIDER clocks in
-wiz. However during cleanup, it removed only the MUX clock provider.
-Remove the DIVIDER clock provider here.
+When this was rewriten to get mainlined and start to
+use 'linux/bitfield.h' headers, XTAL_MASK was wrong.
+It must mask three bits but only two were used. Hence
+properly fix it to make things work.
 
-Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Link: https://lore.kernel.org/r/20210310120840.16447-3-kishon@ti.com
+Fixes: d87da32372a0 ("phy: ralink: Add PHY driver for MT7621 PCIe PHY")
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20210302105412.16221-1-sergio.paracuellos@gmail.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/ti/phy-j721e-wiz.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/phy/ralink/phy-mt7621-pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wiz.c
-index a75433b459dd..e28e25f98708 100644
---- a/drivers/phy/ti/phy-j721e-wiz.c
-+++ b/drivers/phy/ti/phy-j721e-wiz.c
-@@ -615,6 +615,12 @@ static void wiz_clock_cleanup(struct wiz *wiz, struct device_node *node)
- 		of_clk_del_provider(clk_node);
- 		of_node_put(clk_node);
- 	}
-+
-+	for (i = 0; i < wiz->clk_div_sel_num; i++) {
-+		clk_node = of_get_child_by_name(node, clk_div_sel[i].node_name);
-+		of_clk_del_provider(clk_node);
-+		of_node_put(clk_node);
-+	}
- }
+diff --git a/drivers/phy/ralink/phy-mt7621-pci.c b/drivers/phy/ralink/phy-mt7621-pci.c
+index 9a610b414b1f..84ee2b5c2228 100644
+--- a/drivers/phy/ralink/phy-mt7621-pci.c
++++ b/drivers/phy/ralink/phy-mt7621-pci.c
+@@ -62,7 +62,7 @@
  
- static int wiz_clock_init(struct wiz *wiz, struct device_node *node)
+ #define RG_PE1_FRC_MSTCKDIV			BIT(5)
+ 
+-#define XTAL_MASK				GENMASK(7, 6)
++#define XTAL_MASK				GENMASK(8, 6)
+ 
+ #define MAX_PHYS	2
+ 
 -- 
 2.30.2
 
