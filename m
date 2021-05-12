@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AF7437C3E6
+	by mail.lfdr.de (Postfix) with ESMTP id 7984437C3E7
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231904AbhELPXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:23:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55148 "EHLO mail.kernel.org"
+        id S232174AbhELPXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:23:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233873AbhELPVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233877AbhELPVI (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:21:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F339611AD;
-        Wed, 12 May 2021 15:08:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA83461480;
+        Wed, 12 May 2021 15:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832126;
-        bh=6hNkKI2pvt0uak00GyXphpKBhmOwCq3Ef2687Ixh6ws=;
+        s=korg; t=1620832129;
+        bh=4v3rkBCuDsbbtwMcWdie9KBXrc2usgDI1sWuEScRJ1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgUEc6IDJUiBHMxShtDP6is2fgmMvx7EBU19ykO0reqgZc7MexuLVxcSVuBIXQ4kb
-         6/A63s3SMX5xnJ317AsA2A6gO6/QfpZlz3xNf0XCR4SXKAo593PhBl0BxJ7cJWGzEh
-         9Ef2lG0+hxCDKMv15yRbQugmrpbXTj38d3f2Gsa4=
+        b=L8krDiAeh6h0rexzQ00X1njITG226nyls6DsAvg+jYG4hXIbN2AIAjYZO6va9/J9t
+         MKhhvIeLilR1ol3EEM2FMQS4NTrLID549toQ2NFwode4dXs2SqjO3fUKkxo6huG0Se
+         90BjkfhmsQ6tnUxEO8960oazDLXgYRCoFEADLUZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Valentin Caron <valentin.caron@foss.st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 153/530] mtd: maps: fix error return code of physmap_flash_remove()
-Date:   Wed, 12 May 2021 16:44:23 +0200
-Message-Id: <20210512144824.873461935@linuxfoundation.org>
+Subject: [PATCH 5.10 154/530] ARM: dts: stm32: fix usart 2 & 3 pinconf to wake up with flow control
+Date:   Wed, 12 May 2021 16:44:24 +0200
+Message-Id: <20210512144824.904168833@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,40 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Valentin CARON - foss <valentin.caron@foss.st.com>
 
-[ Upstream commit 620b90d30c08684dc6ebee07c72755d997f9d1f6 ]
+[ Upstream commit a1429f3d3029b65cd4032f6218d5290911377ce4 ]
 
-When platform_get_drvdata() returns NULL to info, no error return code
-of physmap_flash_remove() is assigned.
-To fix this bug, err is assigned with -EINVAL in this case
+Modify usart 2 & 3 pins to allow wake up from low power mode while the
+hardware flow control is activated. UART RTS pin need to stay configure
+in idle mode to receive characters in order to wake up.
 
-Fixes: 73566edf9b91 ("[MTD] Convert physmap to platform driver")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210308034446.3052-1-baijiaju1990@gmail.com
+Fixes: 842ed898a757 ("ARM: dts: stm32: add usart2, usart3 and uart7 pins in stm32mp15-pinctrl")
+
+Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/maps/physmap-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/stm32mp15-pinctrl.dtsi | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/maps/physmap-core.c b/drivers/mtd/maps/physmap-core.c
-index 001ed5deb622..4f63b8430c71 100644
---- a/drivers/mtd/maps/physmap-core.c
-+++ b/drivers/mtd/maps/physmap-core.c
-@@ -69,8 +69,10 @@ static int physmap_flash_remove(struct platform_device *dev)
- 	int i, err = 0;
- 
- 	info = platform_get_drvdata(dev);
--	if (!info)
-+	if (!info) {
-+		err = -EINVAL;
- 		goto out;
-+	}
- 
- 	if (info->cmtd) {
- 		err = mtd_device_unregister(info->cmtd);
+diff --git a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
+index d84686e00370..dee4d32ab32c 100644
+--- a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
+@@ -1806,10 +1806,15 @@
+ 	usart2_idle_pins_c: usart2-idle-2 {
+ 		pins1 {
+ 			pinmux = <STM32_PINMUX('D', 5, ANALOG)>, /* USART2_TX */
+-				 <STM32_PINMUX('D', 4, ANALOG)>, /* USART2_RTS */
+ 				 <STM32_PINMUX('D', 3, ANALOG)>; /* USART2_CTS_NSS */
+ 		};
+ 		pins2 {
++			pinmux = <STM32_PINMUX('D', 4, AF7)>; /* USART2_RTS */
++			bias-disable;
++			drive-push-pull;
++			slew-rate = <3>;
++		};
++		pins3 {
+ 			pinmux = <STM32_PINMUX('D', 6, AF7)>; /* USART2_RX */
+ 			bias-disable;
+ 		};
+@@ -1855,10 +1860,15 @@
+ 	usart3_idle_pins_b: usart3-idle-1 {
+ 		pins1 {
+ 			pinmux = <STM32_PINMUX('B', 10, ANALOG)>, /* USART3_TX */
+-				 <STM32_PINMUX('G', 8, ANALOG)>, /* USART3_RTS */
+ 				 <STM32_PINMUX('I', 10, ANALOG)>; /* USART3_CTS_NSS */
+ 		};
+ 		pins2 {
++			pinmux = <STM32_PINMUX('G', 8, AF8)>; /* USART3_RTS */
++			bias-disable;
++			drive-push-pull;
++			slew-rate = <0>;
++		};
++		pins3 {
+ 			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
+ 			bias-disable;
+ 		};
+@@ -1891,10 +1901,15 @@
+ 	usart3_idle_pins_c: usart3-idle-2 {
+ 		pins1 {
+ 			pinmux = <STM32_PINMUX('B', 10, ANALOG)>, /* USART3_TX */
+-				 <STM32_PINMUX('G', 8, ANALOG)>, /* USART3_RTS */
+ 				 <STM32_PINMUX('B', 13, ANALOG)>; /* USART3_CTS_NSS */
+ 		};
+ 		pins2 {
++			pinmux = <STM32_PINMUX('G', 8, AF8)>; /* USART3_RTS */
++			bias-disable;
++			drive-push-pull;
++			slew-rate = <0>;
++		};
++		pins3 {
+ 			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
+ 			bias-disable;
+ 		};
 -- 
 2.30.2
 
