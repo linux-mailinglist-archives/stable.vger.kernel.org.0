@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47DA037C7A2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C334F37C7A1
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235904AbhELQB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:01:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37078 "EHLO mail.kernel.org"
+        id S235887AbhELQB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:01:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237967AbhELP45 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:56:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6091561936;
-        Wed, 12 May 2021 15:29:13 +0000 (UTC)
+        id S237953AbhELP44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:56:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8B4261C1D;
+        Wed, 12 May 2021 15:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833353;
-        bh=uUKBCEx+xu/CJ+3IUFcsmMbeVB37BPFrzy9AU3nZyzM=;
+        s=korg; t=1620833356;
+        bh=B4APKrOqsAM9U0/vz34PLAMlzKTDs6SABiAri1nNwaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWjdTF5C0FEWYEMrOU6hmSQTafohwTzraRJKe/f83ESuhEHl3Ha3jvZCXErqetm/F
-         Pt3me1xJwTf5TEME0fWnm+NhEWCKw+kAA4KH8tmpK5TNAZy3g1wXIkr7cT8MKRSP9m
-         yVtvvC0BkyV++W8JJSXmnv2P/O7oWE3AQTMuAZ5o=
+        b=avtGzJVPU+9mWVbIXU6LfOcuyBaCLA7rblaCKmt6d0yFPjwSw6cgkt8Mc6rgXU4zK
+         dr2/iqBuCIYLL4jNukHDjXwVJKNCAmcgtCbtpgs+IugG7XxM+lXvdvUaoKz6rM+f8U
+         xu5Wj/fpugcgG/QcAtGGxR/dCGL8Fof2bDmk0Ql8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.11 117/601] mfd: stmpe: Revert "Constify static struct resource"
-Date:   Wed, 12 May 2021 16:43:14 +0200
-Message-Id: <20210512144831.688272815@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.11 118/601] ovl: fix missing revert_creds() on error path
+Date:   Wed, 12 May 2021 16:43:15 +0200
+Message-Id: <20210512144831.719905285@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,76 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit cb9e880a797a77c21c0f0e7ccd553da8eb4870af upstream.
+commit 7b279bbfd2b230c7a210ff8f405799c7e46bbf48 upstream.
 
-In stmpe_devices_init(), the start and end field of these structs are
-modified, so they can not be const. Add a comment to those structs that
-lacked it to reduce the risk that this happens again.
+Smatch complains about missing that the ovl_override_creds() doesn't
+have a matching revert_creds() if the dentry is disconnected.  Fix this
+by moving the ovl_override_creds() until after the disconnected check.
 
-This reverts commit 8d7b3a6dac4eae22c58b0853696cbd256966741b.
-
-Fixes: 8d7b3a6dac4e ("mfd: stmpe: Constify static struct resource")
-Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: aa3ff3c152ff ("ovl: copy up of disconnected dentries")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/stmpe.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ fs/overlayfs/copy_up.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mfd/stmpe.c
-+++ b/drivers/mfd/stmpe.c
-@@ -312,7 +312,7 @@ EXPORT_SYMBOL_GPL(stmpe_set_altfunc);
-  * GPIO (all variants)
-  */
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -932,7 +932,7 @@ static int ovl_copy_up_one(struct dentry
+ static int ovl_copy_up_flags(struct dentry *dentry, int flags)
+ {
+ 	int err = 0;
+-	const struct cred *old_cred = ovl_override_creds(dentry->d_sb);
++	const struct cred *old_cred;
+ 	bool disconnected = (dentry->d_flags & DCACHE_DISCONNECTED);
  
--static const struct resource stmpe_gpio_resources[] = {
-+static struct resource stmpe_gpio_resources[] = {
- 	/* Start and end filled dynamically */
- 	{
- 		.flags	= IORESOURCE_IRQ,
-@@ -336,7 +336,8 @@ static const struct mfd_cell stmpe_gpio_
-  * Keypad (1601, 2401, 2403)
-  */
+ 	/*
+@@ -943,6 +943,7 @@ static int ovl_copy_up_flags(struct dent
+ 	if (WARN_ON(disconnected && d_is_dir(dentry)))
+ 		return -EIO;
  
--static const struct resource stmpe_keypad_resources[] = {
-+static struct resource stmpe_keypad_resources[] = {
-+	/* Start and end filled dynamically */
- 	{
- 		.name	= "KEYPAD",
- 		.flags	= IORESOURCE_IRQ,
-@@ -357,7 +358,8 @@ static const struct mfd_cell stmpe_keypa
- /*
-  * PWM (1601, 2401, 2403)
-  */
--static const struct resource stmpe_pwm_resources[] = {
-+static struct resource stmpe_pwm_resources[] = {
-+	/* Start and end filled dynamically */
- 	{
- 		.name	= "PWM0",
- 		.flags	= IORESOURCE_IRQ,
-@@ -445,7 +447,8 @@ static struct stmpe_variant_info stmpe80
-  * Touchscreen (STMPE811 or STMPE610)
-  */
- 
--static const struct resource stmpe_ts_resources[] = {
-+static struct resource stmpe_ts_resources[] = {
-+	/* Start and end filled dynamically */
- 	{
- 		.name	= "TOUCH_DET",
- 		.flags	= IORESOURCE_IRQ,
-@@ -467,7 +470,8 @@ static const struct mfd_cell stmpe_ts_ce
-  * ADC (STMPE811)
-  */
- 
--static const struct resource stmpe_adc_resources[] = {
-+static struct resource stmpe_adc_resources[] = {
-+	/* Start and end filled dynamically */
- 	{
- 		.name	= "STMPE_TEMP_SENS",
- 		.flags	= IORESOURCE_IRQ,
++	old_cred = ovl_override_creds(dentry->d_sb);
+ 	while (!err) {
+ 		struct dentry *next;
+ 		struct dentry *parent = NULL;
 
 
