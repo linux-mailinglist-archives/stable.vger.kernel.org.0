@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B6737CE57
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C6A37CE43
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240538AbhELRFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35798 "EHLO mail.kernel.org"
+        id S239186AbhELREW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:04:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244302AbhELQmw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5243E61D49;
-        Wed, 12 May 2021 16:12:34 +0000 (UTC)
+        id S237898AbhELQm5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E86961D52;
+        Wed, 12 May 2021 16:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835954;
-        bh=PpeSe4FOBhEnJwSZV16PiI4jkvWliL3d9K61CfCxvGE=;
+        s=korg; t=1620835957;
+        bh=J/cwC4wRTQatgMDlzzvs5Sc4brQPNfOkSX1zsyaax8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBwi2aYqtVlILs3imDEy4XAo6hzQILIAC4kl0MsaJtTpsVpb+BgT8ScvdkXXd5znI
-         FJaIPBgbC0KgWz5TuLhZAu0cOdAjF6yPIZqWn3uxnySDrix0Lb/Kt/7njURSDUBybe
-         pep8UaFDiFEC1QOoLqx6vsi51hKscygf5gavr7o8=
+        b=NKHEnNCdk19pkd4/Rl4ZGWtRoaiKEUfct/Dp96mxBUuaA3mO5V3p/je4u0FYYZ2CH
+         LhDrGP86tQ0nRN6UJd17XZxqhEvrsitYHgxztu4+qHEUoyDNVJfUvem8YlfbCvQteG
+         iyy4Q1GaQVvgdIzb2PIkUSXYddNBYgX0BrTgf+Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 551/677] net: thunderx: Fix unintentional sign extension issue
-Date:   Wed, 12 May 2021 16:49:57 +0200
-Message-Id: <20210512144855.689963626@linuxfoundation.org>
+        stable@vger.kernel.org, Claire Chang <tientzu@google.com>,
+        YN Chen <YN.Chen@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 552/677] mt76: mt7921: fix kernel crash when the firmware fails to download
+Date:   Wed, 12 May 2021 16:49:58 +0200
+Message-Id: <20210512144855.723711138@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,40 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit e701a25840360706fe4cf5de0015913ca19c274b ]
+[ Upstream commit e230f0c44f011f3270680a506b19b7e84c5e8923 ]
 
-The shifting of the u8 integers rq->caching by 26 bits to
-the left will be promoted to a 32 bit signed int and then
-sign-extended to a u64. In the event that rq->caching is
-greater than 0x1f then all then all the upper 32 bits of
-the u64 end up as also being set because of the int
-sign-extension. Fix this by casting the u8 values to a
-u64 before the 26 bit left shift.
+Fix kernel crash when the firmware is missing or fails to download.
 
-Addresses-Coverity: ("Unintended sign extension")
-Fixes: 4863dea3fab0 ("net: Adding support for Cavium ThunderX network controller")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[    9.444758] kernel BUG at drivers/pci/msi.c:375!
+[    9.449363] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[    9.501033] pstate: a0400009 (NzCv daif +PAN -UAO)
+[    9.505814] pc : free_msi_irqs+0x180/0x184
+[    9.509897] lr : free_msi_irqs+0x40/0x184
+[    9.513893] sp : ffffffc015193870
+[    9.517194] x29: ffffffc015193870 x28: 00000000f0e94fa2
+[    9.522492] x27: 0000000000000acd x26: 000000000000009a
+[    9.527790] x25: ffffffc0152cee58 x24: ffffffdbb383e0d8
+[    9.533087] x23: ffffffdbb38628d0 x22: 0000000000040200
+[    9.538384] x21: ffffff8cf7de7318 x20: ffffff8cd65a2480
+[    9.543681] x19: ffffff8cf7de7000 x18: 0000000000000000
+[    9.548979] x17: ffffff8cf9ca03b4 x16: ffffffdc13ad9a34
+[    9.554277] x15: 0000000000000000 x14: 0000000000080800
+[    9.559575] x13: ffffff8cd65a2980 x12: 0000000000000000
+[    9.564873] x11: ffffff8cfa45d820 x10: ffffff8cfa45d6d0
+[    9.570171] x9 : 0000000000000040 x8 : ffffff8ccef1b780
+[    9.575469] x7 : aaaaaaaaaaaaaaaa x6 : 0000000000000000
+[    9.580766] x5 : ffffffdc13824900 x4 : ffffff8ccefe0000
+[    9.586063] x3 : 0000000000000000 x2 : 0000000000000000
+[    9.591362] x1 : 0000000000000125 x0 : ffffff8ccefe0000
+[    9.596660] Call trace:
+[    9.599095]  free_msi_irqs+0x180/0x184
+[    9.602831]  pci_disable_msi+0x100/0x130
+[    9.606740]  pci_free_irq_vectors+0x24/0x30
+[    9.610915]  mt7921_pci_probe+0xbc/0x250 [mt7921e]
+[    9.615693]  pci_device_probe+0xd4/0x14c
+[    9.619604]  really_probe+0x134/0x2ec
+[    9.623252]  driver_probe_device+0x64/0xfc
+[    9.627335]  device_driver_attach+0x4c/0x6c
+[    9.631506]  __driver_attach+0xac/0xc0
+[    9.635243]  bus_for_each_dev+0x8c/0xd4
+[    9.639066]  driver_attach+0x2c/0x38
+[    9.642628]  bus_add_driver+0xfc/0x1d0
+[    9.646365]  driver_register+0x64/0xf8
+[    9.650101]  __pci_register_driver+0x6c/0x7c
+[    9.654360]  init_module+0x28/0xfdc [mt7921e]
+[    9.658704]  do_one_initcall+0x13c/0x2d0
+[    9.662615]  do_init_module+0x58/0x1e8
+[    9.666351]  load_module+0xd80/0xeb4
+[    9.669912]  __arm64_sys_finit_module+0xa8/0xe0
+[    9.674430]  el0_svc_common+0xa4/0x16c
+[    9.678168]  el0_svc_compat_handler+0x2c/0x40
+[    9.682511]  el0_svc_compat+0x8/0x10
+[    9.686076] Code: a94257f6 f9400bf7 a8c47bfd d65f03c0 (d4210000)
+[    9.692155] ---[ end trace 7621f966afbf0a29 ]---
+[    9.697385] Kernel panic - not syncing: Fatal exception
+[    9.702599] SMP: stopping secondary CPUs
+[    9.706549] Kernel Offset: 0x1c03600000 from 0xffffffc010000000
+[    9.712456] PHYS_OFFSET: 0xfffffff440000000
+[    9.716625] CPU features: 0x080026,2a80aa18
+[    9.720795] Memory Limit: none
+
+Fixes: 5c14a5f944b9 ("mt76: mt7921: introduce mt7921e support")
+Reported-by: Claire Chang <tientzu@google.com>
+Co-developed-by: YN Chen <YN.Chen@mediatek.com>
+Signed-off-by: YN Chen <YN.Chen@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/thunder/nicvf_queues.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_queues.c b/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
-index f782e6af45e9..50bbe79fb93d 100644
---- a/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
-+++ b/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
-@@ -776,7 +776,7 @@ static void nicvf_rcv_queue_config(struct nicvf *nic, struct queue_set *qs,
- 	mbx.rq.msg = NIC_MBOX_MSG_RQ_CFG;
- 	mbx.rq.qs_num = qs->vnic_id;
- 	mbx.rq.rq_num = qidx;
--	mbx.rq.cfg = (rq->caching << 26) | (rq->cq_qs << 19) |
-+	mbx.rq.cfg = ((u64)rq->caching << 26) | (rq->cq_qs << 19) |
- 			  (rq->cq_idx << 16) | (rq->cont_rbdr_qs << 9) |
- 			  (rq->cont_qs_rbdr_idx << 8) |
- 			  (rq->start_rbdr_qs << 1) | (rq->start_qs_rbdr_idx);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+index 0262bd8b1626..8e756871a056 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+@@ -146,10 +146,12 @@ static int mt7921_pci_probe(struct pci_dev *pdev,
+ 
+ 	ret = mt7921_register_device(dev);
+ 	if (ret)
+-		goto err_free_dev;
++		goto err_free_irq;
+ 
+ 	return 0;
+ 
++err_free_irq:
++	devm_free_irq(&pdev->dev, pdev->irq, dev);
+ err_free_dev:
+ 	mt76_free_device(&dev->mt76);
+ err_free_pci_vec:
 -- 
 2.30.2
 
