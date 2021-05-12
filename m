@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46CF437CAC2
+	by mail.lfdr.de (Postfix) with ESMTP id D7AC437CAC4
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234419AbhELQcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:32:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
+        id S233228AbhELQcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:32:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241113AbhELQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:26:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B270061CB1;
-        Wed, 12 May 2021 15:49:47 +0000 (UTC)
+        id S241118AbhELQ0Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:26:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2158861DB2;
+        Wed, 12 May 2021 15:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834588;
-        bh=Wt57QDeArhmn2GF4PFUp8kdwhsEB6xAJlXWdbPlBC1k=;
+        s=korg; t=1620834590;
+        bh=KYjZRfCr3a3gEQmWBk32tJcCugeOR6+kdHR9uJKL2Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZU0NkmoFsn6vINPX/zkIP8Cor2hV2WGSbmtr8Vq6IUuflUxB1zwkSNdiip97vZT4
-         oqvG7MszxjG3YZRIB6bGdNNpZWmTwZMwJWELZac5wh8bIVIuEXNs7K0iFcCWpBESIi
-         cQYRiJz+fDjsg68P8fnEcUYqIdtrFpo2KV1VyWPc=
+        b=tDx3hmXWn+KgRCeYZYMXDo6O9u4ijeMiahZT2b5nfsDcJ3Rwoh2G1LSFp7BOjCke6
+         1K6WtQ+tV7cN9nCck6tD4eeDeOiOTusSl4bFkEMe3thdTYtSWT0eagiSE9XfQ4cw5g
+         i7TikwuZe187G28EEfdfYrRyr1uA60S4rtDf0vvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathon Reinhart <jonathon.reinhart@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 598/601] net: Only allow init netns to set default tcp cong to a restricted algo
-Date:   Wed, 12 May 2021 16:51:15 +0200
-Message-Id: <20210512144847.546854598@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.11 599/601] smp: Fix smp_call_function_single_async prototype
+Date:   Wed, 12 May 2021 16:51:16 +0200
+Message-Id: <20210512144847.584967972@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,46 +41,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 8d432592f30fcc34ef5a10aac4887b4897884493 upstream.
+commit 1139aeb1c521eb4a050920ce6c64c36c4f2a3ab7 upstream.
 
-tcp_set_default_congestion_control() is netns-safe in that it writes
-to &net->ipv4.tcp_congestion_control, but it also sets
-ca->flags |= TCP_CONG_NON_RESTRICTED which is not namespaced.
-This has the unintended side-effect of changing the global
-net.ipv4.tcp_allowed_congestion_control sysctl, despite the fact that it
-is read-only: 97684f0970f6 ("net: Make tcp_allowed_congestion_control
-readonly in non-init netns")
+As of commit 966a967116e6 ("smp: Avoid using two cache lines for struct
+call_single_data"), the smp code prefers 32-byte aligned call_single_data
+objects for performance reasons, but the block layer includes an instance
+of this structure in the main 'struct request' that is more senstive
+to size than to performance here, see 4ccafe032005 ("block: unalign
+call_single_data in struct request").
 
-Resolve this netns "leak" by only allowing the init netns to set the
-default algorithm to one that is restricted. This restriction could be
-removed if tcp_allowed_congestion_control were namespace-ified in the
-future.
+The result is a violation of the calling conventions that clang correctly
+points out:
 
-This bug was uncovered with
-https://github.com/JonathonReinhart/linux-netns-sysctl-verify
+block/blk-mq.c:630:39: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
+                smp_call_function_single_async(cpu, &rq->csd);
 
-Fixes: 6670e1524477 ("tcp: Namespace-ify sysctl_tcp_default_congestion_control")
-Signed-off-by: Jonathon Reinhart <jonathon.reinhart@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It does seem that the usage of the call_single_data without cache line
+alignment should still be allowed by the smp code, so just change the
+function prototype so it accepts both, but leave the default alignment
+unchanged for the other users. This seems better to me than adding
+a local hack to shut up an otherwise correct warning in the caller.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210505211300.3174456-1-arnd@kernel.org
+[nc: Fix conflicts]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_cong.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/smp.h |    2 +-
+ kernel/smp.c        |   20 ++++++++++----------
+ kernel/up.c         |    2 +-
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
---- a/net/ipv4/tcp_cong.c
-+++ b/net/ipv4/tcp_cong.c
-@@ -230,6 +230,10 @@ int tcp_set_default_congestion_control(s
- 		ret = -ENOENT;
- 	} else if (!bpf_try_module_get(ca, ca->owner)) {
- 		ret = -EBUSY;
-+	} else if (!net_eq(net, &init_net) &&
-+			!(ca->flags & TCP_CONG_NON_RESTRICTED)) {
-+		/* Only init netns can set default to a restricted algorithm */
-+		ret = -EPERM;
- 	} else {
- 		prev = xchg(&net->ipv4.tcp_congestion_control, ca);
- 		if (prev)
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -73,7 +73,7 @@ void on_each_cpu_cond(smp_cond_func_t co
+ void on_each_cpu_cond_mask(smp_cond_func_t cond_func, smp_call_func_t func,
+ 			   void *info, bool wait, const struct cpumask *mask);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd);
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd);
+ 
+ #ifdef CONFIG_SMP
+ 
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -110,7 +110,7 @@ static DEFINE_PER_CPU(void *, cur_csd_in
+ static atomic_t csd_bug_count = ATOMIC_INIT(0);
+ 
+ /* Record current CSD work for current CPU, NULL to erase. */
+-static void csd_lock_record(call_single_data_t *csd)
++static void csd_lock_record(struct __call_single_data *csd)
+ {
+ 	if (!csd) {
+ 		smp_mb(); /* NULL cur_csd after unlock. */
+@@ -125,7 +125,7 @@ static void csd_lock_record(call_single_
+ 		  /* Or before unlock, as the case may be. */
+ }
+ 
+-static __always_inline int csd_lock_wait_getcpu(call_single_data_t *csd)
++static __always_inline int csd_lock_wait_getcpu(struct __call_single_data *csd)
+ {
+ 	unsigned int csd_type;
+ 
+@@ -140,7 +140,7 @@ static __always_inline int csd_lock_wait
+  * the CSD_TYPE_SYNC/ASYNC types provide the destination CPU,
+  * so waiting on other types gets much less information.
+  */
+-static __always_inline bool csd_lock_wait_toolong(call_single_data_t *csd, u64 ts0, u64 *ts1, int *bug_id)
++static __always_inline bool csd_lock_wait_toolong(struct __call_single_data *csd, u64 ts0, u64 *ts1, int *bug_id)
+ {
+ 	int cpu = -1;
+ 	int cpux;
+@@ -204,7 +204,7 @@ static __always_inline bool csd_lock_wai
+  * previous function call. For multi-cpu calls its even more interesting
+  * as we'll have to ensure no other cpu is observing our csd.
+  */
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	int bug_id = 0;
+ 	u64 ts0, ts1;
+@@ -219,17 +219,17 @@ static __always_inline void csd_lock_wai
+ }
+ 
+ #else
+-static void csd_lock_record(call_single_data_t *csd)
++static void csd_lock_record(struct __call_single_data *csd)
+ {
+ }
+ 
+-static __always_inline void csd_lock_wait(call_single_data_t *csd)
++static __always_inline void csd_lock_wait(struct __call_single_data *csd)
+ {
+ 	smp_cond_load_acquire(&csd->node.u_flags, !(VAL & CSD_FLAG_LOCK));
+ }
+ #endif
+ 
+-static __always_inline void csd_lock(call_single_data_t *csd)
++static __always_inline void csd_lock(struct __call_single_data *csd)
+ {
+ 	csd_lock_wait(csd);
+ 	csd->node.u_flags |= CSD_FLAG_LOCK;
+@@ -242,7 +242,7 @@ static __always_inline void csd_lock(cal
+ 	smp_wmb();
+ }
+ 
+-static __always_inline void csd_unlock(call_single_data_t *csd)
++static __always_inline void csd_unlock(struct __call_single_data *csd)
+ {
+ 	WARN_ON(!(csd->node.u_flags & CSD_FLAG_LOCK));
+ 
+@@ -276,7 +276,7 @@ void __smp_call_single_queue(int cpu, st
+  * for execution on the given CPU. data must already have
+  * ->func, ->info, and ->flags set.
+  */
+-static int generic_exec_single(int cpu, call_single_data_t *csd)
++static int generic_exec_single(int cpu, struct __call_single_data *csd)
+ {
+ 	if (cpu == smp_processor_id()) {
+ 		smp_call_func_t func = csd->func;
+@@ -542,7 +542,7 @@ EXPORT_SYMBOL(smp_call_function_single);
+  * NOTE: Be careful, there is unfortunately no current debugging facility to
+  * validate the correctness of this serialization.
+  */
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	int err = 0;
+ 
+--- a/kernel/up.c
++++ b/kernel/up.c
+@@ -25,7 +25,7 @@ int smp_call_function_single(int cpu, vo
+ }
+ EXPORT_SYMBOL(smp_call_function_single);
+ 
+-int smp_call_function_single_async(int cpu, call_single_data_t *csd)
++int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
+ {
+ 	unsigned long flags;
+ 
 
 
