@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA2A37C192
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4710537C19D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231492AbhELPBy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:01:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45078 "EHLO mail.kernel.org"
+        id S232985AbhELPCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:02:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232006AbhELO7q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:59:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E51561439;
-        Wed, 12 May 2021 14:56:42 +0000 (UTC)
+        id S231190AbhELO7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:59:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A002F6143D;
+        Wed, 12 May 2021 14:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831402;
-        bh=QE6K71J0sjgfatWfNw0lcXvwvtSy7HKowf8ZiKh4RR8=;
+        s=korg; t=1620831405;
+        bh=e3OOcQJpqFZGaR6u1gY8aZUXjS+i30BuumWbEPhDvuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbYD3IeA4PXNI7227hJHjmrifsADCYVOr+/1D3kC3kOgfrFA3pvr46jqxkyuDQZ7R
-         r6PQhIfQkqv0OiXlvVRakWpqs+kERkzXj7GkAMrN8Ri4YtusKqYZ9E7t5+kMgMih8+
-         LipdODj+hBtcMdUhSjoStCIO3wDapG+XuoDqFlcE=
+        b=eyodCjuCVOTKEA0Sm9RN0gNjiQWmnoAmquA7HiqMXtmZ3eHgenYs8QjxDzRdGWclR
+         TGuDki0Uo7eyIZFcSOGA03zNQ5qvd1CfKibOko6mebio6HBlCRRqAjwpzZXRhv2qSZ
+         P85O5Xgs7/rtsXBSsN6OMgjypaYBtTRARYwdfEfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 105/244] mtd: rawnand: gpmi: Fix a double free in gpmi_nand_init
-Date:   Wed, 12 May 2021 16:47:56 +0200
-Message-Id: <20210512144746.389509374@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 106/244] irqchip/gic-v3: Fix OF_BAD_ADDR error handling
+Date:   Wed, 12 May 2021 16:47:57 +0200
+Message-Id: <20210512144746.419403229@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,45 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 076de75de1e53160e9b099f75872c1f9adf41a0b ]
+[ Upstream commit 8e13d96670a4c050d4883e6743a9e9858e5cfe10 ]
 
-If the callee gpmi_alloc_dma_buffer() failed to alloc memory for
-this->raw_buffer, gpmi_free_dma_buffer() will be called to free
-this->auxiliary_virt. But this->auxiliary_virt is still a non-NULL
-and valid ptr.
+When building with extra warnings enabled, clang points out a
+mistake in the error handling:
 
-Then gpmi_alloc_dma_buffer() returns err and gpmi_free_dma_buffer()
-is called again to free this->auxiliary_virt in err_out. This causes
-a double free.
+drivers/irqchip/irq-gic-v3-mbi.c:306:21: error: result of comparison of constant 18446744073709551615 with expression of type 'phys_addr_t' (aka 'unsigned int') is always false [-Werror,-Wtautological-constant-out-of-range-compare]
+                if (mbi_phys_base == OF_BAD_ADDR) {
 
-As gpmi_free_dma_buffer() has already called in gpmi_alloc_dma_buffer's
-error path, so it should return err directly instead of releasing the dma
-buffer again.
+Truncate the constant to the same type as the variable it gets compared
+to, to shut make the check work and void the warning.
 
-Fixes: 4d02423e9afe6 ("mtd: nand: gpmi: Fix gpmi_nand_init() error path")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210403060905.5251-1-lyl2019@mail.ustc.edu.cn
+Fixes: 505287525c24 ("irqchip/gic-v3: Add support for Message Based Interrupts as an MSI controller")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210323131842.2773094-1-arnd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c | 2 +-
+ drivers/irqchip/irq-gic-v3-mbi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-index 2390ed077a2f..60f146920b9f 100644
---- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-+++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-@@ -2598,7 +2598,7 @@ static int gpmi_nand_init(struct gpmi_nand_data *this)
- 	this->bch_geometry.auxiliary_size = 128;
- 	ret = gpmi_alloc_dma_buffer(this);
- 	if (ret)
--		goto err_out;
-+		return ret;
- 
- 	nand_controller_init(&this->base);
- 	this->base.ops = &gpmi_nand_controller_ops;
+diff --git a/drivers/irqchip/irq-gic-v3-mbi.c b/drivers/irqchip/irq-gic-v3-mbi.c
+index 563a9b366294..e81e89a81cb5 100644
+--- a/drivers/irqchip/irq-gic-v3-mbi.c
++++ b/drivers/irqchip/irq-gic-v3-mbi.c
+@@ -303,7 +303,7 @@ int __init mbi_init(struct fwnode_handle *fwnode, struct irq_domain *parent)
+ 	reg = of_get_property(np, "mbi-alias", NULL);
+ 	if (reg) {
+ 		mbi_phys_base = of_translate_address(np, reg);
+-		if (mbi_phys_base == OF_BAD_ADDR) {
++		if (mbi_phys_base == (phys_addr_t)OF_BAD_ADDR) {
+ 			ret = -ENXIO;
+ 			goto err_free_mbi;
+ 		}
 -- 
 2.30.2
 
