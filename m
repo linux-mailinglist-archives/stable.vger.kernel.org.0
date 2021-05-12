@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 348E037CADE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04D6437CADB
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237488AbhELQci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:32:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43732 "EHLO mail.kernel.org"
+        id S237406AbhELQc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241219AbhELQ0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:26:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5199C61DC8;
-        Wed, 12 May 2021 15:50:46 +0000 (UTC)
+        id S241225AbhELQ0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:26:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAD6061DD2;
+        Wed, 12 May 2021 15:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834646;
-        bh=ArmF81P6mJStWlID/0NztaMf49BKkt5jRM1AxtrZkeQ=;
+        s=korg; t=1620834649;
+        bh=Ui5LTSvF1Kx7MJccEbiMZwxZiCA2WuRYO9FCSAYKYiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czM8MjjjKS6ji+MQFlgzx9VP46F1zNbYnAZUG9pNWdLysz7+3y9iiIb6GHsPYUHw0
-         cRfQa8/D+/5oVckh1g2bmUfJDC3PIqsxJP/bxzEwbA9tKqMvren5HK4kLY9B/Rfrno
-         O2LecjP+rElvZc8myHGHrBGjubwK9aR2OUL6+UMA=
+        b=tNrkZA47xWZbsWyVumW/9KbUpKfDL5W/MBTa9SwoHfxmOzl9cVbryfLpa0FQDNPdn
+         AsaUiuuC4O09hvhJf+D0SGXln9HDeqarQetq5Qc67Xu2QY47mPLjaMQctHkt8Mizsq
+         gGv0/tuRviFZbqYnnT824gdAno8LQ/WR8UGyE8mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        stable@vger.kernel.org, Annaliese McDermond <nh6z@nh6z.net>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.12 027/677] ASoC: Intel: kbl_da7219_max98927: Fix kabylake_ssp_fixup function
-Date:   Wed, 12 May 2021 16:41:13 +0200
-Message-Id: <20210512144838.129459357@linuxfoundation.org>
+Subject: [PATCH 5.12 028/677] ASoC: tlv320aic32x4: Register clocks before registering component
+Date:   Wed, 12 May 2021 16:41:14 +0200
+Message-Id: <20210512144838.163128700@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,101 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Majczak <lma@semihalf.com>
+From: Annaliese McDermond <nh6z@nh6z.net>
 
-commit a523ef731ac6674dc07574f31bf44cc5bfa14e4d upstream.
+commit 1ca1156cfd69530e6b7cb99943baf90c8bd871a5 upstream.
 
-kabylake_ssp_fixup function uses snd_soc_dpcm to identify the
-codecs DAIs. The HW parameters are changed based on the codec DAI of the
-stream. The earlier approach to get snd_soc_dpcm was using container_of()
-macro on snd_pcm_hw_params.
+Clock registration must be performed before the component is
+registered.  aic32x4_component_probe attempts to get all the
+clocks right off the bat.  If the component is registered before
+the clocks there is a race condition where the clocks may not
+be registered by the time aic32x4_componet_probe actually runs.
 
-The structures have been modified over time and snd_soc_dpcm does not have
-snd_pcm_hw_params as a reference but as a copy. This causes the current
-driver to crash when used.
-
-This patch changes the way snd_soc_dpcm is extracted. snd_soc_pcm_runtime
-holds 2 dpcm instances (one for playback and one for capture). 2 codecs
-on the SSP are dmic (capture) and speakers (playback). Based on the
-stream direction, snd_soc_dpcm is extracted from snd_soc_pcm_runtime.
-
-Tested for all use cases of the driver.
-Based on similar fix in kbl_rt5663_rt5514_max98927.c
-from Harsha Priya <harshapriya.n@intel.com> and
-Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
-
-Cc: <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Lukasz Majczak <lma@semihalf.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210415124347.475432-1-lma@semihalf.com
+Fixes: d1c859d314d8 ("ASoC: codec: tlv3204: Increased maximum supported channels")
+Cc: stable@vger.kernel.org
+Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
+Link: https://lore.kernel.org/r/0101017889850206-dcac4cce-8cc8-4a21-80e9-4e4bef44b981-000000@us-west-2.amazonses.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/kbl_da7219_max98927.c |   38 +++++++++++++++++++++------
- 1 file changed, 30 insertions(+), 8 deletions(-)
+ sound/soc/codecs/tlv320aic32x4.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/soc/intel/boards/kbl_da7219_max98927.c
-+++ b/sound/soc/intel/boards/kbl_da7219_max98927.c
-@@ -282,12 +282,34 @@ static int kabylake_ssp_fixup(struct snd
- 	struct snd_interval *chan = hw_param_interval(params,
- 			SNDRV_PCM_HW_PARAM_CHANNELS);
- 	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
--	struct snd_soc_dpcm *dpcm = container_of(
--			params, struct snd_soc_dpcm, hw_params);
--	struct snd_soc_dai_link *fe_dai_link = dpcm->fe->dai_link;
--	struct snd_soc_dai_link *be_dai_link = dpcm->be->dai_link;
-+	struct snd_soc_dpcm *dpcm, *rtd_dpcm = NULL;
+--- a/sound/soc/codecs/tlv320aic32x4.c
++++ b/sound/soc/codecs/tlv320aic32x4.c
+@@ -1243,6 +1243,10 @@ int aic32x4_probe(struct device *dev, st
+ 	if (ret)
+ 		goto err_disable_regulators;
  
- 	/*
-+	 * The following loop will be called only for playback stream
-+	 * In this platform, there is only one playback device on every SSP
-+	 */
-+	for_each_dpcm_fe(rtd, SNDRV_PCM_STREAM_PLAYBACK, dpcm) {
-+		rtd_dpcm = dpcm;
-+		break;
-+	}
++	ret = aic32x4_register_clocks(dev, aic32x4->mclk_name);
++	if (ret)
++		goto err_disable_regulators;
 +
-+	/*
-+	 * This following loop will be called only for capture stream
-+	 * In this platform, there is only one capture device on every SSP
-+	 */
-+	for_each_dpcm_fe(rtd, SNDRV_PCM_STREAM_CAPTURE, dpcm) {
-+		rtd_dpcm = dpcm;
-+		break;
-+	}
-+
-+	if (!rtd_dpcm)
-+		return -EINVAL;
-+
-+	/*
-+	 * The above 2 loops are mutually exclusive based on the stream direction,
-+	 * thus rtd_dpcm variable will never be overwritten
-+	 */
-+	/*
- 	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE,
- 	 * where as kblda7219m98927 & kblmax98927 supports S16_LE by default.
- 	 * Skipping the port wise FE and BE configuration for kblda7219m98373 &
-@@ -309,9 +331,9 @@ static int kabylake_ssp_fixup(struct snd
- 	/*
- 	 * The ADSP will convert the FE rate to 48k, stereo, 24 bit
- 	 */
--	if (!strcmp(fe_dai_link->name, "Kbl Audio Port") ||
--	    !strcmp(fe_dai_link->name, "Kbl Audio Headset Playback") ||
--	    !strcmp(fe_dai_link->name, "Kbl Audio Capture Port")) {
-+	if (!strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Port") ||
-+	    !strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Headset Playback") ||
-+	    !strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Capture Port")) {
- 		rate->min = rate->max = 48000;
- 		chan->min = chan->max = 2;
- 		snd_mask_none(fmt);
-@@ -322,7 +344,7 @@ static int kabylake_ssp_fixup(struct snd
- 	 * The speaker on the SSP0 supports S16_LE and not S24_LE.
- 	 * thus changing the mask here
- 	 */
--	if (!strcmp(be_dai_link->name, "SSP0-Codec"))
-+	if (!strcmp(rtd_dpcm->be->dai_link->name, "SSP0-Codec"))
- 		snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S16_LE);
+ 	ret = devm_snd_soc_register_component(dev,
+ 			&soc_component_dev_aic32x4, &aic32x4_dai, 1);
+ 	if (ret) {
+@@ -1250,10 +1254,6 @@ int aic32x4_probe(struct device *dev, st
+ 		goto err_disable_regulators;
+ 	}
  
+-	ret = aic32x4_register_clocks(dev, aic32x4->mclk_name);
+-	if (ret)
+-		goto err_disable_regulators;
+-
  	return 0;
+ 
+ err_disable_regulators:
 
 
