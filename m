@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7C137CD6D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 402F037CD6C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240228AbhELQzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35690 "EHLO mail.kernel.org"
+        id S240184AbhELQy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:54:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243891AbhELQmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243895AbhELQmM (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38A8061C5F;
-        Wed, 12 May 2021 16:08:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F3CB61C53;
+        Wed, 12 May 2021 16:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835686;
-        bh=O3iqQKkp/2XeSaGj/PCaKbkXMDqSstklYa7eVDsuQj4=;
+        s=korg; t=1620835689;
+        bh=FSCMce53C/SXoHFsmmzPsDugLEjoVVoQnk57t5imdoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvIEKBgAYzHAZJ/L+w+mafxVJQsVPWhc5SzyPzQYgq/A0dJyqZ39Gh2cGRfp2yEcV
-         12y4R41DMVrwwTwgEIBDMGKeUv89rBd/7OFFS7r+HKHarJ8gzwRDXJorgB2qYKm7wT
-         0Br/4qu5jy7KyrFgii1tNjvrvAujisjbDfJ8Iark=
+        b=NGs97IwHsKUkfsOb3+OLF+jJ6xpp5V2rJqRGvtrKiZ/a+v5sEezLD7YVzw1B7fD3B
+         DLUy36v3xwtS+E7k4e+OTjHXgVQLjFeouPBC2UA8ZCLnSOIX6f68a9AHxRox9qY4Ry
+         SblVLhJ670uPXN3FGv8JaQQrhr3wEnjeOO2Ww+vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
         Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 443/677] RDMA/mlx5: Fix query RoCE port
-Date:   Wed, 12 May 2021 16:48:09 +0200
-Message-Id: <20210512144852.061071730@linuxfoundation.org>
+Subject: [PATCH 5.12 444/677] RDMA/mlx5: Fix mlx5 rates to IB rates map
+Date:   Wed, 12 May 2021 16:48:10 +0200
+Message-Id: <20210512144852.096946784@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,71 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit 7852546f524595245382a919e752468f73421451 ]
+[ Upstream commit 6fe6e568639859db960c8fcef19a2ece1c2d7eae ]
 
-mlx5_is_roce_enabled returns the devlink RoCE init value, therefore it
-should be used only when driver is loaded. Instead we just need to read
-the roce_en field.
+Correct the map between mlx5 rates and corresponding ib rates, as they
+don't always have a fixed offset between them.
 
-In addition, rename mlx5_is_roce_enabled to mlx5_is_roce_init_enabled.
-
-Fixes: 7a58779edd75 ("IB/mlx5: Improve query port for representor port")
-Link: https://lore.kernel.org/r/20210304124517.1100608-2-leon@kernel.org
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Link: https://lore.kernel.org/r/20210304124517.1100608-4-leon@kernel.org
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 6 +++---
- include/linux/mlx5/driver.h       | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index 0d69a697d75f..4be7bccefaa4 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -499,7 +499,7 @@ static int mlx5_query_port_roce(struct ib_device *device, u8 port_num,
- 	translate_eth_proto_oper(eth_prot_oper, &props->active_speed,
- 				 &props->active_width, ext);
- 
--	if (!dev->is_rep && mlx5_is_roce_enabled(mdev)) {
-+	if (!dev->is_rep && dev->mdev->roce.roce_en) {
- 		u16 qkey_viol_cntr;
- 
- 		props->port_cap_flags |= IB_PORT_CM_SUP;
-@@ -4174,7 +4174,7 @@ static int mlx5_ib_roce_init(struct mlx5_ib_dev *dev)
- 
- 		/* Register only for native ports */
- 		err = mlx5_add_netdev_notifier(dev, port_num);
--		if (err || dev->is_rep || !mlx5_is_roce_enabled(mdev))
-+		if (err || dev->is_rep || !mlx5_is_roce_init_enabled(mdev))
- 			/*
- 			 * We don't enable ETH interface for
- 			 * 1. IB representors
-@@ -4711,7 +4711,7 @@ static int mlx5r_probe(struct auxiliary_device *adev,
- 	dev->mdev = mdev;
- 	dev->num_ports = num_ports;
- 
--	if (ll == IB_LINK_LAYER_ETHERNET && !mlx5_is_roce_enabled(mdev))
-+	if (ll == IB_LINK_LAYER_ETHERNET && !mlx5_is_roce_init_enabled(mdev))
- 		profile = &raw_eth_profile;
- 	else
- 		profile = &pf_profile;
-diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
-index 53b89631a1d9..ab07f09f2bad 100644
---- a/include/linux/mlx5/driver.h
-+++ b/include/linux/mlx5/driver.h
-@@ -1226,7 +1226,7 @@ enum {
- 	MLX5_TRIGGERED_CMD_COMP = (u64)1 << 32,
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index f5a52a6fae43..843f9e7fe96f 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -3146,6 +3146,19 @@ enum {
+ 	MLX5_PATH_FLAG_COUNTER	= 1 << 2,
  };
  
--static inline bool mlx5_is_roce_enabled(struct mlx5_core_dev *dev)
-+static inline bool mlx5_is_roce_init_enabled(struct mlx5_core_dev *dev)
++static int mlx5_to_ib_rate_map(u8 rate)
++{
++	static const int rates[] = { IB_RATE_PORT_CURRENT, IB_RATE_56_GBPS,
++				     IB_RATE_25_GBPS,	   IB_RATE_100_GBPS,
++				     IB_RATE_200_GBPS,	   IB_RATE_50_GBPS,
++				     IB_RATE_400_GBPS };
++
++	if (rate < ARRAY_SIZE(rates))
++		return rates[rate];
++
++	return rate - MLX5_STAT_RATE_OFFSET;
++}
++
+ static int ib_to_mlx5_rate_map(u8 rate)
  {
- 	struct devlink *devlink = priv_to_devlink(dev);
- 	union devlink_param_value val;
+ 	switch (rate) {
+@@ -4485,7 +4498,7 @@ static void to_rdma_ah_attr(struct mlx5_ib_dev *ibdev,
+ 	rdma_ah_set_path_bits(ah_attr, MLX5_GET(ads, path, mlid));
+ 
+ 	static_rate = MLX5_GET(ads, path, stat_rate);
+-	rdma_ah_set_static_rate(ah_attr, static_rate ? static_rate - 5 : 0);
++	rdma_ah_set_static_rate(ah_attr, mlx5_to_ib_rate_map(static_rate));
+ 	if (MLX5_GET(ads, path, grh) ||
+ 	    ah_attr->type == RDMA_AH_ATTR_TYPE_ROCE) {
+ 		rdma_ah_set_grh(ah_attr, NULL, MLX5_GET(ads, path, flow_label),
 -- 
 2.30.2
 
