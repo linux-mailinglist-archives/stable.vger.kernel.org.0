@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB17137C4CA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25BF637C498
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234599AbhELPdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:33:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40900 "EHLO mail.kernel.org"
+        id S234119AbhELPcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235679AbhELP2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:28:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AECE66192C;
-        Wed, 12 May 2021 15:14:45 +0000 (UTC)
+        id S235483AbhELP2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D14C61925;
+        Wed, 12 May 2021 15:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832486;
-        bh=ME+o8qVmDRw6Mq9SpL5ndvS2yjgea2XcS6Yz5PbfQF0=;
+        s=korg; t=1620832395;
+        bh=ypEOU/CNhBtB4MaCH9Ro/6/r+rQI6t1xksKmsj56Cs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vEVBak5rP8Io7mthF3AkRtW73Ex4YZ/4scDfnf2cHvNXP2kZnPUopU09+tmTY/eqN
-         PS3CNslDa9JWmn81HQePtmVRcKUTx/7jFRTga0eldggazKXOic1u8z+yZB7JNRvnyk
-         7+jfnU5vX6s3g2/po0sy2DvuidZ2SLNngdN7EUA8=
+        b=GnM5AfXHK/mssZVbB2gbPAOO51LfoCaySzQeHgA4L5AKq+qzKYoN6PbMIwzko37Vc
+         GLsV4+AZJZl1F1yjgJTEMg33OifKDeh8dj0bhjd76O2k8rAJ/jnlIsWIS4WJIQ0kvN
+         yDBb5lsGUBML4bIMTg+k9TZQE8npV08YnWlfZjiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Liam R. Howlett" <Liam.Howlett@Oracle.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 254/530] m68k: Add missing mmap_read_lock() to sys_cacheflush()
-Date:   Wed, 12 May 2021 16:46:04 +0200
-Message-Id: <20210512144828.185791552@linuxfoundation.org>
+Subject: [PATCH 5.10 255/530] spi: spi-zynqmp-gqspi: Fix missing unlock on error in zynqmp_qspi_exec_op()
+Date:   Wed, 12 May 2021 16:46:05 +0200
+Message-Id: <20210512144828.217387913@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,37 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Howlett <liam.howlett@oracle.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit f829b4b212a315b912cb23fd10aaf30534bb5ce9 ]
+[ Upstream commit 6043357263fbe2df0bf0736d971ad5dce7d19dc1 ]
 
-When the superuser flushes the entire cache, the mmap_read_lock() is not
-taken, but mmap_read_unlock() is called.  Add the missing
-mmap_read_lock() call.
+Add the missing unlock before return from function zynqmp_qspi_exec_op()
+in the error handling case.
 
-Fixes: cd2567b6850b1648 ("m68k: call find_vma with the mmap_sem held in sys_cacheflush()")
-Signed-off-by: Liam R. Howlett <Liam.Howlett@Oracle.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Link: https://lore.kernel.org/r/20210407200032.764445-1-Liam.Howlett@Oracle.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: a0f65be6e880 ("spi: spi-zynqmp-gqspi: add mutex locking for exec_op")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20210412160025.194171-1-weiyongjun1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/sys_m68k.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-zynqmp-gqspi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/m68k/kernel/sys_m68k.c b/arch/m68k/kernel/sys_m68k.c
-index 1c235d8f53f3..f55bdcb8e4f1 100644
---- a/arch/m68k/kernel/sys_m68k.c
-+++ b/arch/m68k/kernel/sys_m68k.c
-@@ -388,6 +388,8 @@ sys_cacheflush (unsigned long addr, int scope, int cache, unsigned long len)
- 		ret = -EPERM;
- 		if (!capable(CAP_SYS_ADMIN))
- 			goto out;
-+
-+		mmap_read_lock(current->mm);
- 	} else {
- 		struct vm_area_struct *vma;
+diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
+index 036d8ae41c06..408e348382c5 100644
+--- a/drivers/spi/spi-zynqmp-gqspi.c
++++ b/drivers/spi/spi-zynqmp-gqspi.c
+@@ -965,8 +965,10 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
  
+ 	if (op->cmd.opcode) {
+ 		tmpbuf = kzalloc(op->cmd.nbytes, GFP_KERNEL | GFP_DMA);
+-		if (!tmpbuf)
++		if (!tmpbuf) {
++			mutex_unlock(&xqspi->op_lock);
+ 			return -ENOMEM;
++		}
+ 		tmpbuf[0] = op->cmd.opcode;
+ 		reinit_completion(&xqspi->data_completion);
+ 		xqspi->txbuf = tmpbuf;
 -- 
 2.30.2
 
