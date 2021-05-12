@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D768237C709
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 675C937C717
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231126AbhELP55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:57:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33436 "EHLO mail.kernel.org"
+        id S234303AbhELP6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:58:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232752AbhELPwh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:52:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BD7461A11;
-        Wed, 12 May 2021 15:26:53 +0000 (UTC)
+        id S233960AbhELPxJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:53:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B36A361A0F;
+        Wed, 12 May 2021 15:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833213;
-        bh=J3JH0c4UA5D/9o3pnL0rtYrcRaC80uhgWr5Jo92vZ5I=;
+        s=korg; t=1620833216;
+        bh=z1n+Wp0xewqMxcGI+T2+ktYQ36uKpi2LdlmtLEyajmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ur7A43ix9iJOCOQ7DNPA1SvQF5n7jGWyIZzUKjp1cKZEjOzldxrvl1I0ntsKUDDYN
-         qpDQVSy9hcVLgwZR3TcUI/H88ehikFD2OFiNmo9FskqztpH9Ane1ZfBo8aRw+OEKO9
-         FYT9V/D+IXypuBYnK8SPISHqKXAGUlFg0rlDUjNk=
+        b=dB+7r7UREiP0LR7wR2r5b2dAj0+SmRaONHPMn87fS90YZ94O5T99rNdkF80c5NPsI
+         rLe91iqT30IwDzDWivEZtUi9qKL1B/dS+r+DgQOCgyvoZKM/xOiUqrSJu2o6ooElUI
+         Xentrx5ZAou0wmeZ6cB1/4flpKFVTdK9uvzyufQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.11 062/601] drm/qxl: use ttm bo priorities
-Date:   Wed, 12 May 2021 16:42:19 +0200
-Message-Id: <20210512144829.854985865@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>
+Subject: [PATCH 5.11 063/601] drm/ingenic: Fix non-OSD mode
+Date:   Wed, 12 May 2021 16:42:20 +0200
+Message-Id: <20210512144829.892781591@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,143 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 4fff19ae427548d8c37260c975a4b20d3c040ec6 upstream.
+commit 7b4957684e5d813fcbdc98144e3cc5c4467b3e2e upstream.
 
-Allow to set priorities for buffer objects.  Use priority 1 for surface
-and cursor command releases.  Use priority 0 for drawing command
-releases.  That way the short-living drawing commands are first in line
-when it comes to eviction, making it *much* less likely that
-ttm_bo_mem_force_space() picks something which can't be evicted and
-throws an error after waiting a while without success.
+Even though the JZ4740 did not have the OSD mode, it had (according to
+the documentation) two DMA channels, but there is absolutely no
+information about how to select the second DMA channel.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210217123213.2199186-4-kraxel@redhat.com
+Make the ingenic-drm driver work in non-OSD mode by using the
+foreground0 plane (which is bound to the DMA0 channel) as the primary
+plane, instead of the foreground1 plane, which is the primary plane
+when in OSD mode.
+
+Fixes: 3c9bea4ef32b ("drm/ingenic: Add support for OSD mode")
+Cc: <stable@vger.kernel.org> # v5.8+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210124085552.29146-5-paul@crapouillou.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/qxl/qxl_cmd.c     |    2 +-
- drivers/gpu/drm/qxl/qxl_display.c |    4 ++--
- drivers/gpu/drm/qxl/qxl_gem.c     |    2 +-
- drivers/gpu/drm/qxl/qxl_object.c  |    5 +++--
- drivers/gpu/drm/qxl/qxl_object.h  |    1 +
- drivers/gpu/drm/qxl/qxl_release.c |   18 ++++++++++++------
- 6 files changed, 20 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -268,7 +268,7 @@ int qxl_alloc_bo_reserved(struct qxl_dev
- 	int ret;
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -553,7 +553,7 @@ static void ingenic_drm_plane_atomic_upd
+ 		height = state->src_h >> 16;
+ 		cpp = state->fb->format->cpp[0];
  
- 	ret = qxl_bo_create(qdev, size, false /* not kernel - device */,
--			    false, QXL_GEM_DOMAIN_VRAM, NULL, &bo);
-+			    false, QXL_GEM_DOMAIN_VRAM, 0, NULL, &bo);
+-		if (priv->soc_info->has_osd && plane->type == DRM_PLANE_TYPE_OVERLAY)
++		if (!priv->soc_info->has_osd || plane->type == DRM_PLANE_TYPE_OVERLAY)
+ 			hwdesc = &priv->dma_hwdescs->hwdesc_f0;
+ 		else
+ 			hwdesc = &priv->dma_hwdescs->hwdesc_f1;
+@@ -809,6 +809,7 @@ static int ingenic_drm_bind(struct devic
+ 	const struct jz_soc_info *soc_info;
+ 	struct ingenic_drm *priv;
+ 	struct clk *parent_clk;
++	struct drm_plane *primary;
+ 	struct drm_bridge *bridge;
+ 	struct drm_panel *panel;
+ 	struct drm_encoder *encoder;
+@@ -923,9 +924,11 @@ static int ingenic_drm_bind(struct devic
+ 	if (soc_info->has_osd)
+ 		priv->ipu_plane = drm_plane_from_index(drm, 0);
+ 
+-	drm_plane_helper_add(&priv->f1, &ingenic_drm_plane_helper_funcs);
++	primary = priv->soc_info->has_osd ? &priv->f1 : &priv->f0;
+ 
+-	ret = drm_universal_plane_init(drm, &priv->f1, 1,
++	drm_plane_helper_add(primary, &ingenic_drm_plane_helper_funcs);
++
++	ret = drm_universal_plane_init(drm, primary, 1,
+ 				       &ingenic_drm_primary_plane_funcs,
+ 				       priv->soc_info->formats_f1,
+ 				       priv->soc_info->num_formats_f1,
+@@ -937,7 +940,7 @@ static int ingenic_drm_bind(struct devic
+ 
+ 	drm_crtc_helper_add(&priv->crtc, &ingenic_drm_crtc_helper_funcs);
+ 
+-	ret = drm_crtc_init_with_planes(drm, &priv->crtc, &priv->f1,
++	ret = drm_crtc_init_with_planes(drm, &priv->crtc, primary,
+ 					NULL, &ingenic_drm_crtc_funcs, NULL);
  	if (ret) {
- 		DRM_ERROR("failed to allocate VRAM BO\n");
- 		return ret;
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -798,8 +798,8 @@ static int qxl_plane_prepare_fb(struct d
- 				qdev->dumb_shadow_bo = NULL;
- 			}
- 			qxl_bo_create(qdev, surf.height * surf.stride,
--				      true, true, QXL_GEM_DOMAIN_SURFACE, &surf,
--				      &qdev->dumb_shadow_bo);
-+				      true, true, QXL_GEM_DOMAIN_SURFACE, 0,
-+				      &surf, &qdev->dumb_shadow_bo);
- 		}
- 		if (user_bo->shadow != qdev->dumb_shadow_bo) {
- 			if (user_bo->shadow) {
---- a/drivers/gpu/drm/qxl/qxl_gem.c
-+++ b/drivers/gpu/drm/qxl/qxl_gem.c
-@@ -55,7 +55,7 @@ int qxl_gem_object_create(struct qxl_dev
- 	/* At least align on page size */
- 	if (alignment < PAGE_SIZE)
- 		alignment = PAGE_SIZE;
--	r = qxl_bo_create(qdev, size, kernel, false, initial_domain, surf, &qbo);
-+	r = qxl_bo_create(qdev, size, kernel, false, initial_domain, 0, surf, &qbo);
- 	if (r) {
- 		if (r != -ERESTARTSYS)
- 			DRM_ERROR(
---- a/drivers/gpu/drm/qxl/qxl_object.c
-+++ b/drivers/gpu/drm/qxl/qxl_object.c
-@@ -103,8 +103,8 @@ static const struct drm_gem_object_funcs
- 	.print_info = drm_gem_ttm_print_info,
- };
- 
--int qxl_bo_create(struct qxl_device *qdev,
--		  unsigned long size, bool kernel, bool pinned, u32 domain,
-+int qxl_bo_create(struct qxl_device *qdev, unsigned long size,
-+		  bool kernel, bool pinned, u32 domain, u32 priority,
- 		  struct qxl_surface *surf,
- 		  struct qxl_bo **bo_ptr)
- {
-@@ -137,6 +137,7 @@ int qxl_bo_create(struct qxl_device *qde
- 
- 	qxl_ttm_placement_from_domain(bo, domain);
- 
-+	bo->tbo.priority = priority;
- 	r = ttm_bo_init_reserved(&qdev->mman.bdev, &bo->tbo, size, type,
- 				 &bo->placement, 0, &ctx, size,
- 				 NULL, NULL, &qxl_ttm_bo_destroy);
---- a/drivers/gpu/drm/qxl/qxl_object.h
-+++ b/drivers/gpu/drm/qxl/qxl_object.h
-@@ -61,6 +61,7 @@ static inline u64 qxl_bo_mmap_offset(str
- extern int qxl_bo_create(struct qxl_device *qdev,
- 			 unsigned long size,
- 			 bool kernel, bool pinned, u32 domain,
-+			 u32 priority,
- 			 struct qxl_surface *surf,
- 			 struct qxl_bo **bo_ptr);
- extern int qxl_bo_kmap(struct qxl_bo *bo, struct dma_buf_map *map);
---- a/drivers/gpu/drm/qxl/qxl_release.c
-+++ b/drivers/gpu/drm/qxl/qxl_release.c
-@@ -199,11 +199,12 @@ qxl_release_free(struct qxl_device *qdev
- }
- 
- static int qxl_release_bo_alloc(struct qxl_device *qdev,
--				struct qxl_bo **bo)
-+				struct qxl_bo **bo,
-+				u32 priority)
- {
- 	/* pin releases bo's they are too messy to evict */
- 	return qxl_bo_create(qdev, PAGE_SIZE, false, true,
--			     QXL_GEM_DOMAIN_VRAM, NULL, bo);
-+			     QXL_GEM_DOMAIN_VRAM, priority, NULL, bo);
- }
- 
- int qxl_release_list_add(struct qxl_release *release, struct qxl_bo *bo)
-@@ -326,13 +327,18 @@ int qxl_alloc_release_reserved(struct qx
- 	int ret = 0;
- 	union qxl_release_info *info;
- 	int cur_idx;
-+	u32 priority;
- 
--	if (type == QXL_RELEASE_DRAWABLE)
-+	if (type == QXL_RELEASE_DRAWABLE) {
- 		cur_idx = 0;
--	else if (type == QXL_RELEASE_SURFACE_CMD)
-+		priority = 0;
-+	} else if (type == QXL_RELEASE_SURFACE_CMD) {
- 		cur_idx = 1;
--	else if (type == QXL_RELEASE_CURSOR_CMD)
-+		priority = 1;
-+	} else if (type == QXL_RELEASE_CURSOR_CMD) {
- 		cur_idx = 2;
-+		priority = 1;
-+	}
- 	else {
- 		DRM_ERROR("got illegal type: %d\n", type);
- 		return -EINVAL;
-@@ -352,7 +358,7 @@ int qxl_alloc_release_reserved(struct qx
- 		qdev->current_release_bo[cur_idx] = NULL;
- 	}
- 	if (!qdev->current_release_bo[cur_idx]) {
--		ret = qxl_release_bo_alloc(qdev, &qdev->current_release_bo[cur_idx]);
-+		ret = qxl_release_bo_alloc(qdev, &qdev->current_release_bo[cur_idx], priority);
- 		if (ret) {
- 			mutex_unlock(&qdev->release_mutex);
- 			qxl_release_free(qdev, *release);
+ 		dev_err(dev, "Failed to init CRTC: %i\n", ret);
 
 
