@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B568A37B7E2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2710937B7E3
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbhELI2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:28:08 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:35891 "EHLO
+        id S230097AbhELI2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:28:17 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:48093 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230259AbhELI2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:28:07 -0400
+        by vger.kernel.org with ESMTP id S230037AbhELI2Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:28:16 -0400
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id AA2BD13AD;
-        Wed, 12 May 2021 04:26:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 04:27:00 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id C5C4414C6;
+        Wed, 12 May 2021 04:27:07 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Wed, 12 May 2021 04:27:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=eOHztm
-        Wb0UJOkK7mIU8SrxNf1+kptB+PUSZkFUX6FFs=; b=OmdxYnAn7yLWfTS/2igPuo
-        0GJL0+BV2lt7krztIH+MB0zENAd7S2Wjjs9fXd958SOoXO4LaT0lX4kEdG2Ab55m
-        /f6Yx7OVf5CHA0+7tR26p8lQZ0SF1Rzn2vMucqyKLakhPoQVeNIVhtW6HA//ZbdZ
-        4eKKJNAk/B8Mo1qCFxHOq54qgUL5MXQYRTpiYkb1hVdvBv3HF2/h4bt5y/+H5emf
-        9gZ2qiDHskyory8Uha+FsptqoVGJO5bhdkAUZy9RviHgId5dStOtAYRsaLJkf3v6
-        UvdzlH9bfmWtqKLJD0atKKQK1fa7eOsDdJZXM6WRZXuq2bYApx2gsa2WeooPwEng
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=7gatQl
+        jX78Be8YrXsiEbsxjrmscjierCBJ371tA04Bk=; b=OXz7RoBvXDAdgQlpWwZv4u
+        iMF11qZUnnUY1xmPv8RNZeanljhJ6R//dKZAiP3T3Dn7vlZue6Scmsq/0BMNurES
+        XhRszq4rNRWdXvD/PAu0a7S1qCgJIyWdbdXPoQO0DOWa7G+Q6p2qx6nCIiBKjUDF
+        5egckACk6EtHe1x/J6woeRTE6Q28KIc2emUwfwVGMqKQzcrfOnNTG80ruQCZMYym
+        dbg/4ptQdWVKle151xfZbyMx7YeaJ9nIVilndl6XDm29ZwdfFDtCJeJlBSYlmoZe
+        im3gkrvW8sy2i1yJBx6hnj5jrlhX125Vphpo8fUtDYYkBTdERBZGp9Nyk/uNuecQ
         ==
-X-ME-Sender: <xms:UpGbYK6IgraUXF-BC9lZuRp6jbAue4jNJvoj7lrb2vRzmr-a54s-mg>
-    <xme:UpGbYD6iviix9bzXqAiLa-7UsJGYnZm6ybhu0s3RmVz9NC0VBetjKBbzta1JYZkKc
-    BoBtyJ7RoX-XA>
+X-ME-Sender: <xms:W5GbYG9PEMmcdt9u3kz8rQsNxi9hXrlqGTpyqqEWOx3KbxIFGB__7g>
+    <xme:W5GbYGuomQd1gChKICR2fHk3P77GOQePz9w0q7roCD1zyb0LZWw-SA2sIJlSkdenC
+    hxFuP3jO0n3Zw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehuddgudeftdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:UpGbYJcgd-twLKE_Fm3ksnIpQInMyvuUcX5P_qSrcdlVXFUBCmObCw>
-    <xmx:UpGbYHL2F4tzrGi20AbQHAQMsMte-ubUq6mWORkvZIEcqAAvE7BEXQ>
-    <xmx:UpGbYOIe-gm6Gp05hQ_mWpoGTvWusqI4ZnKg_gAUfKqT42SGtbMkcg>
-    <xmx:U5GbYFVm4TPeuPI-feRpXNzwsG78catSpNrqje231t_wNI9PnwkRxcWqQ8c>
+X-ME-Proxy: <xmx:W5GbYMAvwU0nabie2kbWfaNqlkYQz7KmSUHomduF6i_Hfoustti26A>
+    <xmx:W5GbYOdAC3bJpD7tSlYQrx68Am3cdTF5pNKleV5SfOh8fupZyywgZA>
+    <xmx:W5GbYLPwUcIVcmJai2CNdLp1Xy9Id9B6HW4teO_1G1pX5KmeqIIjCQ>
+    <xmx:W5GbYEZBuaR2ntDyyCUK7ycrMFet7O7WLJRTqGXiERuUl2AL8nNfNNav1w4>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:26:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Revert "USB: cdc-acm: fix rounding error in TIOCSSERIAL"" failed to apply to 4.19-stable tree
+        Wed, 12 May 2021 04:27:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Revert "USB: cdc-acm: fix rounding error in TIOCSSERIAL"" failed to apply to 4.14-stable tree
 To:     johan@kernel.org, anthony.mallet@laas.fr,
         gregkh@linuxfoundation.org, oneukum@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:26:56 +0200
-Message-ID: <162080801617134@kroah.com>
+Date:   Wed, 12 May 2021 10:26:57 +0200
+Message-ID: <162080801715201@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
