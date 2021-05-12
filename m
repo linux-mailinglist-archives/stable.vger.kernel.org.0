@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BCC537C499
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8495837C49C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234127AbhELPcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40904 "EHLO mail.kernel.org"
+        id S234140AbhELPcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235493AbhELP2N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:28:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DDBC61A2D;
-        Wed, 12 May 2021 15:13:19 +0000 (UTC)
+        id S235508AbhELP2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C1E961C1C;
+        Wed, 12 May 2021 15:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832400;
-        bh=bipMomk1GdGdN94LjQeuhOQ/x+1wMLC7ZtoquWDh69U=;
+        s=korg; t=1620832403;
+        bh=2G9HOUVLW69YhyaAF4q/mXKEr63MDrABeSTAHkaHJPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1qGDGadOk4VpCQ6sQ531xEVhsg4knJYX0s5YSh2IEQt6gMHR0MXcxBdZfweDVJHA
-         FDo1eFZMrQUQtncyInVlhMhxsEsjRsAj8SxFMfLYAuIY86H+CamW392HmYvR48P4mk
-         UeuJQom2pyclAlBsjr9QdTObe7NENsZrwb+J/kPE=
+        b=CEuEzXANWis/E1qz66NSGsEiWrBPFvV1cTRo9sRO27KZOjATP2XNegHLw56Kbs+Tk
+         9xOJhuM1lmeeFEbmiFcc8O2WXwK84Zm2XZtPDEvvUY0Cp04zC0s5GAkTbQtPKy+S9s
+         S3YfWYdV3P++nSdSocIfQw05G/5/L2329XJjgPnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Quanyang Wang <quanyang.wang@windriver.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 265/530] spi: spi-zynqmp-gqspi: return -ENOMEM if dma_map_single fails
-Date:   Wed, 12 May 2021 16:46:15 +0200
-Message-Id: <20210512144828.531271321@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Mike Travis <travis@sgi.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 266/530] x86/platform/uv: Fix !KEXEC build failure
+Date:   Wed, 12 May 2021 16:46:16 +0200
+Message-Id: <20210512144828.562642553@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,127 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Ingo Molnar <mingo@kernel.org>
 
-[ Upstream commit 126bdb606fd2802454e6048caef1be3e25dd121e ]
+[ Upstream commit c2209ea55612efac75de0a58ef5f7394fae7fa0f ]
 
-The spi controller supports 44-bit address space on AXI in DMA mode,
-so set dma_addr_t width to 44-bit to avoid using a swiotlb mapping.
-In addition, if dma_map_single fails, it should return immediately
-instead of continuing doing the DMA operation which bases on invalid
-address.
+When KEXEC is disabled, the UV build fails:
 
-This fixes the following crash which occurs in reading a big block
-from flash:
+  arch/x86/platform/uv/uv_nmi.c:875:14: error: ‘uv_nmi_kexec_failed’ undeclared (first use in this function)
 
-[  123.633577] zynqmp-qspi ff0f0000.spi: swiotlb buffer is full (sz: 4194304 bytes), total 32768 (slots), used 0 (slots)
-[  123.644230] zynqmp-qspi ff0f0000.spi: ERR:rxdma:memory not mapped
-[  123.784625] Unable to handle kernel paging request at virtual address 00000000003fffc0
-[  123.792536] Mem abort info:
-[  123.795313]   ESR = 0x96000145
-[  123.798351]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  123.803655]   SET = 0, FnV = 0
-[  123.806693]   EA = 0, S1PTW = 0
-[  123.809818] Data abort info:
-[  123.812683]   ISV = 0, ISS = 0x00000145
-[  123.816503]   CM = 1, WnR = 1
-[  123.819455] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000805047000
-[  123.825887] [00000000003fffc0] pgd=0000000803b45003, p4d=0000000803b45003, pud=0000000000000000
-[  123.834586] Internal error: Oops: 96000145 [#1] PREEMPT SMP
+Since uv_nmi_kexec_failed is only defined in the KEXEC_CORE #ifdef branch,
+this code cannot ever have been build tested:
 
-Fixes: 1c26372e5aa9 ("spi: spi-zynqmp-gqspi: Update driver to use spi-mem framework")
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Link: https://lore.kernel.org/r/20210416004652.2975446-6-quanyang.wang@windriver.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+	if (main)
+		pr_err("UV: NMI kdump: KEXEC not supported in this kernel\n");
+	atomic_set(&uv_nmi_kexec_failed, 1);
+
+Nor is this use possible in uv_handle_nmi():
+
+                atomic_set(&uv_nmi_kexec_failed, 0);
+
+These bugs were introduced in this commit:
+
+    d0a9964e9873: ("x86/platform/uv: Implement simple dump failover if kdump fails")
+
+Which added the uv_nmi_kexec_failed assignments to !KEXEC code, while making the
+definition KEXEC-only - apparently without testing the !KEXEC case.
+
+Instead of complicating the #ifdef maze, simplify the code by requiring X86_UV
+to depend on KEXEC_CORE. This pattern is present in other architectures as well.
+
+( We'll remove the untested, 7 years old !KEXEC complications from the file in a
+  separate commit. )
+
+Fixes: d0a9964e9873: ("x86/platform/uv: Implement simple dump failover if kdump fails")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Mike Travis <travis@sgi.com>
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ arch/x86/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index 2a0be16b2eb0..1dd2af9cc237 100644
---- a/drivers/spi/spi-zynqmp-gqspi.c
-+++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -731,7 +731,7 @@ static irqreturn_t zynqmp_qspi_irq(int irq, void *dev_id)
-  * zynqmp_qspi_setuprxdma - This function sets up the RX DMA operation
-  * @xqspi:	xqspi is a pointer to the GQSPI instance.
-  */
--static void zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
-+static int zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
- {
- 	u32 rx_bytes, rx_rem, config_reg;
- 	dma_addr_t addr;
-@@ -745,7 +745,7 @@ static void zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
- 		zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST, config_reg);
- 		xqspi->mode = GQSPI_MODE_IO;
- 		xqspi->dma_rx_bytes = 0;
--		return;
-+		return 0;
- 	}
- 
- 	rx_rem = xqspi->bytes_to_receive % 4;
-@@ -753,8 +753,10 @@ static void zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
- 
- 	addr = dma_map_single(xqspi->dev, (void *)xqspi->rxbuf,
- 			      rx_bytes, DMA_FROM_DEVICE);
--	if (dma_mapping_error(xqspi->dev, addr))
-+	if (dma_mapping_error(xqspi->dev, addr)) {
- 		dev_err(xqspi->dev, "ERR:rxdma:memory not mapped\n");
-+		return -ENOMEM;
-+	}
- 
- 	xqspi->dma_rx_bytes = rx_bytes;
- 	xqspi->dma_addr = addr;
-@@ -775,6 +777,8 @@ static void zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
- 
- 	/* Write the number of bytes to transfer */
- 	zynqmp_gqspi_write(xqspi, GQSPI_QSPIDMA_DST_SIZE_OFST, rx_bytes);
-+
-+	return 0;
- }
- 
- /**
-@@ -811,11 +815,17 @@ static void zynqmp_qspi_write_op(struct zynqmp_qspi *xqspi, u8 tx_nbits,
-  * @genfifoentry:	genfifoentry is pointer to the variable in which
-  *			GENFIFO	mask is returned to calling function
-  */
--static void zynqmp_qspi_read_op(struct zynqmp_qspi *xqspi, u8 rx_nbits,
-+static int zynqmp_qspi_read_op(struct zynqmp_qspi *xqspi, u8 rx_nbits,
- 				u32 genfifoentry)
- {
--	zynqmp_qspi_setuprxdma(xqspi);
-+	int ret;
-+
-+	ret = zynqmp_qspi_setuprxdma(xqspi);
-+	if (ret)
-+		return ret;
- 	zynqmp_qspi_fillgenfifo(xqspi, rx_nbits, genfifoentry);
-+
-+	return 0;
- }
- 
- /**
-@@ -1029,8 +1039,11 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
- 			xqspi->rxbuf = (u8 *)op->data.buf.in;
- 			xqspi->bytes_to_receive = op->data.nbytes;
- 			xqspi->bytes_to_transfer = 0;
--			zynqmp_qspi_read_op(xqspi, op->data.buswidth,
-+			err = zynqmp_qspi_read_op(xqspi, op->data.buswidth,
- 					    genfifoentry);
-+			if (err)
-+				goto return_err;
-+
- 			zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST,
- 					   zynqmp_gqspi_read
- 					   (xqspi, GQSPI_CONFIG_OFST) |
-@@ -1152,6 +1165,7 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
- 		goto clk_dis_all;
- 	}
- 
-+	dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
- 	ctlr->bits_per_word_mask = SPI_BPW_MASK(8);
- 	ctlr->num_chipselect = GQSPI_DEFAULT_NUM_CS;
- 	ctlr->mem_ops = &zynqmp_qspi_mem_ops;
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 183ee73d9019..f3c8a8110f60 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -562,6 +562,7 @@ config X86_UV
+ 	depends on X86_EXTENDED_PLATFORM
+ 	depends on NUMA
+ 	depends on EFI
++	depends on KEXEC_CORE
+ 	depends on X86_X2APIC
+ 	depends on PCI
+ 	help
 -- 
 2.30.2
 
