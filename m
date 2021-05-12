@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A964137C58E
+	by mail.lfdr.de (Postfix) with ESMTP id F1CDE37C58F
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234122AbhELPlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:41:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56600 "EHLO mail.kernel.org"
+        id S234181AbhELPlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:41:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236099AbhELPhC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:37:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 895F461C44;
-        Wed, 12 May 2021 15:18:19 +0000 (UTC)
+        id S236116AbhELPhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:37:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0050D61C46;
+        Wed, 12 May 2021 15:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832700;
-        bh=dWA+btwXG3IgrPt36VbOk0yrIjI6sypODftnJ/d+vJM=;
+        s=korg; t=1620832702;
+        bh=RxZkfmJ5GaHK2idvKUvSLAK5WC7auKNs2oyDJFi/+lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mu+jJ4IhSglDthRCpjV8vD5ye1Riux89o28Wjr+yCrv8aXv8hIVJSywk19jw+sGwx
-         7Nn2zUTwoAQftbaS6SeLOZBlRbUsQ7vqJNogcI9Cr5e6MNVU8l1HbFZq8vKf6gDN97
-         iduMZiSlT6YBWi58fGQKEX+WvSuTMFUf3C1SdPQs=
+        b=VA4Ayz4dtaR62Y1T7n8LjjW3M4S2dFNIVG12/G3bwqCo1W3CvAbm2xBZ+S0lcuo/G
+         lrlgKWh+ElfWHCvENHOuZ+EGKncoIa4TSs05jyKWgBQoqS4PVqceBiVNcUqURL60Qq
+         n1kmA5ROG18AYjI69qZQ2iOlWkAnNg4xKYrhh6uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 387/530] mips: bmips: fix syscon-reboot nodes
-Date:   Wed, 12 May 2021 16:48:17 +0200
-Message-Id: <20210512144832.498530663@linuxfoundation.org>
+        stable@vger.kernel.org, Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Liu Yi L <yi.l.liu@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 388/530] iommu/vt-d: Dont set then clear private data in prq_event_thread()
+Date:   Wed, 12 May 2021 16:48:18 +0200
+Message-Id: <20210512144832.529053663@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,91 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit cde58b861a1d365568588adda59d42351c0c4ad3 ]
+[ Upstream commit 1d421058c815d54113d9afdf6db3f995c788cf0d ]
 
-Commit a23c4134955e added the clock controller nodes, incorrectly changing the
-syscon-reboot nodes addresses.
+The VT-d specification (section 7.6) requires that the value in the
+Private Data field of a Page Group Response Descriptor must match
+the value in the Private Data field of the respective Page Request
+Descriptor.
 
-Fixes: a23c4134955e ("MIPS: BMIPS: add clock controller nodes")
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+The private data field of a page group response descriptor is set then
+immediately cleared in prq_event_thread(). This breaks the rule defined
+by the VT-d specification. Fix it by moving clearing code up.
+
+Fixes: 5b438f4ba315d ("iommu/vt-d: Support page request in scalable mode")
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Reviewed-by: Liu Yi L <yi.l.liu@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20210320024156.640798-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/dts/brcm/bcm3368.dtsi  | 2 +-
- arch/mips/boot/dts/brcm/bcm63268.dtsi | 2 +-
- arch/mips/boot/dts/brcm/bcm6358.dtsi  | 2 +-
- arch/mips/boot/dts/brcm/bcm6362.dtsi  | 2 +-
- arch/mips/boot/dts/brcm/bcm6368.dtsi  | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/iommu/intel/svm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/boot/dts/brcm/bcm3368.dtsi b/arch/mips/boot/dts/brcm/bcm3368.dtsi
-index 69cbef472377..d4b2b430dad0 100644
---- a/arch/mips/boot/dts/brcm/bcm3368.dtsi
-+++ b/arch/mips/boot/dts/brcm/bcm3368.dtsi
-@@ -59,7 +59,7 @@
+diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
+index 5c95e9693bf5..d79639b5b8a9 100644
+--- a/drivers/iommu/intel/svm.c
++++ b/drivers/iommu/intel/svm.c
+@@ -1071,12 +1071,12 @@ no_pasid:
+ 				QI_PGRP_RESP_TYPE;
+ 			resp.qw1 = QI_PGRP_IDX(req->prg_index) |
+ 				QI_PGRP_LPIG(req->lpig);
++			resp.qw2 = 0;
++			resp.qw3 = 0;
  
- 		periph_cntl: syscon@fff8c008 {
- 			compatible = "syscon";
--			reg = <0xfff8c000 0x4>;
-+			reg = <0xfff8c008 0x4>;
- 			native-endian;
- 		};
- 
-diff --git a/arch/mips/boot/dts/brcm/bcm63268.dtsi b/arch/mips/boot/dts/brcm/bcm63268.dtsi
-index 5acb49b61867..365fa75cd9ac 100644
---- a/arch/mips/boot/dts/brcm/bcm63268.dtsi
-+++ b/arch/mips/boot/dts/brcm/bcm63268.dtsi
-@@ -59,7 +59,7 @@
- 
- 		periph_cntl: syscon@10000008 {
- 			compatible = "syscon";
--			reg = <0x10000000 0xc>;
-+			reg = <0x10000008 0x4>;
- 			native-endian;
- 		};
- 
-diff --git a/arch/mips/boot/dts/brcm/bcm6358.dtsi b/arch/mips/boot/dts/brcm/bcm6358.dtsi
-index f21176cac038..89a3107cad28 100644
---- a/arch/mips/boot/dts/brcm/bcm6358.dtsi
-+++ b/arch/mips/boot/dts/brcm/bcm6358.dtsi
-@@ -59,7 +59,7 @@
- 
- 		periph_cntl: syscon@fffe0008 {
- 			compatible = "syscon";
--			reg = <0xfffe0000 0x4>;
-+			reg = <0xfffe0008 0x4>;
- 			native-endian;
- 		};
- 
-diff --git a/arch/mips/boot/dts/brcm/bcm6362.dtsi b/arch/mips/boot/dts/brcm/bcm6362.dtsi
-index c98f9111e3c8..0b2adefd75ce 100644
---- a/arch/mips/boot/dts/brcm/bcm6362.dtsi
-+++ b/arch/mips/boot/dts/brcm/bcm6362.dtsi
-@@ -59,7 +59,7 @@
- 
- 		periph_cntl: syscon@10000008 {
- 			compatible = "syscon";
--			reg = <0x10000000 0xc>;
-+			reg = <0x10000008 0x4>;
- 			native-endian;
- 		};
- 
-diff --git a/arch/mips/boot/dts/brcm/bcm6368.dtsi b/arch/mips/boot/dts/brcm/bcm6368.dtsi
-index 449c167dd892..b84a3bfe8c51 100644
---- a/arch/mips/boot/dts/brcm/bcm6368.dtsi
-+++ b/arch/mips/boot/dts/brcm/bcm6368.dtsi
-@@ -59,7 +59,7 @@
- 
- 		periph_cntl: syscon@100000008 {
- 			compatible = "syscon";
--			reg = <0x10000000 0xc>;
-+			reg = <0x10000008 0x4>;
- 			native-endian;
- 		};
- 
+ 			if (req->priv_data_present)
+ 				memcpy(&resp.qw2, req->priv_data,
+ 				       sizeof(req->priv_data));
+-			resp.qw2 = 0;
+-			resp.qw3 = 0;
+ 			qi_submit_sync(iommu, &resp, 1, 0);
+ 		}
+ prq_advance:
 -- 
 2.30.2
 
