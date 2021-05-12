@@ -2,141 +2,359 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF9E337C894
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC87E37C926
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234153AbhELQKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:10:55 -0400
-Received: from mga11.intel.com ([192.55.52.93]:18008 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238593AbhELQFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:05:35 -0400
-IronPort-SDR: Xiz4iL6aLPvRM93GV85//6CJLtqRRQRXnttSCHjpDISEH+iX0f2erhdPYimRCLIw3TcvwN2QKD
- UxEQOiD3ZIgQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,9982"; a="196648509"
-X-IronPort-AV: E=Sophos;i="5.82,293,1613462400"; 
-   d="scan'208";a="196648509"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2021 09:02:12 -0700
-IronPort-SDR: R9o5pxGE8b+WnXMVLp2Iz9RSUdpLee3fsNWIlvW6U0/UD5MwpT8loUZxmJm6vXExDhozN4Za/r
- Q0lmLnIhFimQ==
-X-IronPort-AV: E=Sophos;i="5.82,293,1613462400"; 
-   d="scan'208";a="462617131"
-Received: from vkrish9-mobl.amr.corp.intel.com ([10.209.133.220])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2021 09:02:08 -0700
-Message-ID: <4c562d23506b21a40e2558f21e95f841d557ec0a.camel@linux.intel.com>
-Subject: Re: [PATCH] thermal: intel: Initialize RW trip to
- THERMAL_TEMP_INVALID
-From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     Daniel Lezcano <daniel.lezcano@linaro.org>, rui.zhang@intel.com,
-        amitk@kernel.org
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Date:   Wed, 12 May 2021 09:02:05 -0700
-In-Reply-To: <62b8cdf7-29b1-d856-2686-34fdab5d485d@linaro.org>
-References: <20210430122343.1789899-1-srinivas.pandruvada@linux.intel.com>
-         <7dc2bb343052c6c8fbb60d38c2ce7dac708f568a.camel@linux.intel.com>
-         <62b8cdf7-29b1-d856-2686-34fdab5d485d@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.1-1 
+        id S238392AbhELQPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:15:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:60805 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233739AbhELQIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 12:08:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1620835623;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=lGkaxVGvRUjIOW6cpmy73BWglWv4Dz13NbWHRtf7/bs=;
+        b=FNV5ej6R0anjt7jlT7dKDOFI4PnnBJ9QyYzxRxy+CjA86lmM/SV5n4CmGdm5YGFKkS7w0T
+        LFv1UNrHkI9FQ7wHenB+NfbaEt3G6mhMNPR8eO4Vs1ncyJmOmnf1UKl9HIg0EB0ZemX3vr
+        kjF+0G/5f5zylUO5YnsdN9EXf8udP9c=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-222-sfT3zqApPqWgBrbzxKcg3Q-1; Wed, 12 May 2021 12:07:00 -0400
+X-MC-Unique: sfT3zqApPqWgBrbzxKcg3Q-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 27B3F107ACFC
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 16:07:00 +0000 (UTC)
+Received: from [172.22.12.36] (unknown [10.0.115.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8C0155B6A3;
+        Wed, 12 May 2021 16:06:44 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.11.20 (stable-queue,
+ 7ea93692)
+Date:   Wed, 12 May 2021 16:06:44 -0000
+CC:     Jianlin Shi <jishi@redhat.com>, Jianwen Ji <jiji@redhat.com>,
+        Hangbin Liu <haliu@redhat.com>,
+        Erik Hamera <ehamera@redhat.com>, Xiong Zhou <xzhou@redhat.com>
+Message-ID: <cki.41ECBE89C7.NPID1SK5QF@redhat.com>
+X-Gitlab-Pipeline-ID: 301468220
+X-Gitlab-Url: https://gitlab.com
+X-Gitlab-Path: =?utf-8?q?/redhat/red-hat-ci-tools/kernel/cki-internal-pipeli?=
+ =?utf-8?q?nes/external-triggers/pipelines/301468220?=
+X-DataWarehouse-Revision-IID: 13193
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2021-05-12 at 17:54 +0200, Daniel Lezcano wrote:
-> On 12/05/2021 17:52, Srinivas Pandruvada wrote:
-> > On Fri, 2021-04-30 at 05:23 -0700, Srinivas Pandruvada wrote:
-> > > After commit 81ad4276b505 ("Thermal: Ignore invalid trip points")
-> > > all
-> > > user_space governor notifications via RW trip point is broken in
-> > > intel
-> > > thermal drivers. This commits marks trip_points with value of 0
-> > > during
-> > > call to thermal_zone_device_register() as invalid. RW trip points
-> > > can
-> > > be
-> > > 0 as user space will set the correct trip temperature later.
-> > > 
-> > > During driver init, x86_package_temp and all int340x drivers sets
-> > > RW
-> > > trip
-> > > temperature as 0. This results in all these trips marked as
-> > > invalid
-> > > by
-> > > the thermal core.
-> > > 
-> > > To fix this initialize RW trips to THERMAL_TEMP_INVALID instead
-> > > of 0.
-> > > 
-> > Any chance that we can take care of this issue during 5.13-rc*?
-> 
-> Yes, I will take care of it
 
-Thanks.
+Hello,
 
-> 
-> 
-> > > Cc: <stable@vger.kernel.org>
-> > > Signed-off-by: Srinivas Pandruvada <
-> > > srinivas.pandruvada@linux.intel.com>
-> > > ---
-> > >  drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c | 4
-> > > ++++
-> > >  drivers/thermal/intel/x86_pkg_temp_thermal.c                 | 2
-> > > +-
-> > >  2 files changed, 5 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git
-> > > a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
-> > > b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
-> > > index d1248ba943a4..62c0aa5d0783 100644
-> > > ---
-> > > a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
-> > > +++
-> > > b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
-> > > @@ -237,6 +237,8 @@ struct int34x_thermal_zone
-> > > *int340x_thermal_zone_add(struct acpi_device *adev,
-> > >         if (ACPI_FAILURE(status))
-> > >                 trip_cnt = 0;
-> > >         else {
-> > > +               int i;
-> > > +
-> > >                 int34x_thermal_zone->aux_trips =
-> > >                         kcalloc(trip_cnt,
-> > >                                 sizeof(*int34x_thermal_zone-
-> > > > aux_trips),
-> > > @@ -247,6 +249,8 @@ struct int34x_thermal_zone
-> > > *int340x_thermal_zone_add(struct acpi_device *adev,
-> > >                 }
-> > >                 trip_mask = BIT(trip_cnt) - 1;
-> > >                 int34x_thermal_zone->aux_trip_nr = trip_cnt;
-> > > +               for (i = 0; i < trip_cnt; ++i)
-> > > +                       int34x_thermal_zone->aux_trips[i] =
-> > > THERMAL_TEMP_INVALID;
-> > >         }
-> > >  
-> > >         trip_cnt =
-> > > int340x_thermal_read_trips(int34x_thermal_zone);
-> > > diff --git a/drivers/thermal/intel/x86_pkg_temp_thermal.c
-> > > b/drivers/thermal/intel/x86_pkg_temp_thermal.c
-> > > index 295742e83960..4d8edc61a78b 100644
-> > > --- a/drivers/thermal/intel/x86_pkg_temp_thermal.c
-> > > +++ b/drivers/thermal/intel/x86_pkg_temp_thermal.c
-> > > @@ -166,7 +166,7 @@ static int sys_get_trip_temp(struct
-> > > thermal_zone_device *tzd,
-> > >         if (thres_reg_value)
-> > >                 *temp = zonedev->tj_max - thres_reg_value * 1000;
-> > >         else
-> > > -               *temp = 0;
-> > > +               *temp = THERMAL_TEMP_INVALID;
-> > >         pr_debug("sys_get_trip_temp %d\n", *temp);
-> > >  
-> > >         return 0;
-> > 
-> > 
-> 
-> 
+We ran automated tests on a recent commit from this kernel tree:
 
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 7ea9369250d7 - md/bitmap: wait for external bitmap writes=
+ to complete during tear down
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/05/12/301468220
+
+One or more kernel tests failed:
+
+    s390x:
+     =E2=9D=8C Networking tunnel: geneve basic test
+
+    ppc64le:
+     =E2=9D=8C Networking tunnel: geneve basic test
+
+    aarch64:
+     =E2=9D=8C Networking tunnel: geneve basic test
+
+    x86_64:
+     =E2=9D=8C power-management: cpupower/sanity test
+     =E2=9D=8C Networking tunnel: geneve basic test
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9D=8C Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9D=8C Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9D=8C Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 xfstests - nfsv4.2
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9D=8C power-management: cpupower/sanity test
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9D=8C xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9D=8C Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
