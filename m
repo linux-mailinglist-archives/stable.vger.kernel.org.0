@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D19337C4AC
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16FAC37C4AE
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234472AbhELPci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
+        id S234489AbhELPco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235591AbhELP2g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:28:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F87E61C2E;
-        Wed, 12 May 2021 15:14:04 +0000 (UTC)
+        id S235598AbhELP2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FF3F61C2D;
+        Wed, 12 May 2021 15:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832444;
-        bh=fMKB6lIpuJEctihMdJJKCAJ85Ls10lFXA3gp3lnT8OI=;
+        s=korg; t=1620832447;
+        bh=Lo8JRyfuPvNpfhP/tzstJnRxe2FkI0ErN1Kifgb3tR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cwk9Aw3O/XKe6Sbh35hEmjoflz08E5rIgWnBasgIXiXx5wN+CIcXrxXTihuCLnZq2
-         hbker2fGdk7lPujel9/+POS/7/P7y05ifDnP0Nl19yu1pmGj+Ahhik9+PHa3icJjRK
-         rrLajDoru/OSLCyBbFGRunMcbyCsEaMqGNJjeZUE=
+        b=U/hJqlNz1Sqlp2SEUOeOLkrczh884D1h+YYRvhrOhyuioIQdc6mIu8/FpoZ3fKllm
+         rrTwU+T7cXJAvG60svIYEZNEb4qF1Nd7J9L1G4j1x0KDHMsspJBleAO8UqbzipWrDt
+         lMeX9/TrZxWqR6ovG5dpB7R6gCht/DSB4TA7rA40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Zhouyi Zhou <zhouzhouyi@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 282/530] afs: Fix updating of i_mode due to 3rd party change
-Date:   Wed, 12 May 2021 16:46:32 +0200
-Message-Id: <20210512144829.077269287@linuxfoundation.org>
+Subject: [PATCH 5.10 283/530] rcu: Remove spurious instrumentation_end() in rcu_nmi_enter()
+Date:   Wed, 12 May 2021 16:46:33 +0200
+Message-Id: <20210512144829.108260353@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,55 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Zhouyi Zhou <zhouzhouyi@gmail.com>
 
-[ Upstream commit 6e1eb04a87f954eb06a89ee6034c166351dfff6e ]
+[ Upstream commit 6494ccb93271bee596a12db32ff44867d5be2321 ]
 
-Fix afs_apply_status() to mask off the irrelevant bits from status->mode
-when OR'ing them into i_mode.  This can happen when a 3rd party chmod
-occurs.
+In rcu_nmi_enter(), there is an erroneous instrumentation_end() in the
+second branch of the "if" statement.  Oddly enough, "objtool check -f
+vmlinux.o" fails to complain because it is unable to correctly cover
+all cases.  Instead, objtool visits the third branch first, which marks
+following trace_rcu_dyntick() as visited.  This commit therefore removes
+the spurious instrumentation_end().
 
-Also fix afs_inode_init_from_status() to mask off the mode bits when
-initialising i_mode.
-
-Fixes: 260a980317da ("[AFS]: Add "directory write" support.")
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: 04b25a495bd6 ("rcu: Mark rcu_nmi_enter() call to rcu_cleanup_after_idle() noinstr")
+Reported-by Neeraj Upadhyay <neeraju@codeaurora.org>
+Signed-off-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/rcu/tree.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/afs/inode.c b/fs/afs/inode.c
-index 1d03eb1920ec..bf44e245d7dc 100644
---- a/fs/afs/inode.c
-+++ b/fs/afs/inode.c
-@@ -102,13 +102,13 @@ static int afs_inode_init_from_status(struct afs_operation *op,
- 
- 	switch (status->type) {
- 	case AFS_FTYPE_FILE:
--		inode->i_mode	= S_IFREG | status->mode;
-+		inode->i_mode	= S_IFREG | (status->mode & S_IALLUGO);
- 		inode->i_op	= &afs_file_inode_operations;
- 		inode->i_fop	= &afs_file_operations;
- 		inode->i_mapping->a_ops	= &afs_fs_aops;
- 		break;
- 	case AFS_FTYPE_DIR:
--		inode->i_mode	= S_IFDIR | status->mode;
-+		inode->i_mode	= S_IFDIR |  (status->mode & S_IALLUGO);
- 		inode->i_op	= &afs_dir_inode_operations;
- 		inode->i_fop	= &afs_dir_file_operations;
- 		inode->i_mapping->a_ops	= &afs_dir_aops;
-@@ -198,7 +198,7 @@ static void afs_apply_status(struct afs_operation *op,
- 	if (status->mode != vnode->status.mode) {
- 		mode = inode->i_mode;
- 		mode &= ~S_IALLUGO;
--		mode |= status->mode;
-+		mode |= status->mode & S_IALLUGO;
- 		WRITE_ONCE(inode->i_mode, mode);
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 8a5cc76ecac9..61e250cdd7c9 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -1019,7 +1019,6 @@ noinstr void rcu_nmi_enter(void)
+ 	} else if (!in_nmi()) {
+ 		instrumentation_begin();
+ 		rcu_irq_enter_check_tick();
+-		instrumentation_end();
+ 	} else  {
+ 		instrumentation_begin();
  	}
- 
 -- 
 2.30.2
 
