@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF04037C3DB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D33AA37C38C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233369AbhELPWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:22:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60804 "EHLO mail.kernel.org"
+        id S233430AbhELPUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234715AbhELPUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:20:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE10D6199E;
-        Wed, 12 May 2021 15:08:35 +0000 (UTC)
+        id S232734AbhELPRW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:17:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C1876143E;
+        Wed, 12 May 2021 15:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832116;
-        bh=aavuMoAmsTtU9NsiQA63lzinfEBT2PLkjb9/vgJa9jA=;
+        s=korg; t=1620832033;
+        bh=eMf4jyMm8BFS+tTjdkDT6gTNKThouwd1zoQLiyk8vk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBxlCw6k26eULBAIfUKJV/098xaIgk1tbYfkE3/z6YXhqxfoJFnBdEBr5pRj/YIMb
-         XHLPsjPfuOoaFFoP1dbbpgxr0b8vnB4t5gZpGXT2kxQgr/yPtdFX3kYynPpxxh3Lg5
-         RPoKVJ7SqzgxmkApwtJ+jB1ptUVN3aO0olUveYHg=
+        b=Qs712h8/mW9Vz9z4LKtQlds6IHx8/vwTl6alzEpOCegEuqnF4xWsmk6yJXFbrNykM
+         T3D8SURUeiGICpNU/6vhC88Hj61iyTLV3n0EIjJ0PC6lE1eSmaues6La2UpxDn63U0
+         lR4XQ8PqsoS9bvzz9cuwuclvqTaqcauDpkwzf2mY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>,
-        Moritz Fischer <mdf@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 114/530] fpga: fpga-mgr: xilinx-spi: fix error messages on -EPROBE_DEFER
-Date:   Wed, 12 May 2021 16:43:44 +0200
-Message-Id: <20210512144823.544030771@linuxfoundation.org>
+Subject: [PATCH 5.10 115/530] crypto: sun8i-ss - fix result memory leak on error path
+Date:   Wed, 12 May 2021 16:43:45 +0200
+Message-Id: <20210512144823.583079148@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,67 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
 
-[ Upstream commit 484a58607a808c3721917f5ca5fba7eff809e4df ]
+[ Upstream commit 1dbc6a1e25be8575d6c4114d1d2b841a796507f7 ]
 
-The current code produces an error message on devm_gpiod_get() errors even
-when the error is -EPROBE_DEFER, which should be silent.
+This patch fixes a memory leak on an error path.
 
-This has been observed producing a significant amount of messages like:
-
-    xlnx-slave-spi spi1.1: Failed to get PROGRAM_B gpio: -517
-
-Fix and simplify code by using the dev_err_probe() helper function.
-
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Fixes: dd2784c01d93 ("fpga manager: xilinx-spi: check INIT_B pin during write_init")
-Fixes: 061c97d13f1a ("fpga manager: Add Xilinx slave serial SPI driver")
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Fixes: d9b45418a917 ("crypto: sun8i-ss - support hash algorithms")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/xilinx-spi.c | 24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+ drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/fpga/xilinx-spi.c b/drivers/fpga/xilinx-spi.c
-index 824abbbd631e..d3e6f41e78bf 100644
---- a/drivers/fpga/xilinx-spi.c
-+++ b/drivers/fpga/xilinx-spi.c
-@@ -233,25 +233,19 @@ static int xilinx_spi_probe(struct spi_device *spi)
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+index b6ab2054f217..541bcd814384 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+@@ -437,8 +437,8 @@ int sun8i_ss_hash_run(struct crypto_engine *engine, void *breq)
+ 	kfree(pad);
  
- 	/* PROGRAM_B is active low */
- 	conf->prog_b = devm_gpiod_get(&spi->dev, "prog_b", GPIOD_OUT_LOW);
--	if (IS_ERR(conf->prog_b)) {
--		dev_err(&spi->dev, "Failed to get PROGRAM_B gpio: %ld\n",
--			PTR_ERR(conf->prog_b));
--		return PTR_ERR(conf->prog_b);
--	}
-+	if (IS_ERR(conf->prog_b))
-+		return dev_err_probe(&spi->dev, PTR_ERR(conf->prog_b),
-+				     "Failed to get PROGRAM_B gpio\n");
- 
- 	conf->init_b = devm_gpiod_get_optional(&spi->dev, "init-b", GPIOD_IN);
--	if (IS_ERR(conf->init_b)) {
--		dev_err(&spi->dev, "Failed to get INIT_B gpio: %ld\n",
--			PTR_ERR(conf->init_b));
--		return PTR_ERR(conf->init_b);
--	}
-+	if (IS_ERR(conf->init_b))
-+		return dev_err_probe(&spi->dev, PTR_ERR(conf->init_b),
-+				     "Failed to get INIT_B gpio\n");
- 
- 	conf->done = devm_gpiod_get(&spi->dev, "done", GPIOD_IN);
--	if (IS_ERR(conf->done)) {
--		dev_err(&spi->dev, "Failed to get DONE gpio: %ld\n",
--			PTR_ERR(conf->done));
--		return PTR_ERR(conf->done);
--	}
-+	if (IS_ERR(conf->done))
-+		return dev_err_probe(&spi->dev, PTR_ERR(conf->done),
-+				     "Failed to get DONE gpio\n");
- 
- 	mgr = devm_fpga_mgr_create(&spi->dev,
- 				   "Xilinx Slave Serial FPGA Manager",
+ 	memcpy(areq->result, result, algt->alg.hash.halg.digestsize);
+-	kfree(result);
+ theend:
++	kfree(result);
+ 	crypto_finalize_hash_request(engine, breq, err);
+ 	return 0;
+ }
 -- 
 2.30.2
 
