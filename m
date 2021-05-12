@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4354737C8DC
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C869A37C8DB
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237299AbhELQNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:13:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34890 "EHLO mail.kernel.org"
+        id S237171AbhELQNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:13:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239213AbhELQHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239220AbhELQHg (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:07:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67F5661992;
-        Wed, 12 May 2021 15:36:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BDD761418;
+        Wed, 12 May 2021 15:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833816;
-        bh=wAuFg2Qww8nuyv7/67gCUFSn4jPTJ3FvIIuRm4ge/3c=;
+        s=korg; t=1620833819;
+        bh=iWNDfoUDEKCdn6VdGg6dGYxQtn8n50whwoK3Cj+ioVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FtWoGEkU12aSyHIwfH0T8ojUxPJDrITMV9hr7JqQU9awZ9PlwXYL5Sn+MjTuAjNpX
-         r/hDm1YRxB1qd2RlFDRGsg+XbV7yWU8r0A/RA+Y3Zen6QNA4JB6rp+LyLSAtKasX6/
-         Lxt8Ze5ugsRO1YEG429OHW+imCzJNc+WPH2UOEDI=
+        b=Z69vkQ6FmAblMylo6RhTsTcd6HJUv7vh1OGd4vuWnCW3tBFpeH+zfGNC1PSNRIddm
+         LbHBXakYIxOMKuuoXGSI2NeaoqvIrO+xuL3q3/oeWnZ59PVXJEPzQsDCzYx6AKUJXg
+         tSM7L1Ul08natTPOxsIerGXrVvg4tSVfK6UCB7IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
+        syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>,
+        syzbot <syzbot+3ed715090790806d8b18@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 301/601] usb: dwc2: Fix hibernation between host and device modes.
-Date:   Wed, 12 May 2021 16:46:18 +0200
-Message-Id: <20210512144837.724199157@linuxfoundation.org>
+Subject: [PATCH 5.11 302/601] ttyprintk: Add TTY hangup callback.
+Date:   Wed, 12 May 2021 16:46:19 +0200
+Message-Id: <20210512144837.760846315@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,219 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit 24d209dba5a3959b2ebde7cf3ad40c8015e814cf ]
+[ Upstream commit c0070e1e60270f6a1e09442a9ab2335f3eaeaad2 ]
 
-When core is in hibernation in host mode and a device cable
-was connected then driver exited from device hibernation.
-However, registers saved for host mode and when exited from
-device hibernation register restore would be done for device
-register which was wrong because there was no device registers
-stored to restore.
+syzbot is reporting hung task due to flood of
 
-- Added dwc_handle_gpwrdn_disc_det() function which handles
-  gpwrdn disconnect detect flow and exits hibernation
-  without restoring the registers.
-- Updated exiting from hibernation in GPWRDN_STS_CHGINT with
-  calling dwc_handle_gpwrdn_disc_det() function. Here no register
-  is restored which is the solution described above.
+  tty_warn(tty, "%s: tty->count = 1 port count = %d\n", __func__,
+           port->count);
 
-Fixes: 65c9c4c6b01f ("usb: dwc2: Add dwc2_handle_gpwrdn_intr() handler")
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
-Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/20210416124715.75355A005D@mailhost.synopsys.com
+message [1], for ioctl(TIOCVHANGUP) prevents tty_port_close() from
+decrementing port->count due to tty_hung_up_p() == true.
+
+----------
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+	int i;
+	int fd[10];
+
+	for (i = 0; i < 10; i++)
+		fd[i] = open("/dev/ttyprintk", O_WRONLY);
+	ioctl(fd[0], TIOCVHANGUP);
+	for (i = 0; i < 10; i++)
+		close(fd[i]);
+	close(open("/dev/ttyprintk", O_WRONLY));
+	return 0;
+}
+----------
+
+When TTY hangup happens, port->count needs to be reset via
+"struct tty_operations"->hangup callback.
+
+[1] https://syzkaller.appspot.com/bug?id=39ea6caa479af471183997376dc7e90bc7d64a6a
+
+Reported-by: syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+3ed715090790806d8b18@syzkaller.appspotmail.com>
+Tested-by: syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 24b4b67d17c308aa ("add ttyprintk driver")
+Link: https://lore.kernel.org/r/17e0652d-89b7-c8c0-fb53-e7566ac9add4@i-love.sakura.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/core_intr.c | 154 +++++++++++++++++++----------------
- 1 file changed, 83 insertions(+), 71 deletions(-)
+ drivers/char/ttyprintk.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
-index 800c8b6c55ff..510fd0572feb 100644
---- a/drivers/usb/dwc2/core_intr.c
-+++ b/drivers/usb/dwc2/core_intr.c
-@@ -660,6 +660,71 @@ static u32 dwc2_read_common_intr(struct dwc2_hsotg *hsotg)
- 		return 0;
+diff --git a/drivers/char/ttyprintk.c b/drivers/char/ttyprintk.c
+index 6a0059e508e3..93f5d11c830b 100644
+--- a/drivers/char/ttyprintk.c
++++ b/drivers/char/ttyprintk.c
+@@ -158,12 +158,23 @@ static int tpk_ioctl(struct tty_struct *tty,
+ 	return 0;
  }
  
-+/**
-+ * dwc_handle_gpwrdn_disc_det() - Handles the gpwrdn disconnect detect.
-+ * Exits hibernation without restoring registers.
-+ *
-+ * @hsotg: Programming view of DWC_otg controller
-+ * @gpwrdn: GPWRDN register
++/*
++ * TTY operations hangup function.
 + */
-+static inline void dwc_handle_gpwrdn_disc_det(struct dwc2_hsotg *hsotg,
-+					      u32 gpwrdn)
++static void tpk_hangup(struct tty_struct *tty)
 +{
-+	u32 gpwrdn_tmp;
++	struct ttyprintk_port *tpkp = tty->driver_data;
 +
-+	/* Switch-on voltage to the core */
-+	gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
-+	gpwrdn_tmp &= ~GPWRDN_PWRDNSWTCH;
-+	dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
-+	udelay(5);
-+
-+	/* Reset core */
-+	gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
-+	gpwrdn_tmp &= ~GPWRDN_PWRDNRSTN;
-+	dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
-+	udelay(5);
-+
-+	/* Disable Power Down Clamp */
-+	gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
-+	gpwrdn_tmp &= ~GPWRDN_PWRDNCLMP;
-+	dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
-+	udelay(5);
-+
-+	/* Deassert reset core */
-+	gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
-+	gpwrdn_tmp |= GPWRDN_PWRDNRSTN;
-+	dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
-+	udelay(5);
-+
-+	/* Disable PMU interrupt */
-+	gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
-+	gpwrdn_tmp &= ~GPWRDN_PMUINTSEL;
-+	dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
-+
-+	/* De-assert Wakeup Logic */
-+	gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
-+	gpwrdn_tmp &= ~GPWRDN_PMUACTV;
-+	dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
-+
-+	hsotg->hibernated = 0;
-+	hsotg->bus_suspended = 0;
-+
-+	if (gpwrdn & GPWRDN_IDSTS) {
-+		hsotg->op_state = OTG_STATE_B_PERIPHERAL;
-+		dwc2_core_init(hsotg, false);
-+		dwc2_enable_global_interrupts(hsotg);
-+		dwc2_hsotg_core_init_disconnected(hsotg, false);
-+		dwc2_hsotg_core_connect(hsotg);
-+	} else {
-+		hsotg->op_state = OTG_STATE_A_HOST;
-+
-+		/* Initialize the Core for Host mode */
-+		dwc2_core_init(hsotg, false);
-+		dwc2_enable_global_interrupts(hsotg);
-+		dwc2_hcd_start(hsotg);
-+	}
++	tty_port_hangup(&tpkp->port);
 +}
 +
- /*
-  * GPWRDN interrupt handler.
-  *
-@@ -681,64 +746,14 @@ static void dwc2_handle_gpwrdn_intr(struct dwc2_hsotg *hsotg)
+ static const struct tty_operations ttyprintk_ops = {
+ 	.open = tpk_open,
+ 	.close = tpk_close,
+ 	.write = tpk_write,
+ 	.write_room = tpk_write_room,
+ 	.ioctl = tpk_ioctl,
++	.hangup = tpk_hangup,
+ };
  
- 	if ((gpwrdn & GPWRDN_DISCONN_DET) &&
- 	    (gpwrdn & GPWRDN_DISCONN_DET_MSK) && !linestate) {
--		u32 gpwrdn_tmp;
--
- 		dev_dbg(hsotg->dev, "%s: GPWRDN_DISCONN_DET\n", __func__);
--
--		/* Switch-on voltage to the core */
--		gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
--		gpwrdn_tmp &= ~GPWRDN_PWRDNSWTCH;
--		dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
--		udelay(10);
--
--		/* Reset core */
--		gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
--		gpwrdn_tmp &= ~GPWRDN_PWRDNRSTN;
--		dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
--		udelay(10);
--
--		/* Disable Power Down Clamp */
--		gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
--		gpwrdn_tmp &= ~GPWRDN_PWRDNCLMP;
--		dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
--		udelay(10);
--
--		/* Deassert reset core */
--		gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
--		gpwrdn_tmp |= GPWRDN_PWRDNRSTN;
--		dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
--		udelay(10);
--
--		/* Disable PMU interrupt */
--		gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
--		gpwrdn_tmp &= ~GPWRDN_PMUINTSEL;
--		dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
--
--		/* De-assert Wakeup Logic */
--		gpwrdn_tmp = dwc2_readl(hsotg, GPWRDN);
--		gpwrdn_tmp &= ~GPWRDN_PMUACTV;
--		dwc2_writel(hsotg, gpwrdn_tmp, GPWRDN);
--
--		hsotg->hibernated = 0;
--
--		if (gpwrdn & GPWRDN_IDSTS) {
--			hsotg->op_state = OTG_STATE_B_PERIPHERAL;
--			dwc2_core_init(hsotg, false);
--			dwc2_enable_global_interrupts(hsotg);
--			dwc2_hsotg_core_init_disconnected(hsotg, false);
--			dwc2_hsotg_core_connect(hsotg);
--		} else {
--			hsotg->op_state = OTG_STATE_A_HOST;
--
--			/* Initialize the Core for Host mode */
--			dwc2_core_init(hsotg, false);
--			dwc2_enable_global_interrupts(hsotg);
--			dwc2_hcd_start(hsotg);
--		}
--	}
--
--	if ((gpwrdn & GPWRDN_LNSTSCHG) &&
--	    (gpwrdn & GPWRDN_LNSTSCHG_MSK) && linestate) {
-+		/*
-+		 * Call disconnect detect function to exit from
-+		 * hibernation
-+		 */
-+		dwc_handle_gpwrdn_disc_det(hsotg, gpwrdn);
-+	} else if ((gpwrdn & GPWRDN_LNSTSCHG) &&
-+		   (gpwrdn & GPWRDN_LNSTSCHG_MSK) && linestate) {
- 		dev_dbg(hsotg->dev, "%s: GPWRDN_LNSTSCHG\n", __func__);
- 		if (hsotg->hw_params.hibernation &&
- 		    hsotg->hibernated) {
-@@ -749,24 +764,21 @@ static void dwc2_handle_gpwrdn_intr(struct dwc2_hsotg *hsotg)
- 				dwc2_exit_hibernation(hsotg, 1, 0, 1);
- 			}
- 		}
--	}
--	if ((gpwrdn & GPWRDN_RST_DET) && (gpwrdn & GPWRDN_RST_DET_MSK)) {
-+	} else if ((gpwrdn & GPWRDN_RST_DET) &&
-+		   (gpwrdn & GPWRDN_RST_DET_MSK)) {
- 		dev_dbg(hsotg->dev, "%s: GPWRDN_RST_DET\n", __func__);
- 		if (!linestate && (gpwrdn & GPWRDN_BSESSVLD))
- 			dwc2_exit_hibernation(hsotg, 0, 1, 0);
--	}
--	if ((gpwrdn & GPWRDN_STS_CHGINT) &&
--	    (gpwrdn & GPWRDN_STS_CHGINT_MSK) && linestate) {
-+	} else if ((gpwrdn & GPWRDN_STS_CHGINT) &&
-+		   (gpwrdn & GPWRDN_STS_CHGINT_MSK)) {
- 		dev_dbg(hsotg->dev, "%s: GPWRDN_STS_CHGINT\n", __func__);
--		if (hsotg->hw_params.hibernation &&
--		    hsotg->hibernated) {
--			if (gpwrdn & GPWRDN_IDSTS) {
--				dwc2_exit_hibernation(hsotg, 0, 0, 0);
--				call_gadget(hsotg, resume);
--			} else {
--				dwc2_exit_hibernation(hsotg, 1, 0, 1);
--			}
--		}
-+		/*
-+		 * As GPWRDN_STS_CHGINT exit from hibernation flow is
-+		 * the same as in GPWRDN_DISCONN_DET flow. Call
-+		 * disconnect detect helper function to exit from
-+		 * hibernation.
-+		 */
-+		dwc_handle_gpwrdn_disc_det(hsotg, gpwrdn);
- 	}
- }
- 
+ static const struct tty_port_operations null_ops = { };
 -- 
 2.30.2
 
