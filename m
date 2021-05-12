@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD9E637C7E9
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F02137C7E7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232402AbhELQDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:03:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34658 "EHLO mail.kernel.org"
+        id S236380AbhELQDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:03:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238237AbhELP5e (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238238AbhELP5e (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:57:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D11061C25;
-        Wed, 12 May 2021 15:31:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB65F61CB5;
+        Wed, 12 May 2021 15:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833470;
-        bh=SLWMs1rpk2WPhOcuh68j6BUTGqVBRlq2b1IEtVLBjDM=;
+        s=korg; t=1620833473;
+        bh=u4W7i3gyZnl0bLRQ1VqTxnjfjIG6nemVpNOiekuPU4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlOoc/K2Gt2M6+JzW09Ho0w8nmQCNeEih9irBS1yChEo1hpzCu5A0kYIL25CAo5YR
-         WuV47vwf+uh3Z6OMYZSsnzflNrKOkHWXODCKVFxrvRlszWD+PKLnMw/1+zKuuPwRlU
-         yxyYo0jtcLMV3EzS7uo6QO9e2mfjJAfhlKI7e77w=
+        b=sorKC+1hpcMiW4A/NydBxpSDp3s8z2Da0O5FiLGp3G/OxlvZT/XaCQWjRTjc4e4b7
+         87fVv7D0qXSbAvjpmw3S6K2yR0qOPeYwuRdl6jIyQorJAizkYY4PU3N1y3awMOJ30b
+         HVfk1+ji8KlZ4DuLIrEva6Gp6NURMTPfer501yeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
+        stable@vger.kernel.org,
+        "David E. Box" <david.e.box@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 162/601] usb: typec: stusb160x: fix return value check in stusb160x_probe()
-Date:   Wed, 12 May 2021 16:43:59 +0200
-Message-Id: <20210512144833.173859885@linuxfoundation.org>
+Subject: [PATCH 5.11 163/601] mfd: intel_pmt: Fix nuisance messages and handling of disabled capabilities
+Date:   Wed, 12 May 2021 16:44:00 +0200
+Message-Id: <20210512144833.203413012@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,41 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: David E. Box <david.e.box@linux.intel.com>
 
-[ Upstream commit f2d90e07b5df2c7745ae66d2d48cc350d3f1c7d2 ]
+[ Upstream commit a1a5c1c3df282dc122508a17500317266ef19e46 ]
 
-In case of error, the function device_get_named_child_node() returns
-NULL pointer not ERR_PTR(). The IS_ERR() test in the return value check
-should be replaced with NULL test.
+Some products will be available that have PMT capabilities that are not
+supported. Remove the warnings in this instance to avoid nuisance messages
+and confusion.
 
-Fixes: da0cb6310094 ("usb: typec: add support for STUSB160x Type-C controller family")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20210308094839.3586773-1-weiyongjun1@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also return an error code for capabilities that are disabled by quirk to
+prevent them from keeping the driver loaded if only disabled capabilities
+are found.
+
+Fixes: 4f8217d5b0ca ("mfd: Intel Platform Monitoring Technology support")
+Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/stusb160x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mfd/intel_pmt.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/usb/typec/stusb160x.c b/drivers/usb/typec/stusb160x.c
-index d21750bbbb44..6eaeba9b096e 100644
---- a/drivers/usb/typec/stusb160x.c
-+++ b/drivers/usb/typec/stusb160x.c
-@@ -682,8 +682,8 @@ static int stusb160x_probe(struct i2c_client *client)
+diff --git a/drivers/mfd/intel_pmt.c b/drivers/mfd/intel_pmt.c
+index 744b230cdcca..65da2b17a204 100644
+--- a/drivers/mfd/intel_pmt.c
++++ b/drivers/mfd/intel_pmt.c
+@@ -79,19 +79,18 @@ static int pmt_add_dev(struct pci_dev *pdev, struct intel_dvsec_header *header,
+ 	case DVSEC_INTEL_ID_WATCHER:
+ 		if (quirks & PMT_QUIRK_NO_WATCHER) {
+ 			dev_info(dev, "Watcher not supported\n");
+-			return 0;
++			return -EINVAL;
+ 		}
+ 		name = "pmt_watcher";
+ 		break;
+ 	case DVSEC_INTEL_ID_CRASHLOG:
+ 		if (quirks & PMT_QUIRK_NO_CRASHLOG) {
+ 			dev_info(dev, "Crashlog not supported\n");
+-			return 0;
++			return -EINVAL;
+ 		}
+ 		name = "pmt_crashlog";
+ 		break;
+ 	default:
+-		dev_err(dev, "Unrecognized PMT capability: %d\n", id);
+ 		return -EINVAL;
  	}
  
- 	fwnode = device_get_named_child_node(chip->dev, "connector");
--	if (IS_ERR(fwnode))
--		return PTR_ERR(fwnode);
-+	if (!fwnode)
-+		return -ENODEV;
+@@ -174,12 +173,8 @@ static int pmt_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		header.offset = INTEL_DVSEC_TABLE_OFFSET(table);
  
- 	/*
- 	 * When both VDD and VSYS power supplies are present, the low power
+ 		ret = pmt_add_dev(pdev, &header, quirks);
+-		if (ret) {
+-			dev_warn(&pdev->dev,
+-				 "Failed to add device for DVSEC id %d\n",
+-				 header.id);
++		if (ret)
+ 			continue;
+-		}
+ 
+ 		found_devices = true;
+ 	} while (true);
 -- 
 2.30.2
 
