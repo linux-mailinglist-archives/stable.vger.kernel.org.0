@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 279D437C454
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C27B37C457
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231641AbhELPae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
+        id S232192AbhELPah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235036AbhELP0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:26:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5055061982;
-        Wed, 12 May 2021 15:11:18 +0000 (UTC)
+        id S235054AbhELP0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:26:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C62619D4;
+        Wed, 12 May 2021 15:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832278;
-        bh=L6FZUSPrXFNc2fmHnnmd9k6ISPJpUBmPxwvwj90l3pk=;
+        s=korg; t=1620832281;
+        bh=b4tjev51cSKqGw54bwJ5wI4hqQEnnqav/328yhgz6BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rsmVYMtnzV0Fc8R0lLKqxvo3Cy1vZT3MxeMu9LWhprjh0fZErAuEUeU7NQw6+gD/T
-         qGH9JLDNcHffsTWyiPPyd5MAnn9xNu6rll/CPmypiaQLj/ivj8Xbf/K1DcqEVfNr8x
-         H2V5lPdKoQTPxXxFuplQqnkTfIpLZsP3Q8pyfZ5A=
+        b=u8W1zZgy8MvZGkzn8d7WDYvepLX8jppeaAh6cOhqkZXdsysb1jA9mGB5Ko/eoImVE
+         U2U47XEu+2Ai0wAmd6doJaoBlRmtFWZqIO1SW5z2ANpM8RPUH5euijJeDrReoIkpvZ
+         WgrcszkTDuOX0QuP+Ut8dKSTIRo2V4I7BVxLMwTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 213/530] staging: greybus: uart: fix unprivileged TIOCCSERIAL
-Date:   Wed, 12 May 2021 16:45:23 +0200
-Message-Id: <20210512144826.844542228@linuxfoundation.org>
+Subject: [PATCH 5.10 214/530] soc: qcom: pdr: Fix error return code in pdr_register_listener
+Date:   Wed, 12 May 2021 16:45:24 +0200
+Message-Id: <20210512144826.875673222@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,45 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 60c6b305c11b5fd167ce5e2ce42f3a9098c388f0 ]
+[ Upstream commit 769738fc49bb578e05d404b481a9241d18147d86 ]
 
-TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
-serial devices is only useful for setting the close_delay and
-closing_wait parameters.
+Fix to return the error code -EREMOTEIO from pdr_register_listener
+rather than 0.
 
-A non-privileged user has only ever been able to set the since long
-deprecated ASYNC_SPD flags and trying to change any other *supported*
-feature should result in -EPERM being returned. Setting the current
-values for any supported features should return success.
-
-Fix the greybus implementation which instead indicated that the
-TIOCSSERIAL ioctl was not even implemented when a non-privileged user
-set the current values.
-
-Fixes: e68453ed28c5 ("greybus: uart-gb: now builds, more framework added")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-7-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fbe639b44a82 ("soc: qcom: Introduce Protection Domain Restart helpers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/20201125065034.154217-1-miaoqinglang@huawei.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/uart.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/soc/qcom/pdr_interface.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/greybus/uart.c b/drivers/staging/greybus/uart.c
-index 29846dc1e1bf..a520f7f213db 100644
---- a/drivers/staging/greybus/uart.c
-+++ b/drivers/staging/greybus/uart.c
-@@ -641,8 +641,6 @@ static int set_serial_info(struct tty_struct *tty,
- 		if ((close_delay != gb_tty->port.close_delay) ||
- 		    (closing_wait != gb_tty->port.closing_wait))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
- 	} else {
- 		gb_tty->port.close_delay = close_delay;
- 		gb_tty->port.closing_wait = closing_wait;
+diff --git a/drivers/soc/qcom/pdr_interface.c b/drivers/soc/qcom/pdr_interface.c
+index f63135c09667..205cc96823b7 100644
+--- a/drivers/soc/qcom/pdr_interface.c
++++ b/drivers/soc/qcom/pdr_interface.c
+@@ -153,7 +153,7 @@ static int pdr_register_listener(struct pdr_handle *pdr,
+ 	if (resp.resp.result != QMI_RESULT_SUCCESS_V01) {
+ 		pr_err("PDR: %s register listener failed: 0x%x\n",
+ 		       pds->service_path, resp.resp.error);
+-		return ret;
++		return -EREMOTEIO;
+ 	}
+ 
+ 	pds->state = resp.curr_state;
 -- 
 2.30.2
 
