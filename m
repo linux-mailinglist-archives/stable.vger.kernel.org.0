@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991AC37D2D2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10E5B37D2D3
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241273AbhELSOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:14:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54224 "EHLO mail.kernel.org"
+        id S241388AbhELSOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236479AbhELSHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236637AbhELSHN (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 14:07:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AE4E61446;
-        Wed, 12 May 2021 18:04:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E88561480;
+        Wed, 12 May 2021 18:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842679;
-        bh=CKfu+tPM+jCcw0spDx8VsdBo+5ZaPqiT0QAJcoePhJU=;
+        s=k20201202; t=1620842681;
+        bh=s92oYAD0pIycQPClhSAIO5z4FY7NVlq/UdH3F5J7FV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlBMb6T3gGqKlwBMfC23eXg1ZxRSOlZanGIa3sly1fQNUTr2eFUDVc4YjtCjqJLA3
-         lJfil8qyoCbbkA5mkpo+ThMw2klbuksN+xvAJguqNkqm7+RlXgNderj6i7pnKaqerQ
-         WV1cqS05WwmxxEg3hA4ipHn3naouXRs6x2BXRrNCQafwtNSIjNsn9izFuyFZ/mWCfI
-         SQSSE24Dmp9Yw6jUtBOGGKNyJOpgLvxTOkyImWjpWNtNmkQcesYjJHc135T5PFzNXa
-         YpmUKmM9acuLT1XwPpmQWK1ylD0XgnltxJp4BMTxwE3xoJBeOryyoz0DMsc0h4NpIo
-         rZ1hJ/UcHcKCw==
+        b=gsaYpO0hD33Fc2BRR0lo5CM1Z3dmgtHYf23Ebsy9Xb2hWpxpdp/yJ5i3sbUaUqLwX
+         9rUOcpNcHkJIh1q9mC6mb/1kxE7M/4uLLX2LY9T2JSJ2HiXbPiISrjzXAOyO8afC2o
+         qs+BkDbu7YAPfuYlaeMBiZ1eF/d9zEp68XP1l51/pEH2b05fgWeLarC10yWF/x4I5J
+         8hVS0UYzl5ZFshCKyvlWqWMWXuQzci0vLHQpmqwmdCr0CLD3XztcAn9ZQcd/fHUnAi
+         84GJVF3GLk/JUOWSRx/GmTeEheqlbnemxXsG8iYs7qHFUrpnuXtYuIhpdmAmeONZfy
+         TqI6hSU8jrA/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Louis Li <Ching-shih.Li@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Harry Wentland <Harry.Wentland@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Sean Paul <seanpaul@chromium.org>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 18/23] drm/amd/display: Fix two cursor duplication when using overlay
-Date:   Wed, 12 May 2021 14:04:02 -0400
-Message-Id: <20210512180408.665338-18-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 19/23] gpiolib: acpi: Add quirk to ignore EC wakeups on Dell Venue 10 Pro 5055
+Date:   Wed, 12 May 2021 14:04:03 -0400
+Message-Id: <20210512180408.665338-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180408.665338-1-sashal@kernel.org>
 References: <20210512180408.665338-1-sashal@kernel.org>
@@ -49,145 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 16e9b3e58bc3fce7391539e0eb3fd167cbf9951f ]
+[ Upstream commit da91ece226729c76f60708efc275ebd4716ad089 ]
 
-Our driver supports overlay planes, and as expected, some userspace
-compositor takes advantage of these features. If the userspace is not
-enabling the cursor, they can use multiple planes as they please.
-Nevertheless, we start to have constraints when userspace tries to
-enable hardware cursor with various planes. Basically, we cannot draw
-the cursor at the same size and position on two separated pipes since it
-uses extra bandwidth and DML only run with one cursor.
+Like some other Bay and Cherry Trail SoC based devices the Dell Venue
+10 Pro 5055 has an embedded-controller which uses ACPI GPIO events to
+report events instead of using the standard ACPI EC interface for this.
 
-For those reasons, when we enable hardware cursor and multiple planes,
-our driver should accept variations like the ones described below:
+The EC interrupt is only used to report battery-level changes and
+it keeps doing this while the system is suspended, causing the system
+to not stay suspended.
 
-  +-------------+   +--------------+
-  | +---------+ |   |              |
-  | |Primary  | |   | Primary      |
-  | |         | |   | Overlay      |
-  | +---------+ |   |              |
-  |Overlay      |   |              |
-  +-------------+   +--------------+
+Add an ignore-wake quirk for the GPIO pin used by the EC to fix the
+spurious wakeups from suspend.
 
-In this scenario, we can have the desktop UI in the overlay and some
-other framebuffer attached to the primary plane (e.g., video). However,
-userspace needs to obey some rules and avoid scenarios like the ones
-described below (when enabling hw cursor):
-
-                                      +--------+
-                                      |Overlay |
- +-------------+    +-----+-------+ +-|        |--+
- | +--------+  | +--------+       | | +--------+  |
- | |Overlay |  | |Overlay |       | |             |
- | |        |  | |        |       | |             |
- | +--------+  | +--------+       | |             |
- | Primary     |    | Primary     | | Primary     |
- +-------------+    +-------------+ +-------------+
-
- +-------------+   +-------------+
- |     +--------+  |  Primary    |
- |     |Overlay |  |             |
- |     |        |  |             |
- |     +--------+  | +--------+  |
- | Primary     |   | |Overlay |  |
- +-------------+   +-|        |--+
-                     +--------+
-
-If the userspace violates some of the above scenarios, our driver needs
-to reject the commit; otherwise, we can have unexpected behavior. Since
-we don't have a proper driver validation for the above case, we can see
-some problems like a duplicate cursor in applications that use multiple
-planes. This commit fixes the cursor issue and others by adding adequate
-verification for multiple planes.
-
-Change since V1 (Harry and Sean):
-- Remove cursor verification from the equation.
-
-Cc: Louis Li <Ching-shih.Li@amd.com>
-Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Cc: Harry Wentland <Harry.Wentland@amd.com>
-Cc: Hersen Wu <hersenxs.wu@amd.com>
-Cc: Sean Paul <seanpaul@chromium.org>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 51 +++++++++++++++++++
- 1 file changed, 51 insertions(+)
+ drivers/gpio/gpiolib-acpi.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index fbbe611d4873..800dc67c98f1 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -7254,6 +7254,53 @@ static int add_affected_mst_dsc_crtcs(struct drm_atomic_state *state, struct drm
- }
- #endif
- 
-+static int validate_overlay(struct drm_atomic_state *state)
-+{
-+	int i;
-+	struct drm_plane *plane;
-+	struct drm_plane_state *old_plane_state, *new_plane_state;
-+	struct drm_plane_state *primary_state, *overlay_state = NULL;
-+
-+	/* Check if primary plane is contained inside overlay */
-+	for_each_oldnew_plane_in_state_reverse(state, plane, old_plane_state, new_plane_state, i) {
-+		if (plane->type == DRM_PLANE_TYPE_OVERLAY) {
-+			if (drm_atomic_plane_disabling(plane->state, new_plane_state))
-+				return 0;
-+
-+			overlay_state = new_plane_state;
-+			continue;
-+		}
-+	}
-+
-+	/* check if we're making changes to the overlay plane */
-+	if (!overlay_state)
-+		return 0;
-+
-+	/* check if overlay plane is enabled */
-+	if (!overlay_state->crtc)
-+		return 0;
-+
-+	/* find the primary plane for the CRTC that the overlay is enabled on */
-+	primary_state = drm_atomic_get_plane_state(state, overlay_state->crtc->primary);
-+	if (IS_ERR(primary_state))
-+		return PTR_ERR(primary_state);
-+
-+	/* check if primary plane is enabled */
-+	if (!primary_state->crtc)
-+		return 0;
-+
-+	/* Perform the bounds check to ensure the overlay plane covers the primary */
-+	if (primary_state->crtc_x < overlay_state->crtc_x ||
-+	    primary_state->crtc_y < overlay_state->crtc_y ||
-+	    primary_state->crtc_x + primary_state->crtc_w > overlay_state->crtc_x + overlay_state->crtc_w ||
-+	    primary_state->crtc_y + primary_state->crtc_h > overlay_state->crtc_y + overlay_state->crtc_h) {
-+		DRM_DEBUG_ATOMIC("Overlay plane is enabled with hardware cursor but does not fully cover primary plane\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  * amdgpu_dm_atomic_check() - Atomic check implementation for AMDgpu DM.
-  * @dev: The DRM device
-@@ -7427,6 +7474,10 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
- 			goto fail;
- 	}
- 
-+	ret = validate_overlay(state);
-+	if (ret)
-+		goto fail;
-+
- 	/* Add new/modified planes */
- 	for_each_oldnew_plane_in_state_reverse(state, plane, old_plane_state, new_plane_state, i) {
- 		ret = dm_update_plane_state(dc, state, plane,
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 66dcab6ab26d..e3ddc99c105d 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -1394,6 +1394,20 @@ static const struct dmi_system_id gpiolib_acpi_quirks[] = {
+ 			.no_edge_events_on_boot = true,
+ 		},
+ 	},
++	{
++		/*
++		 * The Dell Venue 10 Pro 5055, with Bay Trail SoC + TI PMIC uses an
++		 * external embedded-controller connected via I2C + an ACPI GPIO
++		 * event handler on INT33FFC:02 pin 12, causing spurious wakeups.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Venue 10 Pro 5055"),
++		},
++		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
++			.ignore_wake = "INT33FC:02@12",
++		},
++	},
+ 	{
+ 		/*
+ 		 * HP X2 10 models with Cherry Trail SoC + TI PMIC use an
 -- 
 2.30.2
 
