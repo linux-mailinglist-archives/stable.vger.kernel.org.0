@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55F5137C67B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A25A37C63E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233135AbhELPvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41538 "EHLO mail.kernel.org"
+        id S237317AbhELPtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:49:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236879AbhELPrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:47:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB33961C9B;
-        Wed, 12 May 2021 15:23:50 +0000 (UTC)
+        id S234846AbhELPn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:43:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA79D61C8C;
+        Wed, 12 May 2021 15:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833031;
-        bh=PNu7+jadj9x9BmJTVziJwL/PZSEIZ6YdtI/TsPT2bJQ=;
+        s=korg; t=1620832947;
+        bh=JiSwBk7n+z9UDxHWijuW9vbtAqoFPPUFO5JE7rJFJas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AddP0M3RV53MPbdcgPhklB4m1LzbIfOnupv1+nQI1wUVKz2eCmlUS5/P+BC/AAP8o
-         PAIkyaPmAtYoufXsT3kP7N5No7eUBD06dC+LAJ+LDil8oQhuBhj1VkQ4+mJrz4Chi/
-         1bEjRybkGVz0lh86bC7uYIWMHkRLuYyPkv3/SXc8=
+        b=Cl8JxvdfPOuvw5NgmQXz1yCfhneq0OQloktIrdeQykdhWmjFup5Sk0014CSqo8EEx
+         l4/z4rT0BsRkY31J0wivupO3vacQ+q0LSHHZRNAG+F7oBS+PUQZbB4hgIVb4USJcj6
+         jdHdFGp8Ah2YYnduLCrRpQex2jC/1+Pl7O95pbJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 487/530] ath10k: Fix a use after free in ath10k_htc_send_bundle
-Date:   Wed, 12 May 2021 16:49:57 +0200
-Message-Id: <20210512144835.763338058@linuxfoundation.org>
+Subject: [PATCH 5.10 488/530] ath10k: Fix ath10k_wmi_tlv_op_pull_peer_stats_info() unlock without lock
+Date:   Wed, 12 May 2021 16:49:58 +0200
+Message-Id: <20210512144835.794461810@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,39 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 8392df5d7e0b6a7d21440da1fc259f9938f4dec3 ]
+[ Upstream commit eaaf52e4b866f265eb791897d622961293fd48c1 ]
 
-In ath10k_htc_send_bundle, the bundle_skb could be freed by
-dev_kfree_skb_any(bundle_skb). But the bundle_skb is used later
-by bundle_skb->len.
+ath10k_wmi_tlv_op_pull_peer_stats_info() could try to unlock RCU lock
+winthout locking it first when peer reason doesn't match the valid
+cases for this function.
 
-As skb_len = bundle_skb->len, my patch replaces bundle_skb->len to
-skb_len after the bundle_skb was freed.
+Add a default case to return without unlocking.
 
-Fixes: c8334512f3dd1 ("ath10k: add htt TX bundle for sdio")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Fixes: 09078368d516 ("ath10k: hold RCU lock when calling ieee80211_find_sta_by_ifaddr()")
+Reported-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210329120154.8963-1-lyl2019@mail.ustc.edu.cn
+Link: https://lore.kernel.org/r/20210406230228.31301-1-skhan@linuxfoundation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/htc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/wmi-tlv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/htc.c b/drivers/net/wireless/ath/ath10k/htc.c
-index 31df6dd04bf6..540dd59112a5 100644
---- a/drivers/net/wireless/ath/ath10k/htc.c
-+++ b/drivers/net/wireless/ath/ath10k/htc.c
-@@ -665,7 +665,7 @@ static int ath10k_htc_send_bundle(struct ath10k_htc_ep *ep,
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+index e7072fc4f487..4f2fbc610d79 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -592,6 +592,9 @@ static void ath10k_wmi_event_tdls_peer(struct ath10k *ar, struct sk_buff *skb)
+ 					GFP_ATOMIC
+ 					);
+ 		break;
++	default:
++		kfree(tb);
++		return;
+ 	}
  
- 	ath10k_dbg(ar, ATH10K_DBG_HTC,
- 		   "bundle tx status %d eid %d req count %d count %d len %d\n",
--		   ret, ep->eid, skb_queue_len(&ep->tx_req_head), cn, bundle_skb->len);
-+		   ret, ep->eid, skb_queue_len(&ep->tx_req_head), cn, skb_len);
- 	return ret;
- }
- 
+ exit:
 -- 
 2.30.2
 
