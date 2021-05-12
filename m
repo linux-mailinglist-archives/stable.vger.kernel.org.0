@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48DA037C8EC
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB0537C8F6
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234971AbhELQNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:13:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33628 "EHLO mail.kernel.org"
+        id S233429AbhELQOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:14:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239382AbhELQH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DBF961C75;
-        Wed, 12 May 2021 15:37:50 +0000 (UTC)
+        id S239407AbhELQH7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 160AD61998;
+        Wed, 12 May 2021 15:38:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833870;
-        bh=s0g5S8odRju7kFcdBL7xfjSpY3t0m+/AzXi0YNquHg8=;
+        s=korg; t=1620833890;
+        bh=bipMomk1GdGdN94LjQeuhOQ/x+1wMLC7ZtoquWDh69U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3/DbpeTwKqX1Tz7UEbnp6/Ix5lWLEzCDGhXWawmxygxi0RV6CaBdstgu7DEQ2z0N
-         uYRX7V05UzmyR1fM1V34C7XpHQLKLoB+2DKu753O6Gt7r2O2jZiya0ADmpXOeZLG5B
-         M6eBAWdTxVwWZaM3R6kumnYALZXZ4xE2vReTnQ8E=
+        b=PPFWn361Og7joW97guj6/pGng5bH0rIwq0GkVCcz28miD2OcuTV1nB/5q8UW87wMI
+         tQd+goKxEFeCV9BmqjrvFXs1WBHBwqiWyB6AbTViwDdeazsJ2pzG5flsbGcsD99yLI
+         IN6jdd/uUC651XK4luc6lQdXBq1od/GGeEMnRXvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Quanyang Wang <quanyang.wang@windriver.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 294/601] spi: spi-zynqmp-gqspi: fix use-after-free in zynqmp_qspi_exec_op
-Date:   Wed, 12 May 2021 16:46:11 +0200
-Message-Id: <20210512144837.497693832@linuxfoundation.org>
+Subject: [PATCH 5.11 295/601] spi: spi-zynqmp-gqspi: return -ENOMEM if dma_map_single fails
+Date:   Wed, 12 May 2021 16:46:12 +0200
+Message-Id: <20210512144837.529743089@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -43,68 +43,125 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit a2c5bedb2d55dd27c642c7b9fb6886d7ad7bdb58 ]
+[ Upstream commit 126bdb606fd2802454e6048caef1be3e25dd121e ]
 
-When handling op->addr, it is using the buffer "tmpbuf" which has been
-freed. This will trigger a use-after-free KASAN warning. Let's use
-temporary variables to store op->addr.val and op->cmd.opcode to fix
-this issue.
+The spi controller supports 44-bit address space on AXI in DMA mode,
+so set dma_addr_t width to 44-bit to avoid using a swiotlb mapping.
+In addition, if dma_map_single fails, it should return immediately
+instead of continuing doing the DMA operation which bases on invalid
+address.
+
+This fixes the following crash which occurs in reading a big block
+from flash:
+
+[  123.633577] zynqmp-qspi ff0f0000.spi: swiotlb buffer is full (sz: 4194304 bytes), total 32768 (slots), used 0 (slots)
+[  123.644230] zynqmp-qspi ff0f0000.spi: ERR:rxdma:memory not mapped
+[  123.784625] Unable to handle kernel paging request at virtual address 00000000003fffc0
+[  123.792536] Mem abort info:
+[  123.795313]   ESR = 0x96000145
+[  123.798351]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  123.803655]   SET = 0, FnV = 0
+[  123.806693]   EA = 0, S1PTW = 0
+[  123.809818] Data abort info:
+[  123.812683]   ISV = 0, ISS = 0x00000145
+[  123.816503]   CM = 1, WnR = 1
+[  123.819455] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000805047000
+[  123.825887] [00000000003fffc0] pgd=0000000803b45003, p4d=0000000803b45003, pud=0000000000000000
+[  123.834586] Internal error: Oops: 96000145 [#1] PREEMPT SMP
 
 Fixes: 1c26372e5aa9 ("spi: spi-zynqmp-gqspi: Update driver to use spi-mem framework")
 Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Link: https://lore.kernel.org/r/20210416004652.2975446-5-quanyang.wang@windriver.com
+Link: https://lore.kernel.org/r/20210416004652.2975446-6-quanyang.wang@windriver.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ drivers/spi/spi-zynqmp-gqspi.c | 26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index d6ac8fe145a1..2a0be16b2eb0 100644
+index 2a0be16b2eb0..1dd2af9cc237 100644
 --- a/drivers/spi/spi-zynqmp-gqspi.c
 +++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -926,8 +926,9 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
- 	struct zynqmp_qspi *xqspi = spi_controller_get_devdata
- 				    (mem->spi->master);
- 	int err = 0, i;
--	u8 *tmpbuf;
- 	u32 genfifoentry = 0;
-+	u16 opcode = op->cmd.opcode;
-+	u64 opaddr;
- 
- 	dev_dbg(xqspi->dev, "cmd:%#x mode:%d.%d.%d.%d\n",
- 		op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
-@@ -940,14 +941,8 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
- 	genfifoentry |= xqspi->genfifobus;
- 
- 	if (op->cmd.opcode) {
--		tmpbuf = kzalloc(op->cmd.nbytes, GFP_KERNEL | GFP_DMA);
--		if (!tmpbuf) {
--			mutex_unlock(&xqspi->op_lock);
--			return -ENOMEM;
--		}
--		tmpbuf[0] = op->cmd.opcode;
- 		reinit_completion(&xqspi->data_completion);
--		xqspi->txbuf = tmpbuf;
-+		xqspi->txbuf = &opcode;
- 		xqspi->rxbuf = NULL;
- 		xqspi->bytes_to_transfer = op->cmd.nbytes;
- 		xqspi->bytes_to_receive = 0;
-@@ -961,13 +956,12 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
- 		if (!wait_for_completion_timeout
- 		    (&xqspi->data_completion, msecs_to_jiffies(1000))) {
- 			err = -ETIMEDOUT;
--			kfree(tmpbuf);
- 			goto return_err;
- 		}
--		kfree(tmpbuf);
+@@ -731,7 +731,7 @@ static irqreturn_t zynqmp_qspi_irq(int irq, void *dev_id)
+  * zynqmp_qspi_setuprxdma - This function sets up the RX DMA operation
+  * @xqspi:	xqspi is a pointer to the GQSPI instance.
+  */
+-static void zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
++static int zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
+ {
+ 	u32 rx_bytes, rx_rem, config_reg;
+ 	dma_addr_t addr;
+@@ -745,7 +745,7 @@ static void zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
+ 		zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST, config_reg);
+ 		xqspi->mode = GQSPI_MODE_IO;
+ 		xqspi->dma_rx_bytes = 0;
+-		return;
++		return 0;
  	}
  
- 	if (op->addr.nbytes) {
-+		xqspi->txbuf = &opaddr;
- 		for (i = 0; i < op->addr.nbytes; i++) {
- 			*(((u8 *)xqspi->txbuf) + i) = op->addr.val >>
- 					(8 * (op->addr.nbytes - i - 1));
+ 	rx_rem = xqspi->bytes_to_receive % 4;
+@@ -753,8 +753,10 @@ static void zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
+ 
+ 	addr = dma_map_single(xqspi->dev, (void *)xqspi->rxbuf,
+ 			      rx_bytes, DMA_FROM_DEVICE);
+-	if (dma_mapping_error(xqspi->dev, addr))
++	if (dma_mapping_error(xqspi->dev, addr)) {
+ 		dev_err(xqspi->dev, "ERR:rxdma:memory not mapped\n");
++		return -ENOMEM;
++	}
+ 
+ 	xqspi->dma_rx_bytes = rx_bytes;
+ 	xqspi->dma_addr = addr;
+@@ -775,6 +777,8 @@ static void zynqmp_qspi_setuprxdma(struct zynqmp_qspi *xqspi)
+ 
+ 	/* Write the number of bytes to transfer */
+ 	zynqmp_gqspi_write(xqspi, GQSPI_QSPIDMA_DST_SIZE_OFST, rx_bytes);
++
++	return 0;
+ }
+ 
+ /**
+@@ -811,11 +815,17 @@ static void zynqmp_qspi_write_op(struct zynqmp_qspi *xqspi, u8 tx_nbits,
+  * @genfifoentry:	genfifoentry is pointer to the variable in which
+  *			GENFIFO	mask is returned to calling function
+  */
+-static void zynqmp_qspi_read_op(struct zynqmp_qspi *xqspi, u8 rx_nbits,
++static int zynqmp_qspi_read_op(struct zynqmp_qspi *xqspi, u8 rx_nbits,
+ 				u32 genfifoentry)
+ {
+-	zynqmp_qspi_setuprxdma(xqspi);
++	int ret;
++
++	ret = zynqmp_qspi_setuprxdma(xqspi);
++	if (ret)
++		return ret;
+ 	zynqmp_qspi_fillgenfifo(xqspi, rx_nbits, genfifoentry);
++
++	return 0;
+ }
+ 
+ /**
+@@ -1029,8 +1039,11 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
+ 			xqspi->rxbuf = (u8 *)op->data.buf.in;
+ 			xqspi->bytes_to_receive = op->data.nbytes;
+ 			xqspi->bytes_to_transfer = 0;
+-			zynqmp_qspi_read_op(xqspi, op->data.buswidth,
++			err = zynqmp_qspi_read_op(xqspi, op->data.buswidth,
+ 					    genfifoentry);
++			if (err)
++				goto return_err;
++
+ 			zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST,
+ 					   zynqmp_gqspi_read
+ 					   (xqspi, GQSPI_CONFIG_OFST) |
+@@ -1152,6 +1165,7 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
+ 		goto clk_dis_all;
+ 	}
+ 
++	dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
+ 	ctlr->bits_per_word_mask = SPI_BPW_MASK(8);
+ 	ctlr->num_chipselect = GQSPI_DEFAULT_NUM_CS;
+ 	ctlr->mem_ops = &zynqmp_qspi_mem_ops;
 -- 
 2.30.2
 
