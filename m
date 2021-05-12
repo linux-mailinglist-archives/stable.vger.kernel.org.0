@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3D4037C337
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:18:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C2B37C340
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbhELPR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:17:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50484 "EHLO mail.kernel.org"
+        id S232164AbhELPSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234226AbhELPQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3D3161973;
-        Wed, 12 May 2021 15:05:51 +0000 (UTC)
+        id S234249AbhELPQS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 469EA61971;
+        Wed, 12 May 2021 15:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831952;
-        bh=YSA7hg98ZF8IfWKfHDwI/Pt5T9A9a4gvHlQZXdHQIqw=;
+        s=korg; t=1620831954;
+        bh=Nr3bsYbK1iTpA2f80c0E2GF84LXeMnRzNTqh14JG+ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zT3IXZeyZJF9+GxImux5rnEMr+D4wo4szov2Fvxk5MqSzgPM51xmOK7cG8J1Wt9PT
-         m+qDYs6RGOYiJk0MLfnLNEcVr2R4je4bMzQjRJozFvumTtutqAJdUhwWpWr3yYDrDG
-         aiJ/s+wJZM+Ee3doH+989aSKijabokdVSH8wjZb0=
+        b=yGvYd2Es2AjieXW8YAVa7eRMnTDYDHVXejtLHIMb/fPxGi6YgKnRO95uyNLADew19
+         TqLPCVTY0NAvrEKzbhbOO24DRPXO1VdRSRdRXs++t3lONV6vAbHPxD7OMekBeyG0M5
+         xVWZEX8+ZpC+k/+KtW9agkwljpYB58XfueAUVMT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Loone <sami@loone.fi>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 082/530] ALSA: hda/realtek: ALC285 Thinkpad jack pin quirk is unreachable
-Date:   Wed, 12 May 2021 16:43:12 +0200
-Message-Id: <20210512144822.472554273@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 083/530] ALSA: hda/realtek: Fix speaker amp on HP Envy AiO 32
+Date:   Wed, 12 May 2021 16:43:13 +0200
+Message-Id: <20210512144822.506109366@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,66 +38,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Loone <sami@loone.fi>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 266fd994b2b0ab7ba3e5541868838ce30775964b upstream.
+commit 622464c893142f7beac89f5ba8c9773bca5e5004 upstream.
 
-In 9bbb94e57df1 ("ALSA: hda/realtek: fix static noise on ALC285 Lenovo
-laptops") an existing Lenovo quirk was made more generic by removing a
-0x12 pin requirement from the entry. This made the second chance table
-Thinkpad jack entry unreachable as the pin configurations became
-identical.
+HP Envy AiO 32-a12xxx has an external amp that is controlled via GPIO
+bit 0x04.  However, unlike other devices, this amp seems to shut down
+itself after the certain period, hence the OS needs to up/down the bit
+dynamically only during the actual playback.
 
-Revert the 0x12 pin requirement removal and move Thinkpad jack pin quirk
-back to the primary pin table as they can co-exist when more specific
-configurations come first.
+This patch adds the control of the GPIO bit via the existing pcm_hook
+mechanism.  Ideally it should be triggered at the actual stream start,
+but we have only the state change at prepare/cleanup, so use those for
+switching the GPIO bit on/off.  This should be good enough for the
+purpose, and was actually confirmed to work fine.
 
-Add a more targeted pin quirk for Lenovo devices that have 0x12 as
-0x40000000.
-
-Tested on Yoga 6 (AMD) laptop.
-
-[ Corrected the commit ID -- tiwai ]
-
-Fixes: 9bbb94e57df1 ("ALSA: hda/realtek: fix static noise on ALC285 Lenovo laptops")
-Signed-off-by: Sami Loone <sami@loone.fi>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212873
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YI0oefvTYn8URYDb@yoga
+Link: https://lore.kernel.org/r/20210504091802.13200-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |   35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -8775,6 +8775,16 @@ static const struct snd_hda_pin_quirk al
- 		{0x19, 0x03a11020},
- 		{0x21, 0x0321101f}),
- 	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_LENOVO_PC_BEEP_IN_NOISE,
-+		{0x12, 0x90a60130},
-+		{0x14, 0x90170110},
-+		{0x19, 0x04a11040},
-+		{0x21, 0x04211020}),
-+	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_LENOVO_PC_BEEP_IN_NOISE,
-+		{0x14, 0x90170110},
-+		{0x19, 0x04a11040},
-+		{0x1d, 0x40600001},
-+		{0x21, 0x04211020}),
-+	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
- 		{0x14, 0x90170110},
- 		{0x19, 0x04a11040},
- 		{0x21, 0x04211020}),
-@@ -8945,10 +8955,6 @@ static const struct snd_hda_pin_quirk al
- 	SND_HDA_PIN_QUIRK(0x10ec0274, 0x1028, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
- 		{0x19, 0x40000000},
- 		{0x1a, 0x40000000}),
--	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
--		{0x14, 0x90170110},
--		{0x19, 0x04a11040},
--		{0x21, 0x04211020}),
- 	{}
- };
+@@ -4331,6 +4331,35 @@ static void alc245_fixup_hp_x360_amp(str
+ 	}
+ }
  
++/* toggle GPIO2 at each time stream is started; we use PREPARE state instead */
++static void alc274_hp_envy_pcm_hook(struct hda_pcm_stream *hinfo,
++				    struct hda_codec *codec,
++				    struct snd_pcm_substream *substream,
++				    int action)
++{
++	switch (action) {
++	case HDA_GEN_PCM_ACT_PREPARE:
++		alc_update_gpio_data(codec, 0x04, true);
++		break;
++	case HDA_GEN_PCM_ACT_CLEANUP:
++		alc_update_gpio_data(codec, 0x04, false);
++		break;
++	}
++}
++
++static void alc274_fixup_hp_envy_gpio(struct hda_codec *codec,
++				      const struct hda_fixup *fix,
++				      int action)
++{
++	struct alc_spec *spec = codec->spec;
++
++	if (action == HDA_FIXUP_ACT_PROBE) {
++		spec->gpio_mask |= 0x04;
++		spec->gpio_dir |= 0x04;
++		spec->gen.pcm_playback_hook = alc274_hp_envy_pcm_hook;
++	}
++}
++
+ static void alc_update_coef_led(struct hda_codec *codec,
+ 				struct alc_coef_led *led,
+ 				bool polarity, bool on)
+@@ -6443,6 +6472,7 @@ enum {
+ 	ALC255_FIXUP_XIAOMI_HEADSET_MIC,
+ 	ALC274_FIXUP_HP_MIC,
+ 	ALC274_FIXUP_HP_HEADSET_MIC,
++	ALC274_FIXUP_HP_ENVY_GPIO,
+ 	ALC256_FIXUP_ASUS_HPE,
+ 	ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
+ 	ALC287_FIXUP_HP_GPIO_LED,
+@@ -7882,6 +7912,10 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC274_FIXUP_HP_MIC
+ 	},
++	[ALC274_FIXUP_HP_ENVY_GPIO] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc274_fixup_hp_envy_gpio,
++	},
+ 	[ALC256_FIXUP_ASUS_HPE] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -8099,6 +8133,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
++	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
+ 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8730, "HP ProBook 445 G7", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
 
 
