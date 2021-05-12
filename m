@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A0237C9E4
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6865F37C9F1
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:52:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236909AbhELQXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59020 "EHLO mail.kernel.org"
+        id S235518AbhELQX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240572AbhELQSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:18:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85B4661D76;
-        Wed, 12 May 2021 15:44:28 +0000 (UTC)
+        id S240577AbhELQSW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:18:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F261261D77;
+        Wed, 12 May 2021 15:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834269;
-        bh=0crU0swUpVbJ5YZC4AXLCdisuFWGaTi/yA704myJhi0=;
+        s=korg; t=1620834271;
+        bh=s3bfPF3oHxBiUjwM5Vv+Oy2OVq6HW7wgTAH5gF//9Gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YftvdULdaWXgi2KprxU6+9E7ykk6CToM1Jnsh0QjDxLfgnFOTH3yOBE6smKkHSsMj
-         CkYGz5/77jepHQNe9Ntg5W0gAfXR9GraJ0VRI9u6nXfyFsafXDF6plUzpWDzUebrdk
-         DoIOG5irtYT66siPlseiJNAEckSkLRaPJD4+/G0w=
+        b=ucUeC1NOFv2Iep2Xo1HdYFXp9iNau9yrURKlgeEodAI3+/jzVdLgvbM0cupHqHw6M
+         cVG5Mo/LFbGMhqfFxCxIFZGE2pwQxNPCGY1pVFZ4J/t90U3071Mg41Hgh5H0gQlyI6
+         iwzzX1WV2P23xDUTYYgThIl/ff0ANAW+gBevu5Gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 475/601] mt76: mt7615: cleanup mcu tx queue in mt7615_dma_reset()
-Date:   Wed, 12 May 2021 16:49:12 +0200
-Message-Id: <20210512144843.491046301@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 476/601] mt76: mt7915: bring up the WA event rx queue for band1
+Date:   Wed, 12 May 2021 16:49:13 +0200
+Message-Id: <20210512144843.521147903@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,45 +39,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 69e74d7f23d515fb559b2e0bebfdf4c458d9507d ]
+[ Upstream commit 76027f40f5ee04bf15cde3a83af9b873c2affa28 ]
 
-With this patch, mt7615_mac_reset_work() can recover system back.
+This is needed for DBDC cards to work correctly on both bands simultaneously
 
-Fixes: e637763b606b ("mt76: move mcu queues to mt76_dev q_mcu array")
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76.h          | 1 +
+ drivers/net/wireless/mediatek/mt76/mt7915/dma.c    | 8 ++++++++
+ drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h | 1 +
+ drivers/net/wireless/mediatek/mt76/mt7915/pci.c    | 4 ++++
+ drivers/net/wireless/mediatek/mt76/mt7915/regs.h   | 3 ++-
+ 5 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index 052d96f6fd66..2cb24c26a074 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -2032,15 +2032,17 @@ void mt7615_dma_reset(struct mt7615_dev *dev)
- 	mt76_clear(dev, MT_WPDMA_GLO_CFG,
- 		   MT_WPDMA_GLO_CFG_RX_DMA_EN | MT_WPDMA_GLO_CFG_TX_DMA_EN |
- 		   MT_WPDMA_GLO_CFG_TX_WRITEBACK_DONE);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 3e496a188bf0..5da6b74687ed 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -81,6 +81,7 @@ enum mt76_rxq_id {
+ 	MT_RXQ_MCU,
+ 	MT_RXQ_MCU_WA,
+ 	MT_RXQ_EXT,
++	MT_RXQ_EXT_WA,
+ 	__MT_RXQ_MAX
+ };
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/dma.c b/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
+index 8c1f9c77b14f..d47d8f4376c6 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
+@@ -286,6 +286,14 @@ int mt7915_dma_init(struct mt7915_dev *dev)
+ 				       rx_buf_size, MT_RX_DATA_RING_BASE);
+ 		if (ret)
+ 			return ret;
 +
- 	usleep_range(1000, 2000);
++		/* event from WA */
++		ret = mt76_queue_alloc(dev, &dev->mt76.q_rx[MT_RXQ_EXT_WA],
++				       MT7915_RXQ_MCU_WA_EXT,
++				       MT7915_RX_MCU_RING_SIZE,
++				       rx_buf_size, MT_RX_EVENT_RING_BASE);
++		if (ret)
++			return ret;
+ 	}
  
--	mt76_queue_tx_cleanup(dev, dev->mt76.q_mcu[MT_MCUQ_WM], true);
- 	for (i = 0; i < __MT_TXQ_MAX; i++)
- 		mt76_queue_tx_cleanup(dev, dev->mphy.q_tx[i], true);
+ 	ret = mt76_init_queues(dev);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
+index fe88ff24f241..6bfb6f1bb878 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
+@@ -61,6 +61,7 @@ enum mt7915_rxq_id {
+ 	MT7915_RXQ_BAND1,
+ 	MT7915_RXQ_MCU_WM = 0,
+ 	MT7915_RXQ_MCU_WA,
++	MT7915_RXQ_MCU_WA_EXT,
+ };
  
--	mt76_for_each_q_rx(&dev->mt76, i) {
-+	for (i = 0; i < __MT_MCUQ_MAX; i++)
-+		mt76_queue_tx_cleanup(dev, dev->mt76.q_mcu[i], true);
+ struct mt7915_sta_stats {
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/pci.c b/drivers/net/wireless/mediatek/mt76/mt7915/pci.c
+index aeb86fbea41c..99f11588601d 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/pci.c
+@@ -26,6 +26,7 @@ mt7915_rx_poll_complete(struct mt76_dev *mdev, enum mt76_rxq_id q)
+ 		[MT_RXQ_EXT] = MT_INT_RX_DONE_DATA1,
+ 		[MT_RXQ_MCU] = MT_INT_RX_DONE_WM,
+ 		[MT_RXQ_MCU_WA] = MT_INT_RX_DONE_WA,
++		[MT_RXQ_EXT_WA] = MT_INT_RX_DONE_WA_EXT,
+ 	};
+ 
+ 	mt7915_irq_enable(dev, rx_irq_mask[q]);
+@@ -67,6 +68,9 @@ static irqreturn_t mt7915_irq_handler(int irq, void *dev_instance)
+ 	if (intr & MT_INT_RX_DONE_WA)
+ 		napi_schedule(&dev->mt76.napi[MT_RXQ_MCU_WA]);
+ 
++	if (intr & MT_INT_RX_DONE_WA_EXT)
++		napi_schedule(&dev->mt76.napi[MT_RXQ_EXT_WA]);
 +
-+	mt76_for_each_q_rx(&dev->mt76, i)
- 		mt76_queue_rx_reset(dev, i);
--	}
+ 	if (intr & MT_INT_MCU_CMD) {
+ 		u32 val = mt76_rr(dev, MT_MCU_CMD);
  
- 	mt76_set(dev, MT_WPDMA_GLO_CFG,
- 		 MT_WPDMA_GLO_CFG_RX_DMA_EN | MT_WPDMA_GLO_CFG_TX_DMA_EN |
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/regs.h b/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
+index 848703e6eb7c..294cc0769331 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
+@@ -342,7 +342,8 @@
+ #define MT_INT_RX_DONE_DATA1		BIT(17)
+ #define MT_INT_RX_DONE_WM		BIT(0)
+ #define MT_INT_RX_DONE_WA		BIT(1)
+-#define MT_INT_RX_DONE_ALL		(BIT(0) | BIT(1) | GENMASK(17, 16))
++#define MT_INT_RX_DONE_WA_EXT		BIT(2)
++#define MT_INT_RX_DONE_ALL		(GENMASK(2, 0) | GENMASK(17, 16))
+ #define MT_INT_TX_DONE_MCU_WA		BIT(15)
+ #define MT_INT_TX_DONE_FWDL		BIT(26)
+ #define MT_INT_TX_DONE_MCU_WM		BIT(27)
 -- 
 2.30.2
 
