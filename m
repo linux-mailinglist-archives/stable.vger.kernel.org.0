@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7A5637C52E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:37:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE7F37C570
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233385AbhELPiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:38:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48504 "EHLO mail.kernel.org"
+        id S235631AbhELPkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233206AbhELPa6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:30:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D542A61956;
-        Wed, 12 May 2021 15:15:56 +0000 (UTC)
+        id S235063AbhELPfP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:35:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A236561995;
+        Wed, 12 May 2021 15:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832557;
-        bh=D05Ms35Fa3zBhWVOkhp6js7LRYTCD4eitDpF6CmpE+A=;
+        s=korg; t=1620832666;
+        bh=mYhmyNGue0YNL3Jph8tkYFHnO4GoSpZVEKE1p7sTGWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vmgLA0vnne3O/wK/8fge5p2m0P3agULS7MOZP2kq+n/c0klnx6x3cfHYSmu52I2uK
-         qUXRyeLN8lavvJX1zo2n2+Q+D7iKL6+b+/RetGvC7ZRy8MRO8hB27v2Xpl2LAoCgnS
-         i1lGPL+IilABhiarzLdktxnVX2Us6ArAJz47HchA=
+        b=lWrN3cjBoQ5GTUAYuWyE1je23xele3B9OAD5nbwMIQsFecF7+5xNgHSiecrgc8o/W
+         Cu2hClTFjlZ9GyUs8zNv4FsQLUspjQpExLuK56fHcYQt+/RFPpV+Usy1m4LF3uJsu3
+         nWXWUGw8MgDZ0DRabtAcUnj6UyrhGtNQ2vsoR5VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Vishakha Channapattan <vishakhavc@google.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Igor Pylypiv <ipylypiv@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 327/530] clk: uniphier: Fix potential infinite loop
-Date:   Wed, 12 May 2021 16:47:17 +0200
-Message-Id: <20210512144830.556267125@linuxfoundation.org>
+Subject: [PATCH 5.10 328/530] scsi: pm80xx: Increase timeout for pm80xx mpi_uninit_check()
+Date:   Wed, 12 May 2021 16:47:18 +0200
+Message-Id: <20210512144830.586304527@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,45 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Igor Pylypiv <ipylypiv@google.com>
 
-[ Upstream commit f6b1340dc751a6caa2a0567b667d0f4f4172cd58 ]
+[ Upstream commit 3f744a14f331f56703a9d74e86520db045f11831 ]
 
-The for-loop iterates with a u8 loop counter i and compares this
-with the loop upper limit of num_parents that is an int type.
-There is a potential infinite loop if num_parents is larger than
-the u8 loop counter. Fix this by making the loop counter the same
-type as num_parents.  Also make num_parents an unsigned int to
-match the return type of the call to clk_hw_get_num_parents.
+The mpi_uninit_check() takes longer for inbound doorbell register to be
+cleared. Increase the timeout substantially so that the driver does not
+fail to load.
 
-Addresses-Coverity: ("Infinite loop")
-Fixes: 734d82f4a678 ("clk: uniphier: add core support code for UniPhier clock driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/20210409090104.629722-1-colin.king@canonical.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Previously, the inbound doorbell wait time was mistakenly increased in the
+mpi_init_check() instead of mpi_uninit_check(). It is okay to leave the
+mpi_init_check() wait time as-is as these are timeout values and if there
+is a failure, waiting longer is not an issue.
+
+Link: https://lore.kernel.org/r/20210406180534.1924345-2-ipylypiv@google.com
+Fixes: e90e236250e9 ("scsi: pm80xx: Increase timeout for pm80xx mpi_uninit_check")
+Reviewed-by: Vishakha Channapattan <vishakhavc@google.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/uniphier/clk-uniphier-mux.c | 4 ++--
+ drivers/scsi/pm8001/pm80xx_hwi.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/uniphier/clk-uniphier-mux.c b/drivers/clk/uniphier/clk-uniphier-mux.c
-index 462c84321b2d..1998e9d4cfc0 100644
---- a/drivers/clk/uniphier/clk-uniphier-mux.c
-+++ b/drivers/clk/uniphier/clk-uniphier-mux.c
-@@ -31,10 +31,10 @@ static int uniphier_clk_mux_set_parent(struct clk_hw *hw, u8 index)
- static u8 uniphier_clk_mux_get_parent(struct clk_hw *hw)
- {
- 	struct uniphier_clk_mux *mux = to_uniphier_clk_mux(hw);
--	int num_parents = clk_hw_get_num_parents(hw);
-+	unsigned int num_parents = clk_hw_get_num_parents(hw);
- 	int ret;
- 	unsigned int val;
--	u8 i;
-+	unsigned int i;
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 055f7649676e..27b354860a16 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -1488,9 +1488,9 @@ static int mpi_uninit_check(struct pm8001_hba_info *pm8001_ha)
  
- 	ret = regmap_read(mux->regmap, mux->reg, &val);
- 	if (ret)
+ 	/* wait until Inbound DoorBell Clear Register toggled */
+ 	if (IS_SPCV_12G(pm8001_ha->pdev)) {
+-		max_wait_count = 4 * 1000 * 1000;/* 4 sec */
++		max_wait_count = 30 * 1000 * 1000; /* 30 sec */
+ 	} else {
+-		max_wait_count = 2 * 1000 * 1000;/* 2 sec */
++		max_wait_count = 15 * 1000 * 1000; /* 15 sec */
+ 	}
+ 	do {
+ 		udelay(1);
 -- 
 2.30.2
 
