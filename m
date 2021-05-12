@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B47837C278
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A9937C279
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233052AbhELPKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41648 "EHLO mail.kernel.org"
+        id S233024AbhELPKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:10:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233338AbhELPId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:08:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D136661963;
-        Wed, 12 May 2021 15:02:00 +0000 (UTC)
+        id S233179AbhELPIg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:08:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 478D761966;
+        Wed, 12 May 2021 15:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831721;
-        bh=JFzLzekphzuNNpReAtBToAyJ215kB8BSeIfdgIL3hUc=;
+        s=korg; t=1620831723;
+        bh=ba8E56VpmtZEo5icp2S8MWkmuTxNgF1T5vfS9Q03kzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PV4xc4RbVYbQlI/Nx0sIkCWd93aNhc5LEjFIBJmFY8Y6e8w+lzCYs1/OtrwI1+7UI
-         X6gdBMoRcTObRXZ3Z3P66tsc4Z1mbRbW82XnmaiMNyg8cAvlZ+Ye46xwJU2dLvcBgY
-         7U39MMYfmL8ZBupL5N4nWQ/aNsNcnx9wbt25nang=
+        b=TDsE20BiNUfs71KpZub+6gJv5L03egWdaLYDXC7Nbl458zzjsUeu7icxLr7ha/RDp
+         PSA9lJ/kCjJ3vwE00NTpXD4uIv9uVOEtr5D3y5JSKZVJr8qg+WepPTBtMWsX9LDDHw
+         PToSwvelxNmriTCVn7NAA08gH4u1k/oSClybn/nI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Qinglang Miao <miaoqinglang@huawei.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 198/244] i2c: imx-lpi2c: fix reference leak when pm_runtime_get_sync fails
-Date:   Wed, 12 May 2021 16:49:29 +0200
-Message-Id: <20210512144749.333262515@linuxfoundation.org>
+Subject: [PATCH 5.4 199/244] i2c: omap: fix reference leak when pm_runtime_get_sync fails
+Date:   Wed, 12 May 2021 16:49:30 +0200
+Message-Id: <20210512144749.364316400@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,37 +44,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 278e5bbdb9a94fa063c0f9bcde2479d0b8042462 ]
+[ Upstream commit 780f629741257ed6c54bd3eb53b57f648eabf200 ]
 
 The PM reference count is not expected to be incremented on
-return in lpi2c_imx_master_enable.
+return in omap_i2c_probe() and omap_i2c_remove().
 
 However, pm_runtime_get_sync will increment the PM reference
 count even failed. Forgetting to putting operation will result
-in a reference leak here.
+in a reference leak here. I Replace it with pm_runtime_resume_and_get
+to keep usage counter balanced.
 
-Replace it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+What's more, error path 'err_free_mem' seems not like a proper
+name any more. So I change the name to err_disable_pm and move
+pm_runtime_disable below, for pm_runtime of 'pdev->dev' should
+be disabled when pm_runtime_resume_and_get fails.
 
-Fixes: 13d6eb20fc79 ("i2c: imx-lpi2c: add runtime pm support")
+Fixes: 3b0fb97c8dc4 ("I2C: OMAP: Handle error check for pm runtime")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-omap.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index c92b56485fa6..a0d045c1bc9e 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -265,7 +265,7 @@ static int lpi2c_imx_master_enable(struct lpi2c_imx_struct *lpi2c_imx)
- 	unsigned int temp;
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 2dfea357b131..c36522849325 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1408,9 +1408,9 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	pm_runtime_set_autosuspend_delay(omap->dev, OMAP_I2C_PM_TIMEOUT);
+ 	pm_runtime_use_autosuspend(omap->dev);
+ 
+-	r = pm_runtime_get_sync(omap->dev);
++	r = pm_runtime_resume_and_get(omap->dev);
+ 	if (r < 0)
+-		goto err_free_mem;
++		goto err_disable_pm;
+ 
+ 	/*
+ 	 * Read the Rev hi bit-[15:14] ie scheme this is 1 indicates ver2.
+@@ -1518,8 +1518,8 @@ err_unuse_clocks:
+ 	omap_i2c_write_reg(omap, OMAP_I2C_CON_REG, 0);
+ 	pm_runtime_dont_use_autosuspend(omap->dev);
+ 	pm_runtime_put_sync(omap->dev);
++err_disable_pm:
+ 	pm_runtime_disable(&pdev->dev);
+-err_free_mem:
+ 
+ 	return r;
+ }
+@@ -1530,7 +1530,7 @@ static int omap_i2c_remove(struct platform_device *pdev)
  	int ret;
  
--	ret = pm_runtime_get_sync(lpi2c_imx->adapter.dev.parent);
-+	ret = pm_runtime_resume_and_get(lpi2c_imx->adapter.dev.parent);
+ 	i2c_del_adapter(&omap->adapter);
+-	ret = pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_resume_and_get(&pdev->dev);
  	if (ret < 0)
  		return ret;
  
