@@ -2,54 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A60BA37B950
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C99737B96E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbhELJfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:35:38 -0400
-Received: from foss.arm.com ([217.140.110.172]:35434 "EHLO foss.arm.com"
+        id S230145AbhELJmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:42:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230019AbhELJfh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 05:35:37 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B65D1D6E;
-        Wed, 12 May 2021 02:34:29 -0700 (PDT)
-Received: from [10.57.30.129] (unknown [10.57.30.129])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE1033F719;
-        Wed, 12 May 2021 02:34:28 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] thermal/core/fair share: Lock the thermal
- zone while looping" failed to apply to 4.4-stable tree
-To:     gregkh@linuxfoundation.org
-Cc:     daniel.lezcano@linaro.org, stable@vger.kernel.org
-References: <16206371483193@kroah.com>
-From:   Lukasz Luba <lukasz.luba@arm.com>
-Message-ID: <adaa4a86-19e6-f5a9-15d0-e52cf2e6be51@arm.com>
-Date:   Wed, 12 May 2021 10:34:27 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S230115AbhELJma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 05:42:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 207F46108D;
+        Wed, 12 May 2021 09:41:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1620812479;
+        bh=u286lNUk3x/9tGhtxahuUZmtJnO4ftN8zsF2mhOOpLw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=y6o3y9uwUTaJggB1zEq5ViFDM3ICbOZwLA5CsypZ2sTNr80wlrPwvYA+tJCfJXQPf
+         8nxs1588QlH0wz/+m9K8EzbyGrA+XuItrH/9emv5+yOLQ1FLSZ31lyEwaEor8t0KRt
+         YJwt6i0XZAPWhZ1Zay2l2wwSa8WTcQWbIw7Ea1Hg=
+Date:   Wed, 12 May 2021 11:41:17 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Gerd Hoffmann <kraxel@redhat.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [[PATCH for 5.10]] drm/qxl: use ttm bo priorities
+Message-ID: <YJuivdX2Vk4Kv9l3@kroah.com>
+References: <20210510123140.2200366-1-kraxel@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <16206371483193@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210510123140.2200366-1-kraxel@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On 5/10/21 9:59 AM, gregkh@linuxfoundation.org wrote:
+On Mon, May 10, 2021 at 02:31:40PM +0200, Gerd Hoffmann wrote:
+> Allow to set priorities for buffer objects.  Use priority 1 for surface
+> and cursor command releases.  Use priority 0 for drawing command
+> releases.  That way the short-living drawing commands are first in line
+> when it comes to eviction, making it *much* less likely that
+> ttm_bo_mem_force_space() picks something which can't be evicted and
+> throws an error after waiting a while without success.
 > 
-> The patch below does not apply to the 4.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Link: http://patchwork.freedesktop.org/patch/msgid/20210217123213.2199186-4-kraxel@redhat.com
+> (cherry-picked from 4fff19ae427548d8c37260c975a4b20d3c040ec6)
+> ---
 
-I will create the backport patches for the stable kernels that you
-pointed also in other emails:
-4.4, 4.9, 4.14, 4.19, 5.4
+What about 5.11 and 5.12?  We can't just backport to a single stable
+tree and miss newer ones.
 
-It will take a while (1..2 days) for me to build and test them.
+thanks,
 
-Regards,
-Lukasz
+greg k-h
