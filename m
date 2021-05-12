@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2561637CC9F
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA66D37CCA0
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244423AbhELQpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:45:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
+        id S244430AbhELQp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239339AbhELQjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239333AbhELQjN (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:39:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC4CD61CDF;
-        Wed, 12 May 2021 16:03:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30D3F61CDC;
+        Wed, 12 May 2021 16:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835398;
-        bh=gY9Pp0xiZuLgyrykZk4BpV1fMrVQZQKidXqE3FDqiKg=;
+        s=korg; t=1620835400;
+        bh=dSlLP63PWlZHN1GeBudK1cX8cwBEx13LutiAukkurSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRFQ82hurHulzWpN1XZRRO/emmX260szEuR4j7q7ZwWH0Ei54x7Cen/ko7x0gFwAP
-         u9sfCcvE6LU3T2c5tw5T946Gp1yPd3OmXxggyi6Cdg/VdqgeEi6xBnE/X6Fyr/agDd
-         2HnMtkqeBjrFTAEjwjeGi6/5umZVjUPanI3NN9iY=
+        b=zEBZVCPKEZONtMuyMg7tqIAyOb5MlBmQzA0Mo/KSPQzktnWYVAm0JlaQ1wxWEVreR
+         ocJderL7tN2CJ2Ftb+11qJiEWPQ7sUSroFjnDtky5xs0lXYJA3kIf7ljj/t03bxqTD
+         earbc/3Pf8uNjDMBErzFL+78EO0PXlNy+eCAKSWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 327/677] btrfs: zoned: bail out in btrfs_alloc_chunk for bad input
-Date:   Wed, 12 May 2021 16:46:13 +0200
-Message-Id: <20210512144848.110528854@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Mike Travis <travis@sgi.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 328/677] x86/platform/uv: Fix !KEXEC build failure
+Date:   Wed, 12 May 2021 16:46:14 +0200
+Message-Id: <20210512144848.149699329@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,58 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ingo Molnar <mingo@kernel.org>
 
-[ Upstream commit bb05b298af8b2330db2b39971bf0029798e7ad59 ]
+[ Upstream commit c2209ea55612efac75de0a58ef5f7394fae7fa0f ]
 
-gcc complains that the ctl->max_chunk_size member might be used
-uninitialized when none of the three conditions for initializing it in
-init_alloc_chunk_ctl_policy_zoned() are true:
+When KEXEC is disabled, the UV build fails:
 
-In function ‘init_alloc_chunk_ctl_policy_zoned’,
-    inlined from ‘init_alloc_chunk_ctl’ at fs/btrfs/volumes.c:5023:3,
-    inlined from ‘btrfs_alloc_chunk’ at fs/btrfs/volumes.c:5340:2:
-include/linux/compiler-gcc.h:48:45: error: ‘ctl.max_chunk_size’ may be used uninitialized [-Werror=maybe-uninitialized]
- 4998 |         ctl->max_chunk_size = min(limit, ctl->max_chunk_size);
-      |                               ^~~
-fs/btrfs/volumes.c: In function ‘btrfs_alloc_chunk’:
-fs/btrfs/volumes.c:5316:32: note: ‘ctl’ declared here
- 5316 |         struct alloc_chunk_ctl ctl;
-      |                                ^~~
+  arch/x86/platform/uv/uv_nmi.c:875:14: error: ‘uv_nmi_kexec_failed’ undeclared (first use in this function)
 
-If we ever get into this condition, something is seriously
-wrong, as validity is checked in the callers
+Since uv_nmi_kexec_failed is only defined in the KEXEC_CORE #ifdef branch,
+this code cannot ever have been build tested:
 
-  btrfs_alloc_chunk
-    init_alloc_chunk_ctl
-      init_alloc_chunk_ctl_policy_zoned
+	if (main)
+		pr_err("UV: NMI kdump: KEXEC not supported in this kernel\n");
+	atomic_set(&uv_nmi_kexec_failed, 1);
 
-so the same logic as in init_alloc_chunk_ctl_policy_regular()
-and a few other places should be applied. This avoids both further
-data corruption, and the compile-time warning.
+Nor is this use possible in uv_handle_nmi():
 
-Fixes: 1cd6121f2a38 ("btrfs: zoned: implement zoned chunk allocator")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+                atomic_set(&uv_nmi_kexec_failed, 0);
+
+These bugs were introduced in this commit:
+
+    d0a9964e9873: ("x86/platform/uv: Implement simple dump failover if kdump fails")
+
+Which added the uv_nmi_kexec_failed assignments to !KEXEC code, while making the
+definition KEXEC-only - apparently without testing the !KEXEC case.
+
+Instead of complicating the #ifdef maze, simplify the code by requiring X86_UV
+to depend on KEXEC_CORE. This pattern is present in other architectures as well.
+
+( We'll remove the untested, 7 years old !KEXEC complications from the file in a
+  separate commit. )
+
+Fixes: d0a9964e9873: ("x86/platform/uv: Implement simple dump failover if kdump fails")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Mike Travis <travis@sgi.com>
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 1c6810bbaf8b..3912eda7905f 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -4989,6 +4989,8 @@ static void init_alloc_chunk_ctl_policy_zoned(
- 		ctl->max_chunk_size = 2 * ctl->max_stripe_size;
- 		ctl->devs_max = min_t(int, ctl->devs_max,
- 				      BTRFS_MAX_DEVS_SYS_CHUNK);
-+	} else {
-+		BUG();
- 	}
- 
- 	/* We don't want a chunk larger than 10% of writable space */
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 268b7d5c9835..861b1b794697 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -571,6 +571,7 @@ config X86_UV
+ 	depends on X86_EXTENDED_PLATFORM
+ 	depends on NUMA
+ 	depends on EFI
++	depends on KEXEC_CORE
+ 	depends on X86_X2APIC
+ 	depends on PCI
+ 	help
 -- 
 2.30.2
 
