@@ -2,178 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E4A737ED9D
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:42:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0466537ED9E
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387836AbhELUkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 16:40:14 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:53452 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244950AbhELTVT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 15:21:19 -0400
-Date:   Wed, 12 May 2021 19:20:06 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1620847209;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=W9CqgNt7a1291GXPjc3CSNz5tckZZ3tHmPuyScdCQVA=;
-        b=IsROUS4APyxfYGG36ohjTCkBKPAA183IAUN/J/cqgAGeoEqrUTRFXXMi7eKjbKGpnql6lw
-        qZ60CkzNab9ewMamLVcO+YAJJR3Yl1IgFki9C/g2odJjpal6can8bv0QkH8iuT1MoJP2UH
-        EvpUiFSPgY2GhygJiI9W6Elo+L8/t37Rtj1pE9pC2EZSAxFWxG/oRYT3kNTqA5SSKOWZkj
-        lHas+hIelFUMb0S20o5A+ErHusQcwTDLA2/TaavSeBXSqN0scSoYvU3nceYlJhjGIsk3lK
-        HFwUyTzLFxsaff2B1Ujze14RDXinxuzhEASIOWCf90bxYwGxChCmxsADbfDCvQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1620847209;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=W9CqgNt7a1291GXPjc3CSNz5tckZZ3tHmPuyScdCQVA=;
-        b=pcvKKGaGHByclnWR7utJ6ofzRBTl971ZR+JNGialqF9K6Y4d7xSxUwdOGu8UeUzLw4bW1+
-        8cdHDtNQhAlIysAA==
-From:   "tip-bot2 for Huang Rui" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: sched/urgent] x86, sched: Fix the AMD CPPC maximum performance
- value on certain AMD Ryzen generations
-Cc:     Jason Bagavatsingham <jason.bagavatsingham@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Huang Rui <ray.huang@amd.com>, Ingo Molnar <mingo@kernel.org>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20210425073451.2557394-1-ray.huang@amd.com>
-References: <20210425073451.2557394-1-ray.huang@amd.com>
-MIME-Version: 1.0
-Message-ID: <162084720697.29796.16642711613957963140.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        id S1387851AbhELUkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 16:40:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43788 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359866AbhELT1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 15:27:05 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 200F5C06138C
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 12:20:42 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id b21so12249323pft.10
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 12:20:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JjWFWZ8SDZLiUNNW/rUB3PDqhea64A9SvMpyzaN6KC0=;
+        b=yAddQC01bLcRo2O9GUJwptQ9WAg3pgQTo9eSw3Cv7x+3qfOdwITqH0fczpEjEOfNgM
+         WhZT1YXoWc6fZjbkitJAvwrAse1ZRuXCWT8fUxgbPUPF4QjlAH2AL2O1/cIRls0+Gp9u
+         9gLsOp3sLO4Ogwl4avOFRYuritOYJMXj5rFsLi5XPKO0jjd5VSSHfDhZ3tll49FPyoOw
+         tnlkS5mhiHYifjzsquspzKEeLurY/TUwD54ZmjiPDf1PW+U0sjipZiFuxPUIp40ga6P+
+         Q8XQlQEMhRN65qSJjzpRkizEH/K5eCd23Nvg56wG92Q+rmgHU1/UILQoDWgKBYOBmMSw
+         maSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JjWFWZ8SDZLiUNNW/rUB3PDqhea64A9SvMpyzaN6KC0=;
+        b=MBb76TX7MnmcrHWMzTg2qhEOaAi84ifAYymZKqST10QMJ4xqAWd4I/SNx0cq+EMisN
+         VB2aLPmHsxRmaP2q85lTGykLpeAr5+V9p+VvxGhV6M7kz4ywe8pp/UAp6thHJ1s6Uvac
+         fVxJ8G7SrI7uebKY9xp479x9mHqnhRCVbJ33f+3qATmVWuWV7b27uly0+oegpZrDUh+t
+         ivkbrR6VSeoPHriz6J+SFC5XGD8vuuaHQE2lokgw1/OSLO6clAkUAH9GPQVPMzcQV8Kf
+         Fxi7Ok9HQUrmKVcjx1mcZ/Dqcx9HYJ2UBJeVJrZhFPN0vi2OE3yJS+HBj4Jq3SsOMQSz
+         ic9A==
+X-Gm-Message-State: AOAM531nlFX8/CDMNWGdFbfGKstt1NCBDT1hxiexWI5oN/YV+8DzNIGi
+        q56RFaSqxZnRLwFO7UK0+QdWrldekUrh2TNn
+X-Google-Smtp-Source: ABdhPJwZct6fxSz6CxKWp9+KPo9/Lt7VDTKFVPiOb9pvvnIJWIM6a5mdIX+wzJ+zrmPjY+NQsiLCyg==
+X-Received: by 2002:a17:90a:8c97:: with SMTP id b23mr40415065pjo.74.1620847241544;
+        Wed, 12 May 2021 12:20:41 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n25sm494941pfo.92.2021.05.12.12.20.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 May 2021 12:20:41 -0700 (PDT)
+Message-ID: <609c2a89.1c69fb81.877e0.2304@mx.google.com>
+Date:   Wed, 12 May 2021 12:20:41 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.268-170-g2e49751b51f5d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 107 runs,
+ 4 regressions (v4.9.268-170-g2e49751b51f5d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the sched/urgent branch of tip:
+stable-rc/queue/4.9 baseline: 107 runs, 4 regressions (v4.9.268-170-g2e4975=
+1b51f5d)
 
-Commit-ID:     337fb3130c29ef5ea3bbcd45e6589b7be6deeb4d
-Gitweb:        https://git.kernel.org/tip/337fb3130c29ef5ea3bbcd45e6589b7be6d=
-eeb4d
-Author:        Huang Rui <ray.huang@amd.com>
-AuthorDate:    Sun, 25 Apr 2021 15:34:51 +08:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Wed, 12 May 2021 21:14:08 +02:00
+Regressions Summary
+-------------------
 
-x86, sched: Fix the AMD CPPC maximum performance value on certain AMD Ryzen g=
-enerations
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Some AMD Ryzen generations has different calculation method on maximum
-performance. 255 is not for all ASICs, some specific generations should use 1=
-66
-as the maximum performance. Otherwise, it will report incorrect frequency val=
-ue
-like below:
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-  ~ =E2=86=92 lscpu | grep MHz
-  CPU MHz:                         3400.000
-  CPU max MHz:                     7228.3198
-  CPU min MHz:                     2200.0000
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-[ mingo: Tidied up whitespace use. ]
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Fixes: 41ea667227ba ("x86, sched: Calculate frequency invariance for AMD syst=
-ems")
-Fixes: 3c55e94c0ade ("cpufreq: ACPI: Extend frequency tables to cover boost f=
-requencies")
-Reported-by: Jason Bagavatsingham <jason.bagavatsingham@gmail.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Jason Bagavatsingham <jason.bagavatsingham@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210425073451.2557394-1-ray.huang@amd.com
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D211791
----
- arch/x86/include/asm/processor.h |  2 ++
- arch/x86/kernel/cpu/amd.c        | 16 ++++++++++++++++
- arch/x86/kernel/smpboot.c        |  2 +-
- drivers/cpufreq/acpi-cpufreq.c   |  6 +++++-
- 4 files changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processo=
-r.h
-index 154321d..556b2b1 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -787,8 +787,10 @@ DECLARE_PER_CPU(u64, msr_misc_features_shadow);
-=20
- #ifdef CONFIG_CPU_SUP_AMD
- extern u32 amd_get_nodes_per_socket(void);
-+extern u32 amd_get_highest_perf(void);
- #else
- static inline u32 amd_get_nodes_per_socket(void)	{ return 0; }
-+static inline u32 amd_get_highest_perf(void)		{ return 0; }
- #endif
-=20
- static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leave=
-s)
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 2d11384..109d2c7 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -1165,3 +1165,19 @@ void set_dr_addr_mask(unsigned long mask, int dr)
- 		break;
- 	}
- }
-+
-+u32 amd_get_highest_perf(void)
-+{
-+	struct cpuinfo_x86 *c =3D &boot_cpu_data;
-+
-+	if (c->x86 =3D=3D 0x17 && ((c->x86_model >=3D 0x30 && c->x86_model < 0x40) =
-||
-+			       (c->x86_model >=3D 0x70 && c->x86_model < 0x80)))
-+		return 166;
-+
-+	if (c->x86 =3D=3D 0x19 && ((c->x86_model >=3D 0x20 && c->x86_model < 0x30) =
-||
-+			       (c->x86_model >=3D 0x40 && c->x86_model < 0x70)))
-+		return 166;
-+
-+	return 225;
-+}
-+EXPORT_SYMBOL_GPL(amd_get_highest_perf);
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 0ad5214..7770245 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -2043,7 +2043,7 @@ static bool amd_set_max_freq_ratio(void)
- 		return false;
- 	}
-=20
--	highest_perf =3D perf_caps.highest_perf;
-+	highest_perf =3D amd_get_highest_perf();
- 	nominal_perf =3D perf_caps.nominal_perf;
-=20
- 	if (!highest_perf || !nominal_perf) {
-diff --git a/drivers/cpufreq/acpi-cpufreq.c b/drivers/cpufreq/acpi-cpufreq.c
-index d1bbc16..7e74504 100644
---- a/drivers/cpufreq/acpi-cpufreq.c
-+++ b/drivers/cpufreq/acpi-cpufreq.c
-@@ -646,7 +646,11 @@ static u64 get_max_boost_ratio(unsigned int cpu)
- 		return 0;
- 	}
-=20
--	highest_perf =3D perf_caps.highest_perf;
-+	if (boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_AMD)
-+		highest_perf =3D amd_get_highest_perf();
-+	else
-+		highest_perf =3D perf_caps.highest_perf;
-+
- 	nominal_perf =3D perf_caps.nominal_perf;
-=20
- 	if (!highest_perf || !nominal_perf) {
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.268-170-g2e49751b51f5d/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.268-170-g2e49751b51f5d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2e49751b51f5d2f7ad0f0c8c7ab56b983ec2471a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609bf35a71ad0cf54a19928e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-1=
+70-g2e49751b51f5d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-1=
+70-g2e49751b51f5d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609bf35a71ad0cf54a199=
+28f
+        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609bf35c44042cc16419928e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-1=
+70-g2e49751b51f5d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-1=
+70-g2e49751b51f5d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609bf35c44042cc164199=
+28f
+        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609bf34444042cc164199285
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-1=
+70-g2e49751b51f5d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-1=
+70-g2e49751b51f5d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609bf34444042cc164199=
+286
+        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609bf3145c81a04cae199289
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-1=
+70-g2e49751b51f5d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-1=
+70-g2e49751b51f5d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609bf3145c81a04cae199=
+28a
+        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
