@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F05C237C18C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:01:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADD6B37C18E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232856AbhELPBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232521AbhELPBX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 11:01:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44646 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232659AbhELO7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232657AbhELO7M (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 10:59:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEC5D613EB;
-        Wed, 12 May 2021 14:56:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55CB6613D3;
+        Wed, 12 May 2021 14:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831393;
-        bh=zI7Y3eoRvSmUAbw0F9EQYAe4yxfzLU+kte5ZhBkqarg=;
+        s=korg; t=1620831395;
+        bh=SNBveOtjo/szAqSQTSfN+PTMVFUAacFh166Gj9g2pAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iL6u8nwh1YHvJAv8UIDiq7QVgzuIwML6CGcnMDWc+ty0cxlc/PIVClUjSIW/enIYb
-         2tJqcV7EC3mlMoa50qypXJ0Wr+6Vcm27uwssSgtpuQtqNwe0Tyi7n67P9X8Yg62k3E
-         fuHfrzIgN4zNIPGARcHfDKuo1t4/Hbbwl4+XIXdc=
+        b=2GbAIBgVopJboLqTyrhcssHULJ6K31AAIEg2uzSZDIB9mniCjQ3K4BPQjxx2LdG11
+         hTNdIF+V+NouyX8FvujYsgjZ/mTpYkv1yQGi8i4eTWVIuE7LiwyRZ1dG01gTzqfG+c
+         d+SgsFKidIq2pjoqI+mNCQUq1WrOt/1d5R/75gvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, gexueyuan <gexueyuan@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 102/244] memory: pl353: fix mask of ECC page_size config register
-Date:   Wed, 12 May 2021 16:47:53 +0200
-Message-Id: <20210512144746.296152431@linuxfoundation.org>
+        stable@vger.kernel.org, Rander Wang <rander.wang@intel.com>,
+        Keyon Jie <yang.jie@intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 103/244] soundwire: stream: fix memory leak in stream config error path
+Date:   Wed, 12 May 2021 16:47:54 +0200
+Message-Id: <20210512144746.326398832@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,35 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: gexueyuan <gexueyuan@gmail.com>
+From: Rander Wang <rander.wang@intel.com>
 
-[ Upstream commit 25dcca7fedcd4e31cb368ad846bfd738c0c6307c ]
+[ Upstream commit 48f17f96a81763c7c8bf5500460a359b9939359f ]
 
-The mask for page size of ECC Configuration Register should be 0x3,
-according to  the datasheet of PL353 smc.
+When stream config is failed, master runtime will release all
+slave runtime in the slave_rt_list, but slave runtime is not
+added to the list at this time. This patch frees slave runtime
+in the config error path to fix the memory leak.
 
-Fixes: fee10bd22678 ("memory: pl353: Add driver for arm pl353 static memory controller")
-Signed-off-by: gexueyuan <gexueyuan@gmail.com>
-Link: https://lore.kernel.org/r/20210331031056.5326-1-gexueyuan@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Fixes: 89e590535f32 ("soundwire: Add support for SoundWire stream management")
+Signed-off-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Keyon Jie <yang.jie@intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20210331004610.12242-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/pl353-smc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soundwire/stream.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/memory/pl353-smc.c b/drivers/memory/pl353-smc.c
-index 73bd3023202f..b42804b1801e 100644
---- a/drivers/memory/pl353-smc.c
-+++ b/drivers/memory/pl353-smc.c
-@@ -63,7 +63,7 @@
- /* ECC memory config register specific constants */
- #define PL353_SMC_ECC_MEMCFG_MODE_MASK	0xC
- #define PL353_SMC_ECC_MEMCFG_MODE_SHIFT	2
--#define PL353_SMC_ECC_MEMCFG_PGSIZE_MASK	0xC
-+#define PL353_SMC_ECC_MEMCFG_PGSIZE_MASK	0x3
+diff --git a/drivers/soundwire/stream.c b/drivers/soundwire/stream.c
+index de7c57e17710..23accfedbf4d 100644
+--- a/drivers/soundwire/stream.c
++++ b/drivers/soundwire/stream.c
+@@ -1357,8 +1357,16 @@ int sdw_stream_add_slave(struct sdw_slave *slave,
+ 	}
  
- #define PL353_SMC_DC_UPT_NAND_REGS	((4 << 23) |	/* CS: NAND chip */ \
- 				 (2 << 21))	/* UpdateRegs operation */
+ 	ret = sdw_config_stream(&slave->dev, stream, stream_config, true);
+-	if (ret)
++	if (ret) {
++		/*
++		 * sdw_release_master_stream will release s_rt in slave_rt_list in
++		 * stream_error case, but s_rt is only added to slave_rt_list
++		 * when sdw_config_stream is successful, so free s_rt explicitly
++		 * when sdw_config_stream is failed.
++		 */
++		kfree(s_rt);
+ 		goto stream_error;
++	}
+ 
+ 	list_add_tail(&s_rt->m_rt_node, &m_rt->slave_rt_list);
+ 
 -- 
 2.30.2
 
