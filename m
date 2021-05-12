@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 257DE37C927
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E185537C924
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238468AbhELQPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:15:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38980 "EHLO mail.kernel.org"
+        id S238362AbhELQPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:15:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236157AbhELQIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235131AbhELQIM (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:08:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 761DA61C66;
-        Wed, 12 May 2021 15:39:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC234619A8;
+        Wed, 12 May 2021 15:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833945;
-        bh=YgjhmsPPByXBPCn78Io2uk2RDnAwDN3D23QI6cOSbms=;
+        s=korg; t=1620833947;
+        bh=aeyliFnMX8FRphcdwB9MWrJ0v4MexZ4IASV8eDF7pDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NuzwbRFP51EPqsJC5U//WZyolQEJgHcc/7Ty0S463Onr5CXB5128BbLMR9DTjqawX
-         2tf3HtapHH9VsTq6Ijv+M15FDy96KqHgd4JKmkyjPX+WKynRJDCKhKCeyq15GakCSb
-         xsYtED58b0yMgY3UzvLH6wXre3NQqoq8xaH9cmdQ=
+        b=tV00o3I5AbVwb5AyWY//woDuOIrKmDEuGEEio90/scUo97+1JuJ2kM8CMNeCK5Kjn
+         mj1Tco8VmvDX+EtiGOVmlDyPivQaLgnuPnKXeYR87y8dJ7wvzqfw5UVYiyCQc9tm6G
+         F5bZGSZk1f8KG3t3/8QPTAnbARMoQfUoFzE9ALvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        John Cox <jc@kynesim.co.uk>,
+        stable@vger.kernel.org,
+        Daniel Almeida <daniel.almeida@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 349/601] media: v4l2-ctrls.c: fix race condition in hdl->requests list
-Date:   Wed, 12 May 2021 16:47:06 +0200
-Message-Id: <20210512144839.290052603@linuxfoundation.org>
+Subject: [PATCH 5.11 350/601] media: rkvdec: Do not require all controls to be present in every request
+Date:   Wed, 12 May 2021 16:47:07 +0200
+Message-Id: <20210512144839.321181088@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,112 +43,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Daniel Almeida <daniel.almeida@collabora.com>
 
-[ Upstream commit be7e8af98f3af729aa9f08b1053f9533a5cceb91 ]
+[ Upstream commit 54676d5f5630b79f7b00c7c43882a58c1815aaf9 ]
 
-When a request is re-inited it will release all control handler
-objects that are still in the request. It does that by unbinding
-and putting all those objects. When the object is unbound the
-obj->req pointer is set to NULL, and the object's unbind op is
-called. When the object it put the object's release op is called
-to free the memory.
+According to the v4l2 api, it is allowed to skip
+setting a control if its contents haven't changed for performance
+reasons: userspace should only update the controls that changed from
+last frame rather then updating them all. Still some ancient code
+that checks for mandatory controls has been left in this driver.
 
-For a request object that contains a control handler that means
-that v4l2_ctrl_handler_free() is called in the release op.
+Remove it.
 
-A control handler used in a request has a pointer to the main
-control handler that is created by the driver and contains the
-current state of all controls. If the device is unbound (due to
-rmmod or a forced unbind), then that main handler is freed, again
-by calling v4l2_ctrl_handler_free(), and any outstanding request
-objects that refer to that main handler have to be unbound and put
-as well.
-
-It does that by this test:
-
-	if (!hdl->req_obj.req && !list_empty(&hdl->requests)) {
-
-I.e. the handler has no pointer to a request, so is the main
-handler, and one or more request objects refer to this main
-handler.
-
-However, this test is wrong since hdl->req_obj.req is actually
-NULL when re-initing a request (the object unbind will set req to
-NULL), and the only reason this seemingly worked is that the
-requests list is typically empty since the request's unbind op
-will remove the handler from the requests list.
-
-But if another thread is at the same time adding a new control
-to a request, then there is a race condition where one thread
-is removing a control handler object from the requests list and
-another thread is adding one. The result is that hdl->requests
-is no longer empty and the code thinks that a main handler is
-being freed instead of a control handler that is part of a request.
-
-There are two bugs here: first the test for hdl->req_obj.req: this
-should be hdl->req_obj.ops since only the main control handler will
-have a NULL pointer there.
-
-The second is that adding or deleting request objects from the
-requests list of the main handler isn't protected by taking the
-main handler's lock.
-
+Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Daniel Almeida <daniel.almeida@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: John Cox <jc@kynesim.co.uk>
-Fixes: 6fa6f831f095 ("media: v4l2-ctrls: add core request support")
-Tested-by: John Cox <jc@kynesim.co.uk>
-Reported-by: John Cox <jc@kynesim.co.uk>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/staging/media/rkvdec/rkvdec.c | 48 +--------------------------
+ drivers/staging/media/rkvdec/rkvdec.h |  1 -
+ 2 files changed, 1 insertion(+), 48 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
-index 8052a6efb965..5fdca3da0d70 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -2536,7 +2536,15 @@ void v4l2_ctrl_handler_free(struct v4l2_ctrl_handler *hdl)
- 	if (hdl == NULL || hdl->buckets == NULL)
- 		return;
+diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
+index aa4f8c287618..b1507f29fcc5 100644
+--- a/drivers/staging/media/rkvdec/rkvdec.c
++++ b/drivers/staging/media/rkvdec/rkvdec.c
+@@ -55,16 +55,13 @@ static const struct v4l2_ctrl_ops rkvdec_ctrl_ops = {
  
--	if (!hdl->req_obj.req && !list_empty(&hdl->requests)) {
-+	/*
-+	 * If the main handler is freed and it is used by handler objects in
-+	 * outstanding requests, then unbind and put those objects before
-+	 * freeing the main handler.
-+	 *
-+	 * The main handler can be identified by having a NULL ops pointer in
-+	 * the request object.
-+	 */
-+	if (!hdl->req_obj.ops && !list_empty(&hdl->requests)) {
- 		struct v4l2_ctrl_handler *req, *next_req;
+ static const struct rkvdec_ctrl_desc rkvdec_h264_ctrl_descs[] = {
+ 	{
+-		.mandatory = true,
+ 		.cfg.id = V4L2_CID_STATELESS_H264_DECODE_PARAMS,
+ 	},
+ 	{
+-		.mandatory = true,
+ 		.cfg.id = V4L2_CID_STATELESS_H264_SPS,
+ 		.cfg.ops = &rkvdec_ctrl_ops,
+ 	},
+ 	{
+-		.mandatory = true,
+ 		.cfg.id = V4L2_CID_STATELESS_H264_PPS,
+ 	},
+ 	{
+@@ -585,25 +582,7 @@ static const struct vb2_ops rkvdec_queue_ops = {
  
- 		list_for_each_entry_safe(req, next_req, &hdl->requests, requests) {
-@@ -3579,8 +3587,8 @@ static void v4l2_ctrl_request_unbind(struct media_request_object *obj)
- 		container_of(obj, struct v4l2_ctrl_handler, req_obj);
- 	struct v4l2_ctrl_handler *main_hdl = obj->priv;
+ static int rkvdec_request_validate(struct media_request *req)
+ {
+-	struct media_request_object *obj;
+-	const struct rkvdec_ctrls *ctrls;
+-	struct v4l2_ctrl_handler *hdl;
+-	struct rkvdec_ctx *ctx = NULL;
+-	unsigned int count, i;
+-	int ret;
+-
+-	list_for_each_entry(obj, &req->objects, list) {
+-		if (vb2_request_object_is_buffer(obj)) {
+-			struct vb2_buffer *vb;
+-
+-			vb = container_of(obj, struct vb2_buffer, req_obj);
+-			ctx = vb2_get_drv_priv(vb->vb2_queue);
+-			break;
+-		}
+-	}
+-
+-	if (!ctx)
+-		return -EINVAL;
++	unsigned int count;
  
--	list_del_init(&hdl->requests);
- 	mutex_lock(main_hdl->lock);
-+	list_del_init(&hdl->requests);
- 	if (hdl->request_is_queued) {
- 		list_del_init(&hdl->requests_queued);
- 		hdl->request_is_queued = false;
-@@ -3639,8 +3647,11 @@ static int v4l2_ctrl_request_bind(struct media_request *req,
- 	if (!ret) {
- 		ret = media_request_object_bind(req, &req_ops,
- 						from, false, &hdl->req_obj);
--		if (!ret)
-+		if (!ret) {
-+			mutex_lock(from->lock);
- 			list_add_tail(&hdl->requests, &from->requests);
-+			mutex_unlock(from->lock);
-+		}
- 	}
- 	return ret;
+ 	count = vb2_request_buffer_cnt(req);
+ 	if (!count)
+@@ -611,31 +590,6 @@ static int rkvdec_request_validate(struct media_request *req)
+ 	else if (count > 1)
+ 		return -EINVAL;
+ 
+-	hdl = v4l2_ctrl_request_hdl_find(req, &ctx->ctrl_hdl);
+-	if (!hdl)
+-		return -ENOENT;
+-
+-	ret = 0;
+-	ctrls = ctx->coded_fmt_desc->ctrls;
+-	for (i = 0; ctrls && i < ctrls->num_ctrls; i++) {
+-		u32 id = ctrls->ctrls[i].cfg.id;
+-		struct v4l2_ctrl *ctrl;
+-
+-		if (!ctrls->ctrls[i].mandatory)
+-			continue;
+-
+-		ctrl = v4l2_ctrl_request_hdl_ctrl_find(hdl, id);
+-		if (!ctrl) {
+-			ret = -ENOENT;
+-			break;
+-		}
+-	}
+-
+-	v4l2_ctrl_request_hdl_put(hdl);
+-
+-	if (ret)
+-		return ret;
+-
+ 	return vb2_request_validate(req);
  }
+ 
+diff --git a/drivers/staging/media/rkvdec/rkvdec.h b/drivers/staging/media/rkvdec/rkvdec.h
+index 77a137cca88e..52ac3874c5e5 100644
+--- a/drivers/staging/media/rkvdec/rkvdec.h
++++ b/drivers/staging/media/rkvdec/rkvdec.h
+@@ -25,7 +25,6 @@
+ struct rkvdec_ctx;
+ 
+ struct rkvdec_ctrl_desc {
+-	u32 mandatory : 1;
+ 	struct v4l2_ctrl_config cfg;
+ };
+ 
 -- 
 2.30.2
 
