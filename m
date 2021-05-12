@@ -2,55 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3786537B916
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBE637B920
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:28:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230037AbhELJZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:25:55 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:37263 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230310AbhELJZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:25:53 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 81EA81394;
-        Wed, 12 May 2021 05:24:45 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 May 2021 05:24:45 -0400
+        id S230104AbhELJ3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:29:22 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:46823 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229968AbhELJ3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:29:22 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 8757E1940BC9;
+        Wed, 12 May 2021 05:28:13 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Wed, 12 May 2021 05:28:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VQKQhW
-        fCp2zW02AQKi3k2Zg6N3MrHoR68qqcH9jAmhY=; b=jv5izjJeNW4EQKCuLbOAUP
-        0Fkpm+P7IBa6aPKQavwRV3RTSgECnGxmpMv8qdMt400yfBeFJBa8b3PzPE0SSfVr
-        qJKFi7ncx/GWHF9HEifCeWoJGu5cubSXDK7aBXyLepfEXmNyjgaPuCStP0C3eL/Z
-        xUn5SdJ6NFZoK2B+5MvCCdv4w+sKoiU/WQiNpfijFug0H3/lTsBWK8WaPCHS/udY
-        guAsDnxJzN2E/tO9XQVhawse76fpYOfRy1hgZqokMU5wcl6DPYXKi+ScKHz1P8l8
-        T3ifq8sRcpzjeQaRmfi02Nc7izPzbb8xkG5kIAVdeFGdUA7jaJdePZygrHZg3QCw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=DWJTvh
+        gsK+sG/7t53/uu63c7YCIA/5D40ZbfAQDL/+U=; b=bja4Zo7VdEz3gxU+rUD3Hc
+        3OAe3owLA72p4bFQaxh3ih7HK5PQ9PBpXBq95yLfZyraeDuPyHrZxQe6VkTfm2Rl
+        fzeJ2tSNXIZNzLc6XS5Of+n5p0YM3DEHnnXoi8sk35z3SsNnmeDXwTr6RYJimxwB
+        xJy0YO0l1C61cGrG66Sw0vVcBGkyyJQHQHsA/1tZcEYglmAz2k0R38jYrKWASvnb
+        Kg8b0ph+d7yMS62naUQknw1tOlqjmX2LR3KjRNrkwYmY4eUZFprB56wrAu96gmxS
+        ed4Zo51FB0PjhasJOOqbF5AOwnib8+kS764VULtieX5UrVtWYmAEQcudkDIiZOSQ
         ==
-X-ME-Sender: <xms:3J6bYNor6EzqrgP2OmbQ26fhWQ8eW8X5CWHg9Q9HtIweiIvxrfOxkQ>
-    <xme:3J6bYPqjLhcsXPI9t3uzcsa65kuWGMrbZvCiegulsp5KdUxDDupTna2yN9sQcmlfr
-    vXfg6n5VUgM4Q>
+X-ME-Sender: <xms:rJ-bYCsyq0952WVvZN3voe3rdDw3eHCclmso2Il_SwNPqvhARqEdVg>
+    <xme:rJ-bYHcakYx0IWtI2IapLt3Tdtf8ketgt7FbKzPOm-NKo4NOLwdL2iSyM0x54M2HJ
+    lzmcj-ebneZuA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:3J6bYKPFBrQcjZa8R0PUEnrTf6d0LZNchrUO0bCRLJeKEejGDCsZPQ>
-    <xmx:3J6bYI4Emo2eR3YaZJPJkdHkifIK_Ml9NRViybPDyI0H78okKsDkvA>
-    <xmx:3J6bYM5I1z3iczDHS968LZnP1jO9mB4XEol_OaE4NXrVjzQGhe8W-A>
-    <xmx:3Z6bYKTTi98PmqNlHNCbRLnLwg3hXP3helyosHxnXaPcdxBHT8JK3fUa-9k>
+X-ME-Proxy: <xmx:rJ-bYNyGo8a_RdCUNxEeVULguVChGOIonpUy7JXcEsyDKdzOWUFdcQ>
+    <xmx:rJ-bYNN_fd570VjnpP4EGvyyN1hXD_-sAMkTCqSQyCIOVrG5hTM14w>
+    <xmx:rJ-bYC_DDolFFvUtzK1ktt-qF284wo8_-0ubhMcWatBf89uJcbwghw>
+    <xmx:rZ-bYHMwYmPUWMQXHp7TYfX0_NmiO8UvpmacNv3Q9yGNzsSHsW4GHw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 05:24:44 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] md: split mddev_find" failed to apply to 4.9-stable tree
-To:     hch@lst.de, heming.zhao@suse.com, song@kernel.org
+        Wed, 12 May 2021 05:28:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: xilinx: drivers need/depend on HAS_IOMEM" failed to apply to 4.4-stable tree
+To:     rdunlap@infradead.org, andre.przywara@arm.com,
+        daniel@iogearbox.net, davem@davemloft.net, gary@garyguo.net,
+        kuba@kernel.org, lkp@intel.com, radhey.shyam.pandey@xilinx.com,
+        zhangchangzhong@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 11:24:35 +0200
-Message-ID: <16208114757343@kroah.com>
+Date:   Wed, 12 May 2021 11:28:09 +0200
+Message-ID: <162081168992168@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,182 +73,66 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 65aa97c4d2bfd76677c211b9d03ef05a98c6d68e Mon Sep 17 00:00:00 2001
-From: Christoph Hellwig <hch@lst.de>
-Date: Sat, 3 Apr 2021 18:15:29 +0200
-Subject: [PATCH] md: split mddev_find
+From 46fd4471615c1bff9d87c411140807762c25667a Mon Sep 17 00:00:00 2001
+From: Randy Dunlap <rdunlap@infradead.org>
+Date: Fri, 16 Apr 2021 23:55:54 -0700
+Subject: [PATCH] net: xilinx: drivers need/depend on HAS_IOMEM
 
-Split mddev_find into a simple mddev_find that just finds an existing
-mddev by the unit number, and a more complicated mddev_find that deals
-with find or allocating a mddev.
+kernel test robot reports build errors in 3 Xilinx ethernet drivers.
+They all use ioremap functions that are only available when HAS_IOMEM
+is set/enabled. If it is not enabled, they all have build errors,
+so make these 3 drivers depend on HAS_IOMEM.
 
-This turns out to fix this bug reported by Zhao Heming.
+ld: drivers/net/ethernet/xilinx/xilinx_emaclite.o: in function `xemaclite_of_probe':
+xilinx_emaclite.c:(.text+0x9fc): undefined reference to `devm_ioremap_resource'
 
------------------------------ snip ------------------------------
-commit d3374825ce57 ("md: make devices disappear when they are no longer
-needed.") introduced protection between mddev creating & removing. The
-md_open shouldn't create mddev when all_mddevs list doesn't contain
-mddev. With currently code logic, there will be very easy to trigger
-soft lockup in non-preempt env.
+ld: drivers/net/ethernet/xilinx/xilinx_axienet_main.o: in function `axienet_probe':
+xilinx_axienet_main.c:(.text+0x942): undefined reference to `devm_ioremap_resource'
 
-*** env ***
-kvm-qemu VM 2C1G with 2 iscsi luns
-kernel should be non-preempt
+ld: drivers/net/ethernet/xilinx/ll_temac_main.o: in function `temac_probe':
+ll_temac_main.c:(.text+0x1283): undefined reference to `devm_platform_ioremap_resource_byname'
+ld: ll_temac_main.c:(.text+0x13ad): undefined reference to `devm_of_iomap'
+ld: ll_temac_main.c:(.text+0x162e): undefined reference to `devm_platform_ioremap_resource'
 
-*** script ***
-
-about trigger 1 time with 10 tests
-
-`1  node1="15sp3-mdcluster1"
-2  node2="15sp3-mdcluster2"
-3
-4  mdadm -Ss
-5  ssh ${node2} "mdadm -Ss"
-6  wipefs -a /dev/sda /dev/sdb
-7  mdadm -CR /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sda \
-   /dev/sdb --assume-clean
-8
-9  for i in {1..100}; do
-10    echo ==== $i ====;
-11
-12    echo "test  ...."
-13    ssh ${node2} "mdadm -A /dev/md0 /dev/sda /dev/sdb"
-14    sleep 1
-15
-16    echo "clean  ....."
-17    ssh ${node2} "mdadm -Ss"
-18 done
-`
-I use mdcluster env to trigger soft lockup, but it isn't mdcluster
-speical bug. To stop md array in mdcluster env will do more jobs than
-non-cluster array, which will leave enough time/gap to allow kernel to
-run md_open.
-
-*** stack ***
-
-`ID: 2831   TASK: ffff8dd7223b5040  CPU: 0   COMMAND: "mdadm"
- #0 [ffffa15d00a13b90] __schedule at ffffffffb8f1935f
- #1 [ffffa15d00a13ba8] exact_lock at ffffffffb8a4a66d
- #2 [ffffa15d00a13bb0] kobj_lookup at ffffffffb8c62fe3
- #3 [ffffa15d00a13c28] __blkdev_get at ffffffffb89273b9
- #4 [ffffa15d00a13c98] blkdev_get at ffffffffb8927964
- #5 [ffffa15d00a13cb0] do_dentry_open at ffffffffb88dc4b4
- #6 [ffffa15d00a13ce0] path_openat at ffffffffb88f0ccc
- #7 [ffffa15d00a13db8] do_filp_open at ffffffffb88f32bb
- #8 [ffffa15d00a13ee0] do_sys_open at ffffffffb88ddc7d
- #9 [ffffa15d00a13f38] do_syscall_64 at ffffffffb86053cb ffffffffb900008c
-
-or:
-[  884.226509]  mddev_put+0x1c/0xe0 [md_mod]
-[  884.226515]  md_open+0x3c/0xe0 [md_mod]
-[  884.226518]  __blkdev_get+0x30d/0x710
-[  884.226520]  ? bd_acquire+0xd0/0xd0
-[  884.226522]  blkdev_get+0x14/0x30
-[  884.226524]  do_dentry_open+0x204/0x3a0
-[  884.226531]  path_openat+0x2fc/0x1520
-[  884.226534]  ? seq_printf+0x4e/0x70
-[  884.226536]  do_filp_open+0x9b/0x110
-[  884.226542]  ? md_release+0x20/0x20 [md_mod]
-[  884.226543]  ? seq_read+0x1d8/0x3e0
-[  884.226545]  ? kmem_cache_alloc+0x18a/0x270
-[  884.226547]  ? do_sys_open+0x1bd/0x260
-[  884.226548]  do_sys_open+0x1bd/0x260
-[  884.226551]  do_syscall_64+0x5b/0x1e0
-[  884.226554]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-`
-*** rootcause ***
-
-"mdadm -A" (or other array assemble commands) will start a daemon "mdadm
---monitor" by default. When "mdadm -Ss" is running, the stop action will
-wakeup "mdadm --monitor". The "--monitor" daemon will immediately get
-info from /proc/mdstat. This time mddev in kernel still exist, so
-/proc/mdstat still show md device, which makes "mdadm --monitor" to open
-/dev/md0.
-
-The previously "mdadm -Ss" is removing action, the "mdadm --monitor"
-open action will trigger md_open which is creating action. Racing is
-happening.
-
-`<thread 1>: "mdadm -Ss"
-md_release
-  mddev_put deletes mddev from all_mddevs
-  queue_work for mddev_delayed_delete
-  at this time, "/dev/md0" is still available for opening
-
-<thread 2>: "mdadm --monitor ..."
-md_open
- + mddev_find can't find mddev of /dev/md0, and create a new mddev and
- |    return.
- + trigger "if (mddev->gendisk != bdev->bd_disk)" and return
-      -ERESTARTSYS.
-`
-In non-preempt kernel, <thread 2> is occupying on current CPU. and
-mddev_delayed_delete which was created in <thread 1> also can't be
-schedule.
-
-In preempt kernel, it can also trigger above racing. But kernel doesn't
-allow one thread running on a CPU all the time. after <thread 2> running
-some time, the later "mdadm -A" (refer above script line 13) will call
-md_alloc to alloc a new gendisk for mddev. it will break md_open
-statement "if (mddev->gendisk != bdev->bd_disk)" and return 0 to caller,
-the soft lockup is broken.
------------------------------- snip ------------------------------
-
+Fixes: 8a3b7a252dca ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Cc: Gary Guo <gary@garyguo.net>
+Cc: Zhang Changzhong <zhangchangzhong@huawei.com>
+Cc: Andre Przywara <andre.przywara@arm.com>
 Cc: stable@vger.kernel.org
-Fixes: d3374825ce57 ("md: make devices disappear when they are no longer needed.")
-Reported-by: Heming Zhao <heming.zhao@suse.com>
-Reviewed-by: Heming Zhao <heming.zhao@suse.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Song Liu <song@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index e10d91122483..3ce5f4e0f431 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -746,6 +746,22 @@ static struct mddev *mddev_find_locked(dev_t unit)
- }
+diff --git a/drivers/net/ethernet/xilinx/Kconfig b/drivers/net/ethernet/xilinx/Kconfig
+index c6eb7f2368aa..911b5ef9e680 100644
+--- a/drivers/net/ethernet/xilinx/Kconfig
++++ b/drivers/net/ethernet/xilinx/Kconfig
+@@ -18,12 +18,14 @@ if NET_VENDOR_XILINX
  
- static struct mddev *mddev_find(dev_t unit)
-+{
-+	struct mddev *mddev;
-+
-+	if (MAJOR(unit) != MD_MAJOR)
-+		unit &= ~((1 << MdpMinorShift) - 1);
-+
-+	spin_lock(&all_mddevs_lock);
-+	mddev = mddev_find_locked(unit);
-+	if (mddev)
-+		mddev_get(mddev);
-+	spin_unlock(&all_mddevs_lock);
-+
-+	return mddev;
-+}
-+
-+static struct mddev *mddev_find_or_alloc(dev_t unit)
- {
- 	struct mddev *mddev, *new = NULL;
+ config XILINX_EMACLITE
+ 	tristate "Xilinx 10/100 Ethernet Lite support"
++	depends on HAS_IOMEM
+ 	select PHYLIB
+ 	help
+ 	  This driver supports the 10/100 Ethernet Lite from Xilinx.
  
-@@ -5650,7 +5666,7 @@ static int md_alloc(dev_t dev, char *name)
- 	 * writing to /sys/module/md_mod/parameters/new_array.
- 	 */
- 	static DEFINE_MUTEX(disks_mutex);
--	struct mddev *mddev = mddev_find(dev);
-+	struct mddev *mddev = mddev_find_or_alloc(dev);
- 	struct gendisk *disk;
- 	int partitioned;
- 	int shift;
-@@ -6530,11 +6546,9 @@ static void autorun_devices(int part)
+ config XILINX_AXI_EMAC
+ 	tristate "Xilinx 10/100/1000 AXI Ethernet support"
++	depends on HAS_IOMEM
+ 	select PHYLINK
+ 	help
+ 	  This driver supports the 10/100/1000 Ethernet from Xilinx for the
+@@ -31,6 +33,7 @@ config XILINX_AXI_EMAC
  
- 		md_probe(dev);
- 		mddev = mddev_find(dev);
--		if (!mddev || !mddev->gendisk) {
--			if (mddev)
--				mddev_put(mddev);
-+		if (!mddev)
- 			break;
--		}
-+
- 		if (mddev_lock(mddev))
- 			pr_warn("md: %s locked, cannot run\n", mdname(mddev));
- 		else if (mddev->raid_disks || mddev->major_version
+ config XILINX_LL_TEMAC
+ 	tristate "Xilinx LL TEMAC (LocalLink Tri-mode Ethernet MAC) driver"
++	depends on HAS_IOMEM
+ 	select PHYLIB
+ 	help
+ 	  This driver supports the Xilinx 10/100/1000 LocalLink TEMAC
 
