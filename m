@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EAE37C8FA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C3337C8F3
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235213AbhELQOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:14:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
+        id S232288AbhELQOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:14:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239393AbhELQH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239385AbhELQH6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:07:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DFDA61C5F;
-        Wed, 12 May 2021 15:37:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F36716199C;
+        Wed, 12 May 2021 15:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833873;
-        bh=3fP+vBQIPJ60+SOvxG67l1Ouj6EAL//zbQx0rbQpVEU=;
+        s=korg; t=1620833875;
+        bh=8uauqwiDWuNi+46mhBTYhX9GY7Yd79pcyntj2cvcRzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1HZ/bxrzB0xSu5Cxul3U9poKQR/Gn+KbZs2sDpSKmDKNIFopGjMuD23DqjbiSoZK+
-         kJMFBOzEEiKYkcZoDHSFIV9clVtUb0ofT56zVG76hX+eJSgIFjB23JB5pDiKK2dILH
-         tmw00S0CdbLrLLgXmOJoP/aMvqFYjcb7buPln1gU=
+        b=nfXl7OUb4hVE2rG2eHz0nHVFx8inRW+JWIj37WEqzFkaj1mz1G1vHb3vOxBkv8QTl
+         yf9/afaxybJpk0Nqpmy6IuWr3W/yP3YPn/EBVhT9t9iY7dQjfwICrLXbHHZaUUpKQ7
+         tLiGUHqCDQz5DSQpPzSBXdo167b2dAORmMmaumTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Eddie James <eajames@linux.ibm.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 321/601] media: aspeed: fix clock handling logic
-Date:   Wed, 12 May 2021 16:46:38 +0200
-Message-Id: <20210512144838.383478067@linuxfoundation.org>
+Subject: [PATCH 5.11 322/601] drm/probe-helper: Check epoch counter in output_poll_execute()
+Date:   Wed, 12 May 2021 16:46:39 +0200
+Message-Id: <20210512144838.415749731@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -45,109 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+From: Noralf Trønnes <noralf@tronnes.org>
 
-[ Upstream commit 3536169f8531c2c5b153921dc7d1ac9fd570cda7 ]
+[ Upstream commit dc659a4e852b591771fc2e5abb60f4455b0cf316 ]
 
-Video engine uses eclk and vclk for its clock sources and its reset
-control is coupled with eclk so the current clock enabling sequence works
-like below.
+drm_helper_hpd_irq_event() checks the epoch counter to determine
+connector status change. This was introduced in
+commit 5186421cbfe2 ("drm: Introduce epoch counter to drm_connector").
+Do the same for output_poll_execute() so it can detect other changes
+beside connection status value changes.
 
- Enable eclk
- De-assert Video Engine reset
- 10ms delay
- Enable vclk
+v2:
+- Add Fixes tag (Daniel)
 
-It introduces improper reset on the Video Engine hardware and eventually
-the hardware generates unexpected DMA memory transfers that can corrupt
-memory region in random and sporadic patterns. This issue is observed
-very rarely on some specific AST2500 SoCs but it causes a critical
-kernel panic with making a various shape of signature so it's extremely
-hard to debug. Moreover, the issue is observed even when the video
-engine is not actively used because udevd turns on the video engine
-hardware for a short time to make a query in every boot.
-
-To fix this issue, this commit changes the clock handling logic to make
-the reset de-assertion triggered after enabling both eclk and vclk. Also,
-it adds clk_unprepare call for a case when probe fails.
-
-clk: ast2600: fix reset settings for eclk and vclk
-Video engine reset setting should be coupled with eclk to match it
-with the setting for previous Aspeed SoCs which is defined in
-clk-aspeed.c since all Aspeed SoCs are sharing a single video engine
-driver. Also, reset bit 6 is defined as 'Video Engine' reset in
-datasheet so it should be de-asserted when eclk is enabled. This
-commit fixes the setting.
-
-Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Eddie James <eajames@linux.ibm.com>
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 5186421cbfe2 ("drm: Introduce epoch counter to drm_connector")
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210313112545.37527-3-noralf@tronnes.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c             | 4 ++--
- drivers/media/platform/aspeed-video.c | 9 ++++++---
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/drm_probe_helper.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index a55b37fc2c8b..bc3be5f3eae1 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -61,10 +61,10 @@ static void __iomem *scu_g6_base;
- static const struct aspeed_gate_data aspeed_g6_gates[] = {
- 	/*				    clk rst  name		parent	 flags */
- 	[ASPEED_CLK_GATE_MCLK]		= {  0, -1, "mclk-gate",	"mpll",	 CLK_IS_CRITICAL }, /* SDRAM */
--	[ASPEED_CLK_GATE_ECLK]		= {  1, -1, "eclk-gate",	"eclk",	 0 },	/* Video Engine */
-+	[ASPEED_CLK_GATE_ECLK]		= {  1,  6, "eclk-gate",	"eclk",	 0 },	/* Video Engine */
- 	[ASPEED_CLK_GATE_GCLK]		= {  2,  7, "gclk-gate",	NULL,	 0 },	/* 2D engine */
- 	/* vclk parent - dclk/d1clk/hclk/mclk */
--	[ASPEED_CLK_GATE_VCLK]		= {  3,  6, "vclk-gate",	NULL,	 0 },	/* Video Capture */
-+	[ASPEED_CLK_GATE_VCLK]		= {  3, -1, "vclk-gate",	NULL,	 0 },	/* Video Capture */
- 	[ASPEED_CLK_GATE_BCLK]		= {  4,  8, "bclk-gate",	"bclk",	 0 }, /* PCIe/PCI */
- 	/* From dpll */
- 	[ASPEED_CLK_GATE_DCLK]		= {  5, -1, "dclk-gate",	NULL,	 CLK_IS_CRITICAL }, /* DAC */
-diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index f2c4dadd6a0e..7bb6babdcade 100644
---- a/drivers/media/platform/aspeed-video.c
-+++ b/drivers/media/platform/aspeed-video.c
-@@ -514,8 +514,8 @@ static void aspeed_video_off(struct aspeed_video *video)
- 	aspeed_video_write(video, VE_INTERRUPT_STATUS, 0xffffffff);
+diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
+index d6017726cc2a..e5432dcf6999 100644
+--- a/drivers/gpu/drm/drm_probe_helper.c
++++ b/drivers/gpu/drm/drm_probe_helper.c
+@@ -623,6 +623,7 @@ static void output_poll_execute(struct work_struct *work)
+ 	struct drm_connector_list_iter conn_iter;
+ 	enum drm_connector_status old_status;
+ 	bool repoll = false, changed;
++	u64 old_epoch_counter;
  
- 	/* Turn off the relevant clocks */
--	clk_disable(video->vclk);
- 	clk_disable(video->eclk);
-+	clk_disable(video->vclk);
- 
- 	clear_bit(VIDEO_CLOCKS_ON, &video->flags);
- }
-@@ -526,8 +526,8 @@ static void aspeed_video_on(struct aspeed_video *video)
+ 	if (!dev->mode_config.poll_enabled)
  		return;
+@@ -659,8 +660,9 @@ static void output_poll_execute(struct work_struct *work)
  
- 	/* Turn on the relevant clocks */
--	clk_enable(video->eclk);
- 	clk_enable(video->vclk);
-+	clk_enable(video->eclk);
+ 		repoll = true;
  
- 	set_bit(VIDEO_CLOCKS_ON, &video->flags);
- }
-@@ -1719,8 +1719,11 @@ static int aspeed_video_probe(struct platform_device *pdev)
- 		return rc;
++		old_epoch_counter = connector->epoch_counter;
+ 		connector->status = drm_helper_probe_detect(connector, NULL, false);
+-		if (old_status != connector->status) {
++		if (old_epoch_counter != connector->epoch_counter) {
+ 			const char *old, *new;
  
- 	rc = aspeed_video_setup_video(video);
--	if (rc)
-+	if (rc) {
-+		clk_unprepare(video->vclk);
-+		clk_unprepare(video->eclk);
- 		return rc;
-+	}
+ 			/*
+@@ -689,6 +691,9 @@ static void output_poll_execute(struct work_struct *work)
+ 				      connector->base.id,
+ 				      connector->name,
+ 				      old, new);
++			DRM_DEBUG_KMS("[CONNECTOR:%d:%s] epoch counter %llu -> %llu\n",
++				      connector->base.id, connector->name,
++				      old_epoch_counter, connector->epoch_counter);
  
- 	return 0;
- }
+ 			changed = true;
+ 		}
 -- 
 2.30.2
 
