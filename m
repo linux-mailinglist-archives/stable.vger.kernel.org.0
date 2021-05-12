@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A24737CE2A
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 036D437CE2E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238082AbhELRDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:03:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35834 "EHLO mail.kernel.org"
+        id S232903AbhELRDg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:03:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244287AbhELQmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244286AbhELQmv (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58DC461D42;
-        Wed, 12 May 2021 16:12:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2FCC61D3F;
+        Wed, 12 May 2021 16:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835937;
-        bh=PWaRI9EWYhzIGjtpdkfvAHCGvfDcD6puNDKoN9z9ALc=;
+        s=korg; t=1620835940;
+        bh=k4tulv8T7OkYhDlVnvCBZSbs34StUMS4WWU6IloYYq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bLH8ee7MuiqnutFrjX9AewsyyiPWoKUxb28C8dXOdk9ENpJTjBW0yFTjruGrupL3z
-         RoDc5OJLn54NT78Ds42teYNaElOpik3XHZx0zC6jUD+kw2C5fUA33TFX9mDD2jFT9f
-         ntfx4lDnLnxGZk8wqXTUvTTZ9KnjY6zojuMs0NvA=
+        b=v/QpXQxlkjkl5zYsYgfZPIJujfoG57dsHr15Ebd6u+FJyKqGutn60Uj4Eo9H5EUtp
+         hnOjEQIE4uCTnBuhbQegqcduOIWhfx3wUH63YHbZwH6NDShGQUgjchq3wL/1xS+iT8
+         EjSVbQyD8xnLO69XRhhGNpmYaqFEq2RDtSlyLn7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Giuseppe Scrivano <gscrivan@redhat.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 544/677] KVM: PPC: Book3S HV P9: Restore host CTRL SPR after guest exit
-Date:   Wed, 12 May 2021 16:49:50 +0200
-Message-Id: <20210512144855.443743709@linuxfoundation.org>
+Subject: [PATCH 5.12 545/677] ovl: show "userxattr" in the mount data
+Date:   Wed, 12 May 2021 16:49:51 +0200
+Message-Id: <20210512144855.476467979@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,52 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Giuseppe Scrivano <gscrivan@redhat.com>
 
-[ Upstream commit 5088eb4092df12d701af8e0e92860b7186365279 ]
+[ Upstream commit 321b46b904816241044e177c1d6282ad20f17416 ]
 
-The host CTRL (runlatch) value is not restored after guest exit. The
-host CTRL should always be 1 except in CPU idle code, so this can result
-in the host running with runlatch clear, and potentially switching to
-a different vCPU which then runs with runlatch clear as well.
+This was missed when adding the option.
 
-This has little effect on P9 machines, CTRL is only responsible for some
-PMU counter logic in the host and so other than corner cases of software
-relying on that, or explicitly reading the runlatch value (Linux does
-not appear to be affected but it's possible non-Linux guests could be),
-there should be no execution correctness problem, though it could be
-used as a covert channel between guests.
-
-There may be microcontrollers, firmware or monitoring tools that sample
-the runlatch value out-of-band, however since the register is writable
-by guests, these values would (should) not be relied upon for correct
-operation of the host, so suboptimal performance or incorrect reporting
-should be the worst problem.
-
-Fixes: 95a6432ce9038 ("KVM: PPC: Book3S HV: Streamlined guest entry/exit path on P9 for radix guests")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210412014845.1517916-2-npiggin@gmail.com
+Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
+Fixes: 2d2f2d7322ff ("ovl: user xattr")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/overlayfs/super.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 13bad6bf4c95..208a053c9adf 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3728,7 +3728,10 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
- 	vcpu->arch.dec_expires = dec + tb;
- 	vcpu->cpu = -1;
- 	vcpu->arch.thread_cpu = -1;
-+	/* Save guest CTRL register, set runlatch to 1 */
- 	vcpu->arch.ctrl = mfspr(SPRN_CTRLF);
-+	if (!(vcpu->arch.ctrl & 1))
-+		mtspr(SPRN_CTRLT, vcpu->arch.ctrl | 1);
+diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+index 8cf343335029..787ce7c38fba 100644
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -380,6 +380,8 @@ static int ovl_show_options(struct seq_file *m, struct dentry *dentry)
+ 			   ofs->config.metacopy ? "on" : "off");
+ 	if (ofs->config.ovl_volatile)
+ 		seq_puts(m, ",volatile");
++	if (ofs->config.userxattr)
++		seq_puts(m, ",userxattr");
+ 	return 0;
+ }
  
- 	vcpu->arch.iamr = mfspr(SPRN_IAMR);
- 	vcpu->arch.pspb = mfspr(SPRN_PSPB);
 -- 
 2.30.2
 
