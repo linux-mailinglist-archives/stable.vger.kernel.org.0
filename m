@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E7137C1D1
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E3737C1D5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:04:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233414AbhELPFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:05:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
+        id S231523AbhELPFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:05:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232645AbhELPCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232702AbhELPCo (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:02:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 811A1616EA;
-        Wed, 12 May 2021 14:58:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E795761430;
+        Wed, 12 May 2021 14:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831493;
-        bh=29xOmeRvMwlySY47WDe/5Q9Qh8eVFRLcwzrMBuVaYjs=;
+        s=korg; t=1620831495;
+        bh=TbC7sqwBcAas7J7KEbIlFb35Zc4Ani8dYHO7six3ApA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deJUWc5Kdnnc9GwPrScRGPZw7Ho6Sab/anXLkm964/pye8lMeIDz48CpPiCkB7ShV
-         mRZKP8+c23EuIcqv8ab7UIj7HrR/WY4kmkkyzoaNUQBUSfEZZfXhgYlAolKY+2m4Dv
-         2zxO0S9zk2nZGiMyQfCnJ070ODQuYaXrOdEAVxWs=
+        b=ZLmuMkzGej5uYDOGVam3pKqduysx99RIhLzMjUC/2Rl7bHOVfNLvZJ38IxcdIGGR1
+         XBOy6Vf1izWe5eYqhYQ3CHMlhzUFTSvl4g6ozafglzweoA/UPbeA7olK01CEwMtkQ3
+         yGNxv7d93I19wXPrT7w0CRLKuXcyH51L4SVtdLw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org,
+        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Eddie James <eajames@linux.ibm.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 141/244] media: omap4iss: return error code when omap4iss_get() failed
-Date:   Wed, 12 May 2021 16:48:32 +0200
-Message-Id: <20210512144747.525436829@linuxfoundation.org>
+Subject: [PATCH 5.4 142/244] media: aspeed: fix clock handling logic
+Date:   Wed, 12 May 2021 16:48:33 +0200
+Message-Id: <20210512144747.555412123@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,38 +45,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 
-[ Upstream commit 8938c48fa25b491842ece9eb38f0bea0fcbaca44 ]
+[ Upstream commit 3536169f8531c2c5b153921dc7d1ac9fd570cda7 ]
 
-If omap4iss_get() failed, it need return error code in iss_probe().
+Video engine uses eclk and vclk for its clock sources and its reset
+control is coupled with eclk so the current clock enabling sequence works
+like below.
 
-Fixes: 59f0ad807681 ("[media] v4l: omap4iss: Add support for OMAP4...")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+ Enable eclk
+ De-assert Video Engine reset
+ 10ms delay
+ Enable vclk
+
+It introduces improper reset on the Video Engine hardware and eventually
+the hardware generates unexpected DMA memory transfers that can corrupt
+memory region in random and sporadic patterns. This issue is observed
+very rarely on some specific AST2500 SoCs but it causes a critical
+kernel panic with making a various shape of signature so it's extremely
+hard to debug. Moreover, the issue is observed even when the video
+engine is not actively used because udevd turns on the video engine
+hardware for a short time to make a query in every boot.
+
+To fix this issue, this commit changes the clock handling logic to make
+the reset de-assertion triggered after enabling both eclk and vclk. Also,
+it adds clk_unprepare call for a case when probe fails.
+
+clk: ast2600: fix reset settings for eclk and vclk
+Video engine reset setting should be coupled with eclk to match it
+with the setting for previous Aspeed SoCs which is defined in
+clk-aspeed.c since all Aspeed SoCs are sharing a single video engine
+driver. Also, reset bit 6 is defined as 'Video Engine' reset in
+datasheet so it should be de-asserted when eclk is enabled. This
+commit fixes the setting.
+
+Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
+Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Eddie James <eajames@linux.ibm.com>
+Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/omap4iss/iss.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/clk/clk-ast2600.c             | 4 ++--
+ drivers/media/platform/aspeed-video.c | 9 ++++++---
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/media/omap4iss/iss.c b/drivers/staging/media/omap4iss/iss.c
-index 1a966cb2f3a6..eed495f7665d 100644
---- a/drivers/staging/media/omap4iss/iss.c
-+++ b/drivers/staging/media/omap4iss/iss.c
-@@ -1240,8 +1240,10 @@ static int iss_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto error;
+diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
+index 84ca38450d02..af957179b135 100644
+--- a/drivers/clk/clk-ast2600.c
++++ b/drivers/clk/clk-ast2600.c
+@@ -58,10 +58,10 @@ static void __iomem *scu_g6_base;
+ static const struct aspeed_gate_data aspeed_g6_gates[] = {
+ 	/*				    clk rst  name		parent	 flags */
+ 	[ASPEED_CLK_GATE_MCLK]		= {  0, -1, "mclk-gate",	"mpll",	 CLK_IS_CRITICAL }, /* SDRAM */
+-	[ASPEED_CLK_GATE_ECLK]		= {  1, -1, "eclk-gate",	"eclk",	 0 },	/* Video Engine */
++	[ASPEED_CLK_GATE_ECLK]		= {  1,  6, "eclk-gate",	"eclk",	 0 },	/* Video Engine */
+ 	[ASPEED_CLK_GATE_GCLK]		= {  2,  7, "gclk-gate",	NULL,	 0 },	/* 2D engine */
+ 	/* vclk parent - dclk/d1clk/hclk/mclk */
+-	[ASPEED_CLK_GATE_VCLK]		= {  3,  6, "vclk-gate",	NULL,	 0 },	/* Video Capture */
++	[ASPEED_CLK_GATE_VCLK]		= {  3, -1, "vclk-gate",	NULL,	 0 },	/* Video Capture */
+ 	[ASPEED_CLK_GATE_BCLK]		= {  4,  8, "bclk-gate",	"bclk",	 0 }, /* PCIe/PCI */
+ 	/* From dpll */
+ 	[ASPEED_CLK_GATE_DCLK]		= {  5, -1, "dclk-gate",	NULL,	 CLK_IS_CRITICAL }, /* DAC */
+diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
+index e0299a789923..6dde49d9aa4c 100644
+--- a/drivers/media/platform/aspeed-video.c
++++ b/drivers/media/platform/aspeed-video.c
+@@ -491,8 +491,8 @@ static void aspeed_video_off(struct aspeed_video *video)
+ 	aspeed_video_write(video, VE_INTERRUPT_STATUS, 0xffffffff);
  
--	if (!omap4iss_get(iss))
-+	if (!omap4iss_get(iss)) {
-+		ret = -EINVAL;
- 		goto error;
+ 	/* Turn off the relevant clocks */
+-	clk_disable(video->vclk);
+ 	clk_disable(video->eclk);
++	clk_disable(video->vclk);
+ 
+ 	clear_bit(VIDEO_CLOCKS_ON, &video->flags);
+ }
+@@ -503,8 +503,8 @@ static void aspeed_video_on(struct aspeed_video *video)
+ 		return;
+ 
+ 	/* Turn on the relevant clocks */
+-	clk_enable(video->eclk);
+ 	clk_enable(video->vclk);
++	clk_enable(video->eclk);
+ 
+ 	set_bit(VIDEO_CLOCKS_ON, &video->flags);
+ }
+@@ -1684,8 +1684,11 @@ static int aspeed_video_probe(struct platform_device *pdev)
+ 		return rc;
+ 
+ 	rc = aspeed_video_setup_video(video);
+-	if (rc)
++	if (rc) {
++		clk_unprepare(video->vclk);
++		clk_unprepare(video->eclk);
+ 		return rc;
 +	}
  
- 	ret = iss_reset(iss);
- 	if (ret < 0)
+ 	return 0;
+ }
 -- 
 2.30.2
 
