@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D8CC37C7A7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47DA037C7A2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235965AbhELQBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:01:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37100 "EHLO mail.kernel.org"
+        id S235904AbhELQB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:01:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237965AbhELP45 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237967AbhELP45 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:56:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D6B161AC0;
-        Wed, 12 May 2021 15:29:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6091561936;
+        Wed, 12 May 2021 15:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833350;
-        bh=on/xOfck71bbNk/sid3tc3J6d2xWdLbhdhHChU6XBK8=;
+        s=korg; t=1620833353;
+        bh=uUKBCEx+xu/CJ+3IUFcsmMbeVB37BPFrzy9AU3nZyzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvrsbSShXNjxfWFqsaBS8c1xGqoLvmwSWLyP4qBMkC6wOODT58yeWN8+Wl37gCj3k
-         6jyV02ci6H52WiQCOEDdSaEzRkqUxhS4/0l3y3BduJmGeNPhPaw1zcOrQfJlAr/UGW
-         W/bj4htJnHMmH5GV94gdZaWyQ0Z8kOMtNZHAJp2U=
+        b=PWjdTF5C0FEWYEMrOU6hmSQTafohwTzraRJKe/f83ESuhEHl3Ha3jvZCXErqetm/F
+         Pt3me1xJwTf5TEME0fWnm+NhEWCKw+kAA4KH8tmpK5TNAZy3g1wXIkr7cT8MKRSP9m
+         yVtvvC0BkyV++W8JJSXmnv2P/O7oWE3AQTMuAZ5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.11 116/601] Revert "i3c master: fix missing destroy_workqueue() on error in i3c_master_register"
-Date:   Wed, 12 May 2021 16:43:13 +0200
-Message-Id: <20210512144831.649969452@linuxfoundation.org>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.11 117/601] mfd: stmpe: Revert "Constify static struct resource"
+Date:   Wed, 12 May 2021 16:43:14 +0200
+Message-Id: <20210512144831.688272815@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,110 +41,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
 
-commit 0d95f41ebde40d552bb4fea64b1d618607915fd6 upstream.
+commit cb9e880a797a77c21c0f0e7ccd553da8eb4870af upstream.
 
-Adding the destroy_workqueue call in i3c_master_register introduced below
-kernel warning because it makes duplicate destroy_workqueue calls when
-i3c_master_register fails after allocating the workqueue. The workqueue will
-be destroyed by i3c_masterdev_release which is called by put_device at the
-end of the i3c_master_register function eventually in failure cases so the
-workqueue doesn't need to be destroyed in i3c_master_register.
+In stmpe_devices_init(), the start and end field of these structs are
+modified, so they can not be const. Add a comment to those structs that
+lacked it to reduce the risk that this happens again.
 
-[    6.972952] WARNING: CPU: 1 PID: 1 at lib/list_debug.c:48 __list_del_entry_valid+0x9c/0xf4
-[    6.982205] list_del corruption, 8fe03c08->prev is LIST_POISON2 (00000122)
-[    6.989910] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G        W         5.10.23-c12838a-dirty-31dc772 #1
-[    7.000295] Hardware name: Generic DT based system
-[    7.005638] Backtrace:
-[    7.008369] [<809133f0>] (dump_backtrace) from [<80913644>] (show_stack+0x20/0x24)
-[    7.016819]  r7:00000030 r6:60000013 r5:00000000 r4:813b5d40
-[    7.023137] [<80913624>] (show_stack) from [<8091e1a0>] (dump_stack+0x9c/0xb0)
-[    7.031201] [<8091e104>] (dump_stack) from [<8011fa30>] (__warn+0xf8/0x154)
-[    7.038972]  r7:00000030 r6:00000009 r5:804fa1c8 r4:80b6eca4
-[    7.045289] [<8011f938>] (__warn) from [<80913d14>] (warn_slowpath_fmt+0x8c/0xc0)
-[    7.053641]  r7:00000030 r6:80b6eca4 r5:80b6ed74 r4:818cc000
-[    7.059960] [<80913c8c>] (warn_slowpath_fmt) from [<804fa1c8>] (__list_del_entry_valid+0x9c/0xf4)
-[    7.069866]  r9:96becf8c r8:818cc000 r7:8fe03c10 r6:8fe03c00 r5:8fe03ba0 r4:ff7ead4c
-[    7.078513] [<804fa12c>] (__list_del_entry_valid) from [<8013f0b4>] (destroy_workqueue+0x1c4/0x23c)
-[    7.088615] [<8013eef0>] (destroy_workqueue) from [<806aa124>] (i3c_masterdev_release+0x40/0xb0)
-[    7.098421]  r7:00000000 r6:81a43b80 r5:8fe65360 r4:8fe65048
-[    7.104740] [<806aa0e4>] (i3c_masterdev_release) from [<805f3f04>] (device_release+0x40/0xb0)
-[    7.114254]  r5:00000000 r4:8fe65048
-[    7.118245] [<805f3ec4>] (device_release) from [<808fe754>] (kobject_put+0xc8/0x204)
-[    7.126885]  r5:813978dc r4:8fe65048
-[    7.130877] [<808fe68c>] (kobject_put) from [<805f5fbc>] (put_device+0x20/0x24)
-[    7.139037]  r7:8fe65358 r6:8fe65368 r5:8fe65358 r4:8fe65048
-[    7.145355] [<805f5f9c>] (put_device) from [<806abac4>] (i3c_master_register+0x338/0xb00)
-[    7.154487] [<806ab78c>] (i3c_master_register) from [<806ae084>] (dw_i3c_probe+0x224/0x24c)
-[    7.163811]  r10:00000000 r9:8fe7a100 r8:00000032 r7:819fa810 r6:819fa800 r5:8fe65040
-[    7.172547]  r4:00000000
-[    7.175376] [<806ade60>] (dw_i3c_probe) from [<805fdc14>] (platform_drv_probe+0x44/0x80)
-[    7.184409]  r9:813a25c0 r8:00000000 r7:815ec114 r6:00000000 r5:813a25c0 r4:819fa810
-[    7.193053] [<805fdbd0>] (platform_drv_probe) from [<805fb83c>] (really_probe+0x108/0x50c)
-[    7.202275]  r5:815ec004 r4:819fa810
-[    7.206265] [<805fb734>] (really_probe) from [<805fc180>] (driver_probe_device+0xb4/0x190)
-[    7.215492]  r10:813dc000 r9:80c4385c r8:000000d9 r7:813a25c0 r6:819fa810 r5:00000000
-[    7.224228]  r4:813a25c0
-[    7.227055] [<805fc0cc>] (driver_probe_device) from [<805fc5cc>] (device_driver_attach+0xb8/0xc0)
-[    7.236959]  r9:80c4385c r8:000000d9 r7:813a25c0 r6:819fa854 r4:819fa810
-[    7.244439] [<805fc514>] (device_driver_attach) from [<805fc65c>] (__driver_attach+0x88/0x16c)
-[    7.254051]  r7:00000000 r6:819fa810 r5:00000000 r4:813a25c0
-[    7.260369] [<805fc5d4>] (__driver_attach) from [<805f954c>] (bus_for_each_dev+0x88/0xc8)
-[    7.269489]  r7:00000000 r6:818cc000 r5:805fc5d4 r4:813a25c0
-[    7.275806] [<805f94c4>] (bus_for_each_dev) from [<805fc76c>] (driver_attach+0x2c/0x30)
-[    7.284739]  r7:81397c98 r6:00000000 r5:8fe7db80 r4:813a25c0
-[    7.291057] [<805fc740>] (driver_attach) from [<805f9eec>] (bus_add_driver+0x120/0x200)
-[    7.299984] [<805f9dcc>] (bus_add_driver) from [<805fce44>] (driver_register+0x98/0x128)
-[    7.309005]  r7:80c4383c r6:00000000 r5:00000000 r4:813a25c0
-[    7.315323] [<805fcdac>] (driver_register) from [<805fedb4>] (__platform_driver_register+0x50/0x58)
-[    7.325410]  r5:818cc000 r4:81397c98
-[    7.329404] [<805fed64>] (__platform_driver_register) from [<80c23398>] (dw_i3c_driver_init+0x24/0x28)
-[    7.339790]  r5:818cc000 r4:80c23374
-[    7.343784] [<80c23374>] (dw_i3c_driver_init) from [<80c01300>] (do_one_initcall+0xac/0x1d0)
-[    7.353206] [<80c01254>] (do_one_initcall) from [<80c01630>] (kernel_init_freeable+0x1a8/0x204)
-[    7.362916]  r8:000000d9 r7:80c4383c r6:00000007 r5:819ca2c0 r4:80c67680
-[    7.370398] [<80c01488>] (kernel_init_freeable) from [<8091eb18>] (kernel_init+0x18/0x12c)
-[    7.379616]  r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:8091eb00
-[    7.388343]  r4:00000000
-[    7.391170] [<8091eb00>] (kernel_init) from [<80100148>] (ret_from_fork+0x14/0x2c)
-[    7.399607] Exception stack(0x818cdfb0 to 0x818cdff8)
-[    7.405243] dfa0:                                     00000000 00000000 00000000 00000000
-[    7.414371] dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-[    7.423499] dfe0: 00000000 00000000 00000000 00000000 00000013 00000000
-[    7.430879]  r5:8091eb00 r4:00000000
+This reverts commit 8d7b3a6dac4eae22c58b0853696cbd256966741b.
 
-This reverts commit 59165d16c699182b86b5c65181013f1fd88feb62.
-
-Fixes: 59165d16c699 ("i3c master: fix missing destroy_workqueue() on error in i3c_master_register")
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210408172803.24599-1-jae.hyun.yoo@linux.intel.com
+Fixes: 8d7b3a6dac4e ("mfd: stmpe: Constify static struct resource")
+Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i3c/master.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/mfd/stmpe.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/i3c/master.c
-+++ b/drivers/i3c/master.c
-@@ -2537,7 +2537,7 @@ int i3c_master_register(struct i3c_maste
+--- a/drivers/mfd/stmpe.c
++++ b/drivers/mfd/stmpe.c
+@@ -312,7 +312,7 @@ EXPORT_SYMBOL_GPL(stmpe_set_altfunc);
+  * GPIO (all variants)
+  */
  
- 	ret = i3c_master_bus_init(master);
- 	if (ret)
--		goto err_destroy_wq;
-+		goto err_put_dev;
+-static const struct resource stmpe_gpio_resources[] = {
++static struct resource stmpe_gpio_resources[] = {
+ 	/* Start and end filled dynamically */
+ 	{
+ 		.flags	= IORESOURCE_IRQ,
+@@ -336,7 +336,8 @@ static const struct mfd_cell stmpe_gpio_
+  * Keypad (1601, 2401, 2403)
+  */
  
- 	ret = device_add(&master->dev);
- 	if (ret)
-@@ -2568,9 +2568,6 @@ err_del_dev:
- err_cleanup_bus:
- 	i3c_master_bus_cleanup(master);
+-static const struct resource stmpe_keypad_resources[] = {
++static struct resource stmpe_keypad_resources[] = {
++	/* Start and end filled dynamically */
+ 	{
+ 		.name	= "KEYPAD",
+ 		.flags	= IORESOURCE_IRQ,
+@@ -357,7 +358,8 @@ static const struct mfd_cell stmpe_keypa
+ /*
+  * PWM (1601, 2401, 2403)
+  */
+-static const struct resource stmpe_pwm_resources[] = {
++static struct resource stmpe_pwm_resources[] = {
++	/* Start and end filled dynamically */
+ 	{
+ 		.name	= "PWM0",
+ 		.flags	= IORESOURCE_IRQ,
+@@ -445,7 +447,8 @@ static struct stmpe_variant_info stmpe80
+  * Touchscreen (STMPE811 or STMPE610)
+  */
  
--err_destroy_wq:
--	destroy_workqueue(master->wq);
--
- err_put_dev:
- 	put_device(&master->dev);
+-static const struct resource stmpe_ts_resources[] = {
++static struct resource stmpe_ts_resources[] = {
++	/* Start and end filled dynamically */
+ 	{
+ 		.name	= "TOUCH_DET",
+ 		.flags	= IORESOURCE_IRQ,
+@@ -467,7 +470,8 @@ static const struct mfd_cell stmpe_ts_ce
+  * ADC (STMPE811)
+  */
  
+-static const struct resource stmpe_adc_resources[] = {
++static struct resource stmpe_adc_resources[] = {
++	/* Start and end filled dynamically */
+ 	{
+ 		.name	= "STMPE_TEMP_SENS",
+ 		.flags	= IORESOURCE_IRQ,
 
 
