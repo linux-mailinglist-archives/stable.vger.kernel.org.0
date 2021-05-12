@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 552B737C493
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA65737C497
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234068AbhELPcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
+        id S234111AbhELPcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235474AbhELP2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:28:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0C3B616ED;
-        Wed, 12 May 2021 15:13:07 +0000 (UTC)
+        id S235479AbhELP2K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C6AF617C9;
+        Wed, 12 May 2021 15:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832388;
-        bh=EFzdeRfP/X2uieP6ur3M6VsCkAY+gw7saZybeenXfGs=;
+        s=korg; t=1620832390;
+        bh=6lsWD2I7fGEiNV/RJ6NBeRaICBlgLVSzILNr2actdeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqGlqjvkSGcxi75P+ZPM5Sj9W+ZMwEi8ca5/EBvgC/z6uPPKL6Bv2odUnD+1+Au7B
-         JKUt4nn+zOA0Wp9K7Ss1+NvWmeu0j5IrL87VDISX3fACq3IfBV+YCQhENAZ3S/TbG+
-         CyBTSRj/2ez3arXXglhhsvvxp5BErgPtm+tLH6XQ=
+        b=Qwacaxjoasd5qyCpWOEVPhLx6s8DaB0X3Wn9rh/32OzFRvq9Qz2qwiLRcxnqCOimB
+         40u5ce+gjJft1Sd0L1aZCAag1N5DQrHpX0s8QGMxBeTE8GPQHgsNI2ZHfUW4hHlDVb
+         ZvpTxT4TVWR1EGfqAD5LDSSiXdc7XF8gESqqscxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 225/530] ACPI: CPPC: Replace cppc_attr with kobj_attribute
-Date:   Wed, 12 May 2021 16:45:35 +0200
-Message-Id: <20210512144827.226892673@linuxfoundation.org>
+Subject: [PATCH 5.10 226/530] crypto: allwinner - add missing CRYPTO_ prefix
+Date:   Wed, 12 May 2021 16:45:36 +0200
+Message-Id: <20210512144827.258315385@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,88 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
 
-[ Upstream commit 2bc6262c6117dd18106d5aa50d53e945b5d99c51 ]
+[ Upstream commit ac1af1a788b2002eb9d6f5ca6054517ad27f1930 ]
 
-All of the CPPC sysfs show functions are called via indirect call in
-kobj_attr_show(), where they should be of type
+Some CONFIG select miss CRYPTO_.
 
-ssize_t (*show)(struct kobject *kobj, struct kobj_attribute *attr, char *buf);
-
-because that is the type of the ->show() member in
-'struct kobj_attribute' but they are actually of type
-
-ssize_t (*show)(struct kobject *kobj, struct attribute *attr, char *buf);
-
-because of the ->show() member in 'struct cppc_attr', resulting in a
-Control Flow Integrity violation [1].
-
-$ cat /sys/devices/system/cpu/cpu0/acpi_cppc/highest_perf
-3400
-
-$ dmesg | grep "CFI failure"
-[  175.970559] CFI failure (target: show_highest_perf+0x0/0x8):
-
-As far as I can tell, the only difference between 'struct cppc_attr'
-and 'struct kobj_attribute' aside from the type of the attr parameter
-is the type of the count parameter in the ->store() member (ssize_t vs.
-size_t), which does not actually matter because all of these nodes are
-read-only.
-
-Eliminate 'struct cppc_attr' in favor of 'struct kobj_attribute' to fix
-the violation.
-
-[1]: https://lore.kernel.org/r/20210401233216.2540591-1-samitolvanen@google.com/
-
-Fixes: 158c998ea44b ("ACPI / CPPC: add sysfs support to compute delivered performance")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1343
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Chen-Yu Tsai <wens@csie.org>
+Fixes: 56f6d5aee88d1 ("crypto: sun8i-ce - support hash algorithms")
+Fixes: d9b45418a9177 ("crypto: sun8i-ss - support hash algorithms")
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/cppc_acpi.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/crypto/allwinner/Kconfig | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
-index 7a99b19bb893..0a2da06e9d8b 100644
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -118,23 +118,15 @@ static DEFINE_PER_CPU(struct cpc_desc *, cpc_desc_ptr);
-  */
- #define NUM_RETRIES 500ULL
+diff --git a/drivers/crypto/allwinner/Kconfig b/drivers/crypto/allwinner/Kconfig
+index 0cdfe0e8cc66..ce34048d0d68 100644
+--- a/drivers/crypto/allwinner/Kconfig
++++ b/drivers/crypto/allwinner/Kconfig
+@@ -62,10 +62,10 @@ config CRYPTO_DEV_SUN8I_CE_DEBUG
+ config CRYPTO_DEV_SUN8I_CE_HASH
+ 	bool "Enable support for hash on sun8i-ce"
+ 	depends on CRYPTO_DEV_SUN8I_CE
+-	select MD5
+-	select SHA1
+-	select SHA256
+-	select SHA512
++	select CRYPTO_MD5
++	select CRYPTO_SHA1
++	select CRYPTO_SHA256
++	select CRYPTO_SHA512
+ 	help
+ 	  Say y to enable support for hash algorithms.
  
--struct cppc_attr {
--	struct attribute attr;
--	ssize_t (*show)(struct kobject *kobj,
--			struct attribute *attr, char *buf);
--	ssize_t (*store)(struct kobject *kobj,
--			struct attribute *attr, const char *c, ssize_t count);
--};
--
- #define define_one_cppc_ro(_name)		\
--static struct cppc_attr _name =			\
-+static struct kobj_attribute _name =		\
- __ATTR(_name, 0444, show_##_name, NULL)
- 
- #define to_cpc_desc(a) container_of(a, struct cpc_desc, kobj)
- 
- #define show_cppc_data(access_fn, struct_name, member_name)		\
- 	static ssize_t show_##member_name(struct kobject *kobj,		\
--					struct attribute *attr,	char *buf) \
-+				struct kobj_attribute *attr, char *buf)	\
- 	{								\
- 		struct cpc_desc *cpc_ptr = to_cpc_desc(kobj);		\
- 		struct struct_name st_name = {0};			\
-@@ -160,7 +152,7 @@ show_cppc_data(cppc_get_perf_ctrs, cppc_perf_fb_ctrs, reference_perf);
- show_cppc_data(cppc_get_perf_ctrs, cppc_perf_fb_ctrs, wraparound_time);
- 
- static ssize_t show_feedback_ctrs(struct kobject *kobj,
--		struct attribute *attr, char *buf)
-+		struct kobj_attribute *attr, char *buf)
- {
- 	struct cpc_desc *cpc_ptr = to_cpc_desc(kobj);
- 	struct cppc_perf_fb_ctrs fb_ctrs = {0};
+@@ -123,8 +123,8 @@ config CRYPTO_DEV_SUN8I_SS_PRNG
+ config CRYPTO_DEV_SUN8I_SS_HASH
+ 	bool "Enable support for hash on sun8i-ss"
+ 	depends on CRYPTO_DEV_SUN8I_SS
+-	select MD5
+-	select SHA1
+-	select SHA256
++	select CRYPTO_MD5
++	select CRYPTO_SHA1
++	select CRYPTO_SHA256
+ 	help
+ 	  Say y to enable support for hash algorithms.
 -- 
 2.30.2
 
