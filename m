@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBCE37C544
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02E7837C51B
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:37:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234010AbhELPjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:39:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39912 "EHLO mail.kernel.org"
+        id S231208AbhELPiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:38:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233701AbhELP3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:29:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF0A26193E;
-        Wed, 12 May 2021 15:15:17 +0000 (UTC)
+        id S233837AbhELP3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:29:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24CB8613EB;
+        Wed, 12 May 2021 15:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832518;
-        bh=FG5kT/gty4np41y74Sjdqb2aFVfHc88v4Z11q4JpcF4=;
+        s=korg; t=1620832520;
+        bh=IqrkexZiYUYNlsPW7FcNADj1RgE+DvMZMMInsO/nQT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myRdFj45q7RMshoXDc1e3AUYYPvHwrMWsVdrqc5l3HlBTqHG6JqpjZJ372S+cj5Nz
-         S1tvik+au5FOw/c05qifms2pXmhYB0lzbL2ruzxkh9n2xAOOec7hZhzSgv8nF8H615
-         JICGySI3PqkAtvUIzZXQiykMivD9KIlull0XAx4c=
+        b=hoSNjEb6A8NOaSLDC1NI8vbSQQs0WYLbrP+toN6fdWb+F0VkAl/YtO+ye1JJAU8CO
+         jSmju0mMCoKCBga/ROHXCCAsm8vo6g1Wm6mnIrxBrXsaIUKpZBSsP8rtomD/uPMgh/
+         rkuoiAm1u4qwTSW1p0fifPOswrzXc4RpaSxO5Pzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin George <marting@netapp.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 312/530] nvme: retrigger ANA log update if group descriptor isnt found
-Date:   Wed, 12 May 2021 16:47:02 +0200
-Message-Id: <20210512144830.060729757@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 313/530] media: i2c: imx219: Move out locking/unlocking of vflip and hflip controls from imx219_set_stream
+Date:   Wed, 12 May 2021 16:47:03 +0200
+Message-Id: <20210512144830.094192632@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,41 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit dd8f7fa908f66dd44abcd83cbb50410524b9f8ef ]
+[ Upstream commit 745d4612d2c853c00abadbf69799c8aee7f99c39 ]
 
-If ANA is enabled but no ANA group descriptor is found when creating
-a new namespace the ANA log is most likely out of date, so trigger
-a re-read. The namespace will be tagged with the NS_ANA_PENDING flag
-to exclude it from path selection until the ANA log has been re-read.
+Move out locking/unlocking of vflip and hflip controls from
+imx219_set_stream() to the imx219_start_streaming()/
+imx219_stop_streaming() respectively.
 
-Fixes: 32acab3181c7 ("nvme: implement multipath access to nvme subsystems")
-Reported-by: Martin George <marting@netapp.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+This fixes an issue in resume callback error path where streaming is
+stopped and the controls are left in locked state.
+
+Fixes: 1283b3b8f82b9 ("media: i2c: Add driver for Sony IMX219 sensor")
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/i2c/imx219.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index e812a0d0fdb3..f750cf98ae26 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -667,6 +667,10 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id)
- 		if (desc.state) {
- 			/* found the group desc: update */
- 			nvme_update_ns_ana_state(&desc, ns);
-+		} else {
-+			/* group desc not found: trigger a re-read */
-+			set_bit(NVME_NS_ANA_PENDING, &ns->flags);
-+			queue_work(nvme_wq, &ns->ctrl->ana_work);
- 		}
- 	} else {
- 		ns->ana_state = NVME_ANA_OPTIMIZED; 
+diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
+index 0ae66091a696..9520b5dc2bc7 100644
+--- a/drivers/media/i2c/imx219.c
++++ b/drivers/media/i2c/imx219.c
+@@ -1047,8 +1047,16 @@ static int imx219_start_streaming(struct imx219 *imx219)
+ 		return ret;
+ 
+ 	/* set stream on register */
+-	return imx219_write_reg(imx219, IMX219_REG_MODE_SELECT,
+-				IMX219_REG_VALUE_08BIT, IMX219_MODE_STREAMING);
++	ret = imx219_write_reg(imx219, IMX219_REG_MODE_SELECT,
++			       IMX219_REG_VALUE_08BIT, IMX219_MODE_STREAMING);
++	if (ret)
++		return ret;
++
++	/* vflip and hflip cannot change during streaming */
++	__v4l2_ctrl_grab(imx219->vflip, true);
++	__v4l2_ctrl_grab(imx219->hflip, true);
++
++	return 0;
+ }
+ 
+ static void imx219_stop_streaming(struct imx219 *imx219)
+@@ -1061,6 +1069,9 @@ static void imx219_stop_streaming(struct imx219 *imx219)
+ 			       IMX219_REG_VALUE_08BIT, IMX219_MODE_STANDBY);
+ 	if (ret)
+ 		dev_err(&client->dev, "%s failed to set stream\n", __func__);
++
++	__v4l2_ctrl_grab(imx219->vflip, false);
++	__v4l2_ctrl_grab(imx219->hflip, false);
+ }
+ 
+ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
+@@ -1096,10 +1107,6 @@ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
+ 
+ 	imx219->streaming = enable;
+ 
+-	/* vflip and hflip cannot change during streaming */
+-	__v4l2_ctrl_grab(imx219->vflip, enable);
+-	__v4l2_ctrl_grab(imx219->hflip, enable);
+-
+ 	mutex_unlock(&imx219->mutex);
+ 
+ 	return ret;
 -- 
 2.30.2
 
