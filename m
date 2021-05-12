@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91DF037CAE6
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE98837CAE9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238574AbhELQcs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:32:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41570 "EHLO mail.kernel.org"
+        id S238714AbhELQcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:32:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241250AbhELQ05 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:26:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02FBF61411;
-        Wed, 12 May 2021 15:50:53 +0000 (UTC)
+        id S241267AbhELQ06 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:26:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E0F061DBA;
+        Wed, 12 May 2021 15:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834654;
-        bh=XOWtBRHSuOX4EissREp2XcPj4qBiqUOKAOx7vuhzsuc=;
+        s=korg; t=1620834661;
+        bh=tQg4AdYW1RM5A6+SeTn9sP2BxU9zefqwukcHmG2GkHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f1DpfdcLNIDfhdd+7ieslYNn4lyiXUqOinyPjj8Rrg2KADEFbs285sEi7UEmwXa+D
-         9Xed6VXRvwdORffGmJlSweLTIAwiOvuoEI2WAltP01Hvue+4t+4DmQ/Xp8nynNy2+7
-         IaprrMfnPDo8IoFZAPFOWOoLsZx3PSqdT1rD3dto=
+        b=ZXBaK4akzH+Miyb/8VRlmT5RShFDgTd+W5gaQkL+LIIU4Zbo+cQ/GrOUjuicv0Z3b
+         jhoN00CYtChePXfYWf1FAesjC75Yn+C5Vrunw1nayBvKzFUzdV98k8eYtJcKgA7jN8
+         Qjb5d1MizLDCiPyQ7bBrJwdWujCB0yqxI2TLqHoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Nadav Markus <nmarkus@paloaltonetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 003/677] net/nfc: fix use-after-free llcp_sock_bind/connect
-Date:   Wed, 12 May 2021 16:40:49 +0200
-Message-Id: <20210512144837.320132899@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.12 004/677] io_uring: truncate lengths larger than MAX_RW_COUNT on provide buffers
+Date:   Wed, 12 May 2021 16:40:50 +0200
+Message-Id: <20210512144837.353140128@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,73 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Or Cohen <orcohen@paloaltonetworks.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit c61760e6940dd4039a7f5e84a6afc9cdbf4d82b6 upstream.
+commit d1f82808877bb10d3deee7cf3374a4eb3fb582db upstream.
 
-Commits 8a4cd82d ("nfc: fix refcount leak in llcp_sock_connect()")
-and c33b1cc62 ("nfc: fix refcount leak in llcp_sock_bind()")
-fixed a refcount leak bug in bind/connect but introduced a
-use-after-free if the same local is assigned to 2 different sockets.
+Read and write operations are capped to MAX_RW_COUNT. Some read ops rely on
+that limit, and that is not guaranteed by the IORING_OP_PROVIDE_BUFFERS.
 
-This can be triggered by the following simple program:
-    int sock1 = socket( AF_NFC, SOCK_STREAM, NFC_SOCKPROTO_LLCP );
-    int sock2 = socket( AF_NFC, SOCK_STREAM, NFC_SOCKPROTO_LLCP );
-    memset( &addr, 0, sizeof(struct sockaddr_nfc_llcp) );
-    addr.sa_family = AF_NFC;
-    addr.nfc_protocol = NFC_PROTO_NFC_DEP;
-    bind( sock1, (struct sockaddr*) &addr, sizeof(struct sockaddr_nfc_llcp) )
-    bind( sock2, (struct sockaddr*) &addr, sizeof(struct sockaddr_nfc_llcp) )
-    close(sock1);
-    close(sock2);
+Truncate those lengths when doing io_add_buffers, so buffer addresses still
+use the uncapped length.
 
-Fix this by assigning NULL to llcp_sock->local after calling
-nfc_llcp_local_put.
+Also, take the chance and change struct io_buffer len member to __u32, so
+it matches struct io_provide_buffer len member.
 
-This addresses CVE-2021-23134.
+This fixes CVE-2021-3491, also reported as ZDI-CAN-13546.
 
-Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-Reported-by: Nadav Markus <nmarkus@paloaltonetworks.com>
-Fixes: c33b1cc62 ("nfc: fix refcount leak in llcp_sock_bind()")
-Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ddf0322db79c ("io_uring: add IORING_OP_PROVIDE_BUFFERS")
+Reported-by: Billy Jheng Bing-Jhong (@st424204)
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/io_uring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -109,12 +109,14 @@ static int llcp_sock_bind(struct socket
- 					  GFP_KERNEL);
- 	if (!llcp_sock->service_name) {
- 		nfc_llcp_local_put(llcp_sock->local);
-+		llcp_sock->local = NULL;
- 		ret = -ENOMEM;
- 		goto put_dev;
- 	}
- 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
- 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
- 		nfc_llcp_local_put(llcp_sock->local);
-+		llcp_sock->local = NULL;
- 		kfree(llcp_sock->service_name);
- 		llcp_sock->service_name = NULL;
- 		ret = -EADDRINUSE;
-@@ -709,6 +711,7 @@ static int llcp_sock_connect(struct sock
- 	llcp_sock->ssap = nfc_llcp_get_local_ssap(local);
- 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
- 		nfc_llcp_local_put(llcp_sock->local);
-+		llcp_sock->local = NULL;
- 		ret = -ENOMEM;
- 		goto put_dev;
- 	}
-@@ -756,6 +759,7 @@ sock_unlink:
- sock_llcp_release:
- 	nfc_llcp_put_ssap(local, llcp_sock->ssap);
- 	nfc_llcp_local_put(llcp_sock->local);
-+	llcp_sock->local = NULL;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -238,7 +238,7 @@ struct fixed_rsrc_data {
+ struct io_buffer {
+ 	struct list_head list;
+ 	__u64 addr;
+-	__s32 len;
++	__u32 len;
+ 	__u16 bid;
+ };
  
- put_dev:
- 	nfc_put_device(dev);
+@@ -4017,7 +4017,7 @@ static int io_add_buffers(struct io_prov
+ 			break;
+ 
+ 		buf->addr = addr;
+-		buf->len = pbuf->len;
++		buf->len = min_t(__u32, pbuf->len, MAX_RW_COUNT);
+ 		buf->bid = bid;
+ 		addr += pbuf->len;
+ 		bid++;
 
 
