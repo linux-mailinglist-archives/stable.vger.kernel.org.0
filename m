@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF59937C796
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 372F637CB39
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232270AbhELQAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35710 "EHLO mail.kernel.org"
+        id S242493AbhELQez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:34:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237902AbhELP4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:56:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 708DF6144A;
-        Wed, 12 May 2021 15:28:48 +0000 (UTC)
+        id S241543AbhELQ1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D855161A24;
+        Wed, 12 May 2021 15:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833328;
-        bh=FRkQPcqugX+6ff7elCcjNy1RfpURRUKUKdRS8baywzc=;
+        s=korg; t=1620834839;
+        bh=Y7qFrPwaTehrK6r+27CjiQ6TfRytRSMftu+HhrOVxUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lttqmn75OUyr0tSX41GQor+8/8f4shqGPzE/ETjJwZwfLIfIOM211hNaoO/+vWfL9
-         90AqzMYYzUh3pO2OvOb1ypDcCRwC8oehya1d7BR6LxFYxnJ8gSEvCIPry+AOvh6851
-         cXGvl2H43ysmN85mgHrVIas7RsEODOXXnD4rZfMU=
+        b=uRYtrQhqGjtSusG967iWe7Oc+kwnYHHZLtdUyc7j0Latk8Pd1rTPCbrTGAvzz8OLv
+         ettXyHZN4L38u/b5I3jveoWUFyT1jG8g64nNsS/gQTYJUMSYECrVrsI/duHLX0OLHK
+         nHLtswDCPIPAYabWkhJRWIhU4V85UQBcWDs6aqs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        nicholas.kazlauskas@amd.com, amd-gfx@lists.freedesktop.org,
-        alexander.deucher@amd.com, Roman.Li@amd.com, hersenxs.wu@amd.com,
-        danny.wang@amd.com,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.11 071/601] drm/amd/display: Reject non-zero src_y and src_x for video planes
-Date:   Wed, 12 May 2021 16:42:28 +0200
-Message-Id: <20210512144830.163388620@linuxfoundation.org>
+        stable@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 5.12 103/677] KVM: s390: VSIE: fix MVPG handling for prefixing and MSO
+Date:   Wed, 12 May 2021 16:42:29 +0200
+Message-Id: <20210512144840.644784211@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
-References: <20210512144827.811958675@linuxfoundation.org>
+In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
+References: <20210512144837.204217980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit d89f6048bdcb6a56abb396c584747d5eeae650db upstream.
+commit c3171e94cc1cdcc3229565244112e869f052b8d9 upstream.
 
-[Why]
-This hasn't been well tested and leads to complete system hangs on DCN1
-based systems, possibly others.
+Prefixing needs to be applied to the guest real address to translate it
+into a guest absolute address.
 
-The system hang can be reproduced by gesturing the video on the YouTube
-Android app on ChromeOS into full screen.
+The value of MSO needs to be added to a guest-absolute address in order to
+obtain the host-virtual.
 
-[How]
-Reject atomic commits with non-zero drm_plane_state.src_x or src_y values.
-
-v2:
- - Add code comment describing the reason we're rejecting non-zero
-   src_x and src_y
- - Drop gerrit Change-Id
- - Add stable CC
- - Based on amd-staging-drm-next
-
-v3: removed trailing whitespace
-
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Fixes: bdf7509bbefa ("s390/kvm: VSIE: correctly handle MVPG when in VSIE")
+Reported-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Cc: stable@vger.kernel.org
-Cc: nicholas.kazlauskas@amd.com
-Cc: amd-gfx@lists.freedesktop.org
-Cc: alexander.deucher@amd.com
-Cc: Roman.Li@amd.com
-Cc: hersenxs.wu@amd.com
-Cc: danny.wang@amd.com
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210322140559.500716-3-imbrenda@linux.ibm.com
+[borntraeger@de.ibm.com simplify mso]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/s390/kvm/vsie.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3740,6 +3740,23 @@ static int fill_dc_scaling_info(const st
- 	scaling_info->src_rect.x = state->src_x >> 16;
- 	scaling_info->src_rect.y = state->src_y >> 16;
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1002,7 +1002,7 @@ static u64 vsie_get_register(struct kvm_
+ static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ {
+ 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+-	unsigned long pei_dest, pei_src, src, dest, mask;
++	unsigned long pei_dest, pei_src, src, dest, mask, prefix;
+ 	u64 *pei_block = &vsie_page->scb_o->mcic;
+ 	int edat, rc_dest, rc_src;
+ 	union ctlreg0 cr0;
+@@ -1010,9 +1010,12 @@ static int vsie_handle_mvpg(struct kvm_v
+ 	cr0.val = vcpu->arch.sie_block->gcr[0];
+ 	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
+ 	mask = _kvm_s390_logical_to_effective(&scb_s->gpsw, PAGE_MASK);
++	prefix = scb_s->prefix << GUEST_PREFIX_SHIFT;
  
-+	/*
-+	 * For reasons we don't (yet) fully understand a non-zero
-+	 * src_y coordinate into an NV12 buffer can cause a
-+	 * system hang. To avoid hangs (and maybe be overly cautious)
-+	 * let's reject both non-zero src_x and src_y.
-+	 *
-+	 * We currently know of only one use-case to reproduce a
-+	 * scenario with non-zero src_x and src_y for NV12, which
-+	 * is to gesture the YouTube Android app into full screen
-+	 * on ChromeOS.
-+	 */
-+	if (state->fb &&
-+	    state->fb->format->format == DRM_FORMAT_NV12 &&
-+	    (scaling_info->src_rect.x != 0 ||
-+	     scaling_info->src_rect.y != 0))
-+		return -EINVAL;
-+
- 	scaling_info->src_rect.width = state->src_w >> 16;
- 	if (scaling_info->src_rect.width == 0)
- 		return -EINVAL;
+ 	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
++	dest = _kvm_s390_real_to_abs(prefix, dest) + scb_s->mso;
+ 	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
++	src = _kvm_s390_real_to_abs(prefix, src) + scb_s->mso;
+ 
+ 	rc_dest = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest, &pei_dest);
+ 	rc_src = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src, &pei_src);
 
 
