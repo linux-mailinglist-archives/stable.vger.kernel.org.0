@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4D437C691
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B52B37C62E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231890AbhELPwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:52:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56786 "EHLO mail.kernel.org"
+        id S234581AbhELPtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:49:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234910AbhELPmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:42:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BD7761C7F;
-        Wed, 12 May 2021 15:21:47 +0000 (UTC)
+        id S235042AbhELPmV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:42:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11C8A61C76;
+        Wed, 12 May 2021 15:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832908;
-        bh=SNDeB7Z6P2MY6QJujyykjpUFebnKf0w2LNOHf3T2JXw=;
+        s=korg; t=1620832910;
+        bh=K9YfiBT3PGPhLAmA0zT6LshT9kX7FXrYZhF5Bfk5ViM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Af2nKqjTnG0aWFswibCat5q6LPFcQuz5GCwnSs8dPwT2HF28x98xdVcc/MRwXEtMB
-         XB2PzzlbUKkK+cryvEM7PxZyMhYSXKb3m2iDaiO97ieedTDudxcELlGc1ZUksCwPZh
-         RfYrfFp1o2H4KQjS8mjcXjNTlwOm127nfjlin+ws=
+        b=CIjwGrZCh5YN55yXY4oRHpAOAhmkf1y16lOZL11cWz1oRRTxPJUffi97USCL4EIAv
+         Pf5cgHVEECIRxkDkqhcSORJ0G9U6LUsLCEiEFTx7m+Ys0Ro3YDcKX7pvO8crfXvCFY
+         nNHN1MLGd4jv9kuHiQqWxD0vz6pgWsBAF71FDM2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Sindhu Devale <sindhu.devale@intel.com>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 470/530] RDMA/cxgb4: add missing qpid increment
-Date:   Wed, 12 May 2021 16:49:40 +0200
-Message-Id: <20210512144835.209877155@linuxfoundation.org>
+Subject: [PATCH 5.10 471/530] RDMA/i40iw: Fix error unwinding when i40iw_hmc_sd_one fails
+Date:   Wed, 12 May 2021 16:49:41 +0200
+Message-Id: <20210512144835.241281086@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,37 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Potnuri Bharat Teja <bharat@chelsio.com>
+From: Sindhu Devale <sindhu.devale@intel.com>
 
-[ Upstream commit 3a6684385928d00b29acac7658a5ae1f2a44494c ]
+[ Upstream commit 783a11bf2400e5d5c42a943c3083dc0330751842 ]
 
-missing qpid increment leads to skipping few qpids while allocating QP.
-This eventually leads to adapter running out of qpids after establishing
-fewer connections than it actually supports.
-Current patch increments the qpid correctly.
+When i40iw_hmc_sd_one fails, chunk is freed without the deletion of chunk
+entry in the PBLE info list.
 
-Fixes: cfdda9d76436 ("RDMA/cxgb4: Add driver for Chelsio T4 RNIC")
-Link: https://lore.kernel.org/r/20210415151422.9139-1-bharat@chelsio.com
-Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Fix it by adding the chunk entry to the PBLE info list only after
+successful addition of SD in i40iw_hmc_sd_one.
+
+This fixes a static checker warning reported here:
+  https://lore.kernel.org/linux-rdma/YHV4CFXzqTm23AOZ@mwanda/
+
+Fixes: 9715830157be ("i40iw: add pble resource files")
+Link: https://lore.kernel.org/r/20210416002104.323-1-shiraz.saleem@intel.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Sindhu Devale <sindhu.devale@intel.com>
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/i40iw/i40iw_pble.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/resource.c b/drivers/infiniband/hw/cxgb4/resource.c
-index 5c95c789f302..e800e8e8bed5 100644
---- a/drivers/infiniband/hw/cxgb4/resource.c
-+++ b/drivers/infiniband/hw/cxgb4/resource.c
-@@ -216,7 +216,7 @@ u32 c4iw_get_qpid(struct c4iw_rdev *rdev, struct c4iw_dev_ucontext *uctx)
- 			goto out;
- 		entry->qid = qid;
- 		list_add_tail(&entry->entry, &uctx->cqids);
--		for (i = qid; i & rdev->qpmask; i++) {
-+		for (i = qid + 1; i & rdev->qpmask; i++) {
- 			entry = kmalloc(sizeof(*entry), GFP_KERNEL);
- 			if (!entry)
- 				goto out;
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_pble.c b/drivers/infiniband/hw/i40iw/i40iw_pble.c
+index 5f97643e22e5..ae7d227edad2 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_pble.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_pble.c
+@@ -392,12 +392,9 @@ static enum i40iw_status_code add_pble_pool(struct i40iw_sc_dev *dev,
+ 	i40iw_debug(dev, I40IW_DEBUG_PBLE, "next_fpm_addr = %llx chunk_size[%u] = 0x%x\n",
+ 		    pble_rsrc->next_fpm_addr, chunk->size, chunk->size);
+ 	pble_rsrc->unallocated_pble -= (chunk->size >> 3);
+-	list_add(&chunk->list, &pble_rsrc->pinfo.clist);
+ 	sd_reg_val = (sd_entry_type == I40IW_SD_TYPE_PAGED) ?
+ 			sd_entry->u.pd_table.pd_page_addr.pa : sd_entry->u.bp.addr.pa;
+-	if (sd_entry->valid)
+-		return 0;
+-	if (dev->is_pf) {
++	if (dev->is_pf && !sd_entry->valid) {
+ 		ret_code = i40iw_hmc_sd_one(dev, hmc_info->hmc_fn_id,
+ 					    sd_reg_val, idx->sd_idx,
+ 					    sd_entry->entry_type, true);
+@@ -408,6 +405,7 @@ static enum i40iw_status_code add_pble_pool(struct i40iw_sc_dev *dev,
+ 	}
+ 
+ 	sd_entry->valid = true;
++	list_add(&chunk->list, &pble_rsrc->pinfo.clist);
+ 	return 0;
+  error:
+ 	kfree(chunk);
 -- 
 2.30.2
 
