@@ -2,82 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5753F37BAB6
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 604BF37BAC7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:36:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230019AbhELKgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:36:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:22656 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230291AbhELKgY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:36:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620815716;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=JjvMxQTKtgVV/vw0mCHKj+DX9Iwi8frvy9yTNz/M6yk=;
-        b=akfQcl4EcoP5hydcyUWUvjEoTnNi8CTY7M7qpS3zSePBnM0ZC0g2E0RNTzUfQw09JSBxXi
-        7F+6Pb6y4oBpj6YfRjmEzMxcsp1tyz4m839/7ehuF2NZm9bWA1zUgqk9AbX86/f+yFObjO
-        z4lKsOAzfEzjpI77q/npNevyF1kOntI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-403-ighyW7aVO6GJpjTyhaPeSg-1; Wed, 12 May 2021 06:35:12 -0400
-X-MC-Unique: ighyW7aVO6GJpjTyhaPeSg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B296B801B13;
-        Wed, 12 May 2021 10:35:08 +0000 (UTC)
-Received: from gondolin.fritz.box (ovpn-113-78.ams2.redhat.com [10.36.113.78])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6D4F95D9D7;
-        Wed, 12 May 2021 10:35:06 +0000 (UTC)
-Date:   Wed, 12 May 2021 12:35:03 +0200
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, pasic@linux.vnet.ibm.com,
-        jjherne@linux.ibm.com, jgg@nvidia.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, stable@vger.kernel.org,
-        Tony Krowiak <akrowiak@stny.rr.com>
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
- callback
-Message-ID: <20210512123503.3177fc3d.cohuck@redhat.com>
-In-Reply-To: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-Organization: Red Hat GmbH
+        id S230104AbhELKhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:37:52 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:48149 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230096AbhELKhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:37:52 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id 1741811ED;
+        Wed, 12 May 2021 06:36:44 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Wed, 12 May 2021 06:36:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CEYtu9
+        sRfDSM1hu7k4yClKTm6HhiJAGT5+xfMzjtvkw=; b=cy8MC9dfMDw2QZ/ejFnmg9
+        p+Wiqytdsbon+4s9pZEYI8sbDJ4laVHUOinlX9EytoWXdrUlz+ks/9rlsQgvDYGe
+        IUl6eOj1vfxXsYzWeNN+m8DvaTySIPgPRX+P89r0Gle16yWsU37IuGPrBAZHbY7U
+        EHBY8CMKM3CkJgWrBCpgsxWHs+TZt+NNeEAN0cfX3eS+5d2T5391wQpsDp9h/dl/
+        8HvLlZ+rThSbbMecCboo5H0PjYSpJVvC1Qu4SJ2WBmN3b5QrVR2Co7ISuyiMKK89
+        R5wWGKUr0PeAg7wOLjBNZGyfvO/wfMEYl0PD6ZhkwQYTVqxGMbj8OUV6Ay9rPymA
+        ==
+X-ME-Sender: <xms:u6-bYATi6hZEs13YaTB8Xy9DbstGsAO6fA7nloHJzeA_bn1i-Mh3rw>
+    <xme:u6-bYNzvt-Rp0ReAwDfCy7bkANCBFKAyfP91MnFkqPIWrx0NnY7IfXc1sS9pRTRTu
+    qLEo9mpVdwIUA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:u6-bYN0gAYKsy-owHSOyaAwfAwj0DwBlIfNOUlranqaFRcwJS0gB1w>
+    <xmx:u6-bYED4oJTHdK9i0vTA-wcyJVMzLwvMlpFA-5fxHsAiJnZP8UT0XQ>
+    <xmx:u6-bYJj31n6DJP53ByQQntAGpzMlxvQZYPhpz1kgfpSQK9Hg9-bdXw>
+    <xmx:u6-bYJbLht9amFiT5AXyAyA3PMQkOABSDgItvk7hTjkh_4JR90BNzHtlxSw>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Wed, 12 May 2021 06:36:43 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86: Move RDPID emulation intercept to its own enum" failed to apply to 4.14-stable tree
+To:     seanjc@google.com, jmattson@google.com, pbonzini@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 12 May 2021 12:36:30 +0200
+Message-ID: <1620815790226149@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 May 2021 17:48:37 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-> The mdev remove callback for the vfio_ap device driver bails out with
-> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
-> to prevent the mdev from being removed while in use; however, returning a
-> non-zero rc does not prevent removal. This could result in a memory leak
-> of the resources allocated when the mdev was created. In addition, the
-> KVM guest will still have access to the AP devices assigned to the mdev
-> even though the mdev no longer exists.
-> 
-> To prevent this scenario, cleanup will be done - including unplugging the
-> AP adapters, domains and control domains - regardless of whether the mdev
-> is in use by a KVM guest or not.
-> 
-> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
->  1 file changed, 2 insertions(+), 11 deletions(-)
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-With the S-o-b fixed,
+thanks,
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 2183de4161b90bd3851ccd3910c87b2c9adfc6ed Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 4 May 2021 10:17:23 -0700
+Subject: [PATCH] KVM: x86: Move RDPID emulation intercept to its own enum
+
+Add a dedicated intercept enum for RDPID instead of piggybacking RDTSCP.
+Unlike VMX's ENABLE_RDTSCP, RDPID is not bound to SVM's RDTSCP intercept.
+
+Fixes: fb6d4d340e05 ("KVM: x86: emulate RDPID")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210504171734.1434054-5-seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 77e1c89a95a7..8a0ccdb56076 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -4502,7 +4502,7 @@ static const struct opcode group8[] = {
+  * from the register case of group9.
+  */
+ static const struct gprefix pfx_0f_c7_7 = {
+-	N, N, N, II(DstMem | ModRM | Op3264 | EmulateOnUD, em_rdpid, rdtscp),
++	N, N, N, II(DstMem | ModRM | Op3264 | EmulateOnUD, em_rdpid, rdpid),
+ };
+ 
+ 
+diff --git a/arch/x86/kvm/kvm_emulate.h b/arch/x86/kvm/kvm_emulate.h
+index 0d359115429a..f016838faedd 100644
+--- a/arch/x86/kvm/kvm_emulate.h
++++ b/arch/x86/kvm/kvm_emulate.h
+@@ -468,6 +468,7 @@ enum x86_intercept {
+ 	x86_intercept_clgi,
+ 	x86_intercept_skinit,
+ 	x86_intercept_rdtscp,
++	x86_intercept_rdpid,
+ 	x86_intercept_icebp,
+ 	x86_intercept_wbinvd,
+ 	x86_intercept_monitor,
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 46573b862638..4a625c748275 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7437,8 +7437,9 @@ static int vmx_check_intercept(struct kvm_vcpu *vcpu,
+ 	/*
+ 	 * RDPID causes #UD if disabled through secondary execution controls.
+ 	 * Because it is marked as EmulateOnUD, we need to intercept it here.
++	 * Note, RDPID is hidden behind ENABLE_RDTSCP.
+ 	 */
+-	case x86_intercept_rdtscp:
++	case x86_intercept_rdpid:
+ 		if (!nested_cpu_has2(vmcs12, SECONDARY_EXEC_ENABLE_RDTSCP)) {
+ 			exception->vector = UD_VECTOR;
+ 			exception->error_code_valid = false;
 
