@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDF937CAF0
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8718C37CAF4
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239000AbhELQdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:33:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S239083AbhELQdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:33:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241300AbhELQ1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241301AbhELQ1A (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:27:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F249061625;
-        Wed, 12 May 2021 15:51:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68826611C9;
+        Wed, 12 May 2021 15:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834691;
-        bh=6QQ2TqVHf3CmrVi6DFUE6LljiPYNFvr21qXvzOq5xl8=;
+        s=korg; t=1620834693;
+        bh=9m/TwkgxOlj5FNTpbQ7MuMQxwO46mEjF4yQitXn0H+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ws5nK61lmRXuXnOeXQ1EqkmFheAi1Qoa78wQ5BDbrWJ9jESYThjPqbbaP6PAyBy7T
-         6thekljS+tKqkSOSg54yPOfujoTtCZGjw3N5Hf0ayXMUbcRbKrMt6KBueJv79WAaDx
-         Fy/KSGBrxs5tUshPV8F3pOLp0W3rt6kMTjF5O2w8=
+        b=VQhwoDkh+9F30b9fDuDGo36nSEKX8CggGE6GgPAqcYPgscOvgle3pdyNpf/C5tFEN
+         KubgHWOSf/ENmUJW/nY/Exw64PZssiYvxW6JkliYsTcr4NIrb2Rnq/nDQML2PePw06
+         81rjD2lSFn3CbMzKMNfZbHg6ucV1cVS34FHDwhk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Xiang <xiang.ye@intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.12 046/677] iio: hid-sensor-rotation: Fix quaternion data not correct
-Date:   Wed, 12 May 2021 16:41:32 +0200
-Message-Id: <20210512144838.738510534@linuxfoundation.org>
+        stable@vger.kernel.org, Annaliese McDermond <nh6z@nh6z.net>
+Subject: [PATCH 5.12 047/677] sc16is7xx: Defer probe if device read fails
+Date:   Wed, 12 May 2021 16:41:33 +0200
+Message-Id: <20210512144838.770498321@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,54 +38,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Xiang <xiang.ye@intel.com>
+From: Annaliese McDermond <nh6z@nh6z.net>
 
-commit 6c3b615379d7cd90d2f70b3cf9860c5a4910546a upstream.
+commit 158e800e0fde91014812f5cdfb92ce812e3a33b4 upstream.
 
-Because the data of HID_USAGE_SENSOR_ORIENT_QUATERNION defined by ISH FW
-is s16, but quaternion data type is in_rot_quaternion_type(le:s16/32X4>>0),
-need to transform data type from s16 to s32
+A test was added to the probe function to ensure the device was
+actually connected and working before successfully completing a
+probe.  If the device was actually there, but the I2C bus was not
+ready yet for whatever reason, the probe fails permanently.
 
-May require manual backporting.
+Change the probe so that we defer the probe on a regmap read
+failure so that we try the probe again when the dependent drivers
+are potentially loaded.  This should not affect the case where the
+device truly isn't present because the probe will never successfully
+complete.
 
-Fixes: fc18dddc0625 ("iio: hid-sensors: Added device rotation support")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Link: https://lore.kernel.org/r/20210130102546.31397-1-xiang.ye@intel.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 2aa916e67db3 ("sc16is7xx: Read the LSR register for basic device presence check")
+Cc: stable@vger.kernel.org
+Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
+Link: https://lore.kernel.org/r/010101787f9c3fd8-c1815c00-2d6b-4c85-a96a-a13e68597fda-000000@us-west-2.amazonses.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/orientation/hid-sensor-rotation.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/tty/serial/sc16is7xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -21,7 +21,7 @@ struct dev_rot_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info quaternion;
- 	struct {
--		u32 sampled_vals[4] __aligned(16);
-+		s32 sampled_vals[4] __aligned(16);
- 		u64 timestamp __aligned(8);
- 	} scan;
- 	int scale_pre_decml;
-@@ -170,8 +170,15 @@ static int dev_rot_capture_sample(struct
- 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
+--- a/drivers/tty/serial/sc16is7xx.c
++++ b/drivers/tty/serial/sc16is7xx.c
+@@ -1196,7 +1196,7 @@ static int sc16is7xx_probe(struct device
+ 	ret = regmap_read(regmap,
+ 			  SC16IS7XX_LSR_REG << SC16IS7XX_REG_SHIFT, &val);
+ 	if (ret < 0)
+-		return ret;
++		return -EPROBE_DEFER;
  
- 	if (usage_id == HID_USAGE_SENSOR_ORIENT_QUATERNION) {
--		memcpy(&rot_state->scan.sampled_vals, raw_data,
--		       sizeof(rot_state->scan.sampled_vals));
-+		if (raw_len / 4 == sizeof(s16)) {
-+			rot_state->scan.sampled_vals[0] = ((s16 *)raw_data)[0];
-+			rot_state->scan.sampled_vals[1] = ((s16 *)raw_data)[1];
-+			rot_state->scan.sampled_vals[2] = ((s16 *)raw_data)[2];
-+			rot_state->scan.sampled_vals[3] = ((s16 *)raw_data)[3];
-+		} else {
-+			memcpy(&rot_state->scan.sampled_vals, raw_data,
-+			       sizeof(rot_state->scan.sampled_vals));
-+		}
- 
- 		dev_dbg(&indio_dev->dev, "Recd Quat len:%zu::%zu\n", raw_len,
- 			sizeof(rot_state->scan.sampled_vals));
+ 	/* Alloc port structure */
+ 	s = devm_kzalloc(dev, struct_size(s, p, devtype->nr_uart), GFP_KERNEL);
 
 
