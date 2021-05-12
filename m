@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA6A37CCBF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E21F437CCBE
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233176AbhELQrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:47:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35834 "EHLO mail.kernel.org"
+        id S232887AbhELQrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:47:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243453AbhELQlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243455AbhELQlN (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:41:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FC4D61E49;
-        Wed, 12 May 2021 16:04:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C91061E43;
+        Wed, 12 May 2021 16:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835461;
-        bh=1pgD7no4S/wmUMsPtvyX+r5QrY1fxcuz5lqoJVYyCXk=;
+        s=korg; t=1620835465;
+        bh=9hwtmj1/e15rz11UeCF14p0hpUbutyH20Zzz2b3a+E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hnCg8SuYnu8Il3l+m32W37rLgkJpsBihr/Klkqc8KPEBQxcgIkQZ5nE5Yq+Yh/3Tq
-         A93Pd9XI7sWIVq8nlUxdB+frymQCWU43CSYfTTqU7XjPMbASu9IiAGNRTXHms9RXKv
-         WjuZxivMTu0MOLEhwTqq2cn/4ikgEWHnN5H6UIzM=
+        b=XP7l25pC/+turb9VTfoRENL6fcz3X2QPFUR+CCxy8iyFXGAdUAUjaZuK7GqR17IvK
+         k/3gc3y376KZuw4dgzQQ3rLdV9+kwYZryafFVfh8N2PjPoGTc8+tKJpo/PpQrB+C6v
+         DrXS39qiAq6mbfmA9UzmkYVhp5/J3N1t2zQbh+FQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Helen Koike <helen.koike@collabora.com>,
+        Sebastian Fricke <sebastian.fricke.linux@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 354/677] media: omap4iss: return error code when omap4iss_get() failed
-Date:   Wed, 12 May 2021 16:46:40 +0200
-Message-Id: <20210512144849.075986557@linuxfoundation.org>
+Subject: [PATCH 5.12 355/677] media: rkisp1: rsz: crash fix when setting src format
+Date:   Wed, 12 May 2021 16:46:41 +0200
+Message-Id: <20210512144849.114062092@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,38 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 8938c48fa25b491842ece9eb38f0bea0fcbaca44 ]
+[ Upstream commit cbe8373ca7e7cbb4b263b6bf222ccc19f5e119d2 ]
 
-If omap4iss_get() failed, it need return error code in iss_probe().
+When setting the source media bus code in the resizer,
+we first check that the current media bus code in the
+source is yuv encoded format. This is done by
+retrieving the data from the formats list of the isp
+entity. This cause a crash when the media bus code on the
+source is YUYV8_1_5X8 which is not supported by the isp
+entity. Instead we should test the sink format of the resizer
+which is guaranteed to be supported by the isp entity.
 
-Fixes: 59f0ad807681 ("[media] v4l: omap4iss: Add support for OMAP4...")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Fixes: 251b6eebb6c49 ("media: staging: rkisp1: rsz: Add support to more YUV encoded mbus codes on src pad")
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Acked-by: Helen Koike <helen.koike@collabora.com>
+Tested-by: Sebastian Fricke <sebastian.fricke.linux@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/omap4iss/iss.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/media/omap4iss/iss.c b/drivers/staging/media/omap4iss/iss.c
-index dae9073e7d3c..085397045b36 100644
---- a/drivers/staging/media/omap4iss/iss.c
-+++ b/drivers/staging/media/omap4iss/iss.c
-@@ -1236,8 +1236,10 @@ static int iss_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto error;
+diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
+index 813670ed9577..79deed8adcea 100644
+--- a/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
++++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
+@@ -520,14 +520,15 @@ static void rkisp1_rsz_set_src_fmt(struct rkisp1_resizer *rsz,
+ 				   struct v4l2_mbus_framefmt *format,
+ 				   unsigned int which)
+ {
+-	const struct rkisp1_isp_mbus_info *mbus_info;
+-	struct v4l2_mbus_framefmt *src_fmt;
++	const struct rkisp1_isp_mbus_info *sink_mbus_info;
++	struct v4l2_mbus_framefmt *src_fmt, *sink_fmt;
  
--	if (!omap4iss_get(iss))
-+	if (!omap4iss_get(iss)) {
-+		ret = -EINVAL;
- 		goto error;
-+	}
++	sink_fmt = rkisp1_rsz_get_pad_fmt(rsz, cfg, RKISP1_RSZ_PAD_SINK, which);
+ 	src_fmt = rkisp1_rsz_get_pad_fmt(rsz, cfg, RKISP1_RSZ_PAD_SRC, which);
+-	mbus_info = rkisp1_isp_mbus_info_get(src_fmt->code);
++	sink_mbus_info = rkisp1_isp_mbus_info_get(sink_fmt->code);
  
- 	ret = iss_reset(iss);
- 	if (ret < 0)
+ 	/* for YUV formats, userspace can change the mbus code on the src pad if it is supported */
+-	if (mbus_info->pixel_enc == V4L2_PIXEL_ENC_YUV &&
++	if (sink_mbus_info->pixel_enc == V4L2_PIXEL_ENC_YUV &&
+ 	    rkisp1_rsz_get_yuv_mbus_info(format->code))
+ 		src_fmt->code = format->code;
+ 
 -- 
 2.30.2
 
