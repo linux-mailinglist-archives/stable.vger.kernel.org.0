@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ABC837CCA4
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 290F137CCA2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244449AbhELQqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:46:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57040 "EHLO mail.kernel.org"
+        id S244440AbhELQp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239438AbhELQjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:39:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 181CF61CE0;
-        Wed, 12 May 2021 16:03:24 +0000 (UTC)
+        id S239461AbhELQjP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:39:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83A5D61E33;
+        Wed, 12 May 2021 16:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835405;
-        bh=lkYbGQTqd5kSKRn2IRubul+douMPlxBIaJa5rUxYCRs=;
+        s=korg; t=1620835408;
+        bh=n3kNrpRcBCTol+mm8u6v57hADinBtpPqvGdWRR+C3jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8ETj644NsEOuOSm/IRl5qHilaSdO0LvsKmn4H1WITCUlTvq5CtJ0yDzTfjzEfdMM
-         Pk+y/Q27CcNiOhbcuTBdmY+K0GmYsCdudVA3SVbXbyign7pT86T5C1LwDk5wFdJfBn
-         OC0Lvv4QleRikjSpcCg1h6bU6XXHrJMZZh1b21Bo=
+        b=x8oEk8GjCUI48K8c/DZAGKqEpvHkdQD0IF5y3STMMEG4RTrL6fnm92RF2ozKSHs1R
+         zte2g1jtIrynruMkSwmz9f7vi6mlzHOODlSiJVHsRQyiBXawy4VmTQ9GRbh922L0Hg
+         moaFoIByS6PzQEeSNS3PAHTOE+82X+rYNAMDw2Jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 330/677] platform/surface: aggregator: fix a bit test
-Date:   Wed, 12 May 2021 16:46:16 +0200
-Message-Id: <20210512144848.221221527@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 331/677] Drivers: hv: vmbus: Increase wait time for VMbus unload
+Date:   Wed, 12 May 2021 16:46:17 +0200
+Message-Id: <20210512144848.263810504@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,37 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit 366f0a30c8a01e79255221539a52909cc4c7bd25 ]
+[ Upstream commit 77db0ec8b7764cb9b09b78066ebfd47b2c0c1909 ]
 
-The "funcs" variable is a u64.  If "func" is more than 31 then the
-BIT() shift will wrap instead of testing the high bits.
+When running in Azure, disks may be connected to a Linux VM with
+read/write caching enabled. If a VM panics and issues a VMbus
+UNLOAD request to Hyper-V, the response is delayed until all dirty
+data in the disk cache is flushed.  In extreme cases, this flushing
+can take 10's of seconds, depending on the disk speed and the amount
+of dirty data. If kdump is configured for the VM, the current 10 second
+timeout in vmbus_wait_for_unload() may be exceeded, and the UNLOAD
+complete message may arrive well after the kdump kernel is already
+running, causing problems.  Note that no problem occurs if kdump is
+not enabled because Hyper-V waits for the cache flush before doing
+a reboot through the BIOS/UEFI code.
 
-Fixes: c167b9c7e3d6 ("platform/surface: Add Surface Aggregator subsystem")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/YH6UUhJhGk3mk13b@mwanda
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fix this problem by increasing the timeout in vmbus_wait_for_unload()
+to 100 seconds. Also output periodic messages so that if anyone is
+watching the serial console, they won't think the VM is completely
+hung.
+
+Fixes: 911e1987efc8 ("Drivers: hv: vmbus: Add timeout to vmbus_wait_for_unload")
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/1618894089-126662-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/surface/aggregator/controller.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hv/channel_mgmt.c | 30 +++++++++++++++++++++++++-----
+ 1 file changed, 25 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/surface/aggregator/controller.c b/drivers/platform/surface/aggregator/controller.c
-index 5bcb59ed579d..89761d3e1a47 100644
---- a/drivers/platform/surface/aggregator/controller.c
-+++ b/drivers/platform/surface/aggregator/controller.c
-@@ -1040,7 +1040,7 @@ static int ssam_dsm_load_u32(acpi_handle handle, u64 funcs, u64 func, u32 *ret)
- 	union acpi_object *obj;
- 	u64 val;
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index f0ed730e2e4e..ecebf1235fd5 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -756,6 +756,12 @@ static void init_vp_index(struct vmbus_channel *channel)
+ 	free_cpumask_var(available_mask);
+ }
  
--	if (!(funcs & BIT(func)))
-+	if (!(funcs & BIT_ULL(func)))
- 		return 0; /* Not supported, leave *ret at its default value */
++#define UNLOAD_DELAY_UNIT_MS	10		/* 10 milliseconds */
++#define UNLOAD_WAIT_MS		(100*1000)	/* 100 seconds */
++#define UNLOAD_WAIT_LOOPS	(UNLOAD_WAIT_MS/UNLOAD_DELAY_UNIT_MS)
++#define UNLOAD_MSG_MS		(5*1000)	/* Every 5 seconds */
++#define UNLOAD_MSG_LOOPS	(UNLOAD_MSG_MS/UNLOAD_DELAY_UNIT_MS)
++
+ static void vmbus_wait_for_unload(void)
+ {
+ 	int cpu;
+@@ -773,12 +779,17 @@ static void vmbus_wait_for_unload(void)
+ 	 * vmbus_connection.unload_event. If not, the last thing we can do is
+ 	 * read message pages for all CPUs directly.
+ 	 *
+-	 * Wait no more than 10 seconds so that the panic path can't get
+-	 * hung forever in case the response message isn't seen.
++	 * Wait up to 100 seconds since an Azure host must writeback any dirty
++	 * data in its disk cache before the VMbus UNLOAD request will
++	 * complete. This flushing has been empirically observed to take up
++	 * to 50 seconds in cases with a lot of dirty data, so allow additional
++	 * leeway and for inaccuracies in mdelay(). But eventually time out so
++	 * that the panic path can't get hung forever in case the response
++	 * message isn't seen.
+ 	 */
+-	for (i = 0; i < 1000; i++) {
++	for (i = 1; i <= UNLOAD_WAIT_LOOPS; i++) {
+ 		if (completion_done(&vmbus_connection.unload_event))
+-			break;
++			goto completed;
  
- 	obj = acpi_evaluate_dsm_typed(handle, &SSAM_SSH_DSM_GUID,
+ 		for_each_online_cpu(cpu) {
+ 			struct hv_per_cpu_context *hv_cpu
+@@ -801,9 +812,18 @@ static void vmbus_wait_for_unload(void)
+ 			vmbus_signal_eom(msg, message_type);
+ 		}
+ 
+-		mdelay(10);
++		/*
++		 * Give a notice periodically so someone watching the
++		 * serial output won't think it is completely hung.
++		 */
++		if (!(i % UNLOAD_MSG_LOOPS))
++			pr_notice("Waiting for VMBus UNLOAD to complete\n");
++
++		mdelay(UNLOAD_DELAY_UNIT_MS);
+ 	}
++	pr_err("Continuing even though VMBus UNLOAD did not complete\n");
+ 
++completed:
+ 	/*
+ 	 * We're crashing and already got the UNLOAD_RESPONSE, cleanup all
+ 	 * maybe-pending messages on all CPUs to be able to receive new
 -- 
 2.30.2
 
