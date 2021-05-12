@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4733137CA5B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A2E37CA5E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236431AbhELQ3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:29:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58050 "EHLO mail.kernel.org"
+        id S237170AbhELQ3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:29:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231764AbhELQVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:21:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9033261285;
-        Wed, 12 May 2021 15:46:42 +0000 (UTC)
+        id S231355AbhELQVP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:21:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03616613B5;
+        Wed, 12 May 2021 15:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834403;
-        bh=ysjtPelP3VLrbcSf0jawYViv8f4OKICeVu5TAjMk2HM=;
+        s=korg; t=1620834405;
+        bh=8/JIDKouSYg/xwkLP+eNHpCCoB3Kb49A5+8NdWiXhB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wO0abDpM3XBJ5O3luI7z2iSbWHH4IjKcBw1ZRNqJF74RpjWSwUQ+d2gib7CtkLugY
-         pH+Njr22MZCr/kWebLp5ZvbPLyq6c8OsXjKGcK4IhF5FlrQm67DMsHmCqNx2L+6LHP
-         4HKBeQGjXSZfZ5Qh0O911zPjelNH4eq5+xR8gj3Y=
+        b=pqE5THyRydqf9O7PjeFwXNeDGyjggNY4Xl6zy3clOR3VJT3wS66UXdpHQdj/HjaUi
+         qMrq9ApVa3pg9uqe9InwqB3TVRVLkcWdnPkRhvdbxpSrzbRbkzT1Q6B2Lw0/pbvPad
+         rYrBqEkXWnB0iXLJ1+jAqdm/XPQYm4qRoNtnHk+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 530/601] netfilter: nftables_offload: special ethertype handling for VLAN
-Date:   Wed, 12 May 2021 16:50:07 +0200
-Message-Id: <20210512144845.311732119@linuxfoundation.org>
+Subject: [PATCH 5.11 531/601] vsock/vmci: log once the failed queue pair allocation
+Date:   Wed, 12 May 2021 16:50:08 +0200
+Message-Id: <20210512144845.342493686@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,99 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 783003f3bb8a565326e89d18bbd948ad8ffc816a ]
+[ Upstream commit e16edc99d658cd41c60a44cc14d170697aa3271f ]
 
-The nftables offload parser sets FLOW_DISSECTOR_KEY_BASIC .n_proto to the
-ethertype field in the ethertype frame. However:
+VMCI feature is not supported in conjunction with the vSphere Fault
+Tolerance (FT) feature.
 
-- FLOW_DISSECTOR_KEY_BASIC .n_proto field always stores either IPv4 or IPv6
-  ethertypes.
-- FLOW_DISSECTOR_KEY_VLAN .vlan_tpid stores either the 802.1q and 802.1ad
-  ethertypes. Same as for FLOW_DISSECTOR_KEY_CVLAN.
+VMware Tools can repeatedly try to create a vsock connection. If FT is
+enabled the kernel logs is flooded with the following messages:
 
-This function adjusts the flow dissector to handle two scenarios:
+    qp_alloc_hypercall result = -20
+    Could not attach to queue pair with -20
 
-1) FLOW_DISSECTOR_KEY_VLAN .vlan_tpid is set to 802.1q or 802.1ad.
-   Then, transfer:
-   - the .n_proto field to FLOW_DISSECTOR_KEY_VLAN .tpid.
-   - the original FLOW_DISSECTOR_KEY_VLAN .tpid to the
-     FLOW_DISSECTOR_KEY_CVLAN .tpid
-   - the original FLOW_DISSECTOR_KEY_CVLAN .tpid to the .n_proto field.
+"qp_alloc_hypercall result = -20" was hidden by commit e8266c4c3307
+("VMCI: Stop log spew when qp allocation isn't possible"), but "Could
+not attach to queue pair with -20" is still there flooding the log.
 
-2) .n_proto is set to 802.1q or 802.1ad. Then, transfer:
-   - the .n_proto field to FLOW_DISSECTOR_KEY_VLAN .tpid.
-   - the original FLOW_DISSECTOR_KEY_VLAN .tpid to the .n_proto field.
+Since the error message can be useful in some cases, print it only once.
 
-Fixes: a82055af5959 ("netfilter: nft_payload: add VLAN offload support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_offload.c | 44 +++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ net/vmw_vsock/vmci_transport.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
-index 9ae14270c543..2b00f7f47693 100644
---- a/net/netfilter/nf_tables_offload.c
-+++ b/net/netfilter/nf_tables_offload.c
-@@ -45,6 +45,48 @@ void nft_flow_rule_set_addr_type(struct nft_flow_rule *flow,
- 		offsetof(struct nft_flow_key, control);
- }
- 
-+struct nft_offload_ethertype {
-+	__be16 value;
-+	__be16 mask;
-+};
-+
-+static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
-+					struct nft_flow_rule *flow)
-+{
-+	struct nft_flow_match *match = &flow->match;
-+	struct nft_offload_ethertype ethertype;
-+
-+	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_CONTROL) &&
-+	    match->key.basic.n_proto != htons(ETH_P_8021Q) &&
-+	    match->key.basic.n_proto != htons(ETH_P_8021AD))
-+		return;
-+
-+	ethertype.value = match->key.basic.n_proto;
-+	ethertype.mask = match->mask.basic.n_proto;
-+
-+	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_VLAN) &&
-+	    (match->key.vlan.vlan_tpid == htons(ETH_P_8021Q) ||
-+	     match->key.vlan.vlan_tpid == htons(ETH_P_8021AD))) {
-+		match->key.basic.n_proto = match->key.cvlan.vlan_tpid;
-+		match->mask.basic.n_proto = match->mask.cvlan.vlan_tpid;
-+		match->key.cvlan.vlan_tpid = match->key.vlan.vlan_tpid;
-+		match->mask.cvlan.vlan_tpid = match->mask.vlan.vlan_tpid;
-+		match->key.vlan.vlan_tpid = ethertype.value;
-+		match->mask.vlan.vlan_tpid = ethertype.mask;
-+		match->dissector.offset[FLOW_DISSECTOR_KEY_CVLAN] =
-+			offsetof(struct nft_flow_key, cvlan);
-+		match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_CVLAN);
-+	} else {
-+		match->key.basic.n_proto = match->key.vlan.vlan_tpid;
-+		match->mask.basic.n_proto = match->mask.vlan.vlan_tpid;
-+		match->key.vlan.vlan_tpid = ethertype.value;
-+		match->mask.vlan.vlan_tpid = ethertype.mask;
-+		match->dissector.offset[FLOW_DISSECTOR_KEY_VLAN] =
-+			offsetof(struct nft_flow_key, vlan);
-+		match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_VLAN);
-+	}
-+}
-+
- struct nft_flow_rule *nft_flow_rule_create(struct net *net,
- 					   const struct nft_rule *rule)
- {
-@@ -89,6 +131,8 @@ struct nft_flow_rule *nft_flow_rule_create(struct net *net,
- 
- 		expr = nft_expr_next(expr);
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 8b65323207db..1c9ecb18b8e6 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -568,8 +568,7 @@ vmci_transport_queue_pair_alloc(struct vmci_qp **qpair,
+ 			       peer, flags, VMCI_NO_PRIVILEGE_FLAGS);
+ out:
+ 	if (err < 0) {
+-		pr_err("Could not attach to queue pair with %d\n",
+-		       err);
++		pr_err_once("Could not attach to queue pair with %d\n", err);
+ 		err = vmci_transport_error_to_vsock_error(err);
  	}
-+	nft_flow_rule_transfer_vlan(ctx, flow);
-+
- 	flow->proto = ctx->dep.l3num;
- 	kfree(ctx);
  
 -- 
 2.30.2
