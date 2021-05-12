@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A4BE37CCE3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDE137CCDC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237367AbhELQsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33484 "EHLO mail.kernel.org"
+        id S236379AbhELQsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:48:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243675AbhELQly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:41:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B74761E52;
-        Wed, 12 May 2021 16:05:37 +0000 (UTC)
+        id S243661AbhELQlx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:41:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8D7061E55;
+        Wed, 12 May 2021 16:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835537;
-        bh=YvfDcKHRlMNOQPNIhlJSURVfPPmxTn7oLxsrXrF9LWg=;
+        s=korg; t=1620835540;
+        bh=OgghExugZQnc0IlEAwjG3gLAshXhrvIw8m0kA6YJh/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kc7hmu/RxKCA3JCjubKDCsW6QnLQ/K0F4bz7ql6/bzny+5VdZnCYpz8PstHxxuBtI
-         ZSUx1PSp3Yq5HK++hgzSJnd2KsIYQ2ClfifUJbiZ9/34ycOCdW7MFR3FiA4gRBLrVQ
-         4XVvSol7TwWiL1a123i9sVrWDKYlVoTclhXs/ojA=
+        b=xtyqLkaq1ijPcswX1sAru7G3uRZbhkDajTTELXFLukch7IdItfYnb8XpulRYSRhbL
+         wbFUjaE1Y9jrunXUoR3lTKtoLepCbR368D222r254BXicyc66AW+cyCi3jdL/A97H9
+         9yuy4IuxhBjRK76oFfGy/9k7ITpJI+EYtgtIgFU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 385/677] nvmet-tcp: fix incorrect locking in state_change sk callback
-Date:   Wed, 12 May 2021 16:47:11 +0200
-Message-Id: <20210512144850.121745305@linuxfoundation.org>
+        stable@vger.kernel.org, Aisheng Dong <aisheng.dong@nxp.com>,
+        Adam Ford <aford173@gmail.com>, Abel Vesa <abel.vesa@nxp.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 386/677] clk: imx: Fix reparenting of UARTs not associated with stdout
+Date:   Wed, 12 May 2021 16:47:12 +0200
+Message-Id: <20210512144850.152620552@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,165 +41,725 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit b5332a9f3f3d884a1b646ce155e664cc558c1722 ]
+[ Upstream commit 379c9a24cc239000b1dec53db02fe17a86947423 ]
 
-We are not changing anything in the TCP connection state so
-we should not take a write_lock but rather a read lock.
+Most if not all i.MX SoC's call a function which enables all UARTS.
+This is a problem for users who need to re-parent the clock source,
+because any attempt to change the parent results in an busy error
+due to the fact that the clocks have been enabled already.
 
-This caused a deadlock when running nvmet-tcp and nvme-tcp
-on the same system, where state_change callbacks on the
-host and on the controller side have causal relationship
-and made lockdep report on this with blktests:
+  clk: failed to reparent uart1 to sys_pll1_80m: -16
 
-================================
-WARNING: inconsistent lock state
-5.12.0-rc3 #1 Tainted: G          I
---------------------------------
-inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-R} usage.
-nvme/1324 [HC0[0]:SC0[0]:HE1:SE1] takes:
-ffff888363151000 (clock-AF_INET){++-?}-{2:2}, at: nvme_tcp_state_change+0x21/0x150 [nvme_tcp]
-{IN-SOFTIRQ-W} state was registered at:
-  __lock_acquire+0x79b/0x18d0
-  lock_acquire+0x1ca/0x480
-  _raw_write_lock_bh+0x39/0x80
-  nvmet_tcp_state_change+0x21/0x170 [nvmet_tcp]
-  tcp_fin+0x2a8/0x780
-  tcp_data_queue+0xf94/0x1f20
-  tcp_rcv_established+0x6ba/0x1f00
-  tcp_v4_do_rcv+0x502/0x760
-  tcp_v4_rcv+0x257e/0x3430
-  ip_protocol_deliver_rcu+0x69/0x6a0
-  ip_local_deliver_finish+0x1e2/0x2f0
-  ip_local_deliver+0x1a2/0x420
-  ip_rcv+0x4fb/0x6b0
-  __netif_receive_skb_one_core+0x162/0x1b0
-  process_backlog+0x1ff/0x770
-  __napi_poll.constprop.0+0xa9/0x5c0
-  net_rx_action+0x7b3/0xb30
-  __do_softirq+0x1f0/0x940
-  do_softirq+0xa1/0xd0
-  __local_bh_enable_ip+0xd8/0x100
-  ip_finish_output2+0x6b7/0x18a0
-  __ip_queue_xmit+0x706/0x1aa0
-  __tcp_transmit_skb+0x2068/0x2e20
-  tcp_write_xmit+0xc9e/0x2bb0
-  __tcp_push_pending_frames+0x92/0x310
-  inet_shutdown+0x158/0x300
-  __nvme_tcp_stop_queue+0x36/0x270 [nvme_tcp]
-  nvme_tcp_stop_queue+0x87/0xb0 [nvme_tcp]
-  nvme_tcp_teardown_admin_queue+0x69/0xe0 [nvme_tcp]
-  nvme_do_delete_ctrl+0x100/0x10c [nvme_core]
-  nvme_sysfs_delete.cold+0x8/0xd [nvme_core]
-  kernfs_fop_write_iter+0x2c7/0x460
-  new_sync_write+0x36c/0x610
-  vfs_write+0x5c0/0x870
-  ksys_write+0xf9/0x1d0
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-irq event stamp: 10687
-hardirqs last  enabled at (10687): [<ffffffff9ec376bd>] _raw_spin_unlock_irqrestore+0x2d/0x40
-hardirqs last disabled at (10686): [<ffffffff9ec374d8>] _raw_spin_lock_irqsave+0x68/0x90
-softirqs last  enabled at (10684): [<ffffffff9f000608>] __do_softirq+0x608/0x940
-softirqs last disabled at (10649): [<ffffffff9cdedd31>] do_softirq+0xa1/0xd0
+Instead of pre-initializing all UARTS, scan the device tree to see
+which UART clocks are associated to stdout, and only enable those
+UART clocks if it's needed early.  This will move initialization of
+the remaining clocks until after the parenting of the clocks.
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
+When the clocks are shutdown, this mechanism will also disable any
+clocks that were pre-initialized.
 
-       CPU0
-       ----
-  lock(clock-AF_INET);
-  <Interrupt>
-    lock(clock-AF_INET);
-
- *** DEADLOCK ***
-
-5 locks held by nvme/1324:
- #0: ffff8884a01fe470 (sb_writers#4){.+.+}-{0:0}, at: ksys_write+0xf9/0x1d0
- #1: ffff8886e435c090 (&of->mutex){+.+.}-{3:3}, at: kernfs_fop_write_iter+0x216/0x460
- #2: ffff888104d90c38 (kn->active#255){++++}-{0:0}, at: kernfs_remove_self+0x22d/0x330
- #3: ffff8884634538d0 (&queue->queue_lock){+.+.}-{3:3}, at: nvme_tcp_stop_queue+0x52/0xb0 [nvme_tcp]
- #4: ffff888363150d30 (sk_lock-AF_INET){+.+.}-{0:0}, at: inet_shutdown+0x59/0x300
-
-stack backtrace:
-CPU: 26 PID: 1324 Comm: nvme Tainted: G          I       5.12.0-rc3 #1
-Hardware name: Dell Inc. PowerEdge R640/06NR82, BIOS 2.10.0 11/12/2020
-Call Trace:
- dump_stack+0x93/0xc2
- mark_lock_irq.cold+0x2c/0xb3
- ? verify_lock_unused+0x390/0x390
- ? stack_trace_consume_entry+0x160/0x160
- ? lock_downgrade+0x100/0x100
- ? save_trace+0x88/0x5e0
- ? _raw_spin_unlock_irqrestore+0x2d/0x40
- mark_lock+0x530/0x1470
- ? mark_lock_irq+0x1d10/0x1d10
- ? enqueue_timer+0x660/0x660
- mark_usage+0x215/0x2a0
- __lock_acquire+0x79b/0x18d0
- ? tcp_schedule_loss_probe.part.0+0x38c/0x520
- lock_acquire+0x1ca/0x480
- ? nvme_tcp_state_change+0x21/0x150 [nvme_tcp]
- ? rcu_read_unlock+0x40/0x40
- ? tcp_mtu_probe+0x1ae0/0x1ae0
- ? kmalloc_reserve+0xa0/0xa0
- ? sysfs_file_ops+0x170/0x170
- _raw_read_lock+0x3d/0xa0
- ? nvme_tcp_state_change+0x21/0x150 [nvme_tcp]
- nvme_tcp_state_change+0x21/0x150 [nvme_tcp]
- ? sysfs_file_ops+0x170/0x170
- inet_shutdown+0x189/0x300
- __nvme_tcp_stop_queue+0x36/0x270 [nvme_tcp]
- nvme_tcp_stop_queue+0x87/0xb0 [nvme_tcp]
- nvme_tcp_teardown_admin_queue+0x69/0xe0 [nvme_tcp]
- nvme_do_delete_ctrl+0x100/0x10c [nvme_core]
- nvme_sysfs_delete.cold+0x8/0xd [nvme_core]
- kernfs_fop_write_iter+0x2c7/0x460
- new_sync_write+0x36c/0x610
- ? new_sync_read+0x600/0x600
- ? lock_acquire+0x1ca/0x480
- ? rcu_read_unlock+0x40/0x40
- ? lock_is_held_type+0x9a/0x110
- vfs_write+0x5c0/0x870
- ksys_write+0xf9/0x1d0
- ? __ia32_sys_read+0xa0/0xa0
- ? lockdep_hardirqs_on_prepare.part.0+0x198/0x340
- ? syscall_enter_from_user_mode+0x27/0x70
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 9461f7b33d11c ("clk: fix CLK_SET_RATE_GATE with clock rate protection")
+Suggested-by: Aisheng Dong <aisheng.dong@nxp.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
+Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/imx/clk-imx25.c   | 12 +---------
+ drivers/clk/imx/clk-imx27.c   | 13 +----------
+ drivers/clk/imx/clk-imx35.c   | 10 +--------
+ drivers/clk/imx/clk-imx5.c    | 30 +++----------------------
+ drivers/clk/imx/clk-imx6q.c   | 16 +-------------
+ drivers/clk/imx/clk-imx6sl.c  | 16 +-------------
+ drivers/clk/imx/clk-imx6sll.c | 24 +-------------------
+ drivers/clk/imx/clk-imx6sx.c  | 16 +-------------
+ drivers/clk/imx/clk-imx7d.c   | 22 +------------------
+ drivers/clk/imx/clk-imx7ulp.c | 31 ++------------------------
+ drivers/clk/imx/clk-imx8mm.c  | 18 ++-------------
+ drivers/clk/imx/clk-imx8mn.c  | 18 ++-------------
+ drivers/clk/imx/clk-imx8mp.c  | 17 +--------------
+ drivers/clk/imx/clk-imx8mq.c  | 18 ++-------------
+ drivers/clk/imx/clk.c         | 41 +++++++++++++++++++++++++++--------
+ drivers/clk/imx/clk.h         |  4 ++--
+ 16 files changed, 54 insertions(+), 252 deletions(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index d658c6e8263a..218fd766dc74 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1434,7 +1434,7 @@ static void nvmet_tcp_state_change(struct sock *sk)
- {
- 	struct nvmet_tcp_queue *queue;
+diff --git a/drivers/clk/imx/clk-imx25.c b/drivers/clk/imx/clk-imx25.c
+index a66cabfbf94f..66192fe0a898 100644
+--- a/drivers/clk/imx/clk-imx25.c
++++ b/drivers/clk/imx/clk-imx25.c
+@@ -73,16 +73,6 @@ enum mx25_clks {
  
--	write_lock_bh(&sk->sk_callback_lock);
-+	read_lock_bh(&sk->sk_callback_lock);
- 	queue = sk->sk_user_data;
- 	if (!queue)
- 		goto done;
-@@ -1452,7 +1452,7 @@ static void nvmet_tcp_state_change(struct sock *sk)
- 			queue->idx, sk->sk_state);
- 	}
- done:
--	write_unlock_bh(&sk->sk_callback_lock);
-+	read_unlock_bh(&sk->sk_callback_lock);
+ static struct clk *clk[clk_max];
+ 
+-static struct clk ** const uart_clks[] __initconst = {
+-	&clk[uart_ipg_per],
+-	&clk[uart1_ipg],
+-	&clk[uart2_ipg],
+-	&clk[uart3_ipg],
+-	&clk[uart4_ipg],
+-	&clk[uart5_ipg],
+-	NULL
+-};
+-
+ static int __init __mx25_clocks_init(void __iomem *ccm_base)
+ {
+ 	BUG_ON(!ccm_base);
+@@ -228,7 +218,7 @@ static int __init __mx25_clocks_init(void __iomem *ccm_base)
+ 	 */
+ 	clk_set_parent(clk[cko_sel], clk[ipg]);
+ 
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(6);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/clk/imx/clk-imx27.c b/drivers/clk/imx/clk-imx27.c
+index 5585ded8b8c6..56a5fc402b10 100644
+--- a/drivers/clk/imx/clk-imx27.c
++++ b/drivers/clk/imx/clk-imx27.c
+@@ -49,17 +49,6 @@ static const char *ssi_sel_clks[] = { "spll_gate", "mpll", };
+ static struct clk *clk[IMX27_CLK_MAX];
+ static struct clk_onecell_data clk_data;
+ 
+-static struct clk ** const uart_clks[] __initconst = {
+-	&clk[IMX27_CLK_PER1_GATE],
+-	&clk[IMX27_CLK_UART1_IPG_GATE],
+-	&clk[IMX27_CLK_UART2_IPG_GATE],
+-	&clk[IMX27_CLK_UART3_IPG_GATE],
+-	&clk[IMX27_CLK_UART4_IPG_GATE],
+-	&clk[IMX27_CLK_UART5_IPG_GATE],
+-	&clk[IMX27_CLK_UART6_IPG_GATE],
+-	NULL
+-};
+-
+ static void __init _mx27_clocks_init(unsigned long fref)
+ {
+ 	BUG_ON(!ccm);
+@@ -176,7 +165,7 @@ static void __init _mx27_clocks_init(unsigned long fref)
+ 
+ 	clk_prepare_enable(clk[IMX27_CLK_EMI_AHB_GATE]);
+ 
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(7);
+ 
+ 	imx_print_silicon_rev("i.MX27", mx27_revision());
+ }
+diff --git a/drivers/clk/imx/clk-imx35.c b/drivers/clk/imx/clk-imx35.c
+index c1df03665c09..0fe5ac210156 100644
+--- a/drivers/clk/imx/clk-imx35.c
++++ b/drivers/clk/imx/clk-imx35.c
+@@ -82,14 +82,6 @@ enum mx35_clks {
+ 
+ static struct clk *clk[clk_max];
+ 
+-static struct clk ** const uart_clks[] __initconst = {
+-	&clk[ipg],
+-	&clk[uart1_gate],
+-	&clk[uart2_gate],
+-	&clk[uart3_gate],
+-	NULL
+-};
+-
+ static void __init _mx35_clocks_init(void)
+ {
+ 	void __iomem *base;
+@@ -243,7 +235,7 @@ static void __init _mx35_clocks_init(void)
+ 	 */
+ 	clk_prepare_enable(clk[scc_gate]);
+ 
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(4);
+ 
+ 	imx_print_silicon_rev("i.MX35", mx35_revision());
+ }
+diff --git a/drivers/clk/imx/clk-imx5.c b/drivers/clk/imx/clk-imx5.c
+index 01e079b81026..e4493846454d 100644
+--- a/drivers/clk/imx/clk-imx5.c
++++ b/drivers/clk/imx/clk-imx5.c
+@@ -128,30 +128,6 @@ static const char *ieee1588_sels[] = { "pll3_sw", "pll4_sw", "dummy" /* usbphy2_
+ static struct clk *clk[IMX5_CLK_END];
+ static struct clk_onecell_data clk_data;
+ 
+-static struct clk ** const uart_clks_mx51[] __initconst = {
+-	&clk[IMX5_CLK_UART1_IPG_GATE],
+-	&clk[IMX5_CLK_UART1_PER_GATE],
+-	&clk[IMX5_CLK_UART2_IPG_GATE],
+-	&clk[IMX5_CLK_UART2_PER_GATE],
+-	&clk[IMX5_CLK_UART3_IPG_GATE],
+-	&clk[IMX5_CLK_UART3_PER_GATE],
+-	NULL
+-};
+-
+-static struct clk ** const uart_clks_mx50_mx53[] __initconst = {
+-	&clk[IMX5_CLK_UART1_IPG_GATE],
+-	&clk[IMX5_CLK_UART1_PER_GATE],
+-	&clk[IMX5_CLK_UART2_IPG_GATE],
+-	&clk[IMX5_CLK_UART2_PER_GATE],
+-	&clk[IMX5_CLK_UART3_IPG_GATE],
+-	&clk[IMX5_CLK_UART3_PER_GATE],
+-	&clk[IMX5_CLK_UART4_IPG_GATE],
+-	&clk[IMX5_CLK_UART4_PER_GATE],
+-	&clk[IMX5_CLK_UART5_IPG_GATE],
+-	&clk[IMX5_CLK_UART5_PER_GATE],
+-	NULL
+-};
+-
+ static void __init mx5_clocks_common_init(void __iomem *ccm_base)
+ {
+ 	clk[IMX5_CLK_DUMMY]		= imx_clk_fixed("dummy", 0);
+@@ -382,7 +358,7 @@ static void __init mx50_clocks_init(struct device_node *np)
+ 	r = clk_round_rate(clk[IMX5_CLK_USBOH3_PER_GATE], 54000000);
+ 	clk_set_rate(clk[IMX5_CLK_USBOH3_PER_GATE], r);
+ 
+-	imx_register_uart_clocks(uart_clks_mx50_mx53);
++	imx_register_uart_clocks(5);
+ }
+ CLK_OF_DECLARE(imx50_ccm, "fsl,imx50-ccm", mx50_clocks_init);
+ 
+@@ -488,7 +464,7 @@ static void __init mx51_clocks_init(struct device_node *np)
+ 	val |= 1 << 23;
+ 	writel(val, MXC_CCM_CLPCR);
+ 
+-	imx_register_uart_clocks(uart_clks_mx51);
++	imx_register_uart_clocks(3);
+ }
+ CLK_OF_DECLARE(imx51_ccm, "fsl,imx51-ccm", mx51_clocks_init);
+ 
+@@ -633,6 +609,6 @@ static void __init mx53_clocks_init(struct device_node *np)
+ 	r = clk_round_rate(clk[IMX5_CLK_USBOH3_PER_GATE], 54000000);
+ 	clk_set_rate(clk[IMX5_CLK_USBOH3_PER_GATE], r);
+ 
+-	imx_register_uart_clocks(uart_clks_mx50_mx53);
++	imx_register_uart_clocks(5);
+ }
+ CLK_OF_DECLARE(imx53_ccm, "fsl,imx53-ccm", mx53_clocks_init);
+diff --git a/drivers/clk/imx/clk-imx6q.c b/drivers/clk/imx/clk-imx6q.c
+index 521d6136d22c..496900de0b0b 100644
+--- a/drivers/clk/imx/clk-imx6q.c
++++ b/drivers/clk/imx/clk-imx6q.c
+@@ -140,13 +140,6 @@ static inline int clk_on_imx6dl(void)
+ 	return of_machine_is_compatible("fsl,imx6dl");
  }
  
- static int nvmet_tcp_set_queue_sock(struct nvmet_tcp_queue *queue)
+-static const int uart_clk_ids[] __initconst = {
+-	IMX6QDL_CLK_UART_IPG,
+-	IMX6QDL_CLK_UART_SERIAL,
+-};
+-
+-static struct clk **uart_clks[ARRAY_SIZE(uart_clk_ids) + 1] __initdata;
+-
+ static int ldb_di_sel_by_clock_id(int clock_id)
+ {
+ 	switch (clock_id) {
+@@ -440,7 +433,6 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ 	struct device_node *np;
+ 	void __iomem *anatop_base, *base;
+ 	int ret;
+-	int i;
+ 
+ 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
+ 					  IMX6QDL_CLK_END), GFP_KERNEL);
+@@ -982,12 +974,6 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
+ 			       hws[IMX6QDL_CLK_PLL3_USB_OTG]->clk);
+ 	}
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_clks[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(1);
+ }
+ CLK_OF_DECLARE(imx6q, "fsl,imx6q-ccm", imx6q_clocks_init);
+diff --git a/drivers/clk/imx/clk-imx6sl.c b/drivers/clk/imx/clk-imx6sl.c
+index 29eab05c9068..277365970320 100644
+--- a/drivers/clk/imx/clk-imx6sl.c
++++ b/drivers/clk/imx/clk-imx6sl.c
+@@ -179,19 +179,11 @@ void imx6sl_set_wait_clk(bool enter)
+ 		imx6sl_enable_pll_arm(false);
+ }
+ 
+-static const int uart_clk_ids[] __initconst = {
+-	IMX6SL_CLK_UART,
+-	IMX6SL_CLK_UART_SERIAL,
+-};
+-
+-static struct clk **uart_clks[ARRAY_SIZE(uart_clk_ids) + 1] __initdata;
+-
+ static void __init imx6sl_clocks_init(struct device_node *ccm_node)
+ {
+ 	struct device_node *np;
+ 	void __iomem *base;
+ 	int ret;
+-	int i;
+ 
+ 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
+ 					  IMX6SL_CLK_END), GFP_KERNEL);
+@@ -448,12 +440,6 @@ static void __init imx6sl_clocks_init(struct device_node *ccm_node)
+ 	clk_set_parent(hws[IMX6SL_CLK_LCDIF_AXI_SEL]->clk,
+ 		       hws[IMX6SL_CLK_PLL2_PFD2]->clk);
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_clks[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(2);
+ }
+ CLK_OF_DECLARE(imx6sl, "fsl,imx6sl-ccm", imx6sl_clocks_init);
+diff --git a/drivers/clk/imx/clk-imx6sll.c b/drivers/clk/imx/clk-imx6sll.c
+index 8e8288bda4d0..31d777f30039 100644
+--- a/drivers/clk/imx/clk-imx6sll.c
++++ b/drivers/clk/imx/clk-imx6sll.c
+@@ -76,26 +76,10 @@ static u32 share_count_ssi1;
+ static u32 share_count_ssi2;
+ static u32 share_count_ssi3;
+ 
+-static const int uart_clk_ids[] __initconst = {
+-	IMX6SLL_CLK_UART1_IPG,
+-	IMX6SLL_CLK_UART1_SERIAL,
+-	IMX6SLL_CLK_UART2_IPG,
+-	IMX6SLL_CLK_UART2_SERIAL,
+-	IMX6SLL_CLK_UART3_IPG,
+-	IMX6SLL_CLK_UART3_SERIAL,
+-	IMX6SLL_CLK_UART4_IPG,
+-	IMX6SLL_CLK_UART4_SERIAL,
+-	IMX6SLL_CLK_UART5_IPG,
+-	IMX6SLL_CLK_UART5_SERIAL,
+-};
+-
+-static struct clk **uart_clks[ARRAY_SIZE(uart_clk_ids) + 1] __initdata;
+-
+ static void __init imx6sll_clocks_init(struct device_node *ccm_node)
+ {
+ 	struct device_node *np;
+ 	void __iomem *base;
+-	int i;
+ 
+ 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
+ 					  IMX6SLL_CLK_END), GFP_KERNEL);
+@@ -356,13 +340,7 @@ static void __init imx6sll_clocks_init(struct device_node *ccm_node)
+ 
+ 	of_clk_add_hw_provider(np, of_clk_hw_onecell_get, clk_hw_data);
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_clks[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(5);
+ 
+ 	/* Lower the AHB clock rate before changing the clock source. */
+ 	clk_set_rate(hws[IMX6SLL_CLK_AHB]->clk, 99000000);
+diff --git a/drivers/clk/imx/clk-imx6sx.c b/drivers/clk/imx/clk-imx6sx.c
+index 20dcce526d07..fc1bd23d4583 100644
+--- a/drivers/clk/imx/clk-imx6sx.c
++++ b/drivers/clk/imx/clk-imx6sx.c
+@@ -117,18 +117,10 @@ static u32 share_count_ssi3;
+ static u32 share_count_sai1;
+ static u32 share_count_sai2;
+ 
+-static const int uart_clk_ids[] __initconst = {
+-	IMX6SX_CLK_UART_IPG,
+-	IMX6SX_CLK_UART_SERIAL,
+-};
+-
+-static struct clk **uart_clks[ARRAY_SIZE(uart_clk_ids) + 1] __initdata;
+-
+ static void __init imx6sx_clocks_init(struct device_node *ccm_node)
+ {
+ 	struct device_node *np;
+ 	void __iomem *base;
+-	int i;
+ 
+ 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
+ 					  IMX6SX_CLK_CLK_END), GFP_KERNEL);
+@@ -556,12 +548,6 @@ static void __init imx6sx_clocks_init(struct device_node *ccm_node)
+ 	clk_set_parent(hws[IMX6SX_CLK_QSPI1_SEL]->clk, hws[IMX6SX_CLK_PLL2_BUS]->clk);
+ 	clk_set_parent(hws[IMX6SX_CLK_QSPI2_SEL]->clk, hws[IMX6SX_CLK_PLL2_BUS]->clk);
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_clks[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(2);
+ }
+ CLK_OF_DECLARE(imx6sx, "fsl,imx6sx-ccm", imx6sx_clocks_init);
+diff --git a/drivers/clk/imx/clk-imx7d.c b/drivers/clk/imx/clk-imx7d.c
+index 22d24a6a05e7..c4e0f1c07192 100644
+--- a/drivers/clk/imx/clk-imx7d.c
++++ b/drivers/clk/imx/clk-imx7d.c
+@@ -377,23 +377,10 @@ static const char *pll_video_bypass_sel[] = { "pll_video_main", "pll_video_main_
+ static struct clk_hw **hws;
+ static struct clk_hw_onecell_data *clk_hw_data;
+ 
+-static const int uart_clk_ids[] __initconst = {
+-	IMX7D_UART1_ROOT_CLK,
+-	IMX7D_UART2_ROOT_CLK,
+-	IMX7D_UART3_ROOT_CLK,
+-	IMX7D_UART4_ROOT_CLK,
+-	IMX7D_UART5_ROOT_CLK,
+-	IMX7D_UART6_ROOT_CLK,
+-	IMX7D_UART7_ROOT_CLK,
+-};
+-
+-static struct clk **uart_clks[ARRAY_SIZE(uart_clk_ids) + 1] __initdata;
+-
+ static void __init imx7d_clocks_init(struct device_node *ccm_node)
+ {
+ 	struct device_node *np;
+ 	void __iomem *base;
+-	int i;
+ 
+ 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
+ 					  IMX7D_CLK_END), GFP_KERNEL);
+@@ -897,14 +884,7 @@ static void __init imx7d_clocks_init(struct device_node *ccm_node)
+ 	hws[IMX7D_USB1_MAIN_480M_CLK] = imx_clk_hw_fixed_factor("pll_usb1_main_clk", "osc", 20, 1);
+ 	hws[IMX7D_USB_MAIN_480M_CLK] = imx_clk_hw_fixed_factor("pll_usb_main_clk", "osc", 20, 1);
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_clks[i] = &hws[index]->clk;
+-	}
+-
+-
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(7);
+ 
+ }
+ CLK_OF_DECLARE(imx7d, "fsl,imx7d-ccm", imx7d_clocks_init);
+diff --git a/drivers/clk/imx/clk-imx7ulp.c b/drivers/clk/imx/clk-imx7ulp.c
+index 634c0b6636b0..779e09105da7 100644
+--- a/drivers/clk/imx/clk-imx7ulp.c
++++ b/drivers/clk/imx/clk-imx7ulp.c
+@@ -43,19 +43,6 @@ static const struct clk_div_table ulp_div_table[] = {
+ 	{ /* sentinel */ },
+ };
+ 
+-static const int pcc2_uart_clk_ids[] __initconst = {
+-	IMX7ULP_CLK_LPUART4,
+-	IMX7ULP_CLK_LPUART5,
+-};
+-
+-static const int pcc3_uart_clk_ids[] __initconst = {
+-	IMX7ULP_CLK_LPUART6,
+-	IMX7ULP_CLK_LPUART7,
+-};
+-
+-static struct clk **pcc2_uart_clks[ARRAY_SIZE(pcc2_uart_clk_ids) + 1] __initdata;
+-static struct clk **pcc3_uart_clks[ARRAY_SIZE(pcc3_uart_clk_ids) + 1] __initdata;
+-
+ static void __init imx7ulp_clk_scg1_init(struct device_node *np)
+ {
+ 	struct clk_hw_onecell_data *clk_data;
+@@ -150,7 +137,6 @@ static void __init imx7ulp_clk_pcc2_init(struct device_node *np)
+ 	struct clk_hw_onecell_data *clk_data;
+ 	struct clk_hw **hws;
+ 	void __iomem *base;
+-	int i;
+ 
+ 	clk_data = kzalloc(struct_size(clk_data, hws, IMX7ULP_CLK_PCC2_END),
+ 			   GFP_KERNEL);
+@@ -190,13 +176,7 @@ static void __init imx7ulp_clk_pcc2_init(struct device_node *np)
+ 
+ 	of_clk_add_hw_provider(np, of_clk_hw_onecell_get, clk_data);
+ 
+-	for (i = 0; i < ARRAY_SIZE(pcc2_uart_clk_ids); i++) {
+-		int index = pcc2_uart_clk_ids[i];
+-
+-		pcc2_uart_clks[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(pcc2_uart_clks);
++	imx_register_uart_clocks(2);
+ }
+ CLK_OF_DECLARE(imx7ulp_clk_pcc2, "fsl,imx7ulp-pcc2", imx7ulp_clk_pcc2_init);
+ 
+@@ -205,7 +185,6 @@ static void __init imx7ulp_clk_pcc3_init(struct device_node *np)
+ 	struct clk_hw_onecell_data *clk_data;
+ 	struct clk_hw **hws;
+ 	void __iomem *base;
+-	int i;
+ 
+ 	clk_data = kzalloc(struct_size(clk_data, hws, IMX7ULP_CLK_PCC3_END),
+ 			   GFP_KERNEL);
+@@ -244,13 +223,7 @@ static void __init imx7ulp_clk_pcc3_init(struct device_node *np)
+ 
+ 	of_clk_add_hw_provider(np, of_clk_hw_onecell_get, clk_data);
+ 
+-	for (i = 0; i < ARRAY_SIZE(pcc3_uart_clk_ids); i++) {
+-		int index = pcc3_uart_clk_ids[i];
+-
+-		pcc3_uart_clks[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(pcc3_uart_clks);
++	imx_register_uart_clocks(7);
+ }
+ CLK_OF_DECLARE(imx7ulp_clk_pcc3, "fsl,imx7ulp-pcc3", imx7ulp_clk_pcc3_init);
+ 
+diff --git a/drivers/clk/imx/clk-imx8mm.c b/drivers/clk/imx/clk-imx8mm.c
+index 6a01eec36dd0..f1919fafb124 100644
+--- a/drivers/clk/imx/clk-imx8mm.c
++++ b/drivers/clk/imx/clk-imx8mm.c
+@@ -296,20 +296,12 @@ static const char * const clkout_sels[] = {"audio_pll1_out", "audio_pll2_out", "
+ static struct clk_hw_onecell_data *clk_hw_data;
+ static struct clk_hw **hws;
+ 
+-static const int uart_clk_ids[] = {
+-	IMX8MM_CLK_UART1_ROOT,
+-	IMX8MM_CLK_UART2_ROOT,
+-	IMX8MM_CLK_UART3_ROOT,
+-	IMX8MM_CLK_UART4_ROOT,
+-};
+-static struct clk **uart_hws[ARRAY_SIZE(uart_clk_ids) + 1];
+-
+ static int imx8mm_clocks_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *np = dev->of_node;
+ 	void __iomem *base;
+-	int ret, i;
++	int ret;
+ 
+ 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
+ 					  IMX8MM_CLK_END), GFP_KERNEL);
+@@ -634,13 +626,7 @@ static int imx8mm_clocks_probe(struct platform_device *pdev)
+ 		goto unregister_hws;
+ 	}
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_hws[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(uart_hws);
++	imx_register_uart_clocks(4);
+ 
+ 	return 0;
+ 
+diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
+index 324c5fd0aa04..88f6630cd472 100644
+--- a/drivers/clk/imx/clk-imx8mn.c
++++ b/drivers/clk/imx/clk-imx8mn.c
+@@ -289,20 +289,12 @@ static const char * const clkout_sels[] = {"audio_pll1_out", "audio_pll2_out", "
+ static struct clk_hw_onecell_data *clk_hw_data;
+ static struct clk_hw **hws;
+ 
+-static const int uart_clk_ids[] = {
+-	IMX8MN_CLK_UART1_ROOT,
+-	IMX8MN_CLK_UART2_ROOT,
+-	IMX8MN_CLK_UART3_ROOT,
+-	IMX8MN_CLK_UART4_ROOT,
+-};
+-static struct clk **uart_hws[ARRAY_SIZE(uart_clk_ids) + 1];
+-
+ static int imx8mn_clocks_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *np = dev->of_node;
+ 	void __iomem *base;
+-	int ret, i;
++	int ret;
+ 
+ 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
+ 					  IMX8MN_CLK_END), GFP_KERNEL);
+@@ -585,13 +577,7 @@ static int imx8mn_clocks_probe(struct platform_device *pdev)
+ 		goto unregister_hws;
+ 	}
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_hws[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(uart_hws);
++	imx_register_uart_clocks(4);
+ 
+ 	return 0;
+ 
+diff --git a/drivers/clk/imx/clk-imx8mp.c b/drivers/clk/imx/clk-imx8mp.c
+index 2f4e1d674e1c..3e6557e7d559 100644
+--- a/drivers/clk/imx/clk-imx8mp.c
++++ b/drivers/clk/imx/clk-imx8mp.c
+@@ -414,20 +414,11 @@ static const char * const imx8mp_dram_core_sels[] = {"dram_pll_out", "dram_alt_r
+ static struct clk_hw **hws;
+ static struct clk_hw_onecell_data *clk_hw_data;
+ 
+-static const int uart_clk_ids[] = {
+-	IMX8MP_CLK_UART1_ROOT,
+-	IMX8MP_CLK_UART2_ROOT,
+-	IMX8MP_CLK_UART3_ROOT,
+-	IMX8MP_CLK_UART4_ROOT,
+-};
+-static struct clk **uart_clks[ARRAY_SIZE(uart_clk_ids) + 1];
+-
+ static int imx8mp_clocks_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *np;
+ 	void __iomem *anatop_base, *ccm_base;
+-	int i;
+ 
+ 	np = of_find_compatible_node(NULL, NULL, "fsl,imx8mp-anatop");
+ 	anatop_base = of_iomap(np, 0);
+@@ -737,13 +728,7 @@ static int imx8mp_clocks_probe(struct platform_device *pdev)
+ 
+ 	of_clk_add_hw_provider(np, of_clk_hw_onecell_get, clk_hw_data);
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_clks[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(uart_clks);
++	imx_register_uart_clocks(4);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/clk/imx/clk-imx8mq.c b/drivers/clk/imx/clk-imx8mq.c
+index 4dd4ae9d022b..3e1a10d3f55c 100644
+--- a/drivers/clk/imx/clk-imx8mq.c
++++ b/drivers/clk/imx/clk-imx8mq.c
+@@ -281,20 +281,12 @@ static const char * const pllout_monitor_sels[] = {"osc_25m", "osc_27m", "dummy"
+ static struct clk_hw_onecell_data *clk_hw_data;
+ static struct clk_hw **hws;
+ 
+-static const int uart_clk_ids[] = {
+-	IMX8MQ_CLK_UART1_ROOT,
+-	IMX8MQ_CLK_UART2_ROOT,
+-	IMX8MQ_CLK_UART3_ROOT,
+-	IMX8MQ_CLK_UART4_ROOT,
+-};
+-static struct clk **uart_hws[ARRAY_SIZE(uart_clk_ids) + 1];
+-
+ static int imx8mq_clocks_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *np = dev->of_node;
+ 	void __iomem *base;
+-	int err, i;
++	int err;
+ 
+ 	clk_hw_data = kzalloc(struct_size(clk_hw_data, hws,
+ 					  IMX8MQ_CLK_END), GFP_KERNEL);
+@@ -629,13 +621,7 @@ static int imx8mq_clocks_probe(struct platform_device *pdev)
+ 		goto unregister_hws;
+ 	}
+ 
+-	for (i = 0; i < ARRAY_SIZE(uart_clk_ids); i++) {
+-		int index = uart_clk_ids[i];
+-
+-		uart_hws[i] = &hws[index]->clk;
+-	}
+-
+-	imx_register_uart_clocks(uart_hws);
++	imx_register_uart_clocks(4);
+ 
+ 	return 0;
+ 
+diff --git a/drivers/clk/imx/clk.c b/drivers/clk/imx/clk.c
+index 47882c51cb85..7cc669934253 100644
+--- a/drivers/clk/imx/clk.c
++++ b/drivers/clk/imx/clk.c
+@@ -147,8 +147,10 @@ void imx_cscmr1_fixup(u32 *val)
+ }
+ 
+ #ifndef MODULE
+-static int imx_keep_uart_clocks;
+-static struct clk ** const *imx_uart_clocks;
++
++static bool imx_keep_uart_clocks;
++static int imx_enabled_uart_clocks;
++static struct clk **imx_uart_clocks;
+ 
+ static int __init imx_keep_uart_clocks_param(char *str)
+ {
+@@ -161,24 +163,45 @@ __setup_param("earlycon", imx_keep_uart_earlycon,
+ __setup_param("earlyprintk", imx_keep_uart_earlyprintk,
+ 	      imx_keep_uart_clocks_param, 0);
+ 
+-void imx_register_uart_clocks(struct clk ** const clks[])
++void imx_register_uart_clocks(unsigned int clk_count)
+ {
++	imx_enabled_uart_clocks = 0;
++
++/* i.MX boards use device trees now.  For build tests without CONFIG_OF, do nothing */
++#ifdef CONFIG_OF
+ 	if (imx_keep_uart_clocks) {
+ 		int i;
+ 
+-		imx_uart_clocks = clks;
+-		for (i = 0; imx_uart_clocks[i]; i++)
+-			clk_prepare_enable(*imx_uart_clocks[i]);
++		imx_uart_clocks = kcalloc(clk_count, sizeof(struct clk *), GFP_KERNEL);
++
++		if (!of_stdout)
++			return;
++
++		for (i = 0; i < clk_count; i++) {
++			imx_uart_clocks[imx_enabled_uart_clocks] = of_clk_get(of_stdout, i);
++
++			/* Stop if there are no more of_stdout references */
++			if (IS_ERR(imx_uart_clocks[imx_enabled_uart_clocks]))
++				return;
++
++			/* Only enable the clock if it's not NULL */
++			if (imx_uart_clocks[imx_enabled_uart_clocks])
++				clk_prepare_enable(imx_uart_clocks[imx_enabled_uart_clocks++]);
++		}
+ 	}
++#endif
+ }
+ 
+ static int __init imx_clk_disable_uart(void)
+ {
+-	if (imx_keep_uart_clocks && imx_uart_clocks) {
++	if (imx_keep_uart_clocks && imx_enabled_uart_clocks) {
+ 		int i;
+ 
+-		for (i = 0; imx_uart_clocks[i]; i++)
+-			clk_disable_unprepare(*imx_uart_clocks[i]);
++		for (i = 0; i < imx_enabled_uart_clocks; i++) {
++			clk_disable_unprepare(imx_uart_clocks[i]);
++			clk_put(imx_uart_clocks[i]);
++		}
++		kfree(imx_uart_clocks);
+ 	}
+ 
+ 	return 0;
+diff --git a/drivers/clk/imx/clk.h b/drivers/clk/imx/clk.h
+index 4f04c8287286..7571603bee23 100644
+--- a/drivers/clk/imx/clk.h
++++ b/drivers/clk/imx/clk.h
+@@ -11,9 +11,9 @@ extern spinlock_t imx_ccm_lock;
+ void imx_check_clocks(struct clk *clks[], unsigned int count);
+ void imx_check_clk_hws(struct clk_hw *clks[], unsigned int count);
+ #ifndef MODULE
+-void imx_register_uart_clocks(struct clk ** const clks[]);
++void imx_register_uart_clocks(unsigned int clk_count);
+ #else
+-static inline void imx_register_uart_clocks(struct clk ** const clks[])
++static inline void imx_register_uart_clocks(unsigned int clk_count)
+ {
+ }
+ #endif
 -- 
 2.30.2
 
