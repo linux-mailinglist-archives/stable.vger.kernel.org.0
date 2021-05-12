@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C9137C556
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0C5337C55A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234388AbhELPjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:39:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49132 "EHLO mail.kernel.org"
+        id S234414AbhELPji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:39:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234577AbhELPdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:33:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B3BB611F0;
-        Wed, 12 May 2021 15:16:59 +0000 (UTC)
+        id S233934AbhELPdQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:33:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B1FA61975;
+        Wed, 12 May 2021 15:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832620;
-        bh=p2s4egqZMpRAULSV02V+fhZ0C233G0Pagr+/U4AKZfM=;
+        s=korg; t=1620832622;
+        bh=BZcE77Yph9hY+06qczD9Sg/HSbhp1As5e3+BksNhWHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ow+QOuZUq2pOV8HLNT5UX4A5lr3apGtV+dnKX/iKQYXfK0mlR1MVk9eTAdxhNcz/p
-         7qk0YyaK4Ln618CgekKSE0RwD2q7tMY1Fvx6LXYV/Rsne86OTphb+vW2zWT0VCrPF/
-         5rqXsxbrnth8Rw9UXYat+LYMI77KpvUY+EbNF6vw=
+        b=U5umbY5b59agLnDTDmbmFViRt7HOlcOfeDwOnG+9Lm6lyDCLq6XbodOit+/hwgrbi
+         bLvBdQZ3Npm96OUIBYMBsP7MOh1qtVmeh9M0eJSvgYg8idVMvBMNLbYru5bjsOiq3b
+         RhrAZFglojWR2bBqq9hSbPMWfAAHyfA1ZeuiODh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 354/530] KVM: x86/mmu: Retry page faults that hit an invalid memslot
-Date:   Wed, 12 May 2021 16:47:44 +0200
-Message-Id: <20210512144831.418086363@linuxfoundation.org>
+Subject: [PATCH 5.10 355/530] Bluetooth: avoid deadlock between hci_dev->lock and socket lock
+Date:   Wed, 12 May 2021 16:47:45 +0200
+Message-Id: <20210512144831.450355957@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,52 +40,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit e0c378684b6545ad2d4403bb701d0ac4932b4e95 ]
+[ Upstream commit 17486960d79b900c45e0bb8fbcac0262848582ba ]
 
-Retry page faults (re-enter the guest) that hit an invalid memslot
-instead of treating the memslot as not existing, i.e. handling the
-page fault as an MMIO access.  When deleting a memslot, SPTEs aren't
-zapped and the TLBs aren't flushed until after the memslot has been
-marked invalid.
+Commit eab2404ba798 ("Bluetooth: Add BT_PHY socket option") added a
+dependency between socket lock and hci_dev->lock that could lead to
+deadlock.
 
-Handling the invalid slot as MMIO means there's a small window where a
-page fault could replace a valid SPTE with an MMIO SPTE.  The legacy
-MMU handles such a scenario cleanly, but the TDP MMU assumes such
-behavior is impossible (see the BUG() in __handle_changed_spte()).
-There's really no good reason why the legacy MMU should allow such a
-scenario, and closing this hole allows for additional cleanups.
+It turns out that hci_conn_get_phy() is not in any way relying on hdev
+being immutable during the runtime of this function, neither does it even
+look at any of the members of hdev, and as such there is no need to hold
+that lock.
 
-Fixes: 2f2fad0897cb ("kvm: x86/mmu: Add functions to handle changed TDP SPTEs")
-Cc: Ben Gardon <bgardon@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210225204749.1512652-6-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This fixes the lockdep splat below:
+
+ ======================================================
+ WARNING: possible circular locking dependency detected
+ 5.12.0-rc1-00026-g73d464503354 #10 Not tainted
+ ------------------------------------------------------
+ bluetoothd/1118 is trying to acquire lock:
+ ffff8f078383c078 (&hdev->lock){+.+.}-{3:3}, at: hci_conn_get_phy+0x1c/0x150 [bluetooth]
+
+ but task is already holding lock:
+ ffff8f07e831d920 (sk_lock-AF_BLUETOOTH-BTPROTO_L2CAP){+.+.}-{0:0}, at: l2cap_sock_getsockopt+0x8b/0x610
+
+ which lock already depends on the new lock.
+
+ the existing dependency chain (in reverse order) is:
+
+ -> #3 (sk_lock-AF_BLUETOOTH-BTPROTO_L2CAP){+.+.}-{0:0}:
+        lock_sock_nested+0x72/0xa0
+        l2cap_sock_ready_cb+0x18/0x70 [bluetooth]
+        l2cap_config_rsp+0x27a/0x520 [bluetooth]
+        l2cap_sig_channel+0x658/0x1330 [bluetooth]
+        l2cap_recv_frame+0x1ba/0x310 [bluetooth]
+        hci_rx_work+0x1cc/0x640 [bluetooth]
+        process_one_work+0x244/0x5f0
+        worker_thread+0x3c/0x380
+        kthread+0x13e/0x160
+        ret_from_fork+0x22/0x30
+
+ -> #2 (&chan->lock#2/1){+.+.}-{3:3}:
+        __mutex_lock+0xa3/0xa10
+        l2cap_chan_connect+0x33a/0x940 [bluetooth]
+        l2cap_sock_connect+0x141/0x2a0 [bluetooth]
+        __sys_connect+0x9b/0xc0
+        __x64_sys_connect+0x16/0x20
+        do_syscall_64+0x33/0x80
+        entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+ -> #1 (&conn->chan_lock){+.+.}-{3:3}:
+        __mutex_lock+0xa3/0xa10
+        l2cap_chan_connect+0x322/0x940 [bluetooth]
+        l2cap_sock_connect+0x141/0x2a0 [bluetooth]
+        __sys_connect+0x9b/0xc0
+        __x64_sys_connect+0x16/0x20
+        do_syscall_64+0x33/0x80
+        entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+ -> #0 (&hdev->lock){+.+.}-{3:3}:
+        __lock_acquire+0x147a/0x1a50
+        lock_acquire+0x277/0x3d0
+        __mutex_lock+0xa3/0xa10
+        hci_conn_get_phy+0x1c/0x150 [bluetooth]
+        l2cap_sock_getsockopt+0x5a9/0x610 [bluetooth]
+        __sys_getsockopt+0xcc/0x200
+        __x64_sys_getsockopt+0x20/0x30
+        do_syscall_64+0x33/0x80
+        entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+ other info that might help us debug this:
+
+ Chain exists of:
+   &hdev->lock --> &chan->lock#2/1 --> sk_lock-AF_BLUETOOTH-BTPROTO_L2CAP
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(sk_lock-AF_BLUETOOTH-BTPROTO_L2CAP);
+                                lock(&chan->lock#2/1);
+                                lock(sk_lock-AF_BLUETOOTH-BTPROTO_L2CAP);
+   lock(&hdev->lock);
+
+  *** DEADLOCK ***
+
+ 1 lock held by bluetoothd/1118:
+  #0: ffff8f07e831d920 (sk_lock-AF_BLUETOOTH-BTPROTO_L2CAP){+.+.}-{0:0}, at: l2cap_sock_getsockopt+0x8b/0x610 [bluetooth]
+
+ stack backtrace:
+ CPU: 3 PID: 1118 Comm: bluetoothd Not tainted 5.12.0-rc1-00026-g73d464503354 #10
+ Hardware name: LENOVO 20K5S22R00/20K5S22R00, BIOS R0IET38W (1.16 ) 05/31/2017
+ Call Trace:
+  dump_stack+0x7f/0xa1
+  check_noncircular+0x105/0x120
+  ? __lock_acquire+0x147a/0x1a50
+  __lock_acquire+0x147a/0x1a50
+  lock_acquire+0x277/0x3d0
+  ? hci_conn_get_phy+0x1c/0x150 [bluetooth]
+  ? __lock_acquire+0x2e1/0x1a50
+  ? lock_is_held_type+0xb4/0x120
+  ? hci_conn_get_phy+0x1c/0x150 [bluetooth]
+  __mutex_lock+0xa3/0xa10
+  ? hci_conn_get_phy+0x1c/0x150 [bluetooth]
+  ? lock_acquire+0x277/0x3d0
+  ? mark_held_locks+0x49/0x70
+  ? mark_held_locks+0x49/0x70
+  ? hci_conn_get_phy+0x1c/0x150 [bluetooth]
+  hci_conn_get_phy+0x1c/0x150 [bluetooth]
+  l2cap_sock_getsockopt+0x5a9/0x610 [bluetooth]
+  __sys_getsockopt+0xcc/0x200
+  __x64_sys_getsockopt+0x20/0x30
+  do_syscall_64+0x33/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7fb73df33eee
+ Code: 48 8b 0d 85 0f 0c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 49 89 ca b8 37 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 52 0f 0c 00 f7 d8 64 89 01 48
+ RSP: 002b:00007fffcfbbbf08 EFLAGS: 00000203 ORIG_RAX: 0000000000000037
+ RAX: ffffffffffffffda RBX: 0000000000000019 RCX: 00007fb73df33eee
+ RDX: 000000000000000e RSI: 0000000000000112 RDI: 0000000000000018
+ RBP: 0000000000000000 R08: 00007fffcfbbbf44 R09: 0000000000000000
+ R10: 00007fffcfbbbf3c R11: 0000000000000203 R12: 0000000000000000
+ R13: 0000000000000018 R14: 0000000000000000 R15: 0000556fcefc70d0
+
+Fixes: eab2404ba798 ("Bluetooth: Add BT_PHY socket option")
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu/mmu.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/bluetooth/hci_conn.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 2d37068b7cd5..2f2576fd343e 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -3663,6 +3663,14 @@ static bool try_async_pf(struct kvm_vcpu *vcpu, bool prefault, gfn_t gfn,
- 	struct kvm_memory_slot *slot = kvm_vcpu_gfn_to_memslot(vcpu, gfn);
- 	bool async;
+diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
+index d0c1024bf600..1c5a0a60292d 100644
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1789,8 +1789,6 @@ u32 hci_conn_get_phy(struct hci_conn *conn)
+ {
+ 	u32 phys = 0;
  
-+	/*
-+	 * Retry the page fault if the gfn hit a memslot that is being deleted
-+	 * or moved.  This ensures any existing SPTEs for the old memslot will
-+	 * be zapped before KVM inserts a new MMIO SPTE for the gfn.
-+	 */
-+	if (slot && (slot->flags & KVM_MEMSLOT_INVALID))
-+		return true;
-+
- 	/* Don't expose private memslots to L2. */
- 	if (is_guest_mode(vcpu) && !kvm_is_visible_memslot(slot)) {
- 		*pfn = KVM_PFN_NOSLOT;
+-	hci_dev_lock(conn->hdev);
+-
+ 	/* BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 2, Part B page 471:
+ 	 * Table 6.2: Packets defined for synchronous, asynchronous, and
+ 	 * CSB logical transport types.
+@@ -1887,7 +1885,5 @@ u32 hci_conn_get_phy(struct hci_conn *conn)
+ 		break;
+ 	}
+ 
+-	hci_dev_unlock(conn->hdev);
+-
+ 	return phys;
+ }
 -- 
 2.30.2
 
