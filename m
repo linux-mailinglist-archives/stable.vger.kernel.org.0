@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90CD337C994
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5191E37C996
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236261AbhELQUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:20:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49770 "EHLO mail.kernel.org"
+        id S236357AbhELQUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:20:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236925AbhELQMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:12:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54C9261444;
-        Wed, 12 May 2021 15:41:25 +0000 (UTC)
+        id S234307AbhELQMs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:12:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD51B61C7C;
+        Wed, 12 May 2021 15:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834085;
-        bh=0z13vjHwTMx0WxQpUGOd3R7K+7q5IM0pG+0xqETNIlM=;
+        s=korg; t=1620834088;
+        bh=xlZDCrVuwIRGk9bmR4x3SXOUr2DedVW93YyQogKMnV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0tMuEpUbpHHe7rNHd0GYuOjfTlXy8kk85wDbHw4t4mImZZL2pJKqlxP0dQRD1lOFx
-         9ZGeV5xEVmK4VOUDFpjaY/IWrOnC+C72510jgwLOXKIYSAAvwT0yfamQgaxHVhAmwi
-         QXH+gH9yn/HKhEWwMfx9aFEMI6r7sFgzI382DeRw=
+        b=walgWPWuTZW2nm83yxEaH4Tgi/T9kh2nwJGvMlhgJctQ1rk91Ee9EaUhPZ+LO+W8u
+         V4BTEm5Ush7+WrWjU0D7CZ2bIimMfcfJIMxNC9tmuG+sJladH5kNw9LUX+7atjWJqz
+         Voo4a6fvPI/LLJ3VHgpIBqplTfC2iaMkSKEabMwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        stable@vger.kernel.org, Lianbo Jiang <lijiang@redhat.com>,
         Robin Murphy <robin.murphy@arm.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 401/601] iommu: Check dev->iommu in iommu_dev_xxx functions
-Date:   Wed, 12 May 2021 16:47:58 +0200
-Message-Id: <20210512144841.015967162@linuxfoundation.org>
+Subject: [PATCH 5.11 402/601] dma-iommu: use static-key to minimize the impact in the fast-path
+Date:   Wed, 12 May 2021 16:47:59 +0200
+Message-Id: <20210512144841.050590456@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,78 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+From: Lianbo Jiang <lijiang@redhat.com>
 
-[ Upstream commit b9abb19fa5fd2d8a4be61c6cd4b2a48aa1a17f9c ]
+[ Upstream commit a8e8af35c9f4f75f981a95488c7066d31bac4bef ]
 
-The device iommu probe/attach might have failed leaving dev->iommu
-to NULL and device drivers may still invoke these functions resulting
-in a crash in iommu vendor driver code.
+Let's move out the is_kdump_kernel() check from iommu_dma_deferred_attach()
+to iommu_dma_init(), and use the static-key in the fast-path to minimize
+the impact in the normal case.
 
-Hence make sure we check that.
-
-Fixes: a3a195929d40 ("iommu: Add APIs for multiple domains per device")
-Signed-off-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20210303173611.520-1-shameerali.kolothum.thodi@huawei.com
+Co-developed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/20210126115337.20068-2-lijiang@redhat.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ drivers/iommu/dma-iommu.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index fd5f59373fc6..0e0140454de8 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2889,10 +2889,12 @@ EXPORT_SYMBOL_GPL(iommu_dev_has_feature);
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 00fbc591a142..07e7b2f3ba27 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -51,6 +51,8 @@ struct iommu_dma_cookie {
+ 	struct iommu_domain		*fq_domain;
+ };
  
- int iommu_dev_enable_feature(struct device *dev, enum iommu_dev_features feat)
++static DEFINE_STATIC_KEY_FALSE(iommu_deferred_attach_enabled);
++
+ void iommu_dma_free_cpu_cached_iovas(unsigned int cpu,
+ 		struct iommu_domain *domain)
  {
--	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	if (dev->iommu && dev->iommu->iommu_dev) {
-+		const struct iommu_ops *ops = dev->iommu->iommu_dev->ops;
- 
--	if (ops && ops->dev_enable_feat)
--		return ops->dev_enable_feat(dev, feat);
-+		if (ops->dev_enable_feat)
-+			return ops->dev_enable_feat(dev, feat);
-+	}
- 
- 	return -ENODEV;
- }
-@@ -2905,10 +2907,12 @@ EXPORT_SYMBOL_GPL(iommu_dev_enable_feature);
-  */
- int iommu_dev_disable_feature(struct device *dev, enum iommu_dev_features feat)
+@@ -389,9 +391,6 @@ static int iommu_dma_deferred_attach(struct device *dev,
  {
--	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	if (dev->iommu && dev->iommu->iommu_dev) {
-+		const struct iommu_ops *ops = dev->iommu->iommu_dev->ops;
+ 	const struct iommu_ops *ops = domain->ops;
  
--	if (ops && ops->dev_disable_feat)
--		return ops->dev_disable_feat(dev, feat);
-+		if (ops->dev_disable_feat)
-+			return ops->dev_disable_feat(dev, feat);
-+	}
+-	if (!is_kdump_kernel())
+-		return 0;
+-
+ 	if (unlikely(ops->is_attach_deferred &&
+ 			ops->is_attach_deferred(domain, dev)))
+ 		return iommu_attach_device(domain, dev);
+@@ -536,7 +535,8 @@ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
+ 	size_t iova_off = iova_offset(iovad, phys);
+ 	dma_addr_t iova;
  
- 	return -EBUSY;
- }
-@@ -2916,10 +2920,12 @@ EXPORT_SYMBOL_GPL(iommu_dev_disable_feature);
+-	if (unlikely(iommu_dma_deferred_attach(dev, domain)))
++	if (static_branch_unlikely(&iommu_deferred_attach_enabled) &&
++	    iommu_dma_deferred_attach(dev, domain))
+ 		return DMA_MAPPING_ERROR;
  
- bool iommu_dev_feature_enabled(struct device *dev, enum iommu_dev_features feat)
+ 	size = iova_align(iovad, size + iova_off);
+@@ -694,7 +694,8 @@ static void *iommu_dma_alloc_remap(struct device *dev, size_t size,
+ 
+ 	*dma_handle = DMA_MAPPING_ERROR;
+ 
+-	if (unlikely(iommu_dma_deferred_attach(dev, domain)))
++	if (static_branch_unlikely(&iommu_deferred_attach_enabled) &&
++	    iommu_dma_deferred_attach(dev, domain))
+ 		return NULL;
+ 
+ 	min_size = alloc_sizes & -alloc_sizes;
+@@ -977,7 +978,8 @@ static int iommu_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 	unsigned long mask = dma_get_seg_boundary(dev);
+ 	int i;
+ 
+-	if (unlikely(iommu_dma_deferred_attach(dev, domain)))
++	if (static_branch_unlikely(&iommu_deferred_attach_enabled) &&
++	    iommu_dma_deferred_attach(dev, domain))
+ 		return 0;
+ 
+ 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+@@ -1425,6 +1427,9 @@ void iommu_dma_compose_msi_msg(struct msi_desc *desc,
+ 
+ static int iommu_dma_init(void)
  {
--	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	if (dev->iommu && dev->iommu->iommu_dev) {
-+		const struct iommu_ops *ops = dev->iommu->iommu_dev->ops;
- 
--	if (ops && ops->dev_feat_enabled)
--		return ops->dev_feat_enabled(dev, feat);
-+		if (ops->dev_feat_enabled)
-+			return ops->dev_feat_enabled(dev, feat);
-+	}
- 
- 	return false;
++	if (is_kdump_kernel())
++		static_branch_enable(&iommu_deferred_attach_enabled);
++
+ 	return iova_cache_get();
  }
+ arch_initcall(iommu_dma_init);
 -- 
 2.30.2
 
