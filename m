@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E010C37C6A3
+	by mail.lfdr.de (Postfix) with ESMTP id 9747F37C6A2
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234993AbhELPw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:52:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50084 "EHLO mail.kernel.org"
+        id S234959AbhELPwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:52:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237271AbhELPtA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237278AbhELPtA (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:49:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 975216196A;
-        Wed, 12 May 2021 15:25:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11B73619C3;
+        Wed, 12 May 2021 15:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833101;
-        bh=fU0uEBDNdjMXeOYlOcGPIT25ZqBBBgFTHfy3jb95Rg4=;
+        s=korg; t=1620833103;
+        bh=u0+drFlL5SR+U3f8e1NzS7+1i28uq2XpJdaKsNVA7YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FjKN7XDAIZdemtTQLbOAYix1QswUCx/vIe0Jw9H/A0bETOBLIt7vtcVG/44X2JlDX
-         hgNB7pKwn8+aGLrx5DZPK689w+8vEUM9k0niwda4+e2FQNGWo/mxFr9uBC5HSkUhUG
-         32gWaaMLcpAur4ZPh1fKs5h0S6fXXN0G5/cxNVWA=
+        b=QMtO/xv6AW/r1aATEzguDs+uDItZgHkWZbnjBGCQPWWXm992YE5Xoa2ubyvWysOjg
+         VaYq5RGWE9yRSH1VGqoC6vVIVro6Or/GHCtCqbWWoaN+9TSir0WMGFsOwgziHypSPz
+         TZzmo1fpVxW5L6bwLhkYj5l6rf8ColV/HjalwoFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 5.11 018/601] usb: typec: tcpm: update power supply once partner accepts
-Date:   Wed, 12 May 2021 16:41:35 +0200
-Message-Id: <20210512144828.425782893@linuxfoundation.org>
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.11 019/601] usb: xhci-mtk: remove or operator for setting schedule parameters
+Date:   Wed, 12 May 2021 16:41:36 +0200
+Message-Id: <20210512144828.456601269@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,55 +38,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badhri Jagan Sridharan <badhri@google.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit 4050f2683f2c3151dc3dd1501ac88c57caf810ff upstream.
+commit 5fa5827566e3affa1657ccf9b22706c06a5d021a upstream.
 
-power_supply_changed needs to be called to notify clients
-after the partner accepts the requested values for the pps
-case.
+Side effect may happen if use or operator to set schedule parameters
+when the parameters are already set before. Set them directly due to
+other bits are reserved.
 
-Also, remove the redundant power_supply_changed at the end
-of the tcpm_reset_port as power_supply_changed is already
-called right after usb_type is changed.
-
-Fixes: f2a8aa053c176 ("typec: tcpm: Represent source supply through power_supply")
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Fixes: 54f6a8af3722 ("usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints")
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20210407200723.1914388-3-badhri@google.com
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/d287899e6beb2fc1bfb8900c75a872f628ecde55.1615170625.git.chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/host/xhci-mtk-sch.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -2014,6 +2014,7 @@ static void tcpm_pd_ctrl_request(struct
- 			port->pps_data.max_curr = port->pps_data.req_max_curr;
- 			port->req_supply_voltage = port->pps_data.req_out_volt;
- 			port->req_current_limit = port->pps_data.req_op_curr;
-+			power_supply_changed(port->psy);
- 			tcpm_set_state(port, SNK_TRANSITION_SINK, 0);
- 			break;
- 		case SOFT_RESET_SEND:
-@@ -2550,7 +2551,6 @@ static unsigned int tcpm_pd_select_pps_a
- 						      port->pps_data.req_out_volt));
- 		port->pps_data.req_op_curr = min(port->pps_data.max_curr,
- 						 port->pps_data.req_op_curr);
--		power_supply_changed(port->psy);
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -643,7 +643,7 @@ int xhci_mtk_add_ep_quirk(struct usb_hcd
+ 		 */
+ 		if (usb_endpoint_xfer_int(&ep->desc)
+ 			|| usb_endpoint_xfer_isoc(&ep->desc))
+-			ep_ctx->reserved[0] |= cpu_to_le32(EP_BPKTS(1));
++			ep_ctx->reserved[0] = cpu_to_le32(EP_BPKTS(1));
+ 
+ 		return 0;
  	}
+@@ -730,10 +730,10 @@ int xhci_mtk_check_bandwidth(struct usb_
+ 		list_move_tail(&sch_ep->endpoint, &sch_bw->bw_ep_list);
  
- 	return src_pdo;
-@@ -2966,8 +2966,6 @@ static void tcpm_reset_port(struct tcpm_
- 	port->sink_cap_done = false;
- 	if (port->tcpc->enable_frs)
- 		port->tcpc->enable_frs(port->tcpc, false);
--
--	power_supply_changed(port->psy);
- }
+ 		ep_ctx = xhci_get_ep_ctx(xhci, virt_dev->in_ctx, ep_index);
+-		ep_ctx->reserved[0] |= cpu_to_le32(EP_BPKTS(sch_ep->pkts)
++		ep_ctx->reserved[0] = cpu_to_le32(EP_BPKTS(sch_ep->pkts)
+ 			| EP_BCSCOUNT(sch_ep->cs_count)
+ 			| EP_BBM(sch_ep->burst_mode));
+-		ep_ctx->reserved[1] |= cpu_to_le32(EP_BOFFSET(sch_ep->offset)
++		ep_ctx->reserved[1] = cpu_to_le32(EP_BOFFSET(sch_ep->offset)
+ 			| EP_BREPEAT(sch_ep->repeat));
  
- static void tcpm_detach(struct tcpm_port *port)
+ 		xhci_dbg(xhci, " PKTS:%x, CSCOUNT:%x, BM:%x, OFFSET:%x, REPEAT:%x\n",
 
 
