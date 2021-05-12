@@ -2,192 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A3437BC9D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 14:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D78837BCAC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 14:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232607AbhELMg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 08:36:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36280 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232602AbhELMg0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 08:36:26 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7134C061574
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 05:35:17 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id b17so26874068ede.0
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 05:35:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=B+qYBeg0LU7qe9FeyoLl+k4V1mooIx6Srj0QdL7z8tc=;
-        b=FjXQxpNwImq2bwYHzsIHZLnrerzRfxMcSSRNqhZcZYWNzdINe0Vud0wr78sKhIMNl8
-         7RVwgVC3SFE2FTAH3/OKgQ3pYusBtFHs63VR1zSSynQ6Nu3LiYXoaMeX6IX/z68TUtBh
-         xRVK0jid++g22nW+OgpdaAeiC4g/7OVZmYqtAC3KSDV9cyAFhDjgcSPsGY9XJX2/P0GJ
-         1+JnRi+MohHNZ+UxlZeB4JWmm2EowBV99AYQX6NWjOk11ELtxr5ltAmQ9IMB2R0sHe4d
-         YDFKTVSMDLn/atY6dyKbmxafzU8Xlaz6WeTAjqmEW8An0PzErJC8I1q9wpKaJ/LgOm50
-         oUkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=B+qYBeg0LU7qe9FeyoLl+k4V1mooIx6Srj0QdL7z8tc=;
-        b=fVwIJwRLbd2b9IqIfyozkeNsxJV28MC5+Dth3pwSfNj/h2QbFYM7APo2ujLPspcMnY
-         9aWnAFPJfz7QurtY2AWdJY2EelbVgUblntx85IFH99ujM4cyGlcO2gLE1qHFnhZMpBCx
-         DUMAW2NkF1Lfi4ByjAIpE+JKCGHmUar0ZGst6m3I4ZJgxCZePxiOh1z/JxwCe8bTHnX7
-         nRCNaWpGG25TggDYup2lJC2sPtf1vGP1kBHGfYC2cNrxzxAdcwp/WtPH8Dq51q3mhLlv
-         e+coxjfkdiU7Cu5EXRTrWOPJZp1LbBU78zpyti7WTqCxKtQegLDjhVE8tDWkrMu8oSow
-         jHrg==
-X-Gm-Message-State: AOAM533yqWtlTRDP7sgmSqWtIs1tGcVnFO6YmIDMxQNUsDX3bc/h2EOp
-        zceqpxIb3eN332nxKmfluOdJJ7pYe9+ZhySU
-X-Google-Smtp-Source: ABdhPJwOn721K04BSYLRQMvOMWYGauXUTgOMfrqtnATQJOY4kZOMqeaSneYD7dczYVMqzx327jVNDQ==
-X-Received: by 2002:aa7:d658:: with SMTP id v24mr42258523edr.290.1620822916561;
-        Wed, 12 May 2021 05:35:16 -0700 (PDT)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id v1sm11896366ejw.117.2021.05.12.05.35.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 May 2021 05:35:15 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Wed, 12 May 2021 14:35:14 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     gregkh@linuxfoundation.org
-Cc:     lucien.xin@gmail.com, davem@davemloft.net,
-        orcohen@paloaltonetworks.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] sctp: delay auto_asconf init until
- binding the first addr" failed to apply to 5.12-stable tree
-Message-ID: <YJvLguBJ8zTUptlX@eldamar.lan>
-References: <162082148164230@kroah.com>
+        id S232890AbhELMj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 08:39:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35342 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232883AbhELMj6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 08:39:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80D82613EB;
+        Wed, 12 May 2021 12:38:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1620823130;
+        bh=U/gxAeewTiKq3NLv6xkw5kHBZSrDQoOv3EdDAkj+rHw=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=EhluFSXeRQ9uIMcVhFd03T1Gv/kx0fOmos1rq5xUICKJSfddq5BlQZuDBD2XaVADW
+         B6EBJUAI4bnStohdmahmDr+qevSGcmPUExMUZym/lPDzkvnGos0njgBc5hPhTQzbnf
+         9du2ZbvQBe6D7KcwSlF6RkRgt6HbRPVVlN8y3zEmAOk9KuRDPskJGwypsJ3oq+mXdK
+         7NNNf3wLX5P9hsMHOM3V99u5tW0zCTYn6a8l13BMROphXEn3NM+GPPWraSm/m73W3+
+         t2hgMXctRcqQKkvFERIXbPRoBr5LWE5iFs3/HuNlWLWWkZtzxFmt6Wlp5VJZlp1gr9
+         qSekJU2sRGkig==
+Received: by mail-oi1-f170.google.com with SMTP id j75so22075849oih.10;
+        Wed, 12 May 2021 05:38:50 -0700 (PDT)
+X-Gm-Message-State: AOAM533p8qT1Gqf2+ZkmACleAjkV+e0hrRQsqnyAWGDTfR02k1g1GYmm
+        Ca8FBC62CJcW7tORi3xTELYeGjP9ePy8s/Fu3A0=
+X-Google-Smtp-Source: ABdhPJzMV2io1GAvNMIjRvU1yZ0F6O3kx8YhbvxetB/KLUzVK8tlpnTWQDqAPax9fmIxDPCRNFAcnZvAblqchRqWMKk=
+X-Received: by 2002:aca:e142:: with SMTP id y63mr26156865oig.33.1620823127705;
+ Wed, 12 May 2021 05:38:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <162082148164230@kroah.com>
+References: <20210512081211.200025-1-arnd@kernel.org>
+In-Reply-To: <20210512081211.200025-1-arnd@kernel.org>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Wed, 12 May 2021 14:38:36 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXECGjpxx5ouWuvnKUigzMGu=GcE8_ab2rrxt98yU1jUnw@mail.gmail.com>
+Message-ID: <CAMj1kXECGjpxx5ouWuvnKUigzMGu=GcE8_ab2rrxt98yU1jUnw@mail.gmail.com>
+Subject: Re: [PATCH] ARM: fix gcc-10 thumb2-kernel regression
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Russell King <linux@armlinux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mike Rapoport <rppt@kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Wed, 12 May 2021 at 10:13, Arnd Bergmann <arnd@kernel.org> wrote:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> When building the kernel wtih gcc-10 or higher using the
+> CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y flag, the compiler picks a slightly
+> different set of registers for the inline assembly in cpu_init() that
+> subsequently results in a corrupt kernel stack as well as remaining in
+> FIQ mode. If a banked register is used for the last argument, the wrong
+> version of that register gets loaded into CPSR_c.  When building in Arm
+> mode, the arguments are passed as immediate values and the bug cannot
+> happen.
+>
+> This got introduced when Daniel reworked the FIQ handling and was
+> technically always broken, but happened to work with both clang and gcc
+> before gcc-10 as long as they picked one of the lower registers.
+> This is probably an indication that still very few people build the
+> kernel in Thumb2 mode.
+>
+> Marek pointed out the problem on IRC, Arnd narrowed it down to this
+> inline assembly and Russell pinpointed the exact bug.
+>
+> Change the constraints to force the final mode switch to use a non-banked
+> register for the argument to ensure that the correct constant gets loaded.
+> Another alternative would be to always use registers for the constant
+> arguments to avoid the #ifdef that has now become more complex.
+>
+> Cc: <stable@vger.kernel.org> # v3.18+
+> Cc: Daniel Thompson <daniel.thompson@linaro.org>
+> Reported-by: Marek Vasut <marek.vasut@gmail.com>
+> Fixes: c0e7f7ee717e ("ARM: 8150/3: fiq: Replace default FIQ handler")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-[disclaimer, just commenting as a bystander, noticing this failed
-apply]
+Nice bug!
 
-On Wed, May 12, 2021 at 02:11:21PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.12-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 34e5b01186858b36c4d7c87e1a025071e8e2401f Mon Sep 17 00:00:00 2001
-> From: Xin Long <lucien.xin@gmail.com>
-> Date: Mon, 3 May 2021 05:11:42 +0800
-> Subject: [PATCH] sctp: delay auto_asconf init until binding the first addr
-> 
-> As Or Cohen described:
-> 
->   If sctp_destroy_sock is called without sock_net(sk)->sctp.addr_wq_lock
->   held and sp->do_auto_asconf is true, then an element is removed
->   from the auto_asconf_splist without any proper locking.
-> 
->   This can happen in the following functions:
->   1. In sctp_accept, if sctp_sock_migrate fails.
->   2. In inet_create or inet6_create, if there is a bpf program
->      attached to BPF_CGROUP_INET_SOCK_CREATE which denies
->      creation of the sctp socket.
-> 
-> This patch is to fix it by moving the auto_asconf init out of
-> sctp_init_sock(), by which inet_create()/inet6_create() won't
-> need to operate it in sctp_destroy_sock() when calling
-> sk_common_release().
-> 
-> It also makes more sense to do auto_asconf init while binding the
-> first addr, as auto_asconf actually requires an ANY addr bind,
-> see it in sctp_addr_wq_timeout_handler().
-> 
-> This addresses CVE-2021-23133.
-> 
-> Fixes: 610236587600 ("bpf: Add new cgroup attach type to enable sock modifications")
-> Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-> Signed-off-by: Xin Long <lucien.xin@gmail.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> 
-> diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-> index 76a388b5021c..40f9f6c4a0a1 100644
-> --- a/net/sctp/socket.c
-> +++ b/net/sctp/socket.c
-> @@ -357,6 +357,18 @@ static struct sctp_af *sctp_sockaddr_af(struct sctp_sock *opt,
->  	return af;
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+
+> ---
+>  arch/arm/kernel/setup.c | 16 +++++++++-------
+>  1 file changed, 9 insertions(+), 7 deletions(-)
+>
+> diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+> index 1a5edf562e85..73ca7797b92f 100644
+> --- a/arch/arm/kernel/setup.c
+> +++ b/arch/arm/kernel/setup.c
+> @@ -545,9 +545,11 @@ void notrace cpu_init(void)
+>          * In Thumb-2, msr with an immediate value is not allowed.
+>          */
+>  #ifdef CONFIG_THUMB2_KERNEL
+> -#define PLC    "r"
+> +#define PLC_l  "l"
+> +#define PLC_r  "r"
+>  #else
+> -#define PLC    "I"
+> +#define PLC_l  "I"
+> +#define PLC_r  "I"
+>  #endif
+>
+>         /*
+> @@ -569,15 +571,15 @@ void notrace cpu_init(void)
+>         "msr    cpsr_c, %9"
+>             :
+>             : "r" (stk),
+> -             PLC (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
+> +             PLC_r (PSR_F_BIT | PSR_I_BIT | IRQ_MODE),
+>               "I" (offsetof(struct stack, irq[0])),
+> -             PLC (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
+> +             PLC_r (PSR_F_BIT | PSR_I_BIT | ABT_MODE),
+>               "I" (offsetof(struct stack, abt[0])),
+> -             PLC (PSR_F_BIT | PSR_I_BIT | UND_MODE),
+> +             PLC_r (PSR_F_BIT | PSR_I_BIT | UND_MODE),
+>               "I" (offsetof(struct stack, und[0])),
+> -             PLC (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
+> +             PLC_r (PSR_F_BIT | PSR_I_BIT | FIQ_MODE),
+>               "I" (offsetof(struct stack, fiq[0])),
+> -             PLC (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
+> +             PLC_l (PSR_F_BIT | PSR_I_BIT | SVC_MODE)
+>             : "r14");
+>  #endif
 >  }
->  
-> +static void sctp_auto_asconf_init(struct sctp_sock *sp)
-> +{
-> +	struct net *net = sock_net(&sp->inet.sk);
-> +
-> +	if (net->sctp.default_auto_asconf) {
-> +		spin_lock(&net->sctp.addr_wq_lock);
-> +		list_add_tail(&sp->auto_asconf_list, &net->sctp.auto_asconf_splist);
-> +		spin_unlock(&net->sctp.addr_wq_lock);
-> +		sp->do_auto_asconf = 1;
-> +	}
-> +}
-> +
->  /* Bind a local address either to an endpoint or to an association.  */
->  static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
->  {
-> @@ -418,8 +430,10 @@ static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
->  		return -EADDRINUSE;
->  
->  	/* Refresh ephemeral port.  */
-> -	if (!bp->port)
-> +	if (!bp->port) {
->  		bp->port = inet_sk(sk)->inet_num;
-> +		sctp_auto_asconf_init(sp);
-> +	}
->  
->  	/* Add the address to the bind address list.
->  	 * Use GFP_ATOMIC since BHs will be disabled.
-> @@ -4993,19 +5007,6 @@ static int sctp_init_sock(struct sock *sk)
->  	sk_sockets_allocated_inc(sk);
->  	sock_prot_inuse_add(net, sk->sk_prot, 1);
->  
-> -	/* Nothing can fail after this block, otherwise
-> -	 * sctp_destroy_sock() will be called without addr_wq_lock held
-> -	 */
-> -	if (net->sctp.default_auto_asconf) {
-> -		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
-> -		list_add_tail(&sp->auto_asconf_list,
-> -		    &net->sctp.auto_asconf_splist);
-> -		sp->do_auto_asconf = 1;
-> -		spin_unlock(&sock_net(sk)->sctp.addr_wq_lock);
-> -	} else {
-> -		sp->do_auto_asconf = 0;
-> -	}
-> -
->  	local_bh_enable();
->  
->  	return 0;
-> @@ -9401,6 +9402,8 @@ static int sctp_sock_migrate(struct sock *oldsk, struct sock *newsk,
->  			return err;
->  	}
->  
-> +	sctp_auto_asconf_init(newsp);
-> +
->  	/* Move any messages in the old socket's receive queue that are for the
->  	 * peeled off association to the new socket's receive queue.
->  	 */
-> 
-
-Before applying this patch one needs to revert first
-b166a20b07382b8bc1dcee2a448715c9c2c81b5b .
-
-So first apply 01bfe5e8e428 ("Revert "net/sctp: fix race condition in
-sctp_destroy_sock"") and then apply 34e5b0118685 ("sctp: delay
-auto_asconf init until binding the first addr").
-
-Regards,
-Salvatore
+> --
+> 2.29.2
+>
