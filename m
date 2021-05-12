@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A344937C129
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:55:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0776B37C12A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:56:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231553AbhELO5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:57:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S232349AbhELO5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:57:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232238AbhELOzx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:55:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 306A861412;
-        Wed, 12 May 2021 14:54:45 +0000 (UTC)
+        id S232249AbhELOz4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:55:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B9E86142E;
+        Wed, 12 May 2021 14:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831285;
-        bh=w0ODjGif2rcoZGNVI2RJdhui/zw658jsUrjRas3821E=;
+        s=korg; t=1620831288;
+        bh=ujjArPhB3AH2Rri0wcvOgGRStrZZAyifv4N5DMeJnzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QL02kHPnS2+Uo9WWw7LfyrZo7nVaKdl0BZkFZR5bkvZ1DO+HKNk87q9G8/wbODJnf
-         6XZbaph+YWtmMHm5MTjCC5o2LV3CVB9mHQHsun/KHI6egC1fLn4XsLHktLn66zK5H3
-         N2Wi6vBwjknFZUW6ZQt5zG7QAqwMKh1zl8F239Sc=
+        b=zS5+qCE/FG1cx6YKpS2n134+ser7oRYrfubK3+eJk9/sm+MSty7tK/qy6O2JGisAd
+         T91Ip1EJMhpBEUEq51n4yO6wMcJLBKV136AbZ7x/655B3Va1PeS5kO+VfAFBoLlKVK
+         Nr9YK5C2qUsndxy5/EB3YiZscmGBfabjbSxP2UYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5.4 059/244] KVM: s390: split kvm_s390_real_to_abs
-Date:   Wed, 12 May 2021 16:47:10 +0200
-Message-Id: <20210512144744.935055098@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 060/244] KVM: nVMX: Truncate bits 63:32 of VMCS field on nested check in !64-bit
+Date:   Wed, 12 May 2021 16:47:11 +0200
+Message-Id: <20210512144744.966159933@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -41,71 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit c5d1f6b531e68888cbe6718b3f77a60115d58b9c upstream.
+commit ee050a577523dfd5fac95e6cc182ebe0293ead59 upstream.
 
-A new function _kvm_s390_real_to_abs will apply prefixing to a real address
-with a given prefix value.
+Drop bits 63:32 of the VMCS field encoding when checking for a nested
+VM-Exit on VMREAD/VMWRITE in !64-bit mode.  VMREAD and VMWRITE always
+use 32-bit operands outside of 64-bit mode.
 
-The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
+The actual emulation of VMREAD/VMWRITE does the right thing, this bug is
+purely limited to incorrectly causing a nested VM-Exit if a GPR happens
+to have bits 63:32 set outside of 64-bit mode.
 
-This is needed to avoid code duplication in vSIE.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Fixes: a7cde481b6e8 ("KVM: nVMX: Do not forward VMREAD/VMWRITE VMExits to L1 if required so by vmcs12 vmread/vmwrite bitmaps")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210322140559.500716-2-imbrenda@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210422022128.3464144-6-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/gaccess.h |   23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ arch/x86/kvm/vmx/nested.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -18,17 +18,14 @@
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -5308,7 +5308,7 @@ static bool nested_vmx_exit_handled_vmcs
  
- /**
-  * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-- * @vcpu - guest virtual cpu
-+ * @prefix - guest prefix
-  * @gra - guest real address
-  *
-  * Returns the guest absolute address that corresponds to the passed guest real
-- * address @gra of a virtual guest cpu by applying its prefix.
-+ * address @gra of by applying the given prefix.
-  */
--static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
--						 unsigned long gra)
-+static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
- {
--	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
--
- 	if (gra < 2 * PAGE_SIZE)
- 		gra += prefix;
- 	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
-@@ -37,6 +34,20 @@ static inline unsigned long kvm_s390_rea
- }
+ 	/* Decode instruction info and find the field to access */
+ 	vmx_instruction_info = vmcs_read32(VMX_INSTRUCTION_INFO);
+-	field = kvm_register_read(vcpu, (((vmx_instruction_info) >> 28) & 0xf));
++	field = kvm_register_readl(vcpu, (((vmx_instruction_info) >> 28) & 0xf));
  
- /**
-+ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-+ * @vcpu - guest virtual cpu
-+ * @gra - guest real address
-+ *
-+ * Returns the guest absolute address that corresponds to the passed guest real
-+ * address @gra of a virtual guest cpu by applying its prefix.
-+ */
-+static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
-+						 unsigned long gra)
-+{
-+	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
-+}
-+
-+/**
-  * _kvm_s390_logical_to_effective - convert guest logical to effective address
-  * @psw: psw of the guest
-  * @ga: guest logical address
+ 	/* Out-of-range fields always cause a VM exit from L2 to L1 */
+ 	if (field >> 15)
 
 
