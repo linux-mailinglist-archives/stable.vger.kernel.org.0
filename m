@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C9137CD40
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8544737CD28
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234312AbhELQxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:53:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35488 "EHLO mail.kernel.org"
+        id S234730AbhELQxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:53:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243723AbhELQl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243726AbhELQl6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:41:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3D8F61CF5;
-        Wed, 12 May 2021 16:06:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 410C361CF4;
+        Wed, 12 May 2021 16:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835575;
-        bh=JvBDpP3mmjc5PuCI5iA1DvKhvYE0lLnrakaqesy0jgk=;
+        s=korg; t=1620835577;
+        bh=TH9HxxzcUuVWYmDueDD75n9GZ1q7nkDozQBjGxUNubM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQs7tY2+h7/E8a8j6r+5q+nKBQrc1UOwHPJ7diUn9ICU7RoJz59NcRLI3HLcDDkVC
-         NWKWeBMkcuSZ+2TjhbHsuuhQWy2e3iBm+ns2KnxqQw39zrkNxSldnWrT281fsUvi2A
-         4xb2hRq5P9zTUHSN2dqIKdmfPPT/h3I6i6ORKBpo=
+        b=GdEFqUfhwYbaKupGXJkiDxYsDeAFb6VZqjaAiQfEsw2fbipCuWQ/pvNipN//kAj3d
+         Ot3tHLFIEvyuZ28SXn7fYfdyA98SNnHfo0kvGBHB1J+y1T+SrwhQ+ZHFpBase+l20A
+         ZWnDgmM0oVhxyHiqiNPyGBkdh/Anx8RzM/hwonGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 399/677] drm/msm/dpu: enable DPU_SSPP_QOS_8LVL for SM8250
-Date:   Wed, 12 May 2021 16:47:25 +0200
-Message-Id: <20210512144850.591686271@linuxfoundation.org>
+Subject: [PATCH 5.12 400/677] vfio/mdev: Do not allow a mdev_type to have a NULL parent pointer
+Date:   Wed, 12 May 2021 16:47:26 +0200
+Message-Id: <20210512144850.623620559@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,37 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 095eed898485312f86b7cb593da4f9cd5c43fdb0 ]
+[ Upstream commit b5a1f8921d5040bb788492bf33a66758021e4be5 ]
 
-SM8250 platform has a 8-Levels VIG QoS setting. This setting was missed
-due to bad interaction with b8dab65b5ac3 ("drm/msm/dpu: Move
-DPU_SSPP_QOS_8LVL bit to SDM845 and SC7180 masks"), which was applied in
-parallel.
+There is a small race where the parent is NULL even though the kobj has
+already been made visible in sysfs.
 
-Fixes: d21fc5dfc3df ("drm/msm/dpu1: add support for qseed3lite used on sm8250")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210318105435.2011222-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+For instance the attribute_group is made visible in sysfs_create_files()
+and the mdev_type_attr_show() does:
+
+    ret = attr->show(kobj, type->parent->dev, buf);
+
+Which will crash on NULL parent. Move the parent setup to before the type
+pointer leaves the stack frame.
+
+Fixes: 7b96953bc640 ("vfio: Mediated device Core driver")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Message-Id: <2-v2-d36939638fc6+d54-vfio2_jgg@nvidia.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 2 +-
+ drivers/vfio/mdev/mdev_sysfs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-index 189f3533525c..e4444452759c 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
-@@ -22,7 +22,7 @@
- 	(VIG_MASK | BIT(DPU_SSPP_QOS_8LVL) | BIT(DPU_SSPP_SCALER_QSEED4))
+diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/vfio/mdev/mdev_sysfs.c
+index 917fd84c1c6f..367ff5412a38 100644
+--- a/drivers/vfio/mdev/mdev_sysfs.c
++++ b/drivers/vfio/mdev/mdev_sysfs.c
+@@ -105,6 +105,7 @@ static struct mdev_type *add_mdev_supported_type(struct mdev_parent *parent,
+ 		return ERR_PTR(-ENOMEM);
  
- #define VIG_SM8250_MASK \
--	(VIG_MASK | BIT(DPU_SSPP_SCALER_QSEED3LITE))
-+	(VIG_MASK | BIT(DPU_SSPP_QOS_8LVL) | BIT(DPU_SSPP_SCALER_QSEED3LITE))
+ 	type->kobj.kset = parent->mdev_types_kset;
++	type->parent = parent;
  
- #define DMA_SDM845_MASK \
- 	(BIT(DPU_SSPP_SRC) | BIT(DPU_SSPP_QOS) | BIT(DPU_SSPP_QOS_8LVL) |\
+ 	ret = kobject_init_and_add(&type->kobj, &mdev_type_ktype, NULL,
+ 				   "%s-%s", dev_driver_string(parent->dev),
+@@ -132,7 +133,6 @@ static struct mdev_type *add_mdev_supported_type(struct mdev_parent *parent,
+ 	}
+ 
+ 	type->group = group;
+-	type->parent = parent;
+ 	return type;
+ 
+ attrs_failed:
 -- 
 2.30.2
 
