@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1289737CDBA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1E1737CE22
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238417AbhELQ5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:57:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60668 "EHLO mail.kernel.org"
+        id S237885AbhELRDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:03:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244109AbhELQmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244104AbhELQmf (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C755E61C81;
-        Wed, 12 May 2021 16:10:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B0D561D31;
+        Wed, 12 May 2021 16:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835842;
-        bh=kjegjyLNNXKLRNMESvE+5G7voxfok5raSrgCYnNN3dg=;
+        s=korg; t=1620835844;
+        bh=l53qjLtTzEQnkdS0F5TN+5MEX+fHKQbbD5Dpr9JVCBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JvFsEHMz4lF5xbS5HZEcjeA7+mk5gOrIDUveWvUpX2R56rGzjStpHswh9xskr1xne
-         2rlWwFrO+r4hOkTNepuUDbrKzhq3PtQp2gjU8OTTnsN1UuQgW/IG/R+4NvkXNBCX1f
-         VeYny/3/6Tx2rpIGqeRl2KVCA1ugMwo5XqE/o3xY=
+        b=FsSo/cr5/4ZWrADmoYTou27P1qdhvdZzTUuFmtWuYb3+GHncxxsAM8Ep704Bm7jhh
+         f+L0raYLkDVWds51IeBsLJGDBQBTj2HFKyE6ASsCqXIkFHFsRs1uylr2AXKMLTZc2D
+         UzDN+DjS7V34XYbsDVZeb5CQnC3eMsdDdkK4RGAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordan Niethe <jniethe5@gmail.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 506/677] powerpc/64s: Fix pte update for kernel memory on radix
-Date:   Wed, 12 May 2021 16:49:12 +0200
-Message-Id: <20210512144854.195359722@linuxfoundation.org>
+Subject: [PATCH 5.12 507/677] powerpc/pseries: Add key to flags in pSeries_lpar_hpte_updateboltedpp()
+Date:   Wed, 12 May 2021 16:49:13 +0200
+Message-Id: <20210512144854.227562877@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,146 +39,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Niethe <jniethe5@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit b8b2f37cf632434456182e9002d63cbc4cccc50c ]
+[ Upstream commit b56d55a5aa4aa9fc166595a7feb57f153ef7b555 ]
 
-When adding a PTE a ptesync is needed to order the update of the PTE
-with subsequent accesses otherwise a spurious fault may be raised.
+The flags argument to plpar_pte_protect() (aka. H_PROTECT), includes
+the key in bits 9-13, but currently we always set those bits to zero.
 
-radix__set_pte_at() does not do this for performance gains. For
-non-kernel memory this is not an issue as any faults of this kind are
-corrected by the page fault handler. For kernel memory these faults
-are not handled. The current solution is that there is a ptesync in
-flush_cache_vmap() which should be called when mapping from the
-vmalloc region.
+In the past that hasn't been a problem because we always used key 0
+for the kernel, and updateboltedpp() is only used for kernel mappings.
 
-However, map_kernel_page() does not call flush_cache_vmap(). This is
-troublesome in particular for code patching with Strict RWX on radix.
-In do_patch_instruction() the page frame that contains the instruction
-to be patched is mapped and then immediately patched. With no ordering
-or synchronization between setting up the PTE and writing to the page
-it is possible for faults.
+However since commit d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3
+for kernel mapping with hash translation") we are now inadvertently
+changing the key (to zero) when we call plpar_pte_protect().
 
-As the code patching is done using __put_user_asm_goto() the resulting
-fault is obscured - but using a normal store instead it can be seen:
+That hasn't broken anything because updateboltedpp() is only used for
+STRICT_KERNEL_RWX, which is currently disabled on 64s due to other
+bugs.
 
-  BUG: Unable to handle kernel data access on write at 0xc008000008f24a3c
-  Faulting instruction address: 0xc00000000008bd74
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
-  Modules linked in: nop_module(PO+) [last unloaded: nop_module]
-  CPU: 4 PID: 757 Comm: sh Tainted: P           O      5.10.0-rc5-01361-ge3c1b78c8440-dirty #43
-  NIP:  c00000000008bd74 LR: c00000000008bd50 CTR: c000000000025810
-  REGS: c000000016f634a0 TRAP: 0300   Tainted: P           O       (5.10.0-rc5-01361-ge3c1b78c8440-dirty)
-  MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44002884  XER: 00000000
-  CFAR: c00000000007c68c DAR: c008000008f24a3c DSISR: 42000000 IRQMASK: 1
+But we want to fix that, so first we need to pass the key correctly to
+plpar_pte_protect(). We can't pass our newpp value directly in, we
+have to convert it into the form expected by the hcall.
 
-This results in the kind of issue reported here:
-  https://lore.kernel.org/linuxppc-dev/15AC5B0E-A221-4B8C-9039-FA96B8EF7C88@lca.pw/
+The hcall we're using here is H_PROTECT, which is specified in section
+14.5.4.1.6 of LoPAPR v1.1.
 
-Chris Riedl suggested a reliable way to reproduce the issue:
-  $ mount -t debugfs none /sys/kernel/debug
-  $ (while true; do echo function > /sys/kernel/debug/tracing/current_tracer ; echo nop > /sys/kernel/debug/tracing/current_tracer ; done) &
+It takes a `flags` parameter, and the description for flags says:
 
-Turning ftrace on and off does a large amount of code patching which
-in usually less then 5min will crash giving a trace like:
+ * flags: AVPN, pp0, pp1, pp2, key0-key4, n, and for the CMO
+   option: CMO Option flags as defined in Table 189‚
 
-   ftrace-powerpc: (____ptrval____): replaced (4b473b11) != old (60000000)
-   ------------[ ftrace bug ]------------
-   ftrace failed to modify
-   [<c000000000bf8e5c>] napi_busy_loop+0xc/0x390
-    actual:   11:3b:47:4b
-   Setting ftrace call site to call ftrace function
-   ftrace record flags: 80000001
-    (1)
-    expected tramp: c00000000006c96c
-   ------------[ cut here ]------------
-   WARNING: CPU: 4 PID: 809 at kernel/trace/ftrace.c:2065 ftrace_bug+0x28c/0x2e8
-   Modules linked in: nop_module(PO-) [last unloaded: nop_module]
-   CPU: 4 PID: 809 Comm: sh Tainted: P           O      5.10.0-rc5-01360-gf878ccaf250a #1
-   NIP:  c00000000024f334 LR: c00000000024f330 CTR: c0000000001a5af0
-   REGS: c000000004c8b760 TRAP: 0700   Tainted: P           O       (5.10.0-rc5-01360-gf878ccaf250a)
-   MSR:  900000000282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 28008848  XER: 20040000
-   CFAR: c0000000001a9c98 IRQMASK: 0
-   GPR00: c00000000024f330 c000000004c8b9f0 c000000002770600 0000000000000022
-   GPR04: 00000000ffff7fff c000000004c8b6d0 0000000000000027 c0000007fe9bcdd8
-   GPR08: 0000000000000023 ffffffffffffffd8 0000000000000027 c000000002613118
-   GPR12: 0000000000008000 c0000007fffdca00 0000000000000000 0000000000000000
-   GPR16: 0000000023ec37c5 0000000000000000 0000000000000000 0000000000000008
-   GPR20: c000000004c8bc90 c0000000027a2d20 c000000004c8bcd0 c000000002612fe8
-   GPR24: 0000000000000038 0000000000000030 0000000000000028 0000000000000020
-   GPR28: c000000000ff1b68 c000000000bf8e5c c00000000312f700 c000000000fbb9b0
-   NIP ftrace_bug+0x28c/0x2e8
-   LR  ftrace_bug+0x288/0x2e8
-   Call Trace:
-     ftrace_bug+0x288/0x2e8 (unreliable)
-     ftrace_modify_all_code+0x168/0x210
-     arch_ftrace_update_code+0x18/0x30
-     ftrace_run_update_code+0x44/0xc0
-     ftrace_startup+0xf8/0x1c0
-     register_ftrace_function+0x4c/0xc0
-     function_trace_init+0x80/0xb0
-     tracing_set_tracer+0x2a4/0x4f0
-     tracing_set_trace_write+0xd4/0x130
-     vfs_write+0xf0/0x330
-     ksys_write+0x84/0x140
-     system_call_exception+0x14c/0x230
-     system_call_common+0xf0/0x27c
+If you then go to the start of the parent section, 14.5.4.1, on page
+405, it says:
 
-To fix this when updating kernel memory PTEs using ptesync.
+Register Linkage (For hcall() tokens 0x04 - 0x18)
+ * On Call
+   * R3 function call token
+   * R4 flags (see Table 178‚ “Page Frame Table Access flags field
+     definition‚” on page 401)
 
-Fixes: f1cb8f9beba8 ("powerpc/64s/radix: avoid ptesync after set_pte and ptep_set_access_flags")
-Signed-off-by: Jordan Niethe <jniethe5@gmail.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-[mpe: Tidy up change log slightly]
+Then you have to go to section 14.5.3, and on page 394 there is a list
+of hcalls and their tokens (table 176), and there you can see that
+H_PROTECT == 0x18.
+
+Finally you can look at table 178, on page 401, where it specifies the
+layout of the bits for the key:
+
+ Bit     Function
+ -----------------
+ 50-54 | key0-key4
+
+Those are big-endian bit numbers, converting to normal bit numbers you
+get bits 9-13, or 0x3e00.
+
+In the kernel we have:
+
+  #define HPTE_R_KEY_HI		ASM_CONST(0x3000000000000000)
+  #define HPTE_R_KEY_LO		ASM_CONST(0x0000000000000e00)
+
+So the LO bits of newpp are already in the right place, and the HI
+bits need to be shifted down by 48.
+
+Fixes: d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3 for kernel mapping with hash translation")
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210208032957.1232102-1-jniethe5@gmail.com
+Link: https://lore.kernel.org/r/20210331003845.216246-2-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/64/radix.h | 6 ++++--
- arch/powerpc/mm/book3s64/radix_pgtable.c   | 4 ++--
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ arch/powerpc/platforms/pseries/lpar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/64/radix.h b/arch/powerpc/include/asm/book3s/64/radix.h
-index c7813dc628fc..59cab558e2f0 100644
---- a/arch/powerpc/include/asm/book3s/64/radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/radix.h
-@@ -222,8 +222,10 @@ static inline void radix__set_pte_at(struct mm_struct *mm, unsigned long addr,
- 	 * from ptesync, it should probably go into update_mmu_cache, rather
- 	 * than set_pte_at (which is used to set ptes unrelated to faults).
- 	 *
--	 * Spurious faults to vmalloc region are not tolerated, so there is
--	 * a ptesync in flush_cache_vmap.
-+	 * Spurious faults from the kernel memory are not tolerated, so there
-+	 * is a ptesync in flush_cache_vmap, and __map_kernel_page() follows
-+	 * the pte update sequence from ISA Book III 6.10 Translation Table
-+	 * Update Synchronization Requirements.
- 	 */
- }
+diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
+index 3805519a6469..cd38bd421f38 100644
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -977,11 +977,13 @@ static void pSeries_lpar_hpte_updateboltedpp(unsigned long newpp,
+ 	slot = pSeries_lpar_hpte_find(vpn, psize, ssize);
+ 	BUG_ON(slot == -1);
  
-diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
-index 98f0b243c1ab..39d488a212a0 100644
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -108,7 +108,7 @@ static int early_map_kernel_page(unsigned long ea, unsigned long pa,
+-	flags = newpp & 7;
++	flags = newpp & (HPTE_R_PP | HPTE_R_N);
+ 	if (mmu_has_feature(MMU_FTR_KERNEL_RO))
+ 		/* Move pp0 into bit 8 (IBM 55) */
+ 		flags |= (newpp & HPTE_R_PP0) >> 55;
  
- set_the_pte:
- 	set_pte_at(&init_mm, ea, ptep, pfn_pte(pfn, flags));
--	smp_wmb();
-+	asm volatile("ptesync": : :"memory");
- 	return 0;
- }
++	flags |= ((newpp & HPTE_R_KEY_HI) >> 48) | (newpp & HPTE_R_KEY_LO);
++
+ 	lpar_rc = plpar_pte_protect(flags, slot, 0);
  
-@@ -168,7 +168,7 @@ static int __map_kernel_page(unsigned long ea, unsigned long pa,
- 
- set_the_pte:
- 	set_pte_at(&init_mm, ea, ptep, pfn_pte(pfn, flags));
--	smp_wmb();
-+	asm volatile("ptesync": : :"memory");
- 	return 0;
- }
- 
+ 	BUG_ON(lpar_rc != H_SUCCESS);
 -- 
 2.30.2
 
