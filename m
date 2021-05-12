@@ -2,119 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E815437CF2C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D0737CF2D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:31:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343966AbhELRJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:09:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38682 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237942AbhELRDS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 13:03:18 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF0EBC061343
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 10:02:00 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id m190so18680404pga.2
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 10:02:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kRcaMpJxPwNbrF36kMpnjEdRO/UuEiTCf6P6nzzPXpY=;
-        b=z9WpAAzTXci5hneNI7GbF5lDtRf8f8jD8YzEAA+6Z54oskjp05wVPLYX01Pe+hjZys
-         Ikw3Vy88GBmakfby1UzorcrWEbMU60n6gT07+6FkpyohRjnSANA2cygUK31xR3uFlFbg
-         dzuKZqISvjBK/85zL3gWESebwhDh8PWGwXuO8l55uD8dW/tEr6OOTSwxHTXDT+n5FPvg
-         YLShCtR1cZljxP32r5C8MLVGYWpDNiuAubgGqhRU5GzvuVFLdhSiXqmO53J76KM7FpYR
-         Bz72owphLw1xyAODDFAgb2skRG0V+Jcf0nLfdVbDDWM4Kscu+VSU9CwmuFzcnrUXR66K
-         6XjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kRcaMpJxPwNbrF36kMpnjEdRO/UuEiTCf6P6nzzPXpY=;
-        b=iAsYIE0isvYYoKCHgqiSZxq8R9WkYddQx60GK2BBAdLqBpCIgwQ6hM6WHeZW8g/hA4
-         MNBykf3fxae0UrmUcMCKieNpsjOJ5C22KX/pxQrBms7mki/1Ewn17xDDAQ3eCIzkJKXt
-         MYn9UVb+CUsRi1KC/DCguTeM9UCNeU6Woe/FNrW4ZQV5mJyy/whGfH5+qeKQug/dC0u5
-         jiaZGR1f60ASqPknyr4Sridz5bdl/jh4PhOqsCAENKYoV0CyjImsY7yPR8LNOu1aUgVI
-         xgW+jA5eZ/3gtr35mp2TIAiRJa9Rj7bMVKkVooVuT9mUtB+ucpEqugrvclCisbxI17KH
-         4+tg==
-X-Gm-Message-State: AOAM530O+7qXbt69OTozuEMdCrUqqYiglnaG/Ug/T/RiYqMMzaBsAypY
-        1re5mZ+NLGUZUZCagA0LpZf1Ylb1h0mP9pJI
-X-Google-Smtp-Source: ABdhPJx6jK31IrPNcvlvnr+fMi0kJYhuH1K1O7c5HfTurfJFlwQ7DGAdKucBFuSWZ2o0MAquSvE82g==
-X-Received: by 2002:a63:ee53:: with SMTP id n19mr37596000pgk.268.1620838920186;
-        Wed, 12 May 2021 10:02:00 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v14sm343835pgl.86.2021.05.12.10.01.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 May 2021 10:01:59 -0700 (PDT)
-Message-ID: <609c0a07.1c69fb81.db83e.1442@mx.google.com>
-Date:   Wed, 12 May 2021 10:01:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.11.19-939-gb998056942228
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.11
-Subject: stable-rc/queue/5.11 baseline: 165 runs,
- 1 regressions (v5.11.19-939-gb998056942228)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1344106AbhELRJP convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 12 May 2021 13:09:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40044 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238559AbhELRDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 13:03:51 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9ADED61221;
+        Wed, 12 May 2021 17:02:40 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lgsFq-000zDP-J1; Wed, 12 May 2021 18:02:38 +0100
+Date:   Wed, 12 May 2021 18:02:37 +0100
+Message-ID: <87h7j7opg2.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Alexandru Elisei <alexandru.elisei@arm.com>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        kvmarm@lists.cs.columbia.edu
+Subject: Re: [PATCH 5.4 000/244] 5.4.119-rc1 review
+In-Reply-To: <b7df0d7f-e582-6a0d-2385-b9fce50f9106@arm.com>
+References: <20210512144743.039977287@linuxfoundation.org>
+        <CA+G9fYs1AH8ZNWMJ=H4TY5C6bqp--=SZfW9P=WbB85qSBDkuXw@mail.gmail.com>
+        <b7df0d7f-e582-6a0d-2385-b9fce50f9106@arm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: alexandru.elisei@arm.com, naresh.kamboju@linaro.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, shuah@kernel.org, f.fainelli@gmail.com, patches@kernelci.org, lkft-triage@lists.linaro.org, jonathanh@nvidia.com, stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org, torvalds@linux-foundation.org, linux@roeck-us.net, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.11 baseline: 165 runs, 1 regressions (v5.11.19-939-gb9980=
-56942228)
+On Wed, 12 May 2021 18:00:16 +0100,
+Alexandru Elisei <alexandru.elisei@arm.com> wrote:
+> 
+> Hi Naresh,
+> 
+> Thank you for the report!
+> 
+> On 5/12/21 5:47 PM, Naresh Kamboju wrote:
+> > On Wed, 12 May 2021 at 20:22, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> >> This is the start of the stable review cycle for the 5.4.119 release.
+> >> There are 244 patches in this series, all will be posted as a response
+> >> to this one.  If anyone has any issues with these being applied, please
+> >> let me know.
+> >>
+> >> Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
+> >> Anything received after that time might be too late.
+> >>
+> >> The whole patch series can be found in one patch at:
+> >>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.119-rc1.gz
+> >> or in the git tree and branch at:
+> >>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> >> and the diffstat can be found below.
+> >>
+> >> thanks,
+> >>
+> >> greg k-h
+> > Build regression detected.
+> >
+> >> Alexandru Elisei <alexandru.elisei@arm.com>
+> >>     KVM: arm64: Initialize VCPU mdcr_el2 before loading it
+> > stable rc 5.4 arm axm55xx_defconfig builds failed due to these
+> > warnings / errors.
+> >   - arm (axm55xx_defconfig) with gcc-8,9 and 10 failed
+> >
+> > arch/arm/kvm/../../../virt/kvm/arm/arm.c: In function 'kvm_vcpu_first_run_init':
+> > arch/arm/kvm/../../../virt/kvm/arm/arm.c:582:2: error: implicit
+> > declaration of function 'kvm_arm_vcpu_init_debug'; did you mean
+> > 'kvm_arm_init_debug'? [-Werror=implicit-function-declaration]
+> >   kvm_arm_vcpu_init_debug(vcpu);
+> >   ^~~~~~~~~~~~~~~~~~~~~~~
+> >   kvm_arm_init_debug
+> > cc1: some warnings being treated as errors
+> 
+> This is my fault, in Linux v5.4 KVM for arm is still around, and
+> there's no prototype for the function when compiling for arm. I
+> suspect that's also the case for v4.19.
+> 
+> I made this change to get it to build:
+> 
+> $ git diff
+> diff --git a/arch/arm/include/asm/kvm_host.h b/arch/arm/include/asm/kvm_host.h
+> index dd03d5e01a94..32564b017ba0 100644
+> --- a/arch/arm/include/asm/kvm_host.h
+> +++ b/arch/arm/include/asm/kvm_host.h
+> @@ -335,6 +335,7 @@ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu,
+> int cpu) {}
+>  static inline void kvm_arch_vcpu_block_finish(struct kvm_vcpu *vcpu) {}
+>  
+>  static inline void kvm_arm_init_debug(void) {}
+> +static inline void kvm_arm_vcpu_init_debug(struct kvm_vcpu *vcpu) {}
+>  static inline void kvm_arm_setup_debug(struct kvm_vcpu *vcpu) {}
+>  static inline void kvm_arm_clear_debug(struct kvm_vcpu *vcpu) {}
+>  static inline void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu) {}
+> 
+> which matches the stub for kvm_arm_init_debug(). I can spin a patch
+> out of it and send it for 5.4 and 4.19. Marc, what do you think?
 
-Regressions Summary
--------------------
+Ideally, we'd drop the patch in its current form from 5.4 and 4.19,
+and send an updated patch with this hunk to fix the 32bit build.
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+Thanks,
 
+	M.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.11/ker=
-nel/v5.11.19-939-gb998056942228/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.11
-  Describe: v5.11.19-939-gb998056942228
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b998056942228aaa90a7498b5fd5fa79327b0fdf =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609bd811e8b87422dcd08f2c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.19-=
-939-gb998056942228/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.19-=
-939-gb998056942228/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609bd811e8b87422dcd08=
-f2d
-        new failure (last pass: v5.11.19-341-gbeb6df0ce94f6) =
-
- =20
+-- 
+Without deviation from the norm, progress is not possible.
