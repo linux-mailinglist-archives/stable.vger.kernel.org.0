@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A49A37CE67
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A63037CE46
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240956AbhELRFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37580 "EHLO mail.kernel.org"
+        id S239239AbhELREb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:04:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237882AbhELQnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237833AbhELQnN (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:43:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8B5619A3;
-        Wed, 12 May 2021 16:13:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D57461D4F;
+        Wed, 12 May 2021 16:13:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836012;
-        bh=y5HAnkfjz1fAF+Y1qZGioFpODtf9bMSHa7OQBJmQ2Pc=;
+        s=korg; t=1620836014;
+        bh=+hDL0Bl3C/XybG1TZGZB7OyFJ4ApaCUz5E/8EGD5HFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZFafd3nUVdI9FpVzxM/Vw2MtW/2u7+ltHPgo7K7aYVGDXNgbZhG/cbA76VfF2E7b
-         de7bmlAByp0uI+6SPCiIxn31M6S/yVrfnZXbGCKDoldfIR2TY48bChFJH/ngbmzY3E
-         tFMq2R6yEjCJSlAcUAFt5C3f65d2IHGhEUoMGDyo=
+        b=2HRCumppjWRQYOEXvP6vK592ukrT0dEhat4FJy0zKEGda8z/2KuUrXts8iB3DN8fs
+         d6/aKEAxgKONljWAxBkLFvwhCs/RSUNnLubQ+m1geQLQXtXca6gbiQoEcDjhG1GbFu
+         yIbtdzMwZw2GFBqptTEvrkWDLhKuCgSGAkelV2zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 575/677] powerpc/syscall: switch user_exit_irqoff and trace_hardirqs_off order
-Date:   Wed, 12 May 2021 16:50:21 +0200
-Message-Id: <20210512144856.493382834@linuxfoundation.org>
+Subject: [PATCH 5.12 576/677] ASoC: ak5558: correct reset polarity
+Date:   Wed, 12 May 2021 16:50:22 +0200
+Message-Id: <20210512144856.526141064@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,44 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 5a5a893c4ad897b8a36f846602895515b7407a71 ]
+[ Upstream commit 0b93bbc977af55fd10687f2c96c807cba95cb927 ]
 
-user_exit_irqoff() -> __context_tracking_exit -> vtime_user_exit
-warns in __seqprop_assert due to lockdep thinking preemption is enabled
-because trace_hardirqs_off() has not yet been called.
+Reset (aka power off) happens when the reset gpio is made active.
+The reset gpio is GPIO_ACTIVE_LOW
 
-Switch the order of these two calls, which matches their ordering in
-interrupt_enter_prepare.
-
-Fixes: 5f0b6ac3905f ("powerpc/64/syscall: Reconcile interrupts")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210316104206.407354-2-npiggin@gmail.com
+Fixes: 920884777480 ("ASoC: ak5558: Add support for AK5558 ADC driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1618382024-31725-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/interrupt.c | 4 ++--
+ sound/soc/codecs/ak5558.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
-index c475a229a42a..352346e14a08 100644
---- a/arch/powerpc/kernel/interrupt.c
-+++ b/arch/powerpc/kernel/interrupt.c
-@@ -34,11 +34,11 @@ notrace long system_call_exception(long r3, long r4, long r5,
- 	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
- 		BUG_ON(irq_soft_mask_return() != IRQS_ALL_DISABLED);
+diff --git a/sound/soc/codecs/ak5558.c b/sound/soc/codecs/ak5558.c
+index 85bdd0534180..80b3b162ca5b 100644
+--- a/sound/soc/codecs/ak5558.c
++++ b/sound/soc/codecs/ak5558.c
+@@ -272,7 +272,7 @@ static void ak5558_power_off(struct ak5558_priv *ak5558)
+ 	if (!ak5558->reset_gpiod)
+ 		return;
  
-+	trace_hardirqs_off(); /* finish reconciling */
-+
- 	CT_WARN_ON(ct_state() == CONTEXT_KERNEL);
- 	user_exit_irqoff();
+-	gpiod_set_value_cansleep(ak5558->reset_gpiod, 0);
++	gpiod_set_value_cansleep(ak5558->reset_gpiod, 1);
+ 	usleep_range(1000, 2000);
+ }
  
--	trace_hardirqs_off(); /* finish reconciling */
--
- 	if (!IS_ENABLED(CONFIG_BOOKE) && !IS_ENABLED(CONFIG_40x))
- 		BUG_ON(!(regs->msr & MSR_RI));
- 	BUG_ON(!(regs->msr & MSR_PR));
+@@ -281,7 +281,7 @@ static void ak5558_power_on(struct ak5558_priv *ak5558)
+ 	if (!ak5558->reset_gpiod)
+ 		return;
+ 
+-	gpiod_set_value_cansleep(ak5558->reset_gpiod, 1);
++	gpiod_set_value_cansleep(ak5558->reset_gpiod, 0);
+ 	usleep_range(1000, 2000);
+ }
+ 
 -- 
 2.30.2
 
