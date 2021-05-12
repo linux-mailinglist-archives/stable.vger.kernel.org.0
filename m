@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1B437C8D7
+	by mail.lfdr.de (Postfix) with ESMTP id 72F4937C8D6
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235335AbhELQNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:13:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36540 "EHLO mail.kernel.org"
+        id S233639AbhELQNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:13:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239180AbhELQHd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239179AbhELQHd (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:07:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BADFC6195F;
-        Wed, 12 May 2021 15:36:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BDE56198A;
+        Wed, 12 May 2021 15:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833802;
-        bh=AvDDK1Y6Oua6B9Ocw9/JoBQjCp4NDpQvoAS1goOTYVM=;
+        s=korg; t=1620833804;
+        bh=imjhLH+xOAXgw67JGDP38KlUEUN429Pxp4KKaF4S/yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LmLxY4xx8aThlUK7VjCXiHoRAMlD90sd4V5819AObOeQeZBp4WXD2eiWJt6zLq4qe
-         HdFibaw/Em+zrB7kZ+Y6vgv/rvBQUuuth3yAu8I4s4PBGfuN8ECb1tjyLH4uT8aDjm
-         y+6rj5l3XsX0l4OP/xtz14CnhqTWuJaI8Rc+FZ7M=
+        b=zOfvGWk594ZGiwzw38oenOFoR6TzfkjN1bTkAPNQLEK+eLbBG8XvDmQZ2pJBOPiw0
+         4AXZUL1xiScg7eOWaw+00mQR58x6o7dOpdcGMpgcP2ZBRrUCidqMQi2YGOspKZyTUn
+         Vz7iDUkeUMToLw+a88NjiC71naDnJHPuaYv2YipE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 259/601] crypto: sa2ul - Fix memory leak of rxd
-Date:   Wed, 12 May 2021 16:45:36 +0200
-Message-Id: <20210512144836.353060430@linuxfoundation.org>
+Subject: [PATCH 5.11 260/601] crypto: qat - Fix a double free in adf_create_ring
+Date:   Wed, 12 May 2021 16:45:37 +0200
+Message-Id: <20210512144836.382856475@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,50 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 854b7737199848a91f6adfa0a03cf6f0c46c86e8 ]
+[ Upstream commit f7cae626cabb3350b23722b78fe34dd7a615ca04 ]
 
-There are two error return paths that are not freeing rxd and causing
-memory leaks.  Fix these.
+In adf_create_ring, if the callee adf_init_ring() failed, the callee will
+free the ring->base_addr by dma_free_coherent() and return -EFAULT. Then
+adf_create_ring will goto err and the ring->base_addr will be freed again
+in adf_cleanup_ring().
 
-Addresses-Coverity: ("Resource leak")
-Fixes: 00c9211f60db ("crypto: sa2ul - Fix DMA mapping API usage")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+My patch sets ring->base_addr to NULL after the first freed to avoid the
+double free.
+
+Fixes: a672a9dc872ec ("crypto: qat - Intel(R) QAT transport code")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sa2ul.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/crypto/qat/qat_common/adf_transport.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/sa2ul.c b/drivers/crypto/sa2ul.c
-index d7b1628fb484..b0f0502a5bb0 100644
---- a/drivers/crypto/sa2ul.c
-+++ b/drivers/crypto/sa2ul.c
-@@ -1146,8 +1146,10 @@ static int sa_run(struct sa_req *req)
- 		mapped_sg->sgt.sgl = src;
- 		mapped_sg->sgt.orig_nents = src_nents;
- 		ret = dma_map_sgtable(ddev, &mapped_sg->sgt, dir_src, 0);
--		if (ret)
-+		if (ret) {
-+			kfree(rxd);
- 			return ret;
-+		}
+diff --git a/drivers/crypto/qat/qat_common/adf_transport.c b/drivers/crypto/qat/qat_common/adf_transport.c
+index 5a7030acdc33..6195d76731c6 100644
+--- a/drivers/crypto/qat/qat_common/adf_transport.c
++++ b/drivers/crypto/qat/qat_common/adf_transport.c
+@@ -171,6 +171,7 @@ static int adf_init_ring(struct adf_etr_ring_data *ring)
+ 		dev_err(&GET_DEV(accel_dev), "Ring address not aligned\n");
+ 		dma_free_coherent(&GET_DEV(accel_dev), ring_size_bytes,
+ 				  ring->base_addr, ring->dma_addr);
++		ring->base_addr = NULL;
+ 		return -EFAULT;
+ 	}
  
- 		mapped_sg->dir = dir_src;
- 		mapped_sg->mapped = true;
-@@ -1155,8 +1157,10 @@ static int sa_run(struct sa_req *req)
- 		mapped_sg->sgt.sgl = req->src;
- 		mapped_sg->sgt.orig_nents = sg_nents;
- 		ret = dma_map_sgtable(ddev, &mapped_sg->sgt, dir_src, 0);
--		if (ret)
-+		if (ret) {
-+			kfree(rxd);
- 			return ret;
-+		}
- 
- 		mapped_sg->dir = dir_src;
- 		mapped_sg->mapped = true;
 -- 
 2.30.2
 
