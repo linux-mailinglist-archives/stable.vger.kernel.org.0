@@ -2,147 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C76CB37D207
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53E1E37D209
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234497AbhELSEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:04:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44724 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239939AbhELRZn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 13:25:43 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E206C06138B
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 10:23:17 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id t15so306505edr.11
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 10:23:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=oyKCugOHrF3iiwRI1CT/wN4ttg5vDvJaE34/Sl3BUss=;
-        b=dZ2P6Nf8zI09crYT0Q9zg80xELxLlJV9Q8BBOVL1kOXS6EVivIw3xHH+SwEiSkF/z5
-         TyzYPCaK+P5B4DKytLs2THnS1Kxbt2rH+11yJ8fPkbXFG8uLm/2XYXD9Q6J+j8fGANxm
-         tEsjVGBa5zl5072hFmmzEVC1Wl5vHOuNtYzEIVsN9qxrXd6n2EGMcJJMu5ZewJi/RPga
-         Hj83F/mMMmfDJsa6k+5eQq1Ubqflf219wyHJqB68J+Z/RpyQKKTC1Y/4K8Gsw4U6nMdY
-         Z5bxByxLUqzOEEiypReff8QxFKUujGrhV6vPRTjCKbjTvZmaz2SXVhCvCU0lx5dfN5gJ
-         /Osg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=oyKCugOHrF3iiwRI1CT/wN4ttg5vDvJaE34/Sl3BUss=;
-        b=hlEwb78LNCP9METf02zOmaHyMdI0JH/teqCqH0JIL/4lG26kgbMMI4OHEmMU4Ilxrw
-         MBsFkZo/ZzAZiB6koX467gvloVf+z1+KpFQ0MpF+GzDmJeLGPT09OKb4Arm3PM9YLG5i
-         ngNJ6Q8yNb3cliBUcWRMeTGPbXGmQkQ+pPvw7YTN+Iu6pNyw8loSO3ETSN5QwURsFJlr
-         QSwxZKYAREKWVoBmzVPrpSwT7DS+Kui/3CCrSKyvNX5nXvnKl1Q45xFmelq79vFHH7Dy
-         7lsu8FeEof3IdfseQJ7qxMwEzL5ClrxTokiiF8+IX8//LnHkiWZDrH3VfmD9n7xHs9wF
-         yPhA==
-X-Gm-Message-State: AOAM530DbjYYxuVbZT/4jIPRiBaihukbdUhidjvZAafISAhDuNfPq4S3
-        mvYR1TezOeRhRVj+eLZqDGOZFM8QN3fB7uSiCi4ymQ==
-X-Google-Smtp-Source: ABdhPJx9dtHw4yIQzA4Rjc857bcPUhAz0JGfW+d3zkOljlTonr+OVpudbnfDWa0BXv6JHsRYANBAi/d+vE0E3pcgl7E=
-X-Received: by 2002:aa7:c6ca:: with SMTP id b10mr29676518eds.221.1620840195559;
- Wed, 12 May 2021 10:23:15 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210512144837.204217980@linuxfoundation.org>
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 12 May 2021 22:53:04 +0530
-Message-ID: <CA+G9fYufHvM+C=39gtk5CF-r4sYYpRkQFGsmKrkdQcXj_XKFag@mail.gmail.com>
-Subject: Re: [PATCH 5.12 000/677] 5.12.4-rc1 review
+        id S235262AbhELSEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:04:41 -0400
+Received: from mx2.suse.de ([195.135.220.15]:45146 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242124AbhELR0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 13:26:53 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 3E32AAFC2;
+        Wed, 12 May 2021 17:25:25 +0000 (UTC)
+Subject: Re: [PATCH 5.10 518/530] mm, slub: enable slub_debug static key when
+ creating cache with explicit debug flags
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oliver Glitta <glittao@gmail.com>,
+        David Rientjes <rientjes@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Huacai Chen <chenhuacai@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Sasha Levin <sashal@kernel.org>
+References: <20210512144819.664462530@linuxfoundation.org>
+ <20210512144836.780038842@linuxfoundation.org>
+ <dd590c4d-cb37-fd38-3ad7-96f677403b3c@suse.cz> <YJv5R0KNH+/EsWfX@kroah.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <003ce4ee-304c-68cb-6871-cf01495438b6@suse.cz>
+Date:   Wed, 12 May 2021 19:25:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
+MIME-Version: 1.0
+In-Reply-To: <YJv5R0KNH+/EsWfX@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 12 May 2021 at 21:27, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.12.4 release.
-> There are 677 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.4-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
-> and the diffstat can be found below.
->
+On 5/12/21 5:50 PM, Greg Kroah-Hartman wrote:
+> On Wed, May 12, 2021 at 05:35:28PM +0200, Vlastimil Babka wrote:
+>> On 5/12/21 4:50 PM, Greg Kroah-Hartman wrote:
+>> > From: Vlastimil Babka <vbabka@suse.cz>
+>> > 
+>> > [ Upstream commit 1f0723a4c0df36cbdffc6fac82cd3c5d57e06d66 ]
+>> > 
+>> > Commit ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
+>> > introduced a static key to optimize the case where no debugging is
+>> > enabled for any cache.  The static key is enabled when slub_debug boot
+>> > parameter is passed, or CONFIG_SLUB_DEBUG_ON enabled.
+>> > 
+>> > However, some caches might be created with one or more debugging flags
+>> > explicitly passed to kmem_cache_create(), and the commit missed this.
+>> > Thus the debugging functionality would not be actually performed for
+>> > these caches unless the static key gets enabled by boot param or config.
+>> > 
+>> > This patch fixes it by checking for debugging flags passed to
+>> > kmem_cache_create() and enabling the static key accordingly.
+>> > 
+>> > Note such explicit debugging flags should not be used outside of
+>> > debugging and testing as they will now enable the static key globally.
+>> > btrfs_init_cachep() creates a cache with SLAB_RED_ZONE but that's a
+>> > mistake that's being corrected [1].  rcu_torture_stats() creates a cache
+>> > with SLAB_STORE_USER, but that is a testing module so it's OK and will
+>> > start working as intended after this patch.
+>> > 
+>> > Also note that in case of backports to kernels before v5.12 that don't
+>> > have 59450bbc12be ("mm, slab, slub: stop taking cpu hotplug lock"),
+>> > static_branch_enable_cpuslocked() should be used.
+>> > 
+>> > [1] https://lore.kernel.org/linux-btrfs/20210315141824.26099-1-dsterba@suse.com/
+>> > 
+>> > Link: https://lkml.kernel.org/r/20210315153415.24404-1-vbabka@suse.cz
+>> > Fixes: ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
+>> > Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+>> > Reported-by: Oliver Glitta <glittao@gmail.com>
+>> > Acked-by: David Rientjes <rientjes@google.com>
+>> > Cc: Christoph Lameter <cl@linux.com>
+>> > Cc: Pekka Enberg <penberg@kernel.org>
+>> > Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+>> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
+>> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+>> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+>> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> 
+>> Uh, rather not release this to stable without the followup fix:
+>> https://lore.kernel.org/linux-mm/20210504120019.26791-1-vbabka@suse.cz/
+> 
+> Is that in Linus's tree yet?  If so, what is the git id?
+
+No, it's in mmotm, so no git id yet, but should make it to Linus during 5.13 rc's.
+
 > thanks,
->
+> 
 > greg k-h
+> 
 
-
-MIPS Clang build regression detected.
-MIPS gcc-10,9 and 8 build PASS.
-
-> Maciej W. Rozycki <macro@orcam.me.uk>
->     MIPS: Reinstate platform `__div64_32' handler
-
-mips clang build breaks on stable rc 5.4 .. 5.12 due to below warnings / errors
- - mips (defconfig) with clang-12
- - mips (tinyconfig) with clang-12
- - mips (allnoconfig) with clang-12
-
-make --silent --keep-going --jobs=8
-O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=mips
-CROSS_COMPILE=mips-linux-gnu- 'HOSTCC=sccache clang' 'CC=sccache
-clang'
-kernel/time/hrtimer.c:318:2: error: couldn't allocate output register
-for constraint 'x'
-        do_div(tmp, (u32) div);
-        ^
-include/asm-generic/div64.h:243:11: note: expanded from macro 'do_div'
-                __rem = __div64_32(&(n), __base);       \
-                        ^
-arch/mips/include/asm/div64.h:74:11: note: expanded from macro '__div64_32'
-                __asm__("divu   $0, %z1, %z2"                           \
-                        ^
-1 error generated.
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-steps to reproduce:
---------------------------
-#!/bin/sh
-
-# TuxMake is a command line tool and Python library that provides
-# portable and repeatable Linux kernel builds across a variety of
-# architectures, toolchains, kernel configurations, and make targets.
-#
-# TuxMake supports the concept of runtimes.
-# See https://docs.tuxmake.org/runtimes/, for that to work it requires
-# that you install podman or docker on your system.
-#
-# To install tuxmake on your system globally:
-# sudo pip3 install -U tuxmake
-#
-# See https://docs.tuxmake.org/ for complete documentation.
-
-tuxmake --runtime podman --target-arch mips --toolchain clang-12
---kconfig defconfig
-
-build ref:
-https://builds.tuxbuild.com/1sRW8pJDUO08LLScNJnPlFqm8lV/
-
---
-Linaro LKFT
-https://lkft.linaro.org
