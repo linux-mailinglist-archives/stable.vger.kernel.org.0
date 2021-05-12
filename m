@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21C2337C46C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D379937C478
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232265AbhELPaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:30:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40954 "EHLO mail.kernel.org"
+        id S233587AbhELPbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:31:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235135AbhELP0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:26:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 056A0613FC;
-        Wed, 12 May 2021 15:11:44 +0000 (UTC)
+        id S235271AbhELP1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:27:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01D2C61A46;
+        Wed, 12 May 2021 15:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832305;
-        bh=kP8zmwsYpphptjHlMFc5rFpOQQ2vW/p1l6FVVnGVhwk=;
+        s=korg; t=1620832332;
+        bh=2MaIrlGcUKG+Yhfzk4lMFTP/etq9PQ1tBq/z5x+mljg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAKJGYYQupC6jOqX4R1Zbu/o+T852lA0JhEK4pCfqknsyueB7C/WUmIQ4edCumgLx
-         EkXUoiKevLheLhCr4kC1TI3XKZp4Tsx/zvzCkqy2IT6hLtsYVT55tvhZUocPyqqQsq
-         u+7x22ab58C1FR8c9HFqZIr8DMqs+op80a9y7u20=
+        b=StpIoJ4GhshFJ5FwEEBVME/IPJbSDihjkr2+rlMchNhxCawnfCE2VfcDDxvUdDlFm
+         dqBP7ji4oRKtNy3klWqVNxH8tPbYTEF1G+J88Wa48XvywmYhcDRUgzk4Ax2kC4t/F/
+         7O4BQ90UJUlTgjS5pUzyh5MN/3IxHcNz4M8mcWKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org,
+        "William A. Kennington III" <wak@google.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 218/530] clocksource/drivers/ingenic_ost: Fix return value check in ingenic_ost_probe()
-Date:   Wed, 12 May 2021 16:45:28 +0200
-Message-Id: <20210512144826.999564855@linuxfoundation.org>
+Subject: [PATCH 5.10 219/530] spi: Fix use-after-free with devm_spi_alloc_*
+Date:   Wed, 12 May 2021 16:45:29 +0200
+Message-Id: <20210512144827.034691035@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,40 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: William A. Kennington III <wak@google.com>
 
-[ Upstream commit 2a65f7e2772613debd03fa2492e76a635aa04545 ]
+[ Upstream commit 794aaf01444d4e765e2b067cba01cc69c1c68ed9 ]
 
-In case of error, the function device_node_to_regmap() returns
-ERR_PTR() and never returns NULL. The NULL test in the return
-value check should be replaced with IS_ERR().
+We can't rely on the contents of the devres list during
+spi_unregister_controller(), as the list is already torn down at the
+time we perform devres_find() for devm_spi_release_controller. This
+causes devices registered with devm_spi_alloc_{master,slave}() to be
+mistakenly identified as legacy, non-devm managed devices and have their
+reference counters decremented below 0.
 
-Fixes: ca7b72b5a5f2 ("clocksource: Add driver for the Ingenic JZ47xx OST")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210308123031.2285083-1-weiyongjun1@huawei.com
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 660 at lib/refcount.c:28 refcount_warn_saturate+0x108/0x174
+[<b0396f04>] (refcount_warn_saturate) from [<b03c56a4>] (kobject_put+0x90/0x98)
+[<b03c5614>] (kobject_put) from [<b0447b4c>] (put_device+0x20/0x24)
+ r4:b6700140
+[<b0447b2c>] (put_device) from [<b07515e8>] (devm_spi_release_controller+0x3c/0x40)
+[<b07515ac>] (devm_spi_release_controller) from [<b045343c>] (release_nodes+0x84/0xc4)
+ r5:b6700180 r4:b6700100
+[<b04533b8>] (release_nodes) from [<b0454160>] (devres_release_all+0x5c/0x60)
+ r8:b1638c54 r7:b117ad94 r6:b1638c10 r5:b117ad94 r4:b163dc10
+[<b0454104>] (devres_release_all) from [<b044e41c>] (__device_release_driver+0x144/0x1ec)
+ r5:b117ad94 r4:b163dc10
+[<b044e2d8>] (__device_release_driver) from [<b044f70c>] (device_driver_detach+0x84/0xa0)
+ r9:00000000 r8:00000000 r7:b117ad94 r6:b163dc54 r5:b1638c10 r4:b163dc10
+[<b044f688>] (device_driver_detach) from [<b044d274>] (unbind_store+0xe4/0xf8)
+
+Instead, determine the devm allocation state as a flag on the
+controller which is guaranteed to be stable during cleanup.
+
+Fixes: 5e844cc37a5c ("spi: Introduce device-managed SPI controller allocation")
+Signed-off-by: William A. Kennington III <wak@google.com>
+Link: https://lore.kernel.org/r/20210407095527.2771582-1-wak@google.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/ingenic-ost.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi.c       | 9 ++-------
+ include/linux/spi/spi.h | 3 +++
+ 2 files changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/clocksource/ingenic-ost.c b/drivers/clocksource/ingenic-ost.c
-index 029efc2731b4..6af2470136bd 100644
---- a/drivers/clocksource/ingenic-ost.c
-+++ b/drivers/clocksource/ingenic-ost.c
-@@ -88,9 +88,9 @@ static int __init ingenic_ost_probe(struct platform_device *pdev)
- 		return PTR_ERR(ost->regs);
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 1eee8b3c1b38..419de3d40481 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -2480,6 +2480,7 @@ struct spi_controller *__devm_spi_alloc_controller(struct device *dev,
  
- 	map = device_node_to_regmap(dev->parent->of_node);
--	if (!map) {
-+	if (IS_ERR(map)) {
- 		dev_err(dev, "regmap not found");
--		return -EINVAL;
-+		return PTR_ERR(map);
- 	}
+ 	ctlr = __spi_alloc_controller(dev, size, slave);
+ 	if (ctlr) {
++		ctlr->devm_allocated = true;
+ 		*ptr = ctlr;
+ 		devres_add(dev, ptr);
+ 	} else {
+@@ -2826,11 +2827,6 @@ int devm_spi_register_controller(struct device *dev,
+ }
+ EXPORT_SYMBOL_GPL(devm_spi_register_controller);
  
- 	ost->clk = devm_clk_get(dev, "ost");
+-static int devm_spi_match_controller(struct device *dev, void *res, void *ctlr)
+-{
+-	return *(struct spi_controller **)res == ctlr;
+-}
+-
+ static int __unregister(struct device *dev, void *null)
+ {
+ 	spi_unregister_device(to_spi_device(dev));
+@@ -2877,8 +2873,7 @@ void spi_unregister_controller(struct spi_controller *ctlr)
+ 	/* Release the last reference on the controller if its driver
+ 	 * has not yet been converted to devm_spi_alloc_master/slave().
+ 	 */
+-	if (!devres_find(ctlr->dev.parent, devm_spi_release_controller,
+-			 devm_spi_match_controller, ctlr))
++	if (!ctlr->devm_allocated)
+ 		put_device(&ctlr->dev);
+ 
+ 	/* free bus id */
+diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
+index b390fdac1587..2d906b9c1499 100644
+--- a/include/linux/spi/spi.h
++++ b/include/linux/spi/spi.h
+@@ -511,6 +511,9 @@ struct spi_controller {
+ 
+ #define SPI_MASTER_GPIO_SS		BIT(5)	/* GPIO CS must select slave */
+ 
++	/* flag indicating this is a non-devres managed controller */
++	bool			devm_allocated;
++
+ 	/* flag indicating this is an SPI slave controller */
+ 	bool			slave;
+ 
 -- 
 2.30.2
 
