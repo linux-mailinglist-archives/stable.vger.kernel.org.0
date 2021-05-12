@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B76AA37CB55
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D458C37C7C2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242613AbhELQfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:35:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
+        id S236154AbhELQCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:02:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241694AbhELQ1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A772616E9;
-        Wed, 12 May 2021 15:55:10 +0000 (UTC)
+        id S238178AbhELP53 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:57:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EEC56193A;
+        Wed, 12 May 2021 15:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834911;
-        bh=B4APKrOqsAM9U0/vz34PLAMlzKTDs6SABiAri1nNwaA=;
+        s=korg; t=1620833433;
+        bh=Lbn0cnLWpCAAcVlZ4aN63HVDM4nHBlmQK3j4bK53M+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opwHyfEvOP7WbvbRzTBGzR7tJ5NpwcNWUnN4L495O/RyUILindltwczJ2XEdWUChH
-         K56rQxhUMRPUK0Mq4bH5kuwlg+efoeN3lgV/lkq46aOgdc5iMrseG74Slkcli0VWRb
-         5pvCGkqm6y9tXHWBvJL5HE7/dy4uW45ONvF7aTF0=
+        b=p6m76RspyIq9AloHWFpxVblDEaUuWdmR/qM+knKnsBsm4VWTOwSJjS18GLyaSjYPX
+         krvjosybWenT4Cpt64yXAiwTzSSaGC3qX/YczYKgSMJZHYIoYEWdWo4XHIZdXQILre
+         RUraXUu9dnPwRo6GewIZxPMj4cDtylvSQ2G+NcAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.12 133/677] ovl: fix missing revert_creds() on error path
-Date:   Wed, 12 May 2021 16:42:59 +0200
-Message-Id: <20210512144841.647723485@linuxfoundation.org>
+        stable@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.11 103/601] KVM: SVM: Do not allow SEV/SEV-ES initialization after vCPUs are created
+Date:   Wed, 12 May 2021 16:43:00 +0200
+Message-Id: <20210512144831.237873782@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-References: <20210512144837.204217980@linuxfoundation.org>
+In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
+References: <20210512144827.811958675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 7b279bbfd2b230c7a210ff8f405799c7e46bbf48 upstream.
+commit 8727906fde6ea665b52e68ddc58833772537f40a upstream.
 
-Smatch complains about missing that the ovl_override_creds() doesn't
-have a matching revert_creds() if the dentry is disconnected.  Fix this
-by moving the ovl_override_creds() until after the disconnected check.
+Reject KVM_SEV_INIT and KVM_SEV_ES_INIT if they are attempted after one
+or more vCPUs have been created.  KVM assumes a VM is tagged SEV/SEV-ES
+prior to vCPU creation, e.g. init_vmcb() needs to mark the VMCB as SEV
+enabled, and svm_create_vcpu() needs to allocate the VMSA.  At best,
+creating vCPUs before SEV/SEV-ES init will lead to unexpected errors
+and/or behavior, and at worst it will crash the host, e.g.
+sev_launch_update_vmsa() will dereference a null svm->vmsa pointer.
 
-Fixes: aa3ff3c152ff ("ovl: copy up of disconnected dentries")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 1654efcbc431 ("KVM: SVM: Add KVM_SEV_INIT command")
+Fixes: ad73109ae7ec ("KVM: SVM: Provide support to launch and run an SEV-ES guest")
+Cc: stable@vger.kernel.org
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210331031936.2495277-4-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/copy_up.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/sev.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -932,7 +932,7 @@ static int ovl_copy_up_one(struct dentry
- static int ovl_copy_up_flags(struct dentry *dentry, int flags)
- {
- 	int err = 0;
--	const struct cred *old_cred = ovl_override_creds(dentry->d_sb);
-+	const struct cred *old_cred;
- 	bool disconnected = (dentry->d_flags & DCACHE_DISCONNECTED);
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -181,6 +181,9 @@ static int sev_guest_init(struct kvm *kv
+ 	bool es_active = argp->id == KVM_SEV_ES_INIT;
+ 	int asid, ret;
  
- 	/*
-@@ -943,6 +943,7 @@ static int ovl_copy_up_flags(struct dent
- 	if (WARN_ON(disconnected && d_is_dir(dentry)))
- 		return -EIO;
- 
-+	old_cred = ovl_override_creds(dentry->d_sb);
- 	while (!err) {
- 		struct dentry *next;
- 		struct dentry *parent = NULL;
++	if (kvm->created_vcpus)
++		return -EINVAL;
++
+ 	ret = -EBUSY;
+ 	if (unlikely(sev->active))
+ 		return ret;
 
 
