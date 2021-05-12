@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 402F037CD6C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4CCA37CD6A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240184AbhELQy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:54:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35800 "EHLO mail.kernel.org"
+        id S240176AbhELQyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:54:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243895AbhELQmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243898AbhELQmM (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F3CB61C53;
-        Wed, 12 May 2021 16:08:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14C66619A8;
+        Wed, 12 May 2021 16:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835689;
-        bh=FSCMce53C/SXoHFsmmzPsDugLEjoVVoQnk57t5imdoE=;
+        s=korg; t=1620835691;
+        bh=4EIPDa9+DwiT5wnyibwULpKA1znI2FhkEU3tx5v+jQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NGs97IwHsKUkfsOb3+OLF+jJ6xpp5V2rJqRGvtrKiZ/a+v5sEezLD7YVzw1B7fD3B
-         DLUy36v3xwtS+E7k4e+OTjHXgVQLjFeouPBC2UA8ZCLnSOIX6f68a9AHxRox9qY4Ry
-         SblVLhJ670uPXN3FGv8JaQQrhr3wEnjeOO2Ww+vo=
+        b=sPLESnDZepbDzjBGfBkyBVFSd8Y6KZOEl0JLMxHt9BfPUdJ4pXKLOjlTsinPQW/uB
+         MQlin2om8Z/zKBl755NwztYb7zDgTowFJg4YTA1QqhvFFyfvdYwoKQp5Cv4TOfKcNL
+         ICGn6b/nfWnUTC5kNyqu9qx1grFyCM1na6bRzdyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Alex Vesker <valex@mellanox.com>,
+        Yevgeny Kliteynik <kliteyn@nvidia.com>,
+        Alex Vesker <valex@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 444/677] RDMA/mlx5: Fix mlx5 rates to IB rates map
-Date:   Wed, 12 May 2021 16:48:10 +0200
-Message-Id: <20210512144852.096946784@linuxfoundation.org>
+Subject: [PATCH 5.12 445/677] net/mlx5: DR, Add missing vhca_id consume from STEv1
+Date:   Wed, 12 May 2021 16:48:11 +0200
+Message-Id: <20210512144852.137708286@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,57 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Yevgeny Kliteynik <kliteyn@nvidia.com>
 
-[ Upstream commit 6fe6e568639859db960c8fcef19a2ece1c2d7eae ]
+[ Upstream commit cc82a2e6c8af956d894fa58a040dc0d532dd9978 ]
 
-Correct the map between mlx5 rates and corresponding ib rates, as they
-don't always have a fixed offset between them.
+The field source_eswitch_owner_vhca_id was not consumed
+in the same way as in STEv0. Added the missing set.
 
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Link: https://lore.kernel.org/r/20210304124517.1100608-4-leon@kernel.org
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 10b694186410 ("net/mlx5: DR, Add HW STEv1 match logic")
+Signed-off-by: Alex Vesker <valex@mellanox.com>
+Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
+Reviewed-by: Alex Vesker <valex@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/qp.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v1.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
-index f5a52a6fae43..843f9e7fe96f 100644
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -3146,6 +3146,19 @@ enum {
- 	MLX5_PATH_FLAG_COUNTER	= 1 << 2,
- };
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v1.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v1.c
+index 9143ec326ebf..f146c618a78e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v1.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste_v1.c
+@@ -1532,6 +1532,7 @@ static void dr_ste_v1_build_src_gvmi_qpn_bit_mask(struct mlx5dr_match_param *val
  
-+static int mlx5_to_ib_rate_map(u8 rate)
-+{
-+	static const int rates[] = { IB_RATE_PORT_CURRENT, IB_RATE_56_GBPS,
-+				     IB_RATE_25_GBPS,	   IB_RATE_100_GBPS,
-+				     IB_RATE_200_GBPS,	   IB_RATE_50_GBPS,
-+				     IB_RATE_400_GBPS };
-+
-+	if (rate < ARRAY_SIZE(rates))
-+		return rates[rate];
-+
-+	return rate - MLX5_STAT_RATE_OFFSET;
-+}
-+
- static int ib_to_mlx5_rate_map(u8 rate)
- {
- 	switch (rate) {
-@@ -4485,7 +4498,7 @@ static void to_rdma_ah_attr(struct mlx5_ib_dev *ibdev,
- 	rdma_ah_set_path_bits(ah_attr, MLX5_GET(ads, path, mlid));
+ 	DR_STE_SET_ONES(src_gvmi_qp_v1, bit_mask, source_gvmi, misc_mask, source_port);
+ 	DR_STE_SET_ONES(src_gvmi_qp_v1, bit_mask, source_qp, misc_mask, source_sqn);
++	misc_mask->source_eswitch_owner_vhca_id = 0;
+ }
  
- 	static_rate = MLX5_GET(ads, path, stat_rate);
--	rdma_ah_set_static_rate(ah_attr, static_rate ? static_rate - 5 : 0);
-+	rdma_ah_set_static_rate(ah_attr, mlx5_to_ib_rate_map(static_rate));
- 	if (MLX5_GET(ads, path, grh) ||
- 	    ah_attr->type == RDMA_AH_ATTR_TYPE_ROCE) {
- 		rdma_ah_set_grh(ah_attr, NULL, MLX5_GET(ads, path, flow_label),
+ static int dr_ste_v1_build_src_gvmi_qpn_tag(struct mlx5dr_match_param *value,
 -- 
 2.30.2
 
