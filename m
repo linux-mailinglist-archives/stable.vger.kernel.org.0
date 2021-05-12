@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC1037C4C4
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A4C37C475
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234228AbhELPdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:33:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37004 "EHLO mail.kernel.org"
+        id S233522AbhELPbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235185AbhELP06 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:26:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFA4061A14;
-        Wed, 12 May 2021 15:12:01 +0000 (UTC)
+        id S235200AbhELP1B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:27:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18A2961A24;
+        Wed, 12 May 2021 15:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832322;
-        bh=u45Q+0Tt09UKWwDU7j/FvWSs3/YE4eCd7NRCiS/ALlk=;
+        s=korg; t=1620832324;
+        bh=p0lCA4VYdh3J0t8dpCyjPcKjvOAbvI8fFEaW1B1W15U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vVVypBfxtoPAAELjQvl0CbrrsbbUXqS6T5Qd0q3ETvMHwbEJpSIHk5lbKbvb57ft
-         loDorYztvChslSR1kZaYhKlmbpfHOUOoYN3JxFyPqXn3bAuTG+xxKDwkofU9mqIShR
-         CwjY8K2h631T/Cu2+sBmMy6qZ7E4Nomv5anmTM50=
+        b=l2HaBmT9Ocl1bec+/9DdYKqQpbtvJbHIKKdBYAqKcmO4d65B2EsgbgauC/qyOqjWU
+         T8C3OEf9Vw9DW3edlXtbRNLtOSaWQwohxgm/NYWQdXExfgXCeIDcxhTznhqKfuZYJA
+         NH55rAatrR51pGlN+Onlyglfy/6a82/wk1YzTYyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Stephen Boyd <sboyd@kernel.org>,
         Gregory CLEMENT <gregory.clement@bootlin.com>,
@@ -32,9 +33,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Philip Soares <philips@netisense.com>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 233/530] clk: mvebu: armada-37xx-periph: Fix switching CPU freq from 250 Mhz to 1 GHz
-Date:   Wed, 12 May 2021 16:45:43 +0200
-Message-Id: <20210512144827.503556720@linuxfoundation.org>
+Subject: [PATCH 5.10 234/530] clk: mvebu: armada-37xx-periph: Fix workaround for switching from L1 to L0
+Date:   Wed, 12 May 2021 16:45:44 +0200
+Message-Id: <20210512144827.534518534@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -48,66 +49,114 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 4decb9187589f61fe9fc2bc4d9b01160b0a610c5 ]
+[ Upstream commit e93033aff684641f71a436ca7a9d2a742126baaf ]
 
-It was observed that the workaround introduced by commit 61c40f35f5cd
-("clk: mvebu: armada-37xx-periph: Fix switching CPU rate from 300Mhz to
-1.2GHz") when base CPU frequency is 1.2 GHz is also required when base
-CPU frequency is 1 GHz. Otherwise switching CPU frequency directly from
-L2 (250 MHz) to L0 (1 GHz) causes a crash.
+When CPU frequency is at 250 MHz and set_rate() is called with 500 MHz (L1)
+quickly followed by a call with 1 GHz (L0), the CPU does not necessarily
+stay in L1 for at least 20ms as is required by Marvell errata.
 
-When base CPU frequency is just 800 MHz no crashed were observed during
-switch from L2 to L0.
+This situation happens frequently with the ondemand cpufreq governor and
+can be also reproduced with userspace governor. In most cases it causes CPU
+to crash.
 
+This change fixes the above issue and ensures that the CPU always stays in
+L1 for at least 20ms when switching from any state to L0.
+
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Acked-by: Stephen Boyd <sboyd@kernel.org>
 Acked-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
 Tested-by: Anders Trier Olesen <anders.trier.olesen@gmail.com>
 Tested-by: Philip Soares <philips@netisense.com>
-Fixes: 2089dc33ea0e ("clk: mvebu: armada-37xx-periph: add DVFS support for cpu clocks")
+Fixes: 61c40f35f5cd ("clk: mvebu: armada-37xx-periph: Fix switching CPU rate from 300Mhz to 1.2GHz")
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/armada-37xx-periph.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/clk/mvebu/armada-37xx-periph.c | 45 ++++++++++++++++++++++----
+ 1 file changed, 39 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/clk/mvebu/armada-37xx-periph.c b/drivers/clk/mvebu/armada-37xx-periph.c
-index 6507bd2c5f31..b15e177bea7e 100644
+index b15e177bea7e..32ac6b6b7530 100644
 --- a/drivers/clk/mvebu/armada-37xx-periph.c
 +++ b/drivers/clk/mvebu/armada-37xx-periph.c
-@@ -487,8 +487,10 @@ static long clk_pm_cpu_round_rate(struct clk_hw *hw, unsigned long rate,
- }
+@@ -84,6 +84,7 @@ struct clk_pm_cpu {
+ 	void __iomem *reg_div;
+ 	u8 shift_div;
+ 	struct regmap *nb_pm_base;
++	unsigned long l1_expiration;
+ };
  
- /*
-- * Switching the CPU from the L2 or L3 frequencies (300 and 200 Mhz
-- * respectively) to L0 frequency (1.2 Ghz) requires a significant
-+ * Workaround when base CPU frequnecy is 1000 or 1200 MHz
-+ *
-+ * Switching the CPU from the L2 or L3 frequencies (250/300 or 200 MHz
-+ * respectively) to L0 frequency (1/1.2 GHz) requires a significant
-  * amount of time to let VDD stabilize to the appropriate
-  * voltage. This amount of time is large enough that it cannot be
-  * covered by the hardware countdown register. Due to this, the CPU
-@@ -498,15 +500,15 @@ static long clk_pm_cpu_round_rate(struct clk_hw *hw, unsigned long rate,
-  * To work around this problem, we prevent switching directly from the
-  * L2/L3 frequencies to the L0 frequency, and instead switch to the L1
-  * frequency in-between. The sequence therefore becomes:
-- * 1. First switch from L2/L3(200/300MHz) to L1(600MHZ)
-+ * 1. First switch from L2/L3 (200/250/300 MHz) to L1 (500/600 MHz)
+ #define to_clk_double_div(_hw) container_of(_hw, struct clk_double_div, hw)
+@@ -504,22 +505,52 @@ static long clk_pm_cpu_round_rate(struct clk_hw *hw, unsigned long rate,
   * 2. Sleep 20ms for stabling VDD voltage
-- * 3. Then switch from L1(600MHZ) to L0(1200Mhz).
-+ * 3. Then switch from L1 (500/600 MHz) to L0 (1000/1200 MHz).
+  * 3. Then switch from L1 (500/600 MHz) to L0 (1000/1200 MHz).
   */
- static void clk_pm_cpu_set_rate_wa(unsigned long rate, struct regmap *base)
+-static void clk_pm_cpu_set_rate_wa(unsigned long rate, struct regmap *base)
++static void clk_pm_cpu_set_rate_wa(struct clk_pm_cpu *pm_cpu,
++				   unsigned int new_level, unsigned long rate,
++				   struct regmap *base)
  {
  	unsigned int cur_level;
  
--	if (rate != 1200 * 1000 * 1000)
-+	if (rate < 1000 * 1000 * 1000)
- 		return;
- 
+-	if (rate < 1000 * 1000 * 1000)
+-		return;
+-
  	regmap_read(base, ARMADA_37XX_NB_CPU_LOAD, &cur_level);
+ 	cur_level &= ARMADA_37XX_NB_CPU_LOAD_MASK;
+-	if (cur_level <= ARMADA_37XX_DVFS_LOAD_1)
++
++	if (cur_level == new_level)
++		return;
++
++	/*
++	 * System wants to go to L1 on its own. If we are going from L2/L3,
++	 * remember when 20ms will expire. If from L0, set the value so that
++	 * next switch to L0 won't have to wait.
++	 */
++	if (new_level == ARMADA_37XX_DVFS_LOAD_1) {
++		if (cur_level == ARMADA_37XX_DVFS_LOAD_0)
++			pm_cpu->l1_expiration = jiffies;
++		else
++			pm_cpu->l1_expiration = jiffies + msecs_to_jiffies(20);
+ 		return;
++	}
++
++	/*
++	 * If we are setting to L2/L3, just invalidate L1 expiration time,
++	 * sleeping is not needed.
++	 */
++	if (rate < 1000*1000*1000)
++		goto invalidate_l1_exp;
++
++	/*
++	 * We are going to L0 with rate >= 1GHz. Check whether we have been at
++	 * L1 for long enough time. If not, go to L1 for 20ms.
++	 */
++	if (pm_cpu->l1_expiration && jiffies >= pm_cpu->l1_expiration)
++		goto invalidate_l1_exp;
+ 
+ 	regmap_update_bits(base, ARMADA_37XX_NB_CPU_LOAD,
+ 			   ARMADA_37XX_NB_CPU_LOAD_MASK,
+ 			   ARMADA_37XX_DVFS_LOAD_1);
+ 	msleep(20);
++
++invalidate_l1_exp:
++	pm_cpu->l1_expiration = 0;
+ }
+ 
+ static int clk_pm_cpu_set_rate(struct clk_hw *hw, unsigned long rate,
+@@ -553,7 +584,9 @@ static int clk_pm_cpu_set_rate(struct clk_hw *hw, unsigned long rate,
+ 			reg = ARMADA_37XX_NB_CPU_LOAD;
+ 			mask = ARMADA_37XX_NB_CPU_LOAD_MASK;
+ 
+-			clk_pm_cpu_set_rate_wa(rate, base);
++			/* Apply workaround when base CPU frequency is 1000 or 1200 MHz */
++			if (parent_rate >= 1000*1000*1000)
++				clk_pm_cpu_set_rate_wa(pm_cpu, load_level, rate, base);
+ 
+ 			regmap_update_bits(base, reg, mask, load_level);
+ 
 -- 
 2.30.2
 
