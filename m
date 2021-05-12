@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51AFE37C711
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A71837C70D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234184AbhELP6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:58:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51326 "EHLO mail.kernel.org"
+        id S233971AbhELP6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233492AbhELPvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233279AbhELPvJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:51:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8A01619D0;
-        Wed, 12 May 2021 15:26:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 493B96142F;
+        Wed, 12 May 2021 15:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833174;
-        bh=HH/D9Pn2RaJvhrcPfIpMqvLhEA2rGhnWd1gQMZdlTDE=;
+        s=korg; t=1620833176;
+        bh=QpHdneOjFY/yZBZKqNFijC8U4ciS2C2jugpH5HACpss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7c4ILuRNSuyxN/YKDkYSGJsD6fEOdoyqJ86jjf7E5ATxDyy7F2bIuWnGJopgFyMp
-         L9jQcItQK2vOlu4nr+0yl7La3TEI0KJaxCjQpx2TJP+GC9SFHv5K/Gk2HKzk3Ahkdp
-         nUigLOfn9/RDwnrFI2Yh4mFGH0zyivaE9Jld1PYQ=
+        b=j5/2ziIUkv+hzvWkKDbXVeJewgRQcfEDMyUDc3eAYKfdz0gis39D1+WN3tBo9vx6E
+         +z79AsQUA7iBLzsNN6SjyhDI1GL85QyYzBuCtctxvZ342ed0urygbU2YkQrVacJdIH
+         kDK3UHDdUsRi49Vvh/UpNMRkHHKIQrfHWAMnzsmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 5.11 047/601] async_xor: increase src_offs when dropping destination page
-Date:   Wed, 12 May 2021 16:42:04 +0200
-Message-Id: <20210512144829.370797171@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
+        Zhao Heming <heming.zhao@suse.com>, Song Liu <song@kernel.org>
+Subject: [PATCH 5.11 048/601] md/bitmap: wait for external bitmap writes to complete during tear down
+Date:   Wed, 12 May 2021 16:42:05 +0200
+Message-Id: <20210512144829.404938008@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,45 +40,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Ni <xni@redhat.com>
+From: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
 
-commit ceaf2966ab082bbc4d26516f97b3ca8a676e2af8 upstream.
+commit 404a8ef512587b2460107d3272c17a89aef75edf upstream.
 
-Now we support sharing one page if PAGE_SIZE is not equal stripe size. To
-support this, it needs to support calculating xor value with different
-offsets for each r5dev. One offset array is used to record those offsets.
+NULL pointer dereference was observed in super_written() when it tries
+to access the mddev structure.
 
-In RMW mode, parity page is used as a source page. It sets
-ASYNC_TX_XOR_DROP_DST before calculating xor value in ops_run_prexor5.
-So it needs to add src_list and src_offs at the same time. Now it only
-needs src_list. So the xor value which is calculated is wrong. It can
-cause data corruption problem.
+[The below stack trace is from an older kernel, but the problem described
+in this patch applies to the mainline kernel.]
 
-I can reproduce this problem 100% on a POWER8 machine. The steps are:
+[ 1194.474861] task: ffff8fdd20858000 task.stack: ffffb99d40790000
+[ 1194.488000] RIP: 0010:super_written+0x29/0xe1
+[ 1194.499688] RSP: 0018:ffff8ffb7fcc3c78 EFLAGS: 00010046
+[ 1194.512477] RAX: 0000000000000000 RBX: ffff8ffb7bf4a000 RCX: ffff8ffb78991048
+[ 1194.527325] RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff8ffb56b8a200
+[ 1194.542576] RBP: ffff8ffb7fcc3c90 R08: 000000000000000b R09: 0000000000000000
+[ 1194.558001] R10: ffff8ffb56b8a298 R11: 0000000000000000 R12: ffff8ffb56b8a200
+[ 1194.573070] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[ 1194.588117] FS:  0000000000000000(0000) GS:ffff8ffb7fcc0000(0000) knlGS:0000000000000000
+[ 1194.604264] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1194.617375] CR2: 00000000000002b8 CR3: 00000021e040a002 CR4: 00000000007606e0
+[ 1194.632327] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1194.647865] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 1194.663316] PKRU: 55555554
+[ 1194.674090] Call Trace:
+[ 1194.683735]  <IRQ>
+[ 1194.692948]  bio_endio+0xae/0x135
+[ 1194.703580]  blk_update_request+0xad/0x2fa
+[ 1194.714990]  blk_update_bidi_request+0x20/0x72
+[ 1194.726578]  __blk_end_bidi_request+0x2c/0x4d
+[ 1194.738373]  __blk_end_request_all+0x31/0x49
+[ 1194.749344]  blk_flush_complete_seq+0x377/0x383
+[ 1194.761550]  flush_end_io+0x1dd/0x2a7
+[ 1194.772910]  blk_finish_request+0x9f/0x13c
+[ 1194.784544]  scsi_end_request+0x180/0x25c
+[ 1194.796149]  scsi_io_completion+0xc8/0x610
+[ 1194.807503]  scsi_finish_command+0xdc/0x125
+[ 1194.818897]  scsi_softirq_done+0x81/0xde
+[ 1194.830062]  blk_done_softirq+0xa4/0xcc
+[ 1194.841008]  __do_softirq+0xd9/0x29f
+[ 1194.851257]  irq_exit+0xe6/0xeb
+[ 1194.861290]  do_IRQ+0x59/0xe3
+[ 1194.871060]  common_interrupt+0x1c6/0x382
+[ 1194.881988]  </IRQ>
+[ 1194.890646] RIP: 0010:cpuidle_enter_state+0xdd/0x2a5
+[ 1194.902532] RSP: 0018:ffffb99d40793e68 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff43
+[ 1194.917317] RAX: ffff8ffb7fce27c0 RBX: ffff8ffb7fced800 RCX: 000000000000001f
+[ 1194.932056] RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000000
+[ 1194.946428] RBP: ffffb99d40793ea0 R08: 0000000000000004 R09: 0000000000002ed2
+[ 1194.960508] R10: 0000000000002664 R11: 0000000000000018 R12: 0000000000000003
+[ 1194.974454] R13: 000000000000000b R14: ffffffff925715a0 R15: 0000011610120d5a
+[ 1194.988607]  ? cpuidle_enter_state+0xcc/0x2a5
+[ 1194.999077]  cpuidle_enter+0x17/0x19
+[ 1195.008395]  call_cpuidle+0x23/0x3a
+[ 1195.017718]  do_idle+0x172/0x1d5
+[ 1195.026358]  cpu_startup_entry+0x73/0x75
+[ 1195.035769]  start_secondary+0x1b9/0x20b
+[ 1195.044894]  secondary_startup_64+0xa5/0xa5
+[ 1195.084921] RIP: super_written+0x29/0xe1 RSP: ffff8ffb7fcc3c78
+[ 1195.096354] CR2: 00000000000002b8
 
-  mdadm -CR /dev/md0 -l5 -n3 /dev/sdb1 /dev/sdc1 /dev/sdd1 --size=3G
-  mkfs.xfs /dev/md0
-  mount /dev/md0 /mnt/test
-  mount: /mnt/test: mount(2) system call failed: Structure needs cleaning.
+bio in the above stack is a bitmap write whose completion is invoked after
+the tear down sequence sets the mddev structure to NULL in rdev.
 
-Fixes: 29bcff787a25 ("md/raid5: add new xor function to support different page offset")
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Xiao Ni <xni@redhat.com>
+During tear down, there is an attempt to flush the bitmap writes, but for
+external bitmaps, there is no explicit wait for all the bitmap writes to
+complete. For instance, md_bitmap_flush() is called to flush the bitmap
+writes, but the last call to md_bitmap_daemon_work() in md_bitmap_flush()
+could generate new bitmap writes for which there is no explicit wait to
+complete those writes. The call to md_bitmap_update_sb() will return
+simply for external bitmaps and the follow-up call to md_update_sb() is
+conditional and may not get called for external bitmaps. This results in a
+kernel panic when the completion routine, super_written() is called which
+tries to reference mddev in the rdev that has been set to
+NULL(in unbind_rdev_from_array() by tear down sequence).
+
+The solution is to call md_super_wait() for external bitmaps after the
+last call to md_bitmap_daemon_work() in md_bitmap_flush() to ensure there
+are no pending bitmap writes before proceeding with the tear down.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
+Reviewed-by: Zhao Heming <heming.zhao@suse.com>
 Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/async_tx/async_xor.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/md-bitmap.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/crypto/async_tx/async_xor.c
-+++ b/crypto/async_tx/async_xor.c
-@@ -233,6 +233,7 @@ async_xor_offs(struct page *dest, unsign
- 		if (submit->flags & ASYNC_TX_XOR_DROP_DST) {
- 			src_cnt--;
- 			src_list++;
-+			src_offs++;
- 		}
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -1722,6 +1722,8 @@ void md_bitmap_flush(struct mddev *mddev
+ 	md_bitmap_daemon_work(mddev);
+ 	bitmap->daemon_lastrun -= sleep;
+ 	md_bitmap_daemon_work(mddev);
++	if (mddev->bitmap_info.external)
++		md_super_wait(mddev);
+ 	md_bitmap_update_sb(bitmap);
+ }
  
- 		/* wait for any prerequisite operations */
 
 
