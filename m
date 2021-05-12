@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B1637B928
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:28:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF7337B934
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230102AbhELJaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:30:03 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:41045 "EHLO
+        id S230316AbhELJbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:31:20 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:39181 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230096AbhELJaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:30:02 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 4D3AF1393;
-        Wed, 12 May 2021 05:28:54 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 May 2021 05:28:54 -0400
+        by vger.kernel.org with ESMTP id S230375AbhELJbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:31:07 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 107A1132B;
+        Wed, 12 May 2021 05:29:59 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 12 May 2021 05:29:59 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Lg/c2P
-        Qo6KBTJLr4glwGmPGQd9yKWt9A8aG5Wo6wPL8=; b=mSHgsRRinS2bcGbbspr1L0
-        hdJSNwWifWDJQJPj8UcrvmbQBvymhflt04SSPhzVal7/hCICzmwZQB5K17+xg+Il
-        XHWoAC7HdKM55oMBTCBHIbtwwoTrWqVdN27wFWjjW8hvBL2qBuxeDQhInnjHW3B9
-        Vj/FZpLxheE1vH51oWZUNeV8SajUQZS/pcdllYOv/WkE+5fNJwWeQSLnoaLzyaoi
-        OykFDHISGoGZ2VnpFEGFuefZfErV9Y7saaL4+11YzSEoVD4GeZMxR3p8NcAfiEac
-        eJb8tM2kEp9dyHjsLNzjDhuO84c4s74oVgpAQW22O45EKDpJAtWh5Vlc+W/BhTng
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=JP+bVn
+        PxNtqQEGQ0egb1sBJIQZKTTDKHJaFVAqE+Qhw=; b=NFDH0r+SU6mPRrzp8V5euP
+        EV8T17nEKM99r+lyTsrhziFXIEIowgBmrGpDBxOPr/94LClYV+//WBHHWT7aXkBM
+        VJABOON2WxttT17c/LZlFvxWTOVs3r5bR8XQArpdcOmitKNxGbtHypwOXMa5YEk0
+        mI8q1AZ+d+Xl0h/85/UsPF192z04mNsmi7/uJfgfeot3Kue5xZsILcOrve4/p4um
+        r1xW5NykNtIHq+cQ27lmQUc1uLu0xheX6EyF6hFSZtB7oXDPIAJRtieeiwpmLQ+8
+        gSTOxRYaxa0uNHOK7bP3M2qSit8DzlT56n3fC1Y+vjC18YSK2daRF6Vo1OVTTxHg
         ==
-X-ME-Sender: <xms:1Z-bYNW2z5w_Xd4wlbuYMRS_tGlOnG8TUGI8biS7ra_cY8CZax7hdQ>
-    <xme:1Z-bYNlSBu1TfFD5Mugw2VVvkz1mWoM4OnBJBh4TPeO6MPf6apT5DgMAH41fMhF8j
-    4Ugd5_FOo0BXw>
+X-ME-Sender: <xms:FqCbYI4XR5HB8kHJ3DoDIzseFE7mVN_7G57BuTNIBqub_7Zsxu0WLA>
+    <xme:FqCbYJ63TN0-Q4pzjfYuXzUukIF_oztXniQTREKrIEFLBHq7z2LCaG3CT2cNzXktq
+    jVTySY2g05KPA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgudefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgudefucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:1Z-bYJaUjB9hmVDu8m1qC295lbbc3YAOnZnA0jeBbRD0A2NzD6xYGg>
-    <xmx:1Z-bYAV0hQ8RoYvfm-F8SFlmu8gw86gMo09vKrRqoq1U_Txj9SxlWQ>
-    <xmx:1Z-bYHmo7gj4lwB92HY2YAHZRwF-hXyjsAfdWJAtd4TJBeXLomhSIw>
-    <xmx:1Z-bYNSnZqtl1uThlD1y5h0_c6ENXz8U0oipARpDjiA7Je9SvmArNISCc5U>
+X-ME-Proxy: <xmx:FqCbYHd6qmcof5R5QVk9AaZucFNlGcys-QN8CDGoLP4A3klm1tZtIg>
+    <xmx:FqCbYNJ6NKolWmlE2OvyJv1yA8ZgHWFzGp7hoAA6ds8MbmD5-98dbg>
+    <xmx:FqCbYMK7jDDFAd1cVtqlUJqQSzurc5BmuAufYSJKez_snVhAlEKm8w>
+    <xmx:FqCbYGzPiQPLKCJEsF7xhkKiy77SaNeRuN8A6Z73-xJaLpma_Q3kRZu-mPQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 05:28:53 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mt76: fix potential DMA mapping leak" failed to apply to 5.10-stable tree
-To:     nbd@nbd.name
+        Wed, 12 May 2021 05:29:58 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] FDDI: defxx: Make MMIO the configuration default except for" failed to apply to 4.4-stable tree
+To:     macro@orcam.me.uk, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 11:28:52 +0200
-Message-ID: <162081173220670@kroah.com>
+Date:   Wed, 12 May 2021 11:29:56 +0200
+Message-ID: <1620811796114116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,31 +70,75 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b4403cee6400c5f679e9c4a82b91d61aa961eccf Mon Sep 17 00:00:00 2001
-From: Felix Fietkau <nbd@nbd.name>
-Date: Tue, 23 Mar 2021 22:47:37 +0100
-Subject: [PATCH] mt76: fix potential DMA mapping leak
+From 193ced4a79599352d63cb8c9e2f0c6043106eb6a Mon Sep 17 00:00:00 2001
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+Date: Wed, 10 Mar 2021 13:03:14 +0100
+Subject: [PATCH] FDDI: defxx: Make MMIO the configuration default except for
+ EISA
 
-With buf uninitialized in mt76_dma_tx_queue_skb_raw, its field skip_unmap
-could potentially inherit a non-zero value from stack garbage.
-If this happens, it will cause DMA mappings for MCU command frames to not be
-unmapped after completion
+Recent versions of the PCI Express specification have deprecated support
+for I/O transactions and actually some PCIe host bridges, such as Power
+Systems Host Bridge 4 (PHB4), do not implement them.
 
-Fixes: 27d5c528a7ca ("mt76: fix double DMA unmap of the first buffer on 7615/7915")
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+The default kernel configuration choice for the defxx driver is the use
+of I/O ports rather than MMIO for PCI and EISA systems.  It may have
+made sense as a conservative backwards compatible choice back when MMIO
+operation support was added to the driver as a part of TURBOchannel bus
+support.  However nowadays this configuration choice makes the driver
+unusable with systems that do not implement I/O transactions for PCIe.
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index b87b46538b95..6ea58aecca41 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -318,7 +318,7 @@ static int
- mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
- 			  struct sk_buff *skb, u32 tx_info)
- {
--	struct mt76_queue_buf buf;
-+	struct mt76_queue_buf buf = {};
- 	dma_addr_t addr;
+Make DEFXX_MMIO the configuration default then, except where configured
+for EISA.  This exception is because an EISA adapter can have its MMIO
+decoding disabled with ECU (EISA Configuration Utility) and therefore
+not available with the resource allocation infrastructure we implement,
+while port I/O is always readily available as it uses slot-specific
+addressing, directly mapped to the slot an option card has been placed
+in and handled with our EISA bus support core.  Conversely a kernel that
+supports modern systems which may not have I/O transactions implemented
+for PCIe will usually not be expected to handle legacy EISA systems.
+
+The change of the default will make it easier for people, including but
+not limited to distribution packagers, to make a working choice for the
+driver.
+
+Update the option description accordingly and while at it replace the
+potentially ambiguous PIO acronym with IOP for "port I/O" vs "I/O ports"
+according to our nomenclature used elsewhere.
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: e89a2cfb7d7b ("[TC] defxx: TURBOchannel support")
+Cc: stable@vger.kernel.org # v2.6.21+
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/fddi/Kconfig b/drivers/net/fddi/Kconfig
+index f722079dfb6a..f99c1048c97e 100644
+--- a/drivers/net/fddi/Kconfig
++++ b/drivers/net/fddi/Kconfig
+@@ -40,17 +40,20 @@ config DEFXX
  
- 	if (q->queued + 1 >= q->ndesc - 1)
+ config DEFXX_MMIO
+ 	bool
+-	prompt "Use MMIO instead of PIO" if PCI || EISA
++	prompt "Use MMIO instead of IOP" if PCI || EISA
+ 	depends on DEFXX
+-	default n if PCI || EISA
++	default n if EISA
+ 	default y
+ 	help
+ 	  This instructs the driver to use EISA or PCI memory-mapped I/O
+-	  (MMIO) as appropriate instead of programmed I/O ports (PIO).
++	  (MMIO) as appropriate instead of programmed I/O ports (IOP).
+ 	  Enabling this gives an improvement in processing time in parts
+-	  of the driver, but it may cause problems with EISA (DEFEA)
+-	  adapters.  TURBOchannel does not have the concept of I/O ports,
+-	  so MMIO is always used for these (DEFTA) adapters.
++	  of the driver, but it requires a memory window to be configured
++	  for EISA (DEFEA) adapters that may not always be available.
++	  Conversely some PCIe host bridges do not support IOP, so MMIO
++	  may be required to access PCI (DEFPA) adapters on downstream PCI
++	  buses with some systems.  TURBOchannel does not have the concept
++	  of I/O ports, so MMIO is always used for these (DEFTA) adapters.
+ 
+ 	  If unsure, say N.
+ 
 
