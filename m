@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 556E737C8D3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC1B437C8D7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235259AbhELQNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:13:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33532 "EHLO mail.kernel.org"
+        id S235335AbhELQNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:13:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239170AbhELQHd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239180AbhELQHd (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:07:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BABC961C45;
-        Wed, 12 May 2021 15:36:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BADFC6195F;
+        Wed, 12 May 2021 15:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833799;
-        bh=XZ4TaPHj27w0Zf2j9AhPFIRiGPgBYfqNZY3F62OMszI=;
+        s=korg; t=1620833802;
+        bh=AvDDK1Y6Oua6B9Ocw9/JoBQjCp4NDpQvoAS1goOTYVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsyozrlPeR+1ZzO59VfjyeMA+qPzyKQ4g8xRUbis7GpVvWmtsQ9G3GWXj8w8Gq/K1
-         0DLVVRKsj0eY/KltOiR7H0v2CAiYu9xAucS8whd8Qhx/8bg/eInYvyAJGmcgkc1mc8
-         hHpoplg6ivQ+MCAUV6/5cR/HjiulpBgWqk75PQdw=
+        b=LmLxY4xx8aThlUK7VjCXiHoRAMlD90sd4V5819AObOeQeZBp4WXD2eiWJt6zLq4qe
+         HdFibaw/Em+zrB7kZ+Y6vgv/rvBQUuuth3yAu8I4s4PBGfuN8ECb1tjyLH4uT8aDjm
+         y+6rj5l3XsX0l4OP/xtz14CnhqTWuJaI8Rc+FZ7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 258/601] crypto: sun8i-ss - Fix memory leak of pad
-Date:   Wed, 12 May 2021 16:45:35 +0200
-Message-Id: <20210512144836.320313509@linuxfoundation.org>
+Subject: [PATCH 5.11 259/601] crypto: sa2ul - Fix memory leak of rxd
+Date:   Wed, 12 May 2021 16:45:36 +0200
+Message-Id: <20210512144836.353060430@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -43,50 +42,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 50274b01ac1689b1a3f6bc4b5b3dbf361a55dd3a ]
+[ Upstream commit 854b7737199848a91f6adfa0a03cf6f0c46c86e8 ]
 
-It appears there are several failure return paths that don't seem
-to be free'ing pad. Fix these.
+There are two error return paths that are not freeing rxd and causing
+memory leaks.  Fix these.
 
 Addresses-Coverity: ("Resource leak")
-Fixes: d9b45418a917 ("crypto: sun8i-ss - support hash algorithms")
+Fixes: 00c9211f60db ("crypto: sa2ul - Fix DMA mapping API usage")
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/crypto/sa2ul.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
-index 0b9aa24a5edd..64446b86c927 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
-@@ -348,8 +348,10 @@ int sun8i_ss_hash_run(struct crypto_engine *engine, void *breq)
- 	bf = (__le32 *)pad;
+diff --git a/drivers/crypto/sa2ul.c b/drivers/crypto/sa2ul.c
+index d7b1628fb484..b0f0502a5bb0 100644
+--- a/drivers/crypto/sa2ul.c
++++ b/drivers/crypto/sa2ul.c
+@@ -1146,8 +1146,10 @@ static int sa_run(struct sa_req *req)
+ 		mapped_sg->sgt.sgl = src;
+ 		mapped_sg->sgt.orig_nents = src_nents;
+ 		ret = dma_map_sgtable(ddev, &mapped_sg->sgt, dir_src, 0);
+-		if (ret)
++		if (ret) {
++			kfree(rxd);
+ 			return ret;
++		}
  
- 	result = kzalloc(digestsize, GFP_KERNEL | GFP_DMA);
--	if (!result)
-+	if (!result) {
-+		kfree(pad);
- 		return -ENOMEM;
-+	}
+ 		mapped_sg->dir = dir_src;
+ 		mapped_sg->mapped = true;
+@@ -1155,8 +1157,10 @@ static int sa_run(struct sa_req *req)
+ 		mapped_sg->sgt.sgl = req->src;
+ 		mapped_sg->sgt.orig_nents = sg_nents;
+ 		ret = dma_map_sgtable(ddev, &mapped_sg->sgt, dir_src, 0);
+-		if (ret)
++		if (ret) {
++			kfree(rxd);
+ 			return ret;
++		}
  
- 	for (i = 0; i < MAX_SG; i++) {
- 		rctx->t_dst[i].addr = 0;
-@@ -435,10 +437,9 @@ int sun8i_ss_hash_run(struct crypto_engine *engine, void *breq)
- 	dma_unmap_sg(ss->dev, areq->src, nr_sgs, DMA_TO_DEVICE);
- 	dma_unmap_single(ss->dev, addr_res, digestsize, DMA_FROM_DEVICE);
- 
--	kfree(pad);
--
- 	memcpy(areq->result, result, algt->alg.hash.halg.digestsize);
- theend:
-+	kfree(pad);
- 	kfree(result);
- 	crypto_finalize_hash_request(engine, breq, err);
- 	return 0;
+ 		mapped_sg->dir = dir_src;
+ 		mapped_sg->mapped = true;
 -- 
 2.30.2
 
