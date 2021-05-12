@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC5637C449
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 303F337C452
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235738AbhELP36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:29:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
+        id S231469AbhELPab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:30:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234918AbhELPZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:25:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8EAC61430;
-        Wed, 12 May 2021 15:10:58 +0000 (UTC)
+        id S234938AbhELPZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:25:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9198561968;
+        Wed, 12 May 2021 15:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832259;
-        bh=NGRHA6cOyGs2KltjPlMjELlvqO1UZN+5uUaL787Y0i8=;
+        s=korg; t=1620832269;
+        bh=62e+VPSc6q2nY4krZKy2kVcHaUgzvH2sO35gJgrK2IA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2yseP6KZm3a1sstiL585LgBkxwqX8OYksyEC84/6X5wYeYvlP055T7UR3Ktl9Que
-         X4IcAl76xuzVFWagZMjBrFO9vc115i+OnGgSVuQsziC/4yYCyhgzXqsC5WoH7MQthT
-         pGaS/Lxaagfcq9/ocZHPUoviSRHyJph2ybxgvLJQ=
+        b=C7Jv9q0jBPT1A7UYS3dmASgWEI77VQ6v3BD354OFUfL6b2Ha1KvdX1AW/ZRXaIAlf
+         Q0qJtkh9zd5kN5gZT1Beib6qzmVTatybnVPPGJ1oHeupUZP3wpCFays02H5IFH3T+7
+         bAn3rhqdpPEwwZlmsqEQU/GpNqx8789eZejVldw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Alexandru Ardelean <aardelean@deviqon.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 206/530] iio: adc: Kconfig: make AD9467 depend on ADI_AXI_ADC symbol
-Date:   Wed, 12 May 2021 16:45:16 +0200
-Message-Id: <20210512144826.613802369@linuxfoundation.org>
+        stable@vger.kernel.org, "Spencer E. Olson" <olsonse@umich.edu>,
+        Ian Abbott <abbotti@mev.co.uk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 209/530] staging: comedi: tests: ni_routes_test: Fix compilation error
+Date:   Wed, 12 May 2021 16:45:19 +0200
+Message-Id: <20210512144826.710791921@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,49 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <aardelean@deviqon.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-[ Upstream commit 194eafc9c1d49b53b59de9821fb63d423344cae3 ]
+[ Upstream commit 6db58ed2b2d9bb1792eace4f9aa70e8bdd730ffc ]
 
-Because a dependency on HAS_IOMEM and OF was added for the ADI AXI ADC
-driver, this makes the AD9467 driver have some build/dependency issues
-when OF is disabled (typically on ACPI archs like x86).
+The `ni_routes_test` module is not currently selectable using the
+Kconfig files, but can be built by specifying `CONFIG_COMEDI_TESTS=m` on
+the "make" command line.  It currently fails to compile due to an extra
+parameter added to the `ni_assign_device_routes` function by
+commit e3b7ce73c578 ("staging: comedi: ni_routes: Allow alternate board
+name for routes").  Fix it by supplying the value `NULL` for the added
+`alt_board_name` parameter (which specifies that there is no alternate
+board name).
 
-This is because the selection of the AD9467 enforces the ADI_AXI_ADC symbol
-which is blocked by the OF (and potentially HAS_IOMEM) being disabled.
-
-To fix this, we make the AD9467 driver depend on the ADI_AXI_ADC symbol.
-The AD9467 driver cannot operate on it's own. It requires the ADI AXI ADC
-driver to stream data (or some similar IIO interface).
-
-So, the fix here is to make the AD9467 symbol depend on the ADI_AXI_ADC
-symbol. At some point this could become it's own subgroup of high-speed
-ADCs.
-
-Fixes: be24c65e9fa24 ("iio: adc: adi-axi-adc: add proper Kconfig dependencies")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20210324182746.9337-1-aardelean@deviqon.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: e3b7ce73c578 ("staging: comedi: ni_routes: Allow alternate board name for routes")
+Cc: Spencer E. Olson <olsonse@umich.edu>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210407140142.447250-2-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/tests/ni_routes_test.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index 86fda6182543..e39b679126a2 100644
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -249,7 +249,7 @@ config AD799X
- config AD9467
- 	tristate "Analog Devices AD9467 High Speed ADC driver"
- 	depends on SPI
--	select ADI_AXI_ADC
-+	depends on ADI_AXI_ADC
- 	help
- 	  Say yes here to build support for Analog Devices:
- 	  * AD9467 16-Bit, 200 MSPS/250 MSPS Analog-to-Digital Converter
+diff --git a/drivers/staging/comedi/drivers/tests/ni_routes_test.c b/drivers/staging/comedi/drivers/tests/ni_routes_test.c
+index eaefaf596a37..02606e39625a 100644
+--- a/drivers/staging/comedi/drivers/tests/ni_routes_test.c
++++ b/drivers/staging/comedi/drivers/tests/ni_routes_test.c
+@@ -217,7 +217,8 @@ void test_ni_assign_device_routes(void)
+ 	const u8 *table, *oldtable;
+ 
+ 	init_pci_6070e();
+-	ni_assign_device_routes(ni_eseries, pci_6070e, &private.routing_tables);
++	ni_assign_device_routes(ni_eseries, pci_6070e, NULL,
++				&private.routing_tables);
+ 	devroutes = private.routing_tables.valid_routes;
+ 	table = private.routing_tables.route_values;
+ 
+@@ -253,7 +254,8 @@ void test_ni_assign_device_routes(void)
+ 	olddevroutes = devroutes;
+ 	oldtable = table;
+ 	init_pci_6220();
+-	ni_assign_device_routes(ni_mseries, pci_6220, &private.routing_tables);
++	ni_assign_device_routes(ni_mseries, pci_6220, NULL,
++				&private.routing_tables);
+ 	devroutes = private.routing_tables.valid_routes;
+ 	table = private.routing_tables.route_values;
+ 
 -- 
 2.30.2
 
