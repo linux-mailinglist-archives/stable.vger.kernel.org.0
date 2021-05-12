@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C032837C8F9
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E520437C971
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235173AbhELQOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:14:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34478 "EHLO mail.kernel.org"
+        id S234567AbhELQTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:19:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239395AbhELQH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A350E61C58;
-        Wed, 12 May 2021 15:38:07 +0000 (UTC)
+        id S239630AbhELQKW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:10:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25F1A61D39;
+        Wed, 12 May 2021 15:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833888;
-        bh=1hIczK2c9Pe72dJN4nztRkRbHwsTEgqEsGcUjmlRvfQ=;
+        s=korg; t=1620834006;
+        bh=uT4St2Xmo4LGUuzGAYbLPQpZNkJ7+0Vm+KVqVISREpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w62HN0qP7a3KqoA0Om/oHWEg1DDH2gNHHXQYKhoL5OTmcY8DCH2EuE194VFewe1F5
-         asTjM4dIeuONfrmOAt0KlCgiJLA+g6/LIhWFgbFuHGSYy+wpRmWUL1g6+JP3DTUFdH
-         m/yziaGBDGUdLBONcm7iMPian/czikkiLaFDAMgM=
+        b=YZByKfa0fniqRWty/rZl0zXmKhMV3NQ8XyQQeIUJcFxj9+ZR2KX0ER+ORdbWh6u2N
+         4CQjNjP6/SRg78lN4RZ06NfQ3vZB7RFZuZoGLWadLKiVrslyzxVGo+I7Cm8u7w11r8
+         3VlbkRknOwrfMr6CSXjwDh42k0gBo2kF53tNEN5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Souptick Joarder <jrdr.linux@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 327/601] media: [next] staging: media: atomisp: fix memory leak of object flash
-Date:   Wed, 12 May 2021 16:46:44 +0200
-Message-Id: <20210512144838.573124127@linuxfoundation.org>
+Subject: [PATCH 5.11 328/601] media: atomisp: Fixed error handling path
+Date:   Wed, 12 May 2021 16:46:45 +0200
+Message-Id: <20210512144838.605279993@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,86 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-[ Upstream commit 6045b01dd0e3cd3759eafe7f290ed04c957500b1 ]
+[ Upstream commit 16a5dcf7fbc2f5cd10c1e6264262bfa3832fb7d5 ]
 
-In the case where the call to lm3554_platform_data_func returns an
-error there is a memory leak on the error return path of object
-flash.  Fix this by adding an error return path that will free
-flash and rename labels fail2 to fail3 and fail1 to fail2.
+Inside alloc_user_pages() based on flag value either pin_user_pages()
+or get_user_pages_fast() will be called. However, these API might fail.
 
-Link: https://lore.kernel.org/linux-media/20200902165852.201155-1-colin.king@canonical.com
-Fixes: 9289cdf39992 ("staging: media: atomisp: Convert to GPIO descriptors")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+But free_user_pages() called in error handling path doesn't bother
+about return value and will try to unpin bo->pgnr pages, which is
+incorrect.
+
+Fix this by passing the page_nr to free_user_pages(). If page_nr > 0
+pages will be unpinned based on bo->mem_type. This will also take care
+of non error handling path.
+
+allocation")
+
+Link: https://lore.kernel.org/linux-media/1601219284-13275-1-git-send-email-jrdr.linux@gmail.com
+Fixes: 14a638ab96c5 ("media: atomisp: use pin_user_pages() for memory
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/atomisp/i2c/atomisp-lm3554.c        | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/staging/media/atomisp/pci/hmm/hmm_bo.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/i2c/atomisp-lm3554.c b/drivers/staging/media/atomisp/i2c/atomisp-lm3554.c
-index 7ca7378b1859..0ab67b2aec67 100644
---- a/drivers/staging/media/atomisp/i2c/atomisp-lm3554.c
-+++ b/drivers/staging/media/atomisp/i2c/atomisp-lm3554.c
-@@ -843,8 +843,10 @@ static int lm3554_probe(struct i2c_client *client)
- 		return -ENOMEM;
+diff --git a/drivers/staging/media/atomisp/pci/hmm/hmm_bo.c b/drivers/staging/media/atomisp/pci/hmm/hmm_bo.c
+index f13af2329f48..0168f9839c90 100644
+--- a/drivers/staging/media/atomisp/pci/hmm/hmm_bo.c
++++ b/drivers/staging/media/atomisp/pci/hmm/hmm_bo.c
+@@ -857,16 +857,17 @@ static void free_private_pages(struct hmm_buffer_object *bo,
+ 	kfree(bo->page_obj);
+ }
  
- 	flash->pdata = lm3554_platform_data_func(client);
--	if (IS_ERR(flash->pdata))
--		return PTR_ERR(flash->pdata);
-+	if (IS_ERR(flash->pdata)) {
-+		err = PTR_ERR(flash->pdata);
-+		goto fail1;
-+	}
+-static void free_user_pages(struct hmm_buffer_object *bo)
++static void free_user_pages(struct hmm_buffer_object *bo,
++			    unsigned int page_nr)
+ {
+ 	int i;
  
- 	v4l2_i2c_subdev_init(&flash->sd, client, &lm3554_ops);
- 	flash->sd.internal_ops = &lm3554_internal_ops;
-@@ -856,7 +858,7 @@ static int lm3554_probe(struct i2c_client *client)
- 				   ARRAY_SIZE(lm3554_controls));
- 	if (ret) {
- 		dev_err(&client->dev, "error initialize a ctrl_handler.\n");
--		goto fail2;
-+		goto fail3;
+ 	hmm_mem_stat.usr_size -= bo->pgnr;
+ 
+ 	if (bo->mem_type == HMM_BO_MEM_TYPE_PFN) {
+-		unpin_user_pages(bo->pages, bo->pgnr);
++		unpin_user_pages(bo->pages, page_nr);
+ 	} else {
+-		for (i = 0; i < bo->pgnr; i++)
++		for (i = 0; i < page_nr; i++)
+ 			put_page(bo->pages[i]);
+ 	}
+ 	kfree(bo->pages);
+@@ -942,6 +943,8 @@ static int alloc_user_pages(struct hmm_buffer_object *bo,
+ 		dev_err(atomisp_dev,
+ 			"get_user_pages err: bo->pgnr = %d, pgnr actually pinned = %d.\n",
+ 			bo->pgnr, page_nr);
++		if (page_nr < 0)
++			page_nr = 0;
+ 		goto out_of_mem;
  	}
  
- 	for (i = 0; i < ARRAY_SIZE(lm3554_controls); i++)
-@@ -865,14 +867,14 @@ static int lm3554_probe(struct i2c_client *client)
+@@ -954,7 +957,7 @@ static int alloc_user_pages(struct hmm_buffer_object *bo,
  
- 	if (flash->ctrl_handler.error) {
- 		dev_err(&client->dev, "ctrl_handler error.\n");
--		goto fail2;
-+		goto fail3;
- 	}
+ out_of_mem:
  
- 	flash->sd.ctrl_handler = &flash->ctrl_handler;
- 	err = media_entity_pads_init(&flash->sd.entity, 0, NULL);
- 	if (err) {
- 		dev_err(&client->dev, "error initialize a media entity.\n");
--		goto fail1;
-+		goto fail2;
- 	}
+-	free_user_pages(bo);
++	free_user_pages(bo, page_nr);
  
- 	flash->sd.entity.function = MEDIA_ENT_F_FLASH;
-@@ -884,14 +886,15 @@ static int lm3554_probe(struct i2c_client *client)
- 	err = lm3554_gpio_init(client);
- 	if (err) {
- 		dev_err(&client->dev, "gpio request/direction_output fail");
--		goto fail2;
-+		goto fail3;
- 	}
- 	return atomisp_register_i2c_module(&flash->sd, NULL, LED_FLASH);
--fail2:
-+fail3:
- 	media_entity_cleanup(&flash->sd.entity);
- 	v4l2_ctrl_handler_free(&flash->ctrl_handler);
--fail1:
-+fail2:
- 	v4l2_device_unregister_subdev(&flash->sd);
-+fail1:
- 	kfree(flash);
- 
- 	return err;
+ 	return -ENOMEM;
+ }
+@@ -1037,7 +1040,7 @@ void hmm_bo_free_pages(struct hmm_buffer_object *bo)
+ 	if (bo->type == HMM_BO_PRIVATE)
+ 		free_private_pages(bo, &dynamic_pool, &reserved_pool);
+ 	else if (bo->type == HMM_BO_USER)
+-		free_user_pages(bo);
++		free_user_pages(bo, bo->pgnr);
+ 	else
+ 		dev_err(atomisp_dev, "invalid buffer type.\n");
+ 	mutex_unlock(&bo->mutex);
 -- 
 2.30.2
 
