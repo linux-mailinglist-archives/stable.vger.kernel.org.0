@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2472037C993
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D015637C992
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236169AbhELQUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236162AbhELQUA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 12:20:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49654 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236750AbhELQMf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:12:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E020361D4F;
-        Wed, 12 May 2021 15:41:14 +0000 (UTC)
+        id S236790AbhELQMg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:12:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 505D361D4E;
+        Wed, 12 May 2021 15:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834075;
-        bh=XuKxvpfkqIgUoV+gZWVDgkzoJ8SU7lzLm6T6bv+7Fps=;
+        s=korg; t=1620834077;
+        bh=7Jj4p4Ew1/jP+/8WWVsIZO8VRXusW8G6NW/eWRSipEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LzGWirfmUmcO4BIMnmXyVJjzOZEUhbgAgi0sX+lDgFckO3H7nqUBQXuFbnzHpFZHl
-         7DAElOGL+xtWVuekQlq1gr0DEY+22iYVenDzazB/wehxn9LMqldYWoLCAoC70gON0g
-         6TH/u7L0EvP24o98eacwSc7Ze4B5Z1mdYh3PrPUI=
+        b=behMj0rzN4O5Lvbx6/0WlsspMO2Ef0QnNBEl3kb+txMtSMKCVVl/iehNjzNtlMCi9
+         j+mS7DhsCVW+DmKnuXSCpvG6+gC5syivzt2b96R9kPs/MczeKpOaijZKk4Ffeth7yb
+         GSdYaG7lFjpv+JcDIX6e4Te85cuVT/ufk50xBc40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 398/601] net: lapbether: Prevent racing when checking whether the netif is running
-Date:   Wed, 12 May 2021 16:47:55 +0200
-Message-Id: <20210512144840.913767554@linuxfoundation.org>
+Subject: [PATCH 5.11 399/601] libbpf: Add explicit padding to bpf_xdp_set_link_opts
+Date:   Wed, 12 May 2021 16:47:56 +0200
+Message-Id: <20210512144840.946514354@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,137 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 5acd0cfbfbb5a688da1bfb1a2152b0c855115a35 ]
+[ Upstream commit dde7b3f5f2f458297aeccfd4783e53ab8ca046db ]
 
-There are two "netif_running" checks in this driver. One is in
-"lapbeth_xmit" and the other is in "lapbeth_rcv". They serve to make
-sure that the LAPB APIs called in these functions are called before
-"lapb_unregister" is called by the "ndo_stop" function.
+Adding such anonymous padding fixes the issue with uninitialized portions of
+bpf_xdp_set_link_opts when using LIBBPF_DECLARE_OPTS macro with inline field
+initialization:
 
-However, these "netif_running" checks are unreliable, because it's
-possible that immediately after "netif_running" returns true, "ndo_stop"
-is called (which causes "lapb_unregister" to be called).
+DECLARE_LIBBPF_OPTS(bpf_xdp_set_link_opts, opts, .old_fd = -1);
 
-This patch adds locking to make sure "lapbeth_xmit" and "lapbeth_rcv" can
-reliably check and ensure the netif is running while doing their work.
+When such code is compiled in debug mode, compiler is generating code that
+leaves padding bytes uninitialized, which triggers error inside libbpf APIs
+that do strict zero initialization checks for OPTS structs.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Adding anonymous padding field fixes the issue.
+
+Fixes: bd5ca3ef93cd ("libbpf: Add function to set link XDP fd while specifying old program")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210313210920.1959628-2-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c | 32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ tools/lib/bpf/libbpf.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index c3372498f4f1..8fda0446ff71 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -51,6 +51,8 @@ struct lapbethdev {
- 	struct list_head	node;
- 	struct net_device	*ethdev;	/* link to ethernet device */
- 	struct net_device	*axdev;		/* lapbeth device (lapb#) */
-+	bool			up;
-+	spinlock_t		up_lock;	/* Protects "up" */
+diff --git a/tools/lib/bpf/libbpf.h b/tools/lib/bpf/libbpf.h
+index 3c35eb401931..3d690d4e785c 100644
+--- a/tools/lib/bpf/libbpf.h
++++ b/tools/lib/bpf/libbpf.h
+@@ -507,6 +507,7 @@ struct xdp_link_info {
+ struct bpf_xdp_set_link_opts {
+ 	size_t sz;
+ 	int old_fd;
++	size_t :0;
  };
+ #define bpf_xdp_set_link_opts__last_field old_fd
  
- static LIST_HEAD(lapbeth_devices);
-@@ -101,8 +103,9 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packe
- 	rcu_read_lock();
- 	lapbeth = lapbeth_get_x25_dev(dev);
- 	if (!lapbeth)
--		goto drop_unlock;
--	if (!netif_running(lapbeth->axdev))
-+		goto drop_unlock_rcu;
-+	spin_lock_bh(&lapbeth->up_lock);
-+	if (!lapbeth->up)
- 		goto drop_unlock;
- 
- 	len = skb->data[0] + skb->data[1] * 256;
-@@ -117,11 +120,14 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packe
- 		goto drop_unlock;
- 	}
- out:
-+	spin_unlock_bh(&lapbeth->up_lock);
- 	rcu_read_unlock();
- 	return 0;
- drop_unlock:
- 	kfree_skb(skb);
- 	goto out;
-+drop_unlock_rcu:
-+	rcu_read_unlock();
- drop:
- 	kfree_skb(skb);
- 	return 0;
-@@ -151,13 +157,11 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
- static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
- 				      struct net_device *dev)
- {
-+	struct lapbethdev *lapbeth = netdev_priv(dev);
- 	int err;
- 
--	/*
--	 * Just to be *really* sure not to send anything if the interface
--	 * is down, the ethernet device may have gone.
--	 */
--	if (!netif_running(dev))
-+	spin_lock_bh(&lapbeth->up_lock);
-+	if (!lapbeth->up)
- 		goto drop;
- 
- 	/* There should be a pseudo header of 1 byte added by upper layers.
-@@ -194,6 +198,7 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
- 		goto drop;
- 	}
- out:
-+	spin_unlock_bh(&lapbeth->up_lock);
- 	return NETDEV_TX_OK;
- drop:
- 	kfree_skb(skb);
-@@ -285,6 +290,7 @@ static const struct lapb_register_struct lapbeth_callbacks = {
-  */
- static int lapbeth_open(struct net_device *dev)
- {
-+	struct lapbethdev *lapbeth = netdev_priv(dev);
- 	int err;
- 
- 	if ((err = lapb_register(dev, &lapbeth_callbacks)) != LAPB_OK) {
-@@ -292,13 +298,22 @@ static int lapbeth_open(struct net_device *dev)
- 		return -ENODEV;
- 	}
- 
-+	spin_lock_bh(&lapbeth->up_lock);
-+	lapbeth->up = true;
-+	spin_unlock_bh(&lapbeth->up_lock);
-+
- 	return 0;
- }
- 
- static int lapbeth_close(struct net_device *dev)
- {
-+	struct lapbethdev *lapbeth = netdev_priv(dev);
- 	int err;
- 
-+	spin_lock_bh(&lapbeth->up_lock);
-+	lapbeth->up = false;
-+	spin_unlock_bh(&lapbeth->up_lock);
-+
- 	if ((err = lapb_unregister(dev)) != LAPB_OK)
- 		pr_err("lapb_unregister error: %d\n", err);
- 
-@@ -356,6 +371,9 @@ static int lapbeth_new_device(struct net_device *dev)
- 	dev_hold(dev);
- 	lapbeth->ethdev = dev;
- 
-+	lapbeth->up = false;
-+	spin_lock_init(&lapbeth->up_lock);
-+
- 	rc = -EIO;
- 	if (register_netdevice(ndev))
- 		goto fail;
 -- 
 2.30.2
 
