@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F400C37CB44
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 531EF37CB53
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242535AbhELQfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:35:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
+        id S242604AbhELQfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:35:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241626AbhELQ1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD27F61DF7;
-        Wed, 12 May 2021 15:54:29 +0000 (UTC)
+        id S241660AbhELQ1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B8FE61446;
+        Wed, 12 May 2021 15:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834870;
-        bh=xAU5NaZrKs84wEQ0MftKqBtsgv0dD5UnYI5EjBqH2Z8=;
+        s=korg; t=1620834897;
+        bh=VMYFnsJK3wMja7DJnsSZzJXMs/jaHb+mBoWOaUk4RPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08ZAhJMWvSau5pCTvyGsnGwcGXWCDJ1X5H0OA+NUiZAuI6HH+BiiARYYKVn1GAwRY
-         Wni2H03xqp9jL2vSwugM3dcgRqE/0OdvhrTQtWNtt0klHDnzPVp5A9VKo/DwQXVBgD
-         A5vGlvCrpnE6rCFNEIGjfbOJcx5fanqG2OjISAHY=
+        b=eNcMyDExMI4BdCPyBS3RP3YXEkpqotHNwPsWtkH+MlTaooJ29ifTkIXgaO2tQRoa+
+         K44Xkzg1PAYmAOSomccKArNui/EEWIEhIYLzaj3U58JpS/gRURwXFCz+sPvNXIEXLS
+         i1Ci6b879wwgHxIGetfC4tXh2bQnZuvmRbnNp/X4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastien Boeuf <sebastien.boeuf@intel.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 109/677] KVM: x86: Properly handle APF vs disabled LAPIC situation
-Date:   Wed, 12 May 2021 16:42:35 +0200
-Message-Id: <20210512144840.841629030@linuxfoundation.org>
+Subject: [PATCH 5.12 110/677] KVM: x86: Check CR3 GPA for validity regardless of vCPU mode
+Date:   Wed, 12 May 2021 16:42:36 +0200
+Message-Id: <20210512144840.873266670@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,69 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 2f15d027c05fac406decdb5eceb9ec0902b68f53 upstream.
+commit 886bbcc7a523b8d4fac60f1015d2e0fcad50db82 upstream.
 
-Async PF 'page ready' event may happen when LAPIC is (temporary) disabled.
-In particular, Sebastien reports that when Linux kernel is directly booted
-by Cloud Hypervisor, LAPIC is 'software disabled' when APF mechanism is
-initialized. On initialization KVM tries to inject 'wakeup all' event and
-puts the corresponding token to the slot. It is, however, failing to inject
-an interrupt (kvm_apic_set_irq() -> __apic_accept_irq() -> !apic_enabled())
-so the guest never gets notified and the whole APF mechanism gets stuck.
-The same issue is likely to happen if the guest temporary disables LAPIC
-and a previously unavailable page becomes available.
+Check CR3 for an invalid GPA even if the vCPU isn't in long mode.  For
+bigger emulation flows, notably RSM, the vCPU mode may not be accurate
+if CR0/CR4 are loaded after CR3.  For MOV CR3 and similar flows, the
+caller is responsible for truncating the value.
 
-Do two things to resolve the issue:
-- Avoid dequeuing 'page ready' events from APF queue when LAPIC is
-  disabled.
-- Trigger an attempt to deliver pending 'page ready' events when LAPIC
-  becomes enabled (SPIV or MSR_IA32_APICBASE).
-
-Reported-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20210422092948.568327-1-vkuznets@redhat.com>
+Fixes: 660a5d517aaa ("KVM: x86: save/load state on SMM switch")
 Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210422022128.3464144-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/lapic.c |    6 ++++++
- arch/x86/kvm/x86.c   |    2 +-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -296,6 +296,10 @@ static inline void apic_set_spiv(struct
- 
- 		atomic_set_release(&apic->vcpu->kvm->arch.apic_map_dirty, DIRTY);
- 	}
-+
-+	/* Check if there are APF page ready requests pending */
-+	if (enabled)
-+		kvm_make_request(KVM_REQ_APF_READY, apic->vcpu);
- }
- 
- static inline void kvm_apic_set_xapic_id(struct kvm_lapic *apic, u8 id)
-@@ -2261,6 +2265,8 @@ void kvm_lapic_set_base(struct kvm_vcpu
- 		if (value & MSR_IA32_APICBASE_ENABLE) {
- 			kvm_apic_set_xapic_id(apic, vcpu->vcpu_id);
- 			static_branch_slow_dec_deferred(&apic_hw_disabled);
-+			/* Check if there are APF page ready requests pending */
-+			kvm_make_request(KVM_REQ_APF_READY, vcpu);
- 		} else {
- 			static_branch_inc(&apic_hw_disabled.key);
- 			atomic_set_release(&apic->vcpu->kvm->arch.apic_map_dirty, DIRTY);
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -11293,7 +11293,7 @@ bool kvm_arch_can_dequeue_async_page_pre
- 	if (!kvm_pv_async_pf_enabled(vcpu))
- 		return true;
- 	else
--		return apf_pageready_slot_free(vcpu);
-+		return kvm_lapic_enabled(vcpu) && apf_pageready_slot_free(vcpu);
- }
+@@ -1072,10 +1072,15 @@ int kvm_set_cr3(struct kvm_vcpu *vcpu, u
+ 		return 0;
+ 	}
  
- void kvm_arch_start_assignment(struct kvm *kvm)
+-	if (is_long_mode(vcpu) && kvm_vcpu_is_illegal_gpa(vcpu, cr3))
++	/*
++	 * Do not condition the GPA check on long mode, this helper is used to
++	 * stuff CR3, e.g. for RSM emulation, and there is no guarantee that
++	 * the current vCPU mode is accurate.
++	 */
++	if (kvm_vcpu_is_illegal_gpa(vcpu, cr3))
+ 		return 1;
+-	else if (is_pae_paging(vcpu) &&
+-		 !load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3))
++
++	if (is_pae_paging(vcpu) && !load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3))
+ 		return 1;
+ 
+ 	kvm_mmu_new_pgd(vcpu, cr3, skip_tlb_flush, skip_tlb_flush);
 
 
