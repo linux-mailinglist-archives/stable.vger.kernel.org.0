@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F90137C4AF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 262AD37C4C8
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231742AbhELPcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40754 "EHLO mail.kernel.org"
+        id S234590AbhELPdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:33:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235573AbhELP2d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:28:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5013E61C27;
-        Wed, 12 May 2021 15:13:54 +0000 (UTC)
+        id S235581AbhELP2e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF84C6162B;
+        Wed, 12 May 2021 15:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832435;
-        bh=M6wxldWro+LDiAbiNlw5P8o2FCKwC5wvXY9QUtYVyeU=;
+        s=korg; t=1620832437;
+        bh=BVMU3AVTnR7eWjaKGZrx4Nx13u8lYUd4M6mEbXxRxTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p74zlJoKiW5FUS3ZCw3NiYIpa6dwk2FpJRyFy9Z2gDju0kwYxkghT4XUHrEp0MOXk
-         Db6CXN8LqGAk5tOIOEE9o1WoPmGaX7hMPaRfXhfagCih1q02OIIDhO/0TepczEb9gh
-         GcVaPG9qkiyFFiiSOQPyvpRRWuYQOQSsA0VsyMUQ=
+        b=XqJhI/ElAzCHZCNPngRySoYkaaE7/wGhQxuiQ6E/5xb5In5YZ1Msn1mNIRYGVdnMC
+         MUg+fzGyvNCDnRQ5NWuduidurTbgj/QUxVav+8BsDtcx5bUytx0gMYB554BuOMkf45
+         ahKM3yVULi5dNBbIGQELKOhDoecavFWmfgz7icnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Yannick Fertre <yannick.fertre@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Antonio Borneo <antonio.borneo@st.com>,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Vincent Abriou <vincent.abriou@st.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        Yannick Fertre <yannick.fertre@foss.st.com>,
-        Philippe Cornu <philippe.cornu@foss.st.com>,
+        stable@vger.kernel.org,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 278/530] drm/stm: Fix bus_flags handling
-Date:   Wed, 12 May 2021 16:46:28 +0200
-Message-Id: <20210512144828.945976888@linuxfoundation.org>
+Subject: [PATCH 5.10 279/530] drm/amd/display: Fix off by one in hdmi_14_process_transaction()
+Date:   Wed, 12 May 2021 16:46:29 +0200
+Message-Id: <20210512144828.980409194@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -51,105 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 99e360442f223dd40fc23ae07c7a263836fd27e6 ]
+[ Upstream commit 8e6fafd5a22e7a2eb216f5510db7aab54cc545c1 ]
 
-The drm_display_mode_to_videomode() does not populate DISPLAY_FLAGS_DE_LOW
-or DISPLAY_FLAGS_PIXDATA_NEGEDGE flags in struct videomode. Therefore, no
-matter what polarity the next bridge or display might require, these flags
-are never set, and thus the LTDC GCR_DEPOL and GCR_PCPOL bits are never set
-and the LTDC behaves as if both DISPLAY_FLAGS_PIXDATA_POSEDGE and
-DISPLAY_FLAGS_DE_HIGH were always set.
+The hdcp_i2c_offsets[] array did not have an entry for
+HDCP_MESSAGE_ID_WRITE_CONTENT_STREAM_TYPE so it led to an off by one
+read overflow.  I added an entry and copied the 0x0 value for the offset
+from similar code in drivers/gpu/drm/amd/display/modules/hdcp/hdcp_ddc.c.
 
-The fix for this problem is taken almost verbatim from MXSFB driver. In
-case there is a bridge attached to the LTDC, the bridge might have extra
-polarity requirements, so extract bus_flags from the bridge and use them
-for LTDC configuration. Otherwise, extract bus_flags from the connector,
-which is the display.
+I also declared several of these arrays as having HDCP_MESSAGE_ID_MAX
+entries.  This doesn't change the code, but it's just a belt and
+suspenders approach to try future proof the code.
 
-Fixes: b759012c5fa7 ("drm/stm: Add STM32 LTDC driver")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Antonio Borneo <antonio.borneo@st.com>
-Cc: Benjamin Gaignard <benjamin.gaignard@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Philippe Cornu <philippe.cornu@st.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Vincent Abriou <vincent.abriou@st.com>
-Cc: Yannick Fertre <yannick.fertre@st.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: dri-devel@lists.freedesktop.org
-Tested-by: Yannick Fertre <yannick.fertre@foss.st.com>
-Signed-off-by: Philippe Cornu <philippe.cornu@foss.st.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210127110756.125570-1-marex@denx.de
+Fixes: 4c283fdac08a ("drm/amd/display: Add HDCP module")
+Reviewed-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/stm/ltdc.c | 33 +++++++++++++++++++++++++++++++--
- 1 file changed, 31 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/hdcp/hdcp_msg.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
-index 6e28f707092f..62488ac14923 100644
---- a/drivers/gpu/drm/stm/ltdc.c
-+++ b/drivers/gpu/drm/stm/ltdc.c
-@@ -525,13 +525,42 @@ static void ltdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
- {
- 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
- 	struct drm_device *ddev = crtc->dev;
-+	struct drm_connector_list_iter iter;
-+	struct drm_connector *connector = NULL;
-+	struct drm_encoder *encoder = NULL;
-+	struct drm_bridge *bridge = NULL;
- 	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
- 	struct videomode vm;
- 	u32 hsync, vsync, accum_hbp, accum_vbp, accum_act_w, accum_act_h;
- 	u32 total_width, total_height;
-+	u32 bus_flags = 0;
- 	u32 val;
- 	int ret;
+diff --git a/drivers/gpu/drm/amd/display/dc/hdcp/hdcp_msg.c b/drivers/gpu/drm/amd/display/dc/hdcp/hdcp_msg.c
+index 5e384a8a83dc..51855a2624cf 100644
+--- a/drivers/gpu/drm/amd/display/dc/hdcp/hdcp_msg.c
++++ b/drivers/gpu/drm/amd/display/dc/hdcp/hdcp_msg.c
+@@ -39,7 +39,7 @@
+ #define HDCP14_KSV_SIZE 5
+ #define HDCP14_MAX_KSV_FIFO_SIZE 127*HDCP14_KSV_SIZE
  
-+	/* get encoder from crtc */
-+	drm_for_each_encoder(encoder, ddev)
-+		if (encoder->crtc == crtc)
-+			break;
-+
-+	if (encoder) {
-+		/* get bridge from encoder */
-+		list_for_each_entry(bridge, &encoder->bridge_chain, chain_node)
-+			if (bridge->encoder == encoder)
-+				break;
-+
-+		/* Get the connector from encoder */
-+		drm_connector_list_iter_begin(ddev, &iter);
-+		drm_for_each_connector_iter(connector, &iter)
-+			if (connector->encoder == encoder)
-+				break;
-+		drm_connector_list_iter_end(&iter);
-+	}
-+
-+	if (bridge && bridge->timings)
-+		bus_flags = bridge->timings->input_bus_flags;
-+	else if (connector)
-+		bus_flags = connector->display_info.bus_flags;
-+
- 	if (!pm_runtime_active(ddev->dev)) {
- 		ret = pm_runtime_get_sync(ddev->dev);
- 		if (ret) {
-@@ -567,10 +596,10 @@ static void ltdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
- 	if (vm.flags & DISPLAY_FLAGS_VSYNC_HIGH)
- 		val |= GCR_VSPOL;
+-static const bool hdcp_cmd_is_read[] = {
++static const bool hdcp_cmd_is_read[HDCP_MESSAGE_ID_MAX] = {
+ 	[HDCP_MESSAGE_ID_READ_BKSV] = true,
+ 	[HDCP_MESSAGE_ID_READ_RI_R0] = true,
+ 	[HDCP_MESSAGE_ID_READ_PJ] = true,
+@@ -75,7 +75,7 @@ static const bool hdcp_cmd_is_read[] = {
+ 	[HDCP_MESSAGE_ID_WRITE_CONTENT_STREAM_TYPE] = false
+ };
  
--	if (vm.flags & DISPLAY_FLAGS_DE_LOW)
-+	if (bus_flags & DRM_BUS_FLAG_DE_LOW)
- 		val |= GCR_DEPOL;
+-static const uint8_t hdcp_i2c_offsets[] = {
++static const uint8_t hdcp_i2c_offsets[HDCP_MESSAGE_ID_MAX] = {
+ 	[HDCP_MESSAGE_ID_READ_BKSV] = 0x0,
+ 	[HDCP_MESSAGE_ID_READ_RI_R0] = 0x8,
+ 	[HDCP_MESSAGE_ID_READ_PJ] = 0xA,
+@@ -106,7 +106,8 @@ static const uint8_t hdcp_i2c_offsets[] = {
+ 	[HDCP_MESSAGE_ID_WRITE_REPEATER_AUTH_SEND_ACK] = 0x60,
+ 	[HDCP_MESSAGE_ID_WRITE_REPEATER_AUTH_STREAM_MANAGE] = 0x60,
+ 	[HDCP_MESSAGE_ID_READ_REPEATER_AUTH_STREAM_READY] = 0x80,
+-	[HDCP_MESSAGE_ID_READ_RXSTATUS] = 0x70
++	[HDCP_MESSAGE_ID_READ_RXSTATUS] = 0x70,
++	[HDCP_MESSAGE_ID_WRITE_CONTENT_STREAM_TYPE] = 0x0,
+ };
  
--	if (vm.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
-+	if (bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
- 		val |= GCR_PCPOL;
+ struct protection_properties {
+@@ -184,7 +185,7 @@ static const struct protection_properties hdmi_14_protection = {
+ 	.process_transaction = hdmi_14_process_transaction
+ };
  
- 	reg_update_bits(ldev->regs, LTDC_GCR,
+-static const uint32_t hdcp_dpcd_addrs[] = {
++static const uint32_t hdcp_dpcd_addrs[HDCP_MESSAGE_ID_MAX] = {
+ 	[HDCP_MESSAGE_ID_READ_BKSV] = 0x68000,
+ 	[HDCP_MESSAGE_ID_READ_RI_R0] = 0x68005,
+ 	[HDCP_MESSAGE_ID_READ_PJ] = 0xFFFFFFFF,
 -- 
 2.30.2
 
