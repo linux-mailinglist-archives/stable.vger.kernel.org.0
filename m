@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C50AB37C1FE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB78737C200
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231852AbhELPGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:06:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56304 "EHLO mail.kernel.org"
+        id S231830AbhELPGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:06:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233223AbhELPEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:04:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1357C61942;
-        Wed, 12 May 2021 14:59:43 +0000 (UTC)
+        id S233231AbhELPEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:04:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DE9E61940;
+        Wed, 12 May 2021 14:59:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831584;
-        bh=IMZmoN1wKgtzZ4QSmEgjO5c6gd7NRBElSzGuO9gV0KE=;
+        s=korg; t=1620831586;
+        bh=XCMFh/w4SQjPhg8ctR6kIDWBG6AEOKhdEwqAv9L6tAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFjgXRi7Bm26UHo3Vq6S2EjqBqDDInyk7lK53GfNtByW57Hf6qZ+d9z2y97jOg18E
-         7S+wYxrYcpC2DSKCxIfDFCkoVxPDU3t5499M8Bb2hfyTRahc+GbHIDAvp09YY0h4yU
-         fxKxswA1raAFDVyjvBe/+qrpYaHVTFJJofjTzZoo=
+        b=FeRzC7CESmLH96Fz2iSigAvuZv0glsx2LQnT5W1a6TZEaRtx8PYMYLd0NQgQde9Fw
+         jQ08uV4x3lAQg7jD+sVWh4mFPd21x1Ax4+t1yAKKZCCzGM30/2xR2Jkoc1yw63f7kC
+         sbrsV25Oa5gTzkGS1znxV3h4JMvIKska18f90Y4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Scull <ascull@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 178/244] bug: Remove redundant condition check in report_bug
-Date:   Wed, 12 May 2021 16:49:09 +0200
-Message-Id: <20210512144748.691641688@linuxfoundation.org>
+Subject: [PATCH 5.4 179/244] nfc: pn533: prevent potential memory corruption
+Date:   Wed, 12 May 2021 16:49:10 +0200
+Message-Id: <20210512144748.723023958@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,77 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Scull <ascull@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3ad1a6cb0abc63d036fc866bd7c2c5983516dec5 ]
+[ Upstream commit ca4d4c34ae9aa5c3c0da76662c5e549d2fc0cc86 ]
 
-report_bug() will return early if it cannot find a bug corresponding to
-the provided address. The subsequent test for the bug will always be
-true so remove it.
+If the "type_a->nfcid_len" is too large then it would lead to memory
+corruption in pn533_target_found_type_a() when we do:
 
-Fixes: 1b4cfe3c0a30d ("lib/bug.c: exclude non-BUG/WARN exceptions from report_bug()")
-Signed-off-by: Andrew Scull <ascull@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210318143311.839894-2-ascull@google.com
+	memcpy(nfc_tgt->nfcid1, tgt_type_a->nfcid_data, nfc_tgt->nfcid1_len);
+
+Fixes: c3b1e1e8a76f ("NFC: Export NFCID1 from pn533")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/bug.c | 33 +++++++++++++++------------------
- 1 file changed, 15 insertions(+), 18 deletions(-)
+ drivers/nfc/pn533/pn533.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/lib/bug.c b/lib/bug.c
-index 8c98af0bf585..c3aa22cbc876 100644
---- a/lib/bug.c
-+++ b/lib/bug.c
-@@ -155,30 +155,27 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
+diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
+index a172a32aa9d9..3ea38ce86cc9 100644
+--- a/drivers/nfc/pn533/pn533.c
++++ b/drivers/nfc/pn533/pn533.c
+@@ -680,6 +680,9 @@ static bool pn533_target_type_a_is_valid(struct pn533_target_type_a *type_a,
+ 	if (PN533_TYPE_A_SEL_CASCADE(type_a->sel_res) != 0)
+ 		return false;
  
- 	file = NULL;
- 	line = 0;
--	warning = 0;
- 
--	if (bug) {
- #ifdef CONFIG_DEBUG_BUGVERBOSE
- #ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
--		file = bug->file;
-+	file = bug->file;
- #else
--		file = (const char *)bug + bug->file_disp;
-+	file = (const char *)bug + bug->file_disp;
- #endif
--		line = bug->line;
-+	line = bug->line;
- #endif
--		warning = (bug->flags & BUGFLAG_WARNING) != 0;
--		once = (bug->flags & BUGFLAG_ONCE) != 0;
--		done = (bug->flags & BUGFLAG_DONE) != 0;
--
--		if (warning && once) {
--			if (done)
--				return BUG_TRAP_TYPE_WARN;
--
--			/*
--			 * Since this is the only store, concurrency is not an issue.
--			 */
--			bug->flags |= BUGFLAG_DONE;
--		}
-+	warning = (bug->flags & BUGFLAG_WARNING) != 0;
-+	once = (bug->flags & BUGFLAG_ONCE) != 0;
-+	done = (bug->flags & BUGFLAG_DONE) != 0;
++	if (type_a->nfcid_len > NFC_NFCID1_MAXSIZE)
++		return false;
 +
-+	if (warning && once) {
-+		if (done)
-+			return BUG_TRAP_TYPE_WARN;
-+
-+		/*
-+		 * Since this is the only store, concurrency is not an issue.
-+		 */
-+		bug->flags |= BUGFLAG_DONE;
- 	}
+ 	return true;
+ }
  
- 	/*
 -- 
 2.30.2
 
