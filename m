@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C21E37C79E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32BDA37C7A4
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233592AbhELQBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:01:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40540 "EHLO mail.kernel.org"
+        id S234258AbhELQBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237947AbhELP4z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:56:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6007061417;
-        Wed, 12 May 2021 15:29:05 +0000 (UTC)
+        id S237964AbhELP45 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:56:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2056196C;
+        Wed, 12 May 2021 15:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833345;
-        bh=nLZ1e9tNA/NRzg99NLvbibdJY4Yb0Z6KJg+CdS/Ll94=;
+        s=korg; t=1620833348;
+        bh=IinN2jw2FW3k0CTyTPz3TpXXtJm++SBbxoWOUEJhtwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Li7FThxfIzU1Ayvt1RwMb+iyzdRW5FdUt2UX35aXkzS5SUxytmnLsgxGKWqxFaxXq
-         Pe4dLAU53ik5pfohvSs+d0eYO+3NAjWABoxfzcbscTsWTgypkQ5+3zNtajRg0qC24X
-         uLKMlMaIwOBEqL1a32RXbSN7UKonRYfOfdC9vgH8=
+        b=spWRTFGrLPLS57TZkTMWFLUQhuSzh3DPv+0FH9vub+ZTtcCfnZrBa909dWyY/5ZCq
+         8WpQtjFyKkjslxk9C1QioOyJX5X8HprHXSlulvw0iorPkan93l3+3jN+u4TM/rK3m1
+         F1vY+9zvoeIJjqyHSIrRca5QcSlky/6d0WsZXwdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.11 114/601] KVM: selftests: Always run vCPU thread with blocked SIG_IPI
-Date:   Wed, 12 May 2021 16:43:11 +0200
-Message-Id: <20210512144831.587621104@linuxfoundation.org>
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 115/601] Revert "drivers/net/wan/hdlc_fr: Fix a double free in pvc_xmit"
+Date:   Wed, 12 May 2021 16:43:12 +0200
+Message-Id: <20210512144831.618744509@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,57 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit bf1e15a82e3b74ee86bb119d6038b41e1ed2b319 upstream.
+commit d362fd0be456dba2d3d58a90b7a193962776562b upstream.
 
-The main thread could start to send SIG_IPI at any time, even before signal
-blocked on vcpu thread.  Therefore, start the vcpu thread with the signal
-blocked.
+This reverts commit 1b479fb80160
+("drivers/net/wan/hdlc_fr: Fix a double free in pvc_xmit").
 
-Without this patch, on very busy cores the dirty_log_test could fail directly
-on receiving a SIGUSR1 without a handler (when vcpu runs far slower than main).
+1. This commit is incorrect. "__skb_pad" will NOT free the skb on
+failure when its "free_on_error" parameter is "false".
 
-Reported-by: Peter Xu <peterx@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+2. This commit claims to fix my commit. But it didn't CC me??
+
+Fixes: 1b479fb80160 ("drivers/net/wan/hdlc_fr: Fix a double free in pvc_xmit")
+Cc: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/kvm/dirty_log_test.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/wan/hdlc_fr.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/kvm/dirty_log_test.c
-+++ b/tools/testing/selftests/kvm/dirty_log_test.c
-@@ -527,9 +527,8 @@ static void *vcpu_worker(void *data)
- 	 */
- 	sigmask->len = 8;
- 	pthread_sigmask(0, NULL, sigset);
-+	sigdelset(sigset, SIG_IPI);
- 	vcpu_ioctl(vm, VCPU_ID, KVM_SET_SIGNAL_MASK, sigmask);
--	sigaddset(sigset, SIG_IPI);
--	pthread_sigmask(SIG_BLOCK, sigset, NULL);
+--- a/drivers/net/wan/hdlc_fr.c
++++ b/drivers/net/wan/hdlc_fr.c
+@@ -415,7 +415,7 @@ static netdev_tx_t pvc_xmit(struct sk_bu
  
- 	sigemptyset(sigset);
- 	sigaddset(sigset, SIG_IPI);
-@@ -858,6 +857,7 @@ int main(int argc, char *argv[])
- 		.interval = TEST_HOST_LOOP_INTERVAL,
- 	};
- 	int opt, i;
-+	sigset_t sigset;
+ 		if (pad > 0) { /* Pad the frame with zeros */
+ 			if (__skb_pad(skb, pad, false))
+-				goto out;
++				goto drop;
+ 			skb_put(skb, pad);
+ 		}
+ 	}
+@@ -448,9 +448,8 @@ static netdev_tx_t pvc_xmit(struct sk_bu
+ 	return NETDEV_TX_OK;
  
- 	sem_init(&sem_vcpu_stop, 0, 0);
- 	sem_init(&sem_vcpu_cont, 0, 0);
-@@ -916,6 +916,11 @@ int main(int argc, char *argv[])
+ drop:
+-	kfree_skb(skb);
+-out:
+ 	dev->stats.tx_dropped++;
++	kfree_skb(skb);
+ 	return NETDEV_TX_OK;
+ }
  
- 	srandom(time(0));
- 
-+	/* Ensure that vCPU threads start with SIG_IPI blocked.  */
-+	sigemptyset(&sigset);
-+	sigaddset(&sigset, SIG_IPI);
-+	pthread_sigmask(SIG_BLOCK, &sigset, NULL);
-+
- 	if (host_log_mode_option == LOG_MODE_ALL) {
- 		/* Run each log mode */
- 		for (i = 0; i < LOG_MODE_NUM; i++) {
 
 
