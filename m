@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ACE037C6CD
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D845837C6CA
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235420AbhELPyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46968 "EHLO mail.kernel.org"
+        id S235143AbhELPyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:54:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237498AbhELPuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:50:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B8C26162A;
-        Wed, 12 May 2021 15:25:59 +0000 (UTC)
+        id S237492AbhELPup (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:50:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3011616EA;
+        Wed, 12 May 2021 15:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833159;
-        bh=gw1Afw53UvsovybQ58JuwZqUGKXyZQBYkUTIuOG48cs=;
+        s=korg; t=1620833162;
+        bh=cMgUOpW2FQKft7wZwg3LTxajBQRbrNJjHDMZL7YK6OA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBMzBZKBe52nk8aHyzlP4uI7EUGjpKJdM2uPIxllZa7KaVSjy/2nQZghHjfMLhOBL
-         iTCyfz6UL/iSu3UqcbWfKyulUzGqNeRgQLiuekkchC386pHZOfEXVIAkZ66zMdfoWS
-         Z2KdMi5EaW89i+NAKWIwtkYpEO0jxY2+EG1iOvbc=
+        b=TvTvT/iBGBga6eIdF7LznOeI5boOQ8jgt8B3sDSsBtJ/Vdg9kkVCC2EIUNFRIAKMu
+         As0dhEuNqOS4NBtsb2G90GfgWB+KkMG4BZ45zYZzpfm0fmlMp+oJ2Am0CM0yM4ouH5
+         COjiSv6zLGqTO6hGFkMvMevTSi38HROmHIZMYZqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Swapnil Jakhade <sjakhade@cadence.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.11 042/601] phy: ti: j721e-wiz: Invoke wiz_init() before of_platform_device_create()
-Date:   Wed, 12 May 2021 16:41:59 +0200
-Message-Id: <20210512144829.203900515@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH 5.11 043/601] misc: vmw_vmci: explicitly initialize vmci_notify_bm_set_msg struct
+Date:   Wed, 12 May 2021 16:42:00 +0200
+Message-Id: <20210512144829.245087804@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,64 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit f7eb147d306ad2efae6837e20d2944f03be42eb4 upstream.
+commit 376565b9717c30cd58ad33860fa42697615fa2e4 upstream.
 
-Invoke wiz_init() before configuring anything else in Sierra/Torrent
-(invoked as part of of_platform_device_create()). wiz_init() resets the
-SERDES device and any configuration done in the probe() of
-Sierra/Torrent will be lost. In order to prevent SERDES configuration
-from getting reset, invoke wiz_init() immediately before invoking
-of_platform_device_create().
+KMSAN complains that the vmci_use_ppn64() == false path in
+vmci_dbell_register_notification_bitmap() left upper 32bits of
+bitmap_set_msg.bitmap_ppn64 member uninitialized.
 
-Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Reviewed-by: Swapnil Jakhade <sjakhade@cadence.com>
-Cc: <stable@vger.kernel.org> # v5.10
-Link: https://lore.kernel.org/r/20210319124128.13308-3-kishon@ti.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+  =====================================================
+  BUG: KMSAN: uninit-value in kmsan_check_memory+0xd/0x10
+  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.11.0-rc7+ #4
+  Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 02/27/2020
+  Call Trace:
+   dump_stack+0x21c/0x280
+   kmsan_report+0xfb/0x1e0
+   kmsan_internal_check_memory+0x484/0x520
+   kmsan_check_memory+0xd/0x10
+   iowrite8_rep+0x86/0x380
+   vmci_send_datagram+0x150/0x280
+   vmci_dbell_register_notification_bitmap+0x133/0x1e0
+   vmci_guest_probe_device+0xcab/0x1e70
+   pci_device_probe+0xab3/0xe70
+   really_probe+0xd16/0x24d0
+   driver_probe_device+0x29d/0x3a0
+   device_driver_attach+0x25a/0x490
+   __driver_attach+0x78c/0x840
+   bus_for_each_dev+0x210/0x340
+   driver_attach+0x89/0xb0
+   bus_add_driver+0x677/0xc40
+   driver_register+0x485/0x8e0
+   __pci_register_driver+0x1ff/0x350
+   vmci_guest_init+0x3e/0x41
+   vmci_drv_init+0x1d6/0x43f
+   do_one_initcall+0x39c/0x9a0
+   do_initcall_level+0x1d7/0x259
+   do_initcalls+0x127/0x1cb
+   do_basic_setup+0x33/0x36
+   kernel_init_freeable+0x29a/0x3ed
+   kernel_init+0x1f/0x840
+   ret_from_fork+0x1f/0x30
+
+  Local variable ----bitmap_set_msg@vmci_dbell_register_notification_bitmap created at:
+   vmci_dbell_register_notification_bitmap+0x50/0x1e0
+   vmci_dbell_register_notification_bitmap+0x50/0x1e0
+
+  Bytes 28-31 of 32 are uninitialized
+  Memory access of size 32 starts at ffff88810098f570
+  =====================================================
+
+Fixes: 83e2ec765be03e8a ("VMCI: doorbell implementation.")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Link: https://lore.kernel.org/r/20210402121742.3917-1-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/ti/phy-j721e-wiz.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/misc/vmw_vmci/vmci_doorbell.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/phy/ti/phy-j721e-wiz.c
-+++ b/drivers/phy/ti/phy-j721e-wiz.c
-@@ -947,27 +947,24 @@ static int wiz_probe(struct platform_dev
- 		goto err_get_sync;
- 	}
+--- a/drivers/misc/vmw_vmci/vmci_doorbell.c
++++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
+@@ -326,7 +326,7 @@ int vmci_dbell_host_context_notify(u32 s
+ bool vmci_dbell_register_notification_bitmap(u64 bitmap_ppn)
+ {
+ 	int result;
+-	struct vmci_notify_bm_set_msg bitmap_set_msg;
++	struct vmci_notify_bm_set_msg bitmap_set_msg = { };
  
-+	ret = wiz_init(wiz);
-+	if (ret) {
-+		dev_err(dev, "WIZ initialization failed\n");
-+		goto err_wiz_init;
-+	}
-+
- 	serdes_pdev = of_platform_device_create(child_node, NULL, dev);
- 	if (!serdes_pdev) {
- 		dev_WARN(dev, "Unable to create SERDES platform device\n");
- 		ret = -ENOMEM;
--		goto err_pdev_create;
--	}
--	wiz->serdes_pdev = serdes_pdev;
--
--	ret = wiz_init(wiz);
--	if (ret) {
--		dev_err(dev, "WIZ initialization failed\n");
- 		goto err_wiz_init;
- 	}
-+	wiz->serdes_pdev = serdes_pdev;
- 
- 	of_node_put(child_node);
- 	return 0;
- 
- err_wiz_init:
--	of_platform_device_destroy(&serdes_pdev->dev, NULL);
--
--err_pdev_create:
- 	wiz_clock_cleanup(wiz, node);
- 
- err_get_sync:
+ 	bitmap_set_msg.hdr.dst = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
+ 						  VMCI_SET_NOTIFY_BITMAP);
 
 
