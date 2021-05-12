@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4174437CB49
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCED937CB48
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242559AbhELQfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:35:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40576 "EHLO mail.kernel.org"
+        id S242553AbhELQfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241628AbhELQ1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241631AbhELQ1j (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:27:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 431DB61A30;
-        Wed, 12 May 2021 15:54:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BAF361DF8;
+        Wed, 12 May 2021 15:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834873;
-        bh=rigcsvvzu4YIbi4NhIMOsxnrrbh+Dyfbou3k5dmk+9k=;
+        s=korg; t=1620834875;
+        bh=EnObv8xYKv+69Vej1JTRTlBUA33xvcqzKGHFgrThe2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6xwsF/7Tzrn+kMshABmJtZu9yD2duc7RqVjEZw8OPJP5xVE+AipCjsMRBBPhemUg
-         bqzkOTE946lEAJL167oI24N2ZTYjbJdGPwvxF7/mufXbVolVzlOJRHF8Xz+MSl3lFT
-         KPU73o2VNNKXHfFo8O80g7awGZ0fut5w/2ks50yY=
+        b=yNAwB6wdyE3cjJKZWndHY/fNS6XcH88dGZOzgRlSdenHI4Y+DQ8uIlTjFS6PICNhv
+         VYlXPHG2eaihWhLIQfnRXNTtutlCtLZDf119qvsOurcEeiY1IkE0RzuHUpPvyMHuni
+         Me+0qorpdmA7Ve58RkQRZB/+jhOfrXYziS1t2tO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 118/677] KVM: nVMX: Defer the MMU reload to the normal path on an EPTP switch
-Date:   Wed, 12 May 2021 16:42:44 +0200
-Message-Id: <20210512144841.127846235@linuxfoundation.org>
+Subject: [PATCH 5.12 119/677] KVM: VMX: Truncate GPR value for DR and CR reads in !64-bit mode
+Date:   Wed, 12 May 2021 16:42:45 +0200
+Message-Id: <20210512144841.159275417@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,45 +41,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit c805f5d5585ab5e0cdac6b1ccf7086eb120fb7db upstream.
+commit d8971344f5739a9cc53f91f1f593ddd82265b93b upstream.
 
-Defer reloading the MMU after a EPTP successful EPTP switch.  The VMFUNC
-instruction itself is executed in the previous EPTP context, any side
-effects, e.g. updating RIP, should occur in the old context.  Practically
-speaking, this bug is benign as VMX doesn't touch the MMU when skipping
-an emulated instruction, nor does queuing a single-step #DB.  No other
-post-switch side effects exist.
+Drop bits 63:32 when storing a DR/CR to a GPR when the vCPU is not in
+64-bit mode.  Per the SDM:
 
-Fixes: 41ab93727467 ("KVM: nVMX: Emulate EPTP switching for the L1 hypervisor")
+  The operand size for these instructions is always 32 bits in non-64-bit
+  modes, regardless of the operand-size attribute.
+
+CR8 technically isn't affected as CR8 isn't accessible outside of 64-bit
+mode, but fix it up for consistency and to allow for future cleanup.
+
+Fixes: 6aa8b732ca01 ("[PATCH] kvm: userspace interface")
 Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210305011101.3597423-14-seanjc@google.com>
+Message-Id: <20210422022128.3464144-5-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -5479,16 +5479,11 @@ static int nested_vmx_eptp_switching(str
- 		if (!nested_vmx_check_eptp(vcpu, new_eptp))
- 			return 1;
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -5062,12 +5062,12 @@ static int handle_cr(struct kvm_vcpu *vc
+ 		case 3:
+ 			WARN_ON_ONCE(enable_unrestricted_guest);
+ 			val = kvm_read_cr3(vcpu);
+-			kvm_register_write(vcpu, reg, val);
++			kvm_register_writel(vcpu, reg, val);
+ 			trace_kvm_cr_read(cr, val);
+ 			return kvm_skip_emulated_instruction(vcpu);
+ 		case 8:
+ 			val = kvm_get_cr8(vcpu);
+-			kvm_register_write(vcpu, reg, val);
++			kvm_register_writel(vcpu, reg, val);
+ 			trace_kvm_cr_read(cr, val);
+ 			return kvm_skip_emulated_instruction(vcpu);
+ 		}
+@@ -5140,7 +5140,7 @@ static int handle_dr(struct kvm_vcpu *vc
+ 		unsigned long val;
  
--		kvm_mmu_unload(vcpu);
- 		mmu->ept_ad = accessed_dirty;
- 		mmu->mmu_role.base.ad_disabled = !accessed_dirty;
- 		vmcs12->ept_pointer = new_eptp;
--		/*
--		 * TODO: Check what's the correct approach in case
--		 * mmu reload fails. Currently, we just let the next
--		 * reload potentially fail
--		 */
--		kvm_mmu_reload(vcpu);
-+
-+		kvm_make_request(KVM_REQ_MMU_RELOAD, vcpu);
- 	}
- 
- 	return 0;
+ 		kvm_get_dr(vcpu, dr, &val);
+-		kvm_register_write(vcpu, reg, val);
++		kvm_register_writel(vcpu, reg, val);
+ 		err = 0;
+ 	} else {
+ 		err = kvm_set_dr(vcpu, dr, kvm_register_readl(vcpu, reg));
 
 
