@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B6A237C7A9
+	by mail.lfdr.de (Postfix) with ESMTP id A76BF37C7AA
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbhELQBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38450 "EHLO mail.kernel.org"
+        id S233741AbhELQBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:01:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237999AbhELP47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237998AbhELP47 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:56:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71ACA61CB7;
-        Wed, 12 May 2021 15:29:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9AEA61C29;
+        Wed, 12 May 2021 15:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833372;
-        bh=RgiJ1XGjbjMGNVHocAxoxMK8CyoRkRCA4bVz7b5/egA=;
+        s=korg; t=1620833374;
+        bh=CeRni4GKB62H0a4Yaj/oWpdu0wzBkcA8HQ0sgrnFasE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmIKpM8Il1zaIimQTJE15Su9QmXUUISL+D1i2dFph2U5wbqhzx5T1z3lS0fRzZZur
-         pvpRuJO8mZ7h6N4zSJFgzUJUb1YPiJ45ob+BGB6SgVhKh2KwP5wgqG+FezMjI9kQrt
-         oK4tTFYC+Nwfsc1/ll4PzVFoBl3bcP72UAQvPO0s=
+        b=GY2bTkSQxJ6syJOkB315pUjsPE5QSxD6CxzkXWkvJrnkArZN7kCHdu4Yu3O+uhQqT
+         cu4X1caVdoTmLh8av7+bAGPuC6x4clrxoDzYyoXyOQlAOOUxOS0nETmE8rSid/GsIi
+         Ucwjp5bjXWkBJj+Qmh4opekeeIpjQ2lfEu8whiU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
-        Michal Simek <michal.simek@xilinx.com>,
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        Borislav Petkov <bp@suse.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 123/601] firmware: xilinx: Remove zynqmp_pm_get_eemi_ops() in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE)
-Date:   Wed, 12 May 2021 16:43:20 +0200
-Message-Id: <20210512144831.877815536@linuxfoundation.org>
+Subject: [PATCH 5.11 124/601] x86/vdso: Use proper modifier for lens format specifier in extract()
+Date:   Wed, 12 May 2021 16:43:21 +0200
+Message-Id: <20210512144831.908543064@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,85 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 79bfe480a0a0b259ab9fddcd2fe52c03542b1196 ]
+[ Upstream commit 70c9d959226b7c5c48c119e2c1cfc1424f87b023 ]
 
-zynqmp_pm_get_eemi_ops() was removed in commit 4db8180ffe7c: "Firmware: xilinx:
-Remove eemi ops for fpga related APIs", but not in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE).
-Any driver who want to communicate with PMC using EEMI APIs use the functions provided
-for each function
-This removed zynqmp_pm_get_eemi_ops() in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE), and also
-modify the documentation for this driver.
+Commit
 
-Fixes: 4db8180ffe7c ("firmware: xilinx: Remove eemi ops for fpga related APIs")
-Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Link: https://lore.kernel.org/r/20210215155849.2425846-1-iwamatsu@nigauri.org
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+  8382c668ce4f ("x86/vdso: Add support for exception fixup in vDSO functions")
+
+prints length "len" which is size_t.
+
+Compilers now complain when building on a 32-bit host:
+
+  HOSTCC  arch/x86/entry/vdso/vdso2c
+  ...
+  In file included from arch/x86/entry/vdso/vdso2c.c:162:
+  arch/x86/entry/vdso/vdso2c.h: In function 'extract64':
+  arch/x86/entry/vdso/vdso2c.h:38:52: warning: format '%lu' expects argument of \
+	type 'long unsigned int', but argument 4 has type 'size_t' {aka 'unsigned int'}
+
+So use proper modifier (%zu) for size_t.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 8382c668ce4f ("x86/vdso: Add support for exception fixup in vDSO functions")
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+Link: https://lkml.kernel.org/r/20210303064357.17056-1-jslaby@suse.cz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/xilinx/eemi.rst | 31 ++----------------------
- include/linux/firmware/xlnx-zynqmp.h     |  5 ----
- 2 files changed, 2 insertions(+), 34 deletions(-)
+ arch/x86/entry/vdso/vdso2c.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/driver-api/xilinx/eemi.rst b/Documentation/driver-api/xilinx/eemi.rst
-index 9dcbc6f18d75..c1bc47b9000d 100644
---- a/Documentation/driver-api/xilinx/eemi.rst
-+++ b/Documentation/driver-api/xilinx/eemi.rst
-@@ -16,35 +16,8 @@ components running across different processing clusters on a chip or
- device to communicate with a power management controller (PMC) on a
- device to issue or respond to power management requests.
+diff --git a/arch/x86/entry/vdso/vdso2c.h b/arch/x86/entry/vdso/vdso2c.h
+index 1c7cfac7e64a..5264daa8859f 100644
+--- a/arch/x86/entry/vdso/vdso2c.h
++++ b/arch/x86/entry/vdso/vdso2c.h
+@@ -35,7 +35,7 @@ static void BITSFUNC(extract)(const unsigned char *data, size_t data_len,
+ 	if (offset + len > data_len)
+ 		fail("section to extract overruns input data");
  
--EEMI ops is a structure containing all eemi APIs supported by Zynq MPSoC.
--The zynqmp-firmware driver maintain all EEMI APIs in zynqmp_eemi_ops
--structure. Any driver who want to communicate with PMC using EEMI APIs
--can call zynqmp_pm_get_eemi_ops().
--
--Example of EEMI ops::
--
--	/* zynqmp-firmware driver maintain all EEMI APIs */
--	struct zynqmp_eemi_ops {
--		int (*get_api_version)(u32 *version);
--		int (*query_data)(struct zynqmp_pm_query_data qdata, u32 *out);
--	};
--
--	static const struct zynqmp_eemi_ops eemi_ops = {
--		.get_api_version = zynqmp_pm_get_api_version,
--		.query_data = zynqmp_pm_query_data,
--	};
--
--Example of EEMI ops usage::
--
--	static const struct zynqmp_eemi_ops *eemi_ops;
--	u32 ret_payload[PAYLOAD_ARG_CNT];
--	int ret;
--
--	eemi_ops = zynqmp_pm_get_eemi_ops();
--	if (IS_ERR(eemi_ops))
--		return PTR_ERR(eemi_ops);
--
--	ret = eemi_ops->query_data(qdata, ret_payload);
-+Any driver who wants to communicate with PMC using EEMI APIs use the
-+functions provided for each function.
- 
- IOCTL
- ------
-diff --git a/include/linux/firmware/xlnx-zynqmp.h b/include/linux/firmware/xlnx-zynqmp.h
-index 2a0da841c942..4ef77deaf791 100644
---- a/include/linux/firmware/xlnx-zynqmp.h
-+++ b/include/linux/firmware/xlnx-zynqmp.h
-@@ -355,11 +355,6 @@ int zynqmp_pm_read_pggs(u32 index, u32 *value);
- int zynqmp_pm_system_shutdown(const u32 type, const u32 subtype);
- int zynqmp_pm_set_boot_health_status(u32 value);
- #else
--static inline struct zynqmp_eemi_ops *zynqmp_pm_get_eemi_ops(void)
--{
--	return ERR_PTR(-ENODEV);
--}
--
- static inline int zynqmp_pm_get_api_version(u32 *version)
- {
- 	return -ENODEV;
+-	fprintf(outfile, "static const unsigned char %s[%lu] = {", name, len);
++	fprintf(outfile, "static const unsigned char %s[%zu] = {", name, len);
+ 	BITSFUNC(copy)(outfile, data + offset, len);
+ 	fprintf(outfile, "\n};\n\n");
+ }
 -- 
 2.30.2
 
