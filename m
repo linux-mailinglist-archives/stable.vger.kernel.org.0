@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D016037C4B3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5775437C4B4
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233823AbhELPcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57684 "EHLO mail.kernel.org"
+        id S233924AbhELPc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232542AbhELPWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:22:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 385C7619A7;
-        Wed, 12 May 2021 15:09:13 +0000 (UTC)
+        id S233130AbhELPWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:22:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D608619A9;
+        Wed, 12 May 2021 15:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832153;
-        bh=sk39f7BcW7qfsEqn3oDJHypA/aw9+AGbHS6rNghlAc0=;
+        s=korg; t=1620832158;
+        bh=nXDLBNMrHYxJwDY+JVZ/Pfhp5PNeJ7cfxZNcM0lP47I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYxKC+GocyOG+kwsgftInRP8xWHplYHbZxz9vYGNufShxL2AO164KW57F8eljmHrb
-         rryy7nln6D1mqkrOLfz958TwfJDuuOXllyJ79xUX8q7gn9ZSL/Y++dFHw1n/DvAvdl
-         EbEE8uvC35ZNaXNaxiSfq7A5jdyi/PrU0w9jS/ww=
+        b=I0B60YioYHlFbJC7+uk6vC5I8xOWSmcAbkovET7e2Oa1gCHziA3iY5JH/NnwWf2nP
+         GgxROLeYcVu1YMLXYXvMvx27nzwcPdKd/+E2DaANttoDA+6mbTIVjAZZgCOwYJNKtp
+         uYDhPIljZPaai302UgPB0DJnk6czCdUrBmAan0mU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Alain Volmat <alain.volmat@foss.st.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 163/530] regulator: bd9576: Fix return from bd957x_probe()
-Date:   Wed, 12 May 2021 16:44:33 +0200
-Message-Id: <20210512144825.195199698@linuxfoundation.org>
+Subject: [PATCH 5.10 165/530] spi: stm32: Fix use-after-free on unbind
+Date:   Wed, 12 May 2021 16:44:35 +0200
+Message-Id: <20210512144825.262262954@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,66 +41,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-[ Upstream commit 320fcd6bbd2b500923db518902c2c640242d2b50 ]
+[ Upstream commit 79c6246ae8793448c05da86a4c82298eed8549b0 ]
 
-The probe() function returns an uninitialized variable in the success
-path.  There is no need for the "err" variable at all, just delete it.
+stm32_spi_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-Fixes: b014e9fae7e7 ("regulator: Support ROHM BD9576MUF and BD9573MUF")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Link: https://lore.kernel.org/r/YEsbfLJfEWtnRpoU@mwanda
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
+
+Fixes: 8d559a64f00b ("spi: stm32: drop devres version of spi_register_master")
+
+Reported-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Link: https://lore.kernel.org/r/1616052290-10887-1-git-send-email-alain.volmat@foss.st.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/bd9576-regulator.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/spi/spi-stm32.c | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/regulator/bd9576-regulator.c b/drivers/regulator/bd9576-regulator.c
-index a8b5832a5a1b..204a2da054f5 100644
---- a/drivers/regulator/bd9576-regulator.c
-+++ b/drivers/regulator/bd9576-regulator.c
-@@ -206,7 +206,7 @@ static int bd957x_probe(struct platform_device *pdev)
- {
- 	struct regmap *regmap;
- 	struct regulator_config config = { 0 };
--	int i, err;
-+	int i;
- 	bool vout_mode, ddr_sel;
- 	const struct bd957x_regulator_data *reg_data = &bd9576_regulators[0];
- 	unsigned int num_reg_data = ARRAY_SIZE(bd9576_regulators);
-@@ -279,8 +279,7 @@ static int bd957x_probe(struct platform_device *pdev)
- 		break;
- 	default:
- 		dev_err(&pdev->dev, "Unsupported chip type\n");
--		err = -EINVAL;
--		goto err;
-+		return -EINVAL;
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index 8d8a32d46f2d..0318f02d6212 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -1830,7 +1830,7 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int ret;
+ 
+-	master = spi_alloc_master(&pdev->dev, sizeof(struct stm32_spi));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(struct stm32_spi));
+ 	if (!master) {
+ 		dev_err(&pdev->dev, "spi master allocation failed\n");
+ 		return -ENOMEM;
+@@ -1848,18 +1848,16 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	spi->base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(spi->base)) {
+-		ret = PTR_ERR(spi->base);
+-		goto err_master_put;
+-	}
++	if (IS_ERR(spi->base))
++		return PTR_ERR(spi->base);
+ 
+ 	spi->phys_addr = (dma_addr_t)res->start;
+ 
+ 	spi->irq = platform_get_irq(pdev, 0);
+-	if (spi->irq <= 0) {
+-		ret = dev_err_probe(&pdev->dev, spi->irq, "failed to get irq\n");
+-		goto err_master_put;
+-	}
++	if (spi->irq <= 0)
++		return dev_err_probe(&pdev->dev, spi->irq,
++				     "failed to get irq\n");
++
+ 	ret = devm_request_threaded_irq(&pdev->dev, spi->irq,
+ 					spi->cfg->irq_handler_event,
+ 					spi->cfg->irq_handler_thread,
+@@ -1867,20 +1865,20 @@ static int stm32_spi_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "irq%d request failed: %d\n", spi->irq,
+ 			ret);
+-		goto err_master_put;
++		return ret;
  	}
  
- 	config.dev = pdev->dev.parent;
-@@ -300,8 +299,7 @@ static int bd957x_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev,
- 				"failed to register %s regulator\n",
- 				desc->name);
--			err = PTR_ERR(rdev);
--			goto err;
-+			return PTR_ERR(rdev);
- 		}
- 		/*
- 		 * Clear the VOUT1 GPIO setting - rest of the regulators do not
-@@ -310,8 +308,7 @@ static int bd957x_probe(struct platform_device *pdev)
- 		config.ena_gpiod = NULL;
+ 	spi->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(spi->clk)) {
+ 		ret = PTR_ERR(spi->clk);
+ 		dev_err(&pdev->dev, "clk get failed: %d\n", ret);
+-		goto err_master_put;
++		return ret;
  	}
  
--err:
--	return err;
-+	return 0;
+ 	ret = clk_prepare_enable(spi->clk);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "clk enable failed: %d\n", ret);
+-		goto err_master_put;
++		return ret;
+ 	}
+ 	spi->clk_rate = clk_get_rate(spi->clk);
+ 	if (!spi->clk_rate) {
+@@ -1976,8 +1974,6 @@ err_dma_release:
+ 		dma_release_channel(spi->dma_rx);
+ err_clk_disable:
+ 	clk_disable_unprepare(spi->clk);
+-err_master_put:
+-	spi_master_put(master);
+ 
+ 	return ret;
  }
- 
- static const struct platform_device_id bd957x_pmic_id[] = {
 -- 
 2.30.2
 
