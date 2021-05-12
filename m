@@ -2,112 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CFBC37EDA0
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:42:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A75837EDA4
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:43:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387868AbhELUk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 16:40:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1378528AbhELT30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 15:29:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F240261289;
-        Wed, 12 May 2021 19:28:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620847698;
-        bh=6iFH/7DBOnYgqfe5St6V+48YFQ+dajzUksv+xrkUsXM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NABkE1qMrTm5hp+DTiRo3TkpP2G4mkyJttSzMR8Y22LiC01HWyuV05dDqK/ewus3n
-         dd6VOaD5aNtSQURQ8kRp9uz1m5Cc/Ra0UbiJmiXhAcIXiJ7GVgtEZPm16Um0joOpTL
-         XPrEGyluk73evRvFoArqhcPZDsYKj2ZA4OdhpuiZPFcjb9hdIXb9mDV0NcuBnx/97O
-         dsNeaIj671PKGTfr1d8+6iq5tuVmZHMwBwWzUAZm0+C5ukgFKFQWZdaNDqaxdbkude
-         tCrKDhCaSCkjw3MNqG4XbQV7l9mdkWigOI8vBURPgKLVn88AJbe8nb9decD16ghGaH
-         UBn/jWgWOOJqg==
-Date:   Wed, 12 May 2021 15:28:16 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Oliver Glitta <glittao@gmail.com>,
-        David Rientjes <rientjes@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 5.10 518/530] mm, slub: enable slub_debug static key when
- creating cache with explicit debug flags
-Message-ID: <YJwsUBfAmRlpFP+j@sashalap>
+        id S1387898AbhELUkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 16:40:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45502 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1381592AbhELTep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 15:34:45 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6242CC061574;
+        Wed, 12 May 2021 12:33:33 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id i13so19511185pfu.2;
+        Wed, 12 May 2021 12:33:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=CtHNkomvScSZ/Zj8c7hB1gXX93xa4VU3ymdVcHoZaIw=;
+        b=meXCsGDYCzphICBFoPwhalWvg1fWkq/2IzzUeIU4nulf0YfAkbpx010KOeHA/85Eui
+         7tTjitBQzqnXbxyQf1ymyh3WrjxbIgDdZGNTMMskCvFv12DzHBTsUvCvv0nDwlfR4sF2
+         WBwU33bp3H0wSHoE3VOo/GnzvW6ZtgekolXkbfVC8r78NKqEnUtjU6NWBkMXP7MJMh40
+         hpuPNQNg1wQ0CivANGZ+DUK3xsqamtBsSvSRx+HFODTot2/zm4hLR6Fmm0/fydgxKwtp
+         dbzf4nJL6UGssGr/P2CJ828hKyTZ6r4/zklIsXGXifiiggycw2LuahYuEY/DyPddYnYk
+         M5mw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=CtHNkomvScSZ/Zj8c7hB1gXX93xa4VU3ymdVcHoZaIw=;
+        b=I+wCpKmlmjETAUnIk3Dl41xSG2uEQWMU/IK7Uvkxzvw7+Gd8c5sgbUwALNZDZ+c00o
+         7k9rE8u1u5f9WG/gyVKEwCU6Y9u+VzlPh/74UM1s0Zn9CoDIhPW0Vn0mpe4whw9saxSN
+         0yduxDCAVBm4vcfxaftGOfjRQBGLRkiThtuD98B882AfijiUOn3FJ+enHGqov90S30+2
+         VL5UeQkDqkqtE1qX+kPNxacjk8LllZxprsQFrmbu3bt8cS08Sl0K6hzdCDm0xFGTKaOd
+         Hzmx6zm2es8hUjACVjMNbyqttuGg1KFVMH+a6ndnPEO4M3hfZbVKZifqabnBd5rslxHP
+         FkTA==
+X-Gm-Message-State: AOAM531DEvwv+XZJqvQyBH5qUEfV1txBp8oniJK569QLDMY965xMIQly
+        HB2PxPt4dWpNihRS9cSW60y+5c8ZeYQ=
+X-Google-Smtp-Source: ABdhPJxhiYUoMLT9u2K+CgDwEi+1Clhd/BBxHBmpV3M0BC8ne1cmtxzeDXBo63Ri0Tbe2L00f4CyUA==
+X-Received: by 2002:a17:90a:71c6:: with SMTP id m6mr119631pjs.174.1620848012540;
+        Wed, 12 May 2021 12:33:32 -0700 (PDT)
+Received: from [10.230.29.202] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id a16sm508091pfc.37.2021.05.12.12.33.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 May 2021 12:33:31 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/530] 5.10.37-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
 References: <20210512144819.664462530@linuxfoundation.org>
- <20210512144836.780038842@linuxfoundation.org>
- <dd590c4d-cb37-fd38-3ad7-96f677403b3c@suse.cz>
- <YJv5R0KNH+/EsWfX@kroah.com>
- <003ce4ee-304c-68cb-6871-cf01495438b6@suse.cz>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <e8f8f63d-a9a6-c6c1-1b90-5f2ca73181f6@gmail.com>
+Date:   Wed, 12 May 2021 12:33:30 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <003ce4ee-304c-68cb-6871-cf01495438b6@suse.cz>
+In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 12, 2021 at 07:25:24PM +0200, Vlastimil Babka wrote:
->On 5/12/21 5:50 PM, Greg Kroah-Hartman wrote:
->> On Wed, May 12, 2021 at 05:35:28PM +0200, Vlastimil Babka wrote:
->>> On 5/12/21 4:50 PM, Greg Kroah-Hartman wrote:
->>> > From: Vlastimil Babka <vbabka@suse.cz>
->>> >
->>> > [ Upstream commit 1f0723a4c0df36cbdffc6fac82cd3c5d57e06d66 ]
->>> >
->>> > Commit ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
->>> > introduced a static key to optimize the case where no debugging is
->>> > enabled for any cache.  The static key is enabled when slub_debug boot
->>> > parameter is passed, or CONFIG_SLUB_DEBUG_ON enabled.
->>> >
->>> > However, some caches might be created with one or more debugging flags
->>> > explicitly passed to kmem_cache_create(), and the commit missed this.
->>> > Thus the debugging functionality would not be actually performed for
->>> > these caches unless the static key gets enabled by boot param or config.
->>> >
->>> > This patch fixes it by checking for debugging flags passed to
->>> > kmem_cache_create() and enabling the static key accordingly.
->>> >
->>> > Note such explicit debugging flags should not be used outside of
->>> > debugging and testing as they will now enable the static key globally.
->>> > btrfs_init_cachep() creates a cache with SLAB_RED_ZONE but that's a
->>> > mistake that's being corrected [1].  rcu_torture_stats() creates a cache
->>> > with SLAB_STORE_USER, but that is a testing module so it's OK and will
->>> > start working as intended after this patch.
->>> >
->>> > Also note that in case of backports to kernels before v5.12 that don't
->>> > have 59450bbc12be ("mm, slab, slub: stop taking cpu hotplug lock"),
->>> > static_branch_enable_cpuslocked() should be used.
->>> >
->>> > [1] https://lore.kernel.org/linux-btrfs/20210315141824.26099-1-dsterba@suse.com/
->>> >
->>> > Link: https://lkml.kernel.org/r/20210315153415.24404-1-vbabka@suse.cz
->>> > Fixes: ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
->>> > Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
->>> > Reported-by: Oliver Glitta <glittao@gmail.com>
->>> > Acked-by: David Rientjes <rientjes@google.com>
->>> > Cc: Christoph Lameter <cl@linux.com>
->>> > Cc: Pekka Enberg <penberg@kernel.org>
->>> > Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
->>> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
->>> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
->>> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
->>> > Signed-off-by: Sasha Levin <sashal@kernel.org>
->>>
->>> Uh, rather not release this to stable without the followup fix:
->>> https://lore.kernel.org/linux-mm/20210504120019.26791-1-vbabka@suse.cz/
->>
->> Is that in Linus's tree yet?  If so, what is the git id?
->
->No, it's in mmotm, so no git id yet, but should make it to Linus during 5.13 rc's.
 
-I'll drop it for now, thanks!
 
+On 5/12/2021 7:41 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.37 release.
+> There are 530 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.37-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Thanks,
-Sasha
+Florian
