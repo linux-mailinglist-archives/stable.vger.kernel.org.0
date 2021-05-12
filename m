@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1957F37C24D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6768837C26A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231874AbhELPIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
+        id S231749AbhELPK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:10:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232905AbhELPGm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:06:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 209EA61444;
-        Wed, 12 May 2021 15:01:22 +0000 (UTC)
+        id S231739AbhELPHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:07:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CD516144F;
+        Wed, 12 May 2021 15:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831683;
-        bh=0R9efrNUh3BbrwxwdDk0iL10D1k9ywrVJUgu94nMF6s=;
+        s=korg; t=1620831686;
+        bh=c6XzrZkvxepgkrTJUHFxrIThGmNKjJWYxda0aNAqOog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrHWRvRwMUu9+BKLJBR7ehWI4VCcv9bywpOWObGuYZyYKXTkfOvmXsX+bp3hniBIe
-         KT//d5ZHkrfUvX8YQ8iVWEBYJURqgFJP64euFSZNY64tDiYzLN1JTzehVbfPyAt6dM
-         /n5VXVgAnTFor2JGCTEnGRHtYr3via9wfdhxhG4s=
+        b=cQ0PmI7SvU6Y0Cx5CGmcPcB0eaVJDbitE9Df2b2XR1ZeFFiOeK6Yc4JEa30hnzvJK
+         8gQnik6M8Jhska8UpJCB88uus0jn/dhnXHsHPyGEKw2Q4ZzrQZGfhN8kmHfePGBe0J
+         Q/cZVVPf5wGWoXrmniPRg3I5gkAyF6AvW63ZBieQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 218/244] ALSA: usb: midi: dont return -ENOMEM when usb_urb_ep_type_check fails
-Date:   Wed, 12 May 2021 16:49:49 +0200
-Message-Id: <20210512144749.976108194@linuxfoundation.org>
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 219/244] net: davinci_emac: Fix incorrect masking of tx and rx error channel
+Date:   Wed, 12 May 2021 16:49:50 +0200
+Message-Id: <20210512144750.010789608@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -41,38 +42,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit cfd577acb769301b19c31361d45ae1f145318b7a ]
+[ Upstream commit d83b8aa5207d81f9f6daec9888390f079cc5db3f ]
 
-Currently when the call to usb_urb_ep_type_check fails (returning -EINVAL)
-the error return path returns -ENOMEM via the exit label "error". Other
-uses of the same error exit label set the err variable to -ENOMEM but this
-is not being used.  I believe the original intent was for the error exit
-path to return the value in err rather than the hard coded -ENOMEM, so
-return this rather than the hard coded -ENOMEM.
+The bit-masks used for the TXERRCH and RXERRCH (tx and rx error channels)
+are incorrect and always lead to a zero result. The mask values are
+currently the incorrect post-right shifted values, fix this by setting
+them to the currect values.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 738d9edcfd44 ("ALSA: usb-audio: Add sanity checks for invalid EPs")
+(I double checked these against the TMS320TCI6482 data sheet, section
+5.30, page 127 to ensure I had the correct mask values for the TXERRCH
+and RXERRCH fields in the MACSTATUS register).
+
+Addresses-Coverity: ("Operands don't affect result")
+Fixes: a6286ee630f6 ("net: Add TI DaVinci EMAC driver")
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210420134719.381409-1-colin.king@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/midi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ti/davinci_emac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/usb/midi.c b/sound/usb/midi.c
-index 1cc17c449407..c205a26ef509 100644
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1332,7 +1332,7 @@ static int snd_usbmidi_in_endpoint_create(struct snd_usb_midi *umidi,
+diff --git a/drivers/net/ethernet/ti/davinci_emac.c b/drivers/net/ethernet/ti/davinci_emac.c
+index ae27be85e363..7cc09a6f9f9a 100644
+--- a/drivers/net/ethernet/ti/davinci_emac.c
++++ b/drivers/net/ethernet/ti/davinci_emac.c
+@@ -169,11 +169,11 @@ static const char emac_version_string[] = "TI DaVinci EMAC Linux v6.1";
+ /* EMAC mac_status register */
+ #define EMAC_MACSTATUS_TXERRCODE_MASK	(0xF00000)
+ #define EMAC_MACSTATUS_TXERRCODE_SHIFT	(20)
+-#define EMAC_MACSTATUS_TXERRCH_MASK	(0x7)
++#define EMAC_MACSTATUS_TXERRCH_MASK	(0x70000)
+ #define EMAC_MACSTATUS_TXERRCH_SHIFT	(16)
+ #define EMAC_MACSTATUS_RXERRCODE_MASK	(0xF000)
+ #define EMAC_MACSTATUS_RXERRCODE_SHIFT	(12)
+-#define EMAC_MACSTATUS_RXERRCH_MASK	(0x7)
++#define EMAC_MACSTATUS_RXERRCH_MASK	(0x700)
+ #define EMAC_MACSTATUS_RXERRCH_SHIFT	(8)
  
-  error:
- 	snd_usbmidi_in_endpoint_delete(ep);
--	return -ENOMEM;
-+	return err;
- }
- 
- /*
+ /* EMAC RX register masks */
 -- 
 2.30.2
 
