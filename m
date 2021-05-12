@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7036337C100
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1704437C103
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232177AbhELOzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:55:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43384 "EHLO mail.kernel.org"
+        id S231382AbhELOzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231904AbhELOzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:55:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3F366142E;
-        Wed, 12 May 2021 14:53:56 +0000 (UTC)
+        id S231936AbhELOzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:55:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15B13613C7;
+        Wed, 12 May 2021 14:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831237;
-        bh=/TGn1ylnDOkxje5xAdCTcJJcxT70LSEBYIgHAvb7fHI=;
+        s=korg; t=1620831240;
+        bh=JNzJkqclgj+qsZsTqLZTYNawv6r4r9lTzok9va8Pi1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=grhBsQLA7uee843DukVT34bzjYL2CpqHYjgbO/1BPXWI6W86DbuDlf1wKjGnlgoGD
-         YzsTkIgS7H3R4Ykb8citEUsanp6Jt0j7BUidIQxdnPbrx/k+nnRr28ys+o0hEr0UPI
-         EfczzUOyvYCUDiTWo1l9LNprhyLczQzlDYV5Hjis=
+        b=jlo5n7OLMewWRGUb21cs4MMNu/1rqf6O1WWlP54W8LItnl+Sx6EyBVofjpV34vORu
+         1dnCpf3D5F0/i/BjjXMwYKvvxXYxc3l5RabbcVFBSjTXtCC7KDJwyBHuLzGSCDHYtL
+         42JZAQACbKEr9y8PUgauJxQOL4T9ZA8Vc0wXhWKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?=D0=91=D0=BE=D0=B3=D0=B4=D0=B0=D0=BD=20=D0=9F=D0=B8=D0=BB=D0=B8=D0=BF=D0=B5=D0=BD=D0=BA=D0=BE?= 
-        <bogdan.pylypenko107@gmail.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 038/244] rtw88: Fix array overrun in rtw_get_tx_power_params()
-Date:   Wed, 12 May 2021 16:46:49 +0200
-Message-Id: <20210512144744.273087613@linuxfoundation.org>
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH 5.4 039/244] drm/panfrost: Clear MMU irqs before handling the fault
+Date:   Wed, 12 May 2021 16:46:50 +0200
+Message-Id: <20210512144744.303606033@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -43,105 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit 2ff25985ea9ccc6c9af2c77b0b49045adcc62e0e upstream.
+commit 3aa0a80fc692c9959c261f4c5bfe9c23ddd90562 upstream.
 
-Using a kernel with the Undefined Behaviour Sanity Checker (UBSAN) enabled, the
-following array overrun is logged:
+When a fault is handled it will unblock the GPU which will continue
+executing its shader and might fault almost immediately on a different
+page. If we clear interrupts after handling the fault we might miss new
+faults, so clear them before.
 
-================================================================================
-UBSAN: array-index-out-of-bounds in /home/finger/wireless-drivers-next/drivers/net/wireless/realtek/rtw88/phy.c:1789:34
-index 5 is out of range for type 'u8 [5]'
-CPU: 2 PID: 84 Comm: kworker/u16:3 Tainted: G           O      5.12.0-rc5-00086-gd88bba47038e-dirty #651
-Hardware name: TOSHIBA TECRA A50-A/TECRA A50-A, BIOS Version 4.50   09/29/2014
-Workqueue: phy0 ieee80211_scan_work [mac80211]
-Call Trace:
- dump_stack+0x64/0x7c
- ubsan_epilogue+0x5/0x40
- __ubsan_handle_out_of_bounds.cold+0x43/0x48
- rtw_get_tx_power_params+0x83a/drivers/net/wireless/realtek/rtw88/0xad0 [rtw_core]
- ? rtw_pci_read16+0x20/0x20 [rtw_pci]
- ? check_hw_ready+0x50/0x90 [rtw_core]
- rtw_phy_get_tx_power_index+0x4d/0xd0 [rtw_core]
- rtw_phy_set_tx_power_level+0xee/0x1b0 [rtw_core]
- rtw_set_channel+0xab/0x110 [rtw_core]
- rtw_ops_config+0x87/0xc0 [rtw_core]
- ieee80211_hw_config+0x9d/0x130 [mac80211]
- ieee80211_scan_state_set_channel+0x81/0x170 [mac80211]
- ieee80211_scan_work+0x19f/0x2a0 [mac80211]
- process_one_work+0x1dd/0x3a0
- worker_thread+0x49/0x330
- ? rescuer_thread+0x3a0/0x3a0
- kthread+0x134/0x150
- ? kthread_create_worker_on_cpu+0x70/0x70
- ret_from_fork+0x22/0x30
-================================================================================
-
-The statement where an array is being overrun is shown in the following snippet:
-
-	if (rate <= DESC_RATE11M)
-		tx_power = pwr_idx_2g->cck_base[group];
-	else
-====>		tx_power = pwr_idx_2g->bw40_base[group];
-
-The associated arrays are defined in main.h as follows:
-
-struct rtw_2g_txpwr_idx {
-	u8 cck_base[6];
-	u8 bw40_base[5];
-	struct rtw_2g_1s_pwr_idx_diff ht_1s_diff;
-	struct rtw_2g_ns_pwr_idx_diff ht_2s_diff;
-	struct rtw_2g_ns_pwr_idx_diff ht_3s_diff;
-	struct rtw_2g_ns_pwr_idx_diff ht_4s_diff;
-};
-
-The problem arises because the value of group is 5 for channel 14. The trivial
-increase in the dimension of bw40_base fails as this struct must match the layout of
-efuse. The fix is to add the rate as an argument to rtw_get_channel_group() and set
-the group for channel 14 to 4 if rate <= DESC_RATE11M.
-
-This patch fixes commit fa6dfe6bff24 ("rtw88: resolve order of tx power setting routines")
-
-Fixes: fa6dfe6bff24 ("rtw88: resolve order of tx power setting routines")
-Reported-by: Богдан Пилипенко <bogdan.pylypenko107@gmail.com>
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210401192717.28927-1-Larry.Finger@lwfinger.net
+Cc: <stable@vger.kernel.org>
+Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210205111757.585248-2-boris.brezillon@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtw88/phy.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_mmu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtw88/phy.c
-+++ b/drivers/net/wireless/realtek/rtw88/phy.c
-@@ -1451,7 +1451,7 @@ void rtw_phy_load_tables(struct rtw_dev
+--- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+@@ -600,6 +600,8 @@ static irqreturn_t panfrost_mmu_irq_hand
+ 		access_type = (fault_status >> 8) & 0x3;
+ 		source_id = (fault_status >> 16);
+ 
++		mmu_write(pfdev, MMU_INT_CLEAR, mask);
++
+ 		/* Page fault only */
+ 		ret = -1;
+ 		if ((status & mask) == BIT(i) && (exception_type & 0xF8) == 0xC0)
+@@ -623,8 +625,6 @@ static irqreturn_t panfrost_mmu_irq_hand
+ 				access_type, access_type_name(pfdev, fault_status),
+ 				source_id);
+ 
+-		mmu_write(pfdev, MMU_INT_CLEAR, mask);
+-
+ 		status &= ~mask;
  	}
- }
  
--static u8 rtw_get_channel_group(u8 channel)
-+static u8 rtw_get_channel_group(u8 channel, u8 rate)
- {
- 	switch (channel) {
- 	default:
-@@ -1495,6 +1495,7 @@ static u8 rtw_get_channel_group(u8 chann
- 	case 106:
- 		return 4;
- 	case 14:
-+		return rate <= DESC_RATE11M ? 5 : 4;
- 	case 108:
- 	case 110:
- 	case 112:
-@@ -1744,7 +1745,7 @@ void rtw_get_tx_power_params(struct rtw_
- 	s8 *limit = &pwr_param->pwr_limit;
- 
- 	pwr_idx = &rtwdev->efuse.txpwr_idx_table[path];
--	group = rtw_get_channel_group(ch);
-+	group = rtw_get_channel_group(ch, rate);
- 
- 	/* base power index for 2.4G/5G */
- 	if (ch <= 14) {
 
 
