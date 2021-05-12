@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3266437C515
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C13A537C494
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232846AbhELPdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:33:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37004 "EHLO mail.kernel.org"
+        id S232764AbhELPcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234982AbhELP0G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:26:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C86E619EE;
-        Wed, 12 May 2021 15:11:13 +0000 (UTC)
+        id S235481AbhELP2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA1B261920;
+        Wed, 12 May 2021 15:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832273;
-        bh=E8NAsm444CS1PX3bfV1zlCkMeo/zNbsFaO2va+Kysok=;
+        s=korg; t=1620832393;
+        bh=hqvy69HtMm1rNbYf/Vz4kiHG2W7xUeNDEF+DV6STzGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCrt48424wwknvTogbzMdX/xhUCpXE63n1q9zM3NL3gatsj4zAv58sCXbrXb3cv+E
-         fjbxNVTcN/YB++oVrEsDCVHlmnuYHGkZyOC9wvsodNinsJJKI0pMMHzcijvGdOE5Zg
-         JoEkDDVaS8rXJ5c7RqKpMq6FwpeIS0BZJpowLpu4=
+        b=GuB/Z/uKtPPgqS1C6wrsrQs4lhE0YZQ+839DzmYJpJ6XEaLKymAfbmvu61bI30rkl
+         MD5g6kxTgbsGhp/H1DBSfnpSFyVnvcVWQkZXt5qhv0Pnut8SuTBmzGoPE5ATKvZ1hM
+         Cze1/t/RBerK2An0XXwF2ktiRm34bQPyunGEcqi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 211/530] staging: fwserial: fix TIOCSSERIAL implementation
-Date:   Wed, 12 May 2021 16:45:21 +0200
-Message-Id: <20210512144826.781072131@linuxfoundation.org>
+Subject: [PATCH 5.10 217/530] clocksource/drivers/timer-ti-dm: Add missing set_state_oneshot_stopped
+Date:   Wed, 12 May 2021 16:45:27 +0200
+Message-Id: <20210512144826.967377350@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,47 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit a7eaaa9d1032e68669bb479496087ba8fc155ab6 ]
+[ Upstream commit ac4daf737674b4d29e19b7c300caff3bcf7160d8 ]
 
-TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
-serial devices is only useful for setting the close_delay and
-closing_wait parameters.
+To avoid spurious timer interrupts when KTIME_MAX is used, we need to
+configure set_state_oneshot_stopped(). Although implementing this is
+optional, it still affects things like power management for the extra
+timer interrupt.
 
-A non-privileged user has only ever been able to set the since long
-deprecated ASYNC_SPD flags and trying to change any other *supported*
-feature should result in -EPERM being returned. Setting the current
-values for any supported features should return success.
+For more information, please see commit 8fff52fd5093 ("clockevents:
+Introduce CLOCK_EVT_STATE_ONESHOT_STOPPED state") and commit cf8c5009ee37
+("clockevents/drivers/arm_arch_timer: Implement
+->set_state_oneshot_stopped()").
 
-Fix the fwserial implementation which was returning -EPERM also for a
-privileged user when trying to change certain unsupported parameters,
-and instead return success consistently.
-
-Fixes: 7355ba3445f2 ("staging: fwserial: Add TTY-over-Firewire serial driver")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-4-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210304072135.52712-4-tony@atomide.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/fwserial/fwserial.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/clocksource/timer-ti-dm-systimer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
-index 440d11423812..2888b80a2c1a 100644
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -1234,10 +1234,6 @@ static int set_serial_info(struct tty_struct *tty,
- 	struct fwtty_port *port = tty->driver_data;
- 	unsigned int cdelay;
+diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
+index 422376680c8a..3fae9ebb58b8 100644
+--- a/drivers/clocksource/timer-ti-dm-systimer.c
++++ b/drivers/clocksource/timer-ti-dm-systimer.c
+@@ -554,6 +554,7 @@ static int __init dmtimer_clockevent_init(struct device_node *np)
+ 	dev->set_state_shutdown = dmtimer_clockevent_shutdown;
+ 	dev->set_state_periodic = dmtimer_set_periodic;
+ 	dev->set_state_oneshot = dmtimer_clockevent_shutdown;
++	dev->set_state_oneshot_stopped = dmtimer_clockevent_shutdown;
+ 	dev->tick_resume = dmtimer_clockevent_shutdown;
+ 	dev->cpumask = cpu_possible_mask;
  
--	if (ss->irq != 0 || ss->port != 0 || ss->custom_divisor != 0 ||
--	    ss->baud_base != 400000000)
--		return -EPERM;
--
- 	cdelay = msecs_to_jiffies(ss->close_delay * 10);
- 
- 	mutex_lock(&port->port.mutex);
 -- 
 2.30.2
 
