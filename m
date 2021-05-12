@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A086D37CE3C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B5537CE42
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239094AbhELREB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
+        id S239166AbhELRET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:04:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234281AbhELQm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234117AbhELQm7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 897BE61E57;
-        Wed, 12 May 2021 16:12:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B02561E64;
+        Wed, 12 May 2021 16:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835960;
-        bh=/hQTqqhVII6R5FKYAmWrl2YL7BJboSQZ9i0Vpj164F0=;
+        s=korg; t=1620835964;
+        bh=XyoH+qk/tMcgVpA7XWQ+Q7AXp34/28+L/irQUMDMy6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9B7Q1uoRx49tIzNlNbd1MIQREPyud53xC89XuouHYozmc7xjm2ifnrkjxSfojIiQ
-         QBA5XGVXZ3o1qqbGXYMkeutJ4gwRc2W1afxI4L4OeqDqkZs+Wcuwk+E55issC007Aa
-         XLQqptncz7HXQTmghNlmTK/56moXq/niksqey1LE=
+        b=1TrcB0NFbomjCSdl4HBOPyDIw8EdFJYO2zltFOPc9mQNp+7O4EFsBB3VzezSSztEf
+         UILQbPqw5hmDnsEO6+meYp//ITUdPTQyrDcyP9fyIf1pnkdBq8SMLjdFFc2DCu4iWc
+         TqfCJZ0B7UE+dhAQNqsO9Mh1k+5DKJwT5h62k0KA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
+        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 553/677] RDMA/srpt: Fix error return code in srpt_cm_req_recv()
-Date:   Wed, 12 May 2021 16:49:59 +0200
-Message-Id: <20210512144855.760922910@linuxfoundation.org>
+Subject: [PATCH 5.12 554/677] RDMA/rtrs-clt: destroy sysfs after removing session from active list
+Date:   Wed, 12 May 2021 16:50:00 +0200
+Message-Id: <20210512144855.791184310@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,34 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Gioh Kim <gi-oh.kim@ionos.com>
 
-[ Upstream commit 6bc950beff0c440ac567cdc4e7f4542a9920953d ]
+[ Upstream commit 7f4a8592ff29f19c5a2ca549d0973821319afaad ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+A session can be removed dynamically by sysfs interface "remove_path" that
+eventually calls rtrs_clt_remove_path_from_sysfs function.  The current
+rtrs_clt_remove_path_from_sysfs first removes the sysfs interfaces and
+frees sess->stats object. Second it removes the session from the active
+list.
 
-Fixes: db7683d7deb2 ("IB/srpt: Fix login-related race conditions")
-Link: https://lore.kernel.org/r/20210408113132.87250-1-wangwensheng4@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Therefore some functions could access non-connected session and access the
+freed sess->stats object even-if they check the session status before
+accessing the session.
+
+For instance rtrs_clt_request and get_next_path_min_inflight check the
+session status and try to send IO to the session.  The session status
+could be changed when they are trying to send IO but they could not catch
+the change and update the statistics information in sess->stats object,
+and generate use-after-free problem.
+(see: "RDMA/rtrs-clt: Check state of the rtrs_clt_sess before reading its
+stats")
+
+This patch changes the rtrs_clt_remove_path_from_sysfs to remove the
+session from the active session list and then destroy the sysfs
+interfaces.
+
+Each function still should check the session status because closing or
+error recovery paths can change the status.
+
+Fixes: 6a98d71daea1 ("RDMA/rtrs: client: main functionality")
+Link: https://lore.kernel.org/r/20210412084002.33582-1-gi-oh.kim@ionos.com
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
-index 6be60aa5ffe2..7f0420ad9057 100644
---- a/drivers/infiniband/ulp/srpt/ib_srpt.c
-+++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -2378,6 +2378,7 @@ static int srpt_cm_req_recv(struct srpt_device *const sdev,
- 		pr_info("rejected SRP_LOGIN_REQ because target %s_%d is not enabled\n",
- 			dev_name(&sdev->device->dev), port_num);
- 		mutex_unlock(&sport->mutex);
-+		ret = -EINVAL;
- 		goto reject;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+index 6734329cca33..959ba0462ef0 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -2784,8 +2784,8 @@ int rtrs_clt_remove_path_from_sysfs(struct rtrs_clt_sess *sess,
+ 	} while (!changed && old_state != RTRS_CLT_DEAD);
+ 
+ 	if (likely(changed)) {
+-		rtrs_clt_destroy_sess_files(sess, sysfs_self);
+ 		rtrs_clt_remove_path_from_arr(sess);
++		rtrs_clt_destroy_sess_files(sess, sysfs_self);
+ 		kobject_put(&sess->kobj);
  	}
  
 -- 
