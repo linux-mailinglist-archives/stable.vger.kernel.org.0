@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E71AD37CE7F
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA81F37CE6E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344875AbhELRF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37578 "EHLO mail.kernel.org"
+        id S243194AbhELRFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236309AbhELQn4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:43:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1826A61183;
-        Wed, 12 May 2021 16:13:58 +0000 (UTC)
+        id S236374AbhELQn5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:43:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89B6861E68;
+        Wed, 12 May 2021 16:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836039;
-        bh=PbfKYe+osiPgdsnQSlzfrRC76DNdtXx/z2RiJMzamGA=;
+        s=korg; t=1620836042;
+        bh=Yi7a76Xqz2dyROR/LuHq02uv2UfJ5IpCohE1rMnHwTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOXHdITk6y6jD/SXaLLHBAvn66uyaQuibPC7awlFHIdWKdSynd4oEiQDjAgshoL/5
-         dTM3Ut3nBQAy1eO5llCq451lArQaTye5cV+ohJaVXkiq/Gdjsf2RYbFvjYyYk4o9gQ
-         Q/neaSIi/+NkwAh+plnSsGKHip6FbfkmDjGOYn9o=
+        b=EPIcwReW/tCL8JIfH6EP65l/mKMVs4ZE13b0n4j8IV1uwsDq4WWYggvwyHGVTA91w
+         e52yy9y3AP7DSLZLoUQjX7BH597EtysrpyiEzkmlNiLsL00hgfAPwMTMRMX6El76RG
+         cK99O7W2m2gaRyT30dTfJdOZGiZtOiDNTyvwx+fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        Liviu Dudau <Liviu.Dudau@arm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 585/677] MIPS: pci-legacy: stop using of_pci_range_to_resource
-Date:   Wed, 12 May 2021 16:50:31 +0200
-Message-Id: <20210512144856.822392702@linuxfoundation.org>
+Subject: [PATCH 5.12 586/677] powerpc/pseries: extract host bridge from pci_bus prior to bus removal
+Date:   Wed, 12 May 2021 16:50:32 +0200
+Message-Id: <20210512144856.852247618@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,60 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit 3ecb9dc1581eebecaee56decac70e35365260866 ]
+[ Upstream commit 38d0b1c9cec71e6d0f3bddef0bbce41d05a3e796 ]
 
-Mirror commit aeba3731b150 ("powerpc/pci: Fix IO space breakage after
-of_pci_range_to_resource() change").
+The pci_bus->bridge reference may no longer be valid after
+pci_bus_remove() resulting in passing a bad value to device_unregister()
+for the associated bridge device.
 
-Most MIPS platforms do not define PCI_IOBASE, nor implement
-pci_address_to_pio(). Moreover, IO_SPACE_LIMIT is 0xffff for most MIPS
-platforms. of_pci_range_to_resource passes the _start address_ of the IO
-range into pci_address_to_pio, which then checks it against
-IO_SPACE_LIMIT and fails, because for MIPS platforms that use
-pci-legacy (pci-lantiq, pci-rt3883, pci-mt7620), IO ranges start much
-higher than 0xffff.
+Store the host_bridge reference in a separate variable prior to
+pci_bus_remove().
 
-In fact, pci-mt7621 in staging already works around this problem, see
-commit 09dd629eeabb ("staging: mt7621-pci: fix io space and properly set
-resource limits")
-
-So just stop using of_pci_range_to_resource, which does not work for
-MIPS.
-
-Fixes PCI errors like:
-  pci_bus 0000:00: root bus resource [io  0xffffffff]
-
-Fixes: 0b0b0893d49b ("of/pci: Fix the conversion of IO ranges into IO resources")
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Cc: Liviu Dudau <Liviu.Dudau@arm.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 7340056567e3 ("powerpc/pci: Reorder pci bus/bridge unregistration during PHB removal")
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210211182435.47968-1-tyreld@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/pci/pci-legacy.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/pci_dlpar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/pci/pci-legacy.c b/arch/mips/pci/pci-legacy.c
-index 39052de915f3..3a909194284a 100644
---- a/arch/mips/pci/pci-legacy.c
-+++ b/arch/mips/pci/pci-legacy.c
-@@ -166,8 +166,13 @@ void pci_load_of_ranges(struct pci_controller *hose, struct device_node *node)
- 			res = hose->mem_resource;
- 			break;
- 		}
--		if (res != NULL)
--			of_pci_range_to_resource(&range, node, res);
-+		if (res != NULL) {
-+			res->name = node->full_name;
-+			res->flags = range.flags;
-+			res->start = range.cpu_addr;
-+			res->end = range.cpu_addr + range.size - 1;
-+			res->parent = res->child = res->sibling = NULL;
-+		}
- 	}
- }
+diff --git a/arch/powerpc/platforms/pseries/pci_dlpar.c b/arch/powerpc/platforms/pseries/pci_dlpar.c
+index f9ae17e8a0f4..a8f9140a24fa 100644
+--- a/arch/powerpc/platforms/pseries/pci_dlpar.c
++++ b/arch/powerpc/platforms/pseries/pci_dlpar.c
+@@ -50,6 +50,7 @@ EXPORT_SYMBOL_GPL(init_phb_dynamic);
+ int remove_phb_dynamic(struct pci_controller *phb)
+ {
+ 	struct pci_bus *b = phb->bus;
++	struct pci_host_bridge *host_bridge = to_pci_host_bridge(b->bridge);
+ 	struct resource *res;
+ 	int rc, i;
  
+@@ -76,7 +77,8 @@ int remove_phb_dynamic(struct pci_controller *phb)
+ 	/* Remove the PCI bus and unregister the bridge device from sysfs */
+ 	phb->bus = NULL;
+ 	pci_remove_bus(b);
+-	device_unregister(b->bridge);
++	host_bridge->bus = NULL;
++	device_unregister(&host_bridge->dev);
+ 
+ 	/* Now release the IO resource */
+ 	if (res->flags & IORESOURCE_IO)
 -- 
 2.30.2
 
