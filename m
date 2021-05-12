@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19AEA37C0CF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:53:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A59B337C0D2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbhELOyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:54:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42902 "EHLO mail.kernel.org"
+        id S231502AbhELOyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:54:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231631AbhELOyM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:54:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33F1F613C7;
-        Wed, 12 May 2021 14:53:04 +0000 (UTC)
+        id S231660AbhELOyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:54:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B3B5613AF;
+        Wed, 12 May 2021 14:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831184;
-        bh=RZwTi3JOH8de5QtDgZ1NXM6EHlhX4Taa6YD//ETDz+A=;
+        s=korg; t=1620831187;
+        bh=J51iqxxANUwe2ZIgNwpY6Q1rJRNRltpdYX0UwjF4b5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aYg9nRuSCAVaiNcUaETQxGIL2kN159ePTJH7IeZ9To+5pixiJOtDIpJn6ZMX0MRva
-         jxpgn2sUKg0qptXBTY2wQHtf06yTF5j7uUwmhzGxIo0+a3TtLW8s3GBEkUk1Wc1MXO
-         78czPnehvI1cTvPW5RM5vBOnVjQeeEPD+4bvAS9w=
+        b=HxLE9k28KfL6qBRk499cZ8OqRCyMt0Qub+nNm7po4EwmlzVeElIjT/QNnwrNo42oK
+         wCzQ5PD9N3BO3LIhcaZEaZp4XHaO9ShxtvL8aBDRpqeyUTl+sn69ZyqseoviyXP+pV
+         PjNHj93usHpIYxKc1Xi+vHHRRp8ex/WSSUdGUb90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        stable@vger.kernel.org, Lukasz Majczak <lma@semihalf.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 019/244] ASoC: samsung: tm2_wm5110: check of of_parse return value
-Date:   Wed, 12 May 2021 16:46:30 +0200
-Message-Id: <20210512144743.663920787@linuxfoundation.org>
+Subject: [PATCH 5.4 020/244] ASoC: Intel: kbl_da7219_max98927: Fix kabylake_ssp_fixup function
+Date:   Wed, 12 May 2021 16:46:31 +0200
+Message-Id: <20210512144743.694297378@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,54 +40,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Lukasz Majczak <lma@semihalf.com>
 
-commit d58970da324732686529655c21791cef0ee547c4 upstream.
+commit a523ef731ac6674dc07574f31bf44cc5bfa14e4d upstream.
 
-cppcheck warning:
+kabylake_ssp_fixup function uses snd_soc_dpcm to identify the
+codecs DAIs. The HW parameters are changed based on the codec DAI of the
+stream. The earlier approach to get snd_soc_dpcm was using container_of()
+macro on snd_pcm_hw_params.
 
-sound/soc/samsung/tm2_wm5110.c:605:6: style: Variable 'ret' is
-reassigned a value before the old one has been
-used. [redundantAssignment]
- ret = devm_snd_soc_register_component(dev, &tm2_component,
-     ^
-sound/soc/samsung/tm2_wm5110.c:554:7: note: ret is assigned
-  ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
-      ^
-sound/soc/samsung/tm2_wm5110.c:605:6: note: ret is overwritten
- ret = devm_snd_soc_register_component(dev, &tm2_component,
-     ^
+The structures have been modified over time and snd_soc_dpcm does not have
+snd_pcm_hw_params as a reference but as a copy. This causes the current
+driver to crash when used.
 
-The args is a stack variable, so it could have junk (uninitialized)
-therefore args.np could have a non-NULL and random value even though
-property was missing. Later could trigger invalid pointer dereference.
+This patch changes the way snd_soc_dpcm is extracted. snd_soc_pcm_runtime
+holds 2 dpcm instances (one for playback and one for capture). 2 codecs
+on the SSP are dmic (capture) and speakers (playback). Based on the
+stream direction, snd_soc_dpcm is extracted from snd_soc_pcm_runtime.
 
-There's no need to check for args.np because args.np won't be
-initialized on errors.
+Tested for all use cases of the driver.
+Based on similar fix in kbl_rt5663_rt5514_max98927.c
+from Harsha Priya <harshapriya.n@intel.com> and
+Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
 
-Fixes: 8d1513cef51a ("ASoC: samsung: Add support for HDMI audio on TM2 board")
-Cc: <stable@vger.kernel.org>
-Suggested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210312180231.2741-2-pierre-louis.bossart@linux.intel.com
+Cc: <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Lukasz Majczak <lma@semihalf.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210415124347.475432-1-lma@semihalf.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/samsung/tm2_wm5110.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/kbl_da7219_max98927.c |   38 +++++++++++++++++++++------
+ 1 file changed, 30 insertions(+), 8 deletions(-)
 
---- a/sound/soc/samsung/tm2_wm5110.c
-+++ b/sound/soc/samsung/tm2_wm5110.c
-@@ -553,7 +553,7 @@ static int tm2_probe(struct platform_dev
+--- a/sound/soc/intel/boards/kbl_da7219_max98927.c
++++ b/sound/soc/intel/boards/kbl_da7219_max98927.c
+@@ -282,12 +282,34 @@ static int kabylake_ssp_fixup(struct snd
+ 	struct snd_interval *channels = hw_param_interval(params,
+ 			SNDRV_PCM_HW_PARAM_CHANNELS);
+ 	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
+-	struct snd_soc_dpcm *dpcm = container_of(
+-			params, struct snd_soc_dpcm, hw_params);
+-	struct snd_soc_dai_link *fe_dai_link = dpcm->fe->dai_link;
+-	struct snd_soc_dai_link *be_dai_link = dpcm->be->dai_link;
++	struct snd_soc_dpcm *dpcm, *rtd_dpcm = NULL;
  
- 		ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
- 						 cells_name, i, &args);
--		if (!args.np) {
-+		if (ret) {
- 			dev_err(dev, "i2s-controller property parse error: %d\n", i);
- 			ret = -EINVAL;
- 			goto dai_node_put;
+ 	/*
++	 * The following loop will be called only for playback stream
++	 * In this platform, there is only one playback device on every SSP
++	 */
++	for_each_dpcm_fe(rtd, SNDRV_PCM_STREAM_PLAYBACK, dpcm) {
++		rtd_dpcm = dpcm;
++		break;
++	}
++
++	/*
++	 * This following loop will be called only for capture stream
++	 * In this platform, there is only one capture device on every SSP
++	 */
++	for_each_dpcm_fe(rtd, SNDRV_PCM_STREAM_CAPTURE, dpcm) {
++		rtd_dpcm = dpcm;
++		break;
++	}
++
++	if (!rtd_dpcm)
++		return -EINVAL;
++
++	/*
++	 * The above 2 loops are mutually exclusive based on the stream direction,
++	 * thus rtd_dpcm variable will never be overwritten
++	 */
++	/*
+ 	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE,
+ 	 * where as kblda7219m98927 & kblmax98927 supports S16_LE by default.
+ 	 * Skipping the port wise FE and BE configuration for kblda7219m98373 &
+@@ -309,9 +331,9 @@ static int kabylake_ssp_fixup(struct snd
+ 	/*
+ 	 * The ADSP will convert the FE rate to 48k, stereo, 24 bit
+ 	 */
+-	if (!strcmp(fe_dai_link->name, "Kbl Audio Port") ||
+-	    !strcmp(fe_dai_link->name, "Kbl Audio Headset Playback") ||
+-	    !strcmp(fe_dai_link->name, "Kbl Audio Capture Port")) {
++	if (!strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Port") ||
++	    !strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Headset Playback") ||
++	    !strcmp(rtd_dpcm->fe->dai_link->name, "Kbl Audio Capture Port")) {
+ 		rate->min = rate->max = 48000;
+ 		channels->min = channels->max = 2;
+ 		snd_mask_none(fmt);
+@@ -322,7 +344,7 @@ static int kabylake_ssp_fixup(struct snd
+ 	 * The speaker on the SSP0 supports S16_LE and not S24_LE.
+ 	 * thus changing the mask here
+ 	 */
+-	if (!strcmp(be_dai_link->name, "SSP0-Codec"))
++	if (!strcmp(rtd_dpcm->be->dai_link->name, "SSP0-Codec"))
+ 		snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S16_LE);
+ 
+ 	return 0;
 
 
