@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8780D37C27D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15C9437C22B
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233074AbhELPKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:10:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38862 "EHLO mail.kernel.org"
+        id S231887AbhELPHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:07:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230268AbhELPJE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:09:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A3A961448;
-        Wed, 12 May 2021 15:02:10 +0000 (UTC)
+        id S232192AbhELPFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:05:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4965B61956;
+        Wed, 12 May 2021 15:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831731;
-        bh=TXpap5kPqb2LwxUR33M/L1qFifXusvhN7loFncsN+BI=;
+        s=korg; t=1620831638;
+        bh=Tr2taFZ+B9uuMno3GJMN89fBtGGXkeyToDsOSsIv/bQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZnIWBmoVQOWiyW+1LoI0XEoPHg05P4ITACp0h6oQ2sOhQC1GqjLZH9eBk5Y8QKZI
-         UTigH381PFMxsMvVPi6UBoeY3B4kKyQxp+Tw5qRPvVkKBG5NzFr6S9gePMVCFs+tOk
-         ZeJsk91emXWhGVIeKe/5reOjUonWmOcNc3E1pnWo=
+        b=NQktU2/xaxrikVlIJLBUhhdQ1mCT62TRFX7KbzDnFvR7mP08eZY7ma7I5KxjA7Re2
+         tQyz8TjFhctguv06imZkoUh7MXFtkZRcuHa5f6GY3d2vzdE9dGlKpcaFjxxW0gyo6s
+         GPhJzBH2soa/2NF2O65s7rC6fqXY7lBIXb257SwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Wang Wensheng <wangwensheng4@huawei.com>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 192/244] RDMA/qedr: Fix error return code in qedr_iw_connect()
-Date:   Wed, 12 May 2021 16:49:23 +0200
-Message-Id: <20210512144749.145328321@linuxfoundation.org>
+Subject: [PATCH 5.4 193/244] IB/hfi1: Fix error return code in parse_platform_config()
+Date:   Wed, 12 May 2021 16:49:24 +0200
+Message-Id: <20210512144749.176758733@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -44,38 +43,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wang Wensheng <wangwensheng4@huawei.com>
 
-[ Upstream commit 10dd83dbcd157baf7a78a09ddb2f84c627bc7f1d ]
+[ Upstream commit 4c7d9c69adadfc31892c7e8e134deb3546552106 ]
 
 Fix to return a negative error code from the error handling case instead
 of 0, as done elsewhere in this function.
 
-Fixes: 82af6d19d8d9 ("RDMA/qedr: Fix synchronization methods and memory leaks in qedr")
-Link: https://lore.kernel.org/r/20210408113135.92165-1-wangwensheng4@huawei.com
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20210408113140.103032-1-wangwensheng4@huawei.com
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/qedr_iw_cm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/firmware.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/qedr/qedr_iw_cm.c b/drivers/infiniband/hw/qedr/qedr_iw_cm.c
-index 653ddf30973e..b9b46a0c4803 100644
---- a/drivers/infiniband/hw/qedr/qedr_iw_cm.c
-+++ b/drivers/infiniband/hw/qedr/qedr_iw_cm.c
-@@ -636,8 +636,10 @@ int qedr_iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 	memcpy(in_params.local_mac_addr, dev->ndev->dev_addr, ETH_ALEN);
- 
- 	if (test_and_set_bit(QEDR_IWARP_CM_WAIT_FOR_CONNECT,
--			     &qp->iwarp_cm_flags))
-+			     &qp->iwarp_cm_flags)) {
-+		rc = -ENODEV;
- 		goto err; /* QP already being destroyed */
-+	}
- 
- 	rc = dev->ops->iwarp_connect(dev->rdma_ctx, &in_params, &out_params);
- 	if (rc) {
+diff --git a/drivers/infiniband/hw/hfi1/firmware.c b/drivers/infiniband/hw/hfi1/firmware.c
+index 2b57ba70ddd6..c09080712485 100644
+--- a/drivers/infiniband/hw/hfi1/firmware.c
++++ b/drivers/infiniband/hw/hfi1/firmware.c
+@@ -1924,6 +1924,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+ 			dd_dev_err(dd, "%s: Failed CRC check at offset %ld\n",
+ 				   __func__, (ptr -
+ 				   (u32 *)dd->platform_config.data));
++			ret = -EINVAL;
+ 			goto bail;
+ 		}
+ 		/* Jump the CRC DWORD */
 -- 
 2.30.2
 
