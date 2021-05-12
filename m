@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA9137B803
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:31:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6707437B805
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230217AbhELIcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:32:13 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:56059 "EHLO
+        id S230216AbhELIcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:32:23 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:51663 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230216AbhELIcM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:32:12 -0400
+        by vger.kernel.org with ESMTP id S230114AbhELIcW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:32:22 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 830D5712;
-        Wed, 12 May 2021 04:31:04 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id D1041D44;
+        Wed, 12 May 2021 04:31:14 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 12 May 2021 04:31:04 -0400
+  by compute4.internal (MEProxy); Wed, 12 May 2021 04:31:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=urZc52
-        v5h8IXYxhNsjnb3LfxY/IfsjrSEV9zbFrc1Dg=; b=GFEdYXBqsdwFriEFu01ns+
-        k75VNHxpEcLwatsJupMhcpx0+XS0Uycmw5RTtEId8h1bWJaNjF1QntDMoOWw7Kx9
-        VAxgUvx0FwM3R8exR5YynoYkQsxl4ksiUbCElLAU75edKgypIsDZvD0uOe5mTUH/
-        uNCsSxIFQDQTlPbNkkJ6o+W6Cvj0pd0n4P/wgZTVZ+A8s/RdMjtcvhKEo6YJtcJR
-        aDDYVohZquq4gJzJgWE1gv9qHBvDzCV9NxfplCuzPq1esUeHgd9PxWtdXHqRYPs7
-        TfeYqBw3HepojrDY8PehmDlsj7FRdFttNsEV5ltYluTCcaFH2zzBaYvkHASQmL9A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=03bwMH
+        saXwk0u0+9IqmkiHOe+XGOxl7EPVnMjuRayJY=; b=LYyu501ykGpNEiKwB0HriK
+        5a0AjTFA+r13pah8PhmfT45cxvTdl7Q+UbrK2FWcoeIArlHqr4OodOk4ppJ76u3y
+        jIHCL0p7vlBf9qgQclw7quLNmrztI/7a6l2lmtiCli2Zr7q/RiHbsMXzgcyDFxj7
+        Blb/5VzUtKeW2HYku6J/2coEpDAJFYMNP9AVVFgu/K+iK/mObndadMw+Brj8+OsY
+        jKXQmYXtbjvepMPQJhILn5la4yUd78ANRb3IPpmPXFEZM2KWFeF1EWlSWbOr9qVn
+        91t3+ZHiwSWtc4LyQrS5MpLaO+KPPIZtNLjyfjLdzlPPXpbbIGcA28jD1/qBpZNw
         ==
-X-ME-Sender: <xms:SJKbYHVk0x0x-cJtakBzQvSREHrVlnDoC7kHD-RrTyaN9HNg7-cY4A>
-    <xme:SJKbYPn_FPmTU9J-R4r-1OSNtUlgiVYG66dDdCqow0tfUIlClUSOAb7K-4o8taDCB
-    xWiwBvuPQESXQ>
+X-ME-Sender: <xms:UpKbYBGy-lZfPTG_ZTF7Nw7CDShOtyyx6SDi9k-V-5SjS7OQ63IUFQ>
+    <xme:UpKbYGUzW3I7cH21-HEMaSpVahZ2eJ9rqWsKSXKwvPovs948LP8jGm6_tvZuX6tnO
+    -eOtUjbtCWNAQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgtdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:SJKbYDYL18oocp0X8O0b_i_erpkUADHT6T1_9vQ6mnEUrJVmjDCQBA>
-    <xmx:SJKbYCW2TQAfp8r4JnwW2kJuxN0fPFybz_Qd9Cnrsu08ugc01N6ekg>
-    <xmx:SJKbYBmQGy_R6n3zgGDvSXl8IF7lQXTqexWtNcQEkZ8_5CPOOBzXrw>
-    <xmx:SJKbYAsZygZ7u-vRz31Tn13bOjBORYXDElIkdMouMsLQansdxV7U8qClr0w>
+X-ME-Proxy: <xmx:UpKbYDL4fY8wYV0FCUYU2aq6Zv-njrorPPodVAQkbT6Ctf8x4783tw>
+    <xmx:UpKbYHEFm7RVDfArbYhWYXqmUgWlnFffrvIYY-n421cZIyGPoVrknw>
+    <xmx:UpKbYHWbVGshBJ2CZuRZa4ljl4-I8RxEpQ-k4vRppQYUemeZCbknNA>
+    <xmx:UpKbYIcp69GZFeZLZJVYaqKLMgqEjMVA7a63jiEsXQvVDtnIjGvs41Xjwu8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:31:03 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] staging: fwserial: fix TIOCSSERIAL permission check" failed to apply to 4.19-stable tree
+        Wed, 12 May 2021 04:31:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tty: mxser: fix TIOCSSERIAL permission check" failed to apply to 5.4-stable tree
 To:     johan@kernel.org, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:30:52 +0200
-Message-ID: <1620808252103116@kroah.com>
+Date:   Wed, 12 May 2021 10:31:12 +0200
+Message-ID: <16208082725170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,49 +70,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2104eb283df66a482b60254299acbe3c68c03412 Mon Sep 17 00:00:00 2001
+From b91cfb2573aeb5ab426fc3c35bcfe9e0d2a7ecbc Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
-Date: Wed, 7 Apr 2021 12:23:20 +0200
-Subject: [PATCH] staging: fwserial: fix TIOCSSERIAL permission check
+Date: Wed, 7 Apr 2021 12:23:32 +0200
+Subject: [PATCH] tty: mxser: fix TIOCSSERIAL permission check
 
-Changing the port close-delay parameter is a privileged operation so
-make sure to return -EPERM if a regular user tries to change it.
+Changing the port type and closing_wait parameter are privileged
+operations so make sure to return -EPERM if a regular user tries to
+change them.
 
-Fixes: 7355ba3445f2 ("staging: fwserial: Add TTY-over-Firewire serial driver")
-Cc: stable@vger.kernel.org      # 3.8
+Note that the closing_wait parameter would not actually have been
+changed but the return value did not indicate that.
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-3-johan@kernel.org
+Link: https://lore.kernel.org/r/20210407102334.32361-15-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
-index c963848522b1..440d11423812 100644
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -1232,20 +1232,24 @@ static int set_serial_info(struct tty_struct *tty,
- 			   struct serial_struct *ss)
- {
- 	struct fwtty_port *port = tty->driver_data;
-+	unsigned int cdelay;
- 
- 	if (ss->irq != 0 || ss->port != 0 || ss->custom_divisor != 0 ||
- 	    ss->baud_base != 400000000)
- 		return -EPERM;
- 
-+	cdelay = msecs_to_jiffies(ss->close_delay * 10);
-+
- 	mutex_lock(&port->port.mutex);
+diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
+index 914b23071961..2d8e76263a25 100644
+--- a/drivers/tty/mxser.c
++++ b/drivers/tty/mxser.c
+@@ -1270,6 +1270,7 @@ static int mxser_set_serial_info(struct tty_struct *tty,
  	if (!capable(CAP_SYS_ADMIN)) {
--		if (((ss->flags & ~ASYNC_USR_MASK) !=
-+		if (cdelay != port->port.close_delay ||
-+		    ((ss->flags & ~ASYNC_USR_MASK) !=
- 		     (port->port.flags & ~ASYNC_USR_MASK))) {
- 			mutex_unlock(&port->port.mutex);
+ 		if ((ss->baud_base != info->baud_base) ||
+ 				(close_delay != info->port.close_delay) ||
++				(closing_wait != info->port.closing_wait) ||
+ 				((ss->flags & ~ASYNC_USR_MASK) != (info->port.flags & ~ASYNC_USR_MASK))) {
+ 			mutex_unlock(&port->mutex);
  			return -EPERM;
+@@ -1296,11 +1297,11 @@ static int mxser_set_serial_info(struct tty_struct *tty,
+ 			baud = ss->baud_base / ss->custom_divisor;
+ 			tty_encode_baud_rate(tty, baud, baud);
  		}
- 	}
--	port->port.close_delay = msecs_to_jiffies(ss->close_delay * 10);
-+	port->port.close_delay = cdelay;
- 	mutex_unlock(&port->port.mutex);
+-	}
  
- 	return 0;
+-	info->type = ss->type;
++		info->type = ss->type;
+ 
+-	process_txrx_fifo(info);
++		process_txrx_fifo(info);
++	}
+ 
+ 	if (tty_port_initialized(port)) {
+ 		if (flags != (port->flags & ASYNC_SPD_MASK)) {
 
