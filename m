@@ -2,33 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE7937C4A8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F90137C4AF
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234393AbhELPc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40742 "EHLO mail.kernel.org"
+        id S231742AbhELPcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235570AbhELP2c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:28:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 098DE61C2A;
-        Wed, 12 May 2021 15:13:51 +0000 (UTC)
+        id S235573AbhELP2d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5013E61C27;
+        Wed, 12 May 2021 15:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832432;
-        bh=prYyRgLt6RagG9I3dJ0F3kBwosEhReJE1eoCxmP/iAE=;
+        s=korg; t=1620832435;
+        bh=M6wxldWro+LDiAbiNlw5P8o2FCKwC5wvXY9QUtYVyeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CHQ56oKwr53prLUtrA7qiT2RhYcc2ec2OxvoeIBFJPli7CwKqmn1A/z0694FjT3wk
-         P88Wo9apaLY4AAqVTXI1sjfged4Vo4/gziVi/RYGbUCTaJaWu7nlLgDgOpZ9JjOn/H
-         EuhJN9Gqgmq3dvgBeVzKAuAp6SeQn/yLj6a9z/Yk=
+        b=p74zlJoKiW5FUS3ZCw3NiYIpa6dwk2FpJRyFy9Z2gDju0kwYxkghT4XUHrEp0MOXk
+         Db6CXN8LqGAk5tOIOEE9o1WoPmGaX7hMPaRfXhfagCih1q02OIIDhO/0TepczEb9gh
+         GcVaPG9qkiyFFiiSOQPyvpRRWuYQOQSsA0VsyMUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Quanyang Wang <quanyang.wang@windriver.com>,
-        Jyri Sarha <jyri.sarha@iki.fi>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 277/530] drm/tilcdc: send vblank event when disabling crtc
-Date:   Wed, 12 May 2021 16:46:27 +0200
-Message-Id: <20210512144828.910513972@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Yannick Fertre <yannick.fertre@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Antonio Borneo <antonio.borneo@st.com>,
+        Benjamin Gaignard <benjamin.gaignard@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Vincent Abriou <vincent.abriou@st.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Yannick Fertre <yannick.fertre@foss.st.com>,
+        Philippe Cornu <philippe.cornu@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 278/530] drm/stm: Fix bus_flags handling
+Date:   Wed, 12 May 2021 16:46:28 +0200
+Message-Id: <20210512144828.945976888@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,77 +51,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit f1a75f4dd8edf272b6b7cdccf6ba6254ec9d15fa ]
+[ Upstream commit 99e360442f223dd40fc23ae07c7a263836fd27e6 ]
 
-When run xrandr to change resolution on Beaglebone Black board, it will
-print the error information:
+The drm_display_mode_to_videomode() does not populate DISPLAY_FLAGS_DE_LOW
+or DISPLAY_FLAGS_PIXDATA_NEGEDGE flags in struct videomode. Therefore, no
+matter what polarity the next bridge or display might require, these flags
+are never set, and thus the LTDC GCR_DEPOL and GCR_PCPOL bits are never set
+and the LTDC behaves as if both DISPLAY_FLAGS_PIXDATA_POSEDGE and
+DISPLAY_FLAGS_DE_HIGH were always set.
 
-root@beaglebone:~# xrandr -display :0 --output HDMI-1 --mode 720x400
-[drm:drm_crtc_commit_wait] *ERROR* flip_done timed out
-[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [CRTC:32:tilcdc crtc] commit wait timed out
-[drm:drm_crtc_commit_wait] *ERROR* flip_done timed out
-[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [CONNECTOR:34:HDMI-A-1] commit wait timed out
-[drm:drm_crtc_commit_wait] *ERROR* flip_done timed out
-[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [PLANE:31:plane-0] commit wait timed out
-tilcdc 4830e000.lcdc: already pending page flip!
+The fix for this problem is taken almost verbatim from MXSFB driver. In
+case there is a bridge attached to the LTDC, the bridge might have extra
+polarity requirements, so extract bus_flags from the bridge and use them
+for LTDC configuration. Otherwise, extract bus_flags from the connector,
+which is the display.
 
-This is because there is operation sequence as below:
-
-drm_atomic_connector_commit_dpms(mode is DRM_MODE_DPMS_OFF):
-    ...
-    drm_atomic_helper_setup_commit <- init_completion(commit_A->flip_done)
-    drm_atomic_helper_commit_tail
-        tilcdc_crtc_atomic_disable
-        tilcdc_plane_atomic_update <- drm_crtc_send_vblank_event in tilcdc_crtc_irq
-                                      is skipped since tilcdc_crtc->enabled is 0
-        tilcdc_crtc_atomic_flush   <- drm_crtc_send_vblank_event is skipped since
-                                      crtc->state->event is set to be NULL in
-                                      tilcdc_plane_atomic_update
-drm_mode_setcrtc:
-    ...
-    drm_atomic_helper_setup_commit <- init_completion(commit_B->flip_done)
-    drm_atomic_helper_wait_for_dependencies
-        drm_crtc_commit_wait   <- wait for commit_A->flip_done completing
-
-Just as shown above, the steps which could complete commit_A->flip_done
-are all skipped and commit_A->flip_done will never be completed. This will
-result a time-out ERROR when drm_crtc_commit_wait check the commit_A->flip_done.
-So add drm_crtc_send_vblank_event in tilcdc_crtc_atomic_disable to
-complete commit_A->flip_done.
-
-Fixes: cb345decb4d2 ("drm/tilcdc: Use standard drm_atomic_helper_commit")
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Reviewed-by: Jyri Sarha <jyri.sarha@iki.fi>
-Tested-by: Jyri Sarha <jyri.sarha@iki.fi>
-Signed-off-by: Jyri Sarha <jyri.sarha@iki.fi>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210209082415.382602-1-quanyang.wang@windriver.com
+Fixes: b759012c5fa7 ("drm/stm: Add STM32 LTDC driver")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Yannick Fertre <yannick.fertre@st.com>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Antonio Borneo <antonio.borneo@st.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Philippe Cornu <philippe.cornu@st.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Vincent Abriou <vincent.abriou@st.com>
+Cc: Yannick Fertre <yannick.fertre@st.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: dri-devel@lists.freedesktop.org
+Tested-by: Yannick Fertre <yannick.fertre@foss.st.com>
+Signed-off-by: Philippe Cornu <philippe.cornu@foss.st.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210127110756.125570-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/stm/ltdc.c | 33 +++++++++++++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-index 518220bd092a..0aaa4a26b5db 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
-@@ -518,6 +518,15 @@ static void tilcdc_crtc_off(struct drm_crtc *crtc, bool shutdown)
+diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
+index 6e28f707092f..62488ac14923 100644
+--- a/drivers/gpu/drm/stm/ltdc.c
++++ b/drivers/gpu/drm/stm/ltdc.c
+@@ -525,13 +525,42 @@ static void ltdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ {
+ 	struct ltdc_device *ldev = crtc_to_ltdc(crtc);
+ 	struct drm_device *ddev = crtc->dev;
++	struct drm_connector_list_iter iter;
++	struct drm_connector *connector = NULL;
++	struct drm_encoder *encoder = NULL;
++	struct drm_bridge *bridge = NULL;
+ 	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
+ 	struct videomode vm;
+ 	u32 hsync, vsync, accum_hbp, accum_vbp, accum_act_w, accum_act_h;
+ 	u32 total_width, total_height;
++	u32 bus_flags = 0;
+ 	u32 val;
+ 	int ret;
  
- 	drm_crtc_vblank_off(crtc);
- 
-+	spin_lock_irq(&crtc->dev->event_lock);
++	/* get encoder from crtc */
++	drm_for_each_encoder(encoder, ddev)
++		if (encoder->crtc == crtc)
++			break;
 +
-+	if (crtc->state->event) {
-+		drm_crtc_send_vblank_event(crtc, crtc->state->event);
-+		crtc->state->event = NULL;
++	if (encoder) {
++		/* get bridge from encoder */
++		list_for_each_entry(bridge, &encoder->bridge_chain, chain_node)
++			if (bridge->encoder == encoder)
++				break;
++
++		/* Get the connector from encoder */
++		drm_connector_list_iter_begin(ddev, &iter);
++		drm_for_each_connector_iter(connector, &iter)
++			if (connector->encoder == encoder)
++				break;
++		drm_connector_list_iter_end(&iter);
 +	}
 +
-+	spin_unlock_irq(&crtc->dev->event_lock);
++	if (bridge && bridge->timings)
++		bus_flags = bridge->timings->input_bus_flags;
++	else if (connector)
++		bus_flags = connector->display_info.bus_flags;
 +
- 	tilcdc_crtc_disable_irqs(dev);
+ 	if (!pm_runtime_active(ddev->dev)) {
+ 		ret = pm_runtime_get_sync(ddev->dev);
+ 		if (ret) {
+@@ -567,10 +596,10 @@ static void ltdc_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ 	if (vm.flags & DISPLAY_FLAGS_VSYNC_HIGH)
+ 		val |= GCR_VSPOL;
  
- 	pm_runtime_put_sync(dev->dev);
+-	if (vm.flags & DISPLAY_FLAGS_DE_LOW)
++	if (bus_flags & DRM_BUS_FLAG_DE_LOW)
+ 		val |= GCR_DEPOL;
+ 
+-	if (vm.flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE)
++	if (bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
+ 		val |= GCR_PCPOL;
+ 
+ 	reg_update_bits(ldev->regs, LTDC_GCR,
 -- 
 2.30.2
 
