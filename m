@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F0637D2F2
+	by mail.lfdr.de (Postfix) with ESMTP id 3279537D2F0
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351033AbhELSPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:15:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60148 "EHLO mail.kernel.org"
+        id S1350675AbhELSPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353175AbhELSKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:10:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56B246144A;
-        Wed, 12 May 2021 18:05:34 +0000 (UTC)
+        id S1353181AbhELSKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:10:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 754316144F;
+        Wed, 12 May 2021 18:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842735;
-        bh=D7QmoUmX4jhy4lK/S+esCWuLp+cn7RdiO97jOmusmHw=;
+        s=k20201202; t=1620842737;
+        bh=vk2Efc8N5SpL8dwz0sdJW14go6pdxzXH8AgGNb/LLrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQ+cNpjN+8Fok4TsPlUNmJ42akVpH7Jv6Gf3b9QrpF/+4GwUDT2kz4zZmBIWLgvUZ
-         HZ+aQyacDsWczxiVLlyWCnve37LmqJHMfdi2M5wm7LAggitsd36M+RFkDi6kogWPls
-         rk/iSUTjLfZRN89KGIZD5dJkELQHoeECgj4KBW1LUswoIVZACNi4RXln2u8+/B3w8S
-         XfBFhs+WEkBZe+7lEO4OXjNrcAKGQTpvFn8S8EpmGLosTxrELFF58Mhv2xkygxPXn8
-         QO2sF56cnqtsSBiEDRf8AGkTZKEF7mKIkeVMyJ7rNOfMh9reHE+ecLqtBAHpKMxk1a
-         Jo7RDICeEI5FQ==
+        b=RFkiSVC1F1ikevYVRhz0dNvJCeYWwLnpMVIxI8MdU+iTYR28dRnxG8uJHzwobV0yM
+         gQR2eGZ47eKxeXAJ8lF1Z+zPArUchnqwXSzThjs8bbdYtT4bcHzAoWZ7TGZf4+4iEZ
+         eQFwv3O7Emd1U9mS92Q6tTm694zNMxfPE1mI1pnTQsuSbDjnKofLgqYKCBuxv+4RnA
+         5Fe6E/o/p9LwDuxGw9GxHsImWu4fpnM8dqOYX5Z64ofjo6tjYt50wMAXQIk896j/0y
+         hI1dEQ4gMnNDiA0aYog3TvNu8q6o46cxwkZHSv2mI1HIgrwPMFZBXq7q1/wLOQaxUO
+         9Z+UjNlCXchoA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Ritesh Raj Sarraf <rrs@debian.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 07/12] um: Mark all kernel symbols as local
-Date:   Wed, 12 May 2021 14:05:17 -0400
-Message-Id: <20210512180522.665788-7-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 08/12] ceph: fix fscache invalidation
+Date:   Wed, 12 May 2021 14:05:18 -0400
+Message-Id: <20210512180522.665788-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180522.665788-1-sashal@kernel.org>
 References: <20210512180522.665788-1-sashal@kernel.org>
@@ -44,109 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit d5027ca63e0e778b641cf23e3f5c6d6212cf412b ]
+[ Upstream commit 10a7052c7868bc7bc72d947f5aac6f768928db87 ]
 
-Ritesh reported a bug [1] against UML, noting that it crashed on
-startup. The backtrace shows the following (heavily redacted):
+Ensure that we invalidate the fscache whenever we invalidate the
+pagecache.
 
-(gdb) bt
-...
- #26 0x0000000060015b5d in sem_init () at ipc/sem.c:268
- #27 0x00007f89906d92f7 in ?? () from /lib/x86_64-linux-gnu/libcom_err.so.2
- #28 0x00007f8990ab8fb2 in call_init (...) at dl-init.c:72
-...
- #40 0x00007f89909bf3a6 in nss_load_library (...) at nsswitch.c:359
-...
- #44 0x00007f8990895e35 in _nss_compat_getgrnam_r (...) at nss_compat/compat-grp.c:486
- #45 0x00007f8990968b85 in __getgrnam_r [...]
- #46 0x00007f89909d6b77 in grantpt [...]
- #47 0x00007f8990a9394e in __GI_openpty [...]
- #48 0x00000000604a1f65 in openpty_cb (...) at arch/um/os-Linux/sigio.c:407
- #49 0x00000000604a58d0 in start_idle_thread (...) at arch/um/os-Linux/skas/process.c:598
- #50 0x0000000060004a3d in start_uml () at arch/um/kernel/skas/process.c:45
- #51 0x00000000600047b2 in linux_main (...) at arch/um/kernel/um_arch.c:334
- #52 0x000000006000574f in main (...) at arch/um/os-Linux/main.c:144
-
-indicating that the UML function openpty_cb() calls openpty(),
-which internally calls __getgrnam_r(), which causes the nsswitch
-machinery to get started.
-
-This loads, through lots of indirection that I snipped, the
-libcom_err.so.2 library, which (in an unknown function, "??")
-calls sem_init().
-
-Now, of course it wants to get libpthread's sem_init(), since
-it's linked against libpthread. However, the dynamic linker
-looks up that symbol against the binary first, and gets the
-kernel's sem_init().
-
-Hajime Tazaki noted that "objcopy -L" can localize a symbol,
-so the dynamic linker wouldn't do the lookup this way. I tried,
-but for some reason that didn't seem to work.
-
-Doing the same thing in the linker script instead does seem to
-work, though I cannot entirely explain - it *also* works if I
-just add "VERSION { { global: *; }; }" instead, indicating that
-something else is happening that I don't really understand. It
-may be that explicitly doing that marks them with some kind of
-empty version, and that's different from the default.
-
-Explicitly marking them with a version breaks kallsyms, so that
-doesn't seem to be possible.
-
-Marking all the symbols as local seems correct, and does seem
-to address the issue, so do that. Also do it for static link,
-nsswitch libraries could still be loaded there.
-
-[1] https://bugs.debian.org/983379
-
-Reported-by: Ritesh Raj Sarraf <rrs@debian.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Tested-By: Ritesh Raj Sarraf <rrs@debian.org>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/dyn.lds.S | 6 ++++++
- arch/um/kernel/uml.lds.S | 6 ++++++
- 2 files changed, 12 insertions(+)
+ fs/ceph/caps.c  | 1 +
+ fs/ceph/inode.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
-index d417e3899700..06309bdbfbbf 100644
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -7,6 +7,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 382cf85fd574..b077b9a6bf95 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1662,6 +1662,7 @@ static int try_nonblocking_invalidate(struct inode *inode)
+ 	u32 invalidating_gen = ci->i_rdcache_gen;
  
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
- {
-   PROVIDE (__executable_start = START);
-diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
-index 3d6ed6ba5b78..c3e32fa3941f 100644
---- a/arch/um/kernel/uml.lds.S
-+++ b/arch/um/kernel/uml.lds.S
-@@ -7,6 +7,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
+ 	spin_unlock(&ci->i_ceph_lock);
++	ceph_fscache_invalidate(inode);
+ 	invalidate_mapping_pages(&inode->i_data, 0, -1);
+ 	spin_lock(&ci->i_ceph_lock);
  
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
- {
-   /* This must contain the right address - not quite the default ELF one.*/
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 5999d806de78..90db2cd07840 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -1757,6 +1757,7 @@ static void ceph_invalidate_work(struct work_struct *work)
+ 	orig_gen = ci->i_rdcache_gen;
+ 	spin_unlock(&ci->i_ceph_lock);
+ 
++	ceph_fscache_invalidate(inode);
+ 	if (invalidate_inode_pages2(inode->i_mapping) < 0) {
+ 		pr_err("invalidate_pages %p fails\n", inode);
+ 	}
 -- 
 2.30.2
 
