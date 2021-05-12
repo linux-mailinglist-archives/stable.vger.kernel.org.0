@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E07637C732
+	by mail.lfdr.de (Postfix) with ESMTP id E822437C733
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235177AbhELP7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:59:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58850 "EHLO mail.kernel.org"
+        id S235207AbhELP7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:59:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237233AbhELPzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:55:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4766C61459;
-        Wed, 12 May 2021 15:28:04 +0000 (UTC)
+        id S237503AbhELPzw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:55:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACF5F6195E;
+        Wed, 12 May 2021 15:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833284;
-        bh=Nr3bsYbK1iTpA2f80c0E2GF84LXeMnRzNTqh14JG+ZQ=;
+        s=korg; t=1620833287;
+        bh=D6rIF9Pl0TRvW5ls9/oMpGEPgLXfAPLzTQdV+1GkVlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlOV7BK7ceq4A6AbMs7ajOYlkhK8cEx4YqyTdceSk/V/blzMQG1mWPkTVIVMlKWXs
-         uA+1JbOjIV571JH4ABCWx78Z4G97q5HgzkfMBGrXd/2pwx+g7cu33TovjvDE5of8nD
-         FvPSqq7Dv/H6y6COk2d5PrzGP/H5ngFqXkp5J4cw=
+        b=vh4WH0ZjyPWHpNaFhmmre/fV57gcsSqQiMBqthFajwXoN+2uZWkTEtnJhJpWDr0qM
+         6YbbIhAba2LMqrGljQQq9RMxsD/caro37kNgnPvxvc/STmSk0iuWgSivAbVwKLza8a
+         ioKdK5YyB45eRioImSBBseulVEto/TjB0affk9Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 088/601] ALSA: hda/realtek: Fix speaker amp on HP Envy AiO 32
-Date:   Wed, 12 May 2021 16:42:45 +0200
-Message-Id: <20210512144830.729393385@linuxfoundation.org>
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 5.11 089/601] KVM: s390: VSIE: correctly handle MVPG when in VSIE
+Date:   Wed, 12 May 2021 16:42:46 +0200
+Message-Id: <20210512144830.759920065@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -38,94 +41,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit 622464c893142f7beac89f5ba8c9773bca5e5004 upstream.
+commit bdf7509bbefa20855d5f6bacdc5b62a8489477c9 upstream.
 
-HP Envy AiO 32-a12xxx has an external amp that is controlled via GPIO
-bit 0x04.  However, unlike other devices, this amp seems to shut down
-itself after the certain period, hence the OS needs to up/down the bit
-dynamically only during the actual playback.
+Correctly handle the MVPG instruction when issued by a VSIE guest.
 
-This patch adds the control of the GPIO bit via the existing pcm_hook
-mechanism.  Ideally it should be triggered at the actual stream start,
-but we have only the state change at prepare/cleanup, so use those for
-switching the GPIO bit on/off.  This should be good enough for the
-purpose, and was actually confirmed to work fine.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212873
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210504091802.13200-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: a3508fbe9dc6d ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: stable@vger.kernel.org # f85f1baaa189: KVM: s390: split kvm_s390_logical_to_effective
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Link: https://lore.kernel.org/r/20210302174443.514363-4-imbrenda@linux.ibm.com
+[borntraeger@de.ibm.com: apply fixup from Claudio]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ arch/s390/kvm/vsie.c |   98 ++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 93 insertions(+), 5 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4331,6 +4331,35 @@ static void alc245_fixup_hp_x360_amp(str
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -416,11 +416,6 @@ static void unshadow_scb(struct kvm_vcpu
+ 		memcpy((void *)((u64)scb_o + 0xc0),
+ 		       (void *)((u64)scb_s + 0xc0), 0xf0 - 0xc0);
+ 		break;
+-	case ICPT_PARTEXEC:
+-		/* MVPG only */
+-		memcpy((void *)((u64)scb_o + 0xc0),
+-		       (void *)((u64)scb_s + 0xc0), 0xd0 - 0xc0);
+-		break;
  	}
+ 
+ 	if (scb_s->ihcpu != 0xffffU)
+@@ -983,6 +978,95 @@ static int handle_stfle(struct kvm_vcpu
  }
  
-+/* toggle GPIO2 at each time stream is started; we use PREPARE state instead */
-+static void alc274_hp_envy_pcm_hook(struct hda_pcm_stream *hinfo,
-+				    struct hda_codec *codec,
-+				    struct snd_pcm_substream *substream,
-+				    int action)
+ /*
++ * Get a register for a nested guest.
++ * @vcpu the vcpu of the guest
++ * @vsie_page the vsie_page for the nested guest
++ * @reg the register number, the upper 4 bits are ignored.
++ * returns: the value of the register.
++ */
++static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, u8 reg)
 +{
-+	switch (action) {
-+	case HDA_GEN_PCM_ACT_PREPARE:
-+		alc_update_gpio_data(codec, 0x04, true);
-+		break;
-+	case HDA_GEN_PCM_ACT_CLEANUP:
-+		alc_update_gpio_data(codec, 0x04, false);
-+		break;
++	/* no need to validate the parameter and/or perform error handling */
++	reg &= 0xf;
++	switch (reg) {
++	case 15:
++		return vsie_page->scb_s.gg15;
++	case 14:
++		return vsie_page->scb_s.gg14;
++	default:
++		return vcpu->run->s.regs.gprs[reg];
 +	}
 +}
 +
-+static void alc274_fixup_hp_envy_gpio(struct hda_codec *codec,
-+				      const struct hda_fixup *fix,
-+				      int action)
++static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
 +{
-+	struct alc_spec *spec = codec->spec;
++	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
++	unsigned long pei_dest, pei_src, src, dest, mask;
++	u64 *pei_block = &vsie_page->scb_o->mcic;
++	int edat, rc_dest, rc_src;
++	union ctlreg0 cr0;
 +
-+	if (action == HDA_FIXUP_ACT_PROBE) {
-+		spec->gpio_mask |= 0x04;
-+		spec->gpio_dir |= 0x04;
-+		spec->gen.pcm_playback_hook = alc274_hp_envy_pcm_hook;
++	cr0.val = vcpu->arch.sie_block->gcr[0];
++	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
++	mask = _kvm_s390_logical_to_effective(&scb_s->gpsw, PAGE_MASK);
++
++	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
++	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
++
++	rc_dest = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest, &pei_dest);
++	rc_src = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src, &pei_src);
++	/*
++	 * Either everything went well, or something non-critical went wrong
++	 * e.g. because of a race. In either case, simply retry.
++	 */
++	if (rc_dest == -EAGAIN || rc_src == -EAGAIN || (!rc_dest && !rc_src)) {
++		retry_vsie_icpt(vsie_page);
++		return -EAGAIN;
 +	}
++	/* Something more serious went wrong, propagate the error */
++	if (rc_dest < 0)
++		return rc_dest;
++	if (rc_src < 0)
++		return rc_src;
++
++	/* The only possible suppressing exception: just deliver it */
++	if (rc_dest == PGM_TRANSLATION_SPEC || rc_src == PGM_TRANSLATION_SPEC) {
++		clear_vsie_icpt(vsie_page);
++		rc_dest = kvm_s390_inject_program_int(vcpu, PGM_TRANSLATION_SPEC);
++		WARN_ON_ONCE(rc_dest);
++		return 1;
++	}
++
++	/*
++	 * Forward the PEI intercept to the guest if it was a page fault, or
++	 * also for segment and region table faults if EDAT applies.
++	 */
++	if (edat) {
++		rc_dest = rc_dest == PGM_ASCE_TYPE ? rc_dest : 0;
++		rc_src = rc_src == PGM_ASCE_TYPE ? rc_src : 0;
++	} else {
++		rc_dest = rc_dest != PGM_PAGE_TRANSLATION ? rc_dest : 0;
++		rc_src = rc_src != PGM_PAGE_TRANSLATION ? rc_src : 0;
++	}
++	if (!rc_dest && !rc_src) {
++		pei_block[0] = pei_dest;
++		pei_block[1] = pei_src;
++		return 1;
++	}
++
++	retry_vsie_icpt(vsie_page);
++
++	/*
++	 * The host has edat, and the guest does not, or it was an ASCE type
++	 * exception. The host needs to inject the appropriate DAT interrupts
++	 * into the guest.
++	 */
++	if (rc_dest)
++		return inject_fault(vcpu, rc_dest, dest, 1);
++	return inject_fault(vcpu, rc_src, src, 0);
 +}
 +
- static void alc_update_coef_led(struct hda_codec *codec,
- 				struct alc_coef_led *led,
- 				bool polarity, bool on)
-@@ -6443,6 +6472,7 @@ enum {
- 	ALC255_FIXUP_XIAOMI_HEADSET_MIC,
- 	ALC274_FIXUP_HP_MIC,
- 	ALC274_FIXUP_HP_HEADSET_MIC,
-+	ALC274_FIXUP_HP_ENVY_GPIO,
- 	ALC256_FIXUP_ASUS_HPE,
- 	ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
- 	ALC287_FIXUP_HP_GPIO_LED,
-@@ -7882,6 +7912,10 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC274_FIXUP_HP_MIC
- 	},
-+	[ALC274_FIXUP_HP_ENVY_GPIO] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc274_fixup_hp_envy_gpio,
-+	},
- 	[ALC256_FIXUP_ASUS_HPE] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -8099,6 +8133,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
-+	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8730, "HP ProBook 445 G7", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
++/*
+  * Run the vsie on a shadow scb and a shadow gmap, without any further
+  * sanity checks, handling SIE faults.
+  *
+@@ -1068,6 +1152,10 @@ static int do_vsie_run(struct kvm_vcpu *
+ 		if ((scb_s->ipa & 0xf000) != 0xf000)
+ 			scb_s->ipa += 0x1000;
+ 		break;
++	case ICPT_PARTEXEC:
++		if (scb_s->ipa == 0xb254)
++			rc = vsie_handle_mvpg(vcpu, vsie_page);
++		break;
+ 	}
+ 	return rc;
+ }
 
 
