@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C761337C6C6
+	by mail.lfdr.de (Postfix) with ESMTP id 2E73237C6C5
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235056AbhELPyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:54:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52454 "EHLO mail.kernel.org"
+        id S235096AbhELPyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237415AbhELPuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:50:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F2AD61482;
-        Wed, 12 May 2021 15:25:46 +0000 (UTC)
+        id S237461AbhELPue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:50:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 890B861606;
+        Wed, 12 May 2021 15:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833147;
-        bh=B5Eco/c8L9SzFnYodt52q0nVjjincIn6qbhxraeFXaY=;
+        s=korg; t=1620833150;
+        bh=dNBDmRVLWEf+T2YMip7beI75nQYpYaiIIkQ7sh/4L7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1KxPDeTNYewQ1RKrPpaIhNm13zbmZJ0xG6TEf/8kKoXEAR85ypdrZ0oNoQUaRJE62
-         ACKio4MT4HzJyXYnK192dSu08aPE7U8+HiGVZw01LX4LNKuhodkQA/kp4fi48+76GS
-         oQc4SsgwEH205brX+uF588ejWSV6uhz1nezThL7k=
+        b=q9sVy54G4tfoivxHDV4pHZTFyWs4k60nYN4ZZ4vS0miuSXMQpXH89APxn7AC1RuVu
+         XLzzWo8N7xG9SuMgjrJEuUPR419QR8j86l2bAFlTZpCw9jRFxXG3/khPab8kHBtu6M
+         rUMsfyxYzqqpFNZ0TD7i69gPgJnhLjH0t7vFu54M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.11 037/601] iio:adc:ad7476: Fix remove handling
-Date:   Wed, 12 May 2021 16:41:54 +0200
-Message-Id: <20210512144829.043354087@linuxfoundation.org>
+        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.11 038/601] iio: sx9310: Fix access to variable DT array
+Date:   Wed, 12 May 2021 16:41:55 +0200
+Message-Id: <20210512144829.075274844@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,58 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-commit 6baee4bd63f5fdf1716f88e95c21a683e94fe30d upstream.
+commit 6f0078ae704d94b1a93e5f3d0a44cf3d8090fa91 upstream.
 
-This driver was in an odd half way state between devm based cleanup
-and manual cleanup (most of which was missing).
-I would guess something went wrong with a rebase or similar.
-Anyhow, this basically finishes the job as a precursor to improving
-the regulator handling.
+With the current code, we want to read 4 entries from DT array
+"semtech,combined-sensors". If there are less, we silently fail as
+of_property_read_u32_array() returns -EOVERFLOW.
 
+First count the number of entries and if between 1 and 4, collect the
+content of the array.
+
+Fixes: 5b19ca2c78a0 ("iio: sx9310: Set various settings from DT")
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210326184603.251683-2-gwendal@chromium.org
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Fixes: 4bb2b8f94ace3 ("iio: adc: ad7476: implement devm_add_action_or_reset")
-Cc: Michael Hennerich <michael.hennerich@analog.com>
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210401171759.318140-2-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7476.c |   18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+ drivers/iio/proximity/sx9310.c |   40 ++++++++++++++++++++++++++++------------
+ 1 file changed, 28 insertions(+), 12 deletions(-)
 
---- a/drivers/iio/adc/ad7476.c
-+++ b/drivers/iio/adc/ad7476.c
-@@ -316,25 +316,15 @@ static int ad7476_probe(struct spi_devic
- 	spi_message_init(&st->msg);
- 	spi_message_add_tail(&st->xfer, &st->msg);
- 
--	ret = iio_triggered_buffer_setup(indio_dev, NULL,
--			&ad7476_trigger_handler, NULL);
-+	ret = devm_iio_triggered_buffer_setup(&spi->dev, indio_dev, NULL,
-+					      &ad7476_trigger_handler, NULL);
- 	if (ret)
--		goto error_disable_reg;
-+		return ret;
- 
- 	if (st->chip_info->reset)
- 		st->chip_info->reset(st);
- 
--	ret = iio_device_register(indio_dev);
--	if (ret)
--		goto error_ring_unregister;
--	return 0;
--
--error_ring_unregister:
--	iio_triggered_buffer_cleanup(indio_dev);
--error_disable_reg:
--	regulator_disable(st->reg);
--
--	return ret;
-+	return devm_iio_device_register(&spi->dev, indio_dev);
+--- a/drivers/iio/proximity/sx9310.c
++++ b/drivers/iio/proximity/sx9310.c
+@@ -1221,17 +1221,17 @@ static int sx9310_init_compensation(stru
  }
  
- static const struct spi_device_id ad7476_id[] = {
+ static const struct sx9310_reg_default *
+-sx9310_get_default_reg(struct sx9310_data *data, int i,
++sx9310_get_default_reg(struct sx9310_data *data, int idx,
+ 		       struct sx9310_reg_default *reg_def)
+ {
+-	int ret;
+ 	const struct device_node *np = data->client->dev.of_node;
+-	u32 combined[SX9310_NUM_CHANNELS] = { 4, 4, 4, 4 };
++	u32 combined[SX9310_NUM_CHANNELS];
++	u32 start = 0, raw = 0, pos = 0;
+ 	unsigned long comb_mask = 0;
++	int ret, i, count;
+ 	const char *res;
+-	u32 start = 0, raw = 0, pos = 0;
+ 
+-	memcpy(reg_def, &sx9310_default_regs[i], sizeof(*reg_def));
++	memcpy(reg_def, &sx9310_default_regs[idx], sizeof(*reg_def));
+ 	if (!np)
+ 		return reg_def;
+ 
+@@ -1242,15 +1242,31 @@ sx9310_get_default_reg(struct sx9310_dat
+ 			reg_def->def |= SX9310_REG_PROX_CTRL2_SHIELDEN_GROUND;
+ 		}
+ 
+-		reg_def->def &= ~SX9310_REG_PROX_CTRL2_COMBMODE_MASK;
+-		of_property_read_u32_array(np, "semtech,combined-sensors",
+-					   combined, ARRAY_SIZE(combined));
+-		for (i = 0; i < ARRAY_SIZE(combined); i++) {
+-			if (combined[i] <= SX9310_NUM_CHANNELS)
+-				comb_mask |= BIT(combined[i]);
++		count = of_property_count_elems_of_size(np, "semtech,combined-sensors",
++							sizeof(u32));
++		if (count > 0 && count <= ARRAY_SIZE(combined)) {
++			ret = of_property_read_u32_array(np, "semtech,combined-sensors",
++							 combined, count);
++			if (ret)
++				break;
++		} else {
++			/*
++			 * Either the property does not exist in the DT or the
++			 * number of entries is incorrect.
++			 */
++			break;
+ 		}
++		for (i = 0; i < count; i++) {
++			if (combined[i] >= SX9310_NUM_CHANNELS) {
++				/* Invalid sensor (invalid DT). */
++				break;
++			}
++			comb_mask |= BIT(combined[i]);
++		}
++		if (i < count)
++			break;
+ 
+-		comb_mask &= 0xf;
++		reg_def->def &= ~SX9310_REG_PROX_CTRL2_COMBMODE_MASK;
+ 		if (comb_mask == (BIT(3) | BIT(2) | BIT(1) | BIT(0)))
+ 			reg_def->def |= SX9310_REG_PROX_CTRL2_COMBMODE_CS0_CS1_CS2_CS3;
+ 		else if (comb_mask == (BIT(1) | BIT(2)))
 
 
