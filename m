@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 422FC37C221
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:06:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0294A37C223
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232904AbhELPGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:06:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56304 "EHLO mail.kernel.org"
+        id S232560AbhELPGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230445AbhELPFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231216AbhELPFU (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:05:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08A5361952;
-        Wed, 12 May 2021 15:00:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D1B661950;
+        Wed, 12 May 2021 15:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831631;
-        bh=QdyK0RPD4yL4DJHcpDL+ZZG2+lmSD7Y9ox7Hk8C7iVs=;
+        s=korg; t=1620831633;
+        bh=78gEKsbijpXic+wdjychEXMDO/H2HEqJvvQxTkarXXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yn6LbfCCrGDjoMri7lxKSevxVTskZVJKtAgBcNbm1ELn6xIPu0mXuVJ2+rMpVpPEq
-         JglqC4DnvasxfD67Rf1TNwJY3se/dxDALxYJZ7O/rpE+JP64ubUlXg3SRAllgdlKZo
-         tCCAigzDTNXqSIZMAv6byPLS4gFOnEvTyp4/sxpQ=
+        b=dQQbepNsQ06+XlB2ADSm49YS6gbylmv1/gXR6k0zi7pd94gb4eLCRb2U+3jgiEn0w
+         E5+1nnmGAp7TevL3zCv+XVXzDh9HLu47Mrm2n6CqLie6hV/sOmx/qGl6Rx0sQ1JFCP
+         y78HyaGGCjC1nQ9vYw1KSkwUwEARVWA1UlMTtWmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 163/244] scsi: ibmvfc: Fix invalid state machine BUG_ON()
-Date:   Wed, 12 May 2021 16:48:54 +0200
-Message-Id: <20210512144748.228284136@linuxfoundation.org>
+Subject: [PATCH 5.4 164/244] mfd: stm32-timers: Avoid clearing auto reload register
+Date:   Wed, 12 May 2021 16:48:55 +0200
+Message-Id: <20210512144748.259378650@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -41,130 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-[ Upstream commit 15cfef8623a449d40d16541687afd58e78033be3 ]
+[ Upstream commit 4917e498c6894ba077867aff78f82cffd5ffbb5c ]
 
-This fixes an issue hitting the BUG_ON() in ibmvfc_do_work(). When going
-through a host action of IBMVFC_HOST_ACTION_RESET, we change the action to
-IBMVFC_HOST_ACTION_TGT_DEL, then drop the host lock, and reset the CRQ,
-which changes the host state to IBMVFC_NO_CRQ. If, prior to setting the
-host state to IBMVFC_NO_CRQ, ibmvfc_init_host() is called, it can then end
-up changing the host action to IBMVFC_HOST_ACTION_INIT.  If we then change
-the host state to IBMVFC_NO_CRQ, we will then hit the BUG_ON().
+The ARR register is cleared unconditionally upon probing, after the maximum
+value has been read. This initial condition is rather not intuitive, when
+considering the counter child driver. It rather expects the maximum value
+by default:
+- The counter interface shows a zero value by default for 'ceiling'
+  attribute.
+- Enabling the counter without any prior configuration makes it doesn't
+  count.
 
-Make a couple of changes to avoid this. Leave the host action to be
-IBMVFC_HOST_ACTION_RESET or IBMVFC_HOST_ACTION_REENABLE until after we drop
-the host lock and reset or reenable the CRQ. Also harden the host state
-machine to ensure we cannot leave the reset / reenable state until we've
-finished processing the reset or reenable.
+The reset value of ARR register is the maximum. So Choice here
+is to backup it, and restore it then, instead of clearing its value.
+It also fixes the initial condition seen by the counter driver.
 
-Link: https://lore.kernel.org/r/20210413001009.902400-1-tyreld@linux.ibm.com
-Fixes: 73ee5d867287 ("[SCSI] ibmvfc: Fix soft lockup on resume")
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
-[tyreld: added fixes tag]
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-[mkp: fix comment checkpatch warnings]
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: d0f949e220fd ("mfd: Add STM32 Timers driver")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Acked-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 57 ++++++++++++++++++++++------------
- 1 file changed, 38 insertions(+), 19 deletions(-)
+ drivers/mfd/stm32-timers.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 523809a8a232..5f8bdc5bde4b 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -493,8 +493,17 @@ static void ibmvfc_set_host_action(struct ibmvfc_host *vhost,
- 		if (vhost->action == IBMVFC_HOST_ACTION_ALLOC_TGTS)
- 			vhost->action = action;
- 		break;
-+	case IBMVFC_HOST_ACTION_REENABLE:
-+	case IBMVFC_HOST_ACTION_RESET:
-+		vhost->action = action;
-+		break;
- 	case IBMVFC_HOST_ACTION_INIT:
- 	case IBMVFC_HOST_ACTION_TGT_DEL:
-+	case IBMVFC_HOST_ACTION_LOGO:
-+	case IBMVFC_HOST_ACTION_QUERY_TGTS:
-+	case IBMVFC_HOST_ACTION_TGT_DEL_FAILED:
-+	case IBMVFC_HOST_ACTION_NONE:
-+	default:
- 		switch (vhost->action) {
- 		case IBMVFC_HOST_ACTION_RESET:
- 		case IBMVFC_HOST_ACTION_REENABLE:
-@@ -504,15 +513,6 @@ static void ibmvfc_set_host_action(struct ibmvfc_host *vhost,
- 			break;
- 		}
- 		break;
--	case IBMVFC_HOST_ACTION_LOGO:
--	case IBMVFC_HOST_ACTION_QUERY_TGTS:
--	case IBMVFC_HOST_ACTION_TGT_DEL_FAILED:
--	case IBMVFC_HOST_ACTION_NONE:
--	case IBMVFC_HOST_ACTION_RESET:
--	case IBMVFC_HOST_ACTION_REENABLE:
--	default:
--		vhost->action = action;
--		break;
- 	}
+diff --git a/drivers/mfd/stm32-timers.c b/drivers/mfd/stm32-timers.c
+index efcd4b980c94..1adba6a46dcb 100644
+--- a/drivers/mfd/stm32-timers.c
++++ b/drivers/mfd/stm32-timers.c
+@@ -158,13 +158,18 @@ static const struct regmap_config stm32_timers_regmap_cfg = {
+ 
+ static void stm32_timers_get_arr_size(struct stm32_timers *ddata)
+ {
++	u32 arr;
++
++	/* Backup ARR to restore it after getting the maximum value */
++	regmap_read(ddata->regmap, TIM_ARR, &arr);
++
+ 	/*
+ 	 * Only the available bits will be written so when readback
+ 	 * we get the maximum value of auto reload register
+ 	 */
+ 	regmap_write(ddata->regmap, TIM_ARR, ~0L);
+ 	regmap_read(ddata->regmap, TIM_ARR, &ddata->max_arr);
+-	regmap_write(ddata->regmap, TIM_ARR, 0x0);
++	regmap_write(ddata->regmap, TIM_ARR, arr);
  }
  
-@@ -4339,26 +4339,45 @@ static void ibmvfc_do_work(struct ibmvfc_host *vhost)
- 	case IBMVFC_HOST_ACTION_INIT_WAIT:
- 		break;
- 	case IBMVFC_HOST_ACTION_RESET:
--		vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
- 		spin_unlock_irqrestore(vhost->host->host_lock, flags);
- 		rc = ibmvfc_reset_crq(vhost);
-+
- 		spin_lock_irqsave(vhost->host->host_lock, flags);
--		if (rc == H_CLOSED)
-+		if (!rc || rc == H_CLOSED)
- 			vio_enable_interrupts(to_vio_dev(vhost->dev));
--		if (rc || (rc = ibmvfc_send_crq_init(vhost)) ||
--		    (rc = vio_enable_interrupts(to_vio_dev(vhost->dev)))) {
--			ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
--			dev_err(vhost->dev, "Error after reset (rc=%d)\n", rc);
-+		if (vhost->action == IBMVFC_HOST_ACTION_RESET) {
-+			/*
-+			 * The only action we could have changed to would have
-+			 * been reenable, in which case, we skip the rest of
-+			 * this path and wait until we've done the re-enable
-+			 * before sending the crq init.
-+			 */
-+			vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
-+
-+			if (rc || (rc = ibmvfc_send_crq_init(vhost)) ||
-+			    (rc = vio_enable_interrupts(to_vio_dev(vhost->dev)))) {
-+				ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
-+				dev_err(vhost->dev, "Error after reset (rc=%d)\n", rc);
-+			}
- 		}
- 		break;
- 	case IBMVFC_HOST_ACTION_REENABLE:
--		vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
- 		spin_unlock_irqrestore(vhost->host->host_lock, flags);
- 		rc = ibmvfc_reenable_crq_queue(vhost);
-+
- 		spin_lock_irqsave(vhost->host->host_lock, flags);
--		if (rc || (rc = ibmvfc_send_crq_init(vhost))) {
--			ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
--			dev_err(vhost->dev, "Error after enable (rc=%d)\n", rc);
-+		if (vhost->action == IBMVFC_HOST_ACTION_REENABLE) {
-+			/*
-+			 * The only action we could have changed to would have
-+			 * been reset, in which case, we skip the rest of this
-+			 * path and wait until we've done the reset before
-+			 * sending the crq init.
-+			 */
-+			vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
-+			if (rc || (rc = ibmvfc_send_crq_init(vhost))) {
-+				ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
-+				dev_err(vhost->dev, "Error after enable (rc=%d)\n", rc);
-+			}
- 		}
- 		break;
- 	case IBMVFC_HOST_ACTION_LOGO:
+ static void stm32_timers_dma_probe(struct device *dev,
 -- 
 2.30.2
 
