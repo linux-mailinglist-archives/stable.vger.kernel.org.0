@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F2D037D277
+	by mail.lfdr.de (Postfix) with ESMTP id D80F237D279
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349439AbhELSKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51714 "EHLO mail.kernel.org"
+        id S1349721AbhELSKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:10:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352626AbhELSDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:03:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9F136142D;
-        Wed, 12 May 2021 18:02:37 +0000 (UTC)
+        id S1352633AbhELSDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:03:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8546461412;
+        Wed, 12 May 2021 18:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842558;
-        bh=XjNwv2Xw4I05Tn+u7g5M5/v9oyFzRCtsszzdvESb0/g=;
+        s=k20201202; t=1620842560;
+        bh=DWZvEHP6qbEXHk7l4QYr89Wvb9SZxcLnj8grohUGhsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rm9hXtjBvtM+/1rSUzo0q5Ib+diKSXtGKpFB/6y5O7tlWPhm+kKg51v0nB3R77hGA
-         aWVg//OfpnZOYoZfzfgZSFEJTyaBbK0RKYsBE7UzLzADftCboJUoJANwunA5puR4DC
-         khqb7ock9bca8QINMtJIGEhdafXd/g5HI0vareZkZ5s7Uzv/xTREaPU/0oNmF6Pq9O
-         EQE5SiyvWAZ+C/U7oGuHwqP5fLnkVQWyJ1H6MCDrhlqH0+SeGK2u1iD+zUQB1ZlcGV
-         le9SIzbD7q6a9VuvwZG+5SrQ6gIcOv7b3HIS/jjVnHgLk90aDF+Z9mP89VAVJiVfZx
-         +xBq7yxGsVWCA==
+        b=D0ke/kmyDlleZn9g3wF7srdXWo17kyTZUUo9333Rek/MHWpxf+Bpvy8ZZVLaE9SWg
+         oG8FM4hFN5B7+yE19f5Svq9PFEqiW8AObnWjcjVIgRtfXHFKVBZNJ40ZCzHj8qfeb5
+         ZcuzilLyJSuNE+gyevMDzuqSGyUPg7fbvfmiqMS1FkJNYa4MBgZXo/q9T0/c5VkNtL
+         Yqi8r1fOTTvNGXBVSs/xkFpW60q7kTjPGWBvwt15kWILeafuA70jkvb8F/biDTpBM/
+         stK57Gxy7nd2yH9T88rX2g4Y4L/JomLvweCM5B03wnZ2iuFNYPqze2nALXU8o0mUxz
+         vrlOK1/nVZ2Dw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.11 19/35] riscv: Workaround mcount name prior to clang-13
-Date:   Wed, 12 May 2021 14:01:49 -0400
-Message-Id: <20210512180206.664536-19-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 20/35] scsi: lpfc: Fix illegal memory access on Abort IOCBs
+Date:   Wed, 12 May 2021 14:01:50 -0400
+Message-Id: <20210512180206.664536-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180206.664536-1-sashal@kernel.org>
 References: <20210512180206.664536-1-sashal@kernel.org>
@@ -44,121 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 7ce04771503074a7de7f539cc43f5e1b385cb99b ]
+[ Upstream commit e1364711359f3ced054bda9920477c8bf93b74c5 ]
 
-Prior to clang 13.0.0, the RISC-V name for the mcount symbol was
-"mcount", which differs from the GCC version of "_mcount", which results
-in the following errors:
+In devloss timer handler and in backend calls to terminate remote port I/O,
+there is logic to walk through all active IOCBs and validate them to
+potentially trigger an abort request. This logic is causing illegal memory
+accesses which leads to a crash. Abort IOCBs, which may be on the list, do
+not have an associated lpfc_io_buf struct. The driver is trying to map an
+lpfc_io_buf struct on the IOCB and which results in a bogus address thus
+the issue.
 
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_level':
-main.c:(.text+0xe): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_start':
-main.c:(.text+0x4e): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_finish':
-main.c:(.text+0x92): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `.LBB32_28':
-main.c:(.text+0x30c): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `free_initmem':
-main.c:(.text+0x54c): undefined reference to `mcount'
+Fix by skipping over ABORT IOCBs (CLOSE IOCBs are ABORTS that don't send
+ABTS) in the IOCB scan logic.
 
-This has been corrected in https://reviews.llvm.org/D98881 but the
-minimum supported clang version is 10.0.1. To avoid build errors and to
-gain a working function tracer, adjust the name of the mcount symbol for
-older versions of clang in mount.S and recordmcount.pl.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1331
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Link: https://lore.kernel.org/r/20210421234433.102079-1-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/ftrace.h | 14 ++++++++++++--
- arch/riscv/kernel/mcount.S      | 10 +++++-----
- scripts/recordmcount.pl         |  2 +-
- 3 files changed, 18 insertions(+), 8 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
-index 845002cc2e57..04dad3380041 100644
---- a/arch/riscv/include/asm/ftrace.h
-+++ b/arch/riscv/include/asm/ftrace.h
-@@ -13,9 +13,19 @@
- #endif
- #define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
- 
-+/*
-+ * Clang prior to 13 had "mcount" instead of "_mcount":
-+ * https://reviews.llvm.org/D98881
-+ */
-+#if defined(CONFIG_CC_IS_GCC) || CONFIG_CLANG_VERSION >= 130000
-+#define MCOUNT_NAME _mcount
-+#else
-+#define MCOUNT_NAME mcount
-+#endif
-+
- #define ARCH_SUPPORTS_FTRACE_OPS 1
- #ifndef __ASSEMBLY__
--void _mcount(void);
-+void MCOUNT_NAME(void);
- static inline unsigned long ftrace_call_adjust(unsigned long addr)
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 95caad764fb7..bc5b5fb0b967 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -11803,13 +11803,20 @@ lpfc_sli_validate_fcp_iocb(struct lpfc_iocbq *iocbq, struct lpfc_vport *vport,
+ 			   lpfc_ctx_cmd ctx_cmd)
  {
- 	return addr;
-@@ -36,7 +46,7 @@ struct dyn_arch_ftrace {
-  * both auipc and jalr at the same time.
-  */
+ 	struct lpfc_io_buf *lpfc_cmd;
++	IOCB_t *icmd = NULL;
+ 	int rc = 1;
  
--#define MCOUNT_ADDR		((unsigned long)_mcount)
-+#define MCOUNT_ADDR		((unsigned long)MCOUNT_NAME)
- #define JALR_SIGN_MASK		(0x00000800)
- #define JALR_OFFSET_MASK	(0x00000fff)
- #define AUIPC_OFFSET_MASK	(0xfffff000)
-diff --git a/arch/riscv/kernel/mcount.S b/arch/riscv/kernel/mcount.S
-index 8a5593ff9ff3..6d462681c9c0 100644
---- a/arch/riscv/kernel/mcount.S
-+++ b/arch/riscv/kernel/mcount.S
-@@ -47,8 +47,8 @@
+ 	if (iocbq->vport != vport)
+ 		return rc;
  
- ENTRY(ftrace_stub)
- #ifdef CONFIG_DYNAMIC_FTRACE
--       .global _mcount
--       .set    _mcount, ftrace_stub
-+       .global MCOUNT_NAME
-+       .set    MCOUNT_NAME, ftrace_stub
- #endif
- 	ret
- ENDPROC(ftrace_stub)
-@@ -78,7 +78,7 @@ ENDPROC(return_to_handler)
- #endif
+-	if (!(iocbq->iocb_flag &  LPFC_IO_FCP) ||
+-	    !(iocbq->iocb_flag & LPFC_IO_ON_TXCMPLQ))
++	if (!(iocbq->iocb_flag & LPFC_IO_FCP) ||
++	    !(iocbq->iocb_flag & LPFC_IO_ON_TXCMPLQ) ||
++	      iocbq->iocb_flag & LPFC_DRIVER_ABORTED)
++		return rc;
++
++	icmd = &iocbq->iocb;
++	if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
++	    icmd->ulpCommand == CMD_CLOSE_XRI_CN)
+ 		return rc;
  
- #ifndef CONFIG_DYNAMIC_FTRACE
--ENTRY(_mcount)
-+ENTRY(MCOUNT_NAME)
- 	la	t4, ftrace_stub
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
- 	la	t0, ftrace_graph_return
-@@ -124,6 +124,6 @@ do_trace:
- 	jalr	t5
- 	RESTORE_ABI_STATE
- 	ret
--ENDPROC(_mcount)
-+ENDPROC(MCOUNT_NAME)
- #endif
--EXPORT_SYMBOL(_mcount)
-+EXPORT_SYMBOL(MCOUNT_NAME)
-diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
-index a36df04cfa09..7b83a1aaec98 100755
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -392,7 +392,7 @@ if ($arch eq "x86_64") {
-     $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s_mcount\$";
- } elsif ($arch eq "riscv") {
-     $function_regex = "^([0-9a-fA-F]+)\\s+<([^.0-9][0-9a-zA-Z_\\.]+)>:";
--    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_mcount\$";
-+    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_?mcount\$";
-     $type = ".quad";
-     $alignment = 2;
- } elsif ($arch eq "nds32") {
+ 	lpfc_cmd = container_of(iocbq, struct lpfc_io_buf, cur_iocbq);
 -- 
 2.30.2
 
