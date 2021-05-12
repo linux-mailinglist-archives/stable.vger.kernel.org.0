@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BDAF37CBDF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64DBB37CBE2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235464AbhELQiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:38:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49666 "EHLO mail.kernel.org"
+        id S238494AbhELQim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237325AbhELQaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237333AbhELQaF (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:30:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9559861352;
-        Wed, 12 May 2021 15:57:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BC4D6193E;
+        Wed, 12 May 2021 15:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835030;
-        bh=lQWy1ogfCru3Jdza/vqNIxirYCHGCM1ChXjdqpLguAM=;
+        s=korg; t=1620835032;
+        bh=LHJQggMCwBFOT+IBWn15tQ/S0akoIxyp0tDCh+0y/eI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5h/1bW+xQ5J/JomzOfEPr6R9SIb6cqBUTLvBKDbtrMVx3OyPyVexkbXGREomW0I1
-         LSgWDfo3Iz74KDHok5cv2aTz+DF1ygS613STpl8z0c7YH7ZSTshn7bglbwhOnEOm2s
-         E44MHFCX/dhzfMLhbPG95R/Qt+3g7XbsMT6zoIfs=
+        b=WvBX9fPr211YH6jLMfYYBhGD2TQuo9HDGh+MltkA6Z5ga4OJGScy4xFVyhSf42/b7
+         BfeHLH9M3JkNLtiJ94FkrXAKvkHc6v9mqNXNIgLVNN1sMqyCYGUjbLqYPMH257QJ/h
+         Yd++5Y62yYoEALGBj2DS7b4e+FMmpPzoyZFf5Sv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 179/677] arm64: dts: broadcom: bcm4908: fix switch parent node name
-Date:   Wed, 12 May 2021 16:43:45 +0200
-Message-Id: <20210512144843.183506437@linuxfoundation.org>
+Subject: [PATCH 5.12 180/677] mtd: rawnand: fsmc: Fix error code in fsmc_nand_probe()
+Date:   Wed, 12 May 2021 16:43:46 +0200
+Message-Id: <20210512144843.217015801@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,35 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a348ff97ffb840b9d74b0e64b3e0e6002187d224 ]
+[ Upstream commit e7a97528e3c787802d8c643d6ab2f428511bb047 ]
 
-Ethernet switch and MDIO are grouped using "simple-bus". It's not
-allowed to use "ethernet-switch" node name as it isn't a switch. Replace
-it with "bus".
+If dma_request_channel() fails then the probe fails and it should
+return a negative error code, but currently it returns success.
 
-Fixes: 527a3ac9bdf8 ("arm64: dts: broadcom: bcm4908: describe internal switch")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+fixes: 4774fb0a48aa ("mtd: nand/fsmc: Add DMA support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/YCqaOZ83OvPOzLwh@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/raw/fsmc_nand.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-index 9354077f74cd..9e799328c6db 100644
---- a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
-@@ -131,7 +131,7 @@
- 			status = "disabled";
- 		};
- 
--		ethernet-switch@80000 {
-+		bus@80000 {
- 			compatible = "simple-bus";
- 			#size-cells = <1>;
- 			#address-cells = <1>;
+diff --git a/drivers/mtd/nand/raw/fsmc_nand.c b/drivers/mtd/nand/raw/fsmc_nand.c
+index 0101c0fab50a..a24e2f57fa68 100644
+--- a/drivers/mtd/nand/raw/fsmc_nand.c
++++ b/drivers/mtd/nand/raw/fsmc_nand.c
+@@ -1077,11 +1077,13 @@ static int __init fsmc_nand_probe(struct platform_device *pdev)
+ 		host->read_dma_chan = dma_request_channel(mask, filter, NULL);
+ 		if (!host->read_dma_chan) {
+ 			dev_err(&pdev->dev, "Unable to get read dma channel\n");
++			ret = -ENODEV;
+ 			goto disable_clk;
+ 		}
+ 		host->write_dma_chan = dma_request_channel(mask, filter, NULL);
+ 		if (!host->write_dma_chan) {
+ 			dev_err(&pdev->dev, "Unable to get write dma channel\n");
++			ret = -ENODEV;
+ 			goto release_dma_read_chan;
+ 		}
+ 	}
 -- 
 2.30.2
 
