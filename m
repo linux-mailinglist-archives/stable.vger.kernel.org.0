@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7984437C3E7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E23937C3EA
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbhELPXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:23:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
+        id S233708AbhELPXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233877AbhELPVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:21:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA83461480;
-        Wed, 12 May 2021 15:08:48 +0000 (UTC)
+        id S232992AbhELPVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:21:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44B14613DA;
+        Wed, 12 May 2021 15:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832129;
-        bh=4v3rkBCuDsbbtwMcWdie9KBXrc2usgDI1sWuEScRJ1o=;
+        s=korg; t=1620832131;
+        bh=zY+nZBqztvyHA5uY3xOOsTfC3BcQ1IZFOuoLrlVleq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8krDiAeh6h0rexzQ00X1njITG226nyls6DsAvg+jYG4hXIbN2AIAjYZO6va9/J9t
-         MKhhvIeLilR1ol3EEM2FMQS4NTrLID549toQ2NFwode4dXs2SqjO3fUKkxo6huG0Se
-         90BjkfhmsQ6tnUxEO8960oazDLXgYRCoFEADLUZc=
+        b=AkW6G7JzTBBNqWXoSCgs5R30Tnpem6zc/TTkJQE6ChQZuKcb7tYY0E0NeMPVu3Emg
+         XXo7VmayNT3DdjrJ8JpM+kHVr7Bix5mEkimMt20mY6L1m/IT9zYzTuEl6hTfISpEHa
+         Ow66rDCQVOfWrCC8jZfV8VLUCtgxRVnBH2drUDds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Valentin Caron <valentin.caron@foss.st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 154/530] ARM: dts: stm32: fix usart 2 & 3 pinconf to wake up with flow control
-Date:   Wed, 12 May 2021 16:44:24 +0200
-Message-Id: <20210512144824.904168833@linuxfoundation.org>
+Subject: [PATCH 5.10 155/530] arm64: dts: qcom: sm8250: Fix level triggered PMU interrupt polarity
+Date:   Wed, 12 May 2021 16:44:25 +0200
+Message-Id: <20210512144824.942583675@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,78 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin CARON - foss <valentin.caron@foss.st.com>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-[ Upstream commit a1429f3d3029b65cd4032f6218d5290911377ce4 ]
+[ Upstream commit 93138ef5ac923b10f81575d35dbcb83136cbfc40 ]
 
-Modify usart 2 & 3 pins to allow wake up from low power mode while the
-hardware flow control is activated. UART RTS pin need to stay configure
-in idle mode to receive characters in order to wake up.
+As per interrupt documentation for SM8250 SoC, the polarity
+for level triggered PMU interrupt is low, fix this.
 
-Fixes: 842ed898a757 ("ARM: dts: stm32: add usart2, usart3 and uart7 pins in stm32mp15-pinctrl")
-
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Fixes: 60378f1a171e ("arm64: dts: qcom: sm8250: Add sm8250 dts file")
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Link: https://lore.kernel.org/r/96680a1c6488955c9eef7973c28026462b2a4ec0.1613468366.git.saiprakash.ranjan@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15-pinctrl.dtsi | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-index d84686e00370..dee4d32ab32c 100644
---- a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-@@ -1806,10 +1806,15 @@
- 	usart2_idle_pins_c: usart2-idle-2 {
- 		pins1 {
- 			pinmux = <STM32_PINMUX('D', 5, ANALOG)>, /* USART2_TX */
--				 <STM32_PINMUX('D', 4, ANALOG)>, /* USART2_RTS */
- 				 <STM32_PINMUX('D', 3, ANALOG)>; /* USART2_CTS_NSS */
- 		};
- 		pins2 {
-+			pinmux = <STM32_PINMUX('D', 4, AF7)>; /* USART2_RTS */
-+			bias-disable;
-+			drive-push-pull;
-+			slew-rate = <3>;
-+		};
-+		pins3 {
- 			pinmux = <STM32_PINMUX('D', 6, AF7)>; /* USART2_RX */
- 			bias-disable;
- 		};
-@@ -1855,10 +1860,15 @@
- 	usart3_idle_pins_b: usart3-idle-1 {
- 		pins1 {
- 			pinmux = <STM32_PINMUX('B', 10, ANALOG)>, /* USART3_TX */
--				 <STM32_PINMUX('G', 8, ANALOG)>, /* USART3_RTS */
- 				 <STM32_PINMUX('I', 10, ANALOG)>; /* USART3_CTS_NSS */
- 		};
- 		pins2 {
-+			pinmux = <STM32_PINMUX('G', 8, AF8)>; /* USART3_RTS */
-+			bias-disable;
-+			drive-push-pull;
-+			slew-rate = <0>;
-+		};
-+		pins3 {
- 			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
- 			bias-disable;
- 		};
-@@ -1891,10 +1901,15 @@
- 	usart3_idle_pins_c: usart3-idle-2 {
- 		pins1 {
- 			pinmux = <STM32_PINMUX('B', 10, ANALOG)>, /* USART3_TX */
--				 <STM32_PINMUX('G', 8, ANALOG)>, /* USART3_RTS */
- 				 <STM32_PINMUX('B', 13, ANALOG)>; /* USART3_CTS_NSS */
- 		};
- 		pins2 {
-+			pinmux = <STM32_PINMUX('G', 8, AF8)>; /* USART3_RTS */
-+			bias-disable;
-+			drive-push-pull;
-+			slew-rate = <0>;
-+		};
-+		pins3 {
- 			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
- 			bias-disable;
- 		};
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index d057d85a19fb..3bcd067c0dcd 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -216,7 +216,7 @@
+ 
+ 	pmu {
+ 		compatible = "arm,armv8-pmuv3";
+-		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
++		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_LOW>;
+ 	};
+ 
+ 	psci {
 -- 
 2.30.2
 
