@@ -2,89 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52DFF37B36B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 03:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AC3E37B3B5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 03:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229954AbhELBXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 21:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36998 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230157AbhELBXS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 May 2021 21:23:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 873C06191D;
-        Wed, 12 May 2021 01:22:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620782526;
-        bh=CL11Sa69JgRRcLKPqiCztBZPAUlz2+dPW7PK/v1PTk0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bwl/9wcthBc8n6f6G718qzN97uhHfZ7pF/hsoa/GUTABUXOOgu7WHvyosieadBmNY
-         +Ea5nUrYpwZC2RZNAWKtzGrlISBXwAII07i8LzCXk9VDyxL3952wNQHqp4cjgECyMv
-         OJe/lBkqGEuuZwQjLUXgJIE1MzNRCnSaQPv4OPli1yRCH6WFbkF1IVTPHDDuPiwbY+
-         JOgHYractRA/Qufx6LbO4xV4dEfzILnBWs37wnn/mZ1cok70L6Xm5RmtlKmnc0LF94
-         KGxmXkbKp1BZw87qP57uzK+KJRJenVpId/x8RlTEG7BeyY0YkyyhKx8/2eN2/TVvlL
-         m9SbrkaggVjcg==
-Date:   Tue, 11 May 2021 21:22:05 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     skt-results-master@redhat.com,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Jianlin Shi <jishi@redhat.com>, Jianwen Ji <jiji@redhat.com>,
-        Hangbin Liu <haliu@redhat.com>,
-        Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        Xiong Zhou <xzhou@redhat.com>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.11.19 (stable-queue, beb6df0c)
-Message-ID: <YJstva9S9qPO+2F3@sashalap>
-References: <cki.30AF028A01.OS9TECV9G1@redhat.com>
+        id S229920AbhELB4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 21:56:05 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:2707 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229848AbhELB4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 May 2021 21:56:05 -0400
+Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4FfyTX06myz1BHsG;
+        Wed, 12 May 2021 09:52:16 +0800 (CST)
+Received: from [10.174.178.208] (10.174.178.208) by
+ DGGEMS410-HUB.china.huawei.com (10.3.19.210) with Microsoft SMTP Server id
+ 14.3.498.0; Wed, 12 May 2021 09:54:50 +0800
+Subject: Re: [PATCH 5.10 000/299] 5.10.36-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210510102004.821838356@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <3e03e4e6-dac2-aa17-f1df-0f407de0a1f5@huawei.com>
+Date:   Wed, 12 May 2021 09:54:49 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cki.30AF028A01.OS9TECV9G1@redhat.com>
+In-Reply-To: <20210510102004.821838356@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 11, 2021 at 09:43:50PM -0000, CKI Project wrote:
->
->Hello,
->
->We ran automated tests on a recent commit from this kernel tree:
->
->       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->            Commit: beb6df0ce94f - thermal/core/fair share: Lock the thermal zone while looping over instances
->
->The results of these automated tests are provided below.
->
->    Overall result: FAILED (see details below)
->             Merge: OK
->           Compile: OK
->             Tests: FAILED
->
->All kernel binaries, config files, and logs are available for download here:
->
->  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefix=datawarehouse-public/2021/05/11/300944713
->
->One or more kernel tests failed:
->
->    s390x:
->     ❌ Networking tunnel: geneve basic test
->
->    ppc64le:
->     ❌ LTP
->     ❌ Networking tunnel: geneve basic test
->
->    aarch64:
->     ❌ Networking tunnel: geneve basic test
->
->    x86_64:
->     ❌ Networking tunnel: geneve basic test
 
-CKI folks, looks like there was a gap between 5.11.16 and now, and idea
-if the reported issue here is new in the 5.11.19 -rc, or something that
-regressed earlier?
 
--- 
-Thanks,
-Sasha
+On 2021/5/10 18:16, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.36 release.
+> There are 299 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 12 May 2021 10:19:23 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.36-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Tested on arm64 and x86 for 5.10.36-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.36-rc1
+Commit: 4edc8f7e8676bbfdec9d67dc6b90ec72fd3bacaa
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8476
+passed: 8476
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8476
+passed: 8476
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
