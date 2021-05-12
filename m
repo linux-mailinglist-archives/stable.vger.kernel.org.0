@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3816F37CBB5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA92037CEF5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235749AbhELQhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S1345229AbhELRH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:07:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241727AbhELQ14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5958C61420;
-        Wed, 12 May 2021 15:55:38 +0000 (UTC)
+        id S244800AbhELQvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:51:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AF4E61C93;
+        Wed, 12 May 2021 16:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834938;
-        bh=kqBPCLw3fTjQTbbrkRgQ1iSU7cna6dND4Gyu3RXdw9w=;
+        s=korg; t=1620836353;
+        bh=CGfC9W18/Jox6ympwiH29ypYoRjyQwKxo3cJZuWlpA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8eBzeA7N1AzfQF9/LNyYjqeoXeBssWKjmdicMsSo37n7YC9u+w8PGunXTRSB8YXz
-         NSg3ev8RmL8+WdVFdAwlCbPCGeIy9m7Dl7KKeNidALke5rzMg0wQdthhIHcn03Ffur
-         qA2jffb0qP1/fYIPteTe12o3UwFiEIN6z9ljxADI=
+        b=xPKo+2sw1LRwcVQmfMep59o3fkLT39YeWt5vrECNhNYIuWQKn0+OLQyeAJAxAoe0b
+         KyoyHPhs/lYlm00r0P/AXaNsZcGL7BtBREnKp2cASPPpjMIbeqgXgM+jtkE3p0SKg0
+         E7UycXKSkp9FOTMgFpCMovTF7kgU6QjxIRNEQgL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 143/677] crypto: sun8i-ss - fix result memory leak on error path
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.11 112/601] KVM: arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST_REGION read
 Date:   Wed, 12 May 2021 16:43:09 +0200
-Message-Id: <20210512144841.998613218@linuxfoundation.org>
+Message-Id: <20210512144831.525449505@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-References: <20210512144837.204217980@linuxfoundation.org>
+In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
+References: <20210512144827.811958675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-[ Upstream commit 1dbc6a1e25be8575d6c4114d1d2b841a796507f7 ]
+commit 53b16dd6ba5cf64ed147ac3523ec34651d553cb0 upstream.
 
-This patch fixes a memory leak on an error path.
+The doc says:
+"The characteristics of a specific redistributor region can
+ be read by presetting the index field in the attr data.
+ Only valid for KVM_DEV_TYPE_ARM_VGIC_V3"
 
-Fixes: d9b45418a917 ("crypto: sun8i-ss - support hash algorithms")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unfortunately the existing code fails to read the input attr data.
+
+Fixes: 04c110932225 ("KVM: arm/arm64: Implement KVM_VGIC_V3_ADDR_TYPE_REDIST_REGION")
+Cc: stable@vger.kernel.org#v4.17+
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210405163941.510258-3-eric.auger@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kvm/vgic/vgic-kvm-device.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
-index 11cbcbc83a7b..0b9aa24a5edd 100644
---- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
-+++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
-@@ -438,8 +438,8 @@ int sun8i_ss_hash_run(struct crypto_engine *engine, void *breq)
- 	kfree(pad);
+--- a/arch/arm64/kvm/vgic/vgic-kvm-device.c
++++ b/arch/arm64/kvm/vgic/vgic-kvm-device.c
+@@ -226,6 +226,9 @@ static int vgic_get_common_attr(struct k
+ 		u64 addr;
+ 		unsigned long type = (unsigned long)attr->attr;
  
- 	memcpy(areq->result, result, algt->alg.hash.halg.digestsize);
--	kfree(result);
- theend:
-+	kfree(result);
- 	crypto_finalize_hash_request(engine, breq, err);
- 	return 0;
- }
--- 
-2.30.2
-
++		if (copy_from_user(&addr, uaddr, sizeof(addr)))
++			return -EFAULT;
++
+ 		r = kvm_vgic_addr(dev->kvm, type, &addr, false);
+ 		if (r)
+ 			return (r == -ENODEV) ? -ENXIO : r;
 
 
