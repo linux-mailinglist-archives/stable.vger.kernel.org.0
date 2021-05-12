@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C5A437CC9C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2561637CC9F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244414AbhELQpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:45:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56996 "EHLO mail.kernel.org"
+        id S244423AbhELQpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239049AbhELQjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:39:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE9B261CDA;
-        Wed, 12 May 2021 16:03:12 +0000 (UTC)
+        id S239339AbhELQjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:39:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC4CD61CDF;
+        Wed, 12 May 2021 16:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835393;
-        bh=q7qdVnuUeIr08s+JvqQJbgO5qKDfyI/vrU5HwDnxXXc=;
+        s=korg; t=1620835398;
+        bh=gY9Pp0xiZuLgyrykZk4BpV1fMrVQZQKidXqE3FDqiKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMtuD+v/2H0l4/EcNEWM7c/mMpptDKIuNs//DM7Zd5uvOEj9nAyBE90dSc34Ae4pt
-         Kgi9J/GyMN3JeL6jxMQtrBXbsjJgcjVlZ7VuwT5cjbEiseld1damWYmWqyvrQxPdAL
-         a80SNva0vfn2xRXfy2UH1mHUPkduO27NzbadxtoU=
+        b=RRFQ82hurHulzWpN1XZRRO/emmX260szEuR4j7q7ZwWH0Ei54x7Cen/ko7x0gFwAP
+         u9sfCcvE6LU3T2c5tw5T946Gp1yPd3OmXxggyi6Cdg/VdqgeEi6xBnE/X6Fyr/agDd
+         2HnMtkqeBjrFTAEjwjeGi6/5umZVjUPanI3NN9iY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 326/677] btrfs: zoned: move log tree node allocation out of log_root_tree->log_mutex
-Date:   Wed, 12 May 2021 16:46:12 +0200
-Message-Id: <20210512144848.075752880@linuxfoundation.org>
+Subject: [PATCH 5.12 327/677] btrfs: zoned: bail out in btrfs_alloc_chunk for bad input
+Date:   Wed, 12 May 2021 16:46:13 +0200
+Message-Id: <20210512144848.110528854@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,63 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e75f9fd194090e69c5ffd856ba89160683d343da ]
+[ Upstream commit bb05b298af8b2330db2b39971bf0029798e7ad59 ]
 
-Commit 6e37d2459941 ("btrfs: zoned: fix deadlock on log sync") pointed out
-a deadlock warning and removed mutex_{lock,unlock} of fs_info::tree_root->log_mutex.
-While it looks like it always cause a deadlock, we didn't see actual
-deadlock in fstests runs. The reason is log_root_tree->log_mutex !=
-fs_info->tree_root->log_mutex, not taking the same lock. So, the warning
-was actually a false-positive.
+gcc complains that the ctl->max_chunk_size member might be used
+uninitialized when none of the three conditions for initializing it in
+init_alloc_chunk_ctl_policy_zoned() are true:
 
-Since btrfs_alloc_log_tree_node() is protected only by
-fs_info->tree_root->log_mutex, we can (and should) move the code out of
-the lock scope of log_root_tree->log_mutex and silence the warning.
+In function ‘init_alloc_chunk_ctl_policy_zoned’,
+    inlined from ‘init_alloc_chunk_ctl’ at fs/btrfs/volumes.c:5023:3,
+    inlined from ‘btrfs_alloc_chunk’ at fs/btrfs/volumes.c:5340:2:
+include/linux/compiler-gcc.h:48:45: error: ‘ctl.max_chunk_size’ may be used uninitialized [-Werror=maybe-uninitialized]
+ 4998 |         ctl->max_chunk_size = min(limit, ctl->max_chunk_size);
+      |                               ^~~
+fs/btrfs/volumes.c: In function ‘btrfs_alloc_chunk’:
+fs/btrfs/volumes.c:5316:32: note: ‘ctl’ declared here
+ 5316 |         struct alloc_chunk_ctl ctl;
+      |                                ^~~
 
-Fixes: 6e37d2459941 ("btrfs: zoned: fix deadlock on log sync")
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+If we ever get into this condition, something is seriously
+wrong, as validity is checked in the callers
+
+  btrfs_alloc_chunk
+    init_alloc_chunk_ctl
+      init_alloc_chunk_ctl_policy_zoned
+
+so the same logic as in init_alloc_chunk_ctl_policy_regular()
+and a few other places should be applied. This avoids both further
+data corruption, and the compile-time warning.
+
+Fixes: 1cd6121f2a38 ("btrfs: zoned: implement zoned chunk allocator")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/btrfs/volumes.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 92a368627791..72c4b66ed516 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3165,20 +3165,22 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans,
- 	 */
- 	mutex_unlock(&root->log_mutex);
- 
--	btrfs_init_log_ctx(&root_log_ctx, NULL);
--
--	mutex_lock(&log_root_tree->log_mutex);
--
- 	if (btrfs_is_zoned(fs_info)) {
-+		mutex_lock(&fs_info->tree_root->log_mutex);
- 		if (!log_root_tree->node) {
- 			ret = btrfs_alloc_log_tree_node(trans, log_root_tree);
- 			if (ret) {
--				mutex_unlock(&log_root_tree->log_mutex);
-+				mutex_unlock(&fs_info->tree_log_mutex);
- 				goto out;
- 			}
- 		}
-+		mutex_unlock(&fs_info->tree_root->log_mutex);
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 1c6810bbaf8b..3912eda7905f 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4989,6 +4989,8 @@ static void init_alloc_chunk_ctl_policy_zoned(
+ 		ctl->max_chunk_size = 2 * ctl->max_stripe_size;
+ 		ctl->devs_max = min_t(int, ctl->devs_max,
+ 				      BTRFS_MAX_DEVS_SYS_CHUNK);
++	} else {
++		BUG();
  	}
  
-+	btrfs_init_log_ctx(&root_log_ctx, NULL);
-+
-+	mutex_lock(&log_root_tree->log_mutex);
-+
- 	index2 = log_root_tree->log_transid % 2;
- 	list_add_tail(&root_log_ctx.list, &log_root_tree->log_ctxs[index2]);
- 	root_log_ctx.log_transid = log_root_tree->log_transid;
+ 	/* We don't want a chunk larger than 10% of writable space */
 -- 
 2.30.2
 
