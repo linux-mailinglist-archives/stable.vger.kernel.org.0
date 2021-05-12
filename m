@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77AAB37B9F1
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 392AD37B9F2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:06:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230134AbhELKHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:07:10 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:44289 "EHLO
+        id S230126AbhELKHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:07:11 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:37897 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230178AbhELKHJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:07:09 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.west.internal (Postfix) with ESMTP id B53D71322;
-        Wed, 12 May 2021 06:05:59 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Wed, 12 May 2021 06:06:00 -0400
+        by vger.kernel.org with ESMTP id S230109AbhELKHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:07:10 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 62E2812D8;
+        Wed, 12 May 2021 06:06:02 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Wed, 12 May 2021 06:06:02 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fzXuGt
-        waU0XvczHQ76O3qmR7DcM1PLyqpiG/dAQOkqw=; b=iYcIWjv1XFTR5/4po81Izg
-        bxYHwlRDtHk6Et8EIVjVJEja9b3ldXpCXmqia4UV0GfVdkPR1BdBaHCCp/ebr5f/
-        7N6Zc1T2PPkRkW7I1ewteZDmpJkG8cfvsrimwjhET1j5PR2dVEsWKIaqJm+wwnsS
-        9yMbcvnITDMgWjJ3nVinr7hRqXpVIouMuFP1E0jJICRVj/79jzNeCnFW3AnQw2Bv
-        M309vWqOsAxQcJquc8Rz3TVy6FQARbVC79TB8hWpf37HUIWHUOz7MnLEqQmcybSe
-        fvkagAOa+nO6lATEiUviZzgt7dxqnl6kAPZf/0L7C9Eu3C2AdSG18P241d0ato7A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rxP1JP
+        5vTrwrBv1IM0ky1PGyp4SEO1uMgrnQWkDvUFc=; b=OZ1l5IVIOIE+y2m5gLykh9
+        +ocH6Yr0Tj4W+BohmHVbFV/roGfIDt3YVdI8LVnYOOUIUBV07Et4/z2aPof7709l
+        /vfyjh6fkEyhcWZFlq3Qb9PVGhiHhH2NwIpaLdJWGe4ccMg430vvQv57T8BtbB3l
+        SwyvVH9wBqa/PMJ81GvZtL9gkuyiAxPCyu1YVNzioStbelrHJtIV6S/1UHJECwTe
+        thST9jtYdT7w/Oe/lNie5ucB1Bta/3q8EEvIc+tr7xd54mMZAno5FgPYAMSz2eHz
+        c6loUxdzr5j79Bq8d/3ynPdi0XdYGdMCItsaTfYrDxKaBp3E4+HXlKoGq/UupWWw
         ==
-X-ME-Sender: <xms:h6ibYAX-4-cmeqHlW5fciY8tgmtMjjfsfDIr0Rv-gWFaWzd6qZCuiQ>
-    <xme:h6ibYEnC3VwSc8dbCfrU5NlFwpgnFA8juVIn8KOL8QE5LC7MoPoc8SCnmEGQ4C5-_
-    zeyVEY5Qg8lJQ>
+X-ME-Sender: <xms:iaibYLg1UZUHTJ94eZc6Hj3w2S4bYdzinvGfI_RcFFAXq0GVcMKBIA>
+    <xme:iaibYIBLbedNTzqloPxlnNaOwvDzWvaCxVXGhAf3eesLmERvBgqaszlGSVJReuu-G
+    vfM1itUDVCiwA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvddtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -39,21 +39,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvddtucetufdoteggod
     vghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghruf
     hiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
     mh
-X-ME-Proxy: <xmx:h6ibYEanpSco3Uqnafsl-hNsN_RrVsEquMW9V0KKMBcJKExWcmmM4w>
-    <xmx:h6ibYPWIPONsDXbQ8YFyxGYlaHstIIC5K9vnAL4GDXjSbwe_97O54g>
-    <xmx:h6ibYKky8helVlnr_ae86oujqGfsJv4xBR8v7cDUloukZceIpDtDIA>
-    <xmx:h6ibYMgLqmLcV9FAAor7Jsc0NDZmcwDs8ui-8fNtVTcq_uk2jGrv5zP4FzU>
+X-ME-Proxy: <xmx:iaibYLF9vkw83bwSK4SCnBF9z7NZ2rw9-b5GFmbPZ41ycPYg99vzxQ>
+    <xmx:iaibYIT2F3R9Yygb5bmTjIKKC2of7zEyqWsU-_z41-B5eUYNDieNaQ>
+    <xmx:iaibYIxSouvtU7aVITzlArL_n4jOur3dZTlkQOOtD051wQjjcixTPQ>
+    <xmx:iqibYE__p5NEAdD_07OmT_aOuZI0TpknMaFXQf-R_qCLm3FWmp1sEbEwGlg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:05:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: hda/cirrus: Set Initial DMIC volume for Bullseye to -26" failed to apply to 5.11-stable tree
+        Wed, 12 May 2021 06:06:01 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: hda/cirrus: Set Initial DMIC volume for Bullseye to -26" failed to apply to 5.4-stable tree
 To:     sbinding@opensource.cirrus.com, stable@vger.kernel.org,
         tiwai@suse.de, vicamo.yang@canonical.com,
         vitalyr@opensource.cirrus.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 12:05:48 +0200
-Message-ID: <162081394890214@kroah.com>
+Date:   Wed, 12 May 2021 12:05:49 +0200
+Message-ID: <162081394978125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
