@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C45937CA7A
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8306837CA85
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240214AbhELQad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:30:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60246 "EHLO mail.kernel.org"
+        id S241591AbhELQao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236775AbhELQXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:23:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6FE261C9E;
-        Wed, 12 May 2021 15:47:23 +0000 (UTC)
+        id S237524AbhELQYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:24:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3E5461D9C;
+        Wed, 12 May 2021 15:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834444;
-        bh=Yi7a76Xqz2dyROR/LuHq02uv2UfJ5IpCohE1rMnHwTY=;
+        s=korg; t=1620834466;
+        bh=rKfCAqI/L9VyjaHy1X2HOmAlWnoBYiOpfUf5UJneXVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xaN4ryqRwdiUA3G6KSqiysdKPLHKU4n4tPlaQ9KiDvy9Er1xCmsdB9Ws+ewQN7K/H
-         rTbB6rZv7LyKrGQKW1RQ52pbeMds1yLbL3/G2Qf1XLFBxau5VgC3E06j+TNgEaam6k
-         JjnECpQSWwS3zIBQzQSkdlLCt8UectBQqxebnwfw=
+        b=u9RlHxx/VMgufABSk6WVqgvp0VGOR3epxc5QWXwh4DCKG26310M4WLZtymXR0CUA/
+         m8uyzqzC1DtyQe253Y8d3oej35HJJaQW7F00evd84Iz+IvJLX0h5AIKMMir5u11S+p
+         RgV2Iq3RaaBtjtOA4zCXLx4+eRnSgF1dGtt2bFbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Geliang Tang <geliangtang@gmail.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 519/601] powerpc/pseries: extract host bridge from pci_bus prior to bus removal
-Date:   Wed, 12 May 2021 16:49:56 +0200
-Message-Id: <20210512144844.948197485@linuxfoundation.org>
+Subject: [PATCH 5.11 520/601] mptcp: fix format specifiers for unsigned int
+Date:   Wed, 12 May 2021 16:49:57 +0200
+Message-Id: <20210512144844.980190642@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,48 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Geliang Tang <geliangtang@gmail.com>
 
-[ Upstream commit 38d0b1c9cec71e6d0f3bddef0bbce41d05a3e796 ]
+[ Upstream commit e4b6135134a75f530bd634ea7c168efaf0f9dff3 ]
 
-The pci_bus->bridge reference may no longer be valid after
-pci_bus_remove() resulting in passing a bad value to device_unregister()
-for the associated bridge device.
+Some of the sequence numbers are printed as the negative ones in the debug
+log:
 
-Store the host_bridge reference in a separate variable prior to
-pci_bus_remove().
+[   46.250932] MPTCP: DSS
+[   46.250940] MPTCP: data_fin=0 dsn64=0 use_map=0 ack64=1 use_ack=1
+[   46.250948] MPTCP: data_ack=2344892449471675613
+[   46.251012] MPTCP: msk=000000006e157e3f status=10
+[   46.251023] MPTCP: msk=000000006e157e3f snd_data_fin_enable=0 pending=0 snd_nxt=2344892449471700189 write_seq=2344892449471700189
+[   46.251343] MPTCP: msk=00000000ec44a129 ssk=00000000f7abd481 sending dfrag at seq=-1658937016627538668 len=100 already sent=0
+[   46.251360] MPTCP: data_seq=16787807057082012948 subflow_seq=1 data_len=100 dsn64=1
 
-Fixes: 7340056567e3 ("powerpc/pci: Reorder pci bus/bridge unregistration during PHB removal")
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210211182435.47968-1-tyreld@linux.ibm.com
+This patch used the format specifier %u instead of %d for the unsigned int
+values to fix it.
+
+Fixes: d9ca1de8c0cd ("mptcp: move page frag allocation in mptcp_sendmsg()")
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Geliang Tang <geliangtang@gmail.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/pci_dlpar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/mptcp/protocol.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/pci_dlpar.c b/arch/powerpc/platforms/pseries/pci_dlpar.c
-index f9ae17e8a0f4..a8f9140a24fa 100644
---- a/arch/powerpc/platforms/pseries/pci_dlpar.c
-+++ b/arch/powerpc/platforms/pseries/pci_dlpar.c
-@@ -50,6 +50,7 @@ EXPORT_SYMBOL_GPL(init_phb_dynamic);
- int remove_phb_dynamic(struct pci_controller *phb)
- {
- 	struct pci_bus *b = phb->bus;
-+	struct pci_host_bridge *host_bridge = to_pci_host_bridge(b->bridge);
- 	struct resource *res;
- 	int rc, i;
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index e337b35a368f..a1fda2ce2f83 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -1258,7 +1258,7 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
+ 	int avail_size;
+ 	size_t ret = 0;
  
-@@ -76,7 +77,8 @@ int remove_phb_dynamic(struct pci_controller *phb)
- 	/* Remove the PCI bus and unregister the bridge device from sysfs */
- 	phb->bus = NULL;
- 	pci_remove_bus(b);
--	device_unregister(b->bridge);
-+	host_bridge->bus = NULL;
-+	device_unregister(&host_bridge->dev);
+-	pr_debug("msk=%p ssk=%p sending dfrag at seq=%lld len=%d already sent=%d",
++	pr_debug("msk=%p ssk=%p sending dfrag at seq=%llu len=%u already sent=%u",
+ 		 msk, ssk, dfrag->data_seq, dfrag->data_len, info->sent);
  
- 	/* Now release the IO resource */
- 	if (res->flags & IORESOURCE_IO)
+ 	/* compute send limit */
+@@ -1671,7 +1671,7 @@ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 			if (!msk->first_pending)
+ 				WRITE_ONCE(msk->first_pending, dfrag);
+ 		}
+-		pr_debug("msk=%p dfrag at seq=%lld len=%d sent=%d new=%d", msk,
++		pr_debug("msk=%p dfrag at seq=%llu len=%u sent=%u new=%d", msk,
+ 			 dfrag->data_seq, dfrag->data_len, dfrag->already_sent,
+ 			 !dfrag_collapsed);
+ 
 -- 
 2.30.2
 
