@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A5037C4C0
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D016037C4B3
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234553AbhELPdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:33:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60684 "EHLO mail.kernel.org"
+        id S233823AbhELPcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234282AbhELPYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:24:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BDA3619A2;
-        Wed, 12 May 2021 15:10:06 +0000 (UTC)
+        id S232542AbhELPWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:22:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 385C7619A7;
+        Wed, 12 May 2021 15:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832207;
-        bh=eeRkkqmWN/6cfDCv5KC62VnRs+/cdDaUUcTJIArgbq8=;
+        s=korg; t=1620832153;
+        bh=sk39f7BcW7qfsEqn3oDJHypA/aw9+AGbHS6rNghlAc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMM4g5woPegtSfckESb+r8mg+Sa6Y0x3dYdJdOMdpCUwHPmzUFYsyxcKQ3WTLgxcy
-         XyQxReIcLw8xaUPCQeQ8MQP6MFe3OvC4WmksshOi7h3OLGAYKtQ/7kqEY70SQF04qT
-         g13oYo4+DecFhABZBBVXsUtkk5fwx4sFjoMIjbIQ=
+        b=AYxKC+GocyOG+kwsgftInRP8xWHplYHbZxz9vYGNufShxL2AO164KW57F8eljmHrb
+         rryy7nln6D1mqkrOLfz958TwfJDuuOXllyJ79xUX8q7gn9ZSL/Y++dFHw1n/DvAvdl
+         EbEE8uvC35ZNaXNaxiSfq7A5jdyi/PrU0w9jS/ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 151/530] mtd: rawnand: qcom: Return actual error code instead of -ENODEV
-Date:   Wed, 12 May 2021 16:44:21 +0200
-Message-Id: <20210512144824.809522231@linuxfoundation.org>
+Subject: [PATCH 5.10 163/530] regulator: bd9576: Fix return from bd957x_probe()
+Date:   Wed, 12 May 2021 16:44:33 +0200
+Message-Id: <20210512144825.195199698@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,51 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 55fbb9ba4f06cb6aff32daca1e1910173c13ec51 ]
+[ Upstream commit 320fcd6bbd2b500923db518902c2c640242d2b50 ]
 
-In qcom_probe_nand_devices() function, the error code returned by
-qcom_nand_host_init_and_register() is converted to -ENODEV in the case
-of failure. This poses issue if -EPROBE_DEFER is returned when the
-dependency is not available for a component like parser.
+The probe() function returns an uninitialized variable in the success
+path.  There is no need for the "err" variable at all, just delete it.
 
-So let's restructure the error handling logic a bit and return the
-actual error code in case of qcom_nand_host_init_and_register() failure.
-
-Fixes: c76b78d8ec05 ("mtd: nand: Qualcomm NAND controller driver")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Fixes: b014e9fae7e7 ("regulator: Support ROHM BD9576MUF and BD9573MUF")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Link: https://lore.kernel.org/r/YEsbfLJfEWtnRpoU@mwanda
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/qcom_nandc.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/regulator/bd9576-regulator.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/qcom_nandc.c b/drivers/mtd/nand/raw/qcom_nandc.c
-index dfc17a28a06b..b99d2e9d1e2c 100644
---- a/drivers/mtd/nand/raw/qcom_nandc.c
-+++ b/drivers/mtd/nand/raw/qcom_nandc.c
-@@ -2874,7 +2874,7 @@ static int qcom_probe_nand_devices(struct qcom_nand_controller *nandc)
- 	struct device *dev = nandc->dev;
- 	struct device_node *dn = dev->of_node, *child;
- 	struct qcom_nand_host *host;
--	int ret;
-+	int ret = -ENODEV;
- 
- 	for_each_available_child_of_node(dn, child) {
- 		host = devm_kzalloc(dev, sizeof(*host), GFP_KERNEL);
-@@ -2892,10 +2892,7 @@ static int qcom_probe_nand_devices(struct qcom_nand_controller *nandc)
- 		list_add_tail(&host->node, &nandc->host_list);
+diff --git a/drivers/regulator/bd9576-regulator.c b/drivers/regulator/bd9576-regulator.c
+index a8b5832a5a1b..204a2da054f5 100644
+--- a/drivers/regulator/bd9576-regulator.c
++++ b/drivers/regulator/bd9576-regulator.c
+@@ -206,7 +206,7 @@ static int bd957x_probe(struct platform_device *pdev)
+ {
+ 	struct regmap *regmap;
+ 	struct regulator_config config = { 0 };
+-	int i, err;
++	int i;
+ 	bool vout_mode, ddr_sel;
+ 	const struct bd957x_regulator_data *reg_data = &bd9576_regulators[0];
+ 	unsigned int num_reg_data = ARRAY_SIZE(bd9576_regulators);
+@@ -279,8 +279,7 @@ static int bd957x_probe(struct platform_device *pdev)
+ 		break;
+ 	default:
+ 		dev_err(&pdev->dev, "Unsupported chip type\n");
+-		err = -EINVAL;
+-		goto err;
++		return -EINVAL;
  	}
  
--	if (list_empty(&nandc->host_list))
--		return -ENODEV;
--
--	return 0;
-+	return ret;
+ 	config.dev = pdev->dev.parent;
+@@ -300,8 +299,7 @@ static int bd957x_probe(struct platform_device *pdev)
+ 			dev_err(&pdev->dev,
+ 				"failed to register %s regulator\n",
+ 				desc->name);
+-			err = PTR_ERR(rdev);
+-			goto err;
++			return PTR_ERR(rdev);
+ 		}
+ 		/*
+ 		 * Clear the VOUT1 GPIO setting - rest of the regulators do not
+@@ -310,8 +308,7 @@ static int bd957x_probe(struct platform_device *pdev)
+ 		config.ena_gpiod = NULL;
+ 	}
+ 
+-err:
+-	return err;
++	return 0;
  }
  
- /* parse custom DT properties here */
+ static const struct platform_device_id bd957x_pmic_id[] = {
 -- 
 2.30.2
 
