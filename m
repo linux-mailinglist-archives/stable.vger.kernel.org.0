@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B5537CE42
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 663FA37CE40
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239166AbhELRET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:04:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
+        id S239130AbhELREO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:04:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234117AbhELQm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233880AbhELQm7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B02561E64;
-        Wed, 12 May 2021 16:12:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D264561D4B;
+        Wed, 12 May 2021 16:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835964;
-        bh=XyoH+qk/tMcgVpA7XWQ+Q7AXp34/28+L/irQUMDMy6g=;
+        s=korg; t=1620835967;
+        bh=BMMnwKIKArOQuJDpMbJFy5/8JvHpyrHqrwgsEE8FpDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TrcB0NFbomjCSdl4HBOPyDIw8EdFJYO2zltFOPc9mQNp+7O4EFsBB3VzezSSztEf
-         UILQbPqw5hmDnsEO6+meYp//ITUdPTQyrDcyP9fyIf1pnkdBq8SMLjdFFc2DCu4iWc
-         TqfCJZ0B7UE+dhAQNqsO9Mh1k+5DKJwT5h62k0KA=
+        b=aPYonEKDkvXRavSQdTfbeJM9e62zqj3gpEBzaWfKGjCAPL4OsapttmISP2/pjfmWe
+         d15mvsHC29Nfkmp6ETRmNY/a80HMcZYpQCWBGMIqeJANes/deHcCmH0XHGpt+iQw67
+         w1e0O8UBPDwGuHQi3x4hrc8tV15sMwxoi4sLjBY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 554/677] RDMA/rtrs-clt: destroy sysfs after removing session from active list
-Date:   Wed, 12 May 2021 16:50:00 +0200
-Message-Id: <20210512144855.791184310@linuxfoundation.org>
+Subject: [PATCH 5.12 555/677] pinctrl: at91-pio4: Fix slew rate disablement
+Date:   Wed, 12 May 2021 16:50:01 +0200
+Message-Id: <20210512144855.825233710@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,59 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gioh Kim <gi-oh.kim@ionos.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit 7f4a8592ff29f19c5a2ca549d0973821319afaad ]
+[ Upstream commit cbde6c823bfaa553fb162257a5926ba15ebaaa43 ]
 
-A session can be removed dynamically by sysfs interface "remove_path" that
-eventually calls rtrs_clt_remove_path_from_sysfs function.  The current
-rtrs_clt_remove_path_from_sysfs first removes the sysfs interfaces and
-frees sess->stats object. Second it removes the session from the active
-list.
+The slew rate was enabled by default for each configuration of the
+pin. In case the pin had more than one configuration, even if
+we set the slew rate as disabled in the device tree, the next pin
+configuration would set again the slew rate enabled by default,
+overwriting the slew rate disablement.
+Instead of enabling the slew rate by default for each pin configuration,
+enable the slew rate by default just once per pin, regardless of the
+number of configurations. This way the slew rate disablement will also
+work for cases where pins have multiple configurations.
 
-Therefore some functions could access non-connected session and access the
-freed sess->stats object even-if they check the session status before
-accessing the session.
-
-For instance rtrs_clt_request and get_next_path_min_inflight check the
-session status and try to send IO to the session.  The session status
-could be changed when they are trying to send IO but they could not catch
-the change and update the statistics information in sess->stats object,
-and generate use-after-free problem.
-(see: "RDMA/rtrs-clt: Check state of the rtrs_clt_sess before reading its
-stats")
-
-This patch changes the rtrs_clt_remove_path_from_sysfs to remove the
-session from the active session list and then destroy the sysfs
-interfaces.
-
-Each function still should check the session status because closing or
-error recovery paths can change the status.
-
-Fixes: 6a98d71daea1 ("RDMA/rtrs: client: main functionality")
-Link: https://lore.kernel.org/r/20210412084002.33582-1-gi-oh.kim@ionos.com
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: c709135e576b ("pinctrl: at91-pio4: add support for slew-rate")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Link: https://lore.kernel.org/r/20210409082522.625168-1-tudor.ambarus@microchip.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-clt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-at91-pio4.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-index 6734329cca33..959ba0462ef0 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-@@ -2784,8 +2784,8 @@ int rtrs_clt_remove_path_from_sysfs(struct rtrs_clt_sess *sess,
- 	} while (!changed && old_state != RTRS_CLT_DEAD);
+diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
+index e71ebccc479c..03c32b2c5d30 100644
+--- a/drivers/pinctrl/pinctrl-at91-pio4.c
++++ b/drivers/pinctrl/pinctrl-at91-pio4.c
+@@ -801,6 +801,10 @@ static int atmel_conf_pin_config_group_set(struct pinctrl_dev *pctldev,
  
- 	if (likely(changed)) {
--		rtrs_clt_destroy_sess_files(sess, sysfs_self);
- 		rtrs_clt_remove_path_from_arr(sess);
-+		rtrs_clt_destroy_sess_files(sess, sysfs_self);
- 		kobject_put(&sess->kobj);
- 	}
+ 	conf = atmel_pin_config_read(pctldev, pin_id);
  
++	/* Keep slew rate enabled by default. */
++	if (atmel_pioctrl->slew_rate_support)
++		conf |= ATMEL_PIO_SR_MASK;
++
+ 	for (i = 0; i < num_configs; i++) {
+ 		unsigned int param = pinconf_to_config_param(configs[i]);
+ 		unsigned int arg = pinconf_to_config_argument(configs[i]);
+@@ -808,10 +812,6 @@ static int atmel_conf_pin_config_group_set(struct pinctrl_dev *pctldev,
+ 		dev_dbg(pctldev->dev, "%s: pin=%u, config=0x%lx\n",
+ 			__func__, pin_id, configs[i]);
+ 
+-		/* Keep slew rate enabled by default. */
+-		if (atmel_pioctrl->slew_rate_support)
+-			conf |= ATMEL_PIO_SR_MASK;
+-
+ 		switch (param) {
+ 		case PIN_CONFIG_BIAS_DISABLE:
+ 			conf &= (~ATMEL_PIO_PUEN_MASK);
 -- 
 2.30.2
 
