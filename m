@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B240F37C491
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40BF237C4C5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234023AbhELPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
+        id S234539AbhELPdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:33:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235458AbhELP2E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:28:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAB6961C20;
-        Wed, 12 May 2021 15:13:00 +0000 (UTC)
+        id S235466AbhELP2F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EBFB61452;
+        Wed, 12 May 2021 15:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832381;
-        bh=Vzc7tGSAr1z6+iSgLvZ/TNMDpea323OpeKIft7ZbDag=;
+        s=korg; t=1620832383;
+        bh=tGCX8tslhtr2FUexM+5GSfcEhS4W6t6okDswa7G7v7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTJNME39jxYonNGoJ1xgZAM+AHdGLX3RnbEORo4GS2Gu041vmmspgjSs9V3LOO1T7
-         xugk2U8YXQfa94fDALnwUMFntKHJk/6VBZj3cJQeVASkPsh89r28BRb4OpsUpn4M6q
-         DLuss/IcEvCXvSzhAocEOW+zue6nQC/K0VfWNAi8=
+        b=ewf8tshwMnkl/fnSKPa81kF8rXoDs8VanReB1dR9u8NNI4nlGWTrNLiTt+2OGUrx4
+         wJb/vBQnmW5w1kOreKrL8ptxSihT3uLL2N6GiVNImGwu3clmNpQXZi+b62SvT358RE
+         SgMiKMoYc0vGtloG73LrXgYlWieL0w7OJypKkVWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 222/530] soc: qcom: mdt_loader: Detect truncated read of segments
-Date:   Wed, 12 May 2021 16:45:32 +0200
-Message-Id: <20210512144827.128000067@linuxfoundation.org>
+Subject: [PATCH 5.10 223/530] PM: runtime: Replace inline function pm_runtime_callbacks_present()
+Date:   Wed, 12 May 2021 16:45:33 +0200
+Message-Id: <20210512144827.161657470@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,46 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 0648c55e3a21ccd816e99b6600d6199fbf39d23a ]
+[ Upstream commit 953c1fd96b1a70bcbbfb10973c2126eba8d891c7 ]
 
-Given that no validation of how much data the firmware loader read in
-for a given segment truncated segment files would best case result in a
-hash verification failure, without any indication of what went wrong.
+Commit 9a7875461fd0 ("PM: runtime: Replace pm_runtime_callbacks_present()")
+forgot to change the inline version.
 
-Improve this by validating that the firmware loader did return the
-amount of data requested.
-
-Fixes: 445c2410a449 ("soc: qcom: mdt_loader: Use request_firmware_into_buf()")
-Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
-Link: https://lore.kernel.org/r/20210107232526.716989-1-bjorn.andersson@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 9a7875461fd0 ("PM: runtime: Replace pm_runtime_callbacks_present()")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/mdt_loader.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ include/linux/pm_runtime.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/mdt_loader.c b/drivers/soc/qcom/mdt_loader.c
-index 2ddaee5ef9cc..eba7f76f9d61 100644
---- a/drivers/soc/qcom/mdt_loader.c
-+++ b/drivers/soc/qcom/mdt_loader.c
-@@ -261,6 +261,15 @@ static int __qcom_mdt_load(struct device *dev, const struct firmware *fw,
- 				break;
- 			}
+diff --git a/include/linux/pm_runtime.h b/include/linux/pm_runtime.h
+index b492ae00cc90..6c08a085367b 100644
+--- a/include/linux/pm_runtime.h
++++ b/include/linux/pm_runtime.h
+@@ -265,7 +265,7 @@ static inline void pm_runtime_no_callbacks(struct device *dev) {}
+ static inline void pm_runtime_irq_safe(struct device *dev) {}
+ static inline bool pm_runtime_is_irq_safe(struct device *dev) { return false; }
  
-+			if (seg_fw->size != phdr->p_filesz) {
-+				dev_err(dev,
-+					"failed to load segment %d from truncated file %s\n",
-+					i, fw_name);
-+				release_firmware(seg_fw);
-+				ret = -EINVAL;
-+				break;
-+			}
-+
- 			release_firmware(seg_fw);
- 		}
- 
+-static inline bool pm_runtime_callbacks_present(struct device *dev) { return false; }
++static inline bool pm_runtime_has_no_callbacks(struct device *dev) { return false; }
+ static inline void pm_runtime_mark_last_busy(struct device *dev) {}
+ static inline void __pm_runtime_use_autosuspend(struct device *dev,
+ 						bool use) {}
 -- 
 2.30.2
 
