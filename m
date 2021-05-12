@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD0C37CBB3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3816F37CBB5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235476AbhELQhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43696 "EHLO mail.kernel.org"
+        id S235749AbhELQhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:37:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241724AbhELQ14 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241727AbhELQ14 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:27:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5E5961925;
-        Wed, 12 May 2021 15:55:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5958C61420;
+        Wed, 12 May 2021 15:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834936;
-        bh=852qT1Vn/ixcMvbdXJNUUvHb/frKRi6V5zweyT7Ez5c=;
+        s=korg; t=1620834938;
+        bh=kqBPCLw3fTjQTbbrkRgQ1iSU7cna6dND4Gyu3RXdw9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VobIs6PyJj/U0sykoncQpD+6q2g3Zpepc2mh2OCw1W1BLANttMHvBH1mcoiy8SYsV
-         VlTFRvzKEshGUUZx5lVaoL0m3Q9aM8fD+bqpAL56e1zHcbEKCukmtR9uoipoavbyAV
-         5FAkkzVNsO9Miuo9r99WShsSk4yZrubgsDV7XKX4=
+        b=y8eBzeA7N1AzfQF9/LNyYjqeoXeBssWKjmdicMsSo37n7YC9u+w8PGunXTRSB8YXz
+         NSg3ev8RmL8+WdVFdAwlCbPCGeIy9m7Dl7KKeNidALke5rzMg0wQdthhIHcn03Ffur
+         qA2jffb0qP1/fYIPteTe12o3UwFiEIN6z9ljxADI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 142/677] crypto: keembay-ocs-aes - Fix error return code in kmb_ocs_aes_probe()
-Date:   Wed, 12 May 2021 16:43:08 +0200
-Message-Id: <20210512144841.966647671@linuxfoundation.org>
+Subject: [PATCH 5.12 143/677] crypto: sun8i-ss - fix result memory leak on error path
+Date:   Wed, 12 May 2021 16:43:09 +0200
+Message-Id: <20210512144841.998613218@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,39 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Corentin Labbe <clabbe.montjoie@gmail.com>
 
-[ Upstream commit 2eee428d8212265af09d349b74746be03513382e ]
+[ Upstream commit 1dbc6a1e25be8575d6c4114d1d2b841a796507f7 ]
 
-Fix to return negative error code -ENOMEM from the error handling
-case instead of 0, as done elsewhere in this function.
+This patch fixes a memory leak on an error path.
 
-Fixes: 885743324513 ("crypto: keembay - Add support for Keem Bay OCS AES/SM4")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
+Fixes: d9b45418a917 ("crypto: sun8i-ss - support hash algorithms")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/keembay/keembay-ocs-aes-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/keembay/keembay-ocs-aes-core.c b/drivers/crypto/keembay/keembay-ocs-aes-core.c
-index b6b25d994af3..2ef312866338 100644
---- a/drivers/crypto/keembay/keembay-ocs-aes-core.c
-+++ b/drivers/crypto/keembay/keembay-ocs-aes-core.c
-@@ -1649,8 +1649,10 @@ static int kmb_ocs_aes_probe(struct platform_device *pdev)
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+index 11cbcbc83a7b..0b9aa24a5edd 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+@@ -438,8 +438,8 @@ int sun8i_ss_hash_run(struct crypto_engine *engine, void *breq)
+ 	kfree(pad);
  
- 	/* Initialize crypto engine */
- 	aes_dev->engine = crypto_engine_alloc_init(dev, true);
--	if (!aes_dev->engine)
-+	if (!aes_dev->engine) {
-+		rc = -ENOMEM;
- 		goto list_del;
-+	}
- 
- 	rc = crypto_engine_start(aes_dev->engine);
- 	if (rc) {
+ 	memcpy(areq->result, result, algt->alg.hash.halg.digestsize);
+-	kfree(result);
+ theend:
++	kfree(result);
+ 	crypto_finalize_hash_request(engine, breq, err);
+ 	return 0;
+ }
 -- 
 2.30.2
 
