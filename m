@@ -2,33 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A6037CF24
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF9837CF22
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236724AbhELRJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:09:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45058 "EHLO mail.kernel.org"
+        id S241684AbhELRI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:08:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244562AbhELQuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:50:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AED7A61480;
-        Wed, 12 May 2021 16:17:00 +0000 (UTC)
+        id S244600AbhELQuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:50:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00D2F61C83;
+        Wed, 12 May 2021 16:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836221;
-        bh=FsZeAw//v92LkymATobB55lFSC3pvMf3ZkZlTCPDhY0=;
+        s=korg; t=1620836223;
+        bh=1QXuvrQkRA4rndC7Ct4di5DBciBZwwp0qRTOcbZfm5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gW6E3t/ymKg/tqJmG4Jlz38UAsS26xlUQW/PtidZTEQY/vhyUjm/jXCGKXyo5blUi
-         tzabReoVS9D6hI2ekJsVVpAQIM3z0hzhd8gw9M73s3GRA3pyvPIypCs77aSUr/b7B6
-         mWozHYNXGl36gpq1+xNLPCwXvxOBrEwBsFjnisrM=
+        b=LqEenp8VmwWLlEK0ZG/HU4k8xdLsW2gq6DazL4jKDrfNrm/5mRODTcxKizxTmtk/B
+         KHa1ntYZreKYQ21lKM3WGkxKviItMeB+yYkl4b7fiVqQIQo0NUv7OP/xKj9pTbRPgq
+         7jwwNaDbWkYXGfzPY61N1sligVmgxfiTR/IXg6pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steve MacLean <Steve.MacLean@Microsoft.com>,
+        Yonatan Goldschmidt <yonatan.goldschmidt@granulate.io>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 659/677] net:nfc:digital: Fix a double free in digital_tg_recv_dep_req
-Date:   Wed, 12 May 2021 16:51:45 +0200
-Message-Id: <20210512144859.261996356@linuxfoundation.org>
+Subject: [PATCH 5.12 660/677] perf tools: Change fields type in perf_record_time_conv
+Date:   Wed, 12 May 2021 16:51:46 +0200
+Message-Id: <20210512144859.292084829@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,39 +50,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 75258586793efc521e5dd52a5bf6c7a4cf7002be ]
+[ Upstream commit e1d380ea8b00db4bb14d1f513000d4b62aa9d3f0 ]
 
-In digital_tg_recv_dep_req, it calls nfc_tm_data_received(..,resp).
-If nfc_tm_data_received() failed, the callee will free the resp via
-kfree_skb() and return error. But in the exit branch, the resp
-will be freed again.
+C standard claims "An object declared as type _Bool is large enough to
+store the values 0 and 1", bool type size can be 1 byte or larger than
+1 byte.  Thus it's uncertian for bool type size with different
+compilers.
 
-My patch sets resp to NULL if nfc_tm_data_received() failed, to
-avoid the double free.
+This patch changes the bool type in structure perf_record_time_conv to
+__u8 type, and pads extra bytes for 8-byte alignment; this can give
+reliable structure size.
 
-Fixes: 1c7a4c24fbfd9 ("NFC Digital: Add target NFC-DEP support")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d110162cafc8 ("perf tsc: Support cap_user_time_short for event TIME_CONV")
+Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steve MacLean <Steve.MacLean@Microsoft.com>
+Cc: Yonatan Goldschmidt <yonatan.goldschmidt@granulate.io>
+Link: https://lore.kernel.org/r/20210428120915.7123-2-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/digital_dep.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/lib/perf/include/perf/event.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/nfc/digital_dep.c b/net/nfc/digital_dep.c
-index 5971fb6f51cc..dc21b4141b0a 100644
---- a/net/nfc/digital_dep.c
-+++ b/net/nfc/digital_dep.c
-@@ -1273,6 +1273,8 @@ static void digital_tg_recv_dep_req(struct nfc_digital_dev *ddev, void *arg,
- 	}
+diff --git a/tools/lib/perf/include/perf/event.h b/tools/lib/perf/include/perf/event.h
+index d82054225fcc..48583e441d9b 100644
+--- a/tools/lib/perf/include/perf/event.h
++++ b/tools/lib/perf/include/perf/event.h
+@@ -346,8 +346,9 @@ struct perf_record_time_conv {
+ 	__u64			 time_zero;
+ 	__u64			 time_cycles;
+ 	__u64			 time_mask;
+-	bool			 cap_user_time_zero;
+-	bool			 cap_user_time_short;
++	__u8			 cap_user_time_zero;
++	__u8			 cap_user_time_short;
++	__u8			 reserved[6];	/* For alignment */
+ };
  
- 	rc = nfc_tm_data_received(ddev->nfc_dev, resp);
-+	if (rc)
-+		resp = NULL;
- 
- exit:
- 	kfree_skb(ddev->chaining_skb);
+ struct perf_record_header_feature {
 -- 
 2.30.2
 
