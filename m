@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1F2837C4B5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD0F37C4BC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234135AbhELPc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
+        id S234546AbhELPdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:33:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234086AbhELPYV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:24:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8625A619BF;
-        Wed, 12 May 2021 15:09:54 +0000 (UTC)
+        id S234260AbhELPY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:24:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8F53619C4;
+        Wed, 12 May 2021 15:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832195;
-        bh=dJnl1HIIHYQeuYrh4heyzbBZxjcFq2NDzIonBGPXj6k=;
+        s=korg; t=1620832197;
+        bh=ZV80my+I1svhi5JABl9+BXob3kh/NadGRy3NUwdmZHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9uKNfGlvcJ24nJ2Kc+JlnLxV3+a+NFqMe/4Aj8fmp4h2HSXerQ4I4DllZQTtuO9n
-         Q2W0RrBtrBEVSYcTqPk2REdXwUPrMwtQL5JqGXsh2UA/3A9uzyF/9iR/saGrty+S2H
-         scAZxgDepOfu1vscyeNSOYth1CjaJaf3FygUV/Fg=
+        b=Myd2ObDOulME9xaq6q9qyCBe6IzA7ZXD/7+DOd0OKHakxa44hTccGCwwhMEoVWX7u
+         1FRNiax4qp6vHbyH/QdiFsfKpyDkDOqFAdoFVxmnwCP794lDkEzpKIw799YRojAfTA
+         0C57gNYMpWe2sA+n2XuQSOkpnLPvLMMFYpOTMXbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Pratyush Yadav <p.yadav@ti.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 146/530] regmap: set debugfs_name to NULL after it is freed
-Date:   Wed, 12 May 2021 16:44:16 +0200
-Message-Id: <20210512144824.633592284@linuxfoundation.org>
+Subject: [PATCH 5.10 147/530] spi: rockchip: avoid objtool warning
+Date:   Wed, 12 May 2021 16:44:17 +0200
+Message-Id: <20210512144824.673856820@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,43 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e41a962f82e7afb5b1ee644f48ad0b3aee656268 ]
+[ Upstream commit e50989527faeafb79f45a0f7529ba8e01dff1fff ]
 
-There is a upstream commit cffa4b2122f5("regmap:debugfs:
-Fix a memory leak when calling regmap_attach_dev") that
-adds a if condition when create name for debugfs_name.
-With below function invoking logical, debugfs_name is
-freed in regmap_debugfs_exit(), but it is not created again
-because of the if condition introduced by above commit.
-regmap_reinit_cache()
-	regmap_debugfs_exit()
-	...
-	regmap_debugfs_init()
-So, set debugfs_name to NULL after it is freed.
+Building this file with clang leads to a an unreachable code path
+causing a warning from objtool:
 
-Fixes: cffa4b2122f5 ("regmap: debugfs: Fix a memory leak when calling regmap_attach_dev")
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Link: https://lore.kernel.org/r/20210226021737.7690-1-Meng.Li@windriver.com
+drivers/spi/spi-rockchip.o: warning: objtool: rockchip_spi_transfer_one()+0x2e0: sibling call from callable instruction with modified stack frame
+
+Change the unreachable() into an error return that can be
+handled if it ever happens, rather than silently crashing
+the kernel.
+
+Fixes: 65498c6ae241 ("spi: rockchip: support 4bit words")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Pratyush Yadav <p.yadav@ti.com>
+Link: https://lore.kernel.org/r/20210226140109.3477093-1-arnd@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap-debugfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-rockchip.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap-debugfs.c b/drivers/base/regmap/regmap-debugfs.c
-index ff2ee87987c7..211a335a608d 100644
---- a/drivers/base/regmap/regmap-debugfs.c
-+++ b/drivers/base/regmap/regmap-debugfs.c
-@@ -660,6 +660,7 @@ void regmap_debugfs_exit(struct regmap *map)
- 		regmap_debugfs_free_dump_cache(map);
- 		mutex_unlock(&map->cache_lock);
- 		kfree(map->debugfs_name);
-+		map->debugfs_name = NULL;
- 	} else {
- 		struct regmap_debugfs_node *node, *tmp;
+diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
+index 75a8a9428ff8..0aab37cd64e7 100644
+--- a/drivers/spi/spi-rockchip.c
++++ b/drivers/spi/spi-rockchip.c
+@@ -474,7 +474,7 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs,
+ 	return 1;
+ }
  
+-static void rockchip_spi_config(struct rockchip_spi *rs,
++static int rockchip_spi_config(struct rockchip_spi *rs,
+ 		struct spi_device *spi, struct spi_transfer *xfer,
+ 		bool use_dma, bool slave_mode)
+ {
+@@ -519,7 +519,9 @@ static void rockchip_spi_config(struct rockchip_spi *rs,
+ 		 * ctlr->bits_per_word_mask, so this shouldn't
+ 		 * happen
+ 		 */
+-		unreachable();
++		dev_err(rs->dev, "unknown bits per word: %d\n",
++			xfer->bits_per_word);
++		return -EINVAL;
+ 	}
+ 
+ 	if (use_dma) {
+@@ -552,6 +554,8 @@ static void rockchip_spi_config(struct rockchip_spi *rs,
+ 	 */
+ 	writel_relaxed(2 * DIV_ROUND_UP(rs->freq, 2 * xfer->speed_hz),
+ 			rs->regs + ROCKCHIP_SPI_BAUDR);
++
++	return 0;
+ }
+ 
+ static size_t rockchip_spi_max_transfer_size(struct spi_device *spi)
+@@ -575,6 +579,7 @@ static int rockchip_spi_transfer_one(
+ 		struct spi_transfer *xfer)
+ {
+ 	struct rockchip_spi *rs = spi_controller_get_devdata(ctlr);
++	int ret;
+ 	bool use_dma;
+ 
+ 	WARN_ON(readl_relaxed(rs->regs + ROCKCHIP_SPI_SSIENR) &&
+@@ -594,7 +599,9 @@ static int rockchip_spi_transfer_one(
+ 
+ 	use_dma = ctlr->can_dma ? ctlr->can_dma(ctlr, spi, xfer) : false;
+ 
+-	rockchip_spi_config(rs, spi, xfer, use_dma, ctlr->slave);
++	ret = rockchip_spi_config(rs, spi, xfer, use_dma, ctlr->slave);
++	if (ret)
++		return ret;
+ 
+ 	if (use_dma)
+ 		return rockchip_spi_prepare_dma(rs, ctlr, xfer);
 -- 
 2.30.2
 
