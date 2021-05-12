@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F8437C431
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17D5E37C42E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234099AbhELP3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60086 "EHLO mail.kernel.org"
+        id S233943AbhELP3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:29:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234021AbhELPV4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:21:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88DDC61442;
-        Wed, 12 May 2021 15:08:58 +0000 (UTC)
+        id S232240AbhELPWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:22:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0763C619A4;
+        Wed, 12 May 2021 15:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832139;
-        bh=owQbf+PSt5OKVn1E/PhdCSNZLKS5BbRIRVEbkVi3/SM=;
+        s=korg; t=1620832141;
+        bh=vo/QXbUbpdeYITQOovbpNTp5bo/YBKtvj1F9zxwy5lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PixLzBu6Q3eUSHMHxL+TnPwnK9P3r8GWkVPoSMmiLfxSTmTsw35dSQOXVEQBlnrGJ
-         jOOvQ5f62WutFRTykpMA2bkYz6yiapypblvQu4LGhf6pjQKwy5R1LgYhTaMWFjcYM3
-         xi25k0UTGJrX6VuduIZ8CL96rjm8NGlRFopUTI3g=
+        b=yIM8T6Qi6cIe0lzWw+znNtKCM3338baTyLSdT07RCSltQcIRLKn9XgDMeP+lqc58N
+         YieGr5XltVkqRJlAfHA2obia1CB6b4kCCSjq4XrBP11+n928NQI8Aab87Q/qyb2rQs
+         sLGO6yuAeZLLNCT68k5CsCGFsXdhOmvQgr5a8TnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Shawn Guo <shawn.guo@linaro.org>,
+        stable@vger.kernel.org,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Shawn Guo <shawn.guo@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 158/530] arm64: dts: qcom: sm8150: fix number of pins in gpio-ranges
-Date:   Wed, 12 May 2021 16:44:28 +0200
-Message-Id: <20210512144825.037930240@linuxfoundation.org>
+Subject: [PATCH 5.10 159/530] arm64: dts: qcom: sm8250: fix number of pins in gpio-ranges
+Date:   Wed, 12 May 2021 16:44:29 +0200
+Message-Id: <20210512144825.069484481@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -43,7 +43,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shawn Guo <shawn.guo@linaro.org>
 
-[ Upstream commit de3abdf3d15c6e7f456e2de3f9da78f3a31414cc ]
+[ Upstream commit e526cb03e2aed42866a0919485a3d8ac130972cf ]
 
 The last cell of 'gpio-ranges' should be number of GPIO pins, and in
 case of qcom platform it should match msm_pinctrl_soc_data.ngpio rather
@@ -57,29 +57,29 @@ configured with the following call sequence, it always fails with
         pinctrl_get_device_gpio_range()
             pinctrl_match_gpio_range()
 
-Fixes: e13c6d144fa0 ("arm64: dts: qcom: sm8150: Add base dts file")
-Cc: Vinod Koul <vkoul@kernel.org>
+Fixes: 16951b490b20 ("arm64: dts: qcom: sm8250: Add TLMM pinctrl node")
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Link: https://lore.kernel.org/r/20210303033106.549-3-shawn.guo@linaro.org
+Link: https://lore.kernel.org/r/20210303033106.549-4-shawn.guo@linaro.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8150.dtsi | 2 +-
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8150.dtsi b/arch/arm64/boot/dts/qcom/sm8150.dtsi
-index f0a872e02686..1aec54590a11 100644
---- a/arch/arm64/boot/dts/qcom/sm8150.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8150.dtsi
-@@ -748,7 +748,7 @@
- 			      <0x0 0x03D00000 0x0 0x300000>;
- 			reg-names = "west", "east", "north", "south";
- 			interrupts = <GIC_SPI 208 IRQ_TYPE_LEVEL_HIGH>;
--			gpio-ranges = <&tlmm 0 0 175>;
-+			gpio-ranges = <&tlmm 0 0 176>;
- 			gpio-controller;
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index f96c8a4fc3cc..d4547a192748 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -1555,7 +1555,7 @@
  			#gpio-cells = <2>;
  			interrupt-controller;
+ 			#interrupt-cells = <2>;
+-			gpio-ranges = <&tlmm 0 0 180>;
++			gpio-ranges = <&tlmm 0 0 181>;
+ 			wakeup-parent = <&pdc>;
+ 
+ 			qup_i2c0_default: qup-i2c0-default {
 -- 
 2.30.2
 
