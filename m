@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B2737C63A
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A60337C5F9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237305AbhELPto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:49:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56692 "EHLO mail.kernel.org"
+        id S235369AbhELPot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:44:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234205AbhELPlZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:41:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C86C561C6C;
-        Wed, 12 May 2021 15:21:39 +0000 (UTC)
+        id S231899AbhELPla (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:41:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C61C61419;
+        Wed, 12 May 2021 15:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832900;
-        bh=/eUJkXkBmOsXOpykiOeBOrZfPsjIwNMYCY4YJqVHwhc=;
+        s=korg; t=1620832902;
+        bh=IxcVmoEDSOcLe6wKdiFuAwZ2BzGHj9LWnYjuVFfoxSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+s7D613P2mbqbEB6HVOFH8LvuTmkyPIBvM2OhBPWAb/hs8a6S2NOcsm5z/8C37Bf
-         Oo8+AqlADwqo5w5o2JTg8ti1qwXkd/AKlAWaPXEvgG213Cuf7ltMTsxmz6LJPs+OBs
-         InVfFAHf+9nVJu45wS90UZH3+e4Gqp1fzeFiN/HQ=
+        b=mL7zbhWoz5c3T/tPLcEd55qi70fvNeAzwC5a2Vgtr8Pr6zu2og0rSSvPnWbkwypKo
+         Q46oKl38lJplveHAeP6gMgTMgzmTLFqqh0MLm0WBWD87d2kasyWa0b/1/34TSUI1vV
+         P03VW/IoUI8OLpBg9aIBFnB39tw26P4BWEUDzDiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Alexander Lobakin <alobakin@pm.me>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 468/530] net: ethernet: ixp4xx: Set the DMA masks explicitly
-Date:   Wed, 12 May 2021 16:49:38 +0200
-Message-Id: <20210512144835.146428496@linuxfoundation.org>
+Subject: [PATCH 5.10 469/530] gro: fix napi_gro_frags() Fast GRO breakage due to IP alignment check
+Date:   Wed, 12 May 2021 16:49:39 +0200
+Message-Id: <20210512144835.177370972@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,49 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Alexander Lobakin <alobakin@pm.me>
 
-[ Upstream commit 8d892d60941b00c86d2029c8a99db24ab4979673 ]
+[ Upstream commit 7ad18ff6449cbd6beb26b53128ddf56d2685aa93 ]
 
-The former fix only papered over the actual problem: the
-ethernet core expects the netdev .dev member to have the
-proper DMA masks set, or there will be BUG_ON() triggered
-in kernel/dma/mapping.c.
+Commit 38ec4944b593 ("gro: ensure frag0 meets IP header alignment")
+did the right thing, but missed the fact that napi_gro_frags() logics
+calls for skb_gro_reset_offset() *before* pulling Ethernet header
+to the skb linear space.
+That said, the introduced check for frag0 address being aligned to 4
+always fails for it as Ethernet header is obviously 14 bytes long,
+and in case with NET_IP_ALIGN its start is not aligned to 4.
 
-Fix this by simply copying dma_mask and dma_mask_coherent
-from the parent device.
+Fix this by adding @nhoff argument to skb_gro_reset_offset() which
+tells if an IP header is placed right at the start of frag0 or not.
+This restores Fast GRO for napi_gro_frags() that became very slow
+after the mentioned commit, and preserves the introduced check to
+avoid silent unaligned accesses.
 
-Fixes: e45d0fad4a5f ("net: ethernet: ixp4xx: Use parent dev for DMA pool")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>From v1 [0]:
+ - inline tiny skb_gro_reset_offset() to let the code be optimized
+   more efficively (esp. for the !NET_IP_ALIGN case) (Eric);
+ - pull in Reviewed-by from Eric.
+
+[0] https://lore.kernel.org/netdev/20210418114200.5839-1-alobakin@pm.me
+
+Fixes: 38ec4944b593 ("gro: ensure frag0 meets IP header alignment")
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xscale/ixp4xx_eth.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/core/dev.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/xscale/ixp4xx_eth.c b/drivers/net/ethernet/xscale/ixp4xx_eth.c
-index 2e5202923510..403358f2c853 100644
---- a/drivers/net/ethernet/xscale/ixp4xx_eth.c
-+++ b/drivers/net/ethernet/xscale/ixp4xx_eth.c
-@@ -1086,7 +1086,7 @@ static int init_queues(struct port *port)
- 	int i;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 64f4c7ec729d..2f17a4ac82f0 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5857,7 +5857,7 @@ static struct list_head *gro_list_prepare(struct napi_struct *napi,
+ 	return head;
+ }
  
- 	if (!ports_open) {
--		dma_pool = dma_pool_create(DRV_NAME, port->netdev->dev.parent,
-+		dma_pool = dma_pool_create(DRV_NAME, &port->netdev->dev,
- 					   POOL_ALLOC_SIZE, 32, 0);
- 		if (!dma_pool)
- 			return -ENOMEM;
-@@ -1436,6 +1436,9 @@ static int ixp4xx_eth_probe(struct platform_device *pdev)
- 	ndev->netdev_ops = &ixp4xx_netdev_ops;
- 	ndev->ethtool_ops = &ixp4xx_ethtool_ops;
- 	ndev->tx_queue_len = 100;
-+	/* Inherit the DMA masks from the platform device */
-+	ndev->dev.dma_mask = dev->dma_mask;
-+	ndev->dev.coherent_dma_mask = dev->coherent_dma_mask;
+-static void skb_gro_reset_offset(struct sk_buff *skb)
++static inline void skb_gro_reset_offset(struct sk_buff *skb, u32 nhoff)
+ {
+ 	const struct skb_shared_info *pinfo = skb_shinfo(skb);
+ 	const skb_frag_t *frag0 = &pinfo->frags[0];
+@@ -5868,7 +5868,7 @@ static void skb_gro_reset_offset(struct sk_buff *skb)
  
- 	netif_napi_add(ndev, &port->napi, eth_poll, NAPI_WEIGHT);
+ 	if (!skb_headlen(skb) && pinfo->nr_frags &&
+ 	    !PageHighMem(skb_frag_page(frag0)) &&
+-	    (!NET_IP_ALIGN || !(skb_frag_off(frag0) & 3))) {
++	    (!NET_IP_ALIGN || !((skb_frag_off(frag0) + nhoff) & 3))) {
+ 		NAPI_GRO_CB(skb)->frag0 = skb_frag_address(frag0);
+ 		NAPI_GRO_CB(skb)->frag0_len = min_t(unsigned int,
+ 						    skb_frag_size(frag0),
+@@ -6101,7 +6101,7 @@ gro_result_t napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
+ 	skb_mark_napi_id(skb, napi);
+ 	trace_napi_gro_receive_entry(skb);
  
+-	skb_gro_reset_offset(skb);
++	skb_gro_reset_offset(skb, 0);
+ 
+ 	ret = napi_skb_finish(napi, skb, dev_gro_receive(napi, skb));
+ 	trace_napi_gro_receive_exit(ret);
+@@ -6194,7 +6194,7 @@ static struct sk_buff *napi_frags_skb(struct napi_struct *napi)
+ 	napi->skb = NULL;
+ 
+ 	skb_reset_mac_header(skb);
+-	skb_gro_reset_offset(skb);
++	skb_gro_reset_offset(skb, hlen);
+ 
+ 	if (unlikely(skb_gro_header_hard(skb, hlen))) {
+ 		eth = skb_gro_header_slow(skb, hlen, 0);
 -- 
 2.30.2
 
