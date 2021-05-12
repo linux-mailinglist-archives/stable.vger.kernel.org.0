@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA75237CA52
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC6537CA50
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231803AbhELQ2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:28:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58924 "EHLO mail.kernel.org"
+        id S236333AbhELQ2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:28:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236787AbhELQUJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:20:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6E61619A4;
-        Wed, 12 May 2021 15:46:00 +0000 (UTC)
+        id S237467AbhELQUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:20:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BDAE61D8E;
+        Wed, 12 May 2021 15:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834361;
-        bh=kNtX69TQiNqybkpHW0zhlFoVlID6uQtcjW8GTYmTNBY=;
+        s=korg; t=1620834363;
+        bh=R6hH4CnnNi97uP0wK0CiTVz3GmWjNQgK42vgTD/r/tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFN5JbXCoaZkrjQJqSLYtwwvcETzHxtPSLm6Szear7EtTriLTpcnvxQ6AcwPH4gHi
-         K9/wb8/Y8akULCsJ0O1YZLrPsHFe4msc+3wqYzIpY4ZMTj+DCiCBYdng6MCE0aRjox
-         TXQrO6C7RL2lh9fbWpGf4/B4lqUwBjDPZlB41JEA=
+        b=n2z/Ag84Q5vWfH4jicgJAPrx+wNiiVU54H/yjAGL/OaX5nskyyF1/WdPCt0kQAB+0
+         KW51q0BfUTCtKa2ndDwVsA0NgYph0U7GBnoFac/JsGjksPspV6s7O+xMIkuqdkJcWB
+         Cq3UgX7drocveh6BcvRAobgHlRgeSQprqrIMJ91E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "Gong, Sishuai" <sishuai@purdue.edu>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 512/601] net/packet: remove data races in fanout operations
-Date:   Wed, 12 May 2021 16:49:49 +0200
-Message-Id: <20210512144844.713111513@linuxfoundation.org>
+Subject: [PATCH 5.11 513/601] drm/i915/gvt: Fix error code in intel_gvt_init_device()
+Date:   Wed, 12 May 2021 16:49:50 +0200
+Message-Id: <20210512144844.751105077@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,97 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 94f633ea8ade8418634d152ad0931133338226f6 ]
+[ Upstream commit 329328ec6a87f2c1275f50d979d55513de458409 ]
 
-af_packet fanout uses RCU rules to ensure f->arr elements
-are not dismantled before RCU grace period.
+The intel_gvt_init_vgpu_type_groups() function is only called from
+intel_gvt_init_device().  If it fails then the intel_gvt_init_device()
+prints the error code and propagates it back again.  That's a bug
+because false is zero/success.  The fix is to modify it to return zero
+or negative error codes and make everything consistent.
 
-However, it lacks rcu accessors to make sure KCSAN and other tools
-wont detect data races. Stupid compilers could also play games.
-
-Fixes: dc99f600698d ("packet: Add fanout support.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: "Gong, Sishuai" <sishuai@purdue.edu>
-Cc: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c5d71cb31723 ("drm/i915/gvt: Move vGPU type related code into gvt file")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/YHaFQtk/DIVYK1u5@mwanda
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 15 +++++++++------
- net/packet/internal.h  |  2 +-
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/i915/gvt/gvt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 6bbc7a448593..b6b0024c5fac 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1359,7 +1359,7 @@ static unsigned int fanout_demux_rollover(struct packet_fanout *f,
- 	struct packet_sock *po, *po_next, *po_skip = NULL;
- 	unsigned int i, j, room = ROOM_NONE;
- 
--	po = pkt_sk(f->arr[idx]);
-+	po = pkt_sk(rcu_dereference(f->arr[idx]));
- 
- 	if (try_self) {
- 		room = packet_rcv_has_room(po, skb);
-@@ -1371,7 +1371,7 @@ static unsigned int fanout_demux_rollover(struct packet_fanout *f,
- 
- 	i = j = min_t(int, po->rollover->sock, num - 1);
- 	do {
--		po_next = pkt_sk(f->arr[i]);
-+		po_next = pkt_sk(rcu_dereference(f->arr[i]));
- 		if (po_next != po_skip && !READ_ONCE(po_next->pressure) &&
- 		    packet_rcv_has_room(po_next, skb) == ROOM_NORMAL) {
- 			if (i != j)
-@@ -1466,7 +1466,7 @@ static int packet_rcv_fanout(struct sk_buff *skb, struct net_device *dev,
- 	if (fanout_has_flag(f, PACKET_FANOUT_FLAG_ROLLOVER))
- 		idx = fanout_demux_rollover(f, skb, idx, true, num);
- 
--	po = pkt_sk(f->arr[idx]);
-+	po = pkt_sk(rcu_dereference(f->arr[idx]));
- 	return po->prot_hook.func(skb, dev, &po->prot_hook, orig_dev);
+diff --git a/drivers/gpu/drm/i915/gvt/gvt.c b/drivers/gpu/drm/i915/gvt/gvt.c
+index d1d8ee4a5f16..57578bf28d77 100644
+--- a/drivers/gpu/drm/i915/gvt/gvt.c
++++ b/drivers/gpu/drm/i915/gvt/gvt.c
+@@ -126,7 +126,7 @@ static bool intel_get_gvt_attrs(struct attribute_group ***intel_vgpu_type_groups
+ 	return true;
  }
  
-@@ -1480,7 +1480,7 @@ static void __fanout_link(struct sock *sk, struct packet_sock *po)
- 	struct packet_fanout *f = po->fanout;
- 
- 	spin_lock(&f->lock);
--	f->arr[f->num_members] = sk;
-+	rcu_assign_pointer(f->arr[f->num_members], sk);
- 	smp_wmb();
- 	f->num_members++;
- 	if (f->num_members == 1)
-@@ -1495,11 +1495,14 @@ static void __fanout_unlink(struct sock *sk, struct packet_sock *po)
- 
- 	spin_lock(&f->lock);
- 	for (i = 0; i < f->num_members; i++) {
--		if (f->arr[i] == sk)
-+		if (rcu_dereference_protected(f->arr[i],
-+					      lockdep_is_held(&f->lock)) == sk)
- 			break;
+-static bool intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
++static int intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
+ {
+ 	int i, j;
+ 	struct intel_vgpu_type *type;
+@@ -144,7 +144,7 @@ static bool intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
+ 		gvt_vgpu_type_groups[i] = group;
  	}
- 	BUG_ON(i >= f->num_members);
--	f->arr[i] = f->arr[f->num_members - 1];
-+	rcu_assign_pointer(f->arr[i],
-+			   rcu_dereference_protected(f->arr[f->num_members - 1],
-+						     lockdep_is_held(&f->lock)));
- 	f->num_members--;
- 	if (f->num_members == 0)
- 		__dev_remove_pack(&f->prot_hook);
-diff --git a/net/packet/internal.h b/net/packet/internal.h
-index baafc3f3fa25..7af1e9179385 100644
---- a/net/packet/internal.h
-+++ b/net/packet/internal.h
-@@ -94,7 +94,7 @@ struct packet_fanout {
- 	spinlock_t		lock;
- 	refcount_t		sk_ref;
- 	struct packet_type	prot_hook ____cacheline_aligned_in_smp;
--	struct sock		*arr[];
-+	struct sock	__rcu	*arr[];
- };
  
- struct packet_rollover {
+-	return true;
++	return 0;
+ 
+ unwind:
+ 	for (j = 0; j < i; j++) {
+@@ -152,7 +152,7 @@ unwind:
+ 		kfree(group);
+ 	}
+ 
+-	return false;
++	return -ENOMEM;
+ }
+ 
+ static void intel_gvt_cleanup_vgpu_type_groups(struct intel_gvt *gvt)
+@@ -360,7 +360,7 @@ int intel_gvt_init_device(struct drm_i915_private *i915)
+ 		goto out_clean_thread;
+ 
+ 	ret = intel_gvt_init_vgpu_type_groups(gvt);
+-	if (ret == false) {
++	if (ret) {
+ 		gvt_err("failed to init vgpu type groups: %d\n", ret);
+ 		goto out_clean_types;
+ 	}
 -- 
 2.30.2
 
