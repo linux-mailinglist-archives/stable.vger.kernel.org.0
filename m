@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 142AA37C466
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09CBD37C436
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232855AbhELPay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38716 "EHLO mail.kernel.org"
+        id S234608AbhELP3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:29:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235099AbhELP0v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:26:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3348F619FE;
-        Wed, 12 May 2021 15:11:40 +0000 (UTC)
+        id S234312AbhELPYp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:24:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE787619C0;
+        Wed, 12 May 2021 15:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832300;
-        bh=GXyJDdn2+9x1Pqz4ff0G9UGyDWMUp6D9K7Jnk6FdKGg=;
+        s=korg; t=1620832215;
+        bh=Sqj3YWST87hmXhuhOXg2T/RXQkYW65pVPk0SVR/NFjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=piVblyx/vrC0PTB/1v3yzf37vi8xAgzKaTzo5MXKwz8gqiO0h3//4D+sZhuOD9i54
-         8Th18ksPQdU3vsF22NeuOzHSsLn19C0O/fiTZezbyvpfz+JIqS7dnmFEdclHC6qex5
-         kOfqsVYRfKoFvI0wplzbvMCgjhejJQTBp3ylEsR4=
+        b=I3fcalXRqoKowpsbI3TkcSw9xb6DHxCWo7Tj0scGCh0mYJne1Hk1LTN0fDTSg1AqI
+         VAvvLWnqiIIeMzgEWpMBB+aEO2OCTZ9vuqqwAnegPkuXBdz2aNft3/QGxB7oFcAm2C
+         WdAavFssc1gnfsYDaVNKq6srPrlD2VgX/yxFJGFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 188/530] soundwire: bus: Fix device found flag correctly
-Date:   Wed, 12 May 2021 16:44:58 +0200
-Message-Id: <20210512144826.015503180@linuxfoundation.org>
+Subject: [PATCH 5.10 189/530] phy: ti: j721e-wiz: Delete "clk_div_sel" clk provider during cleanup
+Date:   Wed, 12 May 2021 16:44:59 +0200
+Message-Id: <20210512144826.046266337@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,47 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit f03690f4f6992225d05dbd1171212e5be5a370dd ]
+[ Upstream commit 7e52a39f1942b771213678c56002ce90a2f126d2 ]
 
-found flag is used to indicate SoundWire devices that are
-both enumerated on the bus and available in the device list.
-However this flag is not reset correctly after one iteration,
-This could miss some of the devices that are enumerated on the
-bus but not in device list. So reset this correctly to fix this issue!
+commit 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module
+present in TI J721E SoC") modeled both MUX clocks and DIVIDER clocks in
+wiz. However during cleanup, it removed only the MUX clock provider.
+Remove the DIVIDER clock provider here.
 
-Fixes: d52d7a1be02c ("soundwire: Add Slave status handling helpers")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210309104816.20350-1-srinivas.kandagatla@linaro.org
+Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://lore.kernel.org/r/20210310120840.16447-3-kishon@ti.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/bus.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/phy/ti/phy-j721e-wiz.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/soundwire/bus.c b/drivers/soundwire/bus.c
-index 1fe786855095..3317a02bcc17 100644
---- a/drivers/soundwire/bus.c
-+++ b/drivers/soundwire/bus.c
-@@ -703,7 +703,7 @@ static int sdw_program_device_num(struct sdw_bus *bus)
- 	struct sdw_slave *slave, *_s;
- 	struct sdw_slave_id id;
- 	struct sdw_msg msg;
--	bool found = false;
-+	bool found;
- 	int count = 0, ret;
- 	u64 addr;
+diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wiz.c
+index a75433b459dd..e28e25f98708 100644
+--- a/drivers/phy/ti/phy-j721e-wiz.c
++++ b/drivers/phy/ti/phy-j721e-wiz.c
+@@ -615,6 +615,12 @@ static void wiz_clock_cleanup(struct wiz *wiz, struct device_node *node)
+ 		of_clk_del_provider(clk_node);
+ 		of_node_put(clk_node);
+ 	}
++
++	for (i = 0; i < wiz->clk_div_sel_num; i++) {
++		clk_node = of_get_child_by_name(node, clk_div_sel[i].node_name);
++		of_clk_del_provider(clk_node);
++		of_node_put(clk_node);
++	}
+ }
  
-@@ -735,6 +735,7 @@ static int sdw_program_device_num(struct sdw_bus *bus)
- 
- 		sdw_extract_slave_id(bus, addr, &id);
- 
-+		found = false;
- 		/* Now compare with entries */
- 		list_for_each_entry_safe(slave, _s, &bus->slaves, node) {
- 			if (sdw_compare_devid(slave, id) == 0) {
+ static int wiz_clock_init(struct wiz *wiz, struct device_node *node)
 -- 
 2.30.2
 
