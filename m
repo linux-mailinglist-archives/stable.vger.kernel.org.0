@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C4737B7F2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98C3A37B7F4
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230272AbhELIad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:30:33 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:55489 "EHLO
+        id S230213AbhELIal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:30:41 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:50459 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230134AbhELIad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:30:33 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id DD191155F;
-        Wed, 12 May 2021 04:29:24 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 12 May 2021 04:29:25 -0400
+        by vger.kernel.org with ESMTP id S230134AbhELIal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:30:41 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.west.internal (Postfix) with ESMTP id 54198157E;
+        Wed, 12 May 2021 04:29:33 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Wed, 12 May 2021 04:29:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=I5Ib+u
-        XBzmBPfcYeqXMEl26pBdXPJePYyTOGDJkFwKI=; b=nSLmLcKNAAc472gBPZrj0t
-        7FuoK7j+cy6uxUYG5RJg55KN6b0/dgKcyZnPoAM9jkwbjM7Hl2jaSevrKLWsgTjr
-        93i32yG61qcx+fQkF8jfQR+tFScBqoOzHUBQDxu3zSjKBbDeHRxnFh73Zm6frNM4
-        DN5wDJbqeh23p3qUchx0nZR8+n3VLupVrNi2Szux+VeI7nAbj1WU/IHzmKzUcMYc
-        Aj5rbqWzwKxCykNIb1kP/4QO52OEnpvEt4yqYpWkoxeHAVfBQa5kKwSA6BXlTDri
-        9ez1J12+MoRf3dD1dW/ZsA6Vc00aTbEoziSng/k/pio043KnW/KQynNY+fWYxl2Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=NI0F6a
+        dDBDtGmvHhsTx8sZVchToYvTarzuuLu+WqGFM=; b=K081o30FJoXtQKmIj/Bo2l
+        KNw3Fs75D2U83DlCmX3xIFVIW19oGmSdkpmd9p4BVmalnscZJem/5mK9+4lOMc3I
+        kSJecphIM5uuZpcF8vJv1mtIAewxA+41piAZmXWjUU9HT8hkLtNyBaBQ6OMUpi2E
+        kmJDng0QdGX4MIInbkgfMCFmCQs/yjziXJ9d+vO5OmbIPXRqpGC+mUTIumDLJsfO
+        FAk0lu5dxbnkvOIWISXZGQrJtBvWzcuDs/nHh9Tia58BaGz17fDwEWxiCE/iQw4p
+        FXF8wftnyUIU+Ep31oSzsVXz+H4WIi/IiibMyohwk8XvQ34R1KNj9uoV3Un1JLJQ
         ==
-X-ME-Sender: <xms:5JGbYJCoEZ2FtjlZ9-umX_Paorp-WPvglVdztTm137vcX5iwQ87DOA>
-    <xme:5JGbYHhBrEpE_JqJgUEhom0XTWbS8E-_uvRsWNcf3lgHhiz8vfZ5g-jWnfPzwnzsB
-    qBbWXp5kGlcEA>
+X-ME-Sender: <xms:7JGbYCIMNw-nru4N_Tt2URFd7LpjwZQmRnMASHVs44PxHs-FeMdcOg>
+    <xme:7JGbYKLSpOInz0pRJ_WK06HsEWoSSJL4RvT2Lv1Khr6K7wAjmRN1DAWJy88MqIj7_
+    oLhjg84uwM1MA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgtdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:5JGbYEkIKvBQM2eSFEHtg5YFUthv7SpHUXDlCFz50A7m8_1Zv-VP4Q>
-    <xmx:5JGbYDyJhjtEyOjb-8NrALLW4YyLjWbnEr-IY97ytOyPfqcWey184w>
-    <xmx:5JGbYOQaKP_LJpa__KkQ_o8inwZSA9dNxtwR2JYp5Yf-csjBoc0pjw>
-    <xmx:5JGbYH6FasJuysZ8G9V2_YE3TjW1lemKi5BVpDQrfLx8XGGAyMtRQJ9A3Vc>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:7JGbYCuTIzZV5clWRwr2FhKYLgHk4_IzCFqTsboXwjwE9ikw52tIjg>
+    <xmx:7JGbYHa35T3mWMp3C-wtmJZV--JcPxWTOqkgnsgJj9UO_bFhbQl7JQ>
+    <xmx:7JGbYJblrm6IJmVD81e8WMKrfKOeoySIzWbuOKQPnpmAFBsUM5qF0A>
+    <xmx:7JGbYKDKgTX7_4X27gS6tS0zjP-Ms17l5dYuFHJB77konqu_6jwIo007nCM>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:29:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] USB: serial: usb_wwan: fix TIOCSSERIAL jiffies conversions" failed to apply to 4.4-stable tree
+        Wed, 12 May 2021 04:29:32 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] staging: greybus: uart: fix TIOCSSERIAL jiffies conversions" failed to apply to 4.9-stable tree
 To:     johan@kernel.org, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:29:10 +0200
-Message-ID: <1620808150186178@kroah.com>
+Date:   Wed, 12 May 2021 10:29:31 +0200
+Message-ID: <1620808171145222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,41 +70,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3d732690d2267f4d0e19077b178dffbedafdf0c9 Mon Sep 17 00:00:00 2001
+From b71e571adaa58be4fd289abebc8997e05b4c6b40 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
-Date: Wed, 7 Apr 2021 12:39:16 +0200
-Subject: [PATCH] USB: serial: usb_wwan: fix TIOCSSERIAL jiffies conversions
+Date: Wed, 7 Apr 2021 12:23:23 +0200
+Subject: [PATCH] staging: greybus: uart: fix TIOCSSERIAL jiffies conversions
 
 The port close_delay and closing_wait parameters set by TIOCSSERIAL are
 specified in jiffies and not milliseconds.
 
-Add the missing conversions so that the TIOCSSERIAL works as expected
-also when HZ is not 1000.
+Add the missing conversions so that TIOCSSERIAL works as expected also
+when HZ is not 1000.
 
-Fixes: 02303f73373a ("usb-wwan: implement TIOCGSERIAL and TIOCSSERIAL to avoid blocking close(2)")
-Cc: stable@vger.kernel.org      # 2.6.38
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e68453ed28c5 ("greybus: uart-gb: now builds, more framework added")
+Cc: stable@vger.kernel.org	# 4.9
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210407102334.32361-6-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/serial/usb_wwan.c b/drivers/usb/serial/usb_wwan.c
-index 46d46a4f99c9..4e9c994a972a 100644
---- a/drivers/usb/serial/usb_wwan.c
-+++ b/drivers/usb/serial/usb_wwan.c
-@@ -140,10 +140,10 @@ int usb_wwan_get_serial_info(struct tty_struct *tty,
- 	ss->line            = port->minor;
- 	ss->port            = port->port_number;
- 	ss->baud_base       = tty_get_baud_rate(port->port.tty);
--	ss->close_delay	    = port->port.close_delay / 10;
-+	ss->close_delay	    = jiffies_to_msecs(port->port.close_delay) / 10;
- 	ss->closing_wait    = port->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
- 				 ASYNC_CLOSING_WAIT_NONE :
--				 port->port.closing_wait / 10;
-+				 jiffies_to_msecs(port->port.closing_wait) / 10;
+diff --git a/drivers/staging/greybus/uart.c b/drivers/staging/greybus/uart.c
+index 607378bfebb7..29846dc1e1bf 100644
+--- a/drivers/staging/greybus/uart.c
++++ b/drivers/staging/greybus/uart.c
+@@ -614,10 +614,12 @@ static int get_serial_info(struct tty_struct *tty,
+ 	ss->line = gb_tty->minor;
+ 	ss->xmit_fifo_size = 16;
+ 	ss->baud_base = 9600;
+-	ss->close_delay = gb_tty->port.close_delay / 10;
++	ss->close_delay = jiffies_to_msecs(gb_tty->port.close_delay) / 10;
+ 	ss->closing_wait =
+ 		gb_tty->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+-		ASYNC_CLOSING_WAIT_NONE : gb_tty->port.closing_wait / 10;
++		ASYNC_CLOSING_WAIT_NONE :
++		jiffies_to_msecs(gb_tty->port.closing_wait) / 10;
++
  	return 0;
  }
- EXPORT_SYMBOL(usb_wwan_get_serial_info);
-@@ -155,9 +155,10 @@ int usb_wwan_set_serial_info(struct tty_struct *tty,
- 	unsigned int closing_wait, close_delay;
+ 
+@@ -629,9 +631,10 @@ static int set_serial_info(struct tty_struct *tty,
+ 	unsigned int close_delay;
  	int retval = 0;
  
 -	close_delay = ss->close_delay * 10;
@@ -114,6 +117,6 @@ index 46d46a4f99c9..4e9c994a972a 100644
 +			ASYNC_CLOSING_WAIT_NONE :
 +			msecs_to_jiffies(ss->closing_wait * 10);
  
- 	mutex_lock(&port->port.mutex);
- 
+ 	mutex_lock(&gb_tty->port.mutex);
+ 	if (!capable(CAP_SYS_ADMIN)) {
 
