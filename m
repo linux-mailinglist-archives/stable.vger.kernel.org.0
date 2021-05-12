@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2586437C98A
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE8F37C97A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235986AbhELQTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:19:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36284 "EHLO mail.kernel.org"
+        id S235328AbhELQTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:19:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239656AbhELQKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239657AbhELQKh (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:10:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02F4E61D3C;
-        Wed, 12 May 2021 15:40:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68ECA61D3D;
+        Wed, 12 May 2021 15:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834029;
-        bh=lfMOwoDe8XY20PJQp7QD0Yqc1+exE/sp75vOZi4Pj00=;
+        s=korg; t=1620834031;
+        bh=Ozu9cEeXhF61Qpn+h1v9T2VD9/RN7qGoiRsqkULblKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=adhGeXE6+FG41QGhbwgT9/NPf2uH0eeUwRt3Bm+2bXSPMZM4snvhMJXuLmkG0vOHr
-         hxCfaFYciOklxKezH7RkkSDIfTY+KMdCVaIlDujZ8f9h69y2GIrVJT5TF82z80T9c6
-         kG98nvlYHicZYtEKCh/MfWMNcRQx0SBa3NKsbYso=
+        b=mAQrj2tfKmo0Do4KroP5LMCqAbOL4nmvTsX2JOPJkViJmscLxQDwjKyWttwlNYQb8
+         RXYToArVC9ZPxDAd+Xgi64Xy/o/mSu8WStw8MaGgQEU6JBjsw8jZvdrhgZAYU7YkGs
+         6f/h17+Pgz9ymVPwzqbcj2zG3mfCmSlvfkTLeVYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
+        stable@vger.kernel.org, Dima Stepanov <dmitrii.stepanov@ionos.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 382/601] io_uring: fix overflows checks in provide buffers
-Date:   Wed, 12 May 2021 16:47:39 +0200
-Message-Id: <20210512144840.374313871@linuxfoundation.org>
+Subject: [PATCH 5.11 383/601] block/rnbd-clt-sysfs: Remove copy buffer overlap in rnbd_clt_get_path_name
+Date:   Wed, 12 May 2021 16:47:40 +0200
+Message-Id: <20210512144840.405033709@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,63 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Dima Stepanov <dmitrii.stepanov@cloud.ionos.com>
 
-[ Upstream commit 38134ada0ceea3e848fe993263c0ff6207fd46e7 ]
+[ Upstream commit 3db7cf55d532a15ea26b4a14e8f8729ccd96fd22 ]
 
-Colin reported before possible overflow and sign extension problems in
-io_provide_buffers_prep(). As Linus pointed out previous attempt did nothing
-useful, see d81269fecb8ce ("io_uring: fix provide_buffers sign extension").
+cppcheck report the following error:
+  rnbd/rnbd-clt-sysfs.c:522:36: error: The variable 'buf' is used both
+  as a parameter and as destination in snprintf(). The origin and
+  destination buffers overlap. Quote from glibc (C-library)
+  documentation
+  (http://www.gnu.org/software/libc/manual/html_mono/libc.html#Formatted-Output-Functions):
+  "If copying takes place between objects that overlap as a result of a
+  call to sprintf() or snprintf(), the results are undefined."
+  [sprintfOverlappingData]
+Fix it by initializing the buf variable in the first snprintf call.
 
-Do that with help of check_<op>_overflow helpers. And fix struct
-io_provide_buf::len type, as it doesn't make much sense to keep it
-signed.
-
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Fixes: efe68c1ca8f49 ("io_uring: validate the full range of provided buffers for access")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/46538827e70fce5f6cdb50897cff4cacc490f380.1618488258.git.asml.silence@gmail.com
+Fixes: 91f4acb2801c ("block/rnbd-clt: support mapping two devices")
+Signed-off-by: Dima Stepanov <dmitrii.stepanov@ionos.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Link: https://lore.kernel.org/r/20210419073722.15351-19-gi-oh.kim@ionos.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/block/rnbd/rnbd-clt-sysfs.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 157ceda04650..c42c2e9570e5 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -535,7 +535,7 @@ struct io_splice {
- struct io_provide_buf {
- 	struct file			*file;
- 	__u64				addr;
--	__s32				len;
-+	__u32				len;
- 	__u32				bgid;
- 	__u16				nbufs;
- 	__u16				bid;
-@@ -4214,7 +4214,7 @@ static int io_remove_buffers(struct io_kiocb *req, bool force_nonblock,
- static int io_provide_buffers_prep(struct io_kiocb *req,
- 				   const struct io_uring_sqe *sqe)
- {
--	unsigned long size;
-+	unsigned long size, tmp_check;
- 	struct io_provide_buf *p = &req->pbuf;
- 	u64 tmp;
+diff --git a/drivers/block/rnbd/rnbd-clt-sysfs.c b/drivers/block/rnbd/rnbd-clt-sysfs.c
+index 526c77cd7a50..49ad400a5225 100644
+--- a/drivers/block/rnbd/rnbd-clt-sysfs.c
++++ b/drivers/block/rnbd/rnbd-clt-sysfs.c
+@@ -483,11 +483,7 @@ static int rnbd_clt_get_path_name(struct rnbd_clt_dev *dev, char *buf,
+ 	while ((s = strchr(pathname, '/')))
+ 		s[0] = '!';
  
-@@ -4228,6 +4228,12 @@ static int io_provide_buffers_prep(struct io_kiocb *req,
- 	p->addr = READ_ONCE(sqe->addr);
- 	p->len = READ_ONCE(sqe->len);
+-	ret = snprintf(buf, len, "%s", pathname);
+-	if (ret >= len)
+-		return -ENAMETOOLONG;
+-
+-	ret = snprintf(buf, len, "%s@%s", buf, dev->sess->sessname);
++	ret = snprintf(buf, len, "%s@%s", pathname, dev->sess->sessname);
+ 	if (ret >= len)
+ 		return -ENAMETOOLONG;
  
-+	if (check_mul_overflow((unsigned long)p->len, (unsigned long)p->nbufs,
-+				&size))
-+		return -EOVERFLOW;
-+	if (check_add_overflow((unsigned long)p->addr, size, &tmp_check))
-+		return -EOVERFLOW;
-+
- 	size = (unsigned long)p->len * p->nbufs;
- 	if (!access_ok(u64_to_user_ptr(p->addr), size))
- 		return -EFAULT;
 -- 
 2.30.2
 
