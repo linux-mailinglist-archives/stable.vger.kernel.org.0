@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 384BA37CD57
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F40737CCD6
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238571AbhELQyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:54:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
+        id S236595AbhELQsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:48:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243783AbhELQmE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B4E561492;
-        Wed, 12 May 2021 16:06:56 +0000 (UTC)
+        id S243650AbhELQlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:41:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15C0961E4D;
+        Wed, 12 May 2021 16:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835617;
-        bh=2hmU/K97aWCxtPtWnmzimhMDLMZndpsROIC7w6g7Y9I=;
+        s=korg; t=1620835530;
+        bh=PA9lWJkBxmGrRkgxfV5V0140QJp5RGpSEQCPyjFuaJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uwYHIVM3GFECA+ink/8QCTIDnbcXbIyr34jiuoeapLEw1yjZrzasGyq/P/wahZ9s2
-         MWTl2/wRW3ypUVT/AGZEoFaS1qr4p3d4kUO2sU4+8/3sJPqDxXOa3LPLCFy2Qmvj3f
-         vvH2FjQ2s4jThI5o7YLGbxVFz243n7SJ+XK+KAZE=
+        b=CvMggoKdNAJsv5YAtTasS24gPzl6ZRy28dseHiVKBeh5loyfDnZIHwa6Z+Rt9nFg9
+         Y8wKtR9nKH/k813ioCG1AJqkbsn7EgFK/XyN4tEj8RDazaNBwwyWaK03Tih1rqLh7m
+         aLC7IR7F6jwCrx4YLnBuXPCLBnlqMs/JZ/JcX65Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenta Tada <Kenta.Tada@sony.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 381/677] seccomp: Fix CONFIG tests for Seccomp_filters
-Date:   Wed, 12 May 2021 16:47:07 +0200
-Message-Id: <20210512144849.995701021@linuxfoundation.org>
+Subject: [PATCH 5.12 382/677] drm/mediatek: Switch the hdmi bridge ops to the atomic versions
+Date:   Wed, 12 May 2021 16:47:08 +0200
+Message-Id: <20210512144850.026887565@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,53 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kenta.Tada@sony.com <Kenta.Tada@sony.com>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 64bdc0244054f7d4bb621c8b4455e292f4e421bc ]
+[ Upstream commit 053d231f369ca05cd563ca9738b5a4c73908e697 ]
 
-Strictly speaking, seccomp filters are only used
-when CONFIG_SECCOMP_FILTER.
-This patch fixes the condition to enable "Seccomp_filters"
-in /proc/$pid/status.
+The bridge operation '.enable' and the audio cb '.get_eld'
+access hdmi->conn. In the future we will want to support
+the flag DRM_BRIDGE_ATTACH_NO_CONNECTOR and then we will
+not have direct access to the connector.
+The atomic version '.atomic_enable' allows accessing the
+current connector from the state.
+This patch switches the bridge to the atomic version to
+prepare access to the connector in later patches.
 
-Signed-off-by: Kenta Tada <Kenta.Tada@sony.com>
-Fixes: c818c03b661c ("seccomp: Report number of loaded filters in /proc/$pid/status")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/OSBPR01MB26772D245E2CF4F26B76A989F5669@OSBPR01MB2677.jpnprd01.prod.outlook.com
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/array.c  | 2 ++
- init/init_task.c | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mediatek/mtk_hdmi.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/fs/proc/array.c b/fs/proc/array.c
-index bb87e4d89cd8..7ec59171f197 100644
---- a/fs/proc/array.c
-+++ b/fs/proc/array.c
-@@ -342,8 +342,10 @@ static inline void task_seccomp(struct seq_file *m, struct task_struct *p)
- 	seq_put_decimal_ull(m, "NoNewPrivs:\t", task_no_new_privs(p));
- #ifdef CONFIG_SECCOMP
- 	seq_put_decimal_ull(m, "\nSeccomp:\t", p->seccomp.mode);
-+#ifdef CONFIG_SECCOMP_FILTER
- 	seq_put_decimal_ull(m, "\nSeccomp_filters:\t",
- 			    atomic_read(&p->seccomp.filter_count));
-+#endif
- #endif
- 	seq_puts(m, "\nSpeculation_Store_Bypass:\t");
- 	switch (arch_prctl_spec_ctrl_get(p, PR_SPEC_STORE_BYPASS)) {
-diff --git a/init/init_task.c b/init/init_task.c
-index 3711cdaafed2..8b08c2e19cbb 100644
---- a/init/init_task.c
-+++ b/init/init_task.c
-@@ -210,7 +210,7 @@ struct task_struct init_task
- #ifdef CONFIG_SECURITY
- 	.security	= NULL,
- #endif
--#ifdef CONFIG_SECCOMP
-+#ifdef CONFIG_SECCOMP_FILTER
- 	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
- #endif
+diff --git a/drivers/gpu/drm/mediatek/mtk_hdmi.c b/drivers/gpu/drm/mediatek/mtk_hdmi.c
+index 8ee55f9e2954..f2c810b767ef 100644
+--- a/drivers/gpu/drm/mediatek/mtk_hdmi.c
++++ b/drivers/gpu/drm/mediatek/mtk_hdmi.c
+@@ -1357,7 +1357,8 @@ static bool mtk_hdmi_bridge_mode_fixup(struct drm_bridge *bridge,
+ 	return true;
+ }
+ 
+-static void mtk_hdmi_bridge_disable(struct drm_bridge *bridge)
++static void mtk_hdmi_bridge_atomic_disable(struct drm_bridge *bridge,
++					   struct drm_bridge_state *old_bridge_state)
+ {
+ 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
+ 
+@@ -1371,7 +1372,8 @@ static void mtk_hdmi_bridge_disable(struct drm_bridge *bridge)
+ 	hdmi->enabled = false;
+ }
+ 
+-static void mtk_hdmi_bridge_post_disable(struct drm_bridge *bridge)
++static void mtk_hdmi_bridge_atomic_post_disable(struct drm_bridge *bridge,
++						struct drm_bridge_state *old_state)
+ {
+ 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
+ 
+@@ -1406,7 +1408,8 @@ static void mtk_hdmi_bridge_mode_set(struct drm_bridge *bridge,
+ 	drm_mode_copy(&hdmi->mode, adjusted_mode);
+ }
+ 
+-static void mtk_hdmi_bridge_pre_enable(struct drm_bridge *bridge)
++static void mtk_hdmi_bridge_atomic_pre_enable(struct drm_bridge *bridge,
++					      struct drm_bridge_state *old_state)
+ {
+ 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
+ 
+@@ -1426,7 +1429,8 @@ static void mtk_hdmi_send_infoframe(struct mtk_hdmi *hdmi,
+ 		mtk_hdmi_setup_vendor_specific_infoframe(hdmi, mode);
+ }
+ 
+-static void mtk_hdmi_bridge_enable(struct drm_bridge *bridge)
++static void mtk_hdmi_bridge_atomic_enable(struct drm_bridge *bridge,
++					  struct drm_bridge_state *old_state)
+ {
+ 	struct mtk_hdmi *hdmi = hdmi_ctx_from_bridge(bridge);
+ 
+@@ -1440,13 +1444,16 @@ static void mtk_hdmi_bridge_enable(struct drm_bridge *bridge)
+ }
+ 
+ static const struct drm_bridge_funcs mtk_hdmi_bridge_funcs = {
++	.atomic_duplicate_state = drm_atomic_helper_bridge_duplicate_state,
++	.atomic_destroy_state = drm_atomic_helper_bridge_destroy_state,
++	.atomic_reset = drm_atomic_helper_bridge_reset,
+ 	.attach = mtk_hdmi_bridge_attach,
+ 	.mode_fixup = mtk_hdmi_bridge_mode_fixup,
+-	.disable = mtk_hdmi_bridge_disable,
+-	.post_disable = mtk_hdmi_bridge_post_disable,
++	.atomic_disable = mtk_hdmi_bridge_atomic_disable,
++	.atomic_post_disable = mtk_hdmi_bridge_atomic_post_disable,
+ 	.mode_set = mtk_hdmi_bridge_mode_set,
+-	.pre_enable = mtk_hdmi_bridge_pre_enable,
+-	.enable = mtk_hdmi_bridge_enable,
++	.atomic_pre_enable = mtk_hdmi_bridge_atomic_pre_enable,
++	.atomic_enable = mtk_hdmi_bridge_atomic_enable,
  };
+ 
+ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
 -- 
 2.30.2
 
