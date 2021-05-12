@@ -2,143 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F3037B941
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8576737B946
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231140AbhELJbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:31:47 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:53117 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230427AbhELJb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:31:27 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id A5C081434;
-        Wed, 12 May 2021 05:30:18 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 12 May 2021 05:30:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1vENTq
-        2idlHl2AA5YMAT9FqWqBjNdU2ObvK2rXNXYtg=; b=nYpy5G/LL4j/tqUa4hdBH6
-        zqaJtMbIqR4Tfw6A5osoPqtSee3/g4RkgTgSkMqnZngXyWeDdiHXsZ9vBCFE7PN7
-        kLm5OSCUNDHU3ig+aYDWFlMeS1U6+7kG8i737ubH1ejydRrRKHwLScjCBRMfJmQs
-        Qt70JP3xJJNxrJgRbDGGo5S0Q7t3PVoMPkmi+Pug4uA/+WW8aRWsJh1M+vokUaF/
-        s1m28BirTXeRMPiWYy+88ZQbhfZaBfj5o6PZMfoSuvHRfYRc5SpskKP2ufelbzQj
-        e8tJP2H2jWas9dv5pS8zrnb8Tkhr+gXwMdq1a/S8li23mSZamxxi54dwPKFRQ93Q
-        ==
-X-ME-Sender: <xms:KqCbYIsY1d0zww_VYGJgemc8wjECOKloSJt1SvUyJttceI1_gL7OTQ>
-    <xme:KqCbYFdx4lm2TDuA9wvYck2di1LBr5oLco4r2BO5-4xO6kQTjlHkzxzQMFjjkl9vw
-    qLNFEGN4yJOjw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgudefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:KqCbYDzE0pwuud7Oky5kjWn4B7isJZx-LAJecB1s9adDN3JmGLnfAg>
-    <xmx:KqCbYLPhPlb2oTCCC8gP-4H1pHwjoXZK7glYQ5z_b9DuiMLEP0cnpw>
-    <xmx:KqCbYI-v1L7S-yZXDgHiEyR4pzoc1Fuf5FRSPPjv0tWgEn8Voqs5rA>
-    <xmx:KqCbYNGsBej3Ho-vFyWEYJwJN1UjFYzqTMWBvxBRT3F-oGOm0T8yf8QaZ88>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 05:30:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] FDDI: defxx: Make MMIO the configuration default except for" failed to apply to 5.10-stable tree
-To:     macro@orcam.me.uk, davem@davemloft.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 11:30:01 +0200
-Message-ID: <162081180118299@kroah.com>
+        id S230129AbhELJcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:32:35 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:50414 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230403AbhELJc0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:32:26 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-79-oLFw4AwlPEex5jOXqlFBlw-1; Wed, 12 May 2021 10:31:12 +0100
+X-MC-Unique: oLFw4AwlPEex5jOXqlFBlw-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.2; Wed, 12 May 2021 10:31:10 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.015; Wed, 12 May 2021 10:31:10 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Juergen Gross' <jgross@suse.com>, 'Joerg Roedel' <joro@8bytes.org>
+CC:     "x86@kernel.org" <x86@kernel.org>,
+        Hyunwook Baek <baekhw@google.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        "linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH 3/6] x86/sev-es: Use __put_user()/__get_user
+Thread-Topic: [PATCH 3/6] x86/sev-es: Use __put_user()/__get_user
+Thread-Index: AQHXRwQswpicLJM6a0eoGXhfP+3kQqrfe29ggAAQd36AAAai8A==
+Date:   Wed, 12 May 2021 09:31:10 +0000
+Message-ID: <8cdbb6928c7144c6b065c3ff68f03aee@AcuMS.aculab.com>
+References: <20210512075445.18935-1-joro@8bytes.org>
+ <20210512075445.18935-4-joro@8bytes.org>
+ <0496626f018d4d27a8034a4822170222@AcuMS.aculab.com>
+ <fcb2c501-70ca-1a54-4a75-8ab05c21ee30@suse.com> <YJuW4TtRJKZ+OIhj@8bytes.org>
+ <92244e37-4443-98bd-24aa-bf59548aab47@suse.com>
+In-Reply-To: <92244e37-4443-98bd-24aa-bf59548aab47@suse.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 193ced4a79599352d63cb8c9e2f0c6043106eb6a Mon Sep 17 00:00:00 2001
-From: "Maciej W. Rozycki" <macro@orcam.me.uk>
-Date: Wed, 10 Mar 2021 13:03:14 +0100
-Subject: [PATCH] FDDI: defxx: Make MMIO the configuration default except for
- EISA
-
-Recent versions of the PCI Express specification have deprecated support
-for I/O transactions and actually some PCIe host bridges, such as Power
-Systems Host Bridge 4 (PHB4), do not implement them.
-
-The default kernel configuration choice for the defxx driver is the use
-of I/O ports rather than MMIO for PCI and EISA systems.  It may have
-made sense as a conservative backwards compatible choice back when MMIO
-operation support was added to the driver as a part of TURBOchannel bus
-support.  However nowadays this configuration choice makes the driver
-unusable with systems that do not implement I/O transactions for PCIe.
-
-Make DEFXX_MMIO the configuration default then, except where configured
-for EISA.  This exception is because an EISA adapter can have its MMIO
-decoding disabled with ECU (EISA Configuration Utility) and therefore
-not available with the resource allocation infrastructure we implement,
-while port I/O is always readily available as it uses slot-specific
-addressing, directly mapped to the slot an option card has been placed
-in and handled with our EISA bus support core.  Conversely a kernel that
-supports modern systems which may not have I/O transactions implemented
-for PCIe will usually not be expected to handle legacy EISA systems.
-
-The change of the default will make it easier for people, including but
-not limited to distribution packagers, to make a working choice for the
-driver.
-
-Update the option description accordingly and while at it replace the
-potentially ambiguous PIO acronym with IOP for "port I/O" vs "I/O ports"
-according to our nomenclature used elsewhere.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: e89a2cfb7d7b ("[TC] defxx: TURBOchannel support")
-Cc: stable@vger.kernel.org # v2.6.21+
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/fddi/Kconfig b/drivers/net/fddi/Kconfig
-index f722079dfb6a..f99c1048c97e 100644
---- a/drivers/net/fddi/Kconfig
-+++ b/drivers/net/fddi/Kconfig
-@@ -40,17 +40,20 @@ config DEFXX
- 
- config DEFXX_MMIO
- 	bool
--	prompt "Use MMIO instead of PIO" if PCI || EISA
-+	prompt "Use MMIO instead of IOP" if PCI || EISA
- 	depends on DEFXX
--	default n if PCI || EISA
-+	default n if EISA
- 	default y
- 	help
- 	  This instructs the driver to use EISA or PCI memory-mapped I/O
--	  (MMIO) as appropriate instead of programmed I/O ports (PIO).
-+	  (MMIO) as appropriate instead of programmed I/O ports (IOP).
- 	  Enabling this gives an improvement in processing time in parts
--	  of the driver, but it may cause problems with EISA (DEFEA)
--	  adapters.  TURBOchannel does not have the concept of I/O ports,
--	  so MMIO is always used for these (DEFTA) adapters.
-+	  of the driver, but it requires a memory window to be configured
-+	  for EISA (DEFEA) adapters that may not always be available.
-+	  Conversely some PCIe host bridges do not support IOP, so MMIO
-+	  may be required to access PCI (DEFPA) adapters on downstream PCI
-+	  buses with some systems.  TURBOchannel does not have the concept
-+	  of I/O ports, so MMIO is always used for these (DEFTA) adapters.
- 
- 	  If unsure, say N.
- 
+RnJvbTogSnVlcmdlbiBHcm9zcw0KPiBTZW50OiAxMiBNYXkgMjAyMSAwOTo1OA0KPiANCj4gT24g
+MTIuMDUuMjEgMTA6NTAsICdKb2VyZyBSb2VkZWwnIHdyb3RlOg0KPiA+IE9uIFdlZCwgTWF5IDEy
+LCAyMDIxIGF0IDEwOjE2OjEyQU0gKzAyMDAsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+ID4+IFlv
+dSB3YW50IHNvbWV0aGluZyBsaWtlIHhlbl9zYWZlX1tyZWFkfHdyaXRlXV91bG9uZygpLg0KPiA+
+DQo+ID4gIEZyb20gYSBmaXJzdCBnbGFuY2UgSSBjYW4ndCBzZWUgaXQsIHdoYXQgaXMgdGhlIGRp
+ZmZlcmVuY2UgYmV0d2VlbiB0aGUNCj4gPiB4ZW5fc2FmZV8qX3Vsb25nKCkgZnVuY3Rpb25zIGFu
+ZCBfX2dldF91c2VyKCkvX19wdXRfdXNlcigpPyBUaGUgb25seQ0KPiA+IGRpZmZlcmVuY2UgSSBj
+YW4gc2VlIGlzIHRoYXQgX19nZXQvX19wdXRfdXNlcigpIHN1cHBvcnQgZGlmZmVyZW50IGFjY2Vz
+cw0KPiA+IHNpemVzLCBidXQgbmVpdGhlciBvZiB0aG9zZSBkaXNhYmxlcyBwYWdlLWZhdWx0cyBi
+eSBpdHNlbGYsIGZvciBleGFtcGxlLg0KPiA+DQo+ID4gQ291bGRuJ3QgdGhlc2UgeGVuLXNwZWNp
+ZmljIGZ1bmN0aW9ucyBub3QgYWxzbyBiZSByZXBsYWNlcyBieQ0KPiA+IF9fZ2V0X3VzZXIoKS9f
+X3B1dF91c2VyKCk/DQo+IA0KPiBObywgdGhvc2Ugd2VyZSB1c2VkIGJlZm9yZSwgYnV0IGNvbW1p
+dCA5ZGEzZjJiNzQwNTQ0MCBicm9rZSBYZW4ncyB1c2UNCj4gY2FzZS4gVGhhdCBpcyB3aHkgSSBk
+aWQgY29tbWl0IDE0NTdkOGNmNzY2NGYuDQoNCkkndmUganVzdCBsb29rZWQgYXQgOWRhM2YyYjc0
+MDU0NDAuDQoNCkl0IGRvZXNuJ3QgbG9vayByaWdodCB0byBtZSAtIHdyb25nIHJldHVybiB2YWx1
+ZSBmb3IgYSBsb3Qgb2YgY2FzZXMuDQpPVE9IIGl0IGlzbid0IGluIG15IG5ld2VzdCB0cmVlIGF0
+IGFsbC4NCg0KSWYgYm9ndXNfdWFjY2VzcygpIGlzIG5vdyBlbHNld2hlcmUgSSBjYW4ndCBzZWUg
+aG93ICh3aXRob3V0IGNoYW5nZXMpDQppdCB3b3VsZCBhbGxvdyB0aHJvdWdoIHRoZXNlIGZhdWx0
+cy4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBS
+b2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9u
+IE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
 
