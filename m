@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E0AD37BADD
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F53337BAE2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:39:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbhELKkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:40:32 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:56147 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230166AbhELKkc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:40:32 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id 2D9D5C14;
-        Wed, 12 May 2021 06:39:24 -0400 (EDT)
+        id S230210AbhELKkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:40:53 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:56461 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230184AbhELKkw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:40:52 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6BA921940E95;
+        Wed, 12 May 2021 06:39:44 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 06:39:24 -0400
+  by compute5.internal (MEProxy); Wed, 12 May 2021 06:39:44 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=kc5lYF
-        LIRyyc9Vvuh0wlocx++vkOMzMJfUxjxQJGK1w=; b=M3bl4GZ7wSk7DcM7eIZUff
-        2XMs25ODVh9qGH6bpmgD3lHDx6o8SyC1rljaU7EUQwLP1CGkATLLVgcR1HF54bsT
-        fl7M3Z+IpwAxTnPyvuO7gk7UFSFfNvdTK2uY3VrDw+EN8h4ZygcR3VsG+9jLRbLB
-        3fTK2JxBq2ug7cPCLApeaPdoDvOKu5DVmFBKN5/3qYiVqqX839lIIJBF1PLmv9Ev
-        cuHClzuCAe8qL0xGobzgiH1tGxf5RZh2GwhJcvHYASAMilL0YiOIlQOWaOq8XSxs
-        fVMRdlygycLFilHhVURNIbBj2T/PIHsigaPDGmxOHlv/QqUGZ9kk8YsK6bAqP+qw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Y2A65o
+        UJi0KPAwMzAyKy/A8KmJEmO/l0pABq2jcq/4g=; b=jjJhsE6bL9rJqwsvzt1QTP
+        2DM8mCQ7K3/ApoPfEGZhh81WiHkb3bIrX5iVkuMqCeIjrLtQNJLChJBMorYHD/x/
+        Wv96J32X16/tiWYg/I3iWuPLFxNRAtdWmyh5E3Qx9sKeiiikUGRrYRz/hZUWAUrN
+        wEAf+7JOxIZdlEE5/xzkn5WnkYi2zlLQgytbcbR7QY9NaiuLJMkgmKwy0ZD2VWgk
+        TaamJqoynJIS8qC7ixxz8uaulOYIzdyBOXaEuwMapz85QX4C2HS2DDf9Od8yIJEy
+        xGHgodL/JvoxO6/Z9l2NN8ae5I2nXf1P+O2RktAGQolhafjauagQRCiqCojbnRLA
         ==
-X-ME-Sender: <xms:W7CbYGaFWqIvVzpPPtFU18q8eKulFRUkfF_idHZDqDP4WJ28C6pRYg>
-    <xme:W7CbYJaMYirHhG9t1_nCAIr2qmzb-e8mMJiPdYUogqQYh2d9Pcc2CLPOY48ZCDkJ4
-    38O9S60OL03fg>
+X-ME-Sender: <xms:cLCbYJxQw_G-BHgAOyDrAx4ftGVcdBDb7tF0HxHZXKlwfckBZhP3eA>
+    <xme:cLCbYJSWW0qWjmymPDjlsJ2xpc1X3MW7XNnv4MK4okSYpdxlqsaIB0cmp0WSk6HpR
+    _w32sGivdlDOA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:W7CbYA_47DvmxJXbbtKbgZB-wAqGqh08V3llzwH3lznW-5NtMaHgwg>
-    <xmx:W7CbYIqEel9osyaw5g7X2t1JrTBW2T-4iqld3jLBjYXWAiyHacatXA>
-    <xmx:W7CbYBovutEdpQSl97S9XfcQxX9sC5oLUpITgqY5Ji58WBWmC0iczg>
-    <xmx:W7CbYCDXZWDLbLjsj8CIY77_fjsBBZ6iVb6xxD-gS5PlRH_RTE2ORp5qhXE>
+X-ME-Proxy: <xmx:cLCbYDVtGBJeNeGBWRZ9np-1lkPlQ5rl2010fsBboi65j41rHGBZoA>
+    <xmx:cLCbYLiJQ44QYSXBXjpRke72AcFWxJPmKtJYcr9yii-JXkac9IIoUw>
+    <xmx:cLCbYLC3YAKf3rFwDorcMK6d2kQTA-GJ-6h7cNZCIzcZpBPCjBnZ-w>
+    <xmx:cLCbYOMKyfmic-Ks7v93OazdD5W-uRqF4XY600AwqI4cbLqZdT4GYg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:39:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86: Remove emulator's broken checks on CR0/CR3/CR4" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, babu.moger@amd.com, pbonzini@redhat.com
+        Wed, 12 May 2021 06:39:43 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Set the C-bit in the PDPTRs and LM" failed to apply to 4.14-stable tree
+To:     seanjc@google.com, brijesh.singh@amd.com, pbonzini@redhat.com,
+        thomas.lendacky@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 12:39:14 +0200
-Message-ID: <1620815954107131@kroah.com>
+Date:   Wed, 12 May 2021 12:39:42 +0200
+Message-ID: <162081598222848@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,131 +71,49 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d0fe7b6404408835ed60232cb3bf28324b2f95db Mon Sep 17 00:00:00 2001
+From 17e368d94af77c1533bfd4136e080a33a6330282 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Wed, 21 Apr 2021 19:21:20 -0700
-Subject: [PATCH] KVM: x86: Remove emulator's broken checks on CR0/CR3/CR4
- loads
+Date: Thu, 4 Mar 2021 17:10:54 -0800
+Subject: [PATCH] KVM: x86/mmu: Set the C-bit in the PDPTRs and LM
+ pseudo-PDPTRs
 
-Remove the emulator's checks for illegal CR0, CR3, and CR4 values, as
-the checks are redundant, outdated, and in the case of SEV's C-bit,
-broken.  The emulator manually calculates MAXPHYADDR from CPUID and
-neglects to mask off the C-bit.  For all other checks, kvm_set_cr*() are
-a superset of the emulator checks, e.g. see CR4.LA57.
+Set the C-bit in SPTEs that are set outside of the normal MMU flows,
+specifically the PDPDTRs and the handful of special cased "LM root"
+entries, all of which are shadow paging only.
 
-Fixes: a780a3ea6282 ("KVM: X86: Fix reserved bits check for MOV to CR3")
-Cc: Babu Moger <babu.moger@amd.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422022128.3464144-2-seanjc@google.com>
+Note, the direct-mapped-root PDPTR handling is needed for the scenario
+where paging is disabled in the guest, in which case KVM uses a direct
+mapped MMU even though TDP is disabled.
+
+Fixes: d0ec49d4de90 ("kvm/x86/svm: Support Secure Memory Encryption within KVM")
 Cc: stable@vger.kernel.org
-[Unify check_cr_read and check_cr_write. - Paolo]
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210305011101.3597423-11-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index f7970ba6219f..abd9a4db11a8 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -4220,7 +4220,7 @@ static bool valid_cr(int nr)
- 	}
- }
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index da94734272db..ff7e050ba1ac 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -3261,7 +3261,8 @@ static int mmu_alloc_direct_roots(struct kvm_vcpu *vcpu)
  
--static int check_cr_read(struct x86_emulate_ctxt *ctxt)
-+static int check_cr_access(struct x86_emulate_ctxt *ctxt)
- {
- 	if (!valid_cr(ctxt->modrm_reg))
- 		return emulate_ud(ctxt);
-@@ -4228,80 +4228,6 @@ static int check_cr_read(struct x86_emulate_ctxt *ctxt)
- 	return X86EMUL_CONTINUE;
- }
+ 			root = mmu_alloc_root(vcpu, i << (30 - PAGE_SHIFT),
+ 					      i << 30, PT32_ROOT_LEVEL, true);
+-			mmu->pae_root[i] = root | PT_PRESENT_MASK;
++			mmu->pae_root[i] = root | PT_PRESENT_MASK |
++					   shadow_me_mask;
+ 		}
+ 		mmu->root_hpa = __pa(mmu->pae_root);
+ 	} else
+@@ -3314,7 +3315,7 @@ static int mmu_alloc_shadow_roots(struct kvm_vcpu *vcpu)
+ 	 * or a PAE 3-level page table. In either case we need to be aware that
+ 	 * the shadow page table may be a PAE or a long mode page table.
+ 	 */
+-	pm_mask = PT_PRESENT_MASK;
++	pm_mask = PT_PRESENT_MASK | shadow_me_mask;
+ 	if (mmu->shadow_root_level == PT64_ROOT_4LEVEL) {
+ 		pm_mask |= PT_ACCESSED_MASK | PT_WRITABLE_MASK | PT_USER_MASK;
  
--static int check_cr_write(struct x86_emulate_ctxt *ctxt)
--{
--	u64 new_val = ctxt->src.val64;
--	int cr = ctxt->modrm_reg;
--	u64 efer = 0;
--
--	static u64 cr_reserved_bits[] = {
--		0xffffffff00000000ULL,
--		0, 0, 0, /* CR3 checked later */
--		CR4_RESERVED_BITS,
--		0, 0, 0,
--		CR8_RESERVED_BITS,
--	};
--
--	if (!valid_cr(cr))
--		return emulate_ud(ctxt);
--
--	if (new_val & cr_reserved_bits[cr])
--		return emulate_gp(ctxt, 0);
--
--	switch (cr) {
--	case 0: {
--		u64 cr4;
--		if (((new_val & X86_CR0_PG) && !(new_val & X86_CR0_PE)) ||
--		    ((new_val & X86_CR0_NW) && !(new_val & X86_CR0_CD)))
--			return emulate_gp(ctxt, 0);
--
--		cr4 = ctxt->ops->get_cr(ctxt, 4);
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--
--		if ((new_val & X86_CR0_PG) && (efer & EFER_LME) &&
--		    !(cr4 & X86_CR4_PAE))
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	case 3: {
--		u64 rsvd = 0;
--
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--		if (efer & EFER_LMA) {
--			u64 maxphyaddr;
--			u32 eax, ebx, ecx, edx;
--
--			eax = 0x80000008;
--			ecx = 0;
--			if (ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx,
--						 &edx, true))
--				maxphyaddr = eax & 0xff;
--			else
--				maxphyaddr = 36;
--			rsvd = rsvd_bits(maxphyaddr, 63);
--			if (ctxt->ops->get_cr(ctxt, 4) & X86_CR4_PCIDE)
--				rsvd &= ~X86_CR3_PCID_NOFLUSH;
--		}
--
--		if (new_val & rsvd)
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	case 4: {
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--
--		if ((efer & EFER_LMA) && !(new_val & X86_CR4_PAE))
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	}
--
--	return X86EMUL_CONTINUE;
--}
--
- static int check_dr7_gd(struct x86_emulate_ctxt *ctxt)
- {
- 	unsigned long dr7;
-@@ -4841,10 +4767,10 @@ static const struct opcode twobyte_table[256] = {
- 	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* 8 * reserved NOP */
- 	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* NOP + 7 * reserved NOP */
- 	/* 0x20 - 0x2F */
--	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_read),
-+	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_access),
- 	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, dr_read, check_dr_read),
- 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_cr_write, cr_write,
--						check_cr_write),
-+						check_cr_access),
- 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_dr_write, dr_write,
- 						check_dr_write),
- 	N, N, N, N,
 
