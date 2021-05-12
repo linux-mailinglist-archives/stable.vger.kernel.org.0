@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D3137CBBA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF52A37CBB0
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235889AbhELQh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:37:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
+        id S235042AbhELQhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:37:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237880AbhELQ2B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:28:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33D7C61461;
-        Wed, 12 May 2021 15:56:01 +0000 (UTC)
+        id S241734AbhELQ15 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97C266142D;
+        Wed, 12 May 2021 15:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834961;
-        bh=feGBGZ6G839HD36t7DZkDVprzfXHcdWXVlp4ZpSeKbo=;
+        s=korg; t=1620834947;
+        bh=kFqNqINj/MlTmrWqyMiBGKeLZMed1GOHtIUyowRny/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKqoLKPHW+4PZyLBQZsHUzHWn1JFmiD1P+Gmmtic2eohgzKoABEU2ezh4+6ySob2Q
-         eXUrs+l7T+bFbQfg0yFcpWEQ3JG9+I2pqzMjhweCimpDKEwpWp51WBav4uE7hpNCa8
-         mTUVNGDFBNKK7tmkwJBKc5nHw08sQC2THVLreRsw=
+        b=puJLsYKnGj+WK+pvV4HEwN8VLMItY3QcCqpWu5MaNdo1nWq6icXkxOIqcp7SBqhU5
+         +8y4Q+g44rQSvCFwFySJYgxZ9E/2Jdz1qdsujHRJGjGAd1sd7PLBq4JiZznu/Q9CxF
+         jciG9D0C09K4ab9pQ9iDkZvZn7V9FG2vpGZ1je+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 108/677] KVM: X86: Fix failure to boost kernel lock holder candidate in SEV-ES guests
-Date:   Wed, 12 May 2021 16:42:34 +0200
-Message-Id: <20210512144840.811548808@linuxfoundation.org>
+Subject: [PATCH 5.12 112/677] KVM: nSVM: Set the shadow root level to the TDP level for nested NPT
+Date:   Wed, 12 May 2021 16:42:38 +0200
+Message-Id: <20210512144840.936461400@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,39 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit b86bb11e3a79ac0db9a6786b1fe80f74321cb076 upstream.
+commit a3322d5cd87fef5ec0037fd1b14068a533f9a60f upstream.
 
-Commit f1c6366e3043 ("KVM: SVM: Add required changes to support intercepts under
-SEV-ES") prevents hypervisor accesses guest register state when the guest is
-running under SEV-ES. The initial value of vcpu->arch.guest_state_protected
-is false, it will not be updated in preemption notifiers after this commit which
-means that the kernel spinlock lock holder will always be skipped to boost. Let's
-fix it by always treating preempted is in the guest kernel mode, false positive
-is better than skip completely.
+Override the shadow root level in the MMU context when configuring
+NPT for shadowing nested NPT.  The level is always tied to the TDP level
+of the host, not whatever level the guest happens to be using.
 
-Fixes: f1c6366e3043 (KVM: SVM: Add required changes to support intercepts under SEV-ES)
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1619080459-30032-1-git-send-email-wanpengli@tencent.com>
+Fixes: 096586fda522 ("KVM: nSVM: Correctly set the shadow NPT root level in its MMU role")
 Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210305011101.3597423-2-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/mmu/mmu.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -11020,6 +11020,9 @@ bool kvm_arch_dy_runnable(struct kvm_vcp
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -4627,12 +4627,17 @@ void kvm_init_shadow_npt_mmu(struct kvm_
+ 	struct kvm_mmu *context = &vcpu->arch.guest_mmu;
+ 	union kvm_mmu_role new_role = kvm_calc_shadow_npt_root_page_role(vcpu);
  
- bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu)
- {
-+	if (vcpu->arch.guest_state_protected)
-+		return true;
+-	context->shadow_root_level = new_role.base.level;
+-
+ 	__kvm_mmu_new_pgd(vcpu, nested_cr3, new_role.base, false, false);
+ 
+-	if (new_role.as_u64 != context->mmu_role.as_u64)
++	if (new_role.as_u64 != context->mmu_role.as_u64) {
+ 		shadow_mmu_init_context(vcpu, context, cr0, cr4, efer, new_role);
 +
- 	return vcpu->arch.preempted_in_kernel;
++		/*
++		 * Override the level set by the common init helper, nested TDP
++		 * always uses the host's TDP configuration.
++		 */
++		context->shadow_root_level = new_role.base.level;
++	}
  }
+ EXPORT_SYMBOL_GPL(kvm_init_shadow_npt_mmu);
  
 
 
