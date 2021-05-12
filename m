@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A025937CB03
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A47137CB08
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242232AbhELQdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:33:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
+        id S242275AbhELQeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:34:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241372AbhELQ1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241375AbhELQ1G (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:27:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88A3B61968;
-        Wed, 12 May 2021 15:51:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B49561DBF;
+        Wed, 12 May 2021 15:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834711;
-        bh=9JiJsMH+EkRdphQ7ftzKtTJy5Fs5K8ebwSf/X9b/hfo=;
+        s=korg; t=1620834713;
+        bh=IYgTNI9KVnkzuftttWP08pk/008Q/PI8FqEP+Jouq74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2EDkAwr4e0k9+yz3jctkUaYESk0LkHa6dX5tbX/rgcorz6b8P8iEbXcRwIfsnj2Vh
-         35/YD4hcbuIaFn0qALTfTFNI68kA/+XBcgQxu4XsYKTYAN1lfv5aIDBgWADJLPQWj0
-         NlCxOOaM/IXYZ4pqDXcfhUapn6QetTk9bGOcQwAE=
+        b=z0RJlc8fxiCU6qfeMWnlb8aIhYu3fyG4uCKN4JNnbYwdT+i/q2JWfXoL5oWJdTDeN
+         HK/rm4PmlXM9U95Giy/wcg3zbXX4OBV7AF9vU4jdr/eHKTwgw/JJi+d1ANz3/LQEOJ
+         aCuvAxlcEu4GkQ0B+qzO2/nipPOcotMysUC4V9Rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.12 053/677] selinux: add proper NULL termination to the secclass_map permissions
-Date:   Wed, 12 May 2021 16:41:39 +0200
-Message-Id: <20210512144838.965523655@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alison Schofield <alison.schofield@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 5.12 054/677] x86, sched: Treat Intel SNC topology as default, COD as exception
+Date:   Wed, 12 May 2021 16:41:40 +0200
+Message-Id: <20210512144839.000256328@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -38,48 +41,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Alison Schofield <alison.schofield@intel.com>
 
-commit e4c82eafb609c2badc56f4e11bc50fcf44b8e9eb upstream.
+commit 2c88d45edbb89029c1190bb3b136d2602f057c98 upstream.
 
-This patch adds the missing NULL termination to the "bpf" and
-"perf_event" object class permission lists.
+Commit 1340ccfa9a9a ("x86,sched: Allow topologies where NUMA nodes
+share an LLC") added a vendor and model specific check to never
+call topology_sane() for Intel Skylake Server systems where NUMA
+nodes share an LLC.
 
-This missing NULL termination should really only affect the tools
-under scripts/selinux, with the most important being genheaders.c,
-although in practice this has not been an issue on any of my dev/test
-systems.  If the problem were to manifest itself it would likely
-result in bogus permissions added to the end of the object class;
-thankfully with no access control checks using these bogus
-permissions and no policies defining these permissions the impact
-would likely be limited to some noise about undefined permissions
-during policy load.
+Intel Ice Lake and Sapphire Rapids CPUs also enumerate an LLC that is
+shared by multiple NUMA nodes. The LLC on these CPUs is shared for
+off-package data access but private to the NUMA node for on-package
+access. Rather than managing a list of allowable SNC topologies, make
+this SNC topology the default, and treat Intel's Cluster-On-Die (COD)
+topology as the exception.
 
+In SNC mode, Sky Lake, Ice Lake, and Sapphire Rapids servers do not
+emit this warning:
+
+sched: CPU #3's llc-sibling CPU #0 is not on the same node! [node: 1 != 0]. Ignoring dependency.
+
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Alison Schofield <alison.schofield@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: stable@vger.kernel.org
-Fixes: ec27c3568a34 ("selinux: bpf: Add selinux check for eBPF syscall operations")
-Fixes: da97e18458fb ("perf_event: Add support for LSM and SELinux checks")
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Link: https://lkml.kernel.org/r/20210310190233.31752-1-alison.schofield@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/selinux/include/classmap.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kernel/smpboot.c |   90 +++++++++++++++++++++++-----------------------
+ 1 file changed, 46 insertions(+), 44 deletions(-)
 
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -242,11 +242,12 @@ struct security_class_mapping secclass_m
- 	{ "infiniband_endport",
- 	  { "manage_subnet", NULL } },
- 	{ "bpf",
--	  {"map_create", "map_read", "map_write", "prog_load", "prog_run"} },
-+	  { "map_create", "map_read", "map_write", "prog_load", "prog_run",
-+	    NULL } },
- 	{ "xdp_socket",
- 	  { COMMON_SOCK_PERMS, NULL } },
- 	{ "perf_event",
--	  {"open", "cpu", "kernel", "tracepoint", "read", "write"} },
-+	  { "open", "cpu", "kernel", "tracepoint", "read", "write", NULL } },
- 	{ "lockdown",
- 	  { "integrity", "confidentiality", NULL } },
- 	{ "anon_inode",
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -458,29 +458,52 @@ static bool match_smt(struct cpuinfo_x86
+ 	return false;
+ }
+ 
++static bool match_die(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
++{
++	if (c->phys_proc_id == o->phys_proc_id &&
++	    c->cpu_die_id == o->cpu_die_id)
++		return true;
++	return false;
++}
++
+ /*
+- * Define snc_cpu[] for SNC (Sub-NUMA Cluster) CPUs.
++ * Unlike the other levels, we do not enforce keeping a
++ * multicore group inside a NUMA node.  If this happens, we will
++ * discard the MC level of the topology later.
++ */
++static bool match_pkg(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
++{
++	if (c->phys_proc_id == o->phys_proc_id)
++		return true;
++	return false;
++}
++
++/*
++ * Define intel_cod_cpu[] for Intel COD (Cluster-on-Die) CPUs.
+  *
+- * These are Intel CPUs that enumerate an LLC that is shared by
+- * multiple NUMA nodes. The LLC on these systems is shared for
+- * off-package data access but private to the NUMA node (half
+- * of the package) for on-package access.
++ * Any Intel CPU that has multiple nodes per package and does not
++ * match intel_cod_cpu[] has the SNC (Sub-NUMA Cluster) topology.
+  *
+- * CPUID (the source of the information about the LLC) can only
+- * enumerate the cache as being shared *or* unshared, but not
+- * this particular configuration. The CPU in this case enumerates
+- * the cache to be shared across the entire package (spanning both
+- * NUMA nodes).
++ * When in SNC mode, these CPUs enumerate an LLC that is shared
++ * by multiple NUMA nodes. The LLC is shared for off-package data
++ * access but private to the NUMA node (half of the package) for
++ * on-package access. CPUID (the source of the information about
++ * the LLC) can only enumerate the cache as shared or unshared,
++ * but not this particular configuration.
+  */
+ 
+-static const struct x86_cpu_id snc_cpu[] = {
+-	X86_MATCH_INTEL_FAM6_MODEL(SKYLAKE_X, NULL),
++static const struct x86_cpu_id intel_cod_cpu[] = {
++	X86_MATCH_INTEL_FAM6_MODEL(HASWELL_X, 0),	/* COD */
++	X86_MATCH_INTEL_FAM6_MODEL(BROADWELL_X, 0),	/* COD */
++	X86_MATCH_INTEL_FAM6_MODEL(ANY, 1),		/* SNC */
+ 	{}
+ };
+ 
+ static bool match_llc(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+ {
++	const struct x86_cpu_id *id = x86_match_cpu(intel_cod_cpu);
+ 	int cpu1 = c->cpu_index, cpu2 = o->cpu_index;
++	bool intel_snc = id && id->driver_data;
+ 
+ 	/* Do not match if we do not have a valid APICID for cpu: */
+ 	if (per_cpu(cpu_llc_id, cpu1) == BAD_APICID)
+@@ -495,32 +518,12 @@ static bool match_llc(struct cpuinfo_x86
+ 	 * means 'c' does not share the LLC of 'o'. This will be
+ 	 * reflected to userspace.
+ 	 */
+-	if (!topology_same_node(c, o) && x86_match_cpu(snc_cpu))
++	if (match_pkg(c, o) && !topology_same_node(c, o) && intel_snc)
+ 		return false;
+ 
+ 	return topology_sane(c, o, "llc");
+ }
+ 
+-/*
+- * Unlike the other levels, we do not enforce keeping a
+- * multicore group inside a NUMA node.  If this happens, we will
+- * discard the MC level of the topology later.
+- */
+-static bool match_pkg(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+-{
+-	if (c->phys_proc_id == o->phys_proc_id)
+-		return true;
+-	return false;
+-}
+-
+-static bool match_die(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
+-{
+-	if ((c->phys_proc_id == o->phys_proc_id) &&
+-		(c->cpu_die_id == o->cpu_die_id))
+-		return true;
+-	return false;
+-}
+-
+ 
+ #if defined(CONFIG_SCHED_SMT) || defined(CONFIG_SCHED_MC)
+ static inline int x86_sched_itmt_flags(void)
+@@ -592,14 +595,23 @@ void set_cpu_sibling_map(int cpu)
+ 	for_each_cpu(i, cpu_sibling_setup_mask) {
+ 		o = &cpu_data(i);
+ 
++		if (match_pkg(c, o) && !topology_same_node(c, o))
++			x86_has_numa_in_package = true;
++
+ 		if ((i == cpu) || (has_smt && match_smt(c, o)))
+ 			link_mask(topology_sibling_cpumask, cpu, i);
+ 
+ 		if ((i == cpu) || (has_mp && match_llc(c, o)))
+ 			link_mask(cpu_llc_shared_mask, cpu, i);
+ 
++		if ((i == cpu) || (has_mp && match_die(c, o)))
++			link_mask(topology_die_cpumask, cpu, i);
+ 	}
+ 
++	threads = cpumask_weight(topology_sibling_cpumask(cpu));
++	if (threads > __max_smt_threads)
++		__max_smt_threads = threads;
++
+ 	/*
+ 	 * This needs a separate iteration over the cpus because we rely on all
+ 	 * topology_sibling_cpumask links to be set-up.
+@@ -613,8 +625,7 @@ void set_cpu_sibling_map(int cpu)
+ 			/*
+ 			 *  Does this new cpu bringup a new core?
+ 			 */
+-			if (cpumask_weight(
+-			    topology_sibling_cpumask(cpu)) == 1) {
++			if (threads == 1) {
+ 				/*
+ 				 * for each core in package, increment
+ 				 * the booted_cores for this new cpu
+@@ -631,16 +642,7 @@ void set_cpu_sibling_map(int cpu)
+ 			} else if (i != cpu && !c->booted_cores)
+ 				c->booted_cores = cpu_data(i).booted_cores;
+ 		}
+-		if (match_pkg(c, o) && !topology_same_node(c, o))
+-			x86_has_numa_in_package = true;
+-
+-		if ((i == cpu) || (has_mp && match_die(c, o)))
+-			link_mask(topology_die_cpumask, cpu, i);
+ 	}
+-
+-	threads = cpumask_weight(topology_sibling_cpumask(cpu));
+-	if (threads > __max_smt_threads)
+-		__max_smt_threads = threads;
+ }
+ 
+ /* maps the cpu to the sched domain representing multi-core */
 
 
