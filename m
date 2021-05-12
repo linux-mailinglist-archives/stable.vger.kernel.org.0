@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7316C37CDA3
+	by mail.lfdr.de (Postfix) with ESMTP id BB99937CDA4
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244916AbhELQ5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33470 "EHLO mail.kernel.org"
+        id S237496AbhELQ5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244029AbhELQm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244028AbhELQm1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BB6761D06;
-        Wed, 12 May 2021 16:09:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E72EB61D05;
+        Wed, 12 May 2021 16:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835781;
-        bh=ygIK7z5uOqgkpJnxwlvSZ3xDHP48hYugPkoEYMnymNw=;
+        s=korg; t=1620835783;
+        bh=Z6cSew+1/gRfBmhgMtRQtUd7lMEVxmYe1aepPIUVkfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpifwE/qR2nfP4WUyNC6wrwle78hrHBWIT4vc4ITlmgtufla4Y6Bba8Sx340d/rST
-         3AVly66U4OauAvZirCqy86YybHLXsJDsaZB9vC5Ixq0NXWc2GjGQN2c16JanvrHspu
-         d+BowR0VGEzNMZJcY9654eifuv2aOzDSjCAWLKXc=
+        b=2Wc+5Y25PGzEyxq2wW/JIxfS1wh4zg9T1HgJNG25ZNZrPbReLzpksQz9Wrch3weDP
+         tSB9NxH0r6M/rwW6t1Sw+2hwSRtzYNXI4ymIcnnaxGdjc1S5FTUad/R3uZRrpp4y/U
+         TIbmHYPKrsVzQJ5Mw6aTW14VKvehI4QJs+cgi9YY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 481/677] udp: skip L4 aggregation for UDP tunnel packets
-Date:   Wed, 12 May 2021 16:48:47 +0200
-Message-Id: <20210512144853.342204678@linuxfoundation.org>
+Subject: [PATCH 5.12 482/677] udp: never accept GSO_FRAGLIST packets
+Date:   Wed, 12 May 2021 16:48:48 +0200
+Message-Id: <20210512144853.375947220@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,81 +43,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 18f25dc399901426dff61e676ba603ff52c666f7 ]
+[ Upstream commit 78352f73dc5047f3f744764cc45912498c52f3c9 ]
 
-If NETIF_F_GRO_FRAGLIST or NETIF_F_GRO_UDP_FWD are enabled, and there
-are UDP tunnels available in the system, udp_gro_receive() could end-up
-doing L4 aggregation (either SKB_GSO_UDP_L4 or SKB_GSO_FRAGLIST) at
-the outer UDP tunnel level for packets effectively carrying and UDP
-tunnel header.
+Currently the UDP protocol delivers GSO_FRAGLIST packets to
+the sockets without the expected segmentation.
 
-That could cause inner protocol corruption. If e.g. the relevant
-packets carry a vxlan header, different vxlan ids will be ignored/
-aggregated to the same GSO packet. Inner headers will be ignored, too,
-so that e.g. TCP over vxlan push packets will be held in the GRO
-engine till the next flush, etc.
+This change addresses the issue introducing and maintaining
+a couple of new fields to explicitly accept SKB_GSO_UDP_L4
+or GSO_FRAGLIST packets. Additionally updates  udp_unexpected_gso()
+accordingly.
 
-Just skip the SKB_GSO_UDP_L4 and SKB_GSO_FRAGLIST code path if the
-current packet could land in a UDP tunnel, and let udp_gro_receive()
-do GRO via udp_sk(sk)->gro_receive.
-
-The check implemented in this patch is broader than what is strictly
-needed, as the existing UDP tunnel could be e.g. configured on top of
-a different device: we could end-up skipping GRO at-all for some packets.
-
-Anyhow, that is a very thin corner case and covering it will add quite
-a bit of complexity.
+UDP sockets enabling UDP_GRO stil keep accept_udp_fraglist
+zeroed.
 
 v1 -> v2:
- - hopefully clarify the commit message
+ - use 2 bits instead of a whole GSO bitmask (Willem)
 
 Fixes: 9fd1ff5d2ac7 ("udp: Support UDP fraglist GRO/GSO.")
-Fixes: 36707061d6ba ("udp: allow forwarding of plain (non-fraglisted) UDP GRO packets")
-Reviewed-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/udp_offload.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ include/linux/udp.h | 16 +++++++++++++---
+ net/ipv4/udp.c      |  3 +++
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/udp_offload.c b/net/ipv4/udp_offload.c
-index c5b4b586570f..25134a3548e9 100644
---- a/net/ipv4/udp_offload.c
-+++ b/net/ipv4/udp_offload.c
-@@ -515,21 +515,24 @@ struct sk_buff *udp_gro_receive(struct list_head *head, struct sk_buff *skb,
- 	unsigned int off = skb_gro_offset(skb);
- 	int flush = 1;
+diff --git a/include/linux/udp.h b/include/linux/udp.h
+index aa84597bdc33..ae58ff3b6b5b 100644
+--- a/include/linux/udp.h
++++ b/include/linux/udp.h
+@@ -51,7 +51,9 @@ struct udp_sock {
+ 					   * different encapsulation layer set
+ 					   * this
+ 					   */
+-			 gro_enabled:1;	/* Can accept GRO packets */
++			 gro_enabled:1,	/* Request GRO aggregation */
++			 accept_udp_l4:1,
++			 accept_udp_fraglist:1;
+ 	/*
+ 	 * Following member retains the information to create a UDP header
+ 	 * when the socket is uncorked.
+@@ -131,8 +133,16 @@ static inline void udp_cmsg_recv(struct msghdr *msg, struct sock *sk,
  
-+	/* we can do L4 aggregation only if the packet can't land in a tunnel
-+	 * otherwise we could corrupt the inner stream
-+	 */
- 	NAPI_GRO_CB(skb)->is_flist = 0;
--	if (skb->dev->features & NETIF_F_GRO_FRAGLIST)
--		NAPI_GRO_CB(skb)->is_flist = sk ? !udp_sk(sk)->gro_enabled: 1;
-+	if (!sk || !udp_sk(sk)->gro_receive) {
-+		if (skb->dev->features & NETIF_F_GRO_FRAGLIST)
-+			NAPI_GRO_CB(skb)->is_flist = sk ? !udp_sk(sk)->gro_enabled : 1;
+ static inline bool udp_unexpected_gso(struct sock *sk, struct sk_buff *skb)
+ {
+-	return !udp_sk(sk)->gro_enabled && skb_is_gso(skb) &&
+-	       skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4;
++	if (!skb_is_gso(skb))
++		return false;
++
++	if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4 && !udp_sk(sk)->accept_udp_l4)
++		return true;
++
++	if (skb_shinfo(skb)->gso_type & SKB_GSO_FRAGLIST && !udp_sk(sk)->accept_udp_fraglist)
++		return true;
++
++	return false;
+ }
  
--	if ((!sk && (skb->dev->features & NETIF_F_GRO_UDP_FWD)) ||
--	    (sk && udp_sk(sk)->gro_enabled) || NAPI_GRO_CB(skb)->is_flist) {
--		pp = call_gro_receive(udp_gro_receive_segment, head, skb);
-+		if ((!sk && (skb->dev->features & NETIF_F_GRO_UDP_FWD)) ||
-+		    (sk && udp_sk(sk)->gro_enabled) || NAPI_GRO_CB(skb)->is_flist)
-+			pp = call_gro_receive(udp_gro_receive_segment, head, skb);
- 		return pp;
- 	}
+ #define udp_portaddr_for_each_entry(__sk, list) \
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index 99d743eb9dc4..c586a6bb8c6d 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -2664,9 +2664,12 @@ int udp_lib_setsockopt(struct sock *sk, int level, int optname,
  
--	if (!sk || NAPI_GRO_CB(skb)->encap_mark ||
-+	if (NAPI_GRO_CB(skb)->encap_mark ||
- 	    (uh->check && skb->ip_summed != CHECKSUM_PARTIAL &&
- 	     NAPI_GRO_CB(skb)->csum_cnt == 0 &&
--	     !NAPI_GRO_CB(skb)->csum_valid) ||
--	    !udp_sk(sk)->gro_receive)
-+	     !NAPI_GRO_CB(skb)->csum_valid))
- 		goto out;
+ 	case UDP_GRO:
+ 		lock_sock(sk);
++
++		/* when enabling GRO, accept the related GSO packet type */
+ 		if (valbool)
+ 			udp_tunnel_encap_enable(sk->sk_socket);
+ 		up->gro_enabled = valbool;
++		up->accept_udp_l4 = valbool;
+ 		release_sock(sk);
+ 		break;
  
- 	/* mark that this skb passed once through the tunnel gro layer */
 -- 
 2.30.2
 
