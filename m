@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B6237CB58
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F7D37C7CB
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242621AbhELQfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:35:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40576 "EHLO mail.kernel.org"
+        id S236242AbhELQCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241705AbhELQ1y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37FCE613AF;
-        Wed, 12 May 2021 15:55:23 +0000 (UTC)
+        id S236282AbhELPzH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:55:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED39261412;
+        Wed, 12 May 2021 15:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834923;
-        bh=h59MSIG9erklP9in9YiIPm0y8p9QmQYL0ytDECAvG+0=;
+        s=korg; t=1620833269;
+        bh=6Wq3dlKScbc/O82udFKgyejk6oJVCiunBDrJ4rWnWeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=viQTFAtJnbw2htI6xoEkxYc4YZl0q00ARQ/1DkC/Krb/pSbj6vVTzlP/tX5CrdV6b
-         +GqjqcAf1kU5DEyiUaaTYK8mHDrIwffcCDzzndV5jnI0525zngaAAupKvZQhuYxVM0
-         oIYNXkcvysA7oQ5zfYsGbWSwRiMW2oEj9W177ZDQ=
+        b=PnwXvsL42pUEsgeE4kTyhR1JdfznzjBOKCnUDXVbDbyDs0tFRbFIVvgeRmRyKrEyz
+         eKYtZn+pzNr06NYg/P5n8U4+x8V6gH85MYnxMJhLOjO2J0ZKvoY8Bf0qamDz/GpwvZ
+         kEhpGUwmEduVhq1xzE+Xp09wNkeP38jxuoH5h8vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Babu Moger <babu.moger@amd.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 111/677] KVM: x86: Remove emulators broken checks on CR0/CR3/CR4 loads
-Date:   Wed, 12 May 2021 16:42:37 +0200
-Message-Id: <20210512144840.905549174@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 083/601] ALSA: hda/realtek: Re-order ALC269 Lenovo quirk table entries
+Date:   Wed, 12 May 2021 16:42:40 +0200
+Message-Id: <20210512144830.557641123@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-References: <20210512144837.204217980@linuxfoundation.org>
+In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
+References: <20210512144827.811958675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,132 +38,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d0fe7b6404408835ed60232cb3bf28324b2f95db upstream.
+commit f552ff54c2a700616a02b038e4bf3cbf859f65b7 upstream.
 
-Remove the emulator's checks for illegal CR0, CR3, and CR4 values, as
-the checks are redundant, outdated, and in the case of SEV's C-bit,
-broken.  The emulator manually calculates MAXPHYADDR from CPUID and
-neglects to mask off the C-bit.  For all other checks, kvm_set_cr*() are
-a superset of the emulator checks, e.g. see CR4.LA57.
+Just re-order the alc269_fixup_tbl[] entries for Lenovo devices for
+avoiding the oversight of the duplicated or unapplied item in future.
+No functional changes.
 
-Fixes: a780a3ea6282 ("KVM: X86: Fix reserved bits check for MOV to CR3")
-Cc: Babu Moger <babu.moger@amd.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422022128.3464144-2-seanjc@google.com>
-Cc: stable@vger.kernel.org
-[Unify check_cr_read and check_cr_write. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Also Cc-to-stable for the further patch applications.
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428112704.23967-10-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |   80 +------------------------------------------------
- 1 file changed, 3 insertions(+), 77 deletions(-)
+ sound/pci/hda/patch_realtek.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -4220,7 +4220,7 @@ static bool valid_cr(int nr)
- 	}
- }
- 
--static int check_cr_read(struct x86_emulate_ctxt *ctxt)
-+static int check_cr_access(struct x86_emulate_ctxt *ctxt)
- {
- 	if (!valid_cr(ctxt->modrm_reg))
- 		return emulate_ud(ctxt);
-@@ -4228,80 +4228,6 @@ static int check_cr_read(struct x86_emul
- 	return X86EMUL_CONTINUE;
- }
- 
--static int check_cr_write(struct x86_emulate_ctxt *ctxt)
--{
--	u64 new_val = ctxt->src.val64;
--	int cr = ctxt->modrm_reg;
--	u64 efer = 0;
--
--	static u64 cr_reserved_bits[] = {
--		0xffffffff00000000ULL,
--		0, 0, 0, /* CR3 checked later */
--		CR4_RESERVED_BITS,
--		0, 0, 0,
--		CR8_RESERVED_BITS,
--	};
--
--	if (!valid_cr(cr))
--		return emulate_ud(ctxt);
--
--	if (new_val & cr_reserved_bits[cr])
--		return emulate_gp(ctxt, 0);
--
--	switch (cr) {
--	case 0: {
--		u64 cr4;
--		if (((new_val & X86_CR0_PG) && !(new_val & X86_CR0_PE)) ||
--		    ((new_val & X86_CR0_NW) && !(new_val & X86_CR0_CD)))
--			return emulate_gp(ctxt, 0);
--
--		cr4 = ctxt->ops->get_cr(ctxt, 4);
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--
--		if ((new_val & X86_CR0_PG) && (efer & EFER_LME) &&
--		    !(cr4 & X86_CR4_PAE))
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	case 3: {
--		u64 rsvd = 0;
--
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--		if (efer & EFER_LMA) {
--			u64 maxphyaddr;
--			u32 eax, ebx, ecx, edx;
--
--			eax = 0x80000008;
--			ecx = 0;
--			if (ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx,
--						 &edx, true))
--				maxphyaddr = eax & 0xff;
--			else
--				maxphyaddr = 36;
--			rsvd = rsvd_bits(maxphyaddr, 63);
--			if (ctxt->ops->get_cr(ctxt, 4) & X86_CR4_PCIDE)
--				rsvd &= ~X86_CR3_PCID_NOFLUSH;
--		}
--
--		if (new_val & rsvd)
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	case 4: {
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--
--		if ((efer & EFER_LMA) && !(new_val & X86_CR4_PAE))
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	}
--
--	return X86EMUL_CONTINUE;
--}
--
- static int check_dr7_gd(struct x86_emulate_ctxt *ctxt)
- {
- 	unsigned long dr7;
-@@ -4841,10 +4767,10 @@ static const struct opcode twobyte_table
- 	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* 8 * reserved NOP */
- 	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* NOP + 7 * reserved NOP */
- 	/* 0x20 - 0x2F */
--	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_read),
-+	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_access),
- 	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, dr_read, check_dr_read),
- 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_cr_write, cr_write,
--						check_cr_write),
-+						check_cr_access),
- 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_dr_write, dr_write,
- 						check_dr_write),
- 	N, N, N, N,
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8241,9 +8241,9 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x21b8, "Thinkpad Edge 14", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x21ca, "Thinkpad L412", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x21e9, "Thinkpad Edge 15", ALC269_FIXUP_SKU_IGNORE),
++	SND_PCI_QUIRK(0x17aa, 0x21f3, "Thinkpad T430", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x21f6, "Thinkpad T530", ALC269_FIXUP_LENOVO_DOCK_LIMIT_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x21fa, "Thinkpad X230", ALC269_FIXUP_LENOVO_DOCK),
+-	SND_PCI_QUIRK(0x17aa, 0x21f3, "Thinkpad T430", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x21fb, "Thinkpad T430s", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x2203, "Thinkpad X230 Tablet", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x2208, "Thinkpad T431s", ALC269_FIXUP_LENOVO_DOCK),
+@@ -8287,6 +8287,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
++	SND_PCI_QUIRK(0x17aa, 0x3bf8, "Quanta FL1", ALC269_FIXUP_PCM_44K),
+ 	SND_PCI_QUIRK(0x17aa, 0x5013, "Thinkpad", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x501a, "Thinkpad", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x501e, "Thinkpad L440", ALC292_FIXUP_TPT440_DOCK),
+@@ -8305,7 +8306,6 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x5109, "Thinkpad", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x511e, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x511f, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+-	SND_PCI_QUIRK(0x17aa, 0x3bf8, "Quanta FL1", ALC269_FIXUP_PCM_44K),
+ 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
+ 	SND_PCI_QUIRK(0x19e5, 0x3204, "Huawei MACH-WX9", ALC256_FIXUP_HUAWEI_MACH_WX9_PINS),
+ 	SND_PCI_QUIRK(0x1b35, 0x1235, "CZC B20", ALC269_FIXUP_CZC_B20),
 
 
