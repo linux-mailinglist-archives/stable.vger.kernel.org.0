@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B82837C7CD
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D7837CB35
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236256AbhELQCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:02:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37078 "EHLO mail.kernel.org"
+        id S242472AbhELQex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:34:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237744AbhELP4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:56:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3499D61453;
-        Wed, 12 May 2021 15:28:21 +0000 (UTC)
+        id S241532AbhELQ1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86D4E61DEB;
+        Wed, 12 May 2021 15:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833301;
-        bh=tvYm0EGFUqeYlgwdXWIFOc77jLjBntRRaa/VugxJFn4=;
+        s=korg; t=1620834832;
+        bh=gF3ENYH1MX9au7Q9ZOzAFmnKgrgF/OFpsE8Ho3z2q14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=etw1GVda/jxnhPcRw1lPXAZ9MCRZp5hh9MTEt91sh6AhF+Z58kpN4nOEj1alQjNR2
-         zhhvIL807rUtBztUzncFunIpJ+5Mefpaa1QvV5mBgIL0XvPMVhJHwHExQDazedAu2h
-         rAu50b+g+Xo5nvWC9KUbzsWQxR5kQL1dzRiZdbBo=
+        b=TCnMz9HB8IMxOe337x9+yDf9Fthv0ErbujCgecf/9NV8qUQ6DXAArqt+v/V5nYZD6
+         GyLZtWc9uxHJOZpVfYuOC43933QR0ALyEPc1CYLjgPknQ30WCe1yS7ELktdyJWTJal
+         DJ5KcKuWj9PUvaZOtw5DpDDcA0IRDWxKXfaajmhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.11 068/601] drm/dp_mst: Set CLEAR_PAYLOAD_ID_TABLE as broadcast
-Date:   Wed, 12 May 2021 16:42:25 +0200
-Message-Id: <20210512144830.051154699@linuxfoundation.org>
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 5.12 100/677] KVM: s390: split kvm_s390_logical_to_effective
+Date:   Wed, 12 May 2021 16:42:26 +0200
+Message-Id: <20210512144840.542040540@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
-References: <20210512144827.811958675@linuxfoundation.org>
+In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
+References: <20210512144837.204217980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit d919d3d6cdb31d0f9fe06c880f683a24f2838813 upstream.
+commit f85f1baaa18932a041fd2b1c2ca6cfd9898c7d2b upstream.
 
-[Why & How]
-According to DP spec, CLEAR_PAYLOAD_ID_TABLE is a path broadcast request
-message and current implementation is incorrect. Fix it.
+Split kvm_s390_logical_to_effective to a generic function called
+_kvm_s390_logical_to_effective. The new function takes a PSW and an address
+and returns the address with the appropriate bits masked off. The old
+function now calls the new function with the appropriate PSW from the vCPU.
 
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210224101521.6713-3-Wayne.Lin@amd.com
+This is needed to avoid code duplication for vSIE.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org # for VSIE: correctly handle MVPG when in VSIE
+Link: https://lore.kernel.org/r/20210302174443.514363-2-imbrenda@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/kvm/gaccess.h |   31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -1154,6 +1154,7 @@ static void build_clear_payload_id_table
- 
- 	req.req_type = DP_CLEAR_PAYLOAD_ID_TABLE;
- 	drm_dp_encode_sideband_req(&req, msg);
-+	msg->path_msg = true;
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -37,6 +37,29 @@ static inline unsigned long kvm_s390_rea
  }
  
- static int build_enum_path_resources(struct drm_dp_sideband_msg_tx *msg,
-@@ -2824,7 +2825,8 @@ static int set_hdr_from_dst_qlock(struct
+ /**
++ * _kvm_s390_logical_to_effective - convert guest logical to effective address
++ * @psw: psw of the guest
++ * @ga: guest logical address
++ *
++ * Convert a guest logical address to an effective address by applying the
++ * rules of the addressing mode defined by bits 31 and 32 of the given PSW
++ * (extendended/basic addressing mode).
++ *
++ * Depending on the addressing mode, the upper 40 bits (24 bit addressing
++ * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
++ * mode) of @ga will be zeroed and the remaining bits will be returned.
++ */
++static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
++							   unsigned long ga)
++{
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
++		return ga;
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
++		return ga & ((1UL << 31) - 1);
++	return ga & ((1UL << 24) - 1);
++}
++
++/**
+  * kvm_s390_logical_to_effective - convert guest logical to effective address
+  * @vcpu: guest virtual cpu
+  * @ga: guest logical address
+@@ -52,13 +75,7 @@ static inline unsigned long kvm_s390_rea
+ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+ 							  unsigned long ga)
+ {
+-	psw_t *psw = &vcpu->arch.sie_block->gpsw;
+-
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+-		return ga;
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+-		return ga & ((1UL << 31) - 1);
+-	return ga & ((1UL << 24) - 1);
++	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
+ }
  
- 	req_type = txmsg->msg[0] & 0x7f;
- 	if (req_type == DP_CONNECTION_STATUS_NOTIFY ||
--		req_type == DP_RESOURCE_STATUS_NOTIFY)
-+		req_type == DP_RESOURCE_STATUS_NOTIFY ||
-+		req_type == DP_CLEAR_PAYLOAD_ID_TABLE)
- 		hdr->broadcast = 1;
- 	else
- 		hdr->broadcast = 0;
+ /*
 
 
