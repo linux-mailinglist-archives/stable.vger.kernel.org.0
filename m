@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A0737C53F
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:39:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C20E637C4DA
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232929AbhELPjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:39:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49132 "EHLO mail.kernel.org"
+        id S233221AbhELPdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:33:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233501AbhELPbN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:31:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F9A261979;
-        Wed, 12 May 2021 15:16:11 +0000 (UTC)
+        id S235699AbhELP2r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C5A061461;
+        Wed, 12 May 2021 15:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832571;
-        bh=3SM62GvkMFZGnJLjb/hj4gbkYcd99YoCE/nieeEMq2I=;
+        s=korg; t=1620832491;
+        bh=2zWcmAgQ9bjXTUIYZLN/Gfg/0sz4RI2iBgchK/DDHbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lCUAxeAw8VlROkm3niA3Jsgnt1yf5RlHiRyJNP5slr8yzPRlvhfheCHxr3ddEXT2w
-         mA6EaSs7rWJVvxjkruTPl8XzLiFunJrBc6/PAC4T0c7PIRvUzLTAmbz907nG4i3ju2
-         JFoy21bc9R9yjgvsPb2u2g7TjJ1zbNVivHQPNO/4=
+        b=IBvr+06/WahpgLLnP693DiCHM5uOUIwPRTbfDzeKWx/XTn5g+wZak0e7nXAI/B+KK
+         x4jOhvPC3othuFQzMzkNv66iEGvpqx18fAdnASfj0cOIgini26Vf8MZ+mxTIyNB3HA
+         zXqeTi7PM2wF0K9GwhOeZ0buJ1AF7Uds8Syx69a4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 301/530] x86/kprobes: Fix to check non boostable prefixes correctly
-Date:   Wed, 12 May 2021 16:46:51 +0200
-Message-Id: <20210512144829.694715643@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 302/530] selftests: fix prepending $(OUTPUT) to $(TEST_PROGS)
+Date:   Wed, 12 May 2021 16:46:52 +0200
+Message-Id: <20210512144829.725317022@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,71 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 6dd3b8c9f58816a1354be39559f630cd1bd12159 ]
+[ Upstream commit cb4969e6f9f5ee12521aec764fa3d4bbd91bc797 ]
 
-There are 2 bugs in the can_boost() function because of using
-x86 insn decoder. Since the insn->opcode never has a prefix byte,
-it can not find CS override prefix in it. And the insn->attr is
-the attribute of the opcode, thus inat_is_address_size_prefix(
-insn->attr) always returns false.
+Currently the following command produces an error message:
 
-Fix those by checking each prefix bytes with for_each_insn_prefix
-loop and getting the correct attribute for each prefix byte.
-Also, this removes unlikely, because this is a slow path.
+    linux# make kselftest TARGETS=bpf O=/mnt/linux-build
+    # selftests: bpf: test_libbpf.sh
+    # ./test_libbpf.sh: line 23: ./test_libbpf_open: No such file or directory
+    # test_libbpf: failed at file test_l4lb.o
+    # selftests: test_libbpf [FAILED]
 
-Fixes: a8d11cd0714f ("kprobes/x86: Consolidate insn decoder users for copying code")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/161666691162.1120877.2808435205294352583.stgit@devnote2
+The error message might not affect the return code of make, therefore
+one needs to grep make output in order to detect it.
+
+This is not the only instance of the same underlying problem; any test
+with more than one element in $(TEST_PROGS) fails the same way. Another
+example:
+
+    linux# make O=/mnt/linux-build TARGETS=splice kselftest
+    [...]
+    # ./short_splice_read.sh: 15: ./splice_read: not found
+    # FAIL: /sys/module/test_module/sections/.init.text 2
+    not ok 2 selftests: splice: short_splice_read.sh # exit=1
+
+The current logic prepends $(OUTPUT) only to the first member of
+$(TEST_PROGS). After that, run_one() does
+
+   cd `dirname $TEST`
+
+For all tests except the first one, `dirname $TEST` is ., which means
+they cannot access the files generated in $(OUTPUT).
+
+Fix by using $(addprefix) to prepend $(OUTPUT)/ to each member of
+$(TEST_PROGS).
+
+Fixes: 1a940687e424 ("selftests: lib.mk: copy test scripts and test files for make O=dir run")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kprobes/core.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ tools/testing/selftests/lib.mk | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
-index 39f7d8c3c064..535da74c124e 100644
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -159,6 +159,8 @@ NOKPROBE_SYMBOL(skip_prefixes);
- int can_boost(struct insn *insn, void *addr)
- {
- 	kprobe_opcode_t opcode;
-+	insn_byte_t prefix;
-+	int i;
- 
- 	if (search_exception_tables((unsigned long)addr))
- 		return 0;	/* Page fault may occur on this address. */
-@@ -171,9 +173,14 @@ int can_boost(struct insn *insn, void *addr)
- 	if (insn->opcode.nbytes != 1)
- 		return 0;
- 
--	/* Can't boost Address-size override prefix */
--	if (unlikely(inat_is_address_size_prefix(insn->attr)))
--		return 0;
-+	for_each_insn_prefix(insn, i, prefix) {
-+		insn_attr_t attr;
-+
-+		attr = inat_get_opcode_attribute(prefix);
-+		/* Can't boost Address-size override prefix and CS override prefix */
-+		if (prefix == 0x2e || inat_is_address_size_prefix(attr))
-+			return 0;
-+	}
- 
- 	opcode = insn->opcode.bytes[0];
- 
-@@ -198,8 +205,8 @@ int can_boost(struct insn *insn, void *addr)
- 		/* clear and set flags are boostable */
- 		return (opcode == 0xf5 || (0xf7 < opcode && opcode < 0xfe));
- 	default:
--		/* CS override prefix and call are not boostable */
--		return (opcode != 0x2e && opcode != 0x9a);
-+		/* call is not boostable */
-+		return opcode != 0x9a;
- 	}
- }
- 
+diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+index a5ce26d548e4..be17462fe146 100644
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -74,7 +74,8 @@ ifdef building_out_of_srctree
+ 		rsync -aq $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(OUTPUT); \
+ 	fi
+ 	@if [ "X$(TEST_PROGS)" != "X" ]; then \
+-		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(OUTPUT)/$(TEST_PROGS)) ; \
++		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) \
++				  $(addprefix $(OUTPUT)/,$(TEST_PROGS))) ; \
+ 	else \
+ 		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS)); \
+ 	fi
 -- 
 2.30.2
 
