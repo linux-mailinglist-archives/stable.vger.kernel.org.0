@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D1337C5B3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:41:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27A8C37C5B1
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235106AbhELPmY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:42:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
+        id S235039AbhELPmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:42:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236386AbhELPhu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:37:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AA8C61993;
-        Wed, 12 May 2021 15:19:32 +0000 (UTC)
+        id S236402AbhELPhw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:37:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E40E61996;
+        Wed, 12 May 2021 15:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832773;
-        bh=CGO2sFoVdylIdaV4vRLZrGCCDcNNIkPwS96faCCOph0=;
+        s=korg; t=1620832776;
+        bh=Wie/7pys/9J5iebK+whbE4Qn73jktWCzEvtCi61917Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SN8JIeQyNsT79ls6FMGTYKsh1a9IxxXHmvn0+wuqjcyLCw7APsIEjAXgRe1t2+/mw
-         JskrslORQu5uovu9DfjFdCDb7kovTpI8Stw45uCrBKupfnOqOFXqcsxHJZoauKE0z4
-         9/XNLXjuDqiWHrteVEJ053h9zrGYA02st+1nWJ9E=
+        b=FVdAs9qWrUyv1hFYwW785I42ZbBwROR25Spd9SMO5u32qEa8HT4z053/ZYDlQXCD1
+         KCeuY1qYg1rrbFG8N6KCwbijPtTHLLiGwyCCCWyTU+3RPTR7bYkZNnyAla3jBIbf3C
+         Ff5zC3J11zjzxctS79CMPLOBxOj8tKdqaOoc3JSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 418/530] mt76: mt7663s: fix the possible device hang in high traffic
-Date:   Wed, 12 May 2021 16:48:48 +0200
-Message-Id: <20210512144833.505772490@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 419/530] KVM: PPC: Book3S HV P9: Restore host CTRL SPR after guest exit
+Date:   Wed, 12 May 2021 16:48:49 +0200
+Message-Id: <20210512144833.544630218@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,51 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 45247a85614b49b07b9dc59a4e6783b17e766ff2 ]
+[ Upstream commit 5088eb4092df12d701af8e0e92860b7186365279 ]
 
-Use the additional memory barrier to ensure the skb list up-to-date
-between the skb producer and consumer to avoid the invalid skb content
-written into sdio controller and then cause device hang due to mcu assert
-caught by WR_TIMEOUT_INT.
+The host CTRL (runlatch) value is not restored after guest exit. The
+host CTRL should always be 1 except in CPU idle code, so this can result
+in the host running with runlatch clear, and potentially switching to
+a different vCPU which then runs with runlatch clear as well.
 
-Fixes: 1522ff731f84 ("mt76: mt7663s: introduce sdio tx aggregation")
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+This has little effect on P9 machines, CTRL is only responsible for some
+PMU counter logic in the host and so other than corner cases of software
+relying on that, or explicitly reading the runlatch value (Linux does
+not appear to be affected but it's possible non-Linux guests could be),
+there should be no execution correctness problem, though it could be
+used as a covert channel between guests.
+
+There may be microcontrollers, firmware or monitoring tools that sample
+the runlatch value out-of-band, however since the register is writable
+by guests, these values would (should) not be relied upon for correct
+operation of the host, so suboptimal performance or incorrect reporting
+should be the worst problem.
+
+Fixes: 95a6432ce9038 ("KVM: PPC: Book3S HV: Streamlined guest entry/exit path on P9 for radix guests")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210412014845.1517916-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c | 2 ++
- drivers/net/wireless/mediatek/mt76/sdio.c             | 3 +++
- 2 files changed, 5 insertions(+)
+ arch/powerpc/kvm/book3s_hv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c b/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c
-index 2c269fee8555..d7d61a5b66a3 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c
-@@ -201,6 +201,8 @@ static int mt7663s_tx_run_queue(struct mt76_dev *dev, enum mt76_txq_id qid)
- 		struct mt76_queue_entry *e = &q->entry[q->first];
- 		struct sk_buff *iter;
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index e3b1839fc251..280f7992ae99 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3697,7 +3697,10 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
+ 	vcpu->arch.dec_expires = dec + tb;
+ 	vcpu->cpu = -1;
+ 	vcpu->arch.thread_cpu = -1;
++	/* Save guest CTRL register, set runlatch to 1 */
+ 	vcpu->arch.ctrl = mfspr(SPRN_CTRLF);
++	if (!(vcpu->arch.ctrl & 1))
++		mtspr(SPRN_CTRLT, vcpu->arch.ctrl | 1);
  
-+		smp_rmb();
-+
- 		if (!test_bit(MT76_STATE_MCU_RUNNING, &dev->phy.state)) {
- 			__skb_put_zero(e->skb, 4);
- 			err = __mt7663s_xmit_queue(dev, e->skb->data,
-diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
-index 9a4d95a2a707..439ea4158260 100644
---- a/drivers/net/wireless/mediatek/mt76/sdio.c
-+++ b/drivers/net/wireless/mediatek/mt76/sdio.c
-@@ -215,6 +215,9 @@ mt76s_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
- 
- 	q->entry[q->head].skb = tx_info.skb;
- 	q->entry[q->head].buf_sz = len;
-+
-+	smp_wmb();
-+
- 	q->head = (q->head + 1) % q->ndesc;
- 	q->queued++;
- 
+ 	vcpu->arch.iamr = mfspr(SPRN_IAMR);
+ 	vcpu->arch.pspb = mfspr(SPRN_PSPB);
 -- 
 2.30.2
 
