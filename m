@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C726B37C620
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 500E837C662
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231739AbhELPtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40250 "EHLO mail.kernel.org"
+        id S237291AbhELPtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235113AbhELPm1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:42:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68FDA61480;
-        Wed, 12 May 2021 15:22:02 +0000 (UTC)
+        id S233477AbhELPmy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:42:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D5ADA619A1;
+        Wed, 12 May 2021 15:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832922;
-        bh=0mvuS6A5KBQSa4AckEgc5G1V/9ZhHey/tSU60/VdNLk=;
+        s=korg; t=1620832925;
+        bh=LkWGr2rRHvEgmvScWiGg+bJIodcaQoaK49yILxuNnuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5tiEn7TEgDogAVyxHZWA0D+qXJGQr7eQMz+piP7f7n6h199Oa5WExdp0ggokPCQn
-         9MyNSCwPY+q6IC+eKz2Tsw8NKV7/7H0orsyZ9DAlyyjzdFbyvv/HYPATao/YClywUM
-         vt2LvCzLIwgOl+Mhq3K9IbGjksYrTLR35P3tuzZg=
+        b=GcGjpTqEuhwH5obC0Zcn/bhhnVD4lEPARGqmQ+rG9UE51wRjFBgdWRUVuPlEHW0jV
+         rcnUIpighoE9aJOJVY/teuIDy7M3S9unGU4CV4rChrRkiYz2EZlvQBKUzJXj2wK8Mj
+         p1ChKnDwW0dKV7yZ043mW8z+RTbdoP8+xqHcruSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 476/530] net: davinci_emac: Fix incorrect masking of tx and rx error channel
-Date:   Wed, 12 May 2021 16:49:46 +0200
-Message-Id: <20210512144835.404069626@linuxfoundation.org>
+        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 477/530] mt76: mt7615: fix memleak when mt7615_unregister_device()
+Date:   Wed, 12 May 2021 16:49:47 +0200
+Message-Id: <20210512144835.435825744@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,46 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Ryder Lee <ryder.lee@mediatek.com>
 
-[ Upstream commit d83b8aa5207d81f9f6daec9888390f079cc5db3f ]
+[ Upstream commit 8ab31da7b89f71c4c2defcca989fab7b42f87d71 ]
 
-The bit-masks used for the TXERRCH and RXERRCH (tx and rx error channels)
-are incorrect and always lead to a zero result. The mask values are
-currently the incorrect post-right shifted values, fix this by setting
-them to the currect values.
+mt7615_tx_token_put() should get call before mt76_free_pending_txwi().
 
-(I double checked these against the TMS320TCI6482 data sheet, section
-5.30, page 127 to ensure I had the correct mask values for the TXERRCH
-and RXERRCH fields in the MACSTATUS register).
-
-Addresses-Coverity: ("Operands don't affect result")
-Fixes: a6286ee630f6 ("net: Add TI DaVinci EMAC driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a6275e934605 ("mt76: mt7615: reset token when mac_reset happens")
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/davinci_emac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/pci_init.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/davinci_emac.c b/drivers/net/ethernet/ti/davinci_emac.c
-index c7031e1960d4..03055c96f076 100644
---- a/drivers/net/ethernet/ti/davinci_emac.c
-+++ b/drivers/net/ethernet/ti/davinci_emac.c
-@@ -169,11 +169,11 @@ static const char emac_version_string[] = "TI DaVinci EMAC Linux v6.1";
- /* EMAC mac_status register */
- #define EMAC_MACSTATUS_TXERRCODE_MASK	(0xF00000)
- #define EMAC_MACSTATUS_TXERRCODE_SHIFT	(20)
--#define EMAC_MACSTATUS_TXERRCH_MASK	(0x7)
-+#define EMAC_MACSTATUS_TXERRCH_MASK	(0x70000)
- #define EMAC_MACSTATUS_TXERRCH_SHIFT	(16)
- #define EMAC_MACSTATUS_RXERRCODE_MASK	(0xF000)
- #define EMAC_MACSTATUS_RXERRCODE_SHIFT	(12)
--#define EMAC_MACSTATUS_RXERRCH_MASK	(0x7)
-+#define EMAC_MACSTATUS_RXERRCH_MASK	(0x700)
- #define EMAC_MACSTATUS_RXERRCH_SHIFT	(8)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/pci_init.c b/drivers/net/wireless/mediatek/mt76/mt7615/pci_init.c
+index 7b81aef3684e..726e4781d9d9 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/pci_init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/pci_init.c
+@@ -161,10 +161,9 @@ void mt7615_unregister_device(struct mt7615_dev *dev)
+ 	mt76_unregister_device(&dev->mt76);
+ 	if (mcu_running)
+ 		mt7615_mcu_exit(dev);
+-	mt7615_dma_cleanup(dev);
  
- /* EMAC RX register masks */
+ 	mt7615_tx_token_put(dev);
+-
++	mt7615_dma_cleanup(dev);
+ 	tasklet_disable(&dev->irq_tasklet);
+ 
+ 	mt76_free_device(&dev->mt76);
 -- 
 2.30.2
 
