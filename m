@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBCF37C675
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1AB37C677
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234385AbhELPve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:51:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
+        id S231548AbhELPvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:51:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236843AbhELPqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:46:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5520561C9A;
-        Wed, 12 May 2021 15:23:43 +0000 (UTC)
+        id S236856AbhELPq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:46:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CACB361CA0;
+        Wed, 12 May 2021 15:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833023;
-        bh=BF5L2viBDwu4eSkX3VQPvuiAqggLe+C/IEo9a50M6WM=;
+        s=korg; t=1620833026;
+        bh=VWdJTN/Km3OLHhXMnWhpMvYjCJ+uMEEai+vb8bsOLqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fnvr2dXFeQKhOFLGRVgW5rz+bMI9da3XqOKcVIiKoYo6wZPW1jVRBhqWK1ePqFD2X
-         LFrQEnaeGP4VhR9TJWz5biANtCNsqTCdKXSFnsqSN9TBlSbJmOmBniz/h0yCW6Blbx
-         09r+g1JVLN+WstXxklY60q8annkwk4RcY1PNRAYM=
+        b=h6Bv/czM9FWIBgqBS9KWTBxvWXM51AoOcn8wqqVIxpi+8CMJbilGQwycFxmqemRT3
+         JN1mHfmTB6MPBtPtcSREaaf+5zMbaob95qLpGEkWo/YuHXrUyjPy44x7Z7GWNgA+tO
+         c2CiaAfUgiF+YvQSK/49qDeFyY5qBMKgbKo/WFCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 484/530] RDMA/core: Add CM to restrack after successful attachment to a device
-Date:   Wed, 12 May 2021 16:49:54 +0200
-Message-Id: <20210512144835.666686773@linuxfoundation.org>
+Subject: [PATCH 5.10 485/530] powerpc/64: Fix the definition of the fixmap area
+Date:   Wed, 12 May 2021 16:49:55 +0200
+Message-Id: <20210512144835.700383095@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,111 +41,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit cb5cd0ea4eb3ce338a593a5331ddb4986ae20faa ]
+[ Upstream commit 9ccba66d4d2aff9a3909aa77d57ea8b7cc166f3c ]
 
-The device attach triggers addition of CM_ID to the restrack DB.
-However, when error occurs, we releasing this device, but defer CM_ID
-release. This causes to the situation where restrack sees CM_ID that
-is not valid anymore.
+At the time being, the fixmap area is defined at the top of
+the address space or just below KASAN.
 
-As a solution, add the CM_ID to the resource tracking DB only after the
-attachment is finished.
+This definition is not valid for PPC64.
 
-Found by syzcaller:
-infiniband syz0: added syz_tun
-rdma_rxe: ignoring netdev event = 10 for syz_tun
-infiniband syz0: set down
-infiniband syz0: ib_query_port failed (-19)
-restrack: ------------[ cut here    ]------------
-infiniband syz0: BUG: RESTRACK detected leak of resources
-restrack: User CM_ID object allocated by syz-executor716 is not freed
-restrack: ------------[ cut here    ]------------
+For PPC64, use the top of the I/O space.
 
-Fixes: b09c4d701220 ("RDMA/restrack: Improve readability in task name management")
-Link: https://lore.kernel.org/r/ab93e56ba831eac65c322b3256796fa1589ec0bb.1618753862.git.leonro@nvidia.com
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Because of circular dependencies, it is not possible to include
+asm/fixmap.h in asm/book3s/64/pgtable.h , so define a fixed size
+AREA at the top of the I/O space for fixmap and ensure during
+build that the size is big enough.
+
+Fixes: 265c3491c4bc ("powerpc: Add support for GENERIC_EARLY_IOREMAP")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/0d51620eacf036d683d1a3c41328f69adb601dc0.1618925560.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/book3s/64/pgtable.h | 4 +++-
+ arch/powerpc/include/asm/fixmap.h            | 9 +++++++++
+ arch/powerpc/include/asm/nohash/64/pgtable.h | 5 ++++-
+ 3 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index e3638f80e1d5..6af066a2c8c0 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -463,7 +463,6 @@ static void _cma_attach_to_dev(struct rdma_id_private *id_priv,
- 	id_priv->id.route.addr.dev_addr.transport =
- 		rdma_node_get_transport(cma_dev->device->node_type);
- 	list_add_tail(&id_priv->list, &cma_dev->id_list);
--	rdma_restrack_add(&id_priv->res);
+diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
+index cd3feeac6e87..4a3dca0271f1 100644
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -7,6 +7,7 @@
+ #ifndef __ASSEMBLY__
+ #include <linux/mmdebug.h>
+ #include <linux/bug.h>
++#include <linux/sizes.h>
+ #endif
  
- 	trace_cm_id_attach(id_priv, cma_dev->device);
- }
-@@ -700,6 +699,7 @@ static int cma_ib_acquire_dev(struct rdma_id_private *id_priv,
- 	mutex_lock(&lock);
- 	cma_attach_to_dev(id_priv, listen_id_priv->cma_dev);
- 	mutex_unlock(&lock);
-+	rdma_restrack_add(&id_priv->res);
- 	return 0;
- }
+ /*
+@@ -323,7 +324,8 @@ extern unsigned long pci_io_base;
+ #define  PHB_IO_END	(KERN_IO_START + FULL_IO_SIZE)
+ #define IOREMAP_BASE	(PHB_IO_END)
+ #define IOREMAP_START	(ioremap_bot)
+-#define IOREMAP_END	(KERN_IO_END)
++#define IOREMAP_END	(KERN_IO_END - FIXADDR_SIZE)
++#define FIXADDR_SIZE	SZ_32M
  
-@@ -754,8 +754,10 @@ static int cma_iw_acquire_dev(struct rdma_id_private *id_priv,
- 	}
+ /* Advertise special mapping type for AGP */
+ #define HAVE_PAGE_AGP
+diff --git a/arch/powerpc/include/asm/fixmap.h b/arch/powerpc/include/asm/fixmap.h
+index 6bfc87915d5d..591b2f4deed5 100644
+--- a/arch/powerpc/include/asm/fixmap.h
++++ b/arch/powerpc/include/asm/fixmap.h
+@@ -23,12 +23,17 @@
+ #include <asm/kmap_types.h>
+ #endif
  
- out:
--	if (!ret)
-+	if (!ret) {
- 		cma_attach_to_dev(id_priv, cma_dev);
-+		rdma_restrack_add(&id_priv->res);
-+	}
++#ifdef CONFIG_PPC64
++#define FIXADDR_TOP	(IOREMAP_END + FIXADDR_SIZE)
++#else
++#define FIXADDR_SIZE	0
+ #ifdef CONFIG_KASAN
+ #include <asm/kasan.h>
+ #define FIXADDR_TOP	(KASAN_SHADOW_START - PAGE_SIZE)
+ #else
+ #define FIXADDR_TOP	((unsigned long)(-PAGE_SIZE))
+ #endif
++#endif
  
- 	mutex_unlock(&lock);
- 	return ret;
-@@ -816,6 +818,7 @@ static int cma_resolve_ib_dev(struct rdma_id_private *id_priv)
+ /*
+  * Here we define all the compile-time 'special' virtual
+@@ -50,6 +55,7 @@
+  */
+ enum fixed_addresses {
+ 	FIX_HOLE,
++#ifdef CONFIG_PPC32
+ 	/* reserve the top 128K for early debugging purposes */
+ 	FIX_EARLY_DEBUG_TOP = FIX_HOLE,
+ 	FIX_EARLY_DEBUG_BASE = FIX_EARLY_DEBUG_TOP+(ALIGN(SZ_128K, PAGE_SIZE)/PAGE_SIZE)-1,
+@@ -72,6 +78,7 @@ enum fixed_addresses {
+ 		       FIX_IMMR_SIZE,
+ #endif
+ 	/* FIX_PCIE_MCFG, */
++#endif /* CONFIG_PPC32 */
+ 	__end_of_permanent_fixed_addresses,
  
- found:
- 	cma_attach_to_dev(id_priv, cma_dev);
-+	rdma_restrack_add(&id_priv->res);
- 	mutex_unlock(&lock);
- 	addr = (struct sockaddr_ib *)cma_src_addr(id_priv);
- 	memcpy(&addr->sib_addr, &sgid, sizeof(sgid));
-@@ -2529,6 +2532,7 @@ static int cma_listen_on_dev(struct rdma_id_private *id_priv,
- 	       rdma_addr_size(cma_src_addr(id_priv)));
+ #define NR_FIX_BTMAPS		(SZ_256K / PAGE_SIZE)
+@@ -98,6 +105,8 @@ enum fixed_addresses {
+ static inline void __set_fixmap(enum fixed_addresses idx,
+ 				phys_addr_t phys, pgprot_t flags)
+ {
++	BUILD_BUG_ON(IS_ENABLED(CONFIG_PPC64) && __FIXADDR_SIZE > FIXADDR_SIZE);
++
+ 	if (__builtin_constant_p(idx))
+ 		BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
+ 	else if (WARN_ON(idx >= __end_of_fixed_addresses))
+diff --git a/arch/powerpc/include/asm/nohash/64/pgtable.h b/arch/powerpc/include/asm/nohash/64/pgtable.h
+index 6cb8aa357191..57cd3892bfe0 100644
+--- a/arch/powerpc/include/asm/nohash/64/pgtable.h
++++ b/arch/powerpc/include/asm/nohash/64/pgtable.h
+@@ -6,6 +6,8 @@
+  * the ppc64 non-hashed page table.
+  */
  
- 	_cma_attach_to_dev(dev_id_priv, cma_dev);
-+	rdma_restrack_add(&dev_id_priv->res);
- 	cma_id_get(id_priv);
- 	dev_id_priv->internal_id = 1;
- 	dev_id_priv->afonly = id_priv->afonly;
-@@ -3169,6 +3173,7 @@ port_found:
- 	ib_addr_set_pkey(&id_priv->id.route.addr.dev_addr, pkey);
- 	id_priv->id.port_num = p;
- 	cma_attach_to_dev(id_priv, cma_dev);
-+	rdma_restrack_add(&id_priv->res);
- 	cma_set_loopback(cma_src_addr(id_priv));
- out:
- 	mutex_unlock(&lock);
-@@ -3201,6 +3206,7 @@ static void addr_handler(int status, struct sockaddr *src_addr,
- 		if (status)
- 			pr_debug_ratelimited("RDMA CM: ADDR_ERROR: failed to acquire device. status %d\n",
- 					     status);
-+		rdma_restrack_add(&id_priv->res);
- 	} else if (status) {
- 		pr_debug_ratelimited("RDMA CM: ADDR_ERROR: failed to resolve IP. status %d\n", status);
- 	}
-@@ -3812,6 +3818,8 @@ int rdma_bind_addr(struct rdma_cm_id *id, struct sockaddr *addr)
- 	if (ret)
- 		goto err2;
++#include <linux/sizes.h>
++
+ #include <asm/nohash/64/pgtable-4k.h>
+ #include <asm/barrier.h>
+ #include <asm/asm-const.h>
+@@ -54,7 +56,8 @@
+ #define  PHB_IO_END	(KERN_IO_START + FULL_IO_SIZE)
+ #define IOREMAP_BASE	(PHB_IO_END)
+ #define IOREMAP_START	(ioremap_bot)
+-#define IOREMAP_END	(KERN_VIRT_START + KERN_VIRT_SIZE)
++#define IOREMAP_END	(KERN_VIRT_START + KERN_VIRT_SIZE - FIXADDR_SIZE)
++#define FIXADDR_SIZE	SZ_32M
  
-+	if (!cma_any_addr(addr))
-+		rdma_restrack_add(&id_priv->res);
- 	return 0;
- err2:
- 	if (id_priv->cma_dev)
+ 
+ /*
 -- 
 2.30.2
 
