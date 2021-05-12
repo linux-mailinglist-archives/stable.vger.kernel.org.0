@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B14B637D2EC
+	by mail.lfdr.de (Postfix) with ESMTP id 455AF37D2EB
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243566AbhELSPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243931AbhELSPE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 14:15:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59586 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349403AbhELSKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:10:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 225416192B;
-        Wed, 12 May 2021 18:05:18 +0000 (UTC)
+        id S1349609AbhELSKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:10:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29E6161938;
+        Wed, 12 May 2021 18:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842719;
-        bh=tBJpSCR/JXQD4SNlixszfDXQT0C1jlLrFAXRes16CAg=;
+        s=k20201202; t=1620842721;
+        bh=LmqfkwMYhKqF6Tm30FO7R7fI8lbJNQQOUGeggJ/jTfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kahvgjRmlhpMfnRbm3yYRlYKmKgxVjxhRzjPVfcNadBIzzVoqTh1AcyAVbDLEUZyd
-         HieoaCn/bDk0Wi/uXoKj1gYieg5lYLIt/3i+Xf5FMXmmwSw6h54OxyJzmv/kAfumdd
-         PtKLZjMqL+7GKE9YHpm2HBwVD9QnONT/H9q7iFFyoq3+HNduohB9WuQkO9+mqhiiuI
-         RidUryQjYn+WPMzVNsYshaNFyhp7WvMhYtpHny22eXUplJfDz6RODYeSFD2j64pWuk
-         DqjqaH/xY5Zo+tqnhnHv7tD4DDwyEU+9uOQlK+35W4rxuWVdLzqtoGz3iufaEJOcl0
-         f+tN32LdxxKWw==
+        b=nGy4jfjl1iHmW4sJYZFsX5j+ZhB3JN+3c7KeAFNhe1cHTljhcL7sZNMHsTbB5+RIr
+         0FcWWrJkM8DNtffysCIFetT3CXLwZica1BwfA6XmTDbgc8CRuD0Dk4PDfN0CkRB3OA
+         K5+rjt3VUy7zgUcbFeNuzkbzN9+nyP0/lmRa6LcWXRraaE1njRAu7mj8mv2aKFZXq+
+         gp6j8Uvb991pDihJWCpwUWyfoStpGgRjLG7/uzYAv9x8hzFs2WEaN2QDZ2D0RquJQk
+         8Xeb/IPyWe2M4TRbXsjvxNwyOi1p/DjyWJ5OVNsiOWIWemHbYRqK+deHrnrFI5Abdy
+         FNaxUl4R9guNA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zqiang <qiang.zhang@windriver.com>,
-        Andrew Halaney <ahalaney@redhat.com>,
-        Alexander Potapenko <glider@google.com>,
-        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Vijayanand Jitta <vjitta@codeaurora.org>,
-        Vinayak Menon <vinmenon@codeaurora.org>,
-        Yogesh Lal <ylal@codeaurora.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 17/18] lib: stackdepot: turn depot_lock spinlock to raw_spinlock
-Date:   Wed, 12 May 2021 14:04:48 -0400
-Message-Id: <20210512180450.665586-17-sashal@kernel.org>
+Cc:     Yannick Vignon <yannick.vignon@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 18/18] net: stmmac: Do not enable RX FIFO overflow interrupts
+Date:   Wed, 12 May 2021 14:04:49 -0400
+Message-Id: <20210512180450.665586-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180450.665586-1-sashal@kernel.org>
 References: <20210512180450.665586-1-sashal@kernel.org>
@@ -49,78 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Yannick Vignon <yannick.vignon@nxp.com>
 
-[ Upstream commit 78564b9434878d686c5f88c4488b20cccbcc42bc ]
+[ Upstream commit 8a7cb245cf28cb3e541e0d6c8624b95d079e155b ]
 
-In RT system, the spin_lock will be replaced by sleepable rt_mutex lock,
-in __call_rcu(), disable interrupts before calling
-kasan_record_aux_stack(), will trigger this calltrace:
+The RX FIFO overflows when the system is not able to process all received
+packets and they start accumulating (first in the DMA queue in memory,
+then in the FIFO). An interrupt is then raised for each overflowing packet
+and handled in stmmac_interrupt(). This is counter-productive, since it
+brings the system (or more likely, one CPU core) to its knees to process
+the FIFO overflow interrupts.
 
-  BUG: sleeping function called from invalid context at kernel/locking/rtmutex.c:951
-  in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 19, name: pgdatinit0
-  Call Trace:
-    ___might_sleep.cold+0x1b2/0x1f1
-    rt_spin_lock+0x3b/0xb0
-    stack_depot_save+0x1b9/0x440
-    kasan_save_stack+0x32/0x40
-    kasan_record_aux_stack+0xa5/0xb0
-    __call_rcu+0x117/0x880
-    __exit_signal+0xafb/0x1180
-    release_task+0x1d6/0x480
-    exit_notify+0x303/0x750
-    do_exit+0x678/0xcf0
-    kthread+0x364/0x4f0
-    ret_from_fork+0x22/0x30
+stmmac_interrupt() handles overflow interrupts by writing the rx tail ptr
+into the corresponding hardware register (according to the MAC spec, this
+has the effect of restarting the MAC DMA). However, without freeing any rx
+descriptors, the DMA stops right away, and another overflow interrupt is
+raised as the FIFO overflows again. Since the DMA is already restarted at
+the end of stmmac_rx_refill() after freeing descriptors, disabling FIFO
+overflow interrupts and the corresponding handling code has no side effect,
+and eliminates the interrupt storm when the RX FIFO overflows.
 
-Replace spinlock with raw_spinlock.
-
-Link: https://lkml.kernel.org/r/20210329084009.27013-1-qiang.zhang@windriver.com
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Reported-by: Andrew Halaney <ahalaney@redhat.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: Vijayanand Jitta <vjitta@codeaurora.org>
-Cc: Vinayak Menon <vinmenon@codeaurora.org>
-Cc: Yogesh Lal <ylal@codeaurora.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
+Link: https://lore.kernel.org/r/20210506143312.20784-1-yannick.vignon@oss.nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/stackdepot.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c  |  7 +------
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 14 ++------------
+ 2 files changed, 3 insertions(+), 18 deletions(-)
 
-diff --git a/lib/stackdepot.c b/lib/stackdepot.c
-index 3376a3291186..d0f1b7d0ce2e 100644
---- a/lib/stackdepot.c
-+++ b/lib/stackdepot.c
-@@ -78,7 +78,7 @@ static void *stack_slabs[STACK_ALLOC_MAX_SLABS];
- static int depot_index;
- static int next_slab_inited;
- static size_t depot_offset;
--static DEFINE_SPINLOCK(depot_lock);
-+static DEFINE_RAW_SPINLOCK(depot_lock);
- 
- static bool init_stack_slab(void **prealloc)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
+index 8c3780d1105f..232efe17ac2c 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
+@@ -214,7 +214,7 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
+ 				       u32 channel, int fifosz, u8 qmode)
  {
-@@ -266,7 +266,7 @@ depot_stack_handle_t depot_save_stack(struct stack_trace *trace,
- 			prealloc = page_address(page);
+ 	unsigned int rqs = fifosz / 256 - 1;
+-	u32 mtl_rx_op, mtl_rx_int;
++	u32 mtl_rx_op;
+ 
+ 	mtl_rx_op = readl(ioaddr + MTL_CHAN_RX_OP_MODE(channel));
+ 
+@@ -285,11 +285,6 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
  	}
  
--	spin_lock_irqsave(&depot_lock, flags);
-+	raw_spin_lock_irqsave(&depot_lock, flags);
+ 	writel(mtl_rx_op, ioaddr + MTL_CHAN_RX_OP_MODE(channel));
+-
+-	/* Enable MTL RX overflow */
+-	mtl_rx_int = readl(ioaddr + MTL_CHAN_INT_CTRL(channel));
+-	writel(mtl_rx_int | MTL_RX_OVERFLOW_INT_EN,
+-	       ioaddr + MTL_CHAN_INT_CTRL(channel));
+ }
  
- 	found = find_stack(*bucket, trace->entries, trace->nr_entries, hash);
- 	if (!found) {
-@@ -290,7 +290,7 @@ depot_stack_handle_t depot_save_stack(struct stack_trace *trace,
- 		WARN_ON(!init_stack_slab(&prealloc));
- 	}
+ static void dwmac4_dma_tx_chan_op_mode(void __iomem *ioaddr, int mode,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index a1443d7197e8..af59761ddfa0 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3706,7 +3706,6 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
+ 	/* To handle GMAC own interrupts */
+ 	if ((priv->plat->has_gmac) || xmac) {
+ 		int status = stmmac_host_irq_status(priv, priv->hw, &priv->xstats);
+-		int mtl_status;
  
--	spin_unlock_irqrestore(&depot_lock, flags);
-+	raw_spin_unlock_irqrestore(&depot_lock, flags);
- exit:
- 	if (prealloc) {
- 		/* Nobody used this memory, ok to free it. */
+ 		if (unlikely(status)) {
+ 			/* For LPI we need to save the tx status */
+@@ -3717,17 +3716,8 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
+ 		}
+ 
+ 		for (queue = 0; queue < queues_count; queue++) {
+-			struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
+-
+-			mtl_status = stmmac_host_mtl_irq_status(priv, priv->hw,
+-								queue);
+-			if (mtl_status != -EINVAL)
+-				status |= mtl_status;
+-
+-			if (status & CORE_IRQ_MTL_RX_OVERFLOW)
+-				stmmac_set_rx_tail_ptr(priv, priv->ioaddr,
+-						       rx_q->rx_tail_addr,
+-						       queue);
++			status = stmmac_host_mtl_irq_status(priv, priv->hw,
++							    queue);
+ 		}
+ 
+ 		/* PCS link status */
 -- 
 2.30.2
 
