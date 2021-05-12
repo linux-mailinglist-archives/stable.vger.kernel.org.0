@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81EEF37B7EA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3E937B7EC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230102AbhELI3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:29:17 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:55977 "EHLO
+        id S230166AbhELI3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:29:23 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:39717 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230019AbhELI3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:29:17 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 36C4C1525;
-        Wed, 12 May 2021 04:28:09 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S230019AbhELI3X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:29:23 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id 2BCAC1525;
+        Wed, 12 May 2021 04:28:15 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 May 2021 04:28:09 -0400
+  by compute2.internal (MEProxy); Wed, 12 May 2021 04:28:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rpwsjT
-        w+GvrRhuFqeGmwSB+/8V99fvyVU1hM/vD/IY4=; b=Jx5HOfTmyhSAa2F1SZ3YiX
-        HIACBAGrRF9rR7nN/9yT0lt8lHmAT2fI9e95IHY/blD0hG8ivCtocI0/wxfFFDvR
-        COC4zEv3a2PrkSe2u9Wsk1a48+FT5DgVYu+VwAvSHucIsnYIAcALIkQMV8WsQsiP
-        mN4Zyg8iC6u52VUP8LHVyjkqkThBMhuNYnfu5wmvzo5mI3DZksdnUep5TVogQEmE
-        6/xrWDItUd0upjCHDp5e4d5mTENM+myeAnJVgo6b5Txei9L3UdnIAFCnaz2pOvVX
-        I5gvU1L4bSItYag4U+L5izJzp2yzDSAKyBirRaCjDks01l/WpVh4KdgBaQy2hopQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mPC4wX
+        tUaVIX7acXccMmHFV90G0i3LICCMkmfZsn3Q0=; b=oChvFccjx70BzvmY6JUBGI
+        nxS551ZsEW7Meuf2kDr4/4w6eM3GpAvg3302aDPrYmORiI8K+lhdinYcBTGufegn
+        HKYCHwsUylurtl6C3FYAtUA6XIiT9Qp4f+zc8Ta52FkKo5Vu19/2lfvqTIEUbDsE
+        mD/+9hToF3V7qOQC3qrvy0PPIwXqrF7SCxFNi7s8ae+8Num1ezi6yPsK3vlfZBQf
+        KrFPqPglQmhuOMJrmVJ6ye+F/3s0PLZ3WkayZH36+JI9lOT7wzAW0iCV/U7/gr6g
+        S+GyQA0gul7BkS8wj4qkAIvv8R+DmEnQn/s17b1+s9hsT1vwNRazp2BgGG6d1+Xg
         ==
-X-ME-Sender: <xms:mJGbYGwglWyiBnfeN4EK1TwnjGIlfNJx-9c-7d9s0g0vkT32bxx3tw>
-    <xme:mJGbYCTyJQpjW6mKKyyPeghu6J6uuYre1JSRmLrFxTtY72XL_rHq_YK7k8StRgA75
-    B5hjhhxsBDQjg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehuddgudeftdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:mJGbYIXJRNL6ae29fhZ-7BgW1p1HNeiPYV0UdZvkrSXgIB4CU4-nsQ>
-    <xmx:mJGbYMi31rUxt8d3zZxd_eUSY-EL1aY8-cy2oGr_IToKRSzY4zA2tg>
-    <xmx:mJGbYIC0LW4Fa4cku4wilzJj-o65QtPkLt3_CWv6HA9hx0l977h3Ig>
-    <xmx:mJGbYLMkRZTKcIBA_U0zJ4kAA857HuLmLpO530f6T-rx22MVcN83ILlK-_c>
+X-ME-Sender: <xms:npGbYLBN-9Ekyib8hX40AFZuLNxO8ilXrPR2l6ZsvaCymSuNOX_QLw>
+    <xme:npGbYBhQArZZ4yoMln8XVdjDYHWo7cAurTeewYY3WlbyIZygNwKIki7vXnoKDE-YU
+    q2fp8M-1canGQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvdcutefuodetggdotefrodftvfcurf
+    hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttdflne
+    cuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeen
+    ucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekgeefle
+    egieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedr
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpehmrghilh
+    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:npGbYGkCcjCJ2gvhfq2mPk4LbYj8tuSH_r_f5RZuMZbtK32I3H0t2Q>
+    <xmx:npGbYNzIZJpxa29hwtHzs3ytlub4oW07Z_ClMC-9QNsLeiGOF7LzbA>
+    <xmx:npGbYATycnj69XkjCeonhH7elatVUX0fGvf30x6M9D28SLU-9iLJhQ>
+    <xmx:npGbYGdgKXMT6rGGeiluGp-Su2kU2FxI1YVpCsgEWk2KQBfzX4Sv45P8nzU>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:28:08 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] serial: stm32: fix threaded interrupt handling" failed to apply to 4.19-stable tree
+        Wed, 12 May 2021 04:28:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] serial: stm32: fix threaded interrupt handling" failed to apply to 4.9-stable tree
 To:     johan@kernel.org, alexandre.torgue@st.com, gerald.baeza@st.com,
         gregkh@linuxfoundation.org, valentin.caron@foss.st.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:27:58 +0200
-Message-ID: <1620808078143113@kroah.com>
+Date:   Wed, 12 May 2021 10:27:59 +0200
+Message-ID: <162080807936150@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
