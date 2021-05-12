@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD0F37C4BC
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235E437C4B9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234546AbhELPdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:33:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60626 "EHLO mail.kernel.org"
+        id S234531AbhELPdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:33:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234260AbhELPY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234262AbhELPY1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:24:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8F53619C4;
-        Wed, 12 May 2021 15:09:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C99DD619B8;
+        Wed, 12 May 2021 15:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832197;
-        bh=ZV80my+I1svhi5JABl9+BXob3kh/NadGRy3NUwdmZHg=;
+        s=korg; t=1620832200;
+        bh=6lvHFHYMDNWaYkhtqQmaWo3FuG3KnZbcmDQJ0ec4z2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Myd2ObDOulME9xaq6q9qyCBe6IzA7ZXD/7+DOd0OKHakxa44hTccGCwwhMEoVWX7u
-         1FRNiax4qp6vHbyH/QdiFsfKpyDkDOqFAdoFVxmnwCP794lDkEzpKIw799YRojAfTA
-         0C57gNYMpWe2sA+n2XuQSOkpnLPvLMMFYpOTMXbE=
+        b=u1iIrGjoDUkiVtcTHm1+axvOsW6LA9cojRMM8iiRL21T5VI9i72SV8eDUYXgNlAj2
+         UFOFlsHYgbQZR8ecr+XJaUENaNSGbcShJDL2o8hOKbC6vcXXXKS0Fc4kGVNmWg26kU
+         yBu59oUsjOxgfg/xJNqh5It67eYtphykXKxKYpKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 147/530] spi: rockchip: avoid objtool warning
-Date:   Wed, 12 May 2021 16:44:17 +0200
-Message-Id: <20210512144824.673856820@linuxfoundation.org>
+Subject: [PATCH 5.10 148/530] mtd: rawnand: fsmc: Fix error code in fsmc_nand_probe()
+Date:   Wed, 12 May 2021 16:44:18 +0200
+Message-Id: <20210512144824.714663202@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,81 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e50989527faeafb79f45a0f7529ba8e01dff1fff ]
+[ Upstream commit e7a97528e3c787802d8c643d6ab2f428511bb047 ]
 
-Building this file with clang leads to a an unreachable code path
-causing a warning from objtool:
+If dma_request_channel() fails then the probe fails and it should
+return a negative error code, but currently it returns success.
 
-drivers/spi/spi-rockchip.o: warning: objtool: rockchip_spi_transfer_one()+0x2e0: sibling call from callable instruction with modified stack frame
-
-Change the unreachable() into an error return that can be
-handled if it ever happens, rather than silently crashing
-the kernel.
-
-Fixes: 65498c6ae241 ("spi: rockchip: support 4bit words")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Pratyush Yadav <p.yadav@ti.com>
-Link: https://lore.kernel.org/r/20210226140109.3477093-1-arnd@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+fixes: 4774fb0a48aa ("mtd: nand/fsmc: Add DMA support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/YCqaOZ83OvPOzLwh@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/mtd/nand/raw/fsmc_nand.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 75a8a9428ff8..0aab37cd64e7 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -474,7 +474,7 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs,
- 	return 1;
- }
- 
--static void rockchip_spi_config(struct rockchip_spi *rs,
-+static int rockchip_spi_config(struct rockchip_spi *rs,
- 		struct spi_device *spi, struct spi_transfer *xfer,
- 		bool use_dma, bool slave_mode)
- {
-@@ -519,7 +519,9 @@ static void rockchip_spi_config(struct rockchip_spi *rs,
- 		 * ctlr->bits_per_word_mask, so this shouldn't
- 		 * happen
- 		 */
--		unreachable();
-+		dev_err(rs->dev, "unknown bits per word: %d\n",
-+			xfer->bits_per_word);
-+		return -EINVAL;
+diff --git a/drivers/mtd/nand/raw/fsmc_nand.c b/drivers/mtd/nand/raw/fsmc_nand.c
+index c88421a1c078..ce05dd4088e9 100644
+--- a/drivers/mtd/nand/raw/fsmc_nand.c
++++ b/drivers/mtd/nand/raw/fsmc_nand.c
+@@ -1078,11 +1078,13 @@ static int __init fsmc_nand_probe(struct platform_device *pdev)
+ 		host->read_dma_chan = dma_request_channel(mask, filter, NULL);
+ 		if (!host->read_dma_chan) {
+ 			dev_err(&pdev->dev, "Unable to get read dma channel\n");
++			ret = -ENODEV;
+ 			goto disable_clk;
+ 		}
+ 		host->write_dma_chan = dma_request_channel(mask, filter, NULL);
+ 		if (!host->write_dma_chan) {
+ 			dev_err(&pdev->dev, "Unable to get write dma channel\n");
++			ret = -ENODEV;
+ 			goto release_dma_read_chan;
+ 		}
  	}
- 
- 	if (use_dma) {
-@@ -552,6 +554,8 @@ static void rockchip_spi_config(struct rockchip_spi *rs,
- 	 */
- 	writel_relaxed(2 * DIV_ROUND_UP(rs->freq, 2 * xfer->speed_hz),
- 			rs->regs + ROCKCHIP_SPI_BAUDR);
-+
-+	return 0;
- }
- 
- static size_t rockchip_spi_max_transfer_size(struct spi_device *spi)
-@@ -575,6 +579,7 @@ static int rockchip_spi_transfer_one(
- 		struct spi_transfer *xfer)
- {
- 	struct rockchip_spi *rs = spi_controller_get_devdata(ctlr);
-+	int ret;
- 	bool use_dma;
- 
- 	WARN_ON(readl_relaxed(rs->regs + ROCKCHIP_SPI_SSIENR) &&
-@@ -594,7 +599,9 @@ static int rockchip_spi_transfer_one(
- 
- 	use_dma = ctlr->can_dma ? ctlr->can_dma(ctlr, spi, xfer) : false;
- 
--	rockchip_spi_config(rs, spi, xfer, use_dma, ctlr->slave);
-+	ret = rockchip_spi_config(rs, spi, xfer, use_dma, ctlr->slave);
-+	if (ret)
-+		return ret;
- 
- 	if (use_dma)
- 		return rockchip_spi_prepare_dma(rs, ctlr, xfer);
 -- 
 2.30.2
 
