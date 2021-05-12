@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3142437C908
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3DE337C878
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236418AbhELQOe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:14:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48112 "EHLO mail.kernel.org"
+        id S232777AbhELQIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:08:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237246AbhELQDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:03:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39F4461C47;
-        Wed, 12 May 2021 15:33:59 +0000 (UTC)
+        id S237616AbhELQEC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:04:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC5836197C;
+        Wed, 12 May 2021 15:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833639;
-        bh=n1ZiqqtT1iykW2ruKwqfJSGv+fpU1zzut2Bj0uNJCTo=;
+        s=korg; t=1620833642;
+        bh=EKZbvhZ0+Azxy2e6fOx3WypInf4KrvRIww0WF03OK1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rsdx5WTsHR8ax6HML1Srh6kznZZMxMyQyPJlr9mi/Ib/PMM4oWGHX5arci7NL7MYk
-         zWxlaXqRFR8uwdK2NmCjKwMRHpt1drccK1GsX6b7MrEnLCIbi0gDHbW3a4C4mduW/P
-         6psefmz0wPXyAopvHUyGopjWpO65qfP6LUQGokXA=
+        b=AedQn1n2JhiGl4QHBja4e5ipHsLSu4+X/i7EqI8vzbDFikDT8+3oVP4Fw6meJ8aQf
+         Va/ava5ABL4Qc4NTkUOwJf5OfDbwfaXew3Uu6TtES9F6M2QmSFBbCJnrD3AFjhpeX/
+         RAls1PuHyUuZrXCuhu4cFPF8yJCFDvxWa3slkAI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rander Wang <rander.wang@intel.com>,
-        Keyon Jie <yang.jie@intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 231/601] soundwire: stream: fix memory leak in stream config error path
-Date:   Wed, 12 May 2021 16:45:08 +0200
-Message-Id: <20210512144835.435977233@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Pavone <pavone@retrodev.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 232/601] m68k: mvme147,mvme16x: Dont wipe PCC timer config bits
+Date:   Wed, 12 May 2021 16:45:09 +0200
+Message-Id: <20210512144835.466450483@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -43,50 +41,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rander Wang <rander.wang@intel.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 48f17f96a81763c7c8bf5500460a359b9939359f ]
+[ Upstream commit 43262178c043032e7c42d00de44c818ba05f9967 ]
 
-When stream config is failed, master runtime will release all
-slave runtime in the slave_rt_list, but slave runtime is not
-added to the list at this time. This patch frees slave runtime
-in the config error path to fix the memory leak.
+Don't clear the timer 1 configuration bits when clearing the interrupt flag
+and counter overflow. As Michael reported, "This results in no timer
+interrupts being delivered after the first. Initialization then hangs
+in calibrate_delay as the jiffies counter is not updated."
 
-Fixes: 89e590535f32 ("soundwire: Add support for SoundWire stream management")
-Signed-off-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Keyon Jie <yang.jie@intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20210331004610.12242-1-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+On mvme16x, enable the timer after requesting the irq, consistent with
+mvme147.
+
+Cc: Michael Pavone <pavone@retrodev.com>
+Fixes: 7529b90d051e ("m68k: mvme147: Handle timer counter overflow")
+Fixes: 19999a8b8782 ("m68k: mvme16x: Handle timer counter overflow")
+Reported-and-tested-by: Michael Pavone <pavone@retrodev.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Link: https://lore.kernel.org/r/4fdaa113db089b8fb607f7dd818479f8cdcc4547.1617089871.git.fthain@telegraphics.com.au
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/stream.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/m68k/include/asm/mvme147hw.h |  3 +++
+ arch/m68k/mvme147/config.c        | 14 ++++++++------
+ arch/m68k/mvme16x/config.c        | 14 ++++++++------
+ 3 files changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/soundwire/stream.c b/drivers/soundwire/stream.c
-index 1099b5d1262b..a418c3c7001c 100644
---- a/drivers/soundwire/stream.c
-+++ b/drivers/soundwire/stream.c
-@@ -1375,8 +1375,16 @@ int sdw_stream_add_slave(struct sdw_slave *slave,
- 	}
+diff --git a/arch/m68k/include/asm/mvme147hw.h b/arch/m68k/include/asm/mvme147hw.h
+index 257b29184af9..e28eb1c0e0bf 100644
+--- a/arch/m68k/include/asm/mvme147hw.h
++++ b/arch/m68k/include/asm/mvme147hw.h
+@@ -66,6 +66,9 @@ struct pcc_regs {
+ #define PCC_INT_ENAB		0x08
  
- 	ret = sdw_config_stream(&slave->dev, stream, stream_config, true);
--	if (ret)
-+	if (ret) {
-+		/*
-+		 * sdw_release_master_stream will release s_rt in slave_rt_list in
-+		 * stream_error case, but s_rt is only added to slave_rt_list
-+		 * when sdw_config_stream is successful, so free s_rt explicitly
-+		 * when sdw_config_stream is failed.
-+		 */
-+		kfree(s_rt);
- 		goto stream_error;
-+	}
+ #define PCC_TIMER_INT_CLR	0x80
++
++#define PCC_TIMER_TIC_EN	0x01
++#define PCC_TIMER_COC_EN	0x02
+ #define PCC_TIMER_CLR_OVF	0x04
  
- 	list_add_tail(&s_rt->m_rt_node, &m_rt->slave_rt_list);
+ #define PCC_LEVEL_ABORT		0x07
+diff --git a/arch/m68k/mvme147/config.c b/arch/m68k/mvme147/config.c
+index cfdc7f912e14..e1e90c49a496 100644
+--- a/arch/m68k/mvme147/config.c
++++ b/arch/m68k/mvme147/config.c
+@@ -114,8 +114,10 @@ static irqreturn_t mvme147_timer_int (int irq, void *dev_id)
+ 	unsigned long flags;
  
+ 	local_irq_save(flags);
+-	m147_pcc->t1_int_cntrl = PCC_TIMER_INT_CLR;
+-	m147_pcc->t1_cntrl = PCC_TIMER_CLR_OVF;
++	m147_pcc->t1_cntrl = PCC_TIMER_CLR_OVF | PCC_TIMER_COC_EN |
++			     PCC_TIMER_TIC_EN;
++	m147_pcc->t1_int_cntrl = PCC_INT_ENAB | PCC_TIMER_INT_CLR |
++				 PCC_LEVEL_TIMER1;
+ 	clk_total += PCC_TIMER_CYCLES;
+ 	legacy_timer_tick(1);
+ 	local_irq_restore(flags);
+@@ -133,10 +135,10 @@ void mvme147_sched_init (void)
+ 	/* Init the clock with a value */
+ 	/* The clock counter increments until 0xFFFF then reloads */
+ 	m147_pcc->t1_preload = PCC_TIMER_PRELOAD;
+-	m147_pcc->t1_cntrl = 0x0;	/* clear timer */
+-	m147_pcc->t1_cntrl = 0x3;	/* start timer */
+-	m147_pcc->t1_int_cntrl = PCC_TIMER_INT_CLR;  /* clear pending ints */
+-	m147_pcc->t1_int_cntrl = PCC_INT_ENAB|PCC_LEVEL_TIMER1;
++	m147_pcc->t1_cntrl = PCC_TIMER_CLR_OVF | PCC_TIMER_COC_EN |
++			     PCC_TIMER_TIC_EN;
++	m147_pcc->t1_int_cntrl = PCC_INT_ENAB | PCC_TIMER_INT_CLR |
++				 PCC_LEVEL_TIMER1;
+ 
+ 	clocksource_register_hz(&mvme147_clk, PCC_TIMER_CLOCK_FREQ);
+ }
+diff --git a/arch/m68k/mvme16x/config.c b/arch/m68k/mvme16x/config.c
+index 30357fe4ba6c..b59593c7cfb9 100644
+--- a/arch/m68k/mvme16x/config.c
++++ b/arch/m68k/mvme16x/config.c
+@@ -366,6 +366,7 @@ static u32 clk_total;
+ #define PCCTOVR1_COC_EN      0x02
+ #define PCCTOVR1_OVR_CLR     0x04
+ 
++#define PCCTIC1_INT_LEVEL    6
+ #define PCCTIC1_INT_CLR      0x08
+ #define PCCTIC1_INT_EN       0x10
+ 
+@@ -374,8 +375,8 @@ static irqreturn_t mvme16x_timer_int (int irq, void *dev_id)
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
+-	out_8(PCCTIC1, in_8(PCCTIC1) | PCCTIC1_INT_CLR);
+-	out_8(PCCTOVR1, PCCTOVR1_OVR_CLR);
++	out_8(PCCTOVR1, PCCTOVR1_OVR_CLR | PCCTOVR1_TIC_EN | PCCTOVR1_COC_EN);
++	out_8(PCCTIC1, PCCTIC1_INT_EN | PCCTIC1_INT_CLR | PCCTIC1_INT_LEVEL);
+ 	clk_total += PCC_TIMER_CYCLES;
+ 	legacy_timer_tick(1);
+ 	local_irq_restore(flags);
+@@ -389,14 +390,15 @@ void mvme16x_sched_init(void)
+     int irq;
+ 
+     /* Using PCCchip2 or MC2 chip tick timer 1 */
+-    out_be32(PCCTCNT1, 0);
+-    out_be32(PCCTCMP1, PCC_TIMER_CYCLES);
+-    out_8(PCCTOVR1, in_8(PCCTOVR1) | PCCTOVR1_TIC_EN | PCCTOVR1_COC_EN);
+-    out_8(PCCTIC1, PCCTIC1_INT_EN | 6);
+     if (request_irq(MVME16x_IRQ_TIMER, mvme16x_timer_int, IRQF_TIMER, "timer",
+                     NULL))
+ 	panic ("Couldn't register timer int");
+ 
++    out_be32(PCCTCNT1, 0);
++    out_be32(PCCTCMP1, PCC_TIMER_CYCLES);
++    out_8(PCCTOVR1, PCCTOVR1_OVR_CLR | PCCTOVR1_TIC_EN | PCCTOVR1_COC_EN);
++    out_8(PCCTIC1, PCCTIC1_INT_EN | PCCTIC1_INT_CLR | PCCTIC1_INT_LEVEL);
++
+     clocksource_register_hz(&mvme16x_clk, PCC_TIMER_CLOCK_FREQ);
+ 
+     if (brdno == 0x0162 || brdno == 0x172)
 -- 
 2.30.2
 
