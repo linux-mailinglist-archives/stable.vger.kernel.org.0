@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E79A37C3D6
+	by mail.lfdr.de (Postfix) with ESMTP id D4DAE37C3D8
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232157AbhELPW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:22:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60686 "EHLO mail.kernel.org"
+        id S233357AbhELPWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:22:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234689AbhELPUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:20:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 950C360FD9;
-        Wed, 12 May 2021 15:08:28 +0000 (UTC)
+        id S234701AbhELPU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:20:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0989D619A5;
+        Wed, 12 May 2021 15:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832109;
-        bh=RUzs8sveTmYzQCIE7RnOZxqCzs+u8mJGuskzNLjrQsI=;
+        s=korg; t=1620832111;
+        bh=HCKSMquQ+CJ3V/85eGcb0RpjMU2UwBlUkXlmBhZiSPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHO2lkvlHyXHv1s+1s4jS7EQ07fHH/MN4sqhFYCvQqREVHHayKbpoEm8zYZ0SOebS
-         qXEp/8Y7bSzkr3qZzaEnmOMRFglgTYnGZ+J3ayleKA6brdzahUFrV3TdqZg8G5v+j7
-         1FNxK7iaoRoA7l3/FsPRo7teFjiLvATjl/c7WzU4=
+        b=D/DDIKcdfixiELM5vtxfd1sGhv5WxmFKoHEHQaC0w4+ZAkkmA/1U87czpQ21CiNqN
+         3B+8YOzRlbHad9iN87EIdzkGF88tvWxDdk5PkyfzwY9xCdyX1oP+evqWHTMnuEEK8/
+         ZhNUyyPqDxWwTlvIwlsUzAxyzpIh4GuUprxlZbTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Tejas Patel <tejas.patel@xilinx.com>,
-        Rajan Vaja <rajan.vaja@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
+        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 111/530] firmware: xilinx: Fix dereferencing freed memory
-Date:   Wed, 12 May 2021 16:43:41 +0200
-Message-Id: <20210512144823.446878401@linuxfoundation.org>
+Subject: [PATCH 5.10 112/530] firmware: xilinx: Add a blank line after function declaration
+Date:   Wed, 12 May 2021 16:43:42 +0200
+Message-Id: <20210512144823.478843908@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -43,56 +39,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejas Patel <tejas.patel@xilinx.com>
+From: Michal Simek <michal.simek@xilinx.com>
 
-[ Upstream commit f1f21bece82c76a56a96988ec7d51ccc033d8949 ]
+[ Upstream commit a80cefec2c2783166727324bde724c39aa8a12df ]
 
-Fix smatch warning:
-drivers/firmware/xilinx/zynqmp.c:1288 zynqmp_firmware_remove()
-error: dereferencing freed memory 'feature_data'
+Fix all these issues which are also reported by checkpatch --strict.
 
-Use hash_for_each_safe for safe removal of hash entry.
-
-Fixes: acfdd18591ea ("firmware: xilinx: Use hash-table for api feature check")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Tejas Patel <tejas.patel@xilinx.com>
-Signed-off-by: Rajan Vaja <rajan.vaja@xilinx.com>
-Link: https://lore.kernel.org/r/1612765883-22018-1-git-send-email-rajan.vaja@xilinx.com
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/7b6007e05f6c01214861a37f198cd5bee62a4d3e.1606894725.git.michal.simek@xilinx.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/xilinx/zynqmp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/linux/firmware/xlnx-zynqmp.h | 34 ++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-diff --git a/drivers/firmware/xilinx/zynqmp.c b/drivers/firmware/xilinx/zynqmp.c
-index fd95edeb702b..9e6504592646 100644
---- a/drivers/firmware/xilinx/zynqmp.c
-+++ b/drivers/firmware/xilinx/zynqmp.c
-@@ -2,7 +2,7 @@
- /*
-  * Xilinx Zynq MPSoC Firmware layer
-  *
-- *  Copyright (C) 2014-2020 Xilinx, Inc.
-+ *  Copyright (C) 2014-2021 Xilinx, Inc.
-  *
-  *  Michal Simek <michal.simek@xilinx.com>
-  *  Davorin Mista <davorin.mista@aggios.com>
-@@ -1280,12 +1280,13 @@ static int zynqmp_firmware_probe(struct platform_device *pdev)
- static int zynqmp_firmware_remove(struct platform_device *pdev)
+diff --git a/include/linux/firmware/xlnx-zynqmp.h b/include/linux/firmware/xlnx-zynqmp.h
+index 41a1bab98b7e..7fb3274a4a9e 100644
+--- a/include/linux/firmware/xlnx-zynqmp.h
++++ b/include/linux/firmware/xlnx-zynqmp.h
+@@ -358,107 +358,132 @@ static inline struct zynqmp_eemi_ops *zynqmp_pm_get_eemi_ops(void)
  {
- 	struct pm_api_feature_data *feature_data;
-+	struct hlist_node *tmp;
- 	int i;
- 
- 	mfd_remove_devices(&pdev->dev);
- 	zynqmp_pm_api_debugfs_exit();
- 
--	hash_for_each(pm_api_features_map, i, feature_data, hentry) {
-+	hash_for_each_safe(pm_api_features_map, i, tmp, feature_data, hentry) {
- 		hash_del(&feature_data->hentry);
- 		kfree(feature_data);
- 	}
+ 	return ERR_PTR(-ENODEV);
+ }
++
+ static inline int zynqmp_pm_get_api_version(u32 *version)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_get_chipid(u32 *idcode, u32 *version)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_query_data(struct zynqmp_pm_query_data qdata,
+ 				       u32 *out)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_enable(u32 clock_id)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_disable(u32 clock_id)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_getstate(u32 clock_id, u32 *state)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_setdivider(u32 clock_id, u32 divider)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_getdivider(u32 clock_id, u32 *divider)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_setrate(u32 clock_id, u64 rate)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_getrate(u32 clock_id, u64 *rate)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_setparent(u32 clock_id, u32 parent_id)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_clock_getparent(u32 clock_id, u32 *parent_id)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_set_pll_frac_mode(u32 clk_id, u32 mode)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_get_pll_frac_mode(u32 clk_id, u32 *mode)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_set_pll_frac_data(u32 clk_id, u32 data)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_get_pll_frac_data(u32 clk_id, u32 *data)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_set_sd_tapdelay(u32 node_id, u32 type, u32 value)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_sd_dll_reset(u32 node_id, u32 type)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_reset_assert(const enum zynqmp_pm_reset reset,
+ 			   const enum zynqmp_pm_reset_action assert_flag)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_reset_get_status(const enum zynqmp_pm_reset reset,
+ 					     u32 *status)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_init_finalize(void)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_set_suspend_mode(u32 mode)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_request_node(const u32 node, const u32 capabilities,
+ 					 const u32 qos,
+ 					 const enum zynqmp_pm_request_ack ack)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_release_node(const u32 node)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_set_requirement(const u32 node,
+ 					const u32 capabilities,
+ 					const u32 qos,
+@@ -466,39 +491,48 @@ static inline int zynqmp_pm_set_requirement(const u32 node,
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_aes_engine(const u64 address, u32 *out)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_fpga_load(const u64 address, const u32 size,
+ 				      const u32 flags)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_fpga_get_status(u32 *value)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_write_ggs(u32 index, u32 value)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_read_ggs(u32 index, u32 *value)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_write_pggs(u32 index, u32 value)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_read_pggs(u32 index, u32 *value)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_system_shutdown(const u32 type, const u32 subtype)
+ {
+ 	return -ENODEV;
+ }
++
+ static inline int zynqmp_pm_set_boot_health_status(u32 value)
+ {
+ 	return -ENODEV;
 -- 
 2.30.2
 
