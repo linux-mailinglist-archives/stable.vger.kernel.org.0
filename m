@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E67AD37C68B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6027637C69F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233422AbhELPwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:52:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50380 "EHLO mail.kernel.org"
+        id S234893AbhELPwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237026AbhELPrw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:47:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B32C619B1;
-        Wed, 12 May 2021 15:24:28 +0000 (UTC)
+        id S237077AbhELPsH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:48:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A30EF619B2;
+        Wed, 12 May 2021 15:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833068;
-        bh=kzRxTDRP5HaOG8JkM+meVdg+XFrZG7I6wvzZ0UN3/To=;
+        s=korg; t=1620833071;
+        bh=uYh41/BNEoCs/7OtrJYUAvJJ+6ufErYZBYJOOX9kdSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tn4ShPbYRYy5hbtQJSj4lrRlclVUi43O9L4IQQb4lXClXLCxd6GPDpqGPzpWV1Mb/
-         kMNalSJOMKDZDi3P6cuizmWD8Pxl0W4gpPJUyLAaj8qwQZCmETsluQDZ4XFYkEyLe4
-         lyaeyFMTE7oLznrnzW1dc8ddzvwbwQP+19q+NvcU=
+        b=RipATnEn6mnPkApiaQ13nNUbWafQyTYK94OTbp1ybC51ssDa8tpK5Wdd3UOzesLkL
+         Jb2qgyB5uhTQwCiDopUFfP1mDH0FaCFhLYsckqUTXisIg5SA6l0L4m2UiSodS2QVEO
+         FccZfoBEQLz6Azn57NjgyaNjj49V4AV1CMBhwGpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 522/530] afs: Fix speculative status fetches
-Date:   Wed, 12 May 2021 16:50:32 +0200
-Message-Id: <20210512144836.906247345@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 523/530] bpf: Fix alu32 const subreg bound tracking on bitwise operations
+Date:   Wed, 12 May 2021 16:50:33 +0200
+Message-Id: <20210512144836.937792816@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,242 +42,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 22650f148126571be1098d34160eb4931fc77241 ]
+commit 049c4e13714ecbca567b4d5f6d563f05d431c80e upstream.
 
-The generic/464 xfstest causes kAFS to emit occasional warnings of the
-form:
+Fix a bug in the verifier's scalar32_min_max_*() functions which leads to
+incorrect tracking of 32 bit bounds for the simulation of and/or/xor bitops.
+When both the src & dst subreg is a known constant, then the assumption is
+that scalar_min_max_*() will take care to update bounds correctly. However,
+this is not the case, for example, consider a register R2 which has a tnum
+of 0xffffffff00000000, meaning, lower 32 bits are known constant and in this
+case of value 0x00000001. R2 is then and'ed with a register R3 which is a
+64 bit known constant, here, 0x100000002.
 
-        kAFS: vnode modified {100055:8a} 30->31 YFS.StoreData64 (c=6015)
+What can be seen in line '10:' is that 32 bit bounds reach an invalid state
+where {u,s}32_min_value > {u,s}32_max_value. The reason is scalar32_min_max_*()
+delegates 32 bit bounds updates to scalar_min_max_*(), however, that really
+only takes place when both the 64 bit src & dst register is a known constant.
+Given scalar32_min_max_*() is intended to be designed as closely as possible
+to scalar_min_max_*(), update the 32 bit bounds in this situation through
+__mark_reg32_known() which will set all {u,s}32_{min,max}_value to the correct
+constant, which is 0x00000000 after the fix (given 0x00000001 & 0x00000002 in
+32 bit space). This is possible given var32_off already holds the final value
+as dst_reg->var_off is updated before calling scalar32_min_max_*().
 
-This indicates that the data version received back from the server did not
-match the expected value (the DV should be incremented monotonically for
-each individual modification op committed to a vnode).
+Before fix, invalid tracking of R2:
 
-What is happening is that a lookup call is doing a bulk status fetch
-speculatively on a bunch of vnodes in a directory besides getting the
-status of the vnode it's actually interested in.  This is racing with a
-StoreData operation (though it could also occur with, say, a MakeDir op).
+  [...]
+  9: R0_w=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0,smin_value=-9223372036854775807 (0x8000000000000001),smax_value=9223372032559808513 (0x7fffffff00000001),umin_value=1,umax_value=0xffffffff00000001,var_off=(0x1; 0xffffffff00000000),s32_min_value=1,s32_max_value=1,u32_min_value=1,u32_max_value=1) R3_w=inv4294967298 R10=fp0
+  9: (5f) r2 &= r3
+  10: R0_w=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0,smin_value=0,smax_value=4294967296 (0x100000000),umin_value=0,umax_value=0x100000000,var_off=(0x0; 0x100000000),s32_min_value=1,s32_max_value=0,u32_min_value=1,u32_max_value=0) R3_w=inv4294967298 R10=fp0
+  [...]
 
-On the client, a modification operation locks the vnode, but the bulk
-status fetch only locks the parent directory, so no ordering is imposed
-there (thereby avoiding an avenue to deadlock).
+After fix, correct tracking of R2:
 
-On the server, the StoreData op handler doesn't lock the vnode until it's
-received all the request data, and downgrades the lock after committing the
-data until it has finished sending change notifications to other clients -
-which allows the status fetch to occur before it has finished.
+  [...]
+  9: R0_w=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0,smin_value=-9223372036854775807 (0x8000000000000001),smax_value=9223372032559808513 (0x7fffffff00000001),umin_value=1,umax_value=0xffffffff00000001,var_off=(0x1; 0xffffffff00000000),s32_min_value=1,s32_max_value=1,u32_min_value=1,u32_max_value=1) R3_w=inv4294967298 R10=fp0
+  9: (5f) r2 &= r3
+  10: R0_w=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0,smin_value=0,smax_value=4294967296 (0x100000000),umin_value=0,umax_value=0x100000000,var_off=(0x0; 0x100000000),s32_min_value=0,s32_max_value=0,u32_min_value=0,u32_max_value=0) R3_w=inv4294967298 R10=fp0
+  [...]
 
-This means that:
-
- - a status fetch can access the target vnode either side of the exclusive
-   section of the modification
-
- - the status fetch could start before the modification, yet finish after,
-   and vice-versa.
-
- - the status fetch and the modification RPCs can complete in either order.
-
- - the status fetch can return either the before or the after DV from the
-   modification.
-
- - the status fetch might regress the locally cached DV.
-
-Some of these are handled by the previous fix[1], but that's not sufficient
-because it checks the DV it received against the DV it cached at the start
-of the op, but the DV might've been updated in the meantime by a locally
-generated modification op.
-
-Fix this by the following means:
-
- (1) Keep track of when we're performing a modification operation on a
-     vnode.  This is done by marking vnode parameters with a 'modification'
-     note that causes the AFS_VNODE_MODIFYING flag to be set on the vnode
-     for the duration.
-
- (2) Alter the speculation race detection to ignore speculative status
-     fetches if either the vnode is marked as being modified or the data
-     version number is not what we expected.
-
-Note that whilst the "vnode modified" warning does get recovered from as it
-causes the client to refetch the status at the next opportunity, it will
-also invalidate the pagecache, so changes might get lost.
-
-Fixes: a9e5c87ca744 ("afs: Fix speculative status fetch going out of order wrt to modifications")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Tested-and-reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/160605082531.252452.14708077925602709042.stgit@warthog.procyon.org.uk/ [1]
-Link: https://lore.kernel.org/linux-fsdevel/161961335926.39335.2552653972195467566.stgit@warthog.procyon.org.uk/ # v1
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3f50f132d840 ("bpf: Verifier, do explicit ALU32 bounds tracking")
+Fixes: 2921c90d4718 ("bpf: Fix a verifier failure with xor")
+Reported-by: Manfred Paul (@_manfp)
+Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/dir.c          | 7 +++++++
- fs/afs/dir_silly.c    | 3 +++
- fs/afs/fs_operation.c | 6 ++++++
- fs/afs/inode.c        | 6 ++++--
- fs/afs/internal.h     | 2 ++
- fs/afs/write.c        | 1 +
- 6 files changed, 23 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c |   22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
 
-diff --git a/fs/afs/dir.c b/fs/afs/dir.c
-index 9dc6f4b1c417..628ba3fed36d 100644
---- a/fs/afs/dir.c
-+++ b/fs/afs/dir.c
-@@ -1337,6 +1337,7 @@ static int afs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -6341,11 +6341,10 @@ static void scalar32_min_max_and(struct
+ 	s32 smin_val = src_reg->s32_min_value;
+ 	u32 umax_val = src_reg->u32_max_value;
  
- 	afs_op_set_vnode(op, 0, dvnode);
- 	op->file[0].dv_delta = 1;
-+	op->file[0].modification = true;
- 	op->file[0].update_ctime = true;
- 	op->dentry	= dentry;
- 	op->create.mode	= S_IFDIR | mode;
-@@ -1418,6 +1419,7 @@ static int afs_rmdir(struct inode *dir, struct dentry *dentry)
+-	/* Assuming scalar64_min_max_and will be called so its safe
+-	 * to skip updating register for known 32-bit case.
+-	 */
+-	if (src_known && dst_known)
++	if (src_known && dst_known) {
++		__mark_reg32_known(dst_reg, var32_off.value);
+ 		return;
++	}
  
- 	afs_op_set_vnode(op, 0, dvnode);
- 	op->file[0].dv_delta = 1;
-+	op->file[0].modification = true;
- 	op->file[0].update_ctime = true;
- 
- 	op->dentry	= dentry;
-@@ -1554,6 +1556,7 @@ static int afs_unlink(struct inode *dir, struct dentry *dentry)
- 
- 	afs_op_set_vnode(op, 0, dvnode);
- 	op->file[0].dv_delta = 1;
-+	op->file[0].modification = true;
- 	op->file[0].update_ctime = true;
- 
- 	/* Try to make sure we have a callback promise on the victim. */
-@@ -1636,6 +1639,7 @@ static int afs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
- 
- 	afs_op_set_vnode(op, 0, dvnode);
- 	op->file[0].dv_delta = 1;
-+	op->file[0].modification = true;
- 	op->file[0].update_ctime = true;
- 
- 	op->dentry	= dentry;
-@@ -1710,6 +1714,7 @@ static int afs_link(struct dentry *from, struct inode *dir,
- 	afs_op_set_vnode(op, 0, dvnode);
- 	afs_op_set_vnode(op, 1, vnode);
- 	op->file[0].dv_delta = 1;
-+	op->file[0].modification = true;
- 	op->file[0].update_ctime = true;
- 	op->file[1].update_ctime = true;
- 
-@@ -1905,6 +1910,8 @@ static int afs_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	afs_op_set_vnode(op, 1, new_dvnode); /* May be same as orig_dvnode */
- 	op->file[0].dv_delta = 1;
- 	op->file[1].dv_delta = 1;
-+	op->file[0].modification = true;
-+	op->file[1].modification = true;
- 	op->file[0].update_ctime = true;
- 	op->file[1].update_ctime = true;
- 
-diff --git a/fs/afs/dir_silly.c b/fs/afs/dir_silly.c
-index 04f75a44f243..dae9a57d7ec0 100644
---- a/fs/afs/dir_silly.c
-+++ b/fs/afs/dir_silly.c
-@@ -73,6 +73,8 @@ static int afs_do_silly_rename(struct afs_vnode *dvnode, struct afs_vnode *vnode
- 	afs_op_set_vnode(op, 1, dvnode);
- 	op->file[0].dv_delta = 1;
- 	op->file[1].dv_delta = 1;
-+	op->file[0].modification = true;
-+	op->file[1].modification = true;
- 	op->file[0].update_ctime = true;
- 	op->file[1].update_ctime = true;
- 
-@@ -201,6 +203,7 @@ static int afs_do_silly_unlink(struct afs_vnode *dvnode, struct afs_vnode *vnode
- 	afs_op_set_vnode(op, 0, dvnode);
- 	afs_op_set_vnode(op, 1, vnode);
- 	op->file[0].dv_delta = 1;
-+	op->file[0].modification = true;
- 	op->file[0].update_ctime = true;
- 	op->file[1].op_unlinked = true;
- 	op->file[1].update_ctime = true;
-diff --git a/fs/afs/fs_operation.c b/fs/afs/fs_operation.c
-index 71c58723763d..a82515b47350 100644
---- a/fs/afs/fs_operation.c
-+++ b/fs/afs/fs_operation.c
-@@ -118,6 +118,8 @@ static void afs_prepare_vnode(struct afs_operation *op, struct afs_vnode_param *
- 		vp->cb_break_before	= afs_calc_vnode_cb_break(vnode);
- 		if (vnode->lock_state != AFS_VNODE_LOCK_NONE)
- 			op->flags	|= AFS_OPERATION_CUR_ONLY;
-+		if (vp->modification)
-+			set_bit(AFS_VNODE_MODIFYING, &vnode->flags);
+ 	/* We get our minimum from the var_off, since that's inherently
+ 	 * bitwise.  Our maximum is the minimum of the operands' maxima.
+@@ -6365,7 +6364,6 @@ static void scalar32_min_max_and(struct
+ 		dst_reg->s32_min_value = dst_reg->u32_min_value;
+ 		dst_reg->s32_max_value = dst_reg->u32_max_value;
  	}
+-
+ }
  
- 	if (vp->fid.vnode)
-@@ -223,6 +225,10 @@ int afs_put_operation(struct afs_operation *op)
+ static void scalar_min_max_and(struct bpf_reg_state *dst_reg,
+@@ -6412,11 +6410,10 @@ static void scalar32_min_max_or(struct b
+ 	s32 smin_val = src_reg->s32_min_value;
+ 	u32 umin_val = src_reg->u32_min_value;
  
- 	if (op->ops && op->ops->put)
- 		op->ops->put(op);
-+	if (op->file[0].modification)
-+		clear_bit(AFS_VNODE_MODIFYING, &op->file[0].vnode->flags);
-+	if (op->file[1].modification && op->file[1].vnode != op->file[0].vnode)
-+		clear_bit(AFS_VNODE_MODIFYING, &op->file[1].vnode->flags);
- 	if (op->file[0].put_vnode)
- 		iput(&op->file[0].vnode->vfs_inode);
- 	if (op->file[1].put_vnode)
-diff --git a/fs/afs/inode.c b/fs/afs/inode.c
-index bf44e245d7dc..ae3016a9fb23 100644
---- a/fs/afs/inode.c
-+++ b/fs/afs/inode.c
-@@ -293,8 +293,9 @@ void afs_vnode_commit_status(struct afs_operation *op, struct afs_vnode_param *v
- 			op->flags &= ~AFS_OPERATION_DIR_CONFLICT;
- 		}
- 	} else if (vp->scb.have_status) {
--		if (vp->dv_before + vp->dv_delta != vp->scb.status.data_version &&
--		    vp->speculative)
-+		if (vp->speculative &&
-+		    (test_bit(AFS_VNODE_MODIFYING, &vnode->flags) ||
-+		     vp->dv_before != vnode->status.data_version))
- 			/* Ignore the result of a speculative bulk status fetch
- 			 * if it splits around a modification op, thereby
- 			 * appearing to regress the data version.
-@@ -909,6 +910,7 @@ int afs_setattr(struct dentry *dentry, struct iattr *attr)
- 	}
- 	op->ctime = attr->ia_ctime;
- 	op->file[0].update_ctime = 1;
-+	op->file[0].modification = true;
+-	/* Assuming scalar64_min_max_or will be called so it is safe
+-	 * to skip updating register for known case.
+-	 */
+-	if (src_known && dst_known)
++	if (src_known && dst_known) {
++		__mark_reg32_known(dst_reg, var32_off.value);
+ 		return;
++	}
  
- 	op->ops = &afs_setattr_operation;
- 	ret = afs_do_sync_operation(op);
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index 525ef075fcd9..ffe318ad2e02 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -640,6 +640,7 @@ struct afs_vnode {
- #define AFS_VNODE_PSEUDODIR	7 		/* set if Vnode is a pseudo directory */
- #define AFS_VNODE_NEW_CONTENT	8		/* Set if file has new content (create/trunc-0) */
- #define AFS_VNODE_SILLY_DELETED	9		/* Set if file has been silly-deleted */
-+#define AFS_VNODE_MODIFYING	10		/* Set if we're performing a modification op */
+ 	/* We get our maximum from the var_off, and our minimum is the
+ 	 * maximum of the operands' minima
+@@ -6481,11 +6478,10 @@ static void scalar32_min_max_xor(struct
+ 	struct tnum var32_off = tnum_subreg(dst_reg->var_off);
+ 	s32 smin_val = src_reg->s32_min_value;
  
- 	struct list_head	wb_keys;	/* List of keys available for writeback */
- 	struct list_head	pending_locks;	/* locks waiting to be granted */
-@@ -756,6 +757,7 @@ struct afs_vnode_param {
- 	bool			set_size:1;	/* Must update i_size */
- 	bool			op_unlinked:1;	/* True if file was unlinked by op */
- 	bool			speculative:1;	/* T if speculative status fetch (no vnode lock) */
-+	bool			modification:1;	/* Set if the content gets modified */
- };
+-	/* Assuming scalar64_min_max_xor will be called so it is safe
+-	 * to skip updating register for known case.
+-	 */
+-	if (src_known && dst_known)
++	if (src_known && dst_known) {
++		__mark_reg32_known(dst_reg, var32_off.value);
+ 		return;
++	}
  
- /*
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index c9195fc67fd8..d37b5cfcf28f 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -450,6 +450,7 @@ static int afs_store_data(struct address_space *mapping,
- 	afs_op_set_vnode(op, 0, vnode);
- 	op->file[0].dv_delta = 1;
- 	op->store.mapping = mapping;
-+	op->file[0].modification = true;
- 	op->store.first = first;
- 	op->store.last = last;
- 	op->store.first_offset = offset;
--- 
-2.30.2
-
+ 	/* We get both minimum and maximum from the var32_off. */
+ 	dst_reg->u32_min_value = var32_off.value;
 
 
