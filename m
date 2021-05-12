@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A4F37C738
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:59:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA3337C73A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231363AbhELQAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:00:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37076 "EHLO mail.kernel.org"
+        id S233125AbhELQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:00:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237754AbhELP4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:56:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE85E61927;
-        Wed, 12 May 2021 15:28:30 +0000 (UTC)
+        id S237839AbhELP41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:56:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F4BB61C20;
+        Wed, 12 May 2021 15:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833311;
-        bh=h59MSIG9erklP9in9YiIPm0y8p9QmQYL0ytDECAvG+0=;
+        s=korg; t=1620833319;
+        bh=iPWMtOqSOEUZ+knKNQb2opfs8ZhuF2ad8nP3569KvG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9Vj+CXGqQJtHV3BMVrf0vROUHM/IiGhEdqNfWeDkVvmhURJop8KHHA6al/wxtX0E
-         15UBpXManVVwTPUrpQbJXRnlW0aWSS4BJkWTfu5hMNHVuABv9hxQBQzISJCZPa+B0H
-         VfcmgGU4rlOr28ntI/t34DtVwLSCU8fsIws8enw8=
+        b=fPqdEFrFtwl0f/wqd1rdCLvjqXZRCcu6dlXrHXcx0UCOXClJan5sKjfHdeNq2z8FA
+         6YV3cZZ9duZzzEXgpCyB7L5PFjifH7aLR/C+hIaxgDcCbl7GJWxEZSZpGDYUs3CxcX
+         gS3Yalrypr/4zjAQjngyit7EBFRkCWi0JE9n1IeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Babu Moger <babu.moger@amd.com>,
+        stable@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
         Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.11 098/601] KVM: x86: Remove emulators broken checks on CR0/CR3/CR4 loads
-Date:   Wed, 12 May 2021 16:42:55 +0200
-Message-Id: <20210512144831.053626965@linuxfoundation.org>
+Subject: [PATCH 5.11 101/601] KVM: SVM: Use online_vcpus, not created_vcpus, to iterate over vCPUs
+Date:   Wed, 12 May 2021 16:42:58 +0200
+Message-Id: <20210512144831.162797653@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,130 +43,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit d0fe7b6404408835ed60232cb3bf28324b2f95db upstream.
+commit c36b16d29f3af5f32fc1b2a3401bf48f71cabee1 upstream.
 
-Remove the emulator's checks for illegal CR0, CR3, and CR4 values, as
-the checks are redundant, outdated, and in the case of SEV's C-bit,
-broken.  The emulator manually calculates MAXPHYADDR from CPUID and
-neglects to mask off the C-bit.  For all other checks, kvm_set_cr*() are
-a superset of the emulator checks, e.g. see CR4.LA57.
+Use the kvm_for_each_vcpu() helper to iterate over vCPUs when encrypting
+VMSAs for SEV, which effectively switches to use online_vcpus instead of
+created_vcpus.  This fixes a possible null-pointer dereference as
+created_vcpus does not guarantee a vCPU exists, since it is updated at
+the very beginning of KVM_CREATE_VCPU.  created_vcpus exists to allow the
+bulk of vCPU creation to run in parallel, while still correctly
+restricting the max number of max vCPUs.
 
-Fixes: a780a3ea6282 ("KVM: X86: Fix reserved bits check for MOV to CR3")
-Cc: Babu Moger <babu.moger@amd.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422022128.3464144-2-seanjc@google.com>
+Fixes: ad73109ae7ec ("KVM: SVM: Provide support to launch and run an SEV-ES guest")
 Cc: stable@vger.kernel.org
-[Unify check_cr_read and check_cr_write. - Paolo]
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210331031936.2495277-2-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |   80 +------------------------------------------------
- 1 file changed, 3 insertions(+), 77 deletions(-)
+ arch/x86/kvm/svm/sev.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -4220,7 +4220,7 @@ static bool valid_cr(int nr)
- 	}
- }
- 
--static int check_cr_read(struct x86_emulate_ctxt *ctxt)
-+static int check_cr_access(struct x86_emulate_ctxt *ctxt)
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -563,6 +563,7 @@ static int sev_launch_update_vmsa(struct
  {
- 	if (!valid_cr(ctxt->modrm_reg))
- 		return emulate_ud(ctxt);
-@@ -4228,80 +4228,6 @@ static int check_cr_read(struct x86_emul
- 	return X86EMUL_CONTINUE;
- }
+ 	struct kvm_sev_info *sev = &to_kvm_svm(kvm)->sev_info;
+ 	struct sev_data_launch_update_vmsa *vmsa;
++	struct kvm_vcpu *vcpu;
+ 	int i, ret;
  
--static int check_cr_write(struct x86_emulate_ctxt *ctxt)
--{
--	u64 new_val = ctxt->src.val64;
--	int cr = ctxt->modrm_reg;
--	u64 efer = 0;
--
--	static u64 cr_reserved_bits[] = {
--		0xffffffff00000000ULL,
--		0, 0, 0, /* CR3 checked later */
--		CR4_RESERVED_BITS,
--		0, 0, 0,
--		CR8_RESERVED_BITS,
--	};
--
--	if (!valid_cr(cr))
--		return emulate_ud(ctxt);
--
--	if (new_val & cr_reserved_bits[cr])
--		return emulate_gp(ctxt, 0);
--
--	switch (cr) {
--	case 0: {
--		u64 cr4;
--		if (((new_val & X86_CR0_PG) && !(new_val & X86_CR0_PE)) ||
--		    ((new_val & X86_CR0_NW) && !(new_val & X86_CR0_CD)))
--			return emulate_gp(ctxt, 0);
--
--		cr4 = ctxt->ops->get_cr(ctxt, 4);
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--
--		if ((new_val & X86_CR0_PG) && (efer & EFER_LME) &&
--		    !(cr4 & X86_CR4_PAE))
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	case 3: {
--		u64 rsvd = 0;
--
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--		if (efer & EFER_LMA) {
--			u64 maxphyaddr;
--			u32 eax, ebx, ecx, edx;
--
--			eax = 0x80000008;
--			ecx = 0;
--			if (ctxt->ops->get_cpuid(ctxt, &eax, &ebx, &ecx,
--						 &edx, true))
--				maxphyaddr = eax & 0xff;
--			else
--				maxphyaddr = 36;
--			rsvd = rsvd_bits(maxphyaddr, 63);
--			if (ctxt->ops->get_cr(ctxt, 4) & X86_CR4_PCIDE)
--				rsvd &= ~X86_CR3_PCID_NOFLUSH;
--		}
--
--		if (new_val & rsvd)
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	case 4: {
--		ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--
--		if ((efer & EFER_LMA) && !(new_val & X86_CR4_PAE))
--			return emulate_gp(ctxt, 0);
--
--		break;
--		}
--	}
--
--	return X86EMUL_CONTINUE;
--}
--
- static int check_dr7_gd(struct x86_emulate_ctxt *ctxt)
- {
- 	unsigned long dr7;
-@@ -4841,10 +4767,10 @@ static const struct opcode twobyte_table
- 	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* 8 * reserved NOP */
- 	D(ImplicitOps | ModRM | SrcMem | NoAccess), /* NOP + 7 * reserved NOP */
- 	/* 0x20 - 0x2F */
--	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_read),
-+	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, cr_read, check_cr_access),
- 	DIP(ModRM | DstMem | Priv | Op3264 | NoMod, dr_read, check_dr_read),
- 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_cr_write, cr_write,
--						check_cr_write),
-+						check_cr_access),
- 	IIP(ModRM | SrcMem | Priv | Op3264 | NoMod, em_dr_write, dr_write,
- 						check_dr_write),
- 	N, N, N, N,
+ 	if (!sev_es_guest(kvm))
+@@ -572,8 +573,8 @@ static int sev_launch_update_vmsa(struct
+ 	if (!vmsa)
+ 		return -ENOMEM;
+ 
+-	for (i = 0; i < kvm->created_vcpus; i++) {
+-		struct vcpu_svm *svm = to_svm(kvm->vcpus[i]);
++	kvm_for_each_vcpu(i, vcpu, kvm) {
++		struct vcpu_svm *svm = to_svm(vcpu);
+ 
+ 		/* Perform some pre-encryption checks against the VMSA */
+ 		ret = sev_es_sync_vmsa(svm);
 
 
