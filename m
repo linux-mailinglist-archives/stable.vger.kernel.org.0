@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8329E37B99B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 262A037B99C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230102AbhELJuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:50:51 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:51663 "EHLO
+        id S230126AbhELJu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:50:58 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:38093 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230019AbhELJuu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:50:50 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3DF661940EB1;
-        Wed, 12 May 2021 05:49:42 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 May 2021 05:49:42 -0400
+        by vger.kernel.org with ESMTP id S230019AbhELJu6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:50:58 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5DEFF19410D6;
+        Wed, 12 May 2021 05:49:50 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 12 May 2021 05:49:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PReRNv
-        1UG+ctg6NCIc70iMSr5U1WY+Jd/c4d8Bv3Coc=; b=kG9sSbnpW8s5Yii/OOmPXy
-        Vxjp8tssX/6N6Vb+aGy2EOK+BWgWrl7peJ1D1HT7JWPPG2euRYJJmJKG9IQJaW7X
-        WkKIuyH4edCZMa4YNLvXEx9fC3cy7q9BQiTqD7He0OiuMw+qtCEsQgvMsY5V2pGP
-        afAEs2AMJm/mrXbqCo45voZwHj4Nfx0R6IlH3zz64FeHkurrq9M8RbUEUOMqJ4xz
-        ftHiGrOPcl41e6Fko2wwipunGDteKLEBCdsPd8+Cr/tQrSB8qEgjNIRsCx1qHOgI
-        m9bqRMXL+sYyzmBdwHAgnniko3iuB2A2UInlNkUB8o8agmvEHkoCl7QT40/zcHiQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zAFrLM
+        47A6w9GfA+dE3KA7pVFpIDBA3xA6s96DYJtt8=; b=qBzFLSYvOIfCzYr9OgNFg7
+        cZeV7MPrSxfvbV/1qj2PYZx6QVe9HVDj1BpQIiaTT9hb5uwhJlC2XWtUFdf/X+lT
+        URVhPgpTJ0npyx6duwC3yyf2cAMe41droGTQGvV9KkpPPwxNHcWTlDQnyBO7m1xo
+        69kAUBiASi62S0LzkA0yv10YUpw2bYMQqhwZ/dY/nuivRCVkFTSVNWkHYceY6Yvx
+        O0HFx2cTRibD6Dv5VlgOQH5npX4X5AqPl4Hfxepy9ezreAZqBEWsSJ/FlrCVdVLI
+        hwGK9CnQDMszOAe8wWgEBQSPJHq69nUvPusjZQN0yCW74DuFoSU4OCva524F9DJg
         ==
-X-ME-Sender: <xms:tqSbYHcVwHOQ-zdlVnO0_vNWu1I7TI3aKXsEiB_cYQ6P5_oxQvpptA>
-    <xme:tqSbYNMpvB947E3OOKZ3iFaiaOpGpKuy2DUjGGAGpGheEu1PbLXVI4FCaHqC8Vdrh
-    nlOA2__xAtH9g>
+X-ME-Sender: <xms:vqSbYPHqcxiwDTtXImISWDw2wHcIlEkecjrJWcafAdaT8SlC_GhHdg>
+    <xme:vqSbYMWqkWq-XQeGReAIX7NShPazQwYQsvmeiHYWNFXorIzIWs8iHY-wliMgzBq8z
+    CdMaDhgaWHIXA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgudejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgudejucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:tqSbYAi5lRDyFHXizM5-1qKYaGyvWHBeG7vJEgxF5PF_cWwfssp7ow>
-    <xmx:tqSbYI9kQFynprFyhpW24SwA6x-XDIZ-CgKIv2Kk_pMm5lBo2bDwYg>
-    <xmx:tqSbYDsP2xPZvFet5pUS1vA4gpKjVsdtTGjvnuXcXv6asqQCEnALaA>
-    <xmx:tqSbYM6oBDOWHN--DN5GPwjW1a70vvUYAEpBdpwzE0IKNy9VfDcY4A>
+X-ME-Proxy: <xmx:vqSbYBIMb3oRay2_iKDhBxNcYDc7lgYoXuJjMRfKr0iVhLp5-7K6DA>
+    <xmx:vqSbYNG7m-eVz96vNvAmw8IsduDiQTfmmEg5g-AowSusy67cYuOnhg>
+    <xmx:vqSbYFWC_Ca8PHetwysaRjtLAyuXnR19LwA9qa1oBzY515m9oBZCtw>
+    <xmx:vqSbYCilkzm3HANPr9ghrKK7r8mrrqFcig25nT7QBivg8L6fA_W3yQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 05:49:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/amd/display: Fix system hang after multiple hotplugs (v3)" failed to apply to 5.12-stable tree
+        Wed, 12 May 2021 05:49:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/amd/display: Fix system hang after multiple hotplugs (v3)" failed to apply to 5.11-stable tree
 To:     qingqing.zhuo@amd.com, alexander.deucher@amd.com, bindu.r@amd.com,
         daniel.wheeler@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 12 May 2021 11:49:40 +0200
-Message-ID: <162081298013848@kroah.com>
+Message-ID: <16208129803276@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.12-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
