@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB7C37C9D7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D422437C9D9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236667AbhELQWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:22:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59090 "EHLO mail.kernel.org"
+        id S236696AbhELQWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:22:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240373AbhELQR4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:17:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC81E619A1;
-        Wed, 12 May 2021 15:43:58 +0000 (UTC)
+        id S240390AbhELQR6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:17:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CAF261D72;
+        Wed, 12 May 2021 15:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834239;
-        bh=yxWuWUXLICmglpa67NgIU1IjQoO4kS1LM+x4OlC3pNk=;
+        s=korg; t=1620834241;
+        bh=VR1Vh5FTLUXFjc6hclX8IOK/3afOrWa88bvvTzYc1gY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0khfh/9lqr6jq98V3+8pVxsgj0qrktsDC1l9tfDyZw4xkBAiBPvpQj4xDkKKxAKP+
-         JnIi7o6BFerjIYkX7UTc+jiWqijTckz+HUS4Pz1xFbOkHOFw2zzDkLBJBLQRZHDaxa
-         /jnrBFrG9zpBWVah3ERgYu1rUR05lWKTL67+vdx4=
+        b=jSXtKwgLioOpLbtL2uIJsp+kTST4n+Dxf1RPkKIZql+m4sDCZ1utVe6gGr1vNni+9
+         tZpUf48wb+GzCvURL7BhuJLGQyyHpNxN/UKmokZ8pCMMJIHpdDiTlob/PP+NCJc5tC
+         BAV6xIJ6s4iEfD+LQVLdFRPTgSJu9dV6+/gCtYmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 464/601] mt76: mt7915: fix tx skb dma unmap
-Date:   Wed, 12 May 2021 16:49:01 +0200
-Message-Id: <20210512144843.118622831@linuxfoundation.org>
+Subject: [PATCH 5.11 465/601] mt76: mt7915: fix aggr len debugfs node
+Date:   Wed, 12 May 2021 16:49:02 +0200
+Message-Id: <20210512144843.150385730@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,34 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 7dcf3c04f0aca746517a77433b33d40868ca4749 ]
+[ Upstream commit 9fb9d755fae20b5ad62ef8b4e9289e5baea2c6fc ]
 
-The first pointer in the txp needs to be unmapped as well, otherwise it will
-leak DMA mapping entries
+Similar to mt7921, fix 802.11 aggr len debugfs reporting for mt7915 driver.
 
-Reported-by: Ben Greear <greearb@candelatech.com>
-Fixes: 27d5c528a7ca ("mt76: fix double DMA unmap of the first buffer on 7615/7915")
+Fixes: e57b7901469fc ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index c9dd6867e125..8a083304ab03 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -1082,7 +1082,7 @@ void mt7915_txp_skb_unmap(struct mt76_dev *dev,
- 	int i;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
+index 7d810fbf2862..a2d2b56a8eb9 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
+@@ -98,7 +98,7 @@ mt7915_ampdu_stat_read_phy(struct mt7915_phy *phy,
+ 		range[i] = mt76_rr(dev, MT_MIB_ARNG(ext_phy, i));
  
- 	txp = mt7915_txwi_to_txp(dev, t);
--	for (i = 1; i < txp->nbuf; i++)
-+	for (i = 0; i < txp->nbuf; i++)
- 		dma_unmap_single(dev->dev, le32_to_cpu(txp->buf[i]),
- 				 le16_to_cpu(txp->len[i]), DMA_TO_DEVICE);
- }
+ 	for (i = 0; i < ARRAY_SIZE(bound); i++)
+-		bound[i] = MT_MIB_ARNCR_RANGE(range[i / 4], i) + 1;
++		bound[i] = MT_MIB_ARNCR_RANGE(range[i / 4], i % 4) + 1;
+ 
+ 	seq_printf(file, "\nPhy %d\n", ext_phy);
+ 
 -- 
 2.30.2
 
