@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16EFF37C8C9
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59AA837C8C2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234647AbhELQM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:12:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33532 "EHLO mail.kernel.org"
+        id S236591AbhELQMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:12:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239087AbhELQHR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DB0061C37;
-        Wed, 12 May 2021 15:35:59 +0000 (UTC)
+        id S239081AbhELQHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A23E6198E;
+        Wed, 12 May 2021 15:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833759;
-        bh=AA+VkJwABS7DItIAZuFkpmfUNUdIRPUJ0wKnhxwQgD4=;
+        s=korg; t=1620833762;
+        bh=k+qBMd34yBZOoIMBBWJDR/+weETcK7DMKs8guJ02oy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XcoHJdcanricygdQdqdkuvAbsWpSJqUJO7VSIQp5xOUF7zvBDWg79wvAkWIPBegD/
-         8Tvfh7s4OA7p6dDq3hCvB5DLrzlZ0grTIwzikRF9fwSzweobf6POGHU5ztuZp8XiJQ
-         FRC16KME/Hv96JAsh0WhbU/qRB91LS5KdldS+QbE=
+        b=2e71pG2GdlWVC8rk9BbW1D/u3wHw0591tAajQOh5yMiBx/7k3GzoEGwGt9YMxqm5C
+         mnwaWTH4CEyy2s5APEv81wbMUHvTpZIuZdnL7QrFLUpVw/9dKE8wdgcVTcgzQrpnTf
+         jsfJyo6JGOUAQZp22TZ7H7TZIZG33GjwFQ82+1VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 277/601] tty: fix return value for unsupported ioctls
-Date:   Wed, 12 May 2021 16:45:54 +0200
-Message-Id: <20210512144836.938746898@linuxfoundation.org>
+Subject: [PATCH 5.11 278/601] tty: fix return value for unsupported termiox ioctls
+Date:   Wed, 12 May 2021 16:45:55 +0200
+Message-Id: <20210512144836.969780223@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,81 +41,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 1b8b20868a6d64cfe8174a21b25b74367bdf0560 ]
+[ Upstream commit 8871de06ff78e9333d86c87d7071452b690e7c9b ]
 
 Drivers should return -ENOTTY ("Inappropriate I/O control operation")
 when an ioctl isn't supported, while -EINVAL is used for invalid
 arguments.
 
-Fix up the TIOCMGET, TIOCMSET and TIOCGICOUNT helpers which returned
--EINVAL when a tty driver did not implement the corresponding
-operations.
+Support for termiox was added by commit 1d65b4a088de ("tty: Add
+termiox") in 2008 but no driver support ever followed and it was
+recently ripped out by commit e0efb3168d34 ("tty: Remove dead termiox
+code").
 
-Note that the TIOCMGET and TIOCMSET helpers predate git and do not get a
-corresponding Fixes tag below.
+Fix the return value for the unsupported termiox ioctls, which have
+always returned -EINVAL, by explicitly returning -ENOTTY rather than
+removing them completely and falling back to the default unrecognised-
+ioctl handling.
 
-Fixes: d281da7ff6f7 ("tty: Make tiocgicount a handler")
+Fixes: 1d65b4a088de ("tty: Add termiox")
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407095208.31838-3-johan@kernel.org
+Link: https://lore.kernel.org/r/20210407095208.31838-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_io.c       | 8 ++++----
- include/linux/tty_driver.h | 2 +-
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/tty/tty_ioctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index 5fd87941ac71..51bc4e5a4020 100644
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -2494,14 +2494,14 @@ out:
-  *	@p: pointer to result
-  *
-  *	Obtain the modem status bits from the tty driver if the feature
-- *	is supported. Return -EINVAL if it is not available.
-+ *	is supported. Return -ENOTTY if it is not available.
-  *
-  *	Locking: none (up to the driver)
-  */
- 
- static int tty_tiocmget(struct tty_struct *tty, int __user *p)
- {
--	int retval = -EINVAL;
-+	int retval = -ENOTTY;
- 
- 	if (tty->ops->tiocmget) {
- 		retval = tty->ops->tiocmget(tty);
-@@ -2519,7 +2519,7 @@ static int tty_tiocmget(struct tty_struct *tty, int __user *p)
-  *	@p: pointer to desired bits
-  *
-  *	Set the modem status bits from the tty driver if the feature
-- *	is supported. Return -EINVAL if it is not available.
-+ *	is supported. Return -ENOTTY if it is not available.
-  *
-  *	Locking: none (up to the driver)
-  */
-@@ -2531,7 +2531,7 @@ static int tty_tiocmset(struct tty_struct *tty, unsigned int cmd,
- 	unsigned int set, clear, val;
- 
- 	if (tty->ops->tiocmset == NULL)
+diff --git a/drivers/tty/tty_ioctl.c b/drivers/tty/tty_ioctl.c
+index 4de1c6ddb8ff..803da2d111c8 100644
+--- a/drivers/tty/tty_ioctl.c
++++ b/drivers/tty/tty_ioctl.c
+@@ -774,8 +774,8 @@ int tty_mode_ioctl(struct tty_struct *tty, struct file *file,
+ 	case TCSETX:
+ 	case TCSETXW:
+ 	case TCSETXF:
 -		return -EINVAL;
+-#endif		
 +		return -ENOTTY;
- 
- 	retval = get_user(val, p);
- 	if (retval)
-diff --git a/include/linux/tty_driver.h b/include/linux/tty_driver.h
-index 61c3372d3f32..2f719b471d52 100644
---- a/include/linux/tty_driver.h
-+++ b/include/linux/tty_driver.h
-@@ -228,7 +228,7 @@
-  *
-  *	Called when the device receives a TIOCGICOUNT ioctl. Passed a kernel
-  *	structure to complete. This method is optional and will only be called
-- *	if provided (otherwise EINVAL will be returned).
-+ *	if provided (otherwise ENOTTY will be returned).
-  */
- 
- #include <linux/export.h>
++#endif
+ 	case TIOCGSOFTCAR:
+ 		copy_termios(real_tty, &kterm);
+ 		ret = put_user((kterm.c_cflag & CLOCAL) ? 1 : 0,
 -- 
 2.30.2
 
