@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E24D637BB3C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A984E37BB3D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230293AbhELKse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:48:34 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:37247 "EHLO
+        id S230183AbhELKs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:48:58 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:40715 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230160AbhELKsd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:48:33 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id BA3F8C14;
-        Wed, 12 May 2021 06:47:24 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 May 2021 06:47:25 -0400
+        by vger.kernel.org with ESMTP id S230160AbhELKs5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:48:57 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.west.internal (Postfix) with ESMTP id 12B9C12A6;
+        Wed, 12 May 2021 06:47:43 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Wed, 12 May 2021 06:47:43 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=l3AQVx
-        pSY5I0KAAe5if6Wg9GLglhy+aZDnz2peblWnY=; b=DYH7Z8TJCY1B0VtGKkxAxe
-        Jkm8WXZPINLUaJQ/0IksDnEVkubrrXv49gxe8b8ZIXlmC+co45dbU4d/xzeEyAhS
-        OOdDpzqXgXIWhH1Xn6jTXQ1/3BBGPrqKQCWikPhRU/ul1AwT/NPLs/nPiZ+XtGcp
-        EK9uAgYiSBmqDlBovchPOyxv2wzT1mavrPJ77qU+fwvnb30VyjJku6GWFIR7d3wG
-        1l+d60DGo/P8UfPfCUQGhuwd6qtemGyFYUO1O+WPl3aTcizTlmkou+I6ENz3KLjG
-        yxTtK6K6mY/8Tan/unw9XMBo+0VnW3neBWpy2d3zMRg/MBW0WhaK2U/42zfvMTsQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=D2gxZd
+        m0q22gjB1LaKUfJWNsrrptbllFyzFp0LRue6A=; b=UtpMcjUkDa57ji4j02qyOZ
+        K2u6usTQQHWlkdSZCNpJ8XvYPaYU9CWBaGP0iWE2xELLuuxpGtTVtHk+SFcE+mPi
+        08tvV4CNzfV7CWXLzf659wp1wMBmMtcqYq9Gn3oij4qYIs7KqM25Ii3ECVONbHlm
+        OC+LS6+KB57OQrs8ecfm3npI0KGRXqmRgIdLuPHAE281AW8pU7pKX+y9sIYMaDJM
+        QHL/lUSixmq+tWpxyXWTRS6k9ZhffpN7w5iEeOPOpelIxIMu0aNz3s7sAOHTEQv8
+        3m1TZZ1lcbbYmQ3V9gAfpm3AzdkExykVIRDvGnhK3mWybBU3vKRyV1Lvqwwoxwhg
         ==
-X-ME-Sender: <xms:O7KbYKYelHVcWabOlcTHLMoDV14qXlNemc8lpuXY7GAhFYoKPcBxCA>
-    <xme:O7KbYNZMmKDXkCFTOwKkEcUOJLtNHqCbeXUCHo_ubNs3Q8Vxo3rCdBHFs31L3kpbr
-    WTsggSk9e6Pdg>
+X-ME-Sender: <xms:TrKbYFDOShl03bKwwHUAiPYy_wSOvx0pQ1hvQaK89FhZPc3c5Lo3-A>
+    <xme:TrKbYDjU69PGObdCCdcQaSnpDD_o8FZIXaFqrkiFwjt4uMt-5PEl8FOGaQ_yCEJwS
+    1R0qbl9CFGUHw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepuddtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:O7KbYE9TiZbfXaqbSwcVfwr6HUuk0KMdiyYkoHkChw9Vp8tWn4FrQg>
-    <xmx:O7KbYMreCA1ur4HYhEcNpn--UeZjCqfeCfGH_YBSYT-xSx4edMdlQQ>
-    <xmx:O7KbYFocbE8YfChQcjiCp7yRnX7zqL1yDBMU4zPnBRIsD32ucC2Gnw>
-    <xmx:O7KbYGA5DfWkVRgmhWXatdNXwwHMZb4HkEcZ_M-kexf-LBEc3kxeun1-eME>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:TrKbYAkEFEf6DOyuBiwKCTrzM-oX_qNgfIB-BdMWSSpEWba_2FO0UA>
+    <xmx:TrKbYPw5VQrg0FuwunnscBZcjtSE2z65tU0RlCL2f1uO5Fj3bSN2uA>
+    <xmx:TrKbYKTc9TAqvvHjmJNd3cl07NMnNx3p-eG6jPiHgeLGmnOp-UoqqQ>
+    <xmx:TrKbYNIIw0TWyNtznr7WxKTnLLKtsGi7ZVndjTcFhsvHeR53o47GSUvpmIM>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:47:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: Stop looking for coalesced MMIO zones if the bus is" failed to apply to 4.14-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com, sunhao.th@gmail.com
+        Wed, 12 May 2021 06:47:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST_REGION read" failed to apply to 4.19-stable tree
+To:     eric.auger@redhat.com, alexandru.elisei@arm.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 12:47:08 +0200
-Message-ID: <162081642813474@kroah.com>
+Date:   Wed, 12 May 2021 12:47:40 +0200
+Message-ID: <1620816460119220@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,129 +70,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5d3c4c79384af06e3c8e25b7770b6247496b4417 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Mon, 12 Apr 2021 15:20:49 -0700
-Subject: [PATCH] KVM: Stop looking for coalesced MMIO zones if the bus is
- destroyed
+From 53b16dd6ba5cf64ed147ac3523ec34651d553cb0 Mon Sep 17 00:00:00 2001
+From: Eric Auger <eric.auger@redhat.com>
+Date: Mon, 5 Apr 2021 18:39:34 +0200
+Subject: [PATCH] KVM: arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST_REGION read
 
-Abort the walk of coalesced MMIO zones if kvm_io_bus_unregister_dev()
-fails to allocate memory for the new instance of the bus.  If it can't
-instantiate a new bus, unregister_dev() destroys all devices _except_ the
-target device.   But, it doesn't tell the caller that it obliterated the
-bus and invoked the destructor for all devices that were on the bus.  In
-the coalesced MMIO case, this can result in a deleted list entry
-dereference due to attempting to continue iterating on coalesced_zones
-after future entries (in the walk) have been deleted.
+The doc says:
+"The characteristics of a specific redistributor region can
+ be read by presetting the index field in the attr data.
+ Only valid for KVM_DEV_TYPE_ARM_VGIC_V3"
 
-Opportunistically add curly braces to the for-loop, which encompasses
-many lines but sneaks by without braces due to the guts being a single
-if statement.
+Unfortunately the existing code fails to read the input attr data.
 
-Fixes: f65886606c2d ("KVM: fix memory leak in kvm_io_bus_unregister_dev()")
-Cc: stable@vger.kernel.org
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210412222050.876100-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 04c110932225 ("KVM: arm/arm64: Implement KVM_VGIC_V3_ADDR_TYPE_REDIST_REGION")
+Cc: stable@vger.kernel.org#v4.17+
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210405163941.510258-3-eric.auger@redhat.com
 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index d17e3ff1138d..82b066db37cb 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -192,8 +192,8 @@ int kvm_io_bus_read(struct kvm_vcpu *vcpu, enum kvm_bus bus_idx, gpa_t addr,
- 		    int len, void *val);
- int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
- 			    int len, struct kvm_io_device *dev);
--void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
--			       struct kvm_io_device *dev);
-+int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
-+			      struct kvm_io_device *dev);
- struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 					 gpa_t addr);
+diff --git a/arch/arm64/kvm/vgic/vgic-kvm-device.c b/arch/arm64/kvm/vgic/vgic-kvm-device.c
+index 44419679f91a..2f66cf247282 100644
+--- a/arch/arm64/kvm/vgic/vgic-kvm-device.c
++++ b/arch/arm64/kvm/vgic/vgic-kvm-device.c
+@@ -226,6 +226,9 @@ static int vgic_get_common_attr(struct kvm_device *dev,
+ 		u64 addr;
+ 		unsigned long type = (unsigned long)attr->attr;
  
-diff --git a/virt/kvm/coalesced_mmio.c b/virt/kvm/coalesced_mmio.c
-index 62bd908ecd58..f08f5e82460b 100644
---- a/virt/kvm/coalesced_mmio.c
-+++ b/virt/kvm/coalesced_mmio.c
-@@ -174,21 +174,36 @@ int kvm_vm_ioctl_unregister_coalesced_mmio(struct kvm *kvm,
- 					   struct kvm_coalesced_mmio_zone *zone)
- {
- 	struct kvm_coalesced_mmio_dev *dev, *tmp;
-+	int r;
- 
- 	if (zone->pio != 1 && zone->pio != 0)
- 		return -EINVAL;
- 
- 	mutex_lock(&kvm->slots_lock);
- 
--	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list)
-+	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list) {
- 		if (zone->pio == dev->zone.pio &&
- 		    coalesced_mmio_in_range(dev, zone->addr, zone->size)) {
--			kvm_io_bus_unregister_dev(kvm,
-+			r = kvm_io_bus_unregister_dev(kvm,
- 				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
- 			kvm_iodevice_destructor(&dev->dev);
++		if (copy_from_user(&addr, uaddr, sizeof(addr)))
++			return -EFAULT;
 +
-+			/*
-+			 * On failure, unregister destroys all devices on the
-+			 * bus _except_ the target device, i.e. coalesced_zones
-+			 * has been modified.  No need to restart the walk as
-+			 * there aren't any zones left.
-+			 */
-+			if (r)
-+				break;
- 		}
-+	}
- 
- 	mutex_unlock(&kvm->slots_lock);
- 
-+	/*
-+	 * Ignore the result of kvm_io_bus_unregister_dev(), from userspace's
-+	 * perspective, the coalesced MMIO is most definitely unregistered.
-+	 */
- 	return 0;
- }
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index c771d40737c9..f84b126c32d6 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -4621,15 +4621,15 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
- }
- 
- /* Caller must hold slots_lock. */
--void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
--			       struct kvm_io_device *dev)
-+int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
-+			      struct kvm_io_device *dev)
- {
- 	int i, j;
- 	struct kvm_io_bus *new_bus, *bus;
- 
- 	bus = kvm_get_bus(kvm, bus_idx);
- 	if (!bus)
--		return;
-+		return 0;
- 
- 	for (i = 0; i < bus->dev_count; i++)
- 		if (bus->range[i].dev == dev) {
-@@ -4637,7 +4637,7 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 		}
- 
- 	if (i == bus->dev_count)
--		return;
-+		return 0;
- 
- 	new_bus = kmalloc(struct_size(bus, range, bus->dev_count - 1),
- 			  GFP_KERNEL_ACCOUNT);
-@@ -4662,7 +4662,7 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 	}
- 
- 	kfree(bus);
--	return;
-+	return new_bus ? 0 : -ENOMEM;
- }
- 
- struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 		r = kvm_vgic_addr(dev->kvm, type, &addr, false);
+ 		if (r)
+ 			return (r == -ENODEV) ? -ENXIO : r;
 
