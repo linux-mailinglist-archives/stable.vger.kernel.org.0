@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE4A37CB24
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F3437CB25
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242416AbhELQer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242413AbhELQer (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 12:34:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44832 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241479AbhELQ1X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E30F619E6;
-        Wed, 12 May 2021 15:53:09 +0000 (UTC)
+        id S241485AbhELQ1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88B1C61DDA;
+        Wed, 12 May 2021 15:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834790;
-        bh=Al+dmTqUWbeemajTi9SkzKs3Hb2QwcXWbn7vX+mbfbM=;
+        s=korg; t=1620834793;
+        bh=7IO0jrWpaOq7fs4yuFFvUh5SCkd/0eSWuK8yJbNIOl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k4EOk6nF4nw8Zbs+KbIUIMgyy5T6R8b1cm/xN/KvjBnIKtbu3POJsffQRWBJb3CjI
-         lagDrGMHPCEWUXat5+2+D0VwLFi9IqUxgoZTxc8LtTOwcpOKaCIIHyU4LZbNW4KOY7
-         f4J+SMDeNo6oM2Q2owdOB5oNedkaeSZR4tekGMYQ=
+        b=2SziQpDiVV8cKeBhGrSJ28pgMdZNBhsWoI09TaOk3l+KyuIXAXXAtMMIOkevmCKhL
+         cHuIdBNt3s0dYAYFLILsr4Hz5UmawtoQs9FReSXy8yK/PnlelZ5qpGBm4UJdtxFW5L
+         M0VT6wG450H+S0bP3oR4E98G2BUedt5/s2t8kNQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 085/677] ALSA: hda/realtek: Re-order ALC882 Acer quirk table entries
-Date:   Wed, 12 May 2021 16:42:11 +0200
-Message-Id: <20210512144840.049759235@linuxfoundation.org>
+Subject: [PATCH 5.12 086/677] ALSA: hda/realtek: Re-order ALC882 Sony quirk table entries
+Date:   Wed, 12 May 2021 16:42:12 +0200
+Message-Id: <20210512144840.080383013@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,40 +40,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit b265047ac56bad8c4f3d0c8bf9cb4e828ee0d28e upstream.
+commit b7529c18feecb1af92f9db08c8e7fe446a82d96d upstream.
 
-Just re-order the alc882_fixup_tbl[] entries for Acer devices for
+Just re-order the alc882_fixup_tbl[] entries for Sony devices for
 avoiding the oversight of the duplicated or unapplied item in future.
 No functional changes.
 
 Also Cc-to-stable for the further patch applications.
 
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210428112704.23967-2-tiwai@suse.de
+Link: https://lore.kernel.org/r/20210428112704.23967-3-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -2470,13 +2470,13 @@ static const struct snd_pci_quirk alc882
- 		      ALC882_FIXUP_ACER_ASPIRE_8930G),
- 	SND_PCI_QUIRK(0x1025, 0x0146, "Acer Aspire 6935G",
- 		      ALC882_FIXUP_ACER_ASPIRE_8930G),
-+	SND_PCI_QUIRK(0x1025, 0x0142, "Acer Aspire 7730G",
-+		      ALC882_FIXUP_ACER_ASPIRE_4930G),
-+	SND_PCI_QUIRK(0x1025, 0x0155, "Packard-Bell M5120", ALC882_FIXUP_PB_M5210),
- 	SND_PCI_QUIRK(0x1025, 0x015e, "Acer Aspire 6930G",
- 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
- 	SND_PCI_QUIRK(0x1025, 0x0166, "Acer Aspire 6530G",
- 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
--	SND_PCI_QUIRK(0x1025, 0x0142, "Acer Aspire 7730G",
--		      ALC882_FIXUP_ACER_ASPIRE_4930G),
--	SND_PCI_QUIRK(0x1025, 0x0155, "Packard-Bell M5120", ALC882_FIXUP_PB_M5210),
- 	SND_PCI_QUIRK(0x1025, 0x021e, "Acer Aspire 5739G",
- 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
- 	SND_PCI_QUIRK(0x1025, 0x0259, "Acer Aspire 5935", ALC889_FIXUP_DAC_ROUTE),
+@@ -2489,11 +2489,11 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
+ 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
+ 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
++	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
++	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9047, "Sony Vaio TT", ALC889_FIXUP_VAIO_TT),
+ 	SND_PCI_QUIRK(0x104d, 0x905a, "Sony Vaio Z", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9060, "Sony Vaio VPCL14M1R", ALC882_FIXUP_NO_PRIMARY_HP),
+-	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
+-	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
+ 
+ 	/* All Apple entries are in codec SSIDs */
+ 	SND_PCI_QUIRK(0x106b, 0x00a0, "MacBookPro 3,1", ALC889_FIXUP_MBP_VREF),
 
 
