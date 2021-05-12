@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9EE37CD85
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C726D37CD7F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240580AbhELQz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:55:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35488 "EHLO mail.kernel.org"
+        id S238857AbhELQzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243963AbhELQmT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C871061C56;
-        Wed, 12 May 2021 16:08:43 +0000 (UTC)
+        id S243971AbhELQmU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F6A161C4A;
+        Wed, 12 May 2021 16:08:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835724;
-        bh=cR7PS7IAQOEv8/KE5wKy1EqdcXGIp3+Z0cIYXc9C8CY=;
+        s=korg; t=1620835726;
+        bh=s7GYJLD9H2ET5g+aXU4rGsR/doxp68Fju7SWvx9sD6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6wN+DuRzXwEhy0+pNkfLypC96Chfc01GXqRsX5Rz/KjcAqu0JdGOic0DrizguAd9
-         qrix1EwR2afWzCXmA7e0C+2YCjc9Z3Fc6wjp/5A4QHWxjtgrBNJlfew04CddhBXmqZ
-         Lsw0JNBzFBkjXAxILnv2n+iyzEkcyuoFlYL3jCdw=
+        b=ABCZoIdEWr5blA9GkXlOnojvv/UY5h6IJ2qnA8OUAf+N2Z/zycRb8pyzKHiuuRBpp
+         laioYb0KN6Ta5b8MNckGA4qXG8bGgQRkNoqqDKYfgTgww2hAf8sd3ABmeovb6bpa+C
+         NCXD9cx3Pc9G2Ws8kGFwOZlV+yjws505AVn3ytR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 460/677] powerpc/mm: Move the linear_mapping_mutex to the ifdef where it is used
-Date:   Wed, 12 May 2021 16:48:26 +0200
-Message-Id: <20210512144852.643780824@linuxfoundation.org>
+Subject: [PATCH 5.12 461/677] powerpc/fadump: Mark fadump_calculate_reserve_size as __init
+Date:   Wed, 12 May 2021 16:48:27 +0200
+Message-Id: <20210512144852.680232863@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,47 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 9be77e11dade414d2fa63750aa5c754fac49d619 ]
+[ Upstream commit fbced1546eaaab57a32e56c974ea8acf10c6abd8 ]
 
-The mutex linear_mapping_mutex is defined at the of the file while its
-only two user are within the CONFIG_MEMORY_HOTPLUG block.
-A compile without CONFIG_MEMORY_HOTPLUG set fails on PREEMPT_RT because
-its mutex implementation is smart enough to realize that it is unused.
+If fadump_calculate_reserve_size() is not inlined, there is a modpost
+warning:
 
-Move the definition of linear_mapping_mutex to ifdef block where it is
-used.
+WARNING: modpost: vmlinux.o(.text+0x5196c): Section mismatch in
+reference from the function fadump_calculate_reserve_size() to the
+function .init.text:parse_crashkernel()
+The function fadump_calculate_reserve_size() references
+the function __init parse_crashkernel().
+This is often because fadump_calculate_reserve_size lacks a __init
+annotation or the annotation of parse_crashkernel is wrong.
 
-Fixes: 1f73ad3e8d755 ("powerpc/mm: print warning in arch_remove_linear_mapping()")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+fadump_calculate_reserve_size() calls parse_crashkernel(), which is
+marked as __init and fadump_calculate_reserve_size() is called from
+within fadump_reserve_mem(), which is also marked as __init.
+
+Mark fadump_calculate_reserve_size() as __init to fix the section
+mismatch. Additionally, remove the inline keyword as it is not necessary
+to inline this function; the compiler is still free to do so if it feels
+it is worthwhile since commit 889b3c1245de ("compiler: remove
+CONFIG_OPTIMIZE_INLINING entirely").
+
+Fixes: 11550dc0a00b ("powerpc/fadump: reuse crashkernel parameter for fadump memory reservation")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210219165648.2505482-1-bigeasy@linutronix.de
+Link: https://github.com/ClangBuiltLinux/linux/issues/1300
+Link: https://lore.kernel.org/r/20210302195013.2626335-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/mem.c | 2 +-
+ arch/powerpc/kernel/fadump.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 4e8ce6d85232..7a59a5c9aa5d 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -54,7 +54,6 @@
- 
- #include <mm/mmu_decl.h>
- 
--static DEFINE_MUTEX(linear_mapping_mutex);
- unsigned long long memory_limit;
- bool init_mem_is_free;
- 
-@@ -72,6 +71,7 @@ pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
- EXPORT_SYMBOL(phys_mem_access_prot);
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
-+static DEFINE_MUTEX(linear_mapping_mutex);
- 
- #ifdef CONFIG_NUMA
- int memory_add_physaddr_to_nid(u64 start)
+diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
+index 8482739d42f3..eddf362caedc 100644
+--- a/arch/powerpc/kernel/fadump.c
++++ b/arch/powerpc/kernel/fadump.c
+@@ -292,7 +292,7 @@ static void fadump_show_config(void)
+  * that is required for a kernel to boot successfully.
+  *
+  */
+-static inline u64 fadump_calculate_reserve_size(void)
++static __init u64 fadump_calculate_reserve_size(void)
+ {
+ 	u64 base, size, bootmem_min;
+ 	int ret;
 -- 
 2.30.2
 
