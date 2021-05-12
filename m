@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10AFC37CC24
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1CC137CC02
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239260AbhELQjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:39:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
+        id S241731AbhELQjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:39:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241839AbhELQa4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:30:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BC0A61C27;
-        Wed, 12 May 2021 15:57:40 +0000 (UTC)
+        id S242077AbhELQbv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:31:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42BEA61965;
+        Wed, 12 May 2021 15:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835060;
-        bh=YBgL38BbDoQ3OoqPikTjVjilfPDlvVgFSeTcvn87+fA=;
+        s=korg; t=1620835088;
+        bh=3wvLeUUkIoY4LRI/Vc4BE0c7i34nHlRd4eqyH8jLElM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Doq+Ku799nAOTzG7Voa5xh3qXL1k7Rl04tW2w0qhkvEUnSyKcEPRU93LIDj8URIwR
-         MpgMdnejmxdLG1BZFpl4dQ8RAh+zgXu/FLvpzsKO2LF+BxA7h5e+oPIGgtC+DFhyly
-         89ZYME8KPV/G2NL5OSKpiUJUV6sFMYI67L+I7JuE=
+        b=06znbazuPHTmUcCszGwX9LJdKQe6cC/+CvfIH05S2NBoBhYDVf9rozETyVzYl2uNa
+         7llYH7ykfSHVRgaLZi3XmkNW3J/POt/iSK+ETB3y+PFFK/SwgFxPEeUtDHsb7n1XfR
+         nRfDrKXgjJus1OTDvdnCi3dmssUg7tXmHZFWhk8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Baruch Siach <baruch@tkos.co.il>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 185/677] mtd: parsers: qcom: Fix error condition
-Date:   Wed, 12 May 2021 16:43:51 +0200
-Message-Id: <20210512144843.392484632@linuxfoundation.org>
+Subject: [PATCH 5.12 186/677] mtd: parsers: qcom: incompatible with spi-nor 4k sectors
+Date:   Wed, 12 May 2021 16:43:52 +0200
+Message-Id: <20210512144843.427048397@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,42 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Baruch Siach <baruch@tkos.co.il>
 
-[ Upstream commit c95310e1b33eae9767af9698aa976d5301f37203 ]
+[ Upstream commit 8f62f59f83c3bc902af91c80732cfcd17e0d7069 ]
 
-qcom_smem_get() does not return NULL, and even if it did, the NULL
-condition is usually not an error but a success condition and should
-not trigger an error trace.
+Partition size and offset value are in block size units, which is the
+same as 'erasesize'. But when 4K sectors are enabled erasesize is set to
+4K. Bail out in that case.
 
-Let's replace IS_ERR_OR_NULL() by IS_ERR().
-
-This fixes the following smatch warning:
-drivers/mtd/parsers/qcomsmempart.c:109 parse_qcomsmem_part() warn: passing zero to 'PTR_ERR'
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 803eb124e1a6 ("mtd: parsers: Add Qcom SMEM parser")
+Fixes: 803eb124e1a64 ("mtd: parsers: Add Qcom SMEM parser")
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210303084634.12796-1-miquel.raynal@bootlin.com
+Link: https://lore.kernel.org/linux-mtd/0a2611f885b894274436ded3ca78bc0440fca74a.1614790096.git.baruch@tkos.co.il
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/parsers/qcomsmempart.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/parsers/qcomsmempart.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/mtd/parsers/qcomsmempart.c b/drivers/mtd/parsers/qcomsmempart.c
-index 808cb33d71f8..1c8a44d0d6e4 100644
+index 1c8a44d0d6e4..d9083308f6ba 100644
 --- a/drivers/mtd/parsers/qcomsmempart.c
 +++ b/drivers/mtd/parsers/qcomsmempart.c
-@@ -104,7 +104,7 @@ static int parse_qcomsmem_part(struct mtd_info *mtd,
- 	 * complete partition table
- 	 */
+@@ -65,6 +65,13 @@ static int parse_qcomsmem_part(struct mtd_info *mtd,
+ 	int ret, i, numparts;
+ 	char *name, *c;
+ 
++	if (IS_ENABLED(CONFIG_MTD_SPI_NOR_USE_4K_SECTORS)
++			&& mtd->type == MTD_NORFLASH) {
++		pr_err("%s: SMEM partition parser is incompatible with 4K sectors\n",
++				mtd->name);
++		return -EINVAL;
++	}
++
+ 	pr_debug("Parsing partition table info from SMEM\n");
  	ptable = qcom_smem_get(SMEM_APPS, SMEM_AARM_PARTITION_TABLE, &len);
--	if (IS_ERR_OR_NULL(ptable)) {
-+	if (IS_ERR(ptable)) {
- 		pr_err("Error reading partition table\n");
- 		return PTR_ERR(ptable);
- 	}
+ 	if (IS_ERR(ptable)) {
 -- 
 2.30.2
 
