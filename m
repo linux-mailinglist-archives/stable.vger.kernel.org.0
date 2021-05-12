@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7487437CD69
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0102937CDF2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240070AbhELQyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:54:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
+        id S1343753AbhELQ7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:59:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243879AbhELQmL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243864AbhELQmL (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DAE06199C;
-        Wed, 12 May 2021 16:07:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E140E61C5E;
+        Wed, 12 May 2021 16:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835662;
-        bh=tqHUNvc8a8XupP10MTLcTLfCepQE+wTuWBqFI5Vme6o=;
+        s=korg; t=1620835664;
+        bh=YqOFofuOdzYsQIUxsYo5jEgGPfN7n5zL14DIlrivLGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvKmQ5I765RC+EImeDNkGaXV5NE6xW5fZriw7iVsKMBiDLIODs98SWvgtUax/wosn
-         jLRDLeq6/bcZsVVv7gLn1uI9v71Cqq2Nfpc+kIPxVX4ZeO2EJyUzl8/Na1IQHpVD0V
-         qTviW2Nlv3cJ1IwPieW0n7JTZOGn+0QcVuNmgYpU=
+        b=sXruxReH3kp5IDKaiEmTGTzuHRMSVvDzFapH3gGjtENyVpo7LhywDDB/fx6J1Aqdc
+         6rXRlXPJb1Xk7qaFUAQLyKDxjNDdpq5MOAC5xQGr4V+DJzKN7q2ojOGYss9SXQr7+Z
+         RSOPp4tHAIJuzeXqmDpCVUmtIP3LInjRIJETVslQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dan Carpenter <dan.carpenter@oracle.com>,
         Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 434/677] ataflop: potential out of bounds in do_format()
-Date:   Wed, 12 May 2021 16:48:00 +0200
-Message-Id: <20210512144851.757505713@linuxfoundation.org>
+Subject: [PATCH 5.12 435/677] ataflop: fix off by one in ataflop_probe()
+Date:   Wed, 12 May 2021 16:48:01 +0200
+Message-Id: <20210512144851.790467242@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,14 +43,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 1ffec389a6431782a8a28805830b6fae9bf00af1 ]
+[ Upstream commit b777f4c47781df6b23e3f4df6fdb92d9aceac7bb ]
 
-The function uses "type" as an array index:
-
-	q = unit[drive].disk[type]->queue;
-
-Unfortunately the bounds check on "type" isn't done until later in the
-function.  Fix this by moving the bounds check to the start.
+Smatch complains that the "type > NUM_DISK_MINORS" should be >=
+instead of >.  We also need to subtract one from "type" at the start.
 
 Fixes: bf9c0538e485 ("ataflop: use a separate gendisk for each media format")
 Reported-by: kernel test robot <lkp@intel.com>
@@ -59,39 +55,25 @@ Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ataflop.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/block/ataflop.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index 104b713f4055..aed2c2a4f4ea 100644
+index aed2c2a4f4ea..d601e49f80e0 100644
 --- a/drivers/block/ataflop.c
 +++ b/drivers/block/ataflop.c
-@@ -729,8 +729,12 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
- 	unsigned long	flags;
- 	int ret;
+@@ -2001,7 +2001,10 @@ static void ataflop_probe(dev_t dev)
+ 	int drive = MINOR(dev) & 3;
+ 	int type  = MINOR(dev) >> 2;
  
--	if (type)
-+	if (type) {
- 		type--;
-+		if (type >= NUM_DISK_MINORS ||
-+		    minor2disktype[type].drive_types > DriveType)
-+			return -EINVAL;
-+	}
- 
- 	q = unit[drive].disk[type]->queue;
- 	blk_mq_freeze_queue(q);
-@@ -742,11 +746,6 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
- 	local_irq_restore(flags);
- 
- 	if (type) {
--		if (type >= NUM_DISK_MINORS ||
--		    minor2disktype[type].drive_types > DriveType) {
--			ret = -EINVAL;
--			goto out;
--		}
- 		type = minor2disktype[type].index;
- 		UDT = &atari_disk_type[type];
- 	}
+-	if (drive >= FD_MAX_UNITS || type > NUM_DISK_MINORS)
++	if (type)
++		type--;
++
++	if (drive >= FD_MAX_UNITS || type >= NUM_DISK_MINORS)
+ 		return;
+ 	mutex_lock(&ataflop_probe_lock);
+ 	if (!unit[drive].disk[type]) {
 -- 
 2.30.2
 
