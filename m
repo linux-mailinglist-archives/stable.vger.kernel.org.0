@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C8B37C321
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E0EB37C32A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:18:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233055AbhELPRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:17:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50766 "EHLO mail.kernel.org"
+        id S233202AbhELPRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:17:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233941AbhELPPi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:15:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6972B6193E;
-        Wed, 12 May 2021 15:05:11 +0000 (UTC)
+        id S233963AbhELPPu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:15:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D88D661946;
+        Wed, 12 May 2021 15:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831911;
-        bh=SFe4uRmtVkrqxJZehugrkHwY3YxnnFtWZhVWl5HPHM4=;
+        s=korg; t=1620831915;
+        bh=jkaV2nmw3Gi8Q5AUWIBWA7kjbfP1eMYNfSxPqktk22w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luDzcDV5skNM4LgzGPJnPkznlvASmBxH24OBQf3hoGwSsFjTVQ6wMwkcjZTbiMRKX
-         +q9tAB85Na37g3F7psRkjOa30FLC0dLTIpzOQsTAAv9f0JYCmErMYlfYnRbkXCSHBL
-         CbPPTamBGEJbVgmPVYCT/LPnsMXO9UuCXQEsZ3J0=
+        b=HNPGGDviCypv24pfX5P8u0Rdn2IJy4ZD64NlKl9tXLADH/f5ZsT6HLqx6O8+kUw4/
+         rkRAT57WbSR/COXZA6/HB5tDW3QupXI+nkFSlWFxIrTd8i8/3GV3VuXjz8PYrD4LZx
+         FKo0SPfK6v/rh6uUK/DfFVLL+/WLH4IhKn/NFIKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 064/530] drm/radeon: fix copy of uninitialized variable back to userspace
-Date:   Wed, 12 May 2021 16:42:54 +0200
-Message-Id: <20210512144821.863009550@linuxfoundation.org>
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.10 065/530] drm/dp_mst: Revise broadcast msg lct & lcr
+Date:   Wed, 12 May 2021 16:42:55 +0200
+Message-Id: <20210512144821.895553542@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,36 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-commit 8dbc2ccac5a65c5b57e3070e36a3dc97c7970d96 upstream.
+commit 419e91ea3143bf26991442465ac64d9461e98d96 upstream.
 
-Currently the ioctl command RADEON_INFO_SI_BACKEND_ENABLED_MASK can
-copy back uninitialised data in value_tmp that pointer *value points
-to. This can occur when rdev->family is less than CHIP_BONAIRE and
-less than CHIP_TAHITI.  Fix this by adding in a missing -EINVAL
-so that no invalid value is copied back to userspace.
+[Why & How]
+According to DP spec, broadcast message LCT equals to 1 and LCR equals
+to 6. Current implementation is incorrect. Fix it.
+In addition, revise a bit the hdr->rad handling to include broadcast
+case.
 
-Addresses-Coverity: ("Uninitialized scalar variable)
-Cc: stable@vger.kernel.org # 3.13+
-Fixes: 439a1cfffe2c ("drm/radeon: expose render backend mask to the userspace")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210224101521.6713-2-Wayne.Lin@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/radeon_kms.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_dp_mst_topology.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/radeon/radeon_kms.c
-+++ b/drivers/gpu/drm/radeon/radeon_kms.c
-@@ -512,6 +512,7 @@ static int radeon_info_ioctl(struct drm_
- 			*value = rdev->config.si.backend_enable_mask;
- 		} else {
- 			DRM_DEBUG_KMS("BACKEND_ENABLED_MASK is si+ only!\n");
-+			return -EINVAL;
- 		}
- 		break;
- 	case RADEON_INFO_MAX_SCLK:
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -2829,10 +2829,15 @@ static int set_hdr_from_dst_qlock(struct
+ 	else
+ 		hdr->broadcast = 0;
+ 	hdr->path_msg = txmsg->path_msg;
+-	hdr->lct = mstb->lct;
+-	hdr->lcr = mstb->lct - 1;
+-	if (mstb->lct > 1)
+-		memcpy(hdr->rad, mstb->rad, mstb->lct / 2);
++	if (hdr->broadcast) {
++		hdr->lct = 1;
++		hdr->lcr = 6;
++	} else {
++		hdr->lct = mstb->lct;
++		hdr->lcr = mstb->lct - 1;
++	}
++
++	memcpy(hdr->rad, mstb->rad, hdr->lct / 2);
+ 
+ 	return 0;
+ }
 
 
