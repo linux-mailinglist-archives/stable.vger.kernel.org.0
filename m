@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F21637C5C0
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB42237C5C5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233616AbhELPm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:42:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56528 "EHLO mail.kernel.org"
+        id S233813AbhELPnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:43:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236458AbhELPh7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:37:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E11661C69;
-        Wed, 12 May 2021 15:19:52 +0000 (UTC)
+        id S230375AbhELPiC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:38:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E99C961C5E;
+        Wed, 12 May 2021 15:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832793;
-        bh=j1j8JL/bNXI0g6v0uAf05DOPgLESTmU6ootudLeUBM8=;
+        s=korg; t=1620832795;
+        bh=yRYCMe4VsGYbsp26cu7UwRXslGzGSKmQ/FHUDH2p5ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wro5u94AUZ3M4PS8AVsuzP8rUzxJR68c2xwarFpPYJ3wo+nCfjo9qhqiDGtfSHjcf
-         uLvCzwDfD1VfkH8cMGWB3MMkvHd5Yz67ds/I5/+ghtv6AJIqd96HxHxfkoR9DNEaI5
-         qOD43I9p137Jz99eOiiiEttAKjVm58ueYV9UHDPU=
+        b=Uiu9vajeAjXC1yOdDti2rvp6h7k0mE9vi4qYgzdsMqDWJqunIF0gAZ7kjx4ewIvmX
+         iYB6yPe4C552OLbpAQTui198l4XA4JMmujq9cucKgCRAXqbXvUUPAkf+SxN+P9tHYG
+         F8TzkKMo5yFqAysFnW7XpcfSNv2OKL/DGXZLbEs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Wensheng <wangwensheng4@huawei.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 425/530] net: thunderx: Fix unintentional sign extension issue
-Date:   Wed, 12 May 2021 16:48:55 +0200
-Message-Id: <20210512144833.740295027@linuxfoundation.org>
+Subject: [PATCH 5.10 426/530] RDMA/srpt: Fix error return code in srpt_cm_req_recv()
+Date:   Wed, 12 May 2021 16:48:56 +0200
+Message-Id: <20210512144833.771398721@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,40 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-[ Upstream commit e701a25840360706fe4cf5de0015913ca19c274b ]
+[ Upstream commit 6bc950beff0c440ac567cdc4e7f4542a9920953d ]
 
-The shifting of the u8 integers rq->caching by 26 bits to
-the left will be promoted to a 32 bit signed int and then
-sign-extended to a u64. In the event that rq->caching is
-greater than 0x1f then all then all the upper 32 bits of
-the u64 end up as also being set because of the int
-sign-extension. Fix this by casting the u8 values to a
-u64 before the 26 bit left shift.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-Addresses-Coverity: ("Unintended sign extension")
-Fixes: 4863dea3fab0 ("net: Adding support for Cavium ThunderX network controller")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: db7683d7deb2 ("IB/srpt: Fix login-related race conditions")
+Link: https://lore.kernel.org/r/20210408113132.87250-1-wangwensheng4@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/thunder/nicvf_queues.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/ulp/srpt/ib_srpt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_queues.c b/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
-index 7a141ce32e86..0ccd5b40ef5c 100644
---- a/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
-+++ b/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
-@@ -776,7 +776,7 @@ static void nicvf_rcv_queue_config(struct nicvf *nic, struct queue_set *qs,
- 	mbx.rq.msg = NIC_MBOX_MSG_RQ_CFG;
- 	mbx.rq.qs_num = qs->vnic_id;
- 	mbx.rq.rq_num = qidx;
--	mbx.rq.cfg = (rq->caching << 26) | (rq->cq_qs << 19) |
-+	mbx.rq.cfg = ((u64)rq->caching << 26) | (rq->cq_qs << 19) |
- 			  (rq->cq_idx << 16) | (rq->cont_rbdr_qs << 9) |
- 			  (rq->cont_qs_rbdr_idx << 8) |
- 			  (rq->start_rbdr_qs << 1) | (rq->start_qs_rbdr_idx);
+diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
+index 53a8becac827..07ecc7dc1822 100644
+--- a/drivers/infiniband/ulp/srpt/ib_srpt.c
++++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
+@@ -2378,6 +2378,7 @@ static int srpt_cm_req_recv(struct srpt_device *const sdev,
+ 		pr_info("rejected SRP_LOGIN_REQ because target %s_%d is not enabled\n",
+ 			dev_name(&sdev->device->dev), port_num);
+ 		mutex_unlock(&sport->mutex);
++		ret = -EINVAL;
+ 		goto reject;
+ 	}
+ 
 -- 
 2.30.2
 
