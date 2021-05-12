@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5CCA37CE95
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41FB837CE98
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345027AbhELRFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46100 "EHLO mail.kernel.org"
+        id S1345033AbhELRF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235941AbhELQr4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:47:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C1061E7E;
-        Wed, 12 May 2021 16:15:27 +0000 (UTC)
+        id S236022AbhELQr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:47:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 316736134F;
+        Wed, 12 May 2021 16:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836128;
-        bh=F47fYqBcJBfoO4/Vv01Jv7/ubvfB3rFIHoSPfyHa4co=;
+        s=korg; t=1620836130;
+        bh=F2xLlKHPDjFWiOxEnBqoDDuFIXPyN3tos0Jij+rXoWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E60Gl3oCatmetBE5cxRhsZe6yeNvsLuidfXAfWOs35wzj7NKHp5oCv7+aGOxjj5Tr
-         ugfs0e09iDaJyUMVG5WeN48+4JC84EgIjkcV8wxg2ORiAh8b4HLSkPBsLsFyJb7KC1
-         nvYDyKytNLoNFy8ffILTm+AIllXrjcsw5Fll8ORY=
+        b=2pHceFT0+bsNFNhj3S+vBS1ov/F+8wYYDVPYgQH7ZY/KzLP56J6sXnj9qyKCekpQy
+         vyYGSsOgk/e5ObkW4nUawTkXLhQ6sHxE/fGxN/qCWPmoh5FwAGX20eRu3KCWWn96CH
+         DiSCU+lh/CCQDhwMGlmGKr7CDmtokHmXOP4j5xWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 621/677] mt76: mt7615: Fix a dereference of pointer sta before it is null checked
-Date:   Wed, 12 May 2021 16:51:07 +0200
-Message-Id: <20210512144857.998022072@linuxfoundation.org>
+Subject: [PATCH 5.12 622/677] mt76: mt7921: fix possible invalid register access
+Date:   Wed, 12 May 2021 16:51:08 +0200
+Message-Id: <20210512144858.029192706@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,45 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 4a52d6abb193aea0f2923a2c917502bd2d718630 ]
+[ Upstream commit fe3fccde8870764ba3e60610774bd7bc9f8faeff ]
 
-Currently the assignment of idx dereferences pointer sta before
-sta is null checked, leading to a potential null pointer dereference.
-Fix this by assigning idx when it is required after the null check on
-pointer sta.
+Disable the interrupt and synchronze for the pending irq handlers to ensure
+the irq tasklet is not being scheduled after the suspend to avoid the
+possible invalid register access acts when the host pcie controller is
+suspended.
 
-Addresses-Coverity: ("Dereference before null check")
-Fixes: a4a5a430b076 ("mt76: mt7615: fix TSF configuration")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+[17932.910534] mt7921e 0000:01:00.0: pci_pm_suspend+0x0/0x22c returned 0 after 21375 usecs
+[17932.910590] pcieport 0000:00:00.0: calling pci_pm_suspend+0x0/0x22c @ 18565, parent: pci0000:00
+[17932.910602] pcieport 0000:00:00.0: pci_pm_suspend+0x0/0x22c returned 0 after 8 usecs
+[17932.910671] mtk-pcie 11230000.pcie: calling platform_pm_suspend+0x0/0x60 @ 22783, parent: soc
+[17932.910674] mtk-pcie 11230000.pcie: platform_pm_suspend+0x0/0x60 returned 0 after 0 usecs
+
+...
+
+17933.615352] x1 : 00000000000d4200 x0 : ffffff8269ca2300
+[17933.620666] Call trace:
+[17933.623127]  mt76_mmio_rr+0x28/0xf0 [mt76]
+[17933.627234]  mt7921_rr+0x38/0x44 [mt7921e]
+[17933.631339]  mt7921_irq_tasklet+0x54/0x1d8 [mt7921e]
+[17933.636309]  tasklet_action_common+0x12c/0x16c
+[17933.640754]  tasklet_action+0x24/0x2c
+[17933.644418]  __do_softirq+0x16c/0x344
+[17933.648082]  irq_exit+0xa8/0xac
+[17933.651224]  scheduler_ipi+0xd4/0x148
+[17933.654890]  handle_IPI+0x164/0x2d4
+[17933.658379]  gic_handle_irq+0x140/0x178
+[17933.662216]  el1_irq+0xb8/0x180
+[17933.665361]  cpuidle_enter_state+0xf8/0x204
+[17933.669544]  cpuidle_enter+0x38/0x4c
+[17933.673122]  do_idle+0x1a4/0x2a8
+[17933.676352]  cpu_startup_entry+0x24/0x28
+[17933.680276]  rest_init+0xd4/0xe0
+[17933.683508]  arch_call_rest_init+0x10/0x18
+[17933.687606]  start_kernel+0x340/0x3b4
+[17933.691279] Code: aa0003f5 d503201f f953eaa8 8b344108 (b9400113)
+[17933.697373] ---[ end trace a24b8e26ffbda3c5 ]---
+[17933.767846] Kernel panic - not syncing: Fatal exception in interrupt
+
+Fixes: ffa1bf97425b ("mt76: mt7921: introduce PM support")
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c b/drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c
-index 4a370b9f7a17..f8d3673c2cae 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/usb_sdio.c
-@@ -67,7 +67,7 @@ static int mt7663_usb_sdio_set_rates(struct mt7615_dev *dev,
- 	struct mt7615_rate_desc *rate = &wrd->rate;
- 	struct mt7615_sta *sta = wrd->sta;
- 	u32 w5, w27, addr, val;
--	u16 idx = sta->vif->mt76.omac_idx;
-+	u16 idx;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+index 8e756871a056..80f6f29892a4 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
+@@ -195,7 +195,6 @@ static int mt7921_pci_suspend(struct pci_dev *pdev, pm_message_t state)
+ 	mt76_for_each_q_rx(mdev, i) {
+ 		napi_disable(&mdev->napi[i]);
+ 	}
+-	tasklet_kill(&dev->irq_tasklet);
  
- 	lockdep_assert_held(&dev->mt76.mutex);
+ 	pci_enable_wake(pdev, pci_choose_state(pdev, state), true);
  
-@@ -119,6 +119,7 @@ static int mt7663_usb_sdio_set_rates(struct mt7615_dev *dev,
+@@ -210,6 +209,9 @@ static int mt7921_pci_suspend(struct pci_dev *pdev, pm_message_t state)
  
- 	sta->rate_probe = sta->rateset[rate->rateset].probe_rate.idx != -1;
+ 	/* disable interrupt */
+ 	mt76_wr(dev, MT_WFDMA0_HOST_INT_ENA, 0);
++	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0x0);
++	synchronize_irq(pdev->irq);
++	tasklet_kill(&dev->irq_tasklet);
  
-+	idx = sta->vif->mt76.omac_idx;
- 	idx = idx > HW_BSSID_MAX ? HW_BSSID_0 : idx;
- 	addr = idx > 1 ? MT_LPON_TCR2(idx): MT_LPON_TCR0(idx);
- 
+ 	err = mt7921_mcu_fw_pmctrl(dev);
+ 	if (err)
 -- 
 2.30.2
 
