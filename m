@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB8537BB37
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16EB737BB39
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:47:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230280AbhELKsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:48:06 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:46497 "EHLO
+        id S230265AbhELKsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:48:17 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:33245 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230185AbhELKsG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:48:06 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 3552312DF;
-        Wed, 12 May 2021 06:46:58 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 May 2021 06:46:58 -0400
+        by vger.kernel.org with ESMTP id S230185AbhELKsR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:48:17 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id 095BC12A4;
+        Wed, 12 May 2021 06:47:08 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Wed, 12 May 2021 06:47:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=0kw3dC
-        WtV3mR/8CtqBllLzmFHzlP8nLjyKWbMlTawGY=; b=av61qLXQtpKJ/KcFCral+3
-        LSPZjVJZS1sjW2qL/KaJTXXPdpCWAxO8gVbeKlUqWIYXn0Hn0qFilJSP6Ye0SqE0
-        /7H/VBJthm0B0GMW6wLlivFUzQ9pBr49Ld1Bnv8Kmdl9A52bN5WuZHjH939aB6zw
-        t4y+tCdadcsNbG2cZMOKXemisRzBItMcH0XxoO3VPg2H9Bi38/wYA42Y+6aT+73+
-        razPcsvox7aXX9JrBQ9UZmMcN5QBvRzmF4RcS7eNqk8ROb666RuWGwNIovg1Vlc0
-        a5R5Uaqyy1nArERPcdzJyQnbG+yGoETabM04mrMl8IU8/CwMUG60fjG/OtcVYfJQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=AbMwhf
+        e5nEvWwaJ75l0ljzRS6HYBH0QpW8iXk4eQR08=; b=UIMfbRNT+jtBIiKD2ZG8bM
+        5gZDqWa4iblSlCr5D0IuQE/NHrUDIidKsVGoGVTJ8XVvVzcMgv2A8n+jYrJT/LPj
+        H8vcRGNpF2yxyuqj3gAgj9+UVOxAMVa5xFYwJz8br20Cbz8JxhaAby16bPQe6SLA
+        i4GitFF4YORlc0QGCnFaY8NQd+jsA+GRz55r05EIPIGJa/cRfDkO/7g8CiO+fLwL
+        gBSGfrMY8YZFRhcvtWwpQZVWz2OLhmCsMuHCobiffNbZy1uYWxNWvH9uDSGtJArt
+        xKt//DC1DY0YLEC3XIqPFNWpIlrZ7NCbcJsm1a+UblPk576vibXVUssMgyE+zchA
         ==
-X-ME-Sender: <xms:IbKbYENXxqeYcls_BOdBYsvj68Woh0hUk-sl2h69H24dE6kiDBtZ6Q>
-    <xme:IbKbYK91k3VVkSK4q2HOvXgcfn5adbtlRZvyfKDoXZ21QfgBNFkHNCXBhp-gOqobP
-    3SadAh_0r6R2w>
+X-ME-Sender: <xms:LLKbYFO67to3HERY4ceVzvP9VPosyssFXiREj5t625pfigdP6BTi0w>
+    <xme:LLKbYH8DhrlmoYBcFRiSSh0s2KMtfNYgRD8IZGODptXhFSaQ2d2lPumUU2H-f-Pti
+    BjfziPyv70jQQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepleenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:IbKbYLStOMIrUeqUdrpmFKMmz8zNC7wVE2WubM_9-Bdqytuz4rAabA>
-    <xmx:IbKbYMsZBR2HSnXwUkV0GjZAXvX5zk61UL0VEQHitB-RnQfTTjJiHQ>
-    <xmx:IbKbYMchwP2vx33GtHvEhNAGn3XOf35Wa-vbWYPiT090aXfFO2mQfg>
-    <xmx:IbKbYElNgkxyxYEPMa5i6v3fed3j3uDcLZRADSBMeQOI1RZNQjxbueznnZ0>
+X-ME-Proxy: <xmx:LLKbYETvp7f5EOyk6L0GOCcN-ywIU2Fmf_-OFopRb7m4hF4LtW7IsQ>
+    <xmx:LLKbYBtkC-MyfKnwGTuJHRQhlgVPb74UBSdoGSTpgkzk8-1L0sr3iw>
+    <xmx:LLKbYNel8daik-DKZNC9YpI9Vb4t8NygybS4ibsj7YLZO8s0n8x7KA>
+    <xmx:LLKbYNG34q-0pqT0mVviHnymeJNbnJyQ_lrcjR2OfU4lIooS4oFPfK33mk0>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:46:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: Destroy I/O bus devices on unregister failure _after_" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com
+        Wed, 12 May 2021 06:47:07 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: Stop looking for coalesced MMIO zones if the bus is" failed to apply to 4.4-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com, sunhao.th@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 12:46:44 +0200
-Message-ID: <1620816404179206@kroah.com>
+Date:   Wed, 12 May 2021 12:47:06 +0200
+Message-ID: <1620816426105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,50 +70,129 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2ee3757424be7c1cd1d0bbfa6db29a7edd82a250 Mon Sep 17 00:00:00 2001
+From 5d3c4c79384af06e3c8e25b7770b6247496b4417 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Mon, 12 Apr 2021 15:20:48 -0700
-Subject: [PATCH] KVM: Destroy I/O bus devices on unregister failure _after_
- sync'ing SRCU
+Date: Mon, 12 Apr 2021 15:20:49 -0700
+Subject: [PATCH] KVM: Stop looking for coalesced MMIO zones if the bus is
+ destroyed
 
-If allocating a new instance of an I/O bus fails when unregistering a
-device, wait to destroy the device until after all readers are guaranteed
-to see the new null bus.  Destroying devices before the bus is nullified
-could lead to use-after-free since readers expect the devices on their
-reference of the bus to remain valid.
+Abort the walk of coalesced MMIO zones if kvm_io_bus_unregister_dev()
+fails to allocate memory for the new instance of the bus.  If it can't
+instantiate a new bus, unregister_dev() destroys all devices _except_ the
+target device.   But, it doesn't tell the caller that it obliterated the
+bus and invoked the destructor for all devices that were on the bus.  In
+the coalesced MMIO case, this can result in a deleted list entry
+dereference due to attempting to continue iterating on coalesced_zones
+after future entries (in the walk) have been deleted.
+
+Opportunistically add curly braces to the for-loop, which encompasses
+many lines but sneaks by without braces due to the guts being a single
+if statement.
 
 Fixes: f65886606c2d ("KVM: fix memory leak in kvm_io_bus_unregister_dev()")
 Cc: stable@vger.kernel.org
+Reported-by: Hao Sun <sunhao.th@gmail.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210412222050.876100-2-seanjc@google.com>
+Message-Id: <20210412222050.876100-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index d17e3ff1138d..82b066db37cb 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -192,8 +192,8 @@ int kvm_io_bus_read(struct kvm_vcpu *vcpu, enum kvm_bus bus_idx, gpa_t addr,
+ 		    int len, void *val);
+ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
+ 			    int len, struct kvm_io_device *dev);
+-void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+-			       struct kvm_io_device *dev);
++int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
++			      struct kvm_io_device *dev);
+ struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 					 gpa_t addr);
+ 
+diff --git a/virt/kvm/coalesced_mmio.c b/virt/kvm/coalesced_mmio.c
+index 62bd908ecd58..f08f5e82460b 100644
+--- a/virt/kvm/coalesced_mmio.c
++++ b/virt/kvm/coalesced_mmio.c
+@@ -174,21 +174,36 @@ int kvm_vm_ioctl_unregister_coalesced_mmio(struct kvm *kvm,
+ 					   struct kvm_coalesced_mmio_zone *zone)
+ {
+ 	struct kvm_coalesced_mmio_dev *dev, *tmp;
++	int r;
+ 
+ 	if (zone->pio != 1 && zone->pio != 0)
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&kvm->slots_lock);
+ 
+-	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list)
++	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list) {
+ 		if (zone->pio == dev->zone.pio &&
+ 		    coalesced_mmio_in_range(dev, zone->addr, zone->size)) {
+-			kvm_io_bus_unregister_dev(kvm,
++			r = kvm_io_bus_unregister_dev(kvm,
+ 				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
+ 			kvm_iodevice_destructor(&dev->dev);
++
++			/*
++			 * On failure, unregister destroys all devices on the
++			 * bus _except_ the target device, i.e. coalesced_zones
++			 * has been modified.  No need to restart the walk as
++			 * there aren't any zones left.
++			 */
++			if (r)
++				break;
+ 		}
++	}
+ 
+ 	mutex_unlock(&kvm->slots_lock);
+ 
++	/*
++	 * Ignore the result of kvm_io_bus_unregister_dev(), from userspace's
++	 * perspective, the coalesced MMIO is most definitely unregistered.
++	 */
+ 	return 0;
+ }
 diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 529cff1050d7..c771d40737c9 100644
+index c771d40737c9..f84b126c32d6 100644
 --- a/virt/kvm/kvm_main.c
 +++ b/virt/kvm/kvm_main.c
-@@ -4646,7 +4646,13 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 		new_bus->dev_count--;
- 		memcpy(new_bus->range + i, bus->range + i + 1,
- 				flex_array_size(new_bus, range, new_bus->dev_count - i));
--	} else {
-+	}
-+
-+	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
-+	synchronize_srcu_expedited(&kvm->srcu);
-+
-+	/* Destroy the old bus _after_ installing the (null) bus. */
-+	if (!new_bus) {
- 		pr_err("kvm: failed to shrink bus, removing it completely\n");
- 		for (j = 0; j < bus->dev_count; j++) {
- 			if (j == i)
-@@ -4655,8 +4661,6 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+@@ -4621,15 +4621,15 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
+ }
+ 
+ /* Caller must hold slots_lock. */
+-void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+-			       struct kvm_io_device *dev)
++int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
++			      struct kvm_io_device *dev)
+ {
+ 	int i, j;
+ 	struct kvm_io_bus *new_bus, *bus;
+ 
+ 	bus = kvm_get_bus(kvm, bus_idx);
+ 	if (!bus)
+-		return;
++		return 0;
+ 
+ 	for (i = 0; i < bus->dev_count; i++)
+ 		if (bus->range[i].dev == dev) {
+@@ -4637,7 +4637,7 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
  		}
+ 
+ 	if (i == bus->dev_count)
+-		return;
++		return 0;
+ 
+ 	new_bus = kmalloc(struct_size(bus, range, bus->dev_count - 1),
+ 			  GFP_KERNEL_ACCOUNT);
+@@ -4662,7 +4662,7 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
  	}
  
--	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
--	synchronize_srcu_expedited(&kvm->srcu);
  	kfree(bus);
- 	return;
+-	return;
++	return new_bus ? 0 : -ENOMEM;
  }
+ 
+ struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
 
