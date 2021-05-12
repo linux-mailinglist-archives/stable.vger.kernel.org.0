@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09FD737C98C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A733337C979
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236020AbhELQTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:19:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36524 "EHLO mail.kernel.org"
+        id S235111AbhELQTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:19:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239658AbhELQKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:10:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9340461D40;
-        Wed, 12 May 2021 15:40:34 +0000 (UTC)
+        id S239661AbhELQKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:10:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04D6B61C73;
+        Wed, 12 May 2021 15:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834035;
-        bh=RphhkZ9oDAtRcHyMR1uVaSpG53na3F5YABD2HPjtDiY=;
+        s=korg; t=1620834037;
+        bh=gHliNVVaIsD5pFgsFAKujYOVmUdZfxy9Cj+gveNlQd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hb3W3ODsiWFUDsM5cFEsdE9fLxXF8Tme/pHWbh/JLai6GMzOvinSjFCf/sRKyy0Dq
-         mpbkKP4LBffnuetMOn1tkyGgO6uc1qdyKAefXqGDerJWRGYmYtBcJA4L2EWWpO7xNa
-         57zYB39kFQgI3CXWWcbqHXGhs/eJZ3RTYF/gWLSU=
+        b=Um9GXlLD7nVS0dLBaxLNb5HUnpEJ42po1wVJUiGT+J1IHk5IKT9Cp6kOuhquj6bN4
+         9GxpHQ/h7IPMbQWug4Sk4LH5Ak1igNUn8r9fpAl/QApLCxLei8pzl1tYL1kLwk1H57
+         SrVg0JkaA4ZyUavo7mJ9r8cMnIk8qnwoSa9YUR1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 384/601] sched/debug: Fix cgroup_path[] serialization
-Date:   Wed, 12 May 2021 16:47:41 +0200
-Message-Id: <20210512144840.441475468@linuxfoundation.org>
+Subject: [PATCH 5.11 385/601] kthread: Fix PF_KTHREAD vs to_kthread() race
+Date:   Wed, 12 May 2021 16:47:42 +0200
+Message-Id: <20210512144840.475138731@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,156 +41,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit ad789f84c9a145f8a18744c0387cec22ec51651e ]
+[ Upstream commit 3a7956e25e1d7b3c148569e78895e1f3178122a9 ]
 
-The handling of sysrq key can be activated by echoing the key to
-/proc/sysrq-trigger or via the magic key sequence typed into a terminal
-that is connected to the system in some way (serial, USB or other mean).
-In the former case, the handling is done in a user context. In the
-latter case, it is likely to be in an interrupt context.
+The kthread_is_per_cpu() construct relies on only being called on
+PF_KTHREAD tasks (per the WARN in to_kthread). This gives rise to the
+following usage pattern:
 
-Currently in print_cpu() of kernel/sched/debug.c, sched_debug_lock is
-taken with interrupt disabled for the whole duration of the calls to
-print_*_stats() and print_rq() which could last for the quite some time
-if the information dump happens on the serial console.
+	if ((p->flags & PF_KTHREAD) && kthread_is_per_cpu(p))
 
-If the system has many cpus and the sched_debug_lock is somehow busy
-(e.g. parallel sysrq-t), the system may hit a hard lockup panic
-depending on the actually serial console implementation of the
-system.
+However, as reported by syzcaller, this is broken. The scenario is:
 
-The purpose of sched_debug_lock is to serialize the use of the global
-cgroup_path[] buffer in print_cpu(). The rests of the printk calls don't
-need serialization from sched_debug_lock.
+	CPU0				CPU1 (running p)
 
-Calling printk() with interrupt disabled can still be problematic if
-multiple instances are running. Allocating a stack buffer of PATH_MAX
-bytes is not feasible because of the limited size of the kernel stack.
+	(p->flags & PF_KTHREAD) // true
 
-The solution implemented in this patch is to allow only one caller at a
-time to use the full size group_path[], while other simultaneous callers
-will have to use shorter stack buffers with the possibility of path
-name truncation. A "..." suffix will be printed if truncation may have
-happened.  The cgroup path name is provided for informational purpose
-only, so occasional path name truncation should not be a big problem.
+					begin_new_exec()
+					  me->flags &= ~(PF_KTHREAD|...);
+	kthread_is_per_cpu(p)
+	  to_kthread(p)
+	    WARN(!(p->flags & PF_KTHREAD) <-- *SPLAT*
 
-Fixes: efe25c2c7b3a ("sched: Reinstate group names in /proc/sched_debug")
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Waiman Long <longman@redhat.com>
+Introduce __to_kthread() that omits the WARN and is sure to check both
+values.
+
+Use this to remove the problematic pattern for kthread_is_per_cpu()
+and fix a number of other kthread_*() functions that have similar
+issues but are currently not used in ways that would expose the
+problem.
+
+Notably kthread_func() is only ever called on 'current', while
+kthread_probe_data() is only used for PF_WQ_WORKER, which implies the
+task is from kthread_create*().
+
+Fixes: ac687e6e8c26 ("kthread: Extract KTHREAD_IS_PER_CPU")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210415195426.6677-1-longman@redhat.com
+Reviewed-by: Valentin Schneider <Valentin.Schneider@arm.com>
+Link: https://lkml.kernel.org/r/YH6WJc825C4P0FCK@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/debug.c | 42 +++++++++++++++++++++++++++++-------------
- 1 file changed, 29 insertions(+), 13 deletions(-)
+ kernel/kthread.c    | 33 +++++++++++++++++++++++++++------
+ kernel/sched/core.c |  2 +-
+ kernel/sched/fair.c |  2 +-
+ 3 files changed, 29 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
-index 2357921580f9..6264584b51c2 100644
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -8,8 +8,6 @@
-  */
- #include "sched.h"
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index 1578973c5740..6d3c488a0f82 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -84,6 +84,25 @@ static inline struct kthread *to_kthread(struct task_struct *k)
+ 	return (__force void *)k->set_child_tid;
+ }
  
--static DEFINE_SPINLOCK(sched_debug_lock);
--
- /*
-  * This allows printing both to /proc/sched_debug and
-  * to the console
-@@ -470,16 +468,37 @@ static void print_cfs_group_stats(struct seq_file *m, int cpu, struct task_group
- #endif
- 
- #ifdef CONFIG_CGROUP_SCHED
-+static DEFINE_SPINLOCK(sched_debug_lock);
- static char group_path[PATH_MAX];
- 
--static char *task_group_path(struct task_group *tg)
-+static void task_group_path(struct task_group *tg, char *path, int plen)
- {
--	if (autogroup_path(tg, group_path, PATH_MAX))
--		return group_path;
-+	if (autogroup_path(tg, path, plen))
-+		return;
- 
--	cgroup_path(tg->css.cgroup, group_path, PATH_MAX);
-+	cgroup_path(tg->css.cgroup, path, plen);
-+}
- 
--	return group_path;
 +/*
-+ * Only 1 SEQ_printf_task_group_path() caller can use the full length
-+ * group_path[] for cgroup path. Other simultaneous callers will have
-+ * to use a shorter stack buffer. A "..." suffix is appended at the end
-+ * of the stack buffer so that it will show up in case the output length
-+ * matches the given buffer size to indicate possible path name truncation.
++ * Variant of to_kthread() that doesn't assume @p is a kthread.
++ *
++ * Per construction; when:
++ *
++ *   (p->flags & PF_KTHREAD) && p->set_child_tid
++ *
++ * the task is both a kthread and struct kthread is persistent. However
++ * PF_KTHREAD on it's own is not, kernel_thread() can exec() (See umh.c and
++ * begin_new_exec()).
 + */
-+#define SEQ_printf_task_group_path(m, tg, fmt...)			\
-+{									\
-+	if (spin_trylock(&sched_debug_lock)) {				\
-+		task_group_path(tg, group_path, sizeof(group_path));	\
-+		SEQ_printf(m, fmt, group_path);				\
-+		spin_unlock(&sched_debug_lock);				\
-+	} else {							\
-+		char buf[128];						\
-+		char *bufend = buf + sizeof(buf) - 3;			\
-+		task_group_path(tg, buf, bufend - buf);			\
-+		strcpy(bufend - 1, "...");				\
-+		SEQ_printf(m, fmt, buf);				\
-+	}								\
++static inline struct kthread *__to_kthread(struct task_struct *p)
++{
++	void *kthread = (__force void *)p->set_child_tid;
++	if (kthread && !(p->flags & PF_KTHREAD))
++		kthread = NULL;
++	return kthread;
++}
++
+ void free_kthread_struct(struct task_struct *k)
+ {
+ 	struct kthread *kthread;
+@@ -168,8 +187,9 @@ EXPORT_SYMBOL_GPL(kthread_freezable_should_stop);
+  */
+ void *kthread_func(struct task_struct *task)
+ {
+-	if (task->flags & PF_KTHREAD)
+-		return to_kthread(task)->threadfn;
++	struct kthread *kthread = __to_kthread(task);
++	if (kthread)
++		return kthread->threadfn;
+ 	return NULL;
  }
- #endif
- 
-@@ -506,7 +525,7 @@ print_task(struct seq_file *m, struct rq *rq, struct task_struct *p)
- 	SEQ_printf(m, " %d %d", task_node(p), task_numa_group_id(p));
- #endif
- #ifdef CONFIG_CGROUP_SCHED
--	SEQ_printf(m, " %s", task_group_path(task_group(p)));
-+	SEQ_printf_task_group_path(m, task_group(p), " %s")
- #endif
- 
- 	SEQ_printf(m, "\n");
-@@ -543,7 +562,7 @@ void print_cfs_rq(struct seq_file *m, int cpu, struct cfs_rq *cfs_rq)
- 
- #ifdef CONFIG_FAIR_GROUP_SCHED
- 	SEQ_printf(m, "\n");
--	SEQ_printf(m, "cfs_rq[%d]:%s\n", cpu, task_group_path(cfs_rq->tg));
-+	SEQ_printf_task_group_path(m, cfs_rq->tg, "cfs_rq[%d]:%s\n", cpu);
- #else
- 	SEQ_printf(m, "\n");
- 	SEQ_printf(m, "cfs_rq[%d]:\n", cpu);
-@@ -614,7 +633,7 @@ void print_rt_rq(struct seq_file *m, int cpu, struct rt_rq *rt_rq)
+ EXPORT_SYMBOL_GPL(kthread_func);
+@@ -199,10 +219,11 @@ EXPORT_SYMBOL_GPL(kthread_data);
+  */
+ void *kthread_probe_data(struct task_struct *task)
  {
- #ifdef CONFIG_RT_GROUP_SCHED
- 	SEQ_printf(m, "\n");
--	SEQ_printf(m, "rt_rq[%d]:%s\n", cpu, task_group_path(rt_rq->tg));
-+	SEQ_printf_task_group_path(m, rt_rq->tg, "rt_rq[%d]:%s\n", cpu);
- #else
- 	SEQ_printf(m, "\n");
- 	SEQ_printf(m, "rt_rq[%d]:\n", cpu);
-@@ -666,7 +685,6 @@ void print_dl_rq(struct seq_file *m, int cpu, struct dl_rq *dl_rq)
- static void print_cpu(struct seq_file *m, int cpu)
- {
- 	struct rq *rq = cpu_rq(cpu);
--	unsigned long flags;
+-	struct kthread *kthread = to_kthread(task);
++	struct kthread *kthread = __to_kthread(task);
+ 	void *data = NULL;
  
- #ifdef CONFIG_X86
- 	{
-@@ -717,13 +735,11 @@ do {									\
- 	}
- #undef P
- 
--	spin_lock_irqsave(&sched_debug_lock, flags);
- 	print_cfs_stats(m, cpu);
- 	print_rt_stats(m, cpu);
- 	print_dl_stats(m, cpu);
- 
- 	print_rq(m, rq, cpu);
--	spin_unlock_irqrestore(&sched_debug_lock, flags);
- 	SEQ_printf(m, "\n");
+-	copy_from_kernel_nofault(&data, &kthread->data, sizeof(data));
++	if (kthread)
++		copy_from_kernel_nofault(&data, &kthread->data, sizeof(data));
+ 	return data;
  }
  
+@@ -514,9 +535,9 @@ void kthread_set_per_cpu(struct task_struct *k, int cpu)
+ 	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
+ }
+ 
+-bool kthread_is_per_cpu(struct task_struct *k)
++bool kthread_is_per_cpu(struct task_struct *p)
+ {
+-	struct kthread *kthread = to_kthread(k);
++	struct kthread *kthread = __to_kthread(p);
+ 	if (!kthread)
+ 		return false;
+ 
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index f0056507a373..c5fcb5ce2194 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -7290,7 +7290,7 @@ static void balance_push(struct rq *rq)
+ 	 * histerical raisins.
+ 	 */
+ 	if (rq->idle == push_task ||
+-	    ((push_task->flags & PF_KTHREAD) && kthread_is_per_cpu(push_task)) ||
++	    kthread_is_per_cpu(push_task) ||
+ 	    is_migration_disabled(push_task)) {
+ 
+ 		/*
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index d9182af98988..f217e5251fb2 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7588,7 +7588,7 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
+ 		return 0;
+ 
+ 	/* Disregard pcpu kthreads; they are where they need to be. */
+-	if ((p->flags & PF_KTHREAD) && kthread_is_per_cpu(p))
++	if (kthread_is_per_cpu(p))
+ 		return 0;
+ 
+ 	if (!cpumask_test_cpu(env->dst_cpu, p->cpus_ptr)) {
 -- 
 2.30.2
 
