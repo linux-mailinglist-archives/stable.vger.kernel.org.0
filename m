@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B67637CAEB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD99137CB21
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234964AbhELQcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:32:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42392 "EHLO mail.kernel.org"
+        id S242400AbhELQeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:34:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241262AbhELQ06 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:26:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5C9A6141C;
-        Wed, 12 May 2021 15:50:58 +0000 (UTC)
+        id S241461AbhELQ1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ED5F61DD9;
+        Wed, 12 May 2021 15:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834659;
-        bh=Rd7/jkZaQPeU3MGkbzUL4jwXVTMMUEuAqfKekpuH5Is=;
+        s=korg; t=1620834770;
+        bh=T5rSBJd4plAcNx/h6/w8lHfaDh9/GyQPgP4Zl6nEL+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QetejcZkIcaiGwaCs8t6CA265az4hHX2npgQUporeEFZU78nLtLIazIYMCNYdE2LH
-         2o/7GyySo4OhryV5E+YINB3LxqpnRbbmqFOa3RwUYeuwD7ET3NlEAIR+Nkf6IihEkn
-         QF7S3IzK+mAWQWRHBiTwS4i+vqBs1j2J25EthF+Q=
+        b=Z+N0dS9VPWxpx5Nv9Vfnstbj2M8ufvo3+GwhneF4xjb5+E1he8XMlhvgaqHnKp0zN
+         no8T793tXEyy/+nfpXBWG2PLvKdVvKim9QxJK/OcQYnSoQyCQ85PE17mk/u4mHi+1t
+         tCwQhxtBUnxRX6f/ukZ3Van7PBuUnPSaUAH7aALM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Tobias Wolf <dev-NTEO@vplace.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.12 031/677] MIPS: pci-rt2880: fix slot 0 configuration
-Date:   Wed, 12 May 2021 16:41:17 +0200
-Message-Id: <20210512144838.256076325@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 032/677] FDDI: defxx: Bail out gracefully with unassigned PCI resource for CSR
+Date:   Wed, 12 May 2021 16:41:18 +0200
+Message-Id: <20210512144838.288002042@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,104 +39,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 8e98b697006d749d745d3b174168a877bb96c500 upstream.
+commit f626ca682912fab55dff15469ce893ae16b65c7e upstream.
 
-pci_fixup_irqs() used to call pcibios_map_irq on every PCI device, which
-for RT2880 included bus 0 slot 0. After pci_fixup_irqs() got removed,
-only slots/funcs with devices attached would be called. While arguably
-the right thing, that left no chance for this driver to ever initialize
-slot 0, effectively bricking PCI and USB on RT2880 devices such as the
-Belkin F5D8235-4 v1.
+Recent versions of the PCI Express specification have deprecated support
+for I/O transactions and actually some PCIe host bridges, such as Power
+Systems Host Bridge 4 (PHB4), do not implement them.
 
-Slot 0 configuration needs to happen after PCI bus enumeration, but
-before any device at slot 0x11 (func 0 or 1) is talked to. That was
-determined empirically by testing on a Belkin F5D8235-4 v1 device. A
-minimal BAR 0 config write followed by read, then setting slot 0
-PCI_COMMAND to MASTER | IO | MEMORY is all that seems to be required for
-proper functionality.
+For those systems the PCI BARs that request a mapping in the I/O space
+have the length recorded in the corresponding PCI resource set to zero,
+which makes it unassigned:
 
-Tested by ensuring that full- and high-speed USB devices get enumerated
-on the Belkin F5D8235-4 v1 (with an out of tree DTS file from OpenWrt).
+# lspci -s 0031:02:04.0 -v
+0031:02:04.0 FDDI network controller: Digital Equipment Corporation PCI-to-PDQ Interface Chip [PFI] FDDI (DEFPA) (rev 02)
+	Subsystem: Digital Equipment Corporation FDDIcontroller/PCI (DEFPA)
+	Flags: bus master, medium devsel, latency 136, IRQ 57, NUMA node 8
+	Memory at 620c080020000 (32-bit, non-prefetchable) [size=128]
+	I/O ports at <unassigned> [disabled]
+	Memory at 620c080030000 (32-bit, non-prefetchable) [size=64K]
+	Capabilities: [50] Power Management version 2
+	Kernel driver in use: defxx
+	Kernel modules: defxx
 
-Fixes: 04c81c7293df ("MIPS: PCI: Replace pci_fixup_irqs() call with host bridge IRQ mapping hooks")
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Tobias Wolf <dev-NTEO@vplace.de>
-Cc: <stable@vger.kernel.org> # v4.14+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+#
+
+Regardless the driver goes ahead and requests it (here observed with a
+Raptor Talos II POWER9 system), resulting in an odd /proc/ioport entry:
+
+# cat /proc/ioports
+00000000-ffffffffffffffff : 0031:02:04.0
+#
+
+Furthermore, the system gets confused as the driver actually continues
+and pokes at those locations, causing a flood of messages being output
+to the system console by the underlying system firmware, like:
+
+defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
+defxx 0031:02:04.0: enabling device (0140 -> 0142)
+LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010000
+IPMI: dropping non severe PEL event
+LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010014
+IPMI: dropping non severe PEL event
+LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010014
+IPMI: dropping non severe PEL event
+
+and so on and so on (possibly intermixed actually, as there's no locking
+between the kernel and the firmware in console port access with this
+particular system, but cleaned up above for clarity), and once some 10k
+of such pairs of the latter two messages have been produced an interace
+eventually shows up in a useless state:
+
+0031:02:04.0: DEFPA at I/O addr = 0x0, IRQ = 57, Hardware addr = 00-00-00-00-00-00
+
+This was not expected to happen as resource handling was added to the
+driver a while ago, because it was not known at that time that a PCI
+system would be possible that cannot assign port I/O resources, and
+oddly enough `request_region' does not fail, which would have caught it.
+
+Correct the problem then by checking for the length of zero for the CSR
+resource and bail out gracefully refusing to register an interface if
+that turns out to be the case, producing messages like:
+
+defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
+0031:02:04.0: Cannot use I/O, no address set, aborting
+0031:02:04.0: Recompile driver with "CONFIG_DEFXX_MMIO=y"
+
+Keep the original check for the EISA MMIO resource as implemented,
+because in that case the length is hardwired to 0x400 as a consequence
+of how the compare/mask address decoding works in the ESIC chip and it
+is only the base address that is set to zero if MMIO has been disabled
+for the adapter in EISA configuration, which in turn could be a valid
+bus address in a legacy-free system implementing PCI, especially for
+port I/O.
+
+Where the EISA MMIO resource has been disabled for the adapter in EISA
+configuration this arrangement keeps producing messages like:
+
+eisa 00:05: EISA: slot 5: DEC3002 detected
+defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
+00:05: Cannot use MMIO, no address set, aborting
+00:05: Recompile driver with "CONFIG_DEFXX_MMIO=n"
+00:05: Or run ECU and set adapter's MMIO location
+
+with the last two lines now swapped for easier handling in the driver.
+
+There is no need to check for and catch the case of a port I/O resource
+not having been assigned for EISA as the adapter uses the slot-specific
+I/O space, which gets assigned by how EISA has been specified and maps
+directly to the particular slot an option card has been placed in.  And
+the EISA variant of the adapter has additional registers that are only
+accessible via the port I/O space anyway.
+
+While at it factor out the error message calls into helpers and fix an
+argument order bug with the `pr_err' call now in `dfx_register_res_err'.
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 4d0438e56a8f ("defxx: Clean up DEFEA resource management")
+Cc: stable@vger.kernel.org # v3.19+
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/pci/pci-rt2880.c |   37 ++++++++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 13 deletions(-)
+ drivers/net/fddi/defxx.c |   47 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 30 insertions(+), 17 deletions(-)
 
---- a/arch/mips/pci/pci-rt2880.c
-+++ b/arch/mips/pci/pci-rt2880.c
-@@ -180,7 +180,6 @@ static inline void rt2880_pci_write_u32(
+--- a/drivers/net/fddi/defxx.c
++++ b/drivers/net/fddi/defxx.c
+@@ -495,6 +495,25 @@ static const struct net_device_ops dfx_n
+ 	.ndo_set_mac_address	= dfx_ctl_set_mac_address,
+ };
  
- int pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- {
--	u16 cmd;
- 	int irq = -1;
++static void dfx_register_res_alloc_err(const char *print_name, bool mmio,
++				       bool eisa)
++{
++	pr_err("%s: Cannot use %s, no address set, aborting\n",
++	       print_name, mmio ? "MMIO" : "I/O");
++	pr_err("%s: Recompile driver with \"CONFIG_DEFXX_MMIO=%c\"\n",
++	       print_name, mmio ? 'n' : 'y');
++	if (eisa && mmio)
++		pr_err("%s: Or run ECU and set adapter's MMIO location\n",
++		       print_name);
++}
++
++static void dfx_register_res_err(const char *print_name, bool mmio,
++				 unsigned long start, unsigned long len)
++{
++	pr_err("%s: Cannot reserve %s resource 0x%lx @ 0x%lx, aborting\n",
++	       print_name, mmio ? "MMIO" : "I/O", len, start);
++}
++
+ /*
+  * ================
+  * = dfx_register =
+@@ -568,15 +587,12 @@ static int dfx_register(struct device *b
+ 	dev_set_drvdata(bdev, dev);
  
- 	if (dev->bus->number != 0)
-@@ -188,8 +187,6 @@ int pcibios_map_irq(const struct pci_dev
- 
- 	switch (PCI_SLOT(dev->devfn)) {
- 	case 0x00:
--		rt2880_pci_write_u32(PCI_BASE_ADDRESS_0, 0x08000000);
--		(void) rt2880_pci_read_u32(PCI_BASE_ADDRESS_0);
- 		break;
- 	case 0x11:
- 		irq = RT288X_CPU_IRQ_PCI;
-@@ -201,16 +198,6 @@ int pcibios_map_irq(const struct pci_dev
- 		break;
+ 	dfx_get_bars(bdev, bar_start, bar_len);
+-	if (dfx_bus_eisa && dfx_use_mmio && bar_start[0] == 0) {
+-		pr_err("%s: Cannot use MMIO, no address set, aborting\n",
+-		       print_name);
+-		pr_err("%s: Run ECU and set adapter's MMIO location\n",
+-		       print_name);
+-		pr_err("%s: Or recompile driver with \"CONFIG_DEFXX_MMIO=n\""
+-		       "\n", print_name);
++	if (bar_len[0] == 0 ||
++	    (dfx_bus_eisa && dfx_use_mmio && bar_start[0] == 0)) {
++		dfx_register_res_alloc_err(print_name, dfx_use_mmio,
++					   dfx_bus_eisa);
+ 		err = -ENXIO;
+-		goto err_out;
++		goto err_out_disable;
  	}
  
--	pci_write_config_byte((struct pci_dev *) dev,
--		PCI_CACHE_LINE_SIZE, 0x14);
--	pci_write_config_byte((struct pci_dev *) dev, PCI_LATENCY_TIMER, 0xFF);
--	pci_read_config_word((struct pci_dev *) dev, PCI_COMMAND, &cmd);
--	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
--		PCI_COMMAND_INVALIDATE | PCI_COMMAND_FAST_BACK |
--		PCI_COMMAND_SERR | PCI_COMMAND_WAIT | PCI_COMMAND_PARITY;
--	pci_write_config_word((struct pci_dev *) dev, PCI_COMMAND, cmd);
--	pci_write_config_byte((struct pci_dev *) dev, PCI_INTERRUPT_LINE,
--			      dev->irq);
- 	return irq;
- }
- 
-@@ -251,6 +238,30 @@ static int rt288x_pci_probe(struct platf
- 
- int pcibios_plat_dev_init(struct pci_dev *dev)
- {
-+	static bool slot0_init;
-+
-+	/*
-+	 * Nobody seems to initialize slot 0, but this platform requires it, so
-+	 * do it once when some other slot is being enabled. The PCI subsystem
-+	 * should configure other slots properly, so no need to do anything
-+	 * special for those.
-+	 */
-+	if (!slot0_init && dev->bus->number == 0) {
-+		u16 cmd;
-+		u32 bar0;
-+
-+		slot0_init = true;
-+
-+		pci_bus_write_config_dword(dev->bus, 0, PCI_BASE_ADDRESS_0,
-+					   0x08000000);
-+		pci_bus_read_config_dword(dev->bus, 0, PCI_BASE_ADDRESS_0,
-+					  &bar0);
-+
-+		pci_bus_read_config_word(dev->bus, 0, PCI_COMMAND, &cmd);
-+		cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_IO | PCI_COMMAND_MEMORY;
-+		pci_bus_write_config_word(dev->bus, 0, PCI_COMMAND, cmd);
-+	}
-+
- 	return 0;
- }
- 
+ 	if (dfx_use_mmio)
+@@ -585,18 +601,16 @@ static int dfx_register(struct device *b
+ 	else
+ 		region = request_region(bar_start[0], bar_len[0], print_name);
+ 	if (!region) {
+-		pr_err("%s: Cannot reserve %s resource 0x%lx @ 0x%lx, "
+-		       "aborting\n", dfx_use_mmio ? "MMIO" : "I/O", print_name,
+-		       (long)bar_len[0], (long)bar_start[0]);
++		dfx_register_res_err(print_name, dfx_use_mmio,
++				     bar_start[0], bar_len[0]);
+ 		err = -EBUSY;
+ 		goto err_out_disable;
+ 	}
+ 	if (bar_start[1] != 0) {
+ 		region = request_region(bar_start[1], bar_len[1], print_name);
+ 		if (!region) {
+-			pr_err("%s: Cannot reserve I/O resource "
+-			       "0x%lx @ 0x%lx, aborting\n", print_name,
+-			       (long)bar_len[1], (long)bar_start[1]);
++			dfx_register_res_err(print_name, 0,
++					     bar_start[1], bar_len[1]);
+ 			err = -EBUSY;
+ 			goto err_out_csr_region;
+ 		}
+@@ -604,9 +618,8 @@ static int dfx_register(struct device *b
+ 	if (bar_start[2] != 0) {
+ 		region = request_region(bar_start[2], bar_len[2], print_name);
+ 		if (!region) {
+-			pr_err("%s: Cannot reserve I/O resource "
+-			       "0x%lx @ 0x%lx, aborting\n", print_name,
+-			       (long)bar_len[2], (long)bar_start[2]);
++			dfx_register_res_err(print_name, 0,
++					     bar_start[2], bar_len[2]);
+ 			err = -EBUSY;
+ 			goto err_out_bh_region;
+ 		}
 
 
