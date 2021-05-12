@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B95C37C4A3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6DF37C4AD
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234254AbhELPcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39912 "EHLO mail.kernel.org"
+        id S233736AbhELPcl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:32:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235541AbhELP21 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:28:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8D561C21;
-        Wed, 12 May 2021 15:13:42 +0000 (UTC)
+        id S235599AbhELP2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:28:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24F1761C29;
+        Wed, 12 May 2021 15:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832422;
-        bh=FCyMtEtepY+BScjx75cdRn2xsF4wszsybo1Y6hvIoyM=;
+        s=korg; t=1620832449;
+        bh=7XwtRKaT9fbjGtJQVoWtOUiOvNV40pTl1acFZTm8aQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PITcFGSuLo6RjDensbOXwz9HGpiQcBhYTi2neMW6REeXnUVWw/NuFFTw5Sy6REjYf
-         QKvaB04GXbKmX07czczS/yxonRrjY1Bp/rnxCkJS/eRqJy9o+S5CRk+mVHdxHWiA6t
-         6Lk2R9AOdDm6dB/dFlJg+jeCHwFETT57r+a/Ksrw=
+        b=iBVmYKfONLMS93rzpehaSOKVKHAWJ5xgFi89EmFkPyGX0xVC83t567quPC97wz7Nq
+         clHZE+BDCVAKQMp2r9QriTCCBW2VX0Nq1o3IFG/vxLI0l+IaA5Q8GUc84eG3jQ4tTt
+         aOv/VsCkqwQkZgVIgnvo781fnVzP3WTLvAWMKFwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 256/530] memory: renesas-rpc-if: fix possible NULL pointer dereference of resource
-Date:   Wed, 12 May 2021 16:46:06 +0200
-Message-Id: <20210512144828.248550075@linuxfoundation.org>
+Subject: [PATCH 5.10 257/530] memory: samsung: exynos5422-dmc: handle clk_set_parent() failure
+Date:   Wed, 12 May 2021 16:46:07 +0200
+Message-Id: <20210512144828.280053266@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,37 +43,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 59e27d7c94aa02da039b000d33c304c179395801 ]
+[ Upstream commit 132c17c3ff878c7beaba51bdd275d5cc654c0e33 ]
 
-The platform_get_resource_byname() can return NULL which would be
-immediately dereferenced by resource_size().  Instead dereference it
-after validating the resource.
+clk_set_parent() can fail and ignoring such case could lead to invalid
+clock setup for given frequency.
 
-Addresses-Coverity: Dereference null return value
-Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
+Addresses-Coverity: Unchecked return value
+Fixes: 6e7674c3c6df ("memory: Add DMC driver for Exynos5422")
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210407154357.70200-1-krzysztof.kozlowski@canonical.com
+Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+Link: https://lore.kernel.org/r/20210407154535.70756-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/renesas-rpc-if.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/memory/samsung/exynos5422-dmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
-index da0fdb4c7595..1fe6c35b7503 100644
---- a/drivers/memory/renesas-rpc-if.c
-+++ b/drivers/memory/renesas-rpc-if.c
-@@ -193,10 +193,10 @@ int rpcif_sw_init(struct rpcif *rpc, struct device *dev)
- 	}
+diff --git a/drivers/memory/samsung/exynos5422-dmc.c b/drivers/memory/samsung/exynos5422-dmc.c
+index c5ee4121a4d2..3d230f07eaf2 100644
+--- a/drivers/memory/samsung/exynos5422-dmc.c
++++ b/drivers/memory/samsung/exynos5422-dmc.c
+@@ -1298,7 +1298,9 @@ static int exynos5_dmc_init_clks(struct exynos5_dmc *dmc)
  
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dirmap");
--	rpc->size = resource_size(res);
- 	rpc->dirmap = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(rpc->dirmap))
- 		rpc->dirmap = NULL;
-+	rpc->size = resource_size(res);
+ 	dmc->curr_volt = target_volt;
  
- 	rpc->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+-	clk_set_parent(dmc->mout_mx_mspll_ccore, dmc->mout_spll);
++	ret = clk_set_parent(dmc->mout_mx_mspll_ccore, dmc->mout_spll);
++	if (ret)
++		return ret;
  
+ 	clk_prepare_enable(dmc->fout_bpll);
+ 	clk_prepare_enable(dmc->mout_bpll);
 -- 
 2.30.2
 
