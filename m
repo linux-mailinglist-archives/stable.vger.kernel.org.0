@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9FE537CD17
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:08:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1652337CCE0
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230479AbhELQxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:53:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
+        id S232520AbhELQtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243678AbhELQly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:41:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF71D6199F;
-        Wed, 12 May 2021 16:05:57 +0000 (UTC)
+        id S243679AbhELQlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:41:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45E3861988;
+        Wed, 12 May 2021 16:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835558;
-        bh=9HinY/uZkUmhyMFm2nkBUtRa5FEUa1gHGiefwamc3sY=;
+        s=korg; t=1620835560;
+        bh=FVMq1pTkT+dnmmgLLDfs001UsFYhNHxG6iZWLJBN9Yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4pvQyBFq7prfK8cGeXgcqg0gDMX6hQbffBAnjYNAUgw7FuZhh0J4Gqbu1stiB7Dp
-         oH1iB0Rw7Zk905qPR2DnDODN3QaqVJiD6tyUEAKb3haMp1YZChSnjNJW702hwfFyjz
-         rNJMAe+vLTmI0Gh28mAWw6uLV2+CgAJWgfrN7WTw=
+        b=PY9KxynN1RLIkvAqwg/l6hhKvtmUSIK8SfmHcXuAkQwq8mkmMxG78n8Cp6IGXZYjN
+         4uSij0SskpevR7tylTIV9Ry/Mz5ifcUSMZWPDmndLg1pzEp4gkw1hCF9+tEvPS3jMA
+         rB7fFH3azD7Od4XC+NHmJBF94zRcdZ62nancAfkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        John Cox <jc@kynesim.co.uk>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 392/677] media: i2c: imx219: Balance runtime PM use-count
-Date:   Wed, 12 May 2021 16:47:18 +0200
-Message-Id: <20210512144850.355446959@linuxfoundation.org>
+Subject: [PATCH 5.12 393/677] media: v4l2-ctrls.c: fix race condition in hdl->requests list
+Date:   Wed, 12 May 2021 16:47:19 +0200
+Message-Id: <20210512144850.387298157@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,132 +41,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit dd90caa0111e178b52b21e56364bc2244a3973b3 ]
+[ Upstream commit be7e8af98f3af729aa9f08b1053f9533a5cceb91 ]
 
-Move incrementing/decrementing runtime PM count to
-imx219_start_streaming()/imx219_stop_streaming() functions respectively.
+When a request is re-inited it will release all control handler
+objects that are still in the request. It does that by unbinding
+and putting all those objects. When the object is unbound the
+obj->req pointer is set to NULL, and the object's unbind op is
+called. When the object it put the object's release op is called
+to free the memory.
 
-This fixes an issue of unbalanced runtime PM count in resume callback
-error path where streaming is stopped and runtime PM count is left
-unbalanced.
+For a request object that contains a control handler that means
+that v4l2_ctrl_handler_free() is called in the release op.
 
-Fixes: 1283b3b8f82b9 ("media: i2c: Add driver for Sony IMX219 sensor")
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+A control handler used in a request has a pointer to the main
+control handler that is created by the driver and contains the
+current state of all controls. If the device is unbound (due to
+rmmod or a forced unbind), then that main handler is freed, again
+by calling v4l2_ctrl_handler_free(), and any outstanding request
+objects that refer to that main handler have to be unbound and put
+as well.
+
+It does that by this test:
+
+	if (!hdl->req_obj.req && !list_empty(&hdl->requests)) {
+
+I.e. the handler has no pointer to a request, so is the main
+handler, and one or more request objects refer to this main
+handler.
+
+However, this test is wrong since hdl->req_obj.req is actually
+NULL when re-initing a request (the object unbind will set req to
+NULL), and the only reason this seemingly worked is that the
+requests list is typically empty since the request's unbind op
+will remove the handler from the requests list.
+
+But if another thread is at the same time adding a new control
+to a request, then there is a race condition where one thread
+is removing a control handler object from the requests list and
+another thread is adding one. The result is that hdl->requests
+is no longer empty and the code thinks that a main handler is
+being freed instead of a control handler that is part of a request.
+
+There are two bugs here: first the test for hdl->req_obj.req: this
+should be hdl->req_obj.ops since only the main control handler will
+have a NULL pointer there.
+
+The second is that adding or deleting request objects from the
+requests list of the main handler isn't protected by taking the
+main handler's lock.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: John Cox <jc@kynesim.co.uk>
+Fixes: 6fa6f831f095 ("media: v4l2-ctrls: add core request support")
+Tested-by: John Cox <jc@kynesim.co.uk>
+Reported-by: John Cox <jc@kynesim.co.uk>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx219.c | 32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ drivers/media/v4l2-core/v4l2-ctrls.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
-index 82756cbfbaac..49ba39418360 100644
---- a/drivers/media/i2c/imx219.c
-+++ b/drivers/media/i2c/imx219.c
-@@ -1035,37 +1035,47 @@ static int imx219_start_streaming(struct imx219 *imx219)
- 	const struct imx219_reg_list *reg_list;
- 	int ret;
+diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
+index 4f0209695f13..6219c8185782 100644
+--- a/drivers/media/v4l2-core/v4l2-ctrls.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls.c
+@@ -2552,7 +2552,15 @@ void v4l2_ctrl_handler_free(struct v4l2_ctrl_handler *hdl)
+ 	if (hdl == NULL || hdl->buckets == NULL)
+ 		return;
  
-+	ret = pm_runtime_get_sync(&client->dev);
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(&client->dev);
-+		return ret;
-+	}
-+
- 	/* Apply default values of current mode */
- 	reg_list = &imx219->mode->reg_list;
- 	ret = imx219_write_regs(imx219, reg_list->regs, reg_list->num_of_regs);
- 	if (ret) {
- 		dev_err(&client->dev, "%s failed to set mode\n", __func__);
--		return ret;
-+		goto err_rpm_put;
+-	if (!hdl->req_obj.req && !list_empty(&hdl->requests)) {
++	/*
++	 * If the main handler is freed and it is used by handler objects in
++	 * outstanding requests, then unbind and put those objects before
++	 * freeing the main handler.
++	 *
++	 * The main handler can be identified by having a NULL ops pointer in
++	 * the request object.
++	 */
++	if (!hdl->req_obj.ops && !list_empty(&hdl->requests)) {
+ 		struct v4l2_ctrl_handler *req, *next_req;
+ 
+ 		list_for_each_entry_safe(req, next_req, &hdl->requests, requests) {
+@@ -3595,8 +3603,8 @@ static void v4l2_ctrl_request_unbind(struct media_request_object *obj)
+ 		container_of(obj, struct v4l2_ctrl_handler, req_obj);
+ 	struct v4l2_ctrl_handler *main_hdl = obj->priv;
+ 
+-	list_del_init(&hdl->requests);
+ 	mutex_lock(main_hdl->lock);
++	list_del_init(&hdl->requests);
+ 	if (hdl->request_is_queued) {
+ 		list_del_init(&hdl->requests_queued);
+ 		hdl->request_is_queued = false;
+@@ -3655,8 +3663,11 @@ static int v4l2_ctrl_request_bind(struct media_request *req,
+ 	if (!ret) {
+ 		ret = media_request_object_bind(req, &req_ops,
+ 						from, false, &hdl->req_obj);
+-		if (!ret)
++		if (!ret) {
++			mutex_lock(from->lock);
+ 			list_add_tail(&hdl->requests, &from->requests);
++			mutex_unlock(from->lock);
++		}
  	}
- 
- 	ret = imx219_set_framefmt(imx219);
- 	if (ret) {
- 		dev_err(&client->dev, "%s failed to set frame format: %d\n",
- 			__func__, ret);
--		return ret;
-+		goto err_rpm_put;
- 	}
- 
- 	/* Apply customized values from user */
- 	ret =  __v4l2_ctrl_handler_setup(imx219->sd.ctrl_handler);
- 	if (ret)
--		return ret;
-+		goto err_rpm_put;
- 
- 	/* set stream on register */
- 	ret = imx219_write_reg(imx219, IMX219_REG_MODE_SELECT,
- 			       IMX219_REG_VALUE_08BIT, IMX219_MODE_STREAMING);
- 	if (ret)
--		return ret;
-+		goto err_rpm_put;
- 
- 	/* vflip and hflip cannot change during streaming */
- 	__v4l2_ctrl_grab(imx219->vflip, true);
- 	__v4l2_ctrl_grab(imx219->hflip, true);
- 
- 	return 0;
-+
-+err_rpm_put:
-+	pm_runtime_put(&client->dev);
-+	return ret;
- }
- 
- static void imx219_stop_streaming(struct imx219 *imx219)
-@@ -1081,12 +1091,13 @@ static void imx219_stop_streaming(struct imx219 *imx219)
- 
- 	__v4l2_ctrl_grab(imx219->vflip, false);
- 	__v4l2_ctrl_grab(imx219->hflip, false);
-+
-+	pm_runtime_put(&client->dev);
- }
- 
- static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
- {
- 	struct imx219 *imx219 = to_imx219(sd);
--	struct i2c_client *client = v4l2_get_subdevdata(sd);
- 	int ret = 0;
- 
- 	mutex_lock(&imx219->mutex);
-@@ -1096,22 +1107,15 @@ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
- 	}
- 
- 	if (enable) {
--		ret = pm_runtime_get_sync(&client->dev);
--		if (ret < 0) {
--			pm_runtime_put_noidle(&client->dev);
--			goto err_unlock;
--		}
--
- 		/*
- 		 * Apply default & customized values
- 		 * and then start streaming.
- 		 */
- 		ret = imx219_start_streaming(imx219);
- 		if (ret)
--			goto err_rpm_put;
-+			goto err_unlock;
- 	} else {
- 		imx219_stop_streaming(imx219);
--		pm_runtime_put(&client->dev);
- 	}
- 
- 	imx219->streaming = enable;
-@@ -1120,8 +1124,6 @@ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
- 
  	return ret;
- 
--err_rpm_put:
--	pm_runtime_put(&client->dev);
- err_unlock:
- 	mutex_unlock(&imx219->mutex);
- 
+ }
 -- 
 2.30.2
 
