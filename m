@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E2437C91B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7ED837C91D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238103AbhELQPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33626 "EHLO mail.kernel.org"
+        id S238148AbhELQPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:15:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239484AbhELQII (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:08:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0379A61D1A;
-        Wed, 12 May 2021 15:38:31 +0000 (UTC)
+        id S239493AbhELQIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:08:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7143361993;
+        Wed, 12 May 2021 15:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833912;
-        bh=2hmU/K97aWCxtPtWnmzimhMDLMZndpsROIC7w6g7Y9I=;
+        s=korg; t=1620833915;
+        bh=izEnNP9KJsE6GwWU/5ZXQl8o470XP9Ie/xE7PdGxJ+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbgRmtK25jZ8HZBFFrktvDDzH11Xuu2iGHhocjRhGzUtY/zZkusv/lSTgDlxLzN47
-         Rcx8Gf61Xy8/+PypZNb3bdaEDzVOWfLJLkesw0F759LqxXhXSEE11R0HE1UYCujeRg
-         EQPm9cezF6+vwxlJ7Szi/OEXmQpYZTgQrAi7bAcg=
+        b=lG/7I17niZiSlzIqZGHqZOqC5JT92QZqBzupa9o0nU5JKYQBu7xpKksGov6nBMZD0
+         DNct7rgVnIL9mBc0W510g+oyjy6UqXVkyAbu3Ebk9X0pb0SAwijHR/ReY1nZmCPKy5
+         YgnMPqXqkIza7G5RW4QloMOn56ETLHn05t5LkNRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenta Tada <Kenta.Tada@sony.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 339/601] seccomp: Fix CONFIG tests for Seccomp_filters
-Date:   Wed, 12 May 2021 16:46:56 +0200
-Message-Id: <20210512144838.961278221@linuxfoundation.org>
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 340/601] nvme-tcp: block BH in sk state_change sk callback
+Date:   Wed, 12 May 2021 16:46:57 +0200
+Message-Id: <20210512144838.994294099@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,53 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kenta.Tada@sony.com <Kenta.Tada@sony.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 64bdc0244054f7d4bb621c8b4455e292f4e421bc ]
+[ Upstream commit 8b73b45d54a14588f86792869bfb23098ea254cb ]
 
-Strictly speaking, seccomp filters are only used
-when CONFIG_SECCOMP_FILTER.
-This patch fixes the condition to enable "Seccomp_filters"
-in /proc/$pid/status.
+The TCP stack can run from process context for a long time
+so we should disable BH here.
 
-Signed-off-by: Kenta Tada <Kenta.Tada@sony.com>
-Fixes: c818c03b661c ("seccomp: Report number of loaded filters in /proc/$pid/status")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/OSBPR01MB26772D245E2CF4F26B76A989F5669@OSBPR01MB2677.jpnprd01.prod.outlook.com
+Fixes: 3f2304f8c6d6 ("nvme-tcp: add NVMe over TCP host driver")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/array.c  | 2 ++
- init/init_task.c | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/nvme/host/tcp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/proc/array.c b/fs/proc/array.c
-index bb87e4d89cd8..7ec59171f197 100644
---- a/fs/proc/array.c
-+++ b/fs/proc/array.c
-@@ -342,8 +342,10 @@ static inline void task_seccomp(struct seq_file *m, struct task_struct *p)
- 	seq_put_decimal_ull(m, "NoNewPrivs:\t", task_no_new_privs(p));
- #ifdef CONFIG_SECCOMP
- 	seq_put_decimal_ull(m, "\nSeccomp:\t", p->seccomp.mode);
-+#ifdef CONFIG_SECCOMP_FILTER
- 	seq_put_decimal_ull(m, "\nSeccomp_filters:\t",
- 			    atomic_read(&p->seccomp.filter_count));
-+#endif
- #endif
- 	seq_puts(m, "\nSpeculation_Store_Bypass:\t");
- 	switch (arch_prctl_spec_ctrl_get(p, PR_SPEC_STORE_BYPASS)) {
-diff --git a/init/init_task.c b/init/init_task.c
-index 3711cdaafed2..8b08c2e19cbb 100644
---- a/init/init_task.c
-+++ b/init/init_task.c
-@@ -210,7 +210,7 @@ struct task_struct init_task
- #ifdef CONFIG_SECURITY
- 	.security	= NULL,
- #endif
--#ifdef CONFIG_SECCOMP
-+#ifdef CONFIG_SECCOMP_FILTER
- 	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
- #endif
- };
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index c6958e5bc91d..709a573183a2 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -874,7 +874,7 @@ static void nvme_tcp_state_change(struct sock *sk)
+ {
+ 	struct nvme_tcp_queue *queue;
+ 
+-	read_lock(&sk->sk_callback_lock);
++	read_lock_bh(&sk->sk_callback_lock);
+ 	queue = sk->sk_user_data;
+ 	if (!queue)
+ 		goto done;
+@@ -895,7 +895,7 @@ static void nvme_tcp_state_change(struct sock *sk)
+ 
+ 	queue->state_change(sk);
+ done:
+-	read_unlock(&sk->sk_callback_lock);
++	read_unlock_bh(&sk->sk_callback_lock);
+ }
+ 
+ static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
 -- 
 2.30.2
 
