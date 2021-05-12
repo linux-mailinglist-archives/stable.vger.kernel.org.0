@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 645C437C17C
+	by mail.lfdr.de (Postfix) with ESMTP id CFB0737C17D
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231497AbhELPAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:00:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46734 "EHLO mail.kernel.org"
+        id S232723AbhELPA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:00:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232548AbhELO6e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:58:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D768C61453;
-        Wed, 12 May 2021 14:56:20 +0000 (UTC)
+        id S232056AbhELO6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:58:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 478B761461;
+        Wed, 12 May 2021 14:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831381;
-        bh=6SXFHBKWlYb4RzT/JTeoClWjpa5gg+b0vNjMvH/n4CE=;
+        s=korg; t=1620831383;
+        bh=PE01LIyECFqPjnY0GUwIa/Tan1yqYuihELgMAWizvOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8LGmY0l2dqBJsW6k3Xwav5dLkAC/RppHBX3P1DQBhpRqQjQLe1Cy/JEo+z/wDTCt
-         YI3NMDaHNbcTDHEhkWFX5NWeEcFuSnH6zTg7EC376diP7JFniSoDq5rMik9GMRk4CV
-         G/M2jwpdGriFpS9mKAx3iaLgqUXvh3w2sMEdaFgY=
+        b=XG9lEOJnCo7qBkCSEtIl2IsSNX0v2tHJZgPv88zwauZMrH1wqTAW/0YYs0KerWNXn
+         SNAAixm7tffdPsgK4s4ACm9o/Y4fbnmsqsP8Mu1qlFOLkr37wAXU+bYX9f/tE5NCsE
+         mCBo+KhopyjImaGc5J3JYDa6b15YPgIzSMjNCIUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/244] phy: marvell: ARMADA375_USBCLUSTER_PHY should not default to y, unconditionally
-Date:   Wed, 12 May 2021 16:47:49 +0200
-Message-Id: <20210512144746.173897096@linuxfoundation.org>
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 099/244] crypto: qat - fix error path in adf_isr_resource_alloc()
+Date:   Wed, 12 May 2021 16:47:50 +0200
+Message-Id: <20210512144746.203822670@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,38 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 6cb17707aad869de163d7bf42c253caf501be4e2 ]
+[ Upstream commit 83dc1173d73f80cbce2fee4d308f51f87b2f26ae ]
 
-Merely enabling CONFIG_COMPILE_TEST should not enable additional code.
-To fix this, restrict the automatic enabling of ARMADA375_USBCLUSTER_PHY
-to MACH_ARMADA_375, and ask the user in case of compile-testing.
+The function adf_isr_resource_alloc() is not unwinding correctly in case
+of error.
+This patch fixes the error paths and propagate the errors to the caller.
 
-Fixes: eee47538ec1f2619 ("phy: add support for USB cluster on the Armada 375 SoC")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20210208150252.424706-1-geert+renesas@glider.be
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 7afa232e76ce ("crypto: qat - Intel(R) QAT DH895xcc accelerator")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/marvell/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/qat/qat_common/adf_isr.c | 29 ++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/phy/marvell/Kconfig b/drivers/phy/marvell/Kconfig
-index 4053ba6cd0fb..6e3e5d67e816 100644
---- a/drivers/phy/marvell/Kconfig
-+++ b/drivers/phy/marvell/Kconfig
-@@ -3,8 +3,8 @@
- # Phy drivers for Marvell platforms
- #
- config ARMADA375_USBCLUSTER_PHY
--	def_bool y
--	depends on MACH_ARMADA_375 || COMPILE_TEST
-+	bool "Armada 375 USB cluster PHY support" if COMPILE_TEST
-+	default y if MACH_ARMADA_375
- 	depends on OF && HAS_IOMEM
- 	select GENERIC_PHY
+diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
+index cd1cdf5305bc..4898ef41fd9f 100644
+--- a/drivers/crypto/qat/qat_common/adf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_isr.c
+@@ -330,19 +330,32 @@ int adf_isr_resource_alloc(struct adf_accel_dev *accel_dev)
  
+ 	ret = adf_isr_alloc_msix_entry_table(accel_dev);
+ 	if (ret)
+-		return ret;
+-	if (adf_enable_msix(accel_dev))
+ 		goto err_out;
+ 
+-	if (adf_setup_bh(accel_dev))
+-		goto err_out;
++	ret = adf_enable_msix(accel_dev);
++	if (ret)
++		goto err_free_msix_table;
+ 
+-	if (adf_request_irqs(accel_dev))
+-		goto err_out;
++	ret = adf_setup_bh(accel_dev);
++	if (ret)
++		goto err_disable_msix;
++
++	ret = adf_request_irqs(accel_dev);
++	if (ret)
++		goto err_cleanup_bh;
+ 
+ 	return 0;
++
++err_cleanup_bh:
++	adf_cleanup_bh(accel_dev);
++
++err_disable_msix:
++	adf_disable_msix(&accel_dev->accel_pci_dev);
++
++err_free_msix_table:
++	adf_isr_free_msix_entry_table(accel_dev);
++
+ err_out:
+-	adf_isr_resource_free(accel_dev);
+-	return -EFAULT;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(adf_isr_resource_alloc);
 -- 
 2.30.2
 
