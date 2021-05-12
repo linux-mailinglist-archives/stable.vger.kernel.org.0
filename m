@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C33F337C697
+	by mail.lfdr.de (Postfix) with ESMTP id 30B9A37C695
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234772AbhELPw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:52:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51532 "EHLO mail.kernel.org"
+        id S234403AbhELPw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:52:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237137AbhELPs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:48:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC50D619A2;
-        Wed, 12 May 2021 15:24:47 +0000 (UTC)
+        id S237197AbhELPst (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:48:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53B88619B0;
+        Wed, 12 May 2021 15:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833088;
-        bh=zf439LZoVaaedLklw7NY5O8s9xXGqywC7kPioFttdcs=;
+        s=korg; t=1620833090;
+        bh=Zi3dydaXI06i0eQgVxWiAOpGUlzb5Slw37i/xhO1EFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZoM91ejngpck6tUjq4O3JPyUlJSRjUPhNQcwo9982cBxys1Ak7ctqeN6ofRZ9I3+
-         MHq7u2OEy4Iow6UbtYd6E2F+Z+7eWx2L/WyVsT1YTnR2yQAjS9aLBHAXkP3I8X88FV
-         xLEzUgSs/vC7WftnmE+MyeALBY/k6ACQUouDRHg4=
+        b=vr380tDuwEIulgS/S65bk1Xy8nKeMO3tdDYAYFn8WxOX9mVvl9CwzKF+N/9c7VTi/
+         sCEOQdNPG2ClpyPgIZnxrLldI6I+bE9hOOJGHhHhVQXXtSTFClvY6jNrg/yLz3RGcS
+         R1QY7hvORNuXGVGRPiDsdMC5TND+otYbEP4wHIq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.11 013/601] tty: moxa: fix TIOCSSERIAL permission check
-Date:   Wed, 12 May 2021 16:41:30 +0200
-Message-Id: <20210512144828.255484696@linuxfoundation.org>
+Subject: [PATCH 5.11 014/601] staging: fwserial: fix TIOCSSERIAL permission check
+Date:   Wed, 12 May 2021 16:41:31 +0200
+Message-Id: <20210512144828.286387202@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,58 +40,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit dc8c8437658667be9b11ec25c4b5482ed2becdaa upstream.
+commit 2104eb283df66a482b60254299acbe3c68c03412 upstream.
 
-Changing the port close delay or type are privileged operations so make
-sure to return -EPERM if a regular user tries to change them.
+Changing the port close-delay parameter is a privileged operation so
+make sure to return -EPERM if a regular user tries to change it.
 
-Cc: stable@vger.kernel.org
+Fixes: 7355ba3445f2 ("staging: fwserial: Add TTY-over-Firewire serial driver")
+Cc: stable@vger.kernel.org      # 3.8
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-12-johan@kernel.org
+Link: https://lore.kernel.org/r/20210407102334.32361-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/moxa.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/staging/fwserial/fwserial.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/moxa.c
-+++ b/drivers/tty/moxa.c
-@@ -2050,6 +2050,7 @@ static int moxa_set_serial_info(struct t
- 		struct serial_struct *ss)
+--- a/drivers/staging/fwserial/fwserial.c
++++ b/drivers/staging/fwserial/fwserial.c
+@@ -1232,20 +1232,24 @@ static int set_serial_info(struct tty_st
+ 			   struct serial_struct *ss)
  {
- 	struct moxa_port *info = tty->driver_data;
-+	unsigned int close_delay;
+ 	struct fwtty_port *port = tty->driver_data;
++	unsigned int cdelay;
  
- 	if (tty->index == MAX_PORTS)
- 		return -EINVAL;
-@@ -2061,19 +2062,24 @@ static int moxa_set_serial_info(struct t
- 			ss->baud_base != 921600)
+ 	if (ss->irq != 0 || ss->port != 0 || ss->custom_divisor != 0 ||
+ 	    ss->baud_base != 400000000)
  		return -EPERM;
  
-+	close_delay = msecs_to_jiffies(ss->close_delay * 10);
++	cdelay = msecs_to_jiffies(ss->close_delay * 10);
 +
- 	mutex_lock(&info->port.mutex);
+ 	mutex_lock(&port->port.mutex);
  	if (!capable(CAP_SYS_ADMIN)) {
 -		if (((ss->flags & ~ASYNC_USR_MASK) !=
-+		if (close_delay != info->port.close_delay ||
-+		    ss->type != info->type ||
++		if (cdelay != port->port.close_delay ||
 +		    ((ss->flags & ~ASYNC_USR_MASK) !=
- 		     (info->port.flags & ~ASYNC_USR_MASK))) {
- 			mutex_unlock(&info->port.mutex);
+ 		     (port->port.flags & ~ASYNC_USR_MASK))) {
+ 			mutex_unlock(&port->port.mutex);
  			return -EPERM;
  		}
--	}
--	info->port.close_delay = msecs_to_jiffies(ss->close_delay * 10);
-+	} else {
-+		info->port.close_delay = close_delay;
+ 	}
+-	port->port.close_delay = msecs_to_jiffies(ss->close_delay * 10);
++	port->port.close_delay = cdelay;
+ 	mutex_unlock(&port->port.mutex);
  
--	MoxaSetFifo(info, ss->type == PORT_16550A);
-+		MoxaSetFifo(info, ss->type == PORT_16550A);
- 
--	info->type = ss->type;
-+		info->type = ss->type;
-+	}
- 	mutex_unlock(&info->port.mutex);
  	return 0;
- }
 
 
