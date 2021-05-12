@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A18F37CC62
+	by mail.lfdr.de (Postfix) with ESMTP id D8A0037CC63
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:04:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238169AbhELQon (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:44:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50048 "EHLO mail.kernel.org"
+        id S238186AbhELQoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:44:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242279AbhELQeC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242282AbhELQeC (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:34:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 353CA61CB4;
-        Wed, 12 May 2021 15:59:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 975E361CB6;
+        Wed, 12 May 2021 15:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835144;
-        bh=I76W/T/4a6lipabIiBdJrg0ivC050alQW5X4B9zeOzM=;
+        s=korg; t=1620835147;
+        bh=4u3HRLjPhZGibyYJX7Qa4AXlhhMpE0nwRimAW0zMkeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vV5C5zAx1y6Z8tcYyVHrmxjF93bDN3JmSgItFQFTsl/kMdqw2ZiHsmxL+y9Ue7hnP
-         CTZ5dld+LutQbrlz7AMWz1k+ML85DwOL47ja2RGXvpFu/9CxMSeGFOrWeRcnTh9Kbj
-         XbNm/b5QMGFiGpF94EQYeeV8JTHp4F9krwxEbfYI=
+        b=MAogZCtW0RfSLhpCL8sMnwBUrflAQoiGrcxx0Pu+9VCMirKKyf1bgKoQFIqZJeLyI
+         rbRi5LhHiutTr+GFGNRNfu/PypKYgnGssME7KoCVeumyTADdCvsccP55XayZc43+FI
+         FA0BmP+GCWMXACuaqbadIJe9L1QAX8Q2H93POGhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
+        stable@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 191/677] arm64: dts: qcom: sc7180: trogdor: Fix trip point config of charger thermal zone
-Date:   Wed, 12 May 2021 16:43:57 +0200
-Message-Id: <20210512144843.591868159@linuxfoundation.org>
+Subject: [PATCH 5.12 192/677] arm64: dts: qcom: sm8250: Fix level triggered PMU interrupt polarity
+Date:   Wed, 12 May 2021 16:43:58 +0200
+Message-Id: <20210512144843.629857745@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,43 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-[ Upstream commit 38f3267def6511171aef0f056ad172686903603f ]
+[ Upstream commit 93138ef5ac923b10f81575d35dbcb83136cbfc40 ]
 
-The trip point configuration of the charger thermal zone for trogdor
-is missing a node for the critical trip point. Add the missing node.
+As per interrupt documentation for SM8250 SoC, the polarity
+for level triggered PMU interrupt is low, fix this.
 
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Fixes: bb06eb3607e9 ("arm64: qcom: sc7180: trogdor: Add ADC nodes and thermal zone for charger thermistor")
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Link: https://lore.kernel.org/r/20210225103330.v2.3.Ife7768b6b4765026c9d233ad4982da0e365ddbca@changeid
+Fixes: 60378f1a171e ("arm64: dts: qcom: sm8250: Add sm8250 dts file")
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Link: https://lore.kernel.org/r/96680a1c6488955c9eef7973c28026462b2a4ec0.1613468366.git.saiprakash.ranjan@codeaurora.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-index 07c8b2c926c0..753fd320dfbc 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-@@ -22,9 +22,11 @@
- 			thermal-sensors = <&pm6150_adc_tm 1>;
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index 947e1accae3a..1864c459a563 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -279,7 +279,7 @@
  
- 			trips {
--				temperature = <125000>;
--				hysteresis = <1000>;
--				type = "critical";
-+				charger-crit {
-+					temperature = <125000>;
-+					hysteresis = <1000>;
-+					type = "critical";
-+				};
- 			};
- 		};
+ 	pmu {
+ 		compatible = "arm,armv8-pmuv3";
+-		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
++		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_LOW>;
  	};
+ 
+ 	psci {
 -- 
 2.30.2
 
