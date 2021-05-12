@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D721C37C127
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:55:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A344937C129
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:55:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232234AbhELO5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:57:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46930 "EHLO mail.kernel.org"
+        id S231553AbhELO5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:57:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232227AbhELOzv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:55:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C177B6142D;
-        Wed, 12 May 2021 14:54:42 +0000 (UTC)
+        id S232238AbhELOzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:55:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 306A861412;
+        Wed, 12 May 2021 14:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831283;
-        bh=sU80w6Fo7y2Oepw4ZYUSOC/cnPbHDJ1cXCFjnCujEOY=;
+        s=korg; t=1620831285;
+        bh=w0ODjGif2rcoZGNVI2RJdhui/zw658jsUrjRas3821E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpTkdv6DbJLoAgnpkKDzj9Xr9FGalpHBADuNwzg/FjHzW5Yfgk3krBsZDvykAs7Si
-         OhwRiXIKCaDKb7dpEgKlHbxRIpKyHe2d17xbSiIYlwFR1DdBImoXDLiLUILKbxLtC4
-         BsjRXNSw1Zh3bY/jDsKKDpgw3nAJp+4N3iZ+XxgY=
+        b=QL02kHPnS2+Uo9WWw7LfyrZo7nVaKdl0BZkFZR5bkvZ1DO+HKNk87q9G8/wbODJnf
+         6XZbaph+YWtmMHm5MTjCC5o2LV3CVB9mHQHsun/KHI6egC1fLn4XsLHktLn66zK5H3
+         N2Wi6vBwjknFZUW6ZQt5zG7QAqwMKh1zl8F239Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.4 058/244] s390: fix detection of vector enhancements facility 1 vs. vector packed decimal facility
-Date:   Wed, 12 May 2021 16:47:09 +0200
-Message-Id: <20210512144744.902512076@linuxfoundation.org>
+        Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 5.4 059/244] KVM: s390: split kvm_s390_real_to_abs
+Date:   Wed, 12 May 2021 16:47:10 +0200
+Message-Id: <20210512144744.935055098@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -43,51 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit b208108638c4bd3215792415944467c36f5dfd97 upstream.
+commit c5d1f6b531e68888cbe6718b3f77a60115d58b9c upstream.
 
-The PoP documents:
-	134: The vector packed decimal facility is installed in the
-	     z/Architecture architectural mode. When bit 134 is
-	     one, bit 129 is also one.
-	135: The vector enhancements facility 1 is installed in
-	     the z/Architecture architectural mode. When bit 135
-	     is one, bit 129 is also one.
+A new function _kvm_s390_real_to_abs will apply prefixing to a real address
+with a given prefix value.
 
-Looks like we confuse the vector enhancements facility 1 ("EXT") with the
-Vector packed decimal facility ("BCD"). Let's fix the facility checks.
+The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
 
-Detected while working on QEMU/tcg z14 support and only unlocking
-the vector enhancements facility 1, but not the vector packed decimal
-facility.
+This is needed to avoid code duplication in vSIE.
 
-Fixes: 2583b848cad0 ("s390: report new vector facilities")
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210503121244.25232-1-david@redhat.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210322140559.500716-2-imbrenda@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/setup.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kvm/gaccess.h |   23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -922,9 +922,9 @@ static int __init setup_hwcaps(void)
- 	if (MACHINE_HAS_VX) {
- 		elf_hwcap |= HWCAP_S390_VXRS;
- 		if (test_facility(134))
--			elf_hwcap |= HWCAP_S390_VXRS_EXT;
--		if (test_facility(135))
- 			elf_hwcap |= HWCAP_S390_VXRS_BCD;
-+		if (test_facility(135))
-+			elf_hwcap |= HWCAP_S390_VXRS_EXT;
- 		if (test_facility(148))
- 			elf_hwcap |= HWCAP_S390_VXRS_EXT2;
- 		if (test_facility(152))
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -18,17 +18,14 @@
+ 
+ /**
+  * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+- * @vcpu - guest virtual cpu
++ * @prefix - guest prefix
+  * @gra - guest real address
+  *
+  * Returns the guest absolute address that corresponds to the passed guest real
+- * address @gra of a virtual guest cpu by applying its prefix.
++ * address @gra of by applying the given prefix.
+  */
+-static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+-						 unsigned long gra)
++static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
+ {
+-	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
+-
+ 	if (gra < 2 * PAGE_SIZE)
+ 		gra += prefix;
+ 	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
+@@ -37,6 +34,20 @@ static inline unsigned long kvm_s390_rea
+ }
+ 
+ /**
++ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
++ * @vcpu - guest virtual cpu
++ * @gra - guest real address
++ *
++ * Returns the guest absolute address that corresponds to the passed guest real
++ * address @gra of a virtual guest cpu by applying its prefix.
++ */
++static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
++						 unsigned long gra)
++{
++	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
++}
++
++/**
+  * _kvm_s390_logical_to_effective - convert guest logical to effective address
+  * @psw: psw of the guest
+  * @ga: guest logical address
 
 
