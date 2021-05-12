@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF2E37C7CA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8158537CB2E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232992AbhELQCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:02:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38450 "EHLO mail.kernel.org"
+        id S242449AbhELQeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:34:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236288AbhELPzH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:55:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C856143B;
-        Wed, 12 May 2021 15:27:53 +0000 (UTC)
+        id S241526AbhELQ13 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 306DE61DE8;
+        Wed, 12 May 2021 15:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833274;
-        bh=jkaV2nmw3Gi8Q5AUWIBWA7kjbfP1eMYNfSxPqktk22w=;
+        s=korg; t=1620834824;
+        bh=Nr3bsYbK1iTpA2f80c0E2GF84LXeMnRzNTqh14JG+ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uijWQQe+ynlClYvajvWAwZa34oeyllmNPvLbFBucszn+kRwrXVHU0qTb3Q23FWmyr
-         HTovR8ZEmbp73xdSm0RlsRyLgmKQODwUsNBwQ+dsBOqy8pnelXHlwU+CIFGlJMRGYP
-         NLz2CraNiOxjh0mBjB7JzZA8vGZvOGWWKuNWyLY0=
+        b=bROL11TgFUepScmNnmtOhnlkChAiX+jKEpO1yIcCIyOOoKBd7BMX6D2THidaFgSx8
+         3UdkBCASyYmQ++JIccE1ApeJ9k/Co28awr7j8u0DV5R8DyW6BIJByjBB3fDnOnHpFE
+         zBHhhPAYKOpHsIRJxbhvCGR6tYBVIb2JP2ZB28BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.11 067/601] drm/dp_mst: Revise broadcast msg lct & lcr
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 098/677] ALSA: hda/realtek: Fix speaker amp on HP Envy AiO 32
 Date:   Wed, 12 May 2021 16:42:24 +0200
-Message-Id: <20210512144830.020723849@linuxfoundation.org>
+Message-Id: <20210512144840.476644078@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
-References: <20210512144827.811958675@linuxfoundation.org>
+In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
+References: <20210512144837.204217980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +38,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 419e91ea3143bf26991442465ac64d9461e98d96 upstream.
+commit 622464c893142f7beac89f5ba8c9773bca5e5004 upstream.
 
-[Why & How]
-According to DP spec, broadcast message LCT equals to 1 and LCR equals
-to 6. Current implementation is incorrect. Fix it.
-In addition, revise a bit the hdr->rad handling to include broadcast
-case.
+HP Envy AiO 32-a12xxx has an external amp that is controlled via GPIO
+bit 0x04.  However, unlike other devices, this amp seems to shut down
+itself after the certain period, hence the OS needs to up/down the bit
+dynamically only during the actual playback.
 
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210224101521.6713-2-Wayne.Lin@amd.com
+This patch adds the control of the GPIO bit via the existing pcm_hook
+mechanism.  Ideally it should be triggered at the actual stream start,
+but we have only the state change at prepare/cleanup, so use those for
+switching the GPIO bit on/off.  This should be good enough for the
+purpose, and was actually confirmed to work fine.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212873
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210504091802.13200-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |   35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2829,10 +2829,15 @@ static int set_hdr_from_dst_qlock(struct
- 	else
- 		hdr->broadcast = 0;
- 	hdr->path_msg = txmsg->path_msg;
--	hdr->lct = mstb->lct;
--	hdr->lcr = mstb->lct - 1;
--	if (mstb->lct > 1)
--		memcpy(hdr->rad, mstb->rad, mstb->lct / 2);
-+	if (hdr->broadcast) {
-+		hdr->lct = 1;
-+		hdr->lcr = 6;
-+	} else {
-+		hdr->lct = mstb->lct;
-+		hdr->lcr = mstb->lct - 1;
-+	}
-+
-+	memcpy(hdr->rad, mstb->rad, hdr->lct / 2);
- 
- 	return 0;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4331,6 +4331,35 @@ static void alc245_fixup_hp_x360_amp(str
+ 	}
  }
+ 
++/* toggle GPIO2 at each time stream is started; we use PREPARE state instead */
++static void alc274_hp_envy_pcm_hook(struct hda_pcm_stream *hinfo,
++				    struct hda_codec *codec,
++				    struct snd_pcm_substream *substream,
++				    int action)
++{
++	switch (action) {
++	case HDA_GEN_PCM_ACT_PREPARE:
++		alc_update_gpio_data(codec, 0x04, true);
++		break;
++	case HDA_GEN_PCM_ACT_CLEANUP:
++		alc_update_gpio_data(codec, 0x04, false);
++		break;
++	}
++}
++
++static void alc274_fixup_hp_envy_gpio(struct hda_codec *codec,
++				      const struct hda_fixup *fix,
++				      int action)
++{
++	struct alc_spec *spec = codec->spec;
++
++	if (action == HDA_FIXUP_ACT_PROBE) {
++		spec->gpio_mask |= 0x04;
++		spec->gpio_dir |= 0x04;
++		spec->gen.pcm_playback_hook = alc274_hp_envy_pcm_hook;
++	}
++}
++
+ static void alc_update_coef_led(struct hda_codec *codec,
+ 				struct alc_coef_led *led,
+ 				bool polarity, bool on)
+@@ -6443,6 +6472,7 @@ enum {
+ 	ALC255_FIXUP_XIAOMI_HEADSET_MIC,
+ 	ALC274_FIXUP_HP_MIC,
+ 	ALC274_FIXUP_HP_HEADSET_MIC,
++	ALC274_FIXUP_HP_ENVY_GPIO,
+ 	ALC256_FIXUP_ASUS_HPE,
+ 	ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
+ 	ALC287_FIXUP_HP_GPIO_LED,
+@@ -7882,6 +7912,10 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC274_FIXUP_HP_MIC
+ 	},
++	[ALC274_FIXUP_HP_ENVY_GPIO] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc274_fixup_hp_envy_gpio,
++	},
+ 	[ALC256_FIXUP_ASUS_HPE] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -8099,6 +8133,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
++	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
+ 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8730, "HP ProBook 445 G7", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
 
 
