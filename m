@@ -2,31 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B9A37C695
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E6B37C6A0
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234403AbhELPw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:52:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52190 "EHLO mail.kernel.org"
+        id S234900AbhELPwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:52:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237197AbhELPst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:48:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53B88619B0;
-        Wed, 12 May 2021 15:24:50 +0000 (UTC)
+        id S237217AbhELPs4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:48:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9962C613DF;
+        Wed, 12 May 2021 15:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833090;
-        bh=Zi3dydaXI06i0eQgVxWiAOpGUlzb5Slw37i/xhO1EFE=;
+        s=korg; t=1620833093;
+        bh=t4YX8/qN2UX/zrjPPDRhrGURw2PpQ8cYVyrbNy9/jHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vr380tDuwEIulgS/S65bk1Xy8nKeMO3tdDYAYFn8WxOX9mVvl9CwzKF+N/9c7VTi/
-         sCEOQdNPG2ClpyPgIZnxrLldI6I+bE9hOOJGHhHhVQXXtSTFClvY6jNrg/yLz3RGcS
-         R1QY7hvORNuXGVGRPiDsdMC5TND+otYbEP4wHIq0=
+        b=FEqkt+4cW7hsocbiVP8Gykz9ssaVZdJYRKpS6tFzpDjYPunirul2uAXystUK7doTu
+         S95lqR07mrQ1Q6mYH2MwtYUuXqT5cIBfR3dbyGxhhWVxc6hy8GzdrTIN2EzAiYM+fK
+         xyuXM77kImGmhLk8+XTdB00aEChco3qjwNqHwx2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.11 014/601] staging: fwserial: fix TIOCSSERIAL permission check
-Date:   Wed, 12 May 2021 16:41:31 +0200
-Message-Id: <20210512144828.286387202@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Adren Grassein <adrien.grassein@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 5.11 015/601] drm: bridge: fix LONTIUM use of mipi_dsi_() functions
+Date:   Wed, 12 May 2021 16:41:32 +0200
+Message-Id: <20210512144828.317194379@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -38,50 +48,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 2104eb283df66a482b60254299acbe3c68c03412 upstream.
+commit ad085b3a712a89e4a48472121b231add7a8362e4 upstream.
 
-Changing the port close-delay parameter is a privileged operation so
-make sure to return -EPERM if a regular user tries to change it.
+The Lontium DRM bridge drivers use mipi_dsi_() function interfaces so
+they need to select DRM_MIPI_DSI to prevent build errors.
 
-Fixes: 7355ba3445f2 ("staging: fwserial: Add TTY-over-Firewire serial driver")
-Cc: stable@vger.kernel.org      # 3.8
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-3-johan@kernel.org
+ERROR: modpost: "mipi_dsi_attach" [drivers/gpu/drm/bridge/lontium-lt9611uxc.ko] undefined!
+ERROR: modpost: "mipi_dsi_device_register_full" [drivers/gpu/drm/bridge/lontium-lt9611uxc.ko] undefined!
+ERROR: modpost: "of_find_mipi_dsi_host_by_node" [drivers/gpu/drm/bridge/lontium-lt9611uxc.ko] undefined!
+ERROR: modpost: "mipi_dsi_device_unregister" [drivers/gpu/drm/bridge/lontium-lt9611uxc.ko] undefined!
+ERROR: modpost: "mipi_dsi_detach" [drivers/gpu/drm/bridge/lontium-lt9611uxc.ko] undefined!
+ERROR: modpost: "mipi_dsi_attach" [drivers/gpu/drm/bridge/lontium-lt9611.ko] undefined!
+ERROR: modpost: "mipi_dsi_device_register_full" [drivers/gpu/drm/bridge/lontium-lt9611.ko] undefined!
+ERROR: modpost: "of_find_mipi_dsi_host_by_node" [drivers/gpu/drm/bridge/lontium-lt9611.ko] undefined!
+ERROR: modpost: "mipi_dsi_device_unregister" [drivers/gpu/drm/bridge/lontium-lt9611.ko] undefined!
+ERROR: modpost: "mipi_dsi_detach" [drivers/gpu/drm/bridge/lontium-lt9611.ko] undefined!
+WARNING: modpost: suppressed 5 unresolved symbol warnings because there were too many)
+
+Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
+Fixes: 0cbbd5b1a012 ("drm: bridge: add support for lontium LT9611UXC bridge")
+Fixes: 30e2ae943c26 ("drm/bridge: Introduce LT8912B DSI to HDMI bridge")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Adren Grassein <adrien.grassein@gmail.com>
+Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Adrien Grassein <adrien.grassein@gmail.com>
+Cc: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Robert Foss <robert.foss@linaro.org>
+Cc: dri-devel@lists.freedesktop.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210415183639.1487-1-rdunlap@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/fwserial/fwserial.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/Kconfig |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -1232,20 +1232,24 @@ static int set_serial_info(struct tty_st
- 			   struct serial_struct *ss)
- {
- 	struct fwtty_port *port = tty->driver_data;
-+	unsigned int cdelay;
- 
- 	if (ss->irq != 0 || ss->port != 0 || ss->custom_divisor != 0 ||
- 	    ss->baud_base != 400000000)
- 		return -EPERM;
- 
-+	cdelay = msecs_to_jiffies(ss->close_delay * 10);
-+
- 	mutex_lock(&port->port.mutex);
- 	if (!capable(CAP_SYS_ADMIN)) {
--		if (((ss->flags & ~ASYNC_USR_MASK) !=
-+		if (cdelay != port->port.close_delay ||
-+		    ((ss->flags & ~ASYNC_USR_MASK) !=
- 		     (port->port.flags & ~ASYNC_USR_MASK))) {
- 			mutex_unlock(&port->port.mutex);
- 			return -EPERM;
- 		}
- 	}
--	port->port.close_delay = msecs_to_jiffies(ss->close_delay * 10);
-+	port->port.close_delay = cdelay;
- 	mutex_unlock(&port->port.mutex);
- 
- 	return 0;
+--- a/drivers/gpu/drm/bridge/Kconfig
++++ b/drivers/gpu/drm/bridge/Kconfig
+@@ -67,6 +67,7 @@ config DRM_LONTIUM_LT9611UXC
+ 	depends on OF
+ 	select DRM_PANEL_BRIDGE
+ 	select DRM_KMS_HELPER
++	select DRM_MIPI_DSI
+ 	select REGMAP_I2C
+ 	help
+ 	  Driver for Lontium LT9611UXC DSI to HDMI bridge
+@@ -151,6 +152,7 @@ config DRM_SII902X
+ 	tristate "Silicon Image sii902x RGB/HDMI bridge"
+ 	depends on OF
+ 	select DRM_KMS_HELPER
++	select DRM_MIPI_DSI
+ 	select REGMAP_I2C
+ 	select I2C_MUX
+ 	select SND_SOC_HDMI_CODEC if SND_SOC
+@@ -200,6 +202,7 @@ config DRM_TOSHIBA_TC358767
+ 	tristate "Toshiba TC358767 eDP bridge"
+ 	depends on OF
+ 	select DRM_KMS_HELPER
++	select DRM_MIPI_DSI
+ 	select REGMAP_I2C
+ 	select DRM_PANEL
+ 	help
 
 
