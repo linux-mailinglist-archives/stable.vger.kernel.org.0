@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D9437C55C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD9D537C560
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234461AbhELPjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:39:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46626 "EHLO mail.kernel.org"
+        id S234537AbhELPjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:39:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232387AbhELPdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:33:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A96E36199F;
-        Wed, 12 May 2021 15:17:11 +0000 (UTC)
+        id S233627AbhELPdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:33:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E19661987;
+        Wed, 12 May 2021 15:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832632;
-        bh=68S/HioLc1NFGa+6IfN2YMldwz98MGOa2TnHObTnbHw=;
+        s=korg; t=1620832634;
+        bh=HDXkbyI3YlggLB0u4Elay3NlNk1nwAw4NVpE2KdDMxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kaTiAAhbmckKoLnbR1FVeJ0Yf+c0LBshbvptqZQDbwpjAJSdDI+oALA1uq4qH2sb1
-         9EDZgnuZcjfXv8u5vOF97g9Oe+gv2A1X73fAB6sF+nl56dIJyAIgrUpNC48jgQfA1T
-         Llbhb3vh+mlt04R0zlUSx3nZ/Z7bMq97N5AAyoQo=
+        b=fhupXbhu5+jUi9T0cC+RpOP8aUsblJjN/aoVHCU57Fv7I3ikKymU0p3dBDr7gROnp
+         GeYFhKLWG4jEY8PskaDqNutM8F+8JxTIUjQsA4D1gOy07jvL1Fm6O2KEkgubPhI7ud
+         RrdSSSpJHH9GVhk2PJubBn3xXSPcAhDgnxeD+7sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 358/530] bpftool: Fix maybe-uninitialized warnings
-Date:   Wed, 12 May 2021 16:47:48 +0200
-Message-Id: <20210512144831.552843471@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 359/530] iommu: Check dev->iommu in iommu_dev_xxx functions
+Date:   Wed, 12 May 2021 16:47:49 +0200
+Message-Id: <20210512144831.584339022@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,84 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
 
-[ Upstream commit 4bbb3583687051ef99966ddaeb1730441b777d40 ]
+[ Upstream commit b9abb19fa5fd2d8a4be61c6cd4b2a48aa1a17f9c ]
 
-Somehow when bpftool is compiled in -Og mode, compiler produces new warnings
-about possibly uninitialized variables. Fix all the reported problems.
+The device iommu probe/attach might have failed leaving dev->iommu
+to NULL and device drivers may still invoke these functions resulting
+in a crash in iommu vendor driver code.
 
-Fixes: 2119f2189df1 ("bpftool: add C output format option to btf dump subcommand")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210313210920.1959628-3-andrii@kernel.org
+Hence make sure we check that.
+
+Fixes: a3a195929d40 ("iommu: Add APIs for multiple domains per device")
+Signed-off-by: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/20210303173611.520-1-shameerali.kolothum.thodi@huawei.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/btf.c  | 3 +++
- tools/bpf/bpftool/main.c | 3 +--
- tools/bpf/bpftool/map.c  | 2 +-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/iommu/iommu.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/tools/bpf/bpftool/btf.c b/tools/bpf/bpftool/btf.c
-index 2afb7d5b1aca..592803af9734 100644
---- a/tools/bpf/bpftool/btf.c
-+++ b/tools/bpf/bpftool/btf.c
-@@ -519,6 +519,7 @@ static int do_dump(int argc, char **argv)
- 			NEXT_ARG();
- 			if (argc < 1) {
- 				p_err("expecting value for 'format' option\n");
-+				err = -EINVAL;
- 				goto done;
- 			}
- 			if (strcmp(*argv, "c") == 0) {
-@@ -528,11 +529,13 @@ static int do_dump(int argc, char **argv)
- 			} else {
- 				p_err("unrecognized format specifier: '%s', possible values: raw, c",
- 				      *argv);
-+				err = -EINVAL;
- 				goto done;
- 			}
- 			NEXT_ARG();
- 		} else {
- 			p_err("unrecognized option: '%s'", *argv);
-+			err = -EINVAL;
- 			goto done;
- 		}
- 	}
-diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
-index 682daaa49e6a..33068d6ed5d6 100644
---- a/tools/bpf/bpftool/main.c
-+++ b/tools/bpf/bpftool/main.c
-@@ -274,7 +274,7 @@ static int do_batch(int argc, char **argv)
- 	int n_argc;
- 	FILE *fp;
- 	char *cp;
--	int err;
-+	int err = 0;
- 	int i;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 0d9adce6d812..9b8664d388af 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2872,10 +2872,12 @@ EXPORT_SYMBOL_GPL(iommu_dev_has_feature);
  
- 	if (argc < 2) {
-@@ -368,7 +368,6 @@ static int do_batch(int argc, char **argv)
- 	} else {
- 		if (!json_output)
- 			printf("processed %d commands\n", lines);
--		err = 0;
- 	}
- err_close:
- 	if (fp != stdin)
-diff --git a/tools/bpf/bpftool/map.c b/tools/bpf/bpftool/map.c
-index a7efbd84fbcc..ce6faf1b90e8 100644
---- a/tools/bpf/bpftool/map.c
-+++ b/tools/bpf/bpftool/map.c
-@@ -99,7 +99,7 @@ static int do_dump_btf(const struct btf_dumper *d,
- 		       void *value)
+ int iommu_dev_enable_feature(struct device *dev, enum iommu_dev_features feat)
  {
- 	__u32 value_id;
--	int ret;
-+	int ret = 0;
+-	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	if (dev->iommu && dev->iommu->iommu_dev) {
++		const struct iommu_ops *ops = dev->iommu->iommu_dev->ops;
  
- 	/* start of key-value pair */
- 	jsonw_start_object(d->jw);
+-	if (ops && ops->dev_enable_feat)
+-		return ops->dev_enable_feat(dev, feat);
++		if (ops->dev_enable_feat)
++			return ops->dev_enable_feat(dev, feat);
++	}
+ 
+ 	return -ENODEV;
+ }
+@@ -2888,10 +2890,12 @@ EXPORT_SYMBOL_GPL(iommu_dev_enable_feature);
+  */
+ int iommu_dev_disable_feature(struct device *dev, enum iommu_dev_features feat)
+ {
+-	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	if (dev->iommu && dev->iommu->iommu_dev) {
++		const struct iommu_ops *ops = dev->iommu->iommu_dev->ops;
+ 
+-	if (ops && ops->dev_disable_feat)
+-		return ops->dev_disable_feat(dev, feat);
++		if (ops->dev_disable_feat)
++			return ops->dev_disable_feat(dev, feat);
++	}
+ 
+ 	return -EBUSY;
+ }
+@@ -2899,10 +2903,12 @@ EXPORT_SYMBOL_GPL(iommu_dev_disable_feature);
+ 
+ bool iommu_dev_feature_enabled(struct device *dev, enum iommu_dev_features feat)
+ {
+-	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	if (dev->iommu && dev->iommu->iommu_dev) {
++		const struct iommu_ops *ops = dev->iommu->iommu_dev->ops;
+ 
+-	if (ops && ops->dev_feat_enabled)
+-		return ops->dev_feat_enabled(dev, feat);
++		if (ops->dev_feat_enabled)
++			return ops->dev_feat_enabled(dev, feat);
++	}
+ 
+ 	return false;
+ }
 -- 
 2.30.2
 
