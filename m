@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF08937C26E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83FBF37C270
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232359AbhELPKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40208 "EHLO mail.kernel.org"
+        id S232501AbhELPKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233195AbhELPHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:07:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B24686101B;
-        Wed, 12 May 2021 15:01:36 +0000 (UTC)
+        id S231279AbhELPHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:07:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 273076134F;
+        Wed, 12 May 2021 15:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831697;
-        bh=TmgsF4R2n5f0992uBVRLJq4rRXd68FMikLyEMs5WHds=;
+        s=korg; t=1620831699;
+        bh=Z1Cw1oTOK1n3RSVdoz/mFY57WcZalJPFB8I2juNo4JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q0ADN1IM2LCRxV//mKqO5xYWvRwnA4VhIkoLk7XXRGbjbEaCMSSPC+3X3QnGjXfpf
-         4TqLUZYmQd5cKiOYQjj5USwvtXVLKaBdpi1CQNHCBpldwP+RE7ezB8OnLVVvXZguTj
-         pLWpY6kUkJ6FL6xxb2/nhgK6NY1xQPxUnR8dT9BA=
+        b=yOXzdUfct9Zc1QfLwa92pnYpnV1fGJiMT4bOUJmuqX8VV0ZXr0nb/46W5GGakzCpA
+         2Q8FxRhZJV0fID7ezh8jq/gTcADu0rxXPz7ktTtVs64CPf7NJ6Uo9+VQ0cxNzp+KPc
+         sLP62FrHQRgryXmBD0P4kY4kEpCVrwME67uEQtUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 222/244] ath9k: Fix error check in ath9k_hw_read_revisions() for PCI devices
-Date:   Wed, 12 May 2021 16:49:53 +0200
-Message-Id: <20210512144750.105601699@linuxfoundation.org>
+Subject: [PATCH 5.4 223/244] ath10k: Fix ath10k_wmi_tlv_op_pull_peer_stats_info() unlock without lock
+Date:   Wed, 12 May 2021 16:49:54 +0200
+Message-Id: <20210512144750.138423879@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,56 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 7dd9a40fd6e0d0f1fd8e1931c007e080801dfdce ]
+[ Upstream commit eaaf52e4b866f265eb791897d622961293fd48c1 ]
 
-When the error check in ath9k_hw_read_revisions() was added, it checked for
--EIO which is what ath9k_regread() in the ath9k_htc driver uses. However,
-for plain ath9k, the register read function uses ioread32(), which just
-returns -1 on error. So if such a read fails, it still gets passed through
-and ends up as a weird mac revision in the log output.
+ath10k_wmi_tlv_op_pull_peer_stats_info() could try to unlock RCU lock
+winthout locking it first when peer reason doesn't match the valid
+cases for this function.
 
-Fix this by changing ath9k_regread() to return -1 on error like ioread32()
-does, and fix the error check to look for that instead of -EIO.
+Add a default case to return without unlocking.
 
-Fixes: 2f90c7e5d094 ("ath9k: Check for errors when reading SREV register")
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Fixes: 09078368d516 ("ath10k: hold RCU lock when calling ieee80211_find_sta_by_ifaddr()")
+Reported-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210326180819.142480-1-toke@redhat.com
+Link: https://lore.kernel.org/r/20210406230228.31301-1-skhan@linuxfoundation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_init.c | 2 +-
- drivers/net/wireless/ath/ath9k/hw.c           | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/wmi-tlv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-index 40a065028ebe..11054c17a9b5 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-@@ -246,7 +246,7 @@ static unsigned int ath9k_regread(void *hw_priv, u32 reg_offset)
- 	if (unlikely(r)) {
- 		ath_dbg(common, WMI, "REGISTER READ FAILED: (0x%04x, %d)\n",
- 			reg_offset, r);
--		return -EIO;
-+		return -1;
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+index d38276ac375e..315d20f5c8eb 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -461,6 +461,9 @@ static void ath10k_wmi_event_tdls_peer(struct ath10k *ar, struct sk_buff *skb)
+ 					GFP_ATOMIC
+ 					);
+ 		break;
++	default:
++		kfree(tb);
++		return;
  	}
  
- 	return be32_to_cpu(val);
-diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
-index 052deffb4c9d..9fd8e64288ff 100644
---- a/drivers/net/wireless/ath/ath9k/hw.c
-+++ b/drivers/net/wireless/ath/ath9k/hw.c
-@@ -287,7 +287,7 @@ static bool ath9k_hw_read_revisions(struct ath_hw *ah)
- 
- 	srev = REG_READ(ah, AR_SREV);
- 
--	if (srev == -EIO) {
-+	if (srev == -1) {
- 		ath_err(ath9k_hw_common(ah),
- 			"Failed to read SREV register");
- 		return false;
+ exit:
 -- 
 2.30.2
 
