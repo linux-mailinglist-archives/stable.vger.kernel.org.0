@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1FB837C30E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:18:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ECBA37C311
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232065AbhELPRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:17:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50810 "EHLO mail.kernel.org"
+        id S232308AbhELPRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:17:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232511AbhELPOG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:14:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E571661461;
-        Wed, 12 May 2021 15:04:34 +0000 (UTC)
+        id S233622AbhELPOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:14:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C50A61947;
+        Wed, 12 May 2021 15:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831875;
-        bh=p/uZoDS1K9GWy2LxpKGK8mnTRIMRArO6DehKgw5B3qU=;
+        s=korg; t=1620831877;
+        bh=u8DTeNU9PR7drrQsSPr8yuvabY5xeHIC6Zj/xahhxlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bq2nEwRaN+TZ8ljmOlGhSKWnfpgDeLSPgePpZIOuFX71TmcTt9hEyHzoEizv/m3rm
-         oQcBWN5ZFRxHutsu3uMAMvR7wbDFkVKMrawvs0PyjRVFwO+FOP6w7PyuykVJrZuX6V
-         bnRE2DIWb8hKlE5C8xkRhB7Vw7IVSu4sfIUBeQgw=
+        b=p3JmOaCIp4XwWEZDG8HySD0Nzu1/oEQZwgmmWAW3/lS+G5MzTJ347EHnJIDvKKd3K
+         9LctM4iv892mBSA6j8SVHLB3r2OYOE2DsFGq55KpYKLzb+lgUU9iulrlhY9AKR/9AI
+         NgAQ4r2nWx0ko2RcTSRoQ0byMNwG3l+m+4ukTdzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 5.10 050/530] md: md_open returns -EBUSY when entering racing area
-Date:   Wed, 12 May 2021 16:42:40 +0200
-Message-Id: <20210512144821.386618889@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Glauber <jglauber@digitalocean.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 5.10 051/530] md: Fix missing unused status line of /proc/mdstat
+Date:   Wed, 12 May 2021 16:42:41 +0200
+Message-Id: <20210512144821.416252346@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -38,41 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Heming <heming.zhao@suse.com>
+From: Jan Glauber <jglauber@digitalocean.com>
 
-commit 6a4db2a60306eb65bfb14ccc9fde035b74a4b4e7 upstream.
+commit 7abfabaf5f805f5171d133ce6af9b65ab766e76a upstream.
 
-commit d3374825ce57 ("md: make devices disappear when they are no longer
-needed.") introduced protection between mddev creating & removing. The
-md_open shouldn't create mddev when all_mddevs list doesn't contain
-mddev. With currently code logic, there will be very easy to trigger
-soft lockup in non-preempt env.
+Reading /proc/mdstat with a read buffer size that would not
+fit the unused status line in the first read will skip this
+line from the output.
 
-This patch changes md_open returning from -ERESTARTSYS to -EBUSY, which
-will break the infinitely retry when md_open enter racing area.
+So 'dd if=/proc/mdstat bs=64 2>/dev/null' will not print something
+like: unused devices: <none>
 
-This patch is partly fix soft lockup issue, full fix needs mddev_find
-is split into two functions: mddev_find & mddev_find_or_alloc. And
-md_open should call new mddev_find (it only does searching job).
+Don't return NULL immediately in start() for v=2 but call
+show() once to print the status line also for multiple reads.
 
-For more detail, please refer with Christoph's "split mddev_find" patch
-in later commits.
-
+Cc: stable@vger.kernel.org
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
+Signed-off-by: Jan Glauber <jglauber@digitalocean.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/md/md.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 --- a/drivers/md/md.c
 +++ b/drivers/md/md.c
-@@ -7857,8 +7857,7 @@ static int md_open(struct block_device *
- 		/* Wait until bdev->bd_disk is definitely gone */
- 		if (work_pending(&mddev->del_work))
- 			flush_workqueue(md_misc_wq);
--		/* Then retry the open from the top */
--		return -ERESTARTSYS;
-+		return -EBUSY;
- 	}
- 	BUG_ON(mddev != bdev->bd_disk->private_data);
+@@ -8187,7 +8187,11 @@ static void *md_seq_start(struct seq_fil
+ 	loff_t l = *pos;
+ 	struct mddev *mddev;
  
+-	if (l >= 0x10000)
++	if (l == 0x10000) {
++		++*pos;
++		return (void *)2;
++	}
++	if (l > 0x10000)
+ 		return NULL;
+ 	if (!l--)
+ 		/* header */
 
 
