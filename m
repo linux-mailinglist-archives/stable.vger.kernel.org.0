@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C6337C670
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B858737C674
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234049AbhELPvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:51:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40100 "EHLO mail.kernel.org"
+        id S233222AbhELPv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:51:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236751AbhELPqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:46:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7243861C9C;
-        Wed, 12 May 2021 15:23:38 +0000 (UTC)
+        id S236757AbhELPqF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:46:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD57B61C9D;
+        Wed, 12 May 2021 15:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833018;
-        bh=eyu97ZBK9xnhz5oNASxAacHzMyKRH3epYFGkrRIH7dY=;
+        s=korg; t=1620833021;
+        bh=kL0SoY78/Ia2wiBtVrHuK92g/GpWUYRL3KVqgA3sy9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnN8KN1g8g7kU1HfA5EAszc95QHt3HBnklRJHDwX4fMVaDcduugSr+p6uIkmToal0
-         dT3JKMEKV99ctYisQMsOJU2pg3qpqNUtBanJFHtyVcKj5SQ++haJ5gLHkxraS/jj8w
-         JPQbxMcQSlscvxGacK24lQ5igTh7SWjLwvUnnQOM=
+        b=FNUi90SxknYmxkn+wCH1w9JyRITyldGcSaSSUZXcRcysYA+hd9uCGraevbRnRP9er
+         G72OX96dnmNHzWfeL1U/QoYSpyWuHmx0If5BkEwu2x8i9TdCBTnSd6QOORKR7n04jq
+         aaah/f6Wh3E5l5FaUPghZvmnfxhnspyv9aRkiYTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Frank Zago <frank.zago@hpe.com>,
+        Bob Pearson <rpearson@hpe.com>,
+        Zhu Yanjun <zyjzyj2000@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 482/530] net: phy: intel-xway: enable integrated led functions
-Date:   Wed, 12 May 2021 16:49:52 +0200
-Message-Id: <20210512144835.602387451@linuxfoundation.org>
+Subject: [PATCH 5.10 483/530] RDMA/rxe: Fix a bug in rxe_fill_ip_info()
+Date:   Wed, 12 May 2021 16:49:53 +0200
+Message-Id: <20210512144835.635355860@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,69 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schiller <ms@dev.tdt.de>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 357a07c26697a770d39d28b6b111f978deb4017d ]
+[ Upstream commit 45062f441590810772959d8e1f2b24ba57ce1bd9 ]
 
-The Intel xway phys offer the possibility to deactivate the integrated
-LED function and to control the LEDs manually.
-If this was set by the bootloader, it must be ensured that the
-integrated LED function is enabled for all LEDs when loading the driver.
+Fix a bug in rxe_fill_ip_info() which was attempting to convert from
+RDMA_NETWORK_XXX to RXE_NETWORK_XXX. .._IPV6 should have mapped to .._IPV6
+not .._IPV4.
 
-Before commit 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-the LEDs were enabled by a soft-reset of the PHY (using
-genphy_soft_reset). Initialize the XWAY_MDIO_LED with it's default
-value (which is applied during a soft reset) instead of adding back
-the soft reset. This brings back the default LED configuration while
-still preventing an excessive amount of soft resets.
-
-Fixes: 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: edebc8407b88 ("RDMA/rxe: Fix small problem in network_type patch")
+Link: https://lore.kernel.org/r/20210421035952.4892-1-rpearson@hpe.com
+Suggested-by: Frank Zago <frank.zago@hpe.com>
+Signed-off-by: Bob Pearson <rpearson@hpe.com>
+Acked-by: Zhu Yanjun <zyjzyj2000@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/intel-xway.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/infiniband/sw/rxe/rxe_av.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/intel-xway.c b/drivers/net/phy/intel-xway.c
-index b7875b36097f..574a8bca1ec4 100644
---- a/drivers/net/phy/intel-xway.c
-+++ b/drivers/net/phy/intel-xway.c
-@@ -11,6 +11,18 @@
- 
- #define XWAY_MDIO_IMASK			0x19	/* interrupt mask */
- #define XWAY_MDIO_ISTAT			0x1A	/* interrupt status */
-+#define XWAY_MDIO_LED			0x1B	/* led control */
-+
-+/* bit 15:12 are reserved */
-+#define XWAY_MDIO_LED_LED3_EN		BIT(11)	/* Enable the integrated function of LED3 */
-+#define XWAY_MDIO_LED_LED2_EN		BIT(10)	/* Enable the integrated function of LED2 */
-+#define XWAY_MDIO_LED_LED1_EN		BIT(9)	/* Enable the integrated function of LED1 */
-+#define XWAY_MDIO_LED_LED0_EN		BIT(8)	/* Enable the integrated function of LED0 */
-+/* bit 7:4 are reserved */
-+#define XWAY_MDIO_LED_LED3_DA		BIT(3)	/* Direct Access to LED3 */
-+#define XWAY_MDIO_LED_LED2_DA		BIT(2)	/* Direct Access to LED2 */
-+#define XWAY_MDIO_LED_LED1_DA		BIT(1)	/* Direct Access to LED1 */
-+#define XWAY_MDIO_LED_LED0_DA		BIT(0)	/* Direct Access to LED0 */
- 
- #define XWAY_MDIO_INIT_WOL		BIT(15)	/* Wake-On-LAN */
- #define XWAY_MDIO_INIT_MSRE		BIT(14)
-@@ -159,6 +171,15 @@ static int xway_gphy_config_init(struct phy_device *phydev)
- 	/* Clear all pending interrupts */
- 	phy_read(phydev, XWAY_MDIO_ISTAT);
- 
-+	/* Ensure that integrated led function is enabled for all leds */
-+	err = phy_write(phydev, XWAY_MDIO_LED,
-+			XWAY_MDIO_LED_LED0_EN |
-+			XWAY_MDIO_LED_LED1_EN |
-+			XWAY_MDIO_LED_LED2_EN |
-+			XWAY_MDIO_LED_LED3_EN);
-+	if (err)
-+		return err;
-+
- 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LEDCH,
- 		      XWAY_MMD_LEDCH_NACS_NONE |
- 		      XWAY_MMD_LEDCH_SBF_F02HZ |
+diff --git a/drivers/infiniband/sw/rxe/rxe_av.c b/drivers/infiniband/sw/rxe/rxe_av.c
+index df0d173d6acb..da2e867a1ed9 100644
+--- a/drivers/infiniband/sw/rxe/rxe_av.c
++++ b/drivers/infiniband/sw/rxe/rxe_av.c
+@@ -88,7 +88,7 @@ void rxe_av_fill_ip_info(struct rxe_av *av, struct rdma_ah_attr *attr)
+ 		type = RXE_NETWORK_TYPE_IPV4;
+ 		break;
+ 	case RDMA_NETWORK_IPV6:
+-		type = RXE_NETWORK_TYPE_IPV4;
++		type = RXE_NETWORK_TYPE_IPV6;
+ 		break;
+ 	default:
+ 		/* not reached - checked in rxe_av_chk_attr */
 -- 
 2.30.2
 
