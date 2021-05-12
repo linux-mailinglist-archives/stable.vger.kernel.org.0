@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B357337C57C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 410F437C583
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231310AbhELPlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50038 "EHLO mail.kernel.org"
+        id S233387AbhELPlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235543AbhELPfy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:35:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54B1261C40;
-        Wed, 12 May 2021 15:17:55 +0000 (UTC)
+        id S235554AbhELPf4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:35:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B845961C43;
+        Wed, 12 May 2021 15:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832675;
-        bh=0tZ7O0vNpbKTAR9y891TW5HsK9QWmS05pBoP9DLh498=;
+        s=korg; t=1620832678;
+        bh=V7B4Wi4Gqt+hVdPTZ8oV/auGEclNsH/Hpn+n/5MwV/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irhBLoL5cOfdHWqJHexm0o6C4dQESdxhCRrL+g8DgIsSg80Fw6MoAG3Ys+BQj+KV3
-         O5sH7On+tdfb6UPIZBLYcMBr4ow0uvukJqyBrWZNNzXbjJn4iMV5/fUZsLiRWHFByt
-         9f1trQfsZtAol59PBICduvdxS7QOuMQPE2djiTfc=
+        b=Mf5Xscm1l9CNW46iXdLsWsXUCqfOiywbRNsM34AqFA1iXnyhKJei1CFgKx+Bc4EFu
+         +2n12nHyN2XKPTZe+g0A5CoDJsTAM4bS3fjGPNI7t7N1LQ+vAm36LvdXTC+6uovDYQ
+         5fiAEKFH/q7UTNInJ5SbPHSo8rIhATvXUorZvdFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia Zhou <zhou.jia2@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?M=C3=A5ns=20Rullg=C3=A5rd?= <mans@mansr.com>,
+        Andre Edich <andre.edich@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 378/530] ALSA: core: remove redundant spin_lock pair in snd_card_disconnect
-Date:   Wed, 12 May 2021 16:48:08 +0200
-Message-Id: <20210512144832.200074074@linuxfoundation.org>
+Subject: [PATCH 5.10 379/530] net: phy: lan87xx: fix access to wrong register of LAN87xx
+Date:   Wed, 12 May 2021 16:48:09 +0200
+Message-Id: <20210512144832.233547667@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,38 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Zhou <zhou.jia2@zte.com.cn>
+From: Andre Edich <andre.edich@microchip.com>
 
-[ Upstream commit abc21649b3e5c34b143bf86f0c78e33d5815e250 ]
+[ Upstream commit fdb5cc6ab3b6a1c0122d3644a63ef9dc7a610d35 ]
 
-modification in commit 2a3f7221acdd ("ALSA: core: Fix card races between
-register and disconnect") resulting in this problem.
+The function lan87xx_config_aneg_ext was introduced to configure
+LAN95xxA but as well writes to undocumented register of LAN87xx.
+This fix prevents that access.
 
-Fixes: 2a3f7221acdd ("ALSA: core: Fix card races between register and disconnect")
-Signed-off-by: Jia Zhou <zhou.jia2@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Link: https://lore.kernel.org/r/1616989007-34429-1-git-send-email-wang.yi59@zte.com.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The function lan87xx_config_aneg_ext gets more suitable for the new
+behavior name.
+
+Reported-by: Måns Rullgård <mans@mansr.com>
+Fixes: 05b35e7eb9a1 ("smsc95xx: add phylib support")
+Signed-off-by: Andre Edich <andre.edich@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/init.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/phy/smsc.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/core/init.c b/sound/core/init.c
-index 018ce4ef12ec..9f5270c90a10 100644
---- a/sound/core/init.c
-+++ b/sound/core/init.c
-@@ -390,10 +390,8 @@ int snd_card_disconnect(struct snd_card *card)
- 		return 0;
- 	}
- 	card->shutdown = 1;
--	spin_unlock(&card->files_lock);
+diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
+index 10722fed666d..caf7291ffaf8 100644
+--- a/drivers/net/phy/smsc.c
++++ b/drivers/net/phy/smsc.c
+@@ -152,10 +152,13 @@ static int lan87xx_config_aneg(struct phy_device *phydev)
+ 	return genphy_config_aneg(phydev);
+ }
  
- 	/* replace file->f_op with special dummy operations */
--	spin_lock(&card->files_lock);
- 	list_for_each_entry(mfile, &card->files_list, list) {
- 		/* it's critical part, use endless loop */
- 		/* we have no room to fail */
+-static int lan87xx_config_aneg_ext(struct phy_device *phydev)
++static int lan95xx_config_aneg_ext(struct phy_device *phydev)
+ {
+ 	int rc;
+ 
++	if (phydev->phy_id != 0x0007c0f0) /* not (LAN9500A or LAN9505A) */
++		return lan87xx_config_aneg(phydev);
++
+ 	/* Extend Manual AutoMDIX timer */
+ 	rc = phy_read(phydev, PHY_EDPD_CONFIG);
+ 	if (rc < 0)
+@@ -408,7 +411,7 @@ static struct phy_driver smsc_phy_driver[] = {
+ 	.read_status	= lan87xx_read_status,
+ 	.config_init	= smsc_phy_config_init,
+ 	.soft_reset	= smsc_phy_reset,
+-	.config_aneg	= lan87xx_config_aneg_ext,
++	.config_aneg	= lan95xx_config_aneg_ext,
+ 
+ 	/* IRQ related */
+ 	.ack_interrupt	= smsc_phy_ack_interrupt,
 -- 
 2.30.2
 
