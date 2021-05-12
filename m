@@ -2,62 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2A737B70E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 09:46:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1526437B723
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 09:55:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbhELHrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 03:47:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55858 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229994AbhELHrj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 03:47:39 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B39C061574
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 00:46:31 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id i9so25811343lfe.13
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 00:46:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=QPlBoWs6JpPC0HsdM64ikYDT3sRypvx3bPWY/a3rKoQ=;
-        b=RBtxVSFU75BYatm/DMht0idy77XRspPe38Xp4ufhuM7kOkOyUhNSz0OChJ9FI1f6p9
-         I7r2t8tKOx8kf7h5Rl5A7gayFpS32WxZb1CQmzYJXLYcYDpBAoU1zmWev4aTh3kxPs0p
-         KOACXVOaVZqc5JFSM4KCD1d6Gr/mcAqNIf9Bya0/QDvwW7rrtpVBxrfq1XYbQtS17l4E
-         GxsjNFYXjWrmkPmYqJMVerigdBNH+lqdxAeQQwQyKKwwatGqE2koSlGzTypv34+VpWJ3
-         793fMjjQikwipXCVTEzEx8O+kzSIJ0CDYpKYA2IicmXJULjoiriYJhLB47xxO3S5gwf3
-         OQpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=QPlBoWs6JpPC0HsdM64ikYDT3sRypvx3bPWY/a3rKoQ=;
-        b=EZ1k+vyW194dR2k66fZY7On3fiNGUsI37YbIzL6KJAVA5VdXAtxY/kBAfb7Sbo4LCy
-         EKLyzQ1C0QHE+LXN/Db1f9wtneZ9RPbZpebTsSyb/C1tCpYeMLc30UItOgyaisEanTpx
-         gtdGEgHPe3X29sHvqtcz4lLY4sv4WoL3g4DMVJiIxJkf/dQgclwqSYk+EbMFGwGkppBq
-         /sQTnteLGbh3GWVJUMYWB6/HKaj+jlSDnNty8PWewSp94X0boZErwgHMcEzt7Pg9YE52
-         QgQ/GHJdLfTCU6KzgFOG33yrOfQge6u5HKLio8BXqGJuUXR+6Rcfy89blaSbkzbb+Ktz
-         BqVw==
-X-Gm-Message-State: AOAM533Av08qJbTjnRqmbkr1eoaX/qTg7FVLBrmNBvIJfA9pGD9FaZJP
-        7zXezVdxGaAlb38vI6ruNkjQg+V+CRG2ZG0PuRI=
-X-Google-Smtp-Source: ABdhPJyXig76/UX+N106+e9FWqCKCGtlzZmR/pWqvYMPPHRNAvNGq3qDy7FsYBEPdWqD4SG/DNyYG83lG4i/vC9OUJo=
-X-Received: by 2002:a05:6512:3d94:: with SMTP id k20mr23294826lfv.604.1620805589850;
- Wed, 12 May 2021 00:46:29 -0700 (PDT)
+        id S230183AbhELH4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 03:56:19 -0400
+Received: from 8bytes.org ([81.169.241.247]:38564 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230137AbhELH4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 03:56:17 -0400
+Received: from cap.home.8bytes.org (p549ad305.dip0.t-ipconnect.de [84.154.211.5])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by theia.8bytes.org (Postfix) with ESMTPSA id E9F862A5;
+        Wed, 12 May 2021 09:55:07 +0200 (CEST)
+From:   Joerg Roedel <joro@8bytes.org>
+To:     x86@kernel.org, Hyunwook Baek <baekhw@google.com>
+Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
+        stable@vger.kernel.org, hpa@zytor.com,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: [PATCH 1/6] x86/sev-es: Don't return NULL from sev_es_get_ghcb()
+Date:   Wed, 12 May 2021 09:54:40 +0200
+Message-Id: <20210512075445.18935-2-joro@8bytes.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210512075445.18935-1-joro@8bytes.org>
+References: <20210512075445.18935-1-joro@8bytes.org>
 MIME-Version: 1.0
-Sender: kafuikpognon@gmail.com
-Received: by 2002:a05:651c:50c:0:0:0:0 with HTTP; Wed, 12 May 2021 00:46:29
- -0700 (PDT)
-From:   Kayla manthey <sgt.kayla12@gmail.com>
-Date:   Wed, 12 May 2021 07:46:29 +0000
-X-Google-Sender-Auth: 47ljX5bjNzGUAjE3L0MFXMUAfjY
-Message-ID: <CAFQdz269CSHSpqdit0PNLLEdPKu2FV7t+Bt-NMR+mk6Mg0+9Eg@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Bitte, ich w=C3=BCrde gerne wissen, ob Sie meine vorherige Nachricht
-erhalten haben, danke.
+From: Joerg Roedel <jroedel@suse.de>
+
+The sev_es_get_ghcb() is called from several places, but only one of
+them checks the return value. The reaction to returning NULL is always
+the same: Calling panic() and kill the machine.
+
+Instead of adding checks to all call-places, move the panic() into the
+function itself so that it will no longer return NULL.
+
+Fixes: 0786138c78e7 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/kernel/sev.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
+
+diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
+index 9578c82832aa..c49270c7669e 100644
+--- a/arch/x86/kernel/sev.c
++++ b/arch/x86/kernel/sev.c
+@@ -203,8 +203,18 @@ static __always_inline struct ghcb *sev_es_get_ghcb(struct ghcb_state *state)
+ 	if (unlikely(data->ghcb_active)) {
+ 		/* GHCB is already in use - save its contents */
+ 
+-		if (unlikely(data->backup_ghcb_active))
+-			return NULL;
++		if (unlikely(data->backup_ghcb_active)) {
++			/*
++			 * Backup-GHCB is also already in use. There is no way
++			 * to continue here so just kill the machine. To make
++			 * panic() work, mark GHCBs inactive so that messages
++			 * can be printed out.
++			 */
++			data->ghcb_active        = false;
++			data->backup_ghcb_active = false;
++
++			panic("Unable to handle #VC exception! GHCB and Backup GHCB are already in use");
++		}
+ 
+ 		/* Mark backup_ghcb active before writing to it */
+ 		data->backup_ghcb_active = true;
+@@ -1284,7 +1294,6 @@ static __always_inline bool on_vc_fallback_stack(struct pt_regs *regs)
+  */
+ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ {
+-	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
+ 	irqentry_state_t irq_state;
+ 	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+@@ -1310,16 +1319,6 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	 */
+ 
+ 	ghcb = sev_es_get_ghcb(&state);
+-	if (!ghcb) {
+-		/*
+-		 * Mark GHCBs inactive so that panic() is able to print the
+-		 * message.
+-		 */
+-		data->ghcb_active        = false;
+-		data->backup_ghcb_active = false;
+-
+-		panic("Unable to handle #VC exception! GHCB and Backup GHCB are already in use");
+-	}
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	result = vc_init_em_ctxt(&ctxt, regs, error_code);
+-- 
+2.31.1
+
