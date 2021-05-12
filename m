@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A049537C217
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7879037C219
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbhELPGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59036 "EHLO mail.kernel.org"
+        id S232874AbhELPGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:06:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233398AbhELPFS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233400AbhELPFS (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:05:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EFE06194A;
-        Wed, 12 May 2021 15:00:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFC1D6194C;
+        Wed, 12 May 2021 15:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831612;
-        bh=7JQrmzKSCwl3cVhYx9bVHXW2JQqe5aNJG9NsfsbvgzU=;
+        s=korg; t=1620831614;
+        bh=JnMTwQBXdOGAb2QN0xc3vP9rfU446/io+sj55gkFHGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXbio+PQq8QimxOKs22qDAs7nbDZlqWApb0Q+HkKDLko/q3grQqYzqouIXN2o6qC3
-         4m8mo/y/gTAbw+1sKetnh1BV4ooRYIeShGBmAWsIRNwB8nf7aHPOBOpD5R9TMfcJ5g
-         LmHsl6G5RurxM08F9YfBEsJwqwgTau9kp81HI75I=
+        b=2NMmGezrp3vRMU7UYk4p7+gy/YI9k+8ERl0ULCb3pK5oabTi4M+huD5ZQXnz1lH3f
+         UuE/8/d868Cy8d3KWEZnwoV5qINyaaf9VxZfQH+8UiZFaUpTHKVJx3YwD3HJ4Cfb2y
+         k+Gha2ForM71Pmxx3S8mNAfaOHjU2b650l+TIjOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 188/244] powerpc: iommu: fix build when neither PCI or IBMVIO is set
-Date:   Wed, 12 May 2021 16:49:19 +0200
-Message-Id: <20210512144749.015049994@linuxfoundation.org>
+Subject: [PATCH 5.4 189/244] mac80211: bail out if cipher schemes are invalid
+Date:   Wed, 12 May 2021 16:49:20 +0200
+Message-Id: <20210512144749.045919231@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -41,42 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit b27dadecdf9102838331b9a0b41ffc1cfe288154 ]
+[ Upstream commit db878e27a98106a70315d264cc92230d84009e72 ]
 
-When neither CONFIG_PCI nor CONFIG_IBMVIO is set/enabled, iommu.c has a
-build error. The fault injection code is not useful in that kernel config,
-so make the FAIL_IOMMU option depend on PCI || IBMVIO.
+If any of the cipher schemes specified by the driver are invalid, bail
+out and fail the registration rather than just warning.  Otherwise, we
+might later crash when we try to use the invalid cipher scheme, e.g.
+if the hdr_len is (significantly) less than the pn_offs + pn_len, we'd
+have an out-of-bounds access in RX validation.
 
-Prevents this build error (warning escalated to error):
-../arch/powerpc/kernel/iommu.c:178:30: error: 'fail_iommu_bus_notifier' defined but not used [-Werror=unused-variable]
-  178 | static struct notifier_block fail_iommu_bus_notifier = {
-
-Fixes: d6b9a81b2a45 ("powerpc: IOMMU fault injection")
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210404192623.10697-1-rdunlap@infradead.org
+Fixes: 2475b1cc0d52 ("mac80211: add generic cipher scheme support")
+Link: https://lore.kernel.org/r/20210408143149.38a3a13a1b19.I6b7f5790fa0958ed8049cf02ac2a535c61e9bc96@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig.debug b/arch/powerpc/Kconfig.debug
-index b915fe658979..2ca9114fcf00 100644
---- a/arch/powerpc/Kconfig.debug
-+++ b/arch/powerpc/Kconfig.debug
-@@ -352,6 +352,7 @@ config PPC_EARLY_DEBUG_CPM_ADDR
- config FAIL_IOMMU
- 	bool "Fault-injection capability for IOMMU"
- 	depends on FAULT_INJECTION
-+	depends on PCI || IBMVIO
- 	help
- 	  Provide fault-injection capability for IOMMU. Each device can
- 	  be selectively enabled via the fail_iommu property.
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index 5b3189a37680..f215218a88c9 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -1113,8 +1113,11 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
+ 	if (local->hw.wiphy->max_scan_ie_len)
+ 		local->hw.wiphy->max_scan_ie_len -= local->scan_ies_len;
+ 
+-	WARN_ON(!ieee80211_cs_list_valid(local->hw.cipher_schemes,
+-					 local->hw.n_cipher_schemes));
++	if (WARN_ON(!ieee80211_cs_list_valid(local->hw.cipher_schemes,
++					     local->hw.n_cipher_schemes))) {
++		result = -EINVAL;
++		goto fail_workqueue;
++	}
+ 
+ 	result = ieee80211_init_cipher_suites(local);
+ 	if (result < 0)
 -- 
 2.30.2
 
