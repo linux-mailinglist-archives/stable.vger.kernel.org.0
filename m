@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32A9B37C5CC
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF6CA37C626
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235175AbhELPnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235168AbhELPnO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 11:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57044 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231708AbhELPiU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:38:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7779C61C63;
-        Wed, 12 May 2021 15:20:19 +0000 (UTC)
+        id S232449AbhELPiZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:38:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCFE661C5B;
+        Wed, 12 May 2021 15:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832820;
-        bh=qcijQx95h+lRm0cz4YZ4JFo08J43H8yQ6iqo2AaYK0k=;
+        s=korg; t=1620832822;
+        bh=YDPLtz7CxpJbrCQhDSgIeHS1+CZ6obzzbeZLnNtuQng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qi4Bb9fhdL11Xv/sILl84nlO36bTvSB9XElqv7N033fafaM6ZGucpM4D42oiRQyBx
-         85m0JbBXZscZWJXvBaHytHaTi0aBqHdm/Qwsx3D+DYl5OeeEgz7CRRyBCh97h2Cz/Q
-         fwDMtcJ3rOCPMw6tQTmBOXQcdpxc9hfRPDOGBM70=
+        b=Is80Fq/ed2hEtR2clakKCo15vJ3173WvMuwp6/c8I85YreEzv1P23hwcT/1fpsIyK
+         8sZ06tX5mpyKzf6Jp1alhZqF7Uj8t8SxjGBQCEVzzBoyTWdY/WWTNZWTAaTxj4cRUf
+         zxo30nrUAN+FUAk1y9v1cxY2VfkSmw3pfy0cDbSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 435/530] i2c: xiic: fix reference leak when pm_runtime_get_sync fails
-Date:   Wed, 12 May 2021 16:49:05 +0200
-Message-Id: <20210512144834.056410047@linuxfoundation.org>
+Subject: [PATCH 5.10 436/530] i2c: cadence: add IRQ check
+Date:   Wed, 12 May 2021 16:49:06 +0200
+Message-Id: <20210512144834.093681409@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,51 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit a85c5c7a3aa8041777ff691400b4046e56149fd3 ]
+[ Upstream commit 5581c2c5d02bc63a0edb53e061c8e97cd490646e ]
 
-The PM reference count is not expected to be incremented on
-return in xiic_xfer and xiic_i2c_remove.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
+an original error code.  Stop calling devm_request_irq() with invalid
+IRQ #s.
 
-However, pm_runtime_get_sync will increment the PM reference
-count even failed. Forgetting to putting operation will result
-in a reference leak here.
-
-Replace it with pm_runtime_resume_and_get to keep usage
-counter balanced.
-
-Fixes: 10b17004a74c ("i2c: xiic: Fix the clocking across bind unbind")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Fixes: df8eb5691c48 ("i2c: Add driver for Cadence I2C controller")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-xiic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-cadence.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 087b2951942e..2a8568b97c14 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -706,7 +706,7 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	dev_dbg(adap->dev.parent, "%s entry SR: 0x%x\n", __func__,
- 		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET));
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index e8eae8725900..c1bbc4caeb5c 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -1200,7 +1200,10 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(id->membase))
+ 		return PTR_ERR(id->membase);
  
--	err = pm_runtime_get_sync(i2c->dev);
-+	err = pm_runtime_resume_and_get(i2c->dev);
- 	if (err < 0)
- 		return err;
+-	id->irq = platform_get_irq(pdev, 0);
++	ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		return ret;
++	id->irq = ret;
  
-@@ -873,7 +873,7 @@ static int xiic_i2c_remove(struct platform_device *pdev)
- 	/* remove adapter & data */
- 	i2c_del_adapter(&i2c->adap);
- 
--	ret = pm_runtime_get_sync(i2c->dev);
-+	ret = pm_runtime_resume_and_get(i2c->dev);
- 	if (ret < 0)
- 		return ret;
- 
+ 	id->adap.owner = THIS_MODULE;
+ 	id->adap.dev.of_node = pdev->dev.of_node;
 -- 
 2.30.2
 
