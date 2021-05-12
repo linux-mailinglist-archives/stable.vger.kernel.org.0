@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0744537C356
+	by mail.lfdr.de (Postfix) with ESMTP id DB7D637C358
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233488AbhELPSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49672 "EHLO mail.kernel.org"
+        id S233497AbhELPS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234331AbhELPQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F11466197B;
-        Wed, 12 May 2021 15:06:21 +0000 (UTC)
+        id S234356AbhELPQg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 603FA61958;
+        Wed, 12 May 2021 15:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831982;
-        bh=x2ErDLcgKwxy1OQvmdn6un1x+lLKszGhXqvNZQIyXAw=;
+        s=korg; t=1620831984;
+        bh=swWjcGHxHBfsgF9qsbV9bir1xyrptSbVxG4/u95uxiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2EHU1M4z7jLq357mY9wiarkslFKMPigSb19v3S1QJKon9VmpL0N5Mp7ZtU4+2cxA
-         98rUK/1r5kkbiw0QDt8tYUtPpwSzD1IHAOISkZpIA57oySWYnHOKW5WZ8jfDBcdoUX
-         Yn90uRygHucn7XX9OT5uBiMfOliE2LkkS0OLaDWM=
+        b=rbTLilYSQuJctDBpxJKMmZ29Nnx33aLFRc8ovrsqLfIUfCVPLRx8LqZZLq2daR5DE
+         +6/OFc9DaEaSn6Ivxnx3LEYdxfeB6kgIM+NyQbxfzfIh2ds0p43k5QhBL1YMkeJqXp
+         A7oCx8+qJT+hsGoREwKODR5tru9eknKRzheI57s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 093/530] KVM: nSVM: Set the shadow root level to the TDP level for nested NPT
-Date:   Wed, 12 May 2021 16:43:23 +0200
-Message-Id: <20210512144822.860319502@linuxfoundation.org>
+Subject: [PATCH 5.10 094/530] KVM: SVM: Dont strip the C-bit from CR2 on #PF interception
+Date:   Wed, 12 May 2021 16:43:24 +0200
+Message-Id: <20210512144822.895020635@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,44 +43,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit a3322d5cd87fef5ec0037fd1b14068a533f9a60f upstream.
+commit 6d1b867d045699d6ce0dfa0ef35d1b87dd36db56 upstream.
 
-Override the shadow root level in the MMU context when configuring
-NPT for shadowing nested NPT.  The level is always tied to the TDP level
-of the host, not whatever level the guest happens to be using.
+Don't strip the C-bit from the faulting address on an intercepted #PF,
+the address is a virtual address, not a physical address.
 
-Fixes: 096586fda522 ("KVM: nSVM: Correctly set the shadow NPT root level in its MMU role")
+Fixes: 0ede79e13224 ("KVM: SVM: Clear C-bit from the page fault address")
 Cc: stable@vger.kernel.org
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210305011101.3597423-2-seanjc@google.com>
+Message-Id: <20210305011101.3597423-13-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/kvm/svm/svm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4617,12 +4617,17 @@ void kvm_init_shadow_npt_mmu(struct kvm_
- 	struct kvm_mmu *context = &vcpu->arch.guest_mmu;
- 	union kvm_mmu_role new_role = kvm_calc_shadow_npt_root_page_role(vcpu);
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -1805,7 +1805,7 @@ static void svm_set_dr7(struct kvm_vcpu
  
--	context->shadow_root_level = new_role.base.level;
--
- 	__kvm_mmu_new_pgd(vcpu, nested_cr3, new_role.base, false, false);
+ static int pf_interception(struct vcpu_svm *svm)
+ {
+-	u64 fault_address = __sme_clr(svm->vmcb->control.exit_info_2);
++	u64 fault_address = svm->vmcb->control.exit_info_2;
+ 	u64 error_code = svm->vmcb->control.exit_info_1;
  
--	if (new_role.as_u64 != context->mmu_role.as_u64)
-+	if (new_role.as_u64 != context->mmu_role.as_u64) {
- 		shadow_mmu_init_context(vcpu, context, cr0, cr4, efer, new_role);
-+
-+		/*
-+		 * Override the level set by the common init helper, nested TDP
-+		 * always uses the host's TDP configuration.
-+		 */
-+		context->shadow_root_level = new_role.base.level;
-+	}
- }
- EXPORT_SYMBOL_GPL(kvm_init_shadow_npt_mmu);
- 
+ 	return kvm_handle_page_fault(&svm->vcpu, error_code, fault_address,
 
 
