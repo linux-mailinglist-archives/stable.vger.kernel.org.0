@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75CE537CCDF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61D4537CD19
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:08:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232135AbhELQsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:48:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35834 "EHLO mail.kernel.org"
+        id S232408AbhELQxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:53:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243684AbhELQlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243693AbhELQlz (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:41:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B57AB61C35;
-        Wed, 12 May 2021 16:06:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B5A861CE8;
+        Wed, 12 May 2021 16:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835563;
-        bh=slNQXBaKXmxDJVtJ5D0GU1/T/ySreAjwVJBQXOjzkXg=;
+        s=korg; t=1620835565;
+        bh=tphvhTzPs2mQoPf0LroDP7r77qvJbG8SL36O/m5brLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yy8r0CONmvE9y1QMgKC/rWmu2UbFoZ+V6GfD8MtcxiTAZ5G1AQznjyn/CPGIQyJ2o
-         g1TSzvbKxwHzBQL3GjsrRlb+91eNy71b9N83t7nhSD8vNMH4YbP29J4wEh9aVWcg6u
-         zPEwuV7zDfQHllgip0BOQXOwI3V+wP2ddzJLfuNE=
+        b=zeZ/8wkCNcs6tL6Zr0yfCyEUSSf/qXwRz1RlON4KCqQZejXwnOt+m4KRzMG7iLtsS
+         wI+2Zu7SWlQwv2a30ujGvYZyKASsTllfEPJmaZmrWrOTxTQ1rfUpP0woMFUeaqZgdS
+         7CPjGKAWMWlzQEsSg8TGgrZEzqNCsoRhg1TZC9tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniel Almeida <daniel.almeida@collabora.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 394/677] media: rkvdec: Do not require all controls to be present in every request
-Date:   Wed, 12 May 2021 16:47:20 +0200
-Message-Id: <20210512144850.418557420@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Diana Craciun OSS <diana.craciun@oss.nxp.com>
+Subject: [PATCH 5.12 395/677] vfio/fsl-mc: Re-order vfio_fsl_mc_probe()
+Date:   Wed, 12 May 2021 16:47:21 +0200
+Message-Id: <20210512144850.450071301@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,121 +41,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Almeida <daniel.almeida@collabora.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 54676d5f5630b79f7b00c7c43882a58c1815aaf9 ]
+[ Upstream commit 2b1fe162e584a88ec7f12a651a2a50f94dd8cfac ]
 
-According to the v4l2 api, it is allowed to skip
-setting a control if its contents haven't changed for performance
-reasons: userspace should only update the controls that changed from
-last frame rather then updating them all. Still some ancient code
-that checks for mandatory controls has been left in this driver.
+vfio_add_group_dev() must be called only after all of the private data in
+vdev is fully setup and ready, otherwise there could be races with user
+space instantiating a device file descriptor and starting to call ops.
 
-Remove it.
+For instance vfio_fsl_mc_reflck_attach() sets vdev->reflck and
+vfio_fsl_mc_open(), called by fops open, unconditionally derefs it, which
+will crash if things get out of order.
 
-Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
-Signed-off-by: Daniel Almeida <daniel.almeida@collabora.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This driver started life with the right sequence, but two commits added
+stuff after vfio_add_group_dev().
+
+Fixes: 2e0d29561f59 ("vfio/fsl-mc: Add irq infrastructure for fsl-mc devices")
+Fixes: f2ba7e8c947b ("vfio/fsl-mc: Added lock support in preparation for interrupt handling")
+Co-developed-by: Diana Craciun OSS <diana.craciun@oss.nxp.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Message-Id: <5-v3-225de1400dfc+4e074-vfio1_jgg@nvidia.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkvdec/rkvdec.c | 48 +--------------------------
- drivers/staging/media/rkvdec/rkvdec.h |  1 -
- 2 files changed, 1 insertion(+), 48 deletions(-)
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c | 74 ++++++++++++++++++++-----------
+ 1 file changed, 47 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
-index d3eb81ee8dc2..5f0219d117fb 100644
---- a/drivers/staging/media/rkvdec/rkvdec.c
-+++ b/drivers/staging/media/rkvdec/rkvdec.c
-@@ -55,16 +55,13 @@ static const struct v4l2_ctrl_ops rkvdec_ctrl_ops = {
+diff --git a/drivers/vfio/fsl-mc/vfio_fsl_mc.c b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+index f27e25112c40..8722f5effacd 100644
+--- a/drivers/vfio/fsl-mc/vfio_fsl_mc.c
++++ b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+@@ -568,23 +568,39 @@ static int vfio_fsl_mc_init_device(struct vfio_fsl_mc_device *vdev)
+ 		dev_err(&mc_dev->dev, "VFIO_FSL_MC: Failed to setup DPRC (%d)\n", ret);
+ 		goto out_nc_unreg;
+ 	}
++	return 0;
++
++out_nc_unreg:
++	bus_unregister_notifier(&fsl_mc_bus_type, &vdev->nb);
++	return ret;
++}
  
- static const struct rkvdec_ctrl_desc rkvdec_h264_ctrl_descs[] = {
- 	{
--		.mandatory = true,
- 		.cfg.id = V4L2_CID_STATELESS_H264_DECODE_PARAMS,
- 	},
- 	{
--		.mandatory = true,
- 		.cfg.id = V4L2_CID_STATELESS_H264_SPS,
- 		.cfg.ops = &rkvdec_ctrl_ops,
- 	},
- 	{
--		.mandatory = true,
- 		.cfg.id = V4L2_CID_STATELESS_H264_PPS,
- 	},
- 	{
-@@ -585,25 +582,7 @@ static const struct vb2_ops rkvdec_queue_ops = {
++static int vfio_fsl_mc_scan_container(struct fsl_mc_device *mc_dev)
++{
++	int ret;
++
++	/* non dprc devices do not scan for other devices */
++	if (!is_fsl_mc_bus_dprc(mc_dev))
++		return 0;
+ 	ret = dprc_scan_container(mc_dev, false);
+ 	if (ret) {
+-		dev_err(&mc_dev->dev, "VFIO_FSL_MC: Container scanning failed (%d)\n", ret);
+-		goto out_dprc_cleanup;
++		dev_err(&mc_dev->dev,
++			"VFIO_FSL_MC: Container scanning failed (%d)\n", ret);
++		dprc_remove_devices(mc_dev, NULL, 0);
++		return ret;
+ 	}
+-
+ 	return 0;
++}
++
++static void vfio_fsl_uninit_device(struct vfio_fsl_mc_device *vdev)
++{
++	struct fsl_mc_device *mc_dev = vdev->mc_dev;
++
++	if (!is_fsl_mc_bus_dprc(mc_dev))
++		return;
  
- static int rkvdec_request_validate(struct media_request *req)
- {
--	struct media_request_object *obj;
--	const struct rkvdec_ctrls *ctrls;
--	struct v4l2_ctrl_handler *hdl;
--	struct rkvdec_ctx *ctx = NULL;
--	unsigned int count, i;
--	int ret;
+-out_dprc_cleanup:
+-	dprc_remove_devices(mc_dev, NULL, 0);
+ 	dprc_cleanup(mc_dev);
+-out_nc_unreg:
+ 	bus_unregister_notifier(&fsl_mc_bus_type, &vdev->nb);
+-	vdev->nb.notifier_call = NULL;
 -
--	list_for_each_entry(obj, &req->objects, list) {
--		if (vb2_request_object_is_buffer(obj)) {
--			struct vb2_buffer *vb;
--
--			vb = container_of(obj, struct vb2_buffer, req_obj);
--			ctx = vb2_get_drv_priv(vb->vb2_queue);
--			break;
--		}
--	}
--
--	if (!ctx)
--		return -EINVAL;
-+	unsigned int count;
- 
- 	count = vb2_request_buffer_cnt(req);
- 	if (!count)
-@@ -611,31 +590,6 @@ static int rkvdec_request_validate(struct media_request *req)
- 	else if (count > 1)
- 		return -EINVAL;
- 
--	hdl = v4l2_ctrl_request_hdl_find(req, &ctx->ctrl_hdl);
--	if (!hdl)
--		return -ENOENT;
--
--	ret = 0;
--	ctrls = ctx->coded_fmt_desc->ctrls;
--	for (i = 0; ctrls && i < ctrls->num_ctrls; i++) {
--		u32 id = ctrls->ctrls[i].cfg.id;
--		struct v4l2_ctrl *ctrl;
--
--		if (!ctrls->ctrls[i].mandatory)
--			continue;
--
--		ctrl = v4l2_ctrl_request_hdl_ctrl_find(hdl, id);
--		if (!ctrl) {
--			ret = -ENOENT;
--			break;
--		}
--	}
--
--	v4l2_ctrl_request_hdl_put(hdl);
--
--	if (ret)
--		return ret;
--
- 	return vb2_request_validate(req);
+-	return ret;
  }
  
-diff --git a/drivers/staging/media/rkvdec/rkvdec.h b/drivers/staging/media/rkvdec/rkvdec.h
-index 77a137cca88e..52ac3874c5e5 100644
---- a/drivers/staging/media/rkvdec/rkvdec.h
-+++ b/drivers/staging/media/rkvdec/rkvdec.h
-@@ -25,7 +25,6 @@
- struct rkvdec_ctx;
+ static int vfio_fsl_mc_probe(struct fsl_mc_device *mc_dev)
+@@ -607,29 +623,39 @@ static int vfio_fsl_mc_probe(struct fsl_mc_device *mc_dev)
+ 	}
  
- struct rkvdec_ctrl_desc {
--	u32 mandatory : 1;
- 	struct v4l2_ctrl_config cfg;
- };
+ 	vdev->mc_dev = mc_dev;
+-
+-	ret = vfio_add_group_dev(dev, &vfio_fsl_mc_ops, vdev);
+-	if (ret) {
+-		dev_err(dev, "VFIO_FSL_MC: Failed to add to vfio group\n");
+-		goto out_group_put;
+-	}
++	mutex_init(&vdev->igate);
  
+ 	ret = vfio_fsl_mc_reflck_attach(vdev);
+ 	if (ret)
+-		goto out_group_dev;
++		goto out_group_put;
+ 
+ 	ret = vfio_fsl_mc_init_device(vdev);
+ 	if (ret)
+ 		goto out_reflck;
+ 
+-	mutex_init(&vdev->igate);
++	ret = vfio_add_group_dev(dev, &vfio_fsl_mc_ops, vdev);
++	if (ret) {
++		dev_err(dev, "VFIO_FSL_MC: Failed to add to vfio group\n");
++		goto out_device;
++	}
+ 
++	/*
++	 * This triggers recursion into vfio_fsl_mc_probe() on another device
++	 * and the vfio_fsl_mc_reflck_attach() must succeed, which relies on the
++	 * vfio_add_group_dev() above. It has no impact on this vdev, so it is
++	 * safe to be after the vfio device is made live.
++	 */
++	ret = vfio_fsl_mc_scan_container(mc_dev);
++	if (ret)
++		goto out_group_dev;
+ 	return 0;
+ 
+-out_reflck:
+-	vfio_fsl_mc_reflck_put(vdev->reflck);
+ out_group_dev:
+ 	vfio_del_group_dev(dev);
++out_device:
++	vfio_fsl_uninit_device(vdev);
++out_reflck:
++	vfio_fsl_mc_reflck_put(vdev->reflck);
+ out_group_put:
+ 	vfio_iommu_group_put(group, dev);
+ 	return ret;
+@@ -646,16 +672,10 @@ static int vfio_fsl_mc_remove(struct fsl_mc_device *mc_dev)
+ 
+ 	mutex_destroy(&vdev->igate);
+ 
++	dprc_remove_devices(mc_dev, NULL, 0);
++	vfio_fsl_uninit_device(vdev);
+ 	vfio_fsl_mc_reflck_put(vdev->reflck);
+ 
+-	if (is_fsl_mc_bus_dprc(mc_dev)) {
+-		dprc_remove_devices(mc_dev, NULL, 0);
+-		dprc_cleanup(mc_dev);
+-	}
+-
+-	if (vdev->nb.notifier_call)
+-		bus_unregister_notifier(&fsl_mc_bus_type, &vdev->nb);
+-
+ 	vfio_iommu_group_put(mc_dev->dev.iommu_group, dev);
+ 
+ 	return 0;
 -- 
 2.30.2
 
