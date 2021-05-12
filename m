@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F5637C244
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7542237C26D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232527AbhELPIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:08:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59082 "EHLO mail.kernel.org"
+        id S232131AbhELPKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:10:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232744AbhELPG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:06:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05A0761440;
-        Wed, 12 May 2021 15:01:04 +0000 (UTC)
+        id S233171AbhELPHp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:07:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4181460FD9;
+        Wed, 12 May 2021 15:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831665;
-        bh=5BzllfyODiknD9PB5SlxmMJoDpEIpxygDl6M2PGADag=;
+        s=korg; t=1620831693;
+        bh=eQMiB53PicIdJXpFMNc3vMzAc7A6RZclgmj9yjZ1wKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iu9UYlS0VSB/88eOHjDRdDtPgSyEvFCj5aVFb3+HT9v9Qm8fKnt1W+0BpICUhy2SD
-         r9OSvCcglP7hzdEgRSXiS3s3Cu8TlxnJxqJZtqUu2VCWYtNTw/AKnbLfowoR6eZQo8
-         cSHsss566gO707wtyldH9WyIkjIs8UP45qY1+41Q=
+        b=lCsEi8PP08ztoUD9glNlby+vFNLgq7okCJaK/GbLGPPSEGqL0YIWUVbv7lf5ZGoCq
+         r1zki5wyNCWULicsrJlhE4nK7B5z1eEDNw0KIbxDtyGS0uD+T3rBuysXiac+NZIXIb
+         EliSSs7NuMvXgy09/ukk2vGXMdWyImjpt09Vf2Wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 194/244] cxgb4: Fix unintentional sign extension issues
-Date:   Wed, 12 May 2021 16:49:25 +0200
-Message-Id: <20210512144749.207218953@linuxfoundation.org>
+Subject: [PATCH 5.4 195/244] net: thunderx: Fix unintentional sign extension issue
+Date:   Wed, 12 May 2021 16:49:26 +0200
+Message-Id: <20210512144749.236997648@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,111 +42,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit dd2c79677375c37f8f9f8d663eb4708495d595ef ]
+[ Upstream commit e701a25840360706fe4cf5de0015913ca19c274b ]
 
-The shifting of the u8 integers f->fs.nat_lip[] by 24 bits to
+The shifting of the u8 integers rq->caching by 26 bits to
 the left will be promoted to a 32 bit signed int and then
-sign-extended to a u64. In the event that the top bit of the u8
-is set then all then all the upper 32 bits of the u64 end up as
-also being set because of the sign-extension. Fix this by
-casting the u8 values to a u64 before the 24 bit left shift.
+sign-extended to a u64. In the event that rq->caching is
+greater than 0x1f then all then all the upper 32 bits of
+the u64 end up as also being set because of the int
+sign-extension. Fix this by casting the u8 values to a
+u64 before the 26 bit left shift.
 
 Addresses-Coverity: ("Unintended sign extension")
-Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
+Fixes: 4863dea3fab0 ("net: Adding support for Cavium ThunderX network controller")
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 22 +++++++++----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/cavium/thunder/nicvf_queues.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-index cb50b41cd3df..64a2453e06ba 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -174,31 +174,31 @@ static void set_nat_params(struct adapter *adap, struct filter_entry *f,
- 				      WORD_MASK, f->fs.nat_lip[15] |
- 				      f->fs.nat_lip[14] << 8 |
- 				      f->fs.nat_lip[13] << 16 |
--				      f->fs.nat_lip[12] << 24, 1);
-+				      (u64)f->fs.nat_lip[12] << 24, 1);
- 
- 			set_tcb_field(adap, f, tid, TCB_SND_UNA_RAW_W + 1,
- 				      WORD_MASK, f->fs.nat_lip[11] |
- 				      f->fs.nat_lip[10] << 8 |
- 				      f->fs.nat_lip[9] << 16 |
--				      f->fs.nat_lip[8] << 24, 1);
-+				      (u64)f->fs.nat_lip[8] << 24, 1);
- 
- 			set_tcb_field(adap, f, tid, TCB_SND_UNA_RAW_W + 2,
- 				      WORD_MASK, f->fs.nat_lip[7] |
- 				      f->fs.nat_lip[6] << 8 |
- 				      f->fs.nat_lip[5] << 16 |
--				      f->fs.nat_lip[4] << 24, 1);
-+				      (u64)f->fs.nat_lip[4] << 24, 1);
- 
- 			set_tcb_field(adap, f, tid, TCB_SND_UNA_RAW_W + 3,
- 				      WORD_MASK, f->fs.nat_lip[3] |
- 				      f->fs.nat_lip[2] << 8 |
- 				      f->fs.nat_lip[1] << 16 |
--				      f->fs.nat_lip[0] << 24, 1);
-+				      (u64)f->fs.nat_lip[0] << 24, 1);
- 		} else {
- 			set_tcb_field(adap, f, tid, TCB_RX_FRAG3_LEN_RAW_W,
- 				      WORD_MASK, f->fs.nat_lip[3] |
- 				      f->fs.nat_lip[2] << 8 |
- 				      f->fs.nat_lip[1] << 16 |
--				      f->fs.nat_lip[0] << 24, 1);
-+				      (u64)f->fs.nat_lip[0] << 25, 1);
- 		}
- 	}
- 
-@@ -208,25 +208,25 @@ static void set_nat_params(struct adapter *adap, struct filter_entry *f,
- 				      WORD_MASK, f->fs.nat_fip[15] |
- 				      f->fs.nat_fip[14] << 8 |
- 				      f->fs.nat_fip[13] << 16 |
--				      f->fs.nat_fip[12] << 24, 1);
-+				      (u64)f->fs.nat_fip[12] << 24, 1);
- 
- 			set_tcb_field(adap, f, tid, TCB_RX_FRAG2_PTR_RAW_W + 1,
- 				      WORD_MASK, f->fs.nat_fip[11] |
- 				      f->fs.nat_fip[10] << 8 |
- 				      f->fs.nat_fip[9] << 16 |
--				      f->fs.nat_fip[8] << 24, 1);
-+				      (u64)f->fs.nat_fip[8] << 24, 1);
- 
- 			set_tcb_field(adap, f, tid, TCB_RX_FRAG2_PTR_RAW_W + 2,
- 				      WORD_MASK, f->fs.nat_fip[7] |
- 				      f->fs.nat_fip[6] << 8 |
- 				      f->fs.nat_fip[5] << 16 |
--				      f->fs.nat_fip[4] << 24, 1);
-+				      (u64)f->fs.nat_fip[4] << 24, 1);
- 
- 			set_tcb_field(adap, f, tid, TCB_RX_FRAG2_PTR_RAW_W + 3,
- 				      WORD_MASK, f->fs.nat_fip[3] |
- 				      f->fs.nat_fip[2] << 8 |
- 				      f->fs.nat_fip[1] << 16 |
--				      f->fs.nat_fip[0] << 24, 1);
-+				      (u64)f->fs.nat_fip[0] << 24, 1);
- 
- 		} else {
- 			set_tcb_field(adap, f, tid,
-@@ -234,13 +234,13 @@ static void set_nat_params(struct adapter *adap, struct filter_entry *f,
- 				      WORD_MASK, f->fs.nat_fip[3] |
- 				      f->fs.nat_fip[2] << 8 |
- 				      f->fs.nat_fip[1] << 16 |
--				      f->fs.nat_fip[0] << 24, 1);
-+				      (u64)f->fs.nat_fip[0] << 24, 1);
- 		}
- 	}
- 
- 	set_tcb_field(adap, f, tid, TCB_PDU_HDR_LEN_W, WORD_MASK,
- 		      (dp ? (nat_lp[1] | nat_lp[0] << 8) : 0) |
--		      (sp ? (nat_fp[1] << 16 | nat_fp[0] << 24) : 0),
-+		      (sp ? (nat_fp[1] << 16 | (u64)nat_fp[0] << 24) : 0),
- 		      1);
- }
- 
+diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_queues.c b/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
+index 4ab57d33a87e..6bd6fb5a3613 100644
+--- a/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
++++ b/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
+@@ -776,7 +776,7 @@ static void nicvf_rcv_queue_config(struct nicvf *nic, struct queue_set *qs,
+ 	mbx.rq.msg = NIC_MBOX_MSG_RQ_CFG;
+ 	mbx.rq.qs_num = qs->vnic_id;
+ 	mbx.rq.rq_num = qidx;
+-	mbx.rq.cfg = (rq->caching << 26) | (rq->cq_qs << 19) |
++	mbx.rq.cfg = ((u64)rq->caching << 26) | (rq->cq_qs << 19) |
+ 			  (rq->cq_idx << 16) | (rq->cont_rbdr_qs << 9) |
+ 			  (rq->cont_qs_rbdr_idx << 8) |
+ 			  (rq->start_rbdr_qs << 1) | (rq->start_qs_rbdr_idx);
 -- 
 2.30.2
 
