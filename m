@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B8B37C921
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5514D37C92A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238206AbhELQPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:15:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
+        id S238604AbhELQPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:15:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231243AbhELQIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:08:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D246961D23;
-        Wed, 12 May 2021 15:38:54 +0000 (UTC)
+        id S235915AbhELQIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:08:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4958861D25;
+        Wed, 12 May 2021 15:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833935;
-        bh=pe8+u171SzCXlCWdt2jXuTZZIToV50G34qRkXOQg/qk=;
+        s=korg; t=1620833937;
+        bh=eSh2J2s4oE20HHqQ9nR1ZeQqCJGNE1l6q7GlwCwLdVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMoctMzYoptRj9gZ17Fmuxhgmkp1+uBVW9qRJ0R1d6dHgp08ykf1KgeMjRhSWuhmg
-         50XFx3fR8DtdJ2EVCW/A8bjkgvA8VVMOYN0NFi4ynZJbufF0dy/lUWct3ZxNTkLlmj
-         k1XUz2iageDjd5blZpN2kMrMfUr1nTOkWaVcZOLc=
+        b=j5boIHvITCXUF54WBlkZ8S7knvb622MOe+HyRwfVim00dpXfeA8s3fZfdaXw5f2Ri
+         gi1c04Vf2ZO7sVg+9GVXTH4ZmHVD+jGhrxoEFnzoi25D+9ipsB8CRXpIumjuyW9zfm
+         LTNE3h9MfbsHM5+9gTReAzhIhK8FqAzzcZXJms34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 346/601] media: ipu3-cio2: Fix pixel-rate derived link frequency
-Date:   Wed, 12 May 2021 16:47:03 +0200
-Message-Id: <20210512144839.189351843@linuxfoundation.org>
+Subject: [PATCH 5.11 347/601] media: i2c: imx219: Move out locking/unlocking of vflip and hflip controls from imx219_set_stream
+Date:   Wed, 12 May 2021 16:47:04 +0200
+Message-Id: <20210512144839.224386124@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -43,39 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit a7de6eac6f6f73d48d97a6c93032107775f4593b ]
+[ Upstream commit 745d4612d2c853c00abadbf69799c8aee7f99c39 ]
 
-The driver uses v4l2_get_link_freq() helper to obtain the link frequency
-using the LINK_FREQ but also the PIXEL_RATE control. The divisor for the
-pixel rate derived link frequency was wrong, missing the bus uses double
-data rate. Fix this.
+Move out locking/unlocking of vflip and hflip controls from
+imx219_set_stream() to the imx219_start_streaming()/
+imx219_stop_streaming() respectively.
 
-Reported-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Fixes: 4b6c129e87a3 ("media: ipu3-cio2: Use v4l2_get_link_freq helper")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+This fixes an issue in resume callback error path where streaming is
+stopped and the controls are left in locked state.
+
+Fixes: 1283b3b8f82b9 ("media: i2c: Add driver for Sony IMX219 sensor")
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/imx219.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/pci/intel/ipu3/ipu3-cio2.c b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-index 143ba9d90342..325c1483f42b 100644
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -302,7 +302,7 @@ static int cio2_csi2_calc_timing(struct cio2_device *cio2, struct cio2_queue *q,
- 	if (!q->sensor)
- 		return -ENODEV;
+diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
+index e7791a0848b3..98f0a13a7382 100644
+--- a/drivers/media/i2c/imx219.c
++++ b/drivers/media/i2c/imx219.c
+@@ -1045,8 +1045,16 @@ static int imx219_start_streaming(struct imx219 *imx219)
+ 		return ret;
  
--	freq = v4l2_get_link_freq(q->sensor->ctrl_handler, bpp, lanes);
-+	freq = v4l2_get_link_freq(q->sensor->ctrl_handler, bpp, lanes * 2);
- 	if (freq < 0) {
- 		dev_err(dev, "error %lld, invalid link_freq\n", freq);
- 		return freq;
+ 	/* set stream on register */
+-	return imx219_write_reg(imx219, IMX219_REG_MODE_SELECT,
+-				IMX219_REG_VALUE_08BIT, IMX219_MODE_STREAMING);
++	ret = imx219_write_reg(imx219, IMX219_REG_MODE_SELECT,
++			       IMX219_REG_VALUE_08BIT, IMX219_MODE_STREAMING);
++	if (ret)
++		return ret;
++
++	/* vflip and hflip cannot change during streaming */
++	__v4l2_ctrl_grab(imx219->vflip, true);
++	__v4l2_ctrl_grab(imx219->hflip, true);
++
++	return 0;
+ }
+ 
+ static void imx219_stop_streaming(struct imx219 *imx219)
+@@ -1059,6 +1067,9 @@ static void imx219_stop_streaming(struct imx219 *imx219)
+ 			       IMX219_REG_VALUE_08BIT, IMX219_MODE_STANDBY);
+ 	if (ret)
+ 		dev_err(&client->dev, "%s failed to set stream\n", __func__);
++
++	__v4l2_ctrl_grab(imx219->vflip, false);
++	__v4l2_ctrl_grab(imx219->hflip, false);
+ }
+ 
+ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
+@@ -1094,10 +1105,6 @@ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
+ 
+ 	imx219->streaming = enable;
+ 
+-	/* vflip and hflip cannot change during streaming */
+-	__v4l2_ctrl_grab(imx219->vflip, enable);
+-	__v4l2_ctrl_grab(imx219->hflip, enable);
+-
+ 	mutex_unlock(&imx219->mutex);
+ 
+ 	return ret;
 -- 
 2.30.2
 
