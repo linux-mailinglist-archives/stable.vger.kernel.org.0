@@ -2,175 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E804437ED81
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:41:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C87B37ED87
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345937AbhELUhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 16:37:24 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36960 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1356720AbhELSg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 14:36:56 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CIYWnH125672;
-        Wed, 12 May 2021 14:35:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=qiIPM4jFYVlQa2wBPzrk+yQsKPL4bBQC7RNPW3MJnVg=;
- b=Ccn2Q+R+Eo5Hiuilhdbg1De7n0YWCZfEJUOhfXXjKUBmMR4u950309IU6B3b0iS5uLlO
- kS7cIhB9Fa42PdnYR0kpsWenMCVtDhXzXOWgR2Rcl2KcjGTiAsfJaNKdwGWx99u8WdIm
- 6uuJgffhgJN3bbhgvOvZ4qexfDFcATKkIAg1ORsd55z49E1GRrfvC3ronkJz7+/0IW+O
- gNEhskMA1hUF17zYNpbgpuWOujptFLwk5/1II9cAHQd80LW8IruJtjz+Li/CoEdlkW4S
- BmoFBacCFoFnndLLXHVyKnrK+BPbmwr+u/Ajv/vi7PB490R8M57OBUI3DIMWsU9udOst iA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38gkcn1scb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 14:35:45 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14CIYXfr125804;
-        Wed, 12 May 2021 14:35:44 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38gkcn1sbr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 14:35:44 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14CIT6GN027359;
-        Wed, 12 May 2021 18:35:42 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04fra.de.ibm.com with ESMTP id 38ef37h33p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 18:35:42 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14CIZdOi2753178
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 May 2021 18:35:39 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 64C37A4040;
-        Wed, 12 May 2021 18:35:39 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 89752A4051;
-        Wed, 12 May 2021 18:35:38 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.63.111])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Wed, 12 May 2021 18:35:38 +0000 (GMT)
-Date:   Wed, 12 May 2021 20:35:36 +0200
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com,
-        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
- callback
-Message-ID: <20210512203536.4209c29c.pasic@linux.ibm.com>
-In-Reply-To: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1384123AbhELUiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 16:38:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35698 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359612AbhELSxe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 14:53:34 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9055C061760
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 11:48:44 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id g14so28313015edy.6
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 11:48:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3RmDL7EIZTWZ/B2GXBn8l6V8qil8i0g78OrUNzuJ15Q=;
+        b=uV5SV6VWZxJU3E2LpGFmH/OT62UWjzQIP4RO9QcGdcZCxHyzVdsTwBXE08tRZOmzeB
+         DnJHDoyODZG1OyFOtHqdmZvcwF0yBruNL0P1oSoUAPOFEVZsBrkssTp2RLGZJzhWj2rS
+         +ooxmB1WUiJJn6YE9b9E6oE2MNroLTyB2kBfU7JdMMe/f3XLYwPQTQCQjtdoHIHgfkWo
+         DMqFWk3oEXeHVuMGeNjxZmo7pgXhCK6tC00c4WiDuI6U2dEc1pG+ir2/G9gs2myL6dAM
+         n6L1eN9OxJFdyGUZ/xTDUvKLXT6UZir1UX8zlIAnJ6q5MbL7xlgVRKJ6bHOa6+AmUXXR
+         QjTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3RmDL7EIZTWZ/B2GXBn8l6V8qil8i0g78OrUNzuJ15Q=;
+        b=UzbjGsslDJbWPiTE+kpKFAP+IGzXfoEaXIbsM3qnEC2zMzpNqAjtiN6rdCAV16JevT
+         mRRMMRZ5SMxJiXZFS4QeKdsZKPd9h2el2UXluIxXOLPNMt4Jdm9BEuQ9kCsmy1fGDzU6
+         Qv3Y7C6iqZThSc14qpxNWZ6oU46PrmoAcCRT4q6XjPrEIh2fVUFevGAg0rFOiSzrqcec
+         +M1qZNRms8dEjPUSag9lWgKHg14VSLPm+jyjw0lc+UpYgK8G1ssgVd1/E0hgnowxgJuC
+         +UEbncHJWGGWS99dVM4+1cURVELwR8rychuAl1qDOb5oKS5b4KIKDi0kXQukJ5ux3Wec
+         hLSg==
+X-Gm-Message-State: AOAM532cpXdALQXFKKNoir0icTYNMP3dMipee/LoheGj4CXdWxgb2oDX
+        +N0Sx4YUbtqMlDMPlg7FlXIq7ouapkuk1sx3RRSmQw==
+X-Google-Smtp-Source: ABdhPJzDeWYGh4YnD9iEk0l21IsLSUTs81ND8mYmyduWdBlI80tiO28NJJtREUMrKsSD/fWAV/7bxyDjg/2eXSdeEbA=
+X-Received: by 2002:a05:6402:12d3:: with SMTP id k19mr44656553edx.52.1620845323293;
+ Wed, 12 May 2021 11:48:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: aoiz9GkGwDh40YfM0LFgbl2fYmQg0rU4
-X-Proofpoint-ORIG-GUID: 4B3MDJ4aV-8tuyS6Gt7ZsQGH332RzLe_
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-12_09:2021-05-12,2021-05-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
- malwarescore=0 impostorscore=0 priorityscore=1501 adultscore=0
- phishscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105120120
+References: <20210512144837.204217980@linuxfoundation.org> <CA+G9fYufHvM+C=39gtk5CF-r4sYYpRkQFGsmKrkdQcXj_XKFag@mail.gmail.com>
+ <YJwW2bNXGZw5kmpo@kroah.com>
+In-Reply-To: <YJwW2bNXGZw5kmpo@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 13 May 2021 00:18:32 +0530
+Message-ID: <CA+G9fYvbe9L=3uJk2+5fR_e2-fnw=UXSDRnHh+u3nMFeOjOwjg@mail.gmail.com>
+Subject: Re: [PATCH 5.12 000/677] 5.12.4-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Huacai Chen <chenhuacai@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 May 2021 17:48:37 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Wed, 12 May 2021 at 23:26, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, May 12, 2021 at 10:53:04PM +0530, Naresh Kamboju wrote:
+> > On Wed, 12 May 2021 at 21:27, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > This is the start of the stable review cycle for the 5.12.4 release.
+> > > There are 677 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > >
+> > > Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
+> > > Anything received after that time might be too late.
+> > >
+> > > The whole patch series can be found in one patch at:
+> > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.4-rc1.gz
+> > > or in the git tree and branch at:
+> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> > > and the diffstat can be found below.
+> > >
+> > > thanks,
+> > >
+> > > greg k-h
+> >
+> >
+> > MIPS Clang build regression detected.
+> > MIPS gcc-10,9 and 8 build PASS.
+> >
+> > > Maciej W. Rozycki <macro@orcam.me.uk>
+> > >     MIPS: Reinstate platform `__div64_32' handler
+> >
+> > mips clang build breaks on stable rc 5.4 .. 5.12 due to below warnings / errors
+> >  - mips (defconfig) with clang-12
+> >  - mips (tinyconfig) with clang-12
+> >  - mips (allnoconfig) with clang-12
+> >
+> > make --silent --keep-going --jobs=8
+> > O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=mips
+> > CROSS_COMPILE=mips-linux-gnu- 'HOSTCC=sccache clang' 'CC=sccache
+> > clang'
+> > kernel/time/hrtimer.c:318:2: error: couldn't allocate output register
+> > for constraint 'x'
+> >         do_div(tmp, (u32) div);
+> >         ^
+> > include/asm-generic/div64.h:243:11: note: expanded from macro 'do_div'
+> >                 __rem = __div64_32(&(n), __base);       \
+> >                         ^
+> > arch/mips/include/asm/div64.h:74:11: note: expanded from macro '__div64_32'
+> >                 __asm__("divu   $0, %z1, %z2"                           \
+> >                         ^
+> > 1 error generated.
+>
+> Does this also show up in Linus's tree?  The same MIPS patch is there as
+> well from what I can tell.
 
-> The mdev remove callback for the vfio_ap device driver bails out with
-> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
-> to prevent the mdev from being removed while in use; however, returning a
-> non-zero rc does not prevent removal. This could result in a memory leak
-> of the resources allocated when the mdev was created. In addition, the
-> KVM guest will still have access to the AP devices assigned to the mdev
-> even though the mdev no longer exists.
-> 
-> To prevent this scenario, cleanup will be done - including unplugging the
-> AP adapters, domains and control domains - regardless of whether the mdev
-> is in use by a KVM guest or not.
-> 
-> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
->  1 file changed, 2 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index b2c7e10dfdcd..f90c9103dac2 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -26,6 +26,7 @@
-> 
->  static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
->  static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
-> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev);
-> 
->  static int match_apqn(struct device *dev, const void *data)
->  {
-> @@ -366,17 +367,7 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-> 
->  	mutex_lock(&matrix_dev->lock);
-> -
-> -	/*
-> -	 * If the KVM pointer is in flux or the guest is running, disallow
-> -	 * un-assignment of control domain.
-> -	 */
-> -	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
-> -		mutex_unlock(&matrix_dev->lock);
-> -		return -EBUSY;
-> -	}
-> -
-> -	vfio_ap_mdev_reset_queues(mdev);
-> +	vfio_ap_mdev_unset_kvm(matrix_mdev);
+No.
+Linus's tree builds MIPS clang successfully.
 
->  	list_del(&matrix_mdev->node);
->  	kfree(matrix_mdev);
-
-Are we at risk of handle_pqap() in arch/s390/kvm/priv.c using an
-already freed pqap_hook (which is a member of the matrix_mdev pointee
-that is freed just above my comment).
-
-I'm aware of the fact that vfio_ap_mdev_unset_kvm() does a
-matrix_mdev->kvm->arch.crypto.pqap_hook = NULL but that is
-AFRICT not done under any lock relevant for handle_pqap(). I guess
-the idea is, I guess, the check cited below 
-
-static int handle_pqap(struct kvm_vcpu *vcpu)
-[..]
-        /*                                                                      
-         * Verify that the hook callback is registered, lock the owner          
-         * and call the hook.                                                   
-         */                                                                     
-        if (vcpu->kvm->arch.crypto.pqap_hook) {                                 
-                if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))   
-                        return -EOPNOTSUPP;                                     
-                ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);             
-                module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);            
-                if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)             
-                        kvm_s390_set_psw_cc(vcpu, 3);                           
-                return ret;                                                     
-        }
-
-is going to catch it, but I'm not sure it is guaranteed to catch it.
-Opinions?
-
-Regards,
-Halil
-
-
->  	mdev_set_drvdata(mdev, NULL);
-
+- Naresh
