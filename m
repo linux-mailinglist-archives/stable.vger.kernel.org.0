@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27E3737C1D5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA5337C1D7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231523AbhELPFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:05:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57348 "EHLO mail.kernel.org"
+        id S231803AbhELPF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:05:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232702AbhELPCo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:02:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E795761430;
-        Wed, 12 May 2021 14:58:14 +0000 (UTC)
+        id S231946AbhELPCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:02:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F88561413;
+        Wed, 12 May 2021 14:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831495;
-        bh=TbC7sqwBcAas7J7KEbIlFb35Zc4Ani8dYHO7six3ApA=;
+        s=korg; t=1620831497;
+        bh=dQv/Xqq6w1CQTMgN8V2IpWRUNDeasH559kyAhJ46OWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLmuMkzGej5uYDOGVam3pKqduysx99RIhLzMjUC/2Rl7bHOVfNLvZJ38IxcdIGGR1
-         XBOy6Vf1izWe5eYqhYQ3CHMlhzUFTSvl4g6ozafglzweoA/UPbeA7olK01CEwMtkQ3
-         yGNxv7d93I19wXPrT7w0CRLKuXcyH51L4SVtdLw8=
+        b=azxCDmMy20F2sl5jUta2vUVY9GUZ/EcoAzV7+M26BlDODkJSuyspdI8Axqa3rkkef
+         VnXt1CdKrj3g2hTMlIrx5uajn6wt8NPFjnOZ/CQMMMMbEmYLDykj/hzyWfdwnq3t6V
+         hK16YYNWKiOe2QCMK+HvkPbo0ax2JqXu9b3CTrYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Eddie James <eajames@linux.ibm.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 142/244] media: aspeed: fix clock handling logic
-Date:   Wed, 12 May 2021 16:48:33 +0200
-Message-Id: <20210512144747.555412123@linuxfoundation.org>
+Subject: [PATCH 5.4 143/244] media: platform: sunxi: sun6i-csi: fix error return code of sun6i_video_start_streaming()
+Date:   Wed, 12 May 2021 16:48:34 +0200
+Message-Id: <20210512144747.587028993@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -45,109 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 3536169f8531c2c5b153921dc7d1ac9fd570cda7 ]
+[ Upstream commit f3d384e36630e2a552d874e422835606d9cf230a ]
 
-Video engine uses eclk and vclk for its clock sources and its reset
-control is coupled with eclk so the current clock enabling sequence works
-like below.
+When sun6i_video_remote_subdev() returns NULL to subdev, no error return
+code of sun6i_video_start_streaming() is assigned.
+To fix this bug, ret is assigned with -EINVAL in this case.
 
- Enable eclk
- De-assert Video Engine reset
- 10ms delay
- Enable vclk
-
-It introduces improper reset on the Video Engine hardware and eventually
-the hardware generates unexpected DMA memory transfers that can corrupt
-memory region in random and sporadic patterns. This issue is observed
-very rarely on some specific AST2500 SoCs but it causes a critical
-kernel panic with making a various shape of signature so it's extremely
-hard to debug. Moreover, the issue is observed even when the video
-engine is not actively used because udevd turns on the video engine
-hardware for a short time to make a query in every boot.
-
-To fix this issue, this commit changes the clock handling logic to make
-the reset de-assertion triggered after enabling both eclk and vclk. Also,
-it adds clk_unprepare call for a case when probe fails.
-
-clk: ast2600: fix reset settings for eclk and vclk
-Video engine reset setting should be coupled with eclk to match it
-with the setting for previous Aspeed SoCs which is defined in
-clk-aspeed.c since all Aspeed SoCs are sharing a single video engine
-driver. Also, reset bit 6 is defined as 'Video Engine' reset in
-datasheet so it should be de-asserted when eclk is enabled. This
-commit fixes the setting.
-
-Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Eddie James <eajames@linux.ibm.com>
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Fixes: 5cc7522d8965 ("media: sun6i: Add support for Allwinner CSI V3s")
+Acked-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c             | 4 ++--
- drivers/media/platform/aspeed-video.c | 9 ++++++---
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 84ca38450d02..af957179b135 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -58,10 +58,10 @@ static void __iomem *scu_g6_base;
- static const struct aspeed_gate_data aspeed_g6_gates[] = {
- 	/*				    clk rst  name		parent	 flags */
- 	[ASPEED_CLK_GATE_MCLK]		= {  0, -1, "mclk-gate",	"mpll",	 CLK_IS_CRITICAL }, /* SDRAM */
--	[ASPEED_CLK_GATE_ECLK]		= {  1, -1, "eclk-gate",	"eclk",	 0 },	/* Video Engine */
-+	[ASPEED_CLK_GATE_ECLK]		= {  1,  6, "eclk-gate",	"eclk",	 0 },	/* Video Engine */
- 	[ASPEED_CLK_GATE_GCLK]		= {  2,  7, "gclk-gate",	NULL,	 0 },	/* 2D engine */
- 	/* vclk parent - dclk/d1clk/hclk/mclk */
--	[ASPEED_CLK_GATE_VCLK]		= {  3,  6, "vclk-gate",	NULL,	 0 },	/* Video Capture */
-+	[ASPEED_CLK_GATE_VCLK]		= {  3, -1, "vclk-gate",	NULL,	 0 },	/* Video Capture */
- 	[ASPEED_CLK_GATE_BCLK]		= {  4,  8, "bclk-gate",	"bclk",	 0 }, /* PCIe/PCI */
- 	/* From dpll */
- 	[ASPEED_CLK_GATE_DCLK]		= {  5, -1, "dclk-gate",	NULL,	 CLK_IS_CRITICAL }, /* DAC */
-diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index e0299a789923..6dde49d9aa4c 100644
---- a/drivers/media/platform/aspeed-video.c
-+++ b/drivers/media/platform/aspeed-video.c
-@@ -491,8 +491,8 @@ static void aspeed_video_off(struct aspeed_video *video)
- 	aspeed_video_write(video, VE_INTERRUPT_STATUS, 0xffffffff);
+diff --git a/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c b/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
+index f0dfe68486d1..c43a35df25de 100644
+--- a/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
++++ b/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
+@@ -151,8 +151,10 @@ static int sun6i_video_start_streaming(struct vb2_queue *vq, unsigned int count)
+ 	}
  
- 	/* Turn off the relevant clocks */
--	clk_disable(video->vclk);
- 	clk_disable(video->eclk);
-+	clk_disable(video->vclk);
- 
- 	clear_bit(VIDEO_CLOCKS_ON, &video->flags);
- }
-@@ -503,8 +503,8 @@ static void aspeed_video_on(struct aspeed_video *video)
- 		return;
- 
- 	/* Turn on the relevant clocks */
--	clk_enable(video->eclk);
- 	clk_enable(video->vclk);
-+	clk_enable(video->eclk);
- 
- 	set_bit(VIDEO_CLOCKS_ON, &video->flags);
- }
-@@ -1684,8 +1684,11 @@ static int aspeed_video_probe(struct platform_device *pdev)
- 		return rc;
- 
- 	rc = aspeed_video_setup_video(video);
--	if (rc)
-+	if (rc) {
-+		clk_unprepare(video->vclk);
-+		clk_unprepare(video->eclk);
- 		return rc;
+ 	subdev = sun6i_video_remote_subdev(video, NULL);
+-	if (!subdev)
++	if (!subdev) {
++		ret = -EINVAL;
+ 		goto stop_media_pipeline;
 +	}
  
- 	return 0;
- }
+ 	config.pixelformat = video->fmt.fmt.pix.pixelformat;
+ 	config.code = video->mbus_code;
 -- 
 2.30.2
 
