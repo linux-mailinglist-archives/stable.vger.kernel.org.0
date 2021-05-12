@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D246F37C5CE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D292537C5CF
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235206AbhELPnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:43:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57088 "EHLO mail.kernel.org"
+        id S235230AbhELPnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:43:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233300AbhELPir (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:38:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52F8F61C6D;
-        Wed, 12 May 2021 15:20:24 +0000 (UTC)
+        id S231656AbhELPiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:38:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD5C361C60;
+        Wed, 12 May 2021 15:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832824;
-        bh=qhp8UxIizMNAxqsyug1Q2e9MLRrjNztI+6JTKsnSaYo=;
+        s=korg; t=1620832827;
+        bh=zc8zZmSbGv0fbHbctOE8oi5ff/COuMFjxNliAZb7iaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkxoSreYscTmLmgWaSTlTR/365KzJzBvqlJpVMXw1QGUfzw8gQEeEaEcneW+tLKKX
-         4HzNTfdv4uk+nvCm7QpG5Ztii4iOlqsHJbZjAgWe5GYTMOtbLRjN+jpvL5+qBZHjE/
-         60uNTOt+F8loECiE/ZdAHYEIgBDmrT6NeK927PmM=
+        b=qDe1qlEt54vYqvmVhD4YWGTrRwLrCeXIdSOxhnJRf2fuJ0hhIY2ZMRMQLFS/0GZrc
+         qKi144Mur+5dYtV01TQZ19XwIDQX7gVdHcuayeXYr9Ola2Oop4p4XkVCnaN8ZLk4HY
+         EviW7zVnouuk04FLrBr9tRhK1li9eLX9by0kcpQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 437/530] i2c: emev2: add IRQ check
-Date:   Wed, 12 May 2021 16:49:07 +0200
-Message-Id: <20210512144834.133065112@linuxfoundation.org>
+Subject: [PATCH 5.10 438/530] i2c: jz4780: add IRQ check
+Date:   Wed, 12 May 2021 16:49:08 +0200
+Message-Id: <20210512144834.169507330@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit bb6129c32867baa7988f7fd2066cf18ed662d240 ]
+[ Upstream commit c5e5f7a8d931fb4beba245bdbc94734175fda9de ]
 
 The driver neglects to check the result of platform_get_irq()'s call and
 blithely passes the negative error codes to devm_request_irq() (which
@@ -49,29 +49,29 @@ takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
 an original error code.  Stop calling devm_request_irq() with invalid
 IRQ #s.
 
-Fixes: 5faf6e1f58b4 ("i2c: emev2: add driver")
+Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
 Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-emev2.c | 5 ++++-
+ drivers/i2c/busses/i2c-jz4780.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
-index a08554c1a570..bdff0e6345d9 100644
---- a/drivers/i2c/busses/i2c-emev2.c
-+++ b/drivers/i2c/busses/i2c-emev2.c
-@@ -395,7 +395,10 @@ static int em_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
+index 2a946c207928..e181db3fd2cc 100644
+--- a/drivers/i2c/busses/i2c-jz4780.c
++++ b/drivers/i2c/busses/i2c-jz4780.c
+@@ -826,7 +826,10 @@ static int jz4780_i2c_probe(struct platform_device *pdev)
  
- 	em_i2c_reset(&priv->adap);
+ 	jz4780_i2c_writew(i2c, JZ4780_I2C_INTM, 0x0);
  
--	priv->irq = platform_get_irq(pdev, 0);
+-	i2c->irq = platform_get_irq(pdev, 0);
 +	ret = platform_get_irq(pdev, 0);
 +	if (ret < 0)
-+		goto err_clk;
-+	priv->irq = ret;
- 	ret = devm_request_irq(&pdev->dev, priv->irq, em_i2c_irq_handler, 0,
- 				"em_i2c", priv);
++		goto err;
++	i2c->irq = ret;
+ 	ret = devm_request_irq(&pdev->dev, i2c->irq, jz4780_i2c_irq, 0,
+ 			       dev_name(&pdev->dev), i2c);
  	if (ret)
 -- 
 2.30.2
