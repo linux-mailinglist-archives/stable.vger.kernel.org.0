@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A2937CE4C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A49A37CE67
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239314AbhELREw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:04:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
+        id S240956AbhELRFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237790AbhELQnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237882AbhELQnN (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:43:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 840C161E5F;
-        Wed, 12 May 2021 16:13:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8B5619A3;
+        Wed, 12 May 2021 16:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836010;
-        bh=o50pUVnQNqR312fhWezKRUL/tysuHfGppY6YgH24jvM=;
+        s=korg; t=1620836012;
+        bh=y5HAnkfjz1fAF+Y1qZGioFpODtf9bMSHa7OQBJmQ2Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4FicRaJnH/BXlZT19/BrD+19Evsqx4FaTV64YN9kua2UpCh/jQACjxax0HoeV8//
-         BbEszeJoGca1D6Ex2vF/nhQFxb1uM77VriMamPcrH43TEPPesonf02FxILTPUXe1vx
-         Q/CFLaAW62R+dr3C+c6/6GElI0pmTZaG6bOszTT0=
+        b=wZFafd3nUVdI9FpVzxM/Vw2MtW/2u7+ltHPgo7K7aYVGDXNgbZhG/cbA76VfF2E7b
+         de7bmlAByp0uI+6SPCiIxn31M6S/yVrfnZXbGCKDoldfIR2TY48bChFJH/ngbmzY3E
+         tFMq2R6yEjCJSlAcUAFt5C3f65d2IHGhEUoMGDyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Greg Kurz <groug@kaod.org>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 574/677] powerpc/xive: Fix xmon command "dxi"
-Date:   Wed, 12 May 2021 16:50:20 +0200
-Message-Id: <20210512144856.462649876@linuxfoundation.org>
+Subject: [PATCH 5.12 575/677] powerpc/syscall: switch user_exit_irqoff and trace_hardirqs_off order
+Date:   Wed, 12 May 2021 16:50:21 +0200
+Message-Id: <20210512144856.493382834@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,73 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 33e4bc5946432a4ac173fd08e8e30a13ab94d06d ]
+[ Upstream commit 5a5a893c4ad897b8a36f846602895515b7407a71 ]
 
-When under xmon, the "dxi" command dumps the state of the XIVE
-interrupts. If an interrupt number is specified, only the state of
-the associated XIVE interrupt is dumped. This form of the command
-lacks an irq_data parameter which is nevertheless used by
-xmon_xive_get_irq_config(), leading to an xmon crash.
+user_exit_irqoff() -> __context_tracking_exit -> vtime_user_exit
+warns in __seqprop_assert due to lockdep thinking preemption is enabled
+because trace_hardirqs_off() has not yet been called.
 
-Fix that by doing a lookup in the system IRQ mapping to query the IRQ
-descriptor data. Invalid interrupt numbers, or not belonging to the
-XIVE IRQ domain, OPAL event interrupt number for instance, should be
-caught by the previous query done at the firmware level.
+Switch the order of these two calls, which matches their ordering in
+interrupt_enter_prepare.
 
-Fixes: 97ef27507793 ("powerpc/xive: Fix xmon support on the PowerNV platform")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Tested-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Greg Kurz <groug@kaod.org>
+Fixes: 5f0b6ac3905f ("powerpc/64/syscall: Reconcile interrupts")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210331144514.892250-8-clg@kaod.org
+Link: https://lore.kernel.org/r/20210316104206.407354-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/common.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/interrupt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
-index 6e43bba80707..5cacb632eb37 100644
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -253,17 +253,20 @@ notrace void xmon_xive_do_dump(int cpu)
- 	xmon_printf("\n");
- }
+diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
+index c475a229a42a..352346e14a08 100644
+--- a/arch/powerpc/kernel/interrupt.c
++++ b/arch/powerpc/kernel/interrupt.c
+@@ -34,11 +34,11 @@ notrace long system_call_exception(long r3, long r4, long r5,
+ 	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
+ 		BUG_ON(irq_soft_mask_return() != IRQS_ALL_DISABLED);
  
-+static struct irq_data *xive_get_irq_data(u32 hw_irq)
-+{
-+	unsigned int irq = irq_find_mapping(xive_irq_domain, hw_irq);
++	trace_hardirqs_off(); /* finish reconciling */
 +
-+	return irq ? irq_get_irq_data(irq) : NULL;
-+}
-+
- int xmon_xive_get_irq_config(u32 hw_irq, struct irq_data *d)
- {
--	struct irq_chip *chip = irq_data_get_irq_chip(d);
- 	int rc;
- 	u32 target;
- 	u8 prio;
- 	u32 lirq;
+ 	CT_WARN_ON(ct_state() == CONTEXT_KERNEL);
+ 	user_exit_irqoff();
  
--	if (!is_xive_irq(chip))
--		return -EINVAL;
+-	trace_hardirqs_off(); /* finish reconciling */
 -
- 	rc = xive_ops->get_irq_config(hw_irq, &target, &prio, &lirq);
- 	if (rc) {
- 		xmon_printf("IRQ 0x%08x : no config rc=%d\n", hw_irq, rc);
-@@ -273,6 +276,9 @@ int xmon_xive_get_irq_config(u32 hw_irq, struct irq_data *d)
- 	xmon_printf("IRQ 0x%08x : target=0x%x prio=%02x lirq=0x%x ",
- 		    hw_irq, target, prio, lirq);
- 
-+	if (!d)
-+		d = xive_get_irq_data(hw_irq);
-+
- 	if (d) {
- 		struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
- 		u64 val = xive_esb_read(xd, XIVE_ESB_GET);
+ 	if (!IS_ENABLED(CONFIG_BOOKE) && !IS_ENABLED(CONFIG_40x))
+ 		BUG_ON(!(regs->msr & MSR_RI));
+ 	BUG_ON(!(regs->msr & MSR_PR));
 -- 
 2.30.2
 
