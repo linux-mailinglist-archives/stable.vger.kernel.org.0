@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF2737C892
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9982C37C89E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233984AbhELQKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
+        id S234886AbhELQLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:11:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238624AbhELQFg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:05:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1654E61CE9;
-        Wed, 12 May 2021 15:34:32 +0000 (UTC)
+        id S238627AbhELQFh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:05:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 020AC61CEB;
+        Wed, 12 May 2021 15:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833673;
-        bh=L6FZUSPrXFNc2fmHnnmd9k6ISPJpUBmPxwvwj90l3pk=;
+        s=korg; t=1620833676;
+        bh=PTruEHK+3qpqegmvOhPbpda2rxvNuq6E6I7kn2MY6NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRc9vHaFNetyyJGQZP6FsNMGwFvLZv/c0fkCrVsFIT6LmNpycz7H0fPWrGPaAc5Nn
-         2dlPbFg66Dj9y2rYpBJ5Apy7lZzQ4dfuz1RmdU5dwkmV89uLK1BCz8g4qQ8tMZjIFz
-         gNu6kFBywroVDef9Z3ERrxrSazAWxk+n4IGANM/g=
+        b=eU2+v7YZ6RqlxmH/3Pg+YLUTHvWw3z2SbziKA26XXJOasVBjbMtNG+aGnYwBodwm+
+         tGSs4xYQP/Z4eqzZPOoGDzVd5Hj7MQ55gJOR+XuCAkcyKnyMY0oiMyj0sXNqqcAFS/
+         f4F0EoimLHMxDPyonZmgMkn5kzuPXbyLeDmZCtug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Divya Bharathi <Divya_Bharathi@dell.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 243/601] staging: greybus: uart: fix unprivileged TIOCCSERIAL
-Date:   Wed, 12 May 2021 16:45:20 +0200
-Message-Id: <20210512144835.833534527@linuxfoundation.org>
+Subject: [PATCH 5.11 244/601] platform/x86: dell-wmi-sysman: Make init_bios_attributes() ACPI object parsing more robust
+Date:   Wed, 12 May 2021 16:45:21 +0200
+Message-Id: <20210512144835.869450520@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,45 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 60c6b305c11b5fd167ce5e2ce42f3a9098c388f0 ]
+[ Upstream commit 5e3f5973c8dfd2b80268f1825ed2f2ddf81d3267 ]
 
-TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
-serial devices is only useful for setting the close_delay and
-closing_wait parameters.
+Make init_bios_attributes() ACPI object parsing more robust:
+1. Always check that the type of the return ACPI object is package, rather
+   then only checking this for instance_id == 0
+2. Check that the package has the minimum amount of elements which will
+   be consumed by the populate_foo_data() for the attr_type
 
-A non-privileged user has only ever been able to set the since long
-deprecated ASYNC_SPD flags and trying to change any other *supported*
-feature should result in -EPERM being returned. Setting the current
-values for any supported features should return success.
+Note/TODO: The populate_foo_data() functions should also be made more
+robust. The should check the type of each of the elements matches the
+type which they expect and in case of populate_enum_data()
+obj->package.count should be passed to it as an argument and it should
+re-check this itself since it consume a variable number of elements.
 
-Fix the greybus implementation which instead indicated that the
-TIOCSSERIAL ioctl was not even implemented when a non-privileged user
-set the current values.
-
-Fixes: e68453ed28c5 ("greybus: uart-gb: now builds, more framework added")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-7-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e8a60aa7404b ("platform/x86: Introduce support for Systems Management Driver over WMI for Dell Systems")
+Cc: Divya Bharathi <Divya_Bharathi@dell.com>
+Cc: Mario Limonciello <mario.limonciello@dell.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210321121607.35717-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/uart.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/platform/x86/dell-wmi-sysman/sysman.c | 32 ++++++++++++++++---
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/greybus/uart.c b/drivers/staging/greybus/uart.c
-index 29846dc1e1bf..a520f7f213db 100644
---- a/drivers/staging/greybus/uart.c
-+++ b/drivers/staging/greybus/uart.c
-@@ -641,8 +641,6 @@ static int set_serial_info(struct tty_struct *tty,
- 		if ((close_delay != gb_tty->port.close_delay) ||
- 		    (closing_wait != gb_tty->port.closing_wait))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
- 	} else {
- 		gb_tty->port.close_delay = close_delay;
- 		gb_tty->port.closing_wait = closing_wait;
+diff --git a/drivers/platform/x86/dell-wmi-sysman/sysman.c b/drivers/platform/x86/dell-wmi-sysman/sysman.c
+index 7410ccae650c..a90ae6ba4a73 100644
+--- a/drivers/platform/x86/dell-wmi-sysman/sysman.c
++++ b/drivers/platform/x86/dell-wmi-sysman/sysman.c
+@@ -399,6 +399,7 @@ static int init_bios_attributes(int attr_type, const char *guid)
+ 	union acpi_object *obj = NULL;
+ 	union acpi_object *elements;
+ 	struct kset *tmp_set;
++	int min_elements;
+ 
+ 	/* instance_id needs to be reset for each type GUID
+ 	 * also, instance IDs are unique within GUID but not across
+@@ -409,14 +410,38 @@ static int init_bios_attributes(int attr_type, const char *guid)
+ 	retval = alloc_attributes_data(attr_type);
+ 	if (retval)
+ 		return retval;
++
++	switch (attr_type) {
++	case ENUM:	min_elements = 8;	break;
++	case INT:	min_elements = 9;	break;
++	case STR:	min_elements = 8;	break;
++	case PO:	min_elements = 4;	break;
++	default:
++		pr_err("Error: Unknown attr_type: %d\n", attr_type);
++		return -EINVAL;
++	}
++
+ 	/* need to use specific instance_id and guid combination to get right data */
+ 	obj = get_wmiobj_pointer(instance_id, guid);
+-	if (!obj || obj->type != ACPI_TYPE_PACKAGE)
++	if (!obj)
+ 		return -ENODEV;
+-	elements = obj->package.elements;
+ 
+ 	mutex_lock(&wmi_priv.mutex);
+-	while (elements) {
++	while (obj) {
++		if (obj->type != ACPI_TYPE_PACKAGE) {
++			pr_err("Error: Expected ACPI-package type, got: %d\n", obj->type);
++			retval = -EIO;
++			goto err_attr_init;
++		}
++
++		if (obj->package.count < min_elements) {
++			pr_err("Error: ACPI-package does not have enough elements: %d < %d\n",
++			       obj->package.count, min_elements);
++			goto nextobj;
++		}
++
++		elements = obj->package.elements;
++
+ 		/* sanity checking */
+ 		if (elements[ATTR_NAME].type != ACPI_TYPE_STRING) {
+ 			pr_debug("incorrect element type\n");
+@@ -481,7 +506,6 @@ nextobj:
+ 		kfree(obj);
+ 		instance_id++;
+ 		obj = get_wmiobj_pointer(instance_id, guid);
+-		elements = obj ? obj->package.elements : NULL;
+ 	}
+ 
+ 	mutex_unlock(&wmi_priv.mutex);
 -- 
 2.30.2
 
