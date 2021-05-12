@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCEEE37D23C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:07:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B5337D23E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:07:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237231AbhELSHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:07:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50086 "EHLO mail.kernel.org"
+        id S237311AbhELSHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:07:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352028AbhELSCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:02:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD01461418;
-        Wed, 12 May 2021 18:01:11 +0000 (UTC)
+        id S1352032AbhELSCW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:02:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FFE61428;
+        Wed, 12 May 2021 18:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842472;
-        bh=ROrCsJ/Qw+OxJGZOf1XS07VD0z1upL+bUr+E+qF8iaI=;
+        s=k20201202; t=1620842473;
+        bh=GVEiyiTtf48gz+ukeAM4SXTOHF2CEVuOVTqVQXbLxPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R77eepUharOF/ApD0jjCds6QKmEh7TkOKTGUOUklc5FeVeHlFUpV4RRPxnlCYfX3u
-         5Hare6gIa1qUElgd2KvIz6Dd7ST5wQIrWb3YJXjKjSO+avoPU4VdA8djBwv23kj8g1
-         1+L/wWDn6LLLlk6Pnq/zjU7KjpYJOnz6/C5WLjv4WGwOMITta2OQudxE9V7WwYc46c
-         O6NDv+1A/YKeEGjJoGf0pLQbw0pTmRLdllMKvHmP6a2WJmvt4UL34hiSeT71Piy5HK
-         0lLdyc7edtFm1kcM/GGl5LiDOWw/unlYjtP53t3eV/zRrOBKovGydUKt1v0T9Pr6DY
-         dKaX5ZeqUZSJA==
+        b=WxnbHvriM/aTKjpL9aor8h8H687O50PcKO25n3Gb8zi1PBaou8MVgLUCYuSYeOjsk
+         hMsHT6Ep5rXQbePC6xHcDubokO7vJf15dU4jWl0P4ls8hTJwnNYtYcT32OzkjVXtQ7
+         uQThGVQ69Mj2+aU+LtFaA25ApaSmOMkCp+KWyV0z3hi/EhEiNb3n1YRhAf/+H76xo6
+         BFiXTBteuoJuaSmkR1kdm2xQjsiyGs7i7dNVFNs86Mr9u9QAzcpLORP83EWkcazWc9
+         KBr/0+uzi4moXWvv/CIEFeguiIHKEvtecfgiJS+2ehMM5Jp4BIn/IxuOakqhEITDzs
+         h9vhJVqLVwXpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.12 05/37] f2fs: fix to avoid out-of-bounds memory access
-Date:   Wed, 12 May 2021 14:00:32 -0400
-Message-Id: <20210512180104.664121-5-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 06/37] NFS: Fix fscache invalidation in nfs_set_cache_invalid()
+Date:   Wed, 12 May 2021 14:00:33 -0400
+Message-Id: <20210512180104.664121-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180104.664121-1-sashal@kernel.org>
 References: <20210512180104.664121-1-sashal@kernel.org>
@@ -44,61 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit b862676e371715456c9dade7990c8004996d0d9e ]
+[ Upstream commit beab450d8ea93cdf4c6cb7714bdc31a9e0f34738 ]
 
-butt3rflyh4ck <butterflyhuangxx@gmail.com> reported a bug found by
-syzkaller fuzzer with custom modifications in 5.12.0-rc3+ [1]:
+Ensure that we invalidate the fscache before we strip the
+NFS_INO_INVALID_DATA flag.
 
- dump_stack+0xfa/0x151 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x82/0x32c mm/kasan/report.c:232
- __kasan_report mm/kasan/report.c:399 [inline]
- kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
- f2fs_test_bit fs/f2fs/f2fs.h:2572 [inline]
- current_nat_addr fs/f2fs/node.h:213 [inline]
- get_next_nat_page fs/f2fs/node.c:123 [inline]
- __flush_nat_entry_set fs/f2fs/node.c:2888 [inline]
- f2fs_flush_nat_entries+0x258e/0x2960 fs/f2fs/node.c:2991
- f2fs_write_checkpoint+0x1372/0x6a70 fs/f2fs/checkpoint.c:1640
- f2fs_issue_checkpoint+0x149/0x410 fs/f2fs/checkpoint.c:1807
- f2fs_sync_fs+0x20f/0x420 fs/f2fs/super.c:1454
- __sync_filesystem fs/sync.c:39 [inline]
- sync_filesystem fs/sync.c:67 [inline]
- sync_filesystem+0x1b5/0x260 fs/sync.c:48
- generic_shutdown_super+0x70/0x370 fs/super.c:448
- kill_block_super+0x97/0xf0 fs/super.c:1394
-
-The root cause is, if nat entry in checkpoint journal area is corrupted,
-e.g. nid of journalled nat entry exceeds max nid value, during checkpoint,
-once it tries to flush nat journal to NAT area, get_next_nat_page() may
-access out-of-bounds memory on nat_bitmap due to it uses wrong nid value
-as bitmap offset.
-
-[1] https://lore.kernel.org/lkml/CAFcO6XOMWdr8pObek6eN6-fs58KG9doRFadgJj-FnF-1x43s2g@mail.gmail.com/T/#u
-
-Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/node.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfs/inode.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 4b0e2e3c2c88..45c8cf1afe66 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2785,6 +2785,9 @@ static void remove_nats_in_journal(struct f2fs_sb_info *sbi)
- 		struct f2fs_nat_entry raw_ne;
- 		nid_t nid = le32_to_cpu(nid_in_journal(journal, i));
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index a7fb076a5f44..ff737be559dc 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -223,11 +223,11 @@ void nfs_set_cache_invalid(struct inode *inode, unsigned long flags)
  
-+		if (f2fs_check_nid_range(sbi, nid))
-+			continue;
-+
- 		raw_ne = nat_in_journal(journal, i);
+ 	if (!nfs_has_xattr_cache(nfsi))
+ 		flags &= ~NFS_INO_INVALID_XATTR;
++	if (flags & NFS_INO_INVALID_DATA)
++		nfs_fscache_invalidate(inode);
+ 	if (inode->i_mapping->nrpages == 0)
+ 		flags &= ~(NFS_INO_INVALID_DATA|NFS_INO_DATA_INVAL_DEFER);
+ 	nfsi->cache_validity |= flags;
+-	if (flags & NFS_INO_INVALID_DATA)
+-		nfs_fscache_invalidate(inode);
+ }
+ EXPORT_SYMBOL_GPL(nfs_set_cache_invalid);
  
- 		ne = __lookup_nat_cache(nm_i, nid);
 -- 
 2.30.2
 
