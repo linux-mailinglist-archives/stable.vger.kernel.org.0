@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40FB237CE8D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5858E37CE87
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344999AbhELRFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37578 "EHLO mail.kernel.org"
+        id S1344981AbhELRFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244439AbhELQqG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:46:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D8F26144F;
-        Wed, 12 May 2021 16:14:45 +0000 (UTC)
+        id S244436AbhELQqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:46:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F06F61E72;
+        Wed, 12 May 2021 16:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836086;
-        bh=os3IdbjtmowGQlAp1NLTz3BkNBLLRVYjWB6eNY2ukH4=;
+        s=korg; t=1620836089;
+        bh=wldFpXk7J5dSO2jDrGOR0jFyaXmfUj1pKOG5pOMLCfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRMCLJMnBMnfrrDzRwiZtLS1suMNNVLIUIIhbNrB4uoMLRg5g6pPBSsx2zE/tbUsR
-         9WHZCpy47edxnen5vL+rT+gGlEAJ5pzEWb6vKoynbJWFbBAk43CzAq7cSjM14/1Ceo
-         hFnoaDWvSxUnzF8kkmWV+VHLFvBebZ/oCXE02AHM=
+        b=pueee3rXoouFBynRAhHaDyoQyRCNidqkSvWdEC9mYxg1bZUuC0VjIgCM2eAeOHorG
+         tGng53ld9RrtqhvHFm8/Qs9LVB9LLiH5N76M4VQS3SXokUhPgF5zDblq90aBKM4ll2
+         yBeIwMP7xbQwZGgIKoY3YUbdymTZoQDD3nsVFw7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 569/677] i2c: sh7760: add IRQ check
-Date:   Wed, 12 May 2021 16:50:15 +0200
-Message-Id: <20210512144856.302558952@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
+        Alessio Balsini <balsini@android.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 570/677] fuse: fix matching of FUSE_DEV_IOC_CLONE command
+Date:   Wed, 12 May 2021 16:50:16 +0200
+Message-Id: <20210512144856.333623127@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,40 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Alessio Balsini <balsini@android.com>
 
-[ Upstream commit e5b2e3e742015dd2aa6bc7bcef2cb59b2de1221c ]
+[ Upstream commit 6076f5f341e612152879bfda99f0b76c1953bf0b ]
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to devm_request_irq() (which
-takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
-an original error code.  Stop calling devm_request_irq() with invalid
-IRQ #s.
+With commit f8425c939663 ("fuse: 32-bit user space ioctl compat for fuse
+device") the matching constraints for the FUSE_DEV_IOC_CLONE ioctl command
+are relaxed, limited to the testing of command type and number.  As Arnd
+noticed, this is wrong as it wouldn't ensure the correctness of the data
+size or direction for the received FUSE device ioctl.
 
-Fixes: a26c20b1fa6d ("i2c: Renesas SH7760 I2C master driver")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fix by bringing back the comparison of the ioctl received by the FUSE
+device to the originally generated FUSE_DEV_IOC_CLONE.
+
+Fixes: f8425c939663 ("fuse: 32-bit user space ioctl compat for fuse device")
+Reported-by: Arnd Bergmann <arnd@kernel.org>
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-sh7760.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/fuse/dev.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
-index c2005c789d2b..c79c9f542c5a 100644
---- a/drivers/i2c/busses/i2c-sh7760.c
-+++ b/drivers/i2c/busses/i2c-sh7760.c
-@@ -471,7 +471,10 @@ static int sh7760_i2c_probe(struct platform_device *pdev)
- 		goto out2;
- 	}
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index c0fee830a34e..a5ceccc5ef00 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -2233,11 +2233,8 @@ static long fuse_dev_ioctl(struct file *file, unsigned int cmd,
+ 	int oldfd;
+ 	struct fuse_dev *fud = NULL;
  
--	id->irq = platform_get_irq(pdev, 0);
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret < 0)
-+		return ret;
-+	id->irq = ret;
- 
- 	id->adap.nr = pdev->id;
- 	id->adap.algo = &sh7760_i2c_algo;
+-	if (_IOC_TYPE(cmd) != FUSE_DEV_IOC_MAGIC)
+-		return -ENOTTY;
+-
+-	switch (_IOC_NR(cmd)) {
+-	case _IOC_NR(FUSE_DEV_IOC_CLONE):
++	switch (cmd) {
++	case FUSE_DEV_IOC_CLONE:
+ 		res = -EFAULT;
+ 		if (!get_user(oldfd, (__u32 __user *)arg)) {
+ 			struct file *old = fget(oldfd);
 -- 
 2.30.2
 
