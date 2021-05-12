@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70FAD37C80D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 296DE37C804
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238176AbhELQEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:04:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38790 "EHLO mail.kernel.org"
+        id S234556AbhELQEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:04:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235212AbhELP7S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:59:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F41861C34;
-        Wed, 12 May 2021 15:32:00 +0000 (UTC)
+        id S235216AbhELP7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:59:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3F1F61CC4;
+        Wed, 12 May 2021 15:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833521;
-        bh=cD7bC3DzVTH0Lq3cBh5vjAOyt2ka2dk3/JE/h8oWKic=;
+        s=korg; t=1620833523;
+        bh=fB2ymC7lOVdckjRTUKLZpr28i4cAT/4LZHa3MvLFjqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdkz13dn0PwvBXpFzhPSi4kqgSHDEQuVuVygwyl99oGmh4B8tcawcqlYA5chCeB3q
-         TkDfPATYFN/Q18X/9Amw33fiFB4SaqNh3dYS1mwjnGK0BH8B0Rh6s5rCxDkGX5gGBJ
-         sDOU/uRukfqDzApUaMc/i23qw0K2Ob6Aac+pjfoE=
+        b=o7tOdPPpIDujn5Www1CywzLMIEnEOi22jcI4FIzJEY5hlvZO9UG9jRuqX2noxfl2F
+         OQ3tOYRO6+VycNxZFRQYRyqfhbh5/GXrgeBfc9SM1K/+PxTnQ1oPz36dy6w+XP76bV
+         HRZeyGr8slCbEyKNrIeWgkfyNuztLrJ8hMWSCFsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 148/601] serial: stm32: fix incorrect characters on console
-Date:   Wed, 12 May 2021 16:43:45 +0200
-Message-Id: <20210512144832.690446534@linuxfoundation.org>
+Subject: [PATCH 5.11 149/601] serial: stm32: fix TX and RX FIFO thresholds
+Date:   Wed, 12 May 2021 16:43:46 +0200
+Message-Id: <20210512144832.721980855@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,55 +41,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit f264c6f6aece81a9f8fbdf912b20bd3feb476a7a ]
+[ Upstream commit 25a8e7611da5513b388165661b17173c26e12c04 ]
 
-Incorrect characters are observed on console during boot. This issue occurs
-when init/main.c is modifying termios settings to open /dev/console on the
-rootfs.
+TX and RX FIFO thresholds may be cleared after suspend/resume, depending
+on the low power mode.
 
-This patch adds a waiting loop in set_termios to wait for TX shift register
-empty (and TX FIFO if any) before stopping serial port.
+Those configurations (done in startup) are not effective for UART console,
+as:
+- the reference manual indicates that FIFOEN bit can only be written when
+  the USART is disabled (UE=0)
+- a set_termios (where UE is set) is requested firstly for console
+  enabling, before the startup.
 
-Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
+Fixes: 84872dc448fe ("serial: stm32: add RX and TX FIFO flush")
 Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-4-erwan.leray@foss.st.com
+Link: https://lore.kernel.org/r/20210304162308.8984-5-erwan.leray@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/tty/serial/stm32-usart.c | 23 +++++++++--------------
+ 1 file changed, 9 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 909a0d991ba1..70155e0c3b02 100644
+index 70155e0c3b02..91a33ec4dbb4 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -736,8 +736,9 @@ static void stm32_usart_set_termios(struct uart_port *port,
- 	unsigned int baud, bits;
- 	u32 usartdiv, mantissa, fraction, oversampling;
- 	tcflag_t cflag = termios->c_cflag;
--	u32 cr1, cr2, cr3;
-+	u32 cr1, cr2, cr3, isr;
- 	unsigned long flags;
-+	int ret;
+@@ -648,19 +648,8 @@ static int stm32_usart_startup(struct uart_port *port)
+ 	if (ofs->rqr != UNDEF_REG)
+ 		stm32_usart_set_bits(port, ofs->rqr, USART_RQR_RXFRQ);
  
- 	if (!stm32_port->hw_flow_control)
- 		cflag &= ~CRTSCTS;
-@@ -746,6 +747,15 @@ static void stm32_usart_set_termios(struct uart_port *port,
+-	/* Tx and RX FIFO configuration */
+-	if (stm32_port->fifoen) {
+-		val = readl_relaxed(port->membase + ofs->cr3);
+-		val &= ~(USART_CR3_TXFTCFG_MASK | USART_CR3_RXFTCFG_MASK);
+-		val |= USART_CR3_TXFTCFG_HALF << USART_CR3_TXFTCFG_SHIFT;
+-		val |= USART_CR3_RXFTCFG_HALF << USART_CR3_RXFTCFG_SHIFT;
+-		writel_relaxed(val, port->membase + ofs->cr3);
+-	}
+-
+-	/* RX FIFO enabling */
++	/* RX enabling */
+ 	val = stm32_port->cr1_irq | USART_CR1_RE | BIT(cfg->uart_enable_bit);
+-	if (stm32_port->fifoen)
+-		val |= USART_CR1_FIFOEN;
+ 	stm32_usart_set_bits(port, ofs->cr1, val);
  
- 	spin_lock_irqsave(&port->lock, flags);
- 
-+	ret = readl_relaxed_poll_timeout_atomic(port->membase + ofs->isr,
-+						isr,
-+						(isr & USART_SR_TC),
-+						10, 100000);
+ 	return 0;
+@@ -768,9 +757,15 @@ static void stm32_usart_set_termios(struct uart_port *port,
+ 	if (stm32_port->fifoen)
+ 		cr1 |= USART_CR1_FIFOEN;
+ 	cr2 = 0;
 +
-+	/* Send the TC error message only when ISR_TC is not set. */
-+	if (ret)
-+		dev_err(port->dev, "Transmission is not complete\n");
-+
- 	/* Stop serial port and reset value */
- 	writel_relaxed(0, port->membase + ofs->cr1);
++	/* Tx and RX FIFO configuration */
+ 	cr3 = readl_relaxed(port->membase + ofs->cr3);
+-	cr3 &= USART_CR3_TXFTIE | USART_CR3_RXFTCFG_MASK | USART_CR3_RXFTIE
+-		| USART_CR3_TXFTCFG_MASK;
++	cr3 &= USART_CR3_TXFTIE | USART_CR3_RXFTIE;
++	if (stm32_port->fifoen) {
++		cr3 &= ~(USART_CR3_TXFTCFG_MASK | USART_CR3_RXFTCFG_MASK);
++		cr3 |= USART_CR3_TXFTCFG_HALF << USART_CR3_TXFTCFG_SHIFT;
++		cr3 |= USART_CR3_RXFTCFG_HALF << USART_CR3_RXFTCFG_SHIFT;
++	}
  
+ 	if (cflag & CSTOPB)
+ 		cr2 |= USART_CR2_STOP_2B;
 -- 
 2.30.2
 
