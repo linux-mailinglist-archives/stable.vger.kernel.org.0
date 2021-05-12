@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A64437CA83
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD1E37CAB2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240705AbhELQam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:30:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42392 "EHLO mail.kernel.org"
+        id S241935AbhELQbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:31:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237053AbhELQYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:24:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D9C461C9F;
-        Wed, 12 May 2021 15:47:43 +0000 (UTC)
+        id S241103AbhELQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:26:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9391F61DAD;
+        Wed, 12 May 2021 15:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834463;
-        bh=JzetIQQuZ5cB7MJY+zjMK3lz4KswqMMKVJmxRfMZMZY=;
+        s=korg; t=1620834576;
+        bh=46vfgxHaHbo8cW9Itozd7ql0Gr70YNiNpAIcBeDR/vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGXS50PrS74Yj38F4oEotVLl12n42Ay7+L+MV+XSsj9Cx5lWgfBcX6poMGWj6qL3X
-         hUPBOuCiGuDQTUB1TKrvB74cNAUrzesbSpuzKG6XlHaAqYcCJfYhXYxQJNVBRdQlIx
-         bV6H/gPuM2Tb0kjx+RaxHFWDXZRQSgqPjwU97aqI=
+        b=BA84JAYdM6CvoKwjPtH2F61ZP6QLjR0qYzjCBgokq1ML0nVIgczyT8r8Lvg3M5A3l
+         svp1kqEPC7EHdOcLsu/ZvjE8+xqBK7jw49LrIugBVHQxsyy98tk4xntgJsFwiPRG/r
+         /G2G9xK4xHRy7N4GibNQGUdML6hOk1bMe5UgIAFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 553/601] powerpc/64: Fix the definition of the fixmap area
-Date:   Wed, 12 May 2021 16:50:30 +0200
-Message-Id: <20210512144846.068646624@linuxfoundation.org>
+Subject: [PATCH 5.11 554/601] ath9k: Fix error check in ath9k_hw_read_revisions() for PCI devices
+Date:   Wed, 12 May 2021 16:50:31 +0200
+Message-Id: <20210512144846.100412303@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,125 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 9ccba66d4d2aff9a3909aa77d57ea8b7cc166f3c ]
+[ Upstream commit 7dd9a40fd6e0d0f1fd8e1931c007e080801dfdce ]
 
-At the time being, the fixmap area is defined at the top of
-the address space or just below KASAN.
+When the error check in ath9k_hw_read_revisions() was added, it checked for
+-EIO which is what ath9k_regread() in the ath9k_htc driver uses. However,
+for plain ath9k, the register read function uses ioread32(), which just
+returns -1 on error. So if such a read fails, it still gets passed through
+and ends up as a weird mac revision in the log output.
 
-This definition is not valid for PPC64.
+Fix this by changing ath9k_regread() to return -1 on error like ioread32()
+does, and fix the error check to look for that instead of -EIO.
 
-For PPC64, use the top of the I/O space.
-
-Because of circular dependencies, it is not possible to include
-asm/fixmap.h in asm/book3s/64/pgtable.h , so define a fixed size
-AREA at the top of the I/O space for fixmap and ensure during
-build that the size is big enough.
-
-Fixes: 265c3491c4bc ("powerpc: Add support for GENERIC_EARLY_IOREMAP")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/0d51620eacf036d683d1a3c41328f69adb601dc0.1618925560.git.christophe.leroy@csgroup.eu
+Fixes: 2f90c7e5d094 ("ath9k: Check for errors when reading SREV register")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210326180819.142480-1-toke@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/64/pgtable.h | 4 +++-
- arch/powerpc/include/asm/fixmap.h            | 9 +++++++++
- arch/powerpc/include/asm/nohash/64/pgtable.h | 5 ++++-
- 3 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c | 2 +-
+ drivers/net/wireless/ath/ath9k/hw.c           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index a39886681629..3d6cfa3b0f40 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -7,6 +7,7 @@
- #ifndef __ASSEMBLY__
- #include <linux/mmdebug.h>
- #include <linux/bug.h>
-+#include <linux/sizes.h>
- #endif
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index db0c6fa9c9dc..ff61ae34ecdf 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -246,7 +246,7 @@ static unsigned int ath9k_regread(void *hw_priv, u32 reg_offset)
+ 	if (unlikely(r)) {
+ 		ath_dbg(common, WMI, "REGISTER READ FAILED: (0x%04x, %d)\n",
+ 			reg_offset, r);
+-		return -EIO;
++		return -1;
+ 	}
  
- /*
-@@ -323,7 +324,8 @@ extern unsigned long pci_io_base;
- #define  PHB_IO_END	(KERN_IO_START + FULL_IO_SIZE)
- #define IOREMAP_BASE	(PHB_IO_END)
- #define IOREMAP_START	(ioremap_bot)
--#define IOREMAP_END	(KERN_IO_END)
-+#define IOREMAP_END	(KERN_IO_END - FIXADDR_SIZE)
-+#define FIXADDR_SIZE	SZ_32M
+ 	return be32_to_cpu(val);
+diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
+index b66eeb577272..504e316d3394 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -287,7 +287,7 @@ static bool ath9k_hw_read_revisions(struct ath_hw *ah)
  
- /* Advertise special mapping type for AGP */
- #define HAVE_PAGE_AGP
-diff --git a/arch/powerpc/include/asm/fixmap.h b/arch/powerpc/include/asm/fixmap.h
-index 8d03c16a3663..947b5b9c4424 100644
---- a/arch/powerpc/include/asm/fixmap.h
-+++ b/arch/powerpc/include/asm/fixmap.h
-@@ -23,12 +23,17 @@
- #include <asm/kmap_size.h>
- #endif
+ 	srev = REG_READ(ah, AR_SREV);
  
-+#ifdef CONFIG_PPC64
-+#define FIXADDR_TOP	(IOREMAP_END + FIXADDR_SIZE)
-+#else
-+#define FIXADDR_SIZE	0
- #ifdef CONFIG_KASAN
- #include <asm/kasan.h>
- #define FIXADDR_TOP	(KASAN_SHADOW_START - PAGE_SIZE)
- #else
- #define FIXADDR_TOP	((unsigned long)(-PAGE_SIZE))
- #endif
-+#endif
- 
- /*
-  * Here we define all the compile-time 'special' virtual
-@@ -50,6 +55,7 @@
-  */
- enum fixed_addresses {
- 	FIX_HOLE,
-+#ifdef CONFIG_PPC32
- 	/* reserve the top 128K for early debugging purposes */
- 	FIX_EARLY_DEBUG_TOP = FIX_HOLE,
- 	FIX_EARLY_DEBUG_BASE = FIX_EARLY_DEBUG_TOP+(ALIGN(SZ_128K, PAGE_SIZE)/PAGE_SIZE)-1,
-@@ -72,6 +78,7 @@ enum fixed_addresses {
- 		       FIX_IMMR_SIZE,
- #endif
- 	/* FIX_PCIE_MCFG, */
-+#endif /* CONFIG_PPC32 */
- 	__end_of_permanent_fixed_addresses,
- 
- #define NR_FIX_BTMAPS		(SZ_256K / PAGE_SIZE)
-@@ -98,6 +105,8 @@ enum fixed_addresses {
- static inline void __set_fixmap(enum fixed_addresses idx,
- 				phys_addr_t phys, pgprot_t flags)
- {
-+	BUILD_BUG_ON(IS_ENABLED(CONFIG_PPC64) && __FIXADDR_SIZE > FIXADDR_SIZE);
-+
- 	if (__builtin_constant_p(idx))
- 		BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
- 	else if (WARN_ON(idx >= __end_of_fixed_addresses))
-diff --git a/arch/powerpc/include/asm/nohash/64/pgtable.h b/arch/powerpc/include/asm/nohash/64/pgtable.h
-index 6cb8aa357191..57cd3892bfe0 100644
---- a/arch/powerpc/include/asm/nohash/64/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/64/pgtable.h
-@@ -6,6 +6,8 @@
-  * the ppc64 non-hashed page table.
-  */
- 
-+#include <linux/sizes.h>
-+
- #include <asm/nohash/64/pgtable-4k.h>
- #include <asm/barrier.h>
- #include <asm/asm-const.h>
-@@ -54,7 +56,8 @@
- #define  PHB_IO_END	(KERN_IO_START + FULL_IO_SIZE)
- #define IOREMAP_BASE	(PHB_IO_END)
- #define IOREMAP_START	(ioremap_bot)
--#define IOREMAP_END	(KERN_VIRT_START + KERN_VIRT_SIZE)
-+#define IOREMAP_END	(KERN_VIRT_START + KERN_VIRT_SIZE - FIXADDR_SIZE)
-+#define FIXADDR_SIZE	SZ_32M
- 
- 
- /*
+-	if (srev == -EIO) {
++	if (srev == -1) {
+ 		ath_err(ath9k_hw_common(ah),
+ 			"Failed to read SREV register");
+ 		return false;
 -- 
 2.30.2
 
