@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A246937C8C3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8632037C8C5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236605AbhELQMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36282 "EHLO mail.kernel.org"
+        id S236844AbhELQMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:12:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239078AbhELQHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239077AbhELQHQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:07:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0AB461D11;
-        Wed, 12 May 2021 15:35:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B552B61C33;
+        Wed, 12 May 2021 15:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833754;
-        bh=9d8e1kro+x5O+R31gGBlA+yRlL4lLFXIDtIe7ShIsyQ=;
+        s=korg; t=1620833757;
+        bh=sCBOWjPFlsAS3ZI4sQKtAA1bAk5Y6r/rQizYVdgRpKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jo+AZeqnVt+mfdl/kTiqIjRrbWhSjemyZD6HrMcJ1iERXD3wHI4vJ5oPZkvYsJFs8
-         hStRJV42KkzQupJe9F7GBJgGC9E/ablvdo7TG0JW10/2NWqDeYUDaK/IC+ij4V4O5P
-         WLj3QZFq0wJo1hDX0GR831BFzAPayfgqYGFBrd2k=
+        b=g0TSst37pwhLnwymfxCBHIj3UP66sp9k8+KW8eTdbBodscxK9U/BKDXPGnX4Lc3cZ
+         vVJYY8+5in8J1/lI/62mniRDBtQTL/JN8Qe2ect4ywOotE42xO0OXW5mSFY0QT8kTp
+         CnJTk6Y3SKv4oNMoaFLuHQ2Nfsatidmsf1afaq3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 275/601] USB: cdc-acm: fix TIOCGSERIAL implementation
-Date:   Wed, 12 May 2021 16:45:52 +0200
-Message-Id: <20210512144836.877669839@linuxfoundation.org>
+Subject: [PATCH 5.11 276/601] tty: actually undefine superseded ASYNC flags
+Date:   Wed, 12 May 2021 16:45:53 +0200
+Message-Id: <20210512144836.908437876@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,54 +41,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 496960274153bdeb9d1f904ff1ea875cef8232c1 ]
+[ Upstream commit d09845e98a05850a8094ea8fd6dd09a8e6824fff ]
 
-TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
-serial devices is only useful for setting the close_delay and
-closing_wait parameters.
+Some kernel-internal ASYNC flags have been superseded by tty-port flags
+and should no longer be used by kernel drivers.
 
-The xmit_fifo_size parameter could be used to set the hardware transmit
-fifo size of a legacy UART when it could not be detected, but the
-interface is limited to eight bits and should be left unset when it is
-not used.
+Fix the misspelled "__KERNEL__" compile guards which failed their sole
+purpose to break out-of-tree drivers that have not yet been updated.
 
-Similarly, baud_base could be used to set the UART base clock when it
-could not be detected, but might as well be left unset when it is not
-known (which is the case for CDC).
-
-Fix the cdc-acm TIOCGSERIAL implementation by dropping its custom
-interpretation of the unused xmit_fifo_size and baud_base fields, which
-overflowed the former with the URB buffer size and set the latter to the
-current line speed. Also return the port line number, which is the only
-other value used besides the close parameters.
-
-Note that the current line speed can still be retrieved through the
-standard termios interfaces.
-
-Fixes: 18c75720e667 ("USB: allow users to run setserial with cdc-acm")
-Acked-by: Oliver Neukum <oneukum@suse.com>
+Fixes: 5c0517fefc92 ("tty: core: Undefine ASYNC_* flags superceded by TTY_PORT* flags")
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210408131602.27956-4-johan@kernel.org
+Link: https://lore.kernel.org/r/20210407095208.31838-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/uapi/linux/tty_flags.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 63824552e5d0..6fbabf56dbb7 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -929,8 +929,7 @@ static int get_serial_info(struct tty_struct *tty, struct serial_struct *ss)
- {
- 	struct acm *acm = tty->driver_data;
+diff --git a/include/uapi/linux/tty_flags.h b/include/uapi/linux/tty_flags.h
+index 900a32e63424..6a3ac496a56c 100644
+--- a/include/uapi/linux/tty_flags.h
++++ b/include/uapi/linux/tty_flags.h
+@@ -39,7 +39,7 @@
+  * WARNING: These flags are no longer used and have been superceded by the
+  *	    TTY_PORT_ flags in the iflags field (and not userspace-visible)
+  */
+-#ifndef _KERNEL_
++#ifndef __KERNEL__
+ #define ASYNCB_INITIALIZED	31 /* Serial port was initialized */
+ #define ASYNCB_SUSPENDED	30 /* Serial port is suspended */
+ #define ASYNCB_NORMAL_ACTIVE	29 /* Normal device is active */
+@@ -81,7 +81,7 @@
+ #define ASYNC_SPD_WARP		(ASYNC_SPD_HI|ASYNC_SPD_SHI)
+ #define ASYNC_SPD_MASK		(ASYNC_SPD_HI|ASYNC_SPD_VHI|ASYNC_SPD_SHI)
  
--	ss->xmit_fifo_size = acm->writesize;
--	ss->baud_base = le32_to_cpu(acm->line.dwDTERate);
-+	ss->line = acm->minor;
- 	ss->close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
- 	ss->closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
- 				ASYNC_CLOSING_WAIT_NONE :
+-#ifndef _KERNEL_
++#ifndef __KERNEL__
+ /* These flags are no longer used (and were always masked from userspace) */
+ #define ASYNC_INITIALIZED	(1U << ASYNCB_INITIALIZED)
+ #define ASYNC_NORMAL_ACTIVE	(1U << ASYNCB_NORMAL_ACTIVE)
 -- 
 2.30.2
 
