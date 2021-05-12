@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73C3E37C8BF
+	by mail.lfdr.de (Postfix) with ESMTP id 2B83337C8BE
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233867AbhELQMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:12:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34630 "EHLO mail.kernel.org"
+        id S236711AbhELQM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:12:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239019AbhELQHE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23E7661D0D;
-        Wed, 12 May 2021 15:35:43 +0000 (UTC)
+        id S239027AbhELQHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03ED961D0E;
+        Wed, 12 May 2021 15:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833744;
-        bh=bME7cUGweBvzQ7c7y/JPK8QS7iBPZOIG/OEuLVjhu40=;
+        s=korg; t=1620833749;
+        bh=nTIRnDruiozt48EnkzzPMjoni5i2+tipW2+sdS0xD38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDDeXx3VRyU967o56BwitXIwlOLBQGQJyZ7UVoOyMaxus/3uxZT90zcDEPH9bgyzI
-         ewZWxsbfgyXxa1UXZqdrVzf7zghDF7nhZDfnpQAKM/5gecWS4k+Lklk1Mg51WjR5PB
-         2HrVPpsbNaW6obZA0r6Kjj4Vzzq9ejFhtGCW0/U4=
+        b=qbnZaFdy+KpAmLosmJIrajaOcjm1o2JmqvYvoQXVIgYcrnwi9FhZzGu8JGQ9cGk3W
+         Z4S6Y4GTHiiyElvBsOZXGG2eAY0DkpCygJH6rhDm9N7OSjErSMn0uO9xGeYmJ4unqQ
+         e1lXMWk+kFH2KTs6t5KapGw5KhYp+pLIrpRNqrDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Li <wangli74@huawei.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 272/601] spi: fsl-lpspi: Fix PM reference leak in lpspi_prepare_xfer_hardware()
-Date:   Wed, 12 May 2021 16:45:49 +0200
-Message-Id: <20210512144836.774151132@linuxfoundation.org>
+Subject: [PATCH 5.11 273/601] usb: gadget: r8a66597: Add missing null check on return from platform_get_resource
+Date:   Wed, 12 May 2021 16:45:50 +0200
+Message-Id: <20210512144836.806626755@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,38 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Li <wangli74@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit a03675497970a93fcf25d81d9d92a59c2d7377a7 ]
+[ Upstream commit 9c2076090c2815fe7c49676df68dde7e60a9b9fc ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+The call to platform_get_resource can potentially return a NULL pointer
+on failure, so add this check and return -EINVAL if it fails.
 
-Fixes: 944c01a889d9 ("spi: lpspi: enable runtime pm for lpspi")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Li <wangli74@huawei.com>
-Link: https://lore.kernel.org/r/20210409095430.29868-1-wangli74@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: c41442474a26 ("usb: gadget: R8A66597 peripheral controller support.")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Addresses-Coverity: ("Dereference null return")
+Link: https://lore.kernel.org/r/20210406184510.433497-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-lpspi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/r8a66597-udc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-fsl-lpspi.c b/drivers/spi/spi-fsl-lpspi.c
-index a2886ee44e4c..5d98611dd999 100644
---- a/drivers/spi/spi-fsl-lpspi.c
-+++ b/drivers/spi/spi-fsl-lpspi.c
-@@ -200,7 +200,7 @@ static int lpspi_prepare_xfer_hardware(struct spi_controller *controller)
- 				spi_controller_get_devdata(controller);
- 	int ret;
+diff --git a/drivers/usb/gadget/udc/r8a66597-udc.c b/drivers/usb/gadget/udc/r8a66597-udc.c
+index 896c1a016d55..65cae4883454 100644
+--- a/drivers/usb/gadget/udc/r8a66597-udc.c
++++ b/drivers/usb/gadget/udc/r8a66597-udc.c
+@@ -1849,6 +1849,8 @@ static int r8a66597_probe(struct platform_device *pdev)
+ 		return PTR_ERR(reg);
  
--	ret = pm_runtime_get_sync(fsl_lpspi->dev);
-+	ret = pm_runtime_resume_and_get(fsl_lpspi->dev);
- 	if (ret < 0) {
- 		dev_err(fsl_lpspi->dev, "failed to enable clock\n");
- 		return ret;
+ 	ires = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (!ires)
++		return -EINVAL;
+ 	irq = ires->start;
+ 	irq_trigger = ires->flags & IRQF_TRIGGER_MASK;
+ 
 -- 
 2.30.2
 
