@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0180C37C433
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E6B37C3DD
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234503AbhELP3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:29:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38784 "EHLO mail.kernel.org"
+        id S232970AbhELPWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:22:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234291AbhELPYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:24:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D77A7619B6;
-        Wed, 12 May 2021 15:10:09 +0000 (UTC)
+        id S234730AbhELPUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:20:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BC4661429;
+        Wed, 12 May 2021 15:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832210;
-        bh=h44MHavJuuArjrpAwtzhkwqsgKm4E5Xw3coWdkO0kow=;
+        s=korg; t=1620832122;
+        bh=0gAMiszxUcJaObyhwZluX8H5eCjPXEZfl7Orfw5QyHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uzqe/QtKHKaGHbpjaJN0edLFBI7/VkEUkSXAxC8bVk+Zr14o5Pc8210BecZL8F5xk
-         fK5reTgjoBzLgIQ4L2WnxPRWrHF45CyaUG9oAyz7gDPug8VfNnnb+jgXvWB3fO5SmJ
-         IBZoI+AS/TyKRpzqo5tx0vGqfUOfNoEv93DGiK3A=
+        b=kUa8hrInBkbZ3avcr2nGxn1CQ7t9IMz381HOtRt04CKNoqhlrFd2pBKagp7Svqatn
+         61dCiTsNq+7TLmJ0cv0dAaFEIrc5kPKOIg15RwBSAb8b5dxoCoexc09Cofa47q4xBy
+         PbqXF1iaDYCBzpj3Mx2bwGFOBVymW56996ZaThsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Badhri Jagan Sridharan <badhri@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 142/530] serial: stm32: fix tx_empty condition
-Date:   Wed, 12 May 2021 16:44:12 +0200
-Message-Id: <20210512144824.486253533@linuxfoundation.org>
+Subject: [PATCH 5.10 143/530] usb: typec: tcpci: Check ROLE_CONTROL while interpreting CC_STATUS
+Date:   Wed, 12 May 2021 16:44:13 +0200
+Message-Id: <20210512144824.525281880@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,59 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erwan Le Ray <erwan.leray@foss.st.com>
+From: Badhri Jagan Sridharan <badhri@google.com>
 
-[ Upstream commit 3db1d52466dc11dca4e47ef12a6e6e97f846af62 ]
+[ Upstream commit 19c234a14eafca78e0bc14ffb8be3891096ce147 ]
 
-In "tx_empty", we should poll TC bit in both DMA and PIO modes (instead of
-TXE) to check transmission data register has been transmitted independently
-of the FIFO mode. TC indicates that both transmit register and shift
-register are empty. When shift register is empty, tx_empty should return
-TIOCSER_TEMT instead of TC value.
+While interpreting CC_STATUS, ROLE_CONTROL has to be read to make
+sure that CC1/CC2 is not forced presenting Rp/Rd.
 
-Cleans the USART_CR_TC TCCF register define (transmission complete clear
-flag) as it is duplicate of USART_ICR_TCCF.
+>From the TCPCI spec:
 
-Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
-Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-13-erwan.leray@foss.st.com
+4.4.5.2 ROLE_CONTROL (Normative):
+The TCPM shall write B6 (DRP) = 0b and B3..0 (CC1/CC2) if it wishes
+to control the Rp/Rd directly instead of having the TCPC perform
+DRP toggling autonomously. When controlling Rp/Rd directly, the
+TCPM writes to B3..0 (CC1/CC2) each time it wishes to change the
+CC1/CC2 values. This control is used for TCPM-TCPC implementing
+Source or Sink only as well as when a connection has been detected
+via DRP toggling but the TCPM wishes to attempt Try.Src or Try.Snk.
+
+Table 4-22. CC_STATUS Register Definition:
+If (ROLE_CONTROL.CC1 = Rd) or ConnectResult=1)
+00b: SNK.Open (Below maximum vRa)
+01b: SNK.Default (Above minimum vRd-Connect)
+10b: SNK.Power1.5 (Above minimum vRd-Connect) Detects Rp-1.5A
+11b: SNK.Power3.0 (Above minimum vRd-Connect) Detects Rp-3.0A
+
+If (ROLE_CONTROL.CC2=Rd) or (ConnectResult=1)
+00b: SNK.Open (Below maximum vRa)
+01b: SNK.Default (Above minimum vRd-Connect)
+10b: SNK.Power1.5 (Above minimum vRd-Connect) Detects Rp 1.5A
+11b: SNK.Power3.0 (Above minimum vRd-Connect) Detects Rp 3.0A
+
+Fixes: 74e656d6b0551 ("staging: typec: Type-C Port Controller Interface driver (tcpci)")
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Link: https://lore.kernel.org/r/20210304070931.1947316-1-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 5 ++++-
- drivers/tty/serial/stm32-usart.h | 3 ---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/typec/tcpm/tcpci.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index cb8c2bece6d6..2cf9fc915510 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -514,7 +514,10 @@ static unsigned int stm32_usart_tx_empty(struct uart_port *port)
- 	struct stm32_port *stm32_port = to_stm32_port(port);
- 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
+index f9f0af64da5f..a06da1854c10 100644
+--- a/drivers/usb/typec/tcpm/tcpci.c
++++ b/drivers/usb/typec/tcpm/tcpci.c
+@@ -20,6 +20,15 @@
  
--	return readl_relaxed(port->membase + ofs->isr) & USART_SR_TXE;
-+	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
-+		return TIOCSER_TEMT;
+ #define PD_RETRY_COUNT 3
+ 
++#define tcpc_presenting_cc1_rd(reg) \
++	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
++	 (((reg) & (TCPC_ROLE_CTRL_CC1_MASK << TCPC_ROLE_CTRL_CC1_SHIFT)) == \
++	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_CC1_SHIFT)))
++#define tcpc_presenting_cc2_rd(reg) \
++	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
++	 (((reg) & (TCPC_ROLE_CTRL_CC2_MASK << TCPC_ROLE_CTRL_CC2_SHIFT)) == \
++	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_CC2_SHIFT)))
 +
-+	return 0;
+ struct tcpci {
+ 	struct device *dev;
+ 
+@@ -174,19 +183,25 @@ static int tcpci_get_cc(struct tcpc_dev *tcpc,
+ 			enum typec_cc_status *cc1, enum typec_cc_status *cc2)
+ {
+ 	struct tcpci *tcpci = tcpc_to_tcpci(tcpc);
+-	unsigned int reg;
++	unsigned int reg, role_control;
+ 	int ret;
+ 
++	ret = regmap_read(tcpci->regmap, TCPC_ROLE_CTRL, &role_control);
++	if (ret < 0)
++		return ret;
++
+ 	ret = regmap_read(tcpci->regmap, TCPC_CC_STATUS, &reg);
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	*cc1 = tcpci_to_typec_cc((reg >> TCPC_CC_STATUS_CC1_SHIFT) &
+ 				 TCPC_CC_STATUS_CC1_MASK,
+-				 reg & TCPC_CC_STATUS_TERM);
++				 reg & TCPC_CC_STATUS_TERM ||
++				 tcpc_presenting_cc1_rd(role_control));
+ 	*cc2 = tcpci_to_typec_cc((reg >> TCPC_CC_STATUS_CC2_SHIFT) &
+ 				 TCPC_CC_STATUS_CC2_MASK,
+-				 reg & TCPC_CC_STATUS_TERM);
++				 reg & TCPC_CC_STATUS_TERM ||
++				 tcpc_presenting_cc2_rd(role_control));
+ 
+ 	return 0;
  }
- 
- static void stm32_usart_set_mctrl(struct uart_port *port, unsigned int mctrl)
-diff --git a/drivers/tty/serial/stm32-usart.h b/drivers/tty/serial/stm32-usart.h
-index cb4f327c46db..94b568aa46bb 100644
---- a/drivers/tty/serial/stm32-usart.h
-+++ b/drivers/tty/serial/stm32-usart.h
-@@ -127,9 +127,6 @@ struct stm32_usart_info stm32h7_info = {
- /* Dummy bits */
- #define USART_SR_DUMMY_RX	BIT(16)
- 
--/* USART_ICR (F7) */
--#define USART_CR_TC		BIT(6)
--
- /* USART_DR */
- #define USART_DR_MASK		GENMASK(8, 0)
- 
 -- 
 2.30.2
 
