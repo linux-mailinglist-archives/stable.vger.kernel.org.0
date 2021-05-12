@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B93B637EF9D
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 01:21:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3128137EF9E
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 01:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242428AbhELXOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 19:14:46 -0400
+        id S242468AbhELXOr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 19:14:47 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349640AbhELWr5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 18:47:57 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28355C06137D
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 15:39:15 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id s20so13312934plr.13
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 15:39:15 -0700 (PDT)
+        with ESMTP id S1391821AbhELWvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 18:51:31 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53AC0C06123C
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 15:40:56 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id 10so19997889pfl.1
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 15:40:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=WCe1eReuNYgOHz4LjJPzRF4g2Oj5DQNfr/girzy5kIE=;
-        b=1qa5ICMZH5Qr7lSrUjhAT8huqK0WNw9NFPVdBLWl9zsNGcgEIv5wc8xpwSCcRDdqhx
-         nZ7dAFbPjBul7efENWbM+dIZWAp6cL0wuZ2M2ssJ5CRQGp01lMkeYAWc7JAjxNnPFg06
-         m5ma4atQIPtxuwnZ2hnWl6nqNZexDhJ/JmCsz5+xdW8eXoHnrwbfYL8tJp5jivKAbkR7
-         /z2rdAzqXSQDzPxEy0yaD9OxiKkelgIGQkolo5OnCsQNNK9m2kX/sI+7XW9gfJPDKH7V
-         DnMV9/VNh8fGcht5L3bbDrmcpIN1xvC/xjSKglgmsGG0iQB3qwq2BzqNPTDK2EENds3m
-         fr9w==
+        bh=Nimn7lDtTuQ6kC38ujJcqbKRCQzvWjxxtLq5ASN31VM=;
+        b=XUEjlVpZmBaqhCpETmGv5gVFhzNUvdi2BW+WMCCqd/p8B8BdwIXJvpIuqJAeGqchO5
+         4UnPOZELc45YKNDdS7HnYQfbgv74tzWR/+OOMy12dc6v+D/H3g3APX8e96XbwkcKIxl0
+         xEMPnwYIkqxwo+MZ0Dy1eqiY2c7sqy3Ens+9z7GYL2JO9T4wolMKO4uLML05hsSoum8U
+         k2+JQcFSFBDSjEXmUknTjAf+3Out1g3EyLy8KvEKok/YkMGT7qy+X7aJnZRXO+tAbjbw
+         Jq+6CbrKLlxKooUyULn5lJVcIEOoruOgPJwmhfZbXclq0JGIoSHH6qpbBp+nCQ0Y/FMf
+         pp/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=WCe1eReuNYgOHz4LjJPzRF4g2Oj5DQNfr/girzy5kIE=;
-        b=KwAUK53uwBPSlJTULk85lLGYfpiZvaQxbNovrEc7x2dOkFcXKIG0/Ixt0mdb+b1v0r
-         Il94eVcd+GiNgZd/o3cvmMnTwBbivjSmrebJwpHju4K3rzMie9AfxydeuzZakn7AXxwu
-         Ooz7sag9K0/7Abf7S/JXeAyXKbIqdCBZuwFX+gx+rjo6pMKKtNgNbZGJ10ejVRaNbtzr
-         9Jp7fUN3tATavI/ZHyz4qOaD/queBR+NO+7BcQNGRpEjbjMtPkOhhF3EGa2mQdl2ATJP
-         xJocucouetYLOkuXjuZNcvMZdUnW5Kma7+wSCgu/F/dHi0DqkH2FYplwpiR3c4I71Mul
-         yLZA==
-X-Gm-Message-State: AOAM530JFcm6QCTLOePkmNj2JazfE1p4BHo386jvur1p4XIH1nVHa+fg
-        PhCNc1/n87za0askMYiGh1dCR5mHUoDM4zfG
-X-Google-Smtp-Source: ABdhPJx1axVKzPyzUIW07cIlPVssoix1gqQ8CwgcdU5ManBYDzxGqYFjpeuMQbIOD4tosIywkbPAaw==
-X-Received: by 2002:a17:902:7402:b029:ef:7d5c:62c1 with SMTP id g2-20020a1709027402b02900ef7d5c62c1mr6347697pll.4.1620859154259;
-        Wed, 12 May 2021 15:39:14 -0700 (PDT)
+        bh=Nimn7lDtTuQ6kC38ujJcqbKRCQzvWjxxtLq5ASN31VM=;
+        b=IZbjqOFTfYaQsETNTvf7KNfe7gpaK9TtOyi3SJLhgGI8a8ehR1GXcJDSlp83ofc8OK
+         VAQ/nrq9nxHezceVy/dzxRwQRMALVA9L8xI0JpEteBwy+ZuhqhRAef0+DS15AHBiFUn9
+         aVSxqhXqCi6IAOETm/cNdeHqx9SnAImViA/sXn6CRN/sRBrZN4sTROMsZ3bJ/XILliKt
+         cgRo+sVrce4o+zzupBsQ0uJw/sWm2kxGvBr0pKHVzuGBg2fDIph2ofvamP9sBDJBBJH+
+         cfrjBl2wS+mrB+gbv1p5/b8J6buaoX5Sxk5cYlXtq2/YZSYMZfEN7KNj6oXRYxnXPtXo
+         zZLw==
+X-Gm-Message-State: AOAM530PmLmeBsH5chabd8rYmoeNoCUN7ieHv+3eH921TGRIBDrAAP6w
+        UfatYfvqiYBT/HosxOe8n/SDam4jdxxbA/ud
+X-Google-Smtp-Source: ABdhPJyph5p0wUyhKS6WPQtcJNDUUqFs4JZXHSIGQa5TKKWzfAZRCMu6gFjEJEinS6geXPf3eYw1xw==
+X-Received: by 2002:a17:90b:3593:: with SMTP id mm19mr42861050pjb.146.1620859254808;
+        Wed, 12 May 2021 15:40:54 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ha14sm601725pjb.40.2021.05.12.15.39.13
+        by smtp.gmail.com with ESMTPSA id i24sm657420pfd.35.2021.05.12.15.40.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 May 2021 15:39:13 -0700 (PDT)
-Message-ID: <609c5911.1c69fb81.cac32.2dd5@mx.google.com>
-Date:   Wed, 12 May 2021 15:39:13 -0700 (PDT)
+        Wed, 12 May 2021 15:40:54 -0700 (PDT)
+Message-ID: <609c5976.1c69fb81.ef2ef.323d@mx.google.com>
+Date:   Wed, 12 May 2021 15:40:54 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.10.35-831-g77806d1ee43e1
+X-Kernelci-Kernel: v5.10.35-828-g0b8d555c15bfa
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable-rc/linux-5.10.y build: 181 builds: 1 failed, 180 passed,
- 3 errors, 14 warnings (v5.10.35-831-g77806d1ee43e1)
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 build: 181 builds: 0 failed, 181 passed,
+ 15 warnings (v5.10.35-828-g0b8d555c15bfa)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,26 +65,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y build: 181 builds: 1 failed, 180 passed, 3 errors, 1=
-4 warnings (v5.10.35-831-g77806d1ee43e1)
+stable-rc/queue/5.10 build: 181 builds: 0 failed, 181 passed, 15 warnings (=
+v5.10.35-828-g0b8d555c15bfa)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.10.=
-y/kernel/v5.10.35-831-g77806d1ee43e1/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.35-828-g0b8d555c15bfa/
 
 Tree: stable-rc
-Branch: linux-5.10.y
-Git Describe: v5.10.35-831-g77806d1ee43e1
-Git Commit: 77806d1ee43e1bea3aa5095445eb7a69f02ec8d3
+Branch: queue/5.10
+Git Describe: v5.10.35-828-g0b8d555c15bfa
+Git Commit: 0b8d555c15bfaf1a2de186e3977d27b131d9b3de
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
 
-Build Failure Detected:
-
-mips:
-    malta_qemu_32r6_defconfig: (gcc-8) FAIL
-
-Errors and Warnings Detected:
+Warnings Detected:
 
 arc:
 
@@ -100,7 +95,7 @@ mips:
     decstation_64_defconfig (gcc-8): 1 warning
     decstation_defconfig (gcc-8): 1 warning
     decstation_r4k_defconfig (gcc-8): 1 warning
-    malta_qemu_32r6_defconfig (gcc-8): 3 errors
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
     rm200_defconfig (gcc-8): 1 warning
 
 riscv:
@@ -110,10 +105,6 @@ x86_64:
     allnoconfig (gcc-8): 1 warning
     tinyconfig (gcc-8): 1 warning
 
-Errors summary:
-
-    3    arch/mips/include/asm/div64.h:74:3: error: inconsistent operand co=
-nstraints in an =E2=80=98asm=E2=80=99
 
 Warnings summary:
 
@@ -127,6 +118,8 @@ p_kthread=E2=80=99 defined but not used [-Wunused-function]
 -Wcpp]
     2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
 d [-Wcpp]
+    1    {standard input}:39: Warning: macro instruction expanded into mult=
+iple instructions
     1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
     1    arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: =E2=80=98am=
 s_delta_camera_power=E2=80=99 defined but not used [-Wunused-function]
@@ -151,6 +144,11 @@ check will be entirely skipped.
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
 mismatches
 
@@ -162,11 +160,6 @@ Warnings:
 -----
 allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -602,16 +595,12 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 FAIL, 3 errors, 0 warning=
-s, 0 section mismatches
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
 
-Errors:
-    arch/mips/include/asm/div64.h:74:3: error: inconsistent operand constra=
-ints in an =E2=80=98asm=E2=80=99
-    arch/mips/include/asm/div64.h:74:3: error: inconsistent operand constra=
-ints in an =E2=80=98asm=E2=80=99
-    arch/mips/include/asm/div64.h:74:3: error: inconsistent operand constra=
-ints in an =E2=80=98asm=E2=80=99
+Warnings:
+    {standard input}:39: Warning: macro instruction expanded into multiple =
+instructions
 
 ---------------------------------------------------------------------------=
 -----
