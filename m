@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 878D737CCD0
+	by mail.lfdr.de (Postfix) with ESMTP id CFD0A37CCD1
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236474AbhELQr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:47:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
+        id S236241AbhELQry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:47:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243588AbhELQlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243593AbhELQlg (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:41:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58DEA61CE6;
-        Wed, 12 May 2021 16:05:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C616C61CE7;
+        Wed, 12 May 2021 16:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835515;
-        bh=Uxz7oMteSxfFHU48bBX/AmUX+Xv2sHNP8sQl4iLm4c0=;
+        s=korg; t=1620835518;
+        bh=86psEU0rP41Bx+u3AuXxaT+SqBAH7dpDzWUNJJk1e8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3utnVfNFWUlOwMWotJvkuG7BUD4N5rxFU+8i1cAl7G8xzaqgsJMGqQLZdkL+bPIJ
-         9Mup6VLRqBGW7AL74Qw42n24XVm9G+SlyAfsYSyKzltsjRidSmocv2pUP9K6ifYaYx
-         XL42WVtVaAFadNvmmdtmDuukpuQwsihv83Jj6NUc=
+        b=zGWAHgygvUid4rTvqcnfbiD50Sz+kNRaMBdxhgHpAso3415UZIagiYuoKgFA2YwVH
+         FYjdK05H2F9DCj64raH/Nh+j5oC2kWYDN5KTzcvZxQ/WyRjsYKRCqa7RZAq026R229
+         7yFXpAI21zVdDlC2GH0cu6B4DVWDFZmaqx8Xv7X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Joel Stanley <joel@jms.id.au>,
-        Patrick Venture <venture@google.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 340/677] soc: aspeed: fix a ternary sign expansion bug
-Date:   Wed, 12 May 2021 16:46:26 +0200
-Message-Id: <20210512144848.580662928@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Quanyang Wang <quanyang.wang@windriver.com>,
+        Jyri Sarha <jyri.sarha@iki.fi>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 341/677] drm/tilcdc: send vblank event when disabling crtc
+Date:   Wed, 12 May 2021 16:46:27 +0200
+Message-Id: <20210512144848.615100964@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,49 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit 5ffa828534036348fa90fb3079ccc0972d202c4a ]
+[ Upstream commit f1a75f4dd8edf272b6b7cdccf6ba6254ec9d15fa ]
 
-The intent here was to return negative error codes but it actually
-returns positive values.  The problem is that type promotion with
-ternary operations is quite complicated.
+When run xrandr to change resolution on Beaglebone Black board, it will
+print the error information:
 
-"ret" is an int.  "copied" is a u32.  And the snoop_file_read() function
-returns long.  What happens is that "ret" is cast to u32 and becomes
-positive then it's cast to long and it's still positive.
+root@beaglebone:~# xrandr -display :0 --output HDMI-1 --mode 720x400
+[drm:drm_crtc_commit_wait] *ERROR* flip_done timed out
+[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [CRTC:32:tilcdc crtc] commit wait timed out
+[drm:drm_crtc_commit_wait] *ERROR* flip_done timed out
+[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [CONNECTOR:34:HDMI-A-1] commit wait timed out
+[drm:drm_crtc_commit_wait] *ERROR* flip_done timed out
+[drm:drm_atomic_helper_wait_for_dependencies] *ERROR* [PLANE:31:plane-0] commit wait timed out
+tilcdc 4830e000.lcdc: already pending page flip!
 
-Fix this by removing the ternary so that "ret" is type promoted directly
-to long.
+This is because there is operation sequence as below:
 
-Fixes: 3772e5da4454 ("drivers/misc: Aspeed LPC snoop output using misc chardev")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Patrick Venture <venture@google.com>
-Link: https://lore.kernel.org/r/YIE90PSXsMTa2Y8n@mwanda
-Link: https://lore.kernel.org/r/20210423000919.1249474-1-joel@jms.id.au'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+drm_atomic_connector_commit_dpms(mode is DRM_MODE_DPMS_OFF):
+    ...
+    drm_atomic_helper_setup_commit <- init_completion(commit_A->flip_done)
+    drm_atomic_helper_commit_tail
+        tilcdc_crtc_atomic_disable
+        tilcdc_plane_atomic_update <- drm_crtc_send_vblank_event in tilcdc_crtc_irq
+                                      is skipped since tilcdc_crtc->enabled is 0
+        tilcdc_crtc_atomic_flush   <- drm_crtc_send_vblank_event is skipped since
+                                      crtc->state->event is set to be NULL in
+                                      tilcdc_plane_atomic_update
+drm_mode_setcrtc:
+    ...
+    drm_atomic_helper_setup_commit <- init_completion(commit_B->flip_done)
+    drm_atomic_helper_wait_for_dependencies
+        drm_crtc_commit_wait   <- wait for commit_A->flip_done completing
+
+Just as shown above, the steps which could complete commit_A->flip_done
+are all skipped and commit_A->flip_done will never be completed. This will
+result a time-out ERROR when drm_crtc_commit_wait check the commit_A->flip_done.
+So add drm_crtc_send_vblank_event in tilcdc_crtc_atomic_disable to
+complete commit_A->flip_done.
+
+Fixes: cb345decb4d2 ("drm/tilcdc: Use standard drm_atomic_helper_commit")
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Reviewed-by: Jyri Sarha <jyri.sarha@iki.fi>
+Tested-by: Jyri Sarha <jyri.sarha@iki.fi>
+Signed-off-by: Jyri Sarha <jyri.sarha@iki.fi>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210209082415.382602-1-quanyang.wang@windriver.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/aspeed/aspeed-lpc-snoop.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/tilcdc/tilcdc_crtc.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/soc/aspeed/aspeed-lpc-snoop.c b/drivers/soc/aspeed/aspeed-lpc-snoop.c
-index 20acac6342ef..5828f94b8a7d 100644
---- a/drivers/soc/aspeed/aspeed-lpc-snoop.c
-+++ b/drivers/soc/aspeed/aspeed-lpc-snoop.c
-@@ -95,8 +95,10 @@ static ssize_t snoop_file_read(struct file *file, char __user *buffer,
- 			return -EINTR;
- 	}
- 	ret = kfifo_to_user(&chan->fifo, buffer, count, &copied);
-+	if (ret)
-+		return ret;
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+index 30213708fc99..d99afd19ca08 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_crtc.c
+@@ -515,6 +515,15 @@ static void tilcdc_crtc_off(struct drm_crtc *crtc, bool shutdown)
  
--	return ret ? ret : copied;
-+	return copied;
- }
+ 	drm_crtc_vblank_off(crtc);
  
- static __poll_t snoop_file_poll(struct file *file,
++	spin_lock_irq(&crtc->dev->event_lock);
++
++	if (crtc->state->event) {
++		drm_crtc_send_vblank_event(crtc, crtc->state->event);
++		crtc->state->event = NULL;
++	}
++
++	spin_unlock_irq(&crtc->dev->event_lock);
++
+ 	tilcdc_crtc_disable_irqs(dev);
+ 
+ 	pm_runtime_put_sync(dev->dev);
 -- 
 2.30.2
 
