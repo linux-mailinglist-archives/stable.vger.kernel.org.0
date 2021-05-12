@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C2A537CEB1
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:23:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E0D37CEA6
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:23:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345108AbhELRGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48032 "EHLO mail.kernel.org"
+        id S1345091AbhELRGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237911AbhELQtb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:49:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA78561E87;
-        Wed, 12 May 2021 16:15:59 +0000 (UTC)
+        id S237886AbhELQtW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:49:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 217FA61D53;
+        Wed, 12 May 2021 16:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836160;
-        bh=+bIrOzM6rEAVjb0tOzunP4RJ+HVoSaTH1ulTvDHrSFw=;
+        s=korg; t=1620836162;
+        bh=x6IIQ3xVA6PrYrrXSvlR0k9iFErrr00WFalA7SC+nP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zOuJqvoQ+9lMgWONC9yWCWk4jutnU/p0Wg01g65sf4iovFdOV6RKSF+a3ZdrOODjY
-         BmoHpIs4DQUQctUR3qGPzOBAjcsg2ok4P61iAZbZzwL4sQdbS1OuAKU3lmQ23GroZE
-         pq8XX1JcIHeA/3ICoUI1brKEKpXup8Z20TVdQat4=
+        b=gUlJKozLqhQENd1pSvhXEhDdQ/qCVjswFaQLrX2TU9cyvEG9AVBoAOvqJp+LXIQh8
+         KkyXr9GN9U7FCDmibkz8P1HoiAWTZgykJT5JxTUh81vjp97Y5OAEbK0RdzTk1C/SBy
+         NozItVn5poC08F2hcM9GmaafCAteHzGsXmdfZ1Pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 633/677] net: phy: marvell: fix m88e1111_set_downshift
-Date:   Wed, 12 May 2021 16:51:19 +0200
-Message-Id: <20210512144858.395300928@linuxfoundation.org>
+Subject: [PATCH 5.12 634/677] net: enetc: fix link error again
+Date:   Wed, 12 May 2021 16:51:20 +0200
+Message-Id: <20210512144858.427369074@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,70 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kochetkov <fido_max@inbox.ru>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e7679c55a7249f1315256cfc672d53e84072e223 ]
+[ Upstream commit 74c97ea3b61e4ce149444f904ee8d4fc7073505b ]
 
-Changing downshift params without software reset has no effect,
-so call genphy_soft_reset() after change downshift params.
+A link time bug that I had fixed before has come back now that
+another sub-module was added to the enetc driver:
 
-As the datasheet says:
-Changes to these bits are disruptive to the normal operation therefore,
-any changes to these registers must be followed by software reset
-to take effect.
+ERROR: modpost: "enetc_ierb_register_pf" [drivers/net/ethernet/freescale/enetc/fsl-enetc.ko] undefined!
 
-Fixes: 5c6bc5199b5d ("net: phy: marvell: add downshift support for M88E1111")
-Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+The problem is that the enetc Makefile is not actually used for
+the ierb module if that is the only built-in driver in there
+and everything else is a loadable module.
+
+Fix it by always entering the directory this time, regardless
+of which symbols are configured. This should reliably fix the
+problem and prevent it from coming back another time.
+
+Fixes: 112463ddbe82 ("net: dsa: felix: fix link error")
+Fixes: e7d48e5fbf30 ("net: enetc: add a mini driver for the Integrated Endpoint Register Block")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/marvell.c | 26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/freescale/Makefile | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
-index 723f25f6138d..f86c9ddc609e 100644
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -967,22 +967,28 @@ static int m88e1111_get_downshift(struct phy_device *phydev, u8 *data)
+diff --git a/drivers/net/ethernet/freescale/Makefile b/drivers/net/ethernet/freescale/Makefile
+index 67c436400352..de7b31842233 100644
+--- a/drivers/net/ethernet/freescale/Makefile
++++ b/drivers/net/ethernet/freescale/Makefile
+@@ -24,6 +24,4 @@ obj-$(CONFIG_FSL_DPAA_ETH) += dpaa/
  
- static int m88e1111_set_downshift(struct phy_device *phydev, u8 cnt)
- {
--	int val;
-+	int val, err;
+ obj-$(CONFIG_FSL_DPAA2_ETH) += dpaa2/
  
- 	if (cnt > MII_M1111_PHY_EXT_CR_DOWNSHIFT_MAX)
- 		return -E2BIG;
- 
--	if (!cnt)
--		return phy_clear_bits(phydev, MII_M1111_PHY_EXT_CR,
--				      MII_M1111_PHY_EXT_CR_DOWNSHIFT_EN);
-+	if (!cnt) {
-+		err = phy_clear_bits(phydev, MII_M1111_PHY_EXT_CR,
-+				     MII_M1111_PHY_EXT_CR_DOWNSHIFT_EN);
-+	} else {
-+		val = MII_M1111_PHY_EXT_CR_DOWNSHIFT_EN;
-+		val |= FIELD_PREP(MII_M1111_PHY_EXT_CR_DOWNSHIFT_MASK, cnt - 1);
- 
--	val = MII_M1111_PHY_EXT_CR_DOWNSHIFT_EN;
--	val |= FIELD_PREP(MII_M1111_PHY_EXT_CR_DOWNSHIFT_MASK, cnt - 1);
-+		err = phy_modify(phydev, MII_M1111_PHY_EXT_CR,
-+				 MII_M1111_PHY_EXT_CR_DOWNSHIFT_EN |
-+				 MII_M1111_PHY_EXT_CR_DOWNSHIFT_MASK,
-+				 val);
-+	}
- 
--	return phy_modify(phydev, MII_M1111_PHY_EXT_CR,
--			  MII_M1111_PHY_EXT_CR_DOWNSHIFT_EN |
--			  MII_M1111_PHY_EXT_CR_DOWNSHIFT_MASK,
--			  val);
-+	if (err < 0)
-+		return err;
-+
-+	return genphy_soft_reset(phydev);
- }
- 
- static int m88e1111_get_tunable(struct phy_device *phydev,
+-obj-$(CONFIG_FSL_ENETC) += enetc/
+-obj-$(CONFIG_FSL_ENETC_MDIO) += enetc/
+-obj-$(CONFIG_FSL_ENETC_VF) += enetc/
++obj-y += enetc/
 -- 
 2.30.2
 
