@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EFE437CD99
+	by mail.lfdr.de (Postfix) with ESMTP id 773E237CD9A
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236059AbhELQ4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36542 "EHLO mail.kernel.org"
+        id S236556AbhELQ4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:56:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244007AbhELQmX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244005AbhELQmX (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89B3B61C61;
-        Wed, 12 May 2021 16:09:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F35F161447;
+        Wed, 12 May 2021 16:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835759;
-        bh=PppjAvt2kgl8gqajCHltu/Xueb8WYqP8cCfLevIWR8Y=;
+        s=korg; t=1620835761;
+        bh=Ets2EDC+npPhgN5/aTnw8U/9tSM/b+mi7J+gw3Yd0H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/ed7DNCsFJoNPZrzu+DHQHNOLzLGC0diMSuONSP8CsMRGxdf5nv9r5+WyN9BM6pf
-         irN25p35TCVghOTwy5W6Ujd7EEu7HOgl5QiRLSqeEDj5W+Xw3oTQhNE1XN0dyv8ZUZ
-         U+bDWL27aI1eKUf1hP8SozDSKvAQ7vGCGocHkOy8=
+        b=D4JS6F0ODS9781m1koXg1eU7amd3T6hcXjbFeA34kqQ87mOGGXxZ2hKH+vrMYcmgz
+         vNBHOrkqc92R1hP94es/M1cOwKzjLEkW5IDIkkRybnOjU7SOIzNP9o2HtVrFC+2dly
+         UCJ+50lA5XupoWh7aJ8QxijUSZru23MJ/5CZa+kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Nicholas Piggin <npiggin@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Chen Huang <chenhuang5@huawei.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 473/677] powerpc/64s: Fix hash fault to use TRAP accessor
-Date:   Wed, 12 May 2021 16:48:39 +0200
-Message-Id: <20210512144853.071953456@linuxfoundation.org>
+Subject: [PATCH 5.12 474/677] powerpc: Fix HAVE_HARDLOCKUP_DETECTOR_ARCH build configuration
+Date:   Wed, 12 May 2021 16:48:40 +0200
+Message-Id: <20210512144853.104632757@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,45 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Chen Huang <chenhuang5@huawei.com>
 
-[ Upstream commit 1479e3d3b7559133b0a107772b5841e9c2cad450 ]
+[ Upstream commit 4fe529449d85e78972fa327999961ecc83a0b6db ]
 
-Hash faults use the trap vector to decide whether this is an
-instruction or data fault. This should use the TRAP accessor
-rather than open access regs->trap.
+When compiling the powerpc with the SMP disabled, it shows the issue:
 
-This won't cause a problem at the moment because 64s only uses
-trap flags for system call interrupts (the norestart flag), but
-that could change if any other trap flags get used in future.
+arch/powerpc/kernel/watchdog.c: In function ‘watchdog_smp_panic’:
+arch/powerpc/kernel/watchdog.c:177:4: error: implicit declaration of function ‘smp_send_nmi_ipi’; did you mean ‘smp_send_stop’? [-Werror=implicit-function-declaration]
+  177 |    smp_send_nmi_ipi(c, wd_lockup_ipi, 1000000);
+      |    ^~~~~~~~~~~~~~~~
+      |    smp_send_stop
+cc1: all warnings being treated as errors
+make[2]: *** [scripts/Makefile.build:273: arch/powerpc/kernel/watchdog.o] Error 1
+make[1]: *** [scripts/Makefile.build:534: arch/powerpc/kernel] Error 2
+make: *** [Makefile:1980: arch/powerpc] Error 2
+make: *** Waiting for unfinished jobs....
 
-Fixes: a4922f5442e7e ("powerpc/64s: move the hash fault handling logic to C")
-Suggested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+We found that powerpc used ipi to implement hardlockup watchdog, so the
+HAVE_HARDLOCKUP_DETECTOR_ARCH should depend on the SMP.
+
+Fixes: 2104180a5369 ("powerpc/64s: implement arch-specific hardlockup watchdog")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Chen Huang <chenhuang5@huawei.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210316105205.407767-1-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20210327094900.938555-1-chenhuang5@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/hash_utils.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
-index 581b20a2feaf..7719995323c3 100644
---- a/arch/powerpc/mm/book3s64/hash_utils.c
-+++ b/arch/powerpc/mm/book3s64/hash_utils.c
-@@ -1545,10 +1545,10 @@ DEFINE_INTERRUPT_HANDLER_RET(__do_hash_fault)
- 	if (user_mode(regs) || (region_id == USER_REGION_ID))
- 		access &= ~_PAGE_PRIVILEGED;
- 
--	if (regs->trap == 0x400)
-+	if (TRAP(regs) == 0x400)
- 		access |= _PAGE_EXEC;
- 
--	err = hash_page_mm(mm, ea, access, regs->trap, flags);
-+	err = hash_page_mm(mm, ea, access, TRAP(regs), flags);
- 	if (unlikely(err < 0)) {
- 		// failed to instert a hash PTE due to an hypervisor error
- 		if (user_mode(regs)) {
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 386ae12d8523..57c0ab71d51e 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -224,7 +224,7 @@ config PPC
+ 	select HAVE_LIVEPATCH			if HAVE_DYNAMIC_FTRACE_WITH_REGS
+ 	select HAVE_MOD_ARCH_SPECIFIC
+ 	select HAVE_NMI				if PERF_EVENTS || (PPC64 && PPC_BOOK3S)
+-	select HAVE_HARDLOCKUP_DETECTOR_ARCH	if (PPC64 && PPC_BOOK3S)
++	select HAVE_HARDLOCKUP_DETECTOR_ARCH	if PPC64 && PPC_BOOK3S && SMP
+ 	select HAVE_OPTPROBES			if PPC64
+ 	select HAVE_PERF_EVENTS
+ 	select HAVE_PERF_EVENTS_NMI		if PPC64
 -- 
 2.30.2
 
