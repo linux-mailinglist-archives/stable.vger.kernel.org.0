@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1139237C85F
+	by mail.lfdr.de (Postfix) with ESMTP id 7D93637C860
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234282AbhELQIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:08:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49158 "EHLO mail.kernel.org"
+        id S234738AbhELQIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:08:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236676AbhELQCO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:02:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01F8961CD8;
-        Wed, 12 May 2021 15:33:31 +0000 (UTC)
+        id S236115AbhELQCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:02:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7094761CDC;
+        Wed, 12 May 2021 15:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833612;
-        bh=sk39f7BcW7qfsEqn3oDJHypA/aw9+AGbHS6rNghlAc0=;
+        s=korg; t=1620833615;
+        bh=tneZNdFIA5R47eX2U8NSYrfWnq9c+rPZ4YVXu+2NShU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABdgBHwc7+Ebp5yVWi6RpZHAz6SQH/Q3OOcyekqhwqX6oZgRRf2UeOGjz5YgrXIxQ
-         ATDlSVxYcdBeqfiQRDjGitd2ouWPvqGdb0Nzbt20fCc6pSonppTAVKsxqW16GdFiP8
-         poiokuRySIAoTkwLbURS29o8KVsa5bWVjjDE9bPg=
+        b=RrMOngWGn8mcI6gMXwZgpfJ962CqMTChMKv8zxXVnQmsp7kPgI4vxe3lHV7/OffJt
+         e8rG2lsALktGvbtUCx2AcsgpEwRgMzHdPYHSft5I8D1kZczO0GFRDe7oUsjFt51hoZ
+         xWexEFa7g/Zb/NOoTRsR69XeDqslULvGtUSYDFXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Vladimir Barinov <vladimir.barinov@cogentembedded.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 185/601] regulator: bd9576: Fix return from bd957x_probe()
-Date:   Wed, 12 May 2021 16:44:22 +0200
-Message-Id: <20210512144833.932772993@linuxfoundation.org>
+Subject: [PATCH 5.11 186/601] arm64: dts: renesas: r8a77980: Fix vin4-7 endpoint binding
+Date:   Wed, 12 May 2021 16:44:23 +0200
+Message-Id: <20210512144833.966686283@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,66 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
 
-[ Upstream commit 320fcd6bbd2b500923db518902c2c640242d2b50 ]
+[ Upstream commit c8aebc1346522d3569690867ce3996642ad52e01 ]
 
-The probe() function returns an uninitialized variable in the success
-path.  There is no need for the "err" variable at all, just delete it.
+This fixes the bindings in media framework:
+The CSI40 is endpoint number 2
+The CSI41 is endpoint number 3
 
-Fixes: b014e9fae7e7 ("regulator: Support ROHM BD9576MUF and BD9573MUF")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Link: https://lore.kernel.org/r/YEsbfLJfEWtnRpoU@mwanda
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Link: https://lore.kernel.org/r/20210312174735.2118212-1-niklas.soderlund+renesas@ragnatech.se
+Fixes: 3182aa4e0bf4d0ee ("arm64: dts: renesas: r8a77980: add CSI2/VIN support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/bd9576-regulator.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ arch/arm64/boot/dts/renesas/r8a77980.dtsi | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/regulator/bd9576-regulator.c b/drivers/regulator/bd9576-regulator.c
-index a8b5832a5a1b..204a2da054f5 100644
---- a/drivers/regulator/bd9576-regulator.c
-+++ b/drivers/regulator/bd9576-regulator.c
-@@ -206,7 +206,7 @@ static int bd957x_probe(struct platform_device *pdev)
- {
- 	struct regmap *regmap;
- 	struct regulator_config config = { 0 };
--	int i, err;
-+	int i;
- 	bool vout_mode, ddr_sel;
- 	const struct bd957x_regulator_data *reg_data = &bd9576_regulators[0];
- 	unsigned int num_reg_data = ARRAY_SIZE(bd9576_regulators);
-@@ -279,8 +279,7 @@ static int bd957x_probe(struct platform_device *pdev)
- 		break;
- 	default:
- 		dev_err(&pdev->dev, "Unsupported chip type\n");
--		err = -EINVAL;
--		goto err;
-+		return -EINVAL;
- 	}
+diff --git a/arch/arm64/boot/dts/renesas/r8a77980.dtsi b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+index ec7ca72399ec..1ffa4a995a7a 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77980.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77980.dtsi
+@@ -992,8 +992,8 @@
  
- 	config.dev = pdev->dev.parent;
-@@ -300,8 +299,7 @@ static int bd957x_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev,
- 				"failed to register %s regulator\n",
- 				desc->name);
--			err = PTR_ERR(rdev);
--			goto err;
-+			return PTR_ERR(rdev);
- 		}
- 		/*
- 		 * Clear the VOUT1 GPIO setting - rest of the regulators do not
-@@ -310,8 +308,7 @@ static int bd957x_probe(struct platform_device *pdev)
- 		config.ena_gpiod = NULL;
- 	}
+ 					reg = <1>;
  
--err:
--	return err;
-+	return 0;
- }
+-					vin4csi41: endpoint@2 {
+-						reg = <2>;
++					vin4csi41: endpoint@3 {
++						reg = <3>;
+ 						remote-endpoint = <&csi41vin4>;
+ 					};
+ 				};
+@@ -1020,8 +1020,8 @@
  
- static const struct platform_device_id bd957x_pmic_id[] = {
+ 					reg = <1>;
+ 
+-					vin5csi41: endpoint@2 {
+-						reg = <2>;
++					vin5csi41: endpoint@3 {
++						reg = <3>;
+ 						remote-endpoint = <&csi41vin5>;
+ 					};
+ 				};
+@@ -1048,8 +1048,8 @@
+ 
+ 					reg = <1>;
+ 
+-					vin6csi41: endpoint@2 {
+-						reg = <2>;
++					vin6csi41: endpoint@3 {
++						reg = <3>;
+ 						remote-endpoint = <&csi41vin6>;
+ 					};
+ 				};
+@@ -1076,8 +1076,8 @@
+ 
+ 					reg = <1>;
+ 
+-					vin7csi41: endpoint@2 {
+-						reg = <2>;
++					vin7csi41: endpoint@3 {
++						reg = <3>;
+ 						remote-endpoint = <&csi41vin7>;
+ 					};
+ 				};
 -- 
 2.30.2
 
