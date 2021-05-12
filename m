@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB23137C68A
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2155B37C68E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233452AbhELPwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:52:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50344 "EHLO mail.kernel.org"
+        id S231482AbhELPwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:52:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237025AbhELPrw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:47:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19AD361CA6;
-        Wed, 12 May 2021 15:24:17 +0000 (UTC)
+        id S237027AbhELPrx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:47:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89E5461CA7;
+        Wed, 12 May 2021 15:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833057;
-        bh=tZQr/GwfBP6axqWUU9zUZt67cvnRw4dDXeqUfzvPgj4=;
+        s=korg; t=1620833060;
+        bh=n5MOxm+0nVYW0OlRnb1cdcTKRqFNE6J1K63acn64HB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ildvIU1dEn8/kv3vK6Dv4m01MsA6DY8/r92DxNvREX1bDLd8pl3xtDH3VVl6Hj6jp
-         KkeU0SHwVkpt+G91WMdwfoUneG1hHy/jzp9e3nmjtpHnMBO6CnLWF+Dodv4oMyD7cM
-         zc95sUrxGSMXcHXqpVSVJ2JVRnKe7cgjFqTnsxms=
+        b=VJxAyUZlpouRZfQyu2FrVgNreinICsFf3dARPtXAH8QU9OWg2Xuaq26W2/mEoJAGr
+         oy5KGQbzLBF/LdEMV7OoKsBFdg1LngTqt0N1UsrKjNyOIPS3J3c5DR1CagUtcnxlX0
+         Pe3qO8YYFqxTQ9qjpqg3G+vLPJnPyo0jeM0Sx99Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Oliver Glitta <glittao@gmail.com>,
-        David Rientjes <rientjes@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 518/530] mm, slub: enable slub_debug static key when creating cache with explicit debug flags
-Date:   Wed, 12 May 2021 16:50:28 +0200
-Message-Id: <20210512144836.780038842@linuxfoundation.org>
+Subject: [PATCH 5.10 519/530] mm: memcontrol: slab: fix obtain a reference to a freeing memcg
+Date:   Wed, 12 May 2021 16:50:29 +0200
+Message-Id: <20210512144836.811965140@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -47,72 +47,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 1f0723a4c0df36cbdffc6fac82cd3c5d57e06d66 ]
+[ Upstream commit 9f38f03ae8d5f57371b71aa6b4275765b65454fd ]
 
-Commit ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
-introduced a static key to optimize the case where no debugging is
-enabled for any cache.  The static key is enabled when slub_debug boot
-parameter is passed, or CONFIG_SLUB_DEBUG_ON enabled.
+Patch series "Use obj_cgroup APIs to charge kmem pages", v5.
 
-However, some caches might be created with one or more debugging flags
-explicitly passed to kmem_cache_create(), and the commit missed this.
-Thus the debugging functionality would not be actually performed for
-these caches unless the static key gets enabled by boot param or config.
+Since Roman's series "The new cgroup slab memory controller" applied.
+All slab objects are charged with the new APIs of obj_cgroup.  The new
+APIs introduce a struct obj_cgroup to charge slab objects.  It prevents
+long-living objects from pinning the original memory cgroup in the
+memory.  But there are still some corner objects (e.g.  allocations
+larger than order-1 page on SLUB) which are not charged with the new
+APIs.  Those objects (include the pages which are allocated from buddy
+allocator directly) are charged as kmem pages which still hold a
+reference to the memory cgroup.
 
-This patch fixes it by checking for debugging flags passed to
-kmem_cache_create() and enabling the static key accordingly.
+E.g.  We know that the kernel stack is charged as kmem pages because the
+size of the kernel stack can be greater than 2 pages (e.g.  16KB on
+x86_64 or arm64).  If we create a thread (suppose the thread stack is
+charged to memory cgroup A) and then move it from memory cgroup A to
+memory cgroup B.  Because the kernel stack of the thread hold a
+reference to the memory cgroup A.  The thread can pin the memory cgroup
+A in the memory even if we remove the cgroup A.  If we want to see this
+scenario by using the following script.  We can see that the system has
+added 500 dying cgroups (This is not a real world issue, just a script
+to show that the large kmallocs are charged as kmem pages which can pin
+the memory cgroup in the memory).
 
-Note such explicit debugging flags should not be used outside of
-debugging and testing as they will now enable the static key globally.
-btrfs_init_cachep() creates a cache with SLAB_RED_ZONE but that's a
-mistake that's being corrected [1].  rcu_torture_stats() creates a cache
-with SLAB_STORE_USER, but that is a testing module so it's OK and will
-start working as intended after this patch.
+	#!/bin/bash
 
-Also note that in case of backports to kernels before v5.12 that don't
-have 59450bbc12be ("mm, slab, slub: stop taking cpu hotplug lock"),
-static_branch_enable_cpuslocked() should be used.
+	cat /proc/cgroups | grep memory
 
-[1] https://lore.kernel.org/linux-btrfs/20210315141824.26099-1-dsterba@suse.com/
+	cd /sys/fs/cgroup/memory
+	echo 1 > memory.move_charge_at_immigrate
 
-Link: https://lkml.kernel.org/r/20210315153415.24404-1-vbabka@suse.cz
-Fixes: ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reported-by: Oliver Glitta <glittao@gmail.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
+	for i in range{1..500}
+	do
+		mkdir kmem_test
+		echo $$ > kmem_test/cgroup.procs
+		sleep 3600 &
+		echo $$ > cgroup.procs
+		echo `cat kmem_test/cgroup.procs` > cgroup.procs
+		rmdir kmem_test
+	done
+
+	cat /proc/cgroups | grep memory
+
+This patchset aims to make those kmem pages to drop the reference to
+memory cgroup by using the APIs of obj_cgroup.  Finally, we can see that
+the number of the dying cgroups will not increase if we run the above test
+script.
+
+This patch (of 7):
+
+The rcu_read_lock/unlock only can guarantee that the memcg will not be
+freed, but it cannot guarantee the success of css_get (which is in the
+refill_stock when cached memcg changed) to memcg.
+
+  rcu_read_lock()
+  memcg = obj_cgroup_memcg(old)
+  __memcg_kmem_uncharge(memcg)
+      refill_stock(memcg)
+          if (stock->cached != memcg)
+              // css_get can change the ref counter from 0 back to 1.
+              css_get(&memcg->css)
+  rcu_read_unlock()
+
+This fix is very like the commit:
+
+  eefbfa7fd678 ("mm: memcg/slab: fix use after free in obj_cgroup_charge")
+
+Fix this by holding a reference to the memcg which is passed to the
+__memcg_kmem_uncharge() before calling __memcg_kmem_uncharge().
+
+Link: https://lkml.kernel.org/r/20210319163821.20704-1-songmuchun@bytedance.com
+Link: https://lkml.kernel.org/r/20210319163821.20704-2-songmuchun@bytedance.com
+Fixes: 3de7d4f25a74 ("mm: memcg/slab: optimize objcg stock draining")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ mm/memcontrol.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/mm/slub.c b/mm/slub.c
-index 05a501b67cd5..e4f7978d43c2 100644
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -3779,6 +3779,15 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index d72d2b90474a..8d9f5fa4c6d3 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3162,9 +3162,17 @@ static void drain_obj_stock(struct memcg_stock_pcp *stock)
+ 		unsigned int nr_bytes = stock->nr_bytes & (PAGE_SIZE - 1);
  
- static int kmem_cache_open(struct kmem_cache *s, slab_flags_t flags)
- {
-+#ifdef CONFIG_SLUB_DEBUG
-+	/*
-+	 * If no slub_debug was enabled globally, the static key is not yet
-+	 * enabled by setup_slub_debug(). Enable it if the cache is being
-+	 * created with any of the debugging flags passed explicitly.
-+	 */
-+	if (flags & SLAB_DEBUG_FLAGS)
-+		static_branch_enable(&slub_debug_enabled);
-+#endif
- 	s->flags = kmem_cache_flags(s->size, flags, s->name);
- #ifdef CONFIG_SLAB_FREELIST_HARDENED
- 	s->random = get_random_long();
+ 		if (nr_pages) {
++			struct mem_cgroup *memcg;
++
+ 			rcu_read_lock();
+-			__memcg_kmem_uncharge(obj_cgroup_memcg(old), nr_pages);
++retry:
++			memcg = obj_cgroup_memcg(old);
++			if (unlikely(!css_tryget(&memcg->css)))
++				goto retry;
+ 			rcu_read_unlock();
++
++			__memcg_kmem_uncharge(memcg, nr_pages);
++			css_put(&memcg->css);
+ 		}
+ 
+ 		/*
 -- 
 2.30.2
 
