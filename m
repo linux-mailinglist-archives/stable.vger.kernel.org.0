@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D3237CBCF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C53B537CBCC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237419AbhELQiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:38:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43732 "EHLO mail.kernel.org"
+        id S234750AbhELQiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:38:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236163AbhELQ22 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:28:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A0B7613C3;
-        Wed, 12 May 2021 15:56:40 +0000 (UTC)
+        id S234629AbhELQ2a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:28:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 914A6613BD;
+        Wed, 12 May 2021 15:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835000;
-        bh=uy0tSgcNVA9xbiIQONEac6BHg5qnpC+VPZJ/GRBZnbM=;
+        s=korg; t=1620835003;
+        bh=PLTfKQw5caY+K+Rp6UJM0SZ9Aq8X6/mhXXIH7X1cZWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSZQfB+PycU03BoNrjN6wgvEgkP+C+pV1JIFGwByVdDTmU2jvj3C9O0FLH1MYocdx
-         +5wRajx2/q0jXajlj4MCo+hSBchKOCCDLCy9zhmvDukHCOZdWAty2SCW+Zws8r0FOF
-         BJ0jTJ6gUhlRhVo31x4azRqeKDJ1xvp80buv2xto=
+        b=bSicpLb1wEd7YraZpDTUSZT+In+1aiNADGlYeEqTuN/8z3O7vdn3Lo3VKlspPo3LR
+         PA5L9waKKoDtbW7ZAaFPYplrO+X0rO/8L1ii05/Ygy+geR3zhau3XvfneCntfXA4dG
+         FTw042+dCF7WqV1f4EzIXQ27AHxiGEcLIVKw4lmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 168/677] serial: stm32: call stm32_transmit_chars locked
-Date:   Wed, 12 May 2021 16:43:34 +0200
-Message-Id: <20210512144842.825891471@linuxfoundation.org>
+Subject: [PATCH 5.12 169/677] serial: stm32: fix FIFO flush in startup and set_termios
+Date:   Wed, 12 May 2021 16:43:35 +0200
+Message-Id: <20210512144842.856817557@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,41 +41,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit f16b90c2d9db3e6ac719d1946b9d335ca4ab33f3 ]
+[ Upstream commit 315e2d8a125ad77a1bc28f621162713f3e7aef48 ]
 
-stm32_transmit_chars should be called under lock also in tx DMA callback.
+Fifo flush set USART_RQR register by calling stm32_usart_set_bits
+routine (Read/Modify/Write). USART_RQR register is a write only
+register. So, read before write isn't correct / relevant to flush
+the FIFOs.
+Replace stm32_usart_set_bits call by writel_relaxed.
 
-Fixes: 3489187204eb ("serial: stm32: adding dma support")
+Fixes: 84872dc448fe ("serial: stm32: add RX and TX FIFO flush")
 Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-10-erwan.leray@foss.st.com
+Link: https://lore.kernel.org/r/20210304162308.8984-11-erwan.leray@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/stm32-usart.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 74046ae3a412..2bdd04a47f91 100644
+index 2bdd04a47f91..183c76ddb165 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -291,13 +291,16 @@ static void stm32_usart_tx_dma_complete(void *arg)
- 	struct uart_port *port = arg;
- 	struct stm32_port *stm32port = to_stm32_port(port);
- 	const struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
-+	unsigned long flags;
+@@ -657,7 +657,7 @@ static int stm32_usart_startup(struct uart_port *port)
  
- 	dmaengine_terminate_async(stm32port->tx_ch);
- 	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
- 	stm32port->tx_dma_busy = false;
+ 	/* RX FIFO Flush */
+ 	if (ofs->rqr != UNDEF_REG)
+-		stm32_usart_set_bits(port, ofs->rqr, USART_RQR_RXFRQ);
++		writel_relaxed(USART_RQR_RXFRQ, port->membase + ofs->rqr);
  
- 	/* Let's see if we have pending data to send */
-+	spin_lock_irqsave(&port->lock, flags);
- 	stm32_usart_transmit_chars(port);
-+	spin_unlock_irqrestore(&port->lock, flags);
- }
+ 	/* RX enabling */
+ 	val = stm32_port->cr1_irq | USART_CR1_RE | BIT(cfg->uart_enable_bit);
+@@ -762,8 +762,8 @@ static void stm32_usart_set_termios(struct uart_port *port,
  
- static void stm32_usart_tx_interrupt_enable(struct uart_port *port)
+ 	/* flush RX & TX FIFO */
+ 	if (ofs->rqr != UNDEF_REG)
+-		stm32_usart_set_bits(port, ofs->rqr,
+-				     USART_RQR_TXFRQ | USART_RQR_RXFRQ);
++		writel_relaxed(USART_RQR_TXFRQ | USART_RQR_RXFRQ,
++			       port->membase + ofs->rqr);
+ 
+ 	cr1 = USART_CR1_TE | USART_CR1_RE;
+ 	if (stm32_port->fifoen)
 -- 
 2.30.2
 
