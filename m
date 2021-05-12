@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14FD537C45C
+	by mail.lfdr.de (Postfix) with ESMTP id 8114937C45D
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:31:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232972AbhELPao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:30:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
+        id S233037AbhELPaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235076AbhELP0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:26:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 735536142F;
-        Wed, 12 May 2021 15:11:30 +0000 (UTC)
+        id S235080AbhELP0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:26:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF6F760FE9;
+        Wed, 12 May 2021 15:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832291;
-        bh=jr73FvkythIjY86kfLIk33WJP5X6T+UrY2AtfKEp36E=;
+        s=korg; t=1620832293;
+        bh=SYshFkon4dkzsHtIlKC4cOrzk4l4Libof4t9guq9SQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MnBeMzDLNSZOfYeu0k92kNc0R/mZZNG1/lAV86VqF7HwHM9KmfHWILCTadM1Jhc6e
-         fmqu1H9NOTtI/kJwVwUsU3lAXROeqerAjuhtYN1I04Zjid5BD5gpSPWH4dUgAyqhjD
-         cJEqq46LafR7n9LVdIQ07VDIC/kTaBI7Z25POLBY=
+        b=VQ9HKIpNSjmPQrYLBkUmjV5nZMzRzmgvgY/1J7oKFO0I6tu0NFcrBMKKVBtMBMtzP
+         XNixzx9frluFWNljLrr1pH7ZPdn2vbi/avNWVdRM7HCThH/gYYVCE6XMgvXi3e27XY
+         +gw4il4v8I8QvFMIIVvNfUKwSxXHLeKgy/D6fUX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Valentin Caron <valentin.caron@foss.st.com>,
-        dillon min <dillon.minfei@gmail.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 184/530] dt-bindings: serial: stm32: Use type: object instead of false for additionalProperties
-Date:   Wed, 12 May 2021 16:44:54 +0200
-Message-Id: <20210512144825.888348417@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 185/530] mtd: require write permissions for locking and badblock ioctls
+Date:   Wed, 12 May 2021 16:44:55 +0200
+Message-Id: <20210512144825.920101194@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,43 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dillon min <dillon.minfei@gmail.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 9f299d3264c67a892af87337dbaa0bdd20830c0c ]
+[ Upstream commit 1e97743fd180981bef5f01402342bb54bf1c6366 ]
 
-To use additional properties 'bluetooth' on serial, need replace false with
-'type: object' for 'additionalProperties' to make it as a node, else will
-run into dtbs_check warnings.
+MEMLOCK, MEMUNLOCK and OTPLOCK modify protection bits. Thus require
+write permission. Depending on the hardware MEMLOCK might even be
+write-once, e.g. for SPI-NOR flashes with their WP# tied to GND. OTPLOCK
+is always write-once.
 
-'arch/arm/boot/dts/stm32h750i-art-pi.dt.yaml: serial@40004800:
-'bluetooth' does not match any of the regexes: 'pinctrl-[0-9]+'
+MEMSETBADBLOCK modifies the bad block table.
 
-Fixes: af1c2d81695b ("dt-bindings: serial: Convert STM32 UART to json-schema")
-Reported-by: kernel test robot <lkp@intel.com>
-Tested-by: Valentin Caron <valentin.caron@foss.st.com>
-Signed-off-by: dillon min <dillon.minfei@gmail.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/1616757302-7889-8-git-send-email-dillon.minfei@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f7e6b19bc764 ("mtd: properly check all write ioctls for permissions")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Rafał Miłecki <rafal@milecki.pl>
+Acked-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210303155735.25887-1-michael@walle.cc
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/serial/st,stm32-uart.yaml | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mtd/mtdchar.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/serial/st,stm32-uart.yaml b/Documentation/devicetree/bindings/serial/st,stm32-uart.yaml
-index 06d5f251ec88..51f390e5c276 100644
---- a/Documentation/devicetree/bindings/serial/st,stm32-uart.yaml
-+++ b/Documentation/devicetree/bindings/serial/st,stm32-uart.yaml
-@@ -77,7 +77,8 @@ required:
-   - interrupts
-   - clocks
- 
--additionalProperties: false
-+additionalProperties:
-+  type: object
- 
- examples:
-   - |
+diff --git a/drivers/mtd/mtdchar.c b/drivers/mtd/mtdchar.c
+index b40f46a43fc6..69fb5dafa9ad 100644
+--- a/drivers/mtd/mtdchar.c
++++ b/drivers/mtd/mtdchar.c
+@@ -651,16 +651,12 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
+ 	case MEMGETINFO:
+ 	case MEMREADOOB:
+ 	case MEMREADOOB64:
+-	case MEMLOCK:
+-	case MEMUNLOCK:
+ 	case MEMISLOCKED:
+ 	case MEMGETOOBSEL:
+ 	case MEMGETBADBLOCK:
+-	case MEMSETBADBLOCK:
+ 	case OTPSELECT:
+ 	case OTPGETREGIONCOUNT:
+ 	case OTPGETREGIONINFO:
+-	case OTPLOCK:
+ 	case ECCGETLAYOUT:
+ 	case ECCGETSTATS:
+ 	case MTDFILEMODE:
+@@ -671,9 +667,13 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
+ 	/* "dangerous" commands */
+ 	case MEMERASE:
+ 	case MEMERASE64:
++	case MEMLOCK:
++	case MEMUNLOCK:
++	case MEMSETBADBLOCK:
+ 	case MEMWRITEOOB:
+ 	case MEMWRITEOOB64:
+ 	case MEMWRITE:
++	case OTPLOCK:
+ 		if (!(file->f_mode & FMODE_WRITE))
+ 			return -EPERM;
+ 		break;
 -- 
 2.30.2
 
