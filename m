@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F30837B9F4
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6679437B9F5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230115AbhELKHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:07:24 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:53299 "EHLO
+        id S230137AbhELKHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:07:33 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:51291 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230114AbhELKHY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:07:24 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id 9B2EA12D8;
-        Wed, 12 May 2021 06:06:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 12 May 2021 06:06:16 -0400
+        by vger.kernel.org with ESMTP id S230135AbhELKHc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:07:32 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 4569512BE;
+        Wed, 12 May 2021 06:06:23 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 12 May 2021 06:06:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=HL0Olt
-        jBTFpSADXi/P62Yn669SqcZyyCzUcQ/iUtoFk=; b=B0MI4czDxL7lQkVwqTAfee
-        vqngatYGNKjn7vuK3yd5tLARrdjmetsgw2fQRswYmBAM0ZDmQ3XF1MiwgAnkcqqS
-        +GvwJR30H4zFPeGb9K2p8oqq2GSLqv3tRxyHWSn6QRfOO6YlQAxxo5A65+a57lnA
-        2jDuYU6zWjwNFcFD8/gJGK27jO2wW0ZecGq4ueU+St85sPuX1utfRPw5UkVXFIjQ
-        Y0YgHZcGIP0vV/iEE7SIizdHjZHldp0O8yhCTKonim+Jggi6AnTUeiAyRdGCxFQt
-        hughtorfb76aEMRhDiwnlFbO0mPWvr6Yn9+B0BLecjwQLwO6xI35jzTWl4yPocbA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Qs6luM
+        LBKKsSY6H2qDJXXeCUhemn/ct0ryCIEBhNKGI=; b=nPVKVLcUPj9Qc2vS5lVo+x
+        z6ek2RmtqXjHKdYPPRfEGH3cEIwv5+2AHmp66Fs/BkD02JqJ6fQeSEiZPfRdec7V
+        F7XXrHTobXiQgS6dqDvO/f6UZFuUcBU36fj861oM/RMtj7Gz3GfKKiQzlWwdlYEl
+        rgDRpTimbCstfUIv6oZxC1bFTduLEgjQfgw9DlozcNKkMrcUi4dhM9vAhZ7L6xIA
+        qloXjqV4NINpU0CDWliYdYW76ggPXM2HFZu8Y+5/bWpGHZhgRkcpYkmw1Efpq4a+
+        GOJvNhcdbMf066p5QqSklxB3ZBS415oZu9fpIPeGL/hAlRxwNNSd6x5H4wJ6q13g
         ==
-X-ME-Sender: <xms:lqibYEzaF7EVVdH_RkkqidCLbVIABc3X95N_KJ9WC1a0MCzTj11_6Q>
-    <xme:lqibYIRWTkO6X6gLXdjJAcvLACKdmZa0fOBqRNURTfzAyAJZrFi4UpzY8FKQ5MQ40
-    _6Gnjen3o5xcQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:nqibYPTEOivphn-79RmVg8b44DzFAN6IxGT0kftQIcfVgLbDBV_Dzw>
+    <xme:nqibYAww36VLHKc1MuYWjVtVhHgQdHa5K0NaJMWjMmTl7KULi7idSgHiwR2UsTbsn
+    YtSMOZX75O78w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvddtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnheptefhhffgjefgtdeihefgvdehieetuefgvefhgedvge
     dvgfdugfevgefgueeljedvnecuffhomhgrihhnpehlrghunhgthhhprggurdhnvghtpdhk
     vghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghruf
-    hiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
+    hiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
     mh
-X-ME-Proxy: <xmx:lqibYGXGJTufcCA0TxRYCdCkkAVcnB9geGOvcvQFL1TgC4t74NXQ3A>
-    <xmx:lqibYCijU98DHOu_0KEDiIUWfaYBNZskCIg1U8QrWQLkAX3ts3CqyA>
-    <xmx:lqibYGAsVpAjZm8N8ADGThl4jNl2LIE4wnguHhhiS6LwBQ4p8TZJGw>
-    <xmx:l6ibYBNbjksrgx_4FAnLMhUg_9UVunlmaER8puTjS0Hq9QNEr3U3IEIBocI>
+X-ME-Proxy: <xmx:nqibYE2Vos99iqHLsL6naF1ojZy5Vk0IiAbpfVjez-gWHlSuK0zZ0w>
+    <xmx:nqibYPArPCjzFk-PA3nfpxK-IvJu5BYkxdZ-G4Pn0T8OH9ov6f6-Ig>
+    <xmx:nqibYIgZnA7JQRdRx_mBJxjswTH4x-LiQHX4UicvdhsRFbHP-aMokQ>
+    <xmx:nqibYBt-xi-qSOpxTyQBXdhZE4CIWPXxGzBkJ7ZoCtvZBRHQ_GKOp0QOSOM>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:06:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: hda/cirrus: Use CS8409 filter to fix abnormal sounds on" failed to apply to 5.12-stable tree
+        Wed, 12 May 2021 06:06:22 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: hda/cirrus: Use CS8409 filter to fix abnormal sounds on" failed to apply to 5.11-stable tree
 To:     sbinding@opensource.cirrus.com, stable@vger.kernel.org,
         tiwai@suse.de, vicamo.yang@canonical.com,
         vitalyr@opensource.cirrus.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 12 May 2021 12:06:13 +0200
-Message-ID: <162081397319352@kroah.com>
+Message-ID: <16208139731544@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.12-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
