@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34C1637D2E5
+	by mail.lfdr.de (Postfix) with ESMTP id 7CFF437D2E6
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242330AbhELSPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53178 "EHLO mail.kernel.org"
+        id S242101AbhELSPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:15:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241868AbhELSJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:09:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 267806188B;
-        Wed, 12 May 2021 18:05:09 +0000 (UTC)
+        id S241880AbhELSJI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:09:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE3D761928;
+        Wed, 12 May 2021 18:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842710;
-        bh=70A0GRAmaL/D6QBoBkf17V3ylGgPZk8LKx1hrUPXpVs=;
+        s=k20201202; t=1620842711;
+        bh=R7Cs3zu7R8x7HragikYOhoog7sCI37/COSBzxK3kMuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pG920Nu4AloZdKl3QK6RG07UHJnvYzJIzhfNeFqX2tRcvnmVL6tTZV9aZ3VKGnSZ5
-         73k75I8hhsTvPP4CnQj5yISqZot080CyklNa0ANjyZd1oqU5xDtW3QMps/Oz4RMKHh
-         7/lZ8sjwOIPyUhtwM4Drt3XBkNQrC/oAe3PbPCo47l4fwrkqoEPTnq+ADLOome7B02
-         Kvmvc95uExbcPvgJqax2izZe5E5Z+kwQXjl0rynEQNWbONhU+GiDC9TX1KBbMqmQWU
-         V263TArhbqZfxuV+VXJ2/6qsUqkEE2wKn7a69v1QjjQNdH1wRn/9ia6JBGwIPNjHH5
-         KHHn4ndyANy7w==
+        b=Lloq0e5CXH4QTTrsp63ecubiLV3aXyZDvE4pgIIYKBfGRAR/3isnmNjmg+4wN/C5I
+         FdAWZZcWGl3wx6PxEORmHDOnpBQhVX3ib3+r7hBkXSnJODkG38952xqMcX/sUk850g
+         oO85ITm3iu17ujFpu9x2QFTHVGaQ6vFK9PQ81OX1exJvHdngYWIXbpCXJgmP1epoGd
+         aa2HC21kcqgS28Bw6mYnxSOIB9rw+4pgOVPaLo/vV5V3MHp2ILpx8qFqz/a9OqJMFx
+         i2uhOavm6gI0qT1PEGlc+2CopjxHrYf1xSEipxwWBrcTh0C25nitkgQGbNJMq8Mfmb
+         xJz3tFMISmdcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 11/18] riscv: Workaround mcount name prior to clang-13
-Date:   Wed, 12 May 2021 14:04:42 -0400
-Message-Id: <20210512180450.665586-11-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 12/18] ceph: fix fscache invalidation
+Date:   Wed, 12 May 2021 14:04:43 -0400
+Message-Id: <20210512180450.665586-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180450.665586-1-sashal@kernel.org>
 References: <20210512180450.665586-1-sashal@kernel.org>
@@ -44,121 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 7ce04771503074a7de7f539cc43f5e1b385cb99b ]
+[ Upstream commit 10a7052c7868bc7bc72d947f5aac6f768928db87 ]
 
-Prior to clang 13.0.0, the RISC-V name for the mcount symbol was
-"mcount", which differs from the GCC version of "_mcount", which results
-in the following errors:
+Ensure that we invalidate the fscache whenever we invalidate the
+pagecache.
 
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_level':
-main.c:(.text+0xe): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_start':
-main.c:(.text+0x4e): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_finish':
-main.c:(.text+0x92): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `.LBB32_28':
-main.c:(.text+0x30c): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `free_initmem':
-main.c:(.text+0x54c): undefined reference to `mcount'
-
-This has been corrected in https://reviews.llvm.org/D98881 but the
-minimum supported clang version is 10.0.1. To avoid build errors and to
-gain a working function tracer, adjust the name of the mcount symbol for
-older versions of clang in mount.S and recordmcount.pl.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1331
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/ftrace.h | 14 ++++++++++++--
- arch/riscv/kernel/mcount.S      | 10 +++++-----
- scripts/recordmcount.pl         |  2 +-
- 3 files changed, 18 insertions(+), 8 deletions(-)
+ fs/ceph/caps.c  | 1 +
+ fs/ceph/inode.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
-index 02fbc175142e..693c3839a7df 100644
---- a/arch/riscv/include/asm/ftrace.h
-+++ b/arch/riscv/include/asm/ftrace.h
-@@ -10,9 +10,19 @@
- #endif
- #define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 6e871a382209..918781c51f0b 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1779,6 +1779,7 @@ static int try_nonblocking_invalidate(struct inode *inode)
+ 	u32 invalidating_gen = ci->i_rdcache_gen;
  
-+/*
-+ * Clang prior to 13 had "mcount" instead of "_mcount":
-+ * https://reviews.llvm.org/D98881
-+ */
-+#if defined(CONFIG_CC_IS_GCC) || CONFIG_CLANG_VERSION >= 130000
-+#define MCOUNT_NAME _mcount
-+#else
-+#define MCOUNT_NAME mcount
-+#endif
-+
- #define ARCH_SUPPORTS_FTRACE_OPS 1
- #ifndef __ASSEMBLY__
--void _mcount(void);
-+void MCOUNT_NAME(void);
- static inline unsigned long ftrace_call_adjust(unsigned long addr)
- {
- 	return addr;
-@@ -33,7 +43,7 @@ struct dyn_arch_ftrace {
-  * both auipc and jalr at the same time.
-  */
+ 	spin_unlock(&ci->i_ceph_lock);
++	ceph_fscache_invalidate(inode);
+ 	invalidate_mapping_pages(&inode->i_data, 0, -1);
+ 	spin_lock(&ci->i_ceph_lock);
  
--#define MCOUNT_ADDR		((unsigned long)_mcount)
-+#define MCOUNT_ADDR		((unsigned long)MCOUNT_NAME)
- #define JALR_SIGN_MASK		(0x00000800)
- #define JALR_OFFSET_MASK	(0x00000fff)
- #define AUIPC_OFFSET_MASK	(0xfffff000)
-diff --git a/arch/riscv/kernel/mcount.S b/arch/riscv/kernel/mcount.S
-index 5721624886a1..fabddee90d1b 100644
---- a/arch/riscv/kernel/mcount.S
-+++ b/arch/riscv/kernel/mcount.S
-@@ -47,8 +47,8 @@
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 3c24fb77ef32..5f041fede7aa 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -1823,6 +1823,7 @@ static void ceph_invalidate_work(struct work_struct *work)
+ 	orig_gen = ci->i_rdcache_gen;
+ 	spin_unlock(&ci->i_ceph_lock);
  
- ENTRY(ftrace_stub)
- #ifdef CONFIG_DYNAMIC_FTRACE
--       .global _mcount
--       .set    _mcount, ftrace_stub
-+       .global MCOUNT_NAME
-+       .set    MCOUNT_NAME, ftrace_stub
- #endif
- 	ret
- ENDPROC(ftrace_stub)
-@@ -79,7 +79,7 @@ EXPORT_SYMBOL(return_to_handler)
- #endif
- 
- #ifndef CONFIG_DYNAMIC_FTRACE
--ENTRY(_mcount)
-+ENTRY(MCOUNT_NAME)
- 	la	t4, ftrace_stub
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
- 	la	t0, ftrace_graph_return
-@@ -125,6 +125,6 @@ do_trace:
- 	jalr	t5
- 	RESTORE_ABI_STATE
- 	ret
--ENDPROC(_mcount)
-+ENDPROC(MCOUNT_NAME)
- #endif
--EXPORT_SYMBOL(_mcount)
-+EXPORT_SYMBOL(MCOUNT_NAME)
-diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
-index bc12e12e4b3a..657e69125a46 100755
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -395,7 +395,7 @@ if ($arch eq "x86_64") {
-     $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s_mcount\$";
- } elsif ($arch eq "riscv") {
-     $function_regex = "^([0-9a-fA-F]+)\\s+<([^.0-9][0-9a-zA-Z_\\.]+)>:";
--    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_mcount\$";
-+    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_?mcount\$";
-     $type = ".quad";
-     $alignment = 2;
- } elsif ($arch eq "nds32") {
++	ceph_fscache_invalidate(inode);
+ 	if (invalidate_inode_pages2(inode->i_mapping) < 0) {
+ 		pr_err("invalidate_pages %p fails\n", inode);
+ 	}
 -- 
 2.30.2
 
