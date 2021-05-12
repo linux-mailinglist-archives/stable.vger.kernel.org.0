@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C6BF37C9CA
+	by mail.lfdr.de (Postfix) with ESMTP id E510637C9CB
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235968AbhELQV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
+        id S236371AbhELQVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:21:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240265AbhELQRu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:17:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9505461D68;
-        Wed, 12 May 2021 15:43:31 +0000 (UTC)
+        id S240278AbhELQRv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:17:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03F5761D69;
+        Wed, 12 May 2021 15:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834212;
-        bh=mZqMfqIyQnFIX1dFL66/P3v+WkMGX+WqxDWMNiC+Lg0=;
+        s=korg; t=1620834214;
+        bh=YB+ecQE/VfTeFwcyfAFuZ1h4ElEJB+j9WU6tqDPiGws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1c8wesGpsEJTeuZ2haD3zdmCMvFVbdGQNMgQiWOJ0qCNfqEvh0qsBHkWtFKGYjgV
-         mTaSjuhIY9PT7/uUl5pcmsDYxjDS0VbvNtUvTm2uz56GACk+7zPe2IxoXetfuoP2sj
-         F8pMQS/z8luFZFFNoUL6ixWk3rI4fvYBU3ZvKleE=
+        b=rQ3viWmyB1itMw21X3CCSq5IbarR5IvLTLXcNyHgokXN8i4s8i0PMHDZNycx/fBGD
+         2wVi1mZ28xoAzORIIDw/gIX++1tGALplbeoxcwh+G8A+I3sUYr9OBRI0N4joTERGzS
+         vgFwuUSzdpJQDWU93jzVv8LZcFcBaOjeyF5+uYy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Daniel Axtens <dja@axtens.net>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 454/601] powerpc/64s: Use htab_convert_pte_flags() in hash__mark_rodata_ro()
-Date:   Wed, 12 May 2021 16:48:51 +0200
-Message-Id: <20210512144842.793257110@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 455/601] powerpc/perf: Fix PMU constraint check for EBB events
+Date:   Wed, 12 May 2021 16:48:52 +0200
+Message-Id: <20210512144842.822855477@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,47 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 2c02e656a29d5f64193eb93da92781bcf0517146 ]
+[ Upstream commit 10f8f96179ecc7f69c927f6d231f6d02736cea83 ]
 
-In hash__mark_rodata_ro() we pass the raw PP_RXXX value to
-hash__change_memory_range(). That has the effect of setting the key to
-zero, because PP_RXXX contains no key value.
+The power PMU group constraints includes check for EBB events to make
+sure all events in a group must agree on EBB. This will prevent
+scheduling EBB and non-EBB events together. But in the existing check,
+settings for constraint mask and value is interchanged. Patch fixes the
+same.
 
-Fix it by using htab_convert_pte_flags(), which knows how to convert a
-pgprot into a pp value, including the key.
+Before the patch, PMU selftest "cpu_event_pinned_vs_ebb_test" fails with
+below in dmesg logs. This happens because EBB event gets enabled along
+with a non-EBB cpu event.
 
-Fixes: d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3 for kernel mapping with hash translation")
+  [35600.453346] cpu_event_pinne[41326]: illegal instruction (4)
+  at 10004a18 nip 10004a18 lr 100049f8 code 1 in
+  cpu_event_pinned_vs_ebb_test[10000000+10000]
+
+Test results after the patch:
+
+  $ ./pmu/ebb/cpu_event_pinned_vs_ebb_test
+  test: cpu_event_pinned_vs_ebb
+  tags: git_version:v5.12-rc5-93-gf28c3125acd3-dirty
+  Binding to cpu 8
+  EBB Handler is at 0x100050c8
+  read error on event 0x7fffe6bd4040!
+  PM_RUN_INST_CMPL: result 9872 running/enabled 37930432
+  success: cpu_event_pinned_vs_ebb
+
+This bug was hidden by other logic until commit 1908dc911792 (perf:
+Tweak perf_event_attr::exclusive semantics).
+
+Fixes: 4df489991182 ("powerpc/perf: Add power8 EBB support")
+Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+[mpe: Mention commit 1908dc911792]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Daniel Axtens <dja@axtens.net>
-Link: https://lore.kernel.org/r/20210331003845.216246-3-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/1617725761-1464-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/hash_pgtable.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/perf/isa207-common.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/mm/book3s64/hash_pgtable.c b/arch/powerpc/mm/book3s64/hash_pgtable.c
-index 567e0c6b3978..03819c259f0a 100644
---- a/arch/powerpc/mm/book3s64/hash_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/hash_pgtable.c
-@@ -428,12 +428,14 @@ static bool hash__change_memory_range(unsigned long start, unsigned long end,
+diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
+index 6ab5b272090a..58448f0e4721 100644
+--- a/arch/powerpc/perf/isa207-common.c
++++ b/arch/powerpc/perf/isa207-common.c
+@@ -400,8 +400,8 @@ ebb_bhrb:
+ 	 * EBB events are pinned & exclusive, so this should never actually
+ 	 * hit, but we leave it as a fallback in case.
+ 	 */
+-	mask  |= CNST_EBB_VAL(ebb);
+-	value |= CNST_EBB_MASK;
++	mask  |= CNST_EBB_MASK;
++	value |= CNST_EBB_VAL(ebb);
  
- void hash__mark_rodata_ro(void)
- {
--	unsigned long start, end;
-+	unsigned long start, end, pp;
- 
- 	start = (unsigned long)_stext;
- 	end = (unsigned long)__init_begin;
- 
--	WARN_ON(!hash__change_memory_range(start, end, PP_RXXX));
-+	pp = htab_convert_pte_flags(pgprot_val(PAGE_KERNEL_ROX), HPTE_USE_KERNEL_KEY);
-+
-+	WARN_ON(!hash__change_memory_range(start, end, pp));
- }
- 
- void hash__mark_initmem_nx(void)
+ 	*maskp = mask;
+ 	*valp = value;
 -- 
 2.30.2
 
