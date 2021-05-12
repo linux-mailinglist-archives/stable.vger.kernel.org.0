@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B573337CAA5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3ED837CAAB
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241889AbhELQbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:31:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
+        id S241905AbhELQbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:31:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241009AbhELQ0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241008AbhELQ0N (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:26:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CCE1619BF;
-        Wed, 12 May 2021 15:49:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 722B661DA7;
+        Wed, 12 May 2021 15:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834549;
-        bh=42TrdJ6vRDRiwh71ldf9/z4htKYkP4JsmoC3QXfPeEU=;
+        s=korg; t=1620834551;
+        bh=8QwHkWylNombw/I/ryLNfQfhkERdfcsdtL8rLmVkI6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjVO5mM/ftn92dny+7eTk1BnwWZ6YScYTWYa/U7t99m1EywoOEZnasB9l1LvttMdY
-         rE4dcHv6tFjbyFCiGZcPpRrlmJe8hy8TtZyiEuODLlQtxFppdCXEEZsdE7JVN06R4p
-         1wkkLH1FkMWqDp2qpbgC6v2pxKnRhLtnN/UgM8zI=
+        b=lu4Cc60u8HKy6jzw6GZua/ONcFOTU1K6Mc6PMIOJPGjQ0QUoe0/rrHTnntRhfxn2s
+         Ln6Z38uyXQSYYWnFKDwYtWHz24PZwc77iSEmn0hgOjdvjPzPRqyWnpUKkuHWrjHIYV
+         vAYpFvFhdHjKo2D1evPq82QWcfE532SgE+Up3TSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Stefani Seibold <stefani@seibold.net>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Lameter <cl@linux.com>,
+        David Rientjes <rientjes@google.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 588/601] kfifo: fix ternary sign extension bugs
-Date:   Wed, 12 May 2021 16:51:05 +0200
-Message-Id: <20210512144847.211878240@linuxfoundation.org>
+Subject: [PATCH 5.11 589/601] mm/sl?b.c: remove ctor argument from kmem_cache_flags
+Date:   Wed, 12 May 2021 16:51:06 +0200
+Message-Id: <20210512144847.247268856@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,118 +47,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-[ Upstream commit 926ee00ea24320052b46745ef4b00d91c05bd03d ]
+[ Upstream commit 3754000872188e3e4713d9d847fe3c615a47c220 ]
 
-The intent with this code was to return negative error codes but instead
-it returns positives.
+This argument hasn't been used since e153362a50a3 ("slub: Remove objsize
+check in kmem_cache_flags()") so simply remove it.
 
-The problem is how type promotion works with ternary operations.  These
-functions return long, "ret" is an int and "copied" is a u32.  The
-negative error code is first cast to u32 so it becomes a high positive and
-then cast to long where it's still a positive.
-
-We could fix this by declaring "ret" as a ssize_t but let's just get rid
-of the ternaries instead.
-
-Link: https://lkml.kernel.org/r/YIE+/cK1tBzSuQPU@mwanda
-Fixes: 5bf2b19320ec ("kfifo: add example files to the kernel sample directory")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Stefani Seibold <stefani@seibold.net>
+Link: https://lkml.kernel.org/r/20210126095733.974665-1-nborisov@suse.com
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Christoph Lameter <cl@linux.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/kfifo/bytestream-example.c | 8 ++++++--
- samples/kfifo/inttype-example.c    | 8 ++++++--
- samples/kfifo/record-example.c     | 8 ++++++--
- 3 files changed, 18 insertions(+), 6 deletions(-)
+ mm/slab.c        | 3 +--
+ mm/slab.h        | 6 ++----
+ mm/slab_common.c | 2 +-
+ mm/slub.c        | 9 +++------
+ 4 files changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/samples/kfifo/bytestream-example.c b/samples/kfifo/bytestream-example.c
-index c406f03ee551..5a90aa527877 100644
---- a/samples/kfifo/bytestream-example.c
-+++ b/samples/kfifo/bytestream-example.c
-@@ -122,8 +122,10 @@ static ssize_t fifo_write(struct file *file, const char __user *buf,
- 	ret = kfifo_from_user(&test, buf, count, &copied);
- 
- 	mutex_unlock(&write_lock);
-+	if (ret)
-+		return ret;
- 
--	return ret ? ret : copied;
-+	return copied;
+diff --git a/mm/slab.c b/mm/slab.c
+index d7c8da9319c7..e2d2044389ea 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1790,8 +1790,7 @@ static int __ref setup_cpu_cache(struct kmem_cache *cachep, gfp_t gfp)
  }
  
- static ssize_t fifo_read(struct file *file, char __user *buf,
-@@ -138,8 +140,10 @@ static ssize_t fifo_read(struct file *file, char __user *buf,
- 	ret = kfifo_to_user(&test, buf, count, &copied);
- 
- 	mutex_unlock(&read_lock);
-+	if (ret)
-+		return ret;
- 
--	return ret ? ret : copied;
-+	return copied;
+ slab_flags_t kmem_cache_flags(unsigned int object_size,
+-	slab_flags_t flags, const char *name,
+-	void (*ctor)(void *))
++	slab_flags_t flags, const char *name)
+ {
+ 	return flags;
  }
+diff --git a/mm/slab.h b/mm/slab.h
+index 1a756a359fa8..9e83616bb5b4 100644
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -110,8 +110,7 @@ __kmem_cache_alias(const char *name, unsigned int size, unsigned int align,
+ 		   slab_flags_t flags, void (*ctor)(void *));
  
- static const struct proc_ops fifo_proc_ops = {
-diff --git a/samples/kfifo/inttype-example.c b/samples/kfifo/inttype-example.c
-index 78977fc4a23f..e5403d8c971a 100644
---- a/samples/kfifo/inttype-example.c
-+++ b/samples/kfifo/inttype-example.c
-@@ -115,8 +115,10 @@ static ssize_t fifo_write(struct file *file, const char __user *buf,
- 	ret = kfifo_from_user(&test, buf, count, &copied);
+ slab_flags_t kmem_cache_flags(unsigned int object_size,
+-	slab_flags_t flags, const char *name,
+-	void (*ctor)(void *));
++	slab_flags_t flags, const char *name);
+ #else
+ static inline struct kmem_cache *
+ __kmem_cache_alias(const char *name, unsigned int size, unsigned int align,
+@@ -119,8 +118,7 @@ __kmem_cache_alias(const char *name, unsigned int size, unsigned int align,
+ { return NULL; }
  
- 	mutex_unlock(&write_lock);
-+	if (ret)
-+		return ret;
- 
--	return ret ? ret : copied;
-+	return copied;
+ static inline slab_flags_t kmem_cache_flags(unsigned int object_size,
+-	slab_flags_t flags, const char *name,
+-	void (*ctor)(void *))
++	slab_flags_t flags, const char *name)
+ {
+ 	return flags;
  }
+diff --git a/mm/slab_common.c b/mm/slab_common.c
+index 0b775cb5c108..174d8652d9fe 100644
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -197,7 +197,7 @@ struct kmem_cache *find_mergeable(unsigned int size, unsigned int align,
+ 	size = ALIGN(size, sizeof(void *));
+ 	align = calculate_alignment(flags, align, size);
+ 	size = ALIGN(size, align);
+-	flags = kmem_cache_flags(size, flags, name, NULL);
++	flags = kmem_cache_flags(size, flags, name);
  
- static ssize_t fifo_read(struct file *file, char __user *buf,
-@@ -131,8 +133,10 @@ static ssize_t fifo_read(struct file *file, char __user *buf,
- 	ret = kfifo_to_user(&test, buf, count, &copied);
- 
- 	mutex_unlock(&read_lock);
-+	if (ret)
-+		return ret;
- 
--	return ret ? ret : copied;
-+	return copied;
+ 	if (flags & SLAB_NEVER_MERGE)
+ 		return NULL;
+diff --git a/mm/slub.c b/mm/slub.c
+index c86037b38253..d62db41710bf 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -1400,7 +1400,6 @@ __setup("slub_debug", setup_slub_debug);
+  * @object_size:	the size of an object without meta data
+  * @flags:		flags to set
+  * @name:		name of the cache
+- * @ctor:		constructor function
+  *
+  * Debug option(s) are applied to @flags. In addition to the debug
+  * option(s), if a slab name (or multiple) is specified i.e.
+@@ -1408,8 +1407,7 @@ __setup("slub_debug", setup_slub_debug);
+  * then only the select slabs will receive the debug option(s).
+  */
+ slab_flags_t kmem_cache_flags(unsigned int object_size,
+-	slab_flags_t flags, const char *name,
+-	void (*ctor)(void *))
++	slab_flags_t flags, const char *name)
+ {
+ 	char *iter;
+ 	size_t len;
+@@ -1474,8 +1472,7 @@ static inline void add_full(struct kmem_cache *s, struct kmem_cache_node *n,
+ static inline void remove_full(struct kmem_cache *s, struct kmem_cache_node *n,
+ 					struct page *page) {}
+ slab_flags_t kmem_cache_flags(unsigned int object_size,
+-	slab_flags_t flags, const char *name,
+-	void (*ctor)(void *))
++	slab_flags_t flags, const char *name)
+ {
+ 	return flags;
  }
+@@ -3797,7 +3794,7 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
  
- static const struct proc_ops fifo_proc_ops = {
-diff --git a/samples/kfifo/record-example.c b/samples/kfifo/record-example.c
-index c507998a2617..f64f3d62d6c2 100644
---- a/samples/kfifo/record-example.c
-+++ b/samples/kfifo/record-example.c
-@@ -129,8 +129,10 @@ static ssize_t fifo_write(struct file *file, const char __user *buf,
- 	ret = kfifo_from_user(&test, buf, count, &copied);
- 
- 	mutex_unlock(&write_lock);
-+	if (ret)
-+		return ret;
- 
--	return ret ? ret : copied;
-+	return copied;
- }
- 
- static ssize_t fifo_read(struct file *file, char __user *buf,
-@@ -145,8 +147,10 @@ static ssize_t fifo_read(struct file *file, char __user *buf,
- 	ret = kfifo_to_user(&test, buf, count, &copied);
- 
- 	mutex_unlock(&read_lock);
-+	if (ret)
-+		return ret;
- 
--	return ret ? ret : copied;
-+	return copied;
- }
- 
- static const struct proc_ops fifo_proc_ops = {
+ static int kmem_cache_open(struct kmem_cache *s, slab_flags_t flags)
+ {
+-	s->flags = kmem_cache_flags(s->size, flags, s->name, s->ctor);
++	s->flags = kmem_cache_flags(s->size, flags, s->name);
+ #ifdef CONFIG_SLAB_FREELIST_HARDENED
+ 	s->random = get_random_long();
+ #endif
 -- 
 2.30.2
 
