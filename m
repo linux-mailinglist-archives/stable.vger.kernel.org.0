@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06B9537C26C
+	by mail.lfdr.de (Postfix) with ESMTP id BF08937C26E
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232041AbhELPKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:10:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39670 "EHLO mail.kernel.org"
+        id S232359AbhELPKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:10:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232250AbhELPHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:07:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D3226157F;
-        Wed, 12 May 2021 15:01:30 +0000 (UTC)
+        id S233195AbhELPHs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:07:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B24686101B;
+        Wed, 12 May 2021 15:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831691;
-        bh=eyu97ZBK9xnhz5oNASxAacHzMyKRH3epYFGkrRIH7dY=;
+        s=korg; t=1620831697;
+        bh=TmgsF4R2n5f0992uBVRLJq4rRXd68FMikLyEMs5WHds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14VzeATdYvRs9HfSPI4EqjIHMWQ0LtQHUML5kwxLpFQYOgj0RYuK76docOMQaflln
-         4QtnuKfNzEPGf20wH8LPlQFS6DGxve5BTz/tEBO4rxrDikAt1V1GfNjqHKPHzYuCZo
-         wZqZVmZPluOnpfB8SZtO7lhfpO4C/ymSOadj3F1M=
+        b=q0ADN1IM2LCRxV//mKqO5xYWvRwnA4VhIkoLk7XXRGbjbEaCMSSPC+3X3QnGjXfpf
+         4TqLUZYmQd5cKiOYQjj5USwvtXVLKaBdpi1CQNHCBpldwP+RE7ezB8OnLVVvXZguTj
+         pLWpY6kUkJ6FL6xxb2/nhgK6NY1xQPxUnR8dT9BA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 221/244] net: phy: intel-xway: enable integrated led functions
-Date:   Wed, 12 May 2021 16:49:52 +0200
-Message-Id: <20210512144750.073906289@linuxfoundation.org>
+Subject: [PATCH 5.4 222/244] ath9k: Fix error check in ath9k_hw_read_revisions() for PCI devices
+Date:   Wed, 12 May 2021 16:49:53 +0200
+Message-Id: <20210512144750.105601699@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,69 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schiller <ms@dev.tdt.de>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 357a07c26697a770d39d28b6b111f978deb4017d ]
+[ Upstream commit 7dd9a40fd6e0d0f1fd8e1931c007e080801dfdce ]
 
-The Intel xway phys offer the possibility to deactivate the integrated
-LED function and to control the LEDs manually.
-If this was set by the bootloader, it must be ensured that the
-integrated LED function is enabled for all LEDs when loading the driver.
+When the error check in ath9k_hw_read_revisions() was added, it checked for
+-EIO which is what ath9k_regread() in the ath9k_htc driver uses. However,
+for plain ath9k, the register read function uses ioread32(), which just
+returns -1 on error. So if such a read fails, it still gets passed through
+and ends up as a weird mac revision in the log output.
 
-Before commit 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-the LEDs were enabled by a soft-reset of the PHY (using
-genphy_soft_reset). Initialize the XWAY_MDIO_LED with it's default
-value (which is applied during a soft reset) instead of adding back
-the soft reset. This brings back the default LED configuration while
-still preventing an excessive amount of soft resets.
+Fix this by changing ath9k_regread() to return -1 on error like ioread32()
+does, and fix the error check to look for that instead of -EIO.
 
-Fixes: 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2f90c7e5d094 ("ath9k: Check for errors when reading SREV register")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210326180819.142480-1-toke@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/intel-xway.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c | 2 +-
+ drivers/net/wireless/ath/ath9k/hw.c           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/intel-xway.c b/drivers/net/phy/intel-xway.c
-index b7875b36097f..574a8bca1ec4 100644
---- a/drivers/net/phy/intel-xway.c
-+++ b/drivers/net/phy/intel-xway.c
-@@ -11,6 +11,18 @@
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index 40a065028ebe..11054c17a9b5 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -246,7 +246,7 @@ static unsigned int ath9k_regread(void *hw_priv, u32 reg_offset)
+ 	if (unlikely(r)) {
+ 		ath_dbg(common, WMI, "REGISTER READ FAILED: (0x%04x, %d)\n",
+ 			reg_offset, r);
+-		return -EIO;
++		return -1;
+ 	}
  
- #define XWAY_MDIO_IMASK			0x19	/* interrupt mask */
- #define XWAY_MDIO_ISTAT			0x1A	/* interrupt status */
-+#define XWAY_MDIO_LED			0x1B	/* led control */
-+
-+/* bit 15:12 are reserved */
-+#define XWAY_MDIO_LED_LED3_EN		BIT(11)	/* Enable the integrated function of LED3 */
-+#define XWAY_MDIO_LED_LED2_EN		BIT(10)	/* Enable the integrated function of LED2 */
-+#define XWAY_MDIO_LED_LED1_EN		BIT(9)	/* Enable the integrated function of LED1 */
-+#define XWAY_MDIO_LED_LED0_EN		BIT(8)	/* Enable the integrated function of LED0 */
-+/* bit 7:4 are reserved */
-+#define XWAY_MDIO_LED_LED3_DA		BIT(3)	/* Direct Access to LED3 */
-+#define XWAY_MDIO_LED_LED2_DA		BIT(2)	/* Direct Access to LED2 */
-+#define XWAY_MDIO_LED_LED1_DA		BIT(1)	/* Direct Access to LED1 */
-+#define XWAY_MDIO_LED_LED0_DA		BIT(0)	/* Direct Access to LED0 */
+ 	return be32_to_cpu(val);
+diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
+index 052deffb4c9d..9fd8e64288ff 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -287,7 +287,7 @@ static bool ath9k_hw_read_revisions(struct ath_hw *ah)
  
- #define XWAY_MDIO_INIT_WOL		BIT(15)	/* Wake-On-LAN */
- #define XWAY_MDIO_INIT_MSRE		BIT(14)
-@@ -159,6 +171,15 @@ static int xway_gphy_config_init(struct phy_device *phydev)
- 	/* Clear all pending interrupts */
- 	phy_read(phydev, XWAY_MDIO_ISTAT);
+ 	srev = REG_READ(ah, AR_SREV);
  
-+	/* Ensure that integrated led function is enabled for all leds */
-+	err = phy_write(phydev, XWAY_MDIO_LED,
-+			XWAY_MDIO_LED_LED0_EN |
-+			XWAY_MDIO_LED_LED1_EN |
-+			XWAY_MDIO_LED_LED2_EN |
-+			XWAY_MDIO_LED_LED3_EN);
-+	if (err)
-+		return err;
-+
- 	phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LEDCH,
- 		      XWAY_MMD_LEDCH_NACS_NONE |
- 		      XWAY_MMD_LEDCH_SBF_F02HZ |
+-	if (srev == -EIO) {
++	if (srev == -1) {
+ 		ath_err(ath9k_hw_common(ah),
+ 			"Failed to read SREV register");
+ 		return false;
 -- 
 2.30.2
 
