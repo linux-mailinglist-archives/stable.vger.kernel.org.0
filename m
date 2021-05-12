@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4844637C12C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7299F37C12F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:56:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232250AbhELO5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47248 "EHLO mail.kernel.org"
+        id S230396AbhELO5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232285AbhELOz6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:55:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE4D761433;
-        Wed, 12 May 2021 14:54:49 +0000 (UTC)
+        id S232310AbhELO4D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:56:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4562613AF;
+        Wed, 12 May 2021 14:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831290;
-        bh=FkNunr8aETry8nGvdB4T3sS6pGXdfxMPr3Tpyub4fxs=;
+        s=korg; t=1620831295;
+        bh=Q4v1b4deME05362ww0FI7shu31HKRmq04Yyf3y7/oo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S91v7UryIFzRtRGRFnOO7BSln3a1gOKaeOgQLnZUxyzQGRFw5rwWr/w2dDEuZsWAf
-         UY7AvnlqxyTlZxAb72D2UeWLi1iDrxxfmHJHbVlRMpMKS4kjbsM6kTOAMtTGT6p8ga
-         kq4FyN5hMPzjsU3uye/h6U1DzqDF+UPYFqUSOYcQ=
+        b=BaCZIuSq5Z5ppBt90Iqk5ikItU32kF81FR5j3IkFUcVjXyrVBeOECOYWusF4YkLPx
+         +rgzWkwijZ5fgpMpyh0QtH3EuZHozcvisAvhYdN5dJVnDet49K7d3+0xByGHRNsEe9
+         DiVDvtq20OnplJK7euhzZZd112ngiDsCVs4r55jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Sun <sunhao.th@gmail.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 061/244] KVM: Stop looking for coalesced MMIO zones if the bus is destroyed
-Date:   Wed, 12 May 2021 16:47:12 +0200
-Message-Id: <20210512144744.996554434@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.4 062/244] Revert "i3c master: fix missing destroy_workqueue() on error in i3c_master_register"
+Date:   Wed, 12 May 2021 16:47:13 +0200
+Message-Id: <20210512144745.027200822@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,128 +40,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 
-commit 5d3c4c79384af06e3c8e25b7770b6247496b4417 upstream.
+commit 0d95f41ebde40d552bb4fea64b1d618607915fd6 upstream.
 
-Abort the walk of coalesced MMIO zones if kvm_io_bus_unregister_dev()
-fails to allocate memory for the new instance of the bus.  If it can't
-instantiate a new bus, unregister_dev() destroys all devices _except_ the
-target device.   But, it doesn't tell the caller that it obliterated the
-bus and invoked the destructor for all devices that were on the bus.  In
-the coalesced MMIO case, this can result in a deleted list entry
-dereference due to attempting to continue iterating on coalesced_zones
-after future entries (in the walk) have been deleted.
+Adding the destroy_workqueue call in i3c_master_register introduced below
+kernel warning because it makes duplicate destroy_workqueue calls when
+i3c_master_register fails after allocating the workqueue. The workqueue will
+be destroyed by i3c_masterdev_release which is called by put_device at the
+end of the i3c_master_register function eventually in failure cases so the
+workqueue doesn't need to be destroyed in i3c_master_register.
 
-Opportunistically add curly braces to the for-loop, which encompasses
-many lines but sneaks by without braces due to the guts being a single
-if statement.
+[    6.972952] WARNING: CPU: 1 PID: 1 at lib/list_debug.c:48 __list_del_entry_valid+0x9c/0xf4
+[    6.982205] list_del corruption, 8fe03c08->prev is LIST_POISON2 (00000122)
+[    6.989910] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G        W         5.10.23-c12838a-dirty-31dc772 #1
+[    7.000295] Hardware name: Generic DT based system
+[    7.005638] Backtrace:
+[    7.008369] [<809133f0>] (dump_backtrace) from [<80913644>] (show_stack+0x20/0x24)
+[    7.016819]  r7:00000030 r6:60000013 r5:00000000 r4:813b5d40
+[    7.023137] [<80913624>] (show_stack) from [<8091e1a0>] (dump_stack+0x9c/0xb0)
+[    7.031201] [<8091e104>] (dump_stack) from [<8011fa30>] (__warn+0xf8/0x154)
+[    7.038972]  r7:00000030 r6:00000009 r5:804fa1c8 r4:80b6eca4
+[    7.045289] [<8011f938>] (__warn) from [<80913d14>] (warn_slowpath_fmt+0x8c/0xc0)
+[    7.053641]  r7:00000030 r6:80b6eca4 r5:80b6ed74 r4:818cc000
+[    7.059960] [<80913c8c>] (warn_slowpath_fmt) from [<804fa1c8>] (__list_del_entry_valid+0x9c/0xf4)
+[    7.069866]  r9:96becf8c r8:818cc000 r7:8fe03c10 r6:8fe03c00 r5:8fe03ba0 r4:ff7ead4c
+[    7.078513] [<804fa12c>] (__list_del_entry_valid) from [<8013f0b4>] (destroy_workqueue+0x1c4/0x23c)
+[    7.088615] [<8013eef0>] (destroy_workqueue) from [<806aa124>] (i3c_masterdev_release+0x40/0xb0)
+[    7.098421]  r7:00000000 r6:81a43b80 r5:8fe65360 r4:8fe65048
+[    7.104740] [<806aa0e4>] (i3c_masterdev_release) from [<805f3f04>] (device_release+0x40/0xb0)
+[    7.114254]  r5:00000000 r4:8fe65048
+[    7.118245] [<805f3ec4>] (device_release) from [<808fe754>] (kobject_put+0xc8/0x204)
+[    7.126885]  r5:813978dc r4:8fe65048
+[    7.130877] [<808fe68c>] (kobject_put) from [<805f5fbc>] (put_device+0x20/0x24)
+[    7.139037]  r7:8fe65358 r6:8fe65368 r5:8fe65358 r4:8fe65048
+[    7.145355] [<805f5f9c>] (put_device) from [<806abac4>] (i3c_master_register+0x338/0xb00)
+[    7.154487] [<806ab78c>] (i3c_master_register) from [<806ae084>] (dw_i3c_probe+0x224/0x24c)
+[    7.163811]  r10:00000000 r9:8fe7a100 r8:00000032 r7:819fa810 r6:819fa800 r5:8fe65040
+[    7.172547]  r4:00000000
+[    7.175376] [<806ade60>] (dw_i3c_probe) from [<805fdc14>] (platform_drv_probe+0x44/0x80)
+[    7.184409]  r9:813a25c0 r8:00000000 r7:815ec114 r6:00000000 r5:813a25c0 r4:819fa810
+[    7.193053] [<805fdbd0>] (platform_drv_probe) from [<805fb83c>] (really_probe+0x108/0x50c)
+[    7.202275]  r5:815ec004 r4:819fa810
+[    7.206265] [<805fb734>] (really_probe) from [<805fc180>] (driver_probe_device+0xb4/0x190)
+[    7.215492]  r10:813dc000 r9:80c4385c r8:000000d9 r7:813a25c0 r6:819fa810 r5:00000000
+[    7.224228]  r4:813a25c0
+[    7.227055] [<805fc0cc>] (driver_probe_device) from [<805fc5cc>] (device_driver_attach+0xb8/0xc0)
+[    7.236959]  r9:80c4385c r8:000000d9 r7:813a25c0 r6:819fa854 r4:819fa810
+[    7.244439] [<805fc514>] (device_driver_attach) from [<805fc65c>] (__driver_attach+0x88/0x16c)
+[    7.254051]  r7:00000000 r6:819fa810 r5:00000000 r4:813a25c0
+[    7.260369] [<805fc5d4>] (__driver_attach) from [<805f954c>] (bus_for_each_dev+0x88/0xc8)
+[    7.269489]  r7:00000000 r6:818cc000 r5:805fc5d4 r4:813a25c0
+[    7.275806] [<805f94c4>] (bus_for_each_dev) from [<805fc76c>] (driver_attach+0x2c/0x30)
+[    7.284739]  r7:81397c98 r6:00000000 r5:8fe7db80 r4:813a25c0
+[    7.291057] [<805fc740>] (driver_attach) from [<805f9eec>] (bus_add_driver+0x120/0x200)
+[    7.299984] [<805f9dcc>] (bus_add_driver) from [<805fce44>] (driver_register+0x98/0x128)
+[    7.309005]  r7:80c4383c r6:00000000 r5:00000000 r4:813a25c0
+[    7.315323] [<805fcdac>] (driver_register) from [<805fedb4>] (__platform_driver_register+0x50/0x58)
+[    7.325410]  r5:818cc000 r4:81397c98
+[    7.329404] [<805fed64>] (__platform_driver_register) from [<80c23398>] (dw_i3c_driver_init+0x24/0x28)
+[    7.339790]  r5:818cc000 r4:80c23374
+[    7.343784] [<80c23374>] (dw_i3c_driver_init) from [<80c01300>] (do_one_initcall+0xac/0x1d0)
+[    7.353206] [<80c01254>] (do_one_initcall) from [<80c01630>] (kernel_init_freeable+0x1a8/0x204)
+[    7.362916]  r8:000000d9 r7:80c4383c r6:00000007 r5:819ca2c0 r4:80c67680
+[    7.370398] [<80c01488>] (kernel_init_freeable) from [<8091eb18>] (kernel_init+0x18/0x12c)
+[    7.379616]  r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:8091eb00
+[    7.388343]  r4:00000000
+[    7.391170] [<8091eb00>] (kernel_init) from [<80100148>] (ret_from_fork+0x14/0x2c)
+[    7.399607] Exception stack(0x818cdfb0 to 0x818cdff8)
+[    7.405243] dfa0:                                     00000000 00000000 00000000 00000000
+[    7.414371] dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[    7.423499] dfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[    7.430879]  r5:8091eb00 r4:00000000
 
-Fixes: f65886606c2d ("KVM: fix memory leak in kvm_io_bus_unregister_dev()")
-Cc: stable@vger.kernel.org
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210412222050.876100-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This reverts commit 59165d16c699182b86b5c65181013f1fd88feb62.
+
+Fixes: 59165d16c699 ("i3c master: fix missing destroy_workqueue() on error in i3c_master_register")
+Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210408172803.24599-1-jae.hyun.yoo@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kvm_host.h  |    4 ++--
- virt/kvm/coalesced_mmio.c |   19 +++++++++++++++++--
- virt/kvm/kvm_main.c       |   10 +++++-----
- 3 files changed, 24 insertions(+), 9 deletions(-)
+ drivers/i3c/master.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -192,8 +192,8 @@ int kvm_io_bus_read(struct kvm_vcpu *vcp
- 		    int len, void *val);
- int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
- 			    int len, struct kvm_io_device *dev);
--void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
--			       struct kvm_io_device *dev);
-+int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
-+			      struct kvm_io_device *dev);
- struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 					 gpa_t addr);
+--- a/drivers/i3c/master.c
++++ b/drivers/i3c/master.c
+@@ -2492,7 +2492,7 @@ int i3c_master_register(struct i3c_maste
  
---- a/virt/kvm/coalesced_mmio.c
-+++ b/virt/kvm/coalesced_mmio.c
-@@ -178,21 +178,36 @@ int kvm_vm_ioctl_unregister_coalesced_mm
- 					   struct kvm_coalesced_mmio_zone *zone)
- {
- 	struct kvm_coalesced_mmio_dev *dev, *tmp;
-+	int r;
+ 	ret = i3c_master_bus_init(master);
+ 	if (ret)
+-		goto err_destroy_wq;
++		goto err_put_dev;
  
- 	if (zone->pio != 1 && zone->pio != 0)
- 		return -EINVAL;
+ 	ret = device_add(&master->dev);
+ 	if (ret)
+@@ -2523,9 +2523,6 @@ err_del_dev:
+ err_cleanup_bus:
+ 	i3c_master_bus_cleanup(master);
  
- 	mutex_lock(&kvm->slots_lock);
+-err_destroy_wq:
+-	destroy_workqueue(master->wq);
+-
+ err_put_dev:
+ 	put_device(&master->dev);
  
--	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list)
-+	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list) {
- 		if (zone->pio == dev->zone.pio &&
- 		    coalesced_mmio_in_range(dev, zone->addr, zone->size)) {
--			kvm_io_bus_unregister_dev(kvm,
-+			r = kvm_io_bus_unregister_dev(kvm,
- 				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
- 			kvm_iodevice_destructor(&dev->dev);
-+
-+			/*
-+			 * On failure, unregister destroys all devices on the
-+			 * bus _except_ the target device, i.e. coalesced_zones
-+			 * has been modified.  No need to restart the walk as
-+			 * there aren't any zones left.
-+			 */
-+			if (r)
-+				break;
- 		}
-+	}
- 
- 	mutex_unlock(&kvm->slots_lock);
- 
-+	/*
-+	 * Ignore the result of kvm_io_bus_unregister_dev(), from userspace's
-+	 * perspective, the coalesced MMIO is most definitely unregistered.
-+	 */
- 	return 0;
- }
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -4017,15 +4017,15 @@ int kvm_io_bus_register_dev(struct kvm *
- }
- 
- /* Caller must hold slots_lock. */
--void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
--			       struct kvm_io_device *dev)
-+int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
-+			      struct kvm_io_device *dev)
- {
- 	int i, j;
- 	struct kvm_io_bus *new_bus, *bus;
- 
- 	bus = kvm_get_bus(kvm, bus_idx);
- 	if (!bus)
--		return;
-+		return 0;
- 
- 	for (i = 0; i < bus->dev_count; i++)
- 		if (bus->range[i].dev == dev) {
-@@ -4033,7 +4033,7 @@ void kvm_io_bus_unregister_dev(struct kv
- 		}
- 
- 	if (i == bus->dev_count)
--		return;
-+		return 0;
- 
- 	new_bus = kmalloc(struct_size(bus, range, bus->dev_count - 1),
- 			  GFP_KERNEL_ACCOUNT);
-@@ -4054,7 +4054,7 @@ void kvm_io_bus_unregister_dev(struct kv
- 	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
- 	synchronize_srcu_expedited(&kvm->srcu);
- 	kfree(bus);
--	return;
-+	return new_bus ? 0 : -ENOMEM;
- }
- 
- struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
 
 
