@@ -2,119 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA18837EDB7
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E9C37EDB8
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:43:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387985AbhELUl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 16:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54972 "EHLO
+        id S1387993AbhELUla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 16:41:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386795AbhELUWM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 16:22:12 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C1CCC061574
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 13:14:20 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id m124so19045064pgm.13
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 13:14:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Zxxg+vUObOkF7b1SVTl6Pg5mESMQE1tjI5hJ714xexo=;
-        b=mC6bs60ICe46s52Tf2yAc4fuzEZp6nK3rKNIZDWrky2AwQFuRq9QofDAjt22McJ+fH
-         PaSnh2F8kruuUbcFMZi9BPsxN7sOb1XtgXQOHn5pOeCBc3O2cBU4Uuz4EFsDFmKS5aSp
-         JazhUkoGC1SqNYp658ldBXrKqwXMM5cIF07oFNJwi5lKpzQ6JXIAkjK+GbLmlLRUKPdP
-         +Yv/WDw0Jogl2pSut6mTjxeI11CDwQoIUJwkMW4gT86vbxzrt+LI5rIAPvnanYu2rWn/
-         q5RNMXG8M9v5u0eyPryiCuGyAqgfu4BJeQwvSkJhgFrNaVRrt8K+139DNyajnSR7D4oU
-         Tp/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Zxxg+vUObOkF7b1SVTl6Pg5mESMQE1tjI5hJ714xexo=;
-        b=qSEdAz8hdFDzaPsctbBICJsEjOcJez8bC/5aPTVMWwlRn2onsPAwmr86Dim22iYRJD
-         FpIUkWVQpolzVXz+REhTMbq7qCJVL8eAry9nSZXNBiT6w8Kg0h1jLgujXcZ3MoigD+sY
-         V1OIHrgFevM1yyU2ShVrzZ1STEPDda/4iDP1Tzjg/HWwLWVkTkXMHE5ORqVo/1iY8J7v
-         7d9zp6jEtWwU3egzz0pAPzIUt542RPeMRRem9ONhtW1TeA1hf9o/jeYiTkI8Wsf4WGXo
-         4kDXrOTF2yvJWDbrumwKwyp6HvVDaFTBYZjXV0ao/S3tL6nHbTi48m22L/EbBs5XDJOX
-         WsCw==
-X-Gm-Message-State: AOAM531i0R/3iaORHrhV3Fy9Z8ttfvep5hm+bNtiIDPolNhaNs+1syFl
-        IGDUhCt5ymD9nlj9Qklf4pIQYvdPuLaH+d/A
-X-Google-Smtp-Source: ABdhPJx+s65ttIXEh7f0EODO7brlqK2U7vop3UGuaFuJLIM808C0Xmq8yztNgkyh3kNk512R0Yo0/g==
-X-Received: by 2002:a62:5ec7:0:b029:227:3253:3f62 with SMTP id s190-20020a625ec70000b029022732533f62mr37053545pfb.54.1620850459498;
-        Wed, 12 May 2021 13:14:19 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c201sm547781pfc.38.2021.05.12.13.14.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 May 2021 13:14:19 -0700 (PDT)
-Message-ID: <609c371b.1c69fb81.b77cc.25e1@mx.google.com>
-Date:   Wed, 12 May 2021 13:14:19 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1387194AbhELUdC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 16:33:02 -0400
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0AC30C0612AD;
+        Wed, 12 May 2021 13:23:49 -0700 (PDT)
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+        id BA9D992009C; Wed, 12 May 2021 22:22:21 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by angie.orcam.me.uk (Postfix) with ESMTP id AD48792009B;
+        Wed, 12 May 2021 22:22:21 +0200 (CEST)
+Date:   Wed, 12 May 2021 22:22:21 +0200 (CEST)
+From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     Nathan Chancellor <nathan@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Huacai Chen <chenhuacai@kernel.org>
+Subject: Re: [PATCH 5.12 000/677] 5.12.4-rc1 review
+In-Reply-To: <YJwnb4BwQEr7xFsV@kroah.com>
+Message-ID: <alpine.DEB.2.21.2105122213440.3032@angie.orcam.me.uk>
+References: <20210512144837.204217980@linuxfoundation.org> <CA+G9fYufHvM+C=39gtk5CF-r4sYYpRkQFGsmKrkdQcXj_XKFag@mail.gmail.com> <YJwW2bNXGZw5kmpo@kroah.com> <CA+G9fYvbe9L=3uJk2+5fR_e2-fnw=UXSDRnHh+u3nMFeOjOwjg@mail.gmail.com> <YJwjuJrYiyS/eeR8@kroah.com>
+ <8615959b-9054-5c9f-0afa-f15672274d12@kernel.org> <YJwnb4BwQEr7xFsV@kroah.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.35-830-g80be48bc51024
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 165 runs,
- 1 regressions (v5.10.35-830-g80be48bc51024)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 165 runs, 1 regressions (v5.10.35-830-g80be4=
-8bc51024)
+On Wed, 12 May 2021, Greg Kroah-Hartman wrote:
 
-Regressions Summary
--------------------
+> > > > > > mips clang build breaks on stable rc 5.4 .. 5.12 due to below warnings / errors
+> > > > > >   - mips (defconfig) with clang-12
+> > > > > >   - mips (tinyconfig) with clang-12
+> > > > > >   - mips (allnoconfig) with clang-12
+> > > > > > 
+> > > > > > make --silent --keep-going --jobs=8
+> > > > > > O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=mips
+> > > > > > CROSS_COMPILE=mips-linux-gnu- 'HOSTCC=sccache clang' 'CC=sccache
+> > > > > > clang'
+> > > > > > kernel/time/hrtimer.c:318:2: error: couldn't allocate output register
+> > > > > > for constraint 'x'
+> > > > > >          do_div(tmp, (u32) div);
+> > > > > >          ^
+> > > > > > include/asm-generic/div64.h:243:11: note: expanded from macro 'do_div'
+> > > > > >                  __rem = __div64_32(&(n), __base);       \
+> > > > > >                          ^
+> > > > > > arch/mips/include/asm/div64.h:74:11: note: expanded from macro '__div64_32'
+> > > > > >                  __asm__("divu   $0, %z1, %z2"                           \
+> > > > > >                          ^
+> > > > > > 1 error generated.
+> > > > > 
+> > > > > Does this also show up in Linus's tree?  The same MIPS patch is there as
+> > > > > well from what I can tell.
+> > > > 
+> > > > No.
+> > > > Linus's tree builds MIPS clang successfully.
+> > > 
+> > > Ick, ok, I'll go drop this and let a MIPS developer send us the correct
+> > > thing.
+> > > 
+> > > thanks!
+> > > 
+> > > greg k-h
+> > > 
+> > 
+> > I think you just need to grab commits c1d337d45ec0 ("MIPS: Avoid DIVU in
+> > `__div64_32' is result would be zero") and 25ab14cbe9d1 ("MIPS: Avoid
+> > handcoded DIVU in `__div64_32' altogether") to fix this up.
+> 
+> It was easier for me to drop it, let's see if any MIPS developers (are
+> there any anymore?) care enough to send the proper series.
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+ Thomas, I told you it would work better if the original fix was replaced 
+ahead of a pull request to Linus rather than updated with the follow-ups.  
 
+ Will you be able to fix up the mess in this case?  I can offer no more 
+than just the commits quoted above, there's no better fix.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.35-830-g80be48bc51024/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.35-830-g80be48bc51024
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      80be48bc51024e01cb31e0b2dbd0f5f0e4974b54 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609c033600aa396f4019929c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.35-=
-830-g80be48bc51024/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.35-=
-830-g80be48bc51024/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609c033600aa396f40199=
-29d
-        new failure (last pass: v5.10.35-410-g9dbd9e48e4099) =
-
- =20
+  Maciej
