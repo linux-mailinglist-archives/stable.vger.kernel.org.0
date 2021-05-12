@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8EBD37C343
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 325F237C34F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231609AbhELPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50810 "EHLO mail.kernel.org"
+        id S233417AbhELPSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234266AbhELPQU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B521961439;
-        Wed, 12 May 2021 15:06:14 +0000 (UTC)
+        id S234296AbhELPQY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A32F61956;
+        Wed, 12 May 2021 15:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831975;
-        bh=zhEgzhIXfJT9eFfqa+xBCeSWw5pQewWSZZWVL+QszpY=;
+        s=korg; t=1620831977;
+        bh=UAK33Sh/HLW9bz9idD2jMhCNxKDgLJ1x0r5wsk6b1Uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+KFVFZVDA2jDLMrtQixeUwHxQz18ZavB3/xwmtcn1ojWmkw7eKEQm+1EBGE07zDW
-         T1lGVcr1txkHij32DqozW7t2nH4ylrUkfS2xSgogNYdRkNlvOkdbxOdZIamIIhyvCg
-         txxMjUvTK3txCzMiaPt4Kl1k3wD5GfBnFz48DSQA=
+        b=I5nmRZzTIOTeptz9rBBVjrsmwV1ck3W3W8An+zSGQo/hUdF7P7fNpBQPzYKf7tm4N
+         AuhvO7EM9gOLij7R++QSDWc6AJaIETBrJh4Gsleg8PpxjlIx0IJcEnBbWID4otVD8s
+         7+VZNxHA+fH12arQHNmCC/xsAS6kDQ7zUkwBTNYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5.10 090/530] KVM: s390: extend kvm_s390_shadow_fault to return entry pointer
-Date:   Wed, 12 May 2021 16:43:20 +0200
-Message-Id: <20210512144822.748203189@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 091/530] KVM: x86/mmu: Alloc page for PDPTEs when shadowing 32-bit NPT with 64-bit
+Date:   Wed, 12 May 2021 16:43:21 +0200
+Message-Id: <20210512144822.780532373@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,172 +40,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 5ac14bac08ae827b619f21bcceaaac3b8c497e31 upstream.
+commit 04d45551a1eefbea42655da52f56e846c0af721a upstream.
 
-Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
-DAT table entry, or to the invalid entry.
+Allocate the so called pae_root page on-demand, along with the lm_root
+page, when shadowing 32-bit NPT with 64-bit NPT, i.e. when running a
+32-bit L1.  KVM currently only allocates the page when NPT is disabled,
+or when L0 is 32-bit (using PAE paging).
 
-Also return some flags in the lower bits of the address:
-PEI_DAT_PROT: indicates that DAT protection applies because of the
-              protection bit in the segment (or, if EDAT, region) tables.
-PEI_NOT_PTE: indicates that the address of the DAT table entry returned
-             does not refer to a PTE, but to a segment or region table.
+Note, there is an existing memory leak involving the MMU roots, as KVM
+fails to free the PAE roots on failure.  This will be addressed in a
+future commit.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: ee6268ba3a68 ("KVM: x86: Skip pae_root shadow allocation if tdp enabled")
+Fixes: b6b80c78af83 ("KVM: x86/mmu: Allocate PAE root array when using SVM's 32-bit NPT")
 Cc: stable@vger.kernel.org
-Reviewed-by: Janosch Frank <frankja@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Link: https://lore.kernel.org/r/20210302174443.514363-3-imbrenda@linux.ibm.com
-[borntraeger@de.ibm.com: fold in a fix from Claudio]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Ben Gardon <bgardon@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210305011101.3597423-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/gaccess.c |   30 +++++++++++++++++++++++++-----
- arch/s390/kvm/gaccess.h |    6 +++++-
- arch/s390/kvm/vsie.c    |    8 ++++----
- 3 files changed, 34 insertions(+), 10 deletions(-)
+ arch/x86/kvm/mmu/mmu.c |   44 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 29 insertions(+), 15 deletions(-)
 
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(st
-  * kvm_s390_shadow_tables - walk the guest page table and create shadow tables
-  * @sg: pointer to the shadow guest address space structure
-  * @saddr: faulting address in the shadow gmap
-- * @pgt: pointer to the page table address result
-+ * @pgt: pointer to the beginning of the page table for the given address if
-+ *	 successful (return value 0), or to the first invalid DAT entry in
-+ *	 case of exceptions (return value > 0)
-  * @fake: pgt references contiguous guest memory block, not a pgtable
-  */
- static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
-@@ -1034,6 +1036,7 @@ static int kvm_s390_shadow_tables(struct
- 			rfte.val = ptr;
- 			goto shadow_r2t;
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -3195,14 +3195,14 @@ void kvm_mmu_free_roots(struct kvm_vcpu
+ 		if (mmu->shadow_root_level >= PT64_ROOT_4LEVEL &&
+ 		    (mmu->root_level >= PT64_ROOT_4LEVEL || mmu->direct_map)) {
+ 			mmu_free_root_page(kvm, &mmu->root_hpa, &invalid_list);
+-		} else {
++		} else if (mmu->pae_root) {
+ 			for (i = 0; i < 4; ++i)
+ 				if (mmu->pae_root[i] != 0)
+ 					mmu_free_root_page(kvm,
+ 							   &mmu->pae_root[i],
+ 							   &invalid_list);
+-			mmu->root_hpa = INVALID_PAGE;
  		}
-+		*pgt = ptr + vaddr.rfx * 8;
- 		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8, &rfte.val);
- 		if (rc)
- 			return rc;
-@@ -1060,6 +1063,7 @@ shadow_r2t:
- 			rste.val = ptr;
- 			goto shadow_r3t;
- 		}
-+		*pgt = ptr + vaddr.rsx * 8;
- 		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8, &rste.val);
- 		if (rc)
- 			return rc;
-@@ -1087,6 +1091,7 @@ shadow_r3t:
- 			rtte.val = ptr;
- 			goto shadow_sgt;
- 		}
-+		*pgt = ptr + vaddr.rtx * 8;
- 		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8, &rtte.val);
- 		if (rc)
- 			return rc;
-@@ -1123,6 +1128,7 @@ shadow_sgt:
- 			ste.val = ptr;
- 			goto shadow_pgt;
- 		}
-+		*pgt = ptr + vaddr.sx * 8;
- 		rc = gmap_read_table(parent, ptr + vaddr.sx * 8, &ste.val);
- 		if (rc)
- 			return rc;
-@@ -1157,6 +1163,8 @@ shadow_pgt:
-  * @vcpu: virtual cpu
-  * @sg: pointer to the shadow guest address space structure
-  * @saddr: faulting address in the shadow gmap
-+ * @datptr: will contain the address of the faulting DAT table entry, or of
-+ *	    the valid leaf, plus some flags
-  *
-  * Returns: - 0 if the shadow fault was successfully resolved
-  *	    - > 0 (pgm exception code) on exceptions while faulting
-@@ -1165,11 +1173,11 @@ shadow_pgt:
-  *	    - -ENOMEM if out of memory
-  */
- int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
--			  unsigned long saddr)
-+			  unsigned long saddr, unsigned long *datptr)
- {
- 	union vaddress vaddr;
- 	union page_table_entry pte;
--	unsigned long pgt;
-+	unsigned long pgt = 0;
- 	int dat_protection, fake;
- 	int rc;
- 
-@@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcp
- 		pte.val = pgt + vaddr.px * PAGE_SIZE;
- 		goto shadow_page;
++		mmu->root_hpa = INVALID_PAGE;
+ 		mmu->root_pgd = 0;
  	}
--	if (!rc)
--		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
+ 
+@@ -3314,9 +3314,23 @@ static int mmu_alloc_shadow_roots(struct
+ 	 * the shadow page table may be a PAE or a long mode page table.
+ 	 */
+ 	pm_mask = PT_PRESENT_MASK;
+-	if (vcpu->arch.mmu->shadow_root_level == PT64_ROOT_4LEVEL)
++	if (vcpu->arch.mmu->shadow_root_level == PT64_ROOT_4LEVEL) {
+ 		pm_mask |= PT_ACCESSED_MASK | PT_WRITABLE_MASK | PT_USER_MASK;
+ 
++		/*
++		 * Allocate the page for the PDPTEs when shadowing 32-bit NPT
++		 * with 64-bit only when needed.  Unlike 32-bit NPT, it doesn't
++		 * need to be in low mem.  See also lm_root below.
++		 */
++		if (!vcpu->arch.mmu->pae_root) {
++			WARN_ON_ONCE(!tdp_enabled);
 +
-+	switch (rc) {
-+	case PGM_SEGMENT_TRANSLATION:
-+	case PGM_REGION_THIRD_TRANS:
-+	case PGM_REGION_SECOND_TRANS:
-+	case PGM_REGION_FIRST_TRANS:
-+		pgt |= PEI_NOT_PTE;
-+		break;
-+	case 0:
-+		pgt += vaddr.px * 8;
-+		rc = gmap_read_table(sg->parent, pgt, &pte.val);
++			vcpu->arch.mmu->pae_root = (void *)get_zeroed_page(GFP_KERNEL_ACCOUNT);
++			if (!vcpu->arch.mmu->pae_root)
++				return -ENOMEM;
++		}
 +	}
-+	if (datptr)
-+		*datptr = pgt | dat_protection * PEI_DAT_PROT;
- 	if (!rc && pte.i)
- 		rc = PGM_PAGE_TRANSLATION;
- 	if (!rc && pte.z)
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -387,7 +387,11 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
- int ipte_lock_held(struct kvm_vcpu *vcpu);
- int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
- 
-+/* MVPG PEI indication bits */
-+#define PEI_DAT_PROT 2
-+#define PEI_NOT_PTE 4
 +
- int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *shadow,
--			  unsigned long saddr);
-+			  unsigned long saddr, unsigned long *datptr);
+ 	for (i = 0; i < 4; ++i) {
+ 		MMU_WARN_ON(VALID_PAGE(vcpu->arch.mmu->pae_root[i]));
+ 		if (vcpu->arch.mmu->root_level == PT32E_ROOT_LEVEL) {
+@@ -3339,21 +3353,19 @@ static int mmu_alloc_shadow_roots(struct
+ 	vcpu->arch.mmu->root_hpa = __pa(vcpu->arch.mmu->pae_root);
  
- #endif /* __KVM_S390_GACCESS_H */
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -614,10 +614,10 @@ static int map_prefix(struct kvm_vcpu *v
- 	/* with mso/msl, the prefix lies at offset *mso* */
- 	prefix += scb_s->mso;
- 
--	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
-+	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix, NULL);
- 	if (!rc && (scb_s->ecb & ECB_TE))
- 		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
--					   prefix + PAGE_SIZE);
-+					   prefix + PAGE_SIZE, NULL);
  	/*
- 	 * We don't have to mprotect, we will be called for all unshadows.
- 	 * SIE will detect if protection applies and trigger a validity.
-@@ -908,7 +908,7 @@ static int handle_fault(struct kvm_vcpu
- 				    current->thread.gmap_addr, 1);
+-	 * If we shadow a 32 bit page table with a long mode page
+-	 * table we enter this path.
++	 * When shadowing 32-bit or PAE NPT with 64-bit NPT, the PML4 and PDP
++	 * tables are allocated and initialized at MMU creation as there is no
++	 * equivalent level in the guest's NPT to shadow.  Allocate the tables
++	 * on demand, as running a 32-bit L1 VMM is very rare.  The PDP is
++	 * handled above (to share logic with PAE), deal with the PML4 here.
+ 	 */
+ 	if (vcpu->arch.mmu->shadow_root_level == PT64_ROOT_4LEVEL) {
+ 		if (vcpu->arch.mmu->lm_root == NULL) {
+-			/*
+-			 * The additional page necessary for this is only
+-			 * allocated on demand.
+-			 */
+-
+ 			u64 *lm_root;
  
- 	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
--				   current->thread.gmap_addr);
-+				   current->thread.gmap_addr, NULL);
- 	if (rc > 0) {
- 		rc = inject_fault(vcpu, rc,
- 				  current->thread.gmap_addr,
-@@ -930,7 +930,7 @@ static void handle_last_fault(struct kvm
- {
- 	if (vsie_page->fault_addr)
- 		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
--				      vsie_page->fault_addr);
-+				      vsie_page->fault_addr, NULL);
- 	vsie_page->fault_addr = 0;
- }
+ 			lm_root = (void*)get_zeroed_page(GFP_KERNEL_ACCOUNT);
+-			if (lm_root == NULL)
+-				return 1;
++			if (!lm_root)
++				return -ENOMEM;
  
+ 			lm_root[0] = __pa(vcpu->arch.mmu->pae_root) | pm_mask;
+ 
+@@ -5297,9 +5309,11 @@ static int __kvm_mmu_create(struct kvm_v
+ 	 * while the PDP table is a per-vCPU construct that's allocated at MMU
+ 	 * creation.  When emulating 32-bit mode, cr3 is only 32 bits even on
+ 	 * x86_64.  Therefore we need to allocate the PDP table in the first
+-	 * 4GB of memory, which happens to fit the DMA32 zone.  Except for
+-	 * SVM's 32-bit NPT support, TDP paging doesn't use PAE paging and can
+-	 * skip allocating the PDP table.
++	 * 4GB of memory, which happens to fit the DMA32 zone.  TDP paging
++	 * generally doesn't use PAE paging and can skip allocating the PDP
++	 * table.  The main exception, handled here, is SVM's 32-bit NPT.  The
++	 * other exception is for shadowing L1's 32-bit or PAE NPT on 64-bit
++	 * KVM; that horror is handled on-demand by mmu_alloc_shadow_roots().
+ 	 */
+ 	if (tdp_enabled && kvm_mmu_get_tdp_level(vcpu) > PT32E_ROOT_LEVEL)
+ 		return 0;
 
 
