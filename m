@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409B137C52D
+	by mail.lfdr.de (Postfix) with ESMTP id B7A5637C52E
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:37:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233245AbhELPiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:38:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48196 "EHLO mail.kernel.org"
+        id S233385AbhELPiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:38:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233176AbhELPat (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:30:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 127486194F;
-        Wed, 12 May 2021 15:15:53 +0000 (UTC)
+        id S233206AbhELPa6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:30:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D542A61956;
+        Wed, 12 May 2021 15:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832554;
-        bh=UtdNivacHThNokihCSBKtp6WYfjbh9GlWT3m3yjRgSU=;
+        s=korg; t=1620832557;
+        bh=D05Ms35Fa3zBhWVOkhp6js7LRYTCD4eitDpF6CmpE+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Qahg9PvrIWzi7hdJEntT87qkAQAg1A6m/x0gC9xkt4QPOcn8KLLINVpUsiv79ydR
-         0bb+PmYO2jo+Y9FyYmebCJwu6vILWt/Hoz2BJErDtfYUJB+BMZowsOycadiM28cDf5
-         rdY8kdeuFm3Mgs84O9yspH3ri0DPk7dQ23Q19KAA=
+        b=vmgLA0vnne3O/wK/8fge5p2m0P3agULS7MOZP2kq+n/c0klnx6x3cfHYSmu52I2uK
+         qUXRyeLN8lavvJX1zo2n2+Q+D7iKL6+b+/RetGvC7ZRy8MRO8hB27v2Xpl2LAoCgnS
+         i1lGPL+IilABhiarzLdktxnVX2Us6ArAJz47HchA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yingjie Wang <wangyingjie55@126.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 326/530] drm/radeon: Fix a missing check bug in radeon_dp_mst_detect()
-Date:   Wed, 12 May 2021 16:47:16 +0200
-Message-Id: <20210512144830.524382697@linuxfoundation.org>
+Subject: [PATCH 5.10 327/530] clk: uniphier: Fix potential infinite loop
+Date:   Wed, 12 May 2021 16:47:17 +0200
+Message-Id: <20210512144830.556267125@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,36 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yingjie Wang <wangyingjie55@126.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 25315ebfaefcffd126a266116b37bb8a3d1c4620 ]
+[ Upstream commit f6b1340dc751a6caa2a0567b667d0f4f4172cd58 ]
 
-In radeon_dp_mst_detect(), We should check whether or not @connector
-has been unregistered from userspace. If the connector is unregistered,
-we should return disconnected status.
+The for-loop iterates with a u8 loop counter i and compares this
+with the loop upper limit of num_parents that is an int type.
+There is a potential infinite loop if num_parents is larger than
+the u8 loop counter. Fix this by making the loop counter the same
+type as num_parents.  Also make num_parents an unsigned int to
+match the return type of the call to clk_hw_get_num_parents.
 
-Fixes: 9843ead08f18 ("drm/radeon: add DisplayPort MST support (v2)")
-Signed-off-by: Yingjie Wang <wangyingjie55@126.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Addresses-Coverity: ("Infinite loop")
+Fixes: 734d82f4a678 ("clk: uniphier: add core support code for UniPhier clock driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lore.kernel.org/r/20210409090104.629722-1-colin.king@canonical.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_dp_mst.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/uniphier/clk-uniphier-mux.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_dp_mst.c b/drivers/gpu/drm/radeon/radeon_dp_mst.c
-index 008308780443..9bd6c0697538 100644
---- a/drivers/gpu/drm/radeon/radeon_dp_mst.c
-+++ b/drivers/gpu/drm/radeon/radeon_dp_mst.c
-@@ -242,6 +242,9 @@ radeon_dp_mst_detect(struct drm_connector *connector,
- 		to_radeon_connector(connector);
- 	struct radeon_connector *master = radeon_connector->mst_port;
+diff --git a/drivers/clk/uniphier/clk-uniphier-mux.c b/drivers/clk/uniphier/clk-uniphier-mux.c
+index 462c84321b2d..1998e9d4cfc0 100644
+--- a/drivers/clk/uniphier/clk-uniphier-mux.c
++++ b/drivers/clk/uniphier/clk-uniphier-mux.c
+@@ -31,10 +31,10 @@ static int uniphier_clk_mux_set_parent(struct clk_hw *hw, u8 index)
+ static u8 uniphier_clk_mux_get_parent(struct clk_hw *hw)
+ {
+ 	struct uniphier_clk_mux *mux = to_uniphier_clk_mux(hw);
+-	int num_parents = clk_hw_get_num_parents(hw);
++	unsigned int num_parents = clk_hw_get_num_parents(hw);
+ 	int ret;
+ 	unsigned int val;
+-	u8 i;
++	unsigned int i;
  
-+	if (drm_connector_is_unregistered(connector))
-+		return connector_status_disconnected;
-+
- 	return drm_dp_mst_detect_port(connector, ctx, &master->mst_mgr,
- 				      radeon_connector->port);
- }
+ 	ret = regmap_read(mux->regmap, mux->reg, &val);
+ 	if (ret)
 -- 
 2.30.2
 
