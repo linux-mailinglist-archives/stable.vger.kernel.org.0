@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A99D37C347
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8EBD37C343
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233370AbhELPSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50812 "EHLO mail.kernel.org"
+        id S231609AbhELPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234265AbhELPQU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234266AbhELPQU (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:16:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AE9B61952;
-        Wed, 12 May 2021 15:06:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B521961439;
+        Wed, 12 May 2021 15:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831972;
-        bh=w0ODjGif2rcoZGNVI2RJdhui/zw658jsUrjRas3821E=;
+        s=korg; t=1620831975;
+        bh=zhEgzhIXfJT9eFfqa+xBCeSWw5pQewWSZZWVL+QszpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRYnRoTXtxH2TwhcA0xyn3nGn8olkoEbDveCfKi9nvKNoX0CQGWIeN9D9te6+1Lkr
-         yRj2ElngYtRRbQNit3Rwn4jbj+jziFlYRguOtoxgLIzNXhggBHdwlzpckGBK11FkLE
-         1g6kH5sYpFXMcK8neacB1T2XxjFr5ZW8Gp32GHRs=
+        b=p+KFVFZVDA2jDLMrtQixeUwHxQz18ZavB3/xwmtcn1ojWmkw7eKEQm+1EBGE07zDW
+         T1lGVcr1txkHij32DqozW7t2nH4ylrUkfS2xSgogNYdRkNlvOkdbxOdZIamIIhyvCg
+         txxMjUvTK3txCzMiaPt4Kl1k3wD5GfBnFz48DSQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@de.ibm.com>,
         David Hildenbrand <david@redhat.com>,
-        Thomas Huth <thuth@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5.10 089/530] KVM: s390: split kvm_s390_real_to_abs
-Date:   Wed, 12 May 2021 16:43:19 +0200
-Message-Id: <20210512144822.717866727@linuxfoundation.org>
+Subject: [PATCH 5.10 090/530] KVM: s390: extend kvm_s390_shadow_fault to return entry pointer
+Date:   Wed, 12 May 2021 16:43:20 +0200
+Message-Id: <20210512144822.748203189@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -43,69 +43,170 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit c5d1f6b531e68888cbe6718b3f77a60115d58b9c upstream.
+commit 5ac14bac08ae827b619f21bcceaaac3b8c497e31 upstream.
 
-A new function _kvm_s390_real_to_abs will apply prefixing to a real address
-with a given prefix value.
+Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+DAT table entry, or to the invalid entry.
 
-The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
-
-This is needed to avoid code duplication in vSIE.
+Also return some flags in the lower bits of the address:
+PEI_DAT_PROT: indicates that DAT protection applies because of the
+              protection bit in the segment (or, if EDAT, region) tables.
+PEI_NOT_PTE: indicates that the address of the DAT table entry returned
+             does not refer to a PTE, but to a segment or region table.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210322140559.500716-2-imbrenda@linux.ibm.com
+Reviewed-by: Janosch Frank <frankja@de.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Link: https://lore.kernel.org/r/20210302174443.514363-3-imbrenda@linux.ibm.com
+[borntraeger@de.ibm.com: fold in a fix from Claudio]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/gaccess.h |   23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ arch/s390/kvm/gaccess.c |   30 +++++++++++++++++++++++++-----
+ arch/s390/kvm/gaccess.h |    6 +++++-
+ arch/s390/kvm/vsie.c    |    8 ++++----
+ 3 files changed, 34 insertions(+), 10 deletions(-)
 
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(st
+  * kvm_s390_shadow_tables - walk the guest page table and create shadow tables
+  * @sg: pointer to the shadow guest address space structure
+  * @saddr: faulting address in the shadow gmap
+- * @pgt: pointer to the page table address result
++ * @pgt: pointer to the beginning of the page table for the given address if
++ *	 successful (return value 0), or to the first invalid DAT entry in
++ *	 case of exceptions (return value > 0)
+  * @fake: pgt references contiguous guest memory block, not a pgtable
+  */
+ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+@@ -1034,6 +1036,7 @@ static int kvm_s390_shadow_tables(struct
+ 			rfte.val = ptr;
+ 			goto shadow_r2t;
+ 		}
++		*pgt = ptr + vaddr.rfx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8, &rfte.val);
+ 		if (rc)
+ 			return rc;
+@@ -1060,6 +1063,7 @@ shadow_r2t:
+ 			rste.val = ptr;
+ 			goto shadow_r3t;
+ 		}
++		*pgt = ptr + vaddr.rsx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8, &rste.val);
+ 		if (rc)
+ 			return rc;
+@@ -1087,6 +1091,7 @@ shadow_r3t:
+ 			rtte.val = ptr;
+ 			goto shadow_sgt;
+ 		}
++		*pgt = ptr + vaddr.rtx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8, &rtte.val);
+ 		if (rc)
+ 			return rc;
+@@ -1123,6 +1128,7 @@ shadow_sgt:
+ 			ste.val = ptr;
+ 			goto shadow_pgt;
+ 		}
++		*pgt = ptr + vaddr.sx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.sx * 8, &ste.val);
+ 		if (rc)
+ 			return rc;
+@@ -1157,6 +1163,8 @@ shadow_pgt:
+  * @vcpu: virtual cpu
+  * @sg: pointer to the shadow guest address space structure
+  * @saddr: faulting address in the shadow gmap
++ * @datptr: will contain the address of the faulting DAT table entry, or of
++ *	    the valid leaf, plus some flags
+  *
+  * Returns: - 0 if the shadow fault was successfully resolved
+  *	    - > 0 (pgm exception code) on exceptions while faulting
+@@ -1165,11 +1173,11 @@ shadow_pgt:
+  *	    - -ENOMEM if out of memory
+  */
+ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+-			  unsigned long saddr)
++			  unsigned long saddr, unsigned long *datptr)
+ {
+ 	union vaddress vaddr;
+ 	union page_table_entry pte;
+-	unsigned long pgt;
++	unsigned long pgt = 0;
+ 	int dat_protection, fake;
+ 	int rc;
+ 
+@@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcp
+ 		pte.val = pgt + vaddr.px * PAGE_SIZE;
+ 		goto shadow_page;
+ 	}
+-	if (!rc)
+-		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
++
++	switch (rc) {
++	case PGM_SEGMENT_TRANSLATION:
++	case PGM_REGION_THIRD_TRANS:
++	case PGM_REGION_SECOND_TRANS:
++	case PGM_REGION_FIRST_TRANS:
++		pgt |= PEI_NOT_PTE;
++		break;
++	case 0:
++		pgt += vaddr.px * 8;
++		rc = gmap_read_table(sg->parent, pgt, &pte.val);
++	}
++	if (datptr)
++		*datptr = pgt | dat_protection * PEI_DAT_PROT;
+ 	if (!rc && pte.i)
+ 		rc = PGM_PAGE_TRANSLATION;
+ 	if (!rc && pte.z)
 --- a/arch/s390/kvm/gaccess.h
 +++ b/arch/s390/kvm/gaccess.h
-@@ -18,17 +18,14 @@
+@@ -387,7 +387,11 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+ int ipte_lock_held(struct kvm_vcpu *vcpu);
+ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
  
- /**
-  * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-- * @vcpu - guest virtual cpu
-+ * @prefix - guest prefix
-  * @gra - guest real address
-  *
-  * Returns the guest absolute address that corresponds to the passed guest real
-- * address @gra of a virtual guest cpu by applying its prefix.
-+ * address @gra of by applying the given prefix.
-  */
--static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
--						 unsigned long gra)
-+static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
++/* MVPG PEI indication bits */
++#define PEI_DAT_PROT 2
++#define PEI_NOT_PTE 4
++
+ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *shadow,
+-			  unsigned long saddr);
++			  unsigned long saddr, unsigned long *datptr);
+ 
+ #endif /* __KVM_S390_GACCESS_H */
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -614,10 +614,10 @@ static int map_prefix(struct kvm_vcpu *v
+ 	/* with mso/msl, the prefix lies at offset *mso* */
+ 	prefix += scb_s->mso;
+ 
+-	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
++	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix, NULL);
+ 	if (!rc && (scb_s->ecb & ECB_TE))
+ 		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-					   prefix + PAGE_SIZE);
++					   prefix + PAGE_SIZE, NULL);
+ 	/*
+ 	 * We don't have to mprotect, we will be called for all unshadows.
+ 	 * SIE will detect if protection applies and trigger a validity.
+@@ -908,7 +908,7 @@ static int handle_fault(struct kvm_vcpu
+ 				    current->thread.gmap_addr, 1);
+ 
+ 	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-				   current->thread.gmap_addr);
++				   current->thread.gmap_addr, NULL);
+ 	if (rc > 0) {
+ 		rc = inject_fault(vcpu, rc,
+ 				  current->thread.gmap_addr,
+@@ -930,7 +930,7 @@ static void handle_last_fault(struct kvm
  {
--	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
--
- 	if (gra < 2 * PAGE_SIZE)
- 		gra += prefix;
- 	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
-@@ -37,6 +34,20 @@ static inline unsigned long kvm_s390_rea
+ 	if (vsie_page->fault_addr)
+ 		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-				      vsie_page->fault_addr);
++				      vsie_page->fault_addr, NULL);
+ 	vsie_page->fault_addr = 0;
  }
  
- /**
-+ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-+ * @vcpu - guest virtual cpu
-+ * @gra - guest real address
-+ *
-+ * Returns the guest absolute address that corresponds to the passed guest real
-+ * address @gra of a virtual guest cpu by applying its prefix.
-+ */
-+static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
-+						 unsigned long gra)
-+{
-+	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
-+}
-+
-+/**
-  * _kvm_s390_logical_to_effective - convert guest logical to effective address
-  * @psw: psw of the guest
-  * @ga: guest logical address
 
 
