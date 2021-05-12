@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD8337C8A9
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1752837C8AA
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236432AbhELQLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:11:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34478 "EHLO mail.kernel.org"
+        id S236477AbhELQL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:11:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238712AbhELQGG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:06:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54FE961988;
-        Wed, 12 May 2021 15:35:02 +0000 (UTC)
+        id S238721AbhELQGJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:06:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B08F61CF2;
+        Wed, 12 May 2021 15:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833702;
-        bh=0fRZmrlUU1TCg4DBECMXmd+4nHJbX57y2DCZD1FMSyg=;
+        s=korg; t=1620833705;
+        bh=rJIFdw0isvR2p8mFPAxdcvlKcGl++/Z9rC67JVzr8Uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbaF+BD6YD9s/a3mPtysWHaDfzoeg2lfP8MsjchEmWdGpB4EOzzs8C6wo3+hZMorM
-         YEyaGq7t5aukPePJTn6QtcqU0Fp5y1JMkvFAyKr6XY9ubsWpuSr5c50hnQ8ij/fScm
-         v9b97+fenJ0iqkM7TJGZDTcUGr2FW0XqngaaK7II=
+        b=jOC2I/Zh8YZGCQkWaVLoEIj1MSUdvcA9tWCWowUTrAOdkxpWvkKF9CkPrlIinxIrl
+         5mrPJm4Go4gMiGMgYxMlpcmzBLs4fJE890OPOGl75hBR3QLYuzmnJxjpDy6mXfUrW6
+         DLz7jz5tKXxY8FUzaNNXqAmmVug2GaBfxMXzC2o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 219/601] phy: ingenic: Fix a typo in ingenic_usb_phy_probe()
-Date:   Wed, 12 May 2021 16:44:56 +0200
-Message-Id: <20210512144835.053477971@linuxfoundation.org>
+        stable@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 220/601] arm64: dts: mediatek: fix reset GPIO level on pumpkin
+Date:   Wed, 12 May 2021 16:44:57 +0200
+Message-Id: <20210512144835.085407647@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,38 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Fabien Parent <fparent@baylibre.com>
 
-[ Upstream commit 446c200ee3e8f6faf189ef6f25a0f5bb294afae4 ]
+[ Upstream commit a7dceafed43a4a610d340da3703653cca2c50c1d ]
 
-Fix the return value check typo which testing the wrong variable
-in ingenic_usb_phy_probe().
+The tca6416 chip is active low. Fix the reset-gpios value.
 
-Fixes: 31de313dfdcf ("PHY: Ingenic: Add USB PHY driver using generic PHY framework.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20210305034933.3240914-1-weiyongjun1@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: e2a8fa1e0faa ("arm64: dts: mediatek: fix tca6416 reset GPIOs in pumpkin")
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Link: https://lore.kernel.org/r/20210223221826.2063911-1-fparent@baylibre.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/ingenic/phy-ingenic-usb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/phy/ingenic/phy-ingenic-usb.c b/drivers/phy/ingenic/phy-ingenic-usb.c
-index 4d1587d82286..878cd4cbb91a 100644
---- a/drivers/phy/ingenic/phy-ingenic-usb.c
-+++ b/drivers/phy/ingenic/phy-ingenic-usb.c
-@@ -375,8 +375,8 @@ static int ingenic_usb_phy_probe(struct platform_device *pdev)
- 	}
- 
- 	priv->phy = devm_phy_create(dev, NULL, &ingenic_usb_phy_ops);
--	if (IS_ERR(priv))
--		return PTR_ERR(priv);
-+	if (IS_ERR(priv->phy))
-+		return PTR_ERR(priv->phy);
- 
- 	phy_set_drvdata(priv->phy, priv);
+diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+index 63fd70086bb8..9f27e7ed5e22 100644
+--- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
++++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+@@ -56,7 +56,7 @@
+ 	tca6416: gpio@20 {
+ 		compatible = "ti,tca6416";
+ 		reg = <0x20>;
+-		reset-gpios = <&pio 65 GPIO_ACTIVE_HIGH>;
++		reset-gpios = <&pio 65 GPIO_ACTIVE_LOW>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&tca6416_pins>;
  
 -- 
 2.30.2
