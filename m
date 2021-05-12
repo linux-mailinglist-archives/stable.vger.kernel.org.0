@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D950937D2D0
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 991AC37D2D2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240973AbhELSNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:13:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55756 "EHLO mail.kernel.org"
+        id S241273AbhELSOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:14:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353161AbhELSHH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:07:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9107161441;
-        Wed, 12 May 2021 18:04:36 +0000 (UTC)
+        id S236479AbhELSHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:07:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AE4E61446;
+        Wed, 12 May 2021 18:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842677;
-        bh=9IxrApo8rYDwKarf69LkThytLQ4vYKr81K0TEJpWtSM=;
+        s=k20201202; t=1620842679;
+        bh=CKfu+tPM+jCcw0spDx8VsdBo+5ZaPqiT0QAJcoePhJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbTlSPaonKtX/eNl1NqKytmnnmxfNoDAiW3NjCxMw53rcnJDDllsSOEHBsE9U3G1F
-         xGpetIKzxczcamyAudnsLe8nL5Zh/crDGPs90oU5iOd1jZxO5J7BnGxjVwfqAfT8Eg
-         ePfjoHHFuiMpmwJVHB3oPZ2Eaw0gm5rQuwTEoAcdTLe/tdxoFu5koLdPwlYLEZMzEo
-         i3sWqR4M3tg+AWR4WCHr0C5O2bFjMArpf7C6HVtUs6gLFXytlMSKiaQz/ooQDiVLxv
-         G/uA9PpaGqI99TCEBquFS0sRreJpxOHaMXngj/xVpnupwwYYDfcQ98uXgIhawUfG3W
-         3WLMCGf4qRILw==
+        b=QlBMb6T3gGqKlwBMfC23eXg1ZxRSOlZanGIa3sly1fQNUTr2eFUDVc4YjtCjqJLA3
+         lJfil8qyoCbbkA5mkpo+ThMw2klbuksN+xvAJguqNkqm7+RlXgNderj6i7pnKaqerQ
+         WV1cqS05WwmxxEg3hA4ipHn3naouXRs6x2BXRrNCQafwtNSIjNsn9izFuyFZ/mWCfI
+         SQSSE24Dmp9Yw6jUtBOGGKNyJOpgLvxTOkyImWjpWNtNmkQcesYjJHc135T5PFzNXa
+         YpmUKmM9acuLT1XwPpmQWK1ylD0XgnltxJp4BMTxwE3xoJBeOryyoz0DMsc0h4NpIo
+         rZ1hJ/UcHcKCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Zhengming <zhangzhengming@huawei.com>,
-        Zhao Lei <zhaolei69@huawei.com>,
-        Wang Xiaogang <wangxiaogang3@huawei.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 17/23] bridge: Fix possible races between assigning rx_handler_data and setting IFF_BRIDGE_PORT bit
-Date:   Wed, 12 May 2021 14:04:01 -0400
-Message-Id: <20210512180408.665338-17-sashal@kernel.org>
+Cc:     Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Louis Li <Ching-shih.Li@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Sean Paul <seanpaul@chromium.org>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 18/23] drm/amd/display: Fix two cursor duplication when using overlay
+Date:   Wed, 12 May 2021 14:04:02 -0400
+Message-Id: <20210512180408.665338-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180408.665338-1-sashal@kernel.org>
 References: <20210512180408.665338-1-sashal@kernel.org>
@@ -46,83 +49,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Zhengming <zhangzhengming@huawei.com>
+From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 
-[ Upstream commit 59259ff7a81b9eb6213891c6451221e567f8f22f ]
+[ Upstream commit 16e9b3e58bc3fce7391539e0eb3fd167cbf9951f ]
 
-There is a crash in the function br_get_link_af_size_filtered,
-as the port_exists(dev) is true and the rx_handler_data of dev is NULL.
-But the rx_handler_data of dev is correct saved in vmcore.
+Our driver supports overlay planes, and as expected, some userspace
+compositor takes advantage of these features. If the userspace is not
+enabling the cursor, they can use multiple planes as they please.
+Nevertheless, we start to have constraints when userspace tries to
+enable hardware cursor with various planes. Basically, we cannot draw
+the cursor at the same size and position on two separated pipes since it
+uses extra bandwidth and DML only run with one cursor.
 
-The oops looks something like:
- ...
- pc : br_get_link_af_size_filtered+0x28/0x1c8 [bridge]
- ...
- Call trace:
-  br_get_link_af_size_filtered+0x28/0x1c8 [bridge]
-  if_nlmsg_size+0x180/0x1b0
-  rtnl_calcit.isra.12+0xf8/0x148
-  rtnetlink_rcv_msg+0x334/0x370
-  netlink_rcv_skb+0x64/0x130
-  rtnetlink_rcv+0x28/0x38
-  netlink_unicast+0x1f0/0x250
-  netlink_sendmsg+0x310/0x378
-  sock_sendmsg+0x4c/0x70
-  __sys_sendto+0x120/0x150
-  __arm64_sys_sendto+0x30/0x40
-  el0_svc_common+0x78/0x130
-  el0_svc_handler+0x38/0x78
-  el0_svc+0x8/0xc
+For those reasons, when we enable hardware cursor and multiple planes,
+our driver should accept variations like the ones described below:
 
-In br_add_if(), we found there is no guarantee that
-assigning rx_handler_data to dev->rx_handler_data
-will before setting the IFF_BRIDGE_PORT bit of priv_flags.
-So there is a possible data competition:
+  +-------------+   +--------------+
+  | +---------+ |   |              |
+  | |Primary  | |   | Primary      |
+  | |         | |   | Overlay      |
+  | +---------+ |   |              |
+  |Overlay      |   |              |
+  +-------------+   +--------------+
 
-CPU 0:                                                        CPU 1:
-(RCU read lock)                                               (RTNL lock)
-rtnl_calcit()                                                 br_add_slave()
-  if_nlmsg_size()                                               br_add_if()
-    br_get_link_af_size_filtered()                              -> netdev_rx_handler_register
-                                                                    ...
-                                                                    // The order is not guaranteed
-      ...                                                           -> dev->priv_flags |= IFF_BRIDGE_PORT;
-      // The IFF_BRIDGE_PORT bit of priv_flags has been set
-      -> if (br_port_exists(dev)) {
-        // The dev->rx_handler_data has NOT been assigned
-        -> p = br_port_get_rcu(dev);
-        ....
-                                                                    -> rcu_assign_pointer(dev->rx_handler_data, rx_handler_data);
-                                                                     ...
+In this scenario, we can have the desktop UI in the overlay and some
+other framebuffer attached to the primary plane (e.g., video). However,
+userspace needs to obey some rules and avoid scenarios like the ones
+described below (when enabling hw cursor):
 
-Fix it in br_get_link_af_size_filtered, using br_port_get_check_rcu() and checking the return value.
+                                      +--------+
+                                      |Overlay |
+ +-------------+    +-----+-------+ +-|        |--+
+ | +--------+  | +--------+       | | +--------+  |
+ | |Overlay |  | |Overlay |       | |             |
+ | |        |  | |        |       | |             |
+ | +--------+  | +--------+       | |             |
+ | Primary     |    | Primary     | | Primary     |
+ +-------------+    +-------------+ +-------------+
 
-Signed-off-by: Zhang Zhengming <zhangzhengming@huawei.com>
-Reviewed-by: Zhao Lei <zhaolei69@huawei.com>
-Reviewed-by: Wang Xiaogang <wangxiaogang3@huawei.com>
-Suggested-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ +-------------+   +-------------+
+ |     +--------+  |  Primary    |
+ |     |Overlay |  |             |
+ |     |        |  |             |
+ |     +--------+  | +--------+  |
+ | Primary     |   | |Overlay |  |
+ +-------------+   +-|        |--+
+                     +--------+
+
+If the userspace violates some of the above scenarios, our driver needs
+to reject the commit; otherwise, we can have unexpected behavior. Since
+we don't have a proper driver validation for the above case, we can see
+some problems like a duplicate cursor in applications that use multiple
+planes. This commit fixes the cursor issue and others by adding adequate
+verification for multiple planes.
+
+Change since V1 (Harry and Sean):
+- Remove cursor verification from the equation.
+
+Cc: Louis Li <Ching-shih.Li@amd.com>
+Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Cc: Harry Wentland <Harry.Wentland@amd.com>
+Cc: Hersen Wu <hersenxs.wu@amd.com>
+Cc: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netlink.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 51 +++++++++++++++++++
+ 1 file changed, 51 insertions(+)
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index a0a54482aabc..8a664148f57a 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -99,8 +99,9 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index fbbe611d4873..800dc67c98f1 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -7254,6 +7254,53 @@ static int add_affected_mst_dsc_crtcs(struct drm_atomic_state *state, struct drm
+ }
+ #endif
  
- 	rcu_read_lock();
- 	if (netif_is_bridge_port(dev)) {
--		p = br_port_get_rcu(dev);
--		vg = nbp_vlan_group_rcu(p);
-+		p = br_port_get_check_rcu(dev);
-+		if (p)
-+			vg = nbp_vlan_group_rcu(p);
- 	} else if (dev->priv_flags & IFF_EBRIDGE) {
- 		br = netdev_priv(dev);
- 		vg = br_vlan_group_rcu(br);
++static int validate_overlay(struct drm_atomic_state *state)
++{
++	int i;
++	struct drm_plane *plane;
++	struct drm_plane_state *old_plane_state, *new_plane_state;
++	struct drm_plane_state *primary_state, *overlay_state = NULL;
++
++	/* Check if primary plane is contained inside overlay */
++	for_each_oldnew_plane_in_state_reverse(state, plane, old_plane_state, new_plane_state, i) {
++		if (plane->type == DRM_PLANE_TYPE_OVERLAY) {
++			if (drm_atomic_plane_disabling(plane->state, new_plane_state))
++				return 0;
++
++			overlay_state = new_plane_state;
++			continue;
++		}
++	}
++
++	/* check if we're making changes to the overlay plane */
++	if (!overlay_state)
++		return 0;
++
++	/* check if overlay plane is enabled */
++	if (!overlay_state->crtc)
++		return 0;
++
++	/* find the primary plane for the CRTC that the overlay is enabled on */
++	primary_state = drm_atomic_get_plane_state(state, overlay_state->crtc->primary);
++	if (IS_ERR(primary_state))
++		return PTR_ERR(primary_state);
++
++	/* check if primary plane is enabled */
++	if (!primary_state->crtc)
++		return 0;
++
++	/* Perform the bounds check to ensure the overlay plane covers the primary */
++	if (primary_state->crtc_x < overlay_state->crtc_x ||
++	    primary_state->crtc_y < overlay_state->crtc_y ||
++	    primary_state->crtc_x + primary_state->crtc_w > overlay_state->crtc_x + overlay_state->crtc_w ||
++	    primary_state->crtc_y + primary_state->crtc_h > overlay_state->crtc_y + overlay_state->crtc_h) {
++		DRM_DEBUG_ATOMIC("Overlay plane is enabled with hardware cursor but does not fully cover primary plane\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ /**
+  * amdgpu_dm_atomic_check() - Atomic check implementation for AMDgpu DM.
+  * @dev: The DRM device
+@@ -7427,6 +7474,10 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 			goto fail;
+ 	}
+ 
++	ret = validate_overlay(state);
++	if (ret)
++		goto fail;
++
+ 	/* Add new/modified planes */
+ 	for_each_oldnew_plane_in_state_reverse(state, plane, old_plane_state, new_plane_state, i) {
+ 		ret = dm_update_plane_state(dc, state, plane,
 -- 
 2.30.2
 
