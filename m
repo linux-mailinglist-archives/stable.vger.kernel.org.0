@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6545337B7E4
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B0B37B7E5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230178AbhELI2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:28:20 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:51199 "EHLO
+        id S230126AbhELI2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:28:22 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:36269 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230126AbhELI2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:28:19 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 83CA313BB;
-        Wed, 12 May 2021 04:27:10 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 12 May 2021 04:27:10 -0400
+        by vger.kernel.org with ESMTP id S230037AbhELI2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:28:22 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id D617A13DD;
+        Wed, 12 May 2021 04:27:13 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Wed, 12 May 2021 04:27:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=DQB/47
-        J8y9wT92u6DFx0JS9x/mlUmOODUGPjBz6B6cQ=; b=TsQosyTgGXIoKIqd9E9J8f
-        VdQoilivORxEBNDn4yg8F8IQQf/WtP+y43zyrn+ZLBnXze8a/u87ie8iqDH6dfHV
-        S8/Wb0rkUg5S0GQsg2RhDzVRoltcR1DLBFaoFGEwCyvwS0zWe8TmOtrrfFE2WFtX
-        JkM7ialsEQdwE4HRPsL+CsQzFcmuJz9MeepbzTUUqfAP8R+EfMkFhdjP51obJG7E
-        zoUx1W5TMnhtpQ8xGZol4LiNsa/464xDlfwQGrDtI6MSCl+WrOqYsBcscEQ56rFl
-        /rxXL9huZbWYqy3m712qISuv5BqvUyPh1gZTWPHjmwN2G0li2zbc2TAkf25eRqvg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LG/7BC
+        SiDU48mUO8aLBYbP0irsQl9lNQ0LS0ZCCvxFI=; b=gBGo7VcTscWE+YLwnDmNRV
+        k2OriY2o9OWdcrHuI+F0DzUBj4iPWTVL/DnH+ej/fTTeB/iDUmVaOwsOwk1Pt6Jg
+        SpnEIQVvyvrWTUHrUEDaaj7DgpIbEH6dzH5McoPuSexj7fRhVCvmjihN917B4buA
+        8DATLGqHKGS5H+pRqn/RTsMcZn6cd1+FSICIw3w6z59SKmNOqxlwugOkuOabQh6K
+        Lx0LElJCBar/S5LRJcotJWe8hFlLfMWk7KXLoQ3e4+FOF7eTo+3H3DYXSV04svUP
+        4EjdL8NE2s+B0PIxpGXT2DCLiGybiQSqRC4MvLkSfVKtOkrAGIn6XQAPuS3jkJbg
         ==
-X-ME-Sender: <xms:XZGbYI0rx_VwmBU8bdZjaXzErqkbhqBkcqSDfB74yhxnHo5ghFaYyQ>
-    <xme:XZGbYDFV4EopRloL6xDj5L3K2hvdXlM6IgDZnLef4QYM_A_VWNXUCM5blAqfdr3ai
-    1-jUTBYz-HMKA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehuddgudeftdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:XZGbYA6kmmzLasSdMoG5P7KD23dccfXTs2PmNZ2O9slKtk2NsKtTFQ>
-    <xmx:XZGbYB3aB9Mbgg10BaiDkUbxOINZwDdueoLCI7TNiSV5KxO3NSECOw>
-    <xmx:XZGbYLGwTV0k-T-hQYWBISwE0SSFnXW42wk4hGUm7U9A9VBgRfHLJA>
-    <xmx:XpGbYATDIX318tlyTZ9jEa3yqJbf-rOwKAfkZyjEzZn2e8-lwa5xwgMumm4>
+X-ME-Sender: <xms:YZGbYOuldza9nMz5KAXn9x6dH7c4kbDuSSkzTxi401qdwU49gSZdOA>
+    <xme:YZGbYDfjnLaJqul8dWiL3VJoQ-O2xgkt_G4a1_62M3ReGdKqItT-ZEy5hfLArdOZU
+    c82X9Zs5c3whQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvdcutefuodetggdotefrodftvfcurf
+    hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttdflne
+    cuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeen
+    ucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekgeefle
+    egieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedr
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
+    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:YZGbYJyABNXXnK5JS64xTEB8lwQln377hoYuzbr5q43pB9dZ_PpZeQ>
+    <xmx:YZGbYJNWKttTEtr0ZxDjXmMksSvTqtcfPkN3VLSWV5Wk4v15dAlygA>
+    <xmx:YZGbYO-yluAlVk3DaBUt9Uld3lIagbg9EhZaOz3OtrABz_DOvT4JrQ>
+    <xmx:YZGbYAKP5ZbEwzt_KKVoefjaJOLo3wvyp48-jXMWne7hWe-eEEta_MjLix8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:27:09 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Revert "USB: cdc-acm: fix rounding error in TIOCSSERIAL"" failed to apply to 4.9-stable tree
+        Wed, 12 May 2021 04:27:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Revert "USB: cdc-acm: fix rounding error in TIOCSSERIAL"" failed to apply to 4.4-stable tree
 To:     johan@kernel.org, anthony.mallet@laas.fr,
         gregkh@linuxfoundation.org, oneukum@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:26:58 +0200
-Message-ID: <162080801823478@kroah.com>
+Date:   Wed, 12 May 2021 10:26:59 +0200
+Message-ID: <1620808019105157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
