@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F43B37D2C6
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C9B537D2CB
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237894AbhELSNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:13:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55234 "EHLO mail.kernel.org"
+        id S237748AbhELSNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:13:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353021AbhELSGm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:06:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E31761453;
-        Wed, 12 May 2021 18:04:21 +0000 (UTC)
+        id S1353019AbhELSGl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:06:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3E6F6145B;
+        Wed, 12 May 2021 18:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842662;
-        bh=684/IdpLPgL51WJZHx/nazLtQLd22z0MeAZL+5k0VxE=;
+        s=k20201202; t=1620842663;
+        bh=pzL1qU+2Rr0Nm+QO054FvBXcIonwTHJVm2YLEYIoKR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W5LVAjMNzNVtff8vAfIkuK2nZG4N6TEP9Iwx/fGX+S2wJ0FdgYdKQS3lZBXtD+oIT
-         CdEGtvWepxLchES7XjbumathAk7EHf3c8P0698hc4CITaqsYCZVUNGgYa5XobqwfBK
-         m/PAfnvVvnHTcM4QDApsih3b/cuKJ7qYVuOX9/53wXv9ndhpzYr7xe8R1btWSs0BA1
-         TMGsOwTX57zT0hlHY4Tt/OSgqtGQCKF+PUfaLw7fDXRiQO6+l92e28GadUrqns+6r3
-         MpvGzNGANOrKbr+xY00Tcupr1N9Q8sHTj8Iq4BoPCQ1gW1+tToZ+pNSQ/ZHwb4r0hx
-         /OukFTw1Xjw+A==
+        b=ElVIb0mH+oibxiH6KOAwtOVA3a0JXDRLI0NrmZKQdq0fZUfpeln1QRTEuSEX9ve5s
+         UE12b4/YS+YXpk8g8AaFypvRZF50tjErTZy6O2/Xv8ZQ+FugkOkXtjxg04jwPsc7PY
+         XQ7yUh+UWi9KcfvBA3WH21tP92yd6WCaV0zcbcxHzAjt6w03rH9ISrj3G8jrsvHJyt
+         UZUkPAJv6A6B2BRYDG4coU9W6R8Lj5FoQq3C0QiM6utH9AHqurUvGK1NL09C4Ohrs2
+         GQMnNSnUdH5DtPy6qgojKNOE20z5P2iDq82rnHmXSXMMP5AEcRdPMvgjllKhoYCRJI
+         rsuhAV3HG1jIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/23] Input: elants_i2c - do not bind to i2c-hid compatible ACPI instantiated devices
-Date:   Wed, 12 May 2021 14:03:51 -0400
-Message-Id: <20210512180408.665338-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/23] Input: silead - add workaround for x86 BIOS-es which bring the chip up in a stuck state
+Date:   Wed, 12 May 2021 14:03:52 -0400
+Message-Id: <20210512180408.665338-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180408.665338-1-sashal@kernel.org>
 References: <20210512180408.665338-1-sashal@kernel.org>
@@ -45,127 +45,123 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 65299e8bfb24774e6340e93ae49f6626598917c8 ]
+[ Upstream commit e479187748a8f151a85116a7091c599b121fdea5 ]
 
-Several users have been reporting that elants_i2c gives several errors
-during probe and that their touchscreen does not work on their Lenovo AMD
-based laptops with a touchscreen with a ELAN0001 ACPI hardware-id:
+Some buggy BIOS-es bring up the touchscreen-controller in a stuck
+state where it blocks the I2C bus. Specifically this happens on
+the Jumper EZpad 7 tablet model.
 
-[    0.550596] elants_i2c i2c-ELAN0001:00: i2c-ELAN0001:00 supply vcc33 not found, using dummy regulator
-[    0.551836] elants_i2c i2c-ELAN0001:00: i2c-ELAN0001:00 supply vccio not found, using dummy regulator
-[    0.560932] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
-[    0.562427] elants_i2c i2c-ELAN0001:00: software reset failed: -121
-[    0.595925] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
-[    0.597974] elants_i2c i2c-ELAN0001:00: software reset failed: -121
-[    0.621893] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
-[    0.622504] elants_i2c i2c-ELAN0001:00: software reset failed: -121
-[    0.632650] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (4d 61 69 6e): -121
-[    0.634256] elants_i2c i2c-ELAN0001:00: boot failed: -121
-[    0.699212] elants_i2c i2c-ELAN0001:00: invalid 'hello' packet: 00 00 ff ff
-[    1.630506] elants_i2c i2c-ELAN0001:00: Failed to read fw id: -121
-[    1.645508] elants_i2c i2c-ELAN0001:00: unknown packet 00 00 ff ff
+After much poking at this problem I have found that the following steps
+are necessary to unstuck the chip / bus:
 
-Despite these errors, the elants_i2c driver stays bound to the device
-(it returns 0 from its probe method despite the errors), blocking the
-i2c-hid driver from binding.
+1. Turn off the Silead chip.
+2. Try to do an I2C transfer with the chip, this will fail in response to
+   which the I2C-bus-driver will call: i2c_recover_bus() which will unstuck
+   the I2C-bus. Note the unstuck-ing of the I2C bus only works if we first
+   drop the chip of the bus by turning it off.
+3. Turn the chip back on.
 
-Manually unbinding the elants_i2c driver and binding the i2c-hid driver
-makes the touchscreen work.
+On the x86/ACPI systems were this problem is seen, step 1. and 3. require
+making ACPI calls and dealing with ACPI Power Resources. This commit adds
+a workaround which runtime-suspends the chip to turn it off, leaving it up
+to the ACPI subsystem to deal with all the ACPI specific details.
 
-Check if the ACPI-fwnode for the touchscreen contains one of the i2c-hid
-compatiblity-id strings and if it has the I2C-HID spec's DSM to get the
-HID descriptor address, If it has both then make elants_i2c not bind,
-so that the i2c-hid driver can bind.
+There is no good way to detect this bug, so the workaround gets activated
+by a new "silead,stuck-controller-bug" boolean device-property. Since this
+is only used on x86/ACPI, this will be set by model specific device-props
+set by drivers/platform/x86/touchscreen_dmi.c. Therefor this new
+device-property is not documented in the DT-bindings.
 
-This assumes that non of the (older) elan touchscreens which actually
-need the elants_i2c driver falsely advertise an i2c-hid compatiblity-id
-+ DSM in their ACPI-fwnodes. If some of them actually do have this
-false advertising, then this change may lead to regressions.
+Dmesg will contain the following messages on systems where the workaround
+is activated:
 
-While at it also drop the unnecessary DEVICE_NAME prefixing of the
-"I2C check functionality error", dev_err already outputs the driver-name.
+[   54.309029] silead_ts i2c-MSSL1680:00: [Firmware Bug]: Stuck I2C bus: please ignore the next 'controller timed out' error
+[   55.373593] i2c_designware 808622C1:04: controller timed out
+[   55.582186] silead_ts i2c-MSSL1680:00: Silead chip ID: 0x80360000
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207759
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210405202756.16830-1-hdegoede@redhat.com
-
+Link: https://lore.kernel.org/r/20210405202745.16777-1-hdegoede@redhat.com
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/elants_i2c.c | 44 ++++++++++++++++++++++++--
- 1 file changed, 42 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/silead.c | 44 +++++++++++++++++++++++++++---
+ 1 file changed, 40 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index d4ad24ea54c8..a51e7c85f581 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -36,6 +36,7 @@
- #include <linux/of.h>
- #include <linux/gpio/consumer.h>
+diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+index ad8b6a2bfd36..c8776146f1d1 100644
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -20,6 +20,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+ #include <linux/pm.h>
++#include <linux/pm_runtime.h>
+ #include <linux/irq.h>
  #include <linux/regulator/consumer.h>
-+#include <linux/uuid.h>
- #include <asm/unaligned.h>
  
- /* Device, Driver information */
-@@ -1127,6 +1128,40 @@ static void elants_i2c_power_off(void *_data)
- 	}
- }
+@@ -335,10 +336,8 @@ static int silead_ts_get_id(struct i2c_client *client)
  
-+#ifdef CONFIG_ACPI
-+static const struct acpi_device_id i2c_hid_ids[] = {
-+	{"ACPI0C50", 0 },
-+	{"PNP0C50", 0 },
-+	{ },
-+};
-+
-+static const guid_t i2c_hid_guid =
-+	GUID_INIT(0x3CDFF6F7, 0x4267, 0x4555,
-+		  0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE);
-+
-+static bool elants_acpi_is_hid_device(struct device *dev)
-+{
-+	acpi_handle handle = ACPI_HANDLE(dev);
-+	union acpi_object *obj;
-+
-+	if (acpi_match_device_ids(ACPI_COMPANION(dev), i2c_hid_ids))
-+		return false;
-+
-+	obj = acpi_evaluate_dsm_typed(handle, &i2c_hid_guid, 1, 1, NULL, ACPI_TYPE_INTEGER);
-+	if (obj) {
-+		ACPI_FREE(obj);
-+		return true;
-+	}
-+
-+	return false;
-+}
-+#else
-+static bool elants_acpi_is_hid_device(struct device *dev)
-+{
-+	return false;
-+}
-+#endif
-+
- static int elants_i2c_probe(struct i2c_client *client,
- 			    const struct i2c_device_id *id)
- {
-@@ -1135,9 +1170,14 @@ static int elants_i2c_probe(struct i2c_client *client,
- 	unsigned long irqflags;
+ 	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_ID,
+ 					      sizeof(chip_id), (u8 *)&chip_id);
+-	if (error < 0) {
+-		dev_err(&client->dev, "Chip ID read error %d\n", error);
++	if (error < 0)
+ 		return error;
+-	}
+ 
+ 	data->chip_id = le32_to_cpu(chip_id);
+ 	dev_info(&client->dev, "Silead chip ID: 0x%8X", data->chip_id);
+@@ -351,12 +350,49 @@ static int silead_ts_setup(struct i2c_client *client)
  	int error;
+ 	u32 status;
  
-+	/* Don't bind to i2c-hid compatible devices, these are handled by the i2c-hid drv. */
-+	if (elants_acpi_is_hid_device(&client->dev)) {
-+		dev_warn(&client->dev, "This device appears to be an I2C-HID device, not binding\n");
-+		return -ENODEV;
++	/*
++	 * Some buggy BIOS-es bring up the chip in a stuck state where it
++	 * blocks the I2C bus. The following steps are necessary to
++	 * unstuck the chip / bus:
++	 * 1. Turn off the Silead chip.
++	 * 2. Try to do an I2C transfer with the chip, this will fail in
++	 *    response to which the I2C-bus-driver will call:
++	 *    i2c_recover_bus() which will unstuck the I2C-bus. Note the
++	 *    unstuck-ing of the I2C bus only works if we first drop the
++	 *    chip off the bus by turning it off.
++	 * 3. Turn the chip back on.
++	 *
++	 * On the x86/ACPI systems were this problem is seen, step 1. and
++	 * 3. require making ACPI calls and dealing with ACPI Power
++	 * Resources. The workaround below runtime-suspends the chip to
++	 * turn it off, leaving it up to the ACPI subsystem to deal with
++	 * this.
++	 */
++
++	if (device_property_read_bool(&client->dev,
++				      "silead,stuck-controller-bug")) {
++		pm_runtime_set_active(&client->dev);
++		pm_runtime_enable(&client->dev);
++		pm_runtime_allow(&client->dev);
++
++		pm_runtime_suspend(&client->dev);
++
++		dev_warn(&client->dev, FW_BUG "Stuck I2C bus: please ignore the next 'controller timed out' error\n");
++		silead_ts_get_id(client);
++
++		/* The forbid will also resume the device */
++		pm_runtime_forbid(&client->dev);
++		pm_runtime_disable(&client->dev);
 +	}
 +
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
--		dev_err(&client->dev,
--			"%s: i2c check functionality error\n", DEVICE_NAME);
-+		dev_err(&client->dev, "I2C check functionality error\n");
- 		return -ENXIO;
- 	}
+ 	silead_ts_set_power(client, SILEAD_POWER_OFF);
+ 	silead_ts_set_power(client, SILEAD_POWER_ON);
  
+ 	error = silead_ts_get_id(client);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Chip ID read error %d\n", error);
+ 		return error;
++	}
+ 
+ 	error = silead_ts_init(client);
+ 	if (error)
 -- 
 2.30.2
 
