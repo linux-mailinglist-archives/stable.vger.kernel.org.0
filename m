@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F3237C97B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3119037C984
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235406AbhELQTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38986 "EHLO mail.kernel.org"
+        id S235589AbhELQTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236464AbhELQLY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:11:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF0E061D43;
-        Wed, 12 May 2021 15:40:47 +0000 (UTC)
+        id S236525AbhELQLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:11:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 273F261D49;
+        Wed, 12 May 2021 15:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834048;
-        bh=rDz5qRjYABQPyzkZ6kCJ1PTvOVlV8a368VrTFVLSgRE=;
+        s=korg; t=1620834050;
+        bh=YSMXzDfzA2XJ4Psu9jrHoE9UQan4AtBnXNDMcYXWSFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Q6uWfWu9SHOknjUCacJe7PbHcOb0ABzAEH7/qaViFwni+uhF8Met1Sy4soFBYY/i
-         N6Z5ULceivV/2zHCY6wf46Z7weWOVvgxiI1pZovcmq1cGLLgRhIDi4XG7R6J5qmsCh
-         DwlEKJ2NDVEXFvVwL1VWfG2GPEqYSO4nmtfueM40=
+        b=mU/ZU0eBYtp2XFgb2m5CFuFlCfAPDyPTGczUpKrRywnLKwNeWMYod8mPGDKncwRl1
+         bGHozEE/VJAZToPOXKizy8Us8BR7SHOGU3rRDYM8OkKmt4kC0T6Gqyq7TtLFbiRSXp
+         dj/EphlX3IBweNfhf1Csp02I1j0U5a6vjI0Fsars=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 388/601] drivers/block/null_blk/main: Fix a double free in null_init.
-Date:   Wed, 12 May 2021 16:47:45 +0200
-Message-Id: <20210512144840.583050110@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 389/601] xsk: Respect devices headroom and tailroom on generic xmit path
+Date:   Wed, 12 May 2021 16:47:46 +0200
+Message-Id: <20210512144840.615381022@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,42 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Alexander Lobakin <alobakin@pm.me>
 
-[ Upstream commit 72ce11ddfa4e9e1879103581a60b7e34547eaa0a ]
+[ Upstream commit 3914d88f7608e6c2e80e344474fa289370c32451 ]
 
-In null_init, null_add_dev(dev) is called.
-In null_add_dev, it calls null_free_zoned_dev(dev) to free dev->zones
-via kvfree(dev->zones) in out_cleanup_zone branch and returns err.
-Then null_init accept the err code and then calls null_free_dev(dev).
+xsk_generic_xmit() allocates a new skb and then queues it for
+xmitting. The size of new skb's headroom is desc->len, so it comes
+to the driver/device with no reserved headroom and/or tailroom.
+Lots of drivers need some headroom (and sometimes tailroom) to
+prepend (and/or append) some headers or data, e.g. CPU tags,
+device-specific headers/descriptors (LSO, TLS etc.), and if case
+of no available space skb_cow_head() will reallocate the skb.
+Reallocations are unwanted on fast-path, especially when it comes
+to XDP, so generic XSK xmit should reserve the spaces declared in
+dev->needed_headroom and dev->needed tailroom to avoid them.
 
-But in null_free_dev(dev), dev->zones is freed again by
-null_free_zoned_dev().
+Note on max(NET_SKB_PAD, L1_CACHE_ALIGN(dev->needed_headroom)):
 
-My patch set dev->zones to NULL in null_free_zoned_dev() after
-kvfree(dev->zones) is called, to avoid the double free.
+Usually, output functions reserve LL_RESERVED_SPACE(dev), which
+consists of dev->hard_header_len + dev->needed_headroom, aligned
+by 16.
 
-Fixes: 2984c8684f962 ("nullb: factor disk parameters")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Link: https://lore.kernel.org/r/20210426143229.7374-1-lyl2019@mail.ustc.edu.cn
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+However, on XSK xmit hard header is already here in the chunk, so
+hard_header_len is not needed. But it'd still be better to align
+data up to cacheline, while reserving no less than driver requests
+for headroom. NET_SKB_PAD here is to double-insure there will be
+no reallocations even when the driver advertises no needed_headroom,
+but in fact need it (not so rare case).
+
+Fixes: 35fcde7f8deb ("xsk: support for Tx")
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20210218204908.5455-5-alobakin@pm.me
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk/zoned.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/xdp/xsk.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/null_blk/zoned.c b/drivers/block/null_blk/zoned.c
-index fce0a54df0e5..8e0656964f1c 100644
---- a/drivers/block/null_blk/zoned.c
-+++ b/drivers/block/null_blk/zoned.c
-@@ -180,6 +180,7 @@ int null_register_zoned_dev(struct nullb *nullb)
- void null_free_zoned_dev(struct nullb_device *dev)
- {
- 	kvfree(dev->zones);
-+	dev->zones = NULL;
- }
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 4a83117507f5..9e865fe864b7 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -439,12 +439,16 @@ static int xsk_generic_xmit(struct sock *sk)
+ 	struct sk_buff *skb;
+ 	unsigned long flags;
+ 	int err = 0;
++	u32 hr, tr;
  
- int null_report_zones(struct gendisk *disk, sector_t sector,
+ 	mutex_lock(&xs->mutex);
+ 
+ 	if (xs->queue_id >= xs->dev->real_num_tx_queues)
+ 		goto out;
+ 
++	hr = max(NET_SKB_PAD, L1_CACHE_ALIGN(xs->dev->needed_headroom));
++	tr = xs->dev->needed_tailroom;
++
+ 	while (xskq_cons_peek_desc(xs->tx, &desc, xs->pool)) {
+ 		char *buffer;
+ 		u64 addr;
+@@ -456,11 +460,13 @@ static int xsk_generic_xmit(struct sock *sk)
+ 		}
+ 
+ 		len = desc.len;
+-		skb = sock_alloc_send_skb(sk, len, 1, &err);
++		skb = sock_alloc_send_skb(sk, hr + len + tr, 1, &err);
+ 		if (unlikely(!skb))
+ 			goto out;
+ 
++		skb_reserve(skb, hr);
+ 		skb_put(skb, len);
++
+ 		addr = desc.addr;
+ 		buffer = xsk_buff_raw_get_data(xs->pool, addr);
+ 		err = skb_store_bits(skb, 0, buffer, len);
 -- 
 2.30.2
 
