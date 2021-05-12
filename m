@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CADF037CB27
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CE4A37CB24
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242420AbhELQes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:34:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S242416AbhELQer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:34:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241481AbhELQ1X (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241479AbhELQ1X (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:27:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CD2B61964;
-        Wed, 12 May 2021 15:53:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E30F619E6;
+        Wed, 12 May 2021 15:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834788;
-        bh=gwS0c3Vb7uj7NGu3ju9bETQclPXFifb69g+XAZjW9gI=;
+        s=korg; t=1620834790;
+        bh=Al+dmTqUWbeemajTi9SkzKs3Hb2QwcXWbn7vX+mbfbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zTPFMJO8YhQJg8V0y59QnKOg+AnshkJuNDAwsUBqve4iRqA8+9B0qIc3RLgh+UQuk
-         JAkIiTZtMo3gdygvNX4s4j99yxbB+Ddt6PRE7btFUue08qtHzPWN9kiNmIbragPP2s
-         NaO2fx6eIznMak8Oy/3bFs2N0potB9P7y/V3FcmY=
+        b=k4EOk6nF4nw8Zbs+KbIUIMgyy5T6R8b1cm/xN/KvjBnIKtbu3POJsffQRWBJb3CjI
+         lagDrGMHPCEWUXat5+2+D0VwLFi9IqUxgoZTxc8LtTOwcpOKaCIIHyU4LZbNW4KOY7
+         f4J+SMDeNo6oM2Q2owdOB5oNedkaeSZR4tekGMYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.12 084/677] drm/amdgpu: Init GFX10_ADDR_CONFIG for VCN v3 in DPG mode.
-Date:   Wed, 12 May 2021 16:42:10 +0200
-Message-Id: <20210512144840.015542437@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 085/677] ALSA: hda/realtek: Re-order ALC882 Acer quirk table entries
+Date:   Wed, 12 May 2021 16:42:11 +0200
+Message-Id: <20210512144840.049759235@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,37 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8bf073ca9235fe38d7b74a0b4e779cfa7cc70fc9 upstream.
+commit b265047ac56bad8c4f3d0c8bf9cb4e828ee0d28e upstream.
 
-Otherwise tiling modes that require the values form this field
-(In particular _*_X) would be corrupted upon video decode.
+Just re-order the alc882_fixup_tbl[] entries for Acer devices for
+avoiding the oversight of the duplicated or unapplied item in future.
+No functional changes.
 
-Copied from the VCN v2 code.
+Also Cc-to-stable for the further patch applications.
 
-Fixes: 99541f392b4d ("drm/amdgpu: add mc resume DPG mode for VCN3.0")
-Reviewed-and-Tested by: Leo Liu <leo.liu@amd.com>
-Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428112704.23967-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/hda/patch_realtek.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-@@ -584,6 +584,10 @@ static void vcn_v3_0_mc_resume_dpg_mode(
- 	WREG32_SOC15_DPG_MODE(inst_idx, SOC15_DPG_MODE_OFFSET(
- 			VCN, inst_idx, mmUVD_VCPU_NONCACHE_SIZE0),
- 			AMDGPU_GPU_PAGE_ALIGN(sizeof(struct amdgpu_fw_shared)), 0, indirect);
-+
-+	/* VCN global tiling registers */
-+	WREG32_SOC15_DPG_MODE(0, SOC15_DPG_MODE_OFFSET(
-+		UVD, 0, mmUVD_GFX10_ADDR_CONFIG), adev->gfx.config.gb_addr_config, 0, indirect);
- }
- 
- static void vcn_v3_0_disable_static_power_gating(struct amdgpu_device *adev, int inst)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2470,13 +2470,13 @@ static const struct snd_pci_quirk alc882
+ 		      ALC882_FIXUP_ACER_ASPIRE_8930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0146, "Acer Aspire 6935G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_8930G),
++	SND_PCI_QUIRK(0x1025, 0x0142, "Acer Aspire 7730G",
++		      ALC882_FIXUP_ACER_ASPIRE_4930G),
++	SND_PCI_QUIRK(0x1025, 0x0155, "Packard-Bell M5120", ALC882_FIXUP_PB_M5210),
+ 	SND_PCI_QUIRK(0x1025, 0x015e, "Acer Aspire 6930G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0166, "Acer Aspire 6530G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+-	SND_PCI_QUIRK(0x1025, 0x0142, "Acer Aspire 7730G",
+-		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+-	SND_PCI_QUIRK(0x1025, 0x0155, "Packard-Bell M5120", ALC882_FIXUP_PB_M5210),
+ 	SND_PCI_QUIRK(0x1025, 0x021e, "Acer Aspire 5739G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0259, "Acer Aspire 5935", ALC889_FIXUP_DAC_ROUTE),
 
 
