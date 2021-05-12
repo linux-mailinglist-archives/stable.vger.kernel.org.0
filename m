@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B73FC37C51D
+	by mail.lfdr.de (Postfix) with ESMTP id 6D4D637C51C
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:37:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231272AbhELPiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231305AbhELPiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 11:38:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40900 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233570AbhELP3L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:29:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F11316193F;
-        Wed, 12 May 2021 15:15:24 +0000 (UTC)
+        id S233830AbhELP3P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:29:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C3E361943;
+        Wed, 12 May 2021 15:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832525;
-        bh=VWFmY4z/NlBwoDH/EhdZqcBO8Ar056yKz4fg6DAKE1Y=;
+        s=korg; t=1620832527;
+        bh=tphvhTzPs2mQoPf0LroDP7r77qvJbG8SL36O/m5brLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rnencMB4JUGm/LuiqCgA2cjg9nbuOc70zcS3LRUi8JuhNCt06YVQVYoGdfudAnbP1
-         829MWGITT5kODGz23FJkoLaytz/BzedvGH1/Ib2obJMma1sQtoWaoBz/VAd+KQe4Eo
-         xCuz7QYi9JzYvZO39b9cH7YnsFD3vBtF7+2O2SNA=
+        b=iBKM4iSoiJL3bEKxEB3FobTJH7V8/sbLZGxB+E6mrazCW7FCmIFjiBMuV+bWPF9Py
+         03F22raWMTZzjRLxB5CzL6h+w1JrkG+jODjkvgz9BtuRmZjGaZqKKHTVCDvXWDv07h
+         uOzZNUU0G4o2lgN0/6v+82zbl4u06voxBYcSh6J8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        John Cox <jc@kynesim.co.uk>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 315/530] media: v4l2-ctrls.c: fix race condition in hdl->requests list
-Date:   Wed, 12 May 2021 16:47:05 +0200
-Message-Id: <20210512144830.162657196@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Diana Craciun OSS <diana.craciun@oss.nxp.com>
+Subject: [PATCH 5.10 316/530] vfio/fsl-mc: Re-order vfio_fsl_mc_probe()
+Date:   Wed, 12 May 2021 16:47:06 +0200
+Message-Id: <20210512144830.192793379@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,112 +41,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit be7e8af98f3af729aa9f08b1053f9533a5cceb91 ]
+[ Upstream commit 2b1fe162e584a88ec7f12a651a2a50f94dd8cfac ]
 
-When a request is re-inited it will release all control handler
-objects that are still in the request. It does that by unbinding
-and putting all those objects. When the object is unbound the
-obj->req pointer is set to NULL, and the object's unbind op is
-called. When the object it put the object's release op is called
-to free the memory.
+vfio_add_group_dev() must be called only after all of the private data in
+vdev is fully setup and ready, otherwise there could be races with user
+space instantiating a device file descriptor and starting to call ops.
 
-For a request object that contains a control handler that means
-that v4l2_ctrl_handler_free() is called in the release op.
+For instance vfio_fsl_mc_reflck_attach() sets vdev->reflck and
+vfio_fsl_mc_open(), called by fops open, unconditionally derefs it, which
+will crash if things get out of order.
 
-A control handler used in a request has a pointer to the main
-control handler that is created by the driver and contains the
-current state of all controls. If the device is unbound (due to
-rmmod or a forced unbind), then that main handler is freed, again
-by calling v4l2_ctrl_handler_free(), and any outstanding request
-objects that refer to that main handler have to be unbound and put
-as well.
+This driver started life with the right sequence, but two commits added
+stuff after vfio_add_group_dev().
 
-It does that by this test:
-
-	if (!hdl->req_obj.req && !list_empty(&hdl->requests)) {
-
-I.e. the handler has no pointer to a request, so is the main
-handler, and one or more request objects refer to this main
-handler.
-
-However, this test is wrong since hdl->req_obj.req is actually
-NULL when re-initing a request (the object unbind will set req to
-NULL), and the only reason this seemingly worked is that the
-requests list is typically empty since the request's unbind op
-will remove the handler from the requests list.
-
-But if another thread is at the same time adding a new control
-to a request, then there is a race condition where one thread
-is removing a control handler object from the requests list and
-another thread is adding one. The result is that hdl->requests
-is no longer empty and the code thinks that a main handler is
-being freed instead of a control handler that is part of a request.
-
-There are two bugs here: first the test for hdl->req_obj.req: this
-should be hdl->req_obj.ops since only the main control handler will
-have a NULL pointer there.
-
-The second is that adding or deleting request objects from the
-requests list of the main handler isn't protected by taking the
-main handler's lock.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: John Cox <jc@kynesim.co.uk>
-Fixes: 6fa6f831f095 ("media: v4l2-ctrls: add core request support")
-Tested-by: John Cox <jc@kynesim.co.uk>
-Reported-by: John Cox <jc@kynesim.co.uk>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 2e0d29561f59 ("vfio/fsl-mc: Add irq infrastructure for fsl-mc devices")
+Fixes: f2ba7e8c947b ("vfio/fsl-mc: Added lock support in preparation for interrupt handling")
+Co-developed-by: Diana Craciun OSS <diana.craciun@oss.nxp.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Message-Id: <5-v3-225de1400dfc+4e074-vfio1_jgg@nvidia.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c | 74 ++++++++++++++++++++-----------
+ 1 file changed, 47 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
-index 3d8c54b826e9..41f8410d08d6 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -2356,7 +2356,15 @@ void v4l2_ctrl_handler_free(struct v4l2_ctrl_handler *hdl)
- 	if (hdl == NULL || hdl->buckets == NULL)
- 		return;
- 
--	if (!hdl->req_obj.req && !list_empty(&hdl->requests)) {
-+	/*
-+	 * If the main handler is freed and it is used by handler objects in
-+	 * outstanding requests, then unbind and put those objects before
-+	 * freeing the main handler.
-+	 *
-+	 * The main handler can be identified by having a NULL ops pointer in
-+	 * the request object.
-+	 */
-+	if (!hdl->req_obj.ops && !list_empty(&hdl->requests)) {
- 		struct v4l2_ctrl_handler *req, *next_req;
- 
- 		list_for_each_entry_safe(req, next_req, &hdl->requests, requests) {
-@@ -3402,8 +3410,8 @@ static void v4l2_ctrl_request_unbind(struct media_request_object *obj)
- 		container_of(obj, struct v4l2_ctrl_handler, req_obj);
- 	struct v4l2_ctrl_handler *main_hdl = obj->priv;
- 
--	list_del_init(&hdl->requests);
- 	mutex_lock(main_hdl->lock);
-+	list_del_init(&hdl->requests);
- 	if (hdl->request_is_queued) {
- 		list_del_init(&hdl->requests_queued);
- 		hdl->request_is_queued = false;
-@@ -3462,8 +3470,11 @@ static int v4l2_ctrl_request_bind(struct media_request *req,
- 	if (!ret) {
- 		ret = media_request_object_bind(req, &req_ops,
- 						from, false, &hdl->req_obj);
--		if (!ret)
-+		if (!ret) {
-+			mutex_lock(from->lock);
- 			list_add_tail(&hdl->requests, &from->requests);
-+			mutex_unlock(from->lock);
-+		}
+diff --git a/drivers/vfio/fsl-mc/vfio_fsl_mc.c b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+index f27e25112c40..8722f5effacd 100644
+--- a/drivers/vfio/fsl-mc/vfio_fsl_mc.c
++++ b/drivers/vfio/fsl-mc/vfio_fsl_mc.c
+@@ -568,23 +568,39 @@ static int vfio_fsl_mc_init_device(struct vfio_fsl_mc_device *vdev)
+ 		dev_err(&mc_dev->dev, "VFIO_FSL_MC: Failed to setup DPRC (%d)\n", ret);
+ 		goto out_nc_unreg;
  	}
- 	return ret;
++	return 0;
++
++out_nc_unreg:
++	bus_unregister_notifier(&fsl_mc_bus_type, &vdev->nb);
++	return ret;
++}
+ 
++static int vfio_fsl_mc_scan_container(struct fsl_mc_device *mc_dev)
++{
++	int ret;
++
++	/* non dprc devices do not scan for other devices */
++	if (!is_fsl_mc_bus_dprc(mc_dev))
++		return 0;
+ 	ret = dprc_scan_container(mc_dev, false);
+ 	if (ret) {
+-		dev_err(&mc_dev->dev, "VFIO_FSL_MC: Container scanning failed (%d)\n", ret);
+-		goto out_dprc_cleanup;
++		dev_err(&mc_dev->dev,
++			"VFIO_FSL_MC: Container scanning failed (%d)\n", ret);
++		dprc_remove_devices(mc_dev, NULL, 0);
++		return ret;
+ 	}
+-
+ 	return 0;
++}
++
++static void vfio_fsl_uninit_device(struct vfio_fsl_mc_device *vdev)
++{
++	struct fsl_mc_device *mc_dev = vdev->mc_dev;
++
++	if (!is_fsl_mc_bus_dprc(mc_dev))
++		return;
+ 
+-out_dprc_cleanup:
+-	dprc_remove_devices(mc_dev, NULL, 0);
+ 	dprc_cleanup(mc_dev);
+-out_nc_unreg:
+ 	bus_unregister_notifier(&fsl_mc_bus_type, &vdev->nb);
+-	vdev->nb.notifier_call = NULL;
+-
+-	return ret;
  }
+ 
+ static int vfio_fsl_mc_probe(struct fsl_mc_device *mc_dev)
+@@ -607,29 +623,39 @@ static int vfio_fsl_mc_probe(struct fsl_mc_device *mc_dev)
+ 	}
+ 
+ 	vdev->mc_dev = mc_dev;
+-
+-	ret = vfio_add_group_dev(dev, &vfio_fsl_mc_ops, vdev);
+-	if (ret) {
+-		dev_err(dev, "VFIO_FSL_MC: Failed to add to vfio group\n");
+-		goto out_group_put;
+-	}
++	mutex_init(&vdev->igate);
+ 
+ 	ret = vfio_fsl_mc_reflck_attach(vdev);
+ 	if (ret)
+-		goto out_group_dev;
++		goto out_group_put;
+ 
+ 	ret = vfio_fsl_mc_init_device(vdev);
+ 	if (ret)
+ 		goto out_reflck;
+ 
+-	mutex_init(&vdev->igate);
++	ret = vfio_add_group_dev(dev, &vfio_fsl_mc_ops, vdev);
++	if (ret) {
++		dev_err(dev, "VFIO_FSL_MC: Failed to add to vfio group\n");
++		goto out_device;
++	}
+ 
++	/*
++	 * This triggers recursion into vfio_fsl_mc_probe() on another device
++	 * and the vfio_fsl_mc_reflck_attach() must succeed, which relies on the
++	 * vfio_add_group_dev() above. It has no impact on this vdev, so it is
++	 * safe to be after the vfio device is made live.
++	 */
++	ret = vfio_fsl_mc_scan_container(mc_dev);
++	if (ret)
++		goto out_group_dev;
+ 	return 0;
+ 
+-out_reflck:
+-	vfio_fsl_mc_reflck_put(vdev->reflck);
+ out_group_dev:
+ 	vfio_del_group_dev(dev);
++out_device:
++	vfio_fsl_uninit_device(vdev);
++out_reflck:
++	vfio_fsl_mc_reflck_put(vdev->reflck);
+ out_group_put:
+ 	vfio_iommu_group_put(group, dev);
+ 	return ret;
+@@ -646,16 +672,10 @@ static int vfio_fsl_mc_remove(struct fsl_mc_device *mc_dev)
+ 
+ 	mutex_destroy(&vdev->igate);
+ 
++	dprc_remove_devices(mc_dev, NULL, 0);
++	vfio_fsl_uninit_device(vdev);
+ 	vfio_fsl_mc_reflck_put(vdev->reflck);
+ 
+-	if (is_fsl_mc_bus_dprc(mc_dev)) {
+-		dprc_remove_devices(mc_dev, NULL, 0);
+-		dprc_cleanup(mc_dev);
+-	}
+-
+-	if (vdev->nb.notifier_call)
+-		bus_unregister_notifier(&fsl_mc_bus_type, &vdev->nb);
+-
+ 	vfio_iommu_group_put(mc_dev->dev.iommu_group, dev);
+ 
+ 	return 0;
 -- 
 2.30.2
 
