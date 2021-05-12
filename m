@@ -2,170 +2,390 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F050337EDAD
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CC037EDAE
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:43:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387953AbhELUlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 16:41:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47920 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383268AbhELTt4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 15:49:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACF9161042;
-        Wed, 12 May 2021 19:48:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620848927;
-        bh=UnYEe2B1bivZNwlePRoU4B+/5EMy386SpCPkfCyQzSI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=T+l6eg9/yZbmlaqBKbsZ4bOkCW91klkMhn23XJR7yu/ZLAdfTZxq4GWYifx/Ii4O3
-         K5T2F5oTEqMjbHusDYLUywUMffWGQGQQRz7LUqJ0J7EfDb2XjDvqhL4U+2U51EfTo3
-         2lmQb+MwOzXRY8gWecBPhsptoqEOYqR+kvOtxVIxh6d6g6dR6zxOKFne/B9y/y3lC1
-         ZZ2pqsMj8GVpbSMeIfCjJXw/47DOX14A4+QL1fpem1BuYDwKsz5fz090Lckqc6bE4N
-         XLZUpMdYM5Tmiw/8PwqgCMI+EHew3OJTbMBMWLjWiQXAVNJCzGMDzHgNbCgmNS4pe4
-         HWOKJh4504kOA==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     Yunlei He <heyunlei@hihonor.com>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4] f2fs: fix error handling in f2fs_end_enable_verity()
-Date:   Wed, 12 May 2021 12:47:14 -0700
-Message-Id: <20210512194714.1199896-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.31.1.751.gd2f1c929bd-goog
+        id S1387957AbhELUlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 16:41:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:27202 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1383632AbhELTxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 15:53:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1620849125;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=zvFG3oQn9SVVvk0uSV/cGV3xEFyftGcM8UtCUvfkCAk=;
+        b=GdVudWpKEdxFhrFFVqrGfXxvrYnasU+diBJOM3eMb77HKSG1r8z9P8KLzthStnYvCWXCtv
+        Cvt+lH34lhN/9UFld+R2czSmoC1pgGOlqAuWJ68/d+3gzv2+faM2VjCoG6+7GBb8Hmt2ni
+        o+uKkTVAzlZZCZWMhhmWCshLxOC7gWk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-308-Ka9LWPnGO-qgV01SOty6Uw-1; Wed, 12 May 2021 15:52:02 -0400
+X-MC-Unique: Ka9LWPnGO-qgV01SOty6Uw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2B76F8015A8
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 19:52:02 +0000 (UTC)
+Received: from [172.22.12.36] (unknown [10.0.115.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8C6745C8AA;
+        Wed, 12 May 2021 19:51:58 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.11.20 (stable-queue,
+ bcd82f47)
+Date:   Wed, 12 May 2021 19:51:57 -0000
+CC:     Jianlin Shi <jishi@redhat.com>, Jianwen Ji <jiji@redhat.com>,
+        Hangbin Liu <haliu@redhat.com>, Xiong Zhou <xzhou@redhat.com>
+Message-ID: <cki.EEB67F8371.0TH03827XQ@redhat.com>
+X-Gitlab-Pipeline-ID: 301582448
+X-Gitlab-Url: https://gitlab.com
+X-Gitlab-Path: =?utf-8?q?/redhat/red-hat-ci-tools/kernel/cki-internal-pipeli?=
+ =?utf-8?q?nes/external-triggers/pipelines/301582448?=
+X-DataWarehouse-Revision-IID: 13206
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
 
-commit 3c0315424f5e3d2a4113c7272367bee1e8e6a174 upstream.
+Hello,
 
-f2fs didn't properly clean up if verity failed to be enabled on a file:
+We ran automated tests on a recent commit from this kernel tree:
 
-- It left verity metadata (pages past EOF) in the page cache, which
-  would be exposed to userspace if the file was later extended.
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: bcd82f47ed43 - Revert "tools/power turbostat: adjust for =
+temperature offset"
 
-- It didn't truncate the verity metadata at all (either from cache or
-  from disk) if an error occurred while setting the verity bit.
+The results of these automated tests are provided below.
 
-Fix these bugs by adding a call to truncate_inode_pages() and ensuring
-that we truncate the verity metadata (both from cache and from disk) in
-all error paths.  Also rework the code to cleanly separate the success
-path from the error paths, which makes it much easier to understand.
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
-Finally, log a message if f2fs_truncate() fails, since it might
-otherwise fail silently.
+All kernel binaries, config files, and logs are available for download here:
 
-Reported-by: Yunlei He <heyunlei@hihonor.com>
-Fixes: 95ae251fe828 ("f2fs: add fs-verity support")
-Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
----
- fs/f2fs/verity.c | 75 ++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 54 insertions(+), 21 deletions(-)
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/05/12/301582448
 
-diff --git a/fs/f2fs/verity.c b/fs/f2fs/verity.c
-index a401ef72bc82..7944a08a3977 100644
---- a/fs/f2fs/verity.c
-+++ b/fs/f2fs/verity.c
-@@ -150,40 +150,73 @@ static int f2fs_end_enable_verity(struct file *filp, const void *desc,
- 				  size_t desc_size, u64 merkle_tree_size)
- {
- 	struct inode *inode = file_inode(filp);
-+	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
- 	u64 desc_pos = f2fs_verity_metadata_pos(inode) + merkle_tree_size;
- 	struct fsverity_descriptor_location dloc = {
- 		.version = cpu_to_le32(1),
- 		.size = cpu_to_le32(desc_size),
- 		.pos = cpu_to_le64(desc_pos),
- 	};
--	int err = 0;
-+	int err = 0, err2 = 0;
- 
--	if (desc != NULL) {
--		/* Succeeded; write the verity descriptor. */
--		err = pagecache_write(inode, desc, desc_size, desc_pos);
-+	/*
-+	 * If an error already occurred (which fs/verity/ signals by passing
-+	 * desc == NULL), then only clean-up is needed.
-+	 */
-+	if (desc == NULL)
-+		goto cleanup;
- 
--		/* Write all pages before clearing FI_VERITY_IN_PROGRESS. */
--		if (!err)
--			err = filemap_write_and_wait(inode->i_mapping);
--	}
-+	/* Append the verity descriptor. */
-+	err = pagecache_write(inode, desc, desc_size, desc_pos);
-+	if (err)
-+		goto cleanup;
-+
-+	/*
-+	 * Write all pages (both data and verity metadata).  Note that this must
-+	 * happen before clearing FI_VERITY_IN_PROGRESS; otherwise pages beyond
-+	 * i_size won't be written properly.  For crash consistency, this also
-+	 * must happen before the verity inode flag gets persisted.
-+	 */
-+	err = filemap_write_and_wait(inode->i_mapping);
-+	if (err)
-+		goto cleanup;
-+
-+	/* Set the verity xattr. */
-+	err = f2fs_setxattr(inode, F2FS_XATTR_INDEX_VERITY,
-+			    F2FS_XATTR_NAME_VERITY, &dloc, sizeof(dloc),
-+			    NULL, XATTR_CREATE);
-+	if (err)
-+		goto cleanup;
- 
--	/* If we failed, truncate anything we wrote past i_size. */
--	if (desc == NULL || err)
--		f2fs_truncate(inode);
-+	/* Finally, set the verity inode flag. */
-+	file_set_verity(inode);
-+	f2fs_set_inode_flags(inode);
-+	f2fs_mark_inode_dirty_sync(inode, true);
- 
- 	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS);
-+	return 0;
- 
--	if (desc != NULL && !err) {
--		err = f2fs_setxattr(inode, F2FS_XATTR_INDEX_VERITY,
--				    F2FS_XATTR_NAME_VERITY, &dloc, sizeof(dloc),
--				    NULL, XATTR_CREATE);
--		if (!err) {
--			file_set_verity(inode);
--			f2fs_set_inode_flags(inode);
--			f2fs_mark_inode_dirty_sync(inode, true);
--		}
-+cleanup:
-+	/*
-+	 * Verity failed to be enabled, so clean up by truncating any verity
-+	 * metadata that was written beyond i_size (both from cache and from
-+	 * disk) and clearing FI_VERITY_IN_PROGRESS.
-+	 *
-+	 * Taking i_gc_rwsem[WRITE] is needed to stop f2fs garbage collection
-+	 * from re-instantiating cached pages we are truncating (since unlike
-+	 * normal file accesses, garbage collection isn't limited by i_size).
-+	 */
-+	down_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
-+	truncate_inode_pages(inode->i_mapping, inode->i_size);
-+	err2 = f2fs_truncate(inode);
-+	if (err2) {
-+		f2fs_err(sbi, "Truncating verity metadata failed (errno=%d)",
-+			 err2);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 	}
--	return err;
-+	up_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
-+	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS);
-+	return err ?: err2;
- }
- 
- static int f2fs_get_verity_descriptor(struct inode *inode, void *buf,
--- 
-2.31.1.751.gd2f1c929bd-goog
+One or more kernel tests failed:
+
+    s390x:
+     =E2=9D=8C Networking tunnel: geneve basic test
+
+    ppc64le:
+     =E2=9D=8C Networking tunnel: geneve basic test
+
+    aarch64:
+     =E2=9D=8C Networking tunnel: geneve basic test
+
+    x86_64:
+     =E2=9D=8C Networking tunnel: geneve basic test
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9D=8C Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
+o test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: lvm device-mapper te=
+st
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
+o test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: lvm device-mapper te=
+st
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9D=8C Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9D=8C Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 xfstests - nfsv4.2
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9D=8C xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9D=8C Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
