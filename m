@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D08F637CA96
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46F837CA9B
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241829AbhELQaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:30:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
+        id S241850AbhELQa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240883AbhELQZt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240890AbhELQZt (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:25:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D90161CAD;
-        Wed, 12 May 2021 15:48:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E012761CAF;
+        Wed, 12 May 2021 15:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834518;
-        bh=St4fZowFDSC3JhLuOqfo319glWyB2C4GNpiN78KYyTM=;
+        s=korg; t=1620834520;
+        bh=5C+HoE2l5GtqQ9GnIElGTvNUCbmQS4vhj3dATuGp+Xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcIzKNgGuACVL0/pskqBJXJuRI+lfT9nfi/OU1BLNPehnDP3a98KQ/sNTC67v4M2b
-         BZefdpCg7lxues8uaNGYotRczEjRhEoyP20wqhZjc0uEFjeRQDC5z7oVbFrtu6/Pl+
-         75O6zPJGlDHsbemXjkZmdRfExIyCNvT4UtYJvuxg=
+        b=TooTyjasp/a6P4nfMnc1voz/MkEcsZ9ojwwxdcozgBIvi3OrLwT1WLzm6StQuGPp+
+         CSsvpvfHNm9aAFJ6HfP1eSTad/HNDiW1xyu5a8hT7vxVA0xZM0P12rQtmARxYCx3/Q
+         VC8L8L8fI+CtV8SY/rTXFpYVJcJ0Ws3fJaUhBVSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrii Nakryiko <andrii@kernel.org>,
         Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 576/601] selftests/bpf: Fix field existence CO-RE reloc tests
-Date:   Wed, 12 May 2021 16:50:53 +0200
-Message-Id: <20210512144846.819659019@linuxfoundation.org>
+Subject: [PATCH 5.11 577/601] selftests/bpf: Fix core_reloc test runner
+Date:   Wed, 12 May 2021 16:50:54 +0200
+Message-Id: <20210512144846.851356559@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -43,196 +43,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 5a30eb23922b52f33222c6729b6b3ff1c37a6c66 ]
+[ Upstream commit bede0ebf0be87e9678103486a77f39e0334c6791 ]
 
-Negative field existence cases for have a broken assumption that FIELD_EXISTS
-CO-RE relo will fail for fields that match the name but have incompatible type
-signature. That's not how CO-RE relocations generally behave. Types and fields
-that match by name but not by expected type are treated as non-matching
-candidates and are skipped. Error later is reported if no matching candidate
-was found. That's what happens for most relocations, but existence relocations
-(FIELD_EXISTS and TYPE_EXISTS) are more permissive and they are designed to
-return 0 or 1, depending if a match is found. This allows to handle
-name-conflicting but incompatible types in BPF code easily. Combined with
-___flavor suffixes, it's possible to handle pretty much any structural type
-changes in kernel within the compiled once BPF source code.
+Fix failed tests checks in core_reloc test runner, which allowed failing tests
+to pass quietly. Also add extra check to make sure that expected to fail test cases with
+invalid names are caught as test failure anyway, as this is not an expected
+failure mode. Also fix mislabeled probed vs direct bitfield test cases.
 
-So, long story short, negative field existence test cases are invalid in their
-assumptions, so this patch reworks them into a single consolidated positive
-case that doesn't match any of the fields.
-
-Fixes: c7566a69695c ("selftests/bpf: Add field existence CO-RE relocs tests")
+Fixes: 124a892d1c41 ("selftests/bpf: Test TYPE_EXISTS and TYPE_SIZE CO-RE relocations")
 Reported-by: Lorenz Bauer <lmb@cloudflare.com>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Acked-by: Lorenz Bauer <lmb@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20210426192949.416837-5-andrii@kernel.org
+Link: https://lore.kernel.org/bpf/20210426192949.416837-6-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/core_reloc.c     | 31 ++++++++++++-------
- ...ore_reloc_existence___err_wrong_arr_kind.c |  3 --
- ...loc_existence___err_wrong_arr_value_type.c |  3 --
- ...ore_reloc_existence___err_wrong_int_kind.c |  3 --
- ..._core_reloc_existence___err_wrong_int_sz.c |  3 --
- ...ore_reloc_existence___err_wrong_int_type.c |  3 --
- ..._reloc_existence___err_wrong_struct_type.c |  3 --
- ..._core_reloc_existence___wrong_field_defs.c |  3 ++
- .../selftests/bpf/progs/core_reloc_types.h    | 20 ++----------
- 9 files changed, 24 insertions(+), 48 deletions(-)
- delete mode 100644 tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_kind.c
- delete mode 100644 tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_value_type.c
- delete mode 100644 tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_kind.c
- delete mode 100644 tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_sz.c
- delete mode 100644 tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_type.c
- delete mode 100644 tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_struct_type.c
- create mode 100644 tools/testing/selftests/bpf/progs/btf__core_reloc_existence___wrong_field_defs.c
+ .../selftests/bpf/prog_tests/core_reloc.c     | 20 +++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
 diff --git a/tools/testing/selftests/bpf/prog_tests/core_reloc.c b/tools/testing/selftests/bpf/prog_tests/core_reloc.c
-index 06eb956ff7bb..cd3ba54a1f68 100644
+index cd3ba54a1f68..4b517d76257d 100644
 --- a/tools/testing/selftests/bpf/prog_tests/core_reloc.c
 +++ b/tools/testing/selftests/bpf/prog_tests/core_reloc.c
-@@ -210,11 +210,6 @@ static int duration = 0;
- 	.bpf_obj_file = "test_core_reloc_existence.o",			\
- 	.btf_src_file = "btf__core_reloc_" #name ".o"			\
+@@ -217,7 +217,7 @@ static int duration = 0;
  
--#define FIELD_EXISTS_ERR_CASE(name) {					\
--	FIELD_EXISTS_CASE_COMMON(name),					\
--	.fails = true,							\
--}
--
- #define BITFIELDS_CASE_COMMON(objfile, test_name_prefix,  name)		\
- 	.case_name = test_name_prefix#name,				\
- 	.bpf_obj_file = objfile,					\
-@@ -642,13 +637,25 @@ static struct core_reloc_test_case test_cases[] = {
- 		},
- 		.output_len = sizeof(struct core_reloc_existence_output),
- 	},
--
--	FIELD_EXISTS_ERR_CASE(existence__err_int_sz),
--	FIELD_EXISTS_ERR_CASE(existence__err_int_type),
--	FIELD_EXISTS_ERR_CASE(existence__err_int_kind),
--	FIELD_EXISTS_ERR_CASE(existence__err_arr_kind),
--	FIELD_EXISTS_ERR_CASE(existence__err_arr_value_type),
--	FIELD_EXISTS_ERR_CASE(existence__err_struct_type),
-+	{
-+		FIELD_EXISTS_CASE_COMMON(existence___wrong_field_defs),
-+		.input = STRUCT_TO_CHAR_PTR(core_reloc_existence___wrong_field_defs) {
-+		},
-+		.input_len = sizeof(struct core_reloc_existence___wrong_field_defs),
-+		.output = STRUCT_TO_CHAR_PTR(core_reloc_existence_output) {
-+			.a_exists = 0,
-+			.b_exists = 0,
-+			.c_exists = 0,
-+			.arr_exists = 0,
-+			.s_exists = 0,
-+			.a_value = 0xff000001u,
-+			.b_value = 0xff000002u,
-+			.c_value = 0xff000003u,
-+			.arr_value = 0xff000004u,
-+			.s_value = 0xff000005u,
-+		},
-+		.output_len = sizeof(struct core_reloc_existence_output),
-+	},
+ #define BITFIELDS_CASE(name, ...) {					\
+ 	BITFIELDS_CASE_COMMON("test_core_reloc_bitfields_probed.o",	\
+-			      "direct:", name),				\
++			      "probed:", name),				\
+ 	.input = STRUCT_TO_CHAR_PTR(core_reloc_##name) __VA_ARGS__,	\
+ 	.input_len = sizeof(struct core_reloc_##name),			\
+ 	.output = STRUCT_TO_CHAR_PTR(core_reloc_bitfields_output)	\
+@@ -225,7 +225,7 @@ static int duration = 0;
+ 	.output_len = sizeof(struct core_reloc_bitfields_output),	\
+ }, {									\
+ 	BITFIELDS_CASE_COMMON("test_core_reloc_bitfields_direct.o",	\
+-			      "probed:", name),				\
++			      "direct:", name),				\
+ 	.input = STRUCT_TO_CHAR_PTR(core_reloc_##name) __VA_ARGS__,	\
+ 	.input_len = sizeof(struct core_reloc_##name),			\
+ 	.output = STRUCT_TO_CHAR_PTR(core_reloc_bitfields_output)	\
+@@ -545,8 +545,7 @@ static struct core_reloc_test_case test_cases[] = {
+ 	ARRAYS_ERR_CASE(arrays___err_too_small),
+ 	ARRAYS_ERR_CASE(arrays___err_too_shallow),
+ 	ARRAYS_ERR_CASE(arrays___err_non_array),
+-	ARRAYS_ERR_CASE(arrays___err_wrong_val_type1),
+-	ARRAYS_ERR_CASE(arrays___err_wrong_val_type2),
++	ARRAYS_ERR_CASE(arrays___err_wrong_val_type),
+ 	ARRAYS_ERR_CASE(arrays___err_bad_zero_sz_arr),
  
- 	/* bitfield relocation checks */
- 	BITFIELDS_CASE(bitfields, {
-diff --git a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_kind.c b/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_kind.c
-deleted file mode 100644
-index dd0ffa518f36..000000000000
---- a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_kind.c
-+++ /dev/null
-@@ -1,3 +0,0 @@
--#include "core_reloc_types.h"
--
--void f(struct core_reloc_existence___err_wrong_arr_kind x) {}
-diff --git a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_value_type.c b/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_value_type.c
-deleted file mode 100644
-index bc83372088ad..000000000000
---- a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_arr_value_type.c
-+++ /dev/null
-@@ -1,3 +0,0 @@
--#include "core_reloc_types.h"
--
--void f(struct core_reloc_existence___err_wrong_arr_value_type x) {}
-diff --git a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_kind.c b/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_kind.c
-deleted file mode 100644
-index 917bec41be08..000000000000
---- a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_kind.c
-+++ /dev/null
-@@ -1,3 +0,0 @@
--#include "core_reloc_types.h"
--
--void f(struct core_reloc_existence___err_wrong_int_kind x) {}
-diff --git a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_sz.c b/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_sz.c
-deleted file mode 100644
-index 6ec7e6ec1c91..000000000000
---- a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_sz.c
-+++ /dev/null
-@@ -1,3 +0,0 @@
--#include "core_reloc_types.h"
--
--void f(struct core_reloc_existence___err_wrong_int_sz x) {}
-diff --git a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_type.c b/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_type.c
-deleted file mode 100644
-index 7bbcacf2b0d1..000000000000
---- a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_int_type.c
-+++ /dev/null
-@@ -1,3 +0,0 @@
--#include "core_reloc_types.h"
--
--void f(struct core_reloc_existence___err_wrong_int_type x) {}
-diff --git a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_struct_type.c b/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_struct_type.c
-deleted file mode 100644
-index f384dd38ec70..000000000000
---- a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___err_wrong_struct_type.c
-+++ /dev/null
-@@ -1,3 +0,0 @@
--#include "core_reloc_types.h"
--
--void f(struct core_reloc_existence___err_wrong_struct_type x) {}
-diff --git a/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___wrong_field_defs.c b/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___wrong_field_defs.c
-new file mode 100644
-index 000000000000..d14b496190c3
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/btf__core_reloc_existence___wrong_field_defs.c
-@@ -0,0 +1,3 @@
-+#include "core_reloc_types.h"
+ 	/* enum/ptr/int handling scenarios */
+@@ -864,13 +863,20 @@ void test_core_reloc(void)
+ 			  "prog '%s' not found\n", probe_name))
+ 			goto cleanup;
+ 
 +
-+void f(struct core_reloc_existence___wrong_field_defs x) {}
-diff --git a/tools/testing/selftests/bpf/progs/core_reloc_types.h b/tools/testing/selftests/bpf/progs/core_reloc_types.h
-index 9a2850850121..664eea1013aa 100644
---- a/tools/testing/selftests/bpf/progs/core_reloc_types.h
-+++ b/tools/testing/selftests/bpf/progs/core_reloc_types.h
-@@ -700,27 +700,11 @@ struct core_reloc_existence___minimal {
- 	int a;
- };
++		if (test_case->btf_src_file) {
++			err = access(test_case->btf_src_file, R_OK);
++			if (!ASSERT_OK(err, "btf_src_file"))
++				goto cleanup;
++		}
++
+ 		load_attr.obj = obj;
+ 		load_attr.log_level = 0;
+ 		load_attr.target_btf_path = test_case->btf_src_file;
+ 		err = bpf_object__load_xattr(&load_attr);
+ 		if (err) {
+ 			if (!test_case->fails)
+-				CHECK(false, "obj_load", "failed to load prog '%s': %d\n", probe_name, err);
++				ASSERT_OK(err, "obj_load");
+ 			goto cleanup;
+ 		}
  
--struct core_reloc_existence___err_wrong_int_sz {
--	short a;
--};
--
--struct core_reloc_existence___err_wrong_int_type {
-+struct core_reloc_existence___wrong_field_defs {
-+	void *a;
- 	int b[1];
--};
--
--struct core_reloc_existence___err_wrong_int_kind {
- 	struct{ int x; } c;
--};
--
--struct core_reloc_existence___err_wrong_arr_kind {
- 	int arr;
--};
--
--struct core_reloc_existence___err_wrong_arr_value_type {
--	short arr[1];
--};
--
--struct core_reloc_existence___err_wrong_struct_type {
- 	int s;
- };
+@@ -909,10 +915,8 @@ void test_core_reloc(void)
+ 			goto cleanup;
+ 		}
  
+-		if (test_case->fails) {
+-			CHECK(false, "obj_load_fail", "should fail to load prog '%s'\n", probe_name);
++		if (!ASSERT_FALSE(test_case->fails, "obj_load_should_fail"))
+ 			goto cleanup;
+-		}
+ 
+ 		equal = memcmp(data->out, test_case->output,
+ 			       test_case->output_len) == 0;
 -- 
 2.30.2
 
