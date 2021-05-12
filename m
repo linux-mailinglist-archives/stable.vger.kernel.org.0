@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5C937C547
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 423C737C54A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234169AbhELPjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:39:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50090 "EHLO mail.kernel.org"
+        id S234220AbhELPjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:39:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233978AbhELPby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:31:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51DF561950;
-        Wed, 12 May 2021 15:16:28 +0000 (UTC)
+        id S234005AbhELPb7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:31:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB46261C38;
+        Wed, 12 May 2021 15:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832588;
-        bh=DrqMZi4nokZn0/DxIwSbci06QRoDDiDNmpuUd/ZCHrk=;
+        s=korg; t=1620832591;
+        bh=8jYJUo+MJWKNPzGWeVdRxkFpv2loBomQp5NniyhTeX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGwQqMwEssyf682P4j1DR8a7rrji5cZWdi0IYAZEYux7vuCsl3thwHLg9m+Wt8Cvb
-         lvvsNjprixLnL4qdLf8QZnEUW7/hCOxc+CVCMfifmHATeDJRDvfHiUjiKLauFRhy1X
-         xf5WTDn6DIYF0COgq2xTEHFaePxeao6TzBjLhyS0=
+        b=v0VwHQpmZ4uVujm1y6P0wUunPH0S9fGHzNLyDvSJo1Bk04om9cjRnPf8Z8SH1miBl
+         XbiyPkiPcaiolR0euzajabbKoTESEfUzeU8BfvrUPa1Hk1sRu1Hfk7B5rM1hx4d25M
+         Y8gdF/cGL9QqLcbhEnnqvilTYgAI0j1CJntQn8MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 342/530] x86/events/amd/iommu: Fix sysfs type mismatch
-Date:   Wed, 12 May 2021 16:47:32 +0200
-Message-Id: <20210512144831.032728105@linuxfoundation.org>
+Subject: [PATCH 5.10 343/530] perf/amd/uncore: Fix sysfs type mismatch
+Date:   Wed, 12 May 2021 16:47:33 +0200
+Message-Id: <20210512144831.067141740@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,51 +42,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit de5bc7b425d4c27ae5faa00ea7eb6b9780b9a355 ]
+[ Upstream commit 5deac80d4571dffb51f452f0027979d72259a1b9 ]
 
-dev_attr_show() calls _iommu_event_show() via an indirect call but
-_iommu_event_show()'s type does not currently match the type of the
-show() member in 'struct device_attribute', resulting in a Control Flow
+dev_attr_show() calls the __uncore_*_show() functions via an indirect
+call but their type does not currently match the type of the show()
+member in 'struct device_attribute', resulting in a Control Flow
 Integrity violation.
 
-$ cat /sys/devices/amd_iommu_1/events/mem_dte_hit
-csource=0x0a
+$ cat /sys/devices/amd_l3/format/umask
+config:8-15
 
 $ dmesg | grep "CFI failure"
-[ 3526.735140] CFI failure (target: _iommu_event_show...):
+[ 1258.174653] CFI failure (target: __uncore_umask_show...):
 
-Change _iommu_event_show() and 'struct amd_iommu_event_desc' to
+Update the type in the DEFINE_UNCORE_FORMAT_ATTR macro to match
 'struct device_attribute' so that there is no more CFI violation.
 
-Fixes: 7be6296fdd75 ("perf/x86/amd: AMD IOMMU Performance Counter PERF uncore PMU implementation")
+Fixes: 06f2c24584f3 ("perf/amd/uncore: Prepare to scale for more attributes that vary per family")
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210415001112.3024673-1-nathan@kernel.org
+Link: https://lkml.kernel.org/r/20210415001112.3024673-2-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/iommu.c | 6 +++---
+ arch/x86/events/amd/uncore.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/events/amd/iommu.c b/arch/x86/events/amd/iommu.c
-index be50ef8572cc..6a98a7651621 100644
---- a/arch/x86/events/amd/iommu.c
-+++ b/arch/x86/events/amd/iommu.c
-@@ -81,12 +81,12 @@ static struct attribute_group amd_iommu_events_group = {
+diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
+index 7f014d450bc2..582c0ffb5e98 100644
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -275,14 +275,14 @@ static struct attribute_group amd_uncore_attr_group = {
  };
  
- struct amd_iommu_event_desc {
--	struct kobj_attribute attr;
-+	struct device_attribute attr;
- 	const char *event;
- };
+ #define DEFINE_UNCORE_FORMAT_ATTR(_var, _name, _format)			\
+-static ssize_t __uncore_##_var##_show(struct kobject *kobj,		\
+-				struct kobj_attribute *attr,		\
++static ssize_t __uncore_##_var##_show(struct device *dev,		\
++				struct device_attribute *attr,		\
+ 				char *page)				\
+ {									\
+ 	BUILD_BUG_ON(sizeof(_format) >= PAGE_SIZE);			\
+ 	return sprintf(page, _format "\n");				\
+ }									\
+-static struct kobj_attribute format_attr_##_var =			\
++static struct device_attribute format_attr_##_var =			\
+ 	__ATTR(_name, 0444, __uncore_##_var##_show, NULL)
  
--static ssize_t _iommu_event_show(struct kobject *kobj,
--				struct kobj_attribute *attr, char *buf)
-+static ssize_t _iommu_event_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
- {
- 	struct amd_iommu_event_desc *event =
- 		container_of(attr, struct amd_iommu_event_desc, attr);
+ DEFINE_UNCORE_FORMAT_ATTR(event12,	event,		"config:0-7,32-35");
 -- 
 2.30.2
 
