@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D46C37C2A1
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:12:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A25737C2A6
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233276AbhELPMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:12:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41938 "EHLO mail.kernel.org"
+        id S231735AbhELPMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:12:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233681AbhELPKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:10:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86DAE61430;
-        Wed, 12 May 2021 15:02:55 +0000 (UTC)
+        id S232768AbhELPKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:10:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBCD6616EA;
+        Wed, 12 May 2021 15:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831776;
-        bh=cSZ6jiRIpM+rhiZPSBxSI5LFsMht5N/A96dcLv926n8=;
+        s=korg; t=1620831778;
+        bh=NLXEKaOndNZMQn/a5Q5Dr7TZQmZTbkyOVM5SrDvo280=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsX2ykSxM0NN3y7lPtMcGvvqMbmiuaks64fecD7aolWBt1jSoj5iBLy6s7YkCR9Mv
-         EdubNrxcQ62Sp6+l0WGQvvhTvyQCdNv9bceCjnbJdpkztjg5lpY+j8bxcG1cO2PGIp
-         QpvlBeSXYBLdnwHiOqf3lj4AAyUBf/CLP509uVyI=
+        b=tha8UEvk4w3araYudVuLJCprpq4n/Ri5hctbDdrk3FCqIC6rjb0FoJOL+NedDXzxE
+         KdJK3/U3/MgntYQKUrIINTKEsGfUMymqiZwr3DI2rDyPTGkkLapmGEQ3c7M1f+gwLe
+         frsD8MHNRrifsIWQ/j9/ovQE+IyyN/NTR0gsUvIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 011/530] USB: serial: ti_usb_3410_5052: fix TIOCSSERIAL permission check
-Date:   Wed, 12 May 2021 16:42:01 +0200
-Message-Id: <20210512144820.073868573@linuxfoundation.org>
+Subject: [PATCH 5.10 012/530] staging: fwserial: fix TIOCSSERIAL jiffies conversions
+Date:   Wed, 12 May 2021 16:42:02 +0200
+Message-Id: <20210512144820.114059100@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,42 +40,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit d370c90dcd64e427a79a093a070117a1571d4cd8 upstream.
+commit 7a3791afdbd5a951b09a7689bba856bd9f6c6a9f upstream.
 
-Changing the port closing-wait parameter is a privileged operation so
-make sure to return -EPERM if a regular user tries to change it.
+The port close_delay parameter set by TIOCSSERIAL is specified in
+jiffies, while the value returned by TIOCGSERIAL is specified in
+centiseconds.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add the missing conversions so that TIOCGSERIAL works as expected also
+when HZ is not 100.
+
+Fixes: 7355ba3445f2 ("staging: fwserial: Add TTY-over-Firewire serial driver")
+Cc: stable@vger.kernel.org      # 3.8
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210407102334.32361-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ti_usb_3410_5052.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/staging/fwserial/fwserial.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/ti_usb_3410_5052.c
-+++ b/drivers/usb/serial/ti_usb_3410_5052.c
-@@ -1420,14 +1420,19 @@ static int ti_set_serial_info(struct tty
- 	struct serial_struct *ss)
- {
- 	struct usb_serial_port *port = tty->driver_data;
--	struct ti_port *tport = usb_get_serial_port_data(port);
-+	struct tty_port *tport = &port->port;
- 	unsigned cwait;
- 
- 	cwait = ss->closing_wait;
- 	if (cwait != ASYNC_CLOSING_WAIT_NONE)
- 		cwait = msecs_to_jiffies(10 * ss->closing_wait);
- 
--	tport->tp_port->port.closing_wait = cwait;
-+	if (!capable(CAP_SYS_ADMIN)) {
-+		if (cwait != tport->closing_wait)
-+			return -EPERM;
-+	}
-+
-+	tport->closing_wait = cwait;
- 
+--- a/drivers/staging/fwserial/fwserial.c
++++ b/drivers/staging/fwserial/fwserial.c
+@@ -1223,7 +1223,7 @@ static int get_serial_info(struct tty_st
+ 	ss->flags = port->port.flags;
+ 	ss->xmit_fifo_size = FWTTY_PORT_TXFIFO_LEN;
+ 	ss->baud_base = 400000000;
+-	ss->close_delay = port->port.close_delay;
++	ss->close_delay = jiffies_to_msecs(port->port.close_delay) / 10;
+ 	mutex_unlock(&port->port.mutex);
  	return 0;
  }
+@@ -1245,7 +1245,7 @@ static int set_serial_info(struct tty_st
+ 			return -EPERM;
+ 		}
+ 	}
+-	port->port.close_delay = ss->close_delay * HZ / 100;
++	port->port.close_delay = msecs_to_jiffies(ss->close_delay * 10);
+ 	mutex_unlock(&port->port.mutex);
+ 
+ 	return 0;
 
 
