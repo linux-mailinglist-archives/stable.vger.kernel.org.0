@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22A9537C0DE
+	by mail.lfdr.de (Postfix) with ESMTP id 76BE037C0DF
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:53:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231769AbhELOym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231728AbhELOym (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 10:54:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42978 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231614AbhELOy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:54:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0AF66141C;
-        Wed, 12 May 2021 14:53:18 +0000 (UTC)
+        id S231609AbhELOyb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:54:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31ADA61418;
+        Wed, 12 May 2021 14:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831199;
-        bh=lxXnl5IoWMDvtkRW2GWMDJoHirGPsZ8xUb2fS5WIxEo=;
+        s=korg; t=1620831201;
+        bh=p7oZqjXWuE1cWkBeLWzNJRLy9g7AUCPEUr1Hre8cKBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Qz8di0thJVZj46dS9592PcnfrXmv74UA/9lvu1DtfCEq8YQhpqpoiBCOoYhLWlGi
-         alRps/bc9o3emjGUBYSKPdnRjKCp5nTC38+pWNwl7p1+r1DhwXFJI9rBlmRhL3Pmu+
-         F40NhvLZHmYjzQzn+m5MzjjuRrMfOXuqz+P+FPZ4=
+        b=EmlNtSPFj31Z/uk2jxurfDkLJrR3pv3GR6P4J4nahXutUVo2EhL/O3r5SPUHrelLl
+         SWQegSGyLQMmVMY/onbEKTNdxh3qznWteV9KIu8wDrQTlIYI62+Nt2l8vxLcTWzDck
+         NqHBNTyFI7g0F05XPMWrFxL4XuUGJfN2emsxcGYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 024/244] PCI: Allow VPD access for QLogic ISP2722
-Date:   Wed, 12 May 2021 16:46:35 +0200
-Message-Id: <20210512144743.833820295@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org, Himanshu Jha <himanshujha199640@gmail.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Alexandru Ardelean <ardeleanalex@gmail.com>
+Subject: [PATCH 5.4 025/244] iio:accel:adis16201: Fix wrong axis assignment that prevents loading
+Date:   Wed, 12 May 2021 16:46:36 +0200
+Message-Id: <20210512144743.863661681@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -39,45 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit e00dc69b5f17c444a38cd9745a0f76bc989b3af4 upstream.
+commit 4e102429f3dc62dce546f6107e34a4284634196d upstream.
 
-0d5370d1d852 ("PCI: Prevent VPD access for QLogic ISP2722") disabled access
-to VPD of the ISP2722-based 16/32Gb Fibre Channel to PCIe Adapter because
-reading past the end of the VPD caused NMIs.
+Whilst running some basic tests as part of writing up the dt-bindings for
+this driver (to follow), it became clear it doesn't actually load
+currently.
 
-104daa71b396 ("PCI: Determine actual VPD size on first access") limits
-reads to the actual size of VPD, which should prevent these NMIs.
+iio iio:device1: tried to double register : in_incli_x_index
+adis16201 spi0.0: Failed to create buffer sysfs interfaces
+adis16201: probe of spi0.0 failed with error -16
 
-104daa71b396 was merged *before* 0d5370d1d852, but we think the testing
-that prompted 0d5370d1d852 ("PCI: Prevent VPD access for QLogic ISP2722")
-was done with a kernel that lacked 104daa71b396.  See [1, 2].
+Looks like a cut and paste / update bug.  Fixes tag obviously not accurate
+but we don't want to bother carry thing back to before the driver moved
+out of staging.
 
-Remove the quirk added by 0d5370d1d852 ("PCI: Prevent VPD access for QLogic
-ISP2722") so customers can read the HBA VPD.
-
-[1] https://lore.kernel.org/linux-pci/alpine.LRH.2.21.9999.2012161641230.28924@irv1user01.caveonetworks.com/
-[2] https://lore.kernel.org/linux-pci/alpine.LRH.2.21.9999.2104071535110.13940@irv1user01.caveonetworks.com/
-[bhelgaas: commit log]
-Link: https://lore.kernel.org/r/20210409215153.16569-2-aeasi@marvell.com
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org      # v4.6+
+Fixes: 591298e54cea ("Staging: iio: accel: adis16201: Move adis16201 driver out of staging")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Cc: Himanshu Jha <himanshujha199640@gmail.com>
+Cc: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Link: https://lore.kernel.org/r/20210321182956.844652-1-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/vpd.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/accel/adis16201.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/vpd.c
-+++ b/drivers/pci/vpd.c
-@@ -570,7 +570,6 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_LS
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_LSI_LOGIC, 0x005f, quirk_blacklist_vpd);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATTANSIC, PCI_ANY_ID,
- 		quirk_blacklist_vpd);
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_QLOGIC, 0x2261, quirk_blacklist_vpd);
- /*
-  * The Amazon Annapurna Labs 0x0031 device id is reused for other non Root Port
-  * device types, so the quirk is registered for the PCI_CLASS_BRIDGE_PCI class.
+--- a/drivers/iio/accel/adis16201.c
++++ b/drivers/iio/accel/adis16201.c
+@@ -215,7 +215,7 @@ static const struct iio_chan_spec adis16
+ 	ADIS_AUX_ADC_CHAN(ADIS16201_AUX_ADC_REG, ADIS16201_SCAN_AUX_ADC, 0, 12),
+ 	ADIS_INCLI_CHAN(X, ADIS16201_XINCL_OUT_REG, ADIS16201_SCAN_INCLI_X,
+ 			BIT(IIO_CHAN_INFO_CALIBBIAS), 0, 14),
+-	ADIS_INCLI_CHAN(X, ADIS16201_YINCL_OUT_REG, ADIS16201_SCAN_INCLI_Y,
++	ADIS_INCLI_CHAN(Y, ADIS16201_YINCL_OUT_REG, ADIS16201_SCAN_INCLI_Y,
+ 			BIT(IIO_CHAN_INFO_CALIBBIAS), 0, 14),
+ 	IIO_CHAN_SOFT_TIMESTAMP(7)
+ };
 
 
