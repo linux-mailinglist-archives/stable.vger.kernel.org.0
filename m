@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B69DB37C92E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FB137C936
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238767AbhELQPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:15:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
+        id S239111AbhELQPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:15:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233346AbhELQIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:08:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70D0C61997;
-        Wed, 12 May 2021 15:39:14 +0000 (UTC)
+        id S234757AbhELQIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:08:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 496D661C61;
+        Wed, 12 May 2021 15:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833955;
-        bh=IctrLuusrI9vVJ9a28zso74mmzrptNV6lJ3aTrhRA5Q=;
+        s=korg; t=1620833957;
+        bh=oT/c86x2GPg4hnidLAuTv1VcQFdiNN9vKCpcXwEgfzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c09xVk3Yw9Vtf9xGzyXbSt5uS+7tzbjCMf5lLhT/HdWlHTBZhaiBkJJ/3VAXUvS4a
-         JDuAh1kM7sQ65r0ZtAmZH+LtnFL6ExAi8Ry/5cGzIZw5I8zbFW+Hkb2MGfRyUJGAmg
-         d3ivFJsYpjngcPzfD7vvWOGkdDetfHdp0xq00E+w=
+        b=HZSC+QeI5yqBhoLbJcGRokwnojNQYuLdFude7ED9atjoz+A8JpxRXj2nXQzFe8R45
+         gVVyEuheR2gA2Okykz8s89aV+4chgiDw/3giGCU8i9trTgcPh7w/H2/3tZ7fSxWtB3
+         eQBdtrjz9YybJ0nLUgONBAxQTqKjZvVyzWbREqzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 353/601] vfio/pci: Re-order vfio_pci_probe()
-Date:   Wed, 12 May 2021 16:47:10 +0200
-Message-Id: <20210512144839.416834070@linuxfoundation.org>
+Subject: [PATCH 5.11 354/601] drm/msm: Fix debugfs deadlock
+Date:   Wed, 12 May 2021 16:47:11 +0200
+Message-Id: <20210512144839.448119193@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -45,78 +40,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 4aeec3984ddc853f7c65903bde472ffdef738bae ]
+[ Upstream commit 6ed0897cd800c38b92a33d335d9086c7b092eb15 ]
 
-vfio_add_group_dev() must be called only after all of the private data in
-vdev is fully setup and ready, otherwise there could be races with user
-space instantiating a device file descriptor and starting to call ops.
+In normal cases the gem obj lock is acquired first before mm_lock.  The
+exception is iterating the various object lists.  In the shrinker path,
+deadlock is avoided by using msm_gem_trylock() and skipping over objects
+that cannot be locked.  But for debugfs the straightforward thing is to
+split things out into a separate list of all objects protected by it's
+own lock.
 
-For instance vfio_pci_reflck_attach() sets vdev->reflck and
-vfio_pci_open(), called by fops open, unconditionally derefs it, which
-will crash if things get out of order.
-
-Fixes: cc20d7999000 ("vfio/pci: Introduce VF token")
-Fixes: e309df5b0c9e ("vfio/pci: Parallelize device open and release")
-Fixes: 6eb7018705de ("vfio-pci: Move idle devices to D3hot power state")
-Fixes: ecaa1f6a0154 ("vfio-pci: Add VGA arbiter client")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Message-Id: <8-v3-225de1400dfc+4e074-vfio1_jgg@nvidia.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: d984457b31c4 ("drm/msm: Add priv->mm_lock to protect active/inactive lists")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20210401012722.527712-4-robdclark@gmail.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/msm/msm_debugfs.c | 14 +++-----------
+ drivers/gpu/drm/msm/msm_drv.c     |  3 +++
+ drivers/gpu/drm/msm/msm_drv.h     |  9 ++++++++-
+ drivers/gpu/drm/msm/msm_gem.c     | 14 +++++++++++++-
+ drivers/gpu/drm/msm/msm_gem.h     | 12 ++++++++++--
+ 5 files changed, 37 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index f31aa25f361c..48b048edf1ee 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -2034,13 +2034,9 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	INIT_LIST_HEAD(&vdev->vma_list);
- 	init_rwsem(&vdev->memory_lock);
+diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
+index 85ad0babc326..d611cc8e54a4 100644
+--- a/drivers/gpu/drm/msm/msm_debugfs.c
++++ b/drivers/gpu/drm/msm/msm_debugfs.c
+@@ -111,23 +111,15 @@ static const struct file_operations msm_gpu_fops = {
+ static int msm_gem_show(struct drm_device *dev, struct seq_file *m)
+ {
+ 	struct msm_drm_private *priv = dev->dev_private;
+-	struct msm_gpu *gpu = priv->gpu;
+ 	int ret;
  
--	ret = vfio_add_group_dev(&pdev->dev, &vfio_pci_ops, vdev);
--	if (ret)
--		goto out_free;
+-	ret = mutex_lock_interruptible(&priv->mm_lock);
++	ret = mutex_lock_interruptible(&priv->obj_lock);
+ 	if (ret)
+ 		return ret;
+ 
+-	if (gpu) {
+-		seq_printf(m, "Active Objects (%s):\n", gpu->name);
+-		msm_gem_describe_objects(&gpu->active_list, m);
+-	}
 -
- 	ret = vfio_pci_reflck_attach(vdev);
- 	if (ret)
--		goto out_del_group_dev;
-+		goto out_free;
- 	ret = vfio_pci_vf_init(vdev);
- 	if (ret)
- 		goto out_reflck;
-@@ -2064,15 +2060,20 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		vfio_pci_set_power_state(vdev, PCI_D3hot);
- 	}
+-	seq_printf(m, "Inactive Objects:\n");
+-	msm_gem_describe_objects(&priv->inactive_dontneed, m);
+-	msm_gem_describe_objects(&priv->inactive_willneed, m);
++	msm_gem_describe_objects(&priv->objects, m);
  
--	return ret;
-+	ret = vfio_add_group_dev(&pdev->dev, &vfio_pci_ops, vdev);
-+	if (ret)
-+		goto out_power;
-+	return 0;
+-	mutex_unlock(&priv->mm_lock);
++	mutex_unlock(&priv->obj_lock);
  
-+out_power:
-+	if (!disable_idle_d3)
-+		vfio_pci_set_power_state(vdev, PCI_D0);
- out_vf:
- 	vfio_pci_vf_uninit(vdev);
- out_reflck:
- 	vfio_pci_reflck_put(vdev->reflck);
--out_del_group_dev:
--	vfio_del_group_dev(&pdev->dev);
- out_free:
-+	kfree(vdev->pm_save);
- 	kfree(vdev);
- out_group_put:
- 	vfio_iommu_group_put(group, &pdev->dev);
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 196907689c82..18ea1c66de71 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -446,6 +446,9 @@ static int msm_drm_init(struct device *dev, const struct drm_driver *drv)
+ 
+ 	priv->wq = alloc_ordered_workqueue("msm", 0);
+ 
++	INIT_LIST_HEAD(&priv->objects);
++	mutex_init(&priv->obj_lock);
++
+ 	INIT_LIST_HEAD(&priv->inactive_willneed);
+ 	INIT_LIST_HEAD(&priv->inactive_dontneed);
+ 	mutex_init(&priv->mm_lock);
+diff --git a/drivers/gpu/drm/msm/msm_drv.h b/drivers/gpu/drm/msm/msm_drv.h
+index 591c47a654e8..6b58e49754cb 100644
+--- a/drivers/gpu/drm/msm/msm_drv.h
++++ b/drivers/gpu/drm/msm/msm_drv.h
+@@ -174,7 +174,14 @@ struct msm_drm_private {
+ 	struct msm_rd_state *hangrd;   /* debugfs to dump hanging submits */
+ 	struct msm_perf_state *perf;
+ 
+-	/*
++	/**
++	 * List of all GEM objects (mainly for debugfs, protected by obj_lock
++	 * (acquire before per GEM object lock)
++	 */
++	struct list_head objects;
++	struct mutex obj_lock;
++
++	/**
+ 	 * Lists of inactive GEM objects.  Every bo is either in one of the
+ 	 * inactive lists (depending on whether or not it is shrinkable) or
+ 	 * gpu->active_list (for the gpu it is active on[1])
+diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
+index 9d10739c4eb2..27eea26119ef 100644
+--- a/drivers/gpu/drm/msm/msm_gem.c
++++ b/drivers/gpu/drm/msm/msm_gem.c
+@@ -951,7 +951,7 @@ void msm_gem_describe_objects(struct list_head *list, struct seq_file *m)
+ 	size_t size = 0;
+ 
+ 	seq_puts(m, "   flags       id ref  offset   kaddr            size     madv      name\n");
+-	list_for_each_entry(msm_obj, list, mm_list) {
++	list_for_each_entry(msm_obj, list, node) {
+ 		struct drm_gem_object *obj = &msm_obj->base;
+ 		seq_puts(m, "   ");
+ 		msm_gem_describe(obj, m);
+@@ -970,6 +970,10 @@ void msm_gem_free_object(struct drm_gem_object *obj)
+ 	struct drm_device *dev = obj->dev;
+ 	struct msm_drm_private *priv = dev->dev_private;
+ 
++	mutex_lock(&priv->obj_lock);
++	list_del(&msm_obj->node);
++	mutex_unlock(&priv->obj_lock);
++
+ 	mutex_lock(&priv->mm_lock);
+ 	list_del(&msm_obj->mm_list);
+ 	mutex_unlock(&priv->mm_lock);
+@@ -1158,6 +1162,10 @@ static struct drm_gem_object *_msm_gem_new(struct drm_device *dev,
+ 	list_add_tail(&msm_obj->mm_list, &priv->inactive_willneed);
+ 	mutex_unlock(&priv->mm_lock);
+ 
++	mutex_lock(&priv->obj_lock);
++	list_add_tail(&msm_obj->node, &priv->objects);
++	mutex_unlock(&priv->obj_lock);
++
+ 	return obj;
+ 
+ fail:
+@@ -1228,6 +1236,10 @@ struct drm_gem_object *msm_gem_import(struct drm_device *dev,
+ 	list_add_tail(&msm_obj->mm_list, &priv->inactive_willneed);
+ 	mutex_unlock(&priv->mm_lock);
+ 
++	mutex_lock(&priv->obj_lock);
++	list_add_tail(&msm_obj->node, &priv->objects);
++	mutex_unlock(&priv->obj_lock);
++
+ 	return obj;
+ 
+ fail:
+diff --git a/drivers/gpu/drm/msm/msm_gem.h b/drivers/gpu/drm/msm/msm_gem.h
+index b3a0a880cbab..99d4c0e9465e 100644
+--- a/drivers/gpu/drm/msm/msm_gem.h
++++ b/drivers/gpu/drm/msm/msm_gem.h
+@@ -55,8 +55,16 @@ struct msm_gem_object {
+ 	 */
+ 	uint8_t vmap_count;
+ 
+-	/* And object is either:
+-	 *  inactive - on priv->inactive_list
++	/**
++	 * Node in list of all objects (mainly for debugfs, protected by
++	 * priv->obj_lock
++	 */
++	struct list_head node;
++
++	/**
++	 * An object is either:
++	 *  inactive - on priv->inactive_dontneed or priv->inactive_willneed
++	 *     (depending on purgability status)
+ 	 *  active   - on one one of the gpu's active_list..  well, at
+ 	 *     least for now we don't have (I don't think) hw sync between
+ 	 *     2d and 3d one devices which have both, meaning we need to
 -- 
 2.30.2
 
