@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 219AA37C597
+	by mail.lfdr.de (Postfix) with ESMTP id 6AD1D37C598
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232540AbhELPlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:41:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
+        id S234481AbhELPlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236166AbhELPhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:37:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92CF961C4C;
-        Wed, 12 May 2021 15:18:39 +0000 (UTC)
+        id S236213AbhELPhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:37:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70BC461C53;
+        Wed, 12 May 2021 15:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832720;
-        bh=D88ixJ3TB6aOw3FttnHzw1mcOI+ERkCWaxu5TMw17uQ=;
+        s=korg; t=1620832725;
+        bh=2oFtuUTODshxbFHwas6/hd2zei2d7kLtiLCkPMAHtto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oixqpqwiC+iYLyZonx3Z+bVCBL4DpGld04uCmogfEWsDV6qHsteN+t9SG4ATsysbi
-         IbTrtKJp1Awz0v2y3GFtccSuZJkA/X25MJxPwJWDrtTSA52VtUMf1hW3H2hDG1fTmS
-         FfAmZQCUtXWk9Jp2FK7UyBRlmiETWZruVP4GEfxk=
+        b=Rx2xb/NUYtBhp51weEuX4pqlWcg+Uw7gOQRXBHj7SBhq7H3pJtJIHGySJBJZtvANU
+         eNmmvLb0IoRX8ThJqiEz4fPaSyV9S1eczRdTNyUhsD5ZSza7F44Ia5M6kxYD2NbkhM
+         sAZHvLA6cayrXx2rnZr6U8T3JHf0J4fI72NVdO6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        coverity-bot <keescook+coverity-bot@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 395/530] ALSA: usb-audio: Add error checks for usb_driver_claim_interface() calls
-Date:   Wed, 12 May 2021 16:48:25 +0200
-Message-Id: <20210512144832.754538667@linuxfoundation.org>
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 396/530] HID: lenovo: Use brightness_set_blocking callback for setting LEDs brightness
+Date:   Wed, 12 May 2021 16:48:26 +0200
+Message-Id: <20210512144832.785870919@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,133 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 5fb45414ae03421255593fd5556aa2d1d82303aa ]
+[ Upstream commit bbf62645255f120bc2e7488c237e3f04da42ec70 ]
 
-There are a few calls of usb_driver_claim_interface() but all of those
-miss the proper error checks, as reported by Coverity.  This patch
-adds those missing checks.
+The lenovo_led_brightness_set function may sleep, so we should have the
+the led_class_dev's brightness_set_blocking callback point to it, rather
+then the regular brightness_set callback.
 
-Along with it, replace the magic pointer with -1 with a constant
-USB_AUDIO_IFACE_UNUSED for better readability.
+When toggled through sysfs this is not a problem, but the brightness_set
+callback may be called from atomic context when using LED-triggers.
 
-Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-Addresses-Coverity-ID: 1475943 ("Error handling issues")
-Addresses-Coverity-ID: 1475944 ("Error handling issues")
-Addresses-Coverity-ID: 1475945 ("Error handling issues")
-Fixes: b1ce7ba619d9 ("ALSA: usb-audio: claim autodetected PCM interfaces all at once")
-Fixes: e5779998bf8b ("ALSA: usb-audio: refactor code")
-Link: https://lore.kernel.org/r/202104051059.FB7F3016@keescook
-Link: https://lore.kernel.org/r/20210406113534.30455-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: bc04b37ea0ec ("HID: lenovo: Add ThinkPad 10 Ultrabook Keyboard support")
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.c     | 14 +++++++-------
- sound/usb/quirks.c   | 16 ++++++++++++----
- sound/usb/usbaudio.h |  2 ++
- 3 files changed, 21 insertions(+), 11 deletions(-)
+ drivers/hid/hid-lenovo.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index fc7c359ae215..258b81b39917 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -182,9 +182,8 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
- 				ctrlif, interface);
- 			return -EINVAL;
- 		}
--		usb_driver_claim_interface(&usb_audio_driver, iface, (void *)-1L);
--
--		return 0;
-+		return usb_driver_claim_interface(&usb_audio_driver, iface,
-+						  USB_AUDIO_IFACE_UNUSED);
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index c6c8e20f3e8d..4dc5e5f932ed 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -777,7 +777,7 @@ static enum led_brightness lenovo_led_brightness_get(
+ 				: LED_OFF;
+ }
+ 
+-static void lenovo_led_brightness_set(struct led_classdev *led_cdev,
++static int lenovo_led_brightness_set(struct led_classdev *led_cdev,
+ 			enum led_brightness value)
+ {
+ 	struct device *dev = led_cdev->dev->parent;
+@@ -802,6 +802,8 @@ static void lenovo_led_brightness_set(struct led_classdev *led_cdev,
+ 		lenovo_led_set_tp10ubkbd(hdev, tp10ubkbd_led[led_nr], value);
+ 		break;
  	}
- 
- 	if ((altsd->bInterfaceClass != USB_CLASS_AUDIO &&
-@@ -204,7 +203,8 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
- 
- 	if (! snd_usb_parse_audio_interface(chip, interface)) {
- 		usb_set_interface(dev, interface, 0); /* reset the current interface */
--		usb_driver_claim_interface(&usb_audio_driver, iface, (void *)-1L);
-+		return usb_driver_claim_interface(&usb_audio_driver, iface,
-+						  USB_AUDIO_IFACE_UNUSED);
- 	}
- 
- 	return 0;
-@@ -864,7 +864,7 @@ static void usb_audio_disconnect(struct usb_interface *intf)
- 	struct snd_card *card;
- 	struct list_head *p;
- 
--	if (chip == (void *)-1L)
-+	if (chip == USB_AUDIO_IFACE_UNUSED)
- 		return;
- 
- 	card = chip->card;
-@@ -993,7 +993,7 @@ static int usb_audio_suspend(struct usb_interface *intf, pm_message_t message)
- 	struct usb_mixer_interface *mixer;
- 	struct list_head *p;
- 
--	if (chip == (void *)-1L)
-+	if (chip == USB_AUDIO_IFACE_UNUSED)
- 		return 0;
- 
- 	if (!chip->num_suspended_intf++) {
-@@ -1024,7 +1024,7 @@ static int __usb_audio_resume(struct usb_interface *intf, bool reset_resume)
- 	struct list_head *p;
- 	int err = 0;
- 
--	if (chip == (void *)-1L)
-+	if (chip == USB_AUDIO_IFACE_UNUSED)
- 		return 0;
- 
- 	atomic_inc(&chip->active); /* avoid autopm */
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 5ab2a4580bfb..bddef8ad5778 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -55,8 +55,12 @@ static int create_composite_quirk(struct snd_usb_audio *chip,
- 		if (!iface)
- 			continue;
- 		if (quirk->ifnum != probed_ifnum &&
--		    !usb_interface_claimed(iface))
--			usb_driver_claim_interface(driver, iface, (void *)-1L);
-+		    !usb_interface_claimed(iface)) {
-+			err = usb_driver_claim_interface(driver, iface,
-+							 USB_AUDIO_IFACE_UNUSED);
-+			if (err < 0)
-+				return err;
-+		}
- 	}
- 
- 	return 0;
-@@ -390,8 +394,12 @@ static int create_autodetect_quirks(struct snd_usb_audio *chip,
- 			continue;
- 
- 		err = create_autodetect_quirk(chip, iface, driver);
--		if (err >= 0)
--			usb_driver_claim_interface(driver, iface, (void *)-1L);
-+		if (err >= 0) {
-+			err = usb_driver_claim_interface(driver, iface,
-+							 USB_AUDIO_IFACE_UNUSED);
-+			if (err < 0)
-+				return err;
-+		}
- 	}
- 
- 	return 0;
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index 9667060ff92b..e54a98f46549 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -63,6 +63,8 @@ struct snd_usb_audio {
- 	struct media_intf_devnode *ctl_intf_media_devnode;
- };
- 
-+#define USB_AUDIO_IFACE_UNUSED	((void *)-1L)
 +
- #define usb_audio_err(chip, fmt, args...) \
- 	dev_err(&(chip)->dev->dev, fmt, ##args)
- #define usb_audio_warn(chip, fmt, args...) \
++	return 0;
+ }
+ 
+ static int lenovo_register_leds(struct hid_device *hdev)
+@@ -822,7 +824,7 @@ static int lenovo_register_leds(struct hid_device *hdev)
+ 
+ 	data->led_mute.name = name_mute;
+ 	data->led_mute.brightness_get = lenovo_led_brightness_get;
+-	data->led_mute.brightness_set = lenovo_led_brightness_set;
++	data->led_mute.brightness_set_blocking = lenovo_led_brightness_set;
+ 	data->led_mute.dev = &hdev->dev;
+ 	ret = led_classdev_register(&hdev->dev, &data->led_mute);
+ 	if (ret < 0)
+@@ -830,7 +832,7 @@ static int lenovo_register_leds(struct hid_device *hdev)
+ 
+ 	data->led_micmute.name = name_micm;
+ 	data->led_micmute.brightness_get = lenovo_led_brightness_get;
+-	data->led_micmute.brightness_set = lenovo_led_brightness_set;
++	data->led_micmute.brightness_set_blocking = lenovo_led_brightness_set;
+ 	data->led_micmute.dev = &hdev->dev;
+ 	ret = led_classdev_register(&hdev->dev, &data->led_micmute);
+ 	if (ret < 0) {
 -- 
 2.30.2
 
