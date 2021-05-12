@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8707737CDD8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A24737CE2A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239936AbhELQ64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37576 "EHLO mail.kernel.org"
+        id S238082AbhELRDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244281AbhELQmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244287AbhELQmv (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70F4661D3D;
-        Wed, 12 May 2021 16:12:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58DC461D42;
+        Wed, 12 May 2021 16:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835933;
-        bh=FPCu4wS85Mh0AFZqXVdiT5Jacnrk35+PiSkNOqhXPho=;
+        s=korg; t=1620835937;
+        bh=PWaRI9EWYhzIGjtpdkfvAHCGvfDcD6puNDKoN9z9ALc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdM5K5BLk8RfyzwVAu+fOqKPe+iv5utHInEEjtILw34Fd1BqgJVm+LVXqWD6gWpHe
-         6yD3fNQGeHisFQK4gRC3gpLA28pGVnUHXCQG+Tsy/pa0aVYk3kBK094xfZtGfcZdgx
-         Ga+PF2TRMB/YU3+qpbm46PE69y7AcNWMw8kET2l4=
+        b=bLH8ee7MuiqnutFrjX9AewsyyiPWoKUxb28C8dXOdk9ENpJTjBW0yFTjruGrupL3z
+         RoDc5OJLn54NT78Ds42teYNaElOpik3XHZx0zC6jUD+kw2C5fUA33TFX9mDD2jFT9f
+         ntfx4lDnLnxGZk8wqXTUvTTZ9KnjY6zojuMs0NvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Soul Huang <Soul.Huang@mediatek.com>,
-        YN Chen <YN.Chen@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 543/677] mt76: mt7921: fix the dwell time control
-Date:   Wed, 12 May 2021 16:49:49 +0200
-Message-Id: <20210512144855.403912209@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 544/677] KVM: PPC: Book3S HV P9: Restore host CTRL SPR after guest exit
+Date:   Wed, 12 May 2021 16:49:50 +0200
+Message-Id: <20210512144855.443743709@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,46 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 9db419f0cb39a63fb2f645a846cae17b81cd5c96 ]
+[ Upstream commit 5088eb4092df12d701af8e0e92860b7186365279 ]
 
-dwell time for the scan is not configurable according to the current
-firmware submitted into linux-firmware.git, so leave the dwell time 0 to
-indicate the dwell time always determined by the firmware.
+The host CTRL (runlatch) value is not restored after guest exit. The
+host CTRL should always be 1 except in CPU idle code, so this can result
+in the host running with runlatch clear, and potentially switching to
+a different vCPU which then runs with runlatch clear as well.
 
-Fixes: 399090ef9605 ("mt76: mt76_connac: move hw_scan and sched_scan routine in mt76_connac_mcu module")
-Suggested-by: Soul Huang <Soul.Huang@mediatek.com>
-Co-developed-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+This has little effect on P9 machines, CTRL is only responsible for some
+PMU counter logic in the host and so other than corner cases of software
+relying on that, or explicitly reading the runlatch value (Linux does
+not appear to be affected but it's possible non-Linux guests could be),
+there should be no execution correctness problem, though it could be
+used as a covert channel between guests.
+
+There may be microcontrollers, firmware or monitoring tools that sample
+the runlatch value out-of-band, however since the register is writable
+by guests, these values would (should) not be relied upon for correct
+operation of the host, so suboptimal performance or incorrect reporting
+should be the worst problem.
+
+Fixes: 95a6432ce9038 ("KVM: PPC: Book3S HV: Streamlined guest entry/exit path on P9 for radix guests")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210412014845.1517916-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_hv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-index 8e9e42b77692..76a61e8b7fb9 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-@@ -1309,7 +1309,7 @@ int mt76_connac_mcu_hw_scan(struct mt76_phy *phy, struct ieee80211_vif *vif,
- {
- 	struct mt76_vif *mvif = (struct mt76_vif *)vif->drv_priv;
- 	struct cfg80211_scan_request *sreq = &scan_req->req;
--	int n_ssids = 0, err, i, duration = MT76_CONNAC_SCAN_CHANNEL_TIME;
-+	int n_ssids = 0, err, i, duration;
- 	int ext_channels_num = max_t(int, sreq->n_channels - 32, 0);
- 	struct ieee80211_channel **scan_list = sreq->channels;
- 	struct mt76_dev *mdev = phy->dev;
-@@ -1346,6 +1346,7 @@ int mt76_connac_mcu_hw_scan(struct mt76_phy *phy, struct ieee80211_vif *vif,
- 	req->ssid_type_ext = n_ssids ? BIT(0) : 0;
- 	req->ssids_num = n_ssids;
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 13bad6bf4c95..208a053c9adf 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3728,7 +3728,10 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
+ 	vcpu->arch.dec_expires = dec + tb;
+ 	vcpu->cpu = -1;
+ 	vcpu->arch.thread_cpu = -1;
++	/* Save guest CTRL register, set runlatch to 1 */
+ 	vcpu->arch.ctrl = mfspr(SPRN_CTRLF);
++	if (!(vcpu->arch.ctrl & 1))
++		mtspr(SPRN_CTRLT, vcpu->arch.ctrl | 1);
  
-+	duration = is_mt7921(phy->dev) ? 0 : MT76_CONNAC_SCAN_CHANNEL_TIME;
- 	/* increase channel time for passive scan */
- 	if (!sreq->n_ssids)
- 		duration *= 2;
+ 	vcpu->arch.iamr = mfspr(SPRN_IAMR);
+ 	vcpu->arch.pspb = mfspr(SPRN_PSPB);
 -- 
 2.30.2
 
