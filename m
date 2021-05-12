@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0387437C23A
+	by mail.lfdr.de (Postfix) with ESMTP id CC61D37C23C
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233036AbhELPIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:08:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58780 "EHLO mail.kernel.org"
+        id S233259AbhELPII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:08:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231848AbhELPGH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:06:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B336F6195C;
-        Wed, 12 May 2021 15:00:52 +0000 (UTC)
+        id S232532AbhELPGI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:06:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2461161959;
+        Wed, 12 May 2021 15:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831653;
-        bh=2a+sJCPebuCxx3jCRwfCF++Z3m2zAqv98+geW3+9BEo=;
+        s=korg; t=1620831655;
+        bh=RcW17yEpprrcJBjwBZinKm14ZuE9ekd/3tVi4ft1fcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQX9tRPNj6fmydQNECPI5URZIIf9JWfmOOE5iiSyf859M4ZOLAkXs25XzTpvf4a6C
-         t0BLf1PGLch1LJPFfXjgDGXIb97RLufwQdMuQ7bs8cbiXZeJlo0ak78PvfCgaJYMzk
-         EAEzXsaUJhp8SkYDq6ECGMf+jtRwf+JRPZN7K8u4=
+        b=ze+JLBGjwqnKj7DshSDz8pg4QH3rBx807+qWFncNBg5yyqeh28amHcmdpwjOB1XEv
+         K16OoDzevzQAr77GF4gn28beFAy/PQ1s+ePJhUVB/GgxQITwD7Mm2rlTfKi46ptRMY
+         oh76vXYBc4zBDB+c4S08jcHaV1a0QN9ejYgMHB5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 207/244] drm/i915/gvt: Fix error code in intel_gvt_init_device()
-Date:   Wed, 12 May 2021 16:49:38 +0200
-Message-Id: <20210512144749.617282750@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        "Dmitry V . Levin" <ldv@altlinux.org>
+Subject: [PATCH 5.4 208/244] perf beauty: Fix fsconfig generator
+Date:   Wed, 12 May 2021 16:49:39 +0200
+Message-Id: <20210512144749.646651439@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,66 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vitaly Chikunov <vt@altlinux.org>
 
-[ Upstream commit 329328ec6a87f2c1275f50d979d55513de458409 ]
+[ Upstream commit 2e1daee14e67fbf9b27280b974e2c680a22cabea ]
 
-The intel_gvt_init_vgpu_type_groups() function is only called from
-intel_gvt_init_device().  If it fails then the intel_gvt_init_device()
-prints the error code and propagates it back again.  That's a bug
-because false is zero/success.  The fix is to modify it to return zero
-or negative error codes and make everything consistent.
+After gnulib update sed stopped matching `[[:space:]]*+' as before,
+causing the following compilation error:
 
-Fixes: c5d71cb31723 ("drm/i915/gvt: Move vGPU type related code into gvt file")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/YHaFQtk/DIVYK1u5@mwanda
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+  In file included from builtin-trace.c:719:
+  trace/beauty/generated/fsconfig_arrays.c:2:3: error: expected expression before ']' token
+      2 |  [] = "",
+	|   ^
+  trace/beauty/generated/fsconfig_arrays.c:2:3: error: array index in initializer not of integer type
+  trace/beauty/generated/fsconfig_arrays.c:2:3: note: (near initialization for 'fsconfig_cmds')
+
+Fix this by correcting the regular expression used in the generator.
+Also, clean up the script by removing redundant egrep, xargs, and printf
+invocations.
+
+Committer testing:
+
+Continues to work:
+
+  $ cat tools/perf/trace/beauty/fsconfig.sh
+  #!/bin/sh
+  # SPDX-License-Identifier: LGPL-2.1
+
+  if [ $# -ne 1 ] ; then
+  	linux_header_dir=tools/include/uapi/linux
+  else
+  	linux_header_dir=$1
+  fi
+
+  linux_mount=${linux_header_dir}/mount.h
+
+  printf "static const char *fsconfig_cmds[] = {\n"
+  ms='[[:space:]]*'
+  sed -nr "s/^${ms}FSCONFIG_([[:alnum:]_]+)${ms}=${ms}([[:digit:]]+)${ms},.*/\t[\2] = \"\1\",/p" \
+  	${linux_mount}
+  printf "};\n"
+  $ tools/perf/trace/beauty/fsconfig.sh
+  static const char *fsconfig_cmds[] = {
+  	[0] = "SET_FLAG",
+  	[1] = "SET_STRING",
+  	[2] = "SET_BINARY",
+  	[3] = "SET_PATH",
+  	[4] = "SET_PATH_EMPTY",
+  	[5] = "SET_FD",
+  	[6] = "CMD_CREATE",
+  	[7] = "CMD_RECONFIGURE",
+  };
+  $
+
+Fixes: d35293004a5e4 ("perf beauty: Add generator for fsconfig's 'cmd' arg values")
+Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
+Co-authored-by: Dmitry V. Levin <ldv@altlinux.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: http://lore.kernel.org/lkml/20210414182723.1670663-1-vt@altlinux.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gvt/gvt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/perf/trace/beauty/fsconfig.sh | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gvt/gvt.c b/drivers/gpu/drm/i915/gvt/gvt.c
-index 8f37eefa0a02..a738c7e456dd 100644
---- a/drivers/gpu/drm/i915/gvt/gvt.c
-+++ b/drivers/gpu/drm/i915/gvt/gvt.c
-@@ -128,7 +128,7 @@ static bool intel_get_gvt_attrs(struct attribute ***type_attrs,
- 	return true;
- }
+diff --git a/tools/perf/trace/beauty/fsconfig.sh b/tools/perf/trace/beauty/fsconfig.sh
+index 83fb24df05c9..bc6ef7bb7a5f 100755
+--- a/tools/perf/trace/beauty/fsconfig.sh
++++ b/tools/perf/trace/beauty/fsconfig.sh
+@@ -10,8 +10,7 @@ fi
+ linux_mount=${linux_header_dir}/mount.h
  
--static bool intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
-+static int intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
- {
- 	int i, j;
- 	struct intel_vgpu_type *type;
-@@ -146,7 +146,7 @@ static bool intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
- 		gvt_vgpu_type_groups[i] = group;
- 	}
- 
--	return true;
-+	return 0;
- 
- unwind:
- 	for (j = 0; j < i; j++) {
-@@ -154,7 +154,7 @@ unwind:
- 		kfree(group);
- 	}
- 
--	return false;
-+	return -ENOMEM;
- }
- 
- static void intel_gvt_cleanup_vgpu_type_groups(struct intel_gvt *gvt)
-@@ -362,7 +362,7 @@ int intel_gvt_init_device(struct drm_i915_private *dev_priv)
- 		goto out_clean_thread;
- 
- 	ret = intel_gvt_init_vgpu_type_groups(gvt);
--	if (ret == false) {
-+	if (ret) {
- 		gvt_err("failed to init vgpu type groups: %d\n", ret);
- 		goto out_clean_types;
- 	}
+ printf "static const char *fsconfig_cmds[] = {\n"
+-regex='^[[:space:]]*+FSCONFIG_([[:alnum:]_]+)[[:space:]]*=[[:space:]]*([[:digit:]]+)[[:space:]]*,[[:space:]]*.*'
+-egrep $regex ${linux_mount} | \
+-	sed -r "s/$regex/\2 \1/g"	| \
+-	xargs printf "\t[%s] = \"%s\",\n"
++ms='[[:space:]]*'
++sed -nr "s/^${ms}FSCONFIG_([[:alnum:]_]+)${ms}=${ms}([[:digit:]]+)${ms},.*/\t[\2] = \"\1\",/p" \
++	${linux_mount}
+ printf "};\n"
 -- 
 2.30.2
 
