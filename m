@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D13537CADA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE1737CAD5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237219AbhELQc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40576 "EHLO mail.kernel.org"
+        id S236887AbhELQcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:32:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241200AbhELQ0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241201AbhELQ0v (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:26:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EABC661DB8;
-        Wed, 12 May 2021 15:50:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 615AF619CB;
+        Wed, 12 May 2021 15:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834629;
-        bh=zYmnmIgBlG6MBKPVXgW9njA0gdOxym7Xzl7kUn3ay9U=;
+        s=korg; t=1620834631;
+        bh=gcCpqUIhiJdM9ffkQ3wjjJj6YWXqE6QnhLnHFAGDvMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/KWB4nu+NSt0G7Gfo9g/Gn8zx+lir90g9dE/K+8Z9+2yf91UQwU9/qUvrpc5u7Kx
-         qC8Mmr/k4HAkPqZKGsVklECHequ6fiLSDgDPry0o5goy07S7H80nCeybnLyLZzlO/w
-         quJwrRxBjF7PR3MyfwTFGxNGzUrBTzv6CMmKkNOM=
+        b=i8qQG1Y1tBbqo/AXIVBPA7fFGQYYE6RTA8EJtuIYRIBQk9iaRWaqU19LxKV01bwHw
+         KhfoNgThZqFI2S6qOymZi6502uNQCoIoeTMG/rPN7WLloMjQ28FC6IowqATwMme6fc
+         Pf8QcqIwPQ1jFYYKjVHkzP4VlBqmIuYkdTB6JNLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
         Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 5.12 020/677] usb: typec: tcpm: Address incorrect values of tcpm psy for fixed supply
-Date:   Wed, 12 May 2021 16:41:06 +0200
-Message-Id: <20210512144837.896096450@linuxfoundation.org>
+Subject: [PATCH 5.12 021/677] usb: typec: tcpm: Address incorrect values of tcpm psy for pps supply
+Date:   Wed, 12 May 2021 16:41:07 +0200
+Message-Id: <20210512144837.928704952@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,74 +42,226 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Badhri Jagan Sridharan <badhri@google.com>
 
-commit f3dedafb8263ca4791a92a23f5230068f5bde008 upstream.
+commit e3a0720224873587954b55d193d5b4abb14f0443 upstream.
 
-tcpm_pd_build_request overwrites current_limit and supply_voltage
-even before port partner accepts the requests. This leaves stale
-values in current_limit and supply_voltage that get exported by
+tcpm_pd_select_pps_apdo overwrites port->pps_data.min_volt,
+port->pps_data.max_volt, port->pps_data.max_curr even before
+port partner accepts the requests. This leaves incorrect values
+in current_limit and supply_voltage that get exported by
 "tcpm-source-psy-". Solving this problem by caching the request
-values of current limit/supply voltage in req_current_limit
-and req_supply_voltage. current_limit/supply_voltage gets updated
-once the port partner accepts the request.
+values in req_min_volt, req_max_volt, req_max_curr, req_out_volt,
+req_op_curr. min_volt, max_volt, max_curr gets updated once the
+partner accepts the request. current_limit, supply_voltage gets updated
+once local port's tcpm enters SNK_TRANSITION_SINK when the accepted
+current_limit and supply_voltage is enforced.
 
 Fixes: f2a8aa053c176 ("typec: tcpm: Represent source supply through power_supply")
 Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
 Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20210407200723.1914388-1-badhri@google.com
+Link: https://lore.kernel.org/r/20210407200723.1914388-2-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |   17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c |   88 +++++++++++++++++++++++++-----------------
+ 1 file changed, 53 insertions(+), 35 deletions(-)
 
 --- a/drivers/usb/typec/tcpm/tcpm.c
 +++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -389,7 +389,10 @@ struct tcpm_port {
- 	unsigned int operating_snk_mw;
- 	bool update_sink_caps;
+@@ -268,12 +268,27 @@ struct pd_mode_data {
+ 	struct typec_altmode_desc altmode_desc[ALTMODE_DISCOVERY_MAX];
+ };
  
--	/* Requested current / voltage */
-+	/* Requested current / voltage to the port partner */
-+	u32 req_current_limit;
-+	u32 req_supply_voltage;
-+	/* Actual current / voltage limit of the local port */
- 	u32 current_limit;
- 	u32 supply_voltage;
++/*
++ * @min_volt: Actual min voltage at the local port
++ * @req_min_volt: Requested min voltage to the port partner
++ * @max_volt: Actual max voltage at the local port
++ * @req_max_volt: Requested max voltage to the port partner
++ * @max_curr: Actual max current at the local port
++ * @req_max_curr: Requested max current of the port partner
++ * @req_out_volt: Requested output voltage to the port partner
++ * @req_op_curr: Requested operating current to the port partner
++ * @supported: Parter has atleast one APDO hence supports PPS
++ * @active: PPS mode is active
++ */
+ struct pd_pps_data {
+ 	u32 min_volt;
++	u32 req_min_volt;
+ 	u32 max_volt;
++	u32 req_max_volt;
+ 	u32 max_curr;
+-	u32 out_volt;
+-	u32 op_curr;
++	u32 req_max_curr;
++	u32 req_out_volt;
++	u32 req_op_curr;
+ 	bool supported;
+ 	bool active;
+ };
+@@ -2495,8 +2510,8 @@ static void tcpm_pd_ctrl_request(struct
+ 			break;
+ 		case SNK_NEGOTIATE_PPS_CAPABILITIES:
+ 			/* Revert data back from any requested PPS updates */
+-			port->pps_data.out_volt = port->supply_voltage;
+-			port->pps_data.op_curr = port->current_limit;
++			port->pps_data.req_out_volt = port->supply_voltage;
++			port->pps_data.req_op_curr = port->current_limit;
+ 			port->pps_status = (type == PD_CTRL_WAIT ?
+ 					    -EAGAIN : -EOPNOTSUPP);
  
-@@ -2432,8 +2435,8 @@ static void tcpm_pd_ctrl_request(struct
- 		case SNK_TRANSITION_SINK:
- 			if (port->vbus_present) {
- 				tcpm_set_current_limit(port,
--						       port->current_limit,
--						       port->supply_voltage);
-+						       port->req_current_limit,
-+						       port->req_supply_voltage);
- 				port->explicit_contract = true;
- 				tcpm_set_auto_vbus_discharge_threshold(port,
- 								       TYPEC_PWR_MODE_PD,
-@@ -2542,8 +2545,8 @@ static void tcpm_pd_ctrl_request(struct
+@@ -2545,8 +2560,11 @@ static void tcpm_pd_ctrl_request(struct
  			break;
  		case SNK_NEGOTIATE_PPS_CAPABILITIES:
  			port->pps_data.active = true;
--			port->supply_voltage = port->pps_data.out_volt;
--			port->current_limit = port->pps_data.op_curr;
-+			port->req_supply_voltage = port->pps_data.out_volt;
-+			port->req_current_limit = port->pps_data.op_curr;
+-			port->req_supply_voltage = port->pps_data.out_volt;
+-			port->req_current_limit = port->pps_data.op_curr;
++			port->pps_data.min_volt = port->pps_data.req_min_volt;
++			port->pps_data.max_volt = port->pps_data.req_max_volt;
++			port->pps_data.max_curr = port->pps_data.req_max_curr;
++			port->req_supply_voltage = port->pps_data.req_out_volt;
++			port->req_current_limit = port->pps_data.req_op_curr;
  			tcpm_set_state(port, SNK_TRANSITION_SINK, 0);
  			break;
  		case SOFT_RESET_SEND:
-@@ -3192,8 +3195,8 @@ static int tcpm_pd_build_request(struct
- 			 flags & RDO_CAP_MISMATCH ? " [mismatch]" : "");
+@@ -3105,16 +3123,16 @@ static unsigned int tcpm_pd_select_pps_a
+ 		src = port->source_caps[src_pdo];
+ 		snk = port->snk_pdo[snk_pdo];
+ 
+-		port->pps_data.min_volt = max(pdo_pps_apdo_min_voltage(src),
+-					      pdo_pps_apdo_min_voltage(snk));
+-		port->pps_data.max_volt = min(pdo_pps_apdo_max_voltage(src),
+-					      pdo_pps_apdo_max_voltage(snk));
+-		port->pps_data.max_curr = min_pps_apdo_current(src, snk);
+-		port->pps_data.out_volt = min(port->pps_data.max_volt,
+-					      max(port->pps_data.min_volt,
+-						  port->pps_data.out_volt));
+-		port->pps_data.op_curr = min(port->pps_data.max_curr,
+-					     port->pps_data.op_curr);
++		port->pps_data.req_min_volt = max(pdo_pps_apdo_min_voltage(src),
++						  pdo_pps_apdo_min_voltage(snk));
++		port->pps_data.req_max_volt = min(pdo_pps_apdo_max_voltage(src),
++						  pdo_pps_apdo_max_voltage(snk));
++		port->pps_data.req_max_curr = min_pps_apdo_current(src, snk);
++		port->pps_data.req_out_volt = min(port->pps_data.max_volt,
++						  max(port->pps_data.min_volt,
++						      port->pps_data.req_out_volt));
++		port->pps_data.req_op_curr = min(port->pps_data.max_curr,
++						 port->pps_data.req_op_curr);
+ 		power_supply_changed(port->psy);
  	}
  
--	port->current_limit = ma;
--	port->supply_voltage = mv;
-+	port->req_current_limit = ma;
-+	port->req_supply_voltage = mv;
+@@ -3242,10 +3260,10 @@ static int tcpm_pd_build_pps_request(str
+ 			tcpm_log(port, "Invalid APDO selected!");
+ 			return -EINVAL;
+ 		}
+-		max_mv = port->pps_data.max_volt;
+-		max_ma = port->pps_data.max_curr;
+-		out_mv = port->pps_data.out_volt;
+-		op_ma = port->pps_data.op_curr;
++		max_mv = port->pps_data.req_max_volt;
++		max_ma = port->pps_data.req_max_curr;
++		out_mv = port->pps_data.req_out_volt;
++		op_ma = port->pps_data.req_op_curr;
+ 		break;
+ 	default:
+ 		tcpm_log(port, "Invalid PDO selected!");
+@@ -3292,8 +3310,8 @@ static int tcpm_pd_build_pps_request(str
+ 	tcpm_log(port, "Requesting APDO %d: %u mV, %u mA",
+ 		 src_pdo_index, out_mv, op_ma);
+ 
+-	port->pps_data.op_curr = op_ma;
+-	port->pps_data.out_volt = out_mv;
++	port->pps_data.req_op_curr = op_ma;
++	port->pps_data.req_out_volt = out_mv;
  
  	return 0;
  }
+@@ -5377,7 +5395,7 @@ static int tcpm_try_role(struct typec_po
+ 	return ret;
+ }
+ 
+-static int tcpm_pps_set_op_curr(struct tcpm_port *port, u16 op_curr)
++static int tcpm_pps_set_op_curr(struct tcpm_port *port, u16 req_op_curr)
+ {
+ 	unsigned int target_mw;
+ 	int ret;
+@@ -5395,12 +5413,12 @@ static int tcpm_pps_set_op_curr(struct t
+ 		goto port_unlock;
+ 	}
+ 
+-	if (op_curr > port->pps_data.max_curr) {
++	if (req_op_curr > port->pps_data.max_curr) {
+ 		ret = -EINVAL;
+ 		goto port_unlock;
+ 	}
+ 
+-	target_mw = (op_curr * port->pps_data.out_volt) / 1000;
++	target_mw = (req_op_curr * port->supply_voltage) / 1000;
+ 	if (target_mw < port->operating_snk_mw) {
+ 		ret = -EINVAL;
+ 		goto port_unlock;
+@@ -5414,10 +5432,10 @@ static int tcpm_pps_set_op_curr(struct t
+ 	}
+ 
+ 	/* Round down operating current to align with PPS valid steps */
+-	op_curr = op_curr - (op_curr % RDO_PROG_CURR_MA_STEP);
++	req_op_curr = req_op_curr - (req_op_curr % RDO_PROG_CURR_MA_STEP);
+ 
+ 	reinit_completion(&port->pps_complete);
+-	port->pps_data.op_curr = op_curr;
++	port->pps_data.req_op_curr = req_op_curr;
+ 	port->pps_status = 0;
+ 	port->pps_pending = true;
+ 	mutex_unlock(&port->lock);
+@@ -5438,7 +5456,7 @@ swap_unlock:
+ 	return ret;
+ }
+ 
+-static int tcpm_pps_set_out_volt(struct tcpm_port *port, u16 out_volt)
++static int tcpm_pps_set_out_volt(struct tcpm_port *port, u16 req_out_volt)
+ {
+ 	unsigned int target_mw;
+ 	int ret;
+@@ -5456,13 +5474,13 @@ static int tcpm_pps_set_out_volt(struct
+ 		goto port_unlock;
+ 	}
+ 
+-	if (out_volt < port->pps_data.min_volt ||
+-	    out_volt > port->pps_data.max_volt) {
++	if (req_out_volt < port->pps_data.min_volt ||
++	    req_out_volt > port->pps_data.max_volt) {
+ 		ret = -EINVAL;
+ 		goto port_unlock;
+ 	}
+ 
+-	target_mw = (port->pps_data.op_curr * out_volt) / 1000;
++	target_mw = (port->current_limit * req_out_volt) / 1000;
+ 	if (target_mw < port->operating_snk_mw) {
+ 		ret = -EINVAL;
+ 		goto port_unlock;
+@@ -5476,10 +5494,10 @@ static int tcpm_pps_set_out_volt(struct
+ 	}
+ 
+ 	/* Round down output voltage to align with PPS valid steps */
+-	out_volt = out_volt - (out_volt % RDO_PROG_VOLT_MV_STEP);
++	req_out_volt = req_out_volt - (req_out_volt % RDO_PROG_VOLT_MV_STEP);
+ 
+ 	reinit_completion(&port->pps_complete);
+-	port->pps_data.out_volt = out_volt;
++	port->pps_data.req_out_volt = req_out_volt;
+ 	port->pps_status = 0;
+ 	port->pps_pending = true;
+ 	mutex_unlock(&port->lock);
+@@ -5537,8 +5555,8 @@ static int tcpm_pps_activate(struct tcpm
+ 
+ 	/* Trigger PPS request or move back to standard PDO contract */
+ 	if (activate) {
+-		port->pps_data.out_volt = port->supply_voltage;
+-		port->pps_data.op_curr = port->current_limit;
++		port->pps_data.req_out_volt = port->supply_voltage;
++		port->pps_data.req_op_curr = port->current_limit;
+ 	}
+ 	mutex_unlock(&port->lock);
+ 
 
 
