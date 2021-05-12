@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C08737C7F6
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C26137C7FA
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbhELQDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:03:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40540 "EHLO mail.kernel.org"
+        id S237413AbhELQD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:03:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232706AbhELP5q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:57:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C973861CBE;
-        Wed, 12 May 2021 15:31:37 +0000 (UTC)
+        id S233659AbhELP5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:57:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6BFB6194B;
+        Wed, 12 May 2021 15:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833498;
-        bh=CjAvIjWk1jV8NSNK0iDJRqUcYH+6FfzMRebFifCkTYU=;
+        s=korg; t=1620833501;
+        bh=6QxE9I7ivebjt9XniBPhF6NQZgC8aEyb+4HMLyK4/2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndxUzORPUSUw3fqUcCwmKtr0pv+GZ/WOLFaR3lzrVSJhRYs5c1GqiICv+mfEE/DBV
-         oGwhMjl6cUMW4nWDZQCJWnCG5ZJj4uHv1ypxvi7iGVj3D9S2YMGJgWE8rp9MOlDDul
-         qxXiwqO4RUlxGdUfyyhZwANpEy//EuvxJV0wRtwo=
+        b=fnStcrLUdRRaekKFT3hUtwuw+lSTXW5Cjy2ZhMEhiTIh3OQk/MOfIF7s5p40Jm3cG
+         +WXxpkWOfC6fQZ5RnZpOTlBfO4ysGUTvhobaa3doGHeKCWP2CjNlUYsAh6YuBNfINt
+         3pisxH7I5cdP1HP+nj88GElnnP+Yz+I+GjpKKT4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Caron <valentin.caron@foss.st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        Nishanth Menon <nm@ti.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 172/601] ARM: dts: stm32: fix usart 2 & 3 pinconf to wake up with flow control
-Date:   Wed, 12 May 2021 16:44:09 +0200
-Message-Id: <20210512144833.506071268@linuxfoundation.org>
+Subject: [PATCH 5.11 173/601] arm64: dts: ti: k3-j721e-main: Update the speed modes supported and their itap delay values for MMCSD subsystems
+Date:   Wed, 12 May 2021 16:44:10 +0200
+Message-Id: <20210512144833.545696069@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,78 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin CARON - foss <valentin.caron@foss.st.com>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit a1429f3d3029b65cd4032f6218d5290911377ce4 ]
+[ Upstream commit eb8f6194e8074d7b00642dd75cf04d13e1b218e4 ]
 
-Modify usart 2 & 3 pins to allow wake up from low power mode while the
-hardware flow control is activated. UART RTS pin need to stay configure
-in idle mode to receive characters in order to wake up.
+According to latest errata of J721e [1], HS400 mode is not supported
+in MMCSD0 subsystem (i2024) and SDR104 mode is not supported in MMCSD1/2
+subsystems (i2090). Therefore, replace mmc-hs400-1_8v with mmc-hs200-1_8v
+in MMCSD0 subsystem and add a sdhci mask to disable SDR104 speed mode.
 
-Fixes: 842ed898a757 ("ARM: dts: stm32: add usart2, usart3 and uart7 pins in stm32mp15-pinctrl")
+Also, update the itap delay values for all the MMCSD subsystems according
+the latest J721e data sheet[2]
 
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+[1] - https://www.ti.com/lit/er/sprz455/sprz455.pdf
+[2] - https://www.ti.com/lit/ds/symlink/tda4vm.pdf
+
+Fixes: cd48ce86a4d0 ("arm64: dts: ti: k3-j721e-common-proc-board: Add support for SD card UHS modes")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://lore.kernel.org/r/20210305054104.10153-1-a-govindraju@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15-pinctrl.dtsi | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-index 20a59e8f7a33..f10a740ca3c1 100644
---- a/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15-pinctrl.dtsi
-@@ -1868,10 +1868,15 @@
- 	usart2_idle_pins_c: usart2-idle-2 {
- 		pins1 {
- 			pinmux = <STM32_PINMUX('D', 5, ANALOG)>, /* USART2_TX */
--				 <STM32_PINMUX('D', 4, ANALOG)>, /* USART2_RTS */
- 				 <STM32_PINMUX('D', 3, ANALOG)>; /* USART2_CTS_NSS */
- 		};
- 		pins2 {
-+			pinmux = <STM32_PINMUX('D', 4, AF7)>; /* USART2_RTS */
-+			bias-disable;
-+			drive-push-pull;
-+			slew-rate = <3>;
-+		};
-+		pins3 {
- 			pinmux = <STM32_PINMUX('D', 6, AF7)>; /* USART2_RX */
- 			bias-disable;
- 		};
-@@ -1917,10 +1922,15 @@
- 	usart3_idle_pins_b: usart3-idle-1 {
- 		pins1 {
- 			pinmux = <STM32_PINMUX('B', 10, ANALOG)>, /* USART3_TX */
--				 <STM32_PINMUX('G', 8, ANALOG)>, /* USART3_RTS */
- 				 <STM32_PINMUX('I', 10, ANALOG)>; /* USART3_CTS_NSS */
- 		};
- 		pins2 {
-+			pinmux = <STM32_PINMUX('G', 8, AF8)>; /* USART3_RTS */
-+			bias-disable;
-+			drive-push-pull;
-+			slew-rate = <0>;
-+		};
-+		pins3 {
- 			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
- 			bias-disable;
- 		};
-@@ -1953,10 +1963,15 @@
- 	usart3_idle_pins_c: usart3-idle-2 {
- 		pins1 {
- 			pinmux = <STM32_PINMUX('B', 10, ANALOG)>, /* USART3_TX */
--				 <STM32_PINMUX('G', 8, ANALOG)>, /* USART3_RTS */
- 				 <STM32_PINMUX('B', 13, ANALOG)>; /* USART3_CTS_NSS */
- 		};
- 		pins2 {
-+			pinmux = <STM32_PINMUX('G', 8, AF8)>; /* USART3_RTS */
-+			bias-disable;
-+			drive-push-pull;
-+			slew-rate = <0>;
-+		};
-+		pins3 {
- 			pinmux = <STM32_PINMUX('B', 12, AF8)>; /* USART3_RX */
- 			bias-disable;
- 		};
+diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
+index b32df591c766..91802e1502dd 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
+@@ -1078,13 +1078,16 @@
+ 		assigned-clocks = <&k3_clks 91 1>;
+ 		assigned-clock-parents = <&k3_clks 91 2>;
+ 		bus-width = <8>;
+-		mmc-hs400-1_8v;
++		mmc-hs200-1_8v;
+ 		mmc-ddr-1_8v;
+ 		ti,otap-del-sel-legacy = <0xf>;
+ 		ti,otap-del-sel-mmc-hs = <0xf>;
+ 		ti,otap-del-sel-ddr52 = <0x5>;
+ 		ti,otap-del-sel-hs200 = <0x6>;
+ 		ti,otap-del-sel-hs400 = <0x0>;
++		ti,itap-del-sel-legacy = <0x10>;
++		ti,itap-del-sel-mmc-hs = <0xa>;
++		ti,itap-del-sel-ddr52 = <0x3>;
+ 		ti,trm-icp = <0x8>;
+ 		ti,strobe-sel = <0x77>;
+ 		dma-coherent;
+@@ -1105,9 +1108,15 @@
+ 		ti,otap-del-sel-sdr25 = <0xf>;
+ 		ti,otap-del-sel-sdr50 = <0xc>;
+ 		ti,otap-del-sel-ddr50 = <0xc>;
++		ti,itap-del-sel-legacy = <0x0>;
++		ti,itap-del-sel-sd-hs = <0x0>;
++		ti,itap-del-sel-sdr12 = <0x0>;
++		ti,itap-del-sel-sdr25 = <0x0>;
++		ti,itap-del-sel-ddr50 = <0x2>;
+ 		ti,trm-icp = <0x8>;
+ 		ti,clkbuf-sel = <0x7>;
+ 		dma-coherent;
++		sdhci-caps-mask = <0x2 0x0>;
+ 	};
+ 
+ 	main_sdhci2: sdhci@4f98000 {
+@@ -1125,9 +1134,15 @@
+ 		ti,otap-del-sel-sdr25 = <0xf>;
+ 		ti,otap-del-sel-sdr50 = <0xc>;
+ 		ti,otap-del-sel-ddr50 = <0xc>;
++		ti,itap-del-sel-legacy = <0x0>;
++		ti,itap-del-sel-sd-hs = <0x0>;
++		ti,itap-del-sel-sdr12 = <0x0>;
++		ti,itap-del-sel-sdr25 = <0x0>;
++		ti,itap-del-sel-ddr50 = <0x2>;
+ 		ti,trm-icp = <0x8>;
+ 		ti,clkbuf-sel = <0x7>;
+ 		dma-coherent;
++		sdhci-caps-mask = <0x2 0x0>;
+ 	};
+ 
+ 	usbss0: cdns-usb@4104000 {
 -- 
 2.30.2
 
