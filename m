@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25DF137C8D4
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 556E737C8D3
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235323AbhELQNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:13:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
+        id S235259AbhELQNK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:13:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239165AbhELQHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC10161C46;
-        Wed, 12 May 2021 15:36:35 +0000 (UTC)
+        id S239170AbhELQHd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BABC961C45;
+        Wed, 12 May 2021 15:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833796;
-        bh=sAX8Qj28y672B6LgOjOJXG8TU8kiOFn5cx4W3WgI0ro=;
+        s=korg; t=1620833799;
+        bh=XZ4TaPHj27w0Zf2j9AhPFIRiGPgBYfqNZY3F62OMszI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2vKZ2FTjSqQj3evthS8ehvTH5n6rHrh//ZowMwGh0gjEYWzrhLWND+ZKMvGvwBhz
-         U8ovtfxKLut468fc69OqIlYWczV03U6LJj15CrmTcggL9rhtDaBdXruN97hkejUtcU
-         zTafWsh6mzVeKO0ZTgKitxP0+/SOX6KmJNjAYO/k=
+        b=UsyozrlPeR+1ZzO59VfjyeMA+qPzyKQ4g8xRUbis7GpVvWmtsQ9G3GWXj8w8Gq/K1
+         0DLVVRKsj0eY/KltOiR7H0v2CAiYu9xAucS8whd8Qhx/8bg/eInYvyAJGmcgkc1mc8
+         hHpoplg6ivQ+MCAUV6/5cR/HjiulpBgWqk75PQdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Corentin Labbe <clabbe.montjoie@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 257/601] crypto: allwinner - add missing CRYPTO_ prefix
-Date:   Wed, 12 May 2021 16:45:34 +0200
-Message-Id: <20210512144836.290046767@linuxfoundation.org>
+Subject: [PATCH 5.11 258/601] crypto: sun8i-ss - Fix memory leak of pad
+Date:   Wed, 12 May 2021 16:45:35 +0200
+Message-Id: <20210512144836.320313509@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,53 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit ac1af1a788b2002eb9d6f5ca6054517ad27f1930 ]
+[ Upstream commit 50274b01ac1689b1a3f6bc4b5b3dbf361a55dd3a ]
 
-Some CONFIG select miss CRYPTO_.
+It appears there are several failure return paths that don't seem
+to be free'ing pad. Fix these.
 
-Reported-by: Chen-Yu Tsai <wens@csie.org>
-Fixes: 56f6d5aee88d1 ("crypto: sun8i-ce - support hash algorithms")
-Fixes: d9b45418a9177 ("crypto: sun8i-ss - support hash algorithms")
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Addresses-Coverity: ("Resource leak")
+Fixes: d9b45418a917 ("crypto: sun8i-ss - support hash algorithms")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/allwinner/Kconfig | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/allwinner/Kconfig b/drivers/crypto/allwinner/Kconfig
-index 180c8a9db819..02e6855a6ed7 100644
---- a/drivers/crypto/allwinner/Kconfig
-+++ b/drivers/crypto/allwinner/Kconfig
-@@ -62,10 +62,10 @@ config CRYPTO_DEV_SUN8I_CE_DEBUG
- config CRYPTO_DEV_SUN8I_CE_HASH
- 	bool "Enable support for hash on sun8i-ce"
- 	depends on CRYPTO_DEV_SUN8I_CE
--	select MD5
--	select SHA1
--	select SHA256
--	select SHA512
-+	select CRYPTO_MD5
-+	select CRYPTO_SHA1
-+	select CRYPTO_SHA256
-+	select CRYPTO_SHA512
- 	help
- 	  Say y to enable support for hash algorithms.
+diff --git a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+index 0b9aa24a5edd..64446b86c927 100644
+--- a/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
++++ b/drivers/crypto/allwinner/sun8i-ss/sun8i-ss-hash.c
+@@ -348,8 +348,10 @@ int sun8i_ss_hash_run(struct crypto_engine *engine, void *breq)
+ 	bf = (__le32 *)pad;
  
-@@ -123,8 +123,8 @@ config CRYPTO_DEV_SUN8I_SS_PRNG
- config CRYPTO_DEV_SUN8I_SS_HASH
- 	bool "Enable support for hash on sun8i-ss"
- 	depends on CRYPTO_DEV_SUN8I_SS
--	select MD5
--	select SHA1
--	select SHA256
-+	select CRYPTO_MD5
-+	select CRYPTO_SHA1
-+	select CRYPTO_SHA256
- 	help
- 	  Say y to enable support for hash algorithms.
+ 	result = kzalloc(digestsize, GFP_KERNEL | GFP_DMA);
+-	if (!result)
++	if (!result) {
++		kfree(pad);
+ 		return -ENOMEM;
++	}
+ 
+ 	for (i = 0; i < MAX_SG; i++) {
+ 		rctx->t_dst[i].addr = 0;
+@@ -435,10 +437,9 @@ int sun8i_ss_hash_run(struct crypto_engine *engine, void *breq)
+ 	dma_unmap_sg(ss->dev, areq->src, nr_sgs, DMA_TO_DEVICE);
+ 	dma_unmap_single(ss->dev, addr_res, digestsize, DMA_FROM_DEVICE);
+ 
+-	kfree(pad);
+-
+ 	memcpy(areq->result, result, algt->alg.hash.halg.digestsize);
+ theend:
++	kfree(pad);
+ 	kfree(result);
+ 	crypto_finalize_hash_request(engine, breq, err);
+ 	return 0;
 -- 
 2.30.2
 
