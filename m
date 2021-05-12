@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D907537CA01
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:52:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9F4837C9D5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237018AbhELQYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:24:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58050 "EHLO mail.kernel.org"
+        id S236638AbhELQW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:22:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240126AbhELQRO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:17:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE6FE61C7E;
-        Wed, 12 May 2021 15:43:21 +0000 (UTC)
+        id S240361AbhELQRz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:17:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 902CC61D6F;
+        Wed, 12 May 2021 15:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834202;
-        bh=/KxQ6l34LVY5e9xrrsw9nn+mBVdI45Q7yJKb8+S8w7A=;
+        s=korg; t=1620834229;
+        bh=DyA1/13/QH5lCGm3bqgdDbqknGyK0KhKChHWaxpj4V0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3Fgh5c0n/O42V/zWgU0yiaO3nEt8R7yJ/CpBHtlasNZtaUOs5kTDE7CJSJ7seX/6
-         b8d9jc41wEgZeM+Djo8hPIocRZXGITqAWhc0MW1xPHQAaN1C69J3lcnrzI4dyJJ+gk
-         p1bTZkkSsDy3I4Bt0cv5kbgW0vBe58sfGWKzp9XM=
+        b=DaZrPts07c8DymFlIR633+Gyaf10lL8D82wNpD6AgTZWVQvMk6l9mFWxYGIp+XyS/
+         VAUuwf6SOwTsd2gPIpR6iaBFl9o0NOY4o3CAHjE5DzzSRElxPzEy+FyDtLNWXgWHIP
+         hYHUTuD+urg2H4mSuP34umhiTm11rjOTmLxDXoIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 442/601] iommu/vt-d: Invalidate PASID cache when root/context entry changed
-Date:   Wed, 12 May 2021 16:48:39 +0200
-Message-Id: <20210512144842.403119073@linuxfoundation.org>
+        stable@vger.kernel.org,
+        coverity-bot <keescook+coverity-bot@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 443/601] ALSA: usb-audio: Add error checks for usb_driver_claim_interface() calls
+Date:   Wed, 12 May 2021 16:48:40 +0200
+Message-Id: <20210512144842.434201988@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,96 +40,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c0474a606ecb9326227b4d68059942f9db88a897 ]
+[ Upstream commit 5fb45414ae03421255593fd5556aa2d1d82303aa ]
 
-When the Intel IOMMU is operating in the scalable mode, some information
-from the root and context table may be used to tag entries in the PASID
-cache. Software should invalidate the PASID-cache when changing root or
-context table entries.
+There are a few calls of usb_driver_claim_interface() but all of those
+miss the proper error checks, as reported by Coverity.  This patch
+adds those missing checks.
 
-Suggested-by: Ashok Raj <ashok.raj@intel.com>
-Fixes: 7373a8cc38197 ("iommu/vt-d: Setup context and enable RID2PASID support")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210320025415.641201-4-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Along with it, replace the magic pointer with -1 with a constant
+USB_AUDIO_IFACE_UNUSED for better readability.
+
+Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+Addresses-Coverity-ID: 1475943 ("Error handling issues")
+Addresses-Coverity-ID: 1475944 ("Error handling issues")
+Addresses-Coverity-ID: 1475945 ("Error handling issues")
+Fixes: b1ce7ba619d9 ("ALSA: usb-audio: claim autodetected PCM interfaces all at once")
+Fixes: e5779998bf8b ("ALSA: usb-audio: refactor code")
+Link: https://lore.kernel.org/r/202104051059.FB7F3016@keescook
+Link: https://lore.kernel.org/r/20210406113534.30455-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 18 +++++++++---------
- include/linux/intel-iommu.h |  1 +
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ sound/usb/card.c     | 14 +++++++-------
+ sound/usb/quirks.c   | 16 ++++++++++++----
+ sound/usb/usbaudio.h |  2 ++
+ 3 files changed, 21 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 82300b0d3074..93f17a8a42e2 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -1336,6 +1336,11 @@ static void iommu_set_root_entry(struct intel_iommu *iommu)
- 		      readl, (sts & DMA_GSTS_RTPS), sts);
- 
- 	raw_spin_unlock_irqrestore(&iommu->register_lock, flag);
-+
-+	iommu->flush.flush_context(iommu, 0, 0, 0, DMA_CCMD_GLOBAL_INVL);
-+	if (sm_supported(iommu))
-+		qi_flush_pasid_cache(iommu, 0, QI_PC_GLOBAL, 0);
-+	iommu->flush.flush_iotlb(iommu, 0, 0, 0, DMA_TLB_GLOBAL_FLUSH);
- }
- 
- void iommu_flush_write_buffer(struct intel_iommu *iommu)
-@@ -2481,6 +2486,10 @@ static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn
- 				   (((u16)bus) << 8) | devfn,
- 				   DMA_CCMD_MASK_NOBIT,
- 				   DMA_CCMD_DEVICE_INVL);
-+
-+	if (sm_supported(iommu))
-+		qi_flush_pasid_cache(iommu, did_old, QI_PC_ALL_PASIDS, 0);
-+
- 	iommu->flush.flush_iotlb(iommu,
- 				 did_old,
- 				 0,
-@@ -3325,8 +3334,6 @@ static int __init init_dmars(void)
- 		register_pasid_allocator(iommu);
- #endif
- 		iommu_set_root_entry(iommu);
--		iommu->flush.flush_context(iommu, 0, 0, 0, DMA_CCMD_GLOBAL_INVL);
--		iommu->flush.flush_iotlb(iommu, 0, 0, 0, DMA_TLB_GLOBAL_FLUSH);
- 	}
- 
- #ifdef CONFIG_INTEL_IOMMU_BROKEN_GFX_WA
-@@ -3516,12 +3523,7 @@ static int init_iommu_hw(void)
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index 3007922a8ed8..eb8284b44f72 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -183,9 +183,8 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
+ 				ctrlif, interface);
+ 			return -EINVAL;
  		}
- 
- 		iommu_flush_write_buffer(iommu);
+-		usb_driver_claim_interface(&usb_audio_driver, iface, (void *)-1L);
 -
- 		iommu_set_root_entry(iommu);
--
--		iommu->flush.flush_context(iommu, 0, 0, 0,
--					   DMA_CCMD_GLOBAL_INVL);
--		iommu->flush.flush_iotlb(iommu, 0, 0, 0, DMA_TLB_GLOBAL_FLUSH);
- 		iommu_enable_translation(iommu);
- 		iommu_disable_protect_mem_regions(iommu);
+-		return 0;
++		return usb_driver_claim_interface(&usb_audio_driver, iface,
++						  USB_AUDIO_IFACE_UNUSED);
  	}
-@@ -3849,8 +3851,6 @@ static int intel_iommu_add(struct dmar_drhd_unit *dmaru)
- 		goto disable_iommu;
  
- 	iommu_set_root_entry(iommu);
--	iommu->flush.flush_context(iommu, 0, 0, 0, DMA_CCMD_GLOBAL_INVL);
--	iommu->flush.flush_iotlb(iommu, 0, 0, 0, DMA_TLB_GLOBAL_FLUSH);
- 	iommu_enable_translation(iommu);
+ 	if ((altsd->bInterfaceClass != USB_CLASS_AUDIO &&
+@@ -205,7 +204,8 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
  
- 	iommu_disable_protect_mem_regions(iommu);
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index ecb35fdff03e..ce30ea103b8d 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -369,6 +369,7 @@ enum {
- /* PASID cache invalidation granu */
- #define QI_PC_ALL_PASIDS	0
- #define QI_PC_PASID_SEL		1
-+#define QI_PC_GLOBAL		3
+ 	if (! snd_usb_parse_audio_interface(chip, interface)) {
+ 		usb_set_interface(dev, interface, 0); /* reset the current interface */
+-		usb_driver_claim_interface(&usb_audio_driver, iface, (void *)-1L);
++		return usb_driver_claim_interface(&usb_audio_driver, iface,
++						  USB_AUDIO_IFACE_UNUSED);
+ 	}
  
- #define QI_EIOTLB_ADDR(addr)	((u64)(addr) & VTD_PAGE_MASK)
- #define QI_EIOTLB_IH(ih)	(((u64)ih) << 6)
+ 	return 0;
+@@ -865,7 +865,7 @@ static void usb_audio_disconnect(struct usb_interface *intf)
+ 	struct snd_card *card;
+ 	struct list_head *p;
+ 
+-	if (chip == (void *)-1L)
++	if (chip == USB_AUDIO_IFACE_UNUSED)
+ 		return;
+ 
+ 	card = chip->card;
+@@ -995,7 +995,7 @@ static int usb_audio_suspend(struct usb_interface *intf, pm_message_t message)
+ 	struct usb_mixer_interface *mixer;
+ 	struct list_head *p;
+ 
+-	if (chip == (void *)-1L)
++	if (chip == USB_AUDIO_IFACE_UNUSED)
+ 		return 0;
+ 
+ 	if (!chip->num_suspended_intf++) {
+@@ -1025,7 +1025,7 @@ static int __usb_audio_resume(struct usb_interface *intf, bool reset_resume)
+ 	struct list_head *p;
+ 	int err = 0;
+ 
+-	if (chip == (void *)-1L)
++	if (chip == USB_AUDIO_IFACE_UNUSED)
+ 		return 0;
+ 
+ 	atomic_inc(&chip->active); /* avoid autopm */
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 176437a441e6..7c6e83eee71d 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -55,8 +55,12 @@ static int create_composite_quirk(struct snd_usb_audio *chip,
+ 		if (!iface)
+ 			continue;
+ 		if (quirk->ifnum != probed_ifnum &&
+-		    !usb_interface_claimed(iface))
+-			usb_driver_claim_interface(driver, iface, (void *)-1L);
++		    !usb_interface_claimed(iface)) {
++			err = usb_driver_claim_interface(driver, iface,
++							 USB_AUDIO_IFACE_UNUSED);
++			if (err < 0)
++				return err;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -426,8 +430,12 @@ static int create_autodetect_quirks(struct snd_usb_audio *chip,
+ 			continue;
+ 
+ 		err = create_autodetect_quirk(chip, iface, driver);
+-		if (err >= 0)
+-			usb_driver_claim_interface(driver, iface, (void *)-1L);
++		if (err >= 0) {
++			err = usb_driver_claim_interface(driver, iface,
++							 USB_AUDIO_IFACE_UNUSED);
++			if (err < 0)
++				return err;
++		}
+ 	}
+ 
+ 	return 0;
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index 60b9dd7df6bb..8794c8658ab9 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -61,6 +61,8 @@ struct snd_usb_audio {
+ 	struct media_intf_devnode *ctl_intf_media_devnode;
+ };
+ 
++#define USB_AUDIO_IFACE_UNUSED	((void *)-1L)
++
+ #define usb_audio_err(chip, fmt, args...) \
+ 	dev_err(&(chip)->dev->dev, fmt, ##args)
+ #define usb_audio_warn(chip, fmt, args...) \
 -- 
 2.30.2
 
