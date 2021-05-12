@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 860C137C273
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CE137C275
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232915AbhELPKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:10:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
+        id S233009AbhELPKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:10:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233310AbhELPIU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:08:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A7761480;
-        Wed, 12 May 2021 15:01:48 +0000 (UTC)
+        id S233313AbhELPIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:08:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 370A3613DA;
+        Wed, 12 May 2021 15:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831709;
-        bh=odQNHGGWOzWg3ByobigY1z/qy6Xiyszc18j4BnZnFMk=;
+        s=korg; t=1620831711;
+        bh=nCsTnRZ7xk8O3YzpwcXbOus5TSkKf1zqHQxlE2U9JuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4x+uRUdLlrdyL2qLL/JO5Ua6Gw8K8RTHTRS+VBGY/CMU6DvnYLz8JlG5TUzYiQ+B
-         Q+IG6AFia5Esqv8yjsvfFwBJ37vvzOvOVvhAemLpL725DjuWssGNYHOzVv6B/orHfF
-         n76oxbk6m8kaLgGD9pb6tbA7Pu7BcYDwdfBRc7Aw=
+        b=UpX8iJ/gVnESdoG9T6WS7fneD/tIsEZijd97nf2WU1AWqL3elJEPHYaPgi3eFrSq2
+         KRvE78y9uDXBSagQWLlGDTR1R4tQOw81aUxuMb/ZizsGtpWTx8A24htpq74wNFA9ZH
+         iHn5KY3hmO5McLSWAj2o6CEto1finUUV1D8++AYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Phillip Potter <phil@philpotter.co.uk>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 227/244] arm64: dts: uniphier: Change phy-mode to RGMII-ID to enable delay pins for RTL8211E
-Date:   Wed, 12 May 2021 16:49:58 +0200
-Message-Id: <20210512144750.271146714@linuxfoundation.org>
+Subject: [PATCH 5.4 228/244] net: geneve: modify IP header check in geneve6_xmit_skb and geneve_xmit_skb
+Date:   Wed, 12 May 2021 16:49:59 +0200
+Message-Id: <20210512144750.302405027@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -41,63 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-[ Upstream commit dcabb06bf127b3e0d3fbc94a2b65dd56c2725851 ]
+[ Upstream commit d13f048dd40e8577260cd43faea8ec9b77520197 ]
 
-UniPhier LD20 and PXs3 boards have RTL8211E ethernet phy, and the phy have
-the RX/TX delays of RGMII interface using pull-ups on the RXDLY and TXDLY
-pins.
+Modify the header size check in geneve6_xmit_skb and geneve_xmit_skb
+to use pskb_inet_may_pull rather than pskb_network_may_pull. This fixes
+two kernel selftest failures introduced by the commit introducing the
+checks:
+IPv4 over geneve6: PMTU exceptions
+IPv4 over geneve6: PMTU exceptions - nexthop objects
 
-After the commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx
-delay config"), the delays are working correctly, however, "rgmii" means
-no delay and the phy doesn't work. So need to set the phy-mode to
-"rgmii-id" to show that RX/TX delays are enabled.
+It does this by correctly accounting for the fact that IPv4 packets may
+transit over geneve IPv6 tunnels (and vice versa), and still fixes the
+uninit-value bug fixed by the original commit.
 
-Fixes: c73730ee4c9a ("arm64: dts: uniphier: add AVE ethernet node")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Fixes: 6628ddfec758 ("net: geneve: check skb is large enough for IPv4/IPv6 header")
+Suggested-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Acked-by: Sabrina Dubroca <sd@queasysnail.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi | 2 +-
- arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/geneve.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi b/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
-index b658f2b641e2..3348a32f7d0b 100644
---- a/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
-+++ b/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
-@@ -718,7 +718,7 @@
- 			clocks = <&sys_clk 6>;
- 			reset-names = "ether";
- 			resets = <&sys_rst 6>;
--			phy-mode = "rgmii";
-+			phy-mode = "rgmii-id";
- 			local-mac-address = [00 00 00 00 00 00];
- 			socionext,syscon-phy-mode = <&soc_glue 0>;
+diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
+index c33a08d65208..84f5717c01e2 100644
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -891,7 +891,7 @@ static int geneve_xmit_skb(struct sk_buff *skb, struct net_device *dev,
+ 	__be16 sport;
+ 	int err;
  
-diff --git a/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi b/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi
-index d6f6cee4d549..6537c69de3dd 100644
---- a/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi
-+++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi
-@@ -509,7 +509,7 @@
- 			clocks = <&sys_clk 6>;
- 			reset-names = "ether";
- 			resets = <&sys_rst 6>;
--			phy-mode = "rgmii";
-+			phy-mode = "rgmii-id";
- 			local-mac-address = [00 00 00 00 00 00];
- 			socionext,syscon-phy-mode = <&soc_glue 0>;
+-	if (!pskb_network_may_pull(skb, sizeof(struct iphdr)))
++	if (!pskb_inet_may_pull(skb))
+ 		return -EINVAL;
  
-@@ -530,7 +530,7 @@
- 			clocks = <&sys_clk 7>;
- 			reset-names = "ether";
- 			resets = <&sys_rst 7>;
--			phy-mode = "rgmii";
-+			phy-mode = "rgmii-id";
- 			local-mac-address = [00 00 00 00 00 00];
- 			socionext,syscon-phy-mode = <&soc_glue 1>;
+ 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+@@ -957,7 +957,7 @@ static int geneve6_xmit_skb(struct sk_buff *skb, struct net_device *dev,
+ 	__be16 sport;
+ 	int err;
  
+-	if (!pskb_network_may_pull(skb, sizeof(struct ipv6hdr)))
++	if (!pskb_inet_may_pull(skb))
+ 		return -EINVAL;
+ 
+ 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
 -- 
 2.30.2
 
