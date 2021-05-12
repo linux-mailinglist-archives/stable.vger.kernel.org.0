@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3556E37BB1E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:44:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F060337BB1F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbhELKph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:45:37 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:47739 "EHLO
+        id S230202AbhELKpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:45:40 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:39231 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230154AbhELKph (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:45:37 -0400
+        by vger.kernel.org with ESMTP id S230154AbhELKpj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:45:39 -0400
 Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.west.internal (Postfix) with ESMTP id C64FF1298;
-        Wed, 12 May 2021 06:44:28 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Wed, 12 May 2021 06:44:29 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 5B71FE89;
+        Wed, 12 May 2021 06:44:31 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Wed, 12 May 2021 06:44:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IeuOtI
-        2Ku1MNecGXj+tdxsJwlWbDTh25NL/NfaeS+7s=; b=hkWewdw2CUEpaMaBIlda2t
-        bPhaGm8BNgqK1lzjD9HKtq9LGtXtpmaFngSiRQepnXTIzYngYwmC89Q8pOpHTXR1
-        EqGl77b6U0N3ZBTD3Khps22lCIrsYtLbybgwza3ZVVeGqapwGwrtp/kPiIWYYDU1
-        AIRzT+5RpGUVdxqc/tZW49nuX6xmCOB5oxLF8YMb0lkGB6W/jHqXJPFjUpT217bV
-        86Z6KYGPAv6Y5bp90UiNIIiNUZNmOkOPt3kbLJq/uk5cHateG+bHgvaOZGt8Kk4c
-        pyKPteAX3f07fcQivQQScVXGEIXlTjub377BX2DnbbRuaOLqeBSDV8MaTnEKtWmQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=NGR84f
+        FyvpnYQI8qN8j0U0SPrSwDj7W7skLXsdbG/EI=; b=ZKFw+IAgzbvk4ZGXSe6CNa
+        AoHZVNY5beE3PfH7qSK8ZiHfSU7UWrpFnbjSuj6xQGMcDbOWXhQP60K3kl3rRtvt
+        OfKDhj4vZ+ZU+D1i0nTANCgkRf5CuqgDxZxwbx6vwSiHyyklEXml3xhM7p2lwNhy
+        XsRAVJBJDQrDYgvtkmGl32Xmj1E/hLDUbTIrT2FVxc00uTqKsRkWlCK+sr54xzV5
+        AP+AR1LFE1V/Z/FA58slc8cqug4cq+3muxYjZtmPNMl0eOos1xxz3XhenzDQgXnU
+        jmSOVLAC14YjyYG8t0zhKEQu7pGWJ6gWmQeBhlvEcd1kUTsbP3PR8utXTcu0xGsw
         ==
-X-ME-Sender: <xms:jLGbYLZv3hT2kOU2jfv3ftVsQdR2WgkIzGh2bBqiQLBaes7P7Fe4xQ>
-    <xme:jLGbYKYw0dKChUE4UKquFHAmPQkHRZZan72ghZQ_37Cvdqb-ZN_5aJq5hC2HjoaQw
-    x1-3ylIR0vuWw>
+X-ME-Sender: <xms:jrGbYCHBy6KHZkjcc2b-JrIrwbcPfVJMjpef4SCSG5_Fn6zoXxMi4g>
+    <xme:jrGbYDX9plCFNsC3UFE3O6rURJWS_a1RTiBkkBOFmFg5zgMj5KCVFMiJIzqDdlNU7
+    J6uVYga_1MTng>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdelucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:jLGbYN8yL3lKYV6CrsMs8FGq4L_tv6AReKnmFIUcUUVBgXPKT6SoPg>
-    <xmx:jLGbYBpvRI0yX9NqC0Yb-L_7l5_6bqdmtcRBMZODphcpMM2cMYpE2w>
-    <xmx:jLGbYGpuMNZOW8U4lMT7NF5n3Onmk_tM1RSWKM5S1QWqM4paSP8SEw>
-    <xmx:jLGbYNQsNvPas2Bt4SakvULA52arXeJ6f7kjTOJ3GPpcDdd5MlWJR4wiIsc>
+X-ME-Proxy: <xmx:jrGbYMLF07h6F-kD9U5WklwE8g4gRnuTXNPVsyums0dcEsalJ9d54g>
+    <xmx:jrGbYMHrksUwHWbOsxuHWiRdhqfJiDzR3kGJhLzaRMe5RxC6VY9SOg>
+    <xmx:jrGbYIWLjQ8Mb3PTxW-jaNMNiI2CBsIOXOOUUyMeq13vbuO5NEajkg>
+    <xmx:jrGbYBcZd5YwgfFzx72oGzETnvfcGTa90H6PZDmgUJ-X7hogI4o6G9avVr0>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:44:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: SVM: Use default rAX size for INVLPGA emulation" failed to apply to 5.11-stable tree
+        Wed, 12 May 2021 06:44:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: SVM: Use default rAX size for INVLPGA emulation" failed to apply to 5.12-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 12:44:07 +0200
-Message-ID: <1620816247219136@kroah.com>
+Date:   Wed, 12 May 2021 12:44:08 +0200
+Message-ID: <1620816248204205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
