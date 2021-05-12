@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A0A37C688
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60BA337C68C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234751AbhELPwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:52:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46968 "EHLO mail.kernel.org"
+        id S230505AbhELPwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237019AbhELPrw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:47:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2108F61CAA;
-        Wed, 12 May 2021 15:24:21 +0000 (UTC)
+        id S237028AbhELPrx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:47:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8940A61CAB;
+        Wed, 12 May 2021 15:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833062;
-        bh=9dmZQrImYcZsKrVCViSKcFvj9lX+tG6E4/q/mPghuAc=;
+        s=korg; t=1620833065;
+        bh=FNpzwkVIAE7Nv7rJBYCN/NnDjABYNXOuylGnDs2pnds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lBcMei9kcuqd/zZr/vEmn3zJi+IAmV0rLG/c8IWYDNwISmsINUv6DC6cW4ir36sAr
-         C37cjnVbINOIO9J5ZIXWn4bHZUq75IOHD5gQ0RmuDeMrWIu/L1ZzytQ0QMbEpuFA5x
-         o2Qc7bikEy0cf+3xirpBBX5y5ZUUxaseva7ZdEdE=
+        b=NrgRkAYma7NS7xWCztq8luXsMbGiFlfQhSnzzQfE3WkYRB6T0MctjYTLUnR04o+In
+         48tIaIeUnrAeBApbPhOVhsKUAnPGEoaC3gforGbgzc8JU96Bq2DNv4sxE2/DYFubSd
+         J1umaT4EGtbpyxl2aVUhrsemuleDfhyGlEhNNjy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Wensheng <wangwensheng4@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Pavel Tatashin <pasha.tatashin@oracle.com>,
+        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Dave Jiang <dave.jiang@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 520/530] mm/sparse: add the missing sparse_buffer_fini() in error branch
-Date:   Wed, 12 May 2021 16:50:30 +0200
-Message-Id: <20210512144836.843187403@linuxfoundation.org>
+Subject: [PATCH 5.10 521/530] mm/memory-failure: unnecessary amount of unmapping
+Date:   Wed, 12 May 2021 16:50:31 +0200
+Message-Id: <20210512144836.876077682@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -44,40 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Jane Chu <jane.chu@oracle.com>
 
-[ Upstream commit 2284f47fe9fe2ed2ef619e5474e155cfeeebd569 ]
+[ Upstream commit 4d75136be8bf3ae01b0bc3e725b2cdc921e103bd ]
 
-sparse_buffer_init() and sparse_buffer_fini() should appear in pair, or a
-WARN issue would be through the next time sparse_buffer_init() runs.
+It appears that unmap_mapping_range() actually takes a 'size' as its third
+argument rather than a location, the current calling fashion causes
+unnecessary amount of unmapping to occur.
 
-Add the missing sparse_buffer_fini() in error branch.
-
-Link: https://lkml.kernel.org/r/20210325113155.118574-1-wangwensheng4@huawei.com
-Fixes: 85c77f791390 ("mm/sparse: add new sparse_init_nid() and sparse_init()")
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
+Link: https://lkml.kernel.org/r/20210420002821.2749748-1-jane.chu@oracle.com
+Fixes: 6100e34b2526e ("mm, memory_failure: Teach memory_failure() about dev_pagemap pages")
+Signed-off-by: Jane Chu <jane.chu@oracle.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/sparse.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/memory-failure.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/sparse.c b/mm/sparse.c
-index 7bd23f9d6cef..33406ea2ecc4 100644
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -547,6 +547,7 @@ static void __init sparse_init_nid(int nid, unsigned long pnum_begin,
- 			pr_err("%s: node[%d] memory map backing failed. Some memory will not be available.",
- 			       __func__, nid);
- 			pnum_begin = pnum;
-+			sparse_buffer_fini();
- 			goto failed;
- 		}
- 		check_usemap_section_nr(nid, usage);
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 570a20b42561..2d7a667f8e60 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1293,7 +1293,7 @@ static int memory_failure_dev_pagemap(unsigned long pfn, int flags,
+ 		 * communicated in siginfo, see kill_proc()
+ 		 */
+ 		start = (page->index << PAGE_SHIFT) & ~(size - 1);
+-		unmap_mapping_range(page->mapping, start, start + size, 0);
++		unmap_mapping_range(page->mapping, start, size, 0);
+ 	}
+ 	kill_procs(&tokill, flags & MF_MUST_KILL, !unmap_success, pfn, flags);
+ 	rc = 0;
 -- 
 2.30.2
 
