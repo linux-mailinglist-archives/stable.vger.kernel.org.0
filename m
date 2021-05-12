@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 096EE37C5B4
+	by mail.lfdr.de (Postfix) with ESMTP id 9A71437C5B6
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233540AbhELPm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:42:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
+        id S231189AbhELPmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236366AbhELPhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236367AbhELPhs (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:37:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D371E61434;
-        Wed, 12 May 2021 15:19:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 480AC6195D;
+        Wed, 12 May 2021 15:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832766;
-        bh=HgqXBi1wyN4oq7bwtSWQnfqnd6UJX9g2dnV9cnN8wI0=;
+        s=korg; t=1620832768;
+        bh=vaslTFktHjaLNJKO/q6udiirsV+3UBe5GsYIus6O7LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqvAF74W6O0n/e3EaLCOzdIX1JVWuWusxvMGEM051WfRPhEtV4NqCrUOjWORtaOG7
-         pd5kpdPwHWkl3SgI7SJ7HeOGbfz3opJhi0/I2VSWuG/OTzXOSMlSoVeX1yGfK3NuR+
-         gkKIhphyr066YoRKEfUS+T65GDFCF2VMLcJSH370=
+        b=LM48kMflpW7X68R0UjG+8rJGxS9ZPf9z+KXTH8aqKTa2CHEDIlEOlVcE6vNFO3x9M
+         r2Hk7jNB2ps8lzElZvWEAgfmjto2dv+Ma5+d1vADBzzJb0YK9/NZvSzduzB+AH1+2v
+         uUUwBFYy/nsNOFDBDLwsduYGPFMW923vTHZLiHJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 415/530] mt76: mt7615: fix mib stats counter reporting to mac80211
-Date:   Wed, 12 May 2021 16:48:45 +0200
-Message-Id: <20210512144833.409694850@linuxfoundation.org>
+Subject: [PATCH 5.10 416/530] mt76: mt7915: fix mib stats counter reporting to mac80211
+Date:   Wed, 12 May 2021 16:48:46 +0200
+Message-Id: <20210512144833.441263841@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,31 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Ryder Lee <ryder.lee@mediatek.com>
 
-[ Upstream commit 2eb6f6c437745bce46bd7a8f3a22a732d5b9becb ]
+[ Upstream commit 2b35050a321865859fd2f12a3c18ed7be27858c9 ]
 
 In order to properly report MIB counters to mac80211, resets stats in
-mt7615_get_stats routine and hold mt76 mutex accessing MIB counters.
-Sum up MIB counters in mt7615_mac_update_mib_stats routine.
+mt7915_get_stats routine() and hold mt76 mutex accessing MIB counters.
+Sum up MIB counters in mt7915_mac_update_mib_stats routine.
 
-Fixes: c388d8584bc83 ("mt76: mt7615: add a get_stats() callback")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Fixes: e57b7901469f ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7615/mac.c   | 26 ++++++-------------
- .../net/wireless/mediatek/mt76/mt7615/main.c  |  6 +++++
- .../wireless/mediatek/mt76/mt7615/mt7615.h    | 10 +++----
- 3 files changed, 19 insertions(+), 23 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7915/mac.c   | 35 +++++++------------
+ .../net/wireless/mediatek/mt76/mt7915/main.c  |  6 ++++
+ .../wireless/mediatek/mt76/mt7915/mt7915.h    | 10 +++---
+ 3 files changed, 24 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index f479012ab52c..5795e44f8a52 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -1817,10 +1817,8 @@ mt7615_mac_update_mib_stats(struct mt7615_phy *phy)
- 	int i, aggr;
- 	u32 val, val2;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index dd5793004989..1e14d7782841 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -1277,39 +1277,30 @@ mt7915_mac_update_mib_stats(struct mt7915_phy *phy)
+ 	bool ext_phy = phy != &dev->phy;
+ 	int i, aggr0, aggr1;
  
 -	memset(mib, 0, sizeof(*mib));
 -
@@ -72,11 +72,11 @@ index f479012ab52c..5795e44f8a52 100644
 +	mib->fcs_err_cnt += mt76_get_field(dev, MT_MIB_SDR3(ext_phy),
 +					   MT_MIB_SDR3_FCS_ERR_MASK);
  
- 	val = mt76_get_field(dev, MT_MIB_SDR14(ext_phy),
- 			     MT_MIB_AMPDU_MPDU_COUNT);
-@@ -1833,24 +1831,16 @@ mt7615_mac_update_mib_stats(struct mt7615_phy *phy)
- 	aggr = ext_phy ? ARRAY_SIZE(dev->mt76.aggr_stats) / 2 : 0;
- 	for (i = 0; i < 4; i++) {
+ 	aggr0 = ext_phy ? ARRAY_SIZE(dev->mt76.aggr_stats) / 2 : 0;
+ 	for (i = 0, aggr1 = aggr0 + 4; i < 4; i++) {
+-		u32 val, val2;
++		u32 val;
+ 
  		val = mt76_rr(dev, MT_MIB_MB_SDR1(ext_phy, i));
 -
 -		val2 = FIELD_GET(MT_MIB_ACK_FAIL_COUNT_MASK, val);
@@ -87,8 +87,8 @@ index f479012ab52c..5795e44f8a52 100644
 -		if (val2 > mib->ba_miss_cnt)
 -			mib->ba_miss_cnt = val2;
 +		mib->ba_miss_cnt += FIELD_GET(MT_MIB_BA_MISS_COUNT_MASK, val);
-+		mib->ack_fail_cnt += FIELD_GET(MT_MIB_ACK_FAIL_COUNT_MASK,
-+					       val);
++		mib->ack_fail_cnt +=
++			FIELD_GET(MT_MIB_ACK_FAIL_COUNT_MASK, val);
  
  		val = mt76_rr(dev, MT_MIB_MB_SDR0(ext_phy, i));
 -		val2 = FIELD_GET(MT_MIB_RTS_RETRIES_COUNT_MASK, val);
@@ -97,24 +97,35 @@ index f479012ab52c..5795e44f8a52 100644
 -			mib->rts_retries_cnt = val2;
 -		}
 +		mib->rts_cnt += FIELD_GET(MT_MIB_RTS_COUNT_MASK, val);
-+		mib->rts_retries_cnt += FIELD_GET(MT_MIB_RTS_RETRIES_COUNT_MASK,
-+						  val);
++		mib->rts_retries_cnt +=
++			FIELD_GET(MT_MIB_RTS_RETRIES_COUNT_MASK, val);
  
  		val = mt76_rr(dev, MT_TX_AGG_CNT(ext_phy, i));
+-		val2 = mt76_rr(dev, MT_TX_AGG_CNT2(ext_phy, i));
 -
- 		dev->mt76.aggr_stats[aggr++] += val & 0xffff;
- 		dev->mt76.aggr_stats[aggr++] += val >> 16;
+ 		dev->mt76.aggr_stats[aggr0++] += val & 0xffff;
+ 		dev->mt76.aggr_stats[aggr0++] += val >> 16;
+-		dev->mt76.aggr_stats[aggr1++] += val2 & 0xffff;
+-		dev->mt76.aggr_stats[aggr1++] += val2 >> 16;
++
++		val = mt76_rr(dev, MT_TX_AGG_CNT2(ext_phy, i));
++		dev->mt76.aggr_stats[aggr1++] += val & 0xffff;
++		dev->mt76.aggr_stats[aggr1++] += val >> 16;
  	}
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-index 3186b7b2ca48..88cdc2badeae 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-@@ -851,11 +851,17 @@ mt7615_get_stats(struct ieee80211_hw *hw,
- 	struct mt7615_phy *phy = mt7615_hw_phy(hw);
+ }
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/main.c b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+index c48158392057..e78d3efa3fdf 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+@@ -651,13 +651,19 @@ mt7915_get_stats(struct ieee80211_hw *hw,
+ 		 struct ieee80211_low_level_stats *stats)
+ {
+ 	struct mt7915_phy *phy = mt7915_hw_phy(hw);
++	struct mt7915_dev *dev = mt7915_hw_dev(hw);
  	struct mib_stats *mib = &phy->mib;
  
-+	mt7615_mutex_acquire(phy->dev);
-+
++	mutex_lock(&dev->mt76.mutex);
  	stats->dot11RTSSuccessCount = mib->rts_cnt;
  	stats->dot11RTSFailureCount = mib->rts_retries_cnt;
  	stats->dot11FCSErrorCount = mib->fcs_err_cnt;
@@ -122,16 +133,16 @@ index 3186b7b2ca48..88cdc2badeae 100644
  
 +	memset(mib, 0, sizeof(*mib));
 +
-+	mt7615_mutex_release(phy->dev);
++	mutex_unlock(&dev->mt76.mutex);
 +
  	return 0;
  }
  
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
-index 5b06294d654a..4cee76691786 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
-@@ -161,11 +161,11 @@ struct mt7615_vif {
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
+index 4b8908fa7eda..c84110e34ede 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
+@@ -99,11 +99,11 @@ struct mt7915_vif {
  };
  
  struct mib_stats {
@@ -145,9 +156,9 @@ index 5b06294d654a..4cee76691786 100644
 +	u32 rts_cnt;
 +	u32 rts_retries_cnt;
 +	u32 ba_miss_cnt;
- 	unsigned long aggr_per;
  };
  
+ struct mt7915_phy {
 -- 
 2.30.2
 
