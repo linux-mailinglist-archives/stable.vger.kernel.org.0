@@ -2,93 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0E7E37C566
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D37F537C571
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234956AbhELPju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:39:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51290 "EHLO mail.kernel.org"
+        id S235658AbhELPkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:40:14 -0400
+Received: from mga07.intel.com ([134.134.136.100]:15163 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234879AbhELPeu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:34:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E86561971;
-        Wed, 12 May 2021 15:17:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620832649;
-        bh=udW/PLZ5iZPSNRhPqLGSKInIoq9dtLr6gVmuhkHoe3k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Uw346nuZgdXAjMrtIW7Wl1wjoU/XEuK3mQaevlbO7TxfuHuON94vksTuQ6X2qc0p8
-         NTXevC0ntw3PztvtTBceiK3fJcsYNfPixJLctn1nIY69kb2bP/Km8unlNGpPwhhoTF
-         bAt2eXWwnZ3SO4PHibR+soP14e0UTAMrhZehMK8mhXgGJ+PGbDrOGmqxnUL6nlCC8x
-         osG7SL+Ph2Rpa5dRHSTwDfOLbsW1gFlQ4RFYWeHprAnP+sV+m77qSk6CxDcUzcW9cL
-         lMZE+/p9gvmn+QsXu+ESR8SVVuH/lVVDzaMx/E2VudSrZqxhgTexr4YvmT+mN6HIj/
-         tlo9UYdVcKagA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1lgqc8-0005RE-54; Wed, 12 May 2021 17:17:32 +0200
-Date:   Wed, 12 May 2021 17:17:32 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 245/530] tty: actually undefine superseded ASYNC
- flags
-Message-ID: <YJvxjC5qyyRmLSyB@hovoldconsulting.com>
-References: <20210512144819.664462530@linuxfoundation.org>
- <20210512144827.885941093@linuxfoundation.org>
+        id S235040AbhELPfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:35:12 -0400
+IronPort-SDR: J4s4b557qQhajDVUzW4Tr/XrSOsUG+yN3BphbxlvuR7P10MsA/H8wFN2yo41JB0uNCy+pTR+0V
+ DFDt6EX5fCLA==
+X-IronPort-AV: E=McAfee;i="6200,9189,9982"; a="263662726"
+X-IronPort-AV: E=Sophos;i="5.82,293,1613462400"; 
+   d="scan'208";a="263662726"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2021 08:32:45 -0700
+IronPort-SDR: 5dWTnPTF6i20GWZXTqA7Qlb8PTp12bwmP/kOXmBqD18brWyfq87CX6JTBIdP8qJ9Zn8MSw/VTy
+ X+Jkt2092nVw==
+X-IronPort-AV: E=Sophos;i="5.82,293,1613462400"; 
+   d="scan'208";a="625442439"
+Received: from lucas-s2600cw.jf.intel.com ([10.165.21.202])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2021 08:32:43 -0700
+From:   Lucas De Marchi <lucas.demarchi@intel.com>
+To:     gfx-internal-devel@eclists.intel.com
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 1/2] drm/i915/gt: Define guc firmware blob for older Cometlakes
+Date:   Wed, 12 May 2021 08:32:22 -0700
+Message-Id: <20210512153223.1554474-2-lucas.demarchi@intel.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210512153223.1554474-1-lucas.demarchi@intel.com>
+References: <20210512153223.1554474-1-lucas.demarchi@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210512144827.885941093@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 12, 2021 at 04:45:55PM +0200, Greg Kroah-Hartman wrote:
-> From: Johan Hovold <johan@kernel.org>
-> 
-> [ Upstream commit d09845e98a05850a8094ea8fd6dd09a8e6824fff ]
-> 
-> Some kernel-internal ASYNC flags have been superseded by tty-port flags
-> and should no longer be used by kernel drivers.
-> 
-> Fix the misspelled "__KERNEL__" compile guards which failed their sole
-> purpose to break out-of-tree drivers that have not yet been updated.
-> 
-> Fixes: 5c0517fefc92 ("tty: core: Undefine ASYNC_* flags superceded by TTY_PORT* flags")
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> Link: https://lore.kernel.org/r/20210407095208.31838-2-johan@kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-I don't think this should be backported to any stable tree and the
-stable tag was left out on purpose.
+When splitting the Coffeelake define to also identify Cometlakes, I
+missed the double fw_def for Coffeelake. That is only newer Cometlakes
+use the cml specific guc firmware, older Cometlakes should use kbl
+firmware.
 
-> ---
->  include/uapi/linux/tty_flags.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/uapi/linux/tty_flags.h b/include/uapi/linux/tty_flags.h
-> index 900a32e63424..6a3ac496a56c 100644
-> --- a/include/uapi/linux/tty_flags.h
-> +++ b/include/uapi/linux/tty_flags.h
-> @@ -39,7 +39,7 @@
->   * WARNING: These flags are no longer used and have been superceded by the
->   *	    TTY_PORT_ flags in the iflags field (and not userspace-visible)
->   */
-> -#ifndef _KERNEL_
-> +#ifndef __KERNEL__
->  #define ASYNCB_INITIALIZED	31 /* Serial port was initialized */
->  #define ASYNCB_SUSPENDED	30 /* Serial port is suspended */
->  #define ASYNCB_NORMAL_ACTIVE	29 /* Normal device is active */
-> @@ -81,7 +81,7 @@
->  #define ASYNC_SPD_WARP		(ASYNC_SPD_HI|ASYNC_SPD_SHI)
->  #define ASYNC_SPD_MASK		(ASYNC_SPD_HI|ASYNC_SPD_VHI|ASYNC_SPD_SHI)
->  
-> -#ifndef _KERNEL_
-> +#ifndef __KERNEL__
->  /* These flags are no longer used (and were always masked from userspace) */
->  #define ASYNC_INITIALIZED	(1U << ASYNCB_INITIALIZED)
->  #define ASYNC_NORMAL_ACTIVE	(1U << ASYNCB_NORMAL_ACTIVE)
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2859
+Fixes: 5f4ae2704d59 ("drm/i915: Identify Cometlake platform")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v5.9+
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201229120828.29931-1-chris@chris-wilson.co.uk
+(cherry picked from commit 70960ab27542d8dc322f909f516391f331fbd3f1)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit 557862535c2cad6de6f6fb12312b7a6d09c06407)
+---
+ drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Johan
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c b/drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c
+index 180c23e2e25e4..602f1a0bc5871 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c
+@@ -53,6 +53,7 @@ void intel_uc_fw_change_status(struct intel_uc_fw *uc_fw,
+ 	fw_def(ELKHARTLAKE, 0, guc_def(ehl, 49, 0, 1), huc_def(ehl,  9, 0, 0)) \
+ 	fw_def(ICELAKE,     0, guc_def(icl, 49, 0, 1), huc_def(icl,  9, 0, 0)) \
+ 	fw_def(COMETLAKE,   5, guc_def(cml, 49, 0, 1), huc_def(cml,  4, 0, 0)) \
++	fw_def(COMETLAKE,   0, guc_def(kbl, 49, 0, 1), huc_def(kbl,  4, 0, 0)) \
+ 	fw_def(COFFEELAKE,  0, guc_def(kbl, 49, 0, 1), huc_def(kbl,  4, 0, 0)) \
+ 	fw_def(GEMINILAKE,  0, guc_def(glk, 49, 0, 1), huc_def(glk,  4, 0, 0)) \
+ 	fw_def(KABYLAKE,    0, guc_def(kbl, 49, 0, 1), huc_def(kbl,  4, 0, 0)) \
