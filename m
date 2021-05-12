@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3182E37B888
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B260C37B88A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230387AbhELIvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:51:07 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:57865 "EHLO
+        id S230109AbhELIvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:51:17 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:46525 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230406AbhELIvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:51:05 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id 3736C13FF;
-        Wed, 12 May 2021 04:49:57 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Wed, 12 May 2021 04:49:57 -0400
+        by vger.kernel.org with ESMTP id S230037AbhELIvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:51:16 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id D5279140C;
+        Wed, 12 May 2021 04:50:08 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 12 May 2021 04:50:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=b2+x7k
-        l8e+dZXoZnbAjSoNOqnYhsjAe8+PlKG9dVulI=; b=NilbP2Upe07LlFr7FjT//E
-        WIcRQGAkeWtswRbOOv3J/G3uckPi4/zDxeuFrIPfVo1dKCAGW0mjNypJqmCw0uFI
-        9lDxpBCncvnTac17bQMb6MSC+eV0OMX5puNUWYiNicAYCAkXWkPf7jBB86zTFa99
-        cf4NtT2A4SUhTFxoB114Z/PRnVdSkVmSBU6Ek+qavE7qn2PZD+I7MV9rnX9E5iMy
-        5oKbrVkAIF5N2tRp/mq43h0YnD1uPnEWRiF/3HQsmcHnzc/bv+xxPtVj/7UyJIL6
-        j4c/XUuxaoyvJQIjnoTFHAsiTUxmtDlKJ/LjzO4B62UwXcHY8SUjTv1RIyF1n6yg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ycJkHF
+        dRzJcTYVKOyGxyVYQNKAOmLOt1lKtzA43dqBI=; b=jHLJ9Wojvj+r1qYZTr+d1Z
+        8JAdGv/7KRBvPSm3kYGWnDzBWZv6P5jEj97E/EiCLMBCEajALhEPXlq85pC3ssqG
+        /qmY4FfKD4J2WZpwAwtDYFAY4RuVexPauRd4zfj5EnHp27SPidTF10VRGXpvAuyG
+        bZc4l8YYBX2w0pWVwcZTbqWLi1Eb+CPXjFEAU3WT/23WTXkMs1fNkLtW9bngtvV9
+        jB9byq5qazcQoWnKikZbF5lfwbThopjPaVqv1CUeERtAOyVgrX19zGrfN3Rv3xDl
+        TRq1/UceEUn8KKIAy4+kJOCYXpBZ2RR4t7wn8llELH8PvPyYOg2oG+d2jjwkFoig
         ==
-X-ME-Sender: <xms:tJabYN7mPsjtzyYG_j9jUWJnfAoxSpRyXUKwd4hLvVATtv4eiVO76Q>
-    <xme:tJabYK7c0WaDKVzJxeQmwMTIMG1SifkfJeIPG-XvSzfhwogVQmfD7RqTC4M7PREj4
-    ljLzhUUFQs3gg>
+X-ME-Sender: <xms:wJabYEyI-tDvMKAgqbWSzXHiBSsOV9xQUJSC22Ob8_reAxRUFCN3vw>
+    <xme:wJabYIRsJueWf_2j61AYIxqDqcRY6hjlAhD5SKbUTZLQGec0fR9AVdckGaoS2i2RA
+    T4zk9EsbSyF2g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:tJabYEeiZ5_K8Dm1vjg8inFSbPr5GOhlHBVnyi4AWTHdzphKD73dTg>
-    <xmx:tJabYGJOQ2sVmoBmc2qtcSWXQyA1DhDXOw478RLN_q4YUJoRd0219A>
-    <xmx:tJabYBIwsJ72usn1sos9Qiy7Evj0q68JQikjE9pLQVPTf3we3h0PHA>
-    <xmx:tJabYDwhtp-hwDGbmmEo1y-WxiLo7wJXJerqukNSf8OYahd6t1wCZCWlJTo>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:wJabYGUk62mH9OeQRfsn69-imT0Yti2lgMGyYR9rS0SKL29-e1j8dA>
+    <xmx:wJabYCip0MOybrOFhKbNeEdpqOoe4TjVrHufCd_rYFWhXiTYIpNjMQ>
+    <xmx:wJabYGC69bRbaD8POscG8TajTT6hwpGDsdL4mSORpoluC0ZPblTSCg>
+    <xmx:wJabYBqJ0NgW5hyT5fTXY9OxgTlhuUnEBJx8MbFJit1PnaeUAnJPz7mB11s>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:49:56 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: Allow VPD access for QLogic ISP2722" failed to apply to 4.19-stable tree
-To:     aeasi@marvell.com, bhelgaas@google.com
+        Wed, 12 May 2021 04:50:07 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86: Defer the MMU unload to the normal path on an" failed to apply to 4.19-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:49:43 +0200
-Message-ID: <16208093831573@kroah.com>
+Date:   Wed, 12 May 2021 10:50:06 +0200
+Message-ID: <1620809406739@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,43 +70,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e00dc69b5f17c444a38cd9745a0f76bc989b3af4 Mon Sep 17 00:00:00 2001
-From: Arun Easi <aeasi@marvell.com>
-Date: Fri, 9 Apr 2021 14:51:53 -0700
-Subject: [PATCH] PCI: Allow VPD access for QLogic ISP2722
+From f66c53b3b94f658590e1012bf6d922f8b7e01bda Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Thu, 4 Mar 2021 17:10:58 -0800
+Subject: [PATCH] KVM: x86: Defer the MMU unload to the normal path on an
+ global INVPCID
 
-0d5370d1d852 ("PCI: Prevent VPD access for QLogic ISP2722") disabled access
-to VPD of the ISP2722-based 16/32Gb Fibre Channel to PCIe Adapter because
-reading past the end of the VPD caused NMIs.
+Defer unloading the MMU after a INVPCID until the instruction emulation
+has completed, i.e. until after RIP has been updated.
 
-104daa71b396 ("PCI: Determine actual VPD size on first access") limits
-reads to the actual size of VPD, which should prevent these NMIs.
+On VMX, this is a benign bug as VMX doesn't touch the MMU when skipping
+an emulated instruction.  However, on SVM, if nrip is disabled, the
+emulator is used to skip an instruction, which would lead to fireworks
+if the emulator were invoked without a valid MMU.
 
-104daa71b396 was merged *before* 0d5370d1d852, but we think the testing
-that prompted 0d5370d1d852 ("PCI: Prevent VPD access for QLogic ISP2722")
-was done with a kernel that lacked 104daa71b396.  See [1, 2].
+Fixes: eb4b248e152d ("kvm: vmx: Support INVPCID in shadow paging mode")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210305011101.3597423-15-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Remove the quirk added by 0d5370d1d852 ("PCI: Prevent VPD access for QLogic
-ISP2722") so customers can read the HBA VPD.
-
-[1] https://lore.kernel.org/linux-pci/alpine.LRH.2.21.9999.2012161641230.28924@irv1user01.caveonetworks.com/
-[2] https://lore.kernel.org/linux-pci/alpine.LRH.2.21.9999.2104071535110.13940@irv1user01.caveonetworks.com/
-[bhelgaas: commit log]
-Link: https://lore.kernel.org/r/20210409215153.16569-2-aeasi@marvell.com
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org      # v4.6+
-
-diff --git a/drivers/pci/vpd.c b/drivers/pci/vpd.c
-index c6aad87dd0f9..8af31c5eec2d 100644
---- a/drivers/pci/vpd.c
-+++ b/drivers/pci/vpd.c
-@@ -500,7 +500,6 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_LSI_LOGIC, 0x005d, quirk_blacklist_vpd);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_LSI_LOGIC, 0x005f, quirk_blacklist_vpd);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATTANSIC, PCI_ANY_ID,
- 		quirk_blacklist_vpd);
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_QLOGIC, 0x2261, quirk_blacklist_vpd);
- /*
-  * The Amazon Annapurna Labs 0x0031 device id is reused for other non Root Port
-  * device types, so the quirk is registered for the PCI_CLASS_BRIDGE_PCI class.
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 3ef64959a443..5c235b4dd74e 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -11504,7 +11504,7 @@ int kvm_handle_invpcid(struct kvm_vcpu *vcpu, unsigned long type, gva_t gva)
+ 
+ 		fallthrough;
+ 	case INVPCID_TYPE_ALL_INCL_GLOBAL:
+-		kvm_mmu_unload(vcpu);
++		kvm_make_request(KVM_REQ_MMU_RELOAD, vcpu);
+ 		return kvm_skip_emulated_instruction(vcpu);
+ 
+ 	default:
 
