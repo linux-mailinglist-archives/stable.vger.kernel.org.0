@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAC537CA7C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6024B37CA7E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240384AbhELQah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:30:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40962 "EHLO mail.kernel.org"
+        id S240414AbhELQai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:30:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236858AbhELQXN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:23:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B207A61D5B;
-        Wed, 12 May 2021 15:47:28 +0000 (UTC)
+        id S236867AbhELQXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:23:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C88B61D97;
+        Wed, 12 May 2021 15:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834449;
-        bh=5/ncMbpgCY+TRWUjToufXs5WDeDGMn8rE0mi7Gjxl8w=;
+        s=korg; t=1620834451;
+        bh=YZ4EGNozTOU8hGUZKKI0E3g1TalZVevFRK9ARMR80T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tIMuSa/L6O18fyZuR9TMFOcrXLULq7HV2ze90zIxrakyPR2TAD9yWYP4rqCUKanU/
-         HMtHoVXilZKjEu+TOuNrCgohnm4P+Kk+sLlM+rxFS0JVWzdPXn/R7GElOdelc6XZb4
-         0L9vnNwBpYEXqgsRtzjs8krkk/JN1cxhpblbf/ws=
+        b=HBvvLpJuMoBsVcja9Z2Djf8HeP9ABG21ZEg1zEUvnnDgOhTa716LfSEDv6iOrK1vi
+         ZVN+I8A46ltPCAupoopzchC0qIRNck2GvQRPGTNPROvIaxHjrp3Ad4LQSIPUk9QzmT
+         7EheH4j2YqfftqHncSxc4/AtqrfljCeFF0qxBpIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yinjun Zhang <yinjun.zhang@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@netronome.com>,
+        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 547/601] nfp: devlink: initialize the devlink port attribute "lanes"
-Date:   Wed, 12 May 2021 16:50:24 +0200
-Message-Id: <20210512144845.879520320@linuxfoundation.org>
+Subject: [PATCH 5.11 548/601] net: stmmac: fix TSO and TBS feature enabling during driver open
+Date:   Wed, 12 May 2021 16:50:25 +0200
+Message-Id: <20210512144845.912457478@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,36 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yinjun Zhang <yinjun.zhang@corigine.com>
+From: Ong Boon Leong <boon.leong.ong@intel.com>
 
-[ Upstream commit 90b669d65d99a3ee6965275269967cdee4da106e ]
+[ Upstream commit 5e6038b88a5718910dd74b949946d9d9cee9a041 ]
 
-The number of lanes of devlink port should be correctly initialized
-when registering the port, so that the input check when running
-"devlink port split <port> count <N>" can pass.
+TSO and TBS cannot co-exist and current implementation requires two
+fixes:
 
-Fixes: a21cf0a8330b ("devlink: Add a new devlink port lanes attribute and pass to netlink")
-Signed-off-by: Yinjun Zhang <yinjun.zhang@corigine.com>
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@netronome.com>
+ 1) stmmac_open() does not need to call stmmac_enable_tbs() because
+    the MAC is reset in stmmac_init_dma_engine() anyway.
+ 2) Inside stmmac_hw_setup(), we should call stmmac_enable_tso() for
+    TX Q that is _not_ configured for TBS.
+
+Fixes: 579a25a854d4 ("net: stmmac: Initial support for TBS")
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_devlink.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_devlink.c b/drivers/net/ethernet/netronome/nfp/nfp_devlink.c
-index 713ee3041d49..bea978df7713 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_devlink.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_devlink.c
-@@ -364,6 +364,7 @@ int nfp_devlink_port_register(struct nfp_app *app, struct nfp_port *port)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 4749bd0af160..c6f24abf6432 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -2757,8 +2757,15 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
  
- 	attrs.split = eth_port.is_split;
- 	attrs.splittable = !attrs.split;
-+	attrs.lanes = eth_port.port_lanes;
- 	attrs.flavour = DEVLINK_PORT_FLAVOUR_PHYSICAL;
- 	attrs.phys.port_number = eth_port.label_port;
- 	attrs.phys.split_subport_number = eth_port.label_subport;
+ 	/* Enable TSO */
+ 	if (priv->tso) {
+-		for (chan = 0; chan < tx_cnt; chan++)
++		for (chan = 0; chan < tx_cnt; chan++) {
++			struct stmmac_tx_queue *tx_q = &priv->tx_queue[chan];
++
++			/* TSO and TBS cannot co-exist */
++			if (tx_q->tbs & STMMAC_TBS_AVAIL)
++				continue;
++
+ 			stmmac_enable_tso(priv, priv->ioaddr, 1, chan);
++		}
+ 	}
+ 
+ 	/* Enable Split Header */
+@@ -2850,9 +2857,8 @@ static int stmmac_open(struct net_device *dev)
+ 		struct stmmac_tx_queue *tx_q = &priv->tx_queue[chan];
+ 		int tbs_en = priv->plat->tx_queues_cfg[chan].tbs_en;
+ 
++		/* Setup per-TXQ tbs flag before TX descriptor alloc */
+ 		tx_q->tbs |= tbs_en ? STMMAC_TBS_AVAIL : 0;
+-		if (stmmac_enable_tbs(priv, priv->ioaddr, tbs_en, chan))
+-			tx_q->tbs &= ~STMMAC_TBS_AVAIL;
+ 	}
+ 
+ 	ret = alloc_dma_desc_resources(priv);
 -- 
 2.30.2
 
