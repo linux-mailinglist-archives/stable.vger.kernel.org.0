@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B47C537C4BF
+	by mail.lfdr.de (Postfix) with ESMTP id 476ED37C4BE
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234560AbhELPdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234565AbhELPdM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 11:33:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38874 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234319AbhELPYp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:24:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 914E76144B;
-        Wed, 12 May 2021 15:10:19 +0000 (UTC)
+        id S234330AbhELPYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:24:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0922E619B0;
+        Wed, 12 May 2021 15:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832220;
-        bh=fRwySrHidtwTz3xdd3XUoRvBEGEyE54CoAVlnjs1pwU=;
+        s=korg; t=1620832222;
+        bh=GyM9gKbYClNFVOIMKTvnE/vOoFVKJe1bk5gJ1jYG2nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anaCYM4Pb/LP8uFCApGPD6YxoXFyX0WZzIl+rDU7RDO74XlVOSoyhybIGMgTjhtAX
-         MJ3Qo5PaUpjyhAw7itNjYPDX68HtOT6cm/x+g506eJ0h+ukxT6fcafCJiNr2ycAqDH
-         h+VqzwoKyla+Osg3zOMh/GKBrrZyjNSi5zQV22r4=
+        b=QlahJ34fC8QJVcfy0AFwAqQmqkg2LhrUM89geAhjaHuU/p0fdKCGlnqzuU5E1xq/A
+         1dUdAvQ8Hdy8pr7HbG8PzMzUDK4M6ZbdL5pr0pWXYPkt9BntaevOzUls9w6y6gtjom
+         o5W0h6Ut01rhGmV8ZZwXN7ULZ9NitE+KZ/idhtHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 191/530] arm64: dts: mediatek: fix reset GPIO level on pumpkin
-Date:   Wed, 12 May 2021 16:45:01 +0200
-Message-Id: <20210512144826.109806195@linuxfoundation.org>
+Subject: [PATCH 5.10 192/530] NFSD: Fix sparse warning in nfs4proc.c
+Date:   Wed, 12 May 2021 16:45:02 +0200
+Message-Id: <20210512144826.150808924@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,34 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Parent <fparent@baylibre.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit a7dceafed43a4a610d340da3703653cca2c50c1d ]
+[ Upstream commit eb162e1772f85231dabc789fb4bfea63d2d9df79 ]
 
-The tca6416 chip is active low. Fix the reset-gpios value.
+linux/fs/nfsd/nfs4proc.c:1542:24: warning: incorrect type in assignment (different base types)
+linux/fs/nfsd/nfs4proc.c:1542:24:    expected restricted __be32 [assigned] [usertype] status
+linux/fs/nfsd/nfs4proc.c:1542:24:    got int
 
-Fixes: e2a8fa1e0faa ("arm64: dts: mediatek: fix tca6416 reset GPIOs in pumpkin")
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Link: https://lore.kernel.org/r/20210223221826.2063911-1-fparent@baylibre.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Clean-up: The dup_copy_fields() function returns only zero, so make
+it return void for now, and get rid of the return code check.
+
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4proc.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-index 29d8cf6df46b..99c2d6fd6304 100644
---- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-@@ -56,7 +56,7 @@
- 	tca6416: gpio@20 {
- 		compatible = "ti,tca6416";
- 		reg = <0x20>;
--		reset-gpios = <&pio 65 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&pio 65 GPIO_ACTIVE_LOW>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&tca6416_pins>;
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index 2e68cea148e0..015d25a5cd03 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1425,7 +1425,7 @@ static __be32 nfsd4_do_copy(struct nfsd4_copy *copy, bool sync)
+ 	return status;
+ }
  
+-static int dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
++static void dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
+ {
+ 	dst->cp_src_pos = src->cp_src_pos;
+ 	dst->cp_dst_pos = src->cp_dst_pos;
+@@ -1444,8 +1444,6 @@ static int dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
+ 	memcpy(&dst->stateid, &src->stateid, sizeof(src->stateid));
+ 	memcpy(&dst->c_fh, &src->c_fh, sizeof(src->c_fh));
+ 	dst->ss_mnt = src->ss_mnt;
+-
+-	return 0;
+ }
+ 
+ static void cleanup_async_copy(struct nfsd4_copy *copy)
+@@ -1539,9 +1537,7 @@ nfsd4_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 		refcount_set(&async_copy->refcount, 1);
+ 		memcpy(&copy->cp_res.cb_stateid, &copy->cp_stateid,
+ 			sizeof(copy->cp_stateid));
+-		status = dup_copy_fields(copy, async_copy);
+-		if (status)
+-			goto out_err;
++		dup_copy_fields(copy, async_copy);
+ 		async_copy->copy_task = kthread_create(nfsd4_do_async_copy,
+ 				async_copy, "%s", "copy thread");
+ 		if (IS_ERR(async_copy->copy_task))
 -- 
 2.30.2
 
