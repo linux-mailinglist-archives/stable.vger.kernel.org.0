@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA7B037B911
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D542C37B913
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230373AbhELJZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:25:06 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:55119 "EHLO
+        id S230134AbhELJZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:25:45 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:49947 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230181AbhELJZF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:25:05 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id E1A511356;
-        Wed, 12 May 2021 05:23:56 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 12 May 2021 05:23:57 -0400
+        by vger.kernel.org with ESMTP id S230118AbhELJZo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:25:44 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 1676513BB;
+        Wed, 12 May 2021 05:24:35 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Wed, 12 May 2021 05:24:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rED/i/
-        YkJ/+/zlbnZfOx6ApOKuF5reG7kz1XY7MUg1c=; b=Oct8LnxFBK7vdgX5IWWT+6
-        32RyisuXkYQ81+Sdv4y1fOLbtvzaCSwL6mBwzuSJSWQGqhkwb6aXpVO4ycoXGTTD
-        8VRVTXpymy+IK6FmqNLPAWItOYE2GHLfVAcQKN/e3enkaO713aCYqwKH47BnS8FF
-        iw0AZfNoAD5FGOdPjICVQ1/aMCyMer6ZdRI6icS/hJ2tRwmxDbtxIq/LEVRzIHTm
-        VeCQclNLUtMNhBtpqSrNjgLW8MdHSpk0A/nzmMLxr5JrnZ983QLZgl9NlS54TVOd
-        olfs211hjpI1bJgGMtxWHYRNuJxZGVjda8iJ1k4aVca0GacnFWBIA0DwcyyJfNOQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=AlS14c
+        YRLhPU+P4GLvp9xbSWw+jjJh0InCVCD5ZCTZE=; b=hbRelSwbVmADCimMBLnG18
+        DgGv5ZH683i7jeFcmJEK4T+UIxKc/mnYKqe/F1qYyJHtpyMH+1FV+c7ulh4YAaCi
+        J0UQrjyHVO7bUS3gIY3EhU3Gm3fcRuv1WoKyfa3NNwQ+uIwKpd2EMX5ZY4CM+w/m
+        2X6Rks5/RuLbfC7LU8FU7rBF3uz1Z65+GxDP/o6KUPVLMyY4cDos5ShC1raIcYUH
+        l4MNOWjhjmI9emOUJcIFXYL42YLzWDjCTmWdOUo1FVCSLQoShVs0cpG7gFKLeJri
+        OeoH39O6FtTX0WS0h62YgrO059ZJlspWo1z1HUIWGax8XE+OFyNOD9UkVYwhFUEw
         ==
-X-ME-Sender: <xms:rJ6bYKgfAahVAXVZcGCHsne8gkiizCE4u-UxGqJ7Vyyc-7IeHcDLmw>
-    <xme:rJ6bYLCGwbFNHQDLK7Ukl0fzCHIxBNCIvNqch-Mj0FdDgvdEwgZZo7weXDfDvnlfi
-    1wHcuR-GBULnQ>
+X-ME-Sender: <xms:0p6bYAJNq5I3wZ0kZHFcccq66ssdQsuezFsDdA3HTvpZ-D9MGfKqUg>
+    <xme:0p6bYAKy7VsqBhmTUNVZ3O180csN3hPuBqzsg9kKuh3ILT3_I-lE6KZi4NPHPPSSE
+    -b0HZgWood5Ow>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddguddvucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:rJ6bYCHRCFCLhn3GyUXk_pDohP3V7lnLLuY4NmZYMPeK5silz8Mf-g>
-    <xmx:rJ6bYDQd9Kxin9n_6StKQIo0w3T5ot36dVF3Aw76oUMAPTw4ffWs5w>
-    <xmx:rJ6bYHzrYDaUF4v0RG-DKCekvmx7UttvxJIX8d_gDyzytBB2k2-2hg>
-    <xmx:rJ6bYAobdonde8iowauYcMSfDXo0E4jhsCyQM44t0BrxsFyqenpJ4lwL99U>
+X-ME-Proxy: <xmx:0p6bYAvvWn9e7TMDj2bN8TVRhFILN8ughZ1bhf0m34Jm8QkIIUi57w>
+    <xmx:0p6bYNYVgxngj_BMCRjVj-2_DjDz0fMqrHqEsBEjvRJ-bzLpLGPDnA>
+    <xmx:0p6bYHZU-pP3q4YRUERnJc0aK6-476ithmQNM1AderV6AhvQzo7M9Q>
+    <xmx:0p6bYOzFuuE9avzSuuNL-ym_xdVWVGj5Yt9GRSg8nBxj_LoLRRESjr3E-Mw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 05:23:56 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] md-cluster: fix use-after-free issue when removing rdev" failed to apply to 4.4-stable tree
-To:     heming.zhao@suse.com, ghe@suse.com, song@kernel.org
+        Wed, 12 May 2021 05:24:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] md: split mddev_find" failed to apply to 4.4-stable tree
+To:     hch@lst.de, heming.zhao@suse.com, song@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 11:23:54 +0200
-Message-ID: <1620811434199173@kroah.com>
+Date:   Wed, 12 May 2021 11:24:32 +0200
+Message-ID: <1620811472201245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,113 +70,182 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f7c7a2f9a23e5b6e0f5251f29648d0238bb7757e Mon Sep 17 00:00:00 2001
-From: Heming Zhao <heming.zhao@suse.com>
-Date: Thu, 8 Apr 2021 15:44:15 +0800
-Subject: [PATCH] md-cluster: fix use-after-free issue when removing rdev
+From 65aa97c4d2bfd76677c211b9d03ef05a98c6d68e Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Sat, 3 Apr 2021 18:15:29 +0200
+Subject: [PATCH] md: split mddev_find
 
-md_kick_rdev_from_array will remove rdev, so we should
-use rdev_for_each_safe to search list.
+Split mddev_find into a simple mddev_find that just finds an existing
+mddev by the unit number, and a more complicated mddev_find that deals
+with find or allocating a mddev.
 
-How to trigger:
+This turns out to fix this bug reported by Zhao Heming.
 
-env: Two nodes on kvm-qemu x86_64 VMs (2C2G with 2 iscsi luns).
+----------------------------- snip ------------------------------
+commit d3374825ce57 ("md: make devices disappear when they are no longer
+needed.") introduced protection between mddev creating & removing. The
+md_open shouldn't create mddev when all_mddevs list doesn't contain
+mddev. With currently code logic, there will be very easy to trigger
+soft lockup in non-preempt env.
 
-```
-node2=192.168.0.3
+*** env ***
+kvm-qemu VM 2C1G with 2 iscsi luns
+kernel should be non-preempt
 
-for i in {1..20}; do
-    echo ==== $i `date` ====;
+*** script ***
 
-    mdadm -Ss && ssh ${node2} "mdadm -Ss"
-    wipefs -a /dev/sda /dev/sdb
+about trigger 1 time with 10 tests
 
-    mdadm -CR /dev/md0 -b clustered -e 1.2 -n 2 -l 1 /dev/sda \
-       /dev/sdb --assume-clean
-    ssh ${node2} "mdadm -A /dev/md0 /dev/sda /dev/sdb"
-    mdadm --wait /dev/md0
-    ssh ${node2} "mdadm --wait /dev/md0"
+`1  node1="15sp3-mdcluster1"
+2  node2="15sp3-mdcluster2"
+3
+4  mdadm -Ss
+5  ssh ${node2} "mdadm -Ss"
+6  wipefs -a /dev/sda /dev/sdb
+7  mdadm -CR /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sda \
+   /dev/sdb --assume-clean
+8
+9  for i in {1..100}; do
+10    echo ==== $i ====;
+11
+12    echo "test  ...."
+13    ssh ${node2} "mdadm -A /dev/md0 /dev/sda /dev/sdb"
+14    sleep 1
+15
+16    echo "clean  ....."
+17    ssh ${node2} "mdadm -Ss"
+18 done
+`
+I use mdcluster env to trigger soft lockup, but it isn't mdcluster
+speical bug. To stop md array in mdcluster env will do more jobs than
+non-cluster array, which will leave enough time/gap to allow kernel to
+run md_open.
 
-    mdadm --manage /dev/md0 --fail /dev/sda --remove /dev/sda
-    sleep 1
-done
-```
+*** stack ***
 
-Crash stack:
+`ID: 2831   TASK: ffff8dd7223b5040  CPU: 0   COMMAND: "mdadm"
+ #0 [ffffa15d00a13b90] __schedule at ffffffffb8f1935f
+ #1 [ffffa15d00a13ba8] exact_lock at ffffffffb8a4a66d
+ #2 [ffffa15d00a13bb0] kobj_lookup at ffffffffb8c62fe3
+ #3 [ffffa15d00a13c28] __blkdev_get at ffffffffb89273b9
+ #4 [ffffa15d00a13c98] blkdev_get at ffffffffb8927964
+ #5 [ffffa15d00a13cb0] do_dentry_open at ffffffffb88dc4b4
+ #6 [ffffa15d00a13ce0] path_openat at ffffffffb88f0ccc
+ #7 [ffffa15d00a13db8] do_filp_open at ffffffffb88f32bb
+ #8 [ffffa15d00a13ee0] do_sys_open at ffffffffb88ddc7d
+ #9 [ffffa15d00a13f38] do_syscall_64 at ffffffffb86053cb ffffffffb900008c
 
-```
-stack segment: 0000 [#1] SMP
-... ...
-RIP: 0010:md_check_recovery+0x1e8/0x570 [md_mod]
-... ...
-RSP: 0018:ffffb149807a7d68 EFLAGS: 00010207
-RAX: 0000000000000000 RBX: ffff9d494c180800 RCX: ffff9d490fc01e50
-RDX: fffff047c0ed8308 RSI: 0000000000000246 RDI: 0000000000000246
-RBP: 6b6b6b6b6b6b6b6b R08: ffff9d490fc01e40 R09: 0000000000000000
-R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000000
-R13: ffff9d494c180818 R14: ffff9d493399ef38 R15: ffff9d4933a1d800
-FS:  0000000000000000(0000) GS:ffff9d494f700000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fe68cab9010 CR3: 000000004c6be001 CR4: 00000000003706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- raid1d+0x5c/0xd40 [raid1]
- ? finish_task_switch+0x75/0x2a0
- ? lock_timer_base+0x67/0x80
- ? try_to_del_timer_sync+0x4d/0x80
- ? del_timer_sync+0x41/0x50
- ? schedule_timeout+0x254/0x2d0
- ? md_start_sync+0xe0/0xe0 [md_mod]
- ? md_thread+0x127/0x160 [md_mod]
- md_thread+0x127/0x160 [md_mod]
- ? wait_woken+0x80/0x80
- kthread+0x10d/0x130
- ? kthread_park+0xa0/0xa0
- ret_from_fork+0x1f/0x40
-```
+or:
+[  884.226509]  mddev_put+0x1c/0xe0 [md_mod]
+[  884.226515]  md_open+0x3c/0xe0 [md_mod]
+[  884.226518]  __blkdev_get+0x30d/0x710
+[  884.226520]  ? bd_acquire+0xd0/0xd0
+[  884.226522]  blkdev_get+0x14/0x30
+[  884.226524]  do_dentry_open+0x204/0x3a0
+[  884.226531]  path_openat+0x2fc/0x1520
+[  884.226534]  ? seq_printf+0x4e/0x70
+[  884.226536]  do_filp_open+0x9b/0x110
+[  884.226542]  ? md_release+0x20/0x20 [md_mod]
+[  884.226543]  ? seq_read+0x1d8/0x3e0
+[  884.226545]  ? kmem_cache_alloc+0x18a/0x270
+[  884.226547]  ? do_sys_open+0x1bd/0x260
+[  884.226548]  do_sys_open+0x1bd/0x260
+[  884.226551]  do_syscall_64+0x5b/0x1e0
+[  884.226554]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+`
+*** rootcause ***
 
-Fixes: dbb64f8635f5d ("md-cluster: Fix adding of new disk with new reload code")
-Fixes: 659b254fa7392 ("md-cluster: remove a disk asynchronously from cluster environment")
+"mdadm -A" (or other array assemble commands) will start a daemon "mdadm
+--monitor" by default. When "mdadm -Ss" is running, the stop action will
+wakeup "mdadm --monitor". The "--monitor" daemon will immediately get
+info from /proc/mdstat. This time mddev in kernel still exist, so
+/proc/mdstat still show md device, which makes "mdadm --monitor" to open
+/dev/md0.
+
+The previously "mdadm -Ss" is removing action, the "mdadm --monitor"
+open action will trigger md_open which is creating action. Racing is
+happening.
+
+`<thread 1>: "mdadm -Ss"
+md_release
+  mddev_put deletes mddev from all_mddevs
+  queue_work for mddev_delayed_delete
+  at this time, "/dev/md0" is still available for opening
+
+<thread 2>: "mdadm --monitor ..."
+md_open
+ + mddev_find can't find mddev of /dev/md0, and create a new mddev and
+ |    return.
+ + trigger "if (mddev->gendisk != bdev->bd_disk)" and return
+      -ERESTARTSYS.
+`
+In non-preempt kernel, <thread 2> is occupying on current CPU. and
+mddev_delayed_delete which was created in <thread 1> also can't be
+schedule.
+
+In preempt kernel, it can also trigger above racing. But kernel doesn't
+allow one thread running on a CPU all the time. after <thread 2> running
+some time, the later "mdadm -A" (refer above script line 13) will call
+md_alloc to alloc a new gendisk for mddev. it will break md_open
+statement "if (mddev->gendisk != bdev->bd_disk)" and return 0 to caller,
+the soft lockup is broken.
+------------------------------ snip ------------------------------
+
 Cc: stable@vger.kernel.org
-Reviewed-by: Gang He <ghe@suse.com>
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Fixes: d3374825ce57 ("md: make devices disappear when they are no longer needed.")
+Reported-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Heming Zhao <heming.zhao@suse.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Song Liu <song@kernel.org>
 
 diff --git a/drivers/md/md.c b/drivers/md/md.c
-index af9bdb907b2b..49f897fbb89b 100644
+index e10d91122483..3ce5f4e0f431 100644
 --- a/drivers/md/md.c
 +++ b/drivers/md/md.c
-@@ -9289,11 +9289,11 @@ void md_check_recovery(struct mddev *mddev)
- 		}
+@@ -746,6 +746,22 @@ static struct mddev *mddev_find_locked(dev_t unit)
+ }
  
- 		if (mddev_is_clustered(mddev)) {
--			struct md_rdev *rdev;
-+			struct md_rdev *rdev, *tmp;
- 			/* kick the device if another node issued a
- 			 * remove disk.
- 			 */
--			rdev_for_each(rdev, mddev) {
-+			rdev_for_each_safe(rdev, tmp, mddev) {
- 				if (test_and_clear_bit(ClusterRemove, &rdev->flags) &&
- 						rdev->raid_disk < 0)
- 					md_kick_rdev_from_array(rdev);
-@@ -9607,7 +9607,7 @@ static int __init md_init(void)
- static void check_sb_changes(struct mddev *mddev, struct md_rdev *rdev)
+ static struct mddev *mddev_find(dev_t unit)
++{
++	struct mddev *mddev;
++
++	if (MAJOR(unit) != MD_MAJOR)
++		unit &= ~((1 << MdpMinorShift) - 1);
++
++	spin_lock(&all_mddevs_lock);
++	mddev = mddev_find_locked(unit);
++	if (mddev)
++		mddev_get(mddev);
++	spin_unlock(&all_mddevs_lock);
++
++	return mddev;
++}
++
++static struct mddev *mddev_find_or_alloc(dev_t unit)
  {
- 	struct mdp_superblock_1 *sb = page_address(rdev->sb_page);
--	struct md_rdev *rdev2;
-+	struct md_rdev *rdev2, *tmp;
- 	int role, ret;
- 	char b[BDEVNAME_SIZE];
+ 	struct mddev *mddev, *new = NULL;
  
-@@ -9624,7 +9624,7 @@ static void check_sb_changes(struct mddev *mddev, struct md_rdev *rdev)
- 	}
+@@ -5650,7 +5666,7 @@ static int md_alloc(dev_t dev, char *name)
+ 	 * writing to /sys/module/md_mod/parameters/new_array.
+ 	 */
+ 	static DEFINE_MUTEX(disks_mutex);
+-	struct mddev *mddev = mddev_find(dev);
++	struct mddev *mddev = mddev_find_or_alloc(dev);
+ 	struct gendisk *disk;
+ 	int partitioned;
+ 	int shift;
+@@ -6530,11 +6546,9 @@ static void autorun_devices(int part)
  
- 	/* Check for change of roles in the active devices */
--	rdev_for_each(rdev2, mddev) {
-+	rdev_for_each_safe(rdev2, tmp, mddev) {
- 		if (test_bit(Faulty, &rdev2->flags))
- 			continue;
- 
+ 		md_probe(dev);
+ 		mddev = mddev_find(dev);
+-		if (!mddev || !mddev->gendisk) {
+-			if (mddev)
+-				mddev_put(mddev);
++		if (!mddev)
+ 			break;
+-		}
++
+ 		if (mddev_lock(mddev))
+ 			pr_warn("md: %s locked, cannot run\n", mdname(mddev));
+ 		else if (mddev->raid_disks || mddev->major_version
 
