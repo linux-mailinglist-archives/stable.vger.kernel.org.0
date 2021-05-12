@@ -2,313 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C827137BBFF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 13:40:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA8D837BC03
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 13:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230293AbhELLmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 07:42:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52424 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230267AbhELLmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 07:42:02 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65F6C061574
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 04:40:53 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id c13so4872812pfv.4
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 04:40:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dtFWQSJsApiAEb1M3qJ8CMw1ICy+cGsGtVLdElFsPWI=;
-        b=kLjxqgT1Isq2yrlK+syVKerLsRjGpUgewpr+ZNyhdO92A7FlaKXK6fx6b8oIHHMOzm
-         3+Viu/IgunAg9rYM3e/zoJkbaJcyBLqHLTz3OqUU+JfeR9IpoeskGAG+PKvlAq2KtIsz
-         1SM7tFo6d1rv98h6fhArifUEBNdPSPZE4pz/ip9MnN+ecUwhfD7jNSYuv8gMadW2p80k
-         CByYpEHjJCoVWflfI9GYbMAVgIxwbNNC9DicaBaiykWcJDuLBFZKOfZQziRMCwfKY/7C
-         2m5stVLhAfigxdluITzU9669U0XslhvxrtVRfHDkF+7pUsLsd5/amC4CuMrqBls+td98
-         dKfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dtFWQSJsApiAEb1M3qJ8CMw1ICy+cGsGtVLdElFsPWI=;
-        b=e6j/biCEVSW2r/nKhfioegBpq+c4pT4vZWCzPVzKiOlDKsoogf4cstkkBAT/ULnJI5
-         lp3MQaAK/7D1lIWJ8aPqTtbtSaO3rNNC1kvG7FJC7HiDg7f+PVY9InvSo537TPha754B
-         Q554hoaKIwPPkQ/5UMTmTAbNgwGGXyn+FDjSoG79+X6izDOvh9ak6fAVxaqERl4eYbH5
-         g3tTUEDqIYldMwHrUw8qiu5+a5tNruOZoY7eazw3bZ2tQ5v3xKTKOK+7jz5cJkLcU1/a
-         Na3eVlY5Zs7oBkx5NjU9ZbX018DeCr6XmThS32WlQmRVYEs90vMc4oGnWU6r2Rn30Y++
-         rOkw==
-X-Gm-Message-State: AOAM5326yhivirKhHlJXxkWOS6VXRV3PQU1TSUWF4f4IziHS5rwnj/zT
-        eV7ZTXjiQPVhQmOA67mrVFIMNn7sDUzdaefe
-X-Google-Smtp-Source: ABdhPJyLSfalJbbrKQfCjWBPuZ4k1EuODEhqPUchT7o2F3u3W4ph4UftruY5Vd6xEuK87SV2LEN/IQ==
-X-Received: by 2002:a62:9247:0:b029:2c1:b1f8:1d97 with SMTP id o68-20020a6292470000b02902c1b1f81d97mr13999272pfd.35.1620819653092;
-        Wed, 12 May 2021 04:40:53 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x23sm15857134pfc.170.2021.05.12.04.40.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 May 2021 04:40:52 -0700 (PDT)
-Message-ID: <609bbec4.1c69fb81.926a6.08b2@mx.google.com>
-Date:   Wed, 12 May 2021 04:40:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230139AbhELLpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 07:45:35 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19260 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230037AbhELLpe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 07:45:34 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CBXSe9058925;
+        Wed, 12 May 2021 07:44:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=r+EDVRMNo2k85t80QtDBYTVJ8F5/RxCOrsZVcdx21pw=;
+ b=Td2xCCntBgGStBbf3a849XVA9oGcF22Ank+QXNkoUOsNzRxQQiLRk6+uiZtpjN58dGbI
+ mI/7eMzd3yeRst+5Z8x8tMSermjwjY49wrhc1Mfcn3grWo0NNljYiegJYZCHIfX2VAs+
+ kR/8BOwJbFijDw6HLsyvBJertx0zlXhIWgYHDH8e4JiYEFdowU07xA4gXsFX5XI6kHyz
+ +POe6TMwFlYq4sjavXBnKj3eH0LJD4Y4uKv9gwXkCo0tDkczchAob18wRELX+mQkLJLX
+ spy/GYcb0+ZvOER31Rh+DTo9xLNk6PXh1w8+qsRL/EJp6GB5d6LfG0M9zBbEd4U9EtkM XQ== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38ge6b0d42-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 07:44:26 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14CBiO8F017802;
+        Wed, 12 May 2021 11:44:24 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 38dj9895y4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 11:44:24 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14CBhswi34341170
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 May 2021 11:43:54 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 905C8AE057;
+        Wed, 12 May 2021 11:44:21 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 65033AE055;
+        Wed, 12 May 2021 11:44:21 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.73.206])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 12 May 2021 11:44:21 +0000 (GMT)
+Subject: Re: FAILED: patch "[PATCH] KVM: s390: split
+ kvm_s390_logical_to_effective" failed to apply to 4.9-stable tree
+To:     gregkh@linuxfoundation.org, imbrenda@linux.ibm.com
+Cc:     stable@vger.kernel.org
+References: <1620814886253179@kroah.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <6a509e34-9016-7250-9df5-027d967bb098@de.ibm.com>
+Date:   Wed, 12 May 2021 13:44:21 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
+In-Reply-To: <1620814886253179@kroah.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: b-VvneUGSYwkLxbK0dYQYAE1fMDuOHiD
+X-Proofpoint-GUID: b-VvneUGSYwkLxbK0dYQYAE1fMDuOHiD
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.268-67-gc0a78fdff67c8
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 124 runs,
- 6 regressions (v4.9.268-67-gc0a78fdff67c8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-12_06:2021-05-12,2021-05-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
+ priorityscore=1501 bulkscore=0 impostorscore=0 mlxlogscore=999
+ lowpriorityscore=0 adultscore=0 suspectscore=0 clxscore=1015 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105120085
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 124 runs, 6 regressions (v4.9.268-67-gc0a78fd=
-ff67c8)
-
-Regressions Summary
--------------------
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.268-67-gc0a78fdff67c8/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.268-67-gc0a78fdff67c8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c0a78fdff67c80b1fa5a964059f80d58962da2dd =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609b8adbdc3586376cd08f20
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/609b8adbdc35863=
-76cd08f27
-        new failure (last pass: v4.9.268-67-g11e0813db6f47)
-        2 lines
-
-    2021-05-12 07:59:19.152000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-05-12 07:59:19.168000+00:00  [   20.609008] <LAVA_SIGNAL_TESTCASE =
-TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609b8977706075c117d08f88
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609b8977706075c117d08=
-f89
-        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609b8963004bc0ce9ad08f1c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609b8963004bc0ce9ad08=
-f1d
-        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609baedefe66d08379d08f3b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609baedefe66d08379d08=
-f3c
-        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609b890d48daa243b1d08f3c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609b890d48daa243b1d08=
-f3d
-        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609bb444a1bd33130ed08f32
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-6=
-7-gc0a78fdff67c8/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609bb444a1bd33130ed08=
-f33
-        failing since 179 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+On 12.05.21 12:21, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+
+Please drop the other 3 kvm: s390: patches then for 4.9, as the kernel will not
+compile without this until we have a backport for this.
+
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+>  From f85f1baaa18932a041fd2b1c2ca6cfd9898c7d2b Mon Sep 17 00:00:00 2001
+> From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Date: Tue, 2 Mar 2021 13:36:44 +0100
+> Subject: [PATCH] KVM: s390: split kvm_s390_logical_to_effective
+> 
+> Split kvm_s390_logical_to_effective to a generic function called
+> _kvm_s390_logical_to_effective. The new function takes a PSW and an address
+> and returns the address with the appropriate bits masked off. The old
+> function now calls the new function with the appropriate PSW from the vCPU.
+> 
+> This is needed to avoid code duplication for vSIE.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: stable@vger.kernel.org # for VSIE: correctly handle MVPG when in VSIE
+> Link: https://lore.kernel.org/r/20210302174443.514363-2-imbrenda@linux.ibm.com
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> 
+> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> index f4c51756c462..2d8631a1f23e 100644
+> --- a/arch/s390/kvm/gaccess.h
+> +++ b/arch/s390/kvm/gaccess.h
+> @@ -36,6 +36,29 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+>   	return gra;
+>   }
+>   
+> +/**
+> + * _kvm_s390_logical_to_effective - convert guest logical to effective address
+> + * @psw: psw of the guest
+> + * @ga: guest logical address
+> + *
+> + * Convert a guest logical address to an effective address by applying the
+> + * rules of the addressing mode defined by bits 31 and 32 of the given PSW
+> + * (extendended/basic addressing mode).
+> + *
+> + * Depending on the addressing mode, the upper 40 bits (24 bit addressing
+> + * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
+> + * mode) of @ga will be zeroed and the remaining bits will be returned.
+> + */
+> +static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
+> +							   unsigned long ga)
+> +{
+> +	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+> +		return ga;
+> +	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+> +		return ga & ((1UL << 31) - 1);
+> +	return ga & ((1UL << 24) - 1);
+> +}
+> +
+>   /**
+>    * kvm_s390_logical_to_effective - convert guest logical to effective address
+>    * @vcpu: guest virtual cpu
+> @@ -52,13 +75,7 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+>   static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+>   							  unsigned long ga)
+>   {
+> -	psw_t *psw = &vcpu->arch.sie_block->gpsw;
+> -
+> -	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+> -		return ga;
+> -	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+> -		return ga & ((1UL << 31) - 1);
+> -	return ga & ((1UL << 24) - 1);
+> +	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
+>   }
+>   
+>   /*
+> 
