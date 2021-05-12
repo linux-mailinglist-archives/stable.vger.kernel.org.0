@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CA8A37C13D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D801D37C13C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:57:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231416AbhELO5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:57:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45078 "EHLO mail.kernel.org"
+        id S232170AbhELO5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:57:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231455AbhELO4h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:56:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71C2A61440;
-        Wed, 12 May 2021 14:55:04 +0000 (UTC)
+        id S231468AbhELO4k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:56:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0CCC6143E;
+        Wed, 12 May 2021 14:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831304;
-        bh=z4e7l8p6Cpon/zOsU9iHY3ar7o3fden3FRcwU1dVm9s=;
+        s=korg; t=1620831307;
+        bh=M5+I9+MhYp0cXkt9Ka6JdsqhQLIQGIkEL3MjQFW67us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUmVUeph38kT9SkOD/d0x6slchfdaX3E7oy2T5y1r2IQKVDabp4MDtRdM/OjYFBue
-         GDG/maPNuIAJDGrok7vFrUgP/0yfplG62sl8Kfehw+LTDwjbm8Ukzo0kwu5Ch1kI2P
-         UGog2RF16L8NtZM3ZmParqtNWRkwh4REacbUOupY=
+        b=C2Gxg0LWCqbhHFRWk2Y2g98czhKOVvNajwTEZXw8PwJ46OV2EbZ+MQaVPEOaF4+Fu
+         49OjLzrcY2JA5Y7FNTVA+9NePYSgLMj0Zm8u38MryFMz704VHgrV32hC+ANM6LCVaP
+         dSovaE10MwuGBW+ZuyNVX1I6f/NnpSlw5KPvOr74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/244] ARM: dts: exynos: correct fuel gauge interrupt trigger level on Midas family
-Date:   Wed, 12 May 2021 16:47:17 +0200
-Message-Id: <20210512144745.147374775@linuxfoundation.org>
+Subject: [PATCH 5.4 067/244] ARM: dts: exynos: correct MUIC interrupt trigger level on Midas family
+Date:   Wed, 12 May 2021 16:47:18 +0200
+Message-Id: <20210512144745.178100402@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -41,33 +41,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 8a45f33bd36efbb624198cfa9fdf1f66fd1c3d26 ]
+[ Upstream commit 15107e443ab8c6cb35eff10438993e4bc944d9ae ]
 
-The Maxim fuel gauge datasheets describe the interrupt line as active
-low with a requirement of acknowledge from the CPU.  The falling edge
-interrupt will mostly work but it's not correct.
+The Maxim MUIC datasheets describe the interrupt line as active low
+with a requirement of acknowledge from the CPU.  Without specifying the
+interrupt type in Devicetree, kernel might apply some fixed
+configuration, not necessarily working for this hardware.
 
-Fixes: e8614292cd41 ("ARM: dts: Add Maxim 77693 fuel gauge node for exynos4412-trats2")
+Additionally, the interrupt line is shared so using level sensitive
+interrupt is here especially important to avoid races.
+
+Fixes: 7eec1266751b ("ARM: dts: Add Maxim 77693 PMIC to exynos4412-trats2")
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201210212534.216197-3-krzk@kernel.org
+Link: https://lore.kernel.org/r/20201210212534.216197-4-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  arch/arm/boot/dts/exynos4412-midas.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/exynos4412-midas.dtsi b/arch/arm/boot/dts/exynos4412-midas.dtsi
-index 83be3a797411..342abf97921e 100644
+index 342abf97921e..79e6bd56f9ad 100644
 --- a/arch/arm/boot/dts/exynos4412-midas.dtsi
 +++ b/arch/arm/boot/dts/exynos4412-midas.dtsi
-@@ -187,7 +187,7 @@
- 		max77693-fuel-gauge@36 {
- 			compatible = "maxim,max17047";
- 			interrupt-parent = <&gpx2>;
--			interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
-+			interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+@@ -139,7 +139,7 @@
+ 		max77693@66 {
+ 			compatible = "maxim,max77693";
+ 			interrupt-parent = <&gpx1>;
+-			interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
++			interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
  			pinctrl-names = "default";
- 			pinctrl-0 = <&max77693_fuel_irq>;
- 			reg = <0x36>;
+ 			pinctrl-0 = <&max77693_irq>;
+ 			reg = <0x66>;
 -- 
 2.30.2
 
