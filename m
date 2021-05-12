@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DBE637B920
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:28:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3498E37B921
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230104AbhELJ3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:29:22 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:46823 "EHLO
+        id S229968AbhELJ3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:29:24 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:47075 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229968AbhELJ3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:29:22 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8757E1940BC9;
-        Wed, 12 May 2021 05:28:13 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 05:28:13 -0400
+        by vger.kernel.org with ESMTP id S230109AbhELJ3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:29:24 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 135FD1940649;
+        Wed, 12 May 2021 05:28:16 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Wed, 12 May 2021 05:28:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=DWJTvh
-        gsK+sG/7t53/uu63c7YCIA/5D40ZbfAQDL/+U=; b=bja4Zo7VdEz3gxU+rUD3Hc
-        3OAe3owLA72p4bFQaxh3ih7HK5PQ9PBpXBq95yLfZyraeDuPyHrZxQe6VkTfm2Rl
-        fzeJ2tSNXIZNzLc6XS5Of+n5p0YM3DEHnnXoi8sk35z3SsNnmeDXwTr6RYJimxwB
-        xJy0YO0l1C61cGrG66Sw0vVcBGkyyJQHQHsA/1tZcEYglmAz2k0R38jYrKWASvnb
-        Kg8b0ph+d7yMS62naUQknw1tOlqjmX2LR3KjRNrkwYmY4eUZFprB56wrAu96gmxS
-        ed4Zo51FB0PjhasJOOqbF5AOwnib8+kS764VULtieX5UrVtWYmAEQcudkDIiZOSQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IM/0HO
+        yb8fboMJX1zw+AURX8p8lPkl2SHs1PoLhpjAg=; b=sqCKdpnXgPsk/sfPbmBLuA
+        ZvXI0PpKlDy41Xpwlo6q+BUBiRmeC6kduu20qXU6P9d7GnS13O751ki/8mYZlrPU
+        lWWpETmClp8KWmLKEbaIihz3HzLq1U7ejqgeiwsXGYAxjndjP4YdhFQnIlnUXBCS
+        tRwpDdTcEmzoAwdftxDIdnKQcPfqxRWAm90zNwR1pogaummLHci1DlMCBmYaexex
+        GZUC6bkRsRT7f3r0Ng5QVFRGX5YKyngaOw/z+PocGc4X1K/XbBqJ8ju49DLvSoTt
+        RxvAGo3Bw0s2U72kzdHx6UlYuqDrLNcVms6mCKCxKQvPwLI/vbWklvx0CStLqLNA
         ==
-X-ME-Sender: <xms:rJ-bYCsyq0952WVvZN3voe3rdDw3eHCclmso2Il_SwNPqvhARqEdVg>
-    <xme:rJ-bYHcakYx0IWtI2IapLt3Tdtf8ketgt7FbKzPOm-NKo4NOLwdL2iSyM0x54M2HJ
-    lzmcj-ebneZuA>
+X-ME-Sender: <xms:r5-bYCp5fFWOhMdidF-PELrBeKuTAYIS7CKzIGrUSX2FmS4gYYwhlQ>
+    <xme:r5-bYApviaGUse1GXoHNAoak2vZhx3KqwjjeFFmXCX-nAqtIiYdQbRF1GXe84eBgp
+    4jeGNLUc8nR7w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:rJ-bYNyGo8a_RdCUNxEeVULguVChGOIonpUy7JXcEsyDKdzOWUFdcQ>
-    <xmx:rJ-bYNN_fd570VjnpP4EGvyyN1hXD_-sAMkTCqSQyCIOVrG5hTM14w>
-    <xmx:rJ-bYC_DDolFFvUtzK1ktt-qF284wo8_-0ubhMcWatBf89uJcbwghw>
-    <xmx:rZ-bYHMwYmPUWMQXHp7TYfX0_NmiO8UvpmacNv3Q9yGNzsSHsW4GHw>
+X-ME-Proxy: <xmx:r5-bYHOb30H-jm2krrD-ciXlUuqWkKDRvPZFoOfFqLAgz-paRMx6Zw>
+    <xmx:r5-bYB7uxT5LBfuapfRxRSqYmrZFdyOb9NvIQYVZ9m5A8z1XVNkr9w>
+    <xmx:r5-bYB4bIVKRLaQr8UwT-BN505nIssStsxez2cMw2-wBEYUaolLs8w>
+    <xmx:sJ-bYMbPtBm8UVhIAZLaxqjUXUUhLI-z9FFwhqRfAfCPHkfJNpo-fA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 05:28:11 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] net: xilinx: drivers need/depend on HAS_IOMEM" failed to apply to 4.4-stable tree
+        Wed, 12 May 2021 05:28:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: xilinx: drivers need/depend on HAS_IOMEM" failed to apply to 4.9-stable tree
 To:     rdunlap@infradead.org, andre.przywara@arm.com,
         daniel@iogearbox.net, davem@davemloft.net, gary@garyguo.net,
         kuba@kernel.org, lkp@intel.com, radhey.shyam.pandey@xilinx.com,
         zhangchangzhong@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 11:28:09 +0200
-Message-ID: <162081168992168@kroah.com>
+Date:   Wed, 12 May 2021 11:28:10 +0200
+Message-ID: <162081169061155@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
