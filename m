@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3C037CE74
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA8C37CE6F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343771AbhELRFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
+        id S245006AbhELRFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237984AbhELQn7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:43:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 650E361289;
-        Wed, 12 May 2021 16:14:06 +0000 (UTC)
+        id S231289AbhELQoA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:44:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C95E6619A9;
+        Wed, 12 May 2021 16:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836046;
-        bh=R3riXgMsE6+ftRbH6MoPYQzr7DTg/+r00hwk2ICL9nQ=;
+        s=korg; t=1620836049;
+        bh=/YIHPP1mkB4P7DXq9hZEPgh/WfTWUGzOdo8UpwGp7JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lWRkvTmYYShwuqLvgxQrxs5yHHjqL4qFoJFkgw9hXXo3Bvd6Kvv0MloiayCZ9i0Mn
-         7Xu+2TyRVFV8MBu5erfzu7w6nYrB7YU8nsZ1+6257RXJAQ3ep6GGDTvUAPRBzci3xr
-         83uUE0tuwTXzLUbmYUcGjCS8zMrpYmGPecbxPCig=
+        b=JTEShp400fyRDqiXPtSVnSX6YnD8EderOuSYtgsZJZklXmOBdQE7s/riJWQzvLUOJ
+         GKAqrI3YQ7G81cpi4NMvOq+dxqqK8wsiZOAqRoNlIIlyL4/AEBFz6J10IVJUshjsz/
+         /D/ZFZANnajk129nbjPokdbTQahcyp4+ejwSaAfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Geliang Tang <geliangtang@gmail.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Daniel Henrique Barboza <danielhb413@gmail.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 588/677] mptcp: fix format specifiers for unsigned int
-Date:   Wed, 12 May 2021 16:50:34 +0200
-Message-Id: <20210512144856.923239842@linuxfoundation.org>
+Subject: [PATCH 5.12 589/677] powerpc/smp: Reintroduce cpu_core_mask
+Date:   Wed, 12 May 2021 16:50:35 +0200
+Message-Id: <20210512144856.952796189@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,55 +42,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geliang Tang <geliangtang@gmail.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit e4b6135134a75f530bd634ea7c168efaf0f9dff3 ]
+[ Upstream commit c47f892d7aa62765bf0689073f75990b4517a4cf ]
 
-Some of the sequence numbers are printed as the negative ones in the debug
-log:
+Daniel reported that with Commit 4ca234a9cbd7 ("powerpc/smp: Stop
+updating cpu_core_mask") QEMU was unable to set single NUMA node SMP
+topologies such as:
+ -smp 8,maxcpus=8,cores=2,threads=2,sockets=2
+ i.e he expected 2 sockets in one NUMA node.
 
-[   46.250932] MPTCP: DSS
-[   46.250940] MPTCP: data_fin=0 dsn64=0 use_map=0 ack64=1 use_ack=1
-[   46.250948] MPTCP: data_ack=2344892449471675613
-[   46.251012] MPTCP: msk=000000006e157e3f status=10
-[   46.251023] MPTCP: msk=000000006e157e3f snd_data_fin_enable=0 pending=0 snd_nxt=2344892449471700189 write_seq=2344892449471700189
-[   46.251343] MPTCP: msk=00000000ec44a129 ssk=00000000f7abd481 sending dfrag at seq=-1658937016627538668 len=100 already sent=0
-[   46.251360] MPTCP: data_seq=16787807057082012948 subflow_seq=1 data_len=100 dsn64=1
+The above commit helped to reduce boot time on Large Systems for
+example 4096 vCPU single socket QEMU instance. PAPR is silent on
+having more than one socket within a NUMA node.
 
-This patch used the format specifier %u instead of %d for the unsigned int
-values to fix it.
+cpu_core_mask and cpu_cpu_mask for any CPU would be same unless the
+number of sockets is different from the number of NUMA nodes.
 
-Fixes: d9ca1de8c0cd ("mptcp: move page frag allocation in mptcp_sendmsg()")
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Geliang Tang <geliangtang@gmail.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+One option is to reintroduce cpu_core_mask but use a slightly
+different method to arrive at the cpu_core_mask. Previously each CPU's
+chip-id would be compared with all other CPU's chip-id to verify if
+both the CPUs were related at the chip level. Now if a CPU 'A' is
+found related / (unrelated) to another CPU 'B', all the thread
+siblings of 'A' and thread siblings of 'B' are automatically marked as
+related / (unrelated).
+
+Also if a platform doesn't support ibm,chip-id property, i.e its
+cpu_to_chip_id returns -1, cpu_core_map holds a copy of
+cpu_cpu_mask().
+
+Fixes: 4ca234a9cbd7 ("powerpc/smp: Stop updating cpu_core_mask")
+Reported-by: Daniel Henrique Barboza <danielhb413@gmail.com>
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Tested-by: Daniel Henrique Barboza <danielhb413@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210415120934.232271-2-srikar@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/smp.h |  5 +++++
+ arch/powerpc/kernel/smp.c      | 39 ++++++++++++++++++++++++++++------
+ 2 files changed, 37 insertions(+), 7 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 4bde960e19dc..5043c7cb0782 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -1275,7 +1275,7 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
- 	int avail_size;
- 	size_t ret = 0;
+diff --git a/arch/powerpc/include/asm/smp.h b/arch/powerpc/include/asm/smp.h
+index 7a13bc20f0a0..47081a9e13ca 100644
+--- a/arch/powerpc/include/asm/smp.h
++++ b/arch/powerpc/include/asm/smp.h
+@@ -121,6 +121,11 @@ static inline struct cpumask *cpu_sibling_mask(int cpu)
+ 	return per_cpu(cpu_sibling_map, cpu);
+ }
  
--	pr_debug("msk=%p ssk=%p sending dfrag at seq=%lld len=%d already sent=%d",
-+	pr_debug("msk=%p ssk=%p sending dfrag at seq=%llu len=%u already sent=%u",
- 		 msk, ssk, dfrag->data_seq, dfrag->data_len, info->sent);
- 
- 	/* compute send limit */
-@@ -1693,7 +1693,7 @@ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
- 			if (!msk->first_pending)
- 				WRITE_ONCE(msk->first_pending, dfrag);
++static inline struct cpumask *cpu_core_mask(int cpu)
++{
++	return per_cpu(cpu_core_map, cpu);
++}
++
+ static inline struct cpumask *cpu_l2_cache_mask(int cpu)
+ {
+ 	return per_cpu(cpu_l2_cache_map, cpu);
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 5a4d59a1070d..5c7ce1d50631 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -1057,17 +1057,12 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
+ 				local_memory_node(numa_cpu_lookup_table[cpu]));
  		}
--		pr_debug("msk=%p dfrag at seq=%lld len=%d sent=%d new=%d", msk,
-+		pr_debug("msk=%p dfrag at seq=%llu len=%u sent=%u new=%d", msk,
- 			 dfrag->data_seq, dfrag->data_len, dfrag->already_sent,
- 			 !dfrag_collapsed);
+ #endif
+-		/*
+-		 * cpu_core_map is now more updated and exists only since
+-		 * its been exported for long. It only will have a snapshot
+-		 * of cpu_cpu_mask.
+-		 */
+-		cpumask_copy(per_cpu(cpu_core_map, cpu), cpu_cpu_mask(cpu));
+ 	}
+ 
+ 	/* Init the cpumasks so the boot CPU is related to itself */
+ 	cpumask_set_cpu(boot_cpuid, cpu_sibling_mask(boot_cpuid));
+ 	cpumask_set_cpu(boot_cpuid, cpu_l2_cache_mask(boot_cpuid));
++	cpumask_set_cpu(boot_cpuid, cpu_core_mask(boot_cpuid));
+ 
+ 	if (has_coregroup_support())
+ 		cpumask_set_cpu(boot_cpuid, cpu_coregroup_mask(boot_cpuid));
+@@ -1408,6 +1403,9 @@ static void remove_cpu_from_masks(int cpu)
+ 			set_cpus_unrelated(cpu, i, cpu_smallcore_mask);
+ 	}
+ 
++	for_each_cpu(i, cpu_core_mask(cpu))
++		set_cpus_unrelated(cpu, i, cpu_core_mask);
++
+ 	if (has_coregroup_support()) {
+ 		for_each_cpu(i, cpu_coregroup_mask(cpu))
+ 			set_cpus_unrelated(cpu, i, cpu_coregroup_mask);
+@@ -1468,8 +1466,11 @@ static void update_coregroup_mask(int cpu, cpumask_var_t *mask)
+ 
+ static void add_cpu_to_masks(int cpu)
+ {
++	struct cpumask *(*submask_fn)(int) = cpu_sibling_mask;
+ 	int first_thread = cpu_first_thread_sibling(cpu);
++	int chip_id = cpu_to_chip_id(cpu);
+ 	cpumask_var_t mask;
++	bool ret;
+ 	int i;
+ 
+ 	/*
+@@ -1485,12 +1486,36 @@ static void add_cpu_to_masks(int cpu)
+ 	add_cpu_to_smallcore_masks(cpu);
+ 
+ 	/* In CPU-hotplug path, hence use GFP_ATOMIC */
+-	alloc_cpumask_var_node(&mask, GFP_ATOMIC, cpu_to_node(cpu));
++	ret = alloc_cpumask_var_node(&mask, GFP_ATOMIC, cpu_to_node(cpu));
+ 	update_mask_by_l2(cpu, &mask);
+ 
+ 	if (has_coregroup_support())
+ 		update_coregroup_mask(cpu, &mask);
+ 
++	if (chip_id == -1 || !ret) {
++		cpumask_copy(per_cpu(cpu_core_map, cpu), cpu_cpu_mask(cpu));
++		goto out;
++	}
++
++	if (shared_caches)
++		submask_fn = cpu_l2_cache_mask;
++
++	/* Update core_mask with all the CPUs that are part of submask */
++	or_cpumasks_related(cpu, cpu, submask_fn, cpu_core_mask);
++
++	/* Skip all CPUs already part of current CPU core mask */
++	cpumask_andnot(mask, cpu_online_mask, cpu_core_mask(cpu));
++
++	for_each_cpu(i, mask) {
++		if (chip_id == cpu_to_chip_id(i)) {
++			or_cpumasks_related(cpu, i, submask_fn, cpu_core_mask);
++			cpumask_andnot(mask, mask, submask_fn(i));
++		} else {
++			cpumask_andnot(mask, mask, cpu_core_mask(i));
++		}
++	}
++
++out:
+ 	free_cpumask_var(mask);
+ }
  
 -- 
 2.30.2
