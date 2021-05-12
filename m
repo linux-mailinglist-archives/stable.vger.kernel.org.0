@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F2C137C342
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DFF737C360
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233313AbhELPSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47244 "EHLO mail.kernel.org"
+        id S233337AbhELPS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234261AbhELPQU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 090B861954;
-        Wed, 12 May 2021 15:06:04 +0000 (UTC)
+        id S234380AbhELPQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3D0A61978;
+        Wed, 12 May 2021 15:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831965;
-        bh=1ZD+8WFlG/eBiRkO4Ohj+NfksEQAXkIJfsQlWI5wCfM=;
+        s=korg; t=1620831992;
+        bh=Al+dmTqUWbeemajTi9SkzKs3Hb2QwcXWbn7vX+mbfbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYvSKdescDO8oqOHEdWKmkNIIO6HOBfjnoMW39sTJh6NsOipfM8LEhl6MkxUxOus6
-         qE0G9ki1/fq0pGjqpKkbj6tff/PxaesiR10sFI2OF4M54wbSvabRg8TL0tSz6SSwza
-         wEp/knEmdOiwr5iwKEzLwqwpW+8Azir4GmYl6mzM=
+        b=lOxDURw0ai6+BOeaZZa24NXVbPtErfpfE84pqZdkaRAIMb3r6LhnrV5hgTs8elTJQ
+         IybiOjD7Q62mh4Mwx8Vvvo8nA3fsPFKKbA+FFzs1UZZ+K9VppKkUMb2N+p0nIq9S8A
+         J+Ho0WqW2j9RI7aF20sboANMlSLEp7K+vMQhQdpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        James Zhu <James.Zhu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 069/530] drm/amdgpu: fix concurrent VM flushes on Vega/Navi v2
-Date:   Wed, 12 May 2021 16:42:59 +0200
-Message-Id: <20210512144822.028545946@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 070/530] ALSA: hda/realtek: Re-order ALC882 Acer quirk table entries
+Date:   Wed, 12 May 2021 16:43:00 +0200
+Message-Id: <20210512144822.059544581@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,105 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 20a5f5a98e1bb3d40acd97e89299e8c2d22784be upstream.
+commit b265047ac56bad8c4f3d0c8bf9cb4e828ee0d28e upstream.
 
-Starting with Vega the hardware supports concurrent flushes
-of VMID which can be used to implement per process VMID
-allocation.
+Just re-order the alc882_fixup_tbl[] entries for Acer devices for
+avoiding the oversight of the duplicated or unapplied item in future.
+No functional changes.
 
-But concurrent flushes are mutual exclusive with back to
-back VMID allocations, fix this to avoid a VMID used in
-two ways at the same time.
+Also Cc-to-stable for the further patch applications.
 
-v2: don't set ring to NULL
-
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Tested-by: James Zhu <James.Zhu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428112704.23967-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ids.c |   19 +++++++++++--------
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c  |    6 ++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h  |    1 +
- 3 files changed, 18 insertions(+), 8 deletions(-)
+ sound/pci/hda/patch_realtek.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ids.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ids.c
-@@ -215,7 +215,11 @@ static int amdgpu_vmid_grab_idle(struct
- 	/* Check if we have an idle VMID */
- 	i = 0;
- 	list_for_each_entry((*idle), &id_mgr->ids_lru, list) {
--		fences[i] = amdgpu_sync_peek_fence(&(*idle)->active, ring);
-+		/* Don't use per engine and per process VMID at the same time */
-+		struct amdgpu_ring *r = adev->vm_manager.concurrent_flush ?
-+			NULL : ring;
-+
-+		fences[i] = amdgpu_sync_peek_fence(&(*idle)->active, r);
- 		if (!fences[i])
- 			break;
- 		++i;
-@@ -280,7 +284,7 @@ static int amdgpu_vmid_grab_reserved(str
- 	if (updates && (*id)->flushed_updates &&
- 	    updates->context == (*id)->flushed_updates->context &&
- 	    !dma_fence_is_later(updates, (*id)->flushed_updates))
--	    updates = NULL;
-+		updates = NULL;
- 
- 	if ((*id)->owner != vm->immediate.fence_context ||
- 	    job->vm_pd_addr != (*id)->pd_gpu_addr ||
-@@ -289,6 +293,10 @@ static int amdgpu_vmid_grab_reserved(str
- 	     !dma_fence_is_signaled((*id)->last_flush))) {
- 		struct dma_fence *tmp;
- 
-+		/* Don't use per engine and per process VMID at the same time */
-+		if (adev->vm_manager.concurrent_flush)
-+			ring = NULL;
-+
- 		/* to prevent one context starved by another context */
- 		(*id)->pd_gpu_addr = 0;
- 		tmp = amdgpu_sync_peek_fence(&(*id)->active, ring);
-@@ -364,12 +372,7 @@ static int amdgpu_vmid_grab_used(struct
- 		if (updates && (!flushed || dma_fence_is_later(updates, flushed)))
- 			needs_flush = true;
- 
--		/* Concurrent flushes are only possible starting with Vega10 and
--		 * are broken on Navi10 and Navi14.
--		 */
--		if (needs_flush && (adev->asic_type < CHIP_VEGA10 ||
--				    adev->asic_type == CHIP_NAVI10 ||
--				    adev->asic_type == CHIP_NAVI14))
-+		if (needs_flush && !adev->vm_manager.concurrent_flush)
- 			continue;
- 
- 		/* Good, we can use this VMID. Remember this submission as
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -3173,6 +3173,12 @@ void amdgpu_vm_manager_init(struct amdgp
- {
- 	unsigned i;
- 
-+	/* Concurrent flushes are only possible starting with Vega10 and
-+	 * are broken on Navi10 and Navi14.
-+	 */
-+	adev->vm_manager.concurrent_flush = !(adev->asic_type < CHIP_VEGA10 ||
-+					      adev->asic_type == CHIP_NAVI10 ||
-+					      adev->asic_type == CHIP_NAVI14);
- 	amdgpu_vmid_mgr_init(adev);
- 
- 	adev->vm_manager.fence_context =
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.h
-@@ -325,6 +325,7 @@ struct amdgpu_vm_manager {
- 	/* Handling of VMIDs */
- 	struct amdgpu_vmid_mgr			id_mgr[AMDGPU_MAX_VMHUBS];
- 	unsigned int				first_kfd_vmid;
-+	bool					concurrent_flush;
- 
- 	/* Handling of VM fences */
- 	u64					fence_context;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2470,13 +2470,13 @@ static const struct snd_pci_quirk alc882
+ 		      ALC882_FIXUP_ACER_ASPIRE_8930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0146, "Acer Aspire 6935G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_8930G),
++	SND_PCI_QUIRK(0x1025, 0x0142, "Acer Aspire 7730G",
++		      ALC882_FIXUP_ACER_ASPIRE_4930G),
++	SND_PCI_QUIRK(0x1025, 0x0155, "Packard-Bell M5120", ALC882_FIXUP_PB_M5210),
+ 	SND_PCI_QUIRK(0x1025, 0x015e, "Acer Aspire 6930G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0166, "Acer Aspire 6530G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+-	SND_PCI_QUIRK(0x1025, 0x0142, "Acer Aspire 7730G",
+-		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+-	SND_PCI_QUIRK(0x1025, 0x0155, "Packard-Bell M5120", ALC882_FIXUP_PB_M5210),
+ 	SND_PCI_QUIRK(0x1025, 0x021e, "Acer Aspire 5739G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0259, "Acer Aspire 5935", ALC889_FIXUP_DAC_ROUTE),
 
 
