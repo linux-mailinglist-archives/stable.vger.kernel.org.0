@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8988C37C0E5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F06937C0E7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231834AbhELOyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:54:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43202 "EHLO mail.kernel.org"
+        id S231584AbhELOy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:54:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231430AbhELOyi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:54:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B347F61422;
-        Wed, 12 May 2021 14:53:28 +0000 (UTC)
+        id S231744AbhELOyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:54:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 325E961433;
+        Wed, 12 May 2021 14:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831209;
-        bh=6diblhmDUfqyf0qKuIwIX8qZrb0QmaD8X3Ab+88qbG0=;
+        s=korg; t=1620831211;
+        bh=FL9rwGVxNoAXLtIRyyPbdu6Ztu+DAGO57rH+wtguWsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RFQko3mzykEUOMBkVG1ceGJaKX9fClXVoxG7LDZCzBwfzQ9buC2+4GYRUw4YlLcp9
-         VoHNIgGXZQ1rPdDCigTPCbjyRPHo/oSm6k5dEx5GAF4FblN0DV0y/wG4CJginL+fnQ
-         Kjs/LkxgXSBClvDmA5Kot71HjhSjnp4moOPS+IzY=
+        b=eq2149TGIxPYAnC2S6V5BBvibCsgV3lGlsK99DcQPAVhm/yXErJevT/zFUtdhQW1C
+         0h8j5V5Juer4Hjux6D0m8DVzpeu3zo5v6rs8tBNxnZ5YUaYwuxXbaMDbBMdy4Dqjhw
+         Ti54/4UsqnoQdFpuAXoLx2KnYrvP4+jWKwgeIH5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 5.4 028/244] misc: vmw_vmci: explicitly initialize vmci_datagram payload
-Date:   Wed, 12 May 2021 16:46:39 +0200
-Message-Id: <20210512144743.953645113@linuxfoundation.org>
+        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
+        Zhao Heming <heming.zhao@suse.com>, Song Liu <song@kernel.org>
+Subject: [PATCH 5.4 029/244] md/bitmap: wait for external bitmap writes to complete during tear down
+Date:   Wed, 12 May 2021 16:46:40 +0200
+Message-Id: <20210512144743.988336036@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -39,92 +40,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
 
-commit b2192cfeba8481224da0a4ec3b4a7ccd80b1623b upstream.
+commit 404a8ef512587b2460107d3272c17a89aef75edf upstream.
 
-KMSAN complains that vmci_check_host_caps() left the payload part of
-check_msg uninitialized.
+NULL pointer dereference was observed in super_written() when it tries
+to access the mddev structure.
 
-  =====================================================
-  BUG: KMSAN: uninit-value in kmsan_check_memory+0xd/0x10
-  CPU: 1 PID: 1 Comm: swapper/0 Tainted: G    B             5.11.0-rc7+ #4
-  Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 02/27/2020
-  Call Trace:
-   dump_stack+0x21c/0x280
-   kmsan_report+0xfb/0x1e0
-   kmsan_internal_check_memory+0x202/0x520
-   kmsan_check_memory+0xd/0x10
-   iowrite8_rep+0x86/0x380
-   vmci_guest_probe_device+0xf0b/0x1e70
-   pci_device_probe+0xab3/0xe70
-   really_probe+0xd16/0x24d0
-   driver_probe_device+0x29d/0x3a0
-   device_driver_attach+0x25a/0x490
-   __driver_attach+0x78c/0x840
-   bus_for_each_dev+0x210/0x340
-   driver_attach+0x89/0xb0
-   bus_add_driver+0x677/0xc40
-   driver_register+0x485/0x8e0
-   __pci_register_driver+0x1ff/0x350
-   vmci_guest_init+0x3e/0x41
-   vmci_drv_init+0x1d6/0x43f
-   do_one_initcall+0x39c/0x9a0
-   do_initcall_level+0x1d7/0x259
-   do_initcalls+0x127/0x1cb
-   do_basic_setup+0x33/0x36
-   kernel_init_freeable+0x29a/0x3ed
-   kernel_init+0x1f/0x840
-   ret_from_fork+0x1f/0x30
+[The below stack trace is from an older kernel, but the problem described
+in this patch applies to the mainline kernel.]
 
-  Uninit was created at:
-   kmsan_internal_poison_shadow+0x5c/0xf0
-   kmsan_slab_alloc+0x8d/0xe0
-   kmem_cache_alloc+0x84f/0xe30
-   vmci_guest_probe_device+0xd11/0x1e70
-   pci_device_probe+0xab3/0xe70
-   really_probe+0xd16/0x24d0
-   driver_probe_device+0x29d/0x3a0
-   device_driver_attach+0x25a/0x490
-   __driver_attach+0x78c/0x840
-   bus_for_each_dev+0x210/0x340
-   driver_attach+0x89/0xb0
-   bus_add_driver+0x677/0xc40
-   driver_register+0x485/0x8e0
-   __pci_register_driver+0x1ff/0x350
-   vmci_guest_init+0x3e/0x41
-   vmci_drv_init+0x1d6/0x43f
-   do_one_initcall+0x39c/0x9a0
-   do_initcall_level+0x1d7/0x259
-   do_initcalls+0x127/0x1cb
-   do_basic_setup+0x33/0x36
-   kernel_init_freeable+0x29a/0x3ed
-   kernel_init+0x1f/0x840
-   ret_from_fork+0x1f/0x30
+[ 1194.474861] task: ffff8fdd20858000 task.stack: ffffb99d40790000
+[ 1194.488000] RIP: 0010:super_written+0x29/0xe1
+[ 1194.499688] RSP: 0018:ffff8ffb7fcc3c78 EFLAGS: 00010046
+[ 1194.512477] RAX: 0000000000000000 RBX: ffff8ffb7bf4a000 RCX: ffff8ffb78991048
+[ 1194.527325] RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff8ffb56b8a200
+[ 1194.542576] RBP: ffff8ffb7fcc3c90 R08: 000000000000000b R09: 0000000000000000
+[ 1194.558001] R10: ffff8ffb56b8a298 R11: 0000000000000000 R12: ffff8ffb56b8a200
+[ 1194.573070] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[ 1194.588117] FS:  0000000000000000(0000) GS:ffff8ffb7fcc0000(0000) knlGS:0000000000000000
+[ 1194.604264] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1194.617375] CR2: 00000000000002b8 CR3: 00000021e040a002 CR4: 00000000007606e0
+[ 1194.632327] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1194.647865] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 1194.663316] PKRU: 55555554
+[ 1194.674090] Call Trace:
+[ 1194.683735]  <IRQ>
+[ 1194.692948]  bio_endio+0xae/0x135
+[ 1194.703580]  blk_update_request+0xad/0x2fa
+[ 1194.714990]  blk_update_bidi_request+0x20/0x72
+[ 1194.726578]  __blk_end_bidi_request+0x2c/0x4d
+[ 1194.738373]  __blk_end_request_all+0x31/0x49
+[ 1194.749344]  blk_flush_complete_seq+0x377/0x383
+[ 1194.761550]  flush_end_io+0x1dd/0x2a7
+[ 1194.772910]  blk_finish_request+0x9f/0x13c
+[ 1194.784544]  scsi_end_request+0x180/0x25c
+[ 1194.796149]  scsi_io_completion+0xc8/0x610
+[ 1194.807503]  scsi_finish_command+0xdc/0x125
+[ 1194.818897]  scsi_softirq_done+0x81/0xde
+[ 1194.830062]  blk_done_softirq+0xa4/0xcc
+[ 1194.841008]  __do_softirq+0xd9/0x29f
+[ 1194.851257]  irq_exit+0xe6/0xeb
+[ 1194.861290]  do_IRQ+0x59/0xe3
+[ 1194.871060]  common_interrupt+0x1c6/0x382
+[ 1194.881988]  </IRQ>
+[ 1194.890646] RIP: 0010:cpuidle_enter_state+0xdd/0x2a5
+[ 1194.902532] RSP: 0018:ffffb99d40793e68 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff43
+[ 1194.917317] RAX: ffff8ffb7fce27c0 RBX: ffff8ffb7fced800 RCX: 000000000000001f
+[ 1194.932056] RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000000
+[ 1194.946428] RBP: ffffb99d40793ea0 R08: 0000000000000004 R09: 0000000000002ed2
+[ 1194.960508] R10: 0000000000002664 R11: 0000000000000018 R12: 0000000000000003
+[ 1194.974454] R13: 000000000000000b R14: ffffffff925715a0 R15: 0000011610120d5a
+[ 1194.988607]  ? cpuidle_enter_state+0xcc/0x2a5
+[ 1194.999077]  cpuidle_enter+0x17/0x19
+[ 1195.008395]  call_cpuidle+0x23/0x3a
+[ 1195.017718]  do_idle+0x172/0x1d5
+[ 1195.026358]  cpu_startup_entry+0x73/0x75
+[ 1195.035769]  start_secondary+0x1b9/0x20b
+[ 1195.044894]  secondary_startup_64+0xa5/0xa5
+[ 1195.084921] RIP: super_written+0x29/0xe1 RSP: ffff8ffb7fcc3c78
+[ 1195.096354] CR2: 00000000000002b8
 
-  Bytes 28-31 of 36 are uninitialized
-  Memory access of size 36 starts at ffff8881675e5f00
-  =====================================================
+bio in the above stack is a bitmap write whose completion is invoked after
+the tear down sequence sets the mddev structure to NULL in rdev.
 
-Fixes: 1f166439917b69d3 ("VMCI: guest side driver implementation.")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Link: https://lore.kernel.org/r/20210402121742.3917-2-penguin-kernel@I-love.SAKURA.ne.jp
+During tear down, there is an attempt to flush the bitmap writes, but for
+external bitmaps, there is no explicit wait for all the bitmap writes to
+complete. For instance, md_bitmap_flush() is called to flush the bitmap
+writes, but the last call to md_bitmap_daemon_work() in md_bitmap_flush()
+could generate new bitmap writes for which there is no explicit wait to
+complete those writes. The call to md_bitmap_update_sb() will return
+simply for external bitmaps and the follow-up call to md_update_sb() is
+conditional and may not get called for external bitmaps. This results in a
+kernel panic when the completion routine, super_written() is called which
+tries to reference mddev in the rdev that has been set to
+NULL(in unbind_rdev_from_array() by tear down sequence).
+
+The solution is to call md_super_wait() for external bitmaps after the
+last call to md_bitmap_daemon_work() in md_bitmap_flush() to ensure there
+are no pending bitmap writes before proceeding with the tear down.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
+Reviewed-by: Zhao Heming <heming.zhao@suse.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/vmw_vmci/vmci_guest.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/md-bitmap.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/misc/vmw_vmci/vmci_guest.c
-+++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -168,7 +168,7 @@ static int vmci_check_host_caps(struct p
- 				VMCI_UTIL_NUM_RESOURCES * sizeof(u32);
- 	struct vmci_datagram *check_msg;
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -1726,6 +1726,8 @@ void md_bitmap_flush(struct mddev *mddev
+ 	md_bitmap_daemon_work(mddev);
+ 	bitmap->daemon_lastrun -= sleep;
+ 	md_bitmap_daemon_work(mddev);
++	if (mddev->bitmap_info.external)
++		md_super_wait(mddev);
+ 	md_bitmap_update_sb(bitmap);
+ }
  
--	check_msg = kmalloc(msg_size, GFP_KERNEL);
-+	check_msg = kzalloc(msg_size, GFP_KERNEL);
- 	if (!check_msg) {
- 		dev_err(&pdev->dev, "%s: Insufficient memory\n", __func__);
- 		return -ENOMEM;
 
 
