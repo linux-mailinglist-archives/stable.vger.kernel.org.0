@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A47137CB08
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 211FB37CB00
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242275AbhELQeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:34:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
+        id S242177AbhELQde (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:33:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241375AbhELQ1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241376AbhELQ1G (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:27:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B49561DBF;
-        Wed, 12 May 2021 15:51:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADA6E61DBD;
+        Wed, 12 May 2021 15:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834713;
-        bh=IYgTNI9KVnkzuftttWP08pk/008Q/PI8FqEP+Jouq74=;
+        s=korg; t=1620834716;
+        bh=HH/D9Pn2RaJvhrcPfIpMqvLhEA2rGhnWd1gQMZdlTDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z0RJlc8fxiCU6qfeMWnlb8aIhYu3fyG4uCKN4JNnbYwdT+i/q2JWfXoL5oWJdTDeN
-         HK/rm4PmlXM9U95Giy/wcg3zbXX4OBV7AF9vU4jdr/eHKTwgw/JJi+d1ANz3/LQEOJ
-         aCuvAxlcEu4GkQ0B+qzO2/nipPOcotMysUC4V9Rk=
+        b=YR2YfFETRK/qBjq3piULC5Bwy2kYkA1epDQtbt0LZmSI5448uHJMVhOi7nqbJswoy
+         iA62PiLl2HfL6irOSMqTpquKo115J8Wuep5m4yFR1nAm0U9fh9+C5692XXk0RiIKPG
+         h7LWmRX21mZoKI68DSQjEX4Qf7If48sVe0ANZCOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alison Schofield <alison.schofield@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 5.12 054/677] x86, sched: Treat Intel SNC topology as default, COD as exception
-Date:   Wed, 12 May 2021 16:41:40 +0200
-Message-Id: <20210512144839.000256328@linuxfoundation.org>
+        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 5.12 055/677] async_xor: increase src_offs when dropping destination page
+Date:   Wed, 12 May 2021 16:41:41 +0200
+Message-Id: <20210512144839.041316378@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,189 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alison Schofield <alison.schofield@intel.com>
+From: Xiao Ni <xni@redhat.com>
 
-commit 2c88d45edbb89029c1190bb3b136d2602f057c98 upstream.
+commit ceaf2966ab082bbc4d26516f97b3ca8a676e2af8 upstream.
 
-Commit 1340ccfa9a9a ("x86,sched: Allow topologies where NUMA nodes
-share an LLC") added a vendor and model specific check to never
-call topology_sane() for Intel Skylake Server systems where NUMA
-nodes share an LLC.
+Now we support sharing one page if PAGE_SIZE is not equal stripe size. To
+support this, it needs to support calculating xor value with different
+offsets for each r5dev. One offset array is used to record those offsets.
 
-Intel Ice Lake and Sapphire Rapids CPUs also enumerate an LLC that is
-shared by multiple NUMA nodes. The LLC on these CPUs is shared for
-off-package data access but private to the NUMA node for on-package
-access. Rather than managing a list of allowable SNC topologies, make
-this SNC topology the default, and treat Intel's Cluster-On-Die (COD)
-topology as the exception.
+In RMW mode, parity page is used as a source page. It sets
+ASYNC_TX_XOR_DROP_DST before calculating xor value in ops_run_prexor5.
+So it needs to add src_list and src_offs at the same time. Now it only
+needs src_list. So the xor value which is calculated is wrong. It can
+cause data corruption problem.
 
-In SNC mode, Sky Lake, Ice Lake, and Sapphire Rapids servers do not
-emit this warning:
+I can reproduce this problem 100% on a POWER8 machine. The steps are:
 
-sched: CPU #3's llc-sibling CPU #0 is not on the same node! [node: 1 != 0]. Ignoring dependency.
+  mdadm -CR /dev/md0 -l5 -n3 /dev/sdb1 /dev/sdc1 /dev/sdd1 --size=3G
+  mkfs.xfs /dev/md0
+  mount /dev/md0 /mnt/test
+  mount: /mnt/test: mount(2) system call failed: Structure needs cleaning.
 
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Alison Schofield <alison.schofield@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210310190233.31752-1-alison.schofield@intel.com
+Fixes: 29bcff787a25 ("md/raid5: add new xor function to support different page offset")
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/smpboot.c |   90 +++++++++++++++++++++++-----------------------
- 1 file changed, 46 insertions(+), 44 deletions(-)
+ crypto/async_tx/async_xor.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -458,29 +458,52 @@ static bool match_smt(struct cpuinfo_x86
- 	return false;
- }
- 
-+static bool match_die(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
-+{
-+	if (c->phys_proc_id == o->phys_proc_id &&
-+	    c->cpu_die_id == o->cpu_die_id)
-+		return true;
-+	return false;
-+}
-+
- /*
-- * Define snc_cpu[] for SNC (Sub-NUMA Cluster) CPUs.
-+ * Unlike the other levels, we do not enforce keeping a
-+ * multicore group inside a NUMA node.  If this happens, we will
-+ * discard the MC level of the topology later.
-+ */
-+static bool match_pkg(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
-+{
-+	if (c->phys_proc_id == o->phys_proc_id)
-+		return true;
-+	return false;
-+}
-+
-+/*
-+ * Define intel_cod_cpu[] for Intel COD (Cluster-on-Die) CPUs.
-  *
-- * These are Intel CPUs that enumerate an LLC that is shared by
-- * multiple NUMA nodes. The LLC on these systems is shared for
-- * off-package data access but private to the NUMA node (half
-- * of the package) for on-package access.
-+ * Any Intel CPU that has multiple nodes per package and does not
-+ * match intel_cod_cpu[] has the SNC (Sub-NUMA Cluster) topology.
-  *
-- * CPUID (the source of the information about the LLC) can only
-- * enumerate the cache as being shared *or* unshared, but not
-- * this particular configuration. The CPU in this case enumerates
-- * the cache to be shared across the entire package (spanning both
-- * NUMA nodes).
-+ * When in SNC mode, these CPUs enumerate an LLC that is shared
-+ * by multiple NUMA nodes. The LLC is shared for off-package data
-+ * access but private to the NUMA node (half of the package) for
-+ * on-package access. CPUID (the source of the information about
-+ * the LLC) can only enumerate the cache as shared or unshared,
-+ * but not this particular configuration.
-  */
- 
--static const struct x86_cpu_id snc_cpu[] = {
--	X86_MATCH_INTEL_FAM6_MODEL(SKYLAKE_X, NULL),
-+static const struct x86_cpu_id intel_cod_cpu[] = {
-+	X86_MATCH_INTEL_FAM6_MODEL(HASWELL_X, 0),	/* COD */
-+	X86_MATCH_INTEL_FAM6_MODEL(BROADWELL_X, 0),	/* COD */
-+	X86_MATCH_INTEL_FAM6_MODEL(ANY, 1),		/* SNC */
- 	{}
- };
- 
- static bool match_llc(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
- {
-+	const struct x86_cpu_id *id = x86_match_cpu(intel_cod_cpu);
- 	int cpu1 = c->cpu_index, cpu2 = o->cpu_index;
-+	bool intel_snc = id && id->driver_data;
- 
- 	/* Do not match if we do not have a valid APICID for cpu: */
- 	if (per_cpu(cpu_llc_id, cpu1) == BAD_APICID)
-@@ -495,32 +518,12 @@ static bool match_llc(struct cpuinfo_x86
- 	 * means 'c' does not share the LLC of 'o'. This will be
- 	 * reflected to userspace.
- 	 */
--	if (!topology_same_node(c, o) && x86_match_cpu(snc_cpu))
-+	if (match_pkg(c, o) && !topology_same_node(c, o) && intel_snc)
- 		return false;
- 
- 	return topology_sane(c, o, "llc");
- }
- 
--/*
-- * Unlike the other levels, we do not enforce keeping a
-- * multicore group inside a NUMA node.  If this happens, we will
-- * discard the MC level of the topology later.
-- */
--static bool match_pkg(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
--{
--	if (c->phys_proc_id == o->phys_proc_id)
--		return true;
--	return false;
--}
--
--static bool match_die(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
--{
--	if ((c->phys_proc_id == o->phys_proc_id) &&
--		(c->cpu_die_id == o->cpu_die_id))
--		return true;
--	return false;
--}
--
- 
- #if defined(CONFIG_SCHED_SMT) || defined(CONFIG_SCHED_MC)
- static inline int x86_sched_itmt_flags(void)
-@@ -592,14 +595,23 @@ void set_cpu_sibling_map(int cpu)
- 	for_each_cpu(i, cpu_sibling_setup_mask) {
- 		o = &cpu_data(i);
- 
-+		if (match_pkg(c, o) && !topology_same_node(c, o))
-+			x86_has_numa_in_package = true;
-+
- 		if ((i == cpu) || (has_smt && match_smt(c, o)))
- 			link_mask(topology_sibling_cpumask, cpu, i);
- 
- 		if ((i == cpu) || (has_mp && match_llc(c, o)))
- 			link_mask(cpu_llc_shared_mask, cpu, i);
- 
-+		if ((i == cpu) || (has_mp && match_die(c, o)))
-+			link_mask(topology_die_cpumask, cpu, i);
- 	}
- 
-+	threads = cpumask_weight(topology_sibling_cpumask(cpu));
-+	if (threads > __max_smt_threads)
-+		__max_smt_threads = threads;
-+
- 	/*
- 	 * This needs a separate iteration over the cpus because we rely on all
- 	 * topology_sibling_cpumask links to be set-up.
-@@ -613,8 +625,7 @@ void set_cpu_sibling_map(int cpu)
- 			/*
- 			 *  Does this new cpu bringup a new core?
- 			 */
--			if (cpumask_weight(
--			    topology_sibling_cpumask(cpu)) == 1) {
-+			if (threads == 1) {
- 				/*
- 				 * for each core in package, increment
- 				 * the booted_cores for this new cpu
-@@ -631,16 +642,7 @@ void set_cpu_sibling_map(int cpu)
- 			} else if (i != cpu && !c->booted_cores)
- 				c->booted_cores = cpu_data(i).booted_cores;
+--- a/crypto/async_tx/async_xor.c
++++ b/crypto/async_tx/async_xor.c
+@@ -233,6 +233,7 @@ async_xor_offs(struct page *dest, unsign
+ 		if (submit->flags & ASYNC_TX_XOR_DROP_DST) {
+ 			src_cnt--;
+ 			src_list++;
++			src_offs++;
  		}
--		if (match_pkg(c, o) && !topology_same_node(c, o))
--			x86_has_numa_in_package = true;
--
--		if ((i == cpu) || (has_mp && match_die(c, o)))
--			link_mask(topology_die_cpumask, cpu, i);
- 	}
--
--	threads = cpumask_weight(topology_sibling_cpumask(cpu));
--	if (threads > __max_smt_threads)
--		__max_smt_threads = threads;
- }
  
- /* maps the cpu to the sched domain representing multi-core */
+ 		/* wait for any prerequisite operations */
 
 
