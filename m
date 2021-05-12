@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5EE37C9C8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6BF37C9CA
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235979AbhELQVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:21:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58402 "EHLO mail.kernel.org"
+        id S235968AbhELQV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:21:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240200AbhELQRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:17:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 311E061D6B;
-        Wed, 12 May 2021 15:43:29 +0000 (UTC)
+        id S240265AbhELQRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:17:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9505461D68;
+        Wed, 12 May 2021 15:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834209;
-        bh=l53qjLtTzEQnkdS0F5TN+5MEX+fHKQbbD5Dpr9JVCBk=;
+        s=korg; t=1620834212;
+        bh=mZqMfqIyQnFIX1dFL66/P3v+WkMGX+WqxDWMNiC+Lg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chUDXAK88OZkSgtiMP+uf83LTdVeAHFBNRc6H+y1Wxmg3KkGZyxakcJJ8vdz66fMu
-         cCKClU0VVgFOcgNIfYPR0P3ttz4mRHjYji6ArmnWSWf6ME8hlcIoQs4hcMf4hryhjq
-         KuS95h3GZzQJUcyGJDV+UPZTTNyF2VJxJt4Gz1m4=
+        b=w1c8wesGpsEJTeuZ2haD3zdmCMvFVbdGQNMgQiWOJ0qCNfqEvh0qsBHkWtFKGYjgV
+         mTaSjuhIY9PT7/uUl5pcmsDYxjDS0VbvNtUvTm2uz56GACk+7zPe2IxoXetfuoP2sj
+         F8pMQS/z8luFZFFNoUL6ixWk3rI4fvYBU3ZvKleE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 453/601] powerpc/pseries: Add key to flags in pSeries_lpar_hpte_updateboltedpp()
-Date:   Wed, 12 May 2021 16:48:50 +0200
-Message-Id: <20210512144842.762081287@linuxfoundation.org>
+        Daniel Axtens <dja@axtens.net>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 454/601] powerpc/64s: Use htab_convert_pte_flags() in hash__mark_rodata_ro()
+Date:   Wed, 12 May 2021 16:48:51 +0200
+Message-Id: <20210512144842.793257110@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,92 +41,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit b56d55a5aa4aa9fc166595a7feb57f153ef7b555 ]
+[ Upstream commit 2c02e656a29d5f64193eb93da92781bcf0517146 ]
 
-The flags argument to plpar_pte_protect() (aka. H_PROTECT), includes
-the key in bits 9-13, but currently we always set those bits to zero.
+In hash__mark_rodata_ro() we pass the raw PP_RXXX value to
+hash__change_memory_range(). That has the effect of setting the key to
+zero, because PP_RXXX contains no key value.
 
-In the past that hasn't been a problem because we always used key 0
-for the kernel, and updateboltedpp() is only used for kernel mappings.
-
-However since commit d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3
-for kernel mapping with hash translation") we are now inadvertently
-changing the key (to zero) when we call plpar_pte_protect().
-
-That hasn't broken anything because updateboltedpp() is only used for
-STRICT_KERNEL_RWX, which is currently disabled on 64s due to other
-bugs.
-
-But we want to fix that, so first we need to pass the key correctly to
-plpar_pte_protect(). We can't pass our newpp value directly in, we
-have to convert it into the form expected by the hcall.
-
-The hcall we're using here is H_PROTECT, which is specified in section
-14.5.4.1.6 of LoPAPR v1.1.
-
-It takes a `flags` parameter, and the description for flags says:
-
- * flags: AVPN, pp0, pp1, pp2, key0-key4, n, and for the CMO
-   option: CMO Option flags as defined in Table 189‚
-
-If you then go to the start of the parent section, 14.5.4.1, on page
-405, it says:
-
-Register Linkage (For hcall() tokens 0x04 - 0x18)
- * On Call
-   * R3 function call token
-   * R4 flags (see Table 178‚ “Page Frame Table Access flags field
-     definition‚” on page 401)
-
-Then you have to go to section 14.5.3, and on page 394 there is a list
-of hcalls and their tokens (table 176), and there you can see that
-H_PROTECT == 0x18.
-
-Finally you can look at table 178, on page 401, where it specifies the
-layout of the bits for the key:
-
- Bit     Function
- -----------------
- 50-54 | key0-key4
-
-Those are big-endian bit numbers, converting to normal bit numbers you
-get bits 9-13, or 0x3e00.
-
-In the kernel we have:
-
-  #define HPTE_R_KEY_HI		ASM_CONST(0x3000000000000000)
-  #define HPTE_R_KEY_LO		ASM_CONST(0x0000000000000e00)
-
-So the LO bits of newpp are already in the right place, and the HI
-bits need to be shifted down by 48.
+Fix it by using htab_convert_pte_flags(), which knows how to convert a
+pgprot into a pp value, including the key.
 
 Fixes: d94b827e89dc ("powerpc/book3s64/kuap: Use Key 3 for kernel mapping with hash translation")
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210331003845.216246-2-mpe@ellerman.id.au
+Reviewed-by: Daniel Axtens <dja@axtens.net>
+Link: https://lore.kernel.org/r/20210331003845.216246-3-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/lpar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/mm/book3s64/hash_pgtable.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
-index 3805519a6469..cd38bd421f38 100644
---- a/arch/powerpc/platforms/pseries/lpar.c
-+++ b/arch/powerpc/platforms/pseries/lpar.c
-@@ -977,11 +977,13 @@ static void pSeries_lpar_hpte_updateboltedpp(unsigned long newpp,
- 	slot = pSeries_lpar_hpte_find(vpn, psize, ssize);
- 	BUG_ON(slot == -1);
+diff --git a/arch/powerpc/mm/book3s64/hash_pgtable.c b/arch/powerpc/mm/book3s64/hash_pgtable.c
+index 567e0c6b3978..03819c259f0a 100644
+--- a/arch/powerpc/mm/book3s64/hash_pgtable.c
++++ b/arch/powerpc/mm/book3s64/hash_pgtable.c
+@@ -428,12 +428,14 @@ static bool hash__change_memory_range(unsigned long start, unsigned long end,
  
--	flags = newpp & 7;
-+	flags = newpp & (HPTE_R_PP | HPTE_R_N);
- 	if (mmu_has_feature(MMU_FTR_KERNEL_RO))
- 		/* Move pp0 into bit 8 (IBM 55) */
- 		flags |= (newpp & HPTE_R_PP0) >> 55;
+ void hash__mark_rodata_ro(void)
+ {
+-	unsigned long start, end;
++	unsigned long start, end, pp;
  
-+	flags |= ((newpp & HPTE_R_KEY_HI) >> 48) | (newpp & HPTE_R_KEY_LO);
+ 	start = (unsigned long)_stext;
+ 	end = (unsigned long)__init_begin;
+ 
+-	WARN_ON(!hash__change_memory_range(start, end, PP_RXXX));
++	pp = htab_convert_pte_flags(pgprot_val(PAGE_KERNEL_ROX), HPTE_USE_KERNEL_KEY);
 +
- 	lpar_rc = plpar_pte_protect(flags, slot, 0);
++	WARN_ON(!hash__change_memory_range(start, end, pp));
+ }
  
- 	BUG_ON(lpar_rc != H_SUCCESS);
+ void hash__mark_initmem_nx(void)
 -- 
 2.30.2
 
