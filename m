@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1177F37CA73
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BEBA37CA70
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238482AbhELQaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:30:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
+        id S238443AbhELQaV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:30:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236731AbhELQWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236733AbhELQWz (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:22:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C24261966;
-        Wed, 12 May 2021 15:47:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC890619AE;
+        Wed, 12 May 2021 15:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834429;
-        bh=RWrAn4rU6TyIvNyy3ROXbUsmRRz4P50QhvGn83Soyyo=;
+        s=korg; t=1620834432;
+        bh=0mvuS6A5KBQSa4AckEgc5G1V/9ZhHey/tSU60/VdNLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xaf4QC6innOvB7JgpgI6fKLAN1AKICVgPnblau0bQOcuyNehKcP5n08CocSBkOVW0
-         YukPgwp9lCXM3Z/+jZfR5zk1UkXX3SR/f6tlGcovLX0pzVrpFdnnOiy9v7AyDO8/jG
-         FHn3a0ERamX7UieRWIeSVotC79MV6LuJzCADQo38=
+        b=knSgG8Rzag6AXC6h1ERnHPmK+uTgtjkJosqVOXrR/7oKtqtPOPDcPi/dJv15ct8Oz
+         0ky6xzvFaz7YoXh9nN/58mnPMaOxfNGGJD4nPz07grZq3nq7AcfQJGFjal76LQ1KI2
+         WW4ozs7TU1ULpJLm48kM2tL3N+4XdqlZN4B4XW+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadym Kochan <vkochan@marvell.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 540/601] net: marvell: prestera: fix port event handling on init
-Date:   Wed, 12 May 2021 16:50:17 +0200
-Message-Id: <20210512144845.643391576@linuxfoundation.org>
+Subject: [PATCH 5.11 541/601] net: davinci_emac: Fix incorrect masking of tx and rx error channel
+Date:   Wed, 12 May 2021 16:50:18 +0200
+Message-Id: <20210512144845.676196176@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,96 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadym Kochan <vkochan@marvell.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 333980481b99edb24ebd5d1a53af70a15d9146de ]
+[ Upstream commit d83b8aa5207d81f9f6daec9888390f079cc5db3f ]
 
-For some reason there might be a crash during ports creation if port
-events are handling at the same time  because fw may send initial
-port event with down state.
+The bit-masks used for the TXERRCH and RXERRCH (tx and rx error channels)
+are incorrect and always lead to a zero result. The mask values are
+currently the incorrect post-right shifted values, fix this by setting
+them to the currect values.
 
-The crash points to cancel_delayed_work() which is called when port went
-is down.  Currently I did not find out the real cause of the issue, so
-fixed it by cancel port stats work only if previous port's state was up
-& runnig.
+(I double checked these against the TMS320TCI6482 data sheet, section
+5.30, page 127 to ensure I had the correct mask values for the TXERRCH
+and RXERRCH fields in the MACSTATUS register).
 
-The following is the crash which can be triggered:
-
-[   28.311104] Unable to handle kernel paging request at virtual address
-000071775f776600
-[   28.319097] Mem abort info:
-[   28.321914]   ESR = 0x96000004
-[   28.324996]   EC = 0x25: DABT (current EL), IL = 32 bits
-[   28.330350]   SET = 0, FnV = 0
-[   28.333430]   EA = 0, S1PTW = 0
-[   28.336597] Data abort info:
-[   28.339499]   ISV = 0, ISS = 0x00000004
-[   28.343362]   CM = 0, WnR = 0
-[   28.346354] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000100bf7000
-[   28.352842] [000071775f776600] pgd=0000000000000000,
-p4d=0000000000000000
-[   28.359695] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[   28.365310] Modules linked in: prestera_pci(+) prestera
-uio_pdrv_genirq
-[   28.372005] CPU: 0 PID: 1291 Comm: kworker/0:1H Not tainted
-5.11.0-rc4 #1
-[   28.378846] Hardware name: DNI AmazonGo1 A7040 board (DT)
-[   28.384283] Workqueue: prestera_fw_wq prestera_fw_evt_work_fn
-[prestera_pci]
-[   28.391413] pstate: 60000085 (nZCv daIf -PAN -UAO -TCO BTYPE=--)
-[   28.397468] pc : get_work_pool+0x48/0x60
-[   28.401442] lr : try_to_grab_pending+0x6c/0x1b0
-[   28.406018] sp : ffff80001391bc60
-[   28.409358] x29: ffff80001391bc60 x28: 0000000000000000
-[   28.414725] x27: ffff000104fc8b40 x26: ffff80001127de88
-[   28.420089] x25: 0000000000000000 x24: ffff000106119760
-[   28.425452] x23: ffff00010775dd60 x22: ffff00010567e000
-[   28.430814] x21: 0000000000000000 x20: ffff80001391bcb0
-[   28.436175] x19: ffff00010775deb8 x18: 00000000000000c0
-[   28.441537] x17: 0000000000000000 x16: 000000008d9b0e88
-[   28.446898] x15: 0000000000000001 x14: 00000000000002ba
-[   28.452261] x13: 80a3002c00000002 x12: 00000000000005f4
-[   28.457622] x11: 0000000000000030 x10: 000000000000000c
-[   28.462985] x9 : 000000000000000c x8 : 0000000000000030
-[   28.468346] x7 : ffff800014400000 x6 : ffff000106119758
-[   28.473708] x5 : 0000000000000003 x4 : ffff00010775dc60
-[   28.479068] x3 : 0000000000000000 x2 : 0000000000000060
-[   28.484429] x1 : 000071775f776600 x0 : ffff00010775deb8
-[   28.489791] Call trace:
-[   28.492259]  get_work_pool+0x48/0x60
-[   28.495874]  cancel_delayed_work+0x38/0xb0
-[   28.500011]  prestera_port_handle_event+0x90/0xa0 [prestera]
-[   28.505743]  prestera_evt_recv+0x98/0xe0 [prestera]
-[   28.510683]  prestera_fw_evt_work_fn+0x180/0x228 [prestera_pci]
-[   28.516660]  process_one_work+0x1e8/0x360
-[   28.520710]  worker_thread+0x44/0x480
-[   28.524412]  kthread+0x154/0x160
-[   28.527670]  ret_from_fork+0x10/0x38
-[   28.531290] Code: a8c17bfd d50323bf d65f03c0 9278dc21 (f9400020)
-[   28.537429] ---[ end trace 5eced933df3a080b ]---
-
-Fixes: 501ef3066c89 ("net: marvell: prestera: Add driver for Prestera family ASIC devices")
-Signed-off-by: Vadym Kochan <vkochan@marvell.com>
+Addresses-Coverity: ("Operands don't affect result")
+Fixes: a6286ee630f6 ("net: Add TI DaVinci EMAC driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/prestera/prestera_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ti/davinci_emac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_main.c b/drivers/net/ethernet/marvell/prestera/prestera_main.c
-index 25dd903a3e92..d849b0f65de2 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_main.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_main.c
-@@ -431,7 +431,8 @@ static void prestera_port_handle_event(struct prestera_switch *sw,
- 			netif_carrier_on(port->dev);
- 			if (!delayed_work_pending(caching_dw))
- 				queue_delayed_work(prestera_wq, caching_dw, 0);
--		} else {
-+		} else if (netif_running(port->dev) &&
-+			   netif_carrier_ok(port->dev)) {
- 			netif_carrier_off(port->dev);
- 			if (delayed_work_pending(caching_dw))
- 				cancel_delayed_work(caching_dw);
+diff --git a/drivers/net/ethernet/ti/davinci_emac.c b/drivers/net/ethernet/ti/davinci_emac.c
+index c7031e1960d4..03055c96f076 100644
+--- a/drivers/net/ethernet/ti/davinci_emac.c
++++ b/drivers/net/ethernet/ti/davinci_emac.c
+@@ -169,11 +169,11 @@ static const char emac_version_string[] = "TI DaVinci EMAC Linux v6.1";
+ /* EMAC mac_status register */
+ #define EMAC_MACSTATUS_TXERRCODE_MASK	(0xF00000)
+ #define EMAC_MACSTATUS_TXERRCODE_SHIFT	(20)
+-#define EMAC_MACSTATUS_TXERRCH_MASK	(0x7)
++#define EMAC_MACSTATUS_TXERRCH_MASK	(0x70000)
+ #define EMAC_MACSTATUS_TXERRCH_SHIFT	(16)
+ #define EMAC_MACSTATUS_RXERRCODE_MASK	(0xF000)
+ #define EMAC_MACSTATUS_RXERRCODE_SHIFT	(12)
+-#define EMAC_MACSTATUS_RXERRCH_MASK	(0x7)
++#define EMAC_MACSTATUS_RXERRCH_MASK	(0x700)
+ #define EMAC_MACSTATUS_RXERRCH_SHIFT	(8)
+ 
+ /* EMAC RX register masks */
 -- 
 2.30.2
 
