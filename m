@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C9437C22B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F5637C244
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231887AbhELPHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:07:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
+        id S232527AbhELPIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:08:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232192AbhELPFu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:05:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4965B61956;
-        Wed, 12 May 2021 15:00:38 +0000 (UTC)
+        id S232744AbhELPG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:06:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05A0761440;
+        Wed, 12 May 2021 15:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831638;
-        bh=Tr2taFZ+B9uuMno3GJMN89fBtGGXkeyToDsOSsIv/bQ=;
+        s=korg; t=1620831665;
+        bh=5BzllfyODiknD9PB5SlxmMJoDpEIpxygDl6M2PGADag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQktU2/xaxrikVlIJLBUhhdQ1mCT62TRFX7KbzDnFvR7mP08eZY7ma7I5KxjA7Re2
-         tQyz8TjFhctguv06imZkoUh7MXFtkZRcuHa5f6GY3d2vzdE9dGlKpcaFjxxW0gyo6s
-         GPhJzBH2soa/2NF2O65s7rC6fqXY7lBIXb257SwA=
+        b=Iu9UYlS0VSB/88eOHjDRdDtPgSyEvFCj5aVFb3+HT9v9Qm8fKnt1W+0BpICUhy2SD
+         r9OSvCcglP7hzdEgRSXiS3s3Cu8TlxnJxqJZtqUu2VCWYtNTw/AKnbLfowoR6eZQo8
+         cSHsss566gO707wtyldH9WyIkjIs8UP45qY1+41Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 193/244] IB/hfi1: Fix error return code in parse_platform_config()
-Date:   Wed, 12 May 2021 16:49:24 +0200
-Message-Id: <20210512144749.176758733@linuxfoundation.org>
+Subject: [PATCH 5.4 194/244] cxgb4: Fix unintentional sign extension issues
+Date:   Wed, 12 May 2021 16:49:25 +0200
+Message-Id: <20210512144749.207218953@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -41,35 +40,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 4c7d9c69adadfc31892c7e8e134deb3546552106 ]
+[ Upstream commit dd2c79677375c37f8f9f8d663eb4708495d595ef ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+The shifting of the u8 integers f->fs.nat_lip[] by 24 bits to
+the left will be promoted to a 32 bit signed int and then
+sign-extended to a u64. In the event that the top bit of the u8
+is set then all then all the upper 32 bits of the u64 end up as
+also being set because of the sign-extension. Fix this by
+casting the u8 values to a u64 before the 24 bit left shift.
 
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20210408113140.103032-1-wangwensheng4@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Addresses-Coverity: ("Unintended sign extension")
+Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/firmware.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 22 +++++++++----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/firmware.c b/drivers/infiniband/hw/hfi1/firmware.c
-index 2b57ba70ddd6..c09080712485 100644
---- a/drivers/infiniband/hw/hfi1/firmware.c
-+++ b/drivers/infiniband/hw/hfi1/firmware.c
-@@ -1924,6 +1924,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 			dd_dev_err(dd, "%s: Failed CRC check at offset %ld\n",
- 				   __func__, (ptr -
- 				   (u32 *)dd->platform_config.data));
-+			ret = -EINVAL;
- 			goto bail;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+index cb50b41cd3df..64a2453e06ba 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+@@ -174,31 +174,31 @@ static void set_nat_params(struct adapter *adap, struct filter_entry *f,
+ 				      WORD_MASK, f->fs.nat_lip[15] |
+ 				      f->fs.nat_lip[14] << 8 |
+ 				      f->fs.nat_lip[13] << 16 |
+-				      f->fs.nat_lip[12] << 24, 1);
++				      (u64)f->fs.nat_lip[12] << 24, 1);
+ 
+ 			set_tcb_field(adap, f, tid, TCB_SND_UNA_RAW_W + 1,
+ 				      WORD_MASK, f->fs.nat_lip[11] |
+ 				      f->fs.nat_lip[10] << 8 |
+ 				      f->fs.nat_lip[9] << 16 |
+-				      f->fs.nat_lip[8] << 24, 1);
++				      (u64)f->fs.nat_lip[8] << 24, 1);
+ 
+ 			set_tcb_field(adap, f, tid, TCB_SND_UNA_RAW_W + 2,
+ 				      WORD_MASK, f->fs.nat_lip[7] |
+ 				      f->fs.nat_lip[6] << 8 |
+ 				      f->fs.nat_lip[5] << 16 |
+-				      f->fs.nat_lip[4] << 24, 1);
++				      (u64)f->fs.nat_lip[4] << 24, 1);
+ 
+ 			set_tcb_field(adap, f, tid, TCB_SND_UNA_RAW_W + 3,
+ 				      WORD_MASK, f->fs.nat_lip[3] |
+ 				      f->fs.nat_lip[2] << 8 |
+ 				      f->fs.nat_lip[1] << 16 |
+-				      f->fs.nat_lip[0] << 24, 1);
++				      (u64)f->fs.nat_lip[0] << 24, 1);
+ 		} else {
+ 			set_tcb_field(adap, f, tid, TCB_RX_FRAG3_LEN_RAW_W,
+ 				      WORD_MASK, f->fs.nat_lip[3] |
+ 				      f->fs.nat_lip[2] << 8 |
+ 				      f->fs.nat_lip[1] << 16 |
+-				      f->fs.nat_lip[0] << 24, 1);
++				      (u64)f->fs.nat_lip[0] << 25, 1);
  		}
- 		/* Jump the CRC DWORD */
+ 	}
+ 
+@@ -208,25 +208,25 @@ static void set_nat_params(struct adapter *adap, struct filter_entry *f,
+ 				      WORD_MASK, f->fs.nat_fip[15] |
+ 				      f->fs.nat_fip[14] << 8 |
+ 				      f->fs.nat_fip[13] << 16 |
+-				      f->fs.nat_fip[12] << 24, 1);
++				      (u64)f->fs.nat_fip[12] << 24, 1);
+ 
+ 			set_tcb_field(adap, f, tid, TCB_RX_FRAG2_PTR_RAW_W + 1,
+ 				      WORD_MASK, f->fs.nat_fip[11] |
+ 				      f->fs.nat_fip[10] << 8 |
+ 				      f->fs.nat_fip[9] << 16 |
+-				      f->fs.nat_fip[8] << 24, 1);
++				      (u64)f->fs.nat_fip[8] << 24, 1);
+ 
+ 			set_tcb_field(adap, f, tid, TCB_RX_FRAG2_PTR_RAW_W + 2,
+ 				      WORD_MASK, f->fs.nat_fip[7] |
+ 				      f->fs.nat_fip[6] << 8 |
+ 				      f->fs.nat_fip[5] << 16 |
+-				      f->fs.nat_fip[4] << 24, 1);
++				      (u64)f->fs.nat_fip[4] << 24, 1);
+ 
+ 			set_tcb_field(adap, f, tid, TCB_RX_FRAG2_PTR_RAW_W + 3,
+ 				      WORD_MASK, f->fs.nat_fip[3] |
+ 				      f->fs.nat_fip[2] << 8 |
+ 				      f->fs.nat_fip[1] << 16 |
+-				      f->fs.nat_fip[0] << 24, 1);
++				      (u64)f->fs.nat_fip[0] << 24, 1);
+ 
+ 		} else {
+ 			set_tcb_field(adap, f, tid,
+@@ -234,13 +234,13 @@ static void set_nat_params(struct adapter *adap, struct filter_entry *f,
+ 				      WORD_MASK, f->fs.nat_fip[3] |
+ 				      f->fs.nat_fip[2] << 8 |
+ 				      f->fs.nat_fip[1] << 16 |
+-				      f->fs.nat_fip[0] << 24, 1);
++				      (u64)f->fs.nat_fip[0] << 24, 1);
+ 		}
+ 	}
+ 
+ 	set_tcb_field(adap, f, tid, TCB_PDU_HDR_LEN_W, WORD_MASK,
+ 		      (dp ? (nat_lp[1] | nat_lp[0] << 8) : 0) |
+-		      (sp ? (nat_fp[1] << 16 | nat_fp[0] << 24) : 0),
++		      (sp ? (nat_fp[1] << 16 | (u64)nat_fp[0] << 24) : 0),
+ 		      1);
+ }
+ 
 -- 
 2.30.2
 
