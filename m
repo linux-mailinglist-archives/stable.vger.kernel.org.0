@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AABC37CDB8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:15:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42FD737CE26
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:17:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236825AbhELQ5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:57:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
+        id S238013AbhELRDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:03:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244102AbhELQmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F75661D1D;
-        Wed, 12 May 2021 16:10:39 +0000 (UTC)
+        id S244144AbhELQmi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C5FE61D1C;
+        Wed, 12 May 2021 16:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835839;
-        bh=AWduXJg6FgG0c+arjJooAVgmGUR5qA93G1hB7ewf7CQ=;
+        s=korg; t=1620835866;
+        bh=lR6VFXI+3PyUbpl7FG1A6iS2iML3XrMI1/krbe+pEAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCOwU58dww34whxnNYi14AsGOYK/bBiNwmGiXXYcg8RE08rzvBdA/5zaEb6ieuG3+
-         CWPAx0TwUX0NLEyNyOLSNcdP5DeyPcWRyyIQLJJftGhyAdMXA+/zUG4V2fLzDJR21l
-         YBzpSb9fZGawwuwKWsOJ1Gd80EHcrSO4lf4t/h1o=
+        b=yTyS+eyploClkd48AEZEYeK4Z6GaJy3Qit+e9eE74HIAHexuTceNlb3Brxei2772c
+         1+xPFBpIHhDjoHAFMrUZ9VyyOsmXIOykf76OME59WYGThRLhynVU2WPrveXw1Nb0bY
+         d7AVPn59Z2dbl/fc+IYnYDz+4m5IHK4cGjEZZ8bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Salil Mehta <salil.mehta@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
+        <noltari@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 488/677] net: hns3: Limiting the scope of vector_ring_chain variable
-Date:   Wed, 12 May 2021 16:48:54 +0200
-Message-Id: <20210512144853.597154700@linuxfoundation.org>
+Subject: [PATCH 5.12 489/677] mips: bmips: fix syscon-reboot nodes
+Date:   Wed, 12 May 2021 16:48:55 +0200
+Message-Id: <20210512144853.628609402@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,42 +42,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Salil Mehta <salil.mehta@huawei.com>
+From: Álvaro Fernández Rojas <noltari@gmail.com>
 
-[ Upstream commit d392ecd1bc29ae15b0e284d5f732c2d36f244271 ]
+[ Upstream commit cde58b861a1d365568588adda59d42351c0c4ad3 ]
 
-Limiting the scope of the variable vector_ring_chain to the block where it
-is used.
+Commit a23c4134955e added the clock controller nodes, incorrectly changing the
+syscon-reboot nodes addresses.
 
-Fixes: 424eb834a9be ("net: hns3: Unified HNS3 {VF|PF} Ethernet Driver for hip08 SoC")
-Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a23c4134955e ("MIPS: BMIPS: add clock controller nodes")
+Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/boot/dts/brcm/bcm3368.dtsi  | 2 +-
+ arch/mips/boot/dts/brcm/bcm63268.dtsi | 2 +-
+ arch/mips/boot/dts/brcm/bcm6358.dtsi  | 2 +-
+ arch/mips/boot/dts/brcm/bcm6362.dtsi  | 2 +-
+ arch/mips/boot/dts/brcm/bcm6368.dtsi  | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index bf4302a5cf95..65752f363f43 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -3704,7 +3704,6 @@ static void hns3_nic_set_cpumask(struct hns3_nic_priv *priv)
+diff --git a/arch/mips/boot/dts/brcm/bcm3368.dtsi b/arch/mips/boot/dts/brcm/bcm3368.dtsi
+index 69cbef472377..d4b2b430dad0 100644
+--- a/arch/mips/boot/dts/brcm/bcm3368.dtsi
++++ b/arch/mips/boot/dts/brcm/bcm3368.dtsi
+@@ -59,7 +59,7 @@
  
- static int hns3_nic_init_vector_data(struct hns3_nic_priv *priv)
- {
--	struct hnae3_ring_chain_node vector_ring_chain;
- 	struct hnae3_handle *h = priv->ae_handle;
- 	struct hns3_enet_tqp_vector *tqp_vector;
- 	int ret;
-@@ -3736,6 +3735,8 @@ static int hns3_nic_init_vector_data(struct hns3_nic_priv *priv)
- 	}
+ 		periph_cntl: syscon@fff8c008 {
+ 			compatible = "syscon";
+-			reg = <0xfff8c000 0x4>;
++			reg = <0xfff8c008 0x4>;
+ 			native-endian;
+ 		};
  
- 	for (i = 0; i < priv->vector_num; i++) {
-+		struct hnae3_ring_chain_node vector_ring_chain;
-+
- 		tqp_vector = &priv->tqp_vector[i];
+diff --git a/arch/mips/boot/dts/brcm/bcm63268.dtsi b/arch/mips/boot/dts/brcm/bcm63268.dtsi
+index e0021ff9f144..940594436872 100644
+--- a/arch/mips/boot/dts/brcm/bcm63268.dtsi
++++ b/arch/mips/boot/dts/brcm/bcm63268.dtsi
+@@ -59,7 +59,7 @@
  
- 		tqp_vector->rx_group.total_bytes = 0;
+ 		periph_cntl: syscon@10000008 {
+ 			compatible = "syscon";
+-			reg = <0x10000000 0xc>;
++			reg = <0x10000008 0x4>;
+ 			native-endian;
+ 		};
+ 
+diff --git a/arch/mips/boot/dts/brcm/bcm6358.dtsi b/arch/mips/boot/dts/brcm/bcm6358.dtsi
+index 9d93e7f5e6fc..d79c88c2fc9c 100644
+--- a/arch/mips/boot/dts/brcm/bcm6358.dtsi
++++ b/arch/mips/boot/dts/brcm/bcm6358.dtsi
+@@ -59,7 +59,7 @@
+ 
+ 		periph_cntl: syscon@fffe0008 {
+ 			compatible = "syscon";
+-			reg = <0xfffe0000 0x4>;
++			reg = <0xfffe0008 0x4>;
+ 			native-endian;
+ 		};
+ 
+diff --git a/arch/mips/boot/dts/brcm/bcm6362.dtsi b/arch/mips/boot/dts/brcm/bcm6362.dtsi
+index eb10341b75ba..8a21cb761ffd 100644
+--- a/arch/mips/boot/dts/brcm/bcm6362.dtsi
++++ b/arch/mips/boot/dts/brcm/bcm6362.dtsi
+@@ -59,7 +59,7 @@
+ 
+ 		periph_cntl: syscon@10000008 {
+ 			compatible = "syscon";
+-			reg = <0x10000000 0xc>;
++			reg = <0x10000008 0x4>;
+ 			native-endian;
+ 		};
+ 
+diff --git a/arch/mips/boot/dts/brcm/bcm6368.dtsi b/arch/mips/boot/dts/brcm/bcm6368.dtsi
+index 52c19f40b9cc..8e87867ebc04 100644
+--- a/arch/mips/boot/dts/brcm/bcm6368.dtsi
++++ b/arch/mips/boot/dts/brcm/bcm6368.dtsi
+@@ -59,7 +59,7 @@
+ 
+ 		periph_cntl: syscon@100000008 {
+ 			compatible = "syscon";
+-			reg = <0x10000000 0xc>;
++			reg = <0x10000008 0x4>;
+ 			native-endian;
+ 		};
+ 
 -- 
 2.30.2
 
