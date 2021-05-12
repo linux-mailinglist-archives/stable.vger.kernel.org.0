@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D49137C985
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 126EC37C988
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235625AbhELQTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:19:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49168 "EHLO mail.kernel.org"
+        id S235710AbhELQTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:19:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236185AbhELQMX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235781AbhELQMX (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:12:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCBAC61D55;
-        Wed, 12 May 2021 15:40:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5539E61C6A;
+        Wed, 12 May 2021 15:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834060;
-        bh=lWAe6F9r8Lrfds6fQrRTVqqyjx7rt38dkj+xdRnVuwc=;
+        s=korg; t=1620834062;
+        bh=q2liiKI2QnZETaM0QIC2vf7fN6TeZIypwjnWGbfra10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9fEScZFpPEotw8oJFFhYO/8zb12HDpm95iw4OQVN4g2i+aQif72ENfnZ9RzSbSN3
-         sVHj8Nq2cS3jO8QkmcAbgWgNb76Rgbg9M3lCF0KdiA9hCG4bqzN8WsvriCuf0XqHLs
-         SwAAVMACAW/NyVZURMJs+xsmVBgLHuxmf5W10EKI=
+        b=Ecl0LzjElBCKh7jJLTOx/1QvZGPhlQVJdWIlDk4HAS8icsK5ckIequaxpMZaKWiN3
+         ddR96TUfjDY5kvxlcLEz4mWn9mjS0I8D2szcuohJ6kzcaCDw0hjr+pMBO/JlQXfsRj
+         q/zrVKvDJrxFusEZofBuuKa8nmK2Ips6N1XiZ11U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 393/601] ASoC: Intel: Skylake: Compile when any configuration is selected
-Date:   Wed, 12 May 2021 16:47:50 +0200
-Message-Id: <20210512144840.750240281@linuxfoundation.org>
+Subject: [PATCH 5.11 394/601] RDMA/mlx5: Fix mlx5 rates to IB rates map
+Date:   Wed, 12 May 2021 16:47:51 +0200
+Message-Id: <20210512144840.781072598@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -44,53 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit 1b99d50b9709a2cddaba4a7faf1862b4f7bec865 ]
+[ Upstream commit 6fe6e568639859db960c8fcef19a2ece1c2d7eae ]
 
-Skylake is dependent on SND_SOC_INTEL_SKYLAKE (aka "all SST platforms")
-whereas selecting specific configuration such as KBL-only will not
-cause driver code to compile. Switch to SND_SOC_INTEL_SKYLAKE_COMMON
-dependency so selecting any configuration causes the driver to be built.
+Correct the map between mlx5 rates and corresponding ib rates, as they
+don't always have a fixed offset between them.
 
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Suggested-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Fixes: 35bc99aaa1a3 ("ASoC: Intel: Skylake: Add more platform granularity")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20210125115441.10383-1-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Link: https://lore.kernel.org/r/20210304124517.1100608-4-leon@kernel.org
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/Makefile         | 2 +-
- sound/soc/intel/skylake/Makefile | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/Makefile b/sound/soc/intel/Makefile
-index 4e0248d2accc..7c5038803be7 100644
---- a/sound/soc/intel/Makefile
-+++ b/sound/soc/intel/Makefile
-@@ -5,7 +5,7 @@ obj-$(CONFIG_SND_SOC) += common/
- # Platform Support
- obj-$(CONFIG_SND_SST_ATOM_HIFI2_PLATFORM) += atom/
- obj-$(CONFIG_SND_SOC_INTEL_CATPT) += catpt/
--obj-$(CONFIG_SND_SOC_INTEL_SKYLAKE) += skylake/
-+obj-$(CONFIG_SND_SOC_INTEL_SKYLAKE_COMMON) += skylake/
- obj-$(CONFIG_SND_SOC_INTEL_KEEMBAY) += keembay/
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index bab40ad527da..434d70ff7ee9 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -3054,6 +3054,19 @@ enum {
+ 	MLX5_PATH_FLAG_COUNTER	= 1 << 2,
+ };
  
- # Machine support
-diff --git a/sound/soc/intel/skylake/Makefile b/sound/soc/intel/skylake/Makefile
-index dd39149b89b1..1c4649bccec5 100644
---- a/sound/soc/intel/skylake/Makefile
-+++ b/sound/soc/intel/skylake/Makefile
-@@ -7,7 +7,7 @@ ifdef CONFIG_DEBUG_FS
-   snd-soc-skl-objs += skl-debug.o
- endif
++static int mlx5_to_ib_rate_map(u8 rate)
++{
++	static const int rates[] = { IB_RATE_PORT_CURRENT, IB_RATE_56_GBPS,
++				     IB_RATE_25_GBPS,	   IB_RATE_100_GBPS,
++				     IB_RATE_200_GBPS,	   IB_RATE_50_GBPS,
++				     IB_RATE_400_GBPS };
++
++	if (rate < ARRAY_SIZE(rates))
++		return rates[rate];
++
++	return rate - MLX5_STAT_RATE_OFFSET;
++}
++
+ static int ib_to_mlx5_rate_map(u8 rate)
+ {
+ 	switch (rate) {
+@@ -4398,7 +4411,7 @@ static void to_rdma_ah_attr(struct mlx5_ib_dev *ibdev,
+ 	rdma_ah_set_path_bits(ah_attr, MLX5_GET(ads, path, mlid));
  
--obj-$(CONFIG_SND_SOC_INTEL_SKYLAKE) += snd-soc-skl.o
-+obj-$(CONFIG_SND_SOC_INTEL_SKYLAKE_COMMON) += snd-soc-skl.o
- 
- #Skylake Clock device support
- snd-soc-skl-ssp-clk-objs := skl-ssp-clk.o
+ 	static_rate = MLX5_GET(ads, path, stat_rate);
+-	rdma_ah_set_static_rate(ah_attr, static_rate ? static_rate - 5 : 0);
++	rdma_ah_set_static_rate(ah_attr, mlx5_to_ib_rate_map(static_rate));
+ 	if (MLX5_GET(ads, path, grh) ||
+ 	    ah_attr->type == RDMA_AH_ATTR_TYPE_ROCE) {
+ 		rdma_ah_set_grh(ah_attr, NULL, MLX5_GET(ads, path, flow_label),
 -- 
 2.30.2
 
