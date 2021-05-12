@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E71437CBF7
+	by mail.lfdr.de (Postfix) with ESMTP id D711737CBF8
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239456AbhELQjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:39:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50758 "EHLO mail.kernel.org"
+        id S239497AbhELQjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:39:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241908AbhELQbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:31:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A0FC613C0;
-        Wed, 12 May 2021 15:57:44 +0000 (UTC)
+        id S241941AbhELQbR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:31:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7052F61940;
+        Wed, 12 May 2021 15:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835065;
-        bh=ZWeKIAj3b8mGfzz3jhRRTBTvVeDo7MynSf+8RMzt7mQ=;
+        s=korg; t=1620835067;
+        bh=DVehK74yvNOebXW5lSHjTuE1FIdvVj5Jqj0miC5N7/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lcWM2nhp2meOGUX1n0OSC8dyt9Lw3OyDU4R1xqPlcvpE/sJE2yzZrt8JAxvAveYn0
-         dz4OvLn/MtoGTrLkbU1/tFTDGGOp9NgpW1/SLwQi5ei9p1vR+zymoivMF0t34lC+vT
-         lG/UcglqdIX9+HKjVRfHl41caUdIGCqV0Gqm8jIU=
+        b=ao7GF/U4s/jAIh5I0m1TSL659m739TAd3A7K9sjHAJMNmO+yqn0B2IRF9kqBEj+pl
+         IE+UQ9m4ceMSNEgi9YA74hRCYrmtx6jmd4L3dF+ffhk4nCbAYkFT4ZC1ocDrnip3+v
+         EMPb7rIxji4NDxylDkZ4yAFJ1SN3Ui8jMpCzLw3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Shawn Guo <shawn.guo@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 195/677] arm64: dts: qcom: sc7180: Avoid glitching SPI CS at bootup on trogdor
-Date:   Wed, 12 May 2021 16:44:01 +0200
-Message-Id: <20210512144843.727243033@linuxfoundation.org>
+Subject: [PATCH 5.12 196/677] arm64: dts: qcom: sdm845: fix number of pins in gpio-ranges
+Date:   Wed, 12 May 2021 16:44:02 +0200
+Message-Id: <20210512144843.765318767@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,120 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Shawn Guo <shawn.guo@linaro.org>
 
-[ Upstream commit e440e30e26dd6b0424002ad0ddcbbcea783efd85 ]
+[ Upstream commit 02058fc3839df65ff64de2a6b1c5de8c9fd705c1 ]
 
-At boot time the following happens:
-1. Device core gets ready to probe our SPI driver.
-2. Device core applies SPI controller's "default" pinctrl.
-3. Device core calls the SPI driver's probe() function which will
-   eventually setup the chip select GPIO as "unasserted".
+The last cell of 'gpio-ranges' should be number of GPIO pins, and in
+case of qcom platform it should match msm_pinctrl_soc_data.ngpio rather
+than msm_pinctrl_soc_data.ngpio - 1.
 
-Thinking about the above, we can find:
-a) For SPI devices that the BIOS inits (Cr50 and EC), the BIOS would
-   have had them configured as "GENI" pins and not as "GPIO" pins.
-b) It turns out that our BIOS also happens to init these pins as
-   "output" (even though it doesn't need to since they're not muxed as
-   GPIO) but leaves them at the default state of "low".
-c) As soon as we apply the "default" chip select it'll switch the
-   function to GPIO and stop driving the chip select high (which is
-   how "GENI" was driving it) and start driving it low.
-d) As of commit 9378f46040be ("UPSTREAM: spi: spi-geni-qcom: Use the
-   new method of gpio CS control"), when the SPI core inits things it
-   inits the GPIO to be "deasserted".  Prior to that commit the GPIO
-   was left untouched until first use.
-e) When the first transaction happens we'll assert the chip select and
-   then deassert it after done.
+This fixes the problem that when the last GPIO pin in the range is
+configured with the following call sequence, it always fails with
+-EPROBE_DEFER.
 
-So before the commit to change us to use gpio descriptors we used to
-have a _really long_ assertion of chip select before our first
-transaction (because it got pulled down and then the first "assert"
-was a no-op).  That wasn't great but (apparently) didn't cause any
-real harm.
+    pinctrl_gpio_set_config()
+        pinctrl_get_device_gpio_range()
+            pinctrl_match_gpio_range()
 
-After the commit to change us to use gpio descriptors we end up
-glitching the chip select line during probe.  It would go low and then
-high with no data transferred.  The other side ought to be robust
-against this, but it certainly could cause some confusion.  It's known
-to at least cause an error message on the EC console and it's believed
-that, under certain timing conditions, it could be getting the EC into
-a confused state causing the EC driver to fail to probe.
-
-Let's fix things to avoid the glitch.  We'll add an extra pinctrl
-entry that sets the value of the pin to output high (CS deasserted)
-before doing anything else.  We'll do this in its own pinctrl node
-that comes before the normal pinctrl entries to ensure that the order
-is correct and that this gets applied before the mux change.
-
-This change is in the trogdor board file rather than in the SoC dtsi
-file because chip select polarity can be different depending on what's
-hooked up and it doesn't feel worth it to spam the SoC dtsi file with
-both options.  The board file would need to pick the right one anyway.
-
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Fixes: cfbb97fde694 ("arm64: dts: qcom: Switch sc7180-trogdor to control SPI CS via GPIO")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20210218145456.1.I1da01a075dd86e005152f993b2d5d82dd9686238@changeid
+Fixes: bc2c806293c6 ("arm64: dts: qcom: sdm845: Add gpio-ranges to TLMM node")
+Cc: Evan Green <evgreen@chromium.org>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Link: https://lore.kernel.org/r/20210303033106.549-2-shawn.guo@linaro.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi | 27 +++++++++++++++++---
- 1 file changed, 24 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sdm845.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-index 753fd320dfbc..b8f7cf5cbdab 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
-@@ -770,17 +770,17 @@ hp_i2c: &i2c9 {
- };
+diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+index 454f794af547..6a2ed02d383d 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+@@ -2382,7 +2382,7 @@
+ 			#gpio-cells = <2>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <2>;
+-			gpio-ranges = <&tlmm 0 0 150>;
++			gpio-ranges = <&tlmm 0 0 151>;
+ 			wakeup-parent = <&pdc_intc>;
  
- &spi0 {
--	pinctrl-0 = <&qup_spi0_cs_gpio>;
-+	pinctrl-0 = <&qup_spi0_cs_gpio_init_high>, <&qup_spi0_cs_gpio>;
- 	cs-gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
- };
- 
- &spi6 {
--	pinctrl-0 = <&qup_spi6_cs_gpio>;
-+	pinctrl-0 = <&qup_spi6_cs_gpio_init_high>, <&qup_spi6_cs_gpio>;
- 	cs-gpios = <&tlmm 62 GPIO_ACTIVE_LOW>;
- };
- 
- ap_spi_fp: &spi10 {
--	pinctrl-0 = <&qup_spi10_cs_gpio>;
-+	pinctrl-0 = <&qup_spi10_cs_gpio_init_high>, <&qup_spi10_cs_gpio>;
- 	cs-gpios = <&tlmm 89 GPIO_ACTIVE_LOW>;
- 
- 	cros_ec_fp: ec@0 {
-@@ -1341,6 +1341,27 @@ ap_spi_fp: &spi10 {
- 		};
- 	};
- 
-+	qup_spi0_cs_gpio_init_high: qup-spi0-cs-gpio-init-high {
-+		pinconf {
-+			pins = "gpio37";
-+			output-high;
-+		};
-+	};
-+
-+	qup_spi6_cs_gpio_init_high: qup-spi6-cs-gpio-init-high {
-+		pinconf {
-+			pins = "gpio62";
-+			output-high;
-+		};
-+	};
-+
-+	qup_spi10_cs_gpio_init_high: qup-spi10-cs-gpio-init-high {
-+		pinconf {
-+			pins = "gpio89";
-+			output-high;
-+		};
-+	};
-+
- 	qup_uart3_sleep: qup-uart3-sleep {
- 		pinmux {
- 			pins = "gpio38", "gpio39",
+ 			cci0_default: cci0-default {
 -- 
 2.30.2
 
