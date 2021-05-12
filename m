@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9A937CCDD
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7751F37CD16
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237263AbhELQsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:48:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35726 "EHLO mail.kernel.org"
+        id S236135AbhELQxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:53:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243664AbhELQly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:41:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75DA561E53;
-        Wed, 12 May 2021 16:05:42 +0000 (UTC)
+        id S243680AbhELQlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:41:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFC8961CEC;
+        Wed, 12 May 2021 16:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835543;
-        bh=I76rU4zxv81jHCbMibzUm/znjA4kTS6hoNNagjIzGd4=;
+        s=korg; t=1620835545;
+        bh=l9dVMnWyhq/bY9juxIVxNrHTriINd3A2JghBWNwDsPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qha+8WeckB/HxwSqX4KjE9z7o1RiagwIEgtVMI1I+yXwpR21kyzoSlMBgk5fmtmaj
-         uB8KcQj28AfYOqW7WWF21FpaGLHwZ16ktiIJMG5x01X6asgDTlaEdmewXE+1xmT05m
-         5bp+vtxvfy1UiV51AXRsEtPx1wdSR6Mq2J6v0iiU=
+        b=acfq6bcgbfI22qafO3T5Fy/oQ/56O1hKmbiAVdWHCtBncJuVyy9yNPIf7LKdcBvep
+         38ra5SEm+SjcsBjud9anwzfUyNuGbRBi19J5f09PvoYrIEg2emEg/3pT5HU1Lc/qRt
+         FhDCBvEWNixREBT7Srtb6mfcBLm/Wpp1TFTzBaV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ricardo Rivera-Matos <r-rivera-matos@ti.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 387/677] power: supply: bq25980: Move props from battery node
-Date:   Wed, 12 May 2021 16:47:13 +0200
-Message-Id: <20210512144850.185672970@linuxfoundation.org>
+        stable@vger.kernel.org, Martin George <marting@netapp.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 388/677] nvme: retrigger ANA log update if group descriptor isnt found
+Date:   Wed, 12 May 2021 16:47:14 +0200
+Message-Id: <20210512144850.219086983@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,90 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Rivera-Matos <r-rivera-matos@ti.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 04722cec1436c732d39153ce6ae2ebf71ac3ade7 ]
+[ Upstream commit dd8f7fa908f66dd44abcd83cbb50410524b9f8ef ]
 
-Currently POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT and
-POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE are exposed on
-the battery node and this is incorrect.
+If ANA is enabled but no ANA group descriptor is found when creating
+a new namespace the ANA log is most likely out of date, so trigger
+a re-read. The namespace will be tagged with the NS_ANA_PENDING flag
+to exclude it from path selection until the ANA log has been re-read.
 
-This patch exposes both of them on the charger node rather
-than the battery node.
-
-Fixes: 5069185fc18e ("power: supply: bq25980: Add support for the BQ259xx family")
-Signed-off-by: Ricardo Rivera-Matos <r-rivera-matos@ti.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 32acab3181c7 ("nvme: implement multipath access to nvme subsystems")
+Reported-by: Martin George <marting@netapp.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/bq25980_charger.c | 40 ++++++++------------------
- 1 file changed, 12 insertions(+), 28 deletions(-)
+ drivers/nvme/host/multipath.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/power/supply/bq25980_charger.c b/drivers/power/supply/bq25980_charger.c
-index 530ff4025b31..0008c229fd9c 100644
---- a/drivers/power/supply/bq25980_charger.c
-+++ b/drivers/power/supply/bq25980_charger.c
-@@ -606,33 +606,6 @@ static int bq25980_get_state(struct bq25980_device *bq,
- 	return 0;
- }
- 
--static int bq25980_set_battery_property(struct power_supply *psy,
--				enum power_supply_property psp,
--				const union power_supply_propval *val)
--{
--	struct bq25980_device *bq = power_supply_get_drvdata(psy);
--	int ret = 0;
--
--	switch (psp) {
--	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT:
--		ret = bq25980_set_const_charge_curr(bq, val->intval);
--		if (ret)
--			return ret;
--		break;
--
--	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE:
--		ret = bq25980_set_const_charge_volt(bq, val->intval);
--		if (ret)
--			return ret;
--		break;
--
--	default:
--		return -EINVAL;
--	}
--
--	return ret;
--}
--
- static int bq25980_get_battery_property(struct power_supply *psy,
- 				enum power_supply_property psp,
- 				union power_supply_propval *val)
-@@ -701,6 +674,18 @@ static int bq25980_set_charger_property(struct power_supply *psy,
- 			return ret;
- 		break;
- 
-+	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT:
-+		ret = bq25980_set_const_charge_curr(bq, val->intval);
-+		if (ret)
-+			return ret;
-+		break;
-+
-+	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE:
-+		ret = bq25980_set_const_charge_volt(bq, val->intval);
-+		if (ret)
-+			return ret;
-+		break;
-+
- 	default:
- 		return -EINVAL;
- 	}
-@@ -922,7 +907,6 @@ static struct power_supply_desc bq25980_battery_desc = {
- 	.name			= "bq25980-battery",
- 	.type			= POWER_SUPPLY_TYPE_BATTERY,
- 	.get_property		= bq25980_get_battery_property,
--	.set_property		= bq25980_set_battery_property,
- 	.properties		= bq25980_battery_props,
- 	.num_properties		= ARRAY_SIZE(bq25980_battery_props),
- 	.property_is_writeable	= bq25980_property_is_writeable,
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index a1d476e1ac02..ec1e454848e5 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -668,6 +668,10 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id)
+ 		if (desc.state) {
+ 			/* found the group desc: update */
+ 			nvme_update_ns_ana_state(&desc, ns);
++		} else {
++			/* group desc not found: trigger a re-read */
++			set_bit(NVME_NS_ANA_PENDING, &ns->flags);
++			queue_work(nvme_wq, &ns->ctrl->ana_work);
+ 		}
+ 	} else {
+ 		ns->ana_state = NVME_ANA_OPTIMIZED; 
 -- 
 2.30.2
 
