@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC0B37CC0A
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5528237CC16
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241919AbhELQj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:39:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50690 "EHLO mail.kernel.org"
+        id S242980AbhELQkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235902AbhELQcO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:32:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9916861107;
-        Wed, 12 May 2021 15:58:32 +0000 (UTC)
+        id S236510AbhELQcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:32:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C40461C2C;
+        Wed, 12 May 2021 15:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835113;
-        bh=0vI9HVHUZLdAeqwj9RGj/+rSjzHBRRXnRRmJjFn913Y=;
+        s=korg; t=1620835118;
+        bh=W/KrvFtTsKzdSRtSo9b7lroA1iHtpS2iEEngG+L8HL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QAI/Fin6Qz2mImrnNHKQMw7bkehDShRMB8+72Pn/+Cp7YDIiMP0dJ1uTyK6T4c71i
-         Xog2gbLia4tctAnldQD62sd+B8e3ABcu/PxSkFiDVvf8fKImqrmOq90tLVMs4GhlKi
-         tlhpi6FnlsTn/2xDDVrpIOgxu1N6gtoVdJ2h7nCA=
+        b=dmfyTSyX4KZaEuQIFlOtVwFrONmbzBNR5AsAOncZVDS19YcWG6JiUJWpvEZ9xPF/V
+         qD5J7ifESpPg8lHVlJk9nBmURJ/hQABm5/W/hFRv1ctagJ1rtPJhjaQc/L3rB8nGlV
+         Z/AtbGINcDoWYJxB764f+17UDAEmrUNApi7BW/00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 213/677] devtmpfs: fix placement of complete() call
-Date:   Wed, 12 May 2021 16:44:19 +0200
-Message-Id: <20210512144844.315836325@linuxfoundation.org>
+Subject: [PATCH 5.12 214/677] usb: gadget: pch_udc: Replace cpu_to_le32() by lower_32_bits()
+Date:   Wed, 12 May 2021 16:44:20 +0200
+Message-Id: <20210512144844.346875020@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,52 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 38f087de8947700d3b06d3d1594490e0f611c5d1 ]
+[ Upstream commit 91356fed6afd1c83bf0d3df1fc336d54e38f0458 ]
 
-Calling complete() from within the __init function is wrong -
-theoretically, the init process could proceed all the way to freeing
-the init mem before the devtmpfsd thread gets to execute the return
-instruction in devtmpfs_setup().
+Either way ~0 will be in the correct byte order, hence
+replace cpu_to_le32() by lower_32_bits(). Moreover,
+it makes sparse happy, otherwise it complains:
 
-In practice, it seems to be harmless as gcc inlines devtmpfs_setup()
-into devtmpfsd(). So the calls of the __init functions init_chdir()
-etc. actually happen from devtmpfs_setup(), but the __ref on that one
-silences modpost (it's all right, because those calls happen before
-the complete()). But it does make the __init annotation of the setup
-function moot, which we'll fix in a subsequent patch.
+.../pch_udc.c:1813:27: warning: incorrect type in assignment (different base types)
+.../pch_udc.c:1813:27:    expected unsigned int [usertype] dataptr
+.../pch_udc.c:1813:27:    got restricted __le32 [usertype]
 
-Fixes: bcbacc4909f1 ("devtmpfs: refactor devtmpfsd()")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Link: https://lore.kernel.org/r/20210312103027.2701413-1-linux@rasmusvillemoes.dk
+Fixes: f646cf94520e ("USB device driver of Topcliff PCH")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210323153626.54908-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/devtmpfs.c | 2 +-
+ drivers/usb/gadget/udc/pch_udc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/devtmpfs.c b/drivers/base/devtmpfs.c
-index 653c8c6ac7a7..aedeb2dc1a18 100644
---- a/drivers/base/devtmpfs.c
-+++ b/drivers/base/devtmpfs.c
-@@ -419,7 +419,6 @@ static int __init devtmpfs_setup(void *p)
- 	init_chroot(".");
- out:
- 	*(int *)p = err;
--	complete(&setup_done);
- 	return err;
- }
- 
-@@ -432,6 +431,7 @@ static int __ref devtmpfsd(void *p)
- {
- 	int err = devtmpfs_setup(p);
- 
-+	complete(&setup_done);
- 	if (err)
- 		return err;
- 	devtmpfs_work_loop();
+diff --git a/drivers/usb/gadget/udc/pch_udc.c b/drivers/usb/gadget/udc/pch_udc.c
+index 931a09fdbf6d..f6f8965c4f8c 100644
+--- a/drivers/usb/gadget/udc/pch_udc.c
++++ b/drivers/usb/gadget/udc/pch_udc.c
+@@ -1765,7 +1765,7 @@ static struct usb_request *pch_udc_alloc_request(struct usb_ep *usbep,
+ 	}
+ 	/* prevent from using desc. - set HOST BUSY */
+ 	dma_desc->status |= PCH_UDC_BS_HST_BSY;
+-	dma_desc->dataptr = cpu_to_le32(DMA_ADDR_INVALID);
++	dma_desc->dataptr = lower_32_bits(DMA_ADDR_INVALID);
+ 	req->td_data = dma_desc;
+ 	req->td_data_last = dma_desc;
+ 	req->chain_len = 1;
 -- 
 2.30.2
 
