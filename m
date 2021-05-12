@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B789D37C9C2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AEA37C9C5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236328AbhELQVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:21:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54394 "EHLO mail.kernel.org"
+        id S236360AbhELQVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240014AbhELQQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:16:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33C3761D67;
-        Wed, 12 May 2021 15:43:12 +0000 (UTC)
+        id S240109AbhELQRK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:17:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A05F161D66;
+        Wed, 12 May 2021 15:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834192;
-        bh=h1xEYbGRZj8V32Gf8SC2xsEOB47uOLaCUPpJUX7bZ68=;
+        s=korg; t=1620834195;
+        bh=qCpub1EBC4LxlrsnqNtuH2LE5sbD4F53BiE8+uFilXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2MMNFPHg2V6b2qWk0x4Vsbp9fN4axz1CZftTEA25IAhwm4i/2rGDChFnytrv9ok2
-         V6QIEFCPE6qwoXS0wfJPisE1yojrEZ7llCeOhHTsCHLFxU+bf4FTKDMs/prdOqhOnV
-         2Tt7PUVH4gquHQRBjnbjHMsi3BppY4qlrb1224e4=
+        b=CzqJe6fi8YPsCi7NNDmjgdnAIejJRwlOm33wxriZzZmDe9d9pPAXK8ES6m5J7hkVa
+         LzZ3bZ2Hbcib4Xic1Ae0Re9xkjgn6syhsRUAq54AYVWDtKW+af9fHw+A3m03y36tvH
+         uSZllUxIR/YpiMSq16SdP+Mx9NwvlfcyP7AO1HmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 410/601] MIPS: fix local_irq_{disable,enable} in asmmacro.h
-Date:   Wed, 12 May 2021 16:48:07 +0200
-Message-Id: <20210512144841.334037854@linuxfoundation.org>
+Subject: [PATCH 5.11 411/601] ima: Fix the error code for restoring the PCR value
+Date:   Wed, 12 May 2021 16:48:08 +0200
+Message-Id: <20210512144841.372646074@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,38 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Pei <huangpei@loongson.cn>
+From: Li Huafei <lihuafei1@huawei.com>
 
-[ Upstream commit 05c4e2721d7af0df7bc1378a23712a0fd16947b5 ]
+[ Upstream commit 7990ccafaa37dc6d8bb095d4d7cd997e8903fd10 ]
 
-commit ba9196d2e005 ("MIPS: Make DIEI support as a config option")
-use CPU_HAS_DIEI to indicate whether di/ei is implemented correctly,
-without this patch, "local_irq_disable" from entry.S in 3A1000
-(with buggy di/ei) lose protection of commit e97c5b609880 ("MIPS:
-Make irqflags.h functions preempt-safe for non-mipsr2 cpus")
+In ima_restore_measurement_list(), hdr[HDR_PCR].data is pointing to a
+buffer of type u8, which contains the dumped 32-bit pcr value.
+Currently, only the least significant byte is used to restore the pcr
+value. We should convert hdr[HDR_PCR].data to a pointer of type u32
+before fetching the value to restore the correct pcr value.
 
-Fixes: ba9196d2e005 ("MIPS: Make DIEI support as a config option")
-Signed-off-by: Huang Pei <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 47fdee60b47f ("ima: use ima_parse_buf() to parse measurements headers")
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/asmmacro.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ security/integrity/ima/ima_template.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/include/asm/asmmacro.h b/arch/mips/include/asm/asmmacro.h
-index 86f2323ebe6b..ca83ada7015f 100644
---- a/arch/mips/include/asm/asmmacro.h
-+++ b/arch/mips/include/asm/asmmacro.h
-@@ -44,8 +44,7 @@
- 	.endm
- #endif
+diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
+index e22e510ae92d..4e081e650047 100644
+--- a/security/integrity/ima/ima_template.c
++++ b/security/integrity/ima/ima_template.c
+@@ -494,8 +494,8 @@ int ima_restore_measurement_list(loff_t size, void *buf)
+ 			}
+ 		}
  
--#if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR5) || \
--    defined(CONFIG_CPU_MIPSR6)
-+#ifdef CONFIG_CPU_HAS_DIEI
- 	.macro	local_irq_enable reg=t0
- 	ei
- 	irq_enable_hazard
+-		entry->pcr = !ima_canonical_fmt ? *(hdr[HDR_PCR].data) :
+-			     le32_to_cpu(*(hdr[HDR_PCR].data));
++		entry->pcr = !ima_canonical_fmt ? *(u32 *)(hdr[HDR_PCR].data) :
++			     le32_to_cpu(*(u32 *)(hdr[HDR_PCR].data));
+ 		ret = ima_restore_measurement_entry(entry);
+ 		if (ret < 0)
+ 			break;
 -- 
 2.30.2
 
