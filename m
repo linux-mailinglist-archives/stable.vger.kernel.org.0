@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6370337C5CD
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B220537C5C8
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235192AbhELPnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:43:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56820 "EHLO mail.kernel.org"
+        id S234036AbhELPnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:43:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231367AbhELPiU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:38:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65B9E61C65;
-        Wed, 12 May 2021 15:20:09 +0000 (UTC)
+        id S231293AbhELPiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:38:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41CDE61C66;
+        Wed, 12 May 2021 15:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832809;
-        bh=hZWnAzRTgoMkcZpCZMtJj4pGVbRrv/fyZvi4D1X31cg=;
+        s=korg; t=1620832814;
+        bh=nQlHBUX5/jCp0UAoG7yPgYiMvTxBOCk5/kHY3pxDLPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ko+uYjyek01xGiQGJe+uFoODDzdAr7am9jSBDjF7tvdkIOrmpSL2KaUOqa5qlkVEQ
-         NZqMQEHWpJTLNNPZdGAD8KVb/Qm74md0Jlm+Ylc7bQAJ2WpYYt18vIxKyTQDceB41S
-         nQgSvrye/aACmoUkakIVLClYYhj3w+S5oMyzeJ2M=
+        b=U6zWfWQZyYrUrHCw2L5X9+RfTWD/WZuqBg6eBz+vX0oQBZU30q/UEd7Hss7oKhNUx
+         IS9UvKPTolz2VGjaemJMZZxqc7NfS2/6rdnsRdRB+3yvMbjnV+zF44BH23Ra1tZeFQ
+         amw+Q7AQ+pYFdACR5T+/73GVV5NOpK5g3Dmt7Fxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Qinglang Miao <miaoqinglang@huawei.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 432/530] i2c: omap: fix reference leak when pm_runtime_get_sync fails
-Date:   Wed, 12 May 2021 16:49:02 +0200
-Message-Id: <20210512144833.964451752@linuxfoundation.org>
+Subject: [PATCH 5.10 433/530] i2c: sprd: fix reference leak when pm_runtime_get_sync fails
+Date:   Wed, 12 May 2021 16:49:03 +0200
+Message-Id: <20210512144833.994744964@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -44,64 +42,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 780f629741257ed6c54bd3eb53b57f648eabf200 ]
+[ Upstream commit 3a4f326463117cee3adcb72999ca34a9aaafda93 ]
 
 The PM reference count is not expected to be incremented on
-return in omap_i2c_probe() and omap_i2c_remove().
+return in sprd_i2c_master_xfer() and sprd_i2c_remove().
 
 However, pm_runtime_get_sync will increment the PM reference
 count even failed. Forgetting to putting operation will result
-in a reference leak here. I Replace it with pm_runtime_resume_and_get
-to keep usage counter balanced.
+in a reference leak here.
 
-What's more, error path 'err_free_mem' seems not like a proper
-name any more. So I change the name to err_disable_pm and move
-pm_runtime_disable below, for pm_runtime of 'pdev->dev' should
-be disabled when pm_runtime_resume_and_get fails.
+Replace it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-Fixes: 3b0fb97c8dc4 ("I2C: OMAP: Handle error check for pm runtime")
+Fixes: 8b9ec0719834 ("i2c: Add Spreadtrum I2C controller driver")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-omap.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-sprd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 12ac4212aded..d4f6c6d60683 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1404,9 +1404,9 @@ omap_i2c_probe(struct platform_device *pdev)
- 	pm_runtime_set_autosuspend_delay(omap->dev, OMAP_I2C_PM_TIMEOUT);
- 	pm_runtime_use_autosuspend(omap->dev);
+diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
+index 2917fecf6c80..8ead7e021008 100644
+--- a/drivers/i2c/busses/i2c-sprd.c
++++ b/drivers/i2c/busses/i2c-sprd.c
+@@ -290,7 +290,7 @@ static int sprd_i2c_master_xfer(struct i2c_adapter *i2c_adap,
+ 	struct sprd_i2c *i2c_dev = i2c_adap->algo_data;
+ 	int im, ret;
  
--	r = pm_runtime_get_sync(omap->dev);
-+	r = pm_runtime_resume_and_get(omap->dev);
- 	if (r < 0)
--		goto err_free_mem;
-+		goto err_disable_pm;
+-	ret = pm_runtime_get_sync(i2c_dev->dev);
++	ret = pm_runtime_resume_and_get(i2c_dev->dev);
+ 	if (ret < 0)
+ 		return ret;
  
- 	/*
- 	 * Read the Rev hi bit-[15:14] ie scheme this is 1 indicates ver2.
-@@ -1513,8 +1513,8 @@ err_unuse_clocks:
- 	omap_i2c_write_reg(omap, OMAP_I2C_CON_REG, 0);
- 	pm_runtime_dont_use_autosuspend(omap->dev);
- 	pm_runtime_put_sync(omap->dev);
-+err_disable_pm:
- 	pm_runtime_disable(&pdev->dev);
--err_free_mem:
- 
- 	return r;
- }
-@@ -1525,7 +1525,7 @@ static int omap_i2c_remove(struct platform_device *pdev)
+@@ -576,7 +576,7 @@ static int sprd_i2c_remove(struct platform_device *pdev)
+ 	struct sprd_i2c *i2c_dev = platform_get_drvdata(pdev);
  	int ret;
  
- 	i2c_del_adapter(&omap->adapter);
--	ret = pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
+-	ret = pm_runtime_get_sync(i2c_dev->dev);
++	ret = pm_runtime_resume_and_get(i2c_dev->dev);
  	if (ret < 0)
  		return ret;
  
