@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FD6C37CB38
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9DE837C794
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242487AbhELQez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:34:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40578 "EHLO mail.kernel.org"
+        id S234161AbhELQAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:00:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241533AbhELQ1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED2C761DE9;
-        Wed, 12 May 2021 15:53:53 +0000 (UTC)
+        id S237889AbhELP4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:56:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C613861461;
+        Wed, 12 May 2021 15:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834834;
-        bh=Toq8vqYGtNLdwdwV5WU0VXCfLo7Hp4fgRXm6W+LrFs8=;
+        s=korg; t=1620833326;
+        bh=LQXZaWxdFrbx4iUlhxsh9hQfXSBcjHWTSy6hmOmnKfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dA62+o0d1kl0lErWaERVe6I/Mnt27Sd1V24lDzUYDcavYgsem/k5xr9m/T2iGWNkc
-         Ye3/3Z4RDtUTCyfZkxndE1JmCfnn3eVPnwLmiBcqlfhmsbw4mK59Ql0RCIzSGGUUzX
-         gLtkmq1bDDFKJN1J+fKiut/a0WiQGhmzLTQySxZY=
+        b=akLgOfEW8wW5n09bINQtu7zcl0TL+etDklRhfpi7j2sraRA5cdhPs/jM14JZ7Fpl/
+         YyS7+MrdBP84wQPS380W5OLweIjqt9hyirMcavVqOdenJbDxEYqB0uo/fgj09i8GNE
+         rgE4y8ifsVC2OVEy2rpXROtsAWElyEFXnHOm4d2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 5.12 101/677] KVM: s390: fix guarded storage control register handling
+        stable@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [PATCH 5.11 070/601] drm: bridge/panel: Cleanup connector on bridge detach
 Date:   Wed, 12 May 2021 16:42:27 +0200
-Message-Id: <20210512144840.575008768@linuxfoundation.org>
+Message-Id: <20210512144830.122578348@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-References: <20210512144837.204217980@linuxfoundation.org>
+In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
+References: <20210512144827.811958675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 44bada28219031f9e8e86b84460606efa57b871e upstream.
+commit 4d906839d321c2efbf3fed4bc31ffd9ff55b75c0 upstream.
 
-store_regs_fmt2() has an ordering problem: first the guarded storage
-facility is enabled on the local cpu, then preemption disabled, and
-then the STGSC (store guarded storage controls) instruction is
-executed.
+If we don't call drm_connector_cleanup() manually in
+panel_bridge_detach(), the connector will be cleaned up with the other
+DRM objects in the call to drm_mode_config_cleanup(). However, since our
+drm_connector is devm-allocated, by the time drm_mode_config_cleanup()
+will be called, our connector will be long gone. Therefore, the
+connector must be cleaned up when the bridge is detached to avoid
+use-after-free conditions.
 
-If the process gets scheduled away between enabling the guarded
-storage facility and before preemption is disabled, this might lead to
-a special operation exception and therefore kernel crash as soon as
-the process is scheduled back and the STGSC instruction is executed.
+v2: Cleanup connector only if it was created
 
-Fixes: 4e0b1ab72b8a ("KVM: s390: gs support for kvm guests")
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Cc: <stable@vger.kernel.org> # 4.12
-Link: https://lore.kernel.org/r/20210415080127.1061275-1-hca@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+v3: Add FIXME
+
+v4: (Use connector->dev) directly in if() block
+
+Fixes: 13dfc0540a57 ("drm/bridge: Refactor out the panel wrapper from the lvds-encoder bridge.")
+Cc: <stable@vger.kernel.org> # 4.12+
+Cc: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Jonas Karlman <jonas@kwiboo.se>
+Cc: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210327115742.18986-2-paul@crapouillou.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/kvm-s390.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/panel.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4307,16 +4307,16 @@ static void store_regs_fmt2(struct kvm_v
- 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
- 	kvm_run->s.regs.diag318 = vcpu->arch.diag318_info.val;
- 	if (MACHINE_HAS_GS) {
-+		preempt_disable();
- 		__ctl_set_bit(2, 4);
- 		if (vcpu->arch.gs_enabled)
- 			save_gs_cb(current->thread.gs_cb);
--		preempt_disable();
- 		current->thread.gs_cb = vcpu->arch.host_gscb;
- 		restore_gs_cb(vcpu->arch.host_gscb);
--		preempt_enable();
- 		if (!vcpu->arch.host_gscb)
- 			__ctl_clear_bit(2, 4);
- 		vcpu->arch.host_gscb = NULL;
-+		preempt_enable();
- 	}
- 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
+--- a/drivers/gpu/drm/bridge/panel.c
++++ b/drivers/gpu/drm/bridge/panel.c
+@@ -87,6 +87,18 @@ static int panel_bridge_attach(struct dr
+ 
+ static void panel_bridge_detach(struct drm_bridge *bridge)
+ {
++	struct panel_bridge *panel_bridge = drm_bridge_to_panel_bridge(bridge);
++	struct drm_connector *connector = &panel_bridge->connector;
++
++	/*
++	 * Cleanup the connector if we know it was initialized.
++	 *
++	 * FIXME: This wouldn't be needed if the panel_bridge structure was
++	 * allocated with drmm_kzalloc(). This might be tricky since the
++	 * drm_device pointer can only be retrieved when the bridge is attached.
++	 */
++	if (connector->dev)
++		drm_connector_cleanup(connector);
  }
+ 
+ static void panel_bridge_pre_enable(struct drm_bridge *bridge)
 
 
