@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3707F37C9C1
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E6437C9BF
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbhELQVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49996 "EHLO mail.kernel.org"
+        id S236283AbhELQVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:21:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239986AbhELQQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:16:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57D1A61D62;
-        Wed, 12 May 2021 15:43:07 +0000 (UTC)
+        id S239992AbhELQQu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:16:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB99461C7F;
+        Wed, 12 May 2021 15:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834187;
-        bh=s7GYJLD9H2ET5g+aXU4rGsR/doxp68Fju7SWvx9sD6A=;
+        s=korg; t=1620834190;
+        bh=pao1q8aqRRg+UiIHzMhFmfPeOr0hwXsgyP+d7wZLbIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBbS3hlnc8P+dSEbdgk9Y/zQoHonu8nD6cePxhNbpBGjZxNvYuJyEBzBju1jz8r12
-         N+nSfcfI8oW59OE/rZahMB0yMwdShBrtIbBrMB+rEw6A1ZHls9c/v8WKEmiZSdCkwM
-         qoW8DDpsscU0yge2cSVLqGaOs2ycwCDsj27jjAIE=
+        b=bzLzCnPvWWNs89+0zu5338wRlR214qsRVyaamkGRHyElfihTSznuuhNHb+O7TsywQ
+         /73HY4FRK8RxCHd2qCeo7DnmnTFHw4eozP7IruHrcxlzzAzYAqQ4Pbx3UwPVlz6aVX
+         WubH9kEBMcwcXVxet8dG/Oe0TxcvF6JkoGxFnC/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 408/601] powerpc/fadump: Mark fadump_calculate_reserve_size as __init
-Date:   Wed, 12 May 2021 16:48:05 +0200
-Message-Id: <20210512144841.268839292@linuxfoundation.org>
+Subject: [PATCH 5.11 409/601] powerpc/prom: Mark identical_pvr_fixup as __init
+Date:   Wed, 12 May 2021 16:48:06 +0200
+Message-Id: <20210512144841.301183446@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,52 +42,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit fbced1546eaaab57a32e56c974ea8acf10c6abd8 ]
+[ Upstream commit 1ef1dd9c7ed27b080445e1576e8a05957e0e4dfc ]
 
-If fadump_calculate_reserve_size() is not inlined, there is a modpost
-warning:
+If identical_pvr_fixup() is not inlined, there are two modpost warnings:
 
-WARNING: modpost: vmlinux.o(.text+0x5196c): Section mismatch in
-reference from the function fadump_calculate_reserve_size() to the
-function .init.text:parse_crashkernel()
-The function fadump_calculate_reserve_size() references
-the function __init parse_crashkernel().
-This is often because fadump_calculate_reserve_size lacks a __init
-annotation or the annotation of parse_crashkernel is wrong.
+WARNING: modpost: vmlinux.o(.text+0x54e8): Section mismatch in reference
+from the function identical_pvr_fixup() to the function
+.init.text:of_get_flat_dt_prop()
+The function identical_pvr_fixup() references
+the function __init of_get_flat_dt_prop().
+This is often because identical_pvr_fixup lacks a __init
+annotation or the annotation of of_get_flat_dt_prop is wrong.
 
-fadump_calculate_reserve_size() calls parse_crashkernel(), which is
-marked as __init and fadump_calculate_reserve_size() is called from
-within fadump_reserve_mem(), which is also marked as __init.
+WARNING: modpost: vmlinux.o(.text+0x551c): Section mismatch in reference
+from the function identical_pvr_fixup() to the function
+.init.text:identify_cpu()
+The function identical_pvr_fixup() references
+the function __init identify_cpu().
+This is often because identical_pvr_fixup lacks a __init
+annotation or the annotation of identify_cpu is wrong.
 
-Mark fadump_calculate_reserve_size() as __init to fix the section
-mismatch. Additionally, remove the inline keyword as it is not necessary
-to inline this function; the compiler is still free to do so if it feels
-it is worthwhile since commit 889b3c1245de ("compiler: remove
-CONFIG_OPTIMIZE_INLINING entirely").
+identical_pvr_fixup() calls two functions marked as __init and is only
+called by a function marked as __init so it should be marked as __init
+as well. At the same time, remove the inline keywork as it is not
+necessary to inline this function. The compiler is still free to do so
+if it feels it is worthwhile since commit 889b3c1245de ("compiler:
+remove CONFIG_OPTIMIZE_INLINING entirely").
 
-Fixes: 11550dc0a00b ("powerpc/fadump: reuse crashkernel parameter for fadump memory reservation")
+Fixes: 14b3d926a22b ("[POWERPC] 4xx: update 440EP(x)/440GR(x) identical PVR issue workaround")
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1300
-Link: https://lore.kernel.org/r/20210302195013.2626335-1-nathan@kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1316
+Link: https://lore.kernel.org/r/20210302200829.2680663-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/fadump.c | 2 +-
+ arch/powerpc/kernel/prom.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
-index 8482739d42f3..eddf362caedc 100644
---- a/arch/powerpc/kernel/fadump.c
-+++ b/arch/powerpc/kernel/fadump.c
-@@ -292,7 +292,7 @@ static void fadump_show_config(void)
-  * that is required for a kernel to boot successfully.
-  *
-  */
--static inline u64 fadump_calculate_reserve_size(void)
-+static __init u64 fadump_calculate_reserve_size(void)
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index ae3c41730367..a7ebaa208416 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -267,7 +267,7 @@ static struct feature_property {
+ };
+ 
+ #if defined(CONFIG_44x) && defined(CONFIG_PPC_FPU)
+-static inline void identical_pvr_fixup(unsigned long node)
++static __init void identical_pvr_fixup(unsigned long node)
  {
- 	u64 base, size, bootmem_min;
- 	int ret;
+ 	unsigned int pvr;
+ 	const char *model = of_get_flat_dt_prop(node, "model", NULL);
 -- 
 2.30.2
 
