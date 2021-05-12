@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 510C737CCDB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4BE37CCE3
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:07:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237253AbhELQse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33470 "EHLO mail.kernel.org"
+        id S237367AbhELQsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:48:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243666AbhELQly (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243675AbhELQly (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:41:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3A6D61E4E;
-        Wed, 12 May 2021 16:05:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B74761E52;
+        Wed, 12 May 2021 16:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835535;
-        bh=pQn4RtbVQC/+hQf7/S5wB5A5lZOtoQs3yJW9k/7AM0A=;
+        s=korg; t=1620835537;
+        bh=YvfDcKHRlMNOQPNIhlJSURVfPPmxTn7oLxsrXrF9LWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CvYwkraTieZ+Q/fAub3p2ftaU6e6hhTLvq5kH2POOgWhG6tbXyP2PJj2ASgvSdoLs
-         4M7yLkgNnBk7E+VIP0uibAlv6xd8vxVjz41Jds034D+QsKPk7h2sWphMlMlQfwHxwL
-         puwEe9uxPxox+UM/p/W80awumlzJ7x5Cah77rDyg=
+        b=kc7hmu/RxKCA3JCjubKDCsW6QnLQ/K0F4bz7ql6/bzny+5VdZnCYpz8PstHxxuBtI
+         ZSUx1PSp3Yq5HK++hgzSJnd2KsIYQ2ClfifUJbiZ9/34ycOCdW7MFR3FiA4gRBLrVQ
+         4XVvSol7TwWiL1a123i9sVrWDKYlVoTclhXs/ojA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 384/677] nvme-tcp: block BH in sk state_change sk callback
-Date:   Wed, 12 May 2021 16:47:10 +0200
-Message-Id: <20210512144850.091639032@linuxfoundation.org>
+Subject: [PATCH 5.12 385/677] nvmet-tcp: fix incorrect locking in state_change sk callback
+Date:   Wed, 12 May 2021 16:47:11 +0200
+Message-Id: <20210512144850.121745305@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,41 +42,163 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 8b73b45d54a14588f86792869bfb23098ea254cb ]
+[ Upstream commit b5332a9f3f3d884a1b646ce155e664cc558c1722 ]
 
-The TCP stack can run from process context for a long time
-so we should disable BH here.
+We are not changing anything in the TCP connection state so
+we should not take a write_lock but rather a read lock.
 
-Fixes: 3f2304f8c6d6 ("nvme-tcp: add NVMe over TCP host driver")
+This caused a deadlock when running nvmet-tcp and nvme-tcp
+on the same system, where state_change callbacks on the
+host and on the controller side have causal relationship
+and made lockdep report on this with blktests:
+
+================================
+WARNING: inconsistent lock state
+5.12.0-rc3 #1 Tainted: G          I
+--------------------------------
+inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-R} usage.
+nvme/1324 [HC0[0]:SC0[0]:HE1:SE1] takes:
+ffff888363151000 (clock-AF_INET){++-?}-{2:2}, at: nvme_tcp_state_change+0x21/0x150 [nvme_tcp]
+{IN-SOFTIRQ-W} state was registered at:
+  __lock_acquire+0x79b/0x18d0
+  lock_acquire+0x1ca/0x480
+  _raw_write_lock_bh+0x39/0x80
+  nvmet_tcp_state_change+0x21/0x170 [nvmet_tcp]
+  tcp_fin+0x2a8/0x780
+  tcp_data_queue+0xf94/0x1f20
+  tcp_rcv_established+0x6ba/0x1f00
+  tcp_v4_do_rcv+0x502/0x760
+  tcp_v4_rcv+0x257e/0x3430
+  ip_protocol_deliver_rcu+0x69/0x6a0
+  ip_local_deliver_finish+0x1e2/0x2f0
+  ip_local_deliver+0x1a2/0x420
+  ip_rcv+0x4fb/0x6b0
+  __netif_receive_skb_one_core+0x162/0x1b0
+  process_backlog+0x1ff/0x770
+  __napi_poll.constprop.0+0xa9/0x5c0
+  net_rx_action+0x7b3/0xb30
+  __do_softirq+0x1f0/0x940
+  do_softirq+0xa1/0xd0
+  __local_bh_enable_ip+0xd8/0x100
+  ip_finish_output2+0x6b7/0x18a0
+  __ip_queue_xmit+0x706/0x1aa0
+  __tcp_transmit_skb+0x2068/0x2e20
+  tcp_write_xmit+0xc9e/0x2bb0
+  __tcp_push_pending_frames+0x92/0x310
+  inet_shutdown+0x158/0x300
+  __nvme_tcp_stop_queue+0x36/0x270 [nvme_tcp]
+  nvme_tcp_stop_queue+0x87/0xb0 [nvme_tcp]
+  nvme_tcp_teardown_admin_queue+0x69/0xe0 [nvme_tcp]
+  nvme_do_delete_ctrl+0x100/0x10c [nvme_core]
+  nvme_sysfs_delete.cold+0x8/0xd [nvme_core]
+  kernfs_fop_write_iter+0x2c7/0x460
+  new_sync_write+0x36c/0x610
+  vfs_write+0x5c0/0x870
+  ksys_write+0xf9/0x1d0
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+irq event stamp: 10687
+hardirqs last  enabled at (10687): [<ffffffff9ec376bd>] _raw_spin_unlock_irqrestore+0x2d/0x40
+hardirqs last disabled at (10686): [<ffffffff9ec374d8>] _raw_spin_lock_irqsave+0x68/0x90
+softirqs last  enabled at (10684): [<ffffffff9f000608>] __do_softirq+0x608/0x940
+softirqs last disabled at (10649): [<ffffffff9cdedd31>] do_softirq+0xa1/0xd0
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(clock-AF_INET);
+  <Interrupt>
+    lock(clock-AF_INET);
+
+ *** DEADLOCK ***
+
+5 locks held by nvme/1324:
+ #0: ffff8884a01fe470 (sb_writers#4){.+.+}-{0:0}, at: ksys_write+0xf9/0x1d0
+ #1: ffff8886e435c090 (&of->mutex){+.+.}-{3:3}, at: kernfs_fop_write_iter+0x216/0x460
+ #2: ffff888104d90c38 (kn->active#255){++++}-{0:0}, at: kernfs_remove_self+0x22d/0x330
+ #3: ffff8884634538d0 (&queue->queue_lock){+.+.}-{3:3}, at: nvme_tcp_stop_queue+0x52/0xb0 [nvme_tcp]
+ #4: ffff888363150d30 (sk_lock-AF_INET){+.+.}-{0:0}, at: inet_shutdown+0x59/0x300
+
+stack backtrace:
+CPU: 26 PID: 1324 Comm: nvme Tainted: G          I       5.12.0-rc3 #1
+Hardware name: Dell Inc. PowerEdge R640/06NR82, BIOS 2.10.0 11/12/2020
+Call Trace:
+ dump_stack+0x93/0xc2
+ mark_lock_irq.cold+0x2c/0xb3
+ ? verify_lock_unused+0x390/0x390
+ ? stack_trace_consume_entry+0x160/0x160
+ ? lock_downgrade+0x100/0x100
+ ? save_trace+0x88/0x5e0
+ ? _raw_spin_unlock_irqrestore+0x2d/0x40
+ mark_lock+0x530/0x1470
+ ? mark_lock_irq+0x1d10/0x1d10
+ ? enqueue_timer+0x660/0x660
+ mark_usage+0x215/0x2a0
+ __lock_acquire+0x79b/0x18d0
+ ? tcp_schedule_loss_probe.part.0+0x38c/0x520
+ lock_acquire+0x1ca/0x480
+ ? nvme_tcp_state_change+0x21/0x150 [nvme_tcp]
+ ? rcu_read_unlock+0x40/0x40
+ ? tcp_mtu_probe+0x1ae0/0x1ae0
+ ? kmalloc_reserve+0xa0/0xa0
+ ? sysfs_file_ops+0x170/0x170
+ _raw_read_lock+0x3d/0xa0
+ ? nvme_tcp_state_change+0x21/0x150 [nvme_tcp]
+ nvme_tcp_state_change+0x21/0x150 [nvme_tcp]
+ ? sysfs_file_ops+0x170/0x170
+ inet_shutdown+0x189/0x300
+ __nvme_tcp_stop_queue+0x36/0x270 [nvme_tcp]
+ nvme_tcp_stop_queue+0x87/0xb0 [nvme_tcp]
+ nvme_tcp_teardown_admin_queue+0x69/0xe0 [nvme_tcp]
+ nvme_do_delete_ctrl+0x100/0x10c [nvme_core]
+ nvme_sysfs_delete.cold+0x8/0xd [nvme_core]
+ kernfs_fop_write_iter+0x2c7/0x460
+ new_sync_write+0x36c/0x610
+ ? new_sync_read+0x600/0x600
+ ? lock_acquire+0x1ca/0x480
+ ? rcu_read_unlock+0x40/0x40
+ ? lock_is_held_type+0x9a/0x110
+ vfs_write+0x5c0/0x870
+ ksys_write+0xf9/0x1d0
+ ? __ia32_sys_read+0xa0/0xa0
+ ? lockdep_hardirqs_on_prepare.part.0+0x198/0x340
+ ? syscall_enter_from_user_mode+0x27/0x70
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 4 ++--
+ drivers/nvme/target/tcp.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index a0f00cb8f9f3..d7d7c81d0701 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -874,7 +874,7 @@ static void nvme_tcp_state_change(struct sock *sk)
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index d658c6e8263a..218fd766dc74 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -1434,7 +1434,7 @@ static void nvmet_tcp_state_change(struct sock *sk)
  {
- 	struct nvme_tcp_queue *queue;
+ 	struct nvmet_tcp_queue *queue;
  
--	read_lock(&sk->sk_callback_lock);
+-	write_lock_bh(&sk->sk_callback_lock);
 +	read_lock_bh(&sk->sk_callback_lock);
  	queue = sk->sk_user_data;
  	if (!queue)
  		goto done;
-@@ -895,7 +895,7 @@ static void nvme_tcp_state_change(struct sock *sk)
- 
- 	queue->state_change(sk);
+@@ -1452,7 +1452,7 @@ static void nvmet_tcp_state_change(struct sock *sk)
+ 			queue->idx, sk->sk_state);
+ 	}
  done:
--	read_unlock(&sk->sk_callback_lock);
+-	write_unlock_bh(&sk->sk_callback_lock);
 +	read_unlock_bh(&sk->sk_callback_lock);
  }
  
- static inline bool nvme_tcp_queue_more(struct nvme_tcp_queue *queue)
+ static int nvmet_tcp_set_queue_sock(struct nvmet_tcp_queue *queue)
 -- 
 2.30.2
 
