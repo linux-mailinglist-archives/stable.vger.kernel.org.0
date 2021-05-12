@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4749837C6C7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D55D37C6C8
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235114AbhELPyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56044 "EHLO mail.kernel.org"
+        id S235125AbhELPyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:54:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237464AbhELPue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:50:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0C9161430;
-        Wed, 12 May 2021 15:25:51 +0000 (UTC)
+        id S237468AbhELPuh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:50:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 678BC61624;
+        Wed, 12 May 2021 15:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833152;
-        bh=9m/TwkgxOlj5FNTpbQ7MuMQxwO46mEjF4yQitXn0H+g=;
+        s=korg; t=1620833154;
+        bh=+NdNz8yZ6luZC7ix4vIyfUjoQQUXG9wfbBAPGIf3rEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HL29KqMelvrbavoxXhXPuqd3iv06JRkbHYVbw38w4t77mbQcg1sH9TRLsNNfhBLv0
-         iYRjHCFAWvZThCbz8zt6ErixE7trkJ+pwKKV21SWSMhQ0CEWJBRsByMGv1yMeOoqxR
-         iZIpurBoUi+BsPOY8dOAEwJQtfKt4TavFEaRqayw=
+        b=gO0IMrYiSO4R9Xe/DUpjfWbHjnNrOU8+OkwXhb/kSvbbs/gLsvDSFbfv1WbSj7Qbh
+         HQtCiKjcBCW73TI++q0v4O1WufYYOXkKPEBduBlAibbL+1nclwxNLBVwwvio2Dumai
+         UEAAj4Qtf09akAlq+zraUMPdYDfuWpes5Ijwj4KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Annaliese McDermond <nh6z@nh6z.net>
-Subject: [PATCH 5.11 039/601] sc16is7xx: Defer probe if device read fails
-Date:   Wed, 12 May 2021 16:41:56 +0200
-Message-Id: <20210512144829.110354915@linuxfoundation.org>
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.11 040/601] phy: cadence: Sierra: Fix PHY power_on sequence
+Date:   Wed, 12 May 2021 16:41:57 +0200
+Message-Id: <20210512144829.140195170@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -38,41 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Annaliese McDermond <nh6z@nh6z.net>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 158e800e0fde91014812f5cdfb92ce812e3a33b4 upstream.
+commit 5b4f5757f83be34d1428a1ffbb68d4a1966e9aae upstream.
 
-A test was added to the probe function to ensure the device was
-actually connected and working before successfully completing a
-probe.  If the device was actually there, but the I2C bus was not
-ready yet for whatever reason, the probe fails permanently.
+Commit 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
+de-asserts PHY_RESET even before the configurations are loaded in
+phy_init(). However PHY_RESET should be de-asserted only after
+all the configurations has been initialized, instead of de-asserting
+in probe. Fix it here.
 
-Change the probe so that we defer the probe on a regmap read
-failure so that we try the probe again when the dependent drivers
-are potentially loaded.  This should not affect the case where the
-device truly isn't present because the probe will never successfully
-complete.
-
-Fixes: 2aa916e67db3 ("sc16is7xx: Read the LSR register for basic device presence check")
-Cc: stable@vger.kernel.org
-Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
-Link: https://lore.kernel.org/r/010101787f9c3fd8-c1815c00-2d6b-4c85-a96a-a13e68597fda-000000@us-west-2.amazonses.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20210319124128.13308-2-kishon@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/sc16is7xx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/cadence/phy-cadence-sierra.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -1196,7 +1196,7 @@ static int sc16is7xx_probe(struct device
- 	ret = regmap_read(regmap,
- 			  SC16IS7XX_LSR_REG << SC16IS7XX_REG_SHIFT, &val);
- 	if (ret < 0)
--		return ret;
-+		return -EPROBE_DEFER;
+--- a/drivers/phy/cadence/phy-cadence-sierra.c
++++ b/drivers/phy/cadence/phy-cadence-sierra.c
+@@ -319,6 +319,12 @@ static int cdns_sierra_phy_on(struct phy
+ 	u32 val;
+ 	int ret;
  
- 	/* Alloc port structure */
- 	s = devm_kzalloc(dev, struct_size(s, p, devtype->nr_uart), GFP_KERNEL);
++	ret = reset_control_deassert(sp->phy_rst);
++	if (ret) {
++		dev_err(dev, "Failed to take the PHY out of reset\n");
++		return ret;
++	}
++
+ 	/* Take the PHY lane group out of reset */
+ 	ret = reset_control_deassert(ins->lnk_rst);
+ 	if (ret) {
+@@ -616,7 +622,6 @@ static int cdns_sierra_phy_probe(struct
+ 
+ 	pm_runtime_enable(dev);
+ 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
+-	reset_control_deassert(sp->phy_rst);
+ 	return PTR_ERR_OR_ZERO(phy_provider);
+ 
+ put_child:
 
 
