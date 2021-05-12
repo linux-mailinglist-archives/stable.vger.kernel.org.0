@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3122B37CE93
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6405C37CE91
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345018AbhELRFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37580 "EHLO mail.kernel.org"
+        id S1345014AbhELRFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233461AbhELQrO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:47:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ECD161E7F;
-        Wed, 12 May 2021 16:15:17 +0000 (UTC)
+        id S233672AbhELQrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:47:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA5F619A0;
+        Wed, 12 May 2021 16:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836118;
-        bh=YZ4EGNozTOU8hGUZKKI0E3g1TalZVevFRK9ARMR80T8=;
+        s=korg; t=1620836121;
+        bh=K7H5tXfq76lOrnaarrgyPSxLZ8mriKKnuRZx/531T2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hp1eddF5mWeZ1ioYcx1+Fdu0hGpYwlOWADJvy2xerjVCb975cw05quGOv6ulD8/Jp
-         scsZEgwW8jEXfKYL3Z17/nc7n1uIl20Jq5izJeslhMsB75BL9j49J30D2lClGMOqrQ
-         Duf/ql6h/1Ks5SCBJNUadLBTU1MYCr/gkTtQb6Fo=
+        b=yFeWaYQopV7HTaJ0haSSxbaT07zYWnOya0M64S8v6l5bX8ci0soGpqJH+Pon3fEp2
+         npEXnCtb4APT5qshhJESj74vd83ywe/SMKuGyt0p2+KzGqKKUq4DEljIr8C051h17d
+         td+gIGV9wXd95GDGqaf2gNWMZzwwgNwfMkivPzIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 618/677] net: stmmac: fix TSO and TBS feature enabling during driver open
-Date:   Wed, 12 May 2021 16:51:04 +0200
-Message-Id: <20210512144857.902673946@linuxfoundation.org>
+Subject: [PATCH 5.12 619/677] net: renesas: ravb: Fix a stuck issue when a lot of frames are received
+Date:   Wed, 12 May 2021 16:51:05 +0200
+Message-Id: <20210512144857.935859573@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,58 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ong Boon Leong <boon.leong.ong@intel.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 5e6038b88a5718910dd74b949946d9d9cee9a041 ]
+[ Upstream commit 5718458b092bf6bf4482c5df32affba3c3259517 ]
 
-TSO and TBS cannot co-exist and current implementation requires two
-fixes:
+When a lot of frames were received in the short term, the driver
+caused a stuck of receiving until a new frame was received. For example,
+the following command from other device could cause this issue.
 
- 1) stmmac_open() does not need to call stmmac_enable_tbs() because
-    the MAC is reset in stmmac_init_dma_engine() anyway.
- 2) Inside stmmac_hw_setup(), we should call stmmac_enable_tso() for
-    TX Q that is _not_ configured for TBS.
+    $ sudo ping -f -l 1000 -c 1000 <this driver's ipaddress>
 
-Fixes: 579a25a854d4 ("net: stmmac: Initial support for TBS")
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+The previous code always cleared the interrupt flag of RX but checks
+the interrupt flags in ravb_poll(). So, ravb_poll() could not call
+ravb_rx() in the next time until a new RX frame was received if
+ravb_rx() returned true. To fix the issue, always calls ravb_rx()
+regardless the interrupt flags condition.
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/renesas/ravb_main.c | 35 ++++++++----------------
+ 1 file changed, 12 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 4749bd0af160..c6f24abf6432 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2757,8 +2757,15 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index eb0c03bdb12d..cad57d58d764 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -911,31 +911,20 @@ static int ravb_poll(struct napi_struct *napi, int budget)
+ 	int q = napi - priv->napi;
+ 	int mask = BIT(q);
+ 	int quota = budget;
+-	u32 ris0, tis;
  
- 	/* Enable TSO */
- 	if (priv->tso) {
--		for (chan = 0; chan < tx_cnt; chan++)
-+		for (chan = 0; chan < tx_cnt; chan++) {
-+			struct stmmac_tx_queue *tx_q = &priv->tx_queue[chan];
-+
-+			/* TSO and TBS cannot co-exist */
-+			if (tx_q->tbs & STMMAC_TBS_AVAIL)
-+				continue;
-+
- 			stmmac_enable_tso(priv, priv->ioaddr, 1, chan);
-+		}
- 	}
+-	for (;;) {
+-		tis = ravb_read(ndev, TIS);
+-		ris0 = ravb_read(ndev, RIS0);
+-		if (!((ris0 & mask) || (tis & mask)))
+-			break;
++	/* Processing RX Descriptor Ring */
++	/* Clear RX interrupt */
++	ravb_write(ndev, ~(mask | RIS0_RESERVED), RIS0);
++	if (ravb_rx(ndev, &quota, q))
++		goto out;
  
- 	/* Enable Split Header */
-@@ -2850,9 +2857,8 @@ static int stmmac_open(struct net_device *dev)
- 		struct stmmac_tx_queue *tx_q = &priv->tx_queue[chan];
- 		int tbs_en = priv->plat->tx_queues_cfg[chan].tbs_en;
+-		/* Processing RX Descriptor Ring */
+-		if (ris0 & mask) {
+-			/* Clear RX interrupt */
+-			ravb_write(ndev, ~(mask | RIS0_RESERVED), RIS0);
+-			if (ravb_rx(ndev, &quota, q))
+-				goto out;
+-		}
+-		/* Processing TX Descriptor Ring */
+-		if (tis & mask) {
+-			spin_lock_irqsave(&priv->lock, flags);
+-			/* Clear TX interrupt */
+-			ravb_write(ndev, ~(mask | TIS_RESERVED), TIS);
+-			ravb_tx_free(ndev, q, true);
+-			netif_wake_subqueue(ndev, q);
+-			spin_unlock_irqrestore(&priv->lock, flags);
+-		}
+-	}
++	/* Processing RX Descriptor Ring */
++	spin_lock_irqsave(&priv->lock, flags);
++	/* Clear TX interrupt */
++	ravb_write(ndev, ~(mask | TIS_RESERVED), TIS);
++	ravb_tx_free(ndev, q, true);
++	netif_wake_subqueue(ndev, q);
++	spin_unlock_irqrestore(&priv->lock, flags);
  
-+		/* Setup per-TXQ tbs flag before TX descriptor alloc */
- 		tx_q->tbs |= tbs_en ? STMMAC_TBS_AVAIL : 0;
--		if (stmmac_enable_tbs(priv, priv->ioaddr, tbs_en, chan))
--			tx_q->tbs &= ~STMMAC_TBS_AVAIL;
- 	}
+ 	napi_complete(napi);
  
- 	ret = alloc_dma_desc_resources(priv);
 -- 
 2.30.2
 
