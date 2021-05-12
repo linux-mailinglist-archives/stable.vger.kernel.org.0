@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 129FE37CCDA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2AAB37CD23
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237120AbhELQsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:48:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35700 "EHLO mail.kernel.org"
+        id S233492AbhELQxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:53:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243667AbhELQly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:41:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55AA26194D;
-        Wed, 12 May 2021 16:05:47 +0000 (UTC)
+        id S243692AbhELQlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:41:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BECCB61987;
+        Wed, 12 May 2021 16:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835547;
-        bh=uoffoVtnZ+OsSYxdFTUiuo1TnBfjBWE6BOUDpLNoBPM=;
+        s=korg; t=1620835550;
+        bh=PyFGvfhk7xya12f2/RRkWnHF24kuyTZC0Bo5HEho3v4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3UcytDbYqc6BY4EjlkLbYBC7FV9OGV7MbkKz3dElYzjKMsmVZwGFcz/aZy07rDbG
-         OiVl4RtIzNRsROHvYc4Be9Ce26eDf0RaDxIlHRIofrBIaa6sIZ4esECJcQG4kZIYK9
-         2xtoFmoQ1TUDCe0Hw+xFvzosp5tAWuJlfNRtv0qE=
+        b=O3/zfKj4Mr5p5MWN6ztJIXxi8W9ckYXfL94Ol9kcMfuq3wGsEzAF7j+Wr3SAe7o1o
+         K+vyRT08NPDgrPPVNsNyNEaqksIu3xbzxeAARARM/Mnhz+a522WhG+AzjN2zlFP8ye
+         kMsx8KjSXtNgRpgiIuAlHqgFpPcSYHzKs+picxhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 389/677] media: ccs: Fix sub-device function
-Date:   Wed, 12 May 2021 16:47:15 +0200
-Message-Id: <20210512144850.251577796@linuxfoundation.org>
+Subject: [PATCH 5.12 390/677] media: ipu3-cio2: Fix pixel-rate derived link frequency
+Date:   Wed, 12 May 2021 16:47:16 +0200
+Message-Id: <20210512144850.282971428@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,40 +45,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit 8c43126e8c9f0990fa75fb5219c03b20d5ead7b7 ]
+[ Upstream commit a7de6eac6f6f73d48d97a6c93032107775f4593b ]
 
-Fix sub-device function for the pixel array and the scaler.
+The driver uses v4l2_get_link_freq() helper to obtain the link frequency
+using the LINK_FREQ but also the PIXEL_RATE control. The divisor for the
+pixel rate derived link frequency was wrong, missing the bus uses double
+data rate. Fix this.
 
-It seems that the pixel array had gotten assigned as SCALER whereas the
-scaler had CAM_SENSOR function. Fix this by setting the pixel array
-function to CAM_SENSOR and that of scaler to SCALER.
-
-Fixes: 9ec2ac9bd0f9 ("media: ccs: Give all subdevs a function")
+Reported-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Fixes: 4b6c129e87a3 ("media: ipu3-cio2: Use v4l2_get_link_freq helper")
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ccs/ccs-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/pci/intel/ipu3/ipu3-cio2-main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ccs/ccs-core.c b/drivers/media/i2c/ccs/ccs-core.c
-index 15afbb4f5b31..4505594996bd 100644
---- a/drivers/media/i2c/ccs/ccs-core.c
-+++ b/drivers/media/i2c/ccs/ccs-core.c
-@@ -3522,11 +3522,11 @@ static int ccs_probe(struct i2c_client *client)
- 	sensor->pll.scale_n = CCS_LIM(sensor, SCALER_N_MIN);
+diff --git a/drivers/media/pci/intel/ipu3/ipu3-cio2-main.c b/drivers/media/pci/intel/ipu3/ipu3-cio2-main.c
+index 6e8c0c230e11..fecef85bd62e 100644
+--- a/drivers/media/pci/intel/ipu3/ipu3-cio2-main.c
++++ b/drivers/media/pci/intel/ipu3/ipu3-cio2-main.c
+@@ -302,7 +302,7 @@ static int cio2_csi2_calc_timing(struct cio2_device *cio2, struct cio2_queue *q,
+ 	if (!q->sensor)
+ 		return -ENODEV;
  
- 	ccs_create_subdev(sensor, sensor->scaler, " scaler", 2,
--			  MEDIA_ENT_F_CAM_SENSOR);
-+			  MEDIA_ENT_F_PROC_VIDEO_SCALER);
- 	ccs_create_subdev(sensor, sensor->binner, " binner", 2,
- 			  MEDIA_ENT_F_PROC_VIDEO_SCALER);
- 	ccs_create_subdev(sensor, sensor->pixel_array, " pixel_array", 1,
--			  MEDIA_ENT_F_PROC_VIDEO_SCALER);
-+			  MEDIA_ENT_F_CAM_SENSOR);
- 
- 	rval = ccs_init_controls(sensor);
- 	if (rval < 0)
+-	freq = v4l2_get_link_freq(q->sensor->ctrl_handler, bpp, lanes);
++	freq = v4l2_get_link_freq(q->sensor->ctrl_handler, bpp, lanes * 2);
+ 	if (freq < 0) {
+ 		dev_err(dev, "error %lld, invalid link_freq\n", freq);
+ 		return freq;
 -- 
 2.30.2
 
