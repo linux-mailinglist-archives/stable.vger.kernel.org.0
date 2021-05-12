@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C89C037C828
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:41:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC76C37C814
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:39:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238431AbhELQEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:04:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41762 "EHLO mail.kernel.org"
+        id S238408AbhELQEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:04:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235419AbhELP7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:59:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BF3961CC9;
-        Wed, 12 May 2021 15:32:27 +0000 (UTC)
+        id S235694AbhELP75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:59:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A42AB61CC7;
+        Wed, 12 May 2021 15:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833547;
-        bh=3akb1bL7YDHH1Y0NUnTEvyh26PYjLk6ZF1bTNAWTBpM=;
+        s=korg; t=1620833550;
+        bh=d1IpXGukdJzawMYsXGhYceQVPe1rJOFaGMpvacD/6yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GhhIStYPs2qiRJm6bOpEzgx73BAjrYQyJjRhW9QER2KI8BHhULl+m00/2Cf3sTHg1
-         OWkpJBcFKkhInOdNv5lapOh6AaqKS352Ef9YNnzsvZqvOABj2xdKBv0aY9rP4hzbYD
-         9SDRW3KWkSnEr91m0SBx9bdM56mnsnrqlVbCxQ68=
+        b=1GMDbfmHhCl5AZ/bEv5p/JxSspzPIS+T9w9XAs15eO0dtcD73xL3OtwPjWa173gW5
+         LowS1/b0l5PqYzKj0C1/t0qoG1hjBeWVNEzyblOFyKwfQNzFXOqVHD2MjSwXdy6NzH
+         Dd11s11z8tkH9nZvzbHT1o6FIZ5XCEiBUR59iSss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 194/601] usb: gadget: pch_udc: Check for DMA mapping error
-Date:   Wed, 12 May 2021 16:44:31 +0200
-Message-Id: <20210512144834.220331087@linuxfoundation.org>
+Subject: [PATCH 5.11 195/601] usb: gadget: pch_udc: Initialize device pointer before use
+Date:   Wed, 12 May 2021 16:44:32 +0200
+Message-Id: <20210512144834.257677918@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,35 +42,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 4a28d77e359009b846951b06f7c0d8eec8dce298 ]
+[ Upstream commit 971d080212be4ce2b91047d25a657f46d3e39635 ]
 
-DMA mapping might fail, we have to check it with dma_mapping_error().
-Otherwise DMA-API is not happy:
+During conversion to use GPIO descriptors the device pointer,
+which is applied to devm_gpiod_get(), is not yet initialized.
 
-  DMA-API: pch_udc 0000:02:02.4: device driver failed to check map error[device address=0x00000000027ee678] [size=64 bytes] [mapped as single]
+Move initialization in the ->probe() in order to have it set before use.
 
-Fixes: abab0c67c061 ("usb: pch_udc: Fixed issue which does not work with g_serial")
+Fixes: e20849a8c883 ("usb: gadget: pch_udc: Convert to use GPIO descriptors")
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210323153626.54908-3-andriy.shevchenko@linux.intel.com
+Link: https://lore.kernel.org/r/20210323153626.54908-6-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/pch_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/pch_udc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/usb/gadget/udc/pch_udc.c b/drivers/usb/gadget/udc/pch_udc.c
-index b46e9bdc720f..29e89ed6aad5 100644
+index 29e89ed6aad5..a39122f01cdb 100644
 --- a/drivers/usb/gadget/udc/pch_udc.c
 +++ b/drivers/usb/gadget/udc/pch_udc.c
-@@ -2955,7 +2955,7 @@ static int init_dma_pools(struct pch_udc_dev *dev)
- 	dev->dma_addr = dma_map_single(&dev->pdev->dev, ep0out_buf,
- 				       UDC_EP0OUT_BUFF_SIZE * 4,
- 				       DMA_FROM_DEVICE);
--	return 0;
-+	return dma_mapping_error(&dev->pdev->dev, dev->dma_addr);
- }
+@@ -1369,6 +1369,7 @@ static irqreturn_t pch_vbus_gpio_irq(int irq, void *data)
+  */
+ static int pch_vbus_gpio_init(struct pch_udc_dev *dev)
+ {
++	struct device *d = &dev->pdev->dev;
+ 	int err;
+ 	int irq_num = 0;
+ 	struct gpio_desc *gpiod;
+@@ -1377,7 +1378,7 @@ static int pch_vbus_gpio_init(struct pch_udc_dev *dev)
+ 	dev->vbus_gpio.intr = 0;
  
- static int pch_udc_start(struct usb_gadget *g,
+ 	/* Retrieve the GPIO line from the USB gadget device */
+-	gpiod = devm_gpiod_get(dev->gadget.dev.parent, NULL, GPIOD_IN);
++	gpiod = devm_gpiod_get(d, NULL, GPIOD_IN);
+ 	if (IS_ERR(gpiod))
+ 		return PTR_ERR(gpiod);
+ 	gpiod_set_consumer_name(gpiod, "pch_vbus");
+@@ -3080,6 +3081,7 @@ static int pch_udc_probe(struct pci_dev *pdev,
+ 	if (retval)
+ 		return retval;
+ 
++	dev->pdev = pdev;
+ 	pci_set_drvdata(pdev, dev);
+ 
+ 	/* Determine BAR based on PCI ID */
+@@ -3121,7 +3123,6 @@ static int pch_udc_probe(struct pci_dev *pdev,
+ 
+ 	/* device struct setup */
+ 	spin_lock_init(&dev->lock);
+-	dev->pdev = pdev;
+ 	dev->gadget.ops = &pch_udc_ops;
+ 
+ 	retval = init_dma_pools(dev);
 -- 
 2.30.2
 
