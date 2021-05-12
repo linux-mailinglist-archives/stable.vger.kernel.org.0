@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7D8B37C276
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3175037C277
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231839AbhELPKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:10:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41568 "EHLO mail.kernel.org"
+        id S232634AbhELPKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233335AbhELPIc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:08:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B7916195B;
-        Wed, 12 May 2021 15:01:55 +0000 (UTC)
+        id S233337AbhELPId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:08:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D25A61960;
+        Wed, 12 May 2021 15:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831716;
-        bh=zXJ5vnl4BS3WSeN4C+Spk3lEBo6FTnHIjbFcCRYA38o=;
+        s=korg; t=1620831718;
+        bh=UdQtrS5unoNSQ6uobhqjA6gIpjhxRlfnPPHA8oU/I+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/It9afj1vkTEEak/HHCjIy4RSx+1mpAAsyarckApMEsbvpDDyDbLNJtH9bfK0wPl
-         6WqFvRUCj/NwXzaY6Pca3n8sFUP+zD1DUfC9K7FKZUga+HkdDrgl7w0LehENdv9+tY
-         XyEpyxS4yMPhRzlZbhYj7tYHF+UpsuoLGNw1macU=
+        b=ra6/gg5+8zYqIe9UZgVk9xbwtWxssUie+/AAA4hFiFgQ517+qF0+/Y8/eqXJXl3ML
+         vUG/4e0N5gR9NjQ+/A9fNYrpZBWcdqoAMZuQx5yJ2k3POIFix6UuqCrTuNzhCVPvp2
+         ThC90kWwICPy/0HbRfAiJFJSwU6G6GpyO0Vqfgd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 196/244] RDMA/srpt: Fix error return code in srpt_cm_req_recv()
-Date:   Wed, 12 May 2021 16:49:27 +0200
-Message-Id: <20210512144749.269483821@linuxfoundation.org>
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 197/244] i2c: img-scb: fix reference leak when pm_runtime_get_sync fails
+Date:   Wed, 12 May 2021 16:49:28 +0200
+Message-Id: <20210512144749.299593454@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,35 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 6bc950beff0c440ac567cdc4e7f4542a9920953d ]
+[ Upstream commit 223125e37af8a641ea4a09747a6a52172fc4b903 ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+The PM reference count is not expected to be incremented on
+return in functions img_i2c_xfer and img_i2c_init.
 
-Fixes: db7683d7deb2 ("IB/srpt: Fix login-related race conditions")
-Link: https://lore.kernel.org/r/20210408113132.87250-1-wangwensheng4@huawei.com
+However, pm_runtime_get_sync will increment the PM reference
+count even failed. Forgetting to putting operation will result
+in a reference leak here.
+
+Replace it with pm_runtime_resume_and_get to keep usage
+counter balanced.
+
+Fixes: 93222bd9b966 ("i2c: img-scb: Add runtime PM")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-img-scb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
-index 02b92e3cd9a8..2822ca5e8277 100644
---- a/drivers/infiniband/ulp/srpt/ib_srpt.c
-+++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -2373,6 +2373,7 @@ static int srpt_cm_req_recv(struct srpt_device *const sdev,
- 		pr_info("rejected SRP_LOGIN_REQ because target %s_%d is not enabled\n",
- 			dev_name(&sdev->device->dev), port_num);
- 		mutex_unlock(&sport->mutex);
-+		ret = -EINVAL;
- 		goto reject;
+diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
+index 20a4fbc53007..a1f8a9a91213 100644
+--- a/drivers/i2c/busses/i2c-img-scb.c
++++ b/drivers/i2c/busses/i2c-img-scb.c
+@@ -1057,7 +1057,7 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			atomic = true;
  	}
+ 
+-	ret = pm_runtime_get_sync(adap->dev.parent);
++	ret = pm_runtime_resume_and_get(adap->dev.parent);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1158,7 +1158,7 @@ static int img_i2c_init(struct img_i2c *i2c)
+ 	u32 rev;
+ 	int ret;
+ 
+-	ret = pm_runtime_get_sync(i2c->adap.dev.parent);
++	ret = pm_runtime_resume_and_get(i2c->adap.dev.parent);
+ 	if (ret < 0)
+ 		return ret;
  
 -- 
 2.30.2
