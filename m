@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02E7837C51B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:37:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A8F37C522
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbhELPiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:38:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
+        id S230508AbhELPiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:38:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233837AbhELP3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233801AbhELP3F (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:29:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24CB8613EB;
-        Wed, 12 May 2021 15:15:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D70E6193A;
+        Wed, 12 May 2021 15:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832520;
-        bh=IqrkexZiYUYNlsPW7FcNADj1RgE+DvMZMMInsO/nQT4=;
+        s=korg; t=1620832523;
+        bh=oiBGDByqE9ILUOq384EW/VH7A7DUXYWGCr4xlEV+o1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoSNjEb6A8NOaSLDC1NI8vbSQQs0WYLbrP+toN6fdWb+F0VkAl/YtO+ye1JJAU8CO
-         jSmju0mMCoKCBga/ROHXCCAsm8vo6g1Wm6mnIrxBrXsaIUKpZBSsP8rtomD/uPMgh/
-         rkuoiAm1u4qwTSW1p0fifPOswrzXc4RpaSxO5Pzo=
+        b=H42r0BjW0MBTqf3T5gC66r2w7ycHPXhJ/udN43AQVv0uspQEkvn0Jx7YebDm7vJkM
+         SFbp10JW4tptqfZtlDzhBQPxElccEvPjAPr3i4Kzzg5MuxemtcjU5tNRcWOM6+iCj+
+         Q2RC1nYoUZ3JXW0DZdVGAfEiizasjRAfEd+4W6iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 313/530] media: i2c: imx219: Move out locking/unlocking of vflip and hflip controls from imx219_set_stream
-Date:   Wed, 12 May 2021 16:47:03 +0200
-Message-Id: <20210512144830.094192632@linuxfoundation.org>
+Subject: [PATCH 5.10 314/530] media: i2c: imx219: Balance runtime PM use-count
+Date:   Wed, 12 May 2021 16:47:04 +0200
+Message-Id: <20210512144830.126009149@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -45,14 +45,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 745d4612d2c853c00abadbf69799c8aee7f99c39 ]
+[ Upstream commit dd90caa0111e178b52b21e56364bc2244a3973b3 ]
 
-Move out locking/unlocking of vflip and hflip controls from
-imx219_set_stream() to the imx219_start_streaming()/
-imx219_stop_streaming() respectively.
+Move incrementing/decrementing runtime PM count to
+imx219_start_streaming()/imx219_stop_streaming() functions respectively.
 
-This fixes an issue in resume callback error path where streaming is
-stopped and the controls are left in locked state.
+This fixes an issue of unbalanced runtime PM count in resume callback
+error path where streaming is stopped and runtime PM count is left
+unbalanced.
 
 Fixes: 1283b3b8f82b9 ("media: i2c: Add driver for Sony IMX219 sensor")
 Reported-by: Pavel Machek <pavel@denx.de>
@@ -62,53 +62,113 @@ Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx219.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/media/i2c/imx219.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
-index 0ae66091a696..9520b5dc2bc7 100644
+index 9520b5dc2bc7..4771d0ef2c46 100644
 --- a/drivers/media/i2c/imx219.c
 +++ b/drivers/media/i2c/imx219.c
-@@ -1047,8 +1047,16 @@ static int imx219_start_streaming(struct imx219 *imx219)
- 		return ret;
+@@ -1026,37 +1026,47 @@ static int imx219_start_streaming(struct imx219 *imx219)
+ 	const struct imx219_reg_list *reg_list;
+ 	int ret;
+ 
++	ret = pm_runtime_get_sync(&client->dev);
++	if (ret < 0) {
++		pm_runtime_put_noidle(&client->dev);
++		return ret;
++	}
++
+ 	/* Apply default values of current mode */
+ 	reg_list = &imx219->mode->reg_list;
+ 	ret = imx219_write_regs(imx219, reg_list->regs, reg_list->num_of_regs);
+ 	if (ret) {
+ 		dev_err(&client->dev, "%s failed to set mode\n", __func__);
+-		return ret;
++		goto err_rpm_put;
+ 	}
+ 
+ 	ret = imx219_set_framefmt(imx219);
+ 	if (ret) {
+ 		dev_err(&client->dev, "%s failed to set frame format: %d\n",
+ 			__func__, ret);
+-		return ret;
++		goto err_rpm_put;
+ 	}
+ 
+ 	/* Apply customized values from user */
+ 	ret =  __v4l2_ctrl_handler_setup(imx219->sd.ctrl_handler);
+ 	if (ret)
+-		return ret;
++		goto err_rpm_put;
  
  	/* set stream on register */
--	return imx219_write_reg(imx219, IMX219_REG_MODE_SELECT,
--				IMX219_REG_VALUE_08BIT, IMX219_MODE_STREAMING);
-+	ret = imx219_write_reg(imx219, IMX219_REG_MODE_SELECT,
-+			       IMX219_REG_VALUE_08BIT, IMX219_MODE_STREAMING);
-+	if (ret)
-+		return ret;
+ 	ret = imx219_write_reg(imx219, IMX219_REG_MODE_SELECT,
+ 			       IMX219_REG_VALUE_08BIT, IMX219_MODE_STREAMING);
+ 	if (ret)
+-		return ret;
++		goto err_rpm_put;
+ 
+ 	/* vflip and hflip cannot change during streaming */
+ 	__v4l2_ctrl_grab(imx219->vflip, true);
+ 	__v4l2_ctrl_grab(imx219->hflip, true);
+ 
+ 	return 0;
 +
-+	/* vflip and hflip cannot change during streaming */
-+	__v4l2_ctrl_grab(imx219->vflip, true);
-+	__v4l2_ctrl_grab(imx219->hflip, true);
-+
-+	return 0;
++err_rpm_put:
++	pm_runtime_put(&client->dev);
++	return ret;
  }
  
  static void imx219_stop_streaming(struct imx219 *imx219)
-@@ -1061,6 +1069,9 @@ static void imx219_stop_streaming(struct imx219 *imx219)
- 			       IMX219_REG_VALUE_08BIT, IMX219_MODE_STANDBY);
- 	if (ret)
- 		dev_err(&client->dev, "%s failed to set stream\n", __func__);
+@@ -1072,12 +1082,13 @@ static void imx219_stop_streaming(struct imx219 *imx219)
+ 
+ 	__v4l2_ctrl_grab(imx219->vflip, false);
+ 	__v4l2_ctrl_grab(imx219->hflip, false);
 +
-+	__v4l2_ctrl_grab(imx219->vflip, false);
-+	__v4l2_ctrl_grab(imx219->hflip, false);
++	pm_runtime_put(&client->dev);
  }
  
  static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
-@@ -1096,10 +1107,6 @@ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
+ {
+ 	struct imx219 *imx219 = to_imx219(sd);
+-	struct i2c_client *client = v4l2_get_subdevdata(sd);
+ 	int ret = 0;
+ 
+ 	mutex_lock(&imx219->mutex);
+@@ -1087,22 +1098,15 @@ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
+ 	}
+ 
+ 	if (enable) {
+-		ret = pm_runtime_get_sync(&client->dev);
+-		if (ret < 0) {
+-			pm_runtime_put_noidle(&client->dev);
+-			goto err_unlock;
+-		}
+-
+ 		/*
+ 		 * Apply default & customized values
+ 		 * and then start streaming.
+ 		 */
+ 		ret = imx219_start_streaming(imx219);
+ 		if (ret)
+-			goto err_rpm_put;
++			goto err_unlock;
+ 	} else {
+ 		imx219_stop_streaming(imx219);
+-		pm_runtime_put(&client->dev);
+ 	}
  
  	imx219->streaming = enable;
- 
--	/* vflip and hflip cannot change during streaming */
--	__v4l2_ctrl_grab(imx219->vflip, enable);
--	__v4l2_ctrl_grab(imx219->hflip, enable);
--
- 	mutex_unlock(&imx219->mutex);
+@@ -1111,8 +1115,6 @@ static int imx219_set_stream(struct v4l2_subdev *sd, int enable)
  
  	return ret;
+ 
+-err_rpm_put:
+-	pm_runtime_put(&client->dev);
+ err_unlock:
+ 	mutex_unlock(&imx219->mutex);
+ 
 -- 
 2.30.2
 
