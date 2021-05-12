@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A272137CB37
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3783C37CB42
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242483AbhELQey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:34:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
+        id S242523AbhELQfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:35:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241531AbhELQ1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17FEF61DEA;
-        Wed, 12 May 2021 15:53:48 +0000 (UTC)
+        id S241600AbhELQ1h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AB7C61DEE;
+        Wed, 12 May 2021 15:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834829;
-        bh=/HFZBa4NDhyO9sJC0ZsrlCg/ZooKNMtoOTPTowbnQFc=;
+        s=korg; t=1620834853;
+        bh=09rzyVoHjD29yhYwT/KfyDlyKXbAP2vireZMflE9jdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=keHlMSVYV6BqfDYe/9D4gHl49DUMT9mkk5+qghhxYwN93cSHAgJmm5xgFc051lKXa
-         aU+hWTZXOAVNzsNU4sa+IE+UksDSEr2aqfvKgAOqUnEFjfhv2EsXIylOSyOQboyxRw
-         Rc1bsvm18/PeUUPxr5APcbeSJyMpVJ7ps3WIDzfU=
+        b=0dtfCs2fMFsxFJQx/+bfRXsmZgzAJKz4ZtaW9/uAt1+5hKhGgWkwOFruqo6/tmqjT
+         gpUF8n+Qs3ndhBsk0npEfANfnoHxtt/N549V61VPPmMg8iCqth5ucZeGF4h5pIq2py
+         72g37ip9BgJ4EdCB7jandCe789Fj3TgOQFWnR6WQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Boris Brezillon <boris.brezillon@collabora.com>,
         Steven Price <steven.price@arm.com>
-Subject: [PATCH 5.12 073/677] drm/panfrost: Clear MMU irqs before handling the fault
-Date:   Wed, 12 May 2021 16:41:59 +0200
-Message-Id: <20210512144839.660895575@linuxfoundation.org>
+Subject: [PATCH 5.12 074/677] drm/panfrost: Dont try to map pages that are already mapped
+Date:   Wed, 12 May 2021 16:42:00 +0200
+Message-Id: <20210512144839.694847245@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,42 +42,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit 3aa0a80fc692c9959c261f4c5bfe9c23ddd90562 upstream.
+commit f45da8204ff1707c529a8769f5467ff16f504b26 upstream.
 
-When a fault is handled it will unblock the GPU which will continue
-executing its shader and might fault almost immediately on a different
-page. If we clear interrupts after handling the fault we might miss new
-faults, so clear them before.
+We allocate 2MB chunks at a time, so it might appear that a page fault
+has already been handled by a previous page fault when we reach
+panfrost_mmu_map_fault_addr(). Bail out in that case to avoid mapping the
+same area twice.
 
 Cc: <stable@vger.kernel.org>
 Fixes: 187d2929206e ("drm/panfrost: Add support for GPU heap allocations")
 Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
 Reviewed-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210205111757.585248-2-boris.brezillon@collabora.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20210205111757.585248-3-boris.brezillon@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_mmu.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_mmu.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
 +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -593,6 +593,8 @@ static irqreturn_t panfrost_mmu_irq_hand
- 		access_type = (fault_status >> 8) & 0x3;
- 		source_id = (fault_status >> 16);
+@@ -488,8 +488,14 @@ static int panfrost_mmu_map_fault_addr(s
+ 		}
+ 		bo->base.pages = pages;
+ 		bo->base.pages_use_count = 1;
+-	} else
++	} else {
+ 		pages = bo->base.pages;
++		if (pages[page_offset]) {
++			/* Pages are already mapped, bail out. */
++			mutex_unlock(&bo->base.pages_lock);
++			goto out;
++		}
++	}
  
-+		mmu_write(pfdev, MMU_INT_CLEAR, mask);
-+
- 		/* Page fault only */
- 		ret = -1;
- 		if ((status & mask) == BIT(i) && (exception_type & 0xF8) == 0xC0)
-@@ -616,8 +618,6 @@ static irqreturn_t panfrost_mmu_irq_hand
- 				access_type, access_type_name(pfdev, fault_status),
- 				source_id);
+ 	mapping = bo->base.base.filp->f_mapping;
+ 	mapping_set_unevictable(mapping);
+@@ -522,6 +528,7 @@ static int panfrost_mmu_map_fault_addr(s
  
--		mmu_write(pfdev, MMU_INT_CLEAR, mask);
--
- 		status &= ~mask;
- 	}
+ 	dev_dbg(pfdev->dev, "mapped page fault @ AS%d %llx", as, addr);
  
++out:
+ 	panfrost_gem_mapping_put(bomapping);
+ 
+ 	return 0;
 
 
