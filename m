@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0756B37C447
+	by mail.lfdr.de (Postfix) with ESMTP id 5DC5637C449
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235730AbhELP35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:29:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40954 "EHLO mail.kernel.org"
+        id S235738AbhELP36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:29:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234909AbhELPZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:25:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EAC261606;
-        Wed, 12 May 2021 15:10:56 +0000 (UTC)
+        id S234918AbhELPZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:25:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8EAC61430;
+        Wed, 12 May 2021 15:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832256;
-        bh=SFsEdzgUCHwvpU+fpW+I16Oy+MkLtZXnhsQTC7kfIpw=;
+        s=korg; t=1620832259;
+        bh=NGRHA6cOyGs2KltjPlMjELlvqO1UZN+5uUaL787Y0i8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTQtHRxt7q7Qc17BUWH92kYvivPuFt/0OjRxPDx2EcM9IIV5I3jzKLKMOYerVGiD0
-         leoe65cEhPLkXJhw8GVZhqY8pm5BULLL2QxvOwwOoV6HIr9YkNh2JjwVOFUqta7kqE
-         s1D3nGuaG0ZgxwKdxPSN8XeP4eBoQPG7GU1v6LpA=
+        b=i2yseP6KZm3a1sstiL585LgBkxwqX8OYksyEC84/6X5wYeYvlP055T7UR3Ktl9Que
+         X4IcAl76xuzVFWagZMjBrFO9vc115i+OnGgSVuQsziC/4yYCyhgzXqsC5WoH7MQthT
+         pGaS/Lxaagfcq9/ocZHPUoviSRHyJph2ybxgvLJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elliot Berman <eberman@codeaurora.org>,
-        Brian Masney <masneyb@onstation.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Jeffrey Hugo <jhugo@codeaurora.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Alexandru Ardelean <aardelean@deviqon.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 205/530] firmware: qcom_scm: Workaround lack of "is available" call on SC7180
-Date:   Wed, 12 May 2021 16:45:15 +0200
-Message-Id: <20210512144826.582522217@linuxfoundation.org>
+Subject: [PATCH 5.10 206/530] iio: adc: Kconfig: make AD9467 depend on ADI_AXI_ADC symbol
+Date:   Wed, 12 May 2021 16:45:16 +0200
+Message-Id: <20210512144826.613802369@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -45,85 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Alexandru Ardelean <aardelean@deviqon.com>
 
-[ Upstream commit 257f2935cbbf14b16912c635fcd8ff43345c953b ]
+[ Upstream commit 194eafc9c1d49b53b59de9821fb63d423344cae3 ]
 
-Some SC7180 firmwares don't implement the QCOM_SCM_INFO_IS_CALL_AVAIL
-API, so we can't probe the calling convention. We detect the legacy
-calling convention on these firmwares, because the availability call
-always fails and legacy is the fallback. This leads to problems where
-the rmtfs driver fails to probe, because it tries to assign memory with
-a bad calling convention, which then leads to modem failing to load and
-all networking, even wifi, to fail. Ouch!
+Because a dependency on HAS_IOMEM and OF was added for the ADI AXI ADC
+driver, this makes the AD9467 driver have some build/dependency issues
+when OF is disabled (typically on ACPI archs like x86).
 
-Let's force the calling convention to be what it always is on this SoC,
-i.e. arm64. Of course, the calling convention is not the same thing as
-implementing the QCOM_SCM_INFO_IS_CALL_AVAIL API. The absence of the "is
-this call available" API from the firmware means that any call to
-__qcom_scm_is_call_available() fails. This is OK for now though because
-none of the calls that are checked for existence are implemented on
-firmware running on sc7180. If such a call needs to be checked for
-existence in the future, we presume that firmware will implement this
-API and then things will "just work".
+This is because the selection of the AD9467 enforces the ADI_AXI_ADC symbol
+which is blocked by the OF (and potentially HAS_IOMEM) being disabled.
 
-Cc: Elliot Berman <eberman@codeaurora.org>
-Cc: Brian Masney <masneyb@onstation.org>
-Cc: Stephan Gerhold <stephan@gerhold.net>
-Cc: Jeffrey Hugo <jhugo@codeaurora.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Fixes: 9a434cee773a ("firmware: qcom_scm: Dynamically support SMCCC and legacy conventions")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20210223214539.1336155-4-swboyd@chromium.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+To fix this, we make the AD9467 driver depend on the ADI_AXI_ADC symbol.
+The AD9467 driver cannot operate on it's own. It requires the ADI AXI ADC
+driver to stream data (or some similar IIO interface).
+
+So, the fix here is to make the AD9467 symbol depend on the ADI_AXI_ADC
+symbol. At some point this could become it's own subgroup of high-speed
+ADCs.
+
+Fixes: be24c65e9fa24 ("iio: adc: adi-axi-adc: add proper Kconfig dependencies")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20210324182746.9337-1-aardelean@deviqon.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/qcom_scm.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/iio/adc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/qcom_scm.c b/drivers/firmware/qcom_scm.c
-index a455c22bcdbd..c5b20bdc08e9 100644
---- a/drivers/firmware/qcom_scm.c
-+++ b/drivers/firmware/qcom_scm.c
-@@ -131,6 +131,7 @@ static enum qcom_scm_convention __get_convention(void)
- 	struct qcom_scm_res res;
- 	enum qcom_scm_convention probed_convention;
- 	int ret;
-+	bool forced = false;
- 
- 	if (likely(qcom_scm_convention != SMC_CONVENTION_UNKNOWN))
- 		return qcom_scm_convention;
-@@ -144,6 +145,18 @@ static enum qcom_scm_convention __get_convention(void)
- 	if (!ret && res.result[0] == 1)
- 		goto found;
- 
-+	/*
-+	 * Some SC7180 firmwares didn't implement the
-+	 * QCOM_SCM_INFO_IS_CALL_AVAIL call, so we fallback to forcing ARM_64
-+	 * calling conventions on these firmwares. Luckily we don't make any
-+	 * early calls into the firmware on these SoCs so the device pointer
-+	 * will be valid here to check if the compatible matches.
-+	 */
-+	if (of_device_is_compatible(__scm ? __scm->dev->of_node : NULL, "qcom,scm-sc7180")) {
-+		forced = true;
-+		goto found;
-+	}
-+
- 	probed_convention = SMC_CONVENTION_ARM_32;
- 	ret = __scm_smc_call(NULL, &desc, probed_convention, &res, true);
- 	if (!ret && res.result[0] == 1)
-@@ -154,8 +167,9 @@ found:
- 	spin_lock_irqsave(&scm_query_lock, flags);
- 	if (probed_convention != qcom_scm_convention) {
- 		qcom_scm_convention = probed_convention;
--		pr_info("qcom_scm: convention: %s\n",
--			qcom_scm_convention_names[qcom_scm_convention]);
-+		pr_info("qcom_scm: convention: %s%s\n",
-+			qcom_scm_convention_names[qcom_scm_convention],
-+			forced ? " (forced)" : "");
- 	}
- 	spin_unlock_irqrestore(&scm_query_lock, flags);
- 
+diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+index 86fda6182543..e39b679126a2 100644
+--- a/drivers/iio/adc/Kconfig
++++ b/drivers/iio/adc/Kconfig
+@@ -249,7 +249,7 @@ config AD799X
+ config AD9467
+ 	tristate "Analog Devices AD9467 High Speed ADC driver"
+ 	depends on SPI
+-	select ADI_AXI_ADC
++	depends on ADI_AXI_ADC
+ 	help
+ 	  Say yes here to build support for Analog Devices:
+ 	  * AD9467 16-Bit, 200 MSPS/250 MSPS Analog-to-Digital Converter
 -- 
 2.30.2
 
