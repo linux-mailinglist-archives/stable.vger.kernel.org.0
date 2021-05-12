@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B5337D23E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:07:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034CA37D23F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237311AbhELSHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:07:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50046 "EHLO mail.kernel.org"
+        id S238460AbhELSHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:07:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352032AbhELSCW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:02:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FFE61428;
-        Wed, 12 May 2021 18:01:13 +0000 (UTC)
+        id S1352044AbhELSCX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:02:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4093A61419;
+        Wed, 12 May 2021 18:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842473;
-        bh=GVEiyiTtf48gz+ukeAM4SXTOHF2CEVuOVTqVQXbLxPQ=;
+        s=k20201202; t=1620842475;
+        bh=lQVEHXpOkP+0xKhQL1ij6j/rrt8ZABA81dSlc2Bmugo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WxnbHvriM/aTKjpL9aor8h8H687O50PcKO25n3Gb8zi1PBaou8MVgLUCYuSYeOjsk
-         hMsHT6Ep5rXQbePC6xHcDubokO7vJf15dU4jWl0P4ls8hTJwnNYtYcT32OzkjVXtQ7
-         uQThGVQ69Mj2+aU+LtFaA25ApaSmOMkCp+KWyV0z3hi/EhEiNb3n1YRhAf/+H76xo6
-         BFiXTBteuoJuaSmkR1kdm2xQjsiyGs7i7dNVFNs86Mr9u9QAzcpLORP83EWkcazWc9
-         KBr/0+uzi4moXWvv/CIEFeguiIHKEvtecfgiJS+2ehMM5Jp4BIn/IxuOakqhEITDzs
-         h9vhJVqLVwXpQ==
+        b=PxKxyoI8UUO8cOW+FWv2+BS1LDHPnr/GbSlchgbwLkj9DB062jRNAAke7B7iOBr6u
+         j9zF/175D+oaVRt5VCFbmB7K6DXUIIQlx8kb0ERiVXXQbrmnQbBzLONKU/ssc3MHHo
+         C5WvM3eTtyiB1dZcJizr3GYxx9ywy/SSsB1uddRjUXwpq8NzpOHDUkjmA3NUVv2az0
+         LlkEd5cILNAIlRQqE7Q2KqxkjEY1eiBLQPFoPq9JshLG3Y90XQ7wroHFX4ygDMfGgW
+         66uYHbiztpY92l3va6KrLuOUS1N2821m8TeruljKnzPp+qdxB5otcUqOOmyuThT3bP
+         XUq8/jdFnPfXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 06/37] NFS: Fix fscache invalidation in nfs_set_cache_invalid()
-Date:   Wed, 12 May 2021 14:00:33 -0400
-Message-Id: <20210512180104.664121-6-sashal@kernel.org>
+Cc:     Feilong Lin <linfeilong@huawei.com>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 07/37] ACPI / hotplug / PCI: Fix reference count leak in enable_slot()
+Date:   Wed, 12 May 2021 14:00:34 -0400
+Message-Id: <20210512180104.664121-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180104.664121-1-sashal@kernel.org>
 References: <20210512180104.664121-1-sashal@kernel.org>
@@ -41,36 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Feilong Lin <linfeilong@huawei.com>
 
-[ Upstream commit beab450d8ea93cdf4c6cb7714bdc31a9e0f34738 ]
+[ Upstream commit 3bbfd319034ddce59e023837a4aa11439460509b ]
 
-Ensure that we invalidate the fscache before we strip the
-NFS_INO_INVALID_DATA flag.
+In enable_slot(), if pci_get_slot() returns NULL, we clear the SLOT_ENABLED
+flag. When pci_get_slot() finds a device, it increments the device's
+reference count.  In this case, we did not call pci_dev_put() to decrement
+the reference count, so the memory of the device (struct pci_dev type) will
+eventually leak.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Call pci_dev_put() to decrement its reference count when pci_get_slot()
+returns a PCI device.
+
+Link: https://lore.kernel.org/r/b411af88-5049-a1c6-83ac-d104a1f429be@huawei.com
+Signed-off-by: Feilong Lin <linfeilong@huawei.com>
+Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/acpiphp_glue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index a7fb076a5f44..ff737be559dc 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -223,11 +223,11 @@ void nfs_set_cache_invalid(struct inode *inode, unsigned long flags)
- 
- 	if (!nfs_has_xattr_cache(nfsi))
- 		flags &= ~NFS_INO_INVALID_XATTR;
-+	if (flags & NFS_INO_INVALID_DATA)
-+		nfs_fscache_invalidate(inode);
- 	if (inode->i_mapping->nrpages == 0)
- 		flags &= ~(NFS_INO_INVALID_DATA|NFS_INO_DATA_INVAL_DEFER);
- 	nfsi->cache_validity |= flags;
--	if (flags & NFS_INO_INVALID_DATA)
--		nfs_fscache_invalidate(inode);
+diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
+index 3365c93abf0e..f031302ad401 100644
+--- a/drivers/pci/hotplug/acpiphp_glue.c
++++ b/drivers/pci/hotplug/acpiphp_glue.c
+@@ -533,6 +533,7 @@ static void enable_slot(struct acpiphp_slot *slot, bool bridge)
+ 			slot->flags &= ~SLOT_ENABLED;
+ 			continue;
+ 		}
++		pci_dev_put(dev);
+ 	}
  }
- EXPORT_SYMBOL_GPL(nfs_set_cache_invalid);
  
 -- 
 2.30.2
