@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C26137C7FA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4A1437C7F7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237413AbhELQD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:03:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36238 "EHLO mail.kernel.org"
+        id S236430AbhELQDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233659AbhELP5x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:57:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6BFB6194B;
-        Wed, 12 May 2021 15:31:40 +0000 (UTC)
+        id S234064AbhELP54 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:57:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 196F1611BE;
+        Wed, 12 May 2021 15:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833501;
-        bh=6QxE9I7ivebjt9XniBPhF6NQZgC8aEyb+4HMLyK4/2I=;
+        s=korg; t=1620833503;
+        bh=CtQP8pOVtkC1dYoinZxsGKfQxqk82X9VzBPh5nG9Gnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnStcrLUdRRaekKFT3hUtwuw+lSTXW5Cjy2ZhMEhiTIh3OQk/MOfIF7s5p40Jm3cG
-         +WXxpkWOfC6fQZ5RnZpOTlBfO4ysGUTvhobaa3doGHeKCWP2CjNlUYsAh6YuBNfINt
-         3pisxH7I5cdP1HP+nj88GElnnP+Yz+I+GjpKKT4Q=
+        b=dDFqTf5NdjHCiK6yJzmwwpBJgkX7rvCwBdjo2VpWI3vs5TUOI5FHyHmKBkwDVC9TA
+         Snto2XhKB9gGQAtw4bsyZkEBVQbgy8bsZE1hKsASxWTgsI+pmbUL1h/KRne3mf3Poy
+         4cos+IGyjgm2lX7A5d+KB8MDZ9nhy4DTUamLjZ/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Nishanth Menon <nm@ti.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Nuno Sa <nuno.sa@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 173/601] arm64: dts: ti: k3-j721e-main: Update the speed modes supported and their itap delay values for MMCSD subsystems
-Date:   Wed, 12 May 2021 16:44:10 +0200
-Message-Id: <20210512144833.545696069@linuxfoundation.org>
+Subject: [PATCH 5.11 174/601] iio: adis16480: fix pps mode sampling frequency math
+Date:   Wed, 12 May 2021 16:44:11 +0200
+Message-Id: <20210512144833.577735596@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,85 +40,231 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Nuno Sa <nuno.sa@analog.com>
 
-[ Upstream commit eb8f6194e8074d7b00642dd75cf04d13e1b218e4 ]
+[ Upstream commit 0463e60f087069adf25a815cd88753946aca2565 ]
 
-According to latest errata of J721e [1], HS400 mode is not supported
-in MMCSD0 subsystem (i2024) and SDR104 mode is not supported in MMCSD1/2
-subsystems (i2090). Therefore, replace mmc-hs400-1_8v with mmc-hs200-1_8v
-in MMCSD0 subsystem and add a sdhci mask to disable SDR104 speed mode.
+When using PPS mode, the input clock needs to be scaled so that we have
+an IMU sample rate between (optimally) 4000 and 4250. After this, we can
+use the decimation filter to lower the sampling rate in order to get what
+the user wants. Optimally, the user sample rate is a multiple of both the
+IMU sample rate and the input clock. Hence, calculating the sync_scale
+dynamically gives us better chances of achieving a perfect/integer value
+for DEC_RATE. The math here is:
+ 1. lcm of the input clock and the desired output rate.
+ 2. get the highest multiple of the previous result lower than the adis
+    max rate.
+ 3. The last result becomes the IMU sample rate. Use that to calculate
+    SYNC_SCALE and DEC_RATE (to get the user output rate).
 
-Also, update the itap delay values for all the MMCSD subsystems according
-the latest J721e data sheet[2]
+Fixes: 326e2357553d3 ("iio: imu: adis16480: Add support for external clock")
 
-[1] - https://www.ti.com/lit/er/sprz455/sprz455.pdf
-[2] - https://www.ti.com/lit/ds/symlink/tda4vm.pdf
-
-Fixes: cd48ce86a4d0 ("arm64: dts: ti: k3-j721e-common-proc-board: Add support for SD card UHS modes")
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
-Link: https://lore.kernel.org/r/20210305054104.10153-1-a-govindraju@ti.com
+Signed-off-by: Nuno Sa <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210218114039.216091-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/iio/imu/adis16480.c | 128 ++++++++++++++++++++++++++----------
+ 1 file changed, 94 insertions(+), 34 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index b32df591c766..91802e1502dd 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -1078,13 +1078,16 @@
- 		assigned-clocks = <&k3_clks 91 1>;
- 		assigned-clock-parents = <&k3_clks 91 2>;
- 		bus-width = <8>;
--		mmc-hs400-1_8v;
-+		mmc-hs200-1_8v;
- 		mmc-ddr-1_8v;
- 		ti,otap-del-sel-legacy = <0xf>;
- 		ti,otap-del-sel-mmc-hs = <0xf>;
- 		ti,otap-del-sel-ddr52 = <0x5>;
- 		ti,otap-del-sel-hs200 = <0x6>;
- 		ti,otap-del-sel-hs400 = <0x0>;
-+		ti,itap-del-sel-legacy = <0x10>;
-+		ti,itap-del-sel-mmc-hs = <0xa>;
-+		ti,itap-del-sel-ddr52 = <0x3>;
- 		ti,trm-icp = <0x8>;
- 		ti,strobe-sel = <0x77>;
- 		dma-coherent;
-@@ -1105,9 +1108,15 @@
- 		ti,otap-del-sel-sdr25 = <0xf>;
- 		ti,otap-del-sel-sdr50 = <0xc>;
- 		ti,otap-del-sel-ddr50 = <0xc>;
-+		ti,itap-del-sel-legacy = <0x0>;
-+		ti,itap-del-sel-sd-hs = <0x0>;
-+		ti,itap-del-sel-sdr12 = <0x0>;
-+		ti,itap-del-sel-sdr25 = <0x0>;
-+		ti,itap-del-sel-ddr50 = <0x2>;
- 		ti,trm-icp = <0x8>;
- 		ti,clkbuf-sel = <0x7>;
- 		dma-coherent;
-+		sdhci-caps-mask = <0x2 0x0>;
- 	};
+diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
+index dfe86c589325..c41b8ef1e250 100644
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -10,6 +10,7 @@
+ #include <linux/of_irq.h>
+ #include <linux/interrupt.h>
+ #include <linux/delay.h>
++#include <linux/math.h>
+ #include <linux/mutex.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
+@@ -17,6 +18,7 @@
+ #include <linux/slab.h>
+ #include <linux/sysfs.h>
+ #include <linux/module.h>
++#include <linux/lcm.h>
  
- 	main_sdhci2: sdhci@4f98000 {
-@@ -1125,9 +1134,15 @@
- 		ti,otap-del-sel-sdr25 = <0xf>;
- 		ti,otap-del-sel-sdr50 = <0xc>;
- 		ti,otap-del-sel-ddr50 = <0xc>;
-+		ti,itap-del-sel-legacy = <0x0>;
-+		ti,itap-del-sel-sd-hs = <0x0>;
-+		ti,itap-del-sel-sdr12 = <0x0>;
-+		ti,itap-del-sel-sdr25 = <0x0>;
-+		ti,itap-del-sel-ddr50 = <0x2>;
- 		ti,trm-icp = <0x8>;
- 		ti,clkbuf-sel = <0x7>;
- 		dma-coherent;
-+		sdhci-caps-mask = <0x2 0x0>;
- 	};
+ #include <linux/iio/iio.h>
+ #include <linux/iio/sysfs.h>
+@@ -170,6 +172,11 @@ static const char * const adis16480_int_pin_names[4] = {
+ 	[ADIS16480_PIN_DIO4] = "DIO4",
+ };
  
- 	usbss0: cdns-usb@4104000 {
++static bool low_rate_allow;
++module_param(low_rate_allow, bool, 0444);
++MODULE_PARM_DESC(low_rate_allow,
++		 "Allow IMU rates below the minimum advisable when external clk is used in PPS mode (default: N)");
++
+ #ifdef CONFIG_DEBUG_FS
+ 
+ static ssize_t adis16480_show_firmware_revision(struct file *file,
+@@ -312,7 +319,8 @@ static int adis16480_debugfs_init(struct iio_dev *indio_dev)
+ static int adis16480_set_freq(struct iio_dev *indio_dev, int val, int val2)
+ {
+ 	struct adis16480 *st = iio_priv(indio_dev);
+-	unsigned int t, reg;
++	unsigned int t, sample_rate = st->clk_freq;
++	int ret;
+ 
+ 	if (val < 0 || val2 < 0)
+ 		return -EINVAL;
+@@ -321,28 +329,65 @@ static int adis16480_set_freq(struct iio_dev *indio_dev, int val, int val2)
+ 	if (t == 0)
+ 		return -EINVAL;
+ 
++	mutex_lock(&st->adis.state_lock);
+ 	/*
+-	 * When using PPS mode, the rate of data collection is equal to the
+-	 * product of the external clock frequency and the scale factor in the
+-	 * SYNC_SCALE register.
+-	 * When using sync mode, or internal clock, the output data rate is
+-	 * equal with  the clock frequency divided by DEC_RATE + 1.
++	 * When using PPS mode, the input clock needs to be scaled so that we have an IMU
++	 * sample rate between (optimally) 4000 and 4250. After this, we can use the
++	 * decimation filter to lower the sampling rate in order to get what the user wants.
++	 * Optimally, the user sample rate is a multiple of both the IMU sample rate and
++	 * the input clock. Hence, calculating the sync_scale dynamically gives us better
++	 * chances of achieving a perfect/integer value for DEC_RATE. The math here is:
++	 *	1. lcm of the input clock and the desired output rate.
++	 *	2. get the highest multiple of the previous result lower than the adis max rate.
++	 *	3. The last result becomes the IMU sample rate. Use that to calculate SYNC_SCALE
++	 *	   and DEC_RATE (to get the user output rate)
+ 	 */
+ 	if (st->clk_mode == ADIS16480_CLK_PPS) {
+-		t = t / st->clk_freq;
+-		reg = ADIS16495_REG_SYNC_SCALE;
+-	} else {
+-		t = st->clk_freq / t;
+-		reg = ADIS16480_REG_DEC_RATE;
++		unsigned long scaled_rate = lcm(st->clk_freq, t);
++		int sync_scale;
++
++		/*
++		 * If lcm is bigger than the IMU maximum sampling rate there's no perfect
++		 * solution. In this case, we get the highest multiple of the input clock
++		 * lower than the IMU max sample rate.
++		 */
++		if (scaled_rate > st->chip_info->int_clk)
++			scaled_rate = st->chip_info->int_clk / st->clk_freq * st->clk_freq;
++		else
++			scaled_rate = st->chip_info->int_clk / scaled_rate * scaled_rate;
++
++		/*
++		 * This is not an hard requirement but it's not advised to run the IMU
++		 * with a sample rate lower than 4000Hz due to possible undersampling
++		 * issues. However, there are users that might really want to take the risk.
++		 * Hence, we provide a module parameter for them. If set, we allow sample
++		 * rates lower than 4KHz. By default, we won't allow this and we just roundup
++		 * the rate to the next multiple of the input clock bigger than 4KHz. This
++		 * is done like this as in some cases (when DEC_RATE is 0) might give
++		 * us the closest value to the one desired by the user...
++		 */
++		if (scaled_rate < 4000000 && !low_rate_allow)
++			scaled_rate = roundup(4000000, st->clk_freq);
++
++		sync_scale = scaled_rate / st->clk_freq;
++		ret = __adis_write_reg_16(&st->adis, ADIS16495_REG_SYNC_SCALE, sync_scale);
++		if (ret)
++			goto error;
++
++		sample_rate = scaled_rate;
+ 	}
+ 
++	t = DIV_ROUND_CLOSEST(sample_rate, t);
++	if (t)
++		t--;
++
+ 	if (t > st->chip_info->max_dec_rate)
+ 		t = st->chip_info->max_dec_rate;
+ 
+-	if ((t != 0) && (st->clk_mode != ADIS16480_CLK_PPS))
+-		t--;
+-
+-	return adis_write_reg_16(&st->adis, reg, t);
++	ret = __adis_write_reg_16(&st->adis, ADIS16480_REG_DEC_RATE, t);
++error:
++	mutex_unlock(&st->adis.state_lock);
++	return ret;
+ }
+ 
+ static int adis16480_get_freq(struct iio_dev *indio_dev, int *val, int *val2)
+@@ -350,34 +395,35 @@ static int adis16480_get_freq(struct iio_dev *indio_dev, int *val, int *val2)
+ 	struct adis16480 *st = iio_priv(indio_dev);
+ 	uint16_t t;
+ 	int ret;
+-	unsigned int freq;
+-	unsigned int reg;
++	unsigned int freq, sample_rate = st->clk_freq;
+ 
+-	if (st->clk_mode == ADIS16480_CLK_PPS)
+-		reg = ADIS16495_REG_SYNC_SCALE;
+-	else
+-		reg = ADIS16480_REG_DEC_RATE;
++	mutex_lock(&st->adis.state_lock);
++
++	if (st->clk_mode == ADIS16480_CLK_PPS) {
++		u16 sync_scale;
++
++		ret = __adis_read_reg_16(&st->adis, ADIS16495_REG_SYNC_SCALE, &sync_scale);
++		if (ret)
++			goto error;
+ 
+-	ret = adis_read_reg_16(&st->adis, reg, &t);
++		sample_rate = st->clk_freq * sync_scale;
++	}
++
++	ret = __adis_read_reg_16(&st->adis, ADIS16480_REG_DEC_RATE, &t);
+ 	if (ret)
+-		return ret;
++		goto error;
+ 
+-	/*
+-	 * When using PPS mode, the rate of data collection is equal to the
+-	 * product of the external clock frequency and the scale factor in the
+-	 * SYNC_SCALE register.
+-	 * When using sync mode, or internal clock, the output data rate is
+-	 * equal with  the clock frequency divided by DEC_RATE + 1.
+-	 */
+-	if (st->clk_mode == ADIS16480_CLK_PPS)
+-		freq = st->clk_freq * t;
+-	else
+-		freq = st->clk_freq / (t + 1);
++	mutex_unlock(&st->adis.state_lock);
++
++	freq = DIV_ROUND_CLOSEST(sample_rate, (t + 1));
+ 
+ 	*val = freq / 1000;
+ 	*val2 = (freq % 1000) * 1000;
+ 
+ 	return IIO_VAL_INT_PLUS_MICRO;
++error:
++	mutex_unlock(&st->adis.state_lock);
++	return ret;
+ }
+ 
+ enum {
+@@ -1278,6 +1324,20 @@ static int adis16480_probe(struct spi_device *spi)
+ 
+ 		st->clk_freq = clk_get_rate(st->ext_clk);
+ 		st->clk_freq *= 1000; /* micro */
++		if (st->clk_mode == ADIS16480_CLK_PPS) {
++			u16 sync_scale;
++
++			/*
++			 * In PPS mode, the IMU sample rate is the clk_freq * sync_scale. Hence,
++			 * default the IMU sample rate to the highest multiple of the input clock
++			 * lower than the IMU max sample rate. The internal sample rate is the
++			 * max...
++			 */
++			sync_scale = st->chip_info->int_clk / st->clk_freq;
++			ret = __adis_write_reg_16(&st->adis, ADIS16495_REG_SYNC_SCALE, sync_scale);
++			if (ret)
++				return ret;
++		}
+ 	} else {
+ 		st->clk_freq = st->chip_info->int_clk;
+ 	}
 -- 
 2.30.2
 
