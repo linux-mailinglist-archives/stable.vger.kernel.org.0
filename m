@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5858E37CE87
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4049837CF16
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:31:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344981AbhELRFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42358 "EHLO mail.kernel.org"
+        id S241498AbhELRIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:08:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244436AbhELQqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244435AbhELQqD (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:46:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F06F61E72;
-        Wed, 12 May 2021 16:14:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E504661E77;
+        Wed, 12 May 2021 16:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836089;
-        bh=wldFpXk7J5dSO2jDrGOR0jFyaXmfUj1pKOG5pOMLCfE=;
+        s=korg; t=1620836091;
+        bh=m1E1TLUF4UBhP6QbE9Gf3HS6db30AH3Yt8W9wHFxGBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pueee3rXoouFBynRAhHaDyoQyRCNidqkSvWdEC9mYxg1bZUuC0VjIgCM2eAeOHorG
-         tGng53ld9RrtqhvHFm8/Qs9LVB9LLiH5N76M4VQS3SXokUhPgF5zDblq90aBKM4ll2
-         yBeIwMP7xbQwZGgIKoY3YUbdymTZoQDD3nsVFw7k=
+        b=EVdtD0AFLm+zw7eeBeCeBf7b5Lz9lEmO8oTOHHKMSXKrBD0j1nSYTE9TgTvWyVRe8
+         3Qxss3WobhMst70iDjG/vVsWwfmvZurcTC7Nil1EzYu4aYR5MOKAlJZ6ERgP/ke3sr
+         RZFTDsC2K1PhinqUuquNwa9Lqq4IN4by29kHYDp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        Alessio Balsini <balsini@android.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org,
+        Mordechay Goodstein <mordechay.goodstein@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 570/677] fuse: fix matching of FUSE_DEV_IOC_CLONE command
-Date:   Wed, 12 May 2021 16:50:16 +0200
-Message-Id: <20210512144856.333623127@linuxfoundation.org>
+Subject: [PATCH 5.12 571/677] iwlwifi: rs-fw: dont support stbc for HE 160
+Date:   Wed, 12 May 2021 16:50:17 +0200
+Message-Id: <20210512144856.366454267@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,46 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alessio Balsini <balsini@android.com>
+From: Mordechay Goodstein <mordechay.goodstein@intel.com>
 
-[ Upstream commit 6076f5f341e612152879bfda99f0b76c1953bf0b ]
+[ Upstream commit a9174578262b86f15cb1882f35e53b1fae0649fd ]
 
-With commit f8425c939663 ("fuse: 32-bit user space ioctl compat for fuse
-device") the matching constraints for the FUSE_DEV_IOC_CLONE ioctl command
-are relaxed, limited to the testing of command type and number.  As Arnd
-noticed, this is wrong as it wouldn't ensure the correctness of the data
-size or direction for the received FUSE device ioctl.
+Our HE doesn't support it so never set HE 160 stbc
 
-Fix by bringing back the comparison of the ioctl received by the FUSE
-device to the originally generated FUSE_DEV_IOC_CLONE.
-
-Fixes: f8425c939663 ("fuse: 32-bit user space ioctl compat for fuse device")
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Signed-off-by: Alessio Balsini <balsini@android.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 3e467b8e4cf4 ("iwlwifi: rs-fw: enable STBC in he correctly")
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210411124418.550fd1903eb7.I8ddbc2f87044a5ef78d916c9c59be797811a1b7f@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ .../net/wireless/intel/iwlwifi/mvm/rs-fw.c    | 20 ++++++++-----------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index c0fee830a34e..a5ceccc5ef00 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -2233,11 +2233,8 @@ static long fuse_dev_ioctl(struct file *file, unsigned int cmd,
- 	int oldfd;
- 	struct fuse_dev *fud = NULL;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
+index 8772b65c9dab..2d58cb969918 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+ /*
+  * Copyright (C) 2017 Intel Deutschland GmbH
+- * Copyright (C) 2018-2020 Intel Corporation
++ * Copyright (C) 2018-2021 Intel Corporation
+  */
+ #include "rs.h"
+ #include "fw-api.h"
+@@ -72,19 +72,15 @@ static u16 rs_fw_get_config_flags(struct iwl_mvm *mvm,
+ 	bool vht_ena = vht_cap->vht_supported;
+ 	u16 flags = 0;
  
--	if (_IOC_TYPE(cmd) != FUSE_DEV_IOC_MAGIC)
--		return -ENOTTY;
++	/* get STBC flags */
+ 	if (mvm->cfg->ht_params->stbc &&
+ 	    (num_of_ant(iwl_mvm_get_valid_tx_ant(mvm)) > 1)) {
+-		if (he_cap->has_he) {
+-			if (he_cap->he_cap_elem.phy_cap_info[2] &
+-			    IEEE80211_HE_PHY_CAP2_STBC_RX_UNDER_80MHZ)
+-				flags |= IWL_TLC_MNG_CFG_FLAGS_STBC_MSK;
 -
--	switch (_IOC_NR(cmd)) {
--	case _IOC_NR(FUSE_DEV_IOC_CLONE):
-+	switch (cmd) {
-+	case FUSE_DEV_IOC_CLONE:
- 		res = -EFAULT;
- 		if (!get_user(oldfd, (__u32 __user *)arg)) {
- 			struct file *old = fget(oldfd);
+-			if (he_cap->he_cap_elem.phy_cap_info[7] &
+-			    IEEE80211_HE_PHY_CAP7_STBC_RX_ABOVE_80MHZ)
+-				flags |= IWL_TLC_MNG_CFG_FLAGS_HE_STBC_160MHZ_MSK;
+-		} else if ((ht_cap->cap & IEEE80211_HT_CAP_RX_STBC) ||
+-			   (vht_ena &&
+-			    (vht_cap->cap & IEEE80211_VHT_CAP_RXSTBC_MASK)))
++		if (he_cap->has_he && he_cap->he_cap_elem.phy_cap_info[2] &
++				      IEEE80211_HE_PHY_CAP2_STBC_RX_UNDER_80MHZ)
++			flags |= IWL_TLC_MNG_CFG_FLAGS_STBC_MSK;
++		else if (vht_cap->cap & IEEE80211_VHT_CAP_RXSTBC_MASK)
++			flags |= IWL_TLC_MNG_CFG_FLAGS_STBC_MSK;
++		else if (ht_cap->cap & IEEE80211_HT_CAP_RX_STBC)
+ 			flags |= IWL_TLC_MNG_CFG_FLAGS_STBC_MSK;
+ 	}
+ 
 -- 
 2.30.2
 
