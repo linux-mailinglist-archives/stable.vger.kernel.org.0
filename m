@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BAC637CC50
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD2D37CC78
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234109AbhELQoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:44:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
+        id S239623AbhELQpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243169AbhELQgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243168AbhELQgz (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:36:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 079AC61CD6;
-        Wed, 12 May 2021 16:01:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71B4261CD2;
+        Wed, 12 May 2021 16:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835277;
-        bh=tGCX8tslhtr2FUexM+5GSfcEhS4W6t6okDswa7G7v7E=;
+        s=korg; t=1620835279;
+        bh=ZrJuf0WmWqv/z9BfJRKW0goRXdZM2t4UcJi7iijX3Po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fctAAmVJeYXCm0/vWnHcKlD3hrV+v18Zid6TCI4rq0hpbJMI6wcWurzXxBPe1Zzo
-         EvEPvxymkOOaH2YPfK0j4to0rV8Qpr4Ri7TcdvTv5agHo4MQrBi63H+ghDMuOdbQi7
-         UEv/lv5LY/1ECer0iRoivaBPiFTVjxae1bp6S1Og=
+        b=FmT01SNpmuNcaw6B1x75jyHKZUdjM/i1lJmlS4IgIpNvXcHuykEK1LGzLv9q+QXqu
+         h8scfz8PcgJ2X47h3E9ZXMZRK3jzyY5jEOmPcU0iruOQ3ecj4uCN4Q3YaMtA2tbJTk
+         SQHkRx5ScTzZHya7e8r/DcSBZO3rpLLJ3fSUwLNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        He Ying <heying24@huawei.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 279/677] PM: runtime: Replace inline function pm_runtime_callbacks_present()
-Date:   Wed, 12 May 2021 16:45:25 +0200
-Message-Id: <20210512144846.489625218@linuxfoundation.org>
+Subject: [PATCH 5.12 280/677] cpuidle: Fix ARM_QCOM_SPM_CPUIDLE configuration
+Date:   Wed, 12 May 2021 16:45:26 +0200
+Message-Id: <20210512144846.521660714@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,34 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: He Ying <heying24@huawei.com>
 
-[ Upstream commit 953c1fd96b1a70bcbbfb10973c2126eba8d891c7 ]
+[ Upstream commit 498ba2a8a2756694b6f3888857426dbc8a5e6b6c ]
 
-Commit 9a7875461fd0 ("PM: runtime: Replace pm_runtime_callbacks_present()")
-forgot to change the inline version.
+When CONFIG_ARM_QCOM_SPM_CPUIDLE is y and CONFIG_MMU is not set,
+compiling errors are encountered as follows:
 
-Fixes: 9a7875461fd0 ("PM: runtime: Replace pm_runtime_callbacks_present()")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+drivers/cpuidle/cpuidle-qcom-spm.o: In function `spm_dev_probe':
+cpuidle-qcom-spm.c:(.text+0x140): undefined reference to `cpu_resume_arm'
+cpuidle-qcom-spm.c:(.text+0x148): undefined reference to `cpu_resume_arm'
+
+Note that cpu_resume_arm is defined when MMU is set. So, add dependency
+on MMU in ARM_QCOM_SPM_CPUIDLE configuration.
+
+Fixes: a871be6b8eee ("cpuidle: Convert Qualcomm SPM driver to a generic CPUidle driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: He Ying <heying24@huawei.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210406123328.92904-1-heying24@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/pm_runtime.h | 2 +-
+ drivers/cpuidle/Kconfig.arm | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/pm_runtime.h b/include/linux/pm_runtime.h
-index b492ae00cc90..6c08a085367b 100644
---- a/include/linux/pm_runtime.h
-+++ b/include/linux/pm_runtime.h
-@@ -265,7 +265,7 @@ static inline void pm_runtime_no_callbacks(struct device *dev) {}
- static inline void pm_runtime_irq_safe(struct device *dev) {}
- static inline bool pm_runtime_is_irq_safe(struct device *dev) { return false; }
+diff --git a/drivers/cpuidle/Kconfig.arm b/drivers/cpuidle/Kconfig.arm
+index 0844fadc4be8..334f83e56120 100644
+--- a/drivers/cpuidle/Kconfig.arm
++++ b/drivers/cpuidle/Kconfig.arm
+@@ -107,7 +107,7 @@ config ARM_TEGRA_CPUIDLE
  
--static inline bool pm_runtime_callbacks_present(struct device *dev) { return false; }
-+static inline bool pm_runtime_has_no_callbacks(struct device *dev) { return false; }
- static inline void pm_runtime_mark_last_busy(struct device *dev) {}
- static inline void __pm_runtime_use_autosuspend(struct device *dev,
- 						bool use) {}
+ config ARM_QCOM_SPM_CPUIDLE
+ 	bool "CPU Idle Driver for Qualcomm Subsystem Power Manager (SPM)"
+-	depends on (ARCH_QCOM || COMPILE_TEST) && !ARM64
++	depends on (ARCH_QCOM || COMPILE_TEST) && !ARM64 && MMU
+ 	select ARM_CPU_SUSPEND
+ 	select CPU_IDLE_MULTIPLE_DRIVERS
+ 	select DT_IDLE_STATES
 -- 
 2.30.2
 
