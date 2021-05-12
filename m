@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE54337C341
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B31837C349
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232437AbhELPSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
+        id S232845AbhELPSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234256AbhELPQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 957E161976;
-        Wed, 12 May 2021 15:06:02 +0000 (UTC)
+        id S234272AbhELPQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F79F61979;
+        Wed, 12 May 2021 15:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831963;
-        bh=DWseEqO+pcKPkjlPYTvqcq7OwtIBR67zRVCyoCpKeFI=;
+        s=korg; t=1620831967;
+        bh=1KwjSEPuyYELqNeMMr9CppIyN2C+J6HxBghmNQPymyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZ8rLyfRCVVPebLi/v+ChXzbvOAcoWSX+IQ4snY2aAie2/w8wpt/Ipqc0aZ5/67jy
-         WSTi5qcRPspV90z04szkSU4jQfN+H6doTQXQSxTAB+pQOjI2LMjtOFdvDNDZOuQQ0+
-         7npOTbMtZClJAtVmES3CvvThlj5pnymCPMM3KT+Y=
+        b=SiBk/di5dFMMpBxvpT71ZL6HuBAm0MpsGEoDHjJZsgy4bWDly+1ZCloa2z7+tu4X0
+         tZk8HS5bOZ4FqsztN/dspUXwwx+7FoBlw9JcXgsFAbMvctNuDg6RZCh1M2BOVZBbeQ
+         dsreJtAqUFLS5ol/AMUGfplxmIL5GdSdIx03MDa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
         Janosch Frank <frankja@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 5.10 086/530] KVM: s390: fix guarded storage control register handling
-Date:   Wed, 12 May 2021 16:43:16 +0200
-Message-Id: <20210512144822.603518735@linuxfoundation.org>
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.10 087/530] s390: fix detection of vector enhancements facility 1 vs. vector packed decimal facility
+Date:   Wed, 12 May 2021 16:43:17 +0200
+Message-Id: <20210512144822.645889783@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,54 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 44bada28219031f9e8e86b84460606efa57b871e upstream.
+commit b208108638c4bd3215792415944467c36f5dfd97 upstream.
 
-store_regs_fmt2() has an ordering problem: first the guarded storage
-facility is enabled on the local cpu, then preemption disabled, and
-then the STGSC (store guarded storage controls) instruction is
-executed.
+The PoP documents:
+	134: The vector packed decimal facility is installed in the
+	     z/Architecture architectural mode. When bit 134 is
+	     one, bit 129 is also one.
+	135: The vector enhancements facility 1 is installed in
+	     the z/Architecture architectural mode. When bit 135
+	     is one, bit 129 is also one.
 
-If the process gets scheduled away between enabling the guarded
-storage facility and before preemption is disabled, this might lead to
-a special operation exception and therefore kernel crash as soon as
-the process is scheduled back and the STGSC instruction is executed.
+Looks like we confuse the vector enhancements facility 1 ("EXT") with the
+Vector packed decimal facility ("BCD"). Let's fix the facility checks.
 
-Fixes: 4e0b1ab72b8a ("KVM: s390: gs support for kvm guests")
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Detected while working on QEMU/tcg z14 support and only unlocking
+the vector enhancements facility 1, but not the vector packed decimal
+facility.
+
+Fixes: 2583b848cad0 ("s390: report new vector facilities")
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Cc: <stable@vger.kernel.org> # 4.12
-Link: https://lore.kernel.org/r/20210415080127.1061275-1-hca@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210503121244.25232-1-david@redhat.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/kvm-s390.c |    4 ++--
+ arch/s390/kernel/setup.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4308,16 +4308,16 @@ static void store_regs_fmt2(struct kvm_v
- 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
- 	kvm_run->s.regs.diag318 = vcpu->arch.diag318_info.val;
- 	if (MACHINE_HAS_GS) {
-+		preempt_disable();
- 		__ctl_set_bit(2, 4);
- 		if (vcpu->arch.gs_enabled)
- 			save_gs_cb(current->thread.gs_cb);
--		preempt_disable();
- 		current->thread.gs_cb = vcpu->arch.host_gscb;
- 		restore_gs_cb(vcpu->arch.host_gscb);
--		preempt_enable();
- 		if (!vcpu->arch.host_gscb)
- 			__ctl_clear_bit(2, 4);
- 		vcpu->arch.host_gscb = NULL;
-+		preempt_enable();
- 	}
- 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
- }
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -925,9 +925,9 @@ static int __init setup_hwcaps(void)
+ 	if (MACHINE_HAS_VX) {
+ 		elf_hwcap |= HWCAP_S390_VXRS;
+ 		if (test_facility(134))
+-			elf_hwcap |= HWCAP_S390_VXRS_EXT;
+-		if (test_facility(135))
+ 			elf_hwcap |= HWCAP_S390_VXRS_BCD;
++		if (test_facility(135))
++			elf_hwcap |= HWCAP_S390_VXRS_EXT;
+ 		if (test_facility(148))
+ 			elf_hwcap |= HWCAP_S390_VXRS_EXT2;
+ 		if (test_facility(152))
 
 
