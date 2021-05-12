@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E9837C146
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:57:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B24D837C152
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231358AbhELO6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:58:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43384 "EHLO mail.kernel.org"
+        id S232395AbhELO6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:58:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232171AbhELO4u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:56:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CDB961447;
-        Wed, 12 May 2021 14:55:16 +0000 (UTC)
+        id S231792AbhELO5A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:57:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55C6F61422;
+        Wed, 12 May 2021 14:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831317;
-        bh=6uSpxcK33R092AMCfXYxap3mR2bFxWXiFC/tOz2jWdo=;
+        s=korg; t=1620831321;
+        bh=v7Fkv0DlTgNMv+406GpTTINlKashN54rcDclvb4spRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=16N+Rh1S827mUEsz5ocHMS+mTo7+lnp0dlxelsMC7FCqmkiRzlpL6EBMepTKiwrPf
-         q15azd1Au9V52KpEoB5hpbpnEJSjVySxA8hOGvq/qMqcTvNK+4H6CerLXZPFSyjBG5
-         jrMNZYcEiWdCppMUGZ16oHvwHMdsyCKAx8gdJ/BE=
+        b=qOrJR6o5o+93z1TsLBnOxBTWlCYOkmongo2BHINwAsbc8ARyMotJZaNaAGbBml30f
+         QGu58MBWtkrZ++xe6uPIMuwdOO1FJubef8rDJ87NA+KQvWqf2DVqwPHg6qz0sgrTQZ
+         AUjxcxZp5g2nfz+H+AZxWIcEWOJW0+fhas+oShw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 071/244] ARM: dts: exynos: correct PMIC interrupt trigger level on Snow
-Date:   Wed, 12 May 2021 16:47:22 +0200
-Message-Id: <20210512144745.313810453@linuxfoundation.org>
+Subject: [PATCH 5.4 072/244] serial: stm32: fix incorrect characters on console
+Date:   Wed, 12 May 2021 16:47:23 +0200
+Message-Id: <20210512144745.343939775@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -39,39 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit 8987efbb17c2522be8615085df9a14da2ab53d34 ]
+[ Upstream commit f264c6f6aece81a9f8fbdf912b20bd3feb476a7a ]
 
-The Maxim PMIC datasheets describe the interrupt line as active low
-with a requirement of acknowledge from the CPU.  Without specifying the
-interrupt type in Devicetree, kernel might apply some fixed
-configuration, not necessarily working for this hardware.
+Incorrect characters are observed on console during boot. This issue occurs
+when init/main.c is modifying termios settings to open /dev/console on the
+rootfs.
 
-Additionally, the interrupt line is shared so using level sensitive
-interrupt is here especially important to avoid races.
+This patch adds a waiting loop in set_termios to wait for TX shift register
+empty (and TX FIFO if any) before stopping serial port.
 
-Fixes: c61248afa819 ("ARM: dts: Add max77686 RTC interrupt to cros5250-common")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201210212534.216197-9-krzk@kernel.org
+Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
+Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
+Link: https://lore.kernel.org/r/20210304162308.8984-4-erwan.leray@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5250-snow-common.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/stm32-usart.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/exynos5250-snow-common.dtsi b/arch/arm/boot/dts/exynos5250-snow-common.dtsi
-index c952a615148e..737f0e20a452 100644
---- a/arch/arm/boot/dts/exynos5250-snow-common.dtsi
-+++ b/arch/arm/boot/dts/exynos5250-snow-common.dtsi
-@@ -292,7 +292,7 @@
- 	max77686: max77686@9 {
- 		compatible = "maxim,max77686";
- 		interrupt-parent = <&gpx3>;
--		interrupts = <2 IRQ_TYPE_NONE>;
-+		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&max77686_irq>;
- 		wakeup-source;
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index bf83e6c212f5..6756f73fb220 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -688,8 +688,9 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	unsigned int baud, bits;
+ 	u32 usartdiv, mantissa, fraction, oversampling;
+ 	tcflag_t cflag = termios->c_cflag;
+-	u32 cr1, cr2, cr3;
++	u32 cr1, cr2, cr3, isr;
+ 	unsigned long flags;
++	int ret;
+ 
+ 	if (!stm32_port->hw_flow_control)
+ 		cflag &= ~CRTSCTS;
+@@ -698,6 +699,15 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
+ 
+ 	spin_lock_irqsave(&port->lock, flags);
+ 
++	ret = readl_relaxed_poll_timeout_atomic(port->membase + ofs->isr,
++						isr,
++						(isr & USART_SR_TC),
++						10, 100000);
++
++	/* Send the TC error message only when ISR_TC is not set. */
++	if (ret)
++		dev_err(port->dev, "Transmission is not complete\n");
++
+ 	/* Stop serial port and reset value */
+ 	writel_relaxed(0, port->membase + ofs->cr1);
+ 
 -- 
 2.30.2
 
