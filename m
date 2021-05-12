@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6841B37CCC8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 547A437CCCD
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233668AbhELQr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:47:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35726 "EHLO mail.kernel.org"
+        id S235919AbhELQru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:47:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243563AbhELQlc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:41:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F7A7611F0;
-        Wed, 12 May 2021 16:04:57 +0000 (UTC)
+        id S243570AbhELQld (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:41:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA9236197C;
+        Wed, 12 May 2021 16:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835498;
-        bh=xz92FOpheA9ZOF9VnEJ0f1K84zDSsAqk20jhK4woGiU=;
+        s=korg; t=1620835500;
+        bh=vEXn2+QEnkphoNPm6RRdHN5YvdmqZSX3NzzcoXql7Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pldctLgkzg1kS/kL8Ng80s7AF316oODsy55z34773hxEsj8PCNwy8Wdr1goOlFl8S
-         RlIbUuIkDm+jv47CqdEJHs7kzSILQIvfznmomLryMwhflnFWzRrCn7UCRU+uUfS2Ey
-         kFgKP3NkrkscM/nCTn+VFKscOywXaKEnG6Qe0lrA=
+        b=COLpOHiJfdPxEoj+/8ROgLPRGRfV7zfmsim2j/41/HRhvikIX9GY+JBfIxSqOBlmq
+         Qdgc/PfohTbDyEIzrY9boL/kCDld3lzBLxaYS+hOpk1OCzvmK4EEDM+s90hVDii31q
+         6yWK7HhAEArAm0zPTFfrgapVMfsAG9B54yI4uX+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 367/677] media: atomisp: Fix use after free in atomisp_alloc_css_stat_bufs()
-Date:   Wed, 12 May 2021 16:46:53 +0200
-Message-Id: <20210512144849.521353493@linuxfoundation.org>
+Subject: [PATCH 5.12 368/677] x86/kprobes: Retrieve correct opcode for group instruction
+Date:   Wed, 12 May 2021 16:46:54 +0200
+Message-Id: <20210512144849.552383168@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,38 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit ba11bbf303fafb33989e95473e409f6ab412b18d ]
+[ Upstream commit d60ad3d46f1d04a282c56159f1deb675c12733fd ]
 
-The "s3a_buf" is freed along with all the other items on the
-"asd->s3a_stats" list.  It leads to a double free and a use after free.
+Since the opcodes start from 0xff are group5 instruction group which is
+not 2 bytes opcode but the extended opcode determined by the MOD/RM byte.
 
-Link: https://lore.kernel.org/linux-media/X9dSO3RGf7r0pq2k@mwanda
-Fixes: ad85094b293e ("Revert "media: staging: atomisp: Remove driver"")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The commit abd82e533d88 ("x86/kprobes: Do not decode opcode in resume_execution()")
+used insn->opcode.bytes[1], but that is not correct. We have to refer
+the insn->modrm.bytes[1] instead.
+
+Fixes: abd82e533d88 ("x86/kprobes: Do not decode opcode in resume_execution()")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/161469872400.49483.18214724458034233166.stgit@devnote2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/atomisp_ioctl.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/x86/kernel/kprobes/core.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-index 2ae50decfc8b..9da82855552d 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-@@ -948,10 +948,8 @@ int atomisp_alloc_css_stat_bufs(struct atomisp_sub_device *asd,
- 		dev_dbg(isp->dev, "allocating %d dis buffers\n", count);
- 		while (count--) {
- 			dis_buf = kzalloc(sizeof(struct atomisp_dis_buf), GFP_KERNEL);
--			if (!dis_buf) {
--				kfree(s3a_buf);
-+			if (!dis_buf)
- 				goto error;
--			}
- 			if (atomisp_css_allocate_stat_buffers(
- 				asd, stream_id, NULL, dis_buf, NULL)) {
- 				kfree(dis_buf);
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index df776cdca327..08674e7a5d7b 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -448,7 +448,11 @@ static void set_resume_flags(struct kprobe *p, struct insn *insn)
+ 		break;
+ #endif
+ 	case 0xff:
+-		opcode = insn->opcode.bytes[1];
++		/*
++		 * Since the 0xff is an extended group opcode, the instruction
++		 * is determined by the MOD/RM byte.
++		 */
++		opcode = insn->modrm.bytes[0];
+ 		if ((opcode & 0x30) == 0x10) {
+ 			/*
+ 			 * call absolute, indirect
 -- 
 2.30.2
 
