@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD9ED37C5E9
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 149B037C5EC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:47:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234478AbhELPoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:44:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54482 "EHLO mail.kernel.org"
+        id S234609AbhELPoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:44:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235632AbhELPkL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:40:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EDE761C70;
-        Wed, 12 May 2021 15:20:56 +0000 (UTC)
+        id S236152AbhELPkX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:40:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 987C061C80;
+        Wed, 12 May 2021 15:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832856;
-        bh=RcW17yEpprrcJBjwBZinKm14ZuE9ekd/3tVi4ft1fcU=;
+        s=korg; t=1620832859;
+        bh=aJwLh03l/S/cg/+47Syo3T48YlqwqLcbcCZvP/yyZHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbwIcW12z9eau6Rmb3XbHh6MpxEgr8oo6lE0ABKBdUQN+FecFjzk1X0trd2ItsivP
-         Dm7D0XP8vMdpjhNC1Jkzv06CHJqo9cTjY5bYSNpxl6taulbchet0NxKDqeOgww2FK3
-         v63AwbYQCTEvpbltGQ4OIrvR+870t3CibsLIWN8g=
+        b=1ak/DNvKQwFmZTXy1DffTQt6ylH8F68Wbt/+4GJpBFQzeZnz0xmXBv56DQzl7GAUR
+         WAROIoJW8He2LnI6ybO4OnL+BL+IK+YL9hTOA/bbI0YzlQpb4sZpbSl91O0lVaLQXK
+         7ZMoqpVVXT0O4yGo/CUSSPA+m0yhJHFguFFgoLXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        "Dmitry V . Levin" <ldv@altlinux.org>
-Subject: [PATCH 5.10 452/530] perf beauty: Fix fsconfig generator
-Date:   Wed, 12 May 2021 16:49:22 +0200
-Message-Id: <20210512144834.616983638@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 453/530] drm/amd/pm: fix error code in smu_set_power_limit()
+Date:   Wed, 12 May 2021 16:49:23 +0200
+Message-Id: <20210512144834.657553332@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,85 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Chikunov <vt@altlinux.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2e1daee14e67fbf9b27280b974e2c680a22cabea ]
+[ Upstream commit bbdfe5aaef3c1d5c5e62fa235ef13f064e4c1c17 ]
 
-After gnulib update sed stopped matching `[[:space:]]*+' as before,
-causing the following compilation error:
+We should return -EINVAL instead of success if the "limit" is too high.
 
-  In file included from builtin-trace.c:719:
-  trace/beauty/generated/fsconfig_arrays.c:2:3: error: expected expression before ']' token
-      2 |  [] = "",
-	|   ^
-  trace/beauty/generated/fsconfig_arrays.c:2:3: error: array index in initializer not of integer type
-  trace/beauty/generated/fsconfig_arrays.c:2:3: note: (near initialization for 'fsconfig_cmds')
-
-Fix this by correcting the regular expression used in the generator.
-Also, clean up the script by removing redundant egrep, xargs, and printf
-invocations.
-
-Committer testing:
-
-Continues to work:
-
-  $ cat tools/perf/trace/beauty/fsconfig.sh
-  #!/bin/sh
-  # SPDX-License-Identifier: LGPL-2.1
-
-  if [ $# -ne 1 ] ; then
-  	linux_header_dir=tools/include/uapi/linux
-  else
-  	linux_header_dir=$1
-  fi
-
-  linux_mount=${linux_header_dir}/mount.h
-
-  printf "static const char *fsconfig_cmds[] = {\n"
-  ms='[[:space:]]*'
-  sed -nr "s/^${ms}FSCONFIG_([[:alnum:]_]+)${ms}=${ms}([[:digit:]]+)${ms},.*/\t[\2] = \"\1\",/p" \
-  	${linux_mount}
-  printf "};\n"
-  $ tools/perf/trace/beauty/fsconfig.sh
-  static const char *fsconfig_cmds[] = {
-  	[0] = "SET_FLAG",
-  	[1] = "SET_STRING",
-  	[2] = "SET_BINARY",
-  	[3] = "SET_PATH",
-  	[4] = "SET_PATH_EMPTY",
-  	[5] = "SET_FD",
-  	[6] = "CMD_CREATE",
-  	[7] = "CMD_RECONFIGURE",
-  };
-  $
-
-Fixes: d35293004a5e4 ("perf beauty: Add generator for fsconfig's 'cmd' arg values")
-Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
-Co-authored-by: Dmitry V. Levin <ldv@altlinux.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: http://lore.kernel.org/lkml/20210414182723.1670663-1-vt@altlinux.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: e098bc9612c2 ("drm/amd/pm: optimize the power related source code layout")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/trace/beauty/fsconfig.sh | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/trace/beauty/fsconfig.sh b/tools/perf/trace/beauty/fsconfig.sh
-index 83fb24df05c9..bc6ef7bb7a5f 100755
---- a/tools/perf/trace/beauty/fsconfig.sh
-+++ b/tools/perf/trace/beauty/fsconfig.sh
-@@ -10,8 +10,7 @@ fi
- linux_mount=${linux_header_dir}/mount.h
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
+index 5cc45b1cff7e..e5893218fa4b 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
+@@ -2001,6 +2001,7 @@ int smu_set_power_limit(struct smu_context *smu, uint32_t limit)
+ 		dev_err(smu->adev->dev,
+ 			"New power limit (%d) is over the max allowed %d\n",
+ 			limit, smu->max_power_limit);
++		ret = -EINVAL;
+ 		goto out;
+ 	}
  
- printf "static const char *fsconfig_cmds[] = {\n"
--regex='^[[:space:]]*+FSCONFIG_([[:alnum:]_]+)[[:space:]]*=[[:space:]]*([[:digit:]]+)[[:space:]]*,[[:space:]]*.*'
--egrep $regex ${linux_mount} | \
--	sed -r "s/$regex/\2 \1/g"	| \
--	xargs printf "\t[%s] = \"%s\",\n"
-+ms='[[:space:]]*'
-+sed -nr "s/^${ms}FSCONFIG_([[:alnum:]_]+)${ms}=${ms}([[:digit:]]+)${ms},.*/\t[\2] = \"\1\",/p" \
-+	${linux_mount}
- printf "};\n"
 -- 
 2.30.2
 
