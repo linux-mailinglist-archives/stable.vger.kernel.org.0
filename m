@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C04837CC5E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:04:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D567137CC0F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238156AbhELQol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:44:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
+        id S242474AbhELQkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:40:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238726AbhELQcv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238719AbhELQcv (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:32:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3340C61C41;
-        Wed, 12 May 2021 15:58:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DDEE6194B;
+        Wed, 12 May 2021 15:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835127;
-        bh=cM4N5uP7brzU1NXDwWlNLOAKsrLCvAENPmzXLCdGhZk=;
+        s=korg; t=1620835130;
+        bh=Tg//zAH72ySi3/bj3M1eWFuyB7wxIsdTUexY1QxiLZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNgKMkFxSanMVtqs2gBPpVBBX9LyJtbxE/O+uwFG6iYI6Jwz9ZDqa2bdKcCTuKFTW
-         FCa4CBBJU3ZaT2KLNPBXSStERZGo7KwwHg6piTQ6Zji5W1JeKCm1CJxPjzhdKstohT
-         dzMq7v8uXGq+eSafCgZ9+hI7h7ne63ltlKS7EfDw=
+        b=UGFZ05xY9PEFw3OHGIfHTTKcdkq10qfy5k+wkcuLuomdfdjBEHOlipGlUl0UZ0zfp
+         xtl6tdDZ3YpeTYiAZLzhC5YVAQkEdM+aiqH0/UZTdlwrBTg/hetpn8GyjZmHSwe/Fq
+         N0FC87+ljNoZ4vVoApBZ2VALo3ZpUHzpWkLOgL/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>,
+        Rijo Thomas <Rijo-john.Thomas@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 218/677] usb: gadget: pch_udc: Provide a GPIO line used on Intel Minnowboard (v1)
-Date:   Wed, 12 May 2021 16:44:24 +0200
-Message-Id: <20210512144844.474119604@linuxfoundation.org>
+Subject: [PATCH 5.12 219/677] crypto: ccp - fix command queuing to TEE ring buffer
+Date:   Wed, 12 May 2021 16:44:25 +0200
+Message-Id: <20210512144844.506767904@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,144 +42,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Rijo Thomas <Rijo-john.Thomas@amd.com>
 
-[ Upstream commit 049d3db625a652e23488db88b6104de4d5b62f16 ]
+[ Upstream commit 00aa6e65aa04e500a11a2c91e92a11c37b9e234d ]
 
-Intel Minnowboard (v1) uses SCH GPIO line SUS7 (i.e. 12)
-for VBUS sense. Provide a DMI based quirk to have it's being used.
+Multiple threads or clients can submit a command to the TEE ring
+buffer. This patch helps to synchronize command submission to the
+ring.
 
-Fixes: e20849a8c883 ("usb: gadget: pch_udc: Convert to use GPIO descriptors")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210323153626.54908-7-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+One thread shall write a command to a TEE ring buffer entry only if:
+
+ - Trusted OS has notified that the TEE command for the given entry
+   has been processed and driver has copied the TEE response into
+   client buffer.
+
+ - The command entry is empty and can be written into.
+
+After a command has been written to the TEE ring buffer, the global
+wptr (mutex protected) shall be incremented for use by next client.
+
+If PSP became unresponsive while processing TEE request from a
+client, then further command submission to queue will be disabled.
+
+Fixes: 33960acccfbd (crypto: ccp - add TEE support for Raven Ridge)
+Reviewed-by: Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>
+Signed-off-by: Rijo Thomas <Rijo-john.Thomas@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/pch_udc.c | 71 +++++++++++++++++++++++++-------
- 1 file changed, 57 insertions(+), 14 deletions(-)
+ drivers/crypto/ccp/tee-dev.c | 49 +++++++++++++++++++++++++-----------
+ drivers/crypto/ccp/tee-dev.h | 20 +++++++++++++--
+ 2 files changed, 53 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/pch_udc.c b/drivers/usb/gadget/udc/pch_udc.c
-index a39122f01cdb..fd3656d0f760 100644
---- a/drivers/usb/gadget/udc/pch_udc.c
-+++ b/drivers/usb/gadget/udc/pch_udc.c
-@@ -7,12 +7,14 @@
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/delay.h>
-+#include <linux/dmi.h>
- #include <linux/errno.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/gpio/machine.h>
- #include <linux/list.h>
- #include <linux/interrupt.h>
- #include <linux/usb/ch9.h>
- #include <linux/usb/gadget.h>
--#include <linux/gpio/consumer.h>
- #include <linux/irq.h>
+diff --git a/drivers/crypto/ccp/tee-dev.c b/drivers/crypto/ccp/tee-dev.c
+index 5e697a90ea7f..bcb81fef4211 100644
+--- a/drivers/crypto/ccp/tee-dev.c
++++ b/drivers/crypto/ccp/tee-dev.c
+@@ -36,6 +36,7 @@ static int tee_alloc_ring(struct psp_tee_device *tee, int ring_size)
+ 	if (!start_addr)
+ 		return -ENOMEM;
  
- #define PCH_VBUS_PERIOD		3000	/* VBUS polling period (msec) */
-@@ -1359,6 +1361,43 @@ static irqreturn_t pch_vbus_gpio_irq(int irq, void *data)
- 	return IRQ_HANDLED;
- }
- 
-+static struct gpiod_lookup_table minnowboard_udc_gpios = {
-+	.dev_id		= "0000:02:02.4",
-+	.table		= {
-+		GPIO_LOOKUP("sch_gpio.33158", 12, NULL, GPIO_ACTIVE_HIGH),
-+		{}
-+	},
-+};
-+
-+static const struct dmi_system_id pch_udc_gpio_dmi_table[] = {
-+	{
-+		.ident = "MinnowBoard",
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "MinnowBoard"),
-+		},
-+		.driver_data = &minnowboard_udc_gpios,
-+	},
-+	{ }
-+};
-+
-+static void pch_vbus_gpio_remove_table(void *table)
-+{
-+	gpiod_remove_lookup_table(table);
-+}
-+
-+static int pch_vbus_gpio_add_table(struct pch_udc_dev *dev)
-+{
-+	struct device *d = &dev->pdev->dev;
-+	const struct dmi_system_id *dmi;
-+
-+	dmi = dmi_first_match(pch_udc_gpio_dmi_table);
-+	if (!dmi)
-+		return 0;
-+
-+	gpiod_add_lookup_table(dmi->driver_data);
-+	return devm_add_action_or_reset(d, pch_vbus_gpio_remove_table, dmi->driver_data);
-+}
-+
- /**
-  * pch_vbus_gpio_init() - This API initializes GPIO port detecting VBUS.
-  * @dev:		Reference to the driver structure
-@@ -1377,8 +1416,12 @@ static int pch_vbus_gpio_init(struct pch_udc_dev *dev)
- 	dev->vbus_gpio.port = NULL;
- 	dev->vbus_gpio.intr = 0;
- 
-+	err = pch_vbus_gpio_add_table(dev);
-+	if (err)
-+		return err;
-+
- 	/* Retrieve the GPIO line from the USB gadget device */
--	gpiod = devm_gpiod_get(d, NULL, GPIOD_IN);
-+	gpiod = devm_gpiod_get_optional(d, NULL, GPIOD_IN);
- 	if (IS_ERR(gpiod))
- 		return PTR_ERR(gpiod);
- 	gpiod_set_consumer_name(gpiod, "pch_vbus");
-@@ -2888,14 +2931,20 @@ static void pch_udc_pcd_reinit(struct pch_udc_dev *dev)
-  * @dev:	Reference to the driver structure
-  *
-  * Return codes:
-- *	0: Success
-+ *	0:		Success
-+ *	-%ERRNO:	All kind of errors when retrieving VBUS GPIO
-  */
- static int pch_udc_pcd_init(struct pch_udc_dev *dev)
++	memset(start_addr, 0x0, ring_size);
+ 	rb_mgr->ring_start = start_addr;
+ 	rb_mgr->ring_size = ring_size;
+ 	rb_mgr->ring_pa = __psp_pa(start_addr);
+@@ -244,41 +245,54 @@ static int tee_submit_cmd(struct psp_tee_device *tee, enum tee_cmd_id cmd_id,
+ 			  void *buf, size_t len, struct tee_ring_cmd **resp)
  {
-+	int ret;
+ 	struct tee_ring_cmd *cmd;
+-	u32 rptr, wptr;
+ 	int nloop = 1000, ret = 0;
++	u32 rptr;
+ 
+ 	*resp = NULL;
+ 
+ 	mutex_lock(&tee->rb_mgr.mutex);
+ 
+-	wptr = tee->rb_mgr.wptr;
+-
+-	/* Check if ring buffer is full */
++	/* Loop until empty entry found in ring buffer */
+ 	do {
++		/* Get pointer to ring buffer command entry */
++		cmd = (struct tee_ring_cmd *)
++			(tee->rb_mgr.ring_start + tee->rb_mgr.wptr);
 +
- 	pch_udc_init(dev);
- 	pch_udc_pcd_reinit(dev);
--	pch_vbus_gpio_init(dev);
--	return 0;
+ 		rptr = ioread32(tee->io_regs + tee->vdata->ring_rptr_reg);
+ 
+-		if (!(wptr + sizeof(struct tee_ring_cmd) == rptr))
++		/* Check if ring buffer is full or command entry is waiting
++		 * for response from TEE
++		 */
++		if (!(tee->rb_mgr.wptr + sizeof(struct tee_ring_cmd) == rptr ||
++		      cmd->flag == CMD_WAITING_FOR_RESPONSE))
+ 			break;
+ 
+-		dev_info(tee->dev, "tee: ring buffer full. rptr = %u wptr = %u\n",
+-			 rptr, wptr);
++		dev_dbg(tee->dev, "tee: ring buffer full. rptr = %u wptr = %u\n",
++			rptr, tee->rb_mgr.wptr);
+ 
+-		/* Wait if ring buffer is full */
++		/* Wait if ring buffer is full or TEE is processing data */
+ 		mutex_unlock(&tee->rb_mgr.mutex);
+ 		schedule_timeout_interruptible(msecs_to_jiffies(10));
+ 		mutex_lock(&tee->rb_mgr.mutex);
+ 
+ 	} while (--nloop);
+ 
+-	if (!nloop && (wptr + sizeof(struct tee_ring_cmd) == rptr)) {
+-		dev_err(tee->dev, "tee: ring buffer full. rptr = %u wptr = %u\n",
+-			rptr, wptr);
++	if (!nloop &&
++	    (tee->rb_mgr.wptr + sizeof(struct tee_ring_cmd) == rptr ||
++	     cmd->flag == CMD_WAITING_FOR_RESPONSE)) {
++		dev_err(tee->dev, "tee: ring buffer full. rptr = %u wptr = %u response flag %u\n",
++			rptr, tee->rb_mgr.wptr, cmd->flag);
+ 		ret = -EBUSY;
+ 		goto unlock;
+ 	}
+ 
+-	/* Pointer to empty data entry in ring buffer */
+-	cmd = (struct tee_ring_cmd *)(tee->rb_mgr.ring_start + wptr);
++	/* Do not submit command if PSP got disabled while processing any
++	 * command in another thread
++	 */
++	if (psp_dead) {
++		ret = -EBUSY;
++		goto unlock;
++	}
+ 
+ 	/* Write command data into ring buffer */
+ 	cmd->cmd_id = cmd_id;
+@@ -286,6 +300,9 @@ static int tee_submit_cmd(struct psp_tee_device *tee, enum tee_cmd_id cmd_id,
+ 	memset(&cmd->buf[0], 0, sizeof(cmd->buf));
+ 	memcpy(&cmd->buf[0], buf, len);
+ 
++	/* Indicate driver is waiting for response */
++	cmd->flag = CMD_WAITING_FOR_RESPONSE;
 +
-+	ret = pch_vbus_gpio_init(dev);
-+	if (ret)
-+		pch_udc_exit(dev);
-+	return ret;
+ 	/* Update local copy of write pointer */
+ 	tee->rb_mgr.wptr += sizeof(struct tee_ring_cmd);
+ 	if (tee->rb_mgr.wptr >= tee->rb_mgr.ring_size)
+@@ -353,12 +370,16 @@ int psp_tee_process_cmd(enum tee_cmd_id cmd_id, void *buf, size_t len,
+ 		return ret;
+ 
+ 	ret = tee_wait_cmd_completion(tee, resp, TEE_DEFAULT_TIMEOUT);
+-	if (ret)
++	if (ret) {
++		resp->flag = CMD_RESPONSE_TIMEDOUT;
+ 		return ret;
++	}
+ 
+ 	memcpy(buf, &resp->buf[0], len);
+ 	*status = resp->status;
+ 
++	resp->flag = CMD_RESPONSE_COPIED;
++
+ 	return 0;
  }
+ EXPORT_SYMBOL(psp_tee_process_cmd);
+diff --git a/drivers/crypto/ccp/tee-dev.h b/drivers/crypto/ccp/tee-dev.h
+index f09960112115..49d26158b71e 100644
+--- a/drivers/crypto/ccp/tee-dev.h
++++ b/drivers/crypto/ccp/tee-dev.h
+@@ -1,6 +1,6 @@
+ /* SPDX-License-Identifier: MIT */
+ /*
+- * Copyright 2019 Advanced Micro Devices, Inc.
++ * Copyright (C) 2019,2021 Advanced Micro Devices, Inc.
+  *
+  * Author: Rijo Thomas <Rijo-john.Thomas@amd.com>
+  * Author: Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>
+@@ -18,7 +18,7 @@
+ #include <linux/mutex.h>
+ 
+ #define TEE_DEFAULT_TIMEOUT		10
+-#define MAX_BUFFER_SIZE			992
++#define MAX_BUFFER_SIZE			988
  
  /**
-@@ -3097,16 +3146,10 @@ static int pch_udc_probe(struct pci_dev *pdev,
+  * enum tee_ring_cmd_id - TEE interface commands for ring buffer configuration
+@@ -81,6 +81,20 @@ enum tee_cmd_state {
+ 	TEE_CMD_STATE_COMPLETED,
+ };
  
- 	dev->base_addr = pcim_iomap_table(pdev)[bar];
++/**
++ * enum cmd_resp_state - TEE command's response status maintained by driver
++ * @CMD_RESPONSE_INVALID:      initial state when no command is written to ring
++ * @CMD_WAITING_FOR_RESPONSE:  driver waiting for response from TEE
++ * @CMD_RESPONSE_TIMEDOUT:     failed to get response from TEE
++ * @CMD_RESPONSE_COPIED:       driver has copied response from TEE
++ */
++enum cmd_resp_state {
++	CMD_RESPONSE_INVALID,
++	CMD_WAITING_FOR_RESPONSE,
++	CMD_RESPONSE_TIMEDOUT,
++	CMD_RESPONSE_COPIED,
++};
++
+ /**
+  * struct tee_ring_cmd - Structure of the command buffer in TEE ring
+  * @cmd_id:      refers to &enum tee_cmd_id. Command id for the ring buffer
+@@ -91,6 +105,7 @@ enum tee_cmd_state {
+  * @pdata:       private data (currently unused)
+  * @res1:        reserved region
+  * @buf:         TEE command specific buffer
++ * @flag:	 refers to &enum cmd_resp_state
+  */
+ struct tee_ring_cmd {
+ 	u32 cmd_id;
+@@ -100,6 +115,7 @@ struct tee_ring_cmd {
+ 	u64 pdata;
+ 	u32 res1[2];
+ 	u8 buf[MAX_BUFFER_SIZE];
++	u32 flag;
  
--	/*
--	 * FIXME: add a GPIO descriptor table to pdev.dev using
--	 * gpiod_add_descriptor_table() from <linux/gpio/machine.h> based on
--	 * the PCI subsystem ID. The system-dependent GPIO is necessary for
--	 * VBUS operation.
--	 */
--
- 	/* initialize the hardware */
--	if (pch_udc_pcd_init(dev))
--		return -ENODEV;
-+	retval = pch_udc_pcd_init(dev);
-+	if (retval)
-+		return retval;
- 
- 	pci_enable_msi(pdev);
- 
+ 	/* Total size: 1024 bytes */
+ } __packed;
 -- 
 2.30.2
 
