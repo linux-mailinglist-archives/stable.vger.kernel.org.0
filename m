@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C22E537D25C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:12:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41B6637D25D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:12:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241856AbhELSI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:08:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50934 "EHLO mail.kernel.org"
+        id S241871AbhELSI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:08:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352343AbhELSDD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:03:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAAAE6142C;
-        Wed, 12 May 2021 18:01:53 +0000 (UTC)
+        id S1352358AbhELSDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:03:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A32D610F7;
+        Wed, 12 May 2021 18:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842514;
-        bh=5EPzffGvsdOFYPX4tm9bVja+aoL9dILhXUE4Y/w9V5Y=;
+        s=k20201202; t=1620842517;
+        bh=gnTMU6Xs2/CJccqLdPWSeki13bO2qGtRJKnpgvHRopk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gn9VAN+hyY55lYOUzOhOfyhxqpgFqRypSYc1/iWKOwKOyfanvsj0WPE94nqzMSlfn
-         c1kiKzINASy2YSlibzHYFYbujwBSPSyglz+ySaESwWyCHI16Skjl26R0bNwclBkPm2
-         lQE3w15+cRVpjtsraj6HZDcTKPi3zCDCNNZiiJN6iJweFkFUi2dunFJ/0SRrqFc0Oe
-         THhHbeV2f83vQ5hNjCHijJFJFI9T+/Jk066QR7H7NqDQWAyhIp3BJw2cC6fyikT2zT
-         TEDjTdgB7un3bvRCwc6eMwKTnGdJZ80azKMUczoyvdJTjKoCqEG9/YpQgkAwOgSkfH
-         950QY6s1UFEpg==
+        b=fI0Mr7FzyqcONOc9w5csqIEhhvW17Uac+8uWtDlL7AOh5ajG1e2j6b3Tt5vOnRQ0S
+         9uC22Q2si1xMcOoWxTdQUgJY/y1TA4xfxPmsgXIwb/9SaTfk1Ds4pBqk3jCZDGTgH/
+         fiuLzfvFt1Td+xPeYpD5xnTKF+eV4DlQtzM/gGkSe7WgStBFeaeDTTX1FgGD1Ldkgj
+         x4kgopXzMsWaQml++u/Fv7L3RJKMi57diHG49ZzIj65r+KoxCoM1m0lGTgieb2U1q7
+         xYM1Roy5FvnJ/u3FyrEHTrDl9pwuB4Fo7S2Y9nMnMDUYoZODw2n9EGaXkBmGsTQeUd
+         tuvadDLuSn87g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 33/37] net:CXGB4: fix leak if sk_buff is not used
-Date:   Wed, 12 May 2021 14:01:00 -0400
-Message-Id: <20210512180104.664121-33-sashal@kernel.org>
+Cc:     Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 34/37] ALSA: hda: generic: change the DAC ctl name for LO+SPK or LO+HP
+Date:   Wed, 12 May 2021 14:01:01 -0400
+Message-Id: <20210512180104.664121-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180104.664121-1-sashal@kernel.org>
 References: <20210512180104.664121-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,68 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 52bfcdd87e83d9e69d22da5f26b1512ffc81deed ]
+[ Upstream commit f48652bbe3ae62ba2835a396b7e01f063e51c4cd ]
 
-An sk_buff is allocated to send a flow control message, but it's not
-sent in all cases: in case the state is not appropiate to send it or if
-it can't be enqueued.
+Without this change, the DAC ctl's name could be changed only when
+the machine has both Speaker and Headphone, but we met some machines
+which only has Lineout and Headhpone, and the Lineout and Headphone
+share the Audio Mixer0 and DAC0, the ctl's name is set to "Front".
 
-In the first of these 2 cases, the sk_buff was discarded but not freed,
-producing a memory leak.
+On most of machines, the "Front" is used for Speaker only or Lineout
+only, but on this machine it is shared by Lineout and Headphone,
+This introduces an issue in the pipewire and pulseaudio, suppose users
+want the Headphone to be on and the Speaker/Lineout to be off, they
+could turn off the "Front", this works on most of the machines, but on
+this machine, the "Front" couldn't be turned off otherwise the
+headphone will be off too. Here we do some change to let the ctl's
+name change to "Headphone+LO" on this machine, and pipewire and
+pulseaudio already could handle "Headphone+LO" and "Speaker+LO".
+(https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/747)
 
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: http://bugs.launchpad.net/bugs/804178
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210504073917.22406-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/sge.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ sound/pci/hda/hda_generic.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-index 256fae15e032..1e5f2edb70cf 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-@@ -2563,12 +2563,12 @@ int cxgb4_ethofld_send_flowc(struct net_device *dev, u32 eotid, u32 tc)
- 	spin_lock_bh(&eosw_txq->lock);
- 	if (tc != FW_SCHED_CLS_NONE) {
- 		if (eosw_txq->state != CXGB4_EO_STATE_CLOSED)
--			goto out_unlock;
-+			goto out_free_skb;
- 
- 		next_state = CXGB4_EO_STATE_FLOWC_OPEN_SEND;
- 	} else {
- 		if (eosw_txq->state != CXGB4_EO_STATE_ACTIVE)
--			goto out_unlock;
-+			goto out_free_skb;
- 
- 		next_state = CXGB4_EO_STATE_FLOWC_CLOSE_SEND;
- 	}
-@@ -2604,17 +2604,19 @@ int cxgb4_ethofld_send_flowc(struct net_device *dev, u32 eotid, u32 tc)
- 		eosw_txq_flush_pending_skbs(eosw_txq);
- 
- 	ret = eosw_txq_enqueue(eosw_txq, skb);
--	if (ret) {
--		dev_consume_skb_any(skb);
--		goto out_unlock;
--	}
-+	if (ret)
-+		goto out_free_skb;
- 
- 	eosw_txq->state = next_state;
- 	eosw_txq->flowc_idx = eosw_txq->pidx;
- 	eosw_txq_advance(eosw_txq, 1);
- 	ethofld_xmit(dev, eosw_txq);
- 
--out_unlock:
-+	spin_unlock_bh(&eosw_txq->lock);
-+	return 0;
+diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
+index f5cba7afd1c6..ff0fb2d16d82 100644
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -1202,11 +1202,17 @@ static const char *get_line_out_pfx(struct hda_codec *codec, int ch,
+ 		*index = ch;
+ 		return "Headphone";
+ 	case AUTO_PIN_LINE_OUT:
+-		/* This deals with the case where we have two DACs and
+-		 * one LO, one HP and one Speaker */
+-		if (!ch && cfg->speaker_outs && cfg->hp_outs) {
+-			bool hp_lo_shared = !path_has_mixer(codec, spec->hp_paths[0], ctl_type);
+-			bool spk_lo_shared = !path_has_mixer(codec, spec->speaker_paths[0], ctl_type);
++		/* This deals with the case where one HP or one Speaker or
++		 * one HP + one Speaker need to share the DAC with LO
++		 */
++		if (!ch) {
++			bool hp_lo_shared = false, spk_lo_shared = false;
 +
-+out_free_skb:
-+	dev_consume_skb_any(skb);
- 	spin_unlock_bh(&eosw_txq->lock);
- 	return ret;
- }
++			if (cfg->speaker_outs)
++				spk_lo_shared = !path_has_mixer(codec,
++								spec->speaker_paths[0],	ctl_type);
++			if (cfg->hp_outs)
++				hp_lo_shared = !path_has_mixer(codec, spec->hp_paths[0], ctl_type);
+ 			if (hp_lo_shared && spk_lo_shared)
+ 				return spec->vmaster_mute.hook ? "PCM" : "Master";
+ 			if (hp_lo_shared)
 -- 
 2.30.2
 
