@@ -2,116 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 659F837ED83
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:41:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E804437ED81
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345976AbhELUhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 16:37:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60728 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357312AbhELSiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 14:38:23 -0400
-Received: from mail-oo1-xc36.google.com (mail-oo1-xc36.google.com [IPv6:2607:f8b0:4864:20::c36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB981C06135B
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 11:35:36 -0700 (PDT)
-Received: by mail-oo1-xc36.google.com with SMTP id s1-20020a4ac1010000b02901cfd9170ce2so5148309oop.12
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 11:35:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nZFOyyXBKCVxmTHei8WqaYqRSiqzWm2DLlZyJ5bNF0M=;
-        b=UGFmHWnZd5QjL4xBwBlac6osWkLaUHtX6929sOkYWN73jejloRBbtOgHAcLmZJWOQP
-         cwP5MKsrrkXojeQ9jJ4ocYHkwCvzNPRq8YshRqBrJUMGkW0tqpMiZxUQLCjCHsxIT6Cv
-         xoYjNIDazEhOTfurUtlAK4l2Eb2GBhbUODSHE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nZFOyyXBKCVxmTHei8WqaYqRSiqzWm2DLlZyJ5bNF0M=;
-        b=c0ZNSdXVyNcAMPw8JiD4M6xgupOn938mXcwTwYQvHGf/vkqpyqAtrHL174ZhzmC0PF
-         zAbiOtyhbOi3VjFPkt8BSQl0jj2uKrxmTlasQnO4n6PCwO/gsrIsJYdJRejtWL7pVoFu
-         x/gUb6lXtD0t57GsooJMiPFqqA+hhfP5hcsideUK2ufqhTME060X19EL69mjXzbJ2y7O
-         y97k7ROcgRTgUmOBUKm0trkjOz5ccKWgYao5FSxoaoKAtQIFBlJxTTH2NV5pze5JcdgR
-         H2nQMNGg70V48UtGzKu0zbUhemNY0GdHkJFsBu7aMopriZWZxt1gBWeMBRr+n4+Y/Qer
-         DFIw==
-X-Gm-Message-State: AOAM533+bObHEFwRlOwXCLbrv+WvTnAJRf9X4HiHxlnXliLpEZV9pIY0
-        gEgL2bNXIz44GCTditSIKJF0Lx8D0iQRgQ==
-X-Google-Smtp-Source: ABdhPJxkgrutnAdnrHPjXYhHRQU2Z3EMk/HtaaSxdQ6EjOMc3y0BbPABP7vtz+ligUgYQZpKU63FGQ==
-X-Received: by 2002:a4a:5242:: with SMTP id d63mr28719781oob.93.1620844535913;
-        Wed, 12 May 2021 11:35:35 -0700 (PDT)
-Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com. [209.85.167.181])
-        by smtp.gmail.com with ESMTPSA id p21sm56912ota.26.2021.05.12.11.35.35
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 May 2021 11:35:35 -0700 (PDT)
-Received: by mail-oi1-f181.google.com with SMTP id z3so21916070oib.5
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 11:35:35 -0700 (PDT)
-X-Received: by 2002:aca:f144:: with SMTP id p65mr8428701oih.117.1620844534896;
- Wed, 12 May 2021 11:35:34 -0700 (PDT)
+        id S1345937AbhELUhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 16:37:24 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36960 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1356720AbhELSg4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 14:36:56 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CIYWnH125672;
+        Wed, 12 May 2021 14:35:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=qiIPM4jFYVlQa2wBPzrk+yQsKPL4bBQC7RNPW3MJnVg=;
+ b=Ccn2Q+R+Eo5Hiuilhdbg1De7n0YWCZfEJUOhfXXjKUBmMR4u950309IU6B3b0iS5uLlO
+ kS7cIhB9Fa42PdnYR0kpsWenMCVtDhXzXOWgR2Rcl2KcjGTiAsfJaNKdwGWx99u8WdIm
+ 6uuJgffhgJN3bbhgvOvZ4qexfDFcATKkIAg1ORsd55z49E1GRrfvC3ronkJz7+/0IW+O
+ gNEhskMA1hUF17zYNpbgpuWOujptFLwk5/1II9cAHQd80LW8IruJtjz+Li/CoEdlkW4S
+ BmoFBacCFoFnndLLXHVyKnrK+BPbmwr+u/Ajv/vi7PB490R8M57OBUI3DIMWsU9udOst iA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38gkcn1scb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 14:35:45 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14CIYXfr125804;
+        Wed, 12 May 2021 14:35:44 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38gkcn1sbr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 14:35:44 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14CIT6GN027359;
+        Wed, 12 May 2021 18:35:42 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 38ef37h33p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 May 2021 18:35:42 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14CIZdOi2753178
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 May 2021 18:35:39 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 64C37A4040;
+        Wed, 12 May 2021 18:35:39 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 89752A4051;
+        Wed, 12 May 2021 18:35:38 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.63.111])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed, 12 May 2021 18:35:38 +0000 (GMT)
+Date:   Wed, 12 May 2021 20:35:36 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
+ callback
+Message-ID: <20210512203536.4209c29c.pasic@linux.ibm.com>
+In-Reply-To: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20210511180259.159598-1-johannes@sipsolutions.net> <20210511200110.11968c725b5c.Idd166365ebea2771c0c0a38c78b5060750f90e17@changeid>
-In-Reply-To: <20210511200110.11968c725b5c.Idd166365ebea2771c0c0a38c78b5060750f90e17@changeid>
-From:   Brian Norris <briannorris@chromium.org>
-Date:   Wed, 12 May 2021 11:35:23 -0700
-X-Gmail-Original-Message-ID: <CA+ASDXPwAWEEvWBdiLpMrm-PTcSH7QQHwx_T5nxN+faQt=Wi_g@mail.gmail.com>
-Message-ID: <CA+ASDXPwAWEEvWBdiLpMrm-PTcSH7QQHwx_T5nxN+faQt=Wi_g@mail.gmail.com>
-Subject: Re: [PATCH 14/18] ath10k: drop MPDU which has discard flag set by
- firmware for SDIO
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Wen Gong <wgong@codeaurora.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aoiz9GkGwDh40YfM0LFgbl2fYmQg0rU4
+X-Proofpoint-ORIG-GUID: 4B3MDJ4aV-8tuyS6Gt7ZsQGH332RzLe_
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-12_09:2021-05-12,2021-05-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 adultscore=0
+ phishscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105120120
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 11, 2021 at 11:03 AM Johannes Berg
-<johannes@sipsolutions.net> wrote:
-> --- a/drivers/net/wireless/ath/ath10k/htt_rx.c
-> +++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-> @@ -2312,6 +2312,11 @@ static bool ath10k_htt_rx_proc_rx_ind_hl(struct ath10k_htt *htt,
->         fw_desc = &rx->fw_desc;
->         rx_desc_len = fw_desc->len;
->
-> +       if (fw_desc->u.bits.discard) {
-> +               ath10k_dbg(ar, ATH10K_DBG_HTT, "htt discard mpdu\n");
-> +               goto err;
-> +       }
-> +
->         /* I have not yet seen any case where num_mpdu_ranges > 1.
->          * qcacld does not seem handle that case either, so we introduce the
->          * same limitiation here as well.
-> diff --git a/drivers/net/wireless/ath/ath10k/rx_desc.h b/drivers/net/wireless/ath/ath10k/rx_desc.h
-> index f2b6bf8f0d60..705b6295e466 100644
-> --- a/drivers/net/wireless/ath/ath10k/rx_desc.h
-> +++ b/drivers/net/wireless/ath/ath10k/rx_desc.h
-> @@ -1282,7 +1282,19 @@ struct fw_rx_desc_base {
->  #define FW_RX_DESC_UDP              (1 << 6)
->
->  struct fw_rx_desc_hl {
-> -       u8 info0;
-> +       union {
-> +               struct {
-> +               u8 discard:1,
-> +                  forward:1,
-> +                  any_err:1,
-> +                  dup_err:1,
-> +                  reserved:1,
-> +                  inspect:1,
-> +                  extension:2;
-> +               } bits;
-> +               u8 info0;
-> +       } u;
+On Mon, 10 May 2021 17:48:37 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-Am I misled here, or are you introducing endianness issues here? From C99:
+> The mdev remove callback for the vfio_ap device driver bails out with
+> -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+> to prevent the mdev from being removed while in use; however, returning a
+> non-zero rc does not prevent removal. This could result in a memory leak
+> of the resources allocated when the mdev was created. In addition, the
+> KVM guest will still have access to the AP devices assigned to the mdev
+> even though the mdev no longer exists.
+> 
+> To prevent this scenario, cleanup will be done - including unplugging the
+> AP adapters, domains and control domains - regardless of whether the mdev
+> is in use by a KVM guest or not.
+> 
+> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
+>  1 file changed, 2 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index b2c7e10dfdcd..f90c9103dac2 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -26,6 +26,7 @@
+> 
+>  static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+>  static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
+> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev);
+> 
+>  static int match_apqn(struct device *dev, const void *data)
+>  {
+> @@ -366,17 +367,7 @@ static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> 
+>  	mutex_lock(&matrix_dev->lock);
+> -
+> -	/*
+> -	 * If the KVM pointer is in flux or the guest is running, disallow
+> -	 * un-assignment of control domain.
+> -	 */
+> -	if (matrix_mdev->kvm_busy || matrix_mdev->kvm) {
+> -		mutex_unlock(&matrix_dev->lock);
+> -		return -EBUSY;
+> -	}
+> -
+> -	vfio_ap_mdev_reset_queues(mdev);
+> +	vfio_ap_mdev_unset_kvm(matrix_mdev);
 
-"The order of allocation of bit-fields within a unit (high-order to
-low-order or low-order to high-order) is implementation-defined."
+>  	list_del(&matrix_mdev->node);
+>  	kfree(matrix_mdev);
 
-Now, we're pretty well attuned to two implementations (big and little
-endian), and this should work for the most common one (little endian),
-but it's not wise to assume everyone is little endian.
+Are we at risk of handle_pqap() in arch/s390/kvm/priv.c using an
+already freed pqap_hook (which is a member of the matrix_mdev pointee
+that is freed just above my comment).
 
-Brian
+I'm aware of the fact that vfio_ap_mdev_unset_kvm() does a
+matrix_mdev->kvm->arch.crypto.pqap_hook = NULL but that is
+AFRICT not done under any lock relevant for handle_pqap(). I guess
+the idea is, I guess, the check cited below 
+
+static int handle_pqap(struct kvm_vcpu *vcpu)
+[..]
+        /*                                                                      
+         * Verify that the hook callback is registered, lock the owner          
+         * and call the hook.                                                   
+         */                                                                     
+        if (vcpu->kvm->arch.crypto.pqap_hook) {                                 
+                if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))   
+                        return -EOPNOTSUPP;                                     
+                ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);             
+                module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);            
+                if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)             
+                        kvm_s390_set_psw_cc(vcpu, 3);                           
+                return ret;                                                     
+        }
+
+is going to catch it, but I'm not sure it is guaranteed to catch it.
+Opinions?
+
+Regards,
+Halil
+
+
+>  	mdev_set_drvdata(mdev, NULL);
+
