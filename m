@@ -2,121 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94B8337BC78
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 14:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2008A37BC7E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 14:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231948AbhELM0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 08:26:45 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:43559 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231956AbhELM0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 08:26:44 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id B4A47116E;
-        Wed, 12 May 2021 08:25:36 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 08:25:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=QCkspa
-        Fps7AImydLym0yBT4pp/k85Wtjmt/7ZKamCzs=; b=Jz/lHCsHe6kpKyY7yn84da
-        h9vCNAk80bLA5SljKJWuxc5IEaS/IZ1TdiN49b/MjEqoPfsFWGh5yUYbfKx8V0hH
-        wXBvvs2M/s7fIbmY+4kb8SZO0AohTqSn07T6QCTJ3P4qLEy1MtsKKXe1PQMt1BvI
-        MTnBOqCkHGL03SoVSHVz4B4sBzTteP8Gj3ZVumOtfXqenBR6qrhNtR56x5ARI3/G
-        4ESYRtl0VXMnO78pZu2NL6Eb1PXXd6Zhmr4F5A5qzf4PdMo+xuOWVjHbcV2ioOkh
-        ny29OAJKLoqVEONPp4KUlDh7OzabYnRUk83/3s4yRCe2P4RYrMVpVL6yp16yfJpg
-        ==
-X-ME-Sender: <xms:P8mbYOEv9m7k2kgK-WURGnMaC7bmz3yAd642Urhq4lsj6hcAko07Fg>
-    <xme:P8mbYPWkOPf85KWSHngSrbYAhOHDeedQVRScHTX1dwWdUv_YS-uSfPBSw9tqeBsa9
-    HGXU7_TCzCfsQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddggeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:P8mbYIKyjqaWCYPMcZAw0h-k-j3lH00udqUGzLcNeUHwl8Fxq5yqSA>
-    <xmx:P8mbYIE53q8EHnet8wn8Z5mXp3BNfD4_gS1c3RlX5LuCodZSMNGdoQ>
-    <xmx:P8mbYEUmeKa6-k6js2OuozjUHrdZkA-BfCU-Mibd8pQVEpe_H3iuTQ>
-    <xmx:QMmbYNfdWswbA1I83MRozKXgyxH4NJGdkLeD7WzUfo5qeXa769RDijy4zRY>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 08:25:35 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] serial: stm32: fix tx_empty condition" failed to apply to 4.9-stable tree
-To:     erwan.leray@foss.st.com, gregkh@linuxfoundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 14:25:33 +0200
-Message-ID: <1620822333134199@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S232182AbhELMaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 08:30:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34790 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232184AbhELMaI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 08:30:08 -0400
+Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 256A5C061574
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 05:28:58 -0700 (PDT)
+Received: by mail-qv1-xf4a.google.com with SMTP id c5-20020a0ca9c50000b02901aede9b5061so18708440qvb.14
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 05:28:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=+AQTpNeBGOoeX2gbfwzdgXLRL1J2RrfI8xvj96/f0U8=;
+        b=XD2guawc7GhVI7/e/1f6Y3/+A2InuDR4byTTurz4sYAddmjPIw7417Xwfd7m/FNE4t
+         m0BZCRyak22VYxupCrngNwO5l0HRkgA7BPkhhQd7BytyKlfWcFy8njuOaSCLdRxGFPdi
+         JaYeRJZGrX/qFrnisScza3kcIS1anSY4qN8cNl6CrVpmORvdqPqSwGpzFvstqJUpXxLC
+         HN3uU4jGeFzxAgwFQWABbE4iPUgxqq2QWKCKyHOFs8z/YrArY5nrIhimaU95qylqCYS4
+         ia+4tKmdPhx2CIi7KVAHUz+L8nX+0D3m2WJAKmARy5iyn6hSh5JOvBgMDYKOAaorxIuN
+         j0Ww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=+AQTpNeBGOoeX2gbfwzdgXLRL1J2RrfI8xvj96/f0U8=;
+        b=T9biPu8ruJjEN3TKVlrxGPH3bHwau70XwI/dM0YOuxCBfM4B6jAfe4r1zeaC3NAetS
+         eYn66p0oMr+QOR5jTi18MLnc/Es0sRia0IARUgZhRAeWxKXy651wjcorUm+fxheRcSOY
+         AuEox+FNLMNUOrsCfwsg0wODqPKmRGoN/8HGZJQXzI0+G6iLaTM0g9Wv/Oq8nNo6G3A3
+         8iRyV5gW0B+0oKinagVFLwbQ7kcG0c8u7z2yWubvpOKI3C0zZjhnAT/+yy3N684bUTxf
+         mS/24kPtP9bokxsX1whC+GJxq8+y+ZHSW7o/LaoRJBaS8mOhmL7aVZZ2J+LTXHywz+90
+         fZsg==
+X-Gm-Message-State: AOAM530S/id8Q7ilMG21/d/1C9ZUz8WuxcVuH8h1QYrcsVkBpIP6nQKv
+        pkXgOMoffHxzvC0q632FWNR1GohKiunThQQVfmmpugEUUGR9RoY+Mlsht6TOThGFjHeTb98A+gf
+        bir+7q+HOMzJBBWaU7E96g59dn1zAgg0oe1k2A0VmllOg0LQYtbVmNGiB6pIiMiw4
+X-Google-Smtp-Source: ABdhPJxysQKjEpY84vAZUziQqrHOiXOv5XlntyNSlcNO5VEvt/SxAzlf0ZpVaLgX5/WEDo8hI4+rx2PmyNyt
+X-Received: from r2d2-qp.c.googlers.com ([fda3:e722:ac3:10:28:9cb1:c0a8:1652])
+ (user=qperret job=sendgmr) by 2002:a05:6214:20e7:: with SMTP id
+ 7mr34549701qvk.36.1620822537494; Wed, 12 May 2021 05:28:57 -0700 (PDT)
+Date:   Wed, 12 May 2021 12:28:51 +0000
+Message-Id: <20210512122853.3243417-1-qperret@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.1.607.g51e8a6a459-goog
+Subject: Revert memblock backports with missing dependencies
+From:   Quentin Perret <qperret@google.com>
+To:     stable@vger.kernel.org
+Cc:     alexandre.torgue@foss.st.com, robh+dt@kernel.org,
+        f.fainelli@gmail.com, ardb@kernel.org, gregkh@linuxfoundation.org,
+        sashal@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi all,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+A breakage in 5.4.102 has been reported [1] due to the backport of the
+two following upstream commits:
 
-thanks,
+  8a5a75e5e9e5 ("of/fdt: Make sure no-map does not remove already reserved regions")
+  86588296acbf ("fdt: Properly handle "no-map" field in the memory region")
 
-greg k-h
+As Alexandre noted in the original thread, the backport missed
+dependencies. But since these patches were not really fixes in the first
+place, it seems preferable to simply revert them from 5.4 and earlier.
 
------------------- original commit in Linus's tree ------------------
+[1] https://lore.kernel.org/linux-arm-kernel/CAL_Jsq+LUPZFhXd+j-xM67rZB=pvEvZM+1sfckip0Lqq02PkZQ@mail.gmail.com/
 
-From 3db1d52466dc11dca4e47ef12a6e6e97f846af62 Mon Sep 17 00:00:00 2001
-From: Erwan Le Ray <erwan.leray@foss.st.com>
-Date: Thu, 4 Mar 2021 17:23:07 +0100
-Subject: [PATCH] serial: stm32: fix tx_empty condition
+Quentin Perret (2):
+  Revert "of/fdt: Make sure no-map does not remove already reserved
+    regions"
+  Revert "fdt: Properly handle "no-map" field in the memory region"
 
-In "tx_empty", we should poll TC bit in both DMA and PIO modes (instead of
-TXE) to check transmission data register has been transmitted independently
-of the FIFO mode. TC indicates that both transmit register and shift
-register are empty. When shift register is empty, tx_empty should return
-TIOCSER_TEMT instead of TC value.
+ drivers/of/fdt.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-Cleans the USART_CR_TC TCCF register define (transmission complete clear
-flag) as it is duplicate of USART_ICR_TCCF.
-
-Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
-Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-13-erwan.leray@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index d205fce1950a..99dfa884cbef 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -515,7 +515,10 @@ static unsigned int stm32_usart_tx_empty(struct uart_port *port)
- 	struct stm32_port *stm32_port = to_stm32_port(port);
- 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
- 
--	return readl_relaxed(port->membase + ofs->isr) & USART_SR_TXE;
-+	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
-+		return TIOCSER_TEMT;
-+
-+	return 0;
- }
- 
- static void stm32_usart_set_mctrl(struct uart_port *port, unsigned int mctrl)
-diff --git a/drivers/tty/serial/stm32-usart.h b/drivers/tty/serial/stm32-usart.h
-index cb4f327c46db..94b568aa46bb 100644
---- a/drivers/tty/serial/stm32-usart.h
-+++ b/drivers/tty/serial/stm32-usart.h
-@@ -127,9 +127,6 @@ struct stm32_usart_info stm32h7_info = {
- /* Dummy bits */
- #define USART_SR_DUMMY_RX	BIT(16)
- 
--/* USART_ICR (F7) */
--#define USART_CR_TC		BIT(6)
--
- /* USART_DR */
- #define USART_DR_MASK		GENMASK(8, 0)
- 
+-- 
+2.31.1.607.g51e8a6a459-goog
 
