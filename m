@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DE037C99A
+	by mail.lfdr.de (Postfix) with ESMTP id 496CC37C99B
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236500AbhELQUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:20:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51294 "EHLO mail.kernel.org"
+        id S236513AbhELQUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:20:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237810AbhELQN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237038AbhELQN0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:13:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1998561289;
-        Wed, 12 May 2021 15:41:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D3B6613F7;
+        Wed, 12 May 2021 15:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834096;
-        bh=Pm0127+5tLcpQGDu5CRbT375tfQAZnIceadxP5CHC+I=;
+        s=korg; t=1620834099;
+        bh=8TVqaRWtXkycjf8XmVkiEBiZDcz3aCqEO5QImUkOQGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnprMFZnXK/6NFpn1WX+M0IuVnDhGkA4M5LoS97OG3CJ1N46gMWjF7+3b8I306dxL
-         5PwINC43NWUFpmaZ1OMYsMEC3A+GDRXZdpbvN6LTz/57FARFgfAc95KLR1xbXasBsu
-         58j7FJIbKoob7Eoy9KUw8UdSXQ62mMVAgzFOH38g=
+        b=FnQSrpTWZLB8RzvZ9VR/tsNTQUCfLrVSiUaWjod1ayBJhjQfu/z0NH7tJOYGIGYuC
+         8di+wssCWpdvxHhePi7aJ5qy6lQg3qYOqPK32anYZU3MX9hT9CwzJ0wtCfUwNmCw/n
+         r7mbIETUPylBO9MpibDMR3PC+GqINAKwVqhnLnHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Orson Zhai <orson.zhai@unisoc.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 372/601] scsi: ibmvfc: Fix invalid state machine BUG_ON()
-Date:   Wed, 12 May 2021 16:47:29 +0200
-Message-Id: <20210512144840.045661020@linuxfoundation.org>
+Subject: [PATCH 5.11 373/601] mailbox: sprd: Introduce refcnt when clients requests/free channels
+Date:   Wed, 12 May 2021 16:47:30 +0200
+Message-Id: <20210512144840.081061497@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,130 +41,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Orson Zhai <orson.zhai@unisoc.com>
 
-[ Upstream commit 15cfef8623a449d40d16541687afd58e78033be3 ]
+[ Upstream commit 9468ab84032f96496e998cfa173cd1d0ac316bcd ]
 
-This fixes an issue hitting the BUG_ON() in ibmvfc_do_work(). When going
-through a host action of IBMVFC_HOST_ACTION_RESET, we change the action to
-IBMVFC_HOST_ACTION_TGT_DEL, then drop the host lock, and reset the CRQ,
-which changes the host state to IBMVFC_NO_CRQ. If, prior to setting the
-host state to IBMVFC_NO_CRQ, ibmvfc_init_host() is called, it can then end
-up changing the host action to IBMVFC_HOST_ACTION_INIT.  If we then change
-the host state to IBMVFC_NO_CRQ, we will then hit the BUG_ON().
+Unisoc mailbox has no way to be enabled/disabled for any single channel.
+They can only be set to startup or shutdown as a whole device at same time.
 
-Make a couple of changes to avoid this. Leave the host action to be
-IBMVFC_HOST_ACTION_RESET or IBMVFC_HOST_ACTION_REENABLE until after we drop
-the host lock and reset or reenable the CRQ. Also harden the host state
-machine to ensure we cannot leave the reset / reenable state until we've
-finished processing the reset or reenable.
+Add a variable to count references to avoid mailbox FIFO being reset
+unexpectedly when clients are requesting or freeing channels.
 
-Link: https://lore.kernel.org/r/20210413001009.902400-1-tyreld@linux.ibm.com
-Fixes: 73ee5d867287 ("[SCSI] ibmvfc: Fix soft lockup on resume")
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
-[tyreld: added fixes tag]
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-[mkp: fix comment checkpatch warnings]
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Also add a lock to dismiss possible conflicts from register r/w in
+different startup or shutdown threads. And fix the crash problem when early
+interrupts come from channel which has not been requested by client yet.
+
+Fixes: ca27fc26cd22 ("mailbox: sprd: Add Spreadtrum mailbox driver")
+Signed-off-by: Orson Zhai <orson.zhai@unisoc.com>
+Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 57 ++++++++++++++++++++++------------
- 1 file changed, 38 insertions(+), 19 deletions(-)
+ drivers/mailbox/sprd-mailbox.c | 43 +++++++++++++++++++++++-----------
+ 1 file changed, 29 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 65f168c41d23..8ac9eb962bff 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -560,8 +560,17 @@ static void ibmvfc_set_host_action(struct ibmvfc_host *vhost,
- 		if (vhost->action == IBMVFC_HOST_ACTION_ALLOC_TGTS)
- 			vhost->action = action;
- 		break;
-+	case IBMVFC_HOST_ACTION_REENABLE:
-+	case IBMVFC_HOST_ACTION_RESET:
-+		vhost->action = action;
-+		break;
- 	case IBMVFC_HOST_ACTION_INIT:
- 	case IBMVFC_HOST_ACTION_TGT_DEL:
-+	case IBMVFC_HOST_ACTION_LOGO:
-+	case IBMVFC_HOST_ACTION_QUERY_TGTS:
-+	case IBMVFC_HOST_ACTION_TGT_DEL_FAILED:
-+	case IBMVFC_HOST_ACTION_NONE:
-+	default:
- 		switch (vhost->action) {
- 		case IBMVFC_HOST_ACTION_RESET:
- 		case IBMVFC_HOST_ACTION_REENABLE:
-@@ -571,15 +580,6 @@ static void ibmvfc_set_host_action(struct ibmvfc_host *vhost,
- 			break;
- 		}
- 		break;
--	case IBMVFC_HOST_ACTION_LOGO:
--	case IBMVFC_HOST_ACTION_QUERY_TGTS:
--	case IBMVFC_HOST_ACTION_TGT_DEL_FAILED:
--	case IBMVFC_HOST_ACTION_NONE:
--	case IBMVFC_HOST_ACTION_RESET:
--	case IBMVFC_HOST_ACTION_REENABLE:
--	default:
--		vhost->action = action;
--		break;
- 	}
+diff --git a/drivers/mailbox/sprd-mailbox.c b/drivers/mailbox/sprd-mailbox.c
+index 4c325301a2fe..94d9067dc8d0 100644
+--- a/drivers/mailbox/sprd-mailbox.c
++++ b/drivers/mailbox/sprd-mailbox.c
+@@ -60,6 +60,8 @@ struct sprd_mbox_priv {
+ 	struct clk		*clk;
+ 	u32			outbox_fifo_depth;
+ 
++	struct mutex		lock;
++	u32			refcnt;
+ 	struct mbox_chan	chan[SPRD_MBOX_CHAN_MAX];
+ };
+ 
+@@ -115,7 +117,11 @@ static irqreturn_t sprd_mbox_outbox_isr(int irq, void *data)
+ 		id = readl(priv->outbox_base + SPRD_MBOX_ID);
+ 
+ 		chan = &priv->chan[id];
+-		mbox_chan_received_data(chan, (void *)msg);
++		if (chan->cl)
++			mbox_chan_received_data(chan, (void *)msg);
++		else
++			dev_warn_ratelimited(priv->dev,
++				    "message's been dropped at ch[%d]\n", id);
+ 
+ 		/* Trigger to update outbox FIFO pointer */
+ 		writel(0x1, priv->outbox_base + SPRD_MBOX_TRIGGER);
+@@ -215,18 +221,22 @@ static int sprd_mbox_startup(struct mbox_chan *chan)
+ 	struct sprd_mbox_priv *priv = to_sprd_mbox_priv(chan->mbox);
+ 	u32 val;
+ 
+-	/* Select outbox FIFO mode and reset the outbox FIFO status */
+-	writel(0x0, priv->outbox_base + SPRD_MBOX_FIFO_RST);
++	mutex_lock(&priv->lock);
++	if (priv->refcnt++ == 0) {
++		/* Select outbox FIFO mode and reset the outbox FIFO status */
++		writel(0x0, priv->outbox_base + SPRD_MBOX_FIFO_RST);
+ 
+-	/* Enable inbox FIFO overflow and delivery interrupt */
+-	val = readl(priv->inbox_base + SPRD_MBOX_IRQ_MSK);
+-	val &= ~(SPRD_INBOX_FIFO_OVERFLOW_IRQ | SPRD_INBOX_FIFO_DELIVER_IRQ);
+-	writel(val, priv->inbox_base + SPRD_MBOX_IRQ_MSK);
++		/* Enable inbox FIFO overflow and delivery interrupt */
++		val = readl(priv->inbox_base + SPRD_MBOX_IRQ_MSK);
++		val &= ~(SPRD_INBOX_FIFO_OVERFLOW_IRQ | SPRD_INBOX_FIFO_DELIVER_IRQ);
++		writel(val, priv->inbox_base + SPRD_MBOX_IRQ_MSK);
+ 
+-	/* Enable outbox FIFO not empty interrupt */
+-	val = readl(priv->outbox_base + SPRD_MBOX_IRQ_MSK);
+-	val &= ~SPRD_OUTBOX_FIFO_NOT_EMPTY_IRQ;
+-	writel(val, priv->outbox_base + SPRD_MBOX_IRQ_MSK);
++		/* Enable outbox FIFO not empty interrupt */
++		val = readl(priv->outbox_base + SPRD_MBOX_IRQ_MSK);
++		val &= ~SPRD_OUTBOX_FIFO_NOT_EMPTY_IRQ;
++		writel(val, priv->outbox_base + SPRD_MBOX_IRQ_MSK);
++	}
++	mutex_unlock(&priv->lock);
+ 
+ 	return 0;
+ }
+@@ -235,9 +245,13 @@ static void sprd_mbox_shutdown(struct mbox_chan *chan)
+ {
+ 	struct sprd_mbox_priv *priv = to_sprd_mbox_priv(chan->mbox);
+ 
+-	/* Disable inbox & outbox interrupt */
+-	writel(SPRD_INBOX_FIFO_IRQ_MASK, priv->inbox_base + SPRD_MBOX_IRQ_MSK);
+-	writel(SPRD_OUTBOX_FIFO_IRQ_MASK, priv->outbox_base + SPRD_MBOX_IRQ_MSK);
++	mutex_lock(&priv->lock);
++	if (--priv->refcnt == 0) {
++		/* Disable inbox & outbox interrupt */
++		writel(SPRD_INBOX_FIFO_IRQ_MASK, priv->inbox_base + SPRD_MBOX_IRQ_MSK);
++		writel(SPRD_OUTBOX_FIFO_IRQ_MASK, priv->outbox_base + SPRD_MBOX_IRQ_MSK);
++	}
++	mutex_unlock(&priv->lock);
  }
  
-@@ -4723,26 +4723,45 @@ static void ibmvfc_do_work(struct ibmvfc_host *vhost)
- 	case IBMVFC_HOST_ACTION_INIT_WAIT:
- 		break;
- 	case IBMVFC_HOST_ACTION_RESET:
--		vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
- 		spin_unlock_irqrestore(vhost->host->host_lock, flags);
- 		rc = ibmvfc_reset_crq(vhost);
-+
- 		spin_lock_irqsave(vhost->host->host_lock, flags);
--		if (rc == H_CLOSED)
-+		if (!rc || rc == H_CLOSED)
- 			vio_enable_interrupts(to_vio_dev(vhost->dev));
--		if (rc || (rc = ibmvfc_send_crq_init(vhost)) ||
--		    (rc = vio_enable_interrupts(to_vio_dev(vhost->dev)))) {
--			ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
--			dev_err(vhost->dev, "Error after reset (rc=%d)\n", rc);
-+		if (vhost->action == IBMVFC_HOST_ACTION_RESET) {
-+			/*
-+			 * The only action we could have changed to would have
-+			 * been reenable, in which case, we skip the rest of
-+			 * this path and wait until we've done the re-enable
-+			 * before sending the crq init.
-+			 */
-+			vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
-+
-+			if (rc || (rc = ibmvfc_send_crq_init(vhost)) ||
-+			    (rc = vio_enable_interrupts(to_vio_dev(vhost->dev)))) {
-+				ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
-+				dev_err(vhost->dev, "Error after reset (rc=%d)\n", rc);
-+			}
- 		}
- 		break;
- 	case IBMVFC_HOST_ACTION_REENABLE:
--		vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
- 		spin_unlock_irqrestore(vhost->host->host_lock, flags);
- 		rc = ibmvfc_reenable_crq_queue(vhost);
-+
- 		spin_lock_irqsave(vhost->host->host_lock, flags);
--		if (rc || (rc = ibmvfc_send_crq_init(vhost))) {
--			ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
--			dev_err(vhost->dev, "Error after enable (rc=%d)\n", rc);
-+		if (vhost->action == IBMVFC_HOST_ACTION_REENABLE) {
-+			/*
-+			 * The only action we could have changed to would have
-+			 * been reset, in which case, we skip the rest of this
-+			 * path and wait until we've done the reset before
-+			 * sending the crq init.
-+			 */
-+			vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
-+			if (rc || (rc = ibmvfc_send_crq_init(vhost))) {
-+				ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
-+				dev_err(vhost->dev, "Error after enable (rc=%d)\n", rc);
-+			}
- 		}
- 		break;
- 	case IBMVFC_HOST_ACTION_LOGO:
+ static const struct mbox_chan_ops sprd_mbox_ops = {
+@@ -266,6 +280,7 @@ static int sprd_mbox_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	priv->dev = dev;
++	mutex_init(&priv->lock);
+ 
+ 	/*
+ 	 * The Spreadtrum mailbox uses an inbox to send messages to the target
 -- 
 2.30.2
 
