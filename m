@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1760D37C69E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 842A237C67E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234874AbhELPwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:52:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50860 "EHLO mail.kernel.org"
+        id S233159AbhELPvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:51:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237064AbhELPsI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:48:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 192A061CAE;
-        Wed, 12 May 2021 15:24:32 +0000 (UTC)
+        id S236894AbhELPrM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:47:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8FAD61CA3;
+        Wed, 12 May 2021 15:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833073;
-        bh=ZLkUJ4qqa5EA5cBiHgrrIc0t+Xm4tzFP8hLxBcO1HA4=;
+        s=korg; t=1620833039;
+        bh=SQsyFzsfdIXn5S+wlW+H+nxr6GGUlvrq4fWV21u146E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5A/slMDBExaRpmwScv1JZMhyHk7DBjPAEo31h//q0VsoIM3JRbcLLrNwWxB0nGZm
-         MrMQH3EvuLpdJvzuZBt8pus26NMY3C7mdWOGtuSRwDQDMmR5d/KMODqEbLQfhCt1z8
-         LNCbeTOOEHRp/MFiHKSqdmhnusmx+lGIYReR3BxU=
+        b=CQeplcaAlx3M/86tglWueYlQH5T7JAi5JzszN5pNHhjOTzdQND+qmrLxeDpXtlNeH
+         s+fhK/E4hMMa1sgIUDwHwkSL8vmtjp5g5kqpoYK4ruoGGki4JX98fRM1JGRTfmjS1u
+         4byESYD15bMFd3gsDqfkDEWqZws4MmSNJ+SdabI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
         Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 524/530] bpf, ringbuf: Deny reserve of buffers larger than ringbuf
-Date:   Wed, 12 May 2021 16:50:34 +0200
-Message-Id: <20210512144836.969469485@linuxfoundation.org>
+Subject: [PATCH 5.10 525/530] bpf: Prevent writable memory-mapping of read-only ringbuf pages
+Date:   Wed, 12 May 2021 16:50:35 +0200
+Message-Id: <20210512144837.001206763@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,37 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-commit 4b81ccebaeee885ab1aa1438133f2991e3a2b6ea upstream.
+commit 04ea3086c4d73da7009de1e84962a904139af219 upstream.
 
-A BPF program might try to reserve a buffer larger than the ringbuf size.
-If the consumer pointer is way ahead of the producer, that would be
-successfully reserved, allowing the BPF program to read or write out of
-the ringbuf allocated area.
+Only the very first page of BPF ringbuf that contains consumer position
+counter is supposed to be mapped as writeable by user-space. Producer
+position is read-only and can be modified only by the kernel code. BPF ringbuf
+data pages are read-only as well and are not meant to be modified by
+user-code to maintain integrity of per-record headers.
 
-Reported-by: Ryota Shiga (Flatt Security)
+This patch allows to map only consumer position page as writeable and
+everything else is restricted to be read-only. remap_vmalloc_range()
+internally adds VM_DONTEXPAND, so all the established memory mappings can't be
+extended, which prevents any future violations through mremap()'ing.
+
 Fixes: 457f44363a88 ("bpf: Implement BPF ring buffer and verifier support for it")
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Reported-by: Ryota Shiga (Flatt Security)
+Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
 Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/ringbuf.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/bpf/ringbuf.c |   21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
 --- a/kernel/bpf/ringbuf.c
 +++ b/kernel/bpf/ringbuf.c
-@@ -334,6 +334,9 @@ static void *__bpf_ringbuf_reserve(struc
- 		return NULL;
+@@ -240,25 +240,20 @@ static int ringbuf_map_get_next_key(stru
+ 	return -ENOTSUPP;
+ }
  
- 	len = round_up(size + BPF_RINGBUF_HDR_SZ, 8);
-+	if (len > rb->mask + 1)
-+		return NULL;
-+
- 	cons_pos = smp_load_acquire(&rb->consumer_pos);
+-static size_t bpf_ringbuf_mmap_page_cnt(const struct bpf_ringbuf *rb)
+-{
+-	size_t data_pages = (rb->mask + 1) >> PAGE_SHIFT;
+-
+-	/* consumer page + producer page + 2 x data pages */
+-	return RINGBUF_POS_PAGES + 2 * data_pages;
+-}
+-
+ static int ringbuf_map_mmap(struct bpf_map *map, struct vm_area_struct *vma)
+ {
+ 	struct bpf_ringbuf_map *rb_map;
+-	size_t mmap_sz;
  
- 	if (in_nmi()) {
+ 	rb_map = container_of(map, struct bpf_ringbuf_map, map);
+-	mmap_sz = bpf_ringbuf_mmap_page_cnt(rb_map->rb) << PAGE_SHIFT;
+-
+-	if (vma->vm_pgoff * PAGE_SIZE + (vma->vm_end - vma->vm_start) > mmap_sz)
+-		return -EINVAL;
+ 
++	if (vma->vm_flags & VM_WRITE) {
++		/* allow writable mapping for the consumer_pos only */
++		if (vma->vm_pgoff != 0 || vma->vm_end - vma->vm_start != PAGE_SIZE)
++			return -EPERM;
++	} else {
++		vma->vm_flags &= ~VM_MAYWRITE;
++	}
++	/* remap_vmalloc_range() checks size and offset constraints */
+ 	return remap_vmalloc_range(vma, rb_map->rb,
+ 				   vma->vm_pgoff + RINGBUF_PGOFF);
+ }
 
 
