@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 589D337CED8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B1B37CED3
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234162AbhELRGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46602 "EHLO mail.kernel.org"
+        id S231807AbhELRGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:06:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244617AbhELQuz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:50:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5963261C7E;
-        Wed, 12 May 2021 16:17:11 +0000 (UTC)
+        id S244635AbhELQu5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:50:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C77FA61D65;
+        Wed, 12 May 2021 16:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836231;
-        bh=cK0I+9z1a9uAAHTRH7FQmN5b9KmUIDsz+QMLkxfhR1k=;
+        s=korg; t=1620836234;
+        bh=ABV/yAPn5IJyyGBoIH3Ba2BhzDamm2K4BmXl9M6tpDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCpt8a4YUxdc5yPDVGKQZtMPrjU62dZ8A7Y8nqMOYe09v3yc4ETVPZJG33MsRZUt5
-         oD4nG+Q4wxNSHWaBf8jE3VDMzQy2koEvlB1pS24VP1u286q5+sc+8cnz6DK35wZzjK
-         0Vi5wc2M03fRtKUYTCUpwB8fBzoKeSab7PT1mqxc=
+        b=QiubiWmebukWwcvfBcmqMasnmn8XDmgMV2AGGPhuZi+ENEzV37+/BR5wFKl0xhzSu
+         xqarR57IrhtpQUYnqO0Dc3WWWOv/BK6tMhmIPypy5VH2RQWHKh4eWqRPtxTsGJyJSC
+         RxXFltW7dGFlOy9aGrU8qQNRk5jJagUwGOoRZPgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Anatoly Pugachev <matorola@gmail.com>,
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 663/677] ia64: ensure proper NUMA distance and possible map initialization
-Date:   Wed, 12 May 2021 16:51:49 +0200
-Message-Id: <20210512144859.399647330@linuxfoundation.org>
+Subject: [PATCH 5.12 664/677] ia64: fix EFI_DEBUG build
+Date:   Wed, 12 May 2021 16:51:50 +0200
+Message-Id: <20210512144859.431884775@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -49,81 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-[ Upstream commit b22a8f7b4bde4e4ab73b64908ffd5d90ecdcdbfd ]
+[ Upstream commit e3db00b79d74caaf84cd9e1d4927979abfd0d7c9 ]
 
-John Paul reported a warning about bogus NUMA distance values spurred by
-commit:
+When enabled local debugging via `#define EFI_DEBUG 1` noticed build
+failure:
 
-  620a6dc40754 ("sched/topology: Make sched_init_numa() use a set for the deduplicating sort")
+    arch/ia64/kernel/efi.c:564:8: error: 'i' undeclared (first use in this function)
 
-In this case, the afflicted machine comes up with a reported 256 possible
-nodes, all of which are 0 distance away from one another.  This was
-previously silently ignored, but is now caught by the aforementioned
-commit.
+While at it fixed benign string format mismatches visible only when
+EFI_DEBUG is enabled:
 
-The culprit is ia64's node_possible_map which remains unchanged from its
-initialization value of NODE_MASK_ALL.  In John's case, the machine
-doesn't have any SRAT nor SLIT table, but AIUI the possible map remains
-untouched regardless of what ACPI tables end up being parsed.  Thus,
-!online && possible nodes remain with a bogus distance of 0 (distances \in
-[0, 9] are "reserved and have no meaning" as per the ACPI spec).
+    arch/ia64/kernel/efi.c:589:11:
+        warning: format '%lx' expects argument of type 'long unsigned int',
+        but argument 5 has type 'u64' {aka 'long long unsigned int'} [-Wformat=]
 
-Follow x86 / drivers/base/arch_numa's example and set the possible map to
-the parsed map, which in this case seems to be the online map.
-
-Link: http://lore.kernel.org/r/255d6b5d-194e-eb0e-ecdd-97477a534441@physik.fu-berlin.de
-Link: https://lkml.kernel.org/r/20210318130617.896309-1-valentin.schneider@arm.com
-Fixes: 620a6dc40754 ("sched/topology: Make sched_init_numa() use a set for the deduplicating sort")
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Tested-by: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Anatoly Pugachev <matorola@gmail.com>
+Link: https://lkml.kernel.org/r/20210328212246.685601-1-slyfox@gentoo.org
+Fixes: 14fb42090943559 ("efi: Merge EFI system table revision and vendor checks")
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/acpi.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/ia64/kernel/efi.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
-index a5636524af76..e2af6b172200 100644
---- a/arch/ia64/kernel/acpi.c
-+++ b/arch/ia64/kernel/acpi.c
-@@ -446,7 +446,8 @@ void __init acpi_numa_fixup(void)
- 	if (srat_num_cpus == 0) {
- 		node_set_online(0);
- 		node_cpuid[0].phys_id = hard_smp_processor_id();
--		return;
-+		slit_distance(0, 0) = LOCAL_DISTANCE;
-+		goto out;
- 	}
+diff --git a/arch/ia64/kernel/efi.c b/arch/ia64/kernel/efi.c
+index c5fe21de46a8..31149e41f9be 100644
+--- a/arch/ia64/kernel/efi.c
++++ b/arch/ia64/kernel/efi.c
+@@ -415,10 +415,10 @@ efi_get_pal_addr (void)
+ 		mask  = ~((1 << IA64_GRANULE_SHIFT) - 1);
  
- 	/*
-@@ -489,7 +490,7 @@ void __init acpi_numa_fixup(void)
- 			for (j = 0; j < MAX_NUMNODES; j++)
- 				slit_distance(i, j) = i == j ?
- 					LOCAL_DISTANCE : REMOTE_DISTANCE;
--		return;
-+		goto out;
- 	}
- 
- 	memset(numa_slit, -1, sizeof(numa_slit));
-@@ -514,6 +515,8 @@ void __init acpi_numa_fixup(void)
- 		printk("\n");
- 	}
+ 		printk(KERN_INFO "CPU %d: mapping PAL code "
+-                       "[0x%lx-0x%lx) into [0x%lx-0x%lx)\n",
+-                       smp_processor_id(), md->phys_addr,
+-                       md->phys_addr + efi_md_size(md),
+-                       vaddr & mask, (vaddr & mask) + IA64_GRANULE_SIZE);
++			"[0x%llx-0x%llx) into [0x%llx-0x%llx)\n",
++			smp_processor_id(), md->phys_addr,
++			md->phys_addr + efi_md_size(md),
++			vaddr & mask, (vaddr & mask) + IA64_GRANULE_SIZE);
  #endif
-+out:
-+	node_possible_map = node_online_map;
- }
- #endif				/* CONFIG_ACPI_NUMA */
+ 		return __va(md->phys_addr);
+ 	}
+@@ -560,6 +560,7 @@ efi_init (void)
+ 	{
+ 		efi_memory_desc_t *md;
+ 		void *p;
++		unsigned int i;
  
+ 		for (i = 0, p = efi_map_start; p < efi_map_end;
+ 		     ++i, p += efi_desc_size)
+@@ -586,7 +587,7 @@ efi_init (void)
+ 			}
+ 
+ 			printk("mem%02d: %s "
+-			       "range=[0x%016lx-0x%016lx) (%4lu%s)\n",
++			       "range=[0x%016llx-0x%016llx) (%4lu%s)\n",
+ 			       i, efi_md_typeattr_format(buf, sizeof(buf), md),
+ 			       md->phys_addr,
+ 			       md->phys_addr + efi_md_size(md), size, unit);
 -- 
 2.30.2
 
