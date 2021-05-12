@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00CF537CC8A
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2190137CC8B
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243149AbhELQpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:45:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
+        id S243218AbhELQpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237285AbhELQhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243316AbhELQhL (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:37:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB45F61E30;
-        Wed, 12 May 2021 16:02:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 357E261E2D;
+        Wed, 12 May 2021 16:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835344;
-        bh=h9r+ERbM9K4eWELi9BdPErpjwtGTI5Bze+WkBHEj2uI=;
+        s=korg; t=1620835346;
+        bh=WNV2fhmnyMKswGOiuXFQtOcuDcETQzMMYAQu9w5egzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjLH/yeQB12QR7WC7Q12ERKORbVrAyCDWisqrREIOxEhfuVCaidvmiAiTbrxzMSsA
-         zJufry70c8ETNCji41iP6G8NEJZ+44tvTSgjhOcVyUsOxnee3c7fIEgUlJN9SAB9w6
-         U7eDuv5I5EHqlGT/uVNN1suK+mSDSDNrObIhzrXA=
+        b=FueOqCzCC5SWtcrIyc8qGx9MrNoHSC6CTLOU9mm+OEfGFuOEzokvicJCBZ73YGAPP
+         sI1fn5Onp89hIjtYTVm3ebZcbNITGjAeiGnS66UVYkYNCU/Iq18dhC+f/OfEIJA6Pd
+         xwrcwLhF2Lap1jZIvE/AziIA00mK47LhqmZrld1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 307/677] crypto: chelsio - Read rxchannel-id from firmware
-Date:   Wed, 12 May 2021 16:45:53 +0200
-Message-Id: <20210512144847.416218994@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Ye Bin <yebin10@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 308/677] usbip: vudc: fix missing unlock on error in usbip_sockfd_store()
+Date:   Wed, 12 May 2021 16:45:54 +0200
+Message-Id: <20210512144847.448052213@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,140 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 16a9874fe468855e8ddd72883ca903f706d0a9d0 ]
+[ Upstream commit 1d08ed588c6a85a35a24c82eb4cf0807ec2b366a ]
 
-The rxchannel id is updated by the driver using the
-port no value, but this does not ensure that the value
-is correct. So now rx channel value is obtained from
-etoc channel map value.
+Add the missing unlock before return from function usbip_sockfd_store()
+in the error handling case.
 
-Fixes: 567be3a5d227 ("crypto: chelsio - Use multiple txq/rxq per...")
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: bd8b82042269 ("usbip: vudc synchronize sysfs code paths")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20210408112305.1022247-1-yebin10@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/chelsio/chcr_algo.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/usb/usbip/vudc_sysfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
-index f5a336634daa..405ff957b837 100644
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -769,13 +769,14 @@ static inline void create_wreq(struct chcr_context *ctx,
- 	struct uld_ctx *u_ctx = ULD_CTX(ctx);
- 	unsigned int tx_channel_id, rx_channel_id;
- 	unsigned int txqidx = 0, rxqidx = 0;
--	unsigned int qid, fid;
-+	unsigned int qid, fid, portno;
- 
- 	get_qidxs(req, &txqidx, &rxqidx);
- 	qid = u_ctx->lldi.rxq_ids[rxqidx];
- 	fid = u_ctx->lldi.rxq_ids[0];
-+	portno = rxqidx / ctx->rxq_perchan;
- 	tx_channel_id = txqidx / ctx->txq_perchan;
--	rx_channel_id = rxqidx / ctx->rxq_perchan;
-+	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[portno]);
- 
- 
- 	chcr_req->wreq.op_to_cctx_size = FILL_WR_OP_CCTX_SIZE;
-@@ -806,6 +807,7 @@ static struct sk_buff *create_cipher_wr(struct cipher_wr_param *wrparam)
- {
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(wrparam->req);
- 	struct chcr_context *ctx = c_ctx(tfm);
-+	struct uld_ctx *u_ctx = ULD_CTX(ctx);
- 	struct ablk_ctx *ablkctx = ABLK_CTX(ctx);
- 	struct sk_buff *skb = NULL;
- 	struct chcr_wr *chcr_req;
-@@ -822,6 +824,7 @@ static struct sk_buff *create_cipher_wr(struct cipher_wr_param *wrparam)
- 	struct adapter *adap = padap(ctx->dev);
- 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
- 
-+	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
- 	nents = sg_nents_xlen(reqctx->dstsg,  wrparam->bytes, CHCR_DST_SG_SIZE,
- 			      reqctx->dst_ofst);
- 	dst_size = get_space_for_phys_dsgl(nents);
-@@ -1580,6 +1583,7 @@ static struct sk_buff *create_hash_wr(struct ahash_request *req,
- 	int error = 0;
- 	unsigned int rx_channel_id = req_ctx->rxqidx / ctx->rxq_perchan;
- 
-+	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
- 	transhdr_len = HASH_TRANSHDR_SIZE(param->kctx_len);
- 	req_ctx->hctx_wr.imm = (transhdr_len + param->bfr_len +
- 				param->sg_len) <= SGE_MAX_WR_LEN;
-@@ -2438,6 +2442,7 @@ static struct sk_buff *create_authenc_wr(struct aead_request *req,
- {
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct chcr_context *ctx = a_ctx(tfm);
-+	struct uld_ctx *u_ctx = ULD_CTX(ctx);
- 	struct chcr_aead_ctx *aeadctx = AEAD_CTX(ctx);
- 	struct chcr_authenc_ctx *actx = AUTHENC_CTX(aeadctx);
- 	struct chcr_aead_reqctx *reqctx = aead_request_ctx(req);
-@@ -2457,6 +2462,7 @@ static struct sk_buff *create_authenc_wr(struct aead_request *req,
- 	struct adapter *adap = padap(ctx->dev);
- 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
- 
-+	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
- 	if (req->cryptlen == 0)
- 		return NULL;
- 
-@@ -2710,9 +2716,11 @@ void chcr_add_aead_dst_ent(struct aead_request *req,
- 	struct dsgl_walk dsgl_walk;
- 	unsigned int authsize = crypto_aead_authsize(tfm);
- 	struct chcr_context *ctx = a_ctx(tfm);
-+	struct uld_ctx *u_ctx = ULD_CTX(ctx);
- 	u32 temp;
- 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
- 
-+	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
- 	dsgl_walk_init(&dsgl_walk, phys_cpl);
- 	dsgl_walk_add_page(&dsgl_walk, IV + reqctx->b0_len, reqctx->iv_dma);
- 	temp = req->assoclen + req->cryptlen +
-@@ -2752,9 +2760,11 @@ void chcr_add_cipher_dst_ent(struct skcipher_request *req,
- 	struct chcr_skcipher_req_ctx *reqctx = skcipher_request_ctx(req);
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(wrparam->req);
- 	struct chcr_context *ctx = c_ctx(tfm);
-+	struct uld_ctx *u_ctx = ULD_CTX(ctx);
- 	struct dsgl_walk dsgl_walk;
- 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
- 
-+	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
- 	dsgl_walk_init(&dsgl_walk, phys_cpl);
- 	dsgl_walk_add_sg(&dsgl_walk, reqctx->dstsg, wrparam->bytes,
- 			 reqctx->dst_ofst);
-@@ -2958,6 +2968,7 @@ static void fill_sec_cpl_for_aead(struct cpl_tx_sec_pdu *sec_cpl,
- {
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct chcr_context *ctx = a_ctx(tfm);
-+	struct uld_ctx *u_ctx = ULD_CTX(ctx);
- 	struct chcr_aead_ctx *aeadctx = AEAD_CTX(ctx);
- 	struct chcr_aead_reqctx *reqctx = aead_request_ctx(req);
- 	unsigned int cipher_mode = CHCR_SCMD_CIPHER_MODE_AES_CCM;
-@@ -2967,6 +2978,8 @@ static void fill_sec_cpl_for_aead(struct cpl_tx_sec_pdu *sec_cpl,
- 	unsigned int tag_offset = 0, auth_offset = 0;
- 	unsigned int assoclen;
- 
-+	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
-+
- 	if (get_aead_subtype(tfm) == CRYPTO_ALG_SUB_TYPE_AEAD_RFC4309)
- 		assoclen = req->assoclen - 8;
- 	else
-@@ -3127,6 +3140,7 @@ static struct sk_buff *create_gcm_wr(struct aead_request *req,
- {
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct chcr_context *ctx = a_ctx(tfm);
-+	struct uld_ctx *u_ctx = ULD_CTX(ctx);
- 	struct chcr_aead_ctx *aeadctx = AEAD_CTX(ctx);
- 	struct chcr_aead_reqctx  *reqctx = aead_request_ctx(req);
- 	struct sk_buff *skb = NULL;
-@@ -3143,6 +3157,7 @@ static struct sk_buff *create_gcm_wr(struct aead_request *req,
- 	struct adapter *adap = padap(ctx->dev);
- 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
- 
-+	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
- 	if (get_aead_subtype(tfm) == CRYPTO_ALG_SUB_TYPE_AEAD_RFC4106)
- 		assoclen = req->assoclen - 8;
+diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
+index f7633ee655a1..d1cf6b51bf85 100644
+--- a/drivers/usb/usbip/vudc_sysfs.c
++++ b/drivers/usb/usbip/vudc_sysfs.c
+@@ -156,12 +156,14 @@ static ssize_t usbip_sockfd_store(struct device *dev,
+ 		tcp_rx = kthread_create(&v_rx_loop, &udc->ud, "vudc_rx");
+ 		if (IS_ERR(tcp_rx)) {
+ 			sockfd_put(socket);
++			mutex_unlock(&udc->ud.sysfs_lock);
+ 			return -EINVAL;
+ 		}
+ 		tcp_tx = kthread_create(&v_tx_loop, &udc->ud, "vudc_tx");
+ 		if (IS_ERR(tcp_tx)) {
+ 			kthread_stop(tcp_rx);
+ 			sockfd_put(socket);
++			mutex_unlock(&udc->ud.sysfs_lock);
+ 			return -EINVAL;
+ 		}
  
 -- 
 2.30.2
