@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6422C37C9A7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F2E37C9A9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240711AbhELQUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49770 "EHLO mail.kernel.org"
+        id S240717AbhELQUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:20:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237188AbhELQOp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:14:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4A4761D5D;
-        Wed, 12 May 2021 15:42:13 +0000 (UTC)
+        id S237893AbhELQOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:14:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C592361D50;
+        Wed, 12 May 2021 15:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834134;
-        bh=QYhKg1ipg8gwStly9KfleUaRd3j7GsHD+zBg5syh+Bo=;
+        s=korg; t=1620834139;
+        bh=7bOzLSCmkraFAqNJTmCTyezkbLsr9FsR8ClmoawT8xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gwo2Sb1MFjr6tdAll++b9ZXrvV8OvLJ44cM9AzabNwJllWUBygfAcvGv/Ot5zQf91
-         lxtxRq3/ealfJA3+S+6Hx/eANRgldBkg4PliRpOlE7wYSgfY3GiWtwofgu16pksEQY
-         xOJAryQx+3cEZTZkNpnstNHxteir+q7cx3mvqzMg=
+        b=kcV19vMkwcixIm5oreOnizEmI1aRyjTZ91fYZwAVUcEjjEhS0OZwq6rQltZT0xI/2
+         cw+o77oIEFtCZUorABotkT3XriUBDjUQTz2USm+Hj+gfzQHfspkZtSlllHgta6+KEb
+         2Z7DowD89ES0P6hZWR2zdK+J/xXUcbWN0Z1sOZi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 422/601] gpio: guard gpiochip_irqchip_add_domain() with GPIOLIB_IRQCHIP
-Date:   Wed, 12 May 2021 16:48:19 +0200
-Message-Id: <20210512144841.726935289@linuxfoundation.org>
+Subject: [PATCH 5.11 423/601] fs: dlm: fix missing unlock on error in accept_from_sock()
+Date:   Wed, 12 May 2021 16:48:20 +0200
+Message-Id: <20210512144841.759688949@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,49 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9c7d24693d864f90b27aad5d15fbfe226c02898b ]
+[ Upstream commit 2fd8db2dd05d895961c7c7b9fa02d72f385560e4 ]
 
-The current code doesn't check if GPIOLIB_IRQCHIP is enabled, which results in
-a compilation error when trying to build gpio-regmap if CONFIG_GPIOLIB_IRQCHIP
-isn't enabled.
+Add the missing unlock before return from accept_from_sock()
+in the error handling case.
 
-Fixes: 6a45b0e2589f ("gpiolib: Introduce gpiochip_irqchip_add_domain()")
-Suggested-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Link: https://lore.kernel.org/r/20210324081923.20379-2-noltari@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 6cde210a9758 ("fs: dlm: add helper for init connection")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/gpio/driver.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/dlm/lowcomms.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
-index 286de0520574..ecf0032a0995 100644
---- a/include/linux/gpio/driver.h
-+++ b/include/linux/gpio/driver.h
-@@ -624,8 +624,17 @@ void gpiochip_irq_domain_deactivate(struct irq_domain *domain,
- bool gpiochip_irqchip_irq_valid(const struct gpio_chip *gc,
- 				unsigned int offset);
+diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
+index 372c34ff8594..f7d2c52791f8 100644
+--- a/fs/dlm/lowcomms.c
++++ b/fs/dlm/lowcomms.c
+@@ -908,6 +908,7 @@ static int accept_from_sock(struct listen_connection *con)
+ 			result = dlm_con_init(othercon, nodeid);
+ 			if (result < 0) {
+ 				kfree(othercon);
++				mutex_unlock(&newcon->sock_mutex);
+ 				goto accept_err;
+ 			}
  
-+#ifdef CONFIG_GPIOLIB_IRQCHIP
- int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
- 				struct irq_domain *domain);
-+#else
-+static inline int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
-+					      struct irq_domain *domain)
-+{
-+	WARN_ON(1);
-+	return -EINVAL;
-+}
-+#endif
- 
- int gpiochip_generic_request(struct gpio_chip *gc, unsigned int offset);
- void gpiochip_generic_free(struct gpio_chip *gc, unsigned int offset);
 -- 
 2.30.2
 
