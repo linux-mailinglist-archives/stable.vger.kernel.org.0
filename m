@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4DAE37C3D8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:29:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AA0737C3D9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233357AbhELPWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:22:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57874 "EHLO mail.kernel.org"
+        id S233099AbhELPWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:22:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234701AbhELPU1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:20:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0989D619A5;
-        Wed, 12 May 2021 15:08:30 +0000 (UTC)
+        id S234717AbhELPUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:20:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77A8F6101B;
+        Wed, 12 May 2021 15:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832111;
-        bh=HCKSMquQ+CJ3V/85eGcb0RpjMU2UwBlUkXlmBhZiSPo=;
+        s=korg; t=1620832114;
+        bh=Da0r6qMPor97lCV6jlG1+wkZqprTVL8V5I9KHqlC+1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/DDIKcdfixiELM5vtxfd1sGhv5WxmFKoHEHQaC0w4+ZAkkmA/1U87czpQ21CiNqN
-         3B+8YOzRlbHad9iN87EIdzkGF88tvWxDdk5PkyfzwY9xCdyX1oP+evqWHTMnuEEK8/
-         ZhNUyyPqDxWwTlvIwlsUzAxyzpIh4GuUprxlZbTg=
+        b=zYi7VVMMYCyvYKizPI9bAGoPARbeo1ErKl6XRb8GTPVnZelU/eHh42/Jv/r7D0VYD
+         gFdMcyWFEwXjzknruozhgQnzCVR93Oivgs/m06+8MKuXrbMiEIJRd3XuAjnIsom6yF
+         ETtMXDeEBsUk43Whp+2lASm1WFjfyQarUxkihWmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
+        stable@vger.kernel.org, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
+        Michal Simek <michal.simek@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 112/530] firmware: xilinx: Add a blank line after function declaration
-Date:   Wed, 12 May 2021 16:43:42 +0200
-Message-Id: <20210512144823.478843908@linuxfoundation.org>
+Subject: [PATCH 5.10 113/530] firmware: xilinx: Remove zynqmp_pm_get_eemi_ops() in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE)
+Date:   Wed, 12 May 2021 16:43:43 +0200
+Message-Id: <20210512144823.510739886@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,203 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Simek <michal.simek@xilinx.com>
+From: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
-[ Upstream commit a80cefec2c2783166727324bde724c39aa8a12df ]
+[ Upstream commit 79bfe480a0a0b259ab9fddcd2fe52c03542b1196 ]
 
-Fix all these issues which are also reported by checkpatch --strict.
+zynqmp_pm_get_eemi_ops() was removed in commit 4db8180ffe7c: "Firmware: xilinx:
+Remove eemi ops for fpga related APIs", but not in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE).
+Any driver who want to communicate with PMC using EEMI APIs use the functions provided
+for each function
+This removed zynqmp_pm_get_eemi_ops() in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE), and also
+modify the documentation for this driver.
 
+Fixes: 4db8180ffe7c ("firmware: xilinx: Remove eemi ops for fpga related APIs")
+Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Link: https://lore.kernel.org/r/20210215155849.2425846-1-iwamatsu@nigauri.org
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/7b6007e05f6c01214861a37f198cd5bee62a4d3e.1606894725.git.michal.simek@xilinx.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/firmware/xlnx-zynqmp.h | 34 ++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ Documentation/driver-api/xilinx/eemi.rst | 31 ++----------------------
+ include/linux/firmware/xlnx-zynqmp.h     |  5 ----
+ 2 files changed, 2 insertions(+), 34 deletions(-)
 
+diff --git a/Documentation/driver-api/xilinx/eemi.rst b/Documentation/driver-api/xilinx/eemi.rst
+index 9dcbc6f18d75..c1bc47b9000d 100644
+--- a/Documentation/driver-api/xilinx/eemi.rst
++++ b/Documentation/driver-api/xilinx/eemi.rst
+@@ -16,35 +16,8 @@ components running across different processing clusters on a chip or
+ device to communicate with a power management controller (PMC) on a
+ device to issue or respond to power management requests.
+ 
+-EEMI ops is a structure containing all eemi APIs supported by Zynq MPSoC.
+-The zynqmp-firmware driver maintain all EEMI APIs in zynqmp_eemi_ops
+-structure. Any driver who want to communicate with PMC using EEMI APIs
+-can call zynqmp_pm_get_eemi_ops().
+-
+-Example of EEMI ops::
+-
+-	/* zynqmp-firmware driver maintain all EEMI APIs */
+-	struct zynqmp_eemi_ops {
+-		int (*get_api_version)(u32 *version);
+-		int (*query_data)(struct zynqmp_pm_query_data qdata, u32 *out);
+-	};
+-
+-	static const struct zynqmp_eemi_ops eemi_ops = {
+-		.get_api_version = zynqmp_pm_get_api_version,
+-		.query_data = zynqmp_pm_query_data,
+-	};
+-
+-Example of EEMI ops usage::
+-
+-	static const struct zynqmp_eemi_ops *eemi_ops;
+-	u32 ret_payload[PAYLOAD_ARG_CNT];
+-	int ret;
+-
+-	eemi_ops = zynqmp_pm_get_eemi_ops();
+-	if (IS_ERR(eemi_ops))
+-		return PTR_ERR(eemi_ops);
+-
+-	ret = eemi_ops->query_data(qdata, ret_payload);
++Any driver who wants to communicate with PMC using EEMI APIs use the
++functions provided for each function.
+ 
+ IOCTL
+ ------
 diff --git a/include/linux/firmware/xlnx-zynqmp.h b/include/linux/firmware/xlnx-zynqmp.h
-index 41a1bab98b7e..7fb3274a4a9e 100644
+index 7fb3274a4a9e..4930ece07fd8 100644
 --- a/include/linux/firmware/xlnx-zynqmp.h
 +++ b/include/linux/firmware/xlnx-zynqmp.h
-@@ -358,107 +358,132 @@ static inline struct zynqmp_eemi_ops *zynqmp_pm_get_eemi_ops(void)
- {
- 	return ERR_PTR(-ENODEV);
- }
-+
+@@ -354,11 +354,6 @@ int zynqmp_pm_read_pggs(u32 index, u32 *value);
+ int zynqmp_pm_system_shutdown(const u32 type, const u32 subtype);
+ int zynqmp_pm_set_boot_health_status(u32 value);
+ #else
+-static inline struct zynqmp_eemi_ops *zynqmp_pm_get_eemi_ops(void)
+-{
+-	return ERR_PTR(-ENODEV);
+-}
+-
  static inline int zynqmp_pm_get_api_version(u32 *version)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_get_chipid(u32 *idcode, u32 *version)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_query_data(struct zynqmp_pm_query_data qdata,
- 				       u32 *out)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_enable(u32 clock_id)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_disable(u32 clock_id)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_getstate(u32 clock_id, u32 *state)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_setdivider(u32 clock_id, u32 divider)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_getdivider(u32 clock_id, u32 *divider)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_setrate(u32 clock_id, u64 rate)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_getrate(u32 clock_id, u64 *rate)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_setparent(u32 clock_id, u32 parent_id)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_clock_getparent(u32 clock_id, u32 *parent_id)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_set_pll_frac_mode(u32 clk_id, u32 mode)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_get_pll_frac_mode(u32 clk_id, u32 *mode)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_set_pll_frac_data(u32 clk_id, u32 data)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_get_pll_frac_data(u32 clk_id, u32 *data)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_set_sd_tapdelay(u32 node_id, u32 type, u32 value)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_sd_dll_reset(u32 node_id, u32 type)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_reset_assert(const enum zynqmp_pm_reset reset,
- 			   const enum zynqmp_pm_reset_action assert_flag)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_reset_get_status(const enum zynqmp_pm_reset reset,
- 					     u32 *status)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_init_finalize(void)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_set_suspend_mode(u32 mode)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_request_node(const u32 node, const u32 capabilities,
- 					 const u32 qos,
- 					 const enum zynqmp_pm_request_ack ack)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_release_node(const u32 node)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_set_requirement(const u32 node,
- 					const u32 capabilities,
- 					const u32 qos,
-@@ -466,39 +491,48 @@ static inline int zynqmp_pm_set_requirement(const u32 node,
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_aes_engine(const u64 address, u32 *out)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_fpga_load(const u64 address, const u32 size,
- 				      const u32 flags)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_fpga_get_status(u32 *value)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_write_ggs(u32 index, u32 value)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_read_ggs(u32 index, u32 *value)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_write_pggs(u32 index, u32 value)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_read_pggs(u32 index, u32 *value)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_system_shutdown(const u32 type, const u32 subtype)
- {
- 	return -ENODEV;
- }
-+
- static inline int zynqmp_pm_set_boot_health_status(u32 value)
  {
  	return -ENODEV;
 -- 
