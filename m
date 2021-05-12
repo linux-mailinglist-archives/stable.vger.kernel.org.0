@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E2837CB51
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7420637C7D0
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242594AbhELQfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:35:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44832 "EHLO mail.kernel.org"
+        id S234470AbhELQCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:02:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241657AbhELQ1q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF6B561DFA;
-        Wed, 12 May 2021 15:54:49 +0000 (UTC)
+        id S237741AbhELP4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:56:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C56A361628;
+        Wed, 12 May 2021 15:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834890;
-        bh=WGJM24H87IV1cFTUbbAlOeYWk9NY0ci639uGr9WFkKc=;
+        s=korg; t=1620833299;
+        bh=w0ODjGif2rcoZGNVI2RJdhui/zw658jsUrjRas3821E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7//ftRRpzL2Ws+mm7y9GzSnpr+XJXdyhDV9aASjurhBA0E6hGqLlfvCSobmV/ibE
-         JxACJZCRUAKTBzcB4XxhPUGzPJJHE3OXMfEx9tzSudGkXWXnzpmHonoAMFzRM904dP
-         Ff8gxBtf2fqRp+MweL1p9UXKjkUrDVizyMSNZsj8=
+        b=K9Lyk06unEwQrxeqJcVq6OXrLA8O45SkwFr2Wfc0xr9qzUaNUpQVSOAw0lV1hngBY
+         aiiQPsKvC6z25KYC/WAc5MRjc1M+j7eERkS7OODJs6GBZdxuIxRqbo73Oe1NW13ABj
+         GM6hvGtEXKw6rFIht5rKQ62/WAY5ciO+X6ISpyZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        David Brazdil <dbrazdil@google.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.12 125/677] KVM: arm64: Support PREL/PLT relocs in EL2 code
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 5.11 094/601] KVM: s390: split kvm_s390_real_to_abs
 Date:   Wed, 12 May 2021 16:42:51 +0200
-Message-Id: <20210512144841.367275440@linuxfoundation.org>
+Message-Id: <20210512144830.926522981@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-References: <20210512144837.204217980@linuxfoundation.org>
+In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
+References: <20210512144827.811958675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Brazdil <dbrazdil@google.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit 77e06b300161d41d65950be9c77a785c142b381d upstream.
+commit c5d1f6b531e68888cbe6718b3f77a60115d58b9c upstream.
 
-gen-hyprel tool parses object files of the EL2 portion of KVM
-and generates runtime relocation data. While only filtering for
-R_AARCH64_ABS64 relocations in the input object files, it has an
-allow-list of relocation types that are used for relative
-addressing. Other, unexpected, relocation types are rejected and
-cause the build to fail.
+A new function _kvm_s390_real_to_abs will apply prefixing to a real address
+with a given prefix value.
 
-This allow-list did not include the position-relative relocation
-types R_AARCH64_PREL64/32/16 and the recently introduced _PLT32.
-While not seen used by toolchains in the wild, add them to the
-allow-list for completeness.
+The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
 
-Fixes: 8c49b5d43d4c ("KVM: arm64: Generate hyp relocation data")
-Cc: <stable@vger.kernel.org>
-Reported-by: Will Deacon <will@kernel.org>
-Signed-off-by: David Brazdil <dbrazdil@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210331133048.63311-1-dbrazdil@google.com
+This is needed to avoid code duplication in vSIE.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210322140559.500716-2-imbrenda@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/hyp/nvhe/gen-hyprel.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/s390/kvm/gaccess.h |   23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/kvm/hyp/nvhe/gen-hyprel.c
-+++ b/arch/arm64/kvm/hyp/nvhe/gen-hyprel.c
-@@ -50,6 +50,18 @@
- #ifndef R_AARCH64_ABS64
- #define R_AARCH64_ABS64			257
- #endif
-+#ifndef R_AARCH64_PREL64
-+#define R_AARCH64_PREL64		260
-+#endif
-+#ifndef R_AARCH64_PREL32
-+#define R_AARCH64_PREL32		261
-+#endif
-+#ifndef R_AARCH64_PREL16
-+#define R_AARCH64_PREL16		262
-+#endif
-+#ifndef R_AARCH64_PLT32
-+#define R_AARCH64_PLT32			314
-+#endif
- #ifndef R_AARCH64_LD_PREL_LO19
- #define R_AARCH64_LD_PREL_LO19		273
- #endif
-@@ -371,6 +383,12 @@ static void emit_rela_section(Elf64_Shdr
- 		case R_AARCH64_ABS64:
- 			emit_rela_abs64(rela, sh_orig_name);
- 			break;
-+		/* Allow position-relative data relocations. */
-+		case R_AARCH64_PREL64:
-+		case R_AARCH64_PREL32:
-+		case R_AARCH64_PREL16:
-+		case R_AARCH64_PLT32:
-+			break;
- 		/* Allow relocations to generate PC-relative addressing. */
- 		case R_AARCH64_LD_PREL_LO19:
- 		case R_AARCH64_ADR_PREL_LO21:
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -18,17 +18,14 @@
+ 
+ /**
+  * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+- * @vcpu - guest virtual cpu
++ * @prefix - guest prefix
+  * @gra - guest real address
+  *
+  * Returns the guest absolute address that corresponds to the passed guest real
+- * address @gra of a virtual guest cpu by applying its prefix.
++ * address @gra of by applying the given prefix.
+  */
+-static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+-						 unsigned long gra)
++static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
+ {
+-	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
+-
+ 	if (gra < 2 * PAGE_SIZE)
+ 		gra += prefix;
+ 	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
+@@ -37,6 +34,20 @@ static inline unsigned long kvm_s390_rea
+ }
+ 
+ /**
++ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
++ * @vcpu - guest virtual cpu
++ * @gra - guest real address
++ *
++ * Returns the guest absolute address that corresponds to the passed guest real
++ * address @gra of a virtual guest cpu by applying its prefix.
++ */
++static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
++						 unsigned long gra)
++{
++	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
++}
++
++/**
+  * _kvm_s390_logical_to_effective - convert guest logical to effective address
+  * @psw: psw of the guest
+  * @ga: guest logical address
 
 
