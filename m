@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 751B137CA9D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF7737CAAC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241859AbhELQbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:31:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43080 "EHLO mail.kernel.org"
+        id S241916AbhELQbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:31:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240925AbhELQ0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:26:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FD77619B6;
-        Wed, 12 May 2021 15:48:56 +0000 (UTC)
+        id S241068AbhELQ0S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:26:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ED4661DAB;
+        Wed, 12 May 2021 15:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834537;
-        bh=Ye/owjlNIoK0mUKgznSfE5i1P9eBj+sn/vOQXCOxK0E=;
+        s=korg; t=1620834561;
+        bh=9r8ZGwTAYUpbIBMs5UGRDXRJM6e9EczXBc5XA4Rw3mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5rGXp1xNENaL5NPg9wkYk1Q7L1gxLo5apnKUTxij+oJ9QVmkn+ScQUOGPyD948Uz
-         Qnc1m7JaKohWdUz7YKnwEhQ1ebbyXYWWPRO0QHhr/mca6xs33IohYjC2furbFND/nL
-         NX7qgeHKXsQ9ertbxWnBZNxdIpCWF3+GwfYwTStI=
+        b=HeCzxvZRJDaUWPP+ofacTS7kSFfixW+YjWgg0iuvUwzYkrOR7ZXFCNoDrYH2hn16D
+         njXEFO10eqQrkreivfcOBQ1i9MAf9ndT5cN92//3MWNWG0EPH9bcYoN765qPfyuIQZ
+         KRbkHLtA4NwPqVS7fSJgQw0KosfUOjDJxZAFKRI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 557/601] wlcore: Fix buffer overrun by snprintf due to incorrect buffer size
-Date:   Wed, 12 May 2021 16:50:34 +0200
-Message-Id: <20210512144846.196992478@linuxfoundation.org>
+Subject: [PATCH 5.11 558/601] powerpc/perf: Fix the threshold event selection for memory events in power10
+Date:   Wed, 12 May 2021 16:50:35 +0200
+Message-Id: <20210512144846.228707146@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,39 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit a9a4c080deb33f44e08afe35f4ca4bb9ece89f4e ]
+[ Upstream commit 66d9b7492887d34c711bc05b36c22438acba51b4 ]
 
-The size of the buffer than can be written to is currently incorrect, it is
-always the size of the entire buffer even though the snprintf is writing
-as position pos into the buffer. Fix this by setting the buffer size to be
-the number of bytes left in the buffer, namely sizeof(buf) - pos.
+Memory events (mem-loads and mem-stores) currently use the threshold
+event selection as issue to finish. Power10 supports issue to complete
+as part of thresholding which is more appropriate for mem-loads and
+mem-stores. Hence fix the event code for memory events to use issue
+to complete.
 
-Addresses-Coverity: ("Out-of-bounds access")
-Fixes: 7b0e2c4f6be3 ("wlcore: fix overlapping snprintf arguments in debugfs")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210419141405.180582-1-colin.king@canonical.com
+Fixes: a64e697cef23 ("powerpc/perf: power10 Performance Monitoring support")
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1614840015-1535-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ti/wlcore/debugfs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/perf/power10-events-list.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ti/wlcore/debugfs.h b/drivers/net/wireless/ti/wlcore/debugfs.h
-index 715edfa5f89f..a9e13e6d65c5 100644
---- a/drivers/net/wireless/ti/wlcore/debugfs.h
-+++ b/drivers/net/wireless/ti/wlcore/debugfs.h
-@@ -84,7 +84,7 @@ static ssize_t sub## _ ##name## _read(struct file *file,		\
- 	wl1271_debugfs_update_stats(wl);				\
- 									\
- 	for (i = 0; i < len && pos < sizeof(buf); i++)			\
--		pos += snprintf(buf + pos, sizeof(buf),			\
-+		pos += snprintf(buf + pos, sizeof(buf) - pos,		\
- 			 "[%d] = %d\n", i, stats->sub.name[i]);		\
- 									\
- 	return wl1271_format_buffer(userbuf, count, ppos, "%s", buf);	\
+diff --git a/arch/powerpc/perf/power10-events-list.h b/arch/powerpc/perf/power10-events-list.h
+index e45dafe818ed..93be7197d250 100644
+--- a/arch/powerpc/perf/power10-events-list.h
++++ b/arch/powerpc/perf/power10-events-list.h
+@@ -75,5 +75,5 @@ EVENT(PM_RUN_INST_CMPL_ALT,			0x00002);
+  *     thresh end (TE)
+  */
+ 
+-EVENT(MEM_LOADS,				0x34340401e0);
+-EVENT(MEM_STORES,				0x343c0401e0);
++EVENT(MEM_LOADS,				0x35340401e0);
++EVENT(MEM_STORES,				0x353c0401e0);
 -- 
 2.30.2
 
