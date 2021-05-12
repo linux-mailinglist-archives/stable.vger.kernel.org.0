@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE83137CDF7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AABC37CDB8
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343782AbhELQ73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:59:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36542 "EHLO mail.kernel.org"
+        id S236825AbhELQ5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:57:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244078AbhELQmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D1961D1E;
-        Wed, 12 May 2021 16:10:11 +0000 (UTC)
+        id S244102AbhELQmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F75661D1D;
+        Wed, 12 May 2021 16:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835812;
-        bh=YCtJv9qST3vpj6bHQ9FWRyXru33eBfZLH4zRMIE+CnI=;
+        s=korg; t=1620835839;
+        bh=AWduXJg6FgG0c+arjJooAVgmGUR5qA93G1hB7ewf7CQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZLK5I3qbZ5u5rSK6/AdiiLgndWfM50Y8HV8bGsoROiwZmeFq4ZS5MamXR+7pv8+v
-         7oysR2x5hvGJCeaaoLS7TBf2ZFEHN/1s8DHKCDjEaHoXV8QfNxycmjw4midFTs2ys3
-         WbBAwlFuKNKfV4P7XytnVnWbD6VurUcZGyHgsPro=
+        b=xCOwU58dww34whxnNYi14AsGOYK/bBiNwmGiXXYcg8RE08rzvBdA/5zaEb6ieuG3+
+         CWPAx0TwUX0NLEyNyOLSNcdP5DeyPcWRyyIQLJJftGhyAdMXA+/zUG4V2fLzDJR21l
+         YBzpSb9fZGawwuwKWsOJ1Gd80EHcrSO4lf4t/h1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Salil Mehta <salil.mehta@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 487/677] nfc: pn533: prevent potential memory corruption
-Date:   Wed, 12 May 2021 16:48:53 +0200
-Message-Id: <20210512144853.558633129@linuxfoundation.org>
+Subject: [PATCH 5.12 488/677] net: hns3: Limiting the scope of vector_ring_chain variable
+Date:   Wed, 12 May 2021 16:48:54 +0200
+Message-Id: <20210512144853.597154700@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,37 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Salil Mehta <salil.mehta@huawei.com>
 
-[ Upstream commit ca4d4c34ae9aa5c3c0da76662c5e549d2fc0cc86 ]
+[ Upstream commit d392ecd1bc29ae15b0e284d5f732c2d36f244271 ]
 
-If the "type_a->nfcid_len" is too large then it would lead to memory
-corruption in pn533_target_found_type_a() when we do:
+Limiting the scope of the variable vector_ring_chain to the block where it
+is used.
 
-	memcpy(nfc_tgt->nfcid1, tgt_type_a->nfcid_data, nfc_tgt->nfcid1_len);
-
-Fixes: c3b1e1e8a76f ("NFC: Export NFCID1 from pn533")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 424eb834a9be ("net: hns3: Unified HNS3 {VF|PF} Ethernet Driver for hip08 SoC")
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/pn533.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
-index f1469ac8ff42..3fe5b81eda2d 100644
---- a/drivers/nfc/pn533/pn533.c
-+++ b/drivers/nfc/pn533/pn533.c
-@@ -706,6 +706,9 @@ static bool pn533_target_type_a_is_valid(struct pn533_target_type_a *type_a,
- 	if (PN533_TYPE_A_SEL_CASCADE(type_a->sel_res) != 0)
- 		return false;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index bf4302a5cf95..65752f363f43 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -3704,7 +3704,6 @@ static void hns3_nic_set_cpumask(struct hns3_nic_priv *priv)
  
-+	if (type_a->nfcid_len > NFC_NFCID1_MAXSIZE)
-+		return false;
+ static int hns3_nic_init_vector_data(struct hns3_nic_priv *priv)
+ {
+-	struct hnae3_ring_chain_node vector_ring_chain;
+ 	struct hnae3_handle *h = priv->ae_handle;
+ 	struct hns3_enet_tqp_vector *tqp_vector;
+ 	int ret;
+@@ -3736,6 +3735,8 @@ static int hns3_nic_init_vector_data(struct hns3_nic_priv *priv)
+ 	}
+ 
+ 	for (i = 0; i < priv->vector_num; i++) {
++		struct hnae3_ring_chain_node vector_ring_chain;
 +
- 	return true;
- }
+ 		tqp_vector = &priv->tqp_vector[i];
  
+ 		tqp_vector->rx_group.total_bytes = 0;
 -- 
 2.30.2
 
