@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D85537C7C5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49C637C7D9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236206AbhELQCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40540 "EHLO mail.kernel.org"
+        id S236912AbhELQC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:02:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238191AbhELP5b (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238202AbhELP5b (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:57:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43FE161945;
-        Wed, 12 May 2021 15:30:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADCEE61941;
+        Wed, 12 May 2021 15:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833446;
-        bh=OHOzOBDV21nnOwDOWDSt1njwUBPU9OcEKDDqfLCjEPs=;
+        s=korg; t=1620833449;
+        bh=7vFJxsts7R8HfZ9uk8tJK0xDqj5AYJbPncbd5hQb1ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ds3E1qD1KFEcfbfYMHXqlEexT3EpjuWksKfa03JMJ6dstJIRDMRoXqGu1clf1HshQ
-         p3cW+03F+7e84/vOCEoiNhRHIqnV2yLa9sn5IVdRiTh1lmqLn1z8sYGNupvMblKBFn
-         alTT7bPuj49uVyiPNri2EYBILmiw6Sx1jjjsObOA=
+        b=suSRE3Kr9O8bl2jZgC1wbm1FVi0GXhCwXxon9YQv03ZmSBfuKgwuLb6BBv4tZVlXv
+         e4hG4SfrkR4ViJjMzu1UYQEe66JIuBTyloJh/whC9zsHVHReIlMhG3iMZf7gLJOIsy
+         xmg5RyfKe79uM5FuRDL9yxqLOv/v8BSYho7980/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 154/601] serial: stm32: fix tx dma completion, release channel
-Date:   Wed, 12 May 2021 16:43:51 +0200
-Message-Id: <20210512144832.892073773@linuxfoundation.org>
+Subject: [PATCH 5.11 155/601] serial: stm32: call stm32_transmit_chars locked
+Date:   Wed, 12 May 2021 16:43:52 +0200
+Message-Id: <20210512144832.930725901@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,31 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit fb4f2e04ac13e7c400e6b86afbbd314a5a2a7e8d ]
+[ Upstream commit f16b90c2d9db3e6ac719d1946b9d335ca4ab33f3 ]
 
-This patch add a proper release of dma channels when completing dma tx.
+stm32_transmit_chars should be called under lock also in tx DMA callback.
 
 Fixes: 3489187204eb ("serial: stm32: adding dma support")
 Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-9-erwan.leray@foss.st.com
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20210304162308.8984-10-erwan.leray@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/stm32-usart.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 44522ddc7e6d..c2d87a8a8fe5 100644
+index c2d87a8a8fe5..a6295897c537 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -291,6 +291,7 @@ static void stm32_usart_tx_dma_complete(void *arg)
+@@ -290,13 +290,16 @@ static void stm32_usart_tx_dma_complete(void *arg)
+ 	struct uart_port *port = arg;
  	struct stm32_port *stm32port = to_stm32_port(port);
  	const struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
++	unsigned long flags;
  
-+	dmaengine_terminate_async(stm32port->tx_ch);
+ 	dmaengine_terminate_async(stm32port->tx_ch);
  	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
  	stm32port->tx_dma_busy = false;
  
+ 	/* Let's see if we have pending data to send */
++	spin_lock_irqsave(&port->lock, flags);
+ 	stm32_usart_transmit_chars(port);
++	spin_unlock_irqrestore(&port->lock, flags);
+ }
+ 
+ static void stm32_usart_tx_interrupt_enable(struct uart_port *port)
 -- 
 2.30.2
 
