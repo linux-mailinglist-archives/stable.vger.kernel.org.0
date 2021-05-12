@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9716437C652
+	by mail.lfdr.de (Postfix) with ESMTP id 4E87537C651
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237381AbhELPuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237384AbhELPuH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 11:50:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41538 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235525AbhELPpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:45:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14BFA619A4;
-        Wed, 12 May 2021 15:23:03 +0000 (UTC)
+        id S235567AbhELPpM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:45:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C8B061C95;
+        Wed, 12 May 2021 15:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832984;
-        bh=GuoSGIO6UBwn9D0lXNi5kENcAXimOZJm2Wr20cErI3s=;
+        s=korg; t=1620832987;
+        bh=n+AlIZTnt6xoCymPDcnfpVGdh1ubkYkDSmHe4NPqy7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ypu9BNvho2PVnFA9ccFIUlVSXx/ZV5Y76oYDmfSAdKopyf30RFCprXZdHSJNdevhb
-         pALq1k4aaWqLifrmuL9/CiQp14tDUJPCOenrA1kl2CPUmfh91TK2fbiBL4R53x4t3n
-         ML1s1bl3MUbh0DBn2mqOnZwjavYoRED5gacm7u4o=
+        b=BK6hsVCZwgDCcBMXrf01E66ruUwIpvtnnGraZgJ/6p9yf0WxudkFz2pZfbOkymugU
+         pgJ39dCxZYOZMl8F1oZOXBJAt3+qVWczFpTO4XdP8HboU6FyyMNUcFAnexY7yW5FSQ
+         bTHTYYuzSiJy2DzUIDbcZMf9udurY9nzm/7jEaho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 502/530] KVM: VMX: Intercept FS/GS_BASE MSR accesses for 32-bit KVM
-Date:   Wed, 12 May 2021 16:50:12 +0200
-Message-Id: <20210512144836.252834137@linuxfoundation.org>
+Subject: [PATCH 5.10 503/530] net:emac/emac-mac: Fix a use after free in emac_mac_tx_buf_send
+Date:   Wed, 12 May 2021 16:50:13 +0200
+Message-Id: <20210512144836.283805541@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,78 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit dbdd096a5a74b94f6b786a47baef2085859b0dce ]
+[ Upstream commit 6d72e7c767acbbdd44ebc7d89c6690b405b32b57 ]
 
-Disable pass-through of the FS and GS base MSRs for 32-bit KVM.  Intel's
-SDM unequivocally states that the MSRs exist if and only if the CPU
-supports x86-64.  FS_BASE and GS_BASE are mostly a non-issue; a clever
-guest could opportunistically use the MSRs without issue.  KERNEL_GS_BASE
-is a bigger problem, as a clever guest would subtly be broken if it were
-migrated, as KVM disallows software access to the MSRs, and unlike the
-direct variants, KERNEL_GS_BASE needs to be explicitly migrated as it's
-not captured in the VMCS.
+In emac_mac_tx_buf_send, it calls emac_tx_fill_tpd(..,skb,..).
+If some error happens in emac_tx_fill_tpd(), the skb will be freed via
+dev_kfree_skb(skb) in error branch of emac_tx_fill_tpd().
+But the freed skb is still used via skb->len by netdev_sent_queue(,skb->len).
 
-Fixes: 25c5f225beda ("KVM: VMX: Enable MSR Bitmap feature")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422023831.3473491-1-seanjc@google.com>
-[*NOT* for stable kernels. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+As i observed that emac_tx_fill_tpd() haven't modified the value of skb->len,
+thus my patch assigns skb->len to 'len' before the possible free and
+use 'len' instead of skb->len later.
+
+Fixes: b9b17debc69d2 ("net: emac: emac gigabit ethernet controller driver")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 2 ++
- arch/x86/kvm/vmx/vmx.c    | 4 ++++
- 2 files changed, 6 insertions(+)
+ drivers/net/ethernet/qualcomm/emac/emac-mac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 44ab9df0b21b..e8882715735a 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -618,6 +618,7 @@ static inline bool nested_vmx_prepare_msr_bitmap(struct kvm_vcpu *vcpu,
- 	}
+diff --git a/drivers/net/ethernet/qualcomm/emac/emac-mac.c b/drivers/net/ethernet/qualcomm/emac/emac-mac.c
+index 117188e3c7de..87b8c032195d 100644
+--- a/drivers/net/ethernet/qualcomm/emac/emac-mac.c
++++ b/drivers/net/ethernet/qualcomm/emac/emac-mac.c
+@@ -1437,6 +1437,7 @@ netdev_tx_t emac_mac_tx_buf_send(struct emac_adapter *adpt,
+ {
+ 	struct emac_tpd tpd;
+ 	u32 prod_idx;
++	int len;
  
- 	/* KVM unconditionally exposes the FS/GS base MSRs to L1. */
-+#ifdef CONFIG_X86_64
- 	nested_vmx_disable_intercept_for_msr(msr_bitmap_l1, msr_bitmap_l0,
- 					     MSR_FS_BASE, MSR_TYPE_RW);
+ 	memset(&tpd, 0, sizeof(tpd));
  
-@@ -626,6 +627,7 @@ static inline bool nested_vmx_prepare_msr_bitmap(struct kvm_vcpu *vcpu,
+@@ -1456,9 +1457,10 @@ netdev_tx_t emac_mac_tx_buf_send(struct emac_adapter *adpt,
+ 	if (skb_network_offset(skb) != ETH_HLEN)
+ 		TPD_TYP_SET(&tpd, 1);
  
- 	nested_vmx_disable_intercept_for_msr(msr_bitmap_l1, msr_bitmap_l0,
- 					     MSR_KERNEL_GS_BASE, MSR_TYPE_RW);
-+#endif
++	len = skb->len;
+ 	emac_tx_fill_tpd(adpt, tx_q, skb, &tpd);
  
- 	/*
- 	 * Checking the L0->L1 bitmap is trying to verify two things:
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 8635413cc649..fca4f452827b 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -156,9 +156,11 @@ static u32 vmx_possible_passthrough_msrs[MAX_POSSIBLE_PASSTHROUGH_MSRS] = {
- 	MSR_IA32_SPEC_CTRL,
- 	MSR_IA32_PRED_CMD,
- 	MSR_IA32_TSC,
-+#ifdef CONFIG_X86_64
- 	MSR_FS_BASE,
- 	MSR_GS_BASE,
- 	MSR_KERNEL_GS_BASE,
-+#endif
- 	MSR_IA32_SYSENTER_CS,
- 	MSR_IA32_SYSENTER_ESP,
- 	MSR_IA32_SYSENTER_EIP,
-@@ -6904,9 +6906,11 @@ static int vmx_create_vcpu(struct kvm_vcpu *vcpu)
- 	bitmap_fill(vmx->shadow_msr_intercept.write, MAX_POSSIBLE_PASSTHROUGH_MSRS);
+-	netdev_sent_queue(adpt->netdev, skb->len);
++	netdev_sent_queue(adpt->netdev, len);
  
- 	vmx_disable_intercept_for_msr(vcpu, MSR_IA32_TSC, MSR_TYPE_R);
-+#ifdef CONFIG_X86_64
- 	vmx_disable_intercept_for_msr(vcpu, MSR_FS_BASE, MSR_TYPE_RW);
- 	vmx_disable_intercept_for_msr(vcpu, MSR_GS_BASE, MSR_TYPE_RW);
- 	vmx_disable_intercept_for_msr(vcpu, MSR_KERNEL_GS_BASE, MSR_TYPE_RW);
-+#endif
- 	vmx_disable_intercept_for_msr(vcpu, MSR_IA32_SYSENTER_CS, MSR_TYPE_RW);
- 	vmx_disable_intercept_for_msr(vcpu, MSR_IA32_SYSENTER_ESP, MSR_TYPE_RW);
- 	vmx_disable_intercept_for_msr(vcpu, MSR_IA32_SYSENTER_EIP, MSR_TYPE_RW);
+ 	/* Make sure the are enough free descriptors to hold one
+ 	 * maximum-sized SKB.  We need one desc for each fragment,
 -- 
 2.30.2
 
