@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1AA37C917
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC2037C8DD
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238041AbhELQO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:14:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
+        id S237327AbhELQNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239471AbhELQIH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:08:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABB3E61C5D;
-        Wed, 12 May 2021 15:38:24 +0000 (UTC)
+        id S239235AbhELQHh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF8E761D16;
+        Wed, 12 May 2021 15:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833905;
-        bh=5FuBqSD19wnWL9dtOWbJXlNsmSn2q4qJMKNNnd+cPj0=;
+        s=korg; t=1620833814;
+        bh=JsJiWstIsSPp/unCPBmaU/bOK5cDK9cuN3cHAiuLIM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovfUmRBcof8wU6P8OpDz4zjJ5ApzWd5VrcKxiPf6Vjz5nZrqiovO7q5Yv9nbkvcWw
-         i1Wkm+rIL/mR4QmzwX0dq+Q0fQZbdUk8mET+Jnb6+oIAzIRVouqYjw/FSR+lTWoOuv
-         iL3wz6FMxGBHMG6Rnf6oTDwIQONkpGo+hhofJA8A=
+        b=fnZJc+oszutxpXJ0Oya/jL6F9xykpGGLVyOrAhM8L8MVnPxfLwE2GdpNojxojg0TI
+         4W2nHaTtzcK5Sqc9eFteRoB0x2BXi8ogmijmCnTSf5oTKDP0euwYsR6dTlp1FJgvu+
+         LuIGaMTEJIDjZsgnDKj/tllFC4cqXrLxECP6nrN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 291/601] Drivers: hv: vmbus: Use after free in __vmbus_open()
-Date:   Wed, 12 May 2021 16:46:08 +0200
-Message-Id: <20210512144837.386158716@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Quanyang Wang <quanyang.wang@windriver.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 292/601] spi: spi-zynqmp-gqspi: fix clk_enable/disable imbalance issue
+Date:   Wed, 12 May 2021 16:46:09 +0200
+Message-Id: <20210512144837.424029123@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,38 +41,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit 3e9bf43f7f7a46f21ec071cb47be92d0874c48da ]
+[ Upstream commit c6bdae08012b2ca3e94f3a41ef4ca8cfe7c9ab6f ]
 
-The "open_info" variable is added to the &vmbus_connection.chn_msg_list,
-but the error handling frees "open_info" without removing it from the
-list.  This will result in a use after free.  First remove it from the
-list, and then free it.
+The clks "pclk" and "ref_clk" are enabled twice during the probe. The
+first time is in the function zynqmp_qspi_probe and the second time is
+in zynqmp_qspi_setup_op which is called by devm_spi_register_controller.
+Then calling zynqmp_qspi_remove (rmmod this module) to disable these clks
+will trigger a warning as below:
 
-Fixes: 6f3d791f3006 ("Drivers: hv: vmbus: Fix rescind handling issues")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrea Parri <parri.andrea@gmail.com>
-Link: https://lore.kernel.org/r/YHV3XLCot6xBS44r@mwanda
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+[  309.124604] Unpreparing enabled qspi_ref
+[  309.128641] WARNING: CPU: 1 PID: 537 at drivers/clk/clk.c:824 clk_core_unprepare+0x108/0x110
+
+Since pm_runtime works now, clks can be enabled/disabled by calling
+zynqmp_runtime_suspend/resume. So we don't need to enable these clks
+explicitly in zynqmp_qspi_setup_op. Remove them to fix this issue.
+
+And remove clk enabling/disabling in zynqmp_qspi_resume because there is
+no spi transfer operation so enabling ref_clk is redundant meanwhile pclk
+is not disabled for it is shared with other peripherals.
+
+Furthermore replace clk_enable/disable with clk_prepare_enable and
+clk_disable_unprepare in runtime_suspend/resume functions.
+
+Fixes: 1c26372e5aa9 ("spi: spi-zynqmp-gqspi: Update driver to use spi-mem framework")
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Link: https://lore.kernel.org/r/20210416004652.2975446-2-quanyang.wang@windriver.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/channel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-zynqmp-gqspi.c | 47 ++++++----------------------------
+ 1 file changed, 8 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
-index 6fb0c76bfbf8..a59ab2f3d68e 100644
---- a/drivers/hv/channel.c
-+++ b/drivers/hv/channel.c
-@@ -653,7 +653,7 @@ static int __vmbus_open(struct vmbus_channel *newchannel,
+diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
+index 408e348382c5..31d266cfbb4c 100644
+--- a/drivers/spi/spi-zynqmp-gqspi.c
++++ b/drivers/spi/spi-zynqmp-gqspi.c
+@@ -487,24 +487,10 @@ static int zynqmp_qspi_setup_op(struct spi_device *qspi)
+ {
+ 	struct spi_controller *ctlr = qspi->master;
+ 	struct zynqmp_qspi *xqspi = spi_controller_get_devdata(ctlr);
+-	struct device *dev = &ctlr->dev;
+-	int ret;
  
- 	if (newchannel->rescind) {
- 		err = -ENODEV;
--		goto error_free_info;
-+		goto error_clean_msglist;
+ 	if (ctlr->busy)
+ 		return -EBUSY;
+ 
+-	ret = clk_enable(xqspi->refclk);
+-	if (ret) {
+-		dev_err(dev, "Cannot enable device clock.\n");
+-		return ret;
+-	}
+-
+-	ret = clk_enable(xqspi->pclk);
+-	if (ret) {
+-		dev_err(dev, "Cannot enable APB clock.\n");
+-		clk_disable(xqspi->refclk);
+-		return ret;
+-	}
+ 	zynqmp_gqspi_write(xqspi, GQSPI_EN_OFST, GQSPI_EN_MASK);
+ 
+ 	return 0;
+@@ -863,26 +849,9 @@ static int __maybe_unused zynqmp_qspi_suspend(struct device *dev)
+ static int __maybe_unused zynqmp_qspi_resume(struct device *dev)
+ {
+ 	struct spi_controller *ctlr = dev_get_drvdata(dev);
+-	struct zynqmp_qspi *xqspi = spi_controller_get_devdata(ctlr);
+-	int ret = 0;
+-
+-	ret = clk_enable(xqspi->pclk);
+-	if (ret) {
+-		dev_err(dev, "Cannot enable APB clock.\n");
+-		return ret;
+-	}
+-
+-	ret = clk_enable(xqspi->refclk);
+-	if (ret) {
+-		dev_err(dev, "Cannot enable device clock.\n");
+-		clk_disable(xqspi->pclk);
+-		return ret;
+-	}
+ 
+ 	spi_controller_resume(ctlr);
+ 
+-	clk_disable(xqspi->refclk);
+-	clk_disable(xqspi->pclk);
+ 	return 0;
+ }
+ 
+@@ -898,8 +867,8 @@ static int __maybe_unused zynqmp_runtime_suspend(struct device *dev)
+ {
+ 	struct zynqmp_qspi *xqspi = (struct zynqmp_qspi *)dev_get_drvdata(dev);
+ 
+-	clk_disable(xqspi->refclk);
+-	clk_disable(xqspi->pclk);
++	clk_disable_unprepare(xqspi->refclk);
++	clk_disable_unprepare(xqspi->pclk);
+ 
+ 	return 0;
+ }
+@@ -917,16 +886,16 @@ static int __maybe_unused zynqmp_runtime_resume(struct device *dev)
+ 	struct zynqmp_qspi *xqspi = (struct zynqmp_qspi *)dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = clk_enable(xqspi->pclk);
++	ret = clk_prepare_enable(xqspi->pclk);
+ 	if (ret) {
+ 		dev_err(dev, "Cannot enable APB clock.\n");
+ 		return ret;
  	}
  
- 	err = vmbus_post_msg(open_msg,
+-	ret = clk_enable(xqspi->refclk);
++	ret = clk_prepare_enable(xqspi->refclk);
+ 	if (ret) {
+ 		dev_err(dev, "Cannot enable device clock.\n");
+-		clk_disable(xqspi->pclk);
++		clk_disable_unprepare(xqspi->pclk);
+ 		return ret;
+ 	}
+ 
+@@ -1136,13 +1105,11 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
+ 		goto remove_master;
+ 	}
+ 
+-	init_completion(&xqspi->data_completion);
+-
+ 	xqspi->refclk = devm_clk_get(&pdev->dev, "ref_clk");
+ 	if (IS_ERR(xqspi->refclk)) {
+ 		dev_err(dev, "ref_clk clock not found.\n");
+ 		ret = PTR_ERR(xqspi->refclk);
+-		goto clk_dis_pclk;
++		goto remove_master;
+ 	}
+ 
+ 	ret = clk_prepare_enable(xqspi->pclk);
+@@ -1157,6 +1124,8 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
+ 		goto clk_dis_pclk;
+ 	}
+ 
++	init_completion(&xqspi->data_completion);
++
+ 	mutex_init(&xqspi->op_lock);
+ 
+ 	pm_runtime_use_autosuspend(&pdev->dev);
 -- 
 2.30.2
 
