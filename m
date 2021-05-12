@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED01237BB33
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5AA837BB34
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230213AbhELKrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:47:42 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:39985 "EHLO
+        id S230224AbhELKrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:47:53 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:47677 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230185AbhELKrm (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 12 May 2021 06:47:42 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id 21CD812B6;
-        Wed, 12 May 2021 06:46:34 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 06:46:34 -0400
+        by vger.kernel.org with ESMTP id S230185AbhELKrx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:47:53 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 8C82C12DF;
+        Wed, 12 May 2021 06:46:44 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 12 May 2021 06:46:44 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CBM315
-        VBgZ8X9ykUeG1NFQ++JA2rX7FDcb4XLm3QuWY=; b=izgbaVDsUMYtMoAb4w7cak
-        vImjkvIII5A6WWNmrUzl6U6PWgIZb7I4KhnuMDb6+cXoir6KPBiGah4IWFLmR0eD
-        8g/B0hmQSUy9nyAgmtjSPE9kBsrp7VtNFosWOs7jc9zQ2mzaB/rwp6DEOWFXh0Yg
-        JKZQwGtem0XpgQJVTrA0paxLYcVBpMpzWiQmZWgAlOJbrErP3dvkGGfnmM9Ewcnh
-        DjIc5AgHCTmdYYdB9dfQPw/QawVnAVwhNKU6zVMalvS1pH8Igj32k7Y0+eqbIik6
-        0M5Ze0BJZVnIyUiDei1OIz3WE1Rc3O/ZrKsRwTmLhed0G6inyVc3TmfE1vXaoz1A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GiAhWE
+        oZkrPYsKnVxhcO8vCQvsDVr1qrWZbsOteoNVU=; b=UmMEthj5XkWCaw3XPVHClT
+        SwbgyCw5RC7I25JX0DOF37G9KoVP1pnUzTJzIiGHYWiBh6qtzFgW06VZOLlKl8Th
+        xDSeF3HeQvQYyY7m08qtHZDc/MeJiRHgSOJelCktESZL4mLtmMfFt88NztdRcCqD
+        KGOlZ4lnMcMlqqGTi2kSGem6GMNqqlMyGj87vjfJA8UE/tn26FIhKA49Epvti4j3
+        3DEJfZfMWut22TPtbDbc0w3LBwAAGzAYpLfGhhLA4skeAuAhNyRPeIWiWNJyvfXX
+        CGfJpFxKt8yd7kUNxm96s0fj3gdHeBC8ZkB4PunFzcAywRHZJx+sgonvm2jTFzUg
         ==
-X-ME-Sender: <xms:CbKbYLZWN2bM7PMN-Yuxg0PS3qB98shqOWZebMGYqX94-Zgp58Ns6Q>
-    <xme:CbKbYKaLNUnJEHQ2ZSKnuH7ISrpyANtov00Ajy-mpexYjFBuiW5m-9XeoxkuQXXzS
-    qdmDiAfu8bedw>
+X-ME-Sender: <xms:FLKbYJbWmgkwJNWO9STmI5dEnzv-8u096ctB16GT8wozoxmjLjv6lQ>
+    <xme:FLKbYAY-9mFJRodj7nOCi2zgd_nTti4jFvnA9cuHggDxI92VQME10qY2jcIy7Vy-g
+    kIvhpZ_YiX-Cg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:CbKbYN_xq-9ZVYc6d68pdFf4raTY46mgS-BTRXwjyy4mquHI-TXXUw>
-    <xmx:CbKbYBrC-ydK8PfjEs8KKSJbAfNUkI4ts2Gw80i2cnCWZbuFcxa4-g>
-    <xmx:CbKbYGrF0O5KvUjLb6kwuK1pe54c8dt6G2TMb5I6zyeAWRrZO2nkUQ>
-    <xmx:CbKbYN1Vo47G-23PB5u3ZRGAMseTOvlqX5w-YydtSb08vTZPBv98KDlGp_k>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgepieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:FLKbYL8kekpQn1md2hGCDh0uK_M9B7hOvMgGwrQughz-manDzcJdjw>
+    <xmx:FLKbYHqr_DmgL-5oV7cQpply46CtaxdpZuzzR5k3dwpQdODSnNN86A>
+    <xmx:FLKbYEpjYM_3b9EtwQMJbskf9nIWRiz1ez7zq-qir4mhAucyue0BqQ>
+    <xmx:FLKbYLR6eY-B-ojHIPFJb_c9k81XAyYPMG2IiipLKfR4ZeUJ0L3zCqRfOUw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:46:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: arm/arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST read" failed to apply to 5.4-stable tree
-To:     eric.auger@redhat.com, Stable@vger.kernel.org, gshan@redhat.com,
-        maz@kernel.org
+        Wed, 12 May 2021 06:46:43 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: Destroy I/O bus devices on unregister failure _after_" failed to apply to 4.4-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 12:46:24 +0200
-Message-ID: <1620816384135235@kroah.com>
+Date:   Wed, 12 May 2021 12:46:42 +0200
+Message-ID: <162081640272133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,40 +70,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 94ac0835391efc1a30feda6fc908913ec012951e Mon Sep 17 00:00:00 2001
-From: Eric Auger <eric.auger@redhat.com>
-Date: Mon, 12 Apr 2021 17:00:34 +0200
-Subject: [PATCH] KVM: arm/arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST read
+From 2ee3757424be7c1cd1d0bbfa6db29a7edd82a250 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Mon, 12 Apr 2021 15:20:48 -0700
+Subject: [PATCH] KVM: Destroy I/O bus devices on unregister failure _after_
+ sync'ing SRCU
 
-When reading the base address of the a REDIST region
-through KVM_VGIC_V3_ADDR_TYPE_REDIST we expect the
-redistributor region list to be populated with a single
-element.
+If allocating a new instance of an I/O bus fails when unregistering a
+device, wait to destroy the device until after all readers are guaranteed
+to see the new null bus.  Destroying devices before the bus is nullified
+could lead to use-after-free since readers expect the devices on their
+reference of the bus to remain valid.
 
-However list_first_entry() expects the list to be non empty.
-Instead we should use list_first_entry_or_null which effectively
-returns NULL if the list is empty.
+Fixes: f65886606c2d ("KVM: fix memory leak in kvm_io_bus_unregister_dev()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210412222050.876100-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Fixes: dbd9733ab674 ("KVM: arm/arm64: Replace the single rdist region by a list")
-Cc: <Stable@vger.kernel.org> # v4.18+
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Reported-by: Gavin Shan <gshan@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210412150034.29185-1-eric.auger@redhat.com
-
-diff --git a/arch/arm64/kvm/vgic/vgic-kvm-device.c b/arch/arm64/kvm/vgic/vgic-kvm-device.c
-index 2f66cf247282..7740995de982 100644
---- a/arch/arm64/kvm/vgic/vgic-kvm-device.c
-+++ b/arch/arm64/kvm/vgic/vgic-kvm-device.c
-@@ -87,8 +87,8 @@ int kvm_vgic_addr(struct kvm *kvm, unsigned long type, u64 *addr, bool write)
- 			r = vgic_v3_set_redist_base(kvm, 0, *addr, 0);
- 			goto out;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 529cff1050d7..c771d40737c9 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4646,7 +4646,13 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 		new_bus->dev_count--;
+ 		memcpy(new_bus->range + i, bus->range + i + 1,
+ 				flex_array_size(new_bus, range, new_bus->dev_count - i));
+-	} else {
++	}
++
++	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
++	synchronize_srcu_expedited(&kvm->srcu);
++
++	/* Destroy the old bus _after_ installing the (null) bus. */
++	if (!new_bus) {
+ 		pr_err("kvm: failed to shrink bus, removing it completely\n");
+ 		for (j = 0; j < bus->dev_count; j++) {
+ 			if (j == i)
+@@ -4655,8 +4661,6 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
  		}
--		rdreg = list_first_entry(&vgic->rd_regions,
--					 struct vgic_redist_region, list);
-+		rdreg = list_first_entry_or_null(&vgic->rd_regions,
-+						 struct vgic_redist_region, list);
- 		if (!rdreg)
- 			addr_ptr = &undef_value;
- 		else
+ 	}
+ 
+-	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
+-	synchronize_srcu_expedited(&kvm->srcu);
+ 	kfree(bus);
+ 	return;
+ }
 
