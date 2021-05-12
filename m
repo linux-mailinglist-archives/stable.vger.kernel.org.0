@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E9AB37C986
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F8437C98D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235816AbhELQTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:19:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49190 "EHLO mail.kernel.org"
+        id S236041AbhELQTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:19:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236583AbhELQMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:12:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32B8561C70;
-        Wed, 12 May 2021 15:41:05 +0000 (UTC)
+        id S236730AbhELQMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:12:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D65A61D44;
+        Wed, 12 May 2021 15:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834065;
-        bh=Mh1CjhzMOAedYmFFKli7reS70OHNVUIm2gJXJe6rLYY=;
+        s=korg; t=1620834070;
+        bh=6HOkzmM+NRX+mGTooWchTjVrwWbV1Dj2SYoRxg1wBxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3vqE7zkZXmdgaKBKyrRkSBeAE4X1oKOOEG1Y6BnWyZA7HQ5NBQ8QSjkkBIUYXw4i
-         KCzefJFHn5NAv/+9ALDFYw9bVo/Jx9VQ+bvvi2VOpJUazc50cR6sfCJ7H4kd3dia2q
-         f3gEGvKK4gRKzyUUcfzK5k91LmL56wAv/hnFXfEQ=
+        b=qFlAbv7eojSjyMjTJ0DPGQ7rEewJh3bWswTdwPasB3IuMSJrJygd1/TZLVLCs5+pA
+         RVB1d/uB88RjeVXFvYoeip2CyToOt7ZDbTM42jnD0Ykdyn8b3TEMsu3JvZArKO8LQ7
+         o+3z7gtrp+k5HvSyOsJoIeD31Fw3GE6hCH5RhT/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcus Folkesson <marcus.folkesson@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 395/601] wilc1000: write value to WILC_INTR2_ENABLE register
-Date:   Wed, 12 May 2021 16:47:52 +0200
-Message-Id: <20210512144840.813361672@linuxfoundation.org>
+Subject: [PATCH 5.11 396/601] KVM: x86/mmu: Retry page faults that hit an invalid memslot
+Date:   Wed, 12 May 2021 16:47:53 +0200
+Message-Id: <20210512144840.852049991@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,34 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit e21b6e5a54628cd3935f200049d4430c25c54e03 ]
+[ Upstream commit e0c378684b6545ad2d4403bb701d0ac4932b4e95 ]
 
-Write the value instead of reading it twice.
+Retry page faults (re-enter the guest) that hit an invalid memslot
+instead of treating the memslot as not existing, i.e. handling the
+page fault as an MMIO access.  When deleting a memslot, SPTEs aren't
+zapped and the TLBs aren't flushed until after the memslot has been
+marked invalid.
 
-Fixes: c5c77ba18ea6 ("staging: wilc1000: Add SDIO/SPI 802.11 driver")
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210224163706.519658-1-marcus.folkesson@gmail.com
+Handling the invalid slot as MMIO means there's a small window where a
+page fault could replace a valid SPTE with an MMIO SPTE.  The legacy
+MMU handles such a scenario cleanly, but the TDP MMU assumes such
+behavior is impossible (see the BUG() in __handle_changed_spte()).
+There's really no good reason why the legacy MMU should allow such a
+scenario, and closing this hole allows for additional cleanups.
+
+Fixes: 2f2fad0897cb ("kvm: x86/mmu: Add functions to handle changed TDP SPTEs")
+Cc: Ben Gardon <bgardon@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210225204749.1512652-6-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/microchip/wilc1000/sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/mmu/mmu.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/wireless/microchip/wilc1000/sdio.c b/drivers/net/wireless/microchip/wilc1000/sdio.c
-index 351ff909ab1c..e14b9fc2c67a 100644
---- a/drivers/net/wireless/microchip/wilc1000/sdio.c
-+++ b/drivers/net/wireless/microchip/wilc1000/sdio.c
-@@ -947,7 +947,7 @@ static int wilc_sdio_sync_ext(struct wilc *wilc, int nint)
- 			for (i = 0; (i < 3) && (nint > 0); i++, nint--)
- 				reg |= BIT(i);
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 3d5e4fdbf5fd..9dabd689a812 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -3676,6 +3676,14 @@ static bool try_async_pf(struct kvm_vcpu *vcpu, bool prefault, gfn_t gfn,
+ 	struct kvm_memory_slot *slot = kvm_vcpu_gfn_to_memslot(vcpu, gfn);
+ 	bool async;
  
--			ret = wilc_sdio_read_reg(wilc, WILC_INTR2_ENABLE, &reg);
-+			ret = wilc_sdio_write_reg(wilc, WILC_INTR2_ENABLE, reg);
- 			if (ret) {
- 				dev_err(&func->dev,
- 					"Failed write reg (%08x)...\n",
++	/*
++	 * Retry the page fault if the gfn hit a memslot that is being deleted
++	 * or moved.  This ensures any existing SPTEs for the old memslot will
++	 * be zapped before KVM inserts a new MMIO SPTE for the gfn.
++	 */
++	if (slot && (slot->flags & KVM_MEMSLOT_INVALID))
++		return true;
++
+ 	/* Don't expose private memslots to L2. */
+ 	if (is_guest_mode(vcpu) && !kvm_is_visible_memslot(slot)) {
+ 		*pfn = KVM_PFN_NOSLOT;
 -- 
 2.30.2
 
