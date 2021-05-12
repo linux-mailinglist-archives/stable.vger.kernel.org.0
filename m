@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE0937CA72
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59FAF37CA74
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238461AbhELQaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:30:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35932 "EHLO mail.kernel.org"
+        id S238489AbhELQaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:30:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236722AbhELQWz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236729AbhELQWz (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:22:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79A4761D95;
-        Wed, 12 May 2021 15:47:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA848613CB;
+        Wed, 12 May 2021 15:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834425;
-        bh=6jbx8f/0Gz8nba8YAg5+OSMl+C5x1aVC6pWPyNWnZ00=;
+        s=korg; t=1620834427;
+        bh=KZsc5yZIuWsrYya7OjS5DggjPvs/sLXeDrdmYlchDik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyKdVy90qxyl89Q9ZuacjXgZcLPeqi2nqzG2hpMyCuL3UwUKvq38BOelyu8Yc2tzt
-         IroP5BGMcl8K1MhKlRsLbp0QLCRGcEfODKgQ/z+fBCtnTMZ410A4zPKQNZGxqdt//Z
-         g6wafCG8FTfX7Tbl4OU2O6HnAzNxs3XsO95JjOp4=
+        b=eWQHS4LEPJtL98CxwLodyZqF6IkjaLWT6Kgq6Wk1YmvRc35sS4SjnxKFOgIo0zDB2
+         qp+1SxuCxhqpoPggd5zG8XbEef81hmEO2QLi2Le+ut/CDXRbaCtCcEt2tRLwLV/iLN
+         FeTKkSluQ8bgNYg3OhwTZSn9OPyzjAH4FTIPsecc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Cree <ecree.xilinx@gmail.com>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 538/601] sfc: ef10: fix TX queue lookup in TX event handling
-Date:   Wed, 12 May 2021 16:50:15 +0200
-Message-Id: <20210512144845.577539719@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+24452624fc4c571eedd9@syzkaller.appspotmail.com
+Subject: [PATCH 5.11 539/601] vsock/virtio: free queued packets when closing socket
+Date:   Wed, 12 May 2021 16:50:16 +0200
+Message-Id: <20210512144845.610203200@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,37 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Cree <ecree.xilinx@gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 172e269edfce34bac7c61c15551816bda4b0f140 ]
+[ Upstream commit 8432b8114957235f42e070a16118a7f750de9d39 ]
 
-We're starting from a TXQ label, not a TXQ type, so
- efx_channel_get_tx_queue() is inappropriate.  This worked by chance,
- because labels and types currently match on EF10, but we shouldn't
- rely on that.
+As reported by syzbot [1], there is a memory leak while closing the
+socket. We partially solved this issue with commit ac03046ece2b
+("vsock/virtio: free packets during the socket release"), but we
+forgot to drain the RX queue when the socket is definitely closed by
+the scheduled work.
 
-Fixes: 12804793b17c ("sfc: decouple TXQ type from label")
-Signed-off-by: Edward Cree <ecree.xilinx@gmail.com>
+To avoid future issues, let's use the new virtio_transport_remove_sock()
+to drain the RX queue before removing the socket from the af_vsock lists
+calling vsock_remove_sock().
+
+[1] https://syzkaller.appspot.com/bug?extid=24452624fc4c571eedd9
+
+Fixes: ac03046ece2b ("vsock/virtio: free packets during the socket release")
+Reported-and-tested-by: syzbot+24452624fc4c571eedd9@syzkaller.appspotmail.com
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/vmw_vsock/virtio_transport_common.c | 28 +++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
-index da6886dcac37..4fa72b573c17 100644
---- a/drivers/net/ethernet/sfc/ef10.c
-+++ b/drivers/net/ethernet/sfc/ef10.c
-@@ -2928,8 +2928,7 @@ efx_ef10_handle_tx_event(struct efx_channel *channel, efx_qword_t *event)
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index e4370b1b7494..902cb6dd710b 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -733,6 +733,23 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
+ 	return t->send_pkt(reply);
+ }
  
- 	/* Get the transmit queue */
- 	tx_ev_q_label = EFX_QWORD_FIELD(*event, ESF_DZ_TX_QLABEL);
--	tx_queue = efx_channel_get_tx_queue(channel,
--					    tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
-+	tx_queue = channel->tx_queue + (tx_ev_q_label % EFX_MAX_TXQ_PER_CHANNEL);
++/* This function should be called with sk_lock held and SOCK_DONE set */
++static void virtio_transport_remove_sock(struct vsock_sock *vsk)
++{
++	struct virtio_vsock_sock *vvs = vsk->trans;
++	struct virtio_vsock_pkt *pkt, *tmp;
++
++	/* We don't need to take rx_lock, as the socket is closing and we are
++	 * removing it.
++	 */
++	list_for_each_entry_safe(pkt, tmp, &vvs->rx_queue, list) {
++		list_del(&pkt->list);
++		virtio_transport_free_pkt(pkt);
++	}
++
++	vsock_remove_sock(vsk);
++}
++
+ static void virtio_transport_wait_close(struct sock *sk, long timeout)
+ {
+ 	if (timeout) {
+@@ -765,7 +782,7 @@ static void virtio_transport_do_close(struct vsock_sock *vsk,
+ 	    (!cancel_timeout || cancel_delayed_work(&vsk->close_work))) {
+ 		vsk->close_work_scheduled = false;
  
- 	if (!tx_queue->timestamping) {
- 		/* Transmit completion */
+-		vsock_remove_sock(vsk);
++		virtio_transport_remove_sock(vsk);
+ 
+ 		/* Release refcnt obtained when we scheduled the timeout */
+ 		sock_put(sk);
+@@ -828,22 +845,15 @@ static bool virtio_transport_close(struct vsock_sock *vsk)
+ 
+ void virtio_transport_release(struct vsock_sock *vsk)
+ {
+-	struct virtio_vsock_sock *vvs = vsk->trans;
+-	struct virtio_vsock_pkt *pkt, *tmp;
+ 	struct sock *sk = &vsk->sk;
+ 	bool remove_sock = true;
+ 
+ 	if (sk->sk_type == SOCK_STREAM)
+ 		remove_sock = virtio_transport_close(vsk);
+ 
+-	list_for_each_entry_safe(pkt, tmp, &vvs->rx_queue, list) {
+-		list_del(&pkt->list);
+-		virtio_transport_free_pkt(pkt);
+-	}
+-
+ 	if (remove_sock) {
+ 		sock_set_flag(sk, SOCK_DONE);
+-		vsock_remove_sock(vsk);
++		virtio_transport_remove_sock(vsk);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_release);
 -- 
 2.30.2
 
