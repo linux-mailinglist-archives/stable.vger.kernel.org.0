@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22ED437CE44
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53EAB37CE4F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239201AbhELRE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35700 "EHLO mail.kernel.org"
+        id S239359AbhELRE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:04:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236103AbhELQnM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:43:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC65F61E15;
-        Wed, 12 May 2021 16:13:06 +0000 (UTC)
+        id S236382AbhELQnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:43:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43A6C61E5A;
+        Wed, 12 May 2021 16:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835987;
-        bh=C/KSMaBb2dEstc/EceDC4PvHThdEA4rZNMkt0UQyBv0=;
+        s=korg; t=1620835989;
+        bh=m9RuJQY2qqXvPuD+z0oUES44wRyogo9njxY4kdNdgDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4TCgeH0fxipseKsFTiJ57bAHNOPbvxD8nPG40uTdJ28hQtURrlReC8w+sVuG1p7E
-         ANeLJoFJQDTx+MRgPzjVk7wDURFazFCMAR2HpBgTWuyuH0XWHEI+7GB9nLVseopPXQ
-         a3uI2XK0CeYaDz7gj6QutCjUB87AKYqw1BPLwuGI=
+        b=hdDNgDmlX+4wtOPNq1P7LpPTaVAa52S5DXH9/y3J2PtBOYXwb9v2WVDqsj1Q9VWk1
+         BbPSn1euUU42/kfIHKLgHDiLOJzvICyDMns+6rIrzp26NTtNYUmZkyMGax4R+zqoOQ
+         MV+/CBqLCHZ9WNBwuu5BbWAIBujPAu/asz/jdiTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 529/677] mt76: mt7915: fix mib stats counter reporting to mac80211
-Date:   Wed, 12 May 2021 16:49:35 +0200
-Message-Id: <20210512144854.955998765@linuxfoundation.org>
+Subject: [PATCH 5.12 530/677] mt76: connac: fix kernel warning adding monitor interface
+Date:   Wed, 12 May 2021 16:49:36 +0200
+Message-Id: <20210512144854.987520756@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,126 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 2b35050a321865859fd2f12a3c18ed7be27858c9 ]
+[ Upstream commit c996f0346e40e3b1ac2ebaf0681df898fb157f60 ]
 
-In order to properly report MIB counters to mac80211, resets stats in
-mt7915_get_stats routine() and hold mt76 mutex accessing MIB counters.
-Sum up MIB counters in mt7915_mac_update_mib_stats routine.
+Fix the following kernel warning adding a monitor interface in
+mt76_connac_mcu_uni_add_dev routine.
 
-Fixes: e57b7901469f ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+[  507.984882] ------------[ cut here ]------------
+[  507.989515] WARNING: CPU: 1 PID: 3017 at mt76_connac_mcu_uni_add_dev+0x178/0x190 [mt76_connac_lib]
+[  508.059379] CPU: 1 PID: 3017 Comm: ifconfig Not tainted 5.4.98 #0
+[  508.065461] Hardware name: MT7622_MT7531 RFB (DT)
+[  508.070156] pstate: 80000005 (Nzcv daif -PAN -UAO)
+[  508.074939] pc : mt76_connac_mcu_uni_add_dev+0x178/0x190 [mt76_connac_lib]
+[  508.081806] lr : mt7921_eeprom_init+0x1288/0x1cb8 [mt7921e]
+[  508.087367] sp : ffffffc013a33930
+[  508.090671] x29: ffffffc013a33930 x28: ffffff801e628ac0
+[  508.095973] x27: ffffff801c7f1200 x26: ffffff801c7eb008
+[  508.101275] x25: ffffff801c7eaef0 x24: ffffff801d025610
+[  508.106577] x23: ffffff801d022990 x22: ffffff801d024de8
+[  508.111879] x21: ffffff801d0226a0 x20: ffffff801c7eaee8
+[  508.117181] x19: ffffff801d0226a0 x18: 000000005d00b000
+[  508.122482] x17: 00000000ffffffff x16: 0000000000000000
+[  508.127785] x15: 0000000000000080 x14: ffffff801d704000
+[  508.133087] x13: 0000000000000040 x12: 0000000000000002
+[  508.138389] x11: 000000000000000c x10: 0000000000000000
+[  508.143691] x9 : 0000000000000020 x8 : 0000000000000001
+[  508.148992] x7 : 0000000000000000 x6 : 0000000000000000
+[  508.154294] x5 : ffffff801c7eaee8 x4 : 0000000000000006
+[  508.159596] x3 : 0000000000000001 x2 : 0000000000000000
+[  508.164898] x1 : ffffff801c7eac08 x0 : ffffff801d0226a0
+[  508.170200] Call trace:
+[  508.172640]  mt76_connac_mcu_uni_add_dev+0x178/0x190 [mt76_connac_lib]
+[  508.179159]  mt7921_eeprom_init+0x1288/0x1cb8 [mt7921e]
+[  508.184394]  drv_add_interface+0x34/0x88 [mac80211]
+[  508.189271]  ieee80211_add_virtual_monitor+0xe0/0xb48 [mac80211]
+[  508.195277]  ieee80211_do_open+0x86c/0x918 [mac80211]
+[  508.200328]  ieee80211_do_open+0x900/0x918 [mac80211]
+[  508.205372]  __dev_open+0xcc/0x150
+[  508.208763]  __dev_change_flags+0x134/0x198
+[  508.212937]  dev_change_flags+0x20/0x60
+[  508.216764]  devinet_ioctl+0x3e8/0x748
+[  508.220503]  inet_ioctl+0x1e4/0x350
+[  508.223983]  sock_do_ioctl+0x48/0x2a0
+[  508.227635]  sock_ioctl+0x310/0x4f8
+[  508.231116]  do_vfs_ioctl+0xa4/0xac0
+[  508.234681]  ksys_ioctl+0x44/0x90
+[  508.237985]  __arm64_sys_ioctl+0x1c/0x48
+[  508.241901]  el0_svc_common.constprop.1+0x7c/0x100
+[  508.246681]  el0_svc_handler+0x18/0x20
+[  508.250421]  el0_svc+0x8/0x1c8
+[  508.253465] ---[ end trace c7b90fee13d72c39 ]---
+[  508.261278] ------------[ cut here ]------------
+
+Fixes: d0e274af2f2e4 ("mt76: mt76_connac: create mcu library")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7915/mac.c   | 35 +++++++------------
- .../net/wireless/mediatek/mt76/mt7915/main.c  |  6 ++++
- .../wireless/mediatek/mt76/mt7915/mt7915.h    | 10 +++---
- 3 files changed, 24 insertions(+), 27 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index b79d614aaad9..555274a2f436 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -1633,39 +1633,30 @@ mt7915_mac_update_mib_stats(struct mt7915_phy *phy)
- 	bool ext_phy = phy != &dev->phy;
- 	int i, aggr0, aggr1;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index 4356bf130dbd..8e9e42b77692 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -946,6 +946,7 @@ int mt76_connac_mcu_uni_add_dev(struct mt76_phy *phy,
  
--	memset(mib, 0, sizeof(*mib));
--
--	mib->fcs_err_cnt = mt76_get_field(dev, MT_MIB_SDR3(ext_phy),
--					  MT_MIB_SDR3_FCS_ERR_MASK);
-+	mib->fcs_err_cnt += mt76_get_field(dev, MT_MIB_SDR3(ext_phy),
-+					   MT_MIB_SDR3_FCS_ERR_MASK);
- 
- 	aggr0 = ext_phy ? ARRAY_SIZE(dev->mt76.aggr_stats) / 2 : 0;
- 	for (i = 0, aggr1 = aggr0 + 4; i < 4; i++) {
--		u32 val, val2;
-+		u32 val;
- 
- 		val = mt76_rr(dev, MT_MIB_MB_SDR1(ext_phy, i));
--
--		val2 = FIELD_GET(MT_MIB_ACK_FAIL_COUNT_MASK, val);
--		if (val2 > mib->ack_fail_cnt)
--			mib->ack_fail_cnt = val2;
--
--		val2 = FIELD_GET(MT_MIB_BA_MISS_COUNT_MASK, val);
--		if (val2 > mib->ba_miss_cnt)
--			mib->ba_miss_cnt = val2;
-+		mib->ba_miss_cnt += FIELD_GET(MT_MIB_BA_MISS_COUNT_MASK, val);
-+		mib->ack_fail_cnt +=
-+			FIELD_GET(MT_MIB_ACK_FAIL_COUNT_MASK, val);
- 
- 		val = mt76_rr(dev, MT_MIB_MB_SDR0(ext_phy, i));
--		val2 = FIELD_GET(MT_MIB_RTS_RETRIES_COUNT_MASK, val);
--		if (val2 > mib->rts_retries_cnt) {
--			mib->rts_cnt = FIELD_GET(MT_MIB_RTS_COUNT_MASK, val);
--			mib->rts_retries_cnt = val2;
--		}
-+		mib->rts_cnt += FIELD_GET(MT_MIB_RTS_COUNT_MASK, val);
-+		mib->rts_retries_cnt +=
-+			FIELD_GET(MT_MIB_RTS_RETRIES_COUNT_MASK, val);
- 
- 		val = mt76_rr(dev, MT_TX_AGG_CNT(ext_phy, i));
--		val2 = mt76_rr(dev, MT_TX_AGG_CNT2(ext_phy, i));
--
- 		dev->mt76.aggr_stats[aggr0++] += val & 0xffff;
- 		dev->mt76.aggr_stats[aggr0++] += val >> 16;
--		dev->mt76.aggr_stats[aggr1++] += val2 & 0xffff;
--		dev->mt76.aggr_stats[aggr1++] += val2 >> 16;
-+
-+		val = mt76_rr(dev, MT_TX_AGG_CNT2(ext_phy, i));
-+		dev->mt76.aggr_stats[aggr1++] += val & 0xffff;
-+		dev->mt76.aggr_stats[aggr1++] += val >> 16;
- 	}
- }
- 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/main.c b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
-index d4969b2e1ffb..8c1bf397fd25 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
-@@ -717,13 +717,19 @@ mt7915_get_stats(struct ieee80211_hw *hw,
- 		 struct ieee80211_low_level_stats *stats)
- {
- 	struct mt7915_phy *phy = mt7915_hw_phy(hw);
-+	struct mt7915_dev *dev = mt7915_hw_dev(hw);
- 	struct mib_stats *mib = &phy->mib;
- 
-+	mutex_lock(&dev->mt76.mutex);
- 	stats->dot11RTSSuccessCount = mib->rts_cnt;
- 	stats->dot11RTSFailureCount = mib->rts_retries_cnt;
- 	stats->dot11FCSErrorCount = mib->fcs_err_cnt;
- 	stats->dot11ACKFailureCount = mib->ack_fail_cnt;
- 
-+	memset(mib, 0, sizeof(*mib));
-+
-+	mutex_unlock(&dev->mt76.mutex);
-+
- 	return 0;
- }
- 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-index 5c7eefdf2013..1160d1bf8a7c 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-@@ -108,11 +108,11 @@ struct mt7915_vif {
- };
- 
- struct mib_stats {
--	u16 ack_fail_cnt;
--	u16 fcs_err_cnt;
--	u16 rts_cnt;
--	u16 rts_retries_cnt;
--	u16 ba_miss_cnt;
-+	u32 ack_fail_cnt;
-+	u32 fcs_err_cnt;
-+	u32 rts_cnt;
-+	u32 rts_retries_cnt;
-+	u32 ba_miss_cnt;
- };
- 
- struct mt7915_hif {
+ 	switch (vif->type) {
+ 	case NL80211_IFTYPE_MESH_POINT:
++	case NL80211_IFTYPE_MONITOR:
+ 	case NL80211_IFTYPE_AP:
+ 		basic_req.basic.conn_type = cpu_to_le32(CONNECTION_INFRA_AP);
+ 		break;
 -- 
 2.30.2
 
