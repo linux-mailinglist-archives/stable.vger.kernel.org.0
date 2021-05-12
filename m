@@ -2,107 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D549837B2AB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 01:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52DFF37B36B
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 03:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229714AbhEKXh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 May 2021 19:37:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56742 "EHLO mail.kernel.org"
+        id S229954AbhELBXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 May 2021 21:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229637AbhEKXh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 May 2021 19:37:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39C796162B;
-        Tue, 11 May 2021 23:36:21 +0000 (UTC)
+        id S230157AbhELBXS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 May 2021 21:23:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 873C06191D;
+        Wed, 12 May 2021 01:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620776181;
-        bh=0kddMno8L9vTWGOafdeTWibFtrcMKYCj9uXKnKrzec8=;
+        s=k20201202; t=1620782526;
+        bh=CL11Sa69JgRRcLKPqiCztBZPAUlz2+dPW7PK/v1PTk0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uMgaCy0tzlycndd4vmEWxzT+gQb2yfTZi/i7jdJ9EXEIe3h10vTneAA/I92P+XkSX
-         yU0IUkIjhwOs89AC/yuOiOCxLyDQwohpiXQwtViceLNSZJErrlq4x2lU3Z8r8vPQO0
-         UBPX4GpBABPdtBrFp6W3Wsw/Uay2a2+TnGP3HCT4ooGREHaerTZGGgGcRucqvjwx8S
-         DFNAD9lfaG9B3Eu9eSwrmM7H6/5QLv4YZk7VcVT3yJCyoRMARpxMrL04gPO6ppoNGw
-         uF9Xjh89Td9AVawxzN8h5MIsRmdkdixcWTSYJCj5FQtf49r1qSGjsG97x+98kkue+A
-         SK38YyxcSxADw==
-Date:   Wed, 12 May 2021 02:36:18 +0300
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Cc:     linux-integrity@vger.kernel.org,
-        Hans de Goede <hdegoede@redhat.com>, stable@vger.kernel.org,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>
-Subject: Re: [PATCH 1/2] tpm, tpm_tis: Extend locality handling to TPM2 in
- tpm_tis_gen_interrupt()
-Message-ID: <YJsU8m0WddX/9+H9@kernel.org>
-References: <20210510122831.409608-1-jarkko@kernel.org>
- <daf823b3-522c-6c9a-984b-0ca849512a54@gmx.de>
+        b=bwl/9wcthBc8n6f6G718qzN97uhHfZ7pF/hsoa/GUTABUXOOgu7WHvyosieadBmNY
+         +Ea5nUrYpwZC2RZNAWKtzGrlISBXwAII07i8LzCXk9VDyxL3952wNQHqp4cjgECyMv
+         OJe/lBkqGEuuZwQjLUXgJIE1MzNRCnSaQPv4OPli1yRCH6WFbkF1IVTPHDDuPiwbY+
+         JOgHYractRA/Qufx6LbO4xV4dEfzILnBWs37wnn/mZ1cok70L6Xm5RmtlKmnc0LF94
+         KGxmXkbKp1BZw87qP57uzK+KJRJenVpId/x8RlTEG7BeyY0YkyyhKx8/2eN2/TVvlL
+         m9SbrkaggVjcg==
+Date:   Tue, 11 May 2021 21:22:05 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Jianlin Shi <jishi@redhat.com>, Jianwen Ji <jiji@redhat.com>,
+        Hangbin Liu <haliu@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        Xiong Zhou <xzhou@redhat.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.11.19 (stable-queue, beb6df0c)
+Message-ID: <YJstva9S9qPO+2F3@sashalap>
+References: <cki.30AF028A01.OS9TECV9G1@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <daf823b3-522c-6c9a-984b-0ca849512a54@gmx.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <cki.30AF028A01.OS9TECV9G1@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 11, 2021 at 01:09:35AM +0200, Lino Sanfilippo wrote:
-> Hi,
-> 
-> On 10.05.21 at 14:28, Jarkko Sakkinen wrote:
-> > The earlier fix (linked) only partially fixed the locality handling bug
-> > in tpm_tis_gen_interrupt(), i.e. only for TPM 1.x.
-> >
-> > Extend the locality handling to cover TPM2.
-> >
-> > Cc: Hans de Goede <hdegoede@redhat.com>
-> > Cc: stable@vger.kernel.org
-> > Link: https://lore.kernel.org/linux-integrity/20210220125534.20707-1-jarkko@kernel.org/
-> > Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
-> > Reported-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-> > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-> > ---
-> >
-> > v1:
-> > * Testing done with Intel NUC5i5MYHE with SLB9665 TPM2 chip.
-> >
-> >  drivers/char/tpm/tpm_tis_core.c | 10 ++++------
-> >  1 file changed, 4 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-> > index a2e0395cbe61..6fa150a3b75e 100644
-> > --- a/drivers/char/tpm/tpm_tis_core.c
-> > +++ b/drivers/char/tpm/tpm_tis_core.c
-> > @@ -709,16 +709,14 @@ static int tpm_tis_gen_interrupt(struct tpm_chip *chip)
-> >  	cap_t cap;
-> >  	int ret;
-> >
-> > -	/* TPM 2.0 */
-> > -	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> > -		return tpm2_get_tpm_pt(chip, 0x100, &cap2, desc);
-> > -
-> > -	/* TPM 1.2 */
-> >  	ret = request_locality(chip, 0);
-> >  	if (ret < 0)
-> >  		return ret;
-> >
-> > -	ret = tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, desc, 0);
-> > +	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-> > +		ret = tpm2_get_tpm_pt(chip, 0x100, &cap2, desc);
-> > +	else
-> > +		ret = tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, desc, 0);
-> >
-> >  	release_locality(chip, 0);
-> >
-> >
-> 
-> This fix works for me. Tested on a SLB9670vq2.0 and the warning message is gone.
-> 
-> Tested-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-> 
-> Regards,
-> Lino
+On Tue, May 11, 2021 at 09:43:50PM -0000, CKI Project wrote:
+>
+>Hello,
+>
+>We ran automated tests on a recent commit from this kernel tree:
+>
+>       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>            Commit: beb6df0ce94f - thermal/core/fair share: Lock the thermal zone while looping over instances
+>
+>The results of these automated tests are provided below.
+>
+>    Overall result: FAILED (see details below)
+>             Merge: OK
+>           Compile: OK
+>             Tests: FAILED
+>
+>All kernel binaries, config files, and logs are available for download here:
+>
+>  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefix=datawarehouse-public/2021/05/11/300944713
+>
+>One or more kernel tests failed:
+>
+>    s390x:
+>     ❌ Networking tunnel: geneve basic test
+>
+>    ppc64le:
+>     ❌ LTP
+>     ❌ Networking tunnel: geneve basic test
+>
+>    aarch64:
+>     ❌ Networking tunnel: geneve basic test
+>
+>    x86_64:
+>     ❌ Networking tunnel: geneve basic test
 
-Thanks a lot, I'll add your tag.
+CKI folks, looks like there was a gap between 5.11.16 and now, and idea
+if the reported issue here is new in the 5.11.19 -rc, or something that
+regressed earlier?
 
-/Jarkko
+-- 
+Thanks,
+Sasha
