@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B39B737CABE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46CF437CAC2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234110AbhELQcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:32:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43080 "EHLO mail.kernel.org"
+        id S234419AbhELQcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241110AbhELQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241113AbhELQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:26:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4727E619B8;
-        Wed, 12 May 2021 15:49:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B270061CB1;
+        Wed, 12 May 2021 15:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834585;
-        bh=pbxj6mVkDRr5GwQnnzNiBrvsiYzhgsNJMOp0UGum6LI=;
+        s=korg; t=1620834588;
+        bh=Wt57QDeArhmn2GF4PFUp8kdwhsEB6xAJlXWdbPlBC1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zvxlD8WtUSMvhUEJPOLu+Y1SK/Ejl1QEkR2lQy16cxY6/TN/59FpZ9f8eI5iz2EOn
-         rCBq3HaJTdd8XuOBZp1qaKCVOmkv6RHjxNkjECWyqbhqncYdcbhhxkcf8dIKGhHkig
-         42aCPaW5XWFYFNDnWcXUpvEawfFMyfPKCfGyDcLQ=
+        b=kZU0NkmoFsn6vINPX/zkIP8Cor2hV2WGSbmtr8Vq6IUuflUxB1zwkSNdiip97vZT4
+         oqvG7MszxjG3YZRIB6bGdNNpZWmTwZMwJWELZac5wh8bIVIuEXNs7K0iFcCWpBESIi
+         cQYRiJz+fDjsg68P8fnEcUYqIdtrFpo2KV1VyWPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.11 597/601] bpf: Prevent writable memory-mapping of read-only ringbuf pages
-Date:   Wed, 12 May 2021 16:51:14 +0200
-Message-Id: <20210512144847.516737275@linuxfoundation.org>
+        Jonathon Reinhart <jonathon.reinhart@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 598/601] net: Only allow init netns to set default tcp cong to a restricted algo
+Date:   Wed, 12 May 2021 16:51:15 +0200
+Message-Id: <20210512144847.546854598@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,67 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
 
-commit 04ea3086c4d73da7009de1e84962a904139af219 upstream.
+commit 8d432592f30fcc34ef5a10aac4887b4897884493 upstream.
 
-Only the very first page of BPF ringbuf that contains consumer position
-counter is supposed to be mapped as writeable by user-space. Producer
-position is read-only and can be modified only by the kernel code. BPF ringbuf
-data pages are read-only as well and are not meant to be modified by
-user-code to maintain integrity of per-record headers.
+tcp_set_default_congestion_control() is netns-safe in that it writes
+to &net->ipv4.tcp_congestion_control, but it also sets
+ca->flags |= TCP_CONG_NON_RESTRICTED which is not namespaced.
+This has the unintended side-effect of changing the global
+net.ipv4.tcp_allowed_congestion_control sysctl, despite the fact that it
+is read-only: 97684f0970f6 ("net: Make tcp_allowed_congestion_control
+readonly in non-init netns")
 
-This patch allows to map only consumer position page as writeable and
-everything else is restricted to be read-only. remap_vmalloc_range()
-internally adds VM_DONTEXPAND, so all the established memory mappings can't be
-extended, which prevents any future violations through mremap()'ing.
+Resolve this netns "leak" by only allowing the init netns to set the
+default algorithm to one that is restricted. This restriction could be
+removed if tcp_allowed_congestion_control were namespace-ified in the
+future.
 
-Fixes: 457f44363a88 ("bpf: Implement BPF ring buffer and verifier support for it")
-Reported-by: Ryota Shiga (Flatt Security)
-Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+This bug was uncovered with
+https://github.com/JonathonReinhart/linux-netns-sysctl-verify
+
+Fixes: 6670e1524477 ("tcp: Namespace-ify sysctl_tcp_default_congestion_control")
+Signed-off-by: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/ringbuf.c |   21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ net/ipv4/tcp_cong.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/bpf/ringbuf.c
-+++ b/kernel/bpf/ringbuf.c
-@@ -221,25 +221,20 @@ static int ringbuf_map_get_next_key(stru
- 	return -ENOTSUPP;
- }
- 
--static size_t bpf_ringbuf_mmap_page_cnt(const struct bpf_ringbuf *rb)
--{
--	size_t data_pages = (rb->mask + 1) >> PAGE_SHIFT;
--
--	/* consumer page + producer page + 2 x data pages */
--	return RINGBUF_POS_PAGES + 2 * data_pages;
--}
--
- static int ringbuf_map_mmap(struct bpf_map *map, struct vm_area_struct *vma)
- {
- 	struct bpf_ringbuf_map *rb_map;
--	size_t mmap_sz;
- 
- 	rb_map = container_of(map, struct bpf_ringbuf_map, map);
--	mmap_sz = bpf_ringbuf_mmap_page_cnt(rb_map->rb) << PAGE_SHIFT;
--
--	if (vma->vm_pgoff * PAGE_SIZE + (vma->vm_end - vma->vm_start) > mmap_sz)
--		return -EINVAL;
- 
-+	if (vma->vm_flags & VM_WRITE) {
-+		/* allow writable mapping for the consumer_pos only */
-+		if (vma->vm_pgoff != 0 || vma->vm_end - vma->vm_start != PAGE_SIZE)
-+			return -EPERM;
-+	} else {
-+		vma->vm_flags &= ~VM_MAYWRITE;
-+	}
-+	/* remap_vmalloc_range() checks size and offset constraints */
- 	return remap_vmalloc_range(vma, rb_map->rb,
- 				   vma->vm_pgoff + RINGBUF_PGOFF);
- }
+--- a/net/ipv4/tcp_cong.c
++++ b/net/ipv4/tcp_cong.c
+@@ -230,6 +230,10 @@ int tcp_set_default_congestion_control(s
+ 		ret = -ENOENT;
+ 	} else if (!bpf_try_module_get(ca, ca->owner)) {
+ 		ret = -EBUSY;
++	} else if (!net_eq(net, &init_net) &&
++			!(ca->flags & TCP_CONG_NON_RESTRICTED)) {
++		/* Only init netns can set default to a restricted algorithm */
++		ret = -EPERM;
+ 	} else {
+ 		prev = xchg(&net->ipv4.tcp_congestion_control, ca);
+ 		if (prev)
 
 
