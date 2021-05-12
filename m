@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0644637C8FF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B7AC37C919
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235422AbhELQOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:14:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
+        id S238116AbhELQPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:15:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239426AbhELQIC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:08:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C85C561C6B;
-        Wed, 12 May 2021 15:38:19 +0000 (UTC)
+        id S239442AbhELQIF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:08:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BD2B61D18;
+        Wed, 12 May 2021 15:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833900;
-        bh=zCWNzPnSjRIm15SvtBgEAAkQMnFavHcUKs4jMKgd/Jk=;
+        s=korg; t=1620833902;
+        bh=OYIUApjaaVmbsEilTr41bv7FpvqpKCxAILLk0ATblJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Hx7xdfnb34ed0fTrnhZ7FX5lgCQHz7nSJc5lkOyhqMQELWTEoy8G6QPF3iMA1Hcr
-         QqINBfsZ9Lg4gVnFwxk6Ns5tuWVF7/1vrtowmitESAUVTodWSBPTbbFgRorEeqlZ0S
-         Oq0DP6QjU5qSSFz5ALCCg+3iWxalFsrj4Z2A88tk=
+        b=xUgsZ6qUnMpsuDxHcNU+GYij7BllqYAuUUCmoPfPOCa42Sc2pBoEKs66M/Sd2rUxN
+         z05eKxwtorGEEgYP3E/NcDERfeu3DyqjJzkei5qlL9Q659LE1zcItZ8SNfgmF6BTad
+         4Q2HgzdXzs0Eb10MOUDVR7s3Fn0ZrHHSjhQ9exrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Chris von Recklinghausen <crecklin@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Artur Petrosyan <Arthur.Petrosyan@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 299/601] PM: hibernate: x86: Use crc32 instead of md5 for hibernation e820 integrity check
-Date:   Wed, 12 May 2021 16:46:16 +0200
-Message-Id: <20210512144837.659212454@linuxfoundation.org>
+Subject: [PATCH 5.11 300/601] usb: dwc2: Fix host mode hibernation exit with remote wakeup flow.
+Date:   Wed, 12 May 2021 16:46:17 +0200
+Message-Id: <20210512144837.689213618@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,189 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris von Recklinghausen <crecklin@redhat.com>
+From: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
 
-[ Upstream commit f5d1499ae2096d7ea301023c4cc54e427300eb0a ]
+[ Upstream commit c2db8d7b9568b10e014af83b3c15e39929e3579e ]
 
-Hibernation fails on a system in fips mode because md5 is used for the e820
-integrity check and is not available. Use crc32 instead.
+Added setting "port_connect_status_change" flag to "1" in order
+to re-enumerate, because after exit from hibernation port
+connection status is not detected.
 
-The check is intended to detect whether the E820 memory map provided
-by the firmware after cold boot unexpectedly differs from the one that
-was in use when the hibernation image was created. In this case, the
-hibernation image cannot be restored, as it may cover memory regions
-that are no longer available to the OS.
-
-A non-cryptographic checksum such as CRC-32 is sufficient to detect such
-inadvertent deviations.
-
-Fixes: 62a03defeabd ("PM / hibernate: Verify the consistent of e820 memory map by md5 digest")
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Tested-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Chris von Recklinghausen <crecklin@redhat.com>
-[ rjw: Subject edit ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: c5c403dc4336 ("usb: dwc2: Add host/device hibernation functions")
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: Artur Petrosyan <Arthur.Petrosyan@synopsys.com>
+Link: https://lore.kernel.org/r/20210416124707.5EEC2A005D@mailhost.synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/e820.c     |  4 +-
- arch/x86/power/hibernate.c | 89 ++++++--------------------------------
- 2 files changed, 16 insertions(+), 77 deletions(-)
+ drivers/usb/dwc2/hcd.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/e820.c b/arch/x86/kernel/e820.c
-index 22aad412f965..629c4994f165 100644
---- a/arch/x86/kernel/e820.c
-+++ b/arch/x86/kernel/e820.c
-@@ -31,8 +31,8 @@
-  *       - inform the user about the firmware's notion of memory layout
-  *         via /sys/firmware/memmap
-  *
-- *       - the hibernation code uses it to generate a kernel-independent MD5
-- *         fingerprint of the physical memory layout of a system.
-+ *       - the hibernation code uses it to generate a kernel-independent CRC32
-+ *         checksum of the physical memory layout of a system.
-  *
-  * - 'e820_table_kexec': a slightly modified (by the kernel) firmware version
-  *   passed to us by the bootloader - the major difference between
-diff --git a/arch/x86/power/hibernate.c b/arch/x86/power/hibernate.c
-index cd3914fc9f3d..e94e0050a583 100644
---- a/arch/x86/power/hibernate.c
-+++ b/arch/x86/power/hibernate.c
-@@ -13,8 +13,8 @@
- #include <linux/kdebug.h>
- #include <linux/cpu.h>
- #include <linux/pgtable.h>
--
--#include <crypto/hash.h>
-+#include <linux/types.h>
-+#include <linux/crc32.h>
- 
- #include <asm/e820/api.h>
- #include <asm/init.h>
-@@ -54,95 +54,33 @@ int pfn_is_nosave(unsigned long pfn)
- 	return pfn >= nosave_begin_pfn && pfn < nosave_end_pfn;
- }
- 
--
--#define MD5_DIGEST_SIZE 16
--
- struct restore_data_record {
- 	unsigned long jump_address;
- 	unsigned long jump_address_phys;
- 	unsigned long cr3;
- 	unsigned long magic;
--	u8 e820_digest[MD5_DIGEST_SIZE];
-+	unsigned long e820_checksum;
- };
- 
--#if IS_BUILTIN(CONFIG_CRYPTO_MD5)
- /**
-- * get_e820_md5 - calculate md5 according to given e820 table
-+ * compute_e820_crc32 - calculate crc32 of a given e820 table
-  *
-  * @table: the e820 table to be calculated
-- * @buf: the md5 result to be stored to
-+ *
-+ * Return: the resulting checksum
-  */
--static int get_e820_md5(struct e820_table *table, void *buf)
-+static inline u32 compute_e820_crc32(struct e820_table *table)
- {
--	struct crypto_shash *tfm;
--	struct shash_desc *desc;
--	int size;
--	int ret = 0;
--
--	tfm = crypto_alloc_shash("md5", 0, 0);
--	if (IS_ERR(tfm))
--		return -ENOMEM;
--
--	desc = kmalloc(sizeof(struct shash_desc) + crypto_shash_descsize(tfm),
--		       GFP_KERNEL);
--	if (!desc) {
--		ret = -ENOMEM;
--		goto free_tfm;
--	}
--
--	desc->tfm = tfm;
--
--	size = offsetof(struct e820_table, entries) +
-+	int size = offsetof(struct e820_table, entries) +
- 		sizeof(struct e820_entry) * table->nr_entries;
- 
--	if (crypto_shash_digest(desc, (u8 *)table, size, buf))
--		ret = -EINVAL;
--
--	kfree_sensitive(desc);
--
--free_tfm:
--	crypto_free_shash(tfm);
--	return ret;
--}
--
--static int hibernation_e820_save(void *buf)
--{
--	return get_e820_md5(e820_table_firmware, buf);
--}
--
--static bool hibernation_e820_mismatch(void *buf)
--{
--	int ret;
--	u8 result[MD5_DIGEST_SIZE];
--
--	memset(result, 0, MD5_DIGEST_SIZE);
--	/* If there is no digest in suspend kernel, let it go. */
--	if (!memcmp(result, buf, MD5_DIGEST_SIZE))
--		return false;
--
--	ret = get_e820_md5(e820_table_firmware, result);
--	if (ret)
--		return true;
--
--	return memcmp(result, buf, MD5_DIGEST_SIZE) ? true : false;
--}
--#else
--static int hibernation_e820_save(void *buf)
--{
--	return 0;
--}
--
--static bool hibernation_e820_mismatch(void *buf)
--{
--	/* If md5 is not builtin for restore kernel, let it go. */
--	return false;
-+	return ~crc32_le(~0, (unsigned char const *)table, size);
- }
--#endif
- 
- #ifdef CONFIG_X86_64
--#define RESTORE_MAGIC	0x23456789ABCDEF01UL
-+#define RESTORE_MAGIC	0x23456789ABCDEF02UL
- #else
--#define RESTORE_MAGIC	0x12345678UL
-+#define RESTORE_MAGIC	0x12345679UL
- #endif
- 
- /**
-@@ -179,7 +117,8 @@ int arch_hibernation_header_save(void *addr, unsigned int max_size)
- 	 */
- 	rdr->cr3 = restore_cr3 & ~CR3_PCID_MASK;
- 
--	return hibernation_e820_save(rdr->e820_digest);
-+	rdr->e820_checksum = compute_e820_crc32(e820_table_firmware);
-+	return 0;
- }
- 
- /**
-@@ -200,7 +139,7 @@ int arch_hibernation_header_restore(void *addr)
- 	jump_address_phys = rdr->jump_address_phys;
- 	restore_cr3 = rdr->cr3;
- 
--	if (hibernation_e820_mismatch(rdr->e820_digest)) {
-+	if (rdr->e820_checksum != compute_e820_crc32(e820_table_firmware)) {
- 		pr_crit("Hibernate inconsistent memory map detected!\n");
- 		return -ENODEV;
+diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
+index 1a9789ec5847..6af1dcbc3656 100644
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -5580,7 +5580,15 @@ int dwc2_host_exit_hibernation(struct dwc2_hsotg *hsotg, int rem_wakeup,
+ 		return ret;
  	}
+ 
+-	dwc2_hcd_rem_wakeup(hsotg);
++	if (rem_wakeup) {
++		dwc2_hcd_rem_wakeup(hsotg);
++		/*
++		 * Change "port_connect_status_change" flag to re-enumerate,
++		 * because after exit from hibernation port connection status
++		 * is not detected.
++		 */
++		hsotg->flags.b.port_connect_status_change = 1;
++	}
+ 
+ 	hsotg->hibernated = 0;
+ 	hsotg->bus_suspended = 0;
 -- 
 2.30.2
 
