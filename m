@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB99937CDA4
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE0D337CDA7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237496AbhELQ5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:57:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35800 "EHLO mail.kernel.org"
+        id S238634AbhELQ5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244028AbhELQm1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E72EB61D05;
-        Wed, 12 May 2021 16:09:42 +0000 (UTC)
+        id S244041AbhELQm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52E2861D2D;
+        Wed, 12 May 2021 16:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835783;
-        bh=Z6cSew+1/gRfBmhgMtRQtUd7lMEVxmYe1aepPIUVkfU=;
+        s=korg; t=1620835785;
+        bh=tVvGiNUqAvkRxYGTGRw6g01OdGUEfPQHRJNlvPVry/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Wc+5Y25PGzEyxq2wW/JIxfS1wh4zg9T1HgJNG25ZNZrPbReLzpksQz9Wrch3weDP
-         tSB9NxH0r6M/rwW6t1Sw+2hwSRtzYNXI4ymIcnnaxGdjc1S5FTUad/R3uZRrpp4y/U
-         TIbmHYPKrsVzQJ5Mw6aTW14VKvehI4QJs+cgi9YY=
+        b=ITfZS7J+QPkg5AKXzGRGIWd5ICTPxvDKi7TScp6ubwJDFNDsCC+g+mX3P/RMnjFMd
+         nFciUlKKLb6fdw4BpvEglbjLo++LnvdtpdqRNfsPgmSOjYTPc7tHqABwwa9j9yYXN3
+         PKVoqObJImS9kiwpIswn110SEA+w59CtRIEoBJfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 482/677] udp: never accept GSO_FRAGLIST packets
-Date:   Wed, 12 May 2021 16:48:48 +0200
-Message-Id: <20210512144853.375947220@linuxfoundation.org>
+Subject: [PATCH 5.12 483/677] powerpc/pseries: Only register vio drivers if vio bus exists
+Date:   Wed, 12 May 2021 16:48:49 +0200
+Message-Id: <20210512144853.410132128@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,85 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 78352f73dc5047f3f744764cc45912498c52f3c9 ]
+[ Upstream commit 11d92156f7a862091009d7655d19c1e7de37fc7a ]
 
-Currently the UDP protocol delivers GSO_FRAGLIST packets to
-the sockets without the expected segmentation.
+The vio bus is a fake bus, which we use on pseries LPARs (guests) to
+discover devices provided by the hypervisor. There's no need or sense
+in creating the vio bus on bare metal systems.
 
-This change addresses the issue introducing and maintaining
-a couple of new fields to explicitly accept SKB_GSO_UDP_L4
-or GSO_FRAGLIST packets. Additionally updates  udp_unexpected_gso()
-accordingly.
+Which is why commit 4336b9337824 ("powerpc/pseries: Make vio and
+ibmebus initcalls pseries specific") made the initialisation of the
+vio bus only happen in LPARs.
 
-UDP sockets enabling UDP_GRO stil keep accept_udp_fraglist
-zeroed.
+However as a result of that commit we now see errors at boot on bare
+metal systems:
 
-v1 -> v2:
- - use 2 bits instead of a whole GSO bitmask (Willem)
+  Driver 'hvc_console' was unable to register with bus_type 'vio' because the bus was not initialized.
+  Driver 'tpm_ibmvtpm' was unable to register with bus_type 'vio' because the bus was not initialized.
 
-Fixes: 9fd1ff5d2ac7 ("udp: Support UDP fraglist GRO/GSO.")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This happens because those drivers are built-in, and are calling
+vio_register_driver(). It in turn calls driver_register() with a
+reference to vio_bus_type, but we haven't registered vio_bus_type with
+the driver core.
+
+Fix it by also guarding vio_register_driver() with a check to see if
+we are on pseries.
+
+Fixes: 4336b9337824 ("powerpc/pseries: Make vio and ibmebus initcalls pseries specific")
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210316010938.525657-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/udp.h | 16 +++++++++++++---
- net/ipv4/udp.c      |  3 +++
- 2 files changed, 16 insertions(+), 3 deletions(-)
+ arch/powerpc/platforms/pseries/vio.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/udp.h b/include/linux/udp.h
-index aa84597bdc33..ae58ff3b6b5b 100644
---- a/include/linux/udp.h
-+++ b/include/linux/udp.h
-@@ -51,7 +51,9 @@ struct udp_sock {
- 					   * different encapsulation layer set
- 					   * this
- 					   */
--			 gro_enabled:1;	/* Can accept GRO packets */
-+			 gro_enabled:1,	/* Request GRO aggregation */
-+			 accept_udp_l4:1,
-+			 accept_udp_fraglist:1;
- 	/*
- 	 * Following member retains the information to create a UDP header
- 	 * when the socket is uncorked.
-@@ -131,8 +133,16 @@ static inline void udp_cmsg_recv(struct msghdr *msg, struct sock *sk,
- 
- static inline bool udp_unexpected_gso(struct sock *sk, struct sk_buff *skb)
+diff --git a/arch/powerpc/platforms/pseries/vio.c b/arch/powerpc/platforms/pseries/vio.c
+index 9cb4fc839fd5..429053d0402a 100644
+--- a/arch/powerpc/platforms/pseries/vio.c
++++ b/arch/powerpc/platforms/pseries/vio.c
+@@ -1285,6 +1285,10 @@ static int vio_bus_remove(struct device *dev)
+ int __vio_register_driver(struct vio_driver *viodrv, struct module *owner,
+ 			  const char *mod_name)
  {
--	return !udp_sk(sk)->gro_enabled && skb_is_gso(skb) &&
--	       skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4;
-+	if (!skb_is_gso(skb))
-+		return false;
++	// vio_bus_type is only initialised for pseries
++	if (!machine_is(pseries))
++		return -ENODEV;
 +
-+	if (skb_shinfo(skb)->gso_type & SKB_GSO_UDP_L4 && !udp_sk(sk)->accept_udp_l4)
-+		return true;
-+
-+	if (skb_shinfo(skb)->gso_type & SKB_GSO_FRAGLIST && !udp_sk(sk)->accept_udp_fraglist)
-+		return true;
-+
-+	return false;
- }
+ 	pr_debug("%s: driver %s registering\n", __func__, viodrv->name);
  
- #define udp_portaddr_for_each_entry(__sk, list) \
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 99d743eb9dc4..c586a6bb8c6d 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -2664,9 +2664,12 @@ int udp_lib_setsockopt(struct sock *sk, int level, int optname,
- 
- 	case UDP_GRO:
- 		lock_sock(sk);
-+
-+		/* when enabling GRO, accept the related GSO packet type */
- 		if (valbool)
- 			udp_tunnel_encap_enable(sk->sk_socket);
- 		up->gro_enabled = valbool;
-+		up->accept_udp_l4 = valbool;
- 		release_sock(sk);
- 		break;
- 
+ 	/* fill in 'struct driver' fields */
 -- 
 2.30.2
 
