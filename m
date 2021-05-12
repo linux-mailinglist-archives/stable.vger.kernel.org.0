@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7962837CDE5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C63937CD4D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234030AbhELQ7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:59:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35714 "EHLO mail.kernel.org"
+        id S238455AbhELQyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:54:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243763AbhELQmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243759AbhELQmC (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B2BB6192B;
-        Wed, 12 May 2021 16:06:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7C5761948;
+        Wed, 12 May 2021 16:06:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835604;
-        bh=2zWcmAgQ9bjXTUIYZLN/Gfg/0sz4RI2iBgchK/DDHbU=;
+        s=korg; t=1620835607;
+        bh=WRvG1EINOCKrSzXJphB66WYHEk3Gyc+nby5WPI1Ew0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FIb/sC18oNyPSUWOcPMrENcW3qTCp3775dkiBgCSNDXviB3r82m41qUyE24UWI4ni
-         /B2kDoTB8KV9TEDRntbpYDPrxT+92piTMWRPWBVMLmCsSYD9wkAvh2vuLnWI2ti5qL
-         tsCVa2KJZ3wBS/zQqKWPTcseerYs/uC+j/KTnNiE=
+        b=i/aFd7On3FNZjjDirTD6LAh0xgdhUTCWmMPngSMfJR7sfvEycg38XMeQQOfMx/MpM
+         3b+nf84lem1LYZHI8V95qYO0oU/pHBaF2JrlzM9RNtNYqJLgySAsE4Oeqm2TiD6Fn2
+         8arKyMAbQZRCtLhnXqRmiCh8Ta6T2nE+XOX0w+ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 376/677] selftests: fix prepending $(OUTPUT) to $(TEST_PROGS)
-Date:   Wed, 12 May 2021 16:47:02 +0200
-Message-Id: <20210512144849.824914080@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 377/677] pata_arasan_cf: fix IRQ check
+Date:   Wed, 12 May 2021 16:47:03 +0200
+Message-Id: <20210512144849.859550905@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,64 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit cb4969e6f9f5ee12521aec764fa3d4bbd91bc797 ]
+[ Upstream commit c7e8f404d56b99c80990b19a402c3f640d74be05 ]
 
-Currently the following command produces an error message:
+The driver's probe() method is written as if platform_get_irq() returns 0
+on error, while actually it returns a negative error code (with all the
+other values considered valid IRQs). Rewrite the driver's IRQ checking code
+to pass the positive IRQ #s to ata_host_activate(), propagate upstream
+-EPROBE_DEFER, and set up the driver to polling mode on (negative) errors
+and IRQ0 (libata treats IRQ #0 as a polling mode anyway)...
 
-    linux# make kselftest TARGETS=bpf O=/mnt/linux-build
-    # selftests: bpf: test_libbpf.sh
-    # ./test_libbpf.sh: line 23: ./test_libbpf_open: No such file or directory
-    # test_libbpf: failed at file test_l4lb.o
-    # selftests: test_libbpf [FAILED]
-
-The error message might not affect the return code of make, therefore
-one needs to grep make output in order to detect it.
-
-This is not the only instance of the same underlying problem; any test
-with more than one element in $(TEST_PROGS) fails the same way. Another
-example:
-
-    linux# make O=/mnt/linux-build TARGETS=splice kselftest
-    [...]
-    # ./short_splice_read.sh: 15: ./splice_read: not found
-    # FAIL: /sys/module/test_module/sections/.init.text 2
-    not ok 2 selftests: splice: short_splice_read.sh # exit=1
-
-The current logic prepends $(OUTPUT) only to the first member of
-$(TEST_PROGS). After that, run_one() does
-
-   cd `dirname $TEST`
-
-For all tests except the first one, `dirname $TEST` is ., which means
-they cannot access the files generated in $(OUTPUT).
-
-Fix by using $(addprefix) to prepend $(OUTPUT)/ to each member of
-$(TEST_PROGS).
-
-Fixes: 1a940687e424 ("selftests: lib.mk: copy test scripts and test files for make O=dir run")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: a480167b23ef ("pata_arasan_cf: Adding support for arasan compact flash host controller")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/lib.mk | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ata/pata_arasan_cf.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
-index a5ce26d548e4..be17462fe146 100644
---- a/tools/testing/selftests/lib.mk
-+++ b/tools/testing/selftests/lib.mk
-@@ -74,7 +74,8 @@ ifdef building_out_of_srctree
- 		rsync -aq $(TEST_PROGS) $(TEST_PROGS_EXTENDED) $(TEST_FILES) $(OUTPUT); \
- 	fi
- 	@if [ "X$(TEST_PROGS)" != "X" ]; then \
--		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) $(OUTPUT)/$(TEST_PROGS)) ; \
-+		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS) \
-+				  $(addprefix $(OUTPUT)/,$(TEST_PROGS))) ; \
- 	else \
- 		$(call RUN_TESTS, $(TEST_GEN_PROGS) $(TEST_CUSTOM_PROGS)); \
- 	fi
+diff --git a/drivers/ata/pata_arasan_cf.c b/drivers/ata/pata_arasan_cf.c
+index e9cf31f38450..63f39440a9b4 100644
+--- a/drivers/ata/pata_arasan_cf.c
++++ b/drivers/ata/pata_arasan_cf.c
+@@ -818,12 +818,19 @@ static int arasan_cf_probe(struct platform_device *pdev)
+ 	else
+ 		quirk = CF_BROKEN_UDMA; /* as it is on spear1340 */
+ 
+-	/* if irq is 0, support only PIO */
+-	acdev->irq = platform_get_irq(pdev, 0);
+-	if (acdev->irq)
++	/*
++	 * If there's an error getting IRQ (or we do get IRQ0),
++	 * support only PIO
++	 */
++	ret = platform_get_irq(pdev, 0);
++	if (ret > 0) {
++		acdev->irq = ret;
+ 		irq_handler = arasan_cf_interrupt;
+-	else
++	} else	if (ret == -EPROBE_DEFER) {
++		return ret;
++	} else	{
+ 		quirk |= CF_BROKEN_MWDMA | CF_BROKEN_UDMA;
++	}
+ 
+ 	acdev->pbase = res->start;
+ 	acdev->vbase = devm_ioremap(&pdev->dev, res->start,
 -- 
 2.30.2
 
