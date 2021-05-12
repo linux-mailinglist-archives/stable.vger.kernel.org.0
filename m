@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 108DC37C8C1
+	by mail.lfdr.de (Postfix) with ESMTP id A246937C8C3
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232441AbhELQMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:12:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33528 "EHLO mail.kernel.org"
+        id S236605AbhELQMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:12:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239070AbhELQHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 616F56195A;
-        Wed, 12 May 2021 15:35:51 +0000 (UTC)
+        id S239078AbhELQHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0AB461D11;
+        Wed, 12 May 2021 15:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833751;
-        bh=J9cJo23zK/3+m4CkPC9+6rXi/ZvGwdrqclw+xclHUqg=;
+        s=korg; t=1620833754;
+        bh=9d8e1kro+x5O+R31gGBlA+yRlL4lLFXIDtIe7ShIsyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AW+94MpUbSTg30XFdC1PCTBEA9ipDOeOIjQbx2kzbikK/9cGc3KHO4zXxy9EJY6Lm
-         d5NbGxLnIhkjhJHNgUnFrS59WamkLBq8Wuxmobj9XXcVSp5ruu4noBUlozfm4Ce0V1
-         KdS33aVjOdyyAp75WCthtVfVk8+EaaTxmkGbuZro=
+        b=jo+AZeqnVt+mfdl/kTiqIjRrbWhSjemyZD6HrMcJ1iERXD3wHI4vJ5oPZkvYsJFs8
+         hStRJV42KkzQupJe9F7GBJgGC9E/ablvdo7TG0JW10/2NWqDeYUDaK/IC+ij4V4O5P
+         WLj3QZFq0wJo1hDX0GR831BFzAPayfgqYGFBrd2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
         Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 274/601] USB: cdc-acm: fix unprivileged TIOCCSERIAL
-Date:   Wed, 12 May 2021 16:45:51 +0200
-Message-Id: <20210512144836.837550101@linuxfoundation.org>
+Subject: [PATCH 5.11 275/601] USB: cdc-acm: fix TIOCGSERIAL implementation
+Date:   Wed, 12 May 2021 16:45:52 +0200
+Message-Id: <20210512144836.877669839@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,44 +42,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit dd5619582d60007139f0447382d2839f4f9e339b ]
+[ Upstream commit 496960274153bdeb9d1f904ff1ea875cef8232c1 ]
 
 TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
 serial devices is only useful for setting the close_delay and
 closing_wait parameters.
 
-A non-privileged user has only ever been able to set the since long
-deprecated ASYNC_SPD flags and trying to change any other *supported*
-feature should result in -EPERM being returned. Setting the current
-values for any supported features should return success.
+The xmit_fifo_size parameter could be used to set the hardware transmit
+fifo size of a legacy UART when it could not be detected, but the
+interface is limited to eight bits and should be left unset when it is
+not used.
 
-Fix the cdc-acm implementation which instead indicated that the
-TIOCSSERIAL ioctl was not even implemented when a non-privileged user
-set the current values.
+Similarly, baud_base could be used to set the UART base clock when it
+could not be detected, but might as well be left unset when it is not
+known (which is the case for CDC).
 
-Fixes: ba2d8ce9db0a ("cdc-acm: implement TIOCSSERIAL to avoid blocking close(2)")
+Fix the cdc-acm TIOCGSERIAL implementation by dropping its custom
+interpretation of the unused xmit_fifo_size and baud_base fields, which
+overflowed the former with the URB buffer size and set the latter to the
+current line speed. Also return the port line number, which is the only
+other value used besides the close parameters.
+
+Note that the current line speed can still be retrieved through the
+standard termios interfaces.
+
+Fixes: 18c75720e667 ("USB: allow users to run setserial with cdc-acm")
 Acked-by: Oliver Neukum <oneukum@suse.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210408131602.27956-3-johan@kernel.org
+Link: https://lore.kernel.org/r/20210408131602.27956-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/class/cdc-acm.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 0876468c2e7d..63824552e5d0 100644
+index 63824552e5d0..6fbabf56dbb7 100644
 --- a/drivers/usb/class/cdc-acm.c
 +++ b/drivers/usb/class/cdc-acm.c
-@@ -955,8 +955,6 @@ static int set_serial_info(struct tty_struct *tty, struct serial_struct *ss)
- 		if ((close_delay != acm->port.close_delay) ||
- 		    (closing_wait != acm->port.closing_wait))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
- 	} else {
- 		acm->port.close_delay  = close_delay;
- 		acm->port.closing_wait = closing_wait;
+@@ -929,8 +929,7 @@ static int get_serial_info(struct tty_struct *tty, struct serial_struct *ss)
+ {
+ 	struct acm *acm = tty->driver_data;
+ 
+-	ss->xmit_fifo_size = acm->writesize;
+-	ss->baud_base = le32_to_cpu(acm->line.dwDTERate);
++	ss->line = acm->minor;
+ 	ss->close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
+ 	ss->closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+ 				ASYNC_CLOSING_WAIT_NONE :
 -- 
 2.30.2
 
