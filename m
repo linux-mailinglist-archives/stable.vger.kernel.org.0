@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BAB837C798
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 460CC37CB3D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235019AbhELQA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
+        id S242508AbhELQe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:34:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237929AbhELP4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:56:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AE5061433;
-        Wed, 12 May 2021 15:28:53 +0000 (UTC)
+        id S241550AbhELQ1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF65A61DED;
+        Wed, 12 May 2021 15:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833333;
-        bh=NMclS5wjHRBtVyRdUkVEaRAvKEfqBw3aJqBzkZT6iwo=;
+        s=korg; t=1620834844;
+        bh=Bobua9G52RvgLyz5BEHoBqQ0WHVNeoaD6Z9rCijknvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02kABhb01CEXyS+bhqTYmTSD5XOO5YEO8b2HxGJtkYVaMD2o/B8RdWhi6ulMVyNyy
-         j0eO9F9UFDmAkYKzco7CVWp4tnwIuXnopdZTM5/zM8mIgJWoXXj2G99sHtD9yW2u1T
-         NcrvUJb0xZBr87cOcfmORAlogm3dHMrIGcG4H1Vs=
+        b=K480nPq9T8WP1/pQg/yfmjMKS9BXA7neG4FBvDFAwNt9I/vG9R67X3cFI2ivMhu1R
+         BiQHlL4byStmLQGy2CzpzaFemP0GWWXWukMDXNoufQ8rBUUr8o4rfWLcPseIRnMWWH
+         xsJsVwbGDX1kJkwmiYeRCB0GLIZuJduE+s5eVm7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 073/601] drm/amdgpu: add new MC firmware for Polaris12 32bit ASIC
-Date:   Wed, 12 May 2021 16:42:30 +0200
-Message-Id: <20210512144830.230383038@linuxfoundation.org>
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@de.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 5.12 105/677] KVM: s390: extend kvm_s390_shadow_fault to return entry pointer
+Date:   Wed, 12 May 2021 16:42:31 +0200
+Message-Id: <20210512144840.713669733@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
-References: <20210512144827.811958675@linuxfoundation.org>
+In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
+References: <20210512144837.204217980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +41,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit c83c4e1912446db697a120eb30126cd80cbf6349 upstream.
+commit 5ac14bac08ae827b619f21bcceaaac3b8c497e31 upstream.
 
-Polaris12 32bit ASIC needs a special MC firmware.
+Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+DAT table entry, or to the invalid entry.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Also return some flags in the lower bits of the address:
+PEI_DAT_PROT: indicates that DAT protection applies because of the
+              protection bit in the segment (or, if EDAT, region) tables.
+PEI_NOT_PTE: indicates that the address of the DAT table entry returned
+             does not refer to a PTE, but to a segment or region table.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc: stable@vger.kernel.org
+Reviewed-by: Janosch Frank <frankja@de.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Link: https://lore.kernel.org/r/20210302174443.514363-3-imbrenda@linux.ibm.com
+[borntraeger@de.ibm.com: fold in a fix from Claudio]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/s390/kvm/gaccess.c |   30 +++++++++++++++++++++++++-----
+ arch/s390/kvm/gaccess.h |    6 +++++-
+ arch/s390/kvm/vsie.c    |    8 ++++----
+ 3 files changed, 34 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
-@@ -59,6 +59,7 @@ MODULE_FIRMWARE("amdgpu/tonga_mc.bin");
- MODULE_FIRMWARE("amdgpu/polaris11_mc.bin");
- MODULE_FIRMWARE("amdgpu/polaris10_mc.bin");
- MODULE_FIRMWARE("amdgpu/polaris12_mc.bin");
-+MODULE_FIRMWARE("amdgpu/polaris12_32_mc.bin");
- MODULE_FIRMWARE("amdgpu/polaris11_k_mc.bin");
- MODULE_FIRMWARE("amdgpu/polaris10_k_mc.bin");
- MODULE_FIRMWARE("amdgpu/polaris12_k_mc.bin");
-@@ -243,10 +244,16 @@ static int gmc_v8_0_init_microcode(struc
- 			chip_name = "polaris10";
- 		break;
- 	case CHIP_POLARIS12:
--		if (ASICID_IS_P23(adev->pdev->device, adev->pdev->revision))
-+		if (ASICID_IS_P23(adev->pdev->device, adev->pdev->revision)) {
- 			chip_name = "polaris12_k";
--		else
--			chip_name = "polaris12";
-+		} else {
-+			WREG32(mmMC_SEQ_IO_DEBUG_INDEX, ixMC_IO_DEBUG_UP_159);
-+			/* Polaris12 32bit ASIC needs a special MC firmware */
-+			if (RREG32(mmMC_SEQ_IO_DEBUG_DATA) == 0x05b4dc40)
-+				chip_name = "polaris12_32";
-+			else
-+				chip_name = "polaris12";
-+		}
- 		break;
- 	case CHIP_FIJI:
- 	case CHIP_CARRIZO:
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(st
+  * kvm_s390_shadow_tables - walk the guest page table and create shadow tables
+  * @sg: pointer to the shadow guest address space structure
+  * @saddr: faulting address in the shadow gmap
+- * @pgt: pointer to the page table address result
++ * @pgt: pointer to the beginning of the page table for the given address if
++ *	 successful (return value 0), or to the first invalid DAT entry in
++ *	 case of exceptions (return value > 0)
+  * @fake: pgt references contiguous guest memory block, not a pgtable
+  */
+ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+@@ -1034,6 +1036,7 @@ static int kvm_s390_shadow_tables(struct
+ 			rfte.val = ptr;
+ 			goto shadow_r2t;
+ 		}
++		*pgt = ptr + vaddr.rfx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8, &rfte.val);
+ 		if (rc)
+ 			return rc;
+@@ -1060,6 +1063,7 @@ shadow_r2t:
+ 			rste.val = ptr;
+ 			goto shadow_r3t;
+ 		}
++		*pgt = ptr + vaddr.rsx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8, &rste.val);
+ 		if (rc)
+ 			return rc;
+@@ -1087,6 +1091,7 @@ shadow_r3t:
+ 			rtte.val = ptr;
+ 			goto shadow_sgt;
+ 		}
++		*pgt = ptr + vaddr.rtx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8, &rtte.val);
+ 		if (rc)
+ 			return rc;
+@@ -1123,6 +1128,7 @@ shadow_sgt:
+ 			ste.val = ptr;
+ 			goto shadow_pgt;
+ 		}
++		*pgt = ptr + vaddr.sx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.sx * 8, &ste.val);
+ 		if (rc)
+ 			return rc;
+@@ -1157,6 +1163,8 @@ shadow_pgt:
+  * @vcpu: virtual cpu
+  * @sg: pointer to the shadow guest address space structure
+  * @saddr: faulting address in the shadow gmap
++ * @datptr: will contain the address of the faulting DAT table entry, or of
++ *	    the valid leaf, plus some flags
+  *
+  * Returns: - 0 if the shadow fault was successfully resolved
+  *	    - > 0 (pgm exception code) on exceptions while faulting
+@@ -1165,11 +1173,11 @@ shadow_pgt:
+  *	    - -ENOMEM if out of memory
+  */
+ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+-			  unsigned long saddr)
++			  unsigned long saddr, unsigned long *datptr)
+ {
+ 	union vaddress vaddr;
+ 	union page_table_entry pte;
+-	unsigned long pgt;
++	unsigned long pgt = 0;
+ 	int dat_protection, fake;
+ 	int rc;
+ 
+@@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcp
+ 		pte.val = pgt + vaddr.px * PAGE_SIZE;
+ 		goto shadow_page;
+ 	}
+-	if (!rc)
+-		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
++
++	switch (rc) {
++	case PGM_SEGMENT_TRANSLATION:
++	case PGM_REGION_THIRD_TRANS:
++	case PGM_REGION_SECOND_TRANS:
++	case PGM_REGION_FIRST_TRANS:
++		pgt |= PEI_NOT_PTE;
++		break;
++	case 0:
++		pgt += vaddr.px * 8;
++		rc = gmap_read_table(sg->parent, pgt, &pte.val);
++	}
++	if (datptr)
++		*datptr = pgt | dat_protection * PEI_DAT_PROT;
+ 	if (!rc && pte.i)
+ 		rc = PGM_PAGE_TRANSLATION;
+ 	if (!rc && pte.z)
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -387,7 +387,11 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+ int ipte_lock_held(struct kvm_vcpu *vcpu);
+ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
+ 
++/* MVPG PEI indication bits */
++#define PEI_DAT_PROT 2
++#define PEI_NOT_PTE 4
++
+ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *shadow,
+-			  unsigned long saddr);
++			  unsigned long saddr, unsigned long *datptr);
+ 
+ #endif /* __KVM_S390_GACCESS_H */
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -615,10 +615,10 @@ static int map_prefix(struct kvm_vcpu *v
+ 	/* with mso/msl, the prefix lies at offset *mso* */
+ 	prefix += scb_s->mso;
+ 
+-	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
++	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix, NULL);
+ 	if (!rc && (scb_s->ecb & ECB_TE))
+ 		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-					   prefix + PAGE_SIZE);
++					   prefix + PAGE_SIZE, NULL);
+ 	/*
+ 	 * We don't have to mprotect, we will be called for all unshadows.
+ 	 * SIE will detect if protection applies and trigger a validity.
+@@ -909,7 +909,7 @@ static int handle_fault(struct kvm_vcpu
+ 				    current->thread.gmap_addr, 1);
+ 
+ 	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-				   current->thread.gmap_addr);
++				   current->thread.gmap_addr, NULL);
+ 	if (rc > 0) {
+ 		rc = inject_fault(vcpu, rc,
+ 				  current->thread.gmap_addr,
+@@ -931,7 +931,7 @@ static void handle_last_fault(struct kvm
+ {
+ 	if (vsie_page->fault_addr)
+ 		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-				      vsie_page->fault_addr);
++				      vsie_page->fault_addr, NULL);
+ 	vsie_page->fault_addr = 0;
+ }
+ 
 
 
