@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FCFF37C1BB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4516B37C1B9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232571AbhELPDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:03:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59200 "EHLO mail.kernel.org"
+        id S232161AbhELPDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:03:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232305AbhELPC1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:02:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 601E761606;
-        Wed, 12 May 2021 14:58:02 +0000 (UTC)
+        id S232959AbhELPC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:02:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5030C61628;
+        Wed, 12 May 2021 14:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831482;
-        bh=Sl9J4FmfshQnMQ+ttl0PmjLR+IgCq1VozA8vqwdlxBM=;
+        s=korg; t=1620831485;
+        bh=3ZR0Kthvsr09WFNV8OS5pnAU4ozDeoiUk0gi7zgPe6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDG+RAp+sGess7Yhx6mZApnTcfJL6qQM5am4vnjuVsMu/+XmdyDCKgpF+47c534ly
-         UxsBaI9/jIP0XaRGGDLSUDAkN/PsRNRQj4HY7ChzuIQ2i2mWYaz+wt39sViyhBB+Ed
-         a7bxEBMMY59V02qjzdsPnQncpsLlEz/AxDVMtsOU=
+        b=LCFKgRJLD9U/vM91KuoAXk62JTWTFJB8y/NlTfls0m9IY4EMfmXLl5+o1sYolSqbH
+         nATeYh+gcVWGgnIaDgYMd+BcZUWYp/+QPp+75N2OMHHMpOsQIzcyCuSu+n+u81fDlk
+         gasXSzAzaplTniU7ugpC+bVA/yUIERnO2Dmo9KOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>,
-        syzbot <syzbot+3ed715090790806d8b18@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        stable@vger.kernel.org, Paul Durrant <pdurrant@amazon.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 137/244] ttyprintk: Add TTY hangup callback.
-Date:   Wed, 12 May 2021 16:48:28 +0200
-Message-Id: <20210512144747.396185804@linuxfoundation.org>
+Subject: [PATCH 5.4 138/244] xen-blkback: fix compatibility bug with single page rings
+Date:   Wed, 12 May 2021 16:48:29 +0200
+Message-Id: <20210512144747.431395443@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,85 +42,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Paul Durrant <pdurrant@amazon.com>
 
-[ Upstream commit c0070e1e60270f6a1e09442a9ab2335f3eaeaad2 ]
+[ Upstream commit d75e7f63b7c95c527cde42efb5d410d7f961498f ]
 
-syzbot is reporting hung task due to flood of
+Prior to commit 4a8c31a1c6f5 ("xen/blkback: rework connect_ring() to avoid
+inconsistent xenstore 'ring-page-order' set by malicious blkfront"), the
+behaviour of xen-blkback when connecting to a frontend was:
 
-  tty_warn(tty, "%s: tty->count = 1 port count = %d\n", __func__,
-           port->count);
+- read 'ring-page-order'
+- if not present then expect a single page ring specified by 'ring-ref'
+- else expect a ring specified by 'ring-refX' where X is between 0 and
+  1 << ring-page-order
 
-message [1], for ioctl(TIOCVHANGUP) prevents tty_port_close() from
-decrementing port->count due to tty_hung_up_p() == true.
+This was correct behaviour, but was broken by the afforementioned commit to
+become:
 
-----------
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
+- read 'ring-page-order'
+- if not present then expect a single page ring (i.e. ring-page-order = 0)
+- expect a ring specified by 'ring-refX' where X is between 0 and
+  1 << ring-page-order
+- if that didn't work then see if there's a single page ring specified by
+  'ring-ref'
 
-int main(int argc, char *argv[])
-{
-	int i;
-	int fd[10];
+This incorrect behaviour works most of the time but fails when a frontend
+that sets 'ring-page-order' is unloaded and replaced by one that does not
+because, instead of reading 'ring-ref', xen-blkback will read the stale
+'ring-ref0' left around by the previous frontend will try to map the wrong
+grant reference.
 
-	for (i = 0; i < 10; i++)
-		fd[i] = open("/dev/ttyprintk", O_WRONLY);
-	ioctl(fd[0], TIOCVHANGUP);
-	for (i = 0; i < 10; i++)
-		close(fd[i]);
-	close(open("/dev/ttyprintk", O_WRONLY));
-	return 0;
-}
-----------
+This patch restores the original behaviour.
 
-When TTY hangup happens, port->count needs to be reset via
-"struct tty_operations"->hangup callback.
-
-[1] https://syzkaller.appspot.com/bug?id=39ea6caa479af471183997376dc7e90bc7d64a6a
-
-Reported-by: syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+3ed715090790806d8b18@syzkaller.appspotmail.com>
-Tested-by: syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 24b4b67d17c308aa ("add ttyprintk driver")
-Link: https://lore.kernel.org/r/17e0652d-89b7-c8c0-fb53-e7566ac9add4@i-love.sakura.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4a8c31a1c6f5 ("xen/blkback: rework connect_ring() to avoid inconsistent xenstore 'ring-page-order' set by malicious blkfront")
+Signed-off-by: Paul Durrant <pdurrant@amazon.com>
+Reviewed-by: Dongli Zhang <dongli.zhang@oracle.com>
+Reviewed-by: "Roger Pau Monné" <roger.pau@citrix.com>
+Link: https://lore.kernel.org/r/20210202175659.18452-1-paul@xen.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ttyprintk.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/block/xen-blkback/common.h |  1 +
+ drivers/block/xen-blkback/xenbus.c | 38 +++++++++++++-----------------
+ 2 files changed, 17 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/char/ttyprintk.c b/drivers/char/ttyprintk.c
-index 56db949a7b70..e6258b4485dc 100644
---- a/drivers/char/ttyprintk.c
-+++ b/drivers/char/ttyprintk.c
-@@ -158,12 +158,23 @@ static int tpk_ioctl(struct tty_struct *tty,
- 	return 0;
- }
+diff --git a/drivers/block/xen-blkback/common.h b/drivers/block/xen-blkback/common.h
+index 1d3002d773f7..20cb0c23a22c 100644
+--- a/drivers/block/xen-blkback/common.h
++++ b/drivers/block/xen-blkback/common.h
+@@ -316,6 +316,7 @@ struct xen_blkif {
  
-+/*
-+ * TTY operations hangup function.
-+ */
-+static void tpk_hangup(struct tty_struct *tty)
-+{
-+	struct ttyprintk_port *tpkp = tty->driver_data;
-+
-+	tty_port_hangup(&tpkp->port);
-+}
-+
- static const struct tty_operations ttyprintk_ops = {
- 	.open = tpk_open,
- 	.close = tpk_close,
- 	.write = tpk_write,
- 	.write_room = tpk_write_room,
- 	.ioctl = tpk_ioctl,
-+	.hangup = tpk_hangup,
- };
+ 	struct work_struct	free_work;
+ 	unsigned int 		nr_ring_pages;
++	bool			multi_ref;
+ 	/* All rings for this device. */
+ 	struct xen_blkif_ring	*rings;
+ 	unsigned int		nr_rings;
+diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
+index 040d7bb21397..dca91d641f1d 100644
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -949,14 +949,17 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
+ 	for (i = 0; i < nr_grefs; i++) {
+ 		char ring_ref_name[RINGREF_NAME_LEN];
  
- static const struct tty_port_operations null_ops = { };
+-		snprintf(ring_ref_name, RINGREF_NAME_LEN, "ring-ref%u", i);
++		if (blkif->multi_ref)
++			snprintf(ring_ref_name, RINGREF_NAME_LEN, "ring-ref%u", i);
++		else {
++			WARN_ON(i != 0);
++			snprintf(ring_ref_name, RINGREF_NAME_LEN, "ring-ref");
++		}
++
+ 		err = xenbus_scanf(XBT_NIL, dir, ring_ref_name,
+ 				   "%u", &ring_ref[i]);
+ 
+ 		if (err != 1) {
+-			if (nr_grefs == 1)
+-				break;
+-
+ 			err = -EINVAL;
+ 			xenbus_dev_fatal(dev, err, "reading %s/%s",
+ 					 dir, ring_ref_name);
+@@ -964,18 +967,6 @@ static int read_per_ring_refs(struct xen_blkif_ring *ring, const char *dir)
+ 		}
+ 	}
+ 
+-	if (err != 1) {
+-		WARN_ON(nr_grefs != 1);
+-
+-		err = xenbus_scanf(XBT_NIL, dir, "ring-ref", "%u",
+-				   &ring_ref[0]);
+-		if (err != 1) {
+-			err = -EINVAL;
+-			xenbus_dev_fatal(dev, err, "reading %s/ring-ref", dir);
+-			return err;
+-		}
+-	}
+-
+ 	err = -ENOMEM;
+ 	for (i = 0; i < nr_grefs * XEN_BLKIF_REQS_PER_PAGE; i++) {
+ 		req = kzalloc(sizeof(*req), GFP_KERNEL);
+@@ -1079,10 +1070,15 @@ static int connect_ring(struct backend_info *be)
+ 		 blkif->nr_rings, blkif->blk_protocol, protocol,
+ 		 pers_grants ? "persistent grants" : "");
+ 
+-	ring_page_order = xenbus_read_unsigned(dev->otherend,
+-					       "ring-page-order", 0);
+-
+-	if (ring_page_order > xen_blkif_max_ring_order) {
++	err = xenbus_scanf(XBT_NIL, dev->otherend, "ring-page-order", "%u",
++			   &ring_page_order);
++	if (err != 1) {
++		blkif->nr_ring_pages = 1;
++		blkif->multi_ref = false;
++	} else if (ring_page_order <= xen_blkif_max_ring_order) {
++		blkif->nr_ring_pages = 1 << ring_page_order;
++		blkif->multi_ref = true;
++	} else {
+ 		err = -EINVAL;
+ 		xenbus_dev_fatal(dev, err,
+ 				 "requested ring page order %d exceed max:%d",
+@@ -1091,8 +1087,6 @@ static int connect_ring(struct backend_info *be)
+ 		return err;
+ 	}
+ 
+-	blkif->nr_ring_pages = 1 << ring_page_order;
+-
+ 	if (blkif->nr_rings == 1)
+ 		return read_per_ring_refs(&blkif->rings[0], dev->otherend);
+ 	else {
 -- 
 2.30.2
 
