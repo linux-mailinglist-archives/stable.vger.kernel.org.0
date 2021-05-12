@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B82437D27F
+	by mail.lfdr.de (Postfix) with ESMTP id C5FA037D280
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350097AbhELSKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:10:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51870 "EHLO mail.kernel.org"
+        id S1350186AbhELSKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352668AbhELSD5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:03:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83E0761438;
-        Wed, 12 May 2021 18:02:47 +0000 (UTC)
+        id S1352677AbhELSD7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:03:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FE4D6143A;
+        Wed, 12 May 2021 18:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842568;
-        bh=PsHQLOY/QTK6HaD3VMkzs/rCtqMkX/d49yP5Jq0xUN4=;
+        s=k20201202; t=1620842570;
+        bh=NxRr3i/3FfdnK/KAHIiXOLrAkGgYPUD+efpTLGlFqX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2fjPB0dbAikbnzfdhhFBGq8byDCJKec2K08F5rpiu+SlqhaBXgW8W55aJiQuW9G5
-         bcVWG2tBQ36m+HLuKWlSDFOaYIVKk3I/vBuPsT5BrEqncDEjUQrPjqclURHU+iZVnj
-         lTWjVTBYhlWeVjuYtXR5FW6nDXigz5oP/YL7YYzU+ts+iT5HsoHT/UzgxhP3lsM0pv
-         3YjKPTVeD52TFuQU+UWhl//OTxL+aOC/0yTrGHbFCS+t3e/wrMZglv7Sj4MK6rZN92
-         U0km0JIkNr5r2SfWEyZmU4QC3xvmLjq2BMmXVMQz/ZTXb/NH12hkg0wq75fVvJ2t3M
-         ETfx7zVvlzKJA==
+        b=vEt+pP136ssI4AaYaSSHE8/ZuVLLDyoR9ifNtWwr99SYQ3VnypXWUnn/SMoZC0EeH
+         HCzHRr6La8xKYoczNxc2+Vs1iPNhtpqNHD68ZolFyMuVZcRE6I/6eZdMgZZd1YHoJR
+         ZIODsrZZYiNwlxx2T46PDLk74yKjWpNl6TCIYahCoWuSK2EcNr7EktIQO6J9XUrY43
+         ue0dqu5CL8kGZtriOFEboE6yt0YPBfMBCQy8kItcUISOahaWWoEoT6san9tsW8SBFW
+         J48UDVJ9Qz24wLcTcccAJKQFpBYaULQ5Jit6WLuc/UaFxOSz1rJRU8P6R6/uWvZOAC
+         HuMbHfgkjL90w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Darren Powell <darren.powell@amd.com>,
-        Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.11 25/35] amdgpu/pm: Prevent force of DCEFCLK on NAVI10 and SIENNA_CICHLID
-Date:   Wed, 12 May 2021 14:01:55 -0400
-Message-Id: <20210512180206.664536-25-sashal@kernel.org>
+Cc:     Zhang Zhengming <zhangzhengming@huawei.com>,
+        Zhao Lei <zhaolei69@huawei.com>,
+        Wang Xiaogang <wangxiaogang3@huawei.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 26/35] bridge: Fix possible races between assigning rx_handler_data and setting IFF_BRIDGE_PORT bit
+Date:   Wed, 12 May 2021 14:01:56 -0400
+Message-Id: <20210512180206.664536-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180206.664536-1-sashal@kernel.org>
 References: <20210512180206.664536-1-sashal@kernel.org>
@@ -44,68 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darren Powell <darren.powell@amd.com>
+From: Zhang Zhengming <zhangzhengming@huawei.com>
 
-[ Upstream commit b117b3964f38a988cb79825950dbd607c02237f3 ]
+[ Upstream commit 59259ff7a81b9eb6213891c6451221e567f8f22f ]
 
-Writing to dcefclk causes the gpu to become unresponsive, and requires a reboot.
-Patch ignores a .force_clk_levels(SMU_DCEFCLK) call and issues an
-info message.
+There is a crash in the function br_get_link_af_size_filtered,
+as the port_exists(dev) is true and the rx_handler_data of dev is NULL.
+But the rx_handler_data of dev is correct saved in vmcore.
 
-Signed-off-by: Darren Powell <darren.powell@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The oops looks something like:
+ ...
+ pc : br_get_link_af_size_filtered+0x28/0x1c8 [bridge]
+ ...
+ Call trace:
+  br_get_link_af_size_filtered+0x28/0x1c8 [bridge]
+  if_nlmsg_size+0x180/0x1b0
+  rtnl_calcit.isra.12+0xf8/0x148
+  rtnetlink_rcv_msg+0x334/0x370
+  netlink_rcv_skb+0x64/0x130
+  rtnetlink_rcv+0x28/0x38
+  netlink_unicast+0x1f0/0x250
+  netlink_sendmsg+0x310/0x378
+  sock_sendmsg+0x4c/0x70
+  __sys_sendto+0x120/0x150
+  __arm64_sys_sendto+0x30/0x40
+  el0_svc_common+0x78/0x130
+  el0_svc_handler+0x38/0x78
+  el0_svc+0x8/0xc
+
+In br_add_if(), we found there is no guarantee that
+assigning rx_handler_data to dev->rx_handler_data
+will before setting the IFF_BRIDGE_PORT bit of priv_flags.
+So there is a possible data competition:
+
+CPU 0:                                                        CPU 1:
+(RCU read lock)                                               (RTNL lock)
+rtnl_calcit()                                                 br_add_slave()
+  if_nlmsg_size()                                               br_add_if()
+    br_get_link_af_size_filtered()                              -> netdev_rx_handler_register
+                                                                    ...
+                                                                    // The order is not guaranteed
+      ...                                                           -> dev->priv_flags |= IFF_BRIDGE_PORT;
+      // The IFF_BRIDGE_PORT bit of priv_flags has been set
+      -> if (br_port_exists(dev)) {
+        // The dev->rx_handler_data has NOT been assigned
+        -> p = br_port_get_rcu(dev);
+        ....
+                                                                    -> rcu_assign_pointer(dev->rx_handler_data, rx_handler_data);
+                                                                     ...
+
+Fix it in br_get_link_af_size_filtered, using br_port_get_check_rcu() and checking the return value.
+
+Signed-off-by: Zhang Zhengming <zhangzhengming@huawei.com>
+Reviewed-by: Zhao Lei <zhaolei69@huawei.com>
+Reviewed-by: Wang Xiaogang <wangxiaogang3@huawei.com>
+Suggested-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c         | 5 ++++-
- drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c | 4 +++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ net/bridge/br_netlink.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
-index cd7efa923195..ab702e1cd9f0 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
-@@ -1110,7 +1110,6 @@ static int navi10_force_clk_levels(struct smu_context *smu,
- 	case SMU_SOCCLK:
- 	case SMU_MCLK:
- 	case SMU_UCLK:
--	case SMU_DCEFCLK:
- 	case SMU_FCLK:
- 		/* There is only 2 levels for fine grained DPM */
- 		if (navi10_is_support_fine_grained_dpm(smu, clk_type)) {
-@@ -1130,6 +1129,10 @@ static int navi10_force_clk_levels(struct smu_context *smu,
- 		if (ret)
- 			return size;
- 		break;
-+	case SMU_DCEFCLK:
-+		dev_info(smu->adev->dev,"Setting DCEFCLK min/max dpm level is not supported!\n");
-+		break;
-+
- 	default:
- 		break;
- 	}
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-index d68d3dfee51d..aa231336d9f0 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-@@ -1025,7 +1025,6 @@ static int sienna_cichlid_force_clk_levels(struct smu_context *smu,
- 	case SMU_SOCCLK:
- 	case SMU_MCLK:
- 	case SMU_UCLK:
--	case SMU_DCEFCLK:
- 	case SMU_FCLK:
- 		/* There is only 2 levels for fine grained DPM */
- 		if (sienna_cichlid_is_support_fine_grained_dpm(smu, clk_type)) {
-@@ -1045,6 +1044,9 @@ static int sienna_cichlid_force_clk_levels(struct smu_context *smu,
- 		if (ret)
- 			goto forec_level_out;
- 		break;
-+	case SMU_DCEFCLK:
-+		dev_info(smu->adev->dev,"Setting DCEFCLK min/max dpm level is not supported!\n");
-+		break;
- 	default:
- 		break;
- 	}
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 49700ce0e919..a0a134050b2c 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -102,8 +102,9 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
+ 
+ 	rcu_read_lock();
+ 	if (netif_is_bridge_port(dev)) {
+-		p = br_port_get_rcu(dev);
+-		vg = nbp_vlan_group_rcu(p);
++		p = br_port_get_check_rcu(dev);
++		if (p)
++			vg = nbp_vlan_group_rcu(p);
+ 	} else if (dev->priv_flags & IFF_EBRIDGE) {
+ 		br = netdev_priv(dev);
+ 		vg = br_vlan_group_rcu(br);
 -- 
 2.30.2
 
