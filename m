@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4710537C19D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0ED37C19A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232985AbhELPCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:02:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46036 "EHLO mail.kernel.org"
+        id S232974AbhELPCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231190AbhELO7u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:59:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A002F6143D;
-        Wed, 12 May 2021 14:56:44 +0000 (UTC)
+        id S231551AbhELPAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:00:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 100936143E;
+        Wed, 12 May 2021 14:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831405;
-        bh=e3OOcQJpqFZGaR6u1gY8aZUXjS+i30BuumWbEPhDvuQ=;
+        s=korg; t=1620831407;
+        bh=AJyRB+2z5O6HPyB/YDhTCvi8i4j2sfXQMZ9Wh9/RhVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyodCjuCVOTKEA0Sm9RN0gNjiQWmnoAmquA7HiqMXtmZ3eHgenYs8QjxDzRdGWclR
-         TGuDki0Uo7eyIZFcSOGA03zNQ5qvd1CfKibOko6mebio6HBlCRRqAjwpzZXRhv2qSZ
-         P85O5Xgs7/rtsXBSsN6OMgjypaYBtTRARYwdfEfg=
+        b=lzCmzlLHCzuWXZg3TP63GRi89EB22iAjX6mIiUQdKX7rWFfiW3FBOE+3hbVkxFO/u
+         ZrqopEeOTvh8WIzOIBFhxQcKhMkV6IlUL9CZQO3s+AVTlu0M5+ts3qBgMcvn+9dAud
+         5xnr9fnRma/l0dq9lp2hJQpWmabJepl1Wn91UN1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/244] irqchip/gic-v3: Fix OF_BAD_ADDR error handling
-Date:   Wed, 12 May 2021 16:47:57 +0200
-Message-Id: <20210512144746.419403229@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 107/244] staging: rtl8192u: Fix potential infinite loop
+Date:   Wed, 12 May 2021 16:47:58 +0200
+Message-Id: <20210512144746.452096599@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -39,41 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 8e13d96670a4c050d4883e6743a9e9858e5cfe10 ]
+[ Upstream commit f9b9263a25dc3d2eaaa829e207434db6951ca7bc ]
 
-When building with extra warnings enabled, clang points out a
-mistake in the error handling:
+The for-loop iterates with a u8 loop counter i and compares this
+with the loop upper limit of riv->ieee80211->LinkDetectInfo.SlotNum
+that is a u16 type. There is a potential infinite loop if SlotNum
+is larger than the u8 loop counter. Fix this by making the loop
+counter the same type as SlotNum.
 
-drivers/irqchip/irq-gic-v3-mbi.c:306:21: error: result of comparison of constant 18446744073709551615 with expression of type 'phys_addr_t' (aka 'unsigned int') is always false [-Werror,-Wtautological-constant-out-of-range-compare]
-                if (mbi_phys_base == OF_BAD_ADDR) {
-
-Truncate the constant to the same type as the variable it gets compared
-to, to shut make the check work and void the warning.
-
-Fixes: 505287525c24 ("irqchip/gic-v3: Add support for Message Based Interrupts as an MSI controller")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210323131842.2773094-1-arnd@kernel.org
+Addresses-Coverity: ("Infinite loop")
+Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210407150308.496623-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-mbi.c | 2 +-
+ drivers/staging/rtl8192u/r8192U_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-mbi.c b/drivers/irqchip/irq-gic-v3-mbi.c
-index 563a9b366294..e81e89a81cb5 100644
---- a/drivers/irqchip/irq-gic-v3-mbi.c
-+++ b/drivers/irqchip/irq-gic-v3-mbi.c
-@@ -303,7 +303,7 @@ int __init mbi_init(struct fwnode_handle *fwnode, struct irq_domain *parent)
- 	reg = of_get_property(np, "mbi-alias", NULL);
- 	if (reg) {
- 		mbi_phys_base = of_translate_address(np, reg);
--		if (mbi_phys_base == OF_BAD_ADDR) {
-+		if (mbi_phys_base == (phys_addr_t)OF_BAD_ADDR) {
- 			ret = -ENXIO;
- 			goto err_free_mbi;
- 		}
+diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
+index ddc09616248a..66cd43f963c9 100644
+--- a/drivers/staging/rtl8192u/r8192U_core.c
++++ b/drivers/staging/rtl8192u/r8192U_core.c
+@@ -3248,7 +3248,7 @@ static void rtl819x_update_rxcounts(struct r8192_priv *priv, u32 *TotalRxBcnNum,
+ 			     u32 *TotalRxDataNum)
+ {
+ 	u16			SlotIndex;
+-	u8			i;
++	u16			i;
+ 
+ 	*TotalRxBcnNum = 0;
+ 	*TotalRxDataNum = 0;
 -- 
 2.30.2
 
