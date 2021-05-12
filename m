@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9583C37C5A5
+	by mail.lfdr.de (Postfix) with ESMTP id 29D6237C5A4
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232717AbhELPmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232999AbhELPmG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 11:42:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56528 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236312AbhELPhf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:37:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4007661C58;
-        Wed, 12 May 2021 15:19:06 +0000 (UTC)
+        id S236320AbhELPhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:37:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3D5E61992;
+        Wed, 12 May 2021 15:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832746;
-        bh=9rgStVf8uJ42fg/JS6I/fqJIH8Ygt3YKG46sUok9Azw=;
+        s=korg; t=1620832749;
+        bh=JJf+W2xCrRTBrLwg5F/9Ty9uZZZqI4O7qvJPS6KqPv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haBkmSzZlzb5xKPcZY/+9qNXdOcczxQocDPptS75VkD51lvqRAlYTFpujV1dO/BW8
-         0FD1y0OjUxTRc/0pYHUzfevLgoLGAMWSlOp7q38VaXjgkpGjzEFfvOnhvo2w8uhwJt
-         3MkLbb5o1iephYIl5U5clK7ov/YDwM9RCgvDYZkw=
+        b=BojLnF6/hw+zGIUsyeCyWOBvQBAwdE76fLHlBsSfQYb/hShpaA5BOn8wcSTBOjb2f
+         I0RVUSQ+cNZHnklJko/26sKOd8YTjLUGS8bx9moiqs1yAha5sif4G6lzqDRgLTponG
+         se+iSl8305hBWoQbcyFVAMCE+HdUCeBtosTRyvj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Zhu <zhurui3@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 372/530] iommu/arm-smmu-v3: add bit field SFM into GERROR_ERR_MASK
-Date:   Wed, 12 May 2021 16:48:02 +0200
-Message-Id: <20210512144832.005199577@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Bloch <markb@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 373/530] RDMA/mlx5: Fix drop packet rule in egress table
+Date:   Wed, 12 May 2021 16:48:03 +0200
+Message-Id: <20210512144832.036106253@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,37 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 655c447c97d7fe462e6cd9e15809037be028bc70 ]
+[ Upstream commit c73700806d4e430d182c2be069d230076818a99a ]
 
-In arm_smmu_gerror_handler(), the value of the SMMU_GERROR register is
-filtered by GERROR_ERR_MASK. However, the GERROR_ERR_MASK does not contain
-the SFM bit. As a result, the subsequent error processing is not performed
-when only the SFM error occurs.
+Initial drop action support missed that drop action can be added to egress
+flow tables as well. Add the missing support.
 
-Fixes: 48ec83bcbcf5 ("iommu/arm-smmu: Add initial driver support for ARM SMMUv3 devices")
-Reported-by: Rui Zhu <zhurui3@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210324081603.1074-1-thunder.leizhen@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+This requires making sure that dest_type isn't set to PORT which in turn
+exposes a possibility of passing dst while indicating number of dsts as
+zero. Explicitly check for number of dsts and pass the appropriate
+pointer.
+
+Fixes: f29de9eee782 ("RDMA/mlx5: Add support for drop action in DV steering")
+Link: https://lore.kernel.org/r/20210318135123.680759-1-leon@kernel.org
+Reviewed-by: Mark Bloch <markb@nvidia.com>
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/fs.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
-index d4b7f40ccb02..57e5d223c467 100644
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
-@@ -115,7 +115,7 @@
- #define GERROR_PRIQ_ABT_ERR		(1 << 3)
- #define GERROR_EVTQ_ABT_ERR		(1 << 2)
- #define GERROR_CMDQ_ERR			(1 << 0)
--#define GERROR_ERR_MASK			0xfd
-+#define GERROR_ERR_MASK			0x1fd
+diff --git a/drivers/infiniband/hw/mlx5/fs.c b/drivers/infiniband/hw/mlx5/fs.c
+index 492cfe063bca..13d50b178166 100644
+--- a/drivers/infiniband/hw/mlx5/fs.c
++++ b/drivers/infiniband/hw/mlx5/fs.c
+@@ -1528,8 +1528,8 @@ static struct mlx5_ib_flow_handler *raw_fs_rule_add(
+ 		dst_num++;
+ 	}
  
- #define ARM_SMMU_GERRORN		0x64
+-	handler = _create_raw_flow_rule(dev, ft_prio, dst, fs_matcher,
+-					flow_context, flow_act,
++	handler = _create_raw_flow_rule(dev, ft_prio, dst_num ? dst : NULL,
++					fs_matcher, flow_context, flow_act,
+ 					cmd_in, inlen, dst_num);
+ 
+ 	if (IS_ERR(handler)) {
+@@ -1885,8 +1885,9 @@ static int get_dests(struct uverbs_attr_bundle *attrs,
+ 		else
+ 			*dest_id = mqp->raw_packet_qp.rq.tirn;
+ 		*dest_type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+-	} else if (fs_matcher->ns_type == MLX5_FLOW_NAMESPACE_EGRESS ||
+-		   fs_matcher->ns_type == MLX5_FLOW_NAMESPACE_RDMA_TX) {
++	} else if ((fs_matcher->ns_type == MLX5_FLOW_NAMESPACE_EGRESS ||
++		    fs_matcher->ns_type == MLX5_FLOW_NAMESPACE_RDMA_TX) &&
++		   !(*flags & MLX5_IB_ATTR_CREATE_FLOW_FLAGS_DROP)) {
+ 		*dest_type = MLX5_FLOW_DESTINATION_TYPE_PORT;
+ 	}
  
 -- 
 2.30.2
