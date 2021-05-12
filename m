@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A84F537C914
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3993237C8E9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237985AbhELQOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:14:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34478 "EHLO mail.kernel.org"
+        id S234656AbhELQNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:13:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239315AbhELQHv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4E1361D12;
-        Wed, 12 May 2021 15:37:24 +0000 (UTC)
+        id S239329AbhELQHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 779A461C54;
+        Wed, 12 May 2021 15:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833845;
-        bh=xAtxgmhbkGFKmiSTUgWWI6oVIHIo8vIfPp73W4BZKFU=;
+        s=korg; t=1620833847;
+        bh=uAyWzjP+VFUryf2ea6q//+V3JGUv2yUoEopTHFiUnf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2RFP3wC1Dn2fTzPIma+x81t5NB3Wn90LjZbhGXEJq/yehnOezn/eFT9OKVV1LgmG
-         ksk/v9i5ZtF+1u+rtAA/LGaZ8BgZXY6lE05Cn/VJ5Fl6ZxqKxD8XEzQGgqSJxcM9zP
-         y58hZvqIYMtpeI2o8yaVP45Lcat8pqKkyh/61P/g=
+        b=hz0rjIRYuJt+G+NQU8gnnFcUCnqnborsqMKrg3LbpJdsEu5xb1NJJXK5X8LCZqvej
+         z0EQ//aQPW43SQtXZN14ww5OCXSui8m4IGYlAcNZOUkR9sRbUG15np7LkwCELL6Ghg
+         lmx5u1wzCJnrkMXx7U1qs7kaMJybVuz0wSSeu7Ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 311/601] scsi: lpfc: Fix null pointer dereference in lpfc_prep_els_iocb()
-Date:   Wed, 12 May 2021 16:46:28 +0200
-Message-Id: <20210512144838.063678528@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+d7581744d5fd27c9fbe1@syzkaller.appspotmail.com,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 312/601] sched/fair: Fix shift-out-of-bounds in load_balance()
+Date:   Wed, 12 May 2021 16:46:29 +0200
+Message-Id: <20210512144838.093476724@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,109 +42,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit 8dd1c125f7f838abad009b64bff5f0a11afe3cb6 ]
+[ Upstream commit 39a2a6eb5c9b66ea7c8055026303b3aa681b49a5 ]
 
-It is possible to call lpfc_issue_els_plogi() passing a did for which no
-matching ndlp is found. A call is then made to lpfc_prep_els_iocb() with a
-null pointer to a lpfc_nodelist structure resulting in a null pointer
-dereference.
+Syzbot reported a handful of occurrences where an sd->nr_balance_failed can
+grow to much higher values than one would expect.
 
-Fix by returning an error status if no valid ndlp is found. Fix up comments
-regarding ndlp reference counting.
+A successful load_balance() resets it to 0; a failed one increments
+it. Once it gets to sd->cache_nice_tries + 3, this *should* trigger an
+active balance, which will either set it to sd->cache_nice_tries+1 or reset
+it to 0. However, in case the to-be-active-balanced task is not allowed to
+run on env->dst_cpu, then the increment is done without any further
+modification.
 
-Link: https://lore.kernel.org/r/20210301171821.3427-10-jsmart2021@gmail.com
-Fixes: 4430f7fd09ec ("scsi: lpfc: Rework locations of ndlp reference taking")
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This could then be repeated ad nauseam, and would explain the absurdly high
+values reported by syzbot (86, 149). VincentG noted there is value in
+letting sd->cache_nice_tries grow, so the shift itself should be
+fixed. That means preventing:
+
+  """
+  If the value of the right operand is negative or is greater than or equal
+  to the width of the promoted left operand, the behavior is undefined.
+  """
+
+Thus we need to cap the shift exponent to
+  BITS_PER_TYPE(typeof(lefthand)) - 1.
+
+I had a look around for other similar cases via coccinelle:
+
+  @expr@
+  position pos;
+  expression E1;
+  expression E2;
+  @@
+  (
+  E1 >> E2@pos
+  |
+  E1 >> E2@pos
+  )
+
+  @cst depends on expr@
+  position pos;
+  expression expr.E1;
+  constant cst;
+  @@
+  (
+  E1 >> cst@pos
+  |
+  E1 << cst@pos
+  )
+
+  @script:python depends on !cst@
+  pos << expr.pos;
+  exp << expr.E2;
+  @@
+  # Dirty hack to ignore constexpr
+  if exp.upper() != exp:
+     coccilib.report.print_report(pos[0], "Possible UB shift here")
+
+The only other match in kernel/sched is rq_clock_thermal() which employs
+sched_thermal_decay_shift, and that exponent is already capped to 10, so
+that one is fine.
+
+Fixes: 5a7f55590467 ("sched/fair: Relax constraint on task's load during load balance")
+Reported-by: syzbot+d7581744d5fd27c9fbe1@syzkaller.appspotmail.com
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: http://lore.kernel.org/r/000000000000ffac1205b9a2112f@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 50 +++++++++++++++++-------------------
- 1 file changed, 24 insertions(+), 26 deletions(-)
+ kernel/sched/fair.c  | 3 +--
+ kernel/sched/sched.h | 7 +++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 2dce17827504..7359d4f118df 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1,7 +1,7 @@
- /*******************************************************************
-  * This file is part of the Emulex Linux Device Driver for         *
-  * Fibre Channel Host Bus Adapters.                                *
-- * Copyright (C) 2017-2020 Broadcom. All Rights Reserved. The term *
-+ * Copyright (C) 2017-2021 Broadcom. All Rights Reserved. The term *
-  * “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.     *
-  * Copyright (C) 2004-2016 Emulex.  All rights reserved.           *
-  * EMULEX and SLI are trademarks of Emulex.                        *
-@@ -2041,13 +2041,12 @@ out_freeiocb:
-  * This routine issues a Port Login (PLOGI) command to a remote N_Port
-  * (with the @did) for a @vport. Before issuing a PLOGI to a remote N_Port,
-  * the ndlp with the remote N_Port DID must exist on the @vport's ndlp list.
-- * This routine constructs the proper feilds of the PLOGI IOCB and invokes
-+ * This routine constructs the proper fields of the PLOGI IOCB and invokes
-  * the lpfc_sli_issue_iocb() routine to send out PLOGI ELS command.
-  *
-- * Note that, in lpfc_prep_els_iocb() routine, the reference count of ndlp
-- * will be incremented by 1 for holding the ndlp and the reference to ndlp
-- * will be stored into the context1 field of the IOCB for the completion
-- * callback function to the PLOGI ELS command.
-+ * Note that the ndlp reference count will be incremented by 1 for holding
-+ * the ndlp and the reference to ndlp will be stored into the context1 field
-+ * of the IOCB for the completion callback function to the PLOGI ELS command.
-  *
-  * Return code
-  *   0 - Successfully issued a plogi for @vport
-@@ -2065,29 +2064,28 @@ lpfc_issue_els_plogi(struct lpfc_vport *vport, uint32_t did, uint8_t retry)
- 	int ret;
- 
- 	ndlp = lpfc_findnode_did(vport, did);
-+	if (!ndlp)
-+		return 1;
- 
--	if (ndlp) {
--		/* Defer the processing of the issue PLOGI until after the
--		 * outstanding UNREG_RPI mbox command completes, unless we
--		 * are going offline. This logic does not apply for Fabric DIDs
--		 */
--		if ((ndlp->nlp_flag & NLP_UNREG_INP) &&
--		    ((ndlp->nlp_DID & Fabric_DID_MASK) != Fabric_DID_MASK) &&
--		    !(vport->fc_flag & FC_OFFLINE_MODE)) {
--			lpfc_printf_vlog(vport, KERN_INFO, LOG_DISCOVERY,
--					 "4110 Issue PLOGI x%x deferred "
--					 "on NPort x%x rpi x%x Data: x%px\n",
--					 ndlp->nlp_defer_did, ndlp->nlp_DID,
--					 ndlp->nlp_rpi, ndlp);
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 828978320e44..d9182af98988 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7760,8 +7760,7 @@ static int detach_tasks(struct lb_env *env)
+ 			 * scheduler fails to find a good waiting task to
+ 			 * migrate.
+ 			 */
 -
--			/* We can only defer 1st PLOGI */
--			if (ndlp->nlp_defer_did == NLP_EVT_NOTHING_PENDING)
--				ndlp->nlp_defer_did = did;
--			return 0;
--		}
-+	/* Defer the processing of the issue PLOGI until after the
-+	 * outstanding UNREG_RPI mbox command completes, unless we
-+	 * are going offline. This logic does not apply for Fabric DIDs
-+	 */
-+	if ((ndlp->nlp_flag & NLP_UNREG_INP) &&
-+	    ((ndlp->nlp_DID & Fabric_DID_MASK) != Fabric_DID_MASK) &&
-+	    !(vport->fc_flag & FC_OFFLINE_MODE)) {
-+		lpfc_printf_vlog(vport, KERN_INFO, LOG_DISCOVERY,
-+				 "4110 Issue PLOGI x%x deferred "
-+				 "on NPort x%x rpi x%x Data: x%px\n",
-+				 ndlp->nlp_defer_did, ndlp->nlp_DID,
-+				 ndlp->nlp_rpi, ndlp);
-+
-+		/* We can only defer 1st PLOGI */
-+		if (ndlp->nlp_defer_did == NLP_EVT_NOTHING_PENDING)
-+			ndlp->nlp_defer_did = did;
-+		return 0;
- 	}
+-			if ((load >> env->sd->nr_balance_failed) > env->imbalance)
++			if (shr_bound(load, env->sd->nr_balance_failed) > env->imbalance)
+ 				goto next;
  
--	/* If ndlp is not NULL, we will bump the reference count on it */
- 	cmdsize = (sizeof(uint32_t) + sizeof(struct serv_parm));
- 	elsiocb = lpfc_prep_els_iocb(vport, 1, cmdsize, retry, ndlp, did,
- 				     ELS_CMD_PLOGI);
+ 			env->imbalance -= load;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 282a6bbaacd7..d52c6bb6ed7d 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -204,6 +204,13 @@ static inline void update_avg(u64 *avg, u64 sample)
+ 	*avg += diff / 8;
+ }
+ 
++/*
++ * Shifting a value by an exponent greater *or equal* to the size of said value
++ * is UB; cap at size-1.
++ */
++#define shr_bound(val, shift)							\
++	(val >> min_t(typeof(shift), shift, BITS_PER_TYPE(typeof(val)) - 1))
++
+ /*
+  * !! For sched_setattr_nocheck() (kernel) only !!
+  *
 -- 
 2.30.2
 
