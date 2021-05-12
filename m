@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3D037C36A
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:20:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38FA237C365
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233633AbhELPSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50550 "EHLO mail.kernel.org"
+        id S233609AbhELPSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234411AbhELPQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A55E861955;
-        Wed, 12 May 2021 15:06:43 +0000 (UTC)
+        id S234409AbhELPQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FD761953;
+        Wed, 12 May 2021 15:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832004;
-        bh=/E1tmdReGz+1h0t+MJ+ZpO0Bryrlag9Cmbo86gm/fPc=;
+        s=korg; t=1620832006;
+        bh=NWBABis9kwq/xVJTBqMof2aIpaLXz0DgLt6qwp4b5tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AD9HdzyNXPec9vaFNCZYewlDiMK2MDUMaKU80tpNpQwHr43wEtiYJuifKVvWxTmny
-         ccc8L5mrhKtPCH2WeQfHYJ0QR7Qw35rAasZmNvdVbbLdG7t53j51E+vmC3jZ4setmF
-         gB7OEZ6Vv7fuZV10yghqtNMMXjvMJ4ziwgrdJyUk=
+        b=WNY1gVkZxUKyA4OhCuUSb5HYmnYcW7uOxLXEJuKUcXAxtuQPU/BF8jMBtR17udF23
+         WZKZ7zIielRzR8hXAPSGvxX2XY7zfUhLEJgcZUmJ+ogP4ilb9ttSlHx4Cb9yiCDwa5
+         7yrCcDYxdNs6vn32KYzFNC6Ai5JtbJUgbJ5xD3/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Hao Sun <sunhao.th@gmail.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 101/530] KVM: Destroy I/O bus devices on unregister failure _after_ syncing SRCU
-Date:   Wed, 12 May 2021 16:43:31 +0200
-Message-Id: <20210512144823.120673628@linuxfoundation.org>
+Subject: [PATCH 5.10 102/530] KVM: Stop looking for coalesced MMIO zones if the bus is destroyed
+Date:   Wed, 12 May 2021 16:43:32 +0200
+Message-Id: <20210512144823.151969569@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,49 +42,126 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 2ee3757424be7c1cd1d0bbfa6db29a7edd82a250 upstream.
+commit 5d3c4c79384af06e3c8e25b7770b6247496b4417 upstream.
 
-If allocating a new instance of an I/O bus fails when unregistering a
-device, wait to destroy the device until after all readers are guaranteed
-to see the new null bus.  Destroying devices before the bus is nullified
-could lead to use-after-free since readers expect the devices on their
-reference of the bus to remain valid.
+Abort the walk of coalesced MMIO zones if kvm_io_bus_unregister_dev()
+fails to allocate memory for the new instance of the bus.  If it can't
+instantiate a new bus, unregister_dev() destroys all devices _except_ the
+target device.   But, it doesn't tell the caller that it obliterated the
+bus and invoked the destructor for all devices that were on the bus.  In
+the coalesced MMIO case, this can result in a deleted list entry
+dereference due to attempting to continue iterating on coalesced_zones
+after future entries (in the walk) have been deleted.
+
+Opportunistically add curly braces to the for-loop, which encompasses
+many lines but sneaks by without braces due to the guts being a single
+if statement.
 
 Fixes: f65886606c2d ("KVM: fix memory leak in kvm_io_bus_unregister_dev()")
 Cc: stable@vger.kernel.org
+Reported-by: Hao Sun <sunhao.th@gmail.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210412222050.876100-2-seanjc@google.com>
+Message-Id: <20210412222050.876100-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ include/linux/kvm_host.h  |    4 ++--
+ virt/kvm/coalesced_mmio.c |   19 +++++++++++++++++--
+ virt/kvm/kvm_main.c       |   10 +++++-----
+ 3 files changed, 24 insertions(+), 9 deletions(-)
 
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -190,8 +190,8 @@ int kvm_io_bus_read(struct kvm_vcpu *vcp
+ 		    int len, void *val);
+ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
+ 			    int len, struct kvm_io_device *dev);
+-void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+-			       struct kvm_io_device *dev);
++int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
++			      struct kvm_io_device *dev);
+ struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 					 gpa_t addr);
+ 
+--- a/virt/kvm/coalesced_mmio.c
++++ b/virt/kvm/coalesced_mmio.c
+@@ -174,21 +174,36 @@ int kvm_vm_ioctl_unregister_coalesced_mm
+ 					   struct kvm_coalesced_mmio_zone *zone)
+ {
+ 	struct kvm_coalesced_mmio_dev *dev, *tmp;
++	int r;
+ 
+ 	if (zone->pio != 1 && zone->pio != 0)
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&kvm->slots_lock);
+ 
+-	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list)
++	list_for_each_entry_safe(dev, tmp, &kvm->coalesced_zones, list) {
+ 		if (zone->pio == dev->zone.pio &&
+ 		    coalesced_mmio_in_range(dev, zone->addr, zone->size)) {
+-			kvm_io_bus_unregister_dev(kvm,
++			r = kvm_io_bus_unregister_dev(kvm,
+ 				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
+ 			kvm_iodevice_destructor(&dev->dev);
++
++			/*
++			 * On failure, unregister destroys all devices on the
++			 * bus _except_ the target device, i.e. coalesced_zones
++			 * has been modified.  No need to restart the walk as
++			 * there aren't any zones left.
++			 */
++			if (r)
++				break;
+ 		}
++	}
+ 
+ 	mutex_unlock(&kvm->slots_lock);
+ 
++	/*
++	 * Ignore the result of kvm_io_bus_unregister_dev(), from userspace's
++	 * perspective, the coalesced MMIO is most definitely unregistered.
++	 */
+ 	return 0;
+ }
 --- a/virt/kvm/kvm_main.c
 +++ b/virt/kvm/kvm_main.c
-@@ -4367,7 +4367,13 @@ void kvm_io_bus_unregister_dev(struct kv
- 		new_bus->dev_count--;
- 		memcpy(new_bus->range + i, bus->range + i + 1,
- 				flex_array_size(new_bus, range, new_bus->dev_count - i));
--	} else {
-+	}
-+
-+	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
-+	synchronize_srcu_expedited(&kvm->srcu);
-+
-+	/* Destroy the old bus _after_ installing the (null) bus. */
-+	if (!new_bus) {
- 		pr_err("kvm: failed to shrink bus, removing it completely\n");
- 		for (j = 0; j < bus->dev_count; j++) {
- 			if (j == i)
-@@ -4376,8 +4382,6 @@ void kvm_io_bus_unregister_dev(struct kv
+@@ -4342,15 +4342,15 @@ int kvm_io_bus_register_dev(struct kvm *
+ }
+ 
+ /* Caller must hold slots_lock. */
+-void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+-			       struct kvm_io_device *dev)
++int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
++			      struct kvm_io_device *dev)
+ {
+ 	int i, j;
+ 	struct kvm_io_bus *new_bus, *bus;
+ 
+ 	bus = kvm_get_bus(kvm, bus_idx);
+ 	if (!bus)
+-		return;
++		return 0;
+ 
+ 	for (i = 0; i < bus->dev_count; i++)
+ 		if (bus->range[i].dev == dev) {
+@@ -4358,7 +4358,7 @@ void kvm_io_bus_unregister_dev(struct kv
  		}
+ 
+ 	if (i == bus->dev_count)
+-		return;
++		return 0;
+ 
+ 	new_bus = kmalloc(struct_size(bus, range, bus->dev_count - 1),
+ 			  GFP_KERNEL_ACCOUNT);
+@@ -4383,7 +4383,7 @@ void kvm_io_bus_unregister_dev(struct kv
  	}
  
--	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
--	synchronize_srcu_expedited(&kvm->srcu);
  	kfree(bus);
- 	return;
+-	return;
++	return new_bus ? 0 : -ENOMEM;
  }
+ 
+ struct kvm_io_device *kvm_io_bus_get_dev(struct kvm *kvm, enum kvm_bus bus_idx,
 
 
