@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56E3337C8C7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F249037C8C6
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234469AbhELQMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36540 "EHLO mail.kernel.org"
+        id S234332AbhELQMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:12:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239092AbhELQHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB54861C3E;
-        Wed, 12 May 2021 15:36:08 +0000 (UTC)
+        id S239095AbhELQHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6120461D13;
+        Wed, 12 May 2021 15:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833769;
-        bh=MgLKc5qxT4w9qK9k/Sa2RTrE3GT1zxTEWOFe2KkatKU=;
+        s=korg; t=1620833771;
+        bh=h9r+ERbM9K4eWELi9BdPErpjwtGTI5Bze+WkBHEj2uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfv2xsa83mYlH6oA8hgwhHmWewOznFSV80eDf5F5rR3LvpJ74w3u//9zZjj0Fk9/v
-         tLJ2JGgjVb1R9JJo9u1xnzozAKJX/VxOktvV06zkbJ1tOpdKz8PPI0N8Abl4ZNMpzw
-         mKP2sxex9wAu42JZpIiMdTSUQLAptcPn6V5JDPfU=
+        b=bka6JJKU7PSGiSwU3TqSxZaxIzuklsXgZtvVxLh0FMJdX0OTUafosX0LBfBUanb4D
+         xsIGII31kewBC/6PZsHEgoAxi32US6EP6a7dBNooVM/Td+titQCE14EON57iXyWoOR
+         h8VqkHfniRK0vGjTLB+Wz1qttfXm5Kuegd1KAhN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 281/601] node: fix device cleanups in error handling code
-Date:   Wed, 12 May 2021 16:45:58 +0200
-Message-Id: <20210512144837.071037067@linuxfoundation.org>
+Subject: [PATCH 5.11 282/601] crypto: chelsio - Read rxchannel-id from firmware
+Date:   Wed, 12 May 2021 16:45:59 +0200
+Message-Id: <20210512144837.101311519@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,90 +40,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ayush Sawal <ayush.sawal@chelsio.com>
 
-[ Upstream commit 4ce535ec0084f0d712317cb99d383cad3288e713 ]
+[ Upstream commit 16a9874fe468855e8ddd72883ca903f706d0a9d0 ]
 
-We can't use kfree() to free device managed resources so the kfree(dev)
-is against the rules.
+The rxchannel id is updated by the driver using the
+port no value, but this does not ensure that the value
+is correct. So now rx channel value is obtained from
+etoc channel map value.
 
-It's easier to write this code if we open code the device_register() as
-a device_initialize() and device_add().  That way if dev_set_name() set
-name fails we can call put_device() and it will clean up correctly.
-
-Fixes: acc02a109b04 ("node: Add memory-side caching attributes")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YHA0JUra+F64+NpB@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 567be3a5d227 ("crypto: chelsio - Use multiple txq/rxq per...")
+Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/node.c | 26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ drivers/crypto/chelsio/chcr_algo.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/node.c b/drivers/base/node.c
-index 04f71c7bc3f8..ec4bc09c2997 100644
---- a/drivers/base/node.c
-+++ b/drivers/base/node.c
-@@ -268,21 +268,20 @@ static void node_init_cache_dev(struct node *node)
- 	if (!dev)
- 		return;
+diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
+index f5a336634daa..405ff957b837 100644
+--- a/drivers/crypto/chelsio/chcr_algo.c
++++ b/drivers/crypto/chelsio/chcr_algo.c
+@@ -769,13 +769,14 @@ static inline void create_wreq(struct chcr_context *ctx,
+ 	struct uld_ctx *u_ctx = ULD_CTX(ctx);
+ 	unsigned int tx_channel_id, rx_channel_id;
+ 	unsigned int txqidx = 0, rxqidx = 0;
+-	unsigned int qid, fid;
++	unsigned int qid, fid, portno;
  
-+	device_initialize(dev);
- 	dev->parent = &node->dev;
- 	dev->release = node_cache_release;
- 	if (dev_set_name(dev, "memory_side_cache"))
--		goto free_dev;
-+		goto put_device;
+ 	get_qidxs(req, &txqidx, &rxqidx);
+ 	qid = u_ctx->lldi.rxq_ids[rxqidx];
+ 	fid = u_ctx->lldi.rxq_ids[0];
++	portno = rxqidx / ctx->rxq_perchan;
+ 	tx_channel_id = txqidx / ctx->txq_perchan;
+-	rx_channel_id = rxqidx / ctx->rxq_perchan;
++	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[portno]);
  
--	if (device_register(dev))
--		goto free_name;
-+	if (device_add(dev))
-+		goto put_device;
  
- 	pm_runtime_no_callbacks(dev);
- 	node->cache_dev = dev;
- 	return;
--free_name:
--	kfree_const(dev->kobj.name);
--free_dev:
--	kfree(dev);
-+put_device:
-+	put_device(dev);
- }
+ 	chcr_req->wreq.op_to_cctx_size = FILL_WR_OP_CCTX_SIZE;
+@@ -806,6 +807,7 @@ static struct sk_buff *create_cipher_wr(struct cipher_wr_param *wrparam)
+ {
+ 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(wrparam->req);
+ 	struct chcr_context *ctx = c_ctx(tfm);
++	struct uld_ctx *u_ctx = ULD_CTX(ctx);
+ 	struct ablk_ctx *ablkctx = ABLK_CTX(ctx);
+ 	struct sk_buff *skb = NULL;
+ 	struct chcr_wr *chcr_req;
+@@ -822,6 +824,7 @@ static struct sk_buff *create_cipher_wr(struct cipher_wr_param *wrparam)
+ 	struct adapter *adap = padap(ctx->dev);
+ 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
  
- /**
-@@ -319,25 +318,24 @@ void node_add_cache(unsigned int nid, struct node_cache_attrs *cache_attrs)
- 		return;
++	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
+ 	nents = sg_nents_xlen(reqctx->dstsg,  wrparam->bytes, CHCR_DST_SG_SIZE,
+ 			      reqctx->dst_ofst);
+ 	dst_size = get_space_for_phys_dsgl(nents);
+@@ -1580,6 +1583,7 @@ static struct sk_buff *create_hash_wr(struct ahash_request *req,
+ 	int error = 0;
+ 	unsigned int rx_channel_id = req_ctx->rxqidx / ctx->rxq_perchan;
  
- 	dev = &info->dev;
-+	device_initialize(dev);
- 	dev->parent = node->cache_dev;
- 	dev->release = node_cacheinfo_release;
- 	dev->groups = cache_groups;
- 	if (dev_set_name(dev, "index%d", cache_attrs->level))
--		goto free_cache;
-+		goto put_device;
++	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
+ 	transhdr_len = HASH_TRANSHDR_SIZE(param->kctx_len);
+ 	req_ctx->hctx_wr.imm = (transhdr_len + param->bfr_len +
+ 				param->sg_len) <= SGE_MAX_WR_LEN;
+@@ -2438,6 +2442,7 @@ static struct sk_buff *create_authenc_wr(struct aead_request *req,
+ {
+ 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
+ 	struct chcr_context *ctx = a_ctx(tfm);
++	struct uld_ctx *u_ctx = ULD_CTX(ctx);
+ 	struct chcr_aead_ctx *aeadctx = AEAD_CTX(ctx);
+ 	struct chcr_authenc_ctx *actx = AUTHENC_CTX(aeadctx);
+ 	struct chcr_aead_reqctx *reqctx = aead_request_ctx(req);
+@@ -2457,6 +2462,7 @@ static struct sk_buff *create_authenc_wr(struct aead_request *req,
+ 	struct adapter *adap = padap(ctx->dev);
+ 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
  
- 	info->cache_attrs = *cache_attrs;
--	if (device_register(dev)) {
-+	if (device_add(dev)) {
- 		dev_warn(&node->dev, "failed to add cache level:%d\n",
- 			 cache_attrs->level);
--		goto free_name;
-+		goto put_device;
- 	}
- 	pm_runtime_no_callbacks(dev);
- 	list_add_tail(&info->node, &node->cache_attrs);
- 	return;
--free_name:
--	kfree_const(dev->kobj.name);
--free_cache:
--	kfree(info);
-+put_device:
-+	put_device(dev);
- }
++	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
+ 	if (req->cryptlen == 0)
+ 		return NULL;
  
- static void node_remove_caches(struct node *node)
+@@ -2710,9 +2716,11 @@ void chcr_add_aead_dst_ent(struct aead_request *req,
+ 	struct dsgl_walk dsgl_walk;
+ 	unsigned int authsize = crypto_aead_authsize(tfm);
+ 	struct chcr_context *ctx = a_ctx(tfm);
++	struct uld_ctx *u_ctx = ULD_CTX(ctx);
+ 	u32 temp;
+ 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
+ 
++	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
+ 	dsgl_walk_init(&dsgl_walk, phys_cpl);
+ 	dsgl_walk_add_page(&dsgl_walk, IV + reqctx->b0_len, reqctx->iv_dma);
+ 	temp = req->assoclen + req->cryptlen +
+@@ -2752,9 +2760,11 @@ void chcr_add_cipher_dst_ent(struct skcipher_request *req,
+ 	struct chcr_skcipher_req_ctx *reqctx = skcipher_request_ctx(req);
+ 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(wrparam->req);
+ 	struct chcr_context *ctx = c_ctx(tfm);
++	struct uld_ctx *u_ctx = ULD_CTX(ctx);
+ 	struct dsgl_walk dsgl_walk;
+ 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
+ 
++	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
+ 	dsgl_walk_init(&dsgl_walk, phys_cpl);
+ 	dsgl_walk_add_sg(&dsgl_walk, reqctx->dstsg, wrparam->bytes,
+ 			 reqctx->dst_ofst);
+@@ -2958,6 +2968,7 @@ static void fill_sec_cpl_for_aead(struct cpl_tx_sec_pdu *sec_cpl,
+ {
+ 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
+ 	struct chcr_context *ctx = a_ctx(tfm);
++	struct uld_ctx *u_ctx = ULD_CTX(ctx);
+ 	struct chcr_aead_ctx *aeadctx = AEAD_CTX(ctx);
+ 	struct chcr_aead_reqctx *reqctx = aead_request_ctx(req);
+ 	unsigned int cipher_mode = CHCR_SCMD_CIPHER_MODE_AES_CCM;
+@@ -2967,6 +2978,8 @@ static void fill_sec_cpl_for_aead(struct cpl_tx_sec_pdu *sec_cpl,
+ 	unsigned int tag_offset = 0, auth_offset = 0;
+ 	unsigned int assoclen;
+ 
++	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
++
+ 	if (get_aead_subtype(tfm) == CRYPTO_ALG_SUB_TYPE_AEAD_RFC4309)
+ 		assoclen = req->assoclen - 8;
+ 	else
+@@ -3127,6 +3140,7 @@ static struct sk_buff *create_gcm_wr(struct aead_request *req,
+ {
+ 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
+ 	struct chcr_context *ctx = a_ctx(tfm);
++	struct uld_ctx *u_ctx = ULD_CTX(ctx);
+ 	struct chcr_aead_ctx *aeadctx = AEAD_CTX(ctx);
+ 	struct chcr_aead_reqctx  *reqctx = aead_request_ctx(req);
+ 	struct sk_buff *skb = NULL;
+@@ -3143,6 +3157,7 @@ static struct sk_buff *create_gcm_wr(struct aead_request *req,
+ 	struct adapter *adap = padap(ctx->dev);
+ 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
+ 
++	rx_channel_id = cxgb4_port_e2cchan(u_ctx->lldi.ports[rx_channel_id]);
+ 	if (get_aead_subtype(tfm) == CRYPTO_ALG_SUB_TYPE_AEAD_RFC4106)
+ 		assoclen = req->assoclen - 8;
+ 
 -- 
 2.30.2
 
