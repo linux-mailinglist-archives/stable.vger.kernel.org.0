@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4329737CD54
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D8D37CD4C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238521AbhELQyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:54:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
+        id S238424AbhELQyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:54:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243768AbhELQmD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A150761441;
-        Wed, 12 May 2021 16:06:51 +0000 (UTC)
+        id S243765AbhELQmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14F0761434;
+        Wed, 12 May 2021 16:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835612;
-        bh=5wl/9twl21FMEylK+vwAE5nQvQkmW1u5oomSYaj8YHc=;
+        s=korg; t=1620835614;
+        bh=wem3YfuaWefC9ignoFfbVMy/yemeUqLbn8D8n9HZZFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVC/l4q+or5cP1CK5c++JhQPez09liabiuVInJ2XNR9piJxKW2OnzJML0WrwOsA3n
-         h5BD+LhVa3BdBw2E6iPaCuR9KY9WnmEDHZUi1ksb9s3FZjEwFFhLSMH3lQ23W5DXqT
-         GzICsubHHoq7Uk1bXPkOKJrNXB/51S4IGRMiiz4M=
+        b=1vlXs0MUilaAJdUch7PgBT6y+a93zlGtpRIDGnpI8pDafMOWwRZ7V67m7M4US8jo0
+         lIN9bh+pAUqkxl1ikFtoeubc6fBdjMii+2cQ2YO2niEGal8xSW/pf2pYg2E0bVaQ3t
+         dt3BSip2lygvTW5S2rdR5Yf1sPhV86BIXgURoHOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 379/677] sata_mv: add IRQ checks
-Date:   Wed, 12 May 2021 16:47:05 +0200
-Message-Id: <20210512144849.931349782@linuxfoundation.org>
+Subject: [PATCH 5.12 380/677] ata: libahci_platform: fix IRQ check
+Date:   Wed, 12 May 2021 16:47:06 +0200
+Message-Id: <20210512144849.961656192@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,43 +41,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit e6471a65fdd5efbb8dd2732dd0f063f960685ceb ]
+[ Upstream commit b30d0040f06159de97ad9c0b1536f47250719d7d ]
 
-The function mv_platform_probe() neglects to check the results of the
-calls to platform_get_irq() and irq_of_parse_and_map() and blithely
-passes them to ata_host_activate() -- while the latter only checks
-for IRQ0 (treating it as a polling mode indicattion) and passes the
-negative values to devm_request_irq() causing it to fail as it takes
-unsigned values for the IRQ #...
+Iff platform_get_irq() returns 0, ahci_platform_init_host() would return 0
+early (as if the call was successful). Override IRQ0 with -EINVAL instead
+as the 'libata' regards 0 as "no IRQ" (thus polling) anyway...
 
-Add to mv_platform_probe() the proper IRQ checks to pass the positive IRQ
-#s to ata_host_activate(), propagate upstream the negative error codes,
-and override the IRQ0 with -EINVAL (as we don't want the polling mode).
-
-Fixes: f351b2d638c3 ("sata_mv: Support SoC controllers")
+Fixes: c034640a32f8 ("ata: libahci: properly propagate return value of platform_get_irq()")
 Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/51436f00-27a1-e20b-c21b-0e817e0a7c86@omprussia.ru
+Link: https://lore.kernel.org/r/4448c8cc-331f-2915-0e17-38ea34e251c8@omprussia.ru
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/sata_mv.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/ata/libahci_platform.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ata/sata_mv.c b/drivers/ata/sata_mv.c
-index 664ef658a955..b62446ea5f40 100644
---- a/drivers/ata/sata_mv.c
-+++ b/drivers/ata/sata_mv.c
-@@ -4097,6 +4097,10 @@ static int mv_platform_probe(struct platform_device *pdev)
- 		n_ports = mv_platform_data->n_ports;
- 		irq = platform_get_irq(pdev, 0);
+diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
+index de638dafce21..b2f552088291 100644
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -582,11 +582,13 @@ int ahci_platform_init_host(struct platform_device *pdev,
+ 	int i, irq, n_ports, rc;
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq <= 0) {
++	if (irq < 0) {
+ 		if (irq != -EPROBE_DEFER)
+ 			dev_err(dev, "no irq\n");
+ 		return irq;
  	}
-+	if (irq < 0)
-+		return irq;
 +	if (!irq)
 +		return -EINVAL;
  
- 	host = ata_host_alloc_pinfo(&pdev->dev, ppi, n_ports);
- 	hpriv = devm_kzalloc(&pdev->dev, sizeof(*hpriv), GFP_KERNEL);
+ 	hpriv->irq = irq;
+ 
 -- 
 2.30.2
 
