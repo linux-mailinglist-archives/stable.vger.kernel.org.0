@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F28C37CB79
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB48037CB78
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242737AbhELQfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:35:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
+        id S242734AbhELQfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:35:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241272AbhELQ07 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241277AbhELQ07 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:26:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39908619C6;
-        Wed, 12 May 2021 15:51:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A488661CB2;
+        Wed, 12 May 2021 15:51:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834666;
-        bh=llp0Bgg9/jChzZe4pGkpuJQ9rTUhUQO4yDgMc/PuRss=;
+        s=korg; t=1620834669;
+        bh=UjnAqzkJ/7fV397oV7mifUaEZkXARNZXHKfnwtLGrE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELsCbzqHFMVp/IX62m+Y1jzaA4RnMNlmHfeKi92aewxcP5t/EH9XV+rsJt3bbOFEE
-         CWNXxoYBaGJXHR8vyd8F7nZPJDNwIbE4qbfQrVoz3PJNLJC105LkVTO79YjW4J45DM
-         Q1ROPnQ1rJUpi29m14Bzbd4XK1kx8giWPd8FXytQ=
+        b=Vf5BJUNuvn2P5bKJj1cuI66snwI6l1yW3UOv+Sc1vSrv3hqzS7+Rx2awp2oiffN8x
+         nYhC3qpC7DSJCeroGC5T58G061nHOPp/KEddFgN6iqn/z4vFxkjnKhfqbVhv9HzyJq
+         jh+mSES1TeJN7dDKylq01tOIc+jfvWyMzfktNWzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 5.12 006/677] software node: Allow node addition to already existing device
-Date:   Wed, 12 May 2021 16:40:52 +0200
-Message-Id: <20210512144837.429620295@linuxfoundation.org>
+        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>,
+        Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.12 007/677] Revert "USB: cdc-acm: fix rounding error in TIOCSSERIAL"
+Date:   Wed, 12 May 2021 16:40:53 +0200
+Message-Id: <20210512144837.461667860@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,46 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b622b24519f5b008f6d4e20e5675eaffa8fbd87b upstream.
+commit 729f7955cb987c5b7d7e54c87c5ad71c789934f7 upstream.
 
-If the node is added to an already exiting device, the node
-needs to be also linked to the device separately.
+This reverts commit b401f8c4f492cbf74f3f59c9141e5be3071071bb.
 
-This will make sure the reference count is kept in balance
-also when the node is injected to a device afterwards.
+The offending commit claimed that trying to set the values reported back
+by TIOCGSERIAL as a regular user could result in an -EPERM error when HZ
+is 250, but that was never the case.
 
-Fixes: e68d0119e328 ("software node: Introduce device_add_software_node()")
-Reported-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210414075438.64547-1-heikki.krogerus@linux.intel.com
+With HZ=250, the default 0.5 second value of close_delay is converted to
+125 jiffies when set and is converted back to 50 centiseconds by
+TIOCGSERIAL as expected (not 12 cs as was claimed, even if that was the
+case before an earlier fix).
+
+Comparing the internal current and new jiffies values is just fine to
+determine if the value is about to change so drop the bogus workaround
+(which was also backported to stable).
+
+For completeness: With different default values for these parameters or
+with a HZ value not divisible by two, the lack of rounding when setting
+the default values in tty_port_init() could result in an -EPERM being
+returned, but this is hardly something we need to worry about.
+
+Cc: Anthony Mallet <anthony.mallet@laas.fr>
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210408131602.27956-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/swnode.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/class/cdc-acm.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/drivers/base/swnode.c
-+++ b/drivers/base/swnode.c
-@@ -1032,6 +1032,7 @@ int device_add_software_node(struct devi
- 	}
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -942,7 +942,6 @@ static int set_serial_info(struct tty_st
+ {
+ 	struct acm *acm = tty->driver_data;
+ 	unsigned int closing_wait, close_delay;
+-	unsigned int old_closing_wait, old_close_delay;
+ 	int retval = 0;
  
- 	set_secondary_fwnode(dev, &swnode->fwnode);
-+	software_node_notify(dev, KOBJ_ADD);
+ 	close_delay = msecs_to_jiffies(ss->close_delay * 10);
+@@ -950,17 +949,11 @@ static int set_serial_info(struct tty_st
+ 			ASYNC_CLOSING_WAIT_NONE :
+ 			msecs_to_jiffies(ss->closing_wait * 10);
  
- 	return 0;
- }
-@@ -1105,8 +1106,8 @@ int software_node_notify(struct device *
+-	/* we must redo the rounding here, so that the values match */
+-	old_close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
+-	old_closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+-				ASYNC_CLOSING_WAIT_NONE :
+-				jiffies_to_msecs(acm->port.closing_wait) / 10;
+-
+ 	mutex_lock(&acm->port.mutex);
  
- 	switch (action) {
- 	case KOBJ_ADD:
--		ret = sysfs_create_link(&dev->kobj, &swnode->kobj,
--					"software_node");
-+		ret = sysfs_create_link_nowarn(&dev->kobj, &swnode->kobj,
-+					       "software_node");
- 		if (ret)
- 			break;
- 
+ 	if (!capable(CAP_SYS_ADMIN)) {
+-		if ((ss->close_delay != old_close_delay) ||
+-		    (ss->closing_wait != old_closing_wait))
++		if ((close_delay != acm->port.close_delay) ||
++		    (closing_wait != acm->port.closing_wait))
+ 			retval = -EPERM;
+ 		else
+ 			retval = -EOPNOTSUPP;
 
 
