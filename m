@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B8B37CE54
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6304037CE6A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239487AbhELRFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37576 "EHLO mail.kernel.org"
+        id S240958AbhELRFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237835AbhELQnN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:43:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94BD261D41;
-        Wed, 12 May 2021 16:13:41 +0000 (UTC)
+        id S237888AbhELQnO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:43:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09A3661444;
+        Wed, 12 May 2021 16:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836022;
-        bh=R6hH4CnnNi97uP0wK0CiTVz3GmWjNQgK42vgTD/r/tM=;
+        s=korg; t=1620836024;
+        bh=NNPE9PcbUhNJ6CCi2lWmO181hl1VnNt3/WoPm54I5Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJcUT7iAik2A+dV0CjFtCg0s3N1zd6LFCS/HusT5bMW9+8y5UjCBw0/IJ/wY+te1X
-         ENfBbUiRSjyL5EJwKJpP2FhH50+QEvdadcg1r9pG/1R3NcyupfRjw8xjit3+XielPd
-         2/0lmzRUhbBQsb3qKxFM3wi2j2eQ/8xIqLTdr8RQ=
+        b=pT92tjMpSub/C6WtaIhqtqSZkF7RhSCgTI9Ut7dgcH2El64CV1sA3eTE4Sr8YWSHt
+         Gdw14I7uUnex8rZEufFgEZfJ4/S/EJsoPQI3QWxWhgILBjBaKmVvQcd9PwRY9w6SD9
+         Bkk960im4v4g9QL/sa+vOfSjd5LLCaWmy4j3QTfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 579/677] drm/i915/gvt: Fix error code in intel_gvt_init_device()
-Date:   Wed, 12 May 2021 16:50:25 +0200
-Message-Id: <20210512144856.622954706@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 580/677] iommu/vt-d: Fix an error handling path in intel_prepare_irq_remapping()
+Date:   Wed, 12 May 2021 16:50:26 +0200
+Message-Id: <20210512144856.655111172@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,66 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 329328ec6a87f2c1275f50d979d55513de458409 ]
+[ Upstream commit 745610c4a3e3baaebf6d1f8cd5b4d82892432520 ]
 
-The intel_gvt_init_vgpu_type_groups() function is only called from
-intel_gvt_init_device().  If it fails then the intel_gvt_init_device()
-prints the error code and propagates it back again.  That's a bug
-because false is zero/success.  The fix is to modify it to return zero
-or negative error codes and make everything consistent.
+If 'intel_cap_audit()' fails, we should return directly, as already done in
+the surrounding error handling path.
 
-Fixes: c5d71cb31723 ("drm/i915/gvt: Move vGPU type related code into gvt file")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/YHaFQtk/DIVYK1u5@mwanda
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Fixes: ad3d19029979 ("iommu/vt-d: Audit IOMMU Capabilities and add helper functions")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/98d531caabe66012b4fffc7813fd4b9470afd517.1618124777.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gvt/gvt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iommu/intel/irq_remapping.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gvt/gvt.c b/drivers/gpu/drm/i915/gvt/gvt.c
-index d1d8ee4a5f16..57578bf28d77 100644
---- a/drivers/gpu/drm/i915/gvt/gvt.c
-+++ b/drivers/gpu/drm/i915/gvt/gvt.c
-@@ -126,7 +126,7 @@ static bool intel_get_gvt_attrs(struct attribute_group ***intel_vgpu_type_groups
- 	return true;
- }
+diff --git a/drivers/iommu/intel/irq_remapping.c b/drivers/iommu/intel/irq_remapping.c
+index 611ef5243cb6..5c16ebe037a1 100644
+--- a/drivers/iommu/intel/irq_remapping.c
++++ b/drivers/iommu/intel/irq_remapping.c
+@@ -736,7 +736,7 @@ static int __init intel_prepare_irq_remapping(void)
+ 		return -ENODEV;
  
--static bool intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
-+static int intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
- {
- 	int i, j;
- 	struct intel_vgpu_type *type;
-@@ -144,7 +144,7 @@ static bool intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
- 		gvt_vgpu_type_groups[i] = group;
- 	}
+ 	if (intel_cap_audit(CAP_AUDIT_STATIC_IRQR, NULL))
+-		goto error;
++		return -ENODEV;
  
--	return true;
-+	return 0;
- 
- unwind:
- 	for (j = 0; j < i; j++) {
-@@ -152,7 +152,7 @@ unwind:
- 		kfree(group);
- 	}
- 
--	return false;
-+	return -ENOMEM;
- }
- 
- static void intel_gvt_cleanup_vgpu_type_groups(struct intel_gvt *gvt)
-@@ -360,7 +360,7 @@ int intel_gvt_init_device(struct drm_i915_private *i915)
- 		goto out_clean_thread;
- 
- 	ret = intel_gvt_init_vgpu_type_groups(gvt);
--	if (ret == false) {
-+	if (ret) {
- 		gvt_err("failed to init vgpu type groups: %d\n", ret);
- 		goto out_clean_types;
- 	}
+ 	if (!dmar_ir_support())
+ 		return -ENODEV;
 -- 
 2.30.2
 
