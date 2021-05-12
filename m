@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB7337CEDA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:23:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589D337CED8
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241401AbhELRG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:06:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42358 "EHLO mail.kernel.org"
+        id S234162AbhELRGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:06:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244618AbhELQuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244617AbhELQuz (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:50:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 532F761D62;
-        Wed, 12 May 2021 16:17:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5963261C7E;
+        Wed, 12 May 2021 16:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836228;
-        bh=qYzOQYvQRdsH5Vz40natoQqdoyc77/FzAM5ICUFfWMU=;
+        s=korg; t=1620836231;
+        bh=cK0I+9z1a9uAAHTRH7FQmN5b9KmUIDsz+QMLkxfhR1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDVUHSlIwv3XDlARhDjqDNvjrE/0inCUt2pYaO1HJf+Lju61bKHCoanEQLIwL3K01
-         JQmCH+5x0J0pbWAi2d+phr89/WhulEI1+GSDrUKRyuHARn+IMvrWgWmhkveu7ovEkv
-         6JZIFomblACxK4tyUP5d6QC6//cAAAvGowOe0vfE=
+        b=OCpt8a4YUxdc5yPDVGKQZtMPrjU62dZ8A7Y8nqMOYe09v3yc4ETVPZJG33MsRZUt5
+         oD4nG+Q4wxNSHWaBf8jE3VDMzQy2koEvlB1pS24VP1u286q5+sc+8cnz6DK35wZzjK
+         0Vi5wc2M03fRtKUYTCUpwB8fBzoKeSab7PT1mqxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Steve MacLean <Steve.MacLean@Microsoft.com>,
-        Yonatan Goldschmidt <yonatan.goldschmidt@granulate.io>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Anatoly Pugachev <matorola@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 662/677] perf session: Add swap operation for event TIME_CONV
-Date:   Wed, 12 May 2021 16:51:48 +0200
-Message-Id: <20210512144859.359413885@linuxfoundation.org>
+Subject: [PATCH 5.12 663/677] ia64: ensure proper NUMA distance and possible map initialization
+Date:   Wed, 12 May 2021 16:51:49 +0200
+Message-Id: <20210512144859.399647330@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -50,71 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit 050ffc449008eeeafc187dec337d9cf1518f89bc ]
+[ Upstream commit b22a8f7b4bde4e4ab73b64908ffd5d90ecdcdbfd ]
 
-Since commit d110162cafc8 ("perf tsc: Support cap_user_time_short for
-event TIME_CONV"), the event PERF_RECORD_TIME_CONV has extended the data
-structure for clock parameters.
+John Paul reported a warning about bogus NUMA distance values spurred by
+commit:
 
-To be backwards-compatible, this patch adds a dedicated swap operation
-for the event PERF_RECORD_TIME_CONV, based on checking if the event
-contains field "time_cycles", it can support both for the old and new
-event formats.
+  620a6dc40754 ("sched/topology: Make sched_init_numa() use a set for the deduplicating sort")
 
-Fixes: d110162cafc8 ("perf tsc: Support cap_user_time_short for event TIME_CONV")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steve MacLean <Steve.MacLean@Microsoft.com>
-Cc: Yonatan Goldschmidt <yonatan.goldschmidt@granulate.io>
-Link: https://lore.kernel.org/r/20210428120915.7123-4-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+In this case, the afflicted machine comes up with a reported 256 possible
+nodes, all of which are 0 distance away from one another.  This was
+previously silently ignored, but is now caught by the aforementioned
+commit.
+
+The culprit is ia64's node_possible_map which remains unchanged from its
+initialization value of NODE_MASK_ALL.  In John's case, the machine
+doesn't have any SRAT nor SLIT table, but AIUI the possible map remains
+untouched regardless of what ACPI tables end up being parsed.  Thus,
+!online && possible nodes remain with a bogus distance of 0 (distances \in
+[0, 9] are "reserved and have no meaning" as per the ACPI spec).
+
+Follow x86 / drivers/base/arch_numa's example and set the possible map to
+the parsed map, which in this case seems to be the online map.
+
+Link: http://lore.kernel.org/r/255d6b5d-194e-eb0e-ecdd-97477a534441@physik.fu-berlin.de
+Link: https://lkml.kernel.org/r/20210318130617.896309-1-valentin.schneider@arm.com
+Fixes: 620a6dc40754 ("sched/topology: Make sched_init_numa() use a set for the deduplicating sort")
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Tested-by: Sergei Trofimovich <slyfox@gentoo.org>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Anatoly Pugachev <matorola@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/session.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ arch/ia64/kernel/acpi.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 859832a82496..e9d4e6f4bdf3 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -949,6 +949,19 @@ static void perf_event__stat_round_swap(union perf_event *event,
- 	event->stat_round.time = bswap_64(event->stat_round.time);
+diff --git a/arch/ia64/kernel/acpi.c b/arch/ia64/kernel/acpi.c
+index a5636524af76..e2af6b172200 100644
+--- a/arch/ia64/kernel/acpi.c
++++ b/arch/ia64/kernel/acpi.c
+@@ -446,7 +446,8 @@ void __init acpi_numa_fixup(void)
+ 	if (srat_num_cpus == 0) {
+ 		node_set_online(0);
+ 		node_cpuid[0].phys_id = hard_smp_processor_id();
+-		return;
++		slit_distance(0, 0) = LOCAL_DISTANCE;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -489,7 +490,7 @@ void __init acpi_numa_fixup(void)
+ 			for (j = 0; j < MAX_NUMNODES; j++)
+ 				slit_distance(i, j) = i == j ?
+ 					LOCAL_DISTANCE : REMOTE_DISTANCE;
+-		return;
++		goto out;
+ 	}
+ 
+ 	memset(numa_slit, -1, sizeof(numa_slit));
+@@ -514,6 +515,8 @@ void __init acpi_numa_fixup(void)
+ 		printk("\n");
+ 	}
+ #endif
++out:
++	node_possible_map = node_online_map;
  }
- 
-+static void perf_event__time_conv_swap(union perf_event *event,
-+				       bool sample_id_all __maybe_unused)
-+{
-+	event->time_conv.time_shift = bswap_64(event->time_conv.time_shift);
-+	event->time_conv.time_mult  = bswap_64(event->time_conv.time_mult);
-+	event->time_conv.time_zero  = bswap_64(event->time_conv.time_zero);
-+
-+	if (event_contains(event->time_conv, time_cycles)) {
-+		event->time_conv.time_cycles = bswap_64(event->time_conv.time_cycles);
-+		event->time_conv.time_mask = bswap_64(event->time_conv.time_mask);
-+	}
-+}
-+
- typedef void (*perf_event__swap_op)(union perf_event *event,
- 				    bool sample_id_all);
- 
-@@ -985,7 +998,7 @@ static perf_event__swap_op perf_event__swap_ops[] = {
- 	[PERF_RECORD_STAT]		  = perf_event__stat_swap,
- 	[PERF_RECORD_STAT_ROUND]	  = perf_event__stat_round_swap,
- 	[PERF_RECORD_EVENT_UPDATE]	  = perf_event__event_update_swap,
--	[PERF_RECORD_TIME_CONV]		  = perf_event__all64_swap,
-+	[PERF_RECORD_TIME_CONV]		  = perf_event__time_conv_swap,
- 	[PERF_RECORD_HEADER_MAX]	  = NULL,
- };
+ #endif				/* CONFIG_ACPI_NUMA */
  
 -- 
 2.30.2
