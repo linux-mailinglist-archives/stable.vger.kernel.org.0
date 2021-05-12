@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3ED837CAAB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFFF137CAA9
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241905AbhELQbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241911AbhELQbH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 12:31:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43732 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241008AbhELQ0N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:26:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 722B661DA7;
-        Wed, 12 May 2021 15:49:11 +0000 (UTC)
+        id S241041AbhELQ0Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:26:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFAAE61DAC;
+        Wed, 12 May 2021 15:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834551;
-        bh=8QwHkWylNombw/I/ryLNfQfhkERdfcsdtL8rLmVkI6g=;
+        s=korg; t=1620834554;
+        bh=TiZhU2ktB83YaK32XjYCcYaIAiWcoGd/exwSz0QIbik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lu4Cc60u8HKy6jzw6GZua/ONcFOTU1K6Mc6PMIOJPGjQ0QUoe0/rrHTnntRhfxn2s
-         Ln6Z38uyXQSYYWnFKDwYtWHz24PZwc77iSEmn0hgOjdvjPzPRqyWnpUKkuHWrjHIYV
-         vAYpFvFhdHjKo2D1evPq82QWcfE532SgE+Up3TSY=
+        b=UcYb/0bd8/fzHDBA/UBliz6dQvByzwpo7yjoD46Np7AhgZQ+bfmWsoFPsoFg/ALcZ
+         Exxe5rlLL5CHxU/ymfXu7XMJlZk5udyh4AY5e8VSjH60KrZ8fwrYqn1wkglJloNaqS
+         7PP+DezobuX/MRDDkfL6QcBylfHOfa/RGc5Ye8OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
+        Oliver Glitta <glittao@gmail.com>,
         David Rientjes <rientjes@google.com>,
+        Christoph Lameter <cl@linux.com>,
         Pekka Enberg <penberg@kernel.org>,
         Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 589/601] mm/sl?b.c: remove ctor argument from kmem_cache_flags
-Date:   Wed, 12 May 2021 16:51:06 +0200
-Message-Id: <20210512144847.247268856@linuxfoundation.org>
+Subject: [PATCH 5.11 590/601] mm, slub: enable slub_debug static key when creating cache with explicit debug flags
+Date:   Wed, 12 May 2021 16:51:07 +0200
+Message-Id: <20210512144847.280790460@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -47,124 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Vlastimil Babka <vbabka@suse.cz>
 
-[ Upstream commit 3754000872188e3e4713d9d847fe3c615a47c220 ]
+[ Upstream commit 1f0723a4c0df36cbdffc6fac82cd3c5d57e06d66 ]
 
-This argument hasn't been used since e153362a50a3 ("slub: Remove objsize
-check in kmem_cache_flags()") so simply remove it.
+Commit ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
+introduced a static key to optimize the case where no debugging is
+enabled for any cache.  The static key is enabled when slub_debug boot
+parameter is passed, or CONFIG_SLUB_DEBUG_ON enabled.
 
-Link: https://lkml.kernel.org/r/20210126095733.974665-1-nborisov@suse.com
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Christoph Lameter <cl@linux.com>
+However, some caches might be created with one or more debugging flags
+explicitly passed to kmem_cache_create(), and the commit missed this.
+Thus the debugging functionality would not be actually performed for
+these caches unless the static key gets enabled by boot param or config.
+
+This patch fixes it by checking for debugging flags passed to
+kmem_cache_create() and enabling the static key accordingly.
+
+Note such explicit debugging flags should not be used outside of
+debugging and testing as they will now enable the static key globally.
+btrfs_init_cachep() creates a cache with SLAB_RED_ZONE but that's a
+mistake that's being corrected [1].  rcu_torture_stats() creates a cache
+with SLAB_STORE_USER, but that is a testing module so it's OK and will
+start working as intended after this patch.
+
+Also note that in case of backports to kernels before v5.12 that don't
+have 59450bbc12be ("mm, slab, slub: stop taking cpu hotplug lock"),
+static_branch_enable_cpuslocked() should be used.
+
+[1] https://lore.kernel.org/linux-btrfs/20210315141824.26099-1-dsterba@suse.com/
+
+Link: https://lkml.kernel.org/r/20210315153415.24404-1-vbabka@suse.cz
+Fixes: ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: Oliver Glitta <glittao@gmail.com>
 Acked-by: David Rientjes <rientjes@google.com>
+Cc: Christoph Lameter <cl@linux.com>
 Cc: Pekka Enberg <penberg@kernel.org>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slab.c        | 3 +--
- mm/slab.h        | 6 ++----
- mm/slab_common.c | 2 +-
- mm/slub.c        | 9 +++------
- 4 files changed, 7 insertions(+), 13 deletions(-)
+ mm/slub.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/mm/slab.c b/mm/slab.c
-index d7c8da9319c7..e2d2044389ea 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1790,8 +1790,7 @@ static int __ref setup_cpu_cache(struct kmem_cache *cachep, gfp_t gfp)
- }
- 
- slab_flags_t kmem_cache_flags(unsigned int object_size,
--	slab_flags_t flags, const char *name,
--	void (*ctor)(void *))
-+	slab_flags_t flags, const char *name)
- {
- 	return flags;
- }
-diff --git a/mm/slab.h b/mm/slab.h
-index 1a756a359fa8..9e83616bb5b4 100644
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -110,8 +110,7 @@ __kmem_cache_alias(const char *name, unsigned int size, unsigned int align,
- 		   slab_flags_t flags, void (*ctor)(void *));
- 
- slab_flags_t kmem_cache_flags(unsigned int object_size,
--	slab_flags_t flags, const char *name,
--	void (*ctor)(void *));
-+	slab_flags_t flags, const char *name);
- #else
- static inline struct kmem_cache *
- __kmem_cache_alias(const char *name, unsigned int size, unsigned int align,
-@@ -119,8 +118,7 @@ __kmem_cache_alias(const char *name, unsigned int size, unsigned int align,
- { return NULL; }
- 
- static inline slab_flags_t kmem_cache_flags(unsigned int object_size,
--	slab_flags_t flags, const char *name,
--	void (*ctor)(void *))
-+	slab_flags_t flags, const char *name)
- {
- 	return flags;
- }
-diff --git a/mm/slab_common.c b/mm/slab_common.c
-index 0b775cb5c108..174d8652d9fe 100644
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -197,7 +197,7 @@ struct kmem_cache *find_mergeable(unsigned int size, unsigned int align,
- 	size = ALIGN(size, sizeof(void *));
- 	align = calculate_alignment(flags, align, size);
- 	size = ALIGN(size, align);
--	flags = kmem_cache_flags(size, flags, name, NULL);
-+	flags = kmem_cache_flags(size, flags, name);
- 
- 	if (flags & SLAB_NEVER_MERGE)
- 		return NULL;
 diff --git a/mm/slub.c b/mm/slub.c
-index c86037b38253..d62db41710bf 100644
+index d62db41710bf..0d231c0e21b3 100644
 --- a/mm/slub.c
 +++ b/mm/slub.c
-@@ -1400,7 +1400,6 @@ __setup("slub_debug", setup_slub_debug);
-  * @object_size:	the size of an object without meta data
-  * @flags:		flags to set
-  * @name:		name of the cache
-- * @ctor:		constructor function
-  *
-  * Debug option(s) are applied to @flags. In addition to the debug
-  * option(s), if a slab name (or multiple) is specified i.e.
-@@ -1408,8 +1407,7 @@ __setup("slub_debug", setup_slub_debug);
-  * then only the select slabs will receive the debug option(s).
-  */
- slab_flags_t kmem_cache_flags(unsigned int object_size,
--	slab_flags_t flags, const char *name,
--	void (*ctor)(void *))
-+	slab_flags_t flags, const char *name)
- {
- 	char *iter;
- 	size_t len;
-@@ -1474,8 +1472,7 @@ static inline void add_full(struct kmem_cache *s, struct kmem_cache_node *n,
- static inline void remove_full(struct kmem_cache *s, struct kmem_cache_node *n,
- 					struct page *page) {}
- slab_flags_t kmem_cache_flags(unsigned int object_size,
--	slab_flags_t flags, const char *name,
--	void (*ctor)(void *))
-+	slab_flags_t flags, const char *name)
- {
- 	return flags;
- }
-@@ -3797,7 +3794,7 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
+@@ -3794,6 +3794,15 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
  
  static int kmem_cache_open(struct kmem_cache *s, slab_flags_t flags)
  {
--	s->flags = kmem_cache_flags(s->size, flags, s->name, s->ctor);
-+	s->flags = kmem_cache_flags(s->size, flags, s->name);
++#ifdef CONFIG_SLUB_DEBUG
++	/*
++	 * If no slub_debug was enabled globally, the static key is not yet
++	 * enabled by setup_slub_debug(). Enable it if the cache is being
++	 * created with any of the debugging flags passed explicitly.
++	 */
++	if (flags & SLAB_DEBUG_FLAGS)
++		static_branch_enable(&slub_debug_enabled);
++#endif
+ 	s->flags = kmem_cache_flags(s->size, flags, s->name);
  #ifdef CONFIG_SLAB_FREELIST_HARDENED
  	s->random = get_random_long();
- #endif
 -- 
 2.30.2
 
