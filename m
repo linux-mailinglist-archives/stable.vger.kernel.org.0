@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3CC37CE7E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3C037CE74
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344274AbhELRFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1343771AbhELRFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 13:05:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236244AbhELQn4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:43:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F076661E67;
-        Wed, 12 May 2021 16:14:03 +0000 (UTC)
+        id S237984AbhELQn7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:43:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 650E361289;
+        Wed, 12 May 2021 16:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836044;
-        bh=2kq/JqmKzK79ETB0qqX5BUI9b4yhClaxNhXbjawUlvM=;
+        s=korg; t=1620836046;
+        bh=R3riXgMsE6+ftRbH6MoPYQzr7DTg/+r00hwk2ICL9nQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJ6aVaXibVRM+sEM0bFf6W0mZsZfGqs0dBml90/UpwxKbNNqLYcOEJIq+68p1ptdx
-         2CswaIhurFPkfblJSFkQlqQaByqfYdoGLD0aHWQyKQ/hj/SyjlcJiNAK2iaWIrm5p7
-         8uthIugt+XKPdxJV6QXY7w0BOQbVp4IHChg9/psk=
+        b=lWRkvTmYYShwuqLvgxQrxs5yHHjqL4qFoJFkgw9hXXo3Bvd6Kvv0MloiayCZ9i0Mn
+         7Xu+2TyRVFV8MBu5erfzu7w6nYrB7YU8nsZ1+6257RXJAQ3ep6GGDTvUAPRBzci3xr
+         83uUE0tuwTXzLUbmYUcGjCS8zMrpYmGPecbxPCig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
-        Yong Wu <yong.wu@mediatek.com>, Joerg Roedel <jroedel@suse.de>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Geliang Tang <geliangtang@gmail.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 587/677] iommu/mediatek: Always enable the clk on resume
-Date:   Wed, 12 May 2021 16:50:33 +0200
-Message-Id: <20210512144856.883277133@linuxfoundation.org>
+Subject: [PATCH 5.12 588/677] mptcp: fix format specifiers for unsigned int
+Date:   Wed, 12 May 2021 16:50:34 +0200
+Message-Id: <20210512144856.923239842@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,123 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+From: Geliang Tang <geliangtang@gmail.com>
 
-[ Upstream commit b34ea31fe013569d42b7e8681ef3f717f77c5b72 ]
+[ Upstream commit e4b6135134a75f530bd634ea7c168efaf0f9dff3 ]
 
-In mtk_iommu_runtime_resume always enable the clk, even
-if m4u_dom is null. Otherwise the 'suspend' cb might
-disable the clk which is already disabled causing the warning:
+Some of the sequence numbers are printed as the negative ones in the debug
+log:
 
-[    1.586104] infra_m4u already disabled
-[    1.586133] WARNING: CPU: 0 PID: 121 at drivers/clk/clk.c:952 clk_core_disable+0xb0/0xb8
-[    1.594391] mtk-iommu 10205000.iommu: bound 18001000.larb (ops mtk_smi_larb_component_ops)
-[    1.598108] Modules linked in:
-[    1.598114] CPU: 0 PID: 121 Comm: kworker/0:2 Not tainted 5.12.0-rc5 #69
-[    1.609246] mtk-iommu 10205000.iommu: bound 14027000.larb (ops mtk_smi_larb_component_ops)
-[    1.617487] Hardware name: Google Elm (DT)
-[    1.617491] Workqueue: pm pm_runtime_work
-[    1.620545] mtk-iommu 10205000.iommu: bound 19001000.larb (ops mtk_smi_larb_component_ops)
+[   46.250932] MPTCP: DSS
+[   46.250940] MPTCP: data_fin=0 dsn64=0 use_map=0 ack64=1 use_ack=1
+[   46.250948] MPTCP: data_ack=2344892449471675613
+[   46.251012] MPTCP: msk=000000006e157e3f status=10
+[   46.251023] MPTCP: msk=000000006e157e3f snd_data_fin_enable=0 pending=0 snd_nxt=2344892449471700189 write_seq=2344892449471700189
+[   46.251343] MPTCP: msk=00000000ec44a129 ssk=00000000f7abd481 sending dfrag at seq=-1658937016627538668 len=100 already sent=0
+[   46.251360] MPTCP: data_seq=16787807057082012948 subflow_seq=1 data_len=100 dsn64=1
 
-[    1.627229] pstate: 60000085 (nZCv daIf -PAN -UAO -TCO BTYPE=--)
-[    1.659297] pc : clk_core_disable+0xb0/0xb8
-[    1.663475] lr : clk_core_disable+0xb0/0xb8
-[    1.667652] sp : ffff800011b9bbe0
-[    1.670959] x29: ffff800011b9bbe0 x28: 0000000000000000
-[    1.676267] x27: ffff800011448000 x26: ffff8000100cfd98
-[    1.681574] x25: ffff800011b9bd48 x24: 0000000000000000
-[    1.686882] x23: 0000000000000000 x22: ffff8000106fad90
-[    1.692189] x21: 000000000000000a x20: ffff0000c0048500
-[    1.697496] x19: ffff0000c0048500 x18: ffffffffffffffff
-[    1.702804] x17: 0000000000000000 x16: 0000000000000000
-[    1.708112] x15: ffff800011460300 x14: fffffffffffe0000
-[    1.713420] x13: ffff8000114602d8 x12: 0720072007200720
-[    1.718727] x11: 0720072007200720 x10: 0720072007200720
-[    1.724035] x9 : ffff800011b9bbe0 x8 : ffff800011b9bbe0
-[    1.729342] x7 : 0000000000000009 x6 : ffff8000114b8328
-[    1.734649] x5 : 0000000000000000 x4 : 0000000000000000
-[    1.739956] x3 : 00000000ffffffff x2 : ffff800011460298
-[    1.745263] x1 : 1af1d7de276f4500 x0 : 0000000000000000
-[    1.750572] Call trace:
-[    1.753010]  clk_core_disable+0xb0/0xb8
-[    1.756840]  clk_core_disable_lock+0x24/0x40
-[    1.761105]  clk_disable+0x20/0x30
-[    1.764501]  mtk_iommu_runtime_suspend+0x88/0xa8
-[    1.769114]  pm_generic_runtime_suspend+0x2c/0x48
-[    1.773815]  __rpm_callback+0xe0/0x178
-[    1.777559]  rpm_callback+0x24/0x88
-[    1.781041]  rpm_suspend+0xdc/0x470
-[    1.784523]  rpm_idle+0x12c/0x170
-[    1.787831]  pm_runtime_work+0xa8/0xc0
-[    1.791573]  process_one_work+0x1e8/0x360
-[    1.795580]  worker_thread+0x44/0x478
-[    1.799237]  kthread+0x150/0x158
-[    1.802460]  ret_from_fork+0x10/0x30
-[    1.806034] ---[ end trace 82402920ef64573b ]---
-[    1.810728] ------------[ cut here ]------------
+This patch used the format specifier %u instead of %d for the unsigned int
+values to fix it.
 
-In addition, we now don't need to enable the clock from the
-function mtk_iommu_hw_init since it is already enabled by the resume.
-
-Fixes: c0b57581b73b ("iommu/mediatek: Add power-domain operation")
-Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Reviewed-by: Yong Wu <yong.wu@mediatek.com>
-Link: https://lore.kernel.org/r/20210416105449.4744-1-dafna.hirschfeld@collabora.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: d9ca1de8c0cd ("mptcp: move page frag allocation in mptcp_sendmsg()")
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Geliang Tang <geliangtang@gmail.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/mtk_iommu.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+ net/mptcp/protocol.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 6ecc007f07cd..e168a682806a 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -688,13 +688,6 @@ static const struct iommu_ops mtk_iommu_ops = {
- static int mtk_iommu_hw_init(const struct mtk_iommu_data *data)
- {
- 	u32 regval;
--	int ret;
--
--	ret = clk_prepare_enable(data->bclk);
--	if (ret) {
--		dev_err(data->dev, "Failed to enable iommu bclk(%d)\n", ret);
--		return ret;
--	}
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 4bde960e19dc..5043c7cb0782 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -1275,7 +1275,7 @@ static int mptcp_sendmsg_frag(struct sock *sk, struct sock *ssk,
+ 	int avail_size;
+ 	size_t ret = 0;
  
- 	if (data->plat_data->m4u_plat == M4U_MT8173) {
- 		regval = F_MMU_PREFETCH_RT_REPLACE_MOD |
-@@ -760,7 +753,6 @@ static int mtk_iommu_hw_init(const struct mtk_iommu_data *data)
- 	if (devm_request_irq(data->dev, data->irq, mtk_iommu_isr, 0,
- 			     dev_name(data->dev), (void *)data)) {
- 		writel_relaxed(0, data->base + REG_MMU_PT_BASE_ADDR);
--		clk_disable_unprepare(data->bclk);
- 		dev_err(data->dev, "Failed @ IRQ-%d Request\n", data->irq);
- 		return -ENODEV;
- 	}
-@@ -977,14 +969,19 @@ static int __maybe_unused mtk_iommu_runtime_resume(struct device *dev)
- 	void __iomem *base = data->base;
- 	int ret;
+-	pr_debug("msk=%p ssk=%p sending dfrag at seq=%lld len=%d already sent=%d",
++	pr_debug("msk=%p ssk=%p sending dfrag at seq=%llu len=%u already sent=%u",
+ 		 msk, ssk, dfrag->data_seq, dfrag->data_len, info->sent);
  
--	/* Avoid first resume to affect the default value of registers below. */
--	if (!m4u_dom)
--		return 0;
- 	ret = clk_prepare_enable(data->bclk);
- 	if (ret) {
- 		dev_err(data->dev, "Failed to enable clk(%d) in resume\n", ret);
- 		return ret;
- 	}
-+
-+	/*
-+	 * Uppon first resume, only enable the clk and return, since the values of the
-+	 * registers are not yet set.
-+	 */
-+	if (!m4u_dom)
-+		return 0;
-+
- 	writel_relaxed(reg->wr_len_ctrl, base + REG_MMU_WR_LEN_CTRL);
- 	writel_relaxed(reg->misc_ctrl, base + REG_MMU_MISC_CTRL);
- 	writel_relaxed(reg->dcm_dis, base + REG_MMU_DCM_DIS);
+ 	/* compute send limit */
+@@ -1693,7 +1693,7 @@ static int mptcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
+ 			if (!msk->first_pending)
+ 				WRITE_ONCE(msk->first_pending, dfrag);
+ 		}
+-		pr_debug("msk=%p dfrag at seq=%lld len=%d sent=%d new=%d", msk,
++		pr_debug("msk=%p dfrag at seq=%llu len=%u sent=%u new=%d", msk,
+ 			 dfrag->data_seq, dfrag->data_len, dfrag->already_sent,
+ 			 !dfrag_collapsed);
+ 
 -- 
 2.30.2
 
