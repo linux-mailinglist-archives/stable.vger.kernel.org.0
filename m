@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78DE737CC08
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC0B37CC0A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241888AbhELQjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:39:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
+        id S241919AbhELQj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:39:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230268AbhELQcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:32:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9024261A2D;
-        Wed, 12 May 2021 15:58:29 +0000 (UTC)
+        id S235902AbhELQcO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:32:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9916861107;
+        Wed, 12 May 2021 15:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835110;
-        bh=Ne5trIiyEQCtOpf/bkKgwHifDtC47CY9uAXmcnuHXNU=;
+        s=korg; t=1620835113;
+        bh=0vI9HVHUZLdAeqwj9RGj/+rSjzHBRRXnRRmJjFn913Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOPUZfsqb4Xe+MFzFQF3THBmreBzeEAF3Dgch242nvkCKQ2FA6HYNxqyweMBPoFlO
-         cKQRKD+gP615jeOIBn2gHRvmubXMjKb3JS3xv0rajMgEItyx2HQDfBNCgG21yxdIqF
-         cBnnK2l3WpFoj0dMX3Pw27R9ZCqqbQaB5qaHXHgg=
+        b=QAI/Fin6Qz2mImrnNHKQMw7bkehDShRMB8+72Pn/+Cp7YDIiMP0dJ1uTyK6T4c71i
+         Xog2gbLia4tctAnldQD62sd+B8e3ABcu/PxSkFiDVvf8fKImqrmOq90tLVMs4GhlKi
+         tlhpi6FnlsTn/2xDDVrpIOgxu1N6gtoVdJ2h7nCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 212/677] usb: host: ehci-tegra: Select USB_GADGET Kconfig option
-Date:   Wed, 12 May 2021 16:44:18 +0200
-Message-Id: <20210512144844.282670488@linuxfoundation.org>
+Subject: [PATCH 5.12 213/677] devtmpfs: fix placement of complete() call
+Date:   Wed, 12 May 2021 16:44:19 +0200
+Message-Id: <20210512144844.315836325@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,42 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit 0b9828763aeafa5e527b9d98b8789bdb34937fbc ]
+[ Upstream commit 38f087de8947700d3b06d3d1594490e0f611c5d1 ]
 
-Select USB_GADGET Kconfig option in order to fix build failure which
-happens because ChipIdea driver has a build dependency on both USB_GADGET
-and USB_EHCI_HCD, while USB_EHCI_TEGRA force-selects the ChipIdea driver
-without taking into account the tristate USB_GADGET dependency. It's not
-possible to do anything about the cyclic dependency of the Kconfig
-options, but USB_EHCI_TEGRA is now a deprecated option that isn't used
-by defconfigs and USB_GADGET is wanted on Tegra by default, hence it's
-okay to have a bit clunky workaround for it.
+Calling complete() from within the __init function is wrong -
+theoretically, the init process could proceed all the way to freeing
+the init mem before the devtmpfsd thread gets to execute the return
+instruction in devtmpfs_setup().
 
-Fixes: c3590c7656fb ("usb: host: ehci-tegra: Remove the driver")
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210320151915.7566-2-digetx@gmail.com
+In practice, it seems to be harmless as gcc inlines devtmpfs_setup()
+into devtmpfsd(). So the calls of the __init functions init_chdir()
+etc. actually happen from devtmpfs_setup(), but the __ref on that one
+silences modpost (it's all right, because those calls happen before
+the complete()). But it does make the __init annotation of the setup
+function moot, which we'll fix in a subsequent patch.
+
+Fixes: bcbacc4909f1 ("devtmpfs: refactor devtmpfsd()")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Link: https://lore.kernel.org/r/20210312103027.2701413-1-linux@rasmusvillemoes.dk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/devtmpfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
-index b94f2a070c05..df9428f1dc5e 100644
---- a/drivers/usb/host/Kconfig
-+++ b/drivers/usb/host/Kconfig
-@@ -272,6 +272,7 @@ config USB_EHCI_TEGRA
- 	select USB_CHIPIDEA
- 	select USB_CHIPIDEA_HOST
- 	select USB_CHIPIDEA_TEGRA
-+	select USB_GADGET
- 	help
- 	  This option is deprecated now and the driver was removed, use
- 	  USB_CHIPIDEA_TEGRA instead.
+diff --git a/drivers/base/devtmpfs.c b/drivers/base/devtmpfs.c
+index 653c8c6ac7a7..aedeb2dc1a18 100644
+--- a/drivers/base/devtmpfs.c
++++ b/drivers/base/devtmpfs.c
+@@ -419,7 +419,6 @@ static int __init devtmpfs_setup(void *p)
+ 	init_chroot(".");
+ out:
+ 	*(int *)p = err;
+-	complete(&setup_done);
+ 	return err;
+ }
+ 
+@@ -432,6 +431,7 @@ static int __ref devtmpfsd(void *p)
+ {
+ 	int err = devtmpfs_setup(p);
+ 
++	complete(&setup_done);
+ 	if (err)
+ 		return err;
+ 	devtmpfs_work_loop();
 -- 
 2.30.2
 
