@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D312137B9F3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:06:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F30837B9F4
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230109AbhELKHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:07:16 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:33221 "EHLO
+        id S230115AbhELKHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:07:24 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:53299 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230135AbhELKHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:07:15 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 07FEFF69;
-        Wed, 12 May 2021 06:06:04 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 12 May 2021 06:06:05 -0400
+        by vger.kernel.org with ESMTP id S230114AbhELKHY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:07:24 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.west.internal (Postfix) with ESMTP id 9B2EA12D8;
+        Wed, 12 May 2021 06:06:15 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 12 May 2021 06:06:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=g7K875
-        sQurDr/MZ4M9pqA8DZlJ2L6VT3ov/Fd/ygvcE=; b=eiF9XdJpfXdYD4fVarK0FH
-        UV3zC5Uo7gSLJEZ0CKwp4fTcHNgFtjSf/ikDmQhL5Bhu1lxo6GoGWURktjtfLYVi
-        0MAFGBRzdzA1kazic7sMra9qj6fSmyQ5ZeVvFuNvWmuFZeP8IHNbYHaKKerTZD4a
-        M+AhwLUB0dgF2jREGdop08XKi92yggxXM9RoLorbwQYLJuBRnqqYkybYm2Yot3nK
-        4JoHe3qr1VeY9hJCK54I6NDHX6RngId8xHelKAfqpYZFDcp70Ga4BcCY9hgFflks
-        1mOM4/8sFYmn9RVtpkyY2T9fhIo2QSpH/FzsA8V+jauaDfNuHRRF+AhfIryXBiuQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=HL0Olt
+        jBTFpSADXi/P62Yn669SqcZyyCzUcQ/iUtoFk=; b=B0MI4czDxL7lQkVwqTAfee
+        vqngatYGNKjn7vuK3yd5tLARrdjmetsgw2fQRswYmBAM0ZDmQ3XF1MiwgAnkcqqS
+        +GvwJR30H4zFPeGb9K2p8oqq2GSLqv3tRxyHWSn6QRfOO6YlQAxxo5A65+a57lnA
+        2jDuYU6zWjwNFcFD8/gJGK27jO2wW0ZecGq4ueU+St85sPuX1utfRPw5UkVXFIjQ
+        Y0YgHZcGIP0vV/iEE7SIizdHjZHldp0O8yhCTKonim+Jggi6AnTUeiAyRdGCxFQt
+        hughtorfb76aEMRhDiwnlFbO0mPWvr6Yn9+B0BLecjwQLwO6xI35jzTWl4yPocbA
         ==
-X-ME-Sender: <xms:jKibYO2fnddMjQuJRZyl2crH2m2ihhV0JZ6ZoPzUIcR4s7bp43olpA>
-    <xme:jKibYBEiPqhhZ9rAS7-rvPfxZIHGpEoM3p8j9mfkYY98UxpuftRcmCa_Myv46uvww
-    Ur0_MFba9Y3hg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvddtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:lqibYEzaF7EVVdH_RkkqidCLbVIABc3X95N_KJ9WC1a0MCzTj11_6Q>
+    <xme:lqibYIRWTkO6X6gLXdjJAcvLACKdmZa0fOBqRNURTfzAyAJZrFi4UpzY8FKQ5MQ40
+    _6Gnjen3o5xcQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnheptefhhffgjefgtdeihefgvdehieetuefgvefhgedvge
     dvgfdugfevgefgueeljedvnecuffhomhgrihhnpehlrghunhgthhhprggurdhnvghtpdhk
     vghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghruf
-    hiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
+    hiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
     mh
-X-ME-Proxy: <xmx:jKibYG4fHJLIXBvRKGmWqfpEPJ0dVjSNNZ2z1DKUfgL6gAwfif4jkA>
-    <xmx:jKibYP2hgRzieW-j5-YPvaRaEFE83f9C6SHNd78h59ICOdk5Ziv3pg>
-    <xmx:jKibYBELO5JL4phPoxUIBAzJedy2NkMFB9_EGjA445Lw7OZZMwJYeQ>
-    <xmx:jKibYBDhrtEOQCklXHwEfv67rP1OSUnwNnA8ozs1-K_pLy8vnBx3lo5HUbA>
+X-ME-Proxy: <xmx:lqibYGXGJTufcCA0TxRYCdCkkAVcnB9geGOvcvQFL1TgC4t74NXQ3A>
+    <xmx:lqibYCijU98DHOu_0KEDiIUWfaYBNZskCIg1U8QrWQLkAX3ts3CqyA>
+    <xmx:lqibYGAsVpAjZm8N8ADGThl4jNl2LIE4wnguHhhiS6LwBQ4p8TZJGw>
+    <xmx:l6ibYBNbjksrgx_4FAnLMhUg_9UVunlmaER8puTjS0Hq9QNEr3U3IEIBocI>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:06:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: hda/cirrus: Set Initial DMIC volume for Bullseye to -26" failed to apply to 5.10-stable tree
+        Wed, 12 May 2021 06:06:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: hda/cirrus: Use CS8409 filter to fix abnormal sounds on" failed to apply to 5.12-stable tree
 To:     sbinding@opensource.cirrus.com, stable@vger.kernel.org,
         tiwai@suse.de, vicamo.yang@canonical.com,
         vitalyr@opensource.cirrus.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 12:05:49 +0200
-Message-ID: <1620813949132157@kroah.com>
+Date:   Wed, 12 May 2021 12:06:13 +0200
+Message-ID: <162081397319352@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,39 +73,85 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0e853a9c3937caa9f13fdde547d6202f92457c2b Mon Sep 17 00:00:00 2001
+From 45b14fe200ba0611b6c3874aa5bba584dc979fb9 Mon Sep 17 00:00:00 2001
 From: Stefan Binding <sbinding@opensource.cirrus.com>
-Date: Mon, 26 Apr 2021 17:37:48 +0100
-Subject: [PATCH] ALSA: hda/cirrus: Set Initial DMIC volume for Bullseye to -26
- dB
+Date: Mon, 26 Apr 2021 17:37:49 +0100
+Subject: [PATCH] ALSA: hda/cirrus: Use CS8409 filter to fix abnormal sounds on
+ Bullseye
 
-After booting for first time on Bullseye, the DMIC is currently muted.
-Instead, the DMIC volume should be set to a valid initial value.
+Cracking noises have been reported on the built-in speaker for certain
+Bullseye platforms, when volume is > 80%.
+
+This issue is caused by the specific combination of Codec and AMP in
+this platform, and cannot be fixed by the AMP, so indead must be fixed
+at codec level, by adding attenuation to the volume.
 
 Tested on DELL Inspiron-3505, DELL Inspiron-3501, DELL Inspiron-3500
 
 Signed-off-by: Stefan Binding <sbinding@opensource.cirrus.com>
 Signed-off-by: Vitaly Rodionov <vitalyr@opensource.cirrus.com>
-BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1923557
+BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1924997
 Reported-and-tested-by: You-Sheng Yang <vicamo.yang@canonical.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210426163749.196153-2-vitalyr@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20210426163749.196153-3-vitalyr@opensource.cirrus.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
 diff --git a/sound/pci/hda/patch_cirrus.c b/sound/pci/hda/patch_cirrus.c
-index 5d57096b3a95..a4f82f147ff3 100644
+index a4f82f147ff3..726507d0b04c 100644
 --- a/sound/pci/hda/patch_cirrus.c
 +++ b/sound/pci/hda/patch_cirrus.c
-@@ -2172,6 +2172,11 @@ static void cs8409_cs42l42_fixups(struct hda_codec *codec,
- 			(get_wcaps(codec, CS8409_CS42L42_AMIC_PIN_NID) | AC_WCAP_UNSOL_CAP));
- 		break;
- 	case HDA_FIXUP_ACT_PROBE:
+@@ -1481,6 +1481,34 @@ static const struct cs8409_cir_param cs8409_cs42l42_hw_cfg[] = {
+ 	{} /* Terminator */
+ };
+ 
++static const struct cs8409_cir_param cs8409_cs42l42_bullseye_atn[] = {
++	{ 0x47, 0x65, 0x4000 }, /* EQ_SEL=1, EQ1/2_EN=0 */
++	{ 0x47, 0x64, 0x4000 }, /* +EQ_ACC */
++	{ 0x47, 0x65, 0x4010 }, /* +EQ2_EN */
++	{ 0x47, 0x63, 0x0647 }, /* EQ_DATA_HI=0x0647 */
++	{ 0x47, 0x64, 0xc0c7 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=0, EQ_DATA_LO=0x67 */
++	{ 0x47, 0x63, 0x0647 }, /* EQ_DATA_HI=0x0647 */
++	{ 0x47, 0x64, 0xc1c7 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=1, EQ_DATA_LO=0x67 */
++	{ 0x47, 0x63, 0xf370 }, /* EQ_DATA_HI=0xf370 */
++	{ 0x47, 0x64, 0xc271 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=2, EQ_DATA_LO=0x71 */
++	{ 0x47, 0x63, 0x1ef8 }, /* EQ_DATA_HI=0x1ef8 */
++	{ 0x47, 0x64, 0xc348 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=3, EQ_DATA_LO=0x48 */
++	{ 0x47, 0x63, 0xc110 }, /* EQ_DATA_HI=0xc110 */
++	{ 0x47, 0x64, 0xc45a }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=4, EQ_DATA_LO=0x5a */
++	{ 0x47, 0x63, 0x1f29 }, /* EQ_DATA_HI=0x1f29 */
++	{ 0x47, 0x64, 0xc574 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=5, EQ_DATA_LO=0x74 */
++	{ 0x47, 0x63, 0x1d7a }, /* EQ_DATA_HI=0x1d7a */
++	{ 0x47, 0x64, 0xc653 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=6, EQ_DATA_LO=0x53 */
++	{ 0x47, 0x63, 0xc38c }, /* EQ_DATA_HI=0xc38c */
++	{ 0x47, 0x64, 0xc714 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=7, EQ_DATA_LO=0x14 */
++	{ 0x47, 0x63, 0x1ca3 }, /* EQ_DATA_HI=0x1ca3 */
++	{ 0x47, 0x64, 0xc8c7 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=8, EQ_DATA_LO=0xc7 */
++	{ 0x47, 0x63, 0xc38c }, /* EQ_DATA_HI=0xc38c */
++	{ 0x47, 0x64, 0xc914 }, /* +EQ_WRT, +EQ_ACC, EQ_ADR=9, EQ_DATA_LO=0x14 */
++	{ 0x47, 0x64, 0x0000 }, /* -EQ_ACC, -EQ_WRT */
++	{} /* Terminator */
++};
 +
-+		/* Set initial volume on Bullseye to -26 dB */
-+		if (codec->fixup_id == CS8409_BULLSEYE)
-+			snd_hda_codec_amp_init_stereo(codec, CS8409_CS42L42_DMIC_ADC_PIN_NID,
-+					HDA_INPUT, 0, 0xff, 0x19);
- 		snd_hda_gen_add_kctl(&spec->gen,
- 			NULL, &cs8409_cs42l42_hp_volume_mixer);
- 		snd_hda_gen_add_kctl(&spec->gen,
+ /**
+  * cs8409_enable_i2c_clock - Enable I2C clocks
+  * @codec: the codec instance
+@@ -2029,6 +2057,7 @@ static void cs8409_enable_ur(struct hda_codec *codec, int flag)
+ static void cs8409_cs42l42_hw_init(struct hda_codec *codec)
+ {
+ 	const struct cs8409_cir_param *seq = cs8409_cs42l42_hw_cfg;
++	const struct cs8409_cir_param *seq_bullseye = cs8409_cs42l42_bullseye_atn;
+ 	struct cs_spec *spec = codec->spec;
+ 
+ 	if (spec->gpio_mask) {
+@@ -2043,6 +2072,10 @@ static void cs8409_cs42l42_hw_init(struct hda_codec *codec)
+ 	for (; seq->nid; seq++)
+ 		cs_vendor_coef_set(codec, seq->cir, seq->coeff);
+ 
++	if (codec->fixup_id == CS8409_BULLSEYE)
++		for (; seq_bullseye->nid; seq_bullseye++)
++			cs_vendor_coef_set(codec, seq_bullseye->cir, seq_bullseye->coeff);
++
+ 	/* Disable Unsolicited Response during boot */
+ 	cs8409_enable_ur(codec, 0);
+ 
 
