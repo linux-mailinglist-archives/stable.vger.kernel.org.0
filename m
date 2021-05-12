@@ -2,150 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0757E37BB5D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 401A237BB77
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 13:11:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230097AbhELK5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:57:30 -0400
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:34186 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S230096AbhELK5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:57:30 -0400
-Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CApkbl019914;
-        Wed, 12 May 2021 12:55:57 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=selector1;
- bh=HLNK8RvTvKmlpYPvFe1wt2QinsOgjKUyLLA9NdybeCY=;
- b=3dXEhjmQd98pBK6cfYSP2abqgW9LsPsRcW7KylHZeme/GLpkLurf1o63xzfaLpJ0rd9h
- nWe9hDgiSbMxqP1Sq5s+XawarIBKRJA0d2Z1MsMgTErOvKfLtz0wSlKbzQSAikiV/t5a
- oDGhLUr3EuAMoZmJqTX4B3XRX19CkMMhxhJsLE2saM9/Td7sDfzS4ajQAJxxBdGp4GYy
- YF8RxaFhXcV/Bahdzxe/j6foVPid5TQ2QOm4F1IraGiiljX6Gr1qxhH1cS7rQX+3AMPX
- 8FItocbYo2Cq+yGFVuvPhQ/BZ8noPN6bP3oaUZBApcvcvcpRZu2Bh9YZXfpJ22DS42XO tg== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 38fq9tpx0s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 12:55:57 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 52AE510002A;
-        Wed, 12 May 2021 12:55:55 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag2node3.st.com [10.75.127.6])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 24B7221C56F;
-        Wed, 12 May 2021 12:55:55 +0200 (CEST)
-Received: from lmecxl0912.lme.st.com (10.75.127.49) by SFHDAG2NODE3.st.com
- (10.75.127.6) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 12 May
- 2021 12:55:54 +0200
-Subject: Re: [v5.4 stable] arm: stm32: Regression observed on "no-map"
- reserved memory region
-To:     Quentin Perret <qperret@google.com>
-CC:     Florian Fainelli <f.fainelli@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        KarimAllah Ahmed <karahmed@amazon.de>,
-        Android Kernel Team <kernel-team@android.com>,
-        Architecture Mailman List <boot-architecture@lists.linaro.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-References: <4a4734d6-49df-677b-71d3-b926c44d89a9@foss.st.com>
- <CAL_JsqKGG8E9Y53+az+5qAOOGiZRAA-aD-1tKB-hcOp+m3CJYw@mail.gmail.com>
- <001f8550-b625-17d2-85a6-98a483557c70@foss.st.com>
- <CAL_Jsq+LUPZFhXd+j-xM67rZB=pvEvZM+1sfckip0Lqq02PkZQ@mail.gmail.com>
- <CAMj1kXE2Mgr9CsAMnKXff+96xhDaE5OLeNhypHvpN815vZGZhQ@mail.gmail.com>
- <d7f9607a-9fcb-7ba2-6e39-03030da2deb0@gmail.com>
- <YH/ixPnHMxNo08mJ@google.com>
- <cc8f96a4-6c85-b869-d3cf-5dc543982054@gmail.com>
- <YIFzMkW+tXonTf0K@google.com>
- <ad90b2bb-0fab-9f06-28dd-038e8005490b@foss.st.com>
- <YJkGSb72aKg6ScGo@google.com>
-From:   Alexandre TORGUE <alexandre.torgue@foss.st.com>
-Message-ID: <e1da4a98-7521-518f-f85a-51e9c58b1fc3@foss.st.com>
-Date:   Wed, 12 May 2021 12:55:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <YJkGSb72aKg6ScGo@google.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.75.127.49]
-X-ClientProxiedBy: SFHDAG2NODE3.st.com (10.75.127.6) To SFHDAG2NODE3.st.com
- (10.75.127.6)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-12_05:2021-05-12,2021-05-12 signatures=0
+        id S230037AbhELLMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 07:12:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35450 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230035AbhELLMk (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 12 May 2021 07:12:40 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F26460720;
+        Wed, 12 May 2021 11:11:32 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lgmm1-000so4-U6; Wed, 12 May 2021 12:11:30 +0100
+Date:   Wed, 12 May 2021 12:11:29 +0100
+Message-ID: <87k0o4nr4u.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     eric.auger@redhat.com, <gregkh@linuxfoundation.org>
+Cc:     Stable@vger.kernel.org, gshan@redhat.com, <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] KVM: arm/arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST read" failed to apply to 4.19-stable tree
+In-Reply-To: <162081638318160@kroah.com>
+References: <162081638318160@kroah.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: eric.auger@redhat.com, gregkh@linuxfoundation.org, Stable@vger.kernel.org, gshan@redhat.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Quentin,
-
-On 5/10/21 12:09 PM, Quentin Perret wrote:
-> Hi Alexandre,
+On Wed, 12 May 2021 11:46:23 +0100,
+<gregkh@linuxfoundation.org> wrote:
 > 
-> On Friday 07 May 2021 at 17:15:20 (+0200), Alexandre TORGUE wrote:
->> Did you get time to continue some tests on this issue ?
 > 
-> I did try a few things, but still fail to reproduced :/
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 > 
->> On my side this DT is not working:
->>
->> memory@c0000000 {
->>          reg = <0xc0000000 0x20000000>;
->> };
->>
->> reserved-memory {
->>          #address-cells = <1>;
->>          #size-cells = <1>;
->>          ranges;
->>
->>          gpu_reserved: gpu@d4000000 {
->>                  reg = <0xd4000000 0x4000000>;
->>                  no-map;
->>          };
->> };
+> thanks,
 > 
-> So this does change how memory appears in /proc/iomem for me switching
-> from 5.4.101 to v5.4.102 -- for the former d4000000-d7ffffff doesn't
-> appear at all, and for the latter it appears as 'reserved'.
+> greg k-h
 > 
-> But still, it never gets accounted as System RAM for me ...
+> ------------------ original commit in Linus's tree ------------------
 > 
->> Let me know if I can help.
+> From 94ac0835391efc1a30feda6fc908913ec012951e Mon Sep 17 00:00:00 2001
+> From: Eric Auger <eric.auger@redhat.com>
+> Date: Mon, 12 Apr 2021 17:00:34 +0200
+> Subject: [PATCH] KVM: arm/arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST read
 > 
-> Could you please confirm you get a correct behaviour with 5.10.31 like
-> Florian? If so, then bisecting to figure out what we're missing in older
-> LTSes would help, but again it feels like we should just revert -- this
-> wasn't really a fix in the first place.
-
-
-We saw that patches [1] and [2] cause issue on stable version (at least 
-for 5.4). As you said issue can be seen with above device tree and check 
-in /proc/iomem than gpu_reserved region is taken by the kernel as 
-"System RAM".
-
-On v5.10 stream there are no issues seen taking patches [1]&[2] and the 
-reason is linked to patches [3]&[4] which have been introduced in 
-v5.10.0. Reverting them give me the same behavior than on stable version.
-
-
-[1] of/fdt: Make sure no-map does not remove already reserved regions
-[2] fdt: Properly handle "no-map" field in the memory region
-[3] arch, drivers: replace for_each_membock() with for_each_mem_range()
-[4] memblock: use separate iterators for memory and reserved regions
-
-regards
-Alex
-
+> When reading the base address of the a REDIST region
+> through KVM_VGIC_V3_ADDR_TYPE_REDIST we expect the
+> redistributor region list to be populated with a single
+> element.
 > 
-> Thanks,
-> Quentin
+> However list_first_entry() expects the list to be non empty.
+> Instead we should use list_first_entry_or_null which effectively
+> returns NULL if the list is empty.
 > 
+> Fixes: dbd9733ab674 ("KVM: arm/arm64: Replace the single rdist region by a list")
+> Cc: <Stable@vger.kernel.org> # v4.18+
+> Signed-off-by: Eric Auger <eric.auger@redhat.com>
+> Reported-by: Gavin Shan <gshan@redhat.com>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Link: https://lore.kernel.org/r/20210412150034.29185-1-eric.auger@redhat.com
+> 
+> diff --git a/arch/arm64/kvm/vgic/vgic-kvm-device.c b/arch/arm64/kvm/vgic/vgic-kvm-device.c
+> index 2f66cf247282..7740995de982 100644
+> --- a/arch/arm64/kvm/vgic/vgic-kvm-device.c
+> +++ b/arch/arm64/kvm/vgic/vgic-kvm-device.c
+> @@ -87,8 +87,8 @@ int kvm_vgic_addr(struct kvm *kvm, unsigned long type, u64 *addr, bool write)
+>  			r = vgic_v3_set_redist_base(kvm, 0, *addr, 0);
+>  			goto out;
+>  		}
+> -		rdreg = list_first_entry(&vgic->rd_regions,
+> -					 struct vgic_redist_region, list);
+> +		rdreg = list_first_entry_or_null(&vgic->rd_regions,
+> +						 struct vgic_redist_region, list);
+>  		if (!rdreg)
+>  			addr_ptr = &undef_value;
+>  		else
 
+Eric, any chance you could look at a potential backport of this patch
+to both 4.19 and 5.4?
+
+Thanks a lot,
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
