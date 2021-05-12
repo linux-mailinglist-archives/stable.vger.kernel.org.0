@@ -2,163 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA8D837BC03
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 13:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CDA737BC0E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 13:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbhELLpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 07:45:35 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19260 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S230037AbhELLpe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 07:45:34 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14CBXSe9058925;
-        Wed, 12 May 2021 07:44:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=r+EDVRMNo2k85t80QtDBYTVJ8F5/RxCOrsZVcdx21pw=;
- b=Td2xCCntBgGStBbf3a849XVA9oGcF22Ank+QXNkoUOsNzRxQQiLRk6+uiZtpjN58dGbI
- mI/7eMzd3yeRst+5Z8x8tMSermjwjY49wrhc1Mfcn3grWo0NNljYiegJYZCHIfX2VAs+
- kR/8BOwJbFijDw6HLsyvBJertx0zlXhIWgYHDH8e4JiYEFdowU07xA4gXsFX5XI6kHyz
- +POe6TMwFlYq4sjavXBnKj3eH0LJD4Y4uKv9gwXkCo0tDkczchAob18wRELX+mQkLJLX
- spy/GYcb0+ZvOER31Rh+DTo9xLNk6PXh1w8+qsRL/EJp6GB5d6LfG0M9zBbEd4U9EtkM XQ== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 38ge6b0d42-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 07:44:26 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14CBiO8F017802;
-        Wed, 12 May 2021 11:44:24 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 38dj9895y4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 12 May 2021 11:44:24 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14CBhswi34341170
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 12 May 2021 11:43:54 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 905C8AE057;
-        Wed, 12 May 2021 11:44:21 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 65033AE055;
-        Wed, 12 May 2021 11:44:21 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.73.206])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 12 May 2021 11:44:21 +0000 (GMT)
-Subject: Re: FAILED: patch "[PATCH] KVM: s390: split
- kvm_s390_logical_to_effective" failed to apply to 4.9-stable tree
-To:     gregkh@linuxfoundation.org, imbrenda@linux.ibm.com
-Cc:     stable@vger.kernel.org
-References: <1620814886253179@kroah.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <6a509e34-9016-7250-9df5-027d967bb098@de.ibm.com>
-Date:   Wed, 12 May 2021 13:44:21 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
-In-Reply-To: <1620814886253179@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: b-VvneUGSYwkLxbK0dYQYAE1fMDuOHiD
-X-Proofpoint-GUID: b-VvneUGSYwkLxbK0dYQYAE1fMDuOHiD
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S230037AbhELLw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 07:52:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54678 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230202AbhELLw1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 07:52:27 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E36AC061574
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 04:51:19 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id v8so3852065qkv.1
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 04:51:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=Sxv+Rjahpzjl2ngAofCPnVsHR2xsX3MoQ+doA1r/IoY=;
+        b=nFoCn3xCcd6IBYeq2v5Z8ygZChIxHR45DtZ7VWgTailbTPn/ydfTtsxCY/3tJOKHV9
+         upyq0TOMEesgvaP3rYL7eVwXquuhc4lsEdOxY05kh5VTELXSSjxFYxtU98RImzx7NlLO
+         6IbwGm3qapGATdsCEDcnKb7QGe4pagvVcJNjDaIbhEEayBmHnra4+8/7t2l3q2Wd6e7a
+         78sQGHZiqeWv4/7UU9vQrp6squHNEPFcVcFjr3orN4Y9Q6Ua2BJG8kNSAggjTsPFwU2F
+         pwynN1odFrIAbdk9rNuSCEe84KWeOyIpBZnIPPT4dRpTB8C9xFNZEq97D3BJkfE671/l
+         Swwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=Sxv+Rjahpzjl2ngAofCPnVsHR2xsX3MoQ+doA1r/IoY=;
+        b=JXL8GHYd0Jo0G9+wOtDKDVngaZBJ60jd27hZcjILCbbU1+Ar1G/zBb0uDjyrYugyDd
+         3bT9y6OUL44VbT4d8mggAporCc7uqwo0oGF7JAv9+zYrN2pRXwpoC5kwxUaVAQxb6sa2
+         4hMnMpRtXihlYztX/fMGpS9j/RRZhO2ELwyTCzmGu4mgXk0XrxLSnQTu9/9DNy9q7u4t
+         MauhZJ5zl3zxB/0im2dc9N71pFHFNuLo2TyeN/pQw7lvJ3pSOond0qhguVxtMM+kjuEn
+         35kM7Vvi2uJKDzy3dpddEKtuTR57PNj0h8WsPg6QgeKDPW3lTTSBVo+h/kQg9r/rb89T
+         IBVw==
+X-Gm-Message-State: AOAM533YqVquu2kFG6UgxAyr23XMtgFI6Z79ywAZsK6eYPWRU1kzSA/x
+        kcxd1y6JTqpb4k7Y1E+kzq+OlVexkMipMC3Y/pk=
+X-Google-Smtp-Source: ABdhPJzce7g8nC5NAD4KS6+YHDlBpzixFZq9iyITACj6GYlEGjdvtDHmiuH4ZZU7XFnCRq3+xHhwqouoWCNVDWixQTg=
+X-Received: by 2002:a37:9a44:: with SMTP id c65mr31926358qke.368.1620820278671;
+ Wed, 12 May 2021 04:51:18 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-12_06:2021-05-12,2021-05-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
- priorityscore=1501 bulkscore=0 impostorscore=0 mlxlogscore=999
- lowpriorityscore=0 adultscore=0 suspectscore=0 clxscore=1015 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105120085
+Reply-To: mrshenritapieres1@gmail.com
+Sender: masterchamber.org@gmail.com
+Received: by 2002:ac8:5191:0:0:0:0:0 with HTTP; Wed, 12 May 2021 04:51:18
+ -0700 (PDT)
+From:   Henrita Pieres <piereshenrita61@gmail.com>
+Date:   Wed, 12 May 2021 11:51:18 +0000
+X-Google-Sender-Auth: JHYzEFTi_QZk79VAZOFbBvhXt98
+Message-ID: <CALU2xTDvMfhazNkTKTXUXxQUoPEi3oC=oC+qehC5ECXMZvNK0g@mail.gmail.com>
+Subject: Hello Dear,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12.05.21 12:21, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
+Hello Dear.
 
-Please drop the other 3 kvm: s390: patches then for 4.9, as the kernel will not
-compile without this until we have a backport for this.
+Please forgive me for stressing you with my predicaments as I know
+that this letter may come to you as big surprise.  Actually, I came
+across your E-mail from my personal search afterward I decided to
+email you directly believing that you will be honest to fulfill my
+final wish before i die. Meanwhile, I am Mrs. Henrita Pieres, 62 years
+old, from France, and I am  suffering from a long time cancer and from
+all indication my condition is really deteriorating as my doctors have
+confirmed and courageously Advised me that I may not live beyond two
+months from now for the reason that my tumor has reached a  critical
+stage which has defiled all forms of medical treatment, As a matter of
+fact, registered nurse by profession while my  husband was dealing on
+Gold Dust and Gold Dory Bars till his sudden death the year 2018 then
+I took over his business till date. In fact, at this moment I have a
+deposit sum of four million five hundred thousand US dollars
+[$4,500,000.00] with one of the leading bank but unfortunately I
+cannot visit the bank since I=E2=80=99m critically sick and powerless to do
+anything myself but my bank account officer advised me to assign any
+of my trustworthy relative, friends or partner with authorization
+letter to stand as the recipient of my money but sorrowfully I don=E2=80=99=
+t
+have any reliable relative and no child.
 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
->  From f85f1baaa18932a041fd2b1c2ca6cfd9898c7d2b Mon Sep 17 00:00:00 2001
-> From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Date: Tue, 2 Mar 2021 13:36:44 +0100
-> Subject: [PATCH] KVM: s390: split kvm_s390_logical_to_effective
-> 
-> Split kvm_s390_logical_to_effective to a generic function called
-> _kvm_s390_logical_to_effective. The new function takes a PSW and an address
-> and returns the address with the appropriate bits masked off. The old
-> function now calls the new function with the appropriate PSW from the vCPU.
-> 
-> This is needed to avoid code duplication for vSIE.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Cc: stable@vger.kernel.org # for VSIE: correctly handle MVPG when in VSIE
-> Link: https://lore.kernel.org/r/20210302174443.514363-2-imbrenda@linux.ibm.com
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-> index f4c51756c462..2d8631a1f23e 100644
-> --- a/arch/s390/kvm/gaccess.h
-> +++ b/arch/s390/kvm/gaccess.h
-> @@ -36,6 +36,29 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
->   	return gra;
->   }
->   
-> +/**
-> + * _kvm_s390_logical_to_effective - convert guest logical to effective address
-> + * @psw: psw of the guest
-> + * @ga: guest logical address
-> + *
-> + * Convert a guest logical address to an effective address by applying the
-> + * rules of the addressing mode defined by bits 31 and 32 of the given PSW
-> + * (extendended/basic addressing mode).
-> + *
-> + * Depending on the addressing mode, the upper 40 bits (24 bit addressing
-> + * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
-> + * mode) of @ga will be zeroed and the remaining bits will be returned.
-> + */
-> +static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
-> +							   unsigned long ga)
-> +{
-> +	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
-> +		return ga;
-> +	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
-> +		return ga & ((1UL << 31) - 1);
-> +	return ga & ((1UL << 24) - 1);
-> +}
-> +
->   /**
->    * kvm_s390_logical_to_effective - convert guest logical to effective address
->    * @vcpu: guest virtual cpu
-> @@ -52,13 +75,7 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
->   static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
->   							  unsigned long ga)
->   {
-> -	psw_t *psw = &vcpu->arch.sie_block->gpsw;
-> -
-> -	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
-> -		return ga;
-> -	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
-> -		return ga & ((1UL << 31) - 1);
-> -	return ga & ((1UL << 24) - 1);
-> +	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
->   }
->   
->   /*
-> 
+Therefore, I want you to receive the money and take 50% to take care
+of yourself and family while 50% should be use basically  on
+humanitarian purposes mostly to orphanages home, Motherless babies
+home, less privileged and disable citizens and widows around the
+world. And as soon as I receive your respond I shall send you the full
+details with my pictures, banking records and with full contacts of my
+banking institution to communicate them on the matter.
+
+Hope to hear from you soon.
+
+Yours Faithfully,
+Mrs. Henrita Pieres
