@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6768837C26A
+	by mail.lfdr.de (Postfix) with ESMTP id B0F9F37C26B
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231749AbhELPK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:10:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39438 "EHLO mail.kernel.org"
+        id S232019AbhELPKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231739AbhELPHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231682AbhELPHV (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:07:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CD516144F;
-        Wed, 12 May 2021 15:01:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01E266147E;
+        Wed, 12 May 2021 15:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831686;
-        bh=c6XzrZkvxepgkrTJUHFxrIThGmNKjJWYxda0aNAqOog=;
+        s=korg; t=1620831688;
+        bh=0MGGrlJwnmEUHb9kFRxkRt3XADl/a+IYP4Wp6b+5FeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQ0PmI7SvU6Y0Cx5CGmcPcB0eaVJDbitE9Df2b2XR1ZeFFiOeK6Yc4JEa30hnzvJK
-         8gQnik6M8Jhska8UpJCB88uus0jn/dhnXHsHPyGEKw2Q4ZzrQZGfhN8kmHfePGBe0J
-         Q/cZVVPf5wGWoXrmniPRg3I5gkAyF6AvW63ZBieQ=
+        b=jU7QNwkfaZhl+Ln0ZT+zcehUPs9uQPAoWYEg63o4Qp54MDW7uYS91SoO/cXxkGsuU
+         cg5GJzakWxn7eFUJJvFAE61y05e6Mt882bH3dlGJuNvBFh5WxpW743ShAJfNrWxZnq
+         ndrIFn63OWX8jjwMvnJqjIdi0nU3B6B84UaQMFxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 219/244] net: davinci_emac: Fix incorrect masking of tx and rx error channel
-Date:   Wed, 12 May 2021 16:49:50 +0200
-Message-Id: <20210512144750.010789608@linuxfoundation.org>
+Subject: [PATCH 5.4 220/244] net: renesas: ravb: Fix a stuck issue when a lot of frames are received
+Date:   Wed, 12 May 2021 16:49:51 +0200
+Message-Id: <20210512144750.041841643@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,46 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit d83b8aa5207d81f9f6daec9888390f079cc5db3f ]
+[ Upstream commit 5718458b092bf6bf4482c5df32affba3c3259517 ]
 
-The bit-masks used for the TXERRCH and RXERRCH (tx and rx error channels)
-are incorrect and always lead to a zero result. The mask values are
-currently the incorrect post-right shifted values, fix this by setting
-them to the currect values.
+When a lot of frames were received in the short term, the driver
+caused a stuck of receiving until a new frame was received. For example,
+the following command from other device could cause this issue.
 
-(I double checked these against the TMS320TCI6482 data sheet, section
-5.30, page 127 to ensure I had the correct mask values for the TXERRCH
-and RXERRCH fields in the MACSTATUS register).
+    $ sudo ping -f -l 1000 -c 1000 <this driver's ipaddress>
 
-Addresses-Coverity: ("Operands don't affect result")
-Fixes: a6286ee630f6 ("net: Add TI DaVinci EMAC driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+The previous code always cleared the interrupt flag of RX but checks
+the interrupt flags in ravb_poll(). So, ravb_poll() could not call
+ravb_rx() in the next time until a new RX frame was received if
+ravb_rx() returned true. To fix the issue, always calls ravb_rx()
+regardless the interrupt flags condition.
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/davinci_emac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/renesas/ravb_main.c | 35 ++++++++----------------
+ 1 file changed, 12 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/davinci_emac.c b/drivers/net/ethernet/ti/davinci_emac.c
-index ae27be85e363..7cc09a6f9f9a 100644
---- a/drivers/net/ethernet/ti/davinci_emac.c
-+++ b/drivers/net/ethernet/ti/davinci_emac.c
-@@ -169,11 +169,11 @@ static const char emac_version_string[] = "TI DaVinci EMAC Linux v6.1";
- /* EMAC mac_status register */
- #define EMAC_MACSTATUS_TXERRCODE_MASK	(0xF00000)
- #define EMAC_MACSTATUS_TXERRCODE_SHIFT	(20)
--#define EMAC_MACSTATUS_TXERRCH_MASK	(0x7)
-+#define EMAC_MACSTATUS_TXERRCH_MASK	(0x70000)
- #define EMAC_MACSTATUS_TXERRCH_SHIFT	(16)
- #define EMAC_MACSTATUS_RXERRCODE_MASK	(0xF000)
- #define EMAC_MACSTATUS_RXERRCODE_SHIFT	(12)
--#define EMAC_MACSTATUS_RXERRCH_MASK	(0x7)
-+#define EMAC_MACSTATUS_RXERRCH_MASK	(0x700)
- #define EMAC_MACSTATUS_RXERRCH_SHIFT	(8)
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index 551799fb3842..9208a72fe17e 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -911,31 +911,20 @@ static int ravb_poll(struct napi_struct *napi, int budget)
+ 	int q = napi - priv->napi;
+ 	int mask = BIT(q);
+ 	int quota = budget;
+-	u32 ris0, tis;
  
- /* EMAC RX register masks */
+-	for (;;) {
+-		tis = ravb_read(ndev, TIS);
+-		ris0 = ravb_read(ndev, RIS0);
+-		if (!((ris0 & mask) || (tis & mask)))
+-			break;
++	/* Processing RX Descriptor Ring */
++	/* Clear RX interrupt */
++	ravb_write(ndev, ~(mask | RIS0_RESERVED), RIS0);
++	if (ravb_rx(ndev, &quota, q))
++		goto out;
+ 
+-		/* Processing RX Descriptor Ring */
+-		if (ris0 & mask) {
+-			/* Clear RX interrupt */
+-			ravb_write(ndev, ~(mask | RIS0_RESERVED), RIS0);
+-			if (ravb_rx(ndev, &quota, q))
+-				goto out;
+-		}
+-		/* Processing TX Descriptor Ring */
+-		if (tis & mask) {
+-			spin_lock_irqsave(&priv->lock, flags);
+-			/* Clear TX interrupt */
+-			ravb_write(ndev, ~(mask | TIS_RESERVED), TIS);
+-			ravb_tx_free(ndev, q, true);
+-			netif_wake_subqueue(ndev, q);
+-			spin_unlock_irqrestore(&priv->lock, flags);
+-		}
+-	}
++	/* Processing RX Descriptor Ring */
++	spin_lock_irqsave(&priv->lock, flags);
++	/* Clear TX interrupt */
++	ravb_write(ndev, ~(mask | TIS_RESERVED), TIS);
++	ravb_tx_free(ndev, q, true);
++	netif_wake_subqueue(ndev, q);
++	spin_unlock_irqrestore(&priv->lock, flags);
+ 
+ 	napi_complete(napi);
+ 
 -- 
 2.30.2
 
