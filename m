@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3AF237C364
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3D037C36A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232756AbhELPSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50484 "EHLO mail.kernel.org"
+        id S233633AbhELPSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:18:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234401AbhELPQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A4226199F;
-        Wed, 12 May 2021 15:06:41 +0000 (UTC)
+        id S234411AbhELPQs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A55E861955;
+        Wed, 12 May 2021 15:06:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832001;
-        bh=ggCQpBeM2JRKY7bpvBaPrhmFbtbPgeDzF/fRmH+Asxw=;
+        s=korg; t=1620832004;
+        bh=/E1tmdReGz+1h0t+MJ+ZpO0Bryrlag9Cmbo86gm/fPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evQkdYUnvz/22wgd4I7pMf2ub2wDCJMFMa3kC9rgzvEbTp5IlcRos3AsGWMLimriS
-         J905iXCw585X+70dTrEmC0o9WRfidl4h6uWKZvnQhsxZOKWfYhCs2SHBUBl3Xd8Xiu
-         FVVxXd5bnQcPhH4cujFqwa4kHq8YJlxJavUI8L6k=
+        b=AD9HdzyNXPec9vaFNCZYewlDiMK2MDUMaKU80tpNpQwHr43wEtiYJuifKVvWxTmny
+         ccc8L5mrhKtPCH2WeQfHYJ0QR7Qw35rAasZmNvdVbbLdG7t53j51E+vmC3jZ4setmF
+         gB7OEZ6Vv7fuZV10yghqtNMMXjvMJ4ziwgrdJyUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Gavin Shan <gshan@redhat.com>, Marc Zyngier <maz@kernel.org>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.10 100/530] KVM: arm/arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST read
-Date:   Wed, 12 May 2021 16:43:30 +0200
-Message-Id: <20210512144823.087154304@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 101/530] KVM: Destroy I/O bus devices on unregister failure _after_ syncing SRCU
+Date:   Wed, 12 May 2021 16:43:31 +0200
+Message-Id: <20210512144823.120673628@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,42 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 94ac0835391efc1a30feda6fc908913ec012951e upstream.
+commit 2ee3757424be7c1cd1d0bbfa6db29a7edd82a250 upstream.
 
-When reading the base address of the a REDIST region
-through KVM_VGIC_V3_ADDR_TYPE_REDIST we expect the
-redistributor region list to be populated with a single
-element.
+If allocating a new instance of an I/O bus fails when unregistering a
+device, wait to destroy the device until after all readers are guaranteed
+to see the new null bus.  Destroying devices before the bus is nullified
+could lead to use-after-free since readers expect the devices on their
+reference of the bus to remain valid.
 
-However list_first_entry() expects the list to be non empty.
-Instead we should use list_first_entry_or_null which effectively
-returns NULL if the list is empty.
-
-Fixes: dbd9733ab674 ("KVM: arm/arm64: Replace the single rdist region by a list")
-Cc: <Stable@vger.kernel.org> # v4.18+
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Reported-by: Gavin Shan <gshan@redhat.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210412150034.29185-1-eric.auger@redhat.com
+Fixes: f65886606c2d ("KVM: fix memory leak in kvm_io_bus_unregister_dev()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210412222050.876100-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/vgic/vgic-kvm-device.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ virt/kvm/kvm_main.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/kvm/vgic/vgic-kvm-device.c
-+++ b/arch/arm64/kvm/vgic/vgic-kvm-device.c
-@@ -87,8 +87,8 @@ int kvm_vgic_addr(struct kvm *kvm, unsig
- 			r = vgic_v3_set_redist_base(kvm, 0, *addr, 0);
- 			goto out;
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4367,7 +4367,13 @@ void kvm_io_bus_unregister_dev(struct kv
+ 		new_bus->dev_count--;
+ 		memcpy(new_bus->range + i, bus->range + i + 1,
+ 				flex_array_size(new_bus, range, new_bus->dev_count - i));
+-	} else {
++	}
++
++	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
++	synchronize_srcu_expedited(&kvm->srcu);
++
++	/* Destroy the old bus _after_ installing the (null) bus. */
++	if (!new_bus) {
+ 		pr_err("kvm: failed to shrink bus, removing it completely\n");
+ 		for (j = 0; j < bus->dev_count; j++) {
+ 			if (j == i)
+@@ -4376,8 +4382,6 @@ void kvm_io_bus_unregister_dev(struct kv
  		}
--		rdreg = list_first_entry(&vgic->rd_regions,
--					 struct vgic_redist_region, list);
-+		rdreg = list_first_entry_or_null(&vgic->rd_regions,
-+						 struct vgic_redist_region, list);
- 		if (!rdreg)
- 			addr_ptr = &undef_value;
- 		else
+ 	}
+ 
+-	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
+-	synchronize_srcu_expedited(&kvm->srcu);
+ 	kfree(bus);
+ 	return;
+ }
 
 
