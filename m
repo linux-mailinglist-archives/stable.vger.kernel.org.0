@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D402137C1D9
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2E037C207
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231902AbhELPFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:05:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
+        id S232515AbhELPGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:06:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232328AbhELPDJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:03:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C22E5616E9;
-        Wed, 12 May 2021 14:58:19 +0000 (UTC)
+        id S232442AbhELPDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:03:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EE6D616ED;
+        Wed, 12 May 2021 14:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831500;
-        bh=JrvIiW/qHHM9SLnA5IfAcParDd5L5y2qxO9yu/1Fw+c=;
+        s=korg; t=1620831503;
+        bh=atcl2bslWHhjC1NOXitL0LJbkcdSw3KpkVkvQaziwr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QLw9I8LqIIPRTJMZ/5FWVyTZY+jBQaqT1mdTeGyT4kMIf83Sip5PrNQF7mPhYMdgS
-         ikVOoOixFafoan1Favw6GuIjvtSf1Y/1Wy7Zgh1MbJpe2//c3nSBZ6josUW8zXyEV4
-         B9sZdxET5iC/5yLW3lj/WBvZxGmQW0phYWBLhB14=
+        b=OgEM9pRdFhSobxduSKAXuPdT73siB9bHB3IRMiAS/+fgFWKWXtXZVpkckhkbCBhmN
+         Lp1Dbu0a8ciyFXTbAkwK/XuR0BmlaO212HW8/XK2IwtHI2byaSHlV/pLBc93XCF7bs
+         WZk4VAKv2OWsOP2epE8ACUpJxc78siDZapHqngIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 144/244] media: m88rs6000t: avoid potential out-of-bounds reads on arrays
-Date:   Wed, 12 May 2021 16:48:35 +0200
-Message-Id: <20210512144747.619046190@linuxfoundation.org>
+Subject: [PATCH 5.4 145/244] drm/amdkfd: fix build error with AMD_IOMMU_V2=m
+Date:   Wed, 12 May 2021 16:48:36 +0200
+Message-Id: <20210512144747.649540300@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,54 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Felix Kuehling <Felix.Kuehling@amd.com>
 
-[ Upstream commit 9baa3d64e8e2373ddd11c346439e5dfccb2cbb0d ]
+[ Upstream commit 1e87068570a2cc4db5f95a881686add71729e769 ]
 
-There a 3 array for-loops that don't check the upper bounds of the
-index into arrays and this may lead to potential out-of-bounds
-reads.  Fix this by adding array size upper bounds checks to be
-full safe.
+Using 'imply AMD_IOMMU_V2' does not guarantee that the driver can link
+against the exported functions. If the GPU driver is built-in but the
+IOMMU driver is a loadable module, the kfd_iommu.c file is indeed
+built but does not work:
 
-Addresses-Coverity: ("Out-of-bounds read")
+x86_64-linux-ld: drivers/gpu/drm/amd/amdkfd/kfd_iommu.o: in function `kfd_iommu_bind_process_to_device':
+kfd_iommu.c:(.text+0x516): undefined reference to `amd_iommu_bind_pasid'
+x86_64-linux-ld: drivers/gpu/drm/amd/amdkfd/kfd_iommu.o: in function `kfd_iommu_unbind_process':
+kfd_iommu.c:(.text+0x691): undefined reference to `amd_iommu_unbind_pasid'
+x86_64-linux-ld: drivers/gpu/drm/amd/amdkfd/kfd_iommu.o: in function `kfd_iommu_suspend':
+kfd_iommu.c:(.text+0x966): undefined reference to `amd_iommu_set_invalidate_ctx_cb'
+x86_64-linux-ld: kfd_iommu.c:(.text+0x97f): undefined reference to `amd_iommu_set_invalid_ppr_cb'
+x86_64-linux-ld: kfd_iommu.c:(.text+0x9a4): undefined reference to `amd_iommu_free_device'
+x86_64-linux-ld: drivers/gpu/drm/amd/amdkfd/kfd_iommu.o: in function `kfd_iommu_resume':
+kfd_iommu.c:(.text+0xa9a): undefined reference to `amd_iommu_init_device'
+x86_64-linux-ld: kfd_iommu.c:(.text+0xadc): undefined reference to `amd_iommu_set_invalidate_ctx_cb'
+x86_64-linux-ld: kfd_iommu.c:(.text+0xaff): undefined reference to `amd_iommu_set_invalid_ppr_cb'
+x86_64-linux-ld: kfd_iommu.c:(.text+0xc72): undefined reference to `amd_iommu_bind_pasid'
+x86_64-linux-ld: kfd_iommu.c:(.text+0xe08): undefined reference to `amd_iommu_set_invalidate_ctx_cb'
+x86_64-linux-ld: kfd_iommu.c:(.text+0xe26): undefined reference to `amd_iommu_set_invalid_ppr_cb'
+x86_64-linux-ld: kfd_iommu.c:(.text+0xe42): undefined reference to `amd_iommu_free_device'
 
-Link: https://lore.kernel.org/linux-media/20201007121628.20676-1-colin.king@canonical.com
-Fixes: 333829110f1d ("[media] m88rs6000t: add new dvb-s/s2 tuner for integrated chip M88RS6000")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Use IS_REACHABLE to only build IOMMU-V2 support if the amd_iommu symbols
+are reachable by the amdkfd driver. Output a warning if they are not,
+because that may not be what the user was expecting.
+
+Fixes: 64d1c3a43a6f ("drm/amdkfd: Centralize IOMMUv2 code and make it conditional")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/tuners/m88rs6000t.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_iommu.c | 6 ++++++
+ drivers/gpu/drm/amd/amdkfd/kfd_iommu.h | 9 +++++++--
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/tuners/m88rs6000t.c b/drivers/media/tuners/m88rs6000t.c
-index b3505f402476..8647c50b66e5 100644
---- a/drivers/media/tuners/m88rs6000t.c
-+++ b/drivers/media/tuners/m88rs6000t.c
-@@ -525,7 +525,7 @@ static int m88rs6000t_get_rf_strength(struct dvb_frontend *fe, u16 *strength)
- 	PGA2_cri = PGA2_GC >> 2;
- 	PGA2_crf = PGA2_GC & 0x03;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_iommu.c b/drivers/gpu/drm/amd/amdkfd/kfd_iommu.c
+index 5f35df23fb18..9266c8e76be7 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_iommu.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_iommu.c
+@@ -20,6 +20,10 @@
+  * OTHER DEALINGS IN THE SOFTWARE.
+  */
  
--	for (i = 0; i <= RF_GC; i++)
-+	for (i = 0; i <= RF_GC && i < ARRAY_SIZE(RFGS); i++)
- 		RFG += RFGS[i];
++#include <linux/kconfig.h>
++
++#if IS_REACHABLE(CONFIG_AMD_IOMMU_V2)
++
+ #include <linux/printk.h>
+ #include <linux/device.h>
+ #include <linux/slab.h>
+@@ -358,3 +362,5 @@ int kfd_iommu_add_perf_counters(struct kfd_topology_device *kdev)
  
- 	if (RF_GC == 0)
-@@ -537,12 +537,12 @@ static int m88rs6000t_get_rf_strength(struct dvb_frontend *fe, u16 *strength)
- 	if (RF_GC == 3)
- 		RFG += 100;
+ 	return 0;
+ }
++
++#endif
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_iommu.h b/drivers/gpu/drm/amd/amdkfd/kfd_iommu.h
+index dd23d9fdf6a8..afd420b01a0c 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_iommu.h
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_iommu.h
+@@ -23,7 +23,9 @@
+ #ifndef __KFD_IOMMU_H__
+ #define __KFD_IOMMU_H__
  
--	for (i = 0; i <= IF_GC; i++)
-+	for (i = 0; i <= IF_GC && i < ARRAY_SIZE(IFGS); i++)
- 		IFG += IFGS[i];
+-#if defined(CONFIG_AMD_IOMMU_V2_MODULE) || defined(CONFIG_AMD_IOMMU_V2)
++#include <linux/kconfig.h>
++
++#if IS_REACHABLE(CONFIG_AMD_IOMMU_V2)
  
- 	TIAG = TIA_GC * TIA_GS;
+ #define KFD_SUPPORT_IOMMU_V2
  
--	for (i = 0; i <= BB_GC; i++)
-+	for (i = 0; i <= BB_GC && i < ARRAY_SIZE(BBGS); i++)
- 		BBG += BBGS[i];
+@@ -46,6 +48,9 @@ static inline int kfd_iommu_check_device(struct kfd_dev *kfd)
+ }
+ static inline int kfd_iommu_device_init(struct kfd_dev *kfd)
+ {
++#if IS_MODULE(CONFIG_AMD_IOMMU_V2)
++	WARN_ONCE(1, "iommu_v2 module is not usable by built-in KFD");
++#endif
+ 	return 0;
+ }
  
- 	PGA2G = PGA2_cri * PGA2_cri_GS + PGA2_crf * PGA2_crf_GS;
+@@ -73,6 +78,6 @@ static inline int kfd_iommu_add_perf_counters(struct kfd_topology_device *kdev)
+ 	return 0;
+ }
+ 
+-#endif /* defined(CONFIG_AMD_IOMMU_V2) */
++#endif /* IS_REACHABLE(CONFIG_AMD_IOMMU_V2) */
+ 
+ #endif /* __KFD_IOMMU_H__ */
 -- 
 2.30.2
 
