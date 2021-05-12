@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5164737BAF2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C5E37BAEF
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230178AbhELKlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:41:35 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:45209 "EHLO
+        id S230160AbhELKl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:41:27 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:47165 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230019AbhELKlf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:41:35 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id F0ECB12EC;
-        Wed, 12 May 2021 06:40:26 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 06:40:27 -0400
+        by vger.kernel.org with ESMTP id S230149AbhELKl0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:41:26 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id C1F331264;
+        Wed, 12 May 2021 06:40:18 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 12 May 2021 06:40:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hdN8RX
-        07savE4ZoxiU9ibjOFcrMy3vM+yckn4hU5ymY=; b=QA9XGq93BnYdCTVN0G95f/
-        DF9fkxDMvrgHujmYsYCo5ZeYDLasTCRCxX6ctIkRWVB4OEM4qomX9cerEfBwvR6M
-        0Z5+kXTWf5cv0wZbG7+CRQzYsgJSMwrbWAl4HGaafCgMVZeWtrT5qAs/lszCpLwy
-        4VfJkIPr5Be0HcPMADZ3I4aBNJE3lOtx8QQnssXgjiV7QaKqgWixgJnAj8F3Gkvw
-        YPpFwtDBgMmuuK6VGZ2Ma0ZU5B1CQsPUpEAGHupRyHYGj0QH6nEYOJeD9ku7nMMZ
-        ztLIWYZAtExNuRyykFAhnd9qqJ9L8MfJ5gQdQH4pz+ctQtIqjsK75+zgREbq0TxQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=HvgWRW
+        2NzQSu75fruLAXgNBIRjz6Ruk5a7vCeYx9CPk=; b=KooVpvZtySpAHk6kBnTZjA
+        yPKp8XX8olZZ7o9+K99YIUtUeYD/DMRkfrVfqTD8Ju+Hpq/3uPITXkImmPb/osEb
+        4R4vKZhcx6pgB4Jk3/xn7HRsOf88uOryus/w+/CH/OjsJNaiDzOoU2zkteRTtFiL
+        NJA1hQGO1DKokiatvAh91thJf+mrLzyaFilkEy8k05P7qrtXMKlM/xWsyLy+gZte
+        1ekxcmNtAsP0xQMKv5E2rrGH4XvqSRVRAHfaGYrVlX63QjxTx1wrGzjPtLYVFGTW
+        WBAzTxd/QoRQl7jipJLwDyxSyS06rTL7mIyYYSQxTaJAcr8HMDQYkqiQRZs6XceA
         ==
-X-ME-Sender: <xms:mrCbYAn9_6wFYwx75fUFIb0Kc3bz1HtwbKxMwcYPhyG4CRwLGSbakw>
-    <xme:mrCbYP3ulgBlKEDUaWPtm4_AKf76JQcBy07qi4l--cIrADJCaxMCOfQbYt51NN0kj
-    jNF0Q9nrZ0Msw>
+X-ME-Sender: <xms:kbCbYCHr3dfmIRbZYnUlT2ngG0otz4EI2ejtBMjSkG27Prm5ZC3E1w>
+    <xme:kbCbYDXfHvPWcTsIZIZpFxqT9eLAip0IBBfn2Ffs1cbIRViGkL58IcehWNF66pzie
+    MF9krMkSt3KCQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepkeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:mrCbYOpnl4msp5HnsM0qFDhTaObYLbo37vk5zCFDp8HhglArlr9FfA>
-    <xmx:mrCbYMnmbpmyTK2TGpU9mmyF2lCh2KT_sMA3Iq5YttY9uIZMcy805A>
-    <xmx:mrCbYO2dIEM-3K-44IyddNa6NK4Pb5bZK_G8NvcHFk2xU-gT0ihD1Q>
-    <xmx:mrCbYD_YLUmXSuZshhCD2xM1EJUOTcfkGw6WSs_f-m3NstKAtlQon7OMfJU>
+X-ME-Proxy: <xmx:kbCbYML_6vLjJPOeqrm8VG_CscS5lSOa4zLg4L3LA7UaHIBfy8cyQg>
+    <xmx:kbCbYMGdktdGFZEnyeWFMozbIFVuXWijRVV7z8eDuyICHeVtJK1wLQ>
+    <xmx:kbCbYIVVWIs_BY1AJHDK85Ca2WW48xbwJr-TKgWgZaAZBPBiBPEW3A>
+    <xmx:krCbYBeTe-LW_cg1ixa5Pu_-rgKMb-UMZIJ7xWmULOgk1ahaqS-rNox2a0Y>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:40:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: X86: Do not yield to self" failed to apply to 5.11-stable tree
+        Wed, 12 May 2021 06:40:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: X86: Do not yield to self" failed to apply to 5.12-stable tree
 To:     wanpengli@tencent.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 12 May 2021 12:40:16 +0200
-Message-ID: <162081601615561@kroah.com>
+Message-ID: <162081601617848@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
