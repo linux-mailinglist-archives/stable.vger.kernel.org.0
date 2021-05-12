@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B094637CCC9
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3FD37CDE2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235268AbhELQrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:47:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57842 "EHLO mail.kernel.org"
+        id S245745AbhELQ7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:59:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243561AbhELQlc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243564AbhELQlc (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:41:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4654C61CE4;
-        Wed, 12 May 2021 16:04:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB5086194A;
+        Wed, 12 May 2021 16:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835492;
-        bh=uT4St2Xmo4LGUuzGAYbLPQpZNkJ7+0Vm+KVqVISREpQ=;
+        s=korg; t=1620835495;
+        bh=JrvIiW/qHHM9SLnA5IfAcParDd5L5y2qxO9yu/1Fw+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JaKTtWl1X8K8wThtdQfSaPqSSvQOG4E/wzFkjJJZPjET+t2kLD4yoZ5Ncs+onNfTa
-         vnDvqgwjRSTDX7uddAcsIPA6+5v+Y1A0uOyWTYDHH0NAEcqAPBkHjGzktSJuGMKAGF
-         +rUhJatk1Rmd6EWL+WaxXnB30qw6RzilQQkSM0S0=
+        b=l4wRv0gMU7c/+9ekROo3MDwnnazKT/B8JVVVTRrJfIFIdDPkn8Pe5qVX7s0sCcV2z
+         UVE9VeSUyWXJoGgqrKdRPF0HSxtxBHdeO8zFTgL7Tp5AFEcWznSAHw2zJh7vE3lt3R
+         qkPLIsUKYYyC2BZpnH2l/18eeysdl3QLSZ/n4eRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Souptick Joarder <jrdr.linux@gmail.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 365/677] media: atomisp: Fixed error handling path
-Date:   Wed, 12 May 2021 16:46:51 +0200
-Message-Id: <20210512144849.456352759@linuxfoundation.org>
+Subject: [PATCH 5.12 366/677] media: m88rs6000t: avoid potential out-of-bounds reads on arrays
+Date:   Wed, 12 May 2021 16:46:52 +0200
+Message-Id: <20210512144849.488363864@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,87 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souptick Joarder <jrdr.linux@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 16a5dcf7fbc2f5cd10c1e6264262bfa3832fb7d5 ]
+[ Upstream commit 9baa3d64e8e2373ddd11c346439e5dfccb2cbb0d ]
 
-Inside alloc_user_pages() based on flag value either pin_user_pages()
-or get_user_pages_fast() will be called. However, these API might fail.
+There a 3 array for-loops that don't check the upper bounds of the
+index into arrays and this may lead to potential out-of-bounds
+reads.  Fix this by adding array size upper bounds checks to be
+full safe.
 
-But free_user_pages() called in error handling path doesn't bother
-about return value and will try to unpin bo->pgnr pages, which is
-incorrect.
+Addresses-Coverity: ("Out-of-bounds read")
 
-Fix this by passing the page_nr to free_user_pages(). If page_nr > 0
-pages will be unpinned based on bo->mem_type. This will also take care
-of non error handling path.
-
-allocation")
-
-Link: https://lore.kernel.org/linux-media/1601219284-13275-1-git-send-email-jrdr.linux@gmail.com
-Fixes: 14a638ab96c5 ("media: atomisp: use pin_user_pages() for memory
-Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/linux-media/20201007121628.20676-1-colin.king@canonical.com
+Fixes: 333829110f1d ("[media] m88rs6000t: add new dvb-s/s2 tuner for integrated chip M88RS6000")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/hmm/hmm_bo.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/media/tuners/m88rs6000t.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/hmm/hmm_bo.c b/drivers/staging/media/atomisp/pci/hmm/hmm_bo.c
-index f13af2329f48..0168f9839c90 100644
---- a/drivers/staging/media/atomisp/pci/hmm/hmm_bo.c
-+++ b/drivers/staging/media/atomisp/pci/hmm/hmm_bo.c
-@@ -857,16 +857,17 @@ static void free_private_pages(struct hmm_buffer_object *bo,
- 	kfree(bo->page_obj);
- }
+diff --git a/drivers/media/tuners/m88rs6000t.c b/drivers/media/tuners/m88rs6000t.c
+index b3505f402476..8647c50b66e5 100644
+--- a/drivers/media/tuners/m88rs6000t.c
++++ b/drivers/media/tuners/m88rs6000t.c
+@@ -525,7 +525,7 @@ static int m88rs6000t_get_rf_strength(struct dvb_frontend *fe, u16 *strength)
+ 	PGA2_cri = PGA2_GC >> 2;
+ 	PGA2_crf = PGA2_GC & 0x03;
  
--static void free_user_pages(struct hmm_buffer_object *bo)
-+static void free_user_pages(struct hmm_buffer_object *bo,
-+			    unsigned int page_nr)
- {
- 	int i;
+-	for (i = 0; i <= RF_GC; i++)
++	for (i = 0; i <= RF_GC && i < ARRAY_SIZE(RFGS); i++)
+ 		RFG += RFGS[i];
  
- 	hmm_mem_stat.usr_size -= bo->pgnr;
+ 	if (RF_GC == 0)
+@@ -537,12 +537,12 @@ static int m88rs6000t_get_rf_strength(struct dvb_frontend *fe, u16 *strength)
+ 	if (RF_GC == 3)
+ 		RFG += 100;
  
- 	if (bo->mem_type == HMM_BO_MEM_TYPE_PFN) {
--		unpin_user_pages(bo->pages, bo->pgnr);
-+		unpin_user_pages(bo->pages, page_nr);
- 	} else {
--		for (i = 0; i < bo->pgnr; i++)
-+		for (i = 0; i < page_nr; i++)
- 			put_page(bo->pages[i]);
- 	}
- 	kfree(bo->pages);
-@@ -942,6 +943,8 @@ static int alloc_user_pages(struct hmm_buffer_object *bo,
- 		dev_err(atomisp_dev,
- 			"get_user_pages err: bo->pgnr = %d, pgnr actually pinned = %d.\n",
- 			bo->pgnr, page_nr);
-+		if (page_nr < 0)
-+			page_nr = 0;
- 		goto out_of_mem;
- 	}
+-	for (i = 0; i <= IF_GC; i++)
++	for (i = 0; i <= IF_GC && i < ARRAY_SIZE(IFGS); i++)
+ 		IFG += IFGS[i];
  
-@@ -954,7 +957,7 @@ static int alloc_user_pages(struct hmm_buffer_object *bo,
+ 	TIAG = TIA_GC * TIA_GS;
  
- out_of_mem:
+-	for (i = 0; i <= BB_GC; i++)
++	for (i = 0; i <= BB_GC && i < ARRAY_SIZE(BBGS); i++)
+ 		BBG += BBGS[i];
  
--	free_user_pages(bo);
-+	free_user_pages(bo, page_nr);
- 
- 	return -ENOMEM;
- }
-@@ -1037,7 +1040,7 @@ void hmm_bo_free_pages(struct hmm_buffer_object *bo)
- 	if (bo->type == HMM_BO_PRIVATE)
- 		free_private_pages(bo, &dynamic_pool, &reserved_pool);
- 	else if (bo->type == HMM_BO_USER)
--		free_user_pages(bo);
-+		free_user_pages(bo, bo->pgnr);
- 	else
- 		dev_err(atomisp_dev, "invalid buffer type.\n");
- 	mutex_unlock(&bo->mutex);
+ 	PGA2G = PGA2_cri * PGA2_cri_GS + PGA2_crf * PGA2_crf_GS;
 -- 
 2.30.2
 
