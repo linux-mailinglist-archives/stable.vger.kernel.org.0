@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D0237CBBF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66C9D37CBC2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236285AbhELQhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:37:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46720 "EHLO mail.kernel.org"
+        id S236606AbhELQhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:37:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231283AbhELQ2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:28:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7067D6187E;
-        Wed, 12 May 2021 15:56:11 +0000 (UTC)
+        id S234087AbhELQ2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:28:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB79961936;
+        Wed, 12 May 2021 15:56:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834972;
-        bh=AfPs3V9N5lrToc/yNlhtmH+SLviDHvncSLuv9nnMneY=;
+        s=korg; t=1620834974;
+        bh=s6ooNlwQdXo7YqgkRh3gcTgX+pdykZEMcqpxkxJUl/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCuFD7aKH1mTAC8y8uZMuV3jdTfGfZrKRnrkuwnp628zM+e+o5vq+Mb0nCVKa3FSV
-         Na68zZBN1wwNEiYqH4eLbzhDGlhzcxco3htQnKpF6ubTI6Tlv1mvrAsRnsBE7bwZ48
-         +GtEwns9dmF3qhjA/3stdrWWa6ZGeaZLQIZhWCH4=
+        b=f+Cb1fD2dkVWkfF62toMfYtpx+JrJCgnJLsEvvbhJw9HCAQEnIjiqqPpc2iasN1pb
+         ailhTC43TujLX9XuFnx6/E8CoynWUU2biQbaW31xwUCxrPRvIsCCQ81u0pgFmEjOyp
+         XXGPzfxEP1Bu4doqE0zixw5ObhIBQ7wbsS80ZSuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Travis <mike.travis@hpe.com>,
-        Borislav Petkov <bp@suse.de>, Steve Wahl <steve.wahl@hpe.com>,
-        Russ Anderson <rja@hpe.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 158/677] x86/platform/uv: Set section block size for hubless architectures
-Date:   Wed, 12 May 2021 16:43:24 +0200
-Message-Id: <20210512144842.499738268@linuxfoundation.org>
+        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 159/677] serial: stm32: fix probe and remove order for dma
+Date:   Wed, 12 May 2021 16:43:25 +0200
+Message-Id: <20210512144842.531917183@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,47 +39,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Travis <mike.travis@hpe.com>
+From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit 6840a150b9daf35e4d21ab9780d0a03b4ed74a5b ]
+[ Upstream commit 87fd0741d6dcf63ebdb14050c2b921ae14c7f307 ]
 
-Commit
+The probe and remove orders are wrong as the uart_port is registered
+before saving device data in the probe, and unregistered after DMA
+resource deallocation in the remove. uart_port registering should be
+done at the end of probe and unregistering should be done at the begin of
+remove to avoid resource allocation issues.
 
-  bbbd2b51a2aa ("x86/platform/UV: Use new set memory block size function")
+Fix probe and remove orders. This enforce resource allocation occur at
+proper time.
+Terminate both DMA rx and tx transfers before removing device.
 
-added a call to set the block size value that is needed by the kernel
-to set the boundaries in the section list. This was done for UV Hubbed
-systems but missed in the UV Hubless setup. Fix that mistake by adding
-that same set call for hubless systems, which support the same NVRAMs
-and Intel BIOS, thus the same problem occurs.
+Move pm_runtime after uart_remove_one_port() call in remove() to keep the
+probe error path.
 
- [ bp: Massage commit message. ]
-
-Fixes: bbbd2b51a2aa ("x86/platform/UV: Use new set memory block size function")
-Signed-off-by: Mike Travis <mike.travis@hpe.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Steve Wahl <steve.wahl@hpe.com>
-Reviewed-by: Russ Anderson <rja@hpe.com>
-Link: https://lkml.kernel.org/r/20210305162853.299892-1-mike.travis@hpe.com
+Fixes: 3489187204eb ("serial: stm32: adding dma support")
+Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
+Link: https://lore.kernel.org/r/20210304162308.8984-2-erwan.leray@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/x2apic_uv_x.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/stm32-usart.c | 57 ++++++++++++++++++++++++--------
+ 1 file changed, 44 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/x2apic_uv_x.c b/arch/x86/kernel/apic/x2apic_uv_x.c
-index 52bc217ca8c3..c9ddd233e32f 100644
---- a/arch/x86/kernel/apic/x2apic_uv_x.c
-+++ b/arch/x86/kernel/apic/x2apic_uv_x.c
-@@ -1671,6 +1671,9 @@ static __init int uv_system_init_hubless(void)
- 	if (rc < 0)
- 		return rc;
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index b3675cf25a69..3d58824ac2af 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -1252,10 +1252,6 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
+ 		device_set_wakeup_enable(&pdev->dev, false);
+ 	}
  
-+	/* Set section block size for current node memory */
-+	set_block_size();
+-	ret = uart_add_one_port(&stm32_usart_driver, &stm32port->port);
+-	if (ret)
+-		goto err_wirq;
+-
+ 	ret = stm32_usart_of_dma_rx_probe(stm32port, pdev);
+ 	if (ret)
+ 		dev_info(&pdev->dev, "interrupt mode used for rx (no dma)\n");
+@@ -1269,11 +1265,40 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
+ 	pm_runtime_get_noresume(&pdev->dev);
+ 	pm_runtime_set_active(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
 +
- 	/* Create user access node */
- 	if (rc >= 0)
- 		uv_setup_proc_files(1);
++	ret = uart_add_one_port(&stm32_usart_driver, &stm32port->port);
++	if (ret)
++		goto err_port;
++
+ 	pm_runtime_put_sync(&pdev->dev);
+ 
+ 	return 0;
+ 
+-err_wirq:
++err_port:
++	pm_runtime_disable(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
++
++	if (stm32port->rx_ch) {
++		dmaengine_terminate_async(stm32port->rx_ch);
++		dma_release_channel(stm32port->rx_ch);
++	}
++
++	if (stm32port->rx_dma_buf)
++		dma_free_coherent(&pdev->dev,
++				  RX_BUF_L, stm32port->rx_buf,
++				  stm32port->rx_dma_buf);
++
++	if (stm32port->tx_ch) {
++		dmaengine_terminate_async(stm32port->tx_ch);
++		dma_release_channel(stm32port->tx_ch);
++	}
++
++	if (stm32port->tx_dma_buf)
++		dma_free_coherent(&pdev->dev,
++				  TX_BUF_L, stm32port->tx_buf,
++				  stm32port->tx_dma_buf);
++
+ 	if (stm32port->wakeirq > 0)
+ 		dev_pm_clear_wake_irq(&pdev->dev);
+ 
+@@ -1295,11 +1320,20 @@ static int stm32_usart_serial_remove(struct platform_device *pdev)
+ 	int err;
+ 
+ 	pm_runtime_get_sync(&pdev->dev);
++	err = uart_remove_one_port(&stm32_usart_driver, port);
++	if (err)
++		return(err);
++
++	pm_runtime_disable(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
+ 
+ 	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAR);
+ 
+-	if (stm32_port->rx_ch)
++	if (stm32_port->rx_ch) {
++		dmaengine_terminate_async(stm32_port->rx_ch);
+ 		dma_release_channel(stm32_port->rx_ch);
++	}
+ 
+ 	if (stm32_port->rx_dma_buf)
+ 		dma_free_coherent(&pdev->dev,
+@@ -1308,8 +1342,10 @@ static int stm32_usart_serial_remove(struct platform_device *pdev)
+ 
+ 	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+ 
+-	if (stm32_port->tx_ch)
++	if (stm32_port->tx_ch) {
++		dmaengine_terminate_async(stm32_port->tx_ch);
+ 		dma_release_channel(stm32_port->tx_ch);
++	}
+ 
+ 	if (stm32_port->tx_dma_buf)
+ 		dma_free_coherent(&pdev->dev,
+@@ -1323,12 +1359,7 @@ static int stm32_usart_serial_remove(struct platform_device *pdev)
+ 
+ 	stm32_usart_deinit_port(stm32_port);
+ 
+-	err = uart_remove_one_port(&stm32_usart_driver, port);
+-
+-	pm_runtime_disable(&pdev->dev);
+-	pm_runtime_put_noidle(&pdev->dev);
+-
+-	return err;
++	return 0;
+ }
+ 
+ #ifdef CONFIG_SERIAL_STM32_CONSOLE
 -- 
 2.30.2
 
