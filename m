@@ -2,37 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 586D537C73C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C07FD37C725
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:59:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234559AbhELQAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:00:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38790 "EHLO mail.kernel.org"
+        id S234779AbhELP6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237871AbhELP4a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:56:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6611D61C1E;
-        Wed, 12 May 2021 15:28:43 +0000 (UTC)
+        id S235172AbhELPyT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:54:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84D4261452;
+        Wed, 12 May 2021 15:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833323;
-        bh=WpcLTHjKv5NQ1sL3+0oPPHvyRL2/Ps9DXZuV7pQtd/0=;
+        s=korg; t=1620833249;
+        bh=7IO0jrWpaOq7fs4yuFFvUh5SCkd/0eSWuK8yJbNIOl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=miPJf9UOsBgdSjKJ/HDCkfZMiJ1QcgAFPi/3fOsU7nNEwqr80mel7ot7aC7MgReSD
-         V2RAZing2pT3K0I/FA7d3M/PfvU2DM99LLpQ8JASsIt1i67DNsXPvWAN8x0OhqTr8E
-         5JR0rIE4ynFPmzuv9mHD7hWzu0K7xtGZiir4B+BQ=
+        b=1TJfx/qMCBRMP7eeTSwBlsfkI2PWwjV0/QSyTc1TGZnTrPSLc0UmMOK8UrwLimfHo
+         cDztvtTmSYGwNC1qi3GZouGfbBtGOrFsH6XbOjcnh9j+01aL9Eg91YGrv5KBV6e8nt
+         Ww3hYSSzTSw6WL0BBp+zG5wJbqz8FSXIwoHEVLjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Robert Foss <robert.foss@linaro.org>,
-        Xin Ji <xji@analogixsemi.com>, Sam Ravnborg <sam@ravnborg.org>,
-        dri-devel@lists.freedesktop.org,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH 5.11 069/601] drm: bridge: fix ANX7625 use of mipi_dsi_() functions
-Date:   Wed, 12 May 2021 16:42:26 +0200
-Message-Id: <20210512144830.091001249@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 076/601] ALSA: hda/realtek: Re-order ALC882 Sony quirk table entries
+Date:   Wed, 12 May 2021 16:42:33 +0200
+Message-Id: <20210512144830.333028662@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -44,46 +38,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ed01fca38717169fcb61bd45ad1c3750d9c40d59 upstream.
+commit b7529c18feecb1af92f9db08c8e7fe446a82d96d upstream.
 
-The Analogix DRM ANX7625 bridge driver uses mips_dsi_() function
-interfaces so it should select DRM_MIPI_DSI to prevent build errors.
+Just re-order the alc882_fixup_tbl[] entries for Sony devices for
+avoiding the oversight of the duplicated or unapplied item in future.
+No functional changes.
 
-ERROR: modpost: "mipi_dsi_attach" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
-ERROR: modpost: "mipi_dsi_device_register_full" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
-ERROR: modpost: "of_find_mipi_dsi_host_by_node" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
-ERROR: modpost: "mipi_dsi_device_unregister" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
-ERROR: modpost: "mipi_dsi_detach" [drivers/gpu/drm/bridge/analogix/anx7625.ko] undefined!
+Also Cc-to-stable for the further patch applications.
 
-Fixes: 8bdfc5dae4e3 ("drm/bridge: anx7625: Add anx7625 MIPI DSI/DPI to DP")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Cc: Xin Ji <xji@analogixsemi.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: dri-devel@lists.freedesktop.org
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Robert Foss <robert.foss@linaro.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210415183619.1431-1-rdunlap@infradead.org
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428112704.23967-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/analogix/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/bridge/analogix/Kconfig
-+++ b/drivers/gpu/drm/bridge/analogix/Kconfig
-@@ -30,6 +30,7 @@ config DRM_ANALOGIX_ANX7625
- 	tristate "Analogix Anx7625 MIPI to DP interface support"
- 	depends on DRM
- 	depends on OF
-+	select DRM_MIPI_DSI
- 	help
- 	  ANX7625 is an ultra-low power 4K mobile HD transmitter
- 	  designed for portable devices. It converts MIPI/DPI to
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2489,11 +2489,11 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1043, 0x835f, "Asus Eee 1601", ALC888_FIXUP_EEE1601),
+ 	SND_PCI_QUIRK(0x1043, 0x84bc, "ASUS ET2700", ALC887_FIXUP_ASUS_BASS),
+ 	SND_PCI_QUIRK(0x1043, 0x8691, "ASUS ROG Ranger VIII", ALC882_FIXUP_GPIO3),
++	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
++	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9047, "Sony Vaio TT", ALC889_FIXUP_VAIO_TT),
+ 	SND_PCI_QUIRK(0x104d, 0x905a, "Sony Vaio Z", ALC882_FIXUP_NO_PRIMARY_HP),
+ 	SND_PCI_QUIRK(0x104d, 0x9060, "Sony Vaio VPCL14M1R", ALC882_FIXUP_NO_PRIMARY_HP),
+-	SND_PCI_QUIRK(0x104d, 0x9043, "Sony Vaio VGC-LN51JGB", ALC882_FIXUP_NO_PRIMARY_HP),
+-	SND_PCI_QUIRK(0x104d, 0x9044, "Sony VAIO AiO", ALC882_FIXUP_NO_PRIMARY_HP),
+ 
+ 	/* All Apple entries are in codec SSIDs */
+ 	SND_PCI_QUIRK(0x106b, 0x00a0, "MacBookPro 3,1", ALC889_FIXUP_MBP_VREF),
 
 
