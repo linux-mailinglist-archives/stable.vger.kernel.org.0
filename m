@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3165D37CB31
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F99F37C7C8
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242457AbhELQev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:34:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
+        id S231848AbhELQCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241524AbhELQ13 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B802261DE7;
-        Wed, 12 May 2021 15:53:41 +0000 (UTC)
+        id S234909AbhELPyB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:54:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B67B561446;
+        Wed, 12 May 2021 15:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834822;
-        bh=YSA7hg98ZF8IfWKfHDwI/Pt5T9A9a4gvHlQZXdHQIqw=;
+        s=korg; t=1620833239;
+        bh=Uw9K11tGMSYAWa10MO0ETN8kW2f5ZzR1SCpbkRCrhHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hhuWf+Kc3vPLdTxcdWv6F/StTT8qpkd3i/jxFdpQZ9SiUHkdGEX9ikh1bB7g+iZZ4
-         jK+NaA2UprDLFTKscm7NINYuc92nVcR5q2/CqNjUmYlYJ7Blijn7Zi0wobaas80qlP
-         /2H6V8CI6TFsGQiuNQ0E3upL2uF45Fw9v5Ngq1oY=
+        b=tNsJ2qURZYw8PiZM5bZW9jdMfjDgLpo7XI6mGsA1exuYDTLKLF0GfyRAJWp18LH8C
+         VC5qNQUaXRMAGGAS299WyRa86dysW7bFpH9/puWv2x6LjmeUKjj3bI08qW21VKB4EK
+         oxhr768KBxlvnISib4vm0CQO0Osg5m5Ec5i+MkHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Loone <sami@loone.fi>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 097/677] ALSA: hda/realtek: ALC285 Thinkpad jack pin quirk is unreachable
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.11 066/601] drm/radeon: fix copy of uninitialized variable back to userspace
 Date:   Wed, 12 May 2021 16:42:23 +0200
-Message-Id: <20210512144840.435794467@linuxfoundation.org>
+Message-Id: <20210512144829.986902507@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-References: <20210512144837.204217980@linuxfoundation.org>
+In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
+References: <20210512144827.811958675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Loone <sami@loone.fi>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 266fd994b2b0ab7ba3e5541868838ce30775964b upstream.
+commit 8dbc2ccac5a65c5b57e3070e36a3dc97c7970d96 upstream.
 
-In 9bbb94e57df1 ("ALSA: hda/realtek: fix static noise on ALC285 Lenovo
-laptops") an existing Lenovo quirk was made more generic by removing a
-0x12 pin requirement from the entry. This made the second chance table
-Thinkpad jack entry unreachable as the pin configurations became
-identical.
+Currently the ioctl command RADEON_INFO_SI_BACKEND_ENABLED_MASK can
+copy back uninitialised data in value_tmp that pointer *value points
+to. This can occur when rdev->family is less than CHIP_BONAIRE and
+less than CHIP_TAHITI.  Fix this by adding in a missing -EINVAL
+so that no invalid value is copied back to userspace.
 
-Revert the 0x12 pin requirement removal and move Thinkpad jack pin quirk
-back to the primary pin table as they can co-exist when more specific
-configurations come first.
-
-Add a more targeted pin quirk for Lenovo devices that have 0x12 as
-0x40000000.
-
-Tested on Yoga 6 (AMD) laptop.
-
-[ Corrected the commit ID -- tiwai ]
-
-Fixes: 9bbb94e57df1 ("ALSA: hda/realtek: fix static noise on ALC285 Lenovo laptops")
-Signed-off-by: Sami Loone <sami@loone.fi>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YI0oefvTYn8URYDb@yoga
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Addresses-Coverity: ("Uninitialized scalar variable)
+Cc: stable@vger.kernel.org # 3.13+
+Fixes: 439a1cfffe2c ("drm/radeon: expose render backend mask to the userspace")
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/radeon/radeon_kms.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8775,6 +8775,16 @@ static const struct snd_hda_pin_quirk al
- 		{0x19, 0x03a11020},
- 		{0x21, 0x0321101f}),
- 	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_LENOVO_PC_BEEP_IN_NOISE,
-+		{0x12, 0x90a60130},
-+		{0x14, 0x90170110},
-+		{0x19, 0x04a11040},
-+		{0x21, 0x04211020}),
-+	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_LENOVO_PC_BEEP_IN_NOISE,
-+		{0x14, 0x90170110},
-+		{0x19, 0x04a11040},
-+		{0x1d, 0x40600001},
-+		{0x21, 0x04211020}),
-+	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
- 		{0x14, 0x90170110},
- 		{0x19, 0x04a11040},
- 		{0x21, 0x04211020}),
-@@ -8945,10 +8955,6 @@ static const struct snd_hda_pin_quirk al
- 	SND_HDA_PIN_QUIRK(0x10ec0274, 0x1028, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
- 		{0x19, 0x40000000},
- 		{0x1a, 0x40000000}),
--	SND_HDA_PIN_QUIRK(0x10ec0285, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
--		{0x14, 0x90170110},
--		{0x19, 0x04a11040},
--		{0x21, 0x04211020}),
- 	{}
- };
- 
+--- a/drivers/gpu/drm/radeon/radeon_kms.c
++++ b/drivers/gpu/drm/radeon/radeon_kms.c
+@@ -514,6 +514,7 @@ int radeon_info_ioctl(struct drm_device
+ 			*value = rdev->config.si.backend_enable_mask;
+ 		} else {
+ 			DRM_DEBUG_KMS("BACKEND_ENABLED_MASK is si+ only!\n");
++			return -EINVAL;
+ 		}
+ 		break;
+ 	case RADEON_INFO_MAX_SCLK:
 
 
