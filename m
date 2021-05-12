@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 898D937C2F5
+	by mail.lfdr.de (Postfix) with ESMTP id D2C4437C2F6
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231494AbhELPQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:16:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49534 "EHLO mail.kernel.org"
+        id S230474AbhELPQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:16:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232890AbhELPNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:13:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A40A61927;
-        Wed, 12 May 2021 15:03:50 +0000 (UTC)
+        id S233424AbhELPN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:13:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0C416162B;
+        Wed, 12 May 2021 15:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831830;
-        bh=UjnAqzkJ/7fV397oV7mifUaEZkXARNZXHKfnwtLGrE4=;
+        s=korg; t=1620831833;
+        bh=fZpUI3rCz+6dYp5VJQxrFTMQ6aYotIr8A3eRsTA98Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=olgeRdwsKLrr0h6RSd39gh85QQ+FDp14LnDdMnNfN+6i78pbFbs04YxgGtj7s3wjT
-         blvcN7xG9VPrEGwI6+JU09P7MumiU+tM8taqGE/7EfUwCV+Vr/+fz/oH5rh0Vbw2hz
-         Wt4/Fmu9BCSLRiVkuoJYIb7gy/GFiGSvhqn7mY0A=
+        b=YQnG1oZfFzsj3R3EWGtmB6Fig6g61dTU2o1P7VvMHsUx0WUnwvCqi/K7GP8WnYgDe
+         Nn7Ed1BaLoS4KiTihbmSDJ5iezrXN7cgB/xu+VCvxKGIQHvejJaeNLizwMHIn5hXF5
+         sNaQwifWtexbo4e5eQQW7woNgs3WLBypd+DzrT8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>,
-        Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 005/530] Revert "USB: cdc-acm: fix rounding error in TIOCSSERIAL"
-Date:   Wed, 12 May 2021 16:41:55 +0200
-Message-Id: <20210512144819.859709412@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.10 006/530] usb: roles: Call try_module_get() from usb_role_switch_find_by_fwnode()
+Date:   Wed, 12 May 2021 16:41:56 +0200
+Message-Id: <20210512144819.891588830@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,69 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 729f7955cb987c5b7d7e54c87c5ad71c789934f7 upstream.
+commit 3a2a91a2d51761557843996a66098eb7182b48b4 upstream.
 
-This reverts commit b401f8c4f492cbf74f3f59c9141e5be3071071bb.
+usb_role_switch_find_by_fwnode() returns a reference to the role-switch
+which must be put by calling usb_role_switch_put().
 
-The offending commit claimed that trying to set the values reported back
-by TIOCGSERIAL as a regular user could result in an -EPERM error when HZ
-is 250, but that was never the case.
+usb_role_switch_put() calls module_put(sw->dev.parent->driver->owner),
+add a matching try_module_get() to usb_role_switch_find_by_fwnode(),
+making it behave the same as the other usb_role_switch functions
+which return a reference.
 
-With HZ=250, the default 0.5 second value of close_delay is converted to
-125 jiffies when set and is converted back to 50 centiseconds by
-TIOCGSERIAL as expected (not 12 cs as was claimed, even if that was the
-case before an earlier fix).
+This avoids a WARN_ON being hit at kernel/module.c:1158 due to the
+module-refcount going below 0.
 
-Comparing the internal current and new jiffies values is just fine to
-determine if the value is about to change so drop the bogus workaround
-(which was also backported to stable).
-
-For completeness: With different default values for these parameters or
-with a HZ value not divisible by two, the lack of rounding when setting
-the default values in tty_port_init() could result in an -EPERM being
-returned, but this is hardly something we need to worry about.
-
-Cc: Anthony Mallet <anthony.mallet@laas.fr>
-Cc: stable@vger.kernel.org
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210408131602.27956-2-johan@kernel.org
+Fixes: c6919d5e0cd1 ("usb: roles: Add usb_role_switch_find_by_fwnode()")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210409124136.65591-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/usb/roles/class.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -942,7 +942,6 @@ static int set_serial_info(struct tty_st
- {
- 	struct acm *acm = tty->driver_data;
- 	unsigned int closing_wait, close_delay;
--	unsigned int old_closing_wait, old_close_delay;
- 	int retval = 0;
+--- a/drivers/usb/roles/class.c
++++ b/drivers/usb/roles/class.c
+@@ -189,6 +189,8 @@ usb_role_switch_find_by_fwnode(const str
+ 		return NULL;
  
- 	close_delay = msecs_to_jiffies(ss->close_delay * 10);
-@@ -950,17 +949,11 @@ static int set_serial_info(struct tty_st
- 			ASYNC_CLOSING_WAIT_NONE :
- 			msecs_to_jiffies(ss->closing_wait * 10);
+ 	dev = class_find_device_by_fwnode(role_class, fwnode);
++	if (dev)
++		WARN_ON(!try_module_get(dev->parent->driver->owner));
  
--	/* we must redo the rounding here, so that the values match */
--	old_close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
--	old_closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
--				ASYNC_CLOSING_WAIT_NONE :
--				jiffies_to_msecs(acm->port.closing_wait) / 10;
--
- 	mutex_lock(&acm->port.mutex);
- 
- 	if (!capable(CAP_SYS_ADMIN)) {
--		if ((ss->close_delay != old_close_delay) ||
--		    (ss->closing_wait != old_closing_wait))
-+		if ((close_delay != acm->port.close_delay) ||
-+		    (closing_wait != acm->port.closing_wait))
- 			retval = -EPERM;
- 		else
- 			retval = -EOPNOTSUPP;
+ 	return dev ? to_role_switch(dev) : NULL;
+ }
 
 
