@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C9D37CBC2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 724B337CBC5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236606AbhELQhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:37:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42878 "EHLO mail.kernel.org"
+        id S236725AbhELQhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:37:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234087AbhELQ2D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:28:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB79961936;
-        Wed, 12 May 2021 15:56:13 +0000 (UTC)
+        id S231783AbhELQ2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:28:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C3DC61937;
+        Wed, 12 May 2021 15:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834974;
-        bh=s6ooNlwQdXo7YqgkRh3gcTgX+pdykZEMcqpxkxJUl/I=;
+        s=korg; t=1620834976;
+        bh=iYd0n8KGS7OVvnUky4wYH+rPfV2YZt8v3fPxNhpzQoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+Cb1fD2dkVWkfF62toMfYtpx+JrJCgnJLsEvvbhJw9HCAQEnIjiqqPpc2iasN1pb
-         ailhTC43TujLX9XuFnx6/E8CoynWUU2biQbaW31xwUCxrPRvIsCCQ81u0pgFmEjOyp
-         XXGPzfxEP1Bu4doqE0zixw5ObhIBQ7wbsS80ZSuM=
+        b=MX9l0zPd7UnUPryfoITdezWMAVieg/TFenJIhF5GQ9rAVcO6D3twOcBD41soNtIJR
+         O/CMJvckCrD+pCSQ5ugMQSP3LWES80rkuKs8qTwpAmTMO5aGpcemI46TBvdTI8VNQ6
+         DsjSzacbEmoGzfD36LWA5i3wpx8irNEp+bUtRTjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 159/677] serial: stm32: fix probe and remove order for dma
-Date:   Wed, 12 May 2021 16:43:25 +0200
-Message-Id: <20210512144842.531917183@linuxfoundation.org>
+Subject: [PATCH 5.12 160/677] serial: stm32: fix startup by enabling usart for reception
+Date:   Wed, 12 May 2021 16:43:26 +0200
+Message-Id: <20210512144842.563835450@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,135 +41,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit 87fd0741d6dcf63ebdb14050c2b921ae14c7f307 ]
+[ Upstream commit f4518a8a75f5be1a121b0c95ad9c6b1eb27d920e ]
 
-The probe and remove orders are wrong as the uart_port is registered
-before saving device data in the probe, and unregistered after DMA
-resource deallocation in the remove. uart_port registering should be
-done at the end of probe and unregistering should be done at the begin of
-remove to avoid resource allocation issues.
+RX is configured, but usart is not enabled in startup function.
+Kernel documentation specifies that startup should enable the port for
+reception.
+Fix the startup by enabling usart for reception.
 
-Fix probe and remove orders. This enforce resource allocation occur at
-proper time.
-Terminate both DMA rx and tx transfers before removing device.
-
-Move pm_runtime after uart_remove_one_port() call in remove() to keep the
-probe error path.
-
-Fixes: 3489187204eb ("serial: stm32: adding dma support")
+Fixes: 84872dc448fe ("serial: stm32: add RX and TX FIFO flush")
 Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-2-erwan.leray@foss.st.com
+Link: https://lore.kernel.org/r/20210304162308.8984-3-erwan.leray@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 57 ++++++++++++++++++++++++--------
- 1 file changed, 44 insertions(+), 13 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index b3675cf25a69..3d58824ac2af 100644
+index 3d58824ac2af..c6ca8f964c69 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -1252,10 +1252,6 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
- 		device_set_wakeup_enable(&pdev->dev, false);
+@@ -634,6 +634,7 @@ static int stm32_usart_startup(struct uart_port *port)
+ {
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
++	const struct stm32_usart_config *cfg = &stm32_port->info->cfg;
+ 	const char *name = to_platform_device(port->dev)->name;
+ 	u32 val;
+ 	int ret;
+@@ -658,7 +659,7 @@ static int stm32_usart_startup(struct uart_port *port)
  	}
  
--	ret = uart_add_one_port(&stm32_usart_driver, &stm32port->port);
--	if (ret)
--		goto err_wirq;
--
- 	ret = stm32_usart_of_dma_rx_probe(stm32port, pdev);
- 	if (ret)
- 		dev_info(&pdev->dev, "interrupt mode used for rx (no dma)\n");
-@@ -1269,11 +1265,40 @@ static int stm32_usart_serial_probe(struct platform_device *pdev)
- 	pm_runtime_get_noresume(&pdev->dev);
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
-+
-+	ret = uart_add_one_port(&stm32_usart_driver, &stm32port->port);
-+	if (ret)
-+		goto err_port;
-+
- 	pm_runtime_put_sync(&pdev->dev);
- 
- 	return 0;
- 
--err_wirq:
-+err_port:
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
-+	pm_runtime_put_noidle(&pdev->dev);
-+
-+	if (stm32port->rx_ch) {
-+		dmaengine_terminate_async(stm32port->rx_ch);
-+		dma_release_channel(stm32port->rx_ch);
-+	}
-+
-+	if (stm32port->rx_dma_buf)
-+		dma_free_coherent(&pdev->dev,
-+				  RX_BUF_L, stm32port->rx_buf,
-+				  stm32port->rx_dma_buf);
-+
-+	if (stm32port->tx_ch) {
-+		dmaengine_terminate_async(stm32port->tx_ch);
-+		dma_release_channel(stm32port->tx_ch);
-+	}
-+
-+	if (stm32port->tx_dma_buf)
-+		dma_free_coherent(&pdev->dev,
-+				  TX_BUF_L, stm32port->tx_buf,
-+				  stm32port->tx_dma_buf);
-+
- 	if (stm32port->wakeirq > 0)
- 		dev_pm_clear_wake_irq(&pdev->dev);
- 
-@@ -1295,11 +1320,20 @@ static int stm32_usart_serial_remove(struct platform_device *pdev)
- 	int err;
- 
- 	pm_runtime_get_sync(&pdev->dev);
-+	err = uart_remove_one_port(&stm32_usart_driver, port);
-+	if (err)
-+		return(err);
-+
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
-+	pm_runtime_put_noidle(&pdev->dev);
- 
- 	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAR);
- 
--	if (stm32_port->rx_ch)
-+	if (stm32_port->rx_ch) {
-+		dmaengine_terminate_async(stm32_port->rx_ch);
- 		dma_release_channel(stm32_port->rx_ch);
-+	}
- 
- 	if (stm32_port->rx_dma_buf)
- 		dma_free_coherent(&pdev->dev,
-@@ -1308,8 +1342,10 @@ static int stm32_usart_serial_remove(struct platform_device *pdev)
- 
- 	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
- 
--	if (stm32_port->tx_ch)
-+	if (stm32_port->tx_ch) {
-+		dmaengine_terminate_async(stm32_port->tx_ch);
- 		dma_release_channel(stm32_port->tx_ch);
-+	}
- 
- 	if (stm32_port->tx_dma_buf)
- 		dma_free_coherent(&pdev->dev,
-@@ -1323,12 +1359,7 @@ static int stm32_usart_serial_remove(struct platform_device *pdev)
- 
- 	stm32_usart_deinit_port(stm32_port);
- 
--	err = uart_remove_one_port(&stm32_usart_driver, port);
--
--	pm_runtime_disable(&pdev->dev);
--	pm_runtime_put_noidle(&pdev->dev);
--
--	return err;
-+	return 0;
- }
- 
- #ifdef CONFIG_SERIAL_STM32_CONSOLE
+ 	/* RX FIFO enabling */
+-	val = stm32_port->cr1_irq | USART_CR1_RE;
++	val = stm32_port->cr1_irq | USART_CR1_RE | BIT(cfg->uart_enable_bit);
+ 	if (stm32_port->fifoen)
+ 		val |= USART_CR1_FIFOEN;
+ 	stm32_usart_set_bits(port, ofs->cr1, val);
 -- 
 2.30.2
 
