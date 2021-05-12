@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B5D337C5BE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE05837C625
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233466AbhELPmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:42:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57176 "EHLO mail.kernel.org"
+        id S234196AbhELPnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:43:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236419AbhELPhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:37:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3953F61C75;
-        Wed, 12 May 2021 15:19:45 +0000 (UTC)
+        id S231488AbhELPiU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:38:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE71061C61;
+        Wed, 12 May 2021 15:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832785;
-        bh=dl5q+RUBCvxT5HFbxyTRCKeFnwo43amJe2FC6gBJsu4=;
+        s=korg; t=1620832812;
+        bh=JO+A41yTJ+/AZUvx9aHXJL4BOXJYcGJS1SjkiYEyXuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NdlFHC+7aR/y1/PVj0XCmjwCmfpKIcFGepDlwDu2nGKN+59vcwFxF2RJY5Gbam1Ra
-         cwZsXkwQ6AQMZs2JGi65B+6WogeCwhBj3Ezj9JTAEYG17vyy6i1D/RTXwZMikdkI7M
-         hgPziABWriGEBT9es3J0MJw7m+jN2zDfG+x8kZ/0=
+        b=PmvM0jJQWT/qAKaQqKigd2RO4LojCqCOkmSH8PfvVOgJcq8PsUA2bgBZGIl6KAx86
+         a8XwyzLdTZ97L1WplqX1EZCK+kpuQWE0E+Natd7YTNCvN4p2d4UhRQKDRzvxKo0T6s
+         g86SfG3PF0aRw++W6bLbOexNOzNMO8hLHT/dLmLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 405/530] powerpc/perf: Fix PMU constraint check for EBB events
-Date:   Wed, 12 May 2021 16:48:35 +0200
-Message-Id: <20210512144833.069859224@linuxfoundation.org>
+Subject: [PATCH 5.10 406/530] powerpc: iommu: fix build when neither PCI or IBMVIO is set
+Date:   Wed, 12 May 2021 16:48:36 +0200
+Message-Id: <20210512144833.107877009@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,64 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 10f8f96179ecc7f69c927f6d231f6d02736cea83 ]
+[ Upstream commit b27dadecdf9102838331b9a0b41ffc1cfe288154 ]
 
-The power PMU group constraints includes check for EBB events to make
-sure all events in a group must agree on EBB. This will prevent
-scheduling EBB and non-EBB events together. But in the existing check,
-settings for constraint mask and value is interchanged. Patch fixes the
-same.
+When neither CONFIG_PCI nor CONFIG_IBMVIO is set/enabled, iommu.c has a
+build error. The fault injection code is not useful in that kernel config,
+so make the FAIL_IOMMU option depend on PCI || IBMVIO.
 
-Before the patch, PMU selftest "cpu_event_pinned_vs_ebb_test" fails with
-below in dmesg logs. This happens because EBB event gets enabled along
-with a non-EBB cpu event.
+Prevents this build error (warning escalated to error):
+../arch/powerpc/kernel/iommu.c:178:30: error: 'fail_iommu_bus_notifier' defined but not used [-Werror=unused-variable]
+  178 | static struct notifier_block fail_iommu_bus_notifier = {
 
-  [35600.453346] cpu_event_pinne[41326]: illegal instruction (4)
-  at 10004a18 nip 10004a18 lr 100049f8 code 1 in
-  cpu_event_pinned_vs_ebb_test[10000000+10000]
-
-Test results after the patch:
-
-  $ ./pmu/ebb/cpu_event_pinned_vs_ebb_test
-  test: cpu_event_pinned_vs_ebb
-  tags: git_version:v5.12-rc5-93-gf28c3125acd3-dirty
-  Binding to cpu 8
-  EBB Handler is at 0x100050c8
-  read error on event 0x7fffe6bd4040!
-  PM_RUN_INST_CMPL: result 9872 running/enabled 37930432
-  success: cpu_event_pinned_vs_ebb
-
-This bug was hidden by other logic until commit 1908dc911792 (perf:
-Tweak perf_event_attr::exclusive semantics).
-
-Fixes: 4df489991182 ("powerpc/perf: Add power8 EBB support")
-Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-[mpe: Mention commit 1908dc911792]
+Fixes: d6b9a81b2a45 ("powerpc: IOMMU fault injection")
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1617725761-1464-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20210404192623.10697-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/isa207-common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
-index e1a21d34c6e4..5e8eedda45d3 100644
---- a/arch/powerpc/perf/isa207-common.c
-+++ b/arch/powerpc/perf/isa207-common.c
-@@ -400,8 +400,8 @@ ebb_bhrb:
- 	 * EBB events are pinned & exclusive, so this should never actually
- 	 * hit, but we leave it as a fallback in case.
- 	 */
--	mask  |= CNST_EBB_VAL(ebb);
--	value |= CNST_EBB_MASK;
-+	mask  |= CNST_EBB_MASK;
-+	value |= CNST_EBB_VAL(ebb);
- 
- 	*maskp = mask;
- 	*valp = value;
+diff --git a/arch/powerpc/Kconfig.debug b/arch/powerpc/Kconfig.debug
+index b88900f4832f..52abca88b5b2 100644
+--- a/arch/powerpc/Kconfig.debug
++++ b/arch/powerpc/Kconfig.debug
+@@ -352,6 +352,7 @@ config PPC_EARLY_DEBUG_CPM_ADDR
+ config FAIL_IOMMU
+ 	bool "Fault-injection capability for IOMMU"
+ 	depends on FAULT_INJECTION
++	depends on PCI || IBMVIO
+ 	help
+ 	  Provide fault-injection capability for IOMMU. Each device can
+ 	  be selectively enabled via the fail_iommu property.
 -- 
 2.30.2
 
