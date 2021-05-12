@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B061537CE88
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40FB237CE8D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344985AbhELRFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35700 "EHLO mail.kernel.org"
+        id S1344999AbhELRFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244431AbhELQqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:46:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADCAC61E73;
-        Wed, 12 May 2021 16:14:43 +0000 (UTC)
+        id S244439AbhELQqG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:46:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D8F26144F;
+        Wed, 12 May 2021 16:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836084;
-        bh=Wyw02pBlIowNMubUOAZqGkILU+OwdGRv5Z4R6g5S45c=;
+        s=korg; t=1620836086;
+        bh=os3IdbjtmowGQlAp1NLTz3BkNBLLRVYjWB6eNY2ukH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmW05bqLXyWgw4TQQLRF4a+LlLegq6lc3XCxKD9aUOliBhzRkN0OC2CckPl2YqI5c
-         +d6GzS5euf6coBKADozr/Ab+dNp0D6oAcMPGhwSr0bOnqqKiywL9FC1fMX2Y4dopom
-         eRNwtJhWLBayJDL4LdKKM9H8Hh1+WogAsv5tsL/Y=
+        b=rRMCLJMnBMnfrrDzRwiZtLS1suMNNVLIUIIhbNrB4uoMLRg5g6pPBSsx2zE/tbUsR
+         9WHZCpy47edxnen5vL+rT+gGlEAJ5pzEWb6vKoynbJWFbBAk43CzAq7cSjM14/1Ceo
+         hFnoaDWvSxUnzF8kkmWV+VHLFvBebZ/oCXE02AHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 568/677] i2c: rcar: add IRQ check
-Date:   Wed, 12 May 2021 16:50:14 +0200
-Message-Id: <20210512144856.271716197@linuxfoundation.org>
+Subject: [PATCH 5.12 569/677] i2c: sh7760: add IRQ check
+Date:   Wed, 12 May 2021 16:50:15 +0200
+Message-Id: <20210512144856.302558952@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,39 +41,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 147178cf03a6dcb337e703d4dacd008683022a58 ]
+[ Upstream commit e5b2e3e742015dd2aa6bc7bcef2cb59b2de1221c ]
 
 The driver neglects to check the result of platform_get_irq()'s call and
 blithely passes the negative error codes to devm_request_irq() (which
 takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
-an original error code.  Stop calling devm_request_irq() with the
-invalid IRQ #s.
+an original error code.  Stop calling devm_request_irq() with invalid
+IRQ #s.
 
-Fixes: 6ccbe607132b ("i2c: add Renesas R-Car I2C driver")
+Fixes: a26c20b1fa6d ("i2c: Renesas SH7760 I2C master driver")
 Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 5 ++++-
+ drivers/i2c/busses/i2c-sh7760.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 12f6d452c0f7..8722ca23f889 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -1027,7 +1027,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (of_property_read_bool(dev->of_node, "smbus"))
- 		priv->flags |= ID_P_HOST_NOTIFY;
+diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
+index c2005c789d2b..c79c9f542c5a 100644
+--- a/drivers/i2c/busses/i2c-sh7760.c
++++ b/drivers/i2c/busses/i2c-sh7760.c
+@@ -471,7 +471,10 @@ static int sh7760_i2c_probe(struct platform_device *pdev)
+ 		goto out2;
+ 	}
  
--	priv->irq = platform_get_irq(pdev, 0);
+-	id->irq = platform_get_irq(pdev, 0);
 +	ret = platform_get_irq(pdev, 0);
 +	if (ret < 0)
-+		goto out_pm_disable;
-+	priv->irq = ret;
- 	ret = devm_request_irq(dev, priv->irq, irqhandler, irqflags, dev_name(dev), priv);
- 	if (ret < 0) {
- 		dev_err(dev, "cannot get irq %d\n", priv->irq);
++		return ret;
++	id->irq = ret;
+ 
+ 	id->adap.nr = pdev->id;
+ 	id->adap.algo = &sh7760_i2c_algo;
 -- 
 2.30.2
 
