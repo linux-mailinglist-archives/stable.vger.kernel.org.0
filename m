@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B95C337CDC9
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B453337CDB2
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:15:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233664AbhELQ6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:58:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33484 "EHLO mail.kernel.org"
+        id S236718AbhELQ5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244205AbhELQmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59AA361D25;
-        Wed, 12 May 2021 16:11:42 +0000 (UTC)
+        id S244087AbhELQmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BA2661D26;
+        Wed, 12 May 2021 16:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835902;
-        bh=YudxFErCNGEG/IMcM55fzLDfeqLIl64lIT/PgvE9NZE=;
+        s=korg; t=1620835814;
+        bh=vCfPbGyg61AkflSrAvwiNdKbnF6rqjHHgc7yrzsWR64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bbdLmH1HFD/y8qolWmEvgJsHPz/WbQClEEshJ2zG3xlB1ZfJzyd4HVlZGnx70BCVt
-         3UEarOs0qAznAv2nKWEe0pRl6778XabqaOzAH5S882UpxOoUv44CNCeaO5zcs38d97
-         BfCxlqQYbD2dOIzliVygPQWGrmGYrmLHFXYUzgjw=
+        b=gZ7nC7HnyfBuurYIdfNb/1BV6Qm35F45lx5GZmnZMnM/aHily6zQDMnGXr5j+7ijI
+         OQHy2Iq16p5QHxjaK5XQKvwqDIU8WH4mMAnoWGrKisfdAlTZhspS1i8bibR2uHfLWB
+         2Bve5PTexK4Wi0U2KLvcMT56DYWQsD7FJkm2AJdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
         Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 495/677] iommu/vt-d: Remove WO permissions on second-level paging entries
-Date:   Wed, 12 May 2021 16:49:01 +0200
-Message-Id: <20210512144853.828509274@linuxfoundation.org>
+Subject: [PATCH 5.12 496/677] iommu/vt-d: Invalidate PASID cache when root/context entry changed
+Date:   Wed, 12 May 2021 16:49:02 +0200
+Message-Id: <20210512144853.861462453@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,42 +42,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit eea53c5816889ee8b64544fa2e9311a81184ff9c ]
+[ Upstream commit c0474a606ecb9326227b4d68059942f9db88a897 ]
 
-When the first level page table is used for IOVA translation, it only
-supports Read-Only and Read-Write permissions. The Write-Only permission
-is not supported as the PRESENT bit (implying Read permission) should
-always set. When using second level, we still give separate permissions
-that allows WriteOnly which seems inconsistent and awkward. We want to
-have consistent behavior. After moving to 1st level, we don't want things
-to work sometimes, and break if we use 2nd level for the same mappings.
-Hence remove this configuration.
+When the Intel IOMMU is operating in the scalable mode, some information
+from the root and context table may be used to tag entries in the PASID
+cache. Software should invalidate the PASID-cache when changing root or
+context table entries.
 
 Suggested-by: Ashok Raj <ashok.raj@intel.com>
-Fixes: b802d070a52a1 ("iommu/vt-d: Use iova over first level")
+Fixes: 7373a8cc38197 ("iommu/vt-d: Setup context and enable RID2PASID support")
 Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210320025415.641201-3-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20210320025415.641201-4-baolu.lu@linux.intel.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iommu/intel/iommu.c | 18 +++++++++---------
+ include/linux/intel-iommu.h |  1 +
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index b5d3301b2700..36d60536ae8d 100644
+index 36d60536ae8d..7e551da6c1fb 100644
 --- a/drivers/iommu/intel/iommu.c
 +++ b/drivers/iommu/intel/iommu.c
-@@ -2346,8 +2346,9 @@ __domain_mapping(struct dmar_domain *domain, unsigned long iov_pfn,
- 		return -EINVAL;
+@@ -1346,6 +1346,11 @@ static void iommu_set_root_entry(struct intel_iommu *iommu)
+ 		      readl, (sts & DMA_GSTS_RTPS), sts);
  
- 	attr = prot & (DMA_PTE_READ | DMA_PTE_WRITE | DMA_PTE_SNP);
-+	attr |= DMA_FL_PTE_PRESENT;
- 	if (domain_use_first_level(domain)) {
--		attr |= DMA_FL_PTE_PRESENT | DMA_FL_PTE_XD | DMA_FL_PTE_US;
-+		attr |= DMA_FL_PTE_XD | DMA_FL_PTE_US;
+ 	raw_spin_unlock_irqrestore(&iommu->register_lock, flag);
++
++	iommu->flush.flush_context(iommu, 0, 0, 0, DMA_CCMD_GLOBAL_INVL);
++	if (sm_supported(iommu))
++		qi_flush_pasid_cache(iommu, 0, QI_PC_GLOBAL, 0);
++	iommu->flush.flush_iotlb(iommu, 0, 0, 0, DMA_TLB_GLOBAL_FLUSH);
+ }
  
- 		if (domain->domain.type == IOMMU_DOMAIN_DMA) {
- 			attr |= DMA_FL_PTE_ACCESS;
+ void iommu_flush_write_buffer(struct intel_iommu *iommu)
+@@ -2453,6 +2458,10 @@ static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn
+ 				   (((u16)bus) << 8) | devfn,
+ 				   DMA_CCMD_MASK_NOBIT,
+ 				   DMA_CCMD_DEVICE_INVL);
++
++	if (sm_supported(iommu))
++		qi_flush_pasid_cache(iommu, did_old, QI_PC_ALL_PASIDS, 0);
++
+ 	iommu->flush.flush_iotlb(iommu,
+ 				 did_old,
+ 				 0,
+@@ -3301,8 +3310,6 @@ static int __init init_dmars(void)
+ 		register_pasid_allocator(iommu);
+ #endif
+ 		iommu_set_root_entry(iommu);
+-		iommu->flush.flush_context(iommu, 0, 0, 0, DMA_CCMD_GLOBAL_INVL);
+-		iommu->flush.flush_iotlb(iommu, 0, 0, 0, DMA_TLB_GLOBAL_FLUSH);
+ 	}
+ 
+ #ifdef CONFIG_INTEL_IOMMU_BROKEN_GFX_WA
+@@ -3492,12 +3499,7 @@ static int init_iommu_hw(void)
+ 		}
+ 
+ 		iommu_flush_write_buffer(iommu);
+-
+ 		iommu_set_root_entry(iommu);
+-
+-		iommu->flush.flush_context(iommu, 0, 0, 0,
+-					   DMA_CCMD_GLOBAL_INVL);
+-		iommu->flush.flush_iotlb(iommu, 0, 0, 0, DMA_TLB_GLOBAL_FLUSH);
+ 		iommu_enable_translation(iommu);
+ 		iommu_disable_protect_mem_regions(iommu);
+ 	}
+@@ -3880,8 +3882,6 @@ static int intel_iommu_add(struct dmar_drhd_unit *dmaru)
+ 		goto disable_iommu;
+ 
+ 	iommu_set_root_entry(iommu);
+-	iommu->flush.flush_context(iommu, 0, 0, 0, DMA_CCMD_GLOBAL_INVL);
+-	iommu->flush.flush_iotlb(iommu, 0, 0, 0, DMA_TLB_GLOBAL_FLUSH);
+ 	iommu_enable_translation(iommu);
+ 
+ 	iommu_disable_protect_mem_regions(iommu);
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index 1bc46b88711a..d1f32b33415a 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -372,6 +372,7 @@ enum {
+ /* PASID cache invalidation granu */
+ #define QI_PC_ALL_PASIDS	0
+ #define QI_PC_PASID_SEL		1
++#define QI_PC_GLOBAL		3
+ 
+ #define QI_EIOTLB_ADDR(addr)	((u64)(addr) & VTD_PAGE_MASK)
+ #define QI_EIOTLB_IH(ih)	(((u64)ih) << 6)
 -- 
 2.30.2
 
