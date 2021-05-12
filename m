@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C28BA37CE47
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA1C837CE49
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:18:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239262AbhELREj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:04:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35814 "EHLO mail.kernel.org"
+        id S239287AbhELREs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:04:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237670AbhELQnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237819AbhELQnN (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:43:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 314AE61C70;
-        Wed, 12 May 2021 16:13:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1698461D44;
+        Wed, 12 May 2021 16:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836004;
-        bh=kYObcp/UFWtwBMlV2d31UWP7di03WfMeu76+VHwxmRM=;
+        s=korg; t=1620836007;
+        bh=fn2UXp4y+X5dMIm/b0g4wq0k+lSsScQT3f2YLLZgeBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLqGu9+iEQKuDWmj1FCsdSrf1/+3i4AD6nsqI9kkwLcvTYZW69wLp1jrFxwuJM0U9
-         o5nkyWxj66xmlx9O/E5VIv0rtlOCeuB2ebClg2RIm89fWl3Cp8nG8frjzTdMaGziDx
-         qctawd4NuaaHymCbOqGv1S47NLSyrfsra2dVCeH0=
+        b=oAJTdKGmoGWXlXJccLdNta8JlzqDhDz8X6wIHW9lee26mVmw1evnFeaHPQsm68q8X
+         s54ZKqpPVR9SHqR/L41VW5++Y9VczxjVcqRNccZu7nGXj3kJiXcl9L/F0l+FnSuN+e
+         rzIFY5yJt4Obe64gLEenPvCjLmWwLLxbAH73Lqyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mukesh Sisodiya <mukesh.sisodiya@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Greg Kurz <groug@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 572/677] iwlwifi: dbg: disable ini debug in 9000 family and below
-Date:   Wed, 12 May 2021 16:50:18 +0200
-Message-Id: <20210512144856.398817551@linuxfoundation.org>
+Subject: [PATCH 5.12 573/677] powerpc/xive: Drop check on irq_data in xive_core_debug_show()
+Date:   Wed, 12 May 2021 16:50:19 +0200
+Message-Id: <20210512144856.430303852@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,46 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mukesh Sisodiya <mukesh.sisodiya@intel.com>
+From: Cédric Le Goater <clg@kaod.org>
 
-[ Upstream commit 7c81a025054cd0aeeeaf17aba2e9757f0a6a38a1 ]
+[ Upstream commit a74ce5926b20cd0e6d624a9b2527073a96dfed7f ]
 
-Yoyo based debug is not applicable to old devices.  As init debug is
-enabled by default in the driver, it needs to be disabled to work the
-old debug mechanism in old devices.
+When looping on IRQ descriptor, irq_data is always valid.
 
-Signed-off-by: Mukesh Sisodiya <mukesh.sisodiya@intel.com>
-Fixes: b0d8d2c27007 ("iwlwifi: yoyo: enable yoyo by default")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210411132130.805401a1b8ec.I30db38184a418cfc1c5ca1a305cc14a52501d415@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 930914b7d528 ("powerpc/xive: Add a debugfs file to dump internal XIVE state")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210331144514.892250-6-clg@kaod.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/sysdev/xive/common.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-index 579bc81cc0ae..4cd8c39cc3e9 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
- /*
-- * Copyright (C) 2018-2020 Intel Corporation
-+ * Copyright (C) 2018-2021 Intel Corporation
-  */
- #include <linux/firmware.h>
- #include "iwl-drv.h"
-@@ -426,7 +426,8 @@ void iwl_dbg_tlv_load_bin(struct device *dev, struct iwl_trans *trans)
- 	const struct firmware *fw;
- 	int res;
+diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+index 595310e056f4..6e43bba80707 100644
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -1599,6 +1599,8 @@ static void xive_debug_show_irq(struct seq_file *m, u32 hw_irq, struct irq_data
+ 	u32 target;
+ 	u8 prio;
+ 	u32 lirq;
++	struct xive_irq_data *xd;
++	u64 val;
  
--	if (!iwlwifi_mod_params.enable_ini)
-+	if (!iwlwifi_mod_params.enable_ini ||
-+	    trans->trans_cfg->device_family <= IWL_DEVICE_FAMILY_9000)
+ 	if (!is_xive_irq(chip))
  		return;
+@@ -1612,17 +1614,14 @@ static void xive_debug_show_irq(struct seq_file *m, u32 hw_irq, struct irq_data
+ 	seq_printf(m, "IRQ 0x%08x : target=0x%x prio=%02x lirq=0x%x ",
+ 		   hw_irq, target, prio, lirq);
  
- 	res = firmware_request_nowarn(&fw, "iwl-debug-yoyo.bin", dev);
+-	if (d) {
+-		struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
+-		u64 val = xive_esb_read(xd, XIVE_ESB_GET);
+-
+-		seq_printf(m, "flags=%c%c%c PQ=%c%c",
+-			   xd->flags & XIVE_IRQ_FLAG_STORE_EOI ? 'S' : ' ',
+-			   xd->flags & XIVE_IRQ_FLAG_LSI ? 'L' : ' ',
+-			   xd->flags & XIVE_IRQ_FLAG_H_INT_ESB ? 'H' : ' ',
+-			   val & XIVE_ESB_VAL_P ? 'P' : '-',
+-			   val & XIVE_ESB_VAL_Q ? 'Q' : '-');
+-	}
++	xd = irq_data_get_irq_handler_data(d);
++	val = xive_esb_read(xd, XIVE_ESB_GET);
++	seq_printf(m, "flags=%c%c%c PQ=%c%c",
++		   xd->flags & XIVE_IRQ_FLAG_STORE_EOI ? 'S' : ' ',
++		   xd->flags & XIVE_IRQ_FLAG_LSI ? 'L' : ' ',
++		   xd->flags & XIVE_IRQ_FLAG_H_INT_ESB ? 'H' : ' ',
++		   val & XIVE_ESB_VAL_P ? 'P' : '-',
++		   val & XIVE_ESB_VAL_Q ? 'Q' : '-');
+ 	seq_puts(m, "\n");
+ }
+ 
 -- 
 2.30.2
 
