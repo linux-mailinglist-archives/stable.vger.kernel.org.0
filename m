@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F06937C0E7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:53:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB35637C0ED
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231584AbhELOy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:54:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
+        id S231892AbhELOzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:55:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231744AbhELOyk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:54:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 325E961433;
-        Wed, 12 May 2021 14:53:31 +0000 (UTC)
+        id S231719AbhELOym (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:54:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C9F5613C7;
+        Wed, 12 May 2021 14:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831211;
-        bh=FL9rwGVxNoAXLtIRyyPbdu6Ztu+DAGO57rH+wtguWsU=;
+        s=korg; t=1620831214;
+        bh=U29J4LC3DRt/hS59DG0oHKJY2yf1AKJMjlfd4oFuloY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eq2149TGIxPYAnC2S6V5BBvibCsgV3lGlsK99DcQPAVhm/yXErJevT/zFUtdhQW1C
-         0h8j5V5Juer4Hjux6D0m8DVzpeu3zo5v6rs8tBNxnZ5YUaYwuxXbaMDbBMdy4Dqjhw
-         Ti54/4UsqnoQdFpuAXoLx2KnYrvP4+jWKwgeIH5w=
+        b=sKXa8nadBGucz+uNN5UwnmkVj+oafHhsC72hxyYFBWOO6Y4cb7tWVJWeVtSk+FSsX
+         SuUPyl5Zecv0vro47iNhKyjZjUAXs2lTlbsTPLz1ksqOFMrOAkllVzugTqnH6PFEF8
+         JHiQYH0uSTKrWCONV9lvVfYT7o/7y5xHeVBPScaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
-        Zhao Heming <heming.zhao@suse.com>, Song Liu <song@kernel.org>
-Subject: [PATCH 5.4 029/244] md/bitmap: wait for external bitmap writes to complete during tear down
-Date:   Wed, 12 May 2021 16:46:40 +0200
-Message-Id: <20210512144743.988336036@linuxfoundation.org>
+        stable@vger.kernel.org, Gang He <ghe@suse.com>,
+        Heming Zhao <heming.zhao@suse.com>, Song Liu <song@kernel.org>
+Subject: [PATCH 5.4 030/244] md-cluster: fix use-after-free issue when removing rdev
+Date:   Wed, 12 May 2021 16:46:41 +0200
+Message-Id: <20210512144744.020060885@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,105 +39,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
+From: Heming Zhao <heming.zhao@suse.com>
 
-commit 404a8ef512587b2460107d3272c17a89aef75edf upstream.
+commit f7c7a2f9a23e5b6e0f5251f29648d0238bb7757e upstream.
 
-NULL pointer dereference was observed in super_written() when it tries
-to access the mddev structure.
+md_kick_rdev_from_array will remove rdev, so we should
+use rdev_for_each_safe to search list.
 
-[The below stack trace is from an older kernel, but the problem described
-in this patch applies to the mainline kernel.]
+How to trigger:
 
-[ 1194.474861] task: ffff8fdd20858000 task.stack: ffffb99d40790000
-[ 1194.488000] RIP: 0010:super_written+0x29/0xe1
-[ 1194.499688] RSP: 0018:ffff8ffb7fcc3c78 EFLAGS: 00010046
-[ 1194.512477] RAX: 0000000000000000 RBX: ffff8ffb7bf4a000 RCX: ffff8ffb78991048
-[ 1194.527325] RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff8ffb56b8a200
-[ 1194.542576] RBP: ffff8ffb7fcc3c90 R08: 000000000000000b R09: 0000000000000000
-[ 1194.558001] R10: ffff8ffb56b8a298 R11: 0000000000000000 R12: ffff8ffb56b8a200
-[ 1194.573070] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-[ 1194.588117] FS:  0000000000000000(0000) GS:ffff8ffb7fcc0000(0000) knlGS:0000000000000000
-[ 1194.604264] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1194.617375] CR2: 00000000000002b8 CR3: 00000021e040a002 CR4: 00000000007606e0
-[ 1194.632327] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 1194.647865] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 1194.663316] PKRU: 55555554
-[ 1194.674090] Call Trace:
-[ 1194.683735]  <IRQ>
-[ 1194.692948]  bio_endio+0xae/0x135
-[ 1194.703580]  blk_update_request+0xad/0x2fa
-[ 1194.714990]  blk_update_bidi_request+0x20/0x72
-[ 1194.726578]  __blk_end_bidi_request+0x2c/0x4d
-[ 1194.738373]  __blk_end_request_all+0x31/0x49
-[ 1194.749344]  blk_flush_complete_seq+0x377/0x383
-[ 1194.761550]  flush_end_io+0x1dd/0x2a7
-[ 1194.772910]  blk_finish_request+0x9f/0x13c
-[ 1194.784544]  scsi_end_request+0x180/0x25c
-[ 1194.796149]  scsi_io_completion+0xc8/0x610
-[ 1194.807503]  scsi_finish_command+0xdc/0x125
-[ 1194.818897]  scsi_softirq_done+0x81/0xde
-[ 1194.830062]  blk_done_softirq+0xa4/0xcc
-[ 1194.841008]  __do_softirq+0xd9/0x29f
-[ 1194.851257]  irq_exit+0xe6/0xeb
-[ 1194.861290]  do_IRQ+0x59/0xe3
-[ 1194.871060]  common_interrupt+0x1c6/0x382
-[ 1194.881988]  </IRQ>
-[ 1194.890646] RIP: 0010:cpuidle_enter_state+0xdd/0x2a5
-[ 1194.902532] RSP: 0018:ffffb99d40793e68 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff43
-[ 1194.917317] RAX: ffff8ffb7fce27c0 RBX: ffff8ffb7fced800 RCX: 000000000000001f
-[ 1194.932056] RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000000
-[ 1194.946428] RBP: ffffb99d40793ea0 R08: 0000000000000004 R09: 0000000000002ed2
-[ 1194.960508] R10: 0000000000002664 R11: 0000000000000018 R12: 0000000000000003
-[ 1194.974454] R13: 000000000000000b R14: ffffffff925715a0 R15: 0000011610120d5a
-[ 1194.988607]  ? cpuidle_enter_state+0xcc/0x2a5
-[ 1194.999077]  cpuidle_enter+0x17/0x19
-[ 1195.008395]  call_cpuidle+0x23/0x3a
-[ 1195.017718]  do_idle+0x172/0x1d5
-[ 1195.026358]  cpu_startup_entry+0x73/0x75
-[ 1195.035769]  start_secondary+0x1b9/0x20b
-[ 1195.044894]  secondary_startup_64+0xa5/0xa5
-[ 1195.084921] RIP: super_written+0x29/0xe1 RSP: ffff8ffb7fcc3c78
-[ 1195.096354] CR2: 00000000000002b8
+env: Two nodes on kvm-qemu x86_64 VMs (2C2G with 2 iscsi luns).
 
-bio in the above stack is a bitmap write whose completion is invoked after
-the tear down sequence sets the mddev structure to NULL in rdev.
+```
+node2=192.168.0.3
 
-During tear down, there is an attempt to flush the bitmap writes, but for
-external bitmaps, there is no explicit wait for all the bitmap writes to
-complete. For instance, md_bitmap_flush() is called to flush the bitmap
-writes, but the last call to md_bitmap_daemon_work() in md_bitmap_flush()
-could generate new bitmap writes for which there is no explicit wait to
-complete those writes. The call to md_bitmap_update_sb() will return
-simply for external bitmaps and the follow-up call to md_update_sb() is
-conditional and may not get called for external bitmaps. This results in a
-kernel panic when the completion routine, super_written() is called which
-tries to reference mddev in the rdev that has been set to
-NULL(in unbind_rdev_from_array() by tear down sequence).
+for i in {1..20}; do
+    echo ==== $i `date` ====;
 
-The solution is to call md_super_wait() for external bitmaps after the
-last call to md_bitmap_daemon_work() in md_bitmap_flush() to ensure there
-are no pending bitmap writes before proceeding with the tear down.
+    mdadm -Ss && ssh ${node2} "mdadm -Ss"
+    wipefs -a /dev/sda /dev/sdb
 
+    mdadm -CR /dev/md0 -b clustered -e 1.2 -n 2 -l 1 /dev/sda \
+       /dev/sdb --assume-clean
+    ssh ${node2} "mdadm -A /dev/md0 /dev/sda /dev/sdb"
+    mdadm --wait /dev/md0
+    ssh ${node2} "mdadm --wait /dev/md0"
+
+    mdadm --manage /dev/md0 --fail /dev/sda --remove /dev/sda
+    sleep 1
+done
+```
+
+Crash stack:
+
+```
+stack segment: 0000 [#1] SMP
+... ...
+RIP: 0010:md_check_recovery+0x1e8/0x570 [md_mod]
+... ...
+RSP: 0018:ffffb149807a7d68 EFLAGS: 00010207
+RAX: 0000000000000000 RBX: ffff9d494c180800 RCX: ffff9d490fc01e50
+RDX: fffff047c0ed8308 RSI: 0000000000000246 RDI: 0000000000000246
+RBP: 6b6b6b6b6b6b6b6b R08: ffff9d490fc01e40 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000000
+R13: ffff9d494c180818 R14: ffff9d493399ef38 R15: ffff9d4933a1d800
+FS:  0000000000000000(0000) GS:ffff9d494f700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fe68cab9010 CR3: 000000004c6be001 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ raid1d+0x5c/0xd40 [raid1]
+ ? finish_task_switch+0x75/0x2a0
+ ? lock_timer_base+0x67/0x80
+ ? try_to_del_timer_sync+0x4d/0x80
+ ? del_timer_sync+0x41/0x50
+ ? schedule_timeout+0x254/0x2d0
+ ? md_start_sync+0xe0/0xe0 [md_mod]
+ ? md_thread+0x127/0x160 [md_mod]
+ md_thread+0x127/0x160 [md_mod]
+ ? wait_woken+0x80/0x80
+ kthread+0x10d/0x130
+ ? kthread_park+0xa0/0xa0
+ ret_from_fork+0x1f/0x40
+```
+
+Fixes: dbb64f8635f5d ("md-cluster: Fix adding of new disk with new reload code")
+Fixes: 659b254fa7392 ("md-cluster: remove a disk asynchronously from cluster environment")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
-Reviewed-by: Zhao Heming <heming.zhao@suse.com>
+Reviewed-by: Gang He <ghe@suse.com>
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
 Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md-bitmap.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/md.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/md/md-bitmap.c
-+++ b/drivers/md/md-bitmap.c
-@@ -1726,6 +1726,8 @@ void md_bitmap_flush(struct mddev *mddev
- 	md_bitmap_daemon_work(mddev);
- 	bitmap->daemon_lastrun -= sleep;
- 	md_bitmap_daemon_work(mddev);
-+	if (mddev->bitmap_info.external)
-+		md_super_wait(mddev);
- 	md_bitmap_update_sb(bitmap);
- }
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -9049,11 +9049,11 @@ void md_check_recovery(struct mddev *mdd
+ 		}
+ 
+ 		if (mddev_is_clustered(mddev)) {
+-			struct md_rdev *rdev;
++			struct md_rdev *rdev, *tmp;
+ 			/* kick the device if another node issued a
+ 			 * remove disk.
+ 			 */
+-			rdev_for_each(rdev, mddev) {
++			rdev_for_each_safe(rdev, tmp, mddev) {
+ 				if (test_and_clear_bit(ClusterRemove, &rdev->flags) &&
+ 						rdev->raid_disk < 0)
+ 					md_kick_rdev_from_array(rdev);
+@@ -9366,7 +9366,7 @@ err_wq:
+ static void check_sb_changes(struct mddev *mddev, struct md_rdev *rdev)
+ {
+ 	struct mdp_superblock_1 *sb = page_address(rdev->sb_page);
+-	struct md_rdev *rdev2;
++	struct md_rdev *rdev2, *tmp;
+ 	int role, ret;
+ 	char b[BDEVNAME_SIZE];
+ 
+@@ -9383,7 +9383,7 @@ static void check_sb_changes(struct mdde
+ 	}
+ 
+ 	/* Check for change of roles in the active devices */
+-	rdev_for_each(rdev2, mddev) {
++	rdev_for_each_safe(rdev2, tmp, mddev) {
+ 		if (test_bit(Faulty, &rdev2->flags))
+ 			continue;
  
 
 
