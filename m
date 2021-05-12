@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0102937CDF2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B6BB37CDEC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343753AbhELQ7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:59:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
+        id S1343747AbhELQ7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243864AbhELQmL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243865AbhELQmL (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E140E61C5E;
-        Wed, 12 May 2021 16:07:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5964561C4C;
+        Wed, 12 May 2021 16:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835664;
-        bh=YqOFofuOdzYsQIUxsYo5jEgGPfN7n5zL14DIlrivLGU=;
+        s=korg; t=1620835666;
+        bh=esYSpVQQEEe84kDpFcJD0S0zpfkGjUHA0nU1yURtK0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sXruxReH3kp5IDKaiEmTGTzuHRMSVvDzFapH3gGjtENyVpo7LhywDDB/fx6J1Aqdc
-         6rXRlXPJb1Xk7qaFUAQLyKDxjNDdpq5MOAC5xQGr4V+DJzKN7q2ojOGYss9SXQr7+Z
-         RSOPp4tHAIJuzeXqmDpCVUmtIP3LInjRIJETVslQ=
+        b=XB7gD/fgLVZwAxecnilakoG/DIDmbgYPorGMsoJBNDt76uv/ZAYx3FD685+2dLCDU
+         LPjXzn5m70fNMfz9d+Ha6Dgj9En4NvXOFnFr7jkelL6rI+r9r3FVAxltu9gvynTCvO
+         xt9CRbt9K90fllixILc2/3lGVyCH9+33cUxgZ0oY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 435/677] ataflop: fix off by one in ataflop_probe()
-Date:   Wed, 12 May 2021 16:48:01 +0200
-Message-Id: <20210512144851.790467242@linuxfoundation.org>
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 436/677] drivers/block/null_blk/main: Fix a double free in null_init.
+Date:   Wed, 12 May 2021 16:48:02 +0200
+Message-Id: <20210512144851.828447557@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,39 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit b777f4c47781df6b23e3f4df6fdb92d9aceac7bb ]
+[ Upstream commit 72ce11ddfa4e9e1879103581a60b7e34547eaa0a ]
 
-Smatch complains that the "type > NUM_DISK_MINORS" should be >=
-instead of >.  We also need to subtract one from "type" at the start.
+In null_init, null_add_dev(dev) is called.
+In null_add_dev, it calls null_free_zoned_dev(dev) to free dev->zones
+via kvfree(dev->zones) in out_cleanup_zone branch and returns err.
+Then null_init accept the err code and then calls null_free_dev(dev).
 
-Fixes: bf9c0538e485 ("ataflop: use a separate gendisk for each media format")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+But in null_free_dev(dev), dev->zones is freed again by
+null_free_zoned_dev().
+
+My patch set dev->zones to NULL in null_free_zoned_dev() after
+kvfree(dev->zones) is called, to avoid the double free.
+
+Fixes: 2984c8684f962 ("nullb: factor disk parameters")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210426143229.7374-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ataflop.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/block/null_blk/zoned.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index aed2c2a4f4ea..d601e49f80e0 100644
---- a/drivers/block/ataflop.c
-+++ b/drivers/block/ataflop.c
-@@ -2001,7 +2001,10 @@ static void ataflop_probe(dev_t dev)
- 	int drive = MINOR(dev) & 3;
- 	int type  = MINOR(dev) >> 2;
+diff --git a/drivers/block/null_blk/zoned.c b/drivers/block/null_blk/zoned.c
+index bfcab1c782b5..dae54dd1aeac 100644
+--- a/drivers/block/null_blk/zoned.c
++++ b/drivers/block/null_blk/zoned.c
+@@ -180,6 +180,7 @@ int null_register_zoned_dev(struct nullb *nullb)
+ void null_free_zoned_dev(struct nullb_device *dev)
+ {
+ 	kvfree(dev->zones);
++	dev->zones = NULL;
+ }
  
--	if (drive >= FD_MAX_UNITS || type > NUM_DISK_MINORS)
-+	if (type)
-+		type--;
-+
-+	if (drive >= FD_MAX_UNITS || type >= NUM_DISK_MINORS)
- 		return;
- 	mutex_lock(&ataflop_probe_lock);
- 	if (!unit[drive].disk[type]) {
+ int null_report_zones(struct gendisk *disk, sector_t sector,
 -- 
 2.30.2
 
