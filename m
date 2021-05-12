@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B1237C33C
+	by mail.lfdr.de (Postfix) with ESMTP id C1F1437C33D
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233348AbhELPSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231627AbhELPSA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 11:18:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50550 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234244AbhELPQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA3C361975;
-        Wed, 12 May 2021 15:05:56 +0000 (UTC)
+        id S234250AbhELPQS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:16:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D6D56194A;
+        Wed, 12 May 2021 15:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831957;
-        bh=D6rIF9Pl0TRvW5ls9/oMpGEPgLXfAPLzTQdV+1GkVlM=;
+        s=korg; t=1620831960;
+        bh=gF3ENYH1MX9au7Q9ZOzAFmnKgrgF/OFpsE8Ho3z2q14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuiiS2YtrLYaxQ1jnJRYUfzRUiQslhkZtBcZ7U+Kc9YzouNXQoGchiVSCc3yspuTW
-         WT4iXbJq8HFpVoqC7HsLVJb9/l8gilQWmyc+RiR33fOw0YxEbbxV/Vv5lV2DEuQOHm
-         xFSNrm5oZHvo4wpMpapAYaqrJtdK5mPtLwGu/q1Q=
+        b=ZZsGjS/qliWOnWrpK0xWfF39dP+IfTnu+Z+MPFTlyHoyd1to/LP1Pt6GODBy41cFW
+         cVa3q7r4H81PsI4cFaac6QLn5D8kVHwKIavHZSPEaGTiO/9TxOOoWLi/Y65K/fb89Z
+         vh5hWo2cTUCc264hpJ4ki9n/KHXbF4q6gUJ4rgug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5.10 084/530] KVM: s390: VSIE: correctly handle MVPG when in VSIE
-Date:   Wed, 12 May 2021 16:43:14 +0200
-Message-Id: <20210512144822.537876805@linuxfoundation.org>
+Subject: [PATCH 5.10 085/530] KVM: s390: split kvm_s390_logical_to_effective
+Date:   Wed, 12 May 2021 16:43:15 +0200
+Message-Id: <20210512144822.571131181@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -43,144 +41,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit bdf7509bbefa20855d5f6bacdc5b62a8489477c9 upstream.
+commit f85f1baaa18932a041fd2b1c2ca6cfd9898c7d2b upstream.
 
-Correctly handle the MVPG instruction when issued by a VSIE guest.
+Split kvm_s390_logical_to_effective to a generic function called
+_kvm_s390_logical_to_effective. The new function takes a PSW and an address
+and returns the address with the appropriate bits masked off. The old
+function now calls the new function with the appropriate PSW from the vCPU.
 
-Fixes: a3508fbe9dc6d ("KVM: s390: vsie: initial support for nested virtualization")
-Cc: stable@vger.kernel.org # f85f1baaa189: KVM: s390: split kvm_s390_logical_to_effective
+This is needed to avoid code duplication for vSIE.
+
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Link: https://lore.kernel.org/r/20210302174443.514363-4-imbrenda@linux.ibm.com
-[borntraeger@de.ibm.com: apply fixup from Claudio]
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org # for VSIE: correctly handle MVPG when in VSIE
+Link: https://lore.kernel.org/r/20210302174443.514363-2-imbrenda@linux.ibm.com
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/vsie.c |   98 ++++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 93 insertions(+), 5 deletions(-)
+ arch/s390/kvm/gaccess.h |   31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -416,11 +416,6 @@ static void unshadow_scb(struct kvm_vcpu
- 		memcpy((void *)((u64)scb_o + 0xc0),
- 		       (void *)((u64)scb_s + 0xc0), 0xf0 - 0xc0);
- 		break;
--	case ICPT_PARTEXEC:
--		/* MVPG only */
--		memcpy((void *)((u64)scb_o + 0xc0),
--		       (void *)((u64)scb_s + 0xc0), 0xd0 - 0xc0);
--		break;
- 	}
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -37,6 +37,29 @@ static inline unsigned long kvm_s390_rea
+ }
  
- 	if (scb_s->ihcpu != 0xffffU)
-@@ -983,6 +978,95 @@ static int handle_stfle(struct kvm_vcpu
+ /**
++ * _kvm_s390_logical_to_effective - convert guest logical to effective address
++ * @psw: psw of the guest
++ * @ga: guest logical address
++ *
++ * Convert a guest logical address to an effective address by applying the
++ * rules of the addressing mode defined by bits 31 and 32 of the given PSW
++ * (extendended/basic addressing mode).
++ *
++ * Depending on the addressing mode, the upper 40 bits (24 bit addressing
++ * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
++ * mode) of @ga will be zeroed and the remaining bits will be returned.
++ */
++static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
++							   unsigned long ga)
++{
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
++		return ga;
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
++		return ga & ((1UL << 31) - 1);
++	return ga & ((1UL << 24) - 1);
++}
++
++/**
+  * kvm_s390_logical_to_effective - convert guest logical to effective address
+  * @vcpu: guest virtual cpu
+  * @ga: guest logical address
+@@ -52,13 +75,7 @@ static inline unsigned long kvm_s390_rea
+ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+ 							  unsigned long ga)
+ {
+-	psw_t *psw = &vcpu->arch.sie_block->gpsw;
+-
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+-		return ga;
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+-		return ga & ((1UL << 31) - 1);
+-	return ga & ((1UL << 24) - 1);
++	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
  }
  
  /*
-+ * Get a register for a nested guest.
-+ * @vcpu the vcpu of the guest
-+ * @vsie_page the vsie_page for the nested guest
-+ * @reg the register number, the upper 4 bits are ignored.
-+ * returns: the value of the register.
-+ */
-+static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, u8 reg)
-+{
-+	/* no need to validate the parameter and/or perform error handling */
-+	reg &= 0xf;
-+	switch (reg) {
-+	case 15:
-+		return vsie_page->scb_s.gg15;
-+	case 14:
-+		return vsie_page->scb_s.gg14;
-+	default:
-+		return vcpu->run->s.regs.gprs[reg];
-+	}
-+}
-+
-+static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
-+{
-+	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
-+	unsigned long pei_dest, pei_src, src, dest, mask;
-+	u64 *pei_block = &vsie_page->scb_o->mcic;
-+	int edat, rc_dest, rc_src;
-+	union ctlreg0 cr0;
-+
-+	cr0.val = vcpu->arch.sie_block->gcr[0];
-+	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
-+	mask = _kvm_s390_logical_to_effective(&scb_s->gpsw, PAGE_MASK);
-+
-+	dest = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
-+	src = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
-+
-+	rc_dest = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, dest, &pei_dest);
-+	rc_src = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, src, &pei_src);
-+	/*
-+	 * Either everything went well, or something non-critical went wrong
-+	 * e.g. because of a race. In either case, simply retry.
-+	 */
-+	if (rc_dest == -EAGAIN || rc_src == -EAGAIN || (!rc_dest && !rc_src)) {
-+		retry_vsie_icpt(vsie_page);
-+		return -EAGAIN;
-+	}
-+	/* Something more serious went wrong, propagate the error */
-+	if (rc_dest < 0)
-+		return rc_dest;
-+	if (rc_src < 0)
-+		return rc_src;
-+
-+	/* The only possible suppressing exception: just deliver it */
-+	if (rc_dest == PGM_TRANSLATION_SPEC || rc_src == PGM_TRANSLATION_SPEC) {
-+		clear_vsie_icpt(vsie_page);
-+		rc_dest = kvm_s390_inject_program_int(vcpu, PGM_TRANSLATION_SPEC);
-+		WARN_ON_ONCE(rc_dest);
-+		return 1;
-+	}
-+
-+	/*
-+	 * Forward the PEI intercept to the guest if it was a page fault, or
-+	 * also for segment and region table faults if EDAT applies.
-+	 */
-+	if (edat) {
-+		rc_dest = rc_dest == PGM_ASCE_TYPE ? rc_dest : 0;
-+		rc_src = rc_src == PGM_ASCE_TYPE ? rc_src : 0;
-+	} else {
-+		rc_dest = rc_dest != PGM_PAGE_TRANSLATION ? rc_dest : 0;
-+		rc_src = rc_src != PGM_PAGE_TRANSLATION ? rc_src : 0;
-+	}
-+	if (!rc_dest && !rc_src) {
-+		pei_block[0] = pei_dest;
-+		pei_block[1] = pei_src;
-+		return 1;
-+	}
-+
-+	retry_vsie_icpt(vsie_page);
-+
-+	/*
-+	 * The host has edat, and the guest does not, or it was an ASCE type
-+	 * exception. The host needs to inject the appropriate DAT interrupts
-+	 * into the guest.
-+	 */
-+	if (rc_dest)
-+		return inject_fault(vcpu, rc_dest, dest, 1);
-+	return inject_fault(vcpu, rc_src, src, 0);
-+}
-+
-+/*
-  * Run the vsie on a shadow scb and a shadow gmap, without any further
-  * sanity checks, handling SIE faults.
-  *
-@@ -1068,6 +1152,10 @@ static int do_vsie_run(struct kvm_vcpu *
- 		if ((scb_s->ipa & 0xf000) != 0xf000)
- 			scb_s->ipa += 0x1000;
- 		break;
-+	case ICPT_PARTEXEC:
-+		if (scb_s->ipa == 0xb254)
-+			rc = vsie_handle_mvpg(vcpu, vsie_page);
-+		break;
- 	}
- 	return rc;
- }
 
 
