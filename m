@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FB737CC6C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3645137CC72
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238662AbhELQo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:44:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57420 "EHLO mail.kernel.org"
+        id S239536AbhELQpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243033AbhELQgb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:36:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBE9661CC1;
-        Wed, 12 May 2021 16:00:32 +0000 (UTC)
+        id S243106AbhELQgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:36:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A8996197B;
+        Wed, 12 May 2021 16:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835233;
-        bh=HjCaItIy7fL3QVxAC//0oOeWiZ0GOZuAuyIzVwGcdv0=;
+        s=korg; t=1620835235;
+        bh=EuN0jmkZAT174ZxhbQczPDZMg+vgNKSeYtDiRKZhCno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMBace39WEcpZo0TfPfJNBxoXRYToVkt9byzVXaL7W0C2egbQ574jNAEhzh4E1DeW
-         2oXT8+JL93+8GX2g5f8MneCwHs35BxeFKm1VlvVL8hWRVlvfP4sE54BAdftDwwzUOi
-         7Ngkw7nyb1jpF+Wm9c3S6UpvhdAZuE4sUPxe20UM=
+        b=bOEiGr1rJjdzB8epjoXOwQC8sIeZyOb1Aa6BJOB51hsqHTgQ5ReB8Hbq2kOkV+PoD
+         ssFwcbvv25AVd90NuZbT7r7LcO08HFmpEpki/omg6SaEnSRstKn7X9IRl5Z/OkK/zW
+         PQguMcSirTH8kT6rvgDo6cn777qp8vDXiBMxXGxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 227/677] fotg210-udc: Complete OUT requests on short packets
-Date:   Wed, 12 May 2021 16:44:33 +0200
-Message-Id: <20210512144844.779301906@linuxfoundation.org>
+Subject: [PATCH 5.12 228/677] usb: gadget: s3c: Fix incorrect resources releasing
+Date:   Wed, 12 May 2021 16:44:34 +0200
+Message-Id: <20210512144844.809479219@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,45 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabian Vogt <fabian@ritter-vogt.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 75bb93be0027123b5db6cbcce89eb62f0f6b3c5b ]
+[ Upstream commit 42067ccd9eb2077979ac3ce8b7b95c694bd09e14 ]
 
-A short packet indicates the end of a transfer and marks the request as
-complete.
+Since commit 188db4435ac6 ("usb: gadget: s3c: use platform resources"),
+'request_mem_region()' and 'ioremap()' are no more used, so they don't need
+to be undone in the error handling path of the probe and in the remove
+function.
 
-Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
-Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
-Link: https://lore.kernel.org/r/20210324141115.9384-8-fabian@ritter-vogt.de
+Remove these calls and the unneeded 'rsrc_start' and 'rsrc_len' global
+variables.
+
+Fixes: 188db4435ac6 ("usb: gadget: s3c: use platform resources")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/b317638464f188159bd8eea44427dd359e480625.1616830026.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/s3c2410_udc.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index 9925d7ac9138..75bf446f4a66 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -849,12 +849,16 @@ static void fotg210_out_fifo_handler(struct fotg210_ep *ep)
- {
- 	struct fotg210_request *req = list_entry(ep->queue.next,
- 						 struct fotg210_request, queue);
-+	int disgr1 = ioread32(ep->fotg210->reg + FOTG210_DISGR1);
+diff --git a/drivers/usb/gadget/udc/s3c2410_udc.c b/drivers/usb/gadget/udc/s3c2410_udc.c
+index 1d3ebb07ccd4..b81979b3bdb6 100644
+--- a/drivers/usb/gadget/udc/s3c2410_udc.c
++++ b/drivers/usb/gadget/udc/s3c2410_udc.c
+@@ -54,8 +54,6 @@ static struct clk		*udc_clock;
+ static struct clk		*usb_bus_clock;
+ static void __iomem		*base_addr;
+ static int			irq_usbd;
+-static u64			rsrc_start;
+-static u64			rsrc_len;
+ static struct dentry		*s3c2410_udc_debugfs_root;
  
- 	fotg210_start_dma(ep, req);
+ static inline u32 udc_read(u32 reg)
+@@ -1775,7 +1773,7 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
+ 	base_addr = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(base_addr)) {
+ 		retval = PTR_ERR(base_addr);
+-		goto err_mem;
++		goto err;
+ 	}
  
--	/* finish out transfer */
-+	/* Complete the request when it's full or a short packet arrived.
-+	 * Like other drivers, short_not_ok isn't handled.
-+	 */
-+
- 	if (req->req.length == req->req.actual ||
--	    req->req.actual < ep->ep.maxpacket)
-+	    (disgr1 & DISGR1_SPK_INT(ep->epnum - 1)))
- 		fotg210_done(ep, req, 0);
+ 	the_controller = udc;
+@@ -1793,7 +1791,7 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
+ 	if (retval != 0) {
+ 		dev_err(dev, "cannot get irq %i, err %d\n", irq_usbd, retval);
+ 		retval = -EBUSY;
+-		goto err_map;
++		goto err;
+ 	}
+ 
+ 	dev_dbg(dev, "got irq %i\n", irq_usbd);
+@@ -1864,10 +1862,7 @@ err_gpio_claim:
+ 		gpio_free(udc_info->vbus_pin);
+ err_int:
+ 	free_irq(irq_usbd, udc);
+-err_map:
+-	iounmap(base_addr);
+-err_mem:
+-	release_mem_region(rsrc_start, rsrc_len);
++err:
+ 
+ 	return retval;
  }
+@@ -1899,9 +1894,6 @@ static int s3c2410_udc_remove(struct platform_device *pdev)
  
+ 	free_irq(irq_usbd, udc);
+ 
+-	iounmap(base_addr);
+-	release_mem_region(rsrc_start, rsrc_len);
+-
+ 	if (!IS_ERR(udc_clock) && udc_clock != NULL) {
+ 		clk_disable_unprepare(udc_clock);
+ 		clk_put(udc_clock);
 -- 
 2.30.2
 
