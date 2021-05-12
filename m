@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BAED37CC46
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DD9137CCA5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234305AbhELQnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:43:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57016 "EHLO mail.kernel.org"
+        id S235171AbhELQn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:43:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243129AbhELQgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:36:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A415661CC8;
-        Wed, 12 May 2021 16:00:52 +0000 (UTC)
+        id S243132AbhELQgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:36:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1614F61CCB;
+        Wed, 12 May 2021 16:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835253;
-        bh=dJpGX4GxHwmRp3krpBZOf73bHOMUg3xCZAoUvie1Vv0=;
+        s=korg; t=1620835255;
+        bh=Sc2+fszKB70vsfZLub3ol4BHs4BQr+egnCgAZHPvA/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPtlUw5g6xfyKSEIa7NeBCp68X1hDWWIBUqQGtJgoYy/qx5F90S31zpoKTQc2Rr9/
-         n/sY96UfcT0OBLKPggM8bP6o1eu4gNwy0r2EJMOfUvufk4VIDyt5j3rdTJbQ8LWPHE
-         zpZT6hVYMYckqSno2YnHpmC7AFcX5UVUm/pOemrg=
+        b=S0DF+QfaV0zULiTmVAXOZrIqzTWJPY22z89j+ZXkA9h2bDNiPK4CJp6guwUE0ZPt+
+         y9IrRjfKJJvPzTVVEt/IJO6oizxSHiJWzW6BmVU5lBWiKaV0604caV6Jl0/B9uvZtG
+         8zkjGaOXXlxrFlpWk5hMDL3pxcvZkmSvkbAdECYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 270/677] soc: qcom: pdr: Fix error return code in pdr_register_listener
-Date:   Wed, 12 May 2021 16:45:16 +0200
-Message-Id: <20210512144846.198016750@linuxfoundation.org>
+Subject: [PATCH 5.12 271/677] PM / devfreq: Use more accurate returned new_freq as resume_freq
+Date:   Wed, 12 May 2021 16:45:17 +0200
+Message-Id: <20210512144846.228904504@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,36 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Dong Aisheng <aisheng.dong@nxp.com>
 
-[ Upstream commit 769738fc49bb578e05d404b481a9241d18147d86 ]
+[ Upstream commit 62453f1ba5d5def9d58e140a50f3f168f028da38 ]
 
-Fix to return the error code -EREMOTEIO from pdr_register_listener
-rather than 0.
+Use the more accurate returned new_freq as resume_freq.
+It's the same as how devfreq->previous_freq was updated.
 
-Fixes: fbe639b44a82 ("soc: qcom: Introduce Protection Domain Restart helpers")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Link: https://lore.kernel.org/r/20201125065034.154217-1-miaoqinglang@huawei.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 83f8ca45afbf0 ("PM / devfreq: add support for suspend/resume of a devfreq device")
+Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/pdr_interface.c | 2 +-
+ drivers/devfreq/devfreq.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/pdr_interface.c b/drivers/soc/qcom/pdr_interface.c
-index 209dcdca923f..915d5bc3d46e 100644
---- a/drivers/soc/qcom/pdr_interface.c
-+++ b/drivers/soc/qcom/pdr_interface.c
-@@ -153,7 +153,7 @@ static int pdr_register_listener(struct pdr_handle *pdr,
- 	if (resp.resp.result != QMI_RESULT_SUCCESS_V01) {
- 		pr_err("PDR: %s register listener failed: 0x%x\n",
- 		       pds->service_path, resp.resp.error);
--		return ret;
-+		return -EREMOTEIO;
- 	}
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index e4be0435c9ba..59ba59bea0f5 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -387,7 +387,7 @@ static int devfreq_set_target(struct devfreq *devfreq, unsigned long new_freq,
+ 	devfreq->previous_freq = new_freq;
  
- 	pds->state = resp.curr_state;
+ 	if (devfreq->suspend_freq)
+-		devfreq->resume_freq = cur_freq;
++		devfreq->resume_freq = new_freq;
+ 
+ 	return err;
+ }
 -- 
 2.30.2
 
