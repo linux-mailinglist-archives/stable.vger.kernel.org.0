@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2AF237C212
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DBFE37C21C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232760AbhELPG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:06:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58514 "EHLO mail.kernel.org"
+        id S232805AbhELPGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233349AbhELPFO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:05:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE15F61948;
-        Wed, 12 May 2021 15:00:00 +0000 (UTC)
+        id S233413AbhELPFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:05:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D86761943;
+        Wed, 12 May 2021 15:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831601;
-        bh=YM0wb7YVnvLlcE9M7n/qrSk14U0ZmhG82Mmwp9xUaTE=;
+        s=korg; t=1620831621;
+        bh=bH4rxIyTt8CUSlqp9N2Z7xTxp7tpOIClk0r2NOyL8X4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6mlDODKjL/rrMbpN5qgitX+SOHhAzIsshHI8S8gnIQPLpNBCprUIO+i+ZKtLUeuz
-         rH/eKR91jgIutVBovubwuJx+xduMaxrlw4TPVsfKwhFrjCR/4HUbDR0bhqQaaGSuOV
-         9VWyzxy47n3TN3OE7a04yZrOc4z5yYnT24+lOLcw=
+        b=Y1Gsl4tRLT1McQp5n/rDckK2/JTMQhgapwHoyM3KvreIPOfn5NEGMvC2Ov67ulsEQ
+         dCJ0D+bEZ8k8Kc3nnLYEs70j6dPYBFsnaoXxf/JNIfnwbPTWlF2OcPIRaB9Z+1QUeX
+         3GtfSfMxqo8nyQiIKDuJMwu8x6SMjE081/CxFbgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 158/244] clk: uniphier: Fix potential infinite loop
-Date:   Wed, 12 May 2021 16:48:49 +0200
-Message-Id: <20210512144748.057918561@linuxfoundation.org>
+Subject: [PATCH 5.4 159/244] scsi: hisi_sas: Fix IRQ checks
+Date:   Wed, 12 May 2021 16:48:50 +0200
+Message-Id: <20210512144748.088936296@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -41,45 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit f6b1340dc751a6caa2a0567b667d0f4f4172cd58 ]
+[ Upstream commit 6c11dc060427e07ca144eacaccd696106b361b06 ]
 
-The for-loop iterates with a u8 loop counter i and compares this
-with the loop upper limit of num_parents that is an int type.
-There is a potential infinite loop if num_parents is larger than
-the u8 loop counter. Fix this by making the loop counter the same
-type as num_parents.  Also make num_parents an unsigned int to
-match the return type of the call to clk_hw_get_num_parents.
+Commit df2d8213d9e3 ("hisi_sas: use platform_get_irq()") failed to take
+into account that irq_of_parse_and_map() and platform_get_irq() have a
+different way of indicating an error: the former returns 0 and the latter
+returns a negative error code. Fix up the IRQ checks!
 
-Addresses-Coverity: ("Infinite loop")
-Fixes: 734d82f4a678 ("clk: uniphier: add core support code for UniPhier clock driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/20210409090104.629722-1-colin.king@canonical.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/810f26d3-908b-1d6b-dc5c-40019726baca@omprussia.ru
+Fixes: df2d8213d9e3 ("hisi_sas: use platform_get_irq()")
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/uniphier/clk-uniphier-mux.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/uniphier/clk-uniphier-mux.c b/drivers/clk/uniphier/clk-uniphier-mux.c
-index c0f4631601e2..babca032352a 100644
---- a/drivers/clk/uniphier/clk-uniphier-mux.c
-+++ b/drivers/clk/uniphier/clk-uniphier-mux.c
-@@ -31,10 +31,10 @@ static int uniphier_clk_mux_set_parent(struct clk_hw *hw, u8 index)
- static u8 uniphier_clk_mux_get_parent(struct clk_hw *hw)
- {
- 	struct uniphier_clk_mux *mux = to_uniphier_clk_mux(hw);
--	int num_parents = clk_hw_get_num_parents(hw);
-+	unsigned int num_parents = clk_hw_get_num_parents(hw);
- 	int ret;
- 	unsigned int val;
--	u8 i;
-+	unsigned int i;
- 
- 	ret = regmap_read(mux->regmap, mux->reg, &val);
- 	if (ret)
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index b861a0f14c9d..3364ae0b9bfe 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1645,7 +1645,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		idx = i * HISI_SAS_PHY_INT_NR;
+ 		for (j = 0; j < HISI_SAS_PHY_INT_NR; j++, idx++) {
+ 			irq = platform_get_irq(pdev, idx);
+-			if (!irq) {
++			if (irq < 0) {
+ 				dev_err(dev, "irq init: fail map phy interrupt %d\n",
+ 					idx);
+ 				return -ENOENT;
+@@ -1664,7 +1664,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 	idx = hisi_hba->n_phy * HISI_SAS_PHY_INT_NR;
+ 	for (i = 0; i < hisi_hba->queue_count; i++, idx++) {
+ 		irq = platform_get_irq(pdev, idx);
+-		if (!irq) {
++		if (irq < 0) {
+ 			dev_err(dev, "irq init: could not map cq interrupt %d\n",
+ 				idx);
+ 			return -ENOENT;
+@@ -1682,7 +1682,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 	idx = (hisi_hba->n_phy * HISI_SAS_PHY_INT_NR) + hisi_hba->queue_count;
+ 	for (i = 0; i < HISI_SAS_FATAL_INT_NR; i++, idx++) {
+ 		irq = platform_get_irq(pdev, idx);
+-		if (!irq) {
++		if (irq < 0) {
+ 			dev_err(dev, "irq init: could not map fatal interrupt %d\n",
+ 				idx);
+ 			return -ENOENT;
 -- 
 2.30.2
 
