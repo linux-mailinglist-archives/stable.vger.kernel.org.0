@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3350B37C9E1
+	by mail.lfdr.de (Postfix) with ESMTP id 9F47E37C9E2
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236865AbhELQXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:23:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58402 "EHLO mail.kernel.org"
+        id S236881AbhELQXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240510AbhELQSM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:18:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BDF861D73;
-        Wed, 12 May 2021 15:44:18 +0000 (UTC)
+        id S240553AbhELQSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:18:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A07261C89;
+        Wed, 12 May 2021 15:44:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834258;
-        bh=jp7WPfeISvQ0fzWVnnuQ26h1k6Pq5luZngX2qqYdGTU=;
+        s=korg; t=1620834261;
+        bh=nwy01tHbYVB+5hAC8Rr4L6mUhaBkVjntt3nMuMpJZEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFbHvMGS3XD7am2r+QHXnRXRxaIDcOmlKUrOtJIR3rByK5QR+Y1tPLT39vSh76k3I
-         APIiAZ8ONlR6i/ijdv290YlcGbedu2EADL1yeYdG1yurTAiH70NdIsln363HqPuMtr
-         P2pw3GujKUMB7l5SuWqVl4rKZY3mMA0lwZxgLz94=
+        b=QdVQht4PWq8BczFl2WZ5BcqRl0+zEIuANTE35LcTsEriVOOff+6KrvN7kC6kSCV1D
+         ZaiubhPdSWXZuWt3F4th0UHAvXJOFpUMw8w+bruO/pLzxOR50w4Dc7dpIeM4OdylMg
+         j6kRHPLW5H1MtZuFlC84T3uRGfz+pgIVkX9z6zD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evelyn Tsai <evelyn.tsai@mediatek.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 471/601] mt76: mt7915: fix txrate reporting
-Date:   Wed, 12 May 2021 16:49:08 +0200
-Message-Id: <20210512144843.359272586@linuxfoundation.org>
+Subject: [PATCH 5.11 472/601] mt76: mt7663: fix when beacon filter is being applied
+Date:   Wed, 12 May 2021 16:49:09 +0200
+Message-Id: <20210512144843.389719756@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,140 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit f43b941fd61003659a3f0e039595e5e525917aa8 ]
+[ Upstream commit 4bec61d9fb9629c21e60cd24a97235ea1f6020ec ]
 
-Properly check rate_info to fix unexpected reporting.
+HW beacon filter command is being applied until we're in associated state
+because the command would rely on the associated access point's beacon
+interval and DTIM information.
 
-[ 1215.161863] Call trace:
-[ 1215.164307]  cfg80211_calculate_bitrate+0x124/0x200 [cfg80211]
-[ 1215.170139]  ieee80211s_update_metric+0x80/0xc0 [mac80211]
-[ 1215.175624]  ieee80211_tx_status_ext+0x508/0x838 [mac80211]
-[ 1215.181190]  mt7915_mcu_get_rx_rate+0x28c/0x8d0 [mt7915e]
-[ 1215.186580]  mt7915_mac_tx_free+0x324/0x7c0 [mt7915e]
-[ 1215.191623]  mt7915_queue_rx_skb+0xa8/0xd0 [mt7915e]
-[ 1215.196582]  mt76_dma_cleanup+0x7b0/0x11d0 [mt76]
-[ 1215.201276]  __napi_poll+0x38/0xf8
-[ 1215.204668]  napi_workfn+0x40/0x80
-[ 1215.208062]  process_one_work+0x1fc/0x390
-[ 1215.212062]  worker_thread+0x48/0x4d0
-[ 1215.215715]  kthread+0x120/0x128
-[ 1215.218935]  ret_from_fork+0x10/0x1c
-
-Fixes: e57b7901469f ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
-Fixes: e4c5ead632ff ("mt76: mt7915: rename mt7915_mcu_get_rate_info to mt7915_mcu_get_tx_rate")
-Reported-by: Evelyn Tsai <evelyn.tsai@mediatek.com>
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Fixes: 7124198ab1a4 ("mt76: mt7615: enable beacon filtering by default for offload fw")
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7915/mcu.c   | 38 ++++++++++++-------
- 1 file changed, 24 insertions(+), 14 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index ad71b8767c58..35bfa197dff6 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -351,54 +351,62 @@ mt7915_mcu_rx_radar_detected(struct mt7915_dev *dev, struct sk_buff *skb)
- 	dev->hw_pattern++;
- }
- 
--static void
-+static int
- mt7915_mcu_tx_rate_parse(struct mt76_phy *mphy, struct mt7915_mcu_ra_info *ra,
- 			 struct rate_info *rate, u16 r)
- {
- 	struct ieee80211_supported_band *sband;
- 	u16 ru_idx = le16_to_cpu(ra->ru_idx);
--	u16 flags = 0;
-+	bool cck = false;
- 
- 	rate->mcs = FIELD_GET(MT_RA_RATE_MCS, r);
- 	rate->nss = FIELD_GET(MT_RA_RATE_NSS, r) + 1;
- 
- 	switch (FIELD_GET(MT_RA_RATE_TX_MODE, r)) {
- 	case MT_PHY_TYPE_CCK:
-+		cck = true;
-+		fallthrough;
- 	case MT_PHY_TYPE_OFDM:
- 		if (mphy->chandef.chan->band == NL80211_BAND_5GHZ)
- 			sband = &mphy->sband_5g.sband;
- 		else
- 			sband = &mphy->sband_2g.sband;
- 
-+		rate->mcs = mt76_get_rate(mphy->dev, sband, rate->mcs, cck);
- 		rate->legacy = sband->bitrates[rate->mcs].bitrate;
- 		break;
- 	case MT_PHY_TYPE_HT:
- 	case MT_PHY_TYPE_HT_GF:
- 		rate->mcs += (rate->nss - 1) * 8;
--		flags |= RATE_INFO_FLAGS_MCS;
-+		if (rate->mcs > 31)
-+			return -EINVAL;
- 
-+		rate->flags = RATE_INFO_FLAGS_MCS;
- 		if (ra->gi)
--			flags |= RATE_INFO_FLAGS_SHORT_GI;
-+			rate->flags |= RATE_INFO_FLAGS_SHORT_GI;
- 		break;
- 	case MT_PHY_TYPE_VHT:
--		flags |= RATE_INFO_FLAGS_VHT_MCS;
-+		if (rate->mcs > 9)
-+			return -EINVAL;
- 
-+		rate->flags = RATE_INFO_FLAGS_VHT_MCS;
- 		if (ra->gi)
--			flags |= RATE_INFO_FLAGS_SHORT_GI;
-+			rate->flags |= RATE_INFO_FLAGS_SHORT_GI;
- 		break;
- 	case MT_PHY_TYPE_HE_SU:
- 	case MT_PHY_TYPE_HE_EXT_SU:
- 	case MT_PHY_TYPE_HE_TB:
- 	case MT_PHY_TYPE_HE_MU:
-+		if (ra->gi > NL80211_RATE_INFO_HE_GI_3_2 || rate->mcs > 11)
-+			return -EINVAL;
-+
- 		rate->he_gi = ra->gi;
- 		rate->he_dcm = FIELD_GET(MT_RA_RATE_DCM_EN, r);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+index a42b4d96860d..0ec836af211c 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+@@ -231,8 +231,6 @@ static int mt7615_add_interface(struct ieee80211_hw *hw,
+ 	ret = mt7615_mcu_add_dev_info(dev, vif, true);
+ 	if (ret)
+ 		goto out;
 -
--		flags |= RATE_INFO_FLAGS_HE_MCS;
-+		rate->flags = RATE_INFO_FLAGS_HE_MCS;
- 		break;
- 	default:
--		break;
-+		return -EINVAL;
- 	}
--	rate->flags = flags;
+-	mt7615_mac_set_beacon_filter(phy, vif, true);
+ out:
+ 	mt7615_mutex_release(dev);
  
- 	if (ru_idx) {
- 		switch (ru_idx) {
-@@ -435,6 +443,8 @@ mt7915_mcu_tx_rate_parse(struct mt76_phy *mphy, struct mt7915_mcu_ra_info *ra,
- 			break;
- 		}
- 	}
+@@ -258,7 +256,6 @@ static void mt7615_remove_interface(struct ieee80211_hw *hw,
+ 
+ 	mt7615_free_pending_tx_skbs(dev, msta);
+ 
+-	mt7615_mac_set_beacon_filter(phy, vif, false);
+ 	mt7615_mcu_add_dev_info(dev, vif, false);
+ 
+ 	rcu_assign_pointer(dev->mt76.wcid[idx], NULL);
+@@ -557,6 +554,9 @@ static void mt7615_bss_info_changed(struct ieee80211_hw *hw,
+ 	if (changed & BSS_CHANGED_ARP_FILTER)
+ 		mt7615_mcu_update_arp_filter(hw, vif, info);
+ 
++	if (changed & BSS_CHANGED_ASSOC)
++		mt7615_mac_set_beacon_filter(phy, vif, info->assoc);
 +
-+	return 0;
+ 	mt7615_mutex_release(dev);
  }
  
- static void
-@@ -465,12 +475,12 @@ mt7915_mcu_tx_rate_report(struct mt7915_dev *dev, struct sk_buff *skb)
- 		mphy = dev->mt76.phy2;
- 
- 	/* current rate */
--	mt7915_mcu_tx_rate_parse(mphy, ra, &rate, curr);
--	stats->tx_rate = rate;
-+	if (!mt7915_mcu_tx_rate_parse(mphy, ra, &rate, curr))
-+		stats->tx_rate = rate;
- 
- 	/* probing rate */
--	mt7915_mcu_tx_rate_parse(mphy, ra, &prob_rate, probe);
--	stats->prob_rate = prob_rate;
-+	if (!mt7915_mcu_tx_rate_parse(mphy, ra, &prob_rate, probe))
-+		stats->prob_rate = prob_rate;
- 
- 	if (attempts) {
- 		u16 success = le16_to_cpu(ra->success);
 -- 
 2.30.2
 
