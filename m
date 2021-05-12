@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D458C37C7C2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44FB437CB5A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236154AbhELQCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:02:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
+        id S242628AbhELQfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:35:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238178AbhELP53 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:57:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EEC56193A;
-        Wed, 12 May 2021 15:30:32 +0000 (UTC)
+        id S241696AbhELQ1w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77A556162B;
+        Wed, 12 May 2021 15:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833433;
-        bh=Lbn0cnLWpCAAcVlZ4aN63HVDM4nHBlmQK3j4bK53M+8=;
+        s=korg; t=1620834914;
+        bh=QyQZzy9wNswj6b7C3cVJiUuMu0wDsZ/emzhge6jGPOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p6m76RspyIq9AloHWFpxVblDEaUuWdmR/qM+knKnsBsm4VWTOwSJjS18GLyaSjYPX
-         krvjosybWenT4Cpt64yXAiwTzSSaGC3qX/YczYKgSMJZHYIoYEWdWo4XHIZdXQILre
-         RUraXUu9dnPwRo6GewIZxPMj4cDtylvSQ2G+NcAg=
+        b=rjKnTxF0LHpXBK8NYSZtyt9UmrF7BqgEP3s926/CTySVRaQcpxsfRdZ2Gy0VZp/O5
+         tYm46vP5QP3tTi24zzpMqAVVFtjeVAlSn6EEtuEasylGZWPEKUewK6F7Ov8MJZbBmg
+         LeTpNqgzlahgj+FhCybX7dlrio60DSQBVe3Zv+dA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.11 103/601] KVM: SVM: Do not allow SEV/SEV-ES initialization after vCPUs are created
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.12 134/677] Revert "drm/qxl: do not run release if qxl failed to init"
 Date:   Wed, 12 May 2021 16:43:00 +0200
-Message-Id: <20210512144831.237873782@linuxfoundation.org>
+Message-Id: <20210512144841.680305257@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
-References: <20210512144827.811958675@linuxfoundation.org>
+In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
+References: <20210512144837.204217980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-commit 8727906fde6ea665b52e68ddc58833772537f40a upstream.
+commit 93d8da8d7efbf690c0a9eaca798acc0c625245e6 upstream.
 
-Reject KVM_SEV_INIT and KVM_SEV_ES_INIT if they are attempted after one
-or more vCPUs have been created.  KVM assumes a VM is tagged SEV/SEV-ES
-prior to vCPU creation, e.g. init_vmcb() needs to mark the VMCB as SEV
-enabled, and svm_create_vcpu() needs to allocate the VMSA.  At best,
-creating vCPUs before SEV/SEV-ES init will lead to unexpected errors
-and/or behavior, and at worst it will crash the host, e.g.
-sev_launch_update_vmsa() will dereference a null svm->vmsa pointer.
+This reverts commit b91907a6241193465ca92e357adf16822242296d.
 
-Fixes: 1654efcbc431 ("KVM: SVM: Add KVM_SEV_INIT command")
-Fixes: ad73109ae7ec ("KVM: SVM: Provide support to launch and run an SEV-ES guest")
-Cc: stable@vger.kernel.org
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210331031936.2495277-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Patch is broken, it effectively makes qxl_drm_release() a nop
+because on normal driver shutdown qxl_drm_release() is called
+*after* drm_dev_unregister().
+
+Fixes: b91907a62411 ("drm/qxl: do not run release if qxl failed to init")
+Cc: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210204145712.1531203-3-kraxel@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/sev.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/qxl/qxl_drv.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -181,6 +181,9 @@ static int sev_guest_init(struct kvm *kv
- 	bool es_active = argp->id == KVM_SEV_ES_INIT;
- 	int asid, ret;
- 
-+	if (kvm->created_vcpus)
-+		return -EINVAL;
-+
- 	ret = -EBUSY;
- 	if (unlikely(sev->active))
- 		return ret;
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -144,8 +144,6 @@ static void qxl_drm_release(struct drm_d
+ 	 * reordering qxl_modeset_fini() + qxl_device_fini() calls is
+ 	 * non-trivial though.
+ 	 */
+-	if (!dev->registered)
+-		return;
+ 	qxl_modeset_fini(qdev);
+ 	qxl_device_fini(qdev);
+ }
 
 
