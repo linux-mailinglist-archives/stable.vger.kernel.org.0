@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE50437C0F8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4BFD37C10D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbhELOzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:55:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44646 "EHLO mail.kernel.org"
+        id S231966AbhELO4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:56:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231682AbhELOyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:54:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7794D6141C;
-        Wed, 12 May 2021 14:53:43 +0000 (UTC)
+        id S232019AbhELOzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:55:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2276D61428;
+        Wed, 12 May 2021 14:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831224;
-        bh=4FFcu2nntNaf1AldPU7bSuduAyTATfcKM3o04Z7RT7s=;
+        s=korg; t=1620831248;
+        bh=S04EQrgtECeoZrHMs+nwqVe6h32HeztyAUbNvXZ17pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zy9NQB7prplyuyZkhJYJ9CsHByxIYu7+fUPvMb7esvqQpU1dPGp51ISYDyXUhqFZ1
-         +72jwxr3iMWqEBnNQnZpiq2ETbu5WU7PuasiORlcofAt9STFLi1MHsjId/bUwxcKdF
-         go5p4M/auUH/nwdkJO6FL7GWx0SZYhH21UtjnNJ0=
+        b=f8FaPBwm/Tr/hFZGTQp5DWMvCRmAoHX4uQ7EBzfDE40tB/rFTgcDp5cVc81CjuzgS
+         u0koXMu0ju0AY8e+StNkDe74r3JfZ5Dnnvo0bFNfE9elnSP339rV+gg6dAMTeBdERI
+         a1wGELxq8Fx3qsDWSO3hf4MLCr1SZDKVs8Sz7O8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 007/244] tty: amiserial: fix TIOCSSERIAL permission check
-Date:   Wed, 12 May 2021 16:46:18 +0200
-Message-Id: <20210512144743.281530444@linuxfoundation.org>
+Subject: [PATCH 5.4 008/244] USB: serial: usb_wwan: fix TIOCSSERIAL jiffies conversions
+Date:   Wed, 12 May 2021 16:46:19 +0200
+Message-Id: <20210512144743.311762256@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,30 +40,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 1d31a831cc04f5f942de3e7d91edaa52310d3c99 upstream.
+commit 3d732690d2267f4d0e19077b178dffbedafdf0c9 upstream.
 
-Changing the port closing_wait parameter is a privileged operation.
+The port close_delay and closing_wait parameters set by TIOCSSERIAL are
+specified in jiffies and not milliseconds.
 
-Add the missing check to TIOCSSERIAL so that -EPERM is returned in case
-an unprivileged user tries to change the closing-wait setting.
+Add the missing conversions so that the TIOCSSERIAL works as expected
+also when HZ is not 1000.
 
-Cc: stable@vger.kernel.org
+Fixes: 02303f73373a ("usb-wwan: implement TIOCGSERIAL and TIOCSSERIAL to avoid blocking close(2)")
+Cc: stable@vger.kernel.org      # 2.6.38
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-9-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/amiserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/usb_wwan.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/amiserial.c
-+++ b/drivers/tty/amiserial.c
-@@ -1032,6 +1032,7 @@ static int set_serial_info(struct tty_st
- 	if (!serial_isroot()) {
- 		if ((ss->baud_base != state->baud_base) ||
- 		    (ss->close_delay != port->close_delay) ||
-+		    (ss->closing_wait != port->closing_wait) ||
- 		    (ss->xmit_fifo_size != state->xmit_fifo_size) ||
- 		    ((ss->flags & ~ASYNC_USR_MASK) !=
- 		     (port->flags & ~ASYNC_USR_MASK))) {
+--- a/drivers/usb/serial/usb_wwan.c
++++ b/drivers/usb/serial/usb_wwan.c
+@@ -140,10 +140,10 @@ int usb_wwan_get_serial_info(struct tty_
+ 	ss->line            = port->minor;
+ 	ss->port            = port->port_number;
+ 	ss->baud_base       = tty_get_baud_rate(port->port.tty);
+-	ss->close_delay	    = port->port.close_delay / 10;
++	ss->close_delay	    = jiffies_to_msecs(port->port.close_delay) / 10;
+ 	ss->closing_wait    = port->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+ 				 ASYNC_CLOSING_WAIT_NONE :
+-				 port->port.closing_wait / 10;
++				 jiffies_to_msecs(port->port.closing_wait) / 10;
+ 	return 0;
+ }
+ EXPORT_SYMBOL(usb_wwan_get_serial_info);
+@@ -155,9 +155,10 @@ int usb_wwan_set_serial_info(struct tty_
+ 	unsigned int closing_wait, close_delay;
+ 	int retval = 0;
+ 
+-	close_delay = ss->close_delay * 10;
++	close_delay = msecs_to_jiffies(ss->close_delay * 10);
+ 	closing_wait = ss->closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+-			ASYNC_CLOSING_WAIT_NONE : ss->closing_wait * 10;
++			ASYNC_CLOSING_WAIT_NONE :
++			msecs_to_jiffies(ss->closing_wait * 10);
+ 
+ 	mutex_lock(&port->port.mutex);
+ 
 
 
