@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E5CB37D247
+	by mail.lfdr.de (Postfix) with ESMTP id AEBBA37D249
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234395AbhELSIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:08:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50328 "EHLO mail.kernel.org"
+        id S236208AbhELSIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:08:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352122AbhELSCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:02:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E233613DF;
-        Wed, 12 May 2021 18:01:24 +0000 (UTC)
+        id S1352137AbhELSCf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:02:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB2C861425;
+        Wed, 12 May 2021 18:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842485;
-        bh=L1TraLPJIGnK4pTDFEezIQ9FbUehOUnWLcqyWq2g0cA=;
+        s=k20201202; t=1620842486;
+        bh=2qTl8uZxoMT78WUK54xsmpIkQsgZUY1/f/fVyhzZUNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1VzxWNmgV6Hw4AsqLXdTij2L02DG9bpuME7yexI0MVKcMQdNvR+MAe/1sqwPBige
-         iu81N5JpQUguespyFO3gDJReP9OBySddGZNefB5hNOjFD03l3n08gkIHuCAQqLOYOG
-         joz87gP+G9H88kkOgfyTFAJusMYtBW48IrSWmgVAXFMh/VK5iRLCZM5hYchbB8/4rc
-         bcsbQzPJnTCJZOkPwGQZK79miv5kq3ENgvc+jmpPxwiFhjsDAO+vNbhFsZIp7G124T
-         oi7nYWMerSy+XzSLG2OJnxdKVgp+/FgbAvz/q9rt9T+bJg42luWpTLCyMjq5uFkwvW
-         /Gtz4xMRMV18A==
+        b=LU5EU1O8yvLRyvWTESW9lXMEuXiG8Yjlm68fa/A4HZNkq6FQ9yiFwwsCjop14FBiG
+         cCj7M0idHZ6/TT8HsqOgoFUZzzAwI+5yKbtOrsmvFCEIxVhi+SkSJNxBm3fXShCLgP
+         lKgvEZKi09aAUDsMCwL5YZdHYJx6bQ6R/ndgClCFdY7XAZQEtLgUPV0tRWLFYbkvrm
+         wdqiwRRH4GbL+NPlF0g9OAdK8nMTunZ24Rn2qcnbyLLIvDmRQWXU12v3/9iWn0vLvb
+         rBJOqh27tYLqb1P3Wrkh4RzpO/ClysOXQGWGaWNc4vz6NahZxCekXVFdO7/jytQuHR
+         fxFh0WHBMPpTw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Ritesh Raj Sarraf <rrs@debian.org>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 14/37] um: Mark all kernel symbols as local
-Date:   Wed, 12 May 2021 14:00:41 -0400
-Message-Id: <20210512180104.664121-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 15/37] um: Disable CONFIG_GCOV with MODULES
+Date:   Wed, 12 May 2021 14:00:42 -0400
+Message-Id: <20210512180104.664121-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180104.664121-1-sashal@kernel.org>
 References: <20210512180104.664121-1-sashal@kernel.org>
@@ -46,107 +44,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit d5027ca63e0e778b641cf23e3f5c6d6212cf412b ]
+[ Upstream commit ad3d19911632debc886ef4a992d41d6de7927006 ]
 
-Ritesh reported a bug [1] against UML, noting that it crashed on
-startup. The backtrace shows the following (heavily redacted):
+CONFIG_GCOV doesn't work with modules, and for various reasons
+it cannot work, see also
+https://lore.kernel.org/r/d36ea54d8c0a8dd706826ba844a6f27691f45d55.camel@sipsolutions.net
 
-(gdb) bt
-...
- #26 0x0000000060015b5d in sem_init () at ipc/sem.c:268
- #27 0x00007f89906d92f7 in ?? () from /lib/x86_64-linux-gnu/libcom_err.so.2
- #28 0x00007f8990ab8fb2 in call_init (...) at dl-init.c:72
-...
- #40 0x00007f89909bf3a6 in nss_load_library (...) at nsswitch.c:359
-...
- #44 0x00007f8990895e35 in _nss_compat_getgrnam_r (...) at nss_compat/compat-grp.c:486
- #45 0x00007f8990968b85 in __getgrnam_r [...]
- #46 0x00007f89909d6b77 in grantpt [...]
- #47 0x00007f8990a9394e in __GI_openpty [...]
- #48 0x00000000604a1f65 in openpty_cb (...) at arch/um/os-Linux/sigio.c:407
- #49 0x00000000604a58d0 in start_idle_thread (...) at arch/um/os-Linux/skas/process.c:598
- #50 0x0000000060004a3d in start_uml () at arch/um/kernel/skas/process.c:45
- #51 0x00000000600047b2 in linux_main (...) at arch/um/kernel/um_arch.c:334
- #52 0x000000006000574f in main (...) at arch/um/os-Linux/main.c:144
+Make CONFIG_GCOV depend on !MODULES to avoid anyone
+running into issues there. This also means we need
+not export the gcov symbols.
 
-indicating that the UML function openpty_cb() calls openpty(),
-which internally calls __getgrnam_r(), which causes the nsswitch
-machinery to get started.
-
-This loads, through lots of indirection that I snipped, the
-libcom_err.so.2 library, which (in an unknown function, "??")
-calls sem_init().
-
-Now, of course it wants to get libpthread's sem_init(), since
-it's linked against libpthread. However, the dynamic linker
-looks up that symbol against the binary first, and gets the
-kernel's sem_init().
-
-Hajime Tazaki noted that "objcopy -L" can localize a symbol,
-so the dynamic linker wouldn't do the lookup this way. I tried,
-but for some reason that didn't seem to work.
-
-Doing the same thing in the linker script instead does seem to
-work, though I cannot entirely explain - it *also* works if I
-just add "VERSION { { global: *; }; }" instead, indicating that
-something else is happening that I don't really understand. It
-may be that explicitly doing that marks them with some kind of
-empty version, and that's different from the default.
-
-Explicitly marking them with a version breaks kallsyms, so that
-doesn't seem to be possible.
-
-Marking all the symbols as local seems correct, and does seem
-to address the issue, so do that. Also do it for static link,
-nsswitch libraries could still be loaded there.
-
-[1] https://bugs.debian.org/983379
-
-Reported-by: Ritesh Raj Sarraf <rrs@debian.org>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Tested-By: Ritesh Raj Sarraf <rrs@debian.org>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/dyn.lds.S | 6 ++++++
- arch/um/kernel/uml.lds.S | 6 ++++++
- 2 files changed, 12 insertions(+)
+ arch/um/Kconfig.debug      |  1 +
+ arch/um/kernel/Makefile    |  1 -
+ arch/um/kernel/gmon_syms.c | 16 ----------------
+ 3 files changed, 1 insertion(+), 17 deletions(-)
+ delete mode 100644 arch/um/kernel/gmon_syms.c
 
-diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
-index dacbfabf66d8..2f2a8ce92f1e 100644
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -6,6 +6,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
+diff --git a/arch/um/Kconfig.debug b/arch/um/Kconfig.debug
+index 315d368e63ad..1dfb2959c73b 100644
+--- a/arch/um/Kconfig.debug
++++ b/arch/um/Kconfig.debug
+@@ -17,6 +17,7 @@ config GCOV
+ 	bool "Enable gcov support"
+ 	depends on DEBUG_INFO
+ 	depends on !KCOV
++	depends on !MODULES
+ 	help
+ 	  This option allows developers to retrieve coverage data from a UML
+ 	  session.
+diff --git a/arch/um/kernel/Makefile b/arch/um/kernel/Makefile
+index 5aa882011e04..e698e0c7dbdc 100644
+--- a/arch/um/kernel/Makefile
++++ b/arch/um/kernel/Makefile
+@@ -21,7 +21,6 @@ obj-y = config.o exec.o exitcode.o irq.o ksyms.o mem.o \
  
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
- {
-   PROVIDE (__executable_start = START);
-diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
-index 45d957d7004c..7a8e2b123e29 100644
---- a/arch/um/kernel/uml.lds.S
-+++ b/arch/um/kernel/uml.lds.S
-@@ -7,6 +7,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
+ obj-$(CONFIG_BLK_DEV_INITRD) += initrd.o
+ obj-$(CONFIG_GPROF)	+= gprof_syms.o
+-obj-$(CONFIG_GCOV)	+= gmon_syms.o
+ obj-$(CONFIG_EARLY_PRINTK) += early_printk.o
+ obj-$(CONFIG_STACKTRACE) += stacktrace.o
  
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
- {
-   /* This must contain the right address - not quite the default ELF one.*/
+diff --git a/arch/um/kernel/gmon_syms.c b/arch/um/kernel/gmon_syms.c
+deleted file mode 100644
+index 9361a8eb9bf1..000000000000
+--- a/arch/um/kernel/gmon_syms.c
++++ /dev/null
+@@ -1,16 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
+- */
+-
+-#include <linux/module.h>
+-
+-extern void __bb_init_func(void *)  __attribute__((weak));
+-EXPORT_SYMBOL(__bb_init_func);
+-
+-extern void __gcov_init(void *)  __attribute__((weak));
+-EXPORT_SYMBOL(__gcov_init);
+-extern void __gcov_merge_add(void *, unsigned int)  __attribute__((weak));
+-EXPORT_SYMBOL(__gcov_merge_add);
+-extern void __gcov_exit(void)  __attribute__((weak));
+-EXPORT_SYMBOL(__gcov_exit);
 -- 
 2.30.2
 
