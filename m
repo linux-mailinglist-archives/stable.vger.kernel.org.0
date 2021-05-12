@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3854E37C4CE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B964937C4D7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234636AbhELPdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40502 "EHLO mail.kernel.org"
+        id S230423AbhELPdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:33:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235687AbhELP2q (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235696AbhELP2q (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:28:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC1F861C2F;
-        Wed, 12 May 2021 15:14:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48E476144A;
+        Wed, 12 May 2021 15:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832481;
-        bh=JsJiWstIsSPp/unCPBmaU/bOK5cDK9cuN3cHAiuLIM4=;
+        s=korg; t=1620832483;
+        bh=su0atcwJBS8RELHRlRBeui+HOCQ3P+7FGGWXnQe13PI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wR+UKZaA8n987ksZCicYvBMLSwl8cwGwRAAzZdh1CdwZ1hG/reoOabVRFDNDDwI0P
-         HLi7sNJnMFPa6rI0SZElCfv65LLI7bTizc0weViRlia/68pK5a8YT0jfyf/Se0tEZR
-         0ghUPWVQdB88z+cSeuU0J18F6V6d7+DKvHxjh8Kg=
+        b=D6u/N1HB79ufGEMdEbelB3xtdcsQS00u1yvSwvcNnLcdV+jZQyx4yx5ytEP/MEHX1
+         KANXbzmqfcuka1QEENeZfFjouTgNCh1kEB+9NpHCbPL0KlwEvMN3M3TCwATTiiE90R
+         +l9t6jIskM0CFbEMS5a4ONKnfpNEHRNtFQYboqB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Quanyang Wang <quanyang.wang@windriver.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 262/530] spi: spi-zynqmp-gqspi: fix clk_enable/disable imbalance issue
-Date:   Wed, 12 May 2021 16:46:12 +0200
-Message-Id: <20210512144828.439652984@linuxfoundation.org>
+Subject: [PATCH 5.10 263/530] spi: spi-zynqmp-gqspi: fix hang issue when suspend/resume
+Date:   Wed, 12 May 2021 16:46:13 +0200
+Message-Id: <20210512144828.470507719@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -43,148 +43,96 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit c6bdae08012b2ca3e94f3a41ef4ca8cfe7c9ab6f ]
+[ Upstream commit 799f923f0a66a9c99f0a3eaa078b306db7a8b33a ]
 
-The clks "pclk" and "ref_clk" are enabled twice during the probe. The
-first time is in the function zynqmp_qspi_probe and the second time is
-in zynqmp_qspi_setup_op which is called by devm_spi_register_controller.
-Then calling zynqmp_qspi_remove (rmmod this module) to disable these clks
-will trigger a warning as below:
+After calling platform_set_drvdata(pdev, xqspi) in probe, the return
+value of dev_get_drvdata(dev) is a pointer to struct zynqmp_qspi but
+not struct spi_controller. A wrong structure type passing to the
+functions spi_controller_suspend/resume will hang the system.
 
-[  309.124604] Unpreparing enabled qspi_ref
-[  309.128641] WARNING: CPU: 1 PID: 537 at drivers/clk/clk.c:824 clk_core_unprepare+0x108/0x110
+And we should check the return value of spi_controller_suspend, if
+an error is returned, return it to PM subsystem to stop suspend.
 
-Since pm_runtime works now, clks can be enabled/disabled by calling
-zynqmp_runtime_suspend/resume. So we don't need to enable these clks
-explicitly in zynqmp_qspi_setup_op. Remove them to fix this issue.
-
-And remove clk enabling/disabling in zynqmp_qspi_resume because there is
-no spi transfer operation so enabling ref_clk is redundant meanwhile pclk
-is not disabled for it is shared with other peripherals.
-
-Furthermore replace clk_enable/disable with clk_prepare_enable and
-clk_disable_unprepare in runtime_suspend/resume functions.
+Also, GQSPI_EN_MASK should be written to GQSPI_EN_OFST to enable
+the spi controller in zynqmp_qspi_resume since it was disabled in
+zynqmp_qspi_suspend before.
 
 Fixes: 1c26372e5aa9 ("spi: spi-zynqmp-gqspi: Update driver to use spi-mem framework")
 Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Link: https://lore.kernel.org/r/20210416004652.2975446-2-quanyang.wang@windriver.com
+Link: https://lore.kernel.org/r/20210416004652.2975446-3-quanyang.wang@windriver.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 47 ++++++----------------------------
- 1 file changed, 8 insertions(+), 39 deletions(-)
+ drivers/spi/spi-zynqmp-gqspi.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index 408e348382c5..31d266cfbb4c 100644
+index 31d266cfbb4c..d6ac8fe145a1 100644
 --- a/drivers/spi/spi-zynqmp-gqspi.c
 +++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -487,24 +487,10 @@ static int zynqmp_qspi_setup_op(struct spi_device *qspi)
+@@ -157,6 +157,7 @@ enum mode_type {GQSPI_MODE_IO, GQSPI_MODE_DMA};
+  * @data_completion:	completion structure
+  */
+ struct zynqmp_qspi {
++	struct spi_controller *ctlr;
+ 	void __iomem *regs;
+ 	struct clk *refclk;
+ 	struct clk *pclk;
+@@ -827,10 +828,13 @@ static void zynqmp_qspi_read_op(struct zynqmp_qspi *xqspi, u8 rx_nbits,
+  */
+ static int __maybe_unused zynqmp_qspi_suspend(struct device *dev)
  {
- 	struct spi_controller *ctlr = qspi->master;
- 	struct zynqmp_qspi *xqspi = spi_controller_get_devdata(ctlr);
--	struct device *dev = &ctlr->dev;
--	int ret;
+-	struct spi_controller *ctlr = dev_get_drvdata(dev);
+-	struct zynqmp_qspi *xqspi = spi_controller_get_devdata(ctlr);
++	struct zynqmp_qspi *xqspi = dev_get_drvdata(dev);
++	struct spi_controller *ctlr = xqspi->ctlr;
++	int ret;
  
- 	if (ctlr->busy)
- 		return -EBUSY;
+-	spi_controller_suspend(ctlr);
++	ret = spi_controller_suspend(ctlr);
++	if (ret)
++		return ret;
  
--	ret = clk_enable(xqspi->refclk);
--	if (ret) {
--		dev_err(dev, "Cannot enable device clock.\n");
--		return ret;
--	}
--
--	ret = clk_enable(xqspi->pclk);
--	if (ret) {
--		dev_err(dev, "Cannot enable APB clock.\n");
--		clk_disable(xqspi->refclk);
--		return ret;
--	}
- 	zynqmp_gqspi_write(xqspi, GQSPI_EN_OFST, GQSPI_EN_MASK);
+ 	zynqmp_gqspi_write(xqspi, GQSPI_EN_OFST, 0x0);
  
- 	return 0;
-@@ -863,26 +849,9 @@ static int __maybe_unused zynqmp_qspi_suspend(struct device *dev)
+@@ -848,7 +852,10 @@ static int __maybe_unused zynqmp_qspi_suspend(struct device *dev)
+  */
  static int __maybe_unused zynqmp_qspi_resume(struct device *dev)
  {
- 	struct spi_controller *ctlr = dev_get_drvdata(dev);
--	struct zynqmp_qspi *xqspi = spi_controller_get_devdata(ctlr);
--	int ret = 0;
--
--	ret = clk_enable(xqspi->pclk);
--	if (ret) {
--		dev_err(dev, "Cannot enable APB clock.\n");
--		return ret;
--	}
--
--	ret = clk_enable(xqspi->refclk);
--	if (ret) {
--		dev_err(dev, "Cannot enable device clock.\n");
--		clk_disable(xqspi->pclk);
--		return ret;
--	}
+-	struct spi_controller *ctlr = dev_get_drvdata(dev);
++	struct zynqmp_qspi *xqspi = dev_get_drvdata(dev);
++	struct spi_controller *ctlr = xqspi->ctlr;
++
++	zynqmp_gqspi_write(xqspi, GQSPI_EN_OFST, GQSPI_EN_MASK);
  
  	spi_controller_resume(ctlr);
  
--	clk_disable(xqspi->refclk);
--	clk_disable(xqspi->pclk);
- 	return 0;
- }
- 
-@@ -898,8 +867,8 @@ static int __maybe_unused zynqmp_runtime_suspend(struct device *dev)
+@@ -865,7 +872,7 @@ static int __maybe_unused zynqmp_qspi_resume(struct device *dev)
+  */
+ static int __maybe_unused zynqmp_runtime_suspend(struct device *dev)
  {
- 	struct zynqmp_qspi *xqspi = (struct zynqmp_qspi *)dev_get_drvdata(dev);
+-	struct zynqmp_qspi *xqspi = (struct zynqmp_qspi *)dev_get_drvdata(dev);
++	struct zynqmp_qspi *xqspi = dev_get_drvdata(dev);
  
--	clk_disable(xqspi->refclk);
--	clk_disable(xqspi->pclk);
-+	clk_disable_unprepare(xqspi->refclk);
-+	clk_disable_unprepare(xqspi->pclk);
- 
- 	return 0;
- }
-@@ -917,16 +886,16 @@ static int __maybe_unused zynqmp_runtime_resume(struct device *dev)
- 	struct zynqmp_qspi *xqspi = (struct zynqmp_qspi *)dev_get_drvdata(dev);
+ 	clk_disable_unprepare(xqspi->refclk);
+ 	clk_disable_unprepare(xqspi->pclk);
+@@ -883,7 +890,7 @@ static int __maybe_unused zynqmp_runtime_suspend(struct device *dev)
+  */
+ static int __maybe_unused zynqmp_runtime_resume(struct device *dev)
+ {
+-	struct zynqmp_qspi *xqspi = (struct zynqmp_qspi *)dev_get_drvdata(dev);
++	struct zynqmp_qspi *xqspi = dev_get_drvdata(dev);
  	int ret;
  
--	ret = clk_enable(xqspi->pclk);
-+	ret = clk_prepare_enable(xqspi->pclk);
- 	if (ret) {
- 		dev_err(dev, "Cannot enable APB clock.\n");
- 		return ret;
- 	}
- 
--	ret = clk_enable(xqspi->refclk);
-+	ret = clk_prepare_enable(xqspi->refclk);
- 	if (ret) {
- 		dev_err(dev, "Cannot enable device clock.\n");
--		clk_disable(xqspi->pclk);
-+		clk_disable_unprepare(xqspi->pclk);
- 		return ret;
- 	}
- 
-@@ -1136,13 +1105,11 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
- 		goto remove_master;
- 	}
- 
--	init_completion(&xqspi->data_completion);
--
- 	xqspi->refclk = devm_clk_get(&pdev->dev, "ref_clk");
- 	if (IS_ERR(xqspi->refclk)) {
- 		dev_err(dev, "ref_clk clock not found.\n");
- 		ret = PTR_ERR(xqspi->refclk);
--		goto clk_dis_pclk;
-+		goto remove_master;
- 	}
- 
  	ret = clk_prepare_enable(xqspi->pclk);
-@@ -1157,6 +1124,8 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
- 		goto clk_dis_pclk;
- 	}
+@@ -1090,6 +1097,7 @@ static int zynqmp_qspi_probe(struct platform_device *pdev)
  
-+	init_completion(&xqspi->data_completion);
-+
- 	mutex_init(&xqspi->op_lock);
+ 	xqspi = spi_controller_get_devdata(ctlr);
+ 	xqspi->dev = dev;
++	xqspi->ctlr = ctlr;
+ 	platform_set_drvdata(pdev, xqspi);
  
- 	pm_runtime_use_autosuspend(&pdev->dev);
+ 	xqspi->regs = devm_platform_ioremap_resource(pdev, 0);
 -- 
 2.30.2
 
