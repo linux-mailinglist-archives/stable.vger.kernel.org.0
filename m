@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 296DE37C804
+	by mail.lfdr.de (Postfix) with ESMTP id 9566237C805
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234556AbhELQEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:04:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38412 "EHLO mail.kernel.org"
+        id S237669AbhELQEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:04:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235216AbhELP7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:59:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3F1F61CC4;
-        Wed, 12 May 2021 15:32:02 +0000 (UTC)
+        id S235226AbhELP7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:59:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 666C561969;
+        Wed, 12 May 2021 15:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833523;
-        bh=fB2ymC7lOVdckjRTUKLZpr28i4cAT/4LZHa3MvLFjqI=;
+        s=korg; t=1620833525;
+        bh=vb9rVOJ1HtcPAzLADRmjhcbEds3cmyQX5JJ3uQjpkGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7tOdPPpIDujn5Www1CywzLMIEnEOi22jcI4FIzJEY5hlvZO9UG9jRuqX2noxfl2F
-         OQ3tOYRO6+VycNxZFRQYRyqfhbh5/GXrgeBfc9SM1K/+PxTnQ1oPz36dy6w+XP76bV
-         HRZeyGr8slCbEyKNrIeWgkfyNuztLrJ8hMWSCFsE=
+        b=0aj9KU6IjlXHUabfL4veQVWuVzpdBe1ha6lkxDxqU320mn47wkuwrkTxFMTssbxNG
+         UZVfiaW9w1THAgC3AHevQY9q6WjKgxkATC8uQwFVKI1CVxs720Dwrz7+7l0+h+UTz4
+         d/lZm9WtT3z4L32QArLYx19cyW546BY9kkvxEETs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 149/601] serial: stm32: fix TX and RX FIFO thresholds
-Date:   Wed, 12 May 2021 16:43:46 +0200
-Message-Id: <20210512144832.721980855@linuxfoundation.org>
+Subject: [PATCH 5.11 150/601] serial: stm32: fix a deadlock condition with wakeup event
+Date:   Wed, 12 May 2021 16:43:47 +0200
+Message-Id: <20210512144832.752475094@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,70 +42,115 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit 25a8e7611da5513b388165661b17173c26e12c04 ]
+[ Upstream commit ad7676812437a00a4c6be155fc17926069f99084 ]
 
-TX and RX FIFO thresholds may be cleared after suspend/resume, depending
-on the low power mode.
+Deadlock issue is seen when enabling CONFIG_PROVE_LOCKING=Y, and uart
+console as wakeup source. Deadlock occurs when resuming from low power
+mode if system is waked up via usart console.
+The deadlock is triggered 100% when also disabling console suspend prior
+to go to suspend.
 
-Those configurations (done in startup) are not effective for UART console,
-as:
-- the reference manual indicates that FIFOEN bit can only be written when
-  the USART is disabled (UE=0)
-- a set_termios (where UE is set) is requested firstly for console
-  enabling, before the startup.
+Simplified call stack, deadlock condition:
+- stm32_console_write <-- spin_lock already held
+- print_circular_bug
+- pm_wakeup_dev_event <-- triggers lockdep as seen above
+- stm32_receive_chars
+- stm32_interrupt <-- wakeup via uart console, takes the lock
 
-Fixes: 84872dc448fe ("serial: stm32: add RX and TX FIFO flush")
+So, revisit spin_lock in stm32-usart driver:
+- there is no need to hold the lock to access ICR (atomic clear of status
+  flags)
+- only hold the lock inside stm32_receive_chars() routine (no need to
+  call pm_wakeup_dev_event with lock held)
+- keep stm32_transmit_chars() routine called with lock held
+
+Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
 Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-5-erwan.leray@foss.st.com
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20210304162308.8984-6-erwan.leray@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 23 +++++++++--------------
- 1 file changed, 9 insertions(+), 14 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 70155e0c3b02..91a33ec4dbb4 100644
+index 91a33ec4dbb4..5ae3841a4a08 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -648,19 +648,8 @@ static int stm32_usart_startup(struct uart_port *port)
- 	if (ofs->rqr != UNDEF_REG)
- 		stm32_usart_set_bits(port, ofs->rqr, USART_RQR_RXFRQ);
+@@ -213,13 +213,18 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+ 	struct tty_port *tport = &port->state->port;
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+-	unsigned long c;
++	unsigned long c, flags;
+ 	u32 sr;
+ 	char flag;
  
--	/* Tx and RX FIFO configuration */
--	if (stm32_port->fifoen) {
--		val = readl_relaxed(port->membase + ofs->cr3);
--		val &= ~(USART_CR3_TXFTCFG_MASK | USART_CR3_RXFTCFG_MASK);
--		val |= USART_CR3_TXFTCFG_HALF << USART_CR3_TXFTCFG_SHIFT;
--		val |= USART_CR3_RXFTCFG_HALF << USART_CR3_RXFTCFG_SHIFT;
--		writel_relaxed(val, port->membase + ofs->cr3);
--	}
--
--	/* RX FIFO enabling */
-+	/* RX enabling */
- 	val = stm32_port->cr1_irq | USART_CR1_RE | BIT(cfg->uart_enable_bit);
--	if (stm32_port->fifoen)
--		val |= USART_CR1_FIFOEN;
- 	stm32_usart_set_bits(port, ofs->cr1, val);
+ 	if (irqd_is_wakeup_set(irq_get_irq_data(port->irq)))
+ 		pm_wakeup_event(tport->tty->dev, 0);
  
- 	return 0;
-@@ -768,9 +757,15 @@ static void stm32_usart_set_termios(struct uart_port *port,
- 	if (stm32_port->fifoen)
- 		cr1 |= USART_CR1_FIFOEN;
- 	cr2 = 0;
++	if (threaded)
++		spin_lock_irqsave(&port->lock, flags);
++	else
++		spin_lock(&port->lock);
 +
-+	/* Tx and RX FIFO configuration */
- 	cr3 = readl_relaxed(port->membase + ofs->cr3);
--	cr3 &= USART_CR3_TXFTIE | USART_CR3_RXFTCFG_MASK | USART_CR3_RXFTIE
--		| USART_CR3_TXFTCFG_MASK;
-+	cr3 &= USART_CR3_TXFTIE | USART_CR3_RXFTIE;
-+	if (stm32_port->fifoen) {
-+		cr3 &= ~(USART_CR3_TXFTCFG_MASK | USART_CR3_RXFTCFG_MASK);
-+		cr3 |= USART_CR3_TXFTCFG_HALF << USART_CR3_TXFTCFG_SHIFT;
-+		cr3 |= USART_CR3_RXFTCFG_HALF << USART_CR3_RXFTCFG_SHIFT;
+ 	while (stm32_usart_pending_rx(port, &sr, &stm32_port->last_res,
+ 				      threaded)) {
+ 		sr |= USART_SR_DUMMY_RX;
+@@ -275,9 +280,12 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+ 		uart_insert_char(port, sr, USART_SR_ORE, c, flag);
+ 	}
+ 
+-	spin_unlock(&port->lock);
++	if (threaded)
++		spin_unlock_irqrestore(&port->lock, flags);
++	else
++		spin_unlock(&port->lock);
++
+ 	tty_flip_buffer_push(tport);
+-	spin_lock(&port->lock);
+ }
+ 
+ static void stm32_usart_tx_dma_complete(void *arg)
+@@ -458,8 +466,6 @@ static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
+ 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+ 	u32 sr;
+ 
+-	spin_lock(&port->lock);
+-
+ 	sr = readl_relaxed(port->membase + ofs->isr);
+ 
+ 	if ((sr & USART_SR_RTOF) && ofs->icr != UNDEF_REG)
+@@ -473,10 +479,11 @@ static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
+ 	if ((sr & USART_SR_RXNE) && !(stm32_port->rx_ch))
+ 		stm32_usart_receive_chars(port, false);
+ 
+-	if ((sr & USART_SR_TXE) && !(stm32_port->tx_ch))
++	if ((sr & USART_SR_TXE) && !(stm32_port->tx_ch)) {
++		spin_lock(&port->lock);
+ 		stm32_usart_transmit_chars(port);
+-
+-	spin_unlock(&port->lock);
++		spin_unlock(&port->lock);
 +	}
  
- 	if (cflag & CSTOPB)
- 		cr2 |= USART_CR2_STOP_2B;
+ 	if (stm32_port->rx_ch)
+ 		return IRQ_WAKE_THREAD;
+@@ -489,13 +496,9 @@ static irqreturn_t stm32_usart_threaded_interrupt(int irq, void *ptr)
+ 	struct uart_port *port = ptr;
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 
+-	spin_lock(&port->lock);
+-
+ 	if (stm32_port->rx_ch)
+ 		stm32_usart_receive_chars(port, true);
+ 
+-	spin_unlock(&port->lock);
+-
+ 	return IRQ_HANDLED;
+ }
+ 
 -- 
 2.30.2
 
