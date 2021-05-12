@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E13E137CBDE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BDAF37CBDF
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237686AbhELQia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:38:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
+        id S235464AbhELQiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237307AbhELQaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:30:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28EED61944;
-        Wed, 12 May 2021 15:57:07 +0000 (UTC)
+        id S237325AbhELQaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:30:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9559861352;
+        Wed, 12 May 2021 15:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835027;
-        bh=i19GJPR1r/pomSvSMkYmq8LQivdwyNlomxYwxE0NMOs=;
+        s=korg; t=1620835030;
+        bh=lQWy1ogfCru3Jdza/vqNIxirYCHGCM1ChXjdqpLguAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aK3Xdwc4g/JLh/D5ExURphc2wQpEnYNjYA3g0hO8BwrNvOWvtsse79/AGRP0vHWZH
-         HX3HB2/katdVmUeIvpPqetjTz3eoMCAADJ/wkIQS0BbGeoX4OG052N3FUaM2Dg9HHS
-         6UOjbAc3IwWX+FOvdRIUHxi0kTMLem2VhpfKjg10=
+        b=O5h/1bW+xQ5J/JomzOfEPr6R9SIb6cqBUTLvBKDbtrMVx3OyPyVexkbXGREomW0I1
+         LSgWDfo3Iz74KDHok5cv2aTz+DF1ygS613STpl8z0c7YH7ZSTshn7bglbwhOnEOm2s
+         E44MHFCX/dhzfMLhbPG95R/Qt+3g7XbsMT6zoIfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 178/677] spi: rockchip: avoid objtool warning
-Date:   Wed, 12 May 2021 16:43:44 +0200
-Message-Id: <20210512144843.150082163@linuxfoundation.org>
+Subject: [PATCH 5.12 179/677] arm64: dts: broadcom: bcm4908: fix switch parent node name
+Date:   Wed, 12 May 2021 16:43:45 +0200
+Message-Id: <20210512144843.183506437@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,81 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit e50989527faeafb79f45a0f7529ba8e01dff1fff ]
+[ Upstream commit a348ff97ffb840b9d74b0e64b3e0e6002187d224 ]
 
-Building this file with clang leads to a an unreachable code path
-causing a warning from objtool:
+Ethernet switch and MDIO are grouped using "simple-bus". It's not
+allowed to use "ethernet-switch" node name as it isn't a switch. Replace
+it with "bus".
 
-drivers/spi/spi-rockchip.o: warning: objtool: rockchip_spi_transfer_one()+0x2e0: sibling call from callable instruction with modified stack frame
-
-Change the unreachable() into an error return that can be
-handled if it ever happens, rather than silently crashing
-the kernel.
-
-Fixes: 65498c6ae241 ("spi: rockchip: support 4bit words")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Pratyush Yadav <p.yadav@ti.com>
-Link: https://lore.kernel.org/r/20210226140109.3477093-1-arnd@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 527a3ac9bdf8 ("arm64: dts: broadcom: bcm4908: describe internal switch")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 936ef54e0903..0d75080da648 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -476,7 +476,7 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs,
- 	return 1;
- }
+diff --git a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
+index 9354077f74cd..9e799328c6db 100644
+--- a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
++++ b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908.dtsi
+@@ -131,7 +131,7 @@
+ 			status = "disabled";
+ 		};
  
--static void rockchip_spi_config(struct rockchip_spi *rs,
-+static int rockchip_spi_config(struct rockchip_spi *rs,
- 		struct spi_device *spi, struct spi_transfer *xfer,
- 		bool use_dma, bool slave_mode)
- {
-@@ -521,7 +521,9 @@ static void rockchip_spi_config(struct rockchip_spi *rs,
- 		 * ctlr->bits_per_word_mask, so this shouldn't
- 		 * happen
- 		 */
--		unreachable();
-+		dev_err(rs->dev, "unknown bits per word: %d\n",
-+			xfer->bits_per_word);
-+		return -EINVAL;
- 	}
- 
- 	if (use_dma) {
-@@ -554,6 +556,8 @@ static void rockchip_spi_config(struct rockchip_spi *rs,
- 	 */
- 	writel_relaxed(2 * DIV_ROUND_UP(rs->freq, 2 * xfer->speed_hz),
- 			rs->regs + ROCKCHIP_SPI_BAUDR);
-+
-+	return 0;
- }
- 
- static size_t rockchip_spi_max_transfer_size(struct spi_device *spi)
-@@ -577,6 +581,7 @@ static int rockchip_spi_transfer_one(
- 		struct spi_transfer *xfer)
- {
- 	struct rockchip_spi *rs = spi_controller_get_devdata(ctlr);
-+	int ret;
- 	bool use_dma;
- 
- 	WARN_ON(readl_relaxed(rs->regs + ROCKCHIP_SPI_SSIENR) &&
-@@ -596,7 +601,9 @@ static int rockchip_spi_transfer_one(
- 
- 	use_dma = ctlr->can_dma ? ctlr->can_dma(ctlr, spi, xfer) : false;
- 
--	rockchip_spi_config(rs, spi, xfer, use_dma, ctlr->slave);
-+	ret = rockchip_spi_config(rs, spi, xfer, use_dma, ctlr->slave);
-+	if (ret)
-+		return ret;
- 
- 	if (use_dma)
- 		return rockchip_spi_prepare_dma(rs, ctlr, xfer);
+-		ethernet-switch@80000 {
++		bus@80000 {
+ 			compatible = "simple-bus";
+ 			#size-cells = <1>;
+ 			#address-cells = <1>;
 -- 
 2.30.2
 
