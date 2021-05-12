@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C98F437B898
+	by mail.lfdr.de (Postfix) with ESMTP id 5C96B37B897
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230362AbhELIwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:52:53 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:47775 "EHLO
+        id S230323AbhELIwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:52:51 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:51519 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230295AbhELIww (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 12 May 2021 04:52:52 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id AF05E1940621;
-        Wed, 12 May 2021 04:51:44 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 04:51:44 -0400
+        by vger.kernel.org with ESMTP id S230295AbhELIwv (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 12 May 2021 04:52:51 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 00FAB19403C2;
+        Wed, 12 May 2021 04:51:43 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 12 May 2021 04:51:43 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2HPI5Q
-        K96EJvSFakuUUZ+vQqiYkgW8VroWz8Zu1rm8Y=; b=ounHMLROEahVjRcuNHzbCH
-        HF0olpWE9ilGHhyMB6Rf3sAevJehJ/Fvm6Sq88GzLlGn2W1cSCeLB0dUC+M1sfaE
-        CLSpSv6QSo/PgHCjn+wm0YB3yQ/M62T4fyzoKeyTvSUyNASR/fhAOlKbBmO6VgAD
-        qqtffxdgfBieO5XQAdOhtOUy1+u3Go6+TEvndckH7lluJOptJLiNF2+fPTh0Jjb1
-        Vc1L9gpuQUTe2+mljiFZBG7AhI+8xOWZvEcpugYFiUikhOVx+rZWpiPEyOC/QtJ5
-        G0uLybN16mI8S7IYAQe01odq6uhfdMDEeCGKkfLfR3xup0uRwEclbU1spdV52uKA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zIz6hF
+        fBt9oeLeietCNSkmxI+8YrGuirDPaZTir1IaU=; b=osfkJiD3Srcq1aT7P61PHU
+        wYj52TBO+vaLwRz/FzxiNKm1Ab60PM0q/uVw6bQYchRhuqbT9BGmMy/jzzj50J/E
+        qHCXJlSw/kQiz7o4xSFmYXkNcU55Z0zNTiVcGPC3+5lQLfUyvIHKOyPRBVa5tmYn
+        tfkoFpnLhxU5hu/yWChiFvbs/MBVln3Z6FLvUxsm0arYfAD+zUNkGiNZGooHjhUz
+        YFp67dzIBGsgAHnoMtVlogo4HoqrYQhWyRGsApZA8co4U9KxO4R501GCAFTHwnrv
+        islPWrCUJIr5QZpF1xXPQnDPBHXzULT9dtjYJxWzyl/1mcquQqccJBoGqx6nhnmg
         ==
-X-ME-Sender: <xms:IJebYLoHZmIOCv67Dl-xUFyGr-eE6kZypN3Klb-Sed6KsDR_CcpBBQ>
-    <xme:IJebYFqC0EOUsXCvgj9yT1nZL9dkLDHFANrolqu6snmfvimBym1OiQlWrqEY53763
-    iFbgbfmp099KQ>
+X-ME-Sender: <xms:HpebYMiFP05Arc2mpNVz_wNcv_cDaJm2V6pTz3zuaDelt2pFAaOh2g>
+    <xme:HpebYFDCk28p2-9Nc1i4Ynpclf5jrLz_Kj4-OS7A__KWU4yWvkOPAz2qitHn0kK7v
+    M1nbvqohJ3HRA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:IJebYIO0PGOWq9jnEFtrCEaojOTvhLLgnOL09tzuxAHJNBtHg-SIwQ>
-    <xmx:IJebYO75rRJeCy9M0D3UgNm1kPKmmD0DcpEuteUujYucWLX4HQptag>
-    <xmx:IJebYK4CS0o_ZZ6G-eUjuxfDvSIZBywREA1ch9ujNOQxxQQ62DcIiw>
-    <xmx:IJebYKF3RlxOlBisXSUI6NJjW8eVQwmg26slaYxUfvJpy3MlH3JU4Q>
+X-ME-Proxy: <xmx:HpebYEH0nbv0n4so9RC6WNu-y7RFwLY02lRatIKPbZv3_XE7jQF-5w>
+    <xmx:HpebYNTRgpoxsAZpEccfm7tznsYBLk3DXOYom0V9aMP07xx719rU9w>
+    <xmx:HpebYJyT69UJIa-dfpZb5Qrm572hQB-ZnVZgSocVm_od7bc5xgq7fg>
+    <xmx:HpebYE_4YtrsR2vYCJyyKzzdJVOeP5cwzych1VLX6VgD7CcfNh1tkw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:51:44 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: inv_mpu6050: Fully validate gyro and accel scale writes" failed to apply to 4.14-stable tree
+        Wed, 12 May 2021 04:51:42 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: inv_mpu6050: Fully validate gyro and accel scale writes" failed to apply to 4.19-stable tree
 To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, jmaneyrol@invensense.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 12 May 2021 10:51:31 +0200
-Message-ID: <16208094918288@kroah.com>
+Message-ID: <16208094914939@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
