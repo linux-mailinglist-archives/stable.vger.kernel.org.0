@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E913737D2E4
+	by mail.lfdr.de (Postfix) with ESMTP id 4888637D2E3
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242084AbhELSO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:14:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53456 "EHLO mail.kernel.org"
+        id S242091AbhELSO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:14:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241624AbhELSIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:08:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5F3261447;
-        Wed, 12 May 2021 18:04:56 +0000 (UTC)
+        id S241620AbhELSIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:08:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92D676162A;
+        Wed, 12 May 2021 18:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842697;
-        bh=iyGI1xaaTjmQoglGchyr9CKLVM3atq60dBSUj6ny9uY=;
+        s=k20201202; t=1620842699;
+        bh=4mcbU77nyHedrXOEqFa7BLF94C6/zWkzvSLUnk0h/MM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNFxzc0PVMtTQjO75k3imYuulh/2uBg4kQnlOKvhMVfc7aVYonCn3K4w3DuGvEwh2
-         6NzB0zFV9L2ofBypFk1UhGFxwS0jcN62VBF3jTz/9x5Gb1TTSIkZumztimA/6RcLkq
-         CKclRUUXWsvvbKf/pHATgFFMN5pMOVnMHdYgg7btjhZfJB0AKDSwvbni3T3MthElY6
-         V3mGeyIznqWhowiXreZutdBb1uPDVkMHviYQtYxkgp4wehRlt5S0tsD9s4OMsfEVkr
-         xF4Ydfl+2mInMzYnPVW/usKcpQUQijQ1nI3y/cFjjZX4JZRwC5NjZACvRJL3dclXjz
-         95Ime4iS/+Tbw==
+        b=VOQOZgyxaWRbX4nltGYOs7yJCms90H2YCKMfEiKSFvFtaq8MCvIwQEmt8OtbFx0Vk
+         b4R0KEExQmQp30es3c8qJDVGMrA0ZHTQcGCrv7EBTUiF3+5dQy0rEw2iVBUMlLPDru
+         YS92pdUO0YdCkCoWxYq6GVke4qhlq0MjfMhmNXgCs8LQ/bLo8onKc3vxuz8qMpReJU
+         rq0babfCkOVPm0f9JGtqbrRaHAuZ0ZiyqYbVS/7gVMb6hRRMZzXwJr3iKEaUIbGCfI
+         84nz/qn/bH1RFum1Yk7NGBGhULkKfRn1u0jPGs4aI0HcvhMbOIlu+2fDiiNeEFsaDo
+         9w+fhhBN5ntpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 04/18] f2fs: fix to avoid out-of-bounds memory access
-Date:   Wed, 12 May 2021 14:04:35 -0400
-Message-Id: <20210512180450.665586-4-sashal@kernel.org>
+Cc:     Feilong Lin <linfeilong@huawei.com>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/18] ACPI / hotplug / PCI: Fix reference count leak in enable_slot()
+Date:   Wed, 12 May 2021 14:04:36 -0400
+Message-Id: <20210512180450.665586-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180450.665586-1-sashal@kernel.org>
 References: <20210512180450.665586-1-sashal@kernel.org>
@@ -44,61 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Feilong Lin <linfeilong@huawei.com>
 
-[ Upstream commit b862676e371715456c9dade7990c8004996d0d9e ]
+[ Upstream commit 3bbfd319034ddce59e023837a4aa11439460509b ]
 
-butt3rflyh4ck <butterflyhuangxx@gmail.com> reported a bug found by
-syzkaller fuzzer with custom modifications in 5.12.0-rc3+ [1]:
+In enable_slot(), if pci_get_slot() returns NULL, we clear the SLOT_ENABLED
+flag. When pci_get_slot() finds a device, it increments the device's
+reference count.  In this case, we did not call pci_dev_put() to decrement
+the reference count, so the memory of the device (struct pci_dev type) will
+eventually leak.
 
- dump_stack+0xfa/0x151 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x82/0x32c mm/kasan/report.c:232
- __kasan_report mm/kasan/report.c:399 [inline]
- kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
- f2fs_test_bit fs/f2fs/f2fs.h:2572 [inline]
- current_nat_addr fs/f2fs/node.h:213 [inline]
- get_next_nat_page fs/f2fs/node.c:123 [inline]
- __flush_nat_entry_set fs/f2fs/node.c:2888 [inline]
- f2fs_flush_nat_entries+0x258e/0x2960 fs/f2fs/node.c:2991
- f2fs_write_checkpoint+0x1372/0x6a70 fs/f2fs/checkpoint.c:1640
- f2fs_issue_checkpoint+0x149/0x410 fs/f2fs/checkpoint.c:1807
- f2fs_sync_fs+0x20f/0x420 fs/f2fs/super.c:1454
- __sync_filesystem fs/sync.c:39 [inline]
- sync_filesystem fs/sync.c:67 [inline]
- sync_filesystem+0x1b5/0x260 fs/sync.c:48
- generic_shutdown_super+0x70/0x370 fs/super.c:448
- kill_block_super+0x97/0xf0 fs/super.c:1394
+Call pci_dev_put() to decrement its reference count when pci_get_slot()
+returns a PCI device.
 
-The root cause is, if nat entry in checkpoint journal area is corrupted,
-e.g. nid of journalled nat entry exceeds max nid value, during checkpoint,
-once it tries to flush nat journal to NAT area, get_next_nat_page() may
-access out-of-bounds memory on nat_bitmap due to it uses wrong nid value
-as bitmap offset.
-
-[1] https://lore.kernel.org/lkml/CAFcO6XOMWdr8pObek6eN6-fs58KG9doRFadgJj-FnF-1x43s2g@mail.gmail.com/T/#u
-
-Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lore.kernel.org/r/b411af88-5049-a1c6-83ac-d104a1f429be@huawei.com
+Signed-off-by: Feilong Lin <linfeilong@huawei.com>
+Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/node.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pci/hotplug/acpiphp_glue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 1934dc6ad1cc..ff3f97ba1a55 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2654,6 +2654,9 @@ static void remove_nats_in_journal(struct f2fs_sb_info *sbi)
- 		struct f2fs_nat_entry raw_ne;
- 		nid_t nid = le32_to_cpu(nid_in_journal(journal, i));
+diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
+index be35bbfa6968..3d8844e7090a 100644
+--- a/drivers/pci/hotplug/acpiphp_glue.c
++++ b/drivers/pci/hotplug/acpiphp_glue.c
+@@ -540,6 +540,7 @@ static void enable_slot(struct acpiphp_slot *slot, bool bridge)
+ 			slot->flags &= ~SLOT_ENABLED;
+ 			continue;
+ 		}
++		pci_dev_put(dev);
+ 	}
+ }
  
-+		if (f2fs_check_nid_range(sbi, nid))
-+			continue;
-+
- 		raw_ne = nat_in_journal(journal, i);
- 
- 		ne = __lookup_nat_cache(nm_i, nid);
 -- 
 2.30.2
 
