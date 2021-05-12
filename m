@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94D0A37B99D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F02F37B9A5
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:50:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230154AbhELJvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:51:00 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:52681 "EHLO
-        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230019AbhELJvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:51:00 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 21BE91940EB1;
-        Wed, 12 May 2021 05:49:52 -0400 (EDT)
+        id S230184AbhELJvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:51:39 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:42351 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230210AbhELJvi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:51:38 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.west.internal (Postfix) with ESMTP id 38E1D14BF;
+        Wed, 12 May 2021 05:50:30 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 05:49:52 -0400
+  by compute5.internal (MEProxy); Wed, 12 May 2021 05:50:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=AHgO5i
-        Y/z+HQ1JYMX/XVViAZLIjgbOXDCHb7+hMjV+A=; b=HIIsBQZXOCXHzQxoinIHWz
-        xwAxunipHJo4HNRqH0FAmDiqg/rr8U1UghTP/68MygkPsDhaAR3ks1fHqNSfilgx
-        CyrELp6usnrTNkrWvc1XzOZODuorse7r/y2rkMKyWIc6/vKCaWl7ifr3clC+FHC6
-        noFgB7DcSehXbRQrXiV0lKRefttdDmRsL5JNTUia0foU/KzLn4ts+jeM43zaXb9A
-        USLHE7Wwbf/UpyatMiI/77kXeZB+15jBwR4amF+/zTI+7pAnHHnOzJxgLIALmZCE
-        cFAQALi1txbvQd8uZT2tt7jY9qCRWrVq1QWZdiXkQMCVce91JYcx6yxPMZsV3K4Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Oy/URC
+        R6yVLcKGBhN25L98uYUqwn7JW+3thND09XOng=; b=QbdZ/rWTolBQY3ydQ4HyCz
+        bvv8eYufKjMuP+s+bEfeCKq6MSDAFodoOXCuJtW/nfVOS4dGfLjipxyQjIh6UZdT
+        jBg2QfDKeySUrFmqVskLkVPDCTUIvThdK+lck3WgL5U4Tidt0XFOITSt6HuHCBqE
+        EajmQZLd5YA6jO7WO/94sk2nLpxiQxrp33TMyRdp2WlTpm/0Ap4NwsvE6ZvtQKBJ
+        qDSTSKVWa6CLRxf/9DSZvm6A2uyfRurOdmaBF4UxZtSGXSvBuJVCeu3+nWKX+K3s
+        LmkzIYtlwSsMzC3GDnT7C+vvucKgu13+VOXcdYwwHV2lst4kzTA1dU9W30JBvMHA
         ==
-X-ME-Sender: <xms:wKSbYFFfzWSqHBuRpAIeBeXFUwmxpIGcHs7uN4g8-CtrnVJqQGAlOA>
-    <xme:wKSbYKV3ttOt7X6Yw3hkSMwNQ99Wqn4MVB1u5DGKiNnNNNLG6upfgflcMrOqRdvY_
-    lg1HSCkwlvdCw>
+X-ME-Sender: <xms:5aSbYBGXKDHs9iYzYRn4WduhlsPotWpSS7cpy6HNdaa6l65ZQdbMJw>
+    <xme:5aSbYGW0o6_6Sqi60onCgDdsECsp7-Nbk6_NbeMW-d8nkQ2dmrYwS13b6R3yUvrIT
+    kq0pGOQ1uX2uw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgudejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:wKSbYHKHq22dX0WyegB-p1mJACoPGHjvHQfvZpIanIVvVBJDOIF9Rw>
-    <xmx:wKSbYLGDtMsoCH99AtYIeZ2ZsVRsuFaHngPOMHKyBfTJlJuEj2xWAQ>
-    <xmx:wKSbYLXcnAta1lUIenwE04UFRVUdQRi8oyt7uY1Rr7JLZaDKmZfh9Q>
-    <xmx:wKSbYIjrQPqb7_pwNVz13Az83-69Azz7i518f2d9fp_ax7r1himHyQ>
+    gheqnecuggftrfgrthhtvghrnhepteetffekueduveeugfekheekheefvdfhvefgfeffve
+    ffieegffejtdefuddvtedtnecuffhomhgrihhnpegtohhnfhhighdrghgsnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:5aSbYDLlQrfdKVI6yeD6ssN1ryb1oejSll4FRiRIMF6RWJmCL0zG8A>
+    <xmx:5aSbYHHuYQyV9au9NidTMoCxSifpAuCkZtgAP8ycER-DsFsOJbA4QQ>
+    <xmx:5aSbYHXQW0ylEHLpVniGnADhepfjDCE1MBb_52OuXOu2JPi6MoU0lw>
+    <xmx:5aSbYOf2Yyzq0i68dGsjqH9j-h3CjARYpK-wMi_HdPTltpR22jbrHLkOrGg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 05:49:51 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/amd/display: Fix system hang after multiple hotplugs (v3)" failed to apply to 5.4-stable tree
-To:     qingqing.zhuo@amd.com, alexander.deucher@amd.com, bindu.r@amd.com,
-        daniel.wheeler@amd.com
+        Wed, 12 May 2021 05:50:29 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/amdgpu: Init GFX10_ADDR_CONFIG for VCN v3 in DPG mode." failed to apply to 5.10-stable tree
+To:     bas@basnieuwenhuizen.nl, alexander.deucher@amd.com, leo.liu@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 11:49:41 +0200
-Message-ID: <162081298164227@kroah.com>
+Date:   Wed, 12 May 2021 11:50:28 +0200
+Message-ID: <1620813028105222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,200 +70,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d7faf6f5347baec5cc774f3d46557f8782d87ee9 Mon Sep 17 00:00:00 2001
-From: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Date: Tue, 9 Feb 2021 16:36:41 -0500
-Subject: [PATCH] drm/amd/display: Fix system hang after multiple hotplugs (v3)
+From 8bf073ca9235fe38d7b74a0b4e779cfa7cc70fc9 Mon Sep 17 00:00:00 2001
+From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Date: Wed, 5 May 2021 03:27:49 +0200
+Subject: [PATCH] drm/amdgpu: Init GFX10_ADDR_CONFIG for VCN v3 in DPG mode.
 
-[Why]
-mutex_lock() was introduced in dm_disable_vblank(), which could
-be called in an IRQ context. Waiting in IRQ would cause issues
-like kernel lockup, etc.
+Otherwise tiling modes that require the values form this field
+(In particular _*_X) would be corrupted upon video decode.
 
-[How]
-Handle code that requires mutex lock on a different thread.
+Copied from the VCN v2 code.
 
-v2: squash in compilation fix without CONFIG_DRM_AMD_DC_DCN (Alex)
-v3: squash in warning fix (Wei)
-
-Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Fixes: 99541f392b4d ("drm/amdgpu: add mc resume DPG mode for VCN3.0")
+Reviewed-and-Tested by: Leo Liu <leo.liu@amd.com>
+Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index a7713c2a3f31..9de5b28af8be 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -938,7 +938,49 @@ static void mmhub_read_system_context(struct amdgpu_device *adev, struct dc_phy_
- 
- }
- #endif
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+static void event_mall_stutter(struct work_struct *work)
-+{
+diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
+index 3f15bf34123a..cf165ab5dd26 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
+@@ -589,6 +589,10 @@ static void vcn_v3_0_mc_resume_dpg_mode(struct amdgpu_device *adev, int inst_idx
+ 	WREG32_SOC15_DPG_MODE(inst_idx, SOC15_DPG_MODE_OFFSET(
+ 			VCN, inst_idx, mmUVD_VCPU_NONCACHE_SIZE0),
+ 			AMDGPU_GPU_PAGE_ALIGN(sizeof(struct amdgpu_fw_shared)), 0, indirect);
 +
-+	struct vblank_workqueue *vblank_work = container_of(work, struct vblank_workqueue, mall_work);
-+	struct amdgpu_display_manager *dm = vblank_work->dm;
-+
-+	mutex_lock(&dm->dc_lock);
-+
-+	if (vblank_work->enable)
-+		dm->active_vblank_irq_count++;
-+	else
-+		dm->active_vblank_irq_count--;
-+
-+
-+	dc_allow_idle_optimizations(
-+		dm->dc, dm->active_vblank_irq_count == 0 ? true : false);
-+
-+	DRM_DEBUG_DRIVER("Allow idle optimizations (MALL): %d\n", dm->active_vblank_irq_count == 0);
-+
-+
-+	mutex_unlock(&dm->dc_lock);
-+}
-+
-+static struct vblank_workqueue *vblank_create_workqueue(struct amdgpu_device *adev, struct dc *dc)
-+{
-+
-+	int max_caps = dc->caps.max_links;
-+	struct vblank_workqueue *vblank_work;
-+	int i = 0;
-+
-+	vblank_work = kcalloc(max_caps, sizeof(*vblank_work), GFP_KERNEL);
-+	if (ZERO_OR_NULL_PTR(vblank_work)) {
-+		kfree(vblank_work);
-+		return NULL;
-+	}
- 
-+	for (i = 0; i < max_caps; i++)
-+		INIT_WORK(&vblank_work[i].mall_work, event_mall_stutter);
-+
-+	return vblank_work;
-+}
-+#endif
- static int amdgpu_dm_init(struct amdgpu_device *adev)
- {
- 	struct dc_init_data init_data;
-@@ -958,6 +1000,9 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
- 
- 	mutex_init(&adev->dm.dc_lock);
- 	mutex_init(&adev->dm.audio_lock);
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	spin_lock_init(&adev->dm.vblank_lock);
-+#endif
- 
- 	if(amdgpu_dm_irq_init(adev)) {
- 		DRM_ERROR("amdgpu: failed to initialize DM IRQ support.\n");
-@@ -1072,6 +1117,17 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
- 
- 	amdgpu_dm_init_color_mod();
- 
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	if (adev->dm.dc->caps.max_links > 0) {
-+		adev->dm.vblank_workqueue = vblank_create_workqueue(adev, adev->dm.dc);
-+
-+		if (!adev->dm.vblank_workqueue)
-+			DRM_ERROR("amdgpu: failed to initialize vblank_workqueue.\n");
-+		else
-+			DRM_DEBUG_DRIVER("amdgpu: vblank_workqueue init done %p.\n", adev->dm.vblank_workqueue);
-+	}
-+#endif
-+
- #ifdef CONFIG_DRM_AMD_DC_HDCP
- 	if (adev->dm.dc->caps.max_links > 0 && adev->asic_type >= CHIP_RAVEN) {
- 		adev->dm.hdcp_workqueue = hdcp_create_workqueue(adev, &init_params.cp_psp, adev->dm.dc);
-@@ -5376,7 +5432,10 @@ static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
- 	struct amdgpu_crtc *acrtc = to_amdgpu_crtc(crtc);
- 	struct amdgpu_device *adev = drm_to_adev(crtc->dev);
- 	struct dm_crtc_state *acrtc_state = to_dm_crtc_state(crtc->state);
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
- 	struct amdgpu_display_manager *dm = &adev->dm;
-+	unsigned long flags;
-+#endif
- 	int rc = 0;
- 
- 	if (enable) {
-@@ -5399,22 +5458,15 @@ static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
- 	if (amdgpu_in_reset(adev))
- 		return 0;
- 
--	mutex_lock(&dm->dc_lock);
--
--	if (enable)
--		dm->active_vblank_irq_count++;
--	else
--		dm->active_vblank_irq_count--;
--
- #if defined(CONFIG_DRM_AMD_DC_DCN)
--	dc_allow_idle_optimizations(
--		adev->dm.dc, dm->active_vblank_irq_count == 0 ? true : false);
--
--	DRM_DEBUG_DRIVER("Allow idle optimizations (MALL): %d\n", dm->active_vblank_irq_count == 0);
-+	spin_lock_irqsave(&dm->vblank_lock, flags);
-+	dm->vblank_workqueue->dm = dm;
-+	dm->vblank_workqueue->otg_inst = acrtc->otg_inst;
-+	dm->vblank_workqueue->enable = enable;
-+	spin_unlock_irqrestore(&dm->vblank_lock, flags);
-+	schedule_work(&dm->vblank_workqueue->mall_work);
- #endif
- 
--	mutex_unlock(&dm->dc_lock);
--
- 	return 0;
++	/* VCN global tiling registers */
++	WREG32_SOC15_DPG_MODE(0, SOC15_DPG_MODE_OFFSET(
++		UVD, 0, mmUVD_GFX10_ADDR_CONFIG), adev->gfx.config.gb_addr_config, 0, indirect);
  }
  
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-index 0bb974ca89ed..bbf68cb6cfec 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-@@ -92,6 +92,20 @@ struct dm_compressor_info {
- 	uint64_t gpu_addr;
- };
- 
-+/**
-+ * struct vblank_workqueue - Works to be executed in a separate thread during vblank
-+ * @mall_work: work for mall stutter
-+ * @dm: amdgpu display manager device
-+ * @otg_inst: otg instance of which vblank is being set
-+ * @enable: true if enable vblank
-+ */
-+struct vblank_workqueue {
-+	struct work_struct mall_work;
-+	struct amdgpu_display_manager *dm;
-+	int otg_inst;
-+	bool enable;
-+};
-+
- /**
-  * struct amdgpu_dm_backlight_caps - Information about backlight
-  *
-@@ -243,6 +257,15 @@ struct amdgpu_display_manager {
- 	 */
- 	struct mutex audio_lock;
- 
-+	/**
-+	 * @vblank_work_lock:
-+	 *
-+	 * Guards access to deferred vblank work state.
-+	 */
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	spinlock_t vblank_lock;
-+#endif
-+
- 	/**
- 	 * @audio_component:
- 	 *
-@@ -321,6 +344,10 @@ struct amdgpu_display_manager {
- 	struct hdcp_workqueue *hdcp_workqueue;
- #endif
- 
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	struct vblank_workqueue *vblank_workqueue;
-+#endif
-+
- 	struct drm_atomic_state *cached_state;
- 	struct dc_state *cached_dc_state;
- 
+ static void vcn_v3_0_disable_static_power_gating(struct amdgpu_device *adev, int inst)
 
