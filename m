@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F00C137C8CF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9403F37C8D1
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234838AbhELQND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:13:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36284 "EHLO mail.kernel.org"
+        id S235176AbhELQNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:13:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239153AbhELQH3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:07:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E7CB61C4D;
-        Wed, 12 May 2021 15:36:28 +0000 (UTC)
+        id S239160AbhELQHa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:07:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A82D61C39;
+        Wed, 12 May 2021 15:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833789;
-        bh=uaTIHit7rd4SMZpz7bs8cScimDT8ppeXht2WLsEmML4=;
+        s=korg; t=1620833791;
+        bh=mGtGRLu9zYiUchtFsqOmdAAM+20y7/LdYOEmBnVFKUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O8NRcWVtE/nMg+DRrP0d0ew2EtrwIAV7uBVIqTAE49ytrTQ6htimIFhwJerugF1jj
-         yTswzaoAgZBxzjGVZnUyBIVwAEw78QEnSS1haZCerdyIxoj+wuw2P+f3IPfz/RtrGb
-         zddDkj3DrHdu57CopGYbRv5537DiFEYAbloOH0zY=
+        b=niiuP+q4HILGE7Gx9VMvbaCyjkwXbsKlAyOEzsJxQ5lKuR5kES7FqRoNvXGM3NpBl
+         4ZA+GiDkYOBRCJBqE8kK/bVlJ2fXWaTr8/FVD84gLBKwSZaB7gcwrMPYmXfV1iRgzQ
+         iyqYf4m1LU8CstO8P8whAOv7NF7BqgkETbz29NFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 288/601] security: keys: trusted: fix TPM2 authorizations
-Date:   Wed, 12 May 2021 16:46:05 +0200
-Message-Id: <20210512144837.287339509@linuxfoundation.org>
+Subject: [PATCH 5.11 289/601] platform/x86: pmc_atom: Match all Beckhoff Automation baytrail boards with critclk_systems DMI table
+Date:   Wed, 12 May 2021 16:46:06 +0200
+Message-Id: <20210512144837.319117658@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,136 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>
 
-[ Upstream commit de66514d934d70ce73c302ce0644b54970fc7196 ]
+[ Upstream commit d21e5abd3a005253eb033090aab2e43bce090d89 ]
 
-In TPM 1.2 an authorization was a 20 byte number.  The spec actually
-recommended you to hash variable length passwords and use the sha1
-hash as the authorization.  Because the spec doesn't require this
-hashing, the current authorization for trusted keys is a 40 digit hex
-number.  For TPM 2.0 the spec allows the passing in of variable length
-passwords and passphrases directly, so we should allow that in trusted
-keys for ease of use.  Update the 'blobauth' parameter to take this
-into account, so we can now use plain text passwords for the keys.
+pmc_plt_clk* clocks are used for ethernet controllers, so need to stay
+turned on. This adds the affected board family to critclk_systems DMI
+table, so the clocks are marked as CLK_CRITICAL and not turned off.
 
-so before
+This replaces the previously listed boards with a match for the whole
+device family CBxx63. CBxx63 matches only baytrail devices.
+There are new affected boards that would otherwise need to be listed.
+There are unaffected boards in the family, but having the clocks
+turned on is not an issue.
 
-keyctl add trusted kmk "new 32 blobauth=f572d396fae9206628714fb2ce00f72e94f2258fkeyhandle=81000001" @u
-
-after we will accept both the old hex sha1 form as well as a new
-directly supplied password:
-
-keyctl add trusted kmk "new 32 blobauth=hello keyhandle=81000001" @u
-
-Since a sha1 hex code must be exactly 40 bytes long and a direct
-password must be 20 or less, we use the length as the discriminator
-for which form is input.
-
-Note this is both and enhancement and a potential bug fix.  The TPM
-2.0 spec requires us to strip leading zeros, meaning empyty
-authorization is a zero length HMAC whereas we're currently passing in
-20 bytes of zeros.  A lot of TPMs simply accept this as OK, but the
-Microsoft TPM emulator rejects it with TPM_RC_BAD_AUTH, so this patch
-makes the Microsoft TPM emulator work with trusted keys.
-
-Fixes: 0fe5480303a1 ("keys, trusted: seal/unseal with TPM 2.0 chips")
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>
+Link: https://lore.kernel.org/r/20210412133006.397679-1-linux-kernel-dev@beckhoff.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/keys/trusted-type.h               |  1 +
- security/keys/trusted-keys/trusted_tpm1.c | 32 ++++++++++++++++++-----
- security/keys/trusted-keys/trusted_tpm2.c | 10 ++++---
- 3 files changed, 33 insertions(+), 10 deletions(-)
+ drivers/platform/x86/pmc_atom.c | 28 ++--------------------------
+ 1 file changed, 2 insertions(+), 26 deletions(-)
 
-diff --git a/include/keys/trusted-type.h b/include/keys/trusted-type.h
-index a94c03a61d8f..b2ed3481c6a0 100644
---- a/include/keys/trusted-type.h
-+++ b/include/keys/trusted-type.h
-@@ -30,6 +30,7 @@ struct trusted_key_options {
- 	uint16_t keytype;
- 	uint32_t keyhandle;
- 	unsigned char keyauth[TPM_DIGEST_SIZE];
-+	uint32_t blobauth_len;
- 	unsigned char blobauth[TPM_DIGEST_SIZE];
- 	uint32_t pcrinfo_len;
- 	unsigned char pcrinfo[MAX_PCRINFO_SIZE];
-diff --git a/security/keys/trusted-keys/trusted_tpm1.c b/security/keys/trusted-keys/trusted_tpm1.c
-index 493eb91ed017..1e13c9f7ea8c 100644
---- a/security/keys/trusted-keys/trusted_tpm1.c
-+++ b/security/keys/trusted-keys/trusted_tpm1.c
-@@ -791,13 +791,33 @@ static int getoptions(char *c, struct trusted_key_payload *pay,
- 				return -EINVAL;
- 			break;
- 		case Opt_blobauth:
--			if (strlen(args[0].from) != 2 * SHA1_DIGEST_SIZE)
--				return -EINVAL;
--			res = hex2bin(opt->blobauth, args[0].from,
--				      SHA1_DIGEST_SIZE);
--			if (res < 0)
--				return -EINVAL;
-+			/*
-+			 * TPM 1.2 authorizations are sha1 hashes passed in as
-+			 * hex strings.  TPM 2.0 authorizations are simple
-+			 * passwords (although it can take a hash as well)
-+			 */
-+			opt->blobauth_len = strlen(args[0].from);
-+
-+			if (opt->blobauth_len == 2 * TPM_DIGEST_SIZE) {
-+				res = hex2bin(opt->blobauth, args[0].from,
-+					      TPM_DIGEST_SIZE);
-+				if (res < 0)
-+					return -EINVAL;
-+
-+				opt->blobauth_len = TPM_DIGEST_SIZE;
-+				break;
-+			}
-+
-+			if (tpm2 && opt->blobauth_len <= sizeof(opt->blobauth)) {
-+				memcpy(opt->blobauth, args[0].from,
-+				       opt->blobauth_len);
-+				break;
-+			}
-+
-+			return -EINVAL;
-+
- 			break;
-+
- 		case Opt_migratable:
- 			if (*args[0].from == '0')
- 				pay->migratable = 0;
-diff --git a/security/keys/trusted-keys/trusted_tpm2.c b/security/keys/trusted-keys/trusted_tpm2.c
-index c87c4df8703d..4c19d3abddbe 100644
---- a/security/keys/trusted-keys/trusted_tpm2.c
-+++ b/security/keys/trusted-keys/trusted_tpm2.c
-@@ -97,10 +97,12 @@ int tpm2_seal_trusted(struct tpm_chip *chip,
- 			     TPM_DIGEST_SIZE);
- 
- 	/* sensitive */
--	tpm_buf_append_u16(&buf, 4 + TPM_DIGEST_SIZE + payload->key_len + 1);
-+	tpm_buf_append_u16(&buf, 4 + options->blobauth_len + payload->key_len + 1);
-+
-+	tpm_buf_append_u16(&buf, options->blobauth_len);
-+	if (options->blobauth_len)
-+		tpm_buf_append(&buf, options->blobauth, options->blobauth_len);
- 
--	tpm_buf_append_u16(&buf, TPM_DIGEST_SIZE);
--	tpm_buf_append(&buf, options->blobauth, TPM_DIGEST_SIZE);
- 	tpm_buf_append_u16(&buf, payload->key_len + 1);
- 	tpm_buf_append(&buf, payload->key, payload->key_len);
- 	tpm_buf_append_u8(&buf, payload->migratable);
-@@ -265,7 +267,7 @@ static int tpm2_unseal_cmd(struct tpm_chip *chip,
- 			     NULL /* nonce */, 0,
- 			     TPM2_SA_CONTINUE_SESSION,
- 			     options->blobauth /* hmac */,
--			     TPM_DIGEST_SIZE);
-+			     options->blobauth_len);
- 
- 	rc = tpm_transmit_cmd(chip, &buf, 6, "unsealing");
- 	if (rc > 0)
+diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
+index ca684ed760d1..a9d2a4b98e57 100644
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -393,34 +393,10 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	},
+ 	{
+ 		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Beckhoff CB3163",
++		.ident = "Beckhoff Baytrail",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+-			DMI_MATCH(DMI_BOARD_NAME, "CB3163"),
+-		},
+-	},
+-	{
+-		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Beckhoff CB4063",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+-			DMI_MATCH(DMI_BOARD_NAME, "CB4063"),
+-		},
+-	},
+-	{
+-		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Beckhoff CB6263",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+-			DMI_MATCH(DMI_BOARD_NAME, "CB6263"),
+-		},
+-	},
+-	{
+-		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Beckhoff CB6363",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+-			DMI_MATCH(DMI_BOARD_NAME, "CB6363"),
++			DMI_MATCH(DMI_PRODUCT_FAMILY, "CBxx63"),
+ 		},
+ 	},
+ 	{
 -- 
 2.30.2
 
