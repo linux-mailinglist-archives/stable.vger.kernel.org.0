@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9E6137CA8F
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E71137CB68
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241807AbhELQav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:30:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43696 "EHLO mail.kernel.org"
+        id S242675AbhELQf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:35:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240744AbhELQZO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:25:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0DED61CA4;
-        Wed, 12 May 2021 15:48:17 +0000 (UTC)
+        id S240746AbhELQZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:25:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 520DC619A2;
+        Wed, 12 May 2021 15:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834498;
-        bh=N2SQdtwWJmY/H39yZKetYb4boDtZX4OxMFzzquDVoyI=;
+        s=korg; t=1620834500;
+        bh=AeNoU676/hXRF2+0Wo1lmfxJPnt+531zcm+cna2sJ80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LcdcFf/9XA33KxIo2PE0KJE4xbFt90yqcRPgxe86gveY1Dk52VGPaM73b8E4Vfy9P
-         t2BLhDbOMVkg8t+GQBq6zgIBq5jRDoxtGm8BiRDWnRl/OAkPqoK9ycCpRTL0VEoOMq
-         b99ngBSsX6sQp/xR9pYxyrhlxr5th1jcvyNJpLmI=
+        b=g6nv+17VbpXDWin5SsOs1ioih3JZg3EQhR0WnpUUKDZgfrvKytWVemuXfvSC7rl6I
+         Mw5pwpD7URfuICc0j2kd0tudhozJyL9l118X3O5XsQFMKA7CUBQBcjNI+A7Id51SVX
+         7Eu9J6Nwh/ytVQo9DcJ2rjYrF92Vk87PEr6Gjmqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 569/601] bnxt_en: Fix RX consumer index logic in the error path.
-Date:   Wed, 12 May 2021 16:50:46 +0200
-Message-Id: <20210512144846.592040433@linuxfoundation.org>
+Subject: [PATCH 5.11 570/601] KVM: VMX: Intercept FS/GS_BASE MSR accesses for 32-bit KVM
+Date:   Wed, 12 May 2021 16:50:47 +0200
+Message-Id: <20210512144846.624957172@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,71 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit bbd6f0a948139970f4a615dff189d9a503681a39 ]
+[ Upstream commit dbdd096a5a74b94f6b786a47baef2085859b0dce ]
 
-In bnxt_rx_pkt(), the RX buffers are expected to complete in order.
-If the RX consumer index indicates an out of order buffer completion,
-it means we are hitting a hardware bug and the driver will abort all
-remaining RX packets and reset the RX ring.  The RX consumer index
-that we pass to bnxt_discard_rx() is not correct.  We should be
-passing the current index (tmp_raw_cons) instead of the old index
-(raw_cons).  This bug can cause us to be at the wrong index when
-trying to abort the next RX packet.  It can crash like this:
+Disable pass-through of the FS and GS base MSRs for 32-bit KVM.  Intel's
+SDM unequivocally states that the MSRs exist if and only if the CPU
+supports x86-64.  FS_BASE and GS_BASE are mostly a non-issue; a clever
+guest could opportunistically use the MSRs without issue.  KERNEL_GS_BASE
+is a bigger problem, as a clever guest would subtly be broken if it were
+migrated, as KVM disallows software access to the MSRs, and unlike the
+direct variants, KERNEL_GS_BASE needs to be explicitly migrated as it's
+not captured in the VMCS.
 
- #0 [ffff9bbcdf5c39a8] machine_kexec at ffffffff9b05e007
- #1 [ffff9bbcdf5c3a00] __crash_kexec at ffffffff9b111232
- #2 [ffff9bbcdf5c3ad0] panic at ffffffff9b07d61e
- #3 [ffff9bbcdf5c3b50] oops_end at ffffffff9b030978
- #4 [ffff9bbcdf5c3b78] no_context at ffffffff9b06aaf0
- #5 [ffff9bbcdf5c3bd8] __bad_area_nosemaphore at ffffffff9b06ae2e
- #6 [ffff9bbcdf5c3c28] bad_area_nosemaphore at ffffffff9b06af24
- #7 [ffff9bbcdf5c3c38] __do_page_fault at ffffffff9b06b67e
- #8 [ffff9bbcdf5c3cb0] do_page_fault at ffffffff9b06bb12
- #9 [ffff9bbcdf5c3ce0] page_fault at ffffffff9bc015c5
-    [exception RIP: bnxt_rx_pkt+237]
-    RIP: ffffffffc0259cdd  RSP: ffff9bbcdf5c3d98  RFLAGS: 00010213
-    RAX: 000000005dd8097f  RBX: ffff9ba4cb11b7e0  RCX: ffffa923cf6e9000
-    RDX: 0000000000000fff  RSI: 0000000000000627  RDI: 0000000000001000
-    RBP: ffff9bbcdf5c3e60   R8: 0000000000420003   R9: 000000000000020d
-    R10: ffffa923cf6ec138  R11: ffff9bbcdf5c3e83  R12: ffff9ba4d6f928c0
-    R13: ffff9ba4cac28080  R14: ffff9ba4cb11b7f0  R15: ffff9ba4d5a30000
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
-
-Fixes: a1b0e4e684e9 ("bnxt_en: Improve RX consumer index validity check.")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 25c5f225beda ("KVM: VMX: Enable MSR Bitmap feature")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210422023831.3473491-1-seanjc@google.com>
+[*NOT* for stable kernels. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 2 ++
+ arch/x86/kvm/vmx/vmx.c    | 4 ++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 11839f086f29..f3c659bc6bb6 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -1731,14 +1731,16 @@ static int bnxt_rx_pkt(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
- 
- 	cons = rxcmp->rx_cmp_opaque;
- 	if (unlikely(cons != rxr->rx_next_cons)) {
--		int rc1 = bnxt_discard_rx(bp, cpr, raw_cons, rxcmp);
-+		int rc1 = bnxt_discard_rx(bp, cpr, &tmp_raw_cons, rxcmp);
- 
- 		/* 0xffff is forced error, don't print it */
- 		if (rxr->rx_next_cons != 0xffff)
- 			netdev_warn(bp->dev, "RX cons %x != expected cons %x\n",
- 				    cons, rxr->rx_next_cons);
- 		bnxt_sched_reset(bp, rxr);
--		return rc1;
-+		if (rc1)
-+			return rc1;
-+		goto next_rx_no_prod_no_len;
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 4cf82488622c..0c41ffb7957f 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -618,6 +618,7 @@ static inline bool nested_vmx_prepare_msr_bitmap(struct kvm_vcpu *vcpu,
  	}
- 	rx_buf = &rxr->rx_buf_ring[cons];
- 	data = rx_buf->data;
+ 
+ 	/* KVM unconditionally exposes the FS/GS base MSRs to L1. */
++#ifdef CONFIG_X86_64
+ 	nested_vmx_disable_intercept_for_msr(msr_bitmap_l1, msr_bitmap_l0,
+ 					     MSR_FS_BASE, MSR_TYPE_RW);
+ 
+@@ -626,6 +627,7 @@ static inline bool nested_vmx_prepare_msr_bitmap(struct kvm_vcpu *vcpu,
+ 
+ 	nested_vmx_disable_intercept_for_msr(msr_bitmap_l1, msr_bitmap_l0,
+ 					     MSR_KERNEL_GS_BASE, MSR_TYPE_RW);
++#endif
+ 
+ 	/*
+ 	 * Checking the L0->L1 bitmap is trying to verify two things:
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 855c9740d957..852cfb4c063e 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -155,9 +155,11 @@ static u32 vmx_possible_passthrough_msrs[MAX_POSSIBLE_PASSTHROUGH_MSRS] = {
+ 	MSR_IA32_SPEC_CTRL,
+ 	MSR_IA32_PRED_CMD,
+ 	MSR_IA32_TSC,
++#ifdef CONFIG_X86_64
+ 	MSR_FS_BASE,
+ 	MSR_GS_BASE,
+ 	MSR_KERNEL_GS_BASE,
++#endif
+ 	MSR_IA32_SYSENTER_CS,
+ 	MSR_IA32_SYSENTER_ESP,
+ 	MSR_IA32_SYSENTER_EIP,
+@@ -6890,9 +6892,11 @@ static int vmx_create_vcpu(struct kvm_vcpu *vcpu)
+ 	bitmap_fill(vmx->shadow_msr_intercept.write, MAX_POSSIBLE_PASSTHROUGH_MSRS);
+ 
+ 	vmx_disable_intercept_for_msr(vcpu, MSR_IA32_TSC, MSR_TYPE_R);
++#ifdef CONFIG_X86_64
+ 	vmx_disable_intercept_for_msr(vcpu, MSR_FS_BASE, MSR_TYPE_RW);
+ 	vmx_disable_intercept_for_msr(vcpu, MSR_GS_BASE, MSR_TYPE_RW);
+ 	vmx_disable_intercept_for_msr(vcpu, MSR_KERNEL_GS_BASE, MSR_TYPE_RW);
++#endif
+ 	vmx_disable_intercept_for_msr(vcpu, MSR_IA32_SYSENTER_CS, MSR_TYPE_RW);
+ 	vmx_disable_intercept_for_msr(vcpu, MSR_IA32_SYSENTER_ESP, MSR_TYPE_RW);
+ 	vmx_disable_intercept_for_msr(vcpu, MSR_IA32_SYSENTER_EIP, MSR_TYPE_RW);
 -- 
 2.30.2
 
