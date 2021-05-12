@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3645137CC72
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA7D37CC70
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239536AbhELQpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54570 "EHLO mail.kernel.org"
+        id S239521AbhELQpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243106AbhELQgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243111AbhELQgq (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:36:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A8996197B;
-        Wed, 12 May 2021 16:00:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF7CD61E02;
+        Wed, 12 May 2021 16:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835235;
-        bh=EuN0jmkZAT174ZxhbQczPDZMg+vgNKSeYtDiRKZhCno=;
+        s=korg; t=1620835238;
+        bh=lGBwzYM6UPRK04oz/BIx4ywRA0Ft18OoVzFBSvPbXa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOEiGr1rJjdzB8epjoXOwQC8sIeZyOb1Aa6BJOB51hsqHTgQ5ReB8Hbq2kOkV+PoD
-         ssFwcbvv25AVd90NuZbT7r7LcO08HFmpEpki/omg6SaEnSRstKn7X9IRl5Z/OkK/zW
-         PQguMcSirTH8kT6rvgDo6cn777qp8vDXiBMxXGxU=
+        b=HyepjK3JTEwTVMKqI1/efxBCnUFnzAktj1Y0uaj6PfX/mDArwNDWZHqZ7uB74wz8c
+         D/SpS2wA1YAK35gAFYXVkMT88LqttCDGEFBHbxbBDui7j9C2K0FkV00hHfyhAZN/91
+         iA8Hq1vb0b5wE8oa8fbi6RKCszh/yOvZ+NXnNAv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 228/677] usb: gadget: s3c: Fix incorrect resources releasing
-Date:   Wed, 12 May 2021 16:44:34 +0200
-Message-Id: <20210512144844.809479219@linuxfoundation.org>
+Subject: [PATCH 5.12 229/677] usb: gadget: s3c: Fix the error handling path in s3c2410_udc_probe()
+Date:   Wed, 12 May 2021 16:44:35 +0200
+Message-Id: <20210512144844.848557995@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,79 +43,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 42067ccd9eb2077979ac3ce8b7b95c694bd09e14 ]
+[ Upstream commit e5242861ec6a0bce25b4cd10af0fc8a508fd067d ]
 
-Since commit 188db4435ac6 ("usb: gadget: s3c: use platform resources"),
-'request_mem_region()' and 'ioremap()' are no more used, so they don't need
-to be undone in the error handling path of the probe and in the remove
+Some 'clk_prepare_enable()' and 'clk_get()' must be undone in the error
+handling path of the probe function, as already done in the remove
 function.
 
-Remove these calls and the unneeded 'rsrc_start' and 'rsrc_len' global
-variables.
-
-Fixes: 188db4435ac6 ("usb: gadget: s3c: use platform resources")
+Fixes: 3fc154b6b813 ("USB Gadget driver for Samsung s3c2410 ARM SoC")
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/b317638464f188159bd8eea44427dd359e480625.1616830026.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/2bee52e4ce968f48b4c32545cf8f3b2ab825ba82.1616830026.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/s3c2410_udc.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/usb/gadget/udc/s3c2410_udc.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/usb/gadget/udc/s3c2410_udc.c b/drivers/usb/gadget/udc/s3c2410_udc.c
-index 1d3ebb07ccd4..b81979b3bdb6 100644
+index b81979b3bdb6..b154b62abefa 100644
 --- a/drivers/usb/gadget/udc/s3c2410_udc.c
 +++ b/drivers/usb/gadget/udc/s3c2410_udc.c
-@@ -54,8 +54,6 @@ static struct clk		*udc_clock;
- static struct clk		*usb_bus_clock;
- static void __iomem		*base_addr;
- static int			irq_usbd;
--static u64			rsrc_start;
--static u64			rsrc_len;
- static struct dentry		*s3c2410_udc_debugfs_root;
+@@ -1750,7 +1750,8 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
+ 	udc_clock = clk_get(NULL, "usb-device");
+ 	if (IS_ERR(udc_clock)) {
+ 		dev_err(dev, "failed to get udc clock source\n");
+-		return PTR_ERR(udc_clock);
++		retval = PTR_ERR(udc_clock);
++		goto err_usb_bus_clk;
+ 	}
  
- static inline u32 udc_read(u32 reg)
-@@ -1775,7 +1773,7 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
+ 	clk_prepare_enable(udc_clock);
+@@ -1773,7 +1774,7 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
  	base_addr = devm_platform_ioremap_resource(pdev, 0);
  	if (IS_ERR(base_addr)) {
  		retval = PTR_ERR(base_addr);
--		goto err_mem;
-+		goto err;
+-		goto err;
++		goto err_udc_clk;
  	}
  
  	the_controller = udc;
-@@ -1793,7 +1791,7 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
+@@ -1791,7 +1792,7 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
  	if (retval != 0) {
  		dev_err(dev, "cannot get irq %i, err %d\n", irq_usbd, retval);
  		retval = -EBUSY;
--		goto err_map;
-+		goto err;
+-		goto err;
++		goto err_udc_clk;
  	}
  
  	dev_dbg(dev, "got irq %i\n", irq_usbd);
-@@ -1864,10 +1862,7 @@ err_gpio_claim:
+@@ -1862,7 +1863,14 @@ err_gpio_claim:
  		gpio_free(udc_info->vbus_pin);
  err_int:
  	free_irq(irq_usbd, udc);
--err_map:
--	iounmap(base_addr);
--err_mem:
--	release_mem_region(rsrc_start, rsrc_len);
-+err:
+-err:
++err_udc_clk:
++	clk_disable_unprepare(udc_clock);
++	clk_put(udc_clock);
++	udc_clock = NULL;
++err_usb_bus_clk:
++	clk_disable_unprepare(usb_bus_clock);
++	clk_put(usb_bus_clock);
++	usb_bus_clock = NULL;
  
  	return retval;
  }
-@@ -1899,9 +1894,6 @@ static int s3c2410_udc_remove(struct platform_device *pdev)
- 
- 	free_irq(irq_usbd, udc);
- 
--	iounmap(base_addr);
--	release_mem_region(rsrc_start, rsrc_len);
--
- 	if (!IS_ERR(udc_clock) && udc_clock != NULL) {
- 		clk_disable_unprepare(udc_clock);
- 		clk_put(udc_clock);
 -- 
 2.30.2
 
