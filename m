@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C423737C655
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69E9D37C666
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237396AbhELPuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:50:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42208 "EHLO mail.kernel.org"
+        id S231908AbhELPvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236280AbhELPp1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:45:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EC1261C98;
-        Wed, 12 May 2021 15:23:13 +0000 (UTC)
+        id S236340AbhELPpa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:45:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 690A761448;
+        Wed, 12 May 2021 15:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832994;
-        bh=JGby09g0BWedKGj1rcmt/AfG9H7Gy+RFqYXm9dM5JP4=;
+        s=korg; t=1620832996;
+        bh=noY43Ms3frC2zVlwj4jTXqQLcktGyY7QRDoL/59cmdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rd89Tlp900fsX4XbJ7/hII8y1bB1ZBUs+zj44CD0cOIym5BLFA283+3qnmoRkOtTA
-         Y9JdJL1vELemH+FI/5uP4/g8Jky88HBD9KDF3MiJJPwoWIjtiw2kEwIbBeqqRStbZh
-         2YO9mzYUkeGievufKTfRemLyvSd4P5628kHH+aKc=
+        b=xME/fh0zGU6nXKp6YU9pu1pa4lI2oiLTmK6bbXZ40UZ4dMTt+E7z7eCcM1dzEhRot
+         X/q+SCn/ciLOMuWlgcIL6awNwKj+JlhltSjY2dBGy+yydAka/WgOFuaQtQuc6WVq/u
+         KLOGnpjSviIgH89XQudf6cf3nH88/Nxns/vdBQzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
         Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 506/530] selftests/bpf: Fix core_reloc test runner
-Date:   Wed, 12 May 2021 16:50:16 +0200
-Message-Id: <20210512144836.392400704@linuxfoundation.org>
+Subject: [PATCH 5.10 507/530] bpf: Fix propagation of 32 bit unsigned bounds from 64 bit bounds
+Date:   Wed, 12 May 2021 16:50:17 +0200
+Message-Id: <20210512144836.425813399@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,92 +41,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit bede0ebf0be87e9678103486a77f39e0334c6791 ]
+[ Upstream commit 10bf4e83167cc68595b85fd73bb91e8f2c086e36 ]
 
-Fix failed tests checks in core_reloc test runner, which allowed failing tests
-to pass quietly. Also add extra check to make sure that expected to fail test cases with
-invalid names are caught as test failure anyway, as this is not an expected
-failure mode. Also fix mislabeled probed vs direct bitfield test cases.
+Similarly as b02709587ea3 ("bpf: Fix propagation of 32-bit signed bounds
+from 64-bit bounds."), we also need to fix the propagation of 32 bit
+unsigned bounds from 64 bit counterparts. That is, really only set the
+u32_{min,max}_value when /both/ {umin,umax}_value safely fit in 32 bit
+space. For example, the register with a umin_value == 1 does /not/ imply
+that u32_min_value is also equal to 1, since umax_value could be much
+larger than 32 bit subregister can hold, and thus u32_min_value is in
+the interval [0,1] instead.
 
-Fixes: 124a892d1c41 ("selftests/bpf: Test TYPE_EXISTS and TYPE_SIZE CO-RE relocations")
-Reported-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Lorenz Bauer <lmb@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20210426192949.416837-6-andrii@kernel.org
+Before fix, invalid tracking result of R2_w=inv1:
+
+  [...]
+  5: R0_w=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0) R10=fp0
+  5: (35) if r2 >= 0x1 goto pc+1
+  [...] // goto path
+  7: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2=inv(id=0,umin_value=1) R10=fp0
+  7: (b6) if w2 <= 0x1 goto pc+1
+  [...] // goto path
+  9: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2=inv(id=0,smin_value=-9223372036854775807,smax_value=9223372032559808513,umin_value=1,umax_value=18446744069414584321,var_off=(0x1; 0xffffffff00000000),s32_min_value=1,s32_max_value=1,u32_max_value=1) R10=fp0
+  9: (bc) w2 = w2
+  10: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv1 R10=fp0
+  [...]
+
+After fix, correct tracking result of R2_w=inv(id=0,umax_value=1,var_off=(0x0; 0x1)):
+
+  [...]
+  5: R0_w=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0) R10=fp0
+  5: (35) if r2 >= 0x1 goto pc+1
+  [...] // goto path
+  7: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2=inv(id=0,umin_value=1) R10=fp0
+  7: (b6) if w2 <= 0x1 goto pc+1
+  [...] // goto path
+  9: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2=inv(id=0,smax_value=9223372032559808513,umax_value=18446744069414584321,var_off=(0x0; 0xffffffff00000001),s32_min_value=0,s32_max_value=1,u32_max_value=1) R10=fp0
+  9: (bc) w2 = w2
+  10: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0,umax_value=1,var_off=(0x0; 0x1)) R10=fp0
+  [...]
+
+Thus, same issue as in b02709587ea3 holds for unsigned subregister tracking.
+Also, align __reg64_bound_u32() similarly to __reg64_bound_s32() as done in
+b02709587ea3 to make them uniform again.
+
+Fixes: 3f50f132d840 ("bpf: Verifier, do explicit ALU32 bounds tracking")
+Reported-by: Manfred Paul (@_manfp)
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/prog_tests/core_reloc.c     | 20 +++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ kernel/bpf/verifier.c                               | 8 +++-----
+ tools/testing/selftests/bpf/verifier/array_access.c | 2 +-
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/core_reloc.c b/tools/testing/selftests/bpf/prog_tests/core_reloc.c
-index e15c0903fa4d..8b641c306f26 100644
---- a/tools/testing/selftests/bpf/prog_tests/core_reloc.c
-+++ b/tools/testing/selftests/bpf/prog_tests/core_reloc.c
-@@ -192,7 +192,7 @@ static int duration = 0;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index b6656d181c9e..dbde00ce60f0 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1303,9 +1303,7 @@ static bool __reg64_bound_s32(s64 a)
  
- #define BITFIELDS_CASE(name, ...) {					\
- 	BITFIELDS_CASE_COMMON("test_core_reloc_bitfields_probed.o",	\
--			      "direct:", name),				\
-+			      "probed:", name),				\
- 	.input = STRUCT_TO_CHAR_PTR(core_reloc_##name) __VA_ARGS__,	\
- 	.input_len = sizeof(struct core_reloc_##name),			\
- 	.output = STRUCT_TO_CHAR_PTR(core_reloc_bitfields_output)	\
-@@ -200,7 +200,7 @@ static int duration = 0;
- 	.output_len = sizeof(struct core_reloc_bitfields_output),	\
- }, {									\
- 	BITFIELDS_CASE_COMMON("test_core_reloc_bitfields_direct.o",	\
--			      "probed:", name),				\
-+			      "direct:", name),				\
- 	.input = STRUCT_TO_CHAR_PTR(core_reloc_##name) __VA_ARGS__,	\
- 	.input_len = sizeof(struct core_reloc_##name),			\
- 	.output = STRUCT_TO_CHAR_PTR(core_reloc_bitfields_output)	\
-@@ -495,8 +495,7 @@ static struct core_reloc_test_case test_cases[] = {
- 	ARRAYS_ERR_CASE(arrays___err_too_small),
- 	ARRAYS_ERR_CASE(arrays___err_too_shallow),
- 	ARRAYS_ERR_CASE(arrays___err_non_array),
--	ARRAYS_ERR_CASE(arrays___err_wrong_val_type1),
--	ARRAYS_ERR_CASE(arrays___err_wrong_val_type2),
-+	ARRAYS_ERR_CASE(arrays___err_wrong_val_type),
- 	ARRAYS_ERR_CASE(arrays___err_bad_zero_sz_arr),
+ static bool __reg64_bound_u32(u64 a)
+ {
+-	if (a > U32_MIN && a < U32_MAX)
+-		return true;
+-	return false;
++	return a > U32_MIN && a < U32_MAX;
+ }
  
- 	/* enum/ptr/int handling scenarios */
-@@ -811,13 +810,20 @@ void test_core_reloc(void)
- 			  "prog '%s' not found\n", probe_name))
- 			goto cleanup;
+ static void __reg_combine_64_into_32(struct bpf_reg_state *reg)
+@@ -1316,10 +1314,10 @@ static void __reg_combine_64_into_32(struct bpf_reg_state *reg)
+ 		reg->s32_min_value = (s32)reg->smin_value;
+ 		reg->s32_max_value = (s32)reg->smax_value;
+ 	}
+-	if (__reg64_bound_u32(reg->umin_value))
++	if (__reg64_bound_u32(reg->umin_value) && __reg64_bound_u32(reg->umax_value)) {
+ 		reg->u32_min_value = (u32)reg->umin_value;
+-	if (__reg64_bound_u32(reg->umax_value))
+ 		reg->u32_max_value = (u32)reg->umax_value;
++	}
  
-+
-+		if (test_case->btf_src_file) {
-+			err = access(test_case->btf_src_file, R_OK);
-+			if (!ASSERT_OK(err, "btf_src_file"))
-+				goto cleanup;
-+		}
-+
- 		load_attr.obj = obj;
- 		load_attr.log_level = 0;
- 		load_attr.target_btf_path = test_case->btf_src_file;
- 		err = bpf_object__load_xattr(&load_attr);
- 		if (err) {
- 			if (!test_case->fails)
--				CHECK(false, "obj_load", "failed to load prog '%s': %d\n", probe_name, err);
-+				ASSERT_OK(err, "obj_load");
- 			goto cleanup;
- 		}
- 
-@@ -851,10 +857,8 @@ void test_core_reloc(void)
- 			goto cleanup;
- 		}
- 
--		if (test_case->fails) {
--			CHECK(false, "obj_load_fail", "should fail to load prog '%s'\n", probe_name);
-+		if (!ASSERT_FALSE(test_case->fails, "obj_load_should_fail"))
- 			goto cleanup;
--		}
- 
- 		equal = memcmp(data->out, test_case->output,
- 			       test_case->output_len) == 0;
+ 	/* Intersecting with the old var_off might have improved our bounds
+ 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+diff --git a/tools/testing/selftests/bpf/verifier/array_access.c b/tools/testing/selftests/bpf/verifier/array_access.c
+index 1b138cd2b187..1b1c798e9248 100644
+--- a/tools/testing/selftests/bpf/verifier/array_access.c
++++ b/tools/testing/selftests/bpf/verifier/array_access.c
+@@ -186,7 +186,7 @@
+ 	},
+ 	.fixup_map_hash_48b = { 3 },
+ 	.errstr_unpriv = "R0 leaks addr",
+-	.errstr = "invalid access to map value, value_size=48 off=44 size=8",
++	.errstr = "R0 unbounded memory access",
+ 	.result_unpriv = REJECT,
+ 	.result = REJECT,
+ 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
 -- 
 2.30.2
 
