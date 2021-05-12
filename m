@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5212B37C57E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B357337C57C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232759AbhELPlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:41:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
+        id S231310AbhELPlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:41:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235545AbhELPfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235543AbhELPfy (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:35:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E90BB61C4D;
-        Wed, 12 May 2021 15:17:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54B1261C40;
+        Wed, 12 May 2021 15:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832673;
-        bh=07RBw3ZjSB1v1axDDaIheg7qt6/zevqTI0ci2L4BeSo=;
+        s=korg; t=1620832675;
+        bh=0tZ7O0vNpbKTAR9y891TW5HsK9QWmS05pBoP9DLh498=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ah6pETkcGzHmPhMvnbUaaQqkHoY+cCa7B3xnq6UU1azUnfGMY3mYBRMwFaPcOIG2e
-         NYMN5/O6qLwLApqiu+f3tlhZl1B/vNL8UT4iA9bPuhUStF0QQGZed1KXflD/aBwhla
-         Ye+UqTlZYupZzatp7WXlzFBCBpjk5+sHKzj9cJVw=
+        b=irhBLoL5cOfdHWqJHexm0o6C4dQESdxhCRrL+g8DgIsSg80Fw6MoAG3Ys+BQj+KV3
+         O5sH7On+tdfb6UPIZBLYcMBr4ow0uvukJqyBrWZNNzXbjJn4iMV5/fUZsLiRWHFByt
+         9f1trQfsZtAol59PBICduvdxS7QOuMQPE2djiTfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Jia Zhou <zhou.jia2@zte.com.cn>,
+        Yi Wang <wang.yi59@zte.com.cn>, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 377/530] gpio: guard gpiochip_irqchip_add_domain() with GPIOLIB_IRQCHIP
-Date:   Wed, 12 May 2021 16:48:07 +0200
-Message-Id: <20210512144832.169273617@linuxfoundation.org>
+Subject: [PATCH 5.10 378/530] ALSA: core: remove redundant spin_lock pair in snd_card_disconnect
+Date:   Wed, 12 May 2021 16:48:08 +0200
+Message-Id: <20210512144832.200074074@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,49 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Jia Zhou <zhou.jia2@zte.com.cn>
 
-[ Upstream commit 9c7d24693d864f90b27aad5d15fbfe226c02898b ]
+[ Upstream commit abc21649b3e5c34b143bf86f0c78e33d5815e250 ]
 
-The current code doesn't check if GPIOLIB_IRQCHIP is enabled, which results in
-a compilation error when trying to build gpio-regmap if CONFIG_GPIOLIB_IRQCHIP
-isn't enabled.
+modification in commit 2a3f7221acdd ("ALSA: core: Fix card races between
+register and disconnect") resulting in this problem.
 
-Fixes: 6a45b0e2589f ("gpiolib: Introduce gpiochip_irqchip_add_domain()")
-Suggested-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Link: https://lore.kernel.org/r/20210324081923.20379-2-noltari@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 2a3f7221acdd ("ALSA: core: Fix card races between register and disconnect")
+Signed-off-by: Jia Zhou <zhou.jia2@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Link: https://lore.kernel.org/r/1616989007-34429-1-git-send-email-wang.yi59@zte.com.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/gpio/driver.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/core/init.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
-index 4a7e295c3640..8e144306e262 100644
---- a/include/linux/gpio/driver.h
-+++ b/include/linux/gpio/driver.h
-@@ -637,8 +637,17 @@ int gpiochip_irqchip_add_key(struct gpio_chip *gc,
- bool gpiochip_irqchip_irq_valid(const struct gpio_chip *gc,
- 				unsigned int offset);
+diff --git a/sound/core/init.c b/sound/core/init.c
+index 018ce4ef12ec..9f5270c90a10 100644
+--- a/sound/core/init.c
++++ b/sound/core/init.c
+@@ -390,10 +390,8 @@ int snd_card_disconnect(struct snd_card *card)
+ 		return 0;
+ 	}
+ 	card->shutdown = 1;
+-	spin_unlock(&card->files_lock);
  
-+#ifdef CONFIG_GPIOLIB_IRQCHIP
- int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
- 				struct irq_domain *domain);
-+#else
-+static inline int gpiochip_irqchip_add_domain(struct gpio_chip *gc,
-+					      struct irq_domain *domain)
-+{
-+	WARN_ON(1);
-+	return -EINVAL;
-+}
-+#endif
- 
- #ifdef CONFIG_LOCKDEP
- 
+ 	/* replace file->f_op with special dummy operations */
+-	spin_lock(&card->files_lock);
+ 	list_for_each_entry(mfile, &card->files_list, list) {
+ 		/* it's critical part, use endless loop */
+ 		/* we have no room to fail */
 -- 
 2.30.2
 
