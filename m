@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 476ED37C4BE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF5E37C514
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234565AbhELPdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:33:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
+        id S234583AbhELPdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:33:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234330AbhELPYu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:24:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0922E619B0;
-        Wed, 12 May 2021 15:10:21 +0000 (UTC)
+        id S234922AbhELPZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:25:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2098161624;
+        Wed, 12 May 2021 15:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832222;
-        bh=GyM9gKbYClNFVOIMKTvnE/vOoFVKJe1bk5gJ1jYG2nY=;
+        s=korg; t=1620832261;
+        bh=npQCIwNStazw1sJVTG8Qiw94f0ErD9eXbLG2sP3lqwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlahJ34fC8QJVcfy0AFwAqQmqkg2LhrUM89geAhjaHuU/p0fdKCGlnqzuU5E1xq/A
-         1dUdAvQ8Hdy8pr7HbG8PzMzUDK4M6ZbdL5pr0pWXYPkt9BntaevOzUls9w6y6gtjom
-         o5W0h6Ut01rhGmV8ZZwXN7ULZ9NitE+KZ/idhtHY=
+        b=ns9KF8dgysb9L9v0WdDUTh1ZAPMa7LLWQU6ys+b4ev/J5/dt0nfLcNckLt0ZJjIo0
+         p6GXKRmW/cdaQBxTnFNF0D9x8E354nTWoTujWF4DV5yXOY3i+ws7BT13p6zTuMct6X
+         ZXAmg1o/F0ZqZ/4/Mdq8tOUJgAI2BpxlRj3HUync=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 192/530] NFSD: Fix sparse warning in nfs4proc.c
-Date:   Wed, 12 May 2021 16:45:02 +0200
-Message-Id: <20210512144826.150808924@linuxfoundation.org>
+Subject: [PATCH 5.10 207/530] mtd: rawnand: gpmi: Fix a double free in gpmi_nand_init
+Date:   Wed, 12 May 2021 16:45:17 +0200
+Message-Id: <20210512144826.644866474@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -39,56 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit eb162e1772f85231dabc789fb4bfea63d2d9df79 ]
+[ Upstream commit 076de75de1e53160e9b099f75872c1f9adf41a0b ]
 
-linux/fs/nfsd/nfs4proc.c:1542:24: warning: incorrect type in assignment (different base types)
-linux/fs/nfsd/nfs4proc.c:1542:24:    expected restricted __be32 [assigned] [usertype] status
-linux/fs/nfsd/nfs4proc.c:1542:24:    got int
+If the callee gpmi_alloc_dma_buffer() failed to alloc memory for
+this->raw_buffer, gpmi_free_dma_buffer() will be called to free
+this->auxiliary_virt. But this->auxiliary_virt is still a non-NULL
+and valid ptr.
 
-Clean-up: The dup_copy_fields() function returns only zero, so make
-it return void for now, and get rid of the return code check.
+Then gpmi_alloc_dma_buffer() returns err and gpmi_free_dma_buffer()
+is called again to free this->auxiliary_virt in err_out. This causes
+a double free.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+As gpmi_free_dma_buffer() has already called in gpmi_alloc_dma_buffer's
+error path, so it should return err directly instead of releasing the dma
+buffer again.
+
+Fixes: 4d02423e9afe6 ("mtd: nand: gpmi: Fix gpmi_nand_init() error path")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210403060905.5251-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 2e68cea148e0..015d25a5cd03 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1425,7 +1425,7 @@ static __be32 nfsd4_do_copy(struct nfsd4_copy *copy, bool sync)
- 	return status;
- }
+diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+index 31a6210eb5d4..a6658567d55c 100644
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -2447,7 +2447,7 @@ static int gpmi_nand_init(struct gpmi_nand_data *this)
+ 	this->bch_geometry.auxiliary_size = 128;
+ 	ret = gpmi_alloc_dma_buffer(this);
+ 	if (ret)
+-		goto err_out;
++		return ret;
  
--static int dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
-+static void dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
- {
- 	dst->cp_src_pos = src->cp_src_pos;
- 	dst->cp_dst_pos = src->cp_dst_pos;
-@@ -1444,8 +1444,6 @@ static int dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
- 	memcpy(&dst->stateid, &src->stateid, sizeof(src->stateid));
- 	memcpy(&dst->c_fh, &src->c_fh, sizeof(src->c_fh));
- 	dst->ss_mnt = src->ss_mnt;
--
--	return 0;
- }
- 
- static void cleanup_async_copy(struct nfsd4_copy *copy)
-@@ -1539,9 +1537,7 @@ nfsd4_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
- 		refcount_set(&async_copy->refcount, 1);
- 		memcpy(&copy->cp_res.cb_stateid, &copy->cp_stateid,
- 			sizeof(copy->cp_stateid));
--		status = dup_copy_fields(copy, async_copy);
--		if (status)
--			goto out_err;
-+		dup_copy_fields(copy, async_copy);
- 		async_copy->copy_task = kthread_create(nfsd4_do_async_copy,
- 				async_copy, "%s", "copy thread");
- 		if (IS_ERR(async_copy->copy_task))
+ 	nand_controller_init(&this->base);
+ 	this->base.ops = &gpmi_nand_controller_ops;
 -- 
 2.30.2
 
