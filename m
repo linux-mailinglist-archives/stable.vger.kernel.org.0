@@ -2,161 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF8937B97B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A549537B97C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:44:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230097AbhELJow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:44:52 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54404 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230019AbhELJov (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:44:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620812623;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=VdYOZ511BdKbG564alFzriety1IRDTMZXU/KewTbRTE=;
-        b=Rgvx23mc5gLiqilYwgbf8oodUr0/K48jyIbfCVSa4R80Ag0Rc0KX70ATtMdAaQVESxxRAR
-        ogdygjckvix/PtfPIfNHxXgHyz6bdH9BmnAoqrhOQLmLWpoNSJxZswKWBOUdcjd56gq5gH
-        pgrtXzz1oqo7GxHI81Qe8iPN7TZh+u0=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-49-0Ak8y7z9NImNvjU_7iYlZg-1; Wed, 12 May 2021 05:43:42 -0400
-X-MC-Unique: 0Ak8y7z9NImNvjU_7iYlZg-1
-Received: by mail-ed1-f72.google.com with SMTP id h18-20020a05640250d2b029038cc3938914so836544edb.17
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 02:43:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=VdYOZ511BdKbG564alFzriety1IRDTMZXU/KewTbRTE=;
-        b=pOuttaXFlQhpU+Z5m6T182HVxN02V11zsfwFOVTOtUUXIYihsOtEFowDA52soY+CJP
-         HBEJpPjNXk+a4q+ZQWJoDfETB8rs3t2+g/qraWg9rsu/9v00hMKAnQjvkWFot69dGKE8
-         qFb04oek8TxhFR2vbA0lsGB7acshejfVBbRnOaX0BMgm2wiSSPcSr0QTV9lAq1UhAI5o
-         5g1kFcFgLGJzefTv7RGaLGby/JLGWOpJ4uNIQExC5WydzEpccQoY4hnPQVPufjuQDNdT
-         3F+PXtChhgTBE/vTOlu7CKB9HXRbFYnj//VgPJtnvDvQNZ4bu1XVQiv9+Us98MfEQdDF
-         9cdw==
-X-Gm-Message-State: AOAM533btUzwsGrSg+deCqxwSF/sUZ1s/FpIuuZqPsFj1V8D2z3P8yQ5
-        RAHik1yLxcuJMgOl9wRuy+PVHxdNUK4jK5EJ5MYqA46b6cAkEQNXviG1dNW7phF0z4csemill6R
-        avYjD+t3Y1X+OqdZtERsvl67AlWczV/aVotmDSmSEGOGvVMZA6g0wcGVgkPS4DhBiH+u7
-X-Received: by 2002:a17:906:1e15:: with SMTP id g21mr36699514ejj.241.1620812620793;
-        Wed, 12 May 2021 02:43:40 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyITFp/t2Kr+CDMY/y1KiEWBh2vzQzeQ5k8MSegvdpesfmuCrUVM3GLfUShTherTJVk0AsgYg==
-X-Received: by 2002:a17:906:1e15:: with SMTP id g21mr36699498ejj.241.1620812620626;
-        Wed, 12 May 2021 02:43:40 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id g9sm13673961ejo.8.2021.05.12.02.43.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 12 May 2021 02:43:39 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] platform/x86: intel-vbtn: Stop reporting
- SW_DOCK events" failed to apply to 5.12-stable tree
-To:     gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org
-References: <162080946671117@kroah.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <39b030b4-314f-1271-52df-2df629a81f7d@redhat.com>
-Date:   Wed, 12 May 2021 11:43:39 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        id S230102AbhELJpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:45:25 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:46537 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230019AbhELJpZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:45:25 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id F29331307;
+        Wed, 12 May 2021 05:44:16 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 12 May 2021 05:44:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=BIkmY7
+        Y4SqiCdvMidwmqQSmOzEJyJWUcYmywK+rGC4Y=; b=uBeczGTSebzERVV/DR65s1
+        5MZOTDjDT86rVVJN0Dm1/qlcPFD1f/Yqdxu3iy8HWI7aa21ly7k6q1Uta4o7NioM
+        F1W1lD2DCFRNeIBV9sRJ3nGWG3hYjCDpXuxydSnbCwD67S7MRO0SwX7IYJVjmYv7
+        BOK0hanD7d2BG/lCFnOaREv//AKfrSsYJCw/tou42t6pfv00G1BsByZK8kHVfsB9
+        g2CTJH5P2sd4BTUqG1GPTHKFcMVpxBG3kI4/AT7yC8zCbdiGOVZDSF04B7B09ZMK
+        kn9xcujduelmTqlbbGxCtzLE8lc3bO4xBuXFU01wgG1RXzkKwrpcvnfo7m9hRVMw
+        ==
+X-ME-Sender: <xms:b6ObYFp8R5Y5RYyd_GyVU-eWgbDyqBrzpatqbN8WyIVOPPUmrglAeQ>
+    <xme:b6ObYHrqFi0kOCivKCDoc4l_FTdN73Fe73KIKqx0t6lFlnCe3NtpArEiX_ZvpRoFM
+    hV2PPkW7hepcg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgudeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
+    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
+    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:b6ObYCPKQ7UvK0jlbpe-hh71gdXIQl8FRNam75azo9NFd2TvOc3PhQ>
+    <xmx:b6ObYA7vnwxdIkN_TY7qTJNa5RF32AaiFMeRX7v9NmzjKu17NK3bgg>
+    <xmx:b6ObYE4hC9L6BDfft41Zc43FcgFLBSWZVF8qVXJczqp8rf8rRI1Y6w>
+    <xmx:cKObYEHKL_wbKEfkv_qhvOP6lFYj33EbNvcffwCQ-OVMY5FrUDVaBeD1nTE>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Wed, 12 May 2021 05:44:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/ingenic: Fix non-OSD mode" failed to apply to 5.10-stable tree
+To:     paul@crapouillou.net, daniel.vetter@ffwll.ch, hns@goldelico.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 12 May 2021 11:44:13 +0200
+Message-ID: <162081265325486@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <162080946671117@kroah.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-On 5/12/21 10:51 AM, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.12-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This is already in 5.12, but then as commit 538d2dd0b9920334e6596977a664e9e7bac73703
-that is the hash it has on my pdx86/fixes branch, where I cherry picked
-it from my pdx86/for-next branch.
+thanks,
 
-The 2728f39dfc720983e2b69f0f1f0c403aaa7c346f hash you tried to
-cherry-pick is from my pdx86/for-next branch and so this same change
-showed up (again) in 5.13-rc1 under this hash, sorry about the confusion.
+greg k-h
 
-Regards,
+------------------ original commit in Linus's tree ------------------
 
-Hans
+From 7b4957684e5d813fcbdc98144e3cc5c4467b3e2e Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Sun, 24 Jan 2021 08:55:52 +0000
+Subject: [PATCH] drm/ingenic: Fix non-OSD mode
 
+Even though the JZ4740 did not have the OSD mode, it had (according to
+the documentation) two DMA channels, but there is absolutely no
+information about how to select the second DMA channel.
 
+Make the ingenic-drm driver work in non-OSD mode by using the
+foreground0 plane (which is bound to the DMA0 channel) as the primary
+plane, instead of the foreground1 plane, which is the primary plane
+when in OSD mode.
 
+Fixes: 3c9bea4ef32b ("drm/ingenic: Add support for OSD mode")
+Cc: <stable@vger.kernel.org> # v5.8+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210124085552.29146-5-paul@crapouillou.net
 
-
-
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 2728f39dfc720983e2b69f0f1f0c403aaa7c346f Mon Sep 17 00:00:00 2001
-> From: Hans de Goede <hdegoede@redhat.com>
-> Date: Sun, 21 Mar 2021 17:35:13 +0100
-> Subject: [PATCH] platform/x86: intel-vbtn: Stop reporting SW_DOCK events
-> 
-> Stop reporting SW_DOCK events because this breaks suspend-on-lid-close.
-> 
-> SW_DOCK should only be reported for docking stations, but all the DSDTs in
-> my DSDT collection which use the intel-vbtn code, always seem to use this
-> for 2-in-1s / convertibles and set SW_DOCK=1 when in laptop-mode (in tandem
-> with setting SW_TABLET_MODE=0).
-> 
-> This causes userspace to think the laptop is docked to a port-replicator
-> and to disable suspend-on-lid-close, which is undesirable.
-> 
-> Map the dock events to KEY_IGNORE to avoid this broken SW_DOCK reporting.
-> 
-> Note this may theoretically cause us to stop reporting SW_DOCK on some
-> device where the 0xCA and 0xCB intel-vbtn events are actually used for
-> reporting docking to a classic docking-station / port-replicator but
-> I'm not aware of any such devices.
-> 
-> Also the most important thing is that we only report SW_DOCK when it
-> reliably reports being docked to a classic docking-station without any
-> false positives, which clearly is not the case here. If there is a
-> chance of reporting false positives then it is better to not report
-> SW_DOCK at all.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> Link: https://lore.kernel.org/r/20210321163513.72328-1-hdegoede@redhat.com
-> 
-> diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-> index 8a8017f9ca91..3fdf4cbec9ad 100644
-> --- a/drivers/platform/x86/intel-vbtn.c
-> +++ b/drivers/platform/x86/intel-vbtn.c
-> @@ -48,8 +48,16 @@ static const struct key_entry intel_vbtn_keymap[] = {
->  };
->  
->  static const struct key_entry intel_vbtn_switchmap[] = {
-> -	{ KE_SW,     0xCA, { .sw = { SW_DOCK, 1 } } },		/* Docked */
-> -	{ KE_SW,     0xCB, { .sw = { SW_DOCK, 0 } } },		/* Undocked */
-> +	/*
-> +	 * SW_DOCK should only be reported for docking stations, but DSDTs using the
-> +	 * intel-vbtn code, always seem to use this for 2-in-1s / convertibles and set
-> +	 * SW_DOCK=1 when in laptop-mode (in tandem with setting SW_TABLET_MODE=0).
-> +	 * This causes userspace to think the laptop is docked to a port-replicator
-> +	 * and to disable suspend-on-lid-close, which is undesirable.
-> +	 * Map the dock events to KEY_IGNORE to avoid this broken SW_DOCK reporting.
-> +	 */
-> +	{ KE_IGNORE, 0xCA, { .sw = { SW_DOCK, 1 } } },		/* Docked */
-> +	{ KE_IGNORE, 0xCB, { .sw = { SW_DOCK, 0 } } },		/* Undocked */
->  	{ KE_SW,     0xCC, { .sw = { SW_TABLET_MODE, 1 } } },	/* Tablet */
->  	{ KE_SW,     0xCD, { .sw = { SW_TABLET_MODE, 0 } } },	/* Laptop */
->  	{ KE_END }
-> 
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+index 54ee2cb61f3c..d60e1eefc9d1 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -561,7 +561,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+ 		height = newstate->src_h >> 16;
+ 		cpp = newstate->fb->format->cpp[0];
+ 
+-		if (priv->soc_info->has_osd && plane->type == DRM_PLANE_TYPE_OVERLAY)
++		if (!priv->soc_info->has_osd || plane->type == DRM_PLANE_TYPE_OVERLAY)
+ 			hwdesc = &priv->dma_hwdescs->hwdesc_f0;
+ 		else
+ 			hwdesc = &priv->dma_hwdescs->hwdesc_f1;
+@@ -833,6 +833,7 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
+ 	const struct jz_soc_info *soc_info;
+ 	struct ingenic_drm *priv;
+ 	struct clk *parent_clk;
++	struct drm_plane *primary;
+ 	struct drm_bridge *bridge;
+ 	struct drm_panel *panel;
+ 	struct drm_encoder *encoder;
+@@ -947,9 +948,11 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
+ 	if (soc_info->has_osd)
+ 		priv->ipu_plane = drm_plane_from_index(drm, 0);
+ 
+-	drm_plane_helper_add(&priv->f1, &ingenic_drm_plane_helper_funcs);
++	primary = priv->soc_info->has_osd ? &priv->f1 : &priv->f0;
+ 
+-	ret = drm_universal_plane_init(drm, &priv->f1, 1,
++	drm_plane_helper_add(primary, &ingenic_drm_plane_helper_funcs);
++
++	ret = drm_universal_plane_init(drm, primary, 1,
+ 				       &ingenic_drm_primary_plane_funcs,
+ 				       priv->soc_info->formats_f1,
+ 				       priv->soc_info->num_formats_f1,
+@@ -961,7 +964,7 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
+ 
+ 	drm_crtc_helper_add(&priv->crtc, &ingenic_drm_crtc_helper_funcs);
+ 
+-	ret = drm_crtc_init_with_planes(drm, &priv->crtc, &priv->f1,
++	ret = drm_crtc_init_with_planes(drm, &priv->crtc, primary,
+ 					NULL, &ingenic_drm_crtc_funcs, NULL);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to init CRTC: %i\n", ret);
 
