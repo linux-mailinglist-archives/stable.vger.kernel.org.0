@@ -2,141 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE37137CEF2
+	by mail.lfdr.de (Postfix) with ESMTP id 2D78037CEF0
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345224AbhELRHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:07:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49650 "EHLO mail.kernel.org"
+        id S1345217AbhELRHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244781AbhELQvK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:51:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB0CB61462;
-        Wed, 12 May 2021 16:18:02 +0000 (UTC)
+        id S244789AbhELQvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:51:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 655A061D6B;
+        Wed, 12 May 2021 16:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836283;
-        bh=N9vLcYC82o7Orr1L431UBD443bgdWcbPBkCcJ5/0KjE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UAR5W7S9Pj7S1wNoB0P5dJq30MgRt5dhtTewzg6BRQ/5qP9DOIQkCOR87pLLpVci3
-         hn9v8KoDDov4LRfvl8EfkAxYr1ybZJsJynKf0CqRjY7qy67GZpNcQMvYJpwp0qa3Xy
-         5RVOLQ/IrVb7PR0C4ObhlBMnMCF6y3IT/zzFQXJM=
+        s=korg; t=1620836307;
+        bh=L//eVip2ugc2dnjIBpAAQDQ5bs6VSLdTVlefG5+qRtA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PCahJ434qSX6HMll2gzCnwvtr9P7pgnLaS8yTWe/kfyDY35szSoSKBnIqQ8cTdZBP
+         cHEZnJw9W2t7VFfSsTSt2yws2nHP3ji05EbvFHGz/c/OMDrLzrH/MMaHsWaXrH23RZ
+         e675KJj4fAGjxjalactwCfv7C4MzdIeDJY90mtQ8=
+Date:   Wed, 12 May 2021 17:50:31 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 677/677] sctp: delay auto_asconf init until binding the first addr
-Date:   Wed, 12 May 2021 16:52:03 +0200
-Message-Id: <20210512144859.852582222@linuxfoundation.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-References: <20210512144837.204217980@linuxfoundation.org>
-User-Agent: quilt/0.66
+To:     Vlastimil Babka <vbabka@suse.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oliver Glitta <glittao@gmail.com>,
+        David Rientjes <rientjes@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 518/530] mm, slub: enable slub_debug static key when
+ creating cache with explicit debug flags
+Message-ID: <YJv5R0KNH+/EsWfX@kroah.com>
+References: <20210512144819.664462530@linuxfoundation.org>
+ <20210512144836.780038842@linuxfoundation.org>
+ <dd590c4d-cb37-fd38-3ad7-96f677403b3c@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dd590c4d-cb37-fd38-3ad7-96f677403b3c@suse.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+On Wed, May 12, 2021 at 05:35:28PM +0200, Vlastimil Babka wrote:
+> On 5/12/21 4:50 PM, Greg Kroah-Hartman wrote:
+> > From: Vlastimil Babka <vbabka@suse.cz>
+> > 
+> > [ Upstream commit 1f0723a4c0df36cbdffc6fac82cd3c5d57e06d66 ]
+> > 
+> > Commit ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
+> > introduced a static key to optimize the case where no debugging is
+> > enabled for any cache.  The static key is enabled when slub_debug boot
+> > parameter is passed, or CONFIG_SLUB_DEBUG_ON enabled.
+> > 
+> > However, some caches might be created with one or more debugging flags
+> > explicitly passed to kmem_cache_create(), and the commit missed this.
+> > Thus the debugging functionality would not be actually performed for
+> > these caches unless the static key gets enabled by boot param or config.
+> > 
+> > This patch fixes it by checking for debugging flags passed to
+> > kmem_cache_create() and enabling the static key accordingly.
+> > 
+> > Note such explicit debugging flags should not be used outside of
+> > debugging and testing as they will now enable the static key globally.
+> > btrfs_init_cachep() creates a cache with SLAB_RED_ZONE but that's a
+> > mistake that's being corrected [1].  rcu_torture_stats() creates a cache
+> > with SLAB_STORE_USER, but that is a testing module so it's OK and will
+> > start working as intended after this patch.
+> > 
+> > Also note that in case of backports to kernels before v5.12 that don't
+> > have 59450bbc12be ("mm, slab, slub: stop taking cpu hotplug lock"),
+> > static_branch_enable_cpuslocked() should be used.
+> > 
+> > [1] https://lore.kernel.org/linux-btrfs/20210315141824.26099-1-dsterba@suse.com/
+> > 
+> > Link: https://lkml.kernel.org/r/20210315153415.24404-1-vbabka@suse.cz
+> > Fixes: ca0cab65ea2b ("mm, slub: introduce static key for slub_debug()")
+> > Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> > Reported-by: Oliver Glitta <glittao@gmail.com>
+> > Acked-by: David Rientjes <rientjes@google.com>
+> > Cc: Christoph Lameter <cl@linux.com>
+> > Cc: Pekka Enberg <penberg@kernel.org>
+> > Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> > Cc: "Paul E. McKenney" <paulmck@kernel.org>
+> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> Uh, rather not release this to stable without the followup fix:
+> https://lore.kernel.org/linux-mm/20210504120019.26791-1-vbabka@suse.cz/
 
-commit 34e5b01186858b36c4d7c87e1a025071e8e2401f upstream.
+Is that in Linus's tree yet?  If so, what is the git id?
 
-As Or Cohen described:
+thanks,
 
-  If sctp_destroy_sock is called without sock_net(sk)->sctp.addr_wq_lock
-  held and sp->do_auto_asconf is true, then an element is removed
-  from the auto_asconf_splist without any proper locking.
-
-  This can happen in the following functions:
-  1. In sctp_accept, if sctp_sock_migrate fails.
-  2. In inet_create or inet6_create, if there is a bpf program
-     attached to BPF_CGROUP_INET_SOCK_CREATE which denies
-     creation of the sctp socket.
-
-This patch is to fix it by moving the auto_asconf init out of
-sctp_init_sock(), by which inet_create()/inet6_create() won't
-need to operate it in sctp_destroy_sock() when calling
-sk_common_release().
-
-It also makes more sense to do auto_asconf init while binding the
-first addr, as auto_asconf actually requires an ANY addr bind,
-see it in sctp_addr_wq_timeout_handler().
-
-This addresses CVE-2021-23133.
-
-Fixes: 610236587600 ("bpf: Add new cgroup attach type to enable sock modifications")
-Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sctp/socket.c |   31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
-
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -357,6 +357,18 @@ static struct sctp_af *sctp_sockaddr_af(
- 	return af;
- }
- 
-+static void sctp_auto_asconf_init(struct sctp_sock *sp)
-+{
-+	struct net *net = sock_net(&sp->inet.sk);
-+
-+	if (net->sctp.default_auto_asconf) {
-+		spin_lock(&net->sctp.addr_wq_lock);
-+		list_add_tail(&sp->auto_asconf_list, &net->sctp.auto_asconf_splist);
-+		spin_unlock(&net->sctp.addr_wq_lock);
-+		sp->do_auto_asconf = 1;
-+	}
-+}
-+
- /* Bind a local address either to an endpoint or to an association.  */
- static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
- {
-@@ -418,8 +430,10 @@ static int sctp_do_bind(struct sock *sk,
- 		return -EADDRINUSE;
- 
- 	/* Refresh ephemeral port.  */
--	if (!bp->port)
-+	if (!bp->port) {
- 		bp->port = inet_sk(sk)->inet_num;
-+		sctp_auto_asconf_init(sp);
-+	}
- 
- 	/* Add the address to the bind address list.
- 	 * Use GFP_ATOMIC since BHs will be disabled.
-@@ -4993,19 +5007,6 @@ static int sctp_init_sock(struct sock *s
- 	sk_sockets_allocated_inc(sk);
- 	sock_prot_inuse_add(net, sk->sk_prot, 1);
- 
--	/* Nothing can fail after this block, otherwise
--	 * sctp_destroy_sock() will be called without addr_wq_lock held
--	 */
--	if (net->sctp.default_auto_asconf) {
--		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
--		list_add_tail(&sp->auto_asconf_list,
--		    &net->sctp.auto_asconf_splist);
--		sp->do_auto_asconf = 1;
--		spin_unlock(&sock_net(sk)->sctp.addr_wq_lock);
--	} else {
--		sp->do_auto_asconf = 0;
--	}
--
- 	local_bh_enable();
- 
- 	return 0;
-@@ -9401,6 +9402,8 @@ static int sctp_sock_migrate(struct sock
- 			return err;
- 	}
- 
-+	sctp_auto_asconf_init(newsp);
-+
- 	/* Move any messages in the old socket's receive queue that are for the
- 	 * peeled off association to the new socket's receive queue.
- 	 */
-
-
+greg k-h
