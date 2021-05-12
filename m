@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6608B37D29B
+	by mail.lfdr.de (Postfix) with ESMTP id D1D2237D29C
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351439AbhELSKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52836 "EHLO mail.kernel.org"
+        id S1351557AbhELSKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234226AbhELSEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:04:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A14961440;
-        Wed, 12 May 2021 18:03:30 +0000 (UTC)
+        id S234717AbhELSEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:04:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D997261459;
+        Wed, 12 May 2021 18:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842611;
-        bh=gFCcF5BTHerYyZCaGQSR28fzhZp33fOtxwvk3P1bJTw=;
+        s=k20201202; t=1620842612;
+        bh=EQPb0LS5yS0txYFmXo3IrXYTpn1bwE76ZcoCtOqEZjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKhSTqGqz2sD7gQCxvFgw5TfFso8KAEfZha5F4NDSnRWmoBav4cPn8Ir9W7xKe6nz
-         xmrVBWzg7LbboCoTYzticKVFEJ2QIkRBdIw5NPPjqBzALGJGum+33btjr0JCxxQpnq
-         Ix42gYIT1a4h8rAAxvM1S3bevufUP9lGHos4o81lRNp7xjqCyHKzXa5NPOcse80OtM
-         RySJjLYyWeYVn3M9GGO1vtWSukZR0gSOGsx/0AoDkLKpCS4JZHa9mL9elyvkPIxwyg
-         Th8Enq7W/LowDZvSAdnDKMDAnqxG/kb41h5Ink6FeVATsaTIiaDdrqb84n0A5RXOAP
-         BynpokT6YqcEQ==
+        b=G0gmKMe6iAGFdj6QKqxXynfS7VzFxS3Gq9glzuSnZXk83rPs6PpYKA9x22IkPnO8r
+         /VY/VnwpDSOboEzxNQz7DyFRVTpzBRGENOIgYx5qMaGioxsNI6zWETp1ZxTEQjDMhS
+         8qAwBRGpSCYn8W365Xl9OJ5cqYgQcB941rjbGmxeo7fmvOBEYweKPRAOODyIz/L1Ti
+         HQ2193bG94Ry1j3/8L0q0YiXMqzMQWlD7RS/JvFUFYEwfD1o7HFnS/mkAgWG1Kx8xh
+         dpy0QbkCSJXSYUatM7QBUs6nPX6J2bB6REWpQP58znBzcUEtkL+x8EYmSNXK03LthN
+         Jwy/sS5F1hsLA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 14/34] ARM: 9075/1: kernel: Fix interrupted SMC calls
-Date:   Wed, 12 May 2021 14:02:45 -0400
-Message-Id: <20210512180306.664925-14-sashal@kernel.org>
+Cc:     Prashant Malani <pmalani@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 15/34] platform/chrome: cros_ec_typec: Add DP mode check
+Date:   Wed, 12 May 2021 14:02:46 -0400
+Message-Id: <20210512180306.664925-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180306.664925-1-sashal@kernel.org>
 References: <20210512180306.664925-1-sashal@kernel.org>
@@ -44,85 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Prashant Malani <pmalani@chromium.org>
 
-[ Upstream commit 57ac51667d8cd62731223d687e5fe7b41c502f89 ]
+[ Upstream commit c5bb32f57bf3a30ed03be51f7be0840325ba8b4a ]
 
-On Qualcomm ARM32 platforms, the SMC call can return before it has
-completed. If this occurs, the call can be restarted, but it requires
-using the returned session ID value from the interrupted SMC call.
+There are certain transitional situations where the dp_mode field in the
+PD_CONTROL response might not be populated with the right DP pin
+assignment value yet. Add a check for that to avoid sending an invalid
+value to the Type C mode switch.
 
-The ARM32 SMCC code already has the provision to add platform specific
-quirks for things like this. So let's make use of it and add the
-Qualcomm specific quirk (ARM_SMCCC_QUIRK_QCOM_A6) used by the QCOM_SCM
-driver.
-
-This change is similar to the below one added for ARM64 a while ago:
-commit 82bcd087029f ("firmware: qcom: scm: Fix interrupted SCM calls")
-
-Without this change, the Qualcomm ARM32 platforms like SDX55 will return
--EINVAL for SMC calls used for modem firmware loading and validation.
-
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Link: https://lore.kernel.org/r/20210421042108.2002-1-pmalani@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/asm-offsets.c |  3 +++
- arch/arm/kernel/smccc-call.S  | 11 ++++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/platform/chrome/cros_ec_typec.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/kernel/asm-offsets.c b/arch/arm/kernel/asm-offsets.c
-index be8050b0c3df..70993af22d80 100644
---- a/arch/arm/kernel/asm-offsets.c
-+++ b/arch/arm/kernel/asm-offsets.c
-@@ -24,6 +24,7 @@
- #include <asm/vdso_datapage.h>
- #include <asm/hardware/cache-l2x0.h>
- #include <linux/kbuild.h>
-+#include <linux/arm-smccc.h>
- #include "signal.h"
+diff --git a/drivers/platform/chrome/cros_ec_typec.c b/drivers/platform/chrome/cros_ec_typec.c
+index 31be31161350..036d54dc52e2 100644
+--- a/drivers/platform/chrome/cros_ec_typec.c
++++ b/drivers/platform/chrome/cros_ec_typec.c
+@@ -475,6 +475,11 @@ static int cros_typec_enable_dp(struct cros_typec_data *typec,
+ 		return -ENOTSUPP;
+ 	}
  
- /*
-@@ -148,6 +149,8 @@ int main(void)
-   DEFINE(SLEEP_SAVE_SP_PHYS,	offsetof(struct sleep_save_sp, save_ptr_stash_phys));
-   DEFINE(SLEEP_SAVE_SP_VIRT,	offsetof(struct sleep_save_sp, save_ptr_stash));
- #endif
-+  DEFINE(ARM_SMCCC_QUIRK_ID_OFFS,	offsetof(struct arm_smccc_quirk, id));
-+  DEFINE(ARM_SMCCC_QUIRK_STATE_OFFS,	offsetof(struct arm_smccc_quirk, state));
-   BLANK();
-   DEFINE(DMA_BIDIRECTIONAL,	DMA_BIDIRECTIONAL);
-   DEFINE(DMA_TO_DEVICE,		DMA_TO_DEVICE);
-diff --git a/arch/arm/kernel/smccc-call.S b/arch/arm/kernel/smccc-call.S
-index 00664c78faca..931df62a7831 100644
---- a/arch/arm/kernel/smccc-call.S
-+++ b/arch/arm/kernel/smccc-call.S
-@@ -3,7 +3,9 @@
-  * Copyright (c) 2015, Linaro Limited
-  */
- #include <linux/linkage.h>
-+#include <linux/arm-smccc.h>
- 
-+#include <asm/asm-offsets.h>
- #include <asm/opcodes-sec.h>
- #include <asm/opcodes-virt.h>
- #include <asm/unwind.h>
-@@ -27,7 +29,14 @@ UNWIND(	.fnstart)
- UNWIND(	.save	{r4-r7})
- 	ldm	r12, {r4-r7}
- 	\instr
--	pop	{r4-r7}
-+	ldr	r4, [sp, #36]
-+	cmp	r4, #0
-+	beq	1f			// No quirk structure
-+	ldr     r5, [r4, #ARM_SMCCC_QUIRK_ID_OFFS]
-+	cmp     r5, #ARM_SMCCC_QUIRK_QCOM_A6
-+	bne	1f			// No quirk present
-+	str	r6, [r4, #ARM_SMCCC_QUIRK_STATE_OFFS]
-+1:	pop	{r4-r7}
- 	ldr	r12, [sp, #(4 * 4)]
- 	stm	r12, {r0-r3}
- 	bx	lr
++	if (!pd_ctrl->dp_mode) {
++		dev_err(typec->dev, "No valid DP mode provided.\n");
++		return -EINVAL;
++	}
++
+ 	/* Status VDO. */
+ 	dp_data.status = DP_STATUS_ENABLED;
+ 	if (port->mux_flags & USB_PD_MUX_HPD_IRQ)
 -- 
 2.30.2
 
