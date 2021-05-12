@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2083337BB31
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:46:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F26337BB32
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbhELKr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:47:27 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:48791 "EHLO
+        id S230211AbhELKrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:47:36 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:33877 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230185AbhELKr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:47:26 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id 48741F63;
-        Wed, 12 May 2021 06:46:18 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 06:46:18 -0400
+        by vger.kernel.org with ESMTP id S230185AbhELKre (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 12 May 2021 06:47:34 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 264841219;
+        Wed, 12 May 2021 06:46:26 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 12 May 2021 06:46:26 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=0ZAUDl
-        UPWbENfluky+suuljDzetFjvGKi8GfTfdRSEg=; b=Zr+ynSmUrYKhu039PysYs3
-        t7cSzZHWEBUHcSbRFtthPLHbG9NpWIYjF7+p7NFAeQ4i8H6jiqeeNyIhwUCU7eBq
-        rKA7tyAg6ql0mS7g0a6ETQVYyhRz5tIglg/l8j+MZCpWHNw6iHZKRXUqWyKWGaNA
-        yEu0mtZ+X2fYFpUXV148yC1wSrBAEqBeTuL3MieLbG5RM9jlSnjo6aQypnxsMpnB
-        AwQSvC+iiBy4Ny/N16+dvRfKFIKm2xRipwLIlnGdkeuWJ7Tr09h9jcN16z+1dI8O
-        zCO92Ok6GABKxl9quGT3mirAQ/pyQ83dJF/StVe7RLtDifl/hPLZN1jWBOI+QyfA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=e6QgLB
+        qYum02abzAXhoqHGsiX5RokqZhHe951HGZasY=; b=tkHih+aC2GBQYjDpfA3O9M
+        auRjRL0h3uCb6Fma4KNF0SEANlPOz3Azgf6cKG1e0BsUeQwCjKs6HwPF1V7iyyQ6
+        RI/8rIS1yke+J24op7FeTVWe4WsV36oyzKMgTkg4HwTyetpngmpOibSaTpYdOya5
+        vqVeXFhO94aP9rUuNwMgBpod/EV44M/1aKT+skgLZgP1RBSBxkPouVBEnEZ9sP2c
+        95/mtuyc02q1/5KCThprBeyHzx18xxbtASAl0O+ij/eBvLohSgENe6qCeiLZUSh+
+        PlfRL3jKLYX81XdzId+GQV6Fmk9z92CM0BZArsB4dSDwkMh5xIKW4ariuacgCWSg
         ==
-X-ME-Sender: <xms:-bGbYB4Am1kWn9QxvtXRqyA5TRsLA-U1PBowi2UbMD4g4dzEuszpAw>
-    <xme:-bGbYO4cuNDPIQkd0e4zx2kG6FZpJ_XJiGZhg19_JdBGW6qWpkE299F8Jsv--2xH1
-    JJlwkyldadMyg>
+X-ME-Sender: <xms:AbKbYH2bIL-QIDFVPKnJ4BC9H_6gCw4guPNq0FUjW3XtIyDpZv7zKg>
+    <xme:AbKbYGGexrHWg3HQbCFrT4S4VqpGo10zWqvk9wIUDg6l9yLlgheELaaSI614lu94c
+    ok6v7JQFLb_qQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:-bGbYId9Kk-YZu_DVc_JRHN_khku3oy6Tirg2-tDw5RfOYdOIATNew>
-    <xmx:-bGbYKIoNvFRZ7YulXeMrjo1PUsPc8PhhsqkUEBTxnaiY9Z7yKlA8w>
-    <xmx:-bGbYFKdLIoYQNxga_-UAP5WDVexNK1q2zYJXKXeYLEQ9Dt1LeXybg>
-    <xmx:-bGbYHwkQb45yUxsfVRkZKEpsf9KS-RKx2i_5yd7gMVsNFlTxNREpOXw8fs>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:AbKbYH7tqDpvBXic72A0xYJqbCyr_Ds_v9Heu7cQaSaaLITnmSNSrw>
+    <xmx:AbKbYM2-VzhikaxToYsr_AkthwzVQGyJSSrXGn47WsdMD53j8AMnHQ>
+    <xmx:AbKbYKEvCLpJ0AhM0gQkttfpY5BEZf2A9bygPF-IE9aZ1pjlQSSG4g>
+    <xmx:AbKbYPQvs66a7VxGehE0HDM6_8AL5dA535hje3sAsfqo3zM6dw4TKLMBer8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:46:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Truncate base/index GPR value on address calc in" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com
+        Wed, 12 May 2021 06:46:25 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: arm/arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST read" failed to apply to 4.19-stable tree
+To:     eric.auger@redhat.com, Stable@vger.kernel.org, gshan@redhat.com,
+        maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 12:46:02 +0200
-Message-ID: <1620816362227166@kroah.com>
+Date:   Wed, 12 May 2021 12:46:23 +0200
+Message-ID: <162081638318160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,36 +71,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 82277eeed65eed6c6ee5b8f97bd978763eab148f Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Wed, 21 Apr 2021 19:21:25 -0700
-Subject: [PATCH] KVM: nVMX: Truncate base/index GPR value on address calc in
- !64-bit
+From 94ac0835391efc1a30feda6fc908913ec012951e Mon Sep 17 00:00:00 2001
+From: Eric Auger <eric.auger@redhat.com>
+Date: Mon, 12 Apr 2021 17:00:34 +0200
+Subject: [PATCH] KVM: arm/arm64: Fix KVM_VGIC_V3_ADDR_TYPE_REDIST read
 
-Drop bits 63:32 of the base and/or index GPRs when calculating the
-effective address of a VMX instruction memory operand.  Outside of 64-bit
-mode, memory encodings are strictly limited to E*X and below.
+When reading the base address of the a REDIST region
+through KVM_VGIC_V3_ADDR_TYPE_REDIST we expect the
+redistributor region list to be populated with a single
+element.
 
-Fixes: 064aea774768 ("KVM: nVMX: Decoding memory operands of VMX instructions")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422022128.3464144-7-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+However list_first_entry() expects the list to be non empty.
+Instead we should use list_first_entry_or_null which effectively
+returns NULL if the list is empty.
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index f93ff2302b4c..ac838fb2aa4e 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4619,9 +4619,9 @@ int get_vmx_mem_address(struct kvm_vcpu *vcpu, unsigned long exit_qualification,
- 	else if (addr_size == 0)
- 		off = (gva_t)sign_extend64(off, 15);
- 	if (base_is_valid)
--		off += kvm_register_read(vcpu, base_reg);
-+		off += kvm_register_readl(vcpu, base_reg);
- 	if (index_is_valid)
--		off += kvm_register_read(vcpu, index_reg) << scaling;
-+		off += kvm_register_readl(vcpu, index_reg) << scaling;
- 	vmx_get_segment(vcpu, &s, seg_reg);
- 
- 	/*
+Fixes: dbd9733ab674 ("KVM: arm/arm64: Replace the single rdist region by a list")
+Cc: <Stable@vger.kernel.org> # v4.18+
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Reported-by: Gavin Shan <gshan@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210412150034.29185-1-eric.auger@redhat.com
+
+diff --git a/arch/arm64/kvm/vgic/vgic-kvm-device.c b/arch/arm64/kvm/vgic/vgic-kvm-device.c
+index 2f66cf247282..7740995de982 100644
+--- a/arch/arm64/kvm/vgic/vgic-kvm-device.c
++++ b/arch/arm64/kvm/vgic/vgic-kvm-device.c
+@@ -87,8 +87,8 @@ int kvm_vgic_addr(struct kvm *kvm, unsigned long type, u64 *addr, bool write)
+ 			r = vgic_v3_set_redist_base(kvm, 0, *addr, 0);
+ 			goto out;
+ 		}
+-		rdreg = list_first_entry(&vgic->rd_regions,
+-					 struct vgic_redist_region, list);
++		rdreg = list_first_entry_or_null(&vgic->rd_regions,
++						 struct vgic_redist_region, list);
+ 		if (!rdreg)
+ 			addr_ptr = &undef_value;
+ 		else
 
