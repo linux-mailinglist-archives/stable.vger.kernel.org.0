@@ -2,59 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEBD237B9BE
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:55:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC7CC37B9C7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230375AbhELJ4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38296 "EHLO mail.kernel.org"
+        id S230405AbhELJ54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:57:56 -0400
+Received: from uho.ysoft.cz ([81.19.3.130]:44770 "EHLO uho.ysoft.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230295AbhELJ4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 05:56:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BFA3613FE;
-        Wed, 12 May 2021 09:55:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620813344;
-        bh=HcFDldtiVfvbB3pFiIAYSRHFI+pDKYY5woa54J8wwcM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zp9qAL3FW/r77AVD+648xhLS/pQ8t4uVFW8kabS/a9dTpgfltrLRUmzltrcATzhgR
-         R8PvJeKXXAvBsRcxgPNq3zcq4vjnKPTRcnm9LXuKxybRYAGq5BmhWSVFm79ZjtPGbp
-         MX2wfBsmN257df3lwFRhFszbXmXtKzOPKkmZa1Aw=
-Date:   Wed, 12 May 2021 11:55:13 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] platform/x86: intel-vbtn: Stop reporting
- SW_DOCK events" failed to apply to 5.12-stable tree
-Message-ID: <YJumAbFcxjULZZgo@kroah.com>
-References: <162080946671117@kroah.com>
- <39b030b4-314f-1271-52df-2df629a81f7d@redhat.com>
+        id S230300AbhELJ5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 05:57:52 -0400
+Received: from iota-build.ysoft.local (unknown [10.1.5.151])
+        by uho.ysoft.cz (Postfix) with ESMTP id 79B1CA02C2;
+        Wed, 12 May 2021 11:56:43 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
+        s=20160406-ysoft-com; t=1620813403;
+        bh=SG2y18C7JNfTDUdkAYTD8f+Wpft0cnGU4jaSxzMgYBs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=SLG6Qg+DJ3GzlTGeJV5O/TAGbWajSJHZA2UDlj1BauYIPr/TZYYwq1dQkqQq/ewg/
+         hmeuX44ONiwt4v4KOnTKGoyZ/BkZ4aVXA0EqpoOKJ6pMniALPv7JOTVBGzYDvaQwux
+         JEg7TRCTb7UyzbYfWFZqEBxqBQXHjlp5/e5gOcqc=
+From:   =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
+To:     Shawn Guo <shawnguo@kernel.org>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>, devicetree@vger.kernel.org,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-kernel@vger.kernel.org,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
+        stable@vger.kernel.org
+Subject: [PATCH RESEND] ARM: dts: imx6dl-yapp4: Fix RGMII connection to QCA8334 switch
+Date:   Wed, 12 May 2021 11:56:32 +0200
+Message-Id: <1620813392-30933-1-git-send-email-michal.vokac@ysoft.com>
+X-Mailer: git-send-email 2.1.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <39b030b4-314f-1271-52df-2df629a81f7d@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 12, 2021 at 11:43:39AM +0200, Hans de Goede wrote:
-> Hi Greg,
-> 
-> On 5/12/21 10:51 AM, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.12-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> 
-> This is already in 5.12, but then as commit 538d2dd0b9920334e6596977a664e9e7bac73703
-> that is the hash it has on my pdx86/fixes branch, where I cherry picked
-> it from my pdx86/for-next branch.
-> 
-> The 2728f39dfc720983e2b69f0f1f0c403aaa7c346f hash you tried to
-> cherry-pick is from my pdx86/for-next branch and so this same change
-> showed up (again) in 5.13-rc1 under this hash, sorry about the confusion.
+The FEC does not have a PHY so it should not have a phy-handle. It is
+connected to the switch at RGMII level so we need a fixed-link sub-node
+on both ends.
 
-Ah, that makes sense, thanks for letting me know.
+This was not a problem until the qca8k.c driver was converted to PHYLINK
+by commit b3591c2a3661 ("net: dsa: qca8k: Switch to PHYLINK instead of
+PHYLIB"). That commit revealed the FEC configuration was not correct.
 
-greg k-h
+Fixes: 87489ec3a77f ("ARM: dts: imx: Add Y Soft IOTA Draco, Hydra and Ursa boards")
+Cc: stable@vger.kernel.org
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
+---
+ arch/arm/boot/dts/imx6dl-yapp4-common.dtsi | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
+index 111d4d331f98..686dab57a1e4 100644
+--- a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
++++ b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
+@@ -121,9 +121,13 @@
+ 	phy-reset-gpios = <&gpio1 25 GPIO_ACTIVE_LOW>;
+ 	phy-reset-duration = <20>;
+ 	phy-supply = <&sw2_reg>;
+-	phy-handle = <&ethphy0>;
+ 	status = "okay";
+ 
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
++
+ 	mdio {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+-- 
+2.1.4
+
