@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ECD937ED8B
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A692437ED8C
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 00:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387609AbhELUih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 16:38:37 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:37403 "EHLO
+        id S1346134AbhELUik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 16:38:40 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:47021 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1376321AbhELSya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 14:54:30 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 0787D1940A8E;
-        Wed, 12 May 2021 14:53:21 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 12 May 2021 14:53:21 -0400
+        by vger.kernel.org with ESMTP id S1376335AbhELSyc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 14:54:32 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 004911940A9E;
+        Wed, 12 May 2021 14:53:23 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 12 May 2021 14:53:22 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=eoky2j
-        J9/2CpFpY0wxq3wsdRzNDJeUk5akMPMpJ4MGY=; b=DJHuxYB06i8154uEf2/yrg
-        mnDTu6Cex0ChClEweCzG1AOc2t/on6ryGAb8bjviT4mIAjQ0XeZN1EjgkM+ldSfh
-        2rknY4Ot5+FectwOYkFuVFzap4P2ak7BQjL7bFfRyqB3YMQI8xB6T1rZuIJTFb+z
-        82Y1W0B9/Ikg4kze3CSXMM1M9lPCZ97+OBGGxasgmKLJUila8URRk4AHWALJjWow
-        Y4ioFUeYKiRYJShfjJuSyPG43rbs0OVWSpQIK3XISzjZ/aPDWGhoZC934Heiiakb
-        E/4f1xGyhPbANHBs6FCJ40YpX1Ts2RVkifTWySlYdOb6UdwuCd+WbhOV92Cr+JhQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=7/eqfO
+        Weie8sn/jVdJmBQk/jHeTMWBUbMM2aF4OxSTE=; b=hy4CKrMrgxgA5ACSdciQqN
+        oLXzK3lvRla7xHeSmzM1Zzit9t0U3xGkyiQ5127/EZESVkkMDUdKZkIHyn4OmM+j
+        y7OKcqPvGL44+0xZJVV+C3xgk4lJMzsn9PUAmE9be9BPbI0/+YajdWxQMugH4Kkl
+        EdAq7b+HQ0ciYGuNWcJ2W3e37HArPrRFjHrDwfTR/lelfI9/5dxVtm+heOALVZov
+        VMmmGh23Yg4VABqiNBr0bcWftEjfH8tqI9kgrjo+DgHWm5PxkQ/LKSODYCID44h+
+        m5I8iDI9chAtJPGuR8Y27ykhRjZC+UjA9Ro5eViO0Qs00PbjIOQ/zzixlP7kO4/A
         ==
-X-ME-Sender: <xms:ICScYGEc3cTDBZcECGPSaY4irZ8tn-v7DUK0rPClq9PoHjv7pPWNkg>
-    <xme:ICScYHVXBgl0mTYg1cbo-BUJLVSFBLM0zFrO0M6bSUlW6U1l_m17I_vqaewQ8fZoc
-    wFXoWe7wAFbbQ>
+X-ME-Sender: <xms:IiScYC-glb2a2w0jyBRJwIR-yMA_wi8xSmRlD-_FksvAKfCEmlAm4g>
+    <xme:IiScYCuK6durGDf5wKlI32inh_g-6Ja_0qfnCRv-5N9aCi6TC2xKZXNDVQAHFnopk
+    X-rTJrTBZyltA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddguddvkecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:ICScYAKzgpeZxdF0FT5UPENNdYBj14SNT6a-cwXwZqLvzNgoaiFbcA>
-    <xmx:ICScYAFwNfbWuFHDjUMRK7HhuQS-9ULZGTRtYksHMev_pPHsvBklSA>
-    <xmx:ICScYMVakTLplSRo-Jgpx7ERuYf7RJIk4uOSiXfbOKkvYyAxCfEddA>
-    <xmx:ISScYHca8NdnuaPIPrmNy5ulXSbnBiaozAGTfNR8AEUVj-FkW7oudg>
+X-ME-Proxy: <xmx:IiScYIDOlhXMn2racl4EgpS1pwLwRPv5sFYokvLGkRu9aLmhaJDLgg>
+    <xmx:IiScYKdYoFGWQbFk7FEwqZN1xB5leZOecngtL1OW3ICNODO3num-Ug>
+    <xmx:IiScYHONI5lsjp28Fnstl5P65xZaCvTKstlWvAEmemTMBpdKEp2wOA>
+    <xmx:IiScYN0xNcH22XixnVfdndyTXuB3v06TwGoCaL8TALyzw9QR876XQw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 14:53:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] MIPS: Reinstate platform `__div64_32' handler" failed to apply to 4.19-stable tree
+        Wed, 12 May 2021 14:53:22 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] MIPS: Reinstate platform `__div64_32' handler" failed to apply to 5.4-stable tree
 To:     macro@orcam.me.uk, chenhuacai@kernel.org, tsbogend@alpha.franken.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 20:53:14 +0200
-Message-ID: <162084559410120@kroah.com>
+Date:   Wed, 12 May 2021 20:53:16 +0200
+Message-ID: <1620845596195253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
