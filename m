@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8244E37C366
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56EC937C3DC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233645AbhELPSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:18:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50766 "EHLO mail.kernel.org"
+        id S233143AbhELPWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:22:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234410AbhELPQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:16:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8602461987;
-        Wed, 12 May 2021 15:06:48 +0000 (UTC)
+        id S234716AbhELPUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:20:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15E016134F;
+        Wed, 12 May 2021 15:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832009;
-        bh=fnjachLncNmpCE5VDeUIUTcG+3pLqnO+f6QKj2P9gxs=;
+        s=korg; t=1620832119;
+        bh=IinN2jw2FW3k0CTyTPz3TpXXtJm++SBbxoWOUEJhtwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1wAxpRuobVRLkekV71CXS/iWthih1RXX7r9v2CCyB6eRfHz548+SvhfD+v7108zp
-         IUqJfjY6VLY2poTKeathF1SdpLXgZA+VqIiugf9FPoy597j8a8KUSSDTBnd3PB0vog
-         ozafpsO2KM8b6m76EgrQGqUkO3QCboZVR9EE3iSI=
+        b=X+/TNOyx49tj9pDIysFQ2Jzfy3DPaTMtoD0cbsBnSR0fkCQUnHyBgT35oin0mTvD+
+         XLqnxwQ+NUcToSqKWf3g7SK0V1MeIiT3J2sGI7/hXoQhNdnSim0m/GDUnigIS2NeQM
+         pnDFgc2W8gXHUS2MFOZ23Hw1pjXlX7T6T0gowqf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 103/530] KVM: arm64: Fully zero the vcpu state on reset
-Date:   Wed, 12 May 2021 16:43:33 +0200
-Message-Id: <20210512144823.186529334@linuxfoundation.org>
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 105/530] Revert "drivers/net/wan/hdlc_fr: Fix a double free in pvc_xmit"
+Date:   Wed, 12 May 2021 16:43:35 +0200
+Message-Id: <20210512144823.255069669@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -38,40 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit 85d703746154cdc6794b6654b587b0b0354c97e9 upstream.
+commit d362fd0be456dba2d3d58a90b7a193962776562b upstream.
 
-On vcpu reset, we expect all the registers to be brought back
-to their initial state, which happens to be a bunch of zeroes.
+This reverts commit 1b479fb80160
+("drivers/net/wan/hdlc_fr: Fix a double free in pvc_xmit").
 
-However, some recent commit broke this, and is now leaving a bunch
-of registers (such as the FP state) with whatever was left by the
-guest. My bad.
+1. This commit is incorrect. "__skb_pad" will NOT free the skb on
+failure when its "free_on_error" parameter is "false".
 
-Zero the reset of the state (32bit SPSRs and FPSIMD state).
+2. This commit claims to fix my commit. But it didn't CC me??
 
-Cc: stable@vger.kernel.org
-Fixes: e47c2055c68e ("KVM: arm64: Make struct kvm_regs userspace-only")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: 1b479fb80160 ("drivers/net/wan/hdlc_fr: Fix a double free in pvc_xmit")
+Cc: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/reset.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wan/hdlc_fr.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/kvm/reset.c
-+++ b/arch/arm64/kvm/reset.c
-@@ -291,6 +291,11 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu
+--- a/drivers/net/wan/hdlc_fr.c
++++ b/drivers/net/wan/hdlc_fr.c
+@@ -415,7 +415,7 @@ static netdev_tx_t pvc_xmit(struct sk_bu
  
- 	/* Reset core registers */
- 	memset(vcpu_gp_regs(vcpu), 0, sizeof(*vcpu_gp_regs(vcpu)));
-+	memset(&vcpu->arch.ctxt.fp_regs, 0, sizeof(vcpu->arch.ctxt.fp_regs));
-+	vcpu->arch.ctxt.spsr_abt = 0;
-+	vcpu->arch.ctxt.spsr_und = 0;
-+	vcpu->arch.ctxt.spsr_irq = 0;
-+	vcpu->arch.ctxt.spsr_fiq = 0;
- 	vcpu_gp_regs(vcpu)->pstate = pstate;
+ 		if (pad > 0) { /* Pad the frame with zeros */
+ 			if (__skb_pad(skb, pad, false))
+-				goto out;
++				goto drop;
+ 			skb_put(skb, pad);
+ 		}
+ 	}
+@@ -448,9 +448,8 @@ static netdev_tx_t pvc_xmit(struct sk_bu
+ 	return NETDEV_TX_OK;
  
- 	/* Reset system registers */
+ drop:
+-	kfree_skb(skb);
+-out:
+ 	dev->stats.tx_dropped++;
++	kfree_skb(skb);
+ 	return NETDEV_TX_OK;
+ }
+ 
 
 
