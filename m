@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2FB37C8A7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6D9F37C8A4
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236296AbhELQLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:11:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34302 "EHLO mail.kernel.org"
+        id S235852AbhELQLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:11:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238694AbhELQGC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:06:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D53C61C35;
-        Wed, 12 May 2021 15:34:53 +0000 (UTC)
+        id S238702AbhELQGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:06:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D855D61953;
+        Wed, 12 May 2021 15:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833693;
-        bh=RFSpLnO6oqqjn9Mdne9ZnMWBHxaIh+mTpyiX0b5O/9g=;
+        s=korg; t=1620833696;
+        bh=AyiY6eYCrjZnOf5dCrV6b3n1uTECJh8Bs5Nv1zQA1xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyTwV8YcjI5anIOLJBK/StJ5SgFEzNAQ2jfQdvGnZ1x/2yANIcUHWsOwtBpG8SmeC
-         SVU3pP2af5GaFlunwn4GcJG3hjwwyiKeE6Jfbnq9MAbmvlIldmVuNZ8RoarEIjnMKd
-         JYWmdI0B5/RauTCkaAMoqxEbc8X0dlORAYC2EvtA=
+        b=xs269r+CAL603F0oRim3H+l3Xn/C1UVGJhmU1cY4s198wDDy0CpNHsZyl3OvlfszB
+         g2rfszsD+OUEpTctql+5+3jQvrmoaBfeA4mIu97itWwJBQSuWihoeNj7QEkCH0Udcr
+         s+qjeDUTY4MfTrC/pYtNhxTRtiijJSiEfqNb8bFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "William A. Kennington III" <wak@google.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 250/601] spi: Fix use-after-free with devm_spi_alloc_*
-Date:   Wed, 12 May 2021 16:45:27 +0200
-Message-Id: <20210512144836.061659728@linuxfoundation.org>
+Subject: [PATCH 5.11 251/601] spi: fsl: add missing iounmap() on error in of_fsl_spi_probe()
+Date:   Wed, 12 May 2021 16:45:28 +0200
+Message-Id: <20210512144836.094394399@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,94 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William A. Kennington III <wak@google.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 794aaf01444d4e765e2b067cba01cc69c1c68ed9 ]
+[ Upstream commit 5fed9fe5b41aea58e5b32be506dc50c9ab9a0e4d ]
 
-We can't rely on the contents of the devres list during
-spi_unregister_controller(), as the list is already torn down at the
-time we perform devres_find() for devm_spi_release_controller. This
-causes devices registered with devm_spi_alloc_{master,slave}() to be
-mistakenly identified as legacy, non-devm managed devices and have their
-reference counters decremented below 0.
+Add the missing iounmap() before return from of_fsl_spi_probe()
+in the error handling case.
 
-------------[ cut here ]------------
-WARNING: CPU: 1 PID: 660 at lib/refcount.c:28 refcount_warn_saturate+0x108/0x174
-[<b0396f04>] (refcount_warn_saturate) from [<b03c56a4>] (kobject_put+0x90/0x98)
-[<b03c5614>] (kobject_put) from [<b0447b4c>] (put_device+0x20/0x24)
- r4:b6700140
-[<b0447b2c>] (put_device) from [<b07515e8>] (devm_spi_release_controller+0x3c/0x40)
-[<b07515ac>] (devm_spi_release_controller) from [<b045343c>] (release_nodes+0x84/0xc4)
- r5:b6700180 r4:b6700100
-[<b04533b8>] (release_nodes) from [<b0454160>] (devres_release_all+0x5c/0x60)
- r8:b1638c54 r7:b117ad94 r6:b1638c10 r5:b117ad94 r4:b163dc10
-[<b0454104>] (devres_release_all) from [<b044e41c>] (__device_release_driver+0x144/0x1ec)
- r5:b117ad94 r4:b163dc10
-[<b044e2d8>] (__device_release_driver) from [<b044f70c>] (device_driver_detach+0x84/0xa0)
- r9:00000000 r8:00000000 r7:b117ad94 r6:b163dc54 r5:b1638c10 r4:b163dc10
-[<b044f688>] (device_driver_detach) from [<b044d274>] (unbind_store+0xe4/0xf8)
-
-Instead, determine the devm allocation state as a flag on the
-controller which is guaranteed to be stable during cleanup.
-
-Fixes: 5e844cc37a5c ("spi: Introduce device-managed SPI controller allocation")
-Signed-off-by: William A. Kennington III <wak@google.com>
-Link: https://lore.kernel.org/r/20210407095527.2771582-1-wak@google.com
+Fixes: 0f0581b24bd0 ("spi: fsl: Convert to use CS GPIO descriptors")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210401140350.1677925-1-yangyingliang@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c       | 9 ++-------
- include/linux/spi/spi.h | 3 +++
- 2 files changed, 5 insertions(+), 7 deletions(-)
+ drivers/spi/spi-fsl-spi.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 6f81a3c4c7e0..8131302cd204 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2488,6 +2488,7 @@ struct spi_controller *__devm_spi_alloc_controller(struct device *dev,
- 
- 	ctlr = __spi_alloc_controller(dev, size, slave);
- 	if (ctlr) {
-+		ctlr->devm_allocated = true;
- 		*ptr = ctlr;
- 		devres_add(dev, ptr);
- 	} else {
-@@ -2834,11 +2835,6 @@ int devm_spi_register_controller(struct device *dev,
- }
- EXPORT_SYMBOL_GPL(devm_spi_register_controller);
- 
--static int devm_spi_match_controller(struct device *dev, void *res, void *ctlr)
--{
--	return *(struct spi_controller **)res == ctlr;
--}
--
- static int __unregister(struct device *dev, void *null)
- {
- 	spi_unregister_device(to_spi_device(dev));
-@@ -2885,8 +2881,7 @@ void spi_unregister_controller(struct spi_controller *ctlr)
- 	/* Release the last reference on the controller if its driver
- 	 * has not yet been converted to devm_spi_alloc_master/slave().
- 	 */
--	if (!devres_find(ctlr->dev.parent, devm_spi_release_controller,
--			 devm_spi_match_controller, ctlr))
-+	if (!ctlr->devm_allocated)
- 		put_device(&ctlr->dev);
- 
- 	/* free bus id */
-diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
-index aa09fdc8042d..f939d8d665d3 100644
---- a/include/linux/spi/spi.h
-+++ b/include/linux/spi/spi.h
-@@ -512,6 +512,9 @@ struct spi_controller {
- 
- #define SPI_MASTER_GPIO_SS		BIT(5)	/* GPIO CS must select slave */
- 
-+	/* flag indicating this is a non-devres managed controller */
-+	bool			devm_allocated;
+diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
+index e4a8d203f940..d0e5aa18b7ba 100644
+--- a/drivers/spi/spi-fsl-spi.c
++++ b/drivers/spi/spi-fsl-spi.c
+@@ -707,6 +707,11 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
+ 	struct resource mem;
+ 	int irq, type;
+ 	int ret;
++	bool spisel_boot = false;
++#if IS_ENABLED(CONFIG_FSL_SOC)
++	struct mpc8xxx_spi_probe_info *pinfo = NULL;
++#endif
 +
- 	/* flag indicating this is an SPI slave controller */
- 	bool			slave;
  
+ 	ret = of_mpc8xxx_spi_probe(ofdev);
+ 	if (ret)
+@@ -715,9 +720,8 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
+ 	type = fsl_spi_get_type(&ofdev->dev);
+ 	if (type == TYPE_FSL) {
+ 		struct fsl_spi_platform_data *pdata = dev_get_platdata(dev);
+-		bool spisel_boot = false;
+ #if IS_ENABLED(CONFIG_FSL_SOC)
+-		struct mpc8xxx_spi_probe_info *pinfo = to_of_pinfo(pdata);
++		pinfo = to_of_pinfo(pdata);
+ 
+ 		spisel_boot = of_property_read_bool(np, "fsl,spisel_boot");
+ 		if (spisel_boot) {
+@@ -746,15 +750,24 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
+ 
+ 	ret = of_address_to_resource(np, 0, &mem);
+ 	if (ret)
+-		return ret;
++		goto unmap_out;
+ 
+ 	irq = platform_get_irq(ofdev, 0);
+-	if (irq < 0)
+-		return irq;
++	if (irq < 0) {
++		ret = irq;
++		goto unmap_out;
++	}
+ 
+ 	master = fsl_spi_probe(dev, &mem, irq);
+ 
+ 	return PTR_ERR_OR_ZERO(master);
++
++unmap_out:
++#if IS_ENABLED(CONFIG_FSL_SOC)
++	if (spisel_boot)
++		iounmap(pinfo->immr_spi_cs);
++#endif
++	return ret;
+ }
+ 
+ static int of_fsl_spi_remove(struct platform_device *ofdev)
 -- 
 2.30.2
 
