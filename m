@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D439B37C80C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 709B637C7C4
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238146AbhELQEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:04:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38450 "EHLO mail.kernel.org"
+        id S236159AbhELQC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:02:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235247AbhELP7W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:59:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C902661979;
-        Wed, 12 May 2021 15:32:07 +0000 (UTC)
+        id S238172AbhELP52 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:57:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8718161C24;
+        Wed, 12 May 2021 15:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833528;
-        bh=FlV0apPUCGhhOmavjoa/Fx7dfZy8Fp8RRC8TfT9sIh0=;
+        s=korg; t=1620833436;
+        bh=AfPs3V9N5lrToc/yNlhtmH+SLviDHvncSLuv9nnMneY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mUPkDf/T51asJ/PP4LaF/gixprSaPZHPX/cpuzzttXAMQNPV9Y5zVwG6Gw0j6IH+o
-         zEHMkpziTy9QOG4CN5dM+w7G782LqGz/QxNTopqYl1fqtjUvcG+csUZx3jClVwmMzl
-         r455t6L9qZZ18jpgOTnRHI019YaamWLhfIF9LHmI=
+        b=tCacM/05X7Q6SyikmaxQFoRyigq++AQkxtNFj6NXpo6qD4X2Hwki4+Kj/v9oxCrGy
+         U6lclnbndMAXm8BqdgCJrJBNBS/hkIY3qW1D7PgRR5BwkYtJag8M8SEUhvRx7MvtSy
+         U7Tjp3cO2O59a+b7vNjK5uC37KoM5FU8trewYNRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 141/601] bus: ti-sysc: Fix initializing module_pa for modules without sysc register
-Date:   Wed, 12 May 2021 16:43:38 +0200
-Message-Id: <20210512144832.469272873@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Travis <mike.travis@hpe.com>,
+        Borislav Petkov <bp@suse.de>, Steve Wahl <steve.wahl@hpe.com>,
+        Russ Anderson <rja@hpe.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 142/601] x86/platform/uv: Set section block size for hubless architectures
+Date:   Wed, 12 May 2021 16:43:39 +0200
+Message-Id: <20210512144832.501224160@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,46 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Mike Travis <mike.travis@hpe.com>
 
-[ Upstream commit 7bad5af826aba00487fed9a3300d3f43f0cba11b ]
+[ Upstream commit 6840a150b9daf35e4d21ab9780d0a03b4ed74a5b ]
 
-We have interconnect target modules with no known registers using only
-clocks and resets, but we still want to detect them based on the module
-IO range. So let's call sysc_parse_and_check_child_range() earlier so we
-have module_pa properly initialized.
+Commit
 
-Fixes: 2928135c93f8 ("bus: ti-sysc: Support modules without control registers")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+  bbbd2b51a2aa ("x86/platform/UV: Use new set memory block size function")
+
+added a call to set the block size value that is needed by the kernel
+to set the boundaries in the section list. This was done for UV Hubbed
+systems but missed in the UV Hubless setup. Fix that mistake by adding
+that same set call for hubless systems, which support the same NVRAMs
+and Intel BIOS, thus the same problem occurs.
+
+ [ bp: Massage commit message. ]
+
+Fixes: bbbd2b51a2aa ("x86/platform/UV: Use new set memory block size function")
+Signed-off-by: Mike Travis <mike.travis@hpe.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Steve Wahl <steve.wahl@hpe.com>
+Reviewed-by: Russ Anderson <rja@hpe.com>
+Link: https://lkml.kernel.org/r/20210305162853.299892-1-mike.travis@hpe.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/apic/x2apic_uv_x.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 9e535336689f..68145e326eb9 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -901,9 +901,6 @@ static int sysc_map_and_check_registers(struct sysc *ddata)
- 	struct device_node *np = ddata->dev->of_node;
- 	int error;
+diff --git a/arch/x86/kernel/apic/x2apic_uv_x.c b/arch/x86/kernel/apic/x2apic_uv_x.c
+index 52bc217ca8c3..c9ddd233e32f 100644
+--- a/arch/x86/kernel/apic/x2apic_uv_x.c
++++ b/arch/x86/kernel/apic/x2apic_uv_x.c
+@@ -1671,6 +1671,9 @@ static __init int uv_system_init_hubless(void)
+ 	if (rc < 0)
+ 		return rc;
  
--	if (!of_get_property(np, "reg", NULL))
--		return 0;
--
- 	error = sysc_parse_and_check_child_range(ddata);
- 	if (error)
- 		return error;
-@@ -914,6 +911,9 @@ static int sysc_map_and_check_registers(struct sysc *ddata)
- 
- 	sysc_check_children(ddata);
- 
-+	if (!of_get_property(np, "reg", NULL))
-+		return 0;
++	/* Set section block size for current node memory */
++	set_block_size();
 +
- 	error = sysc_parse_registers(ddata);
- 	if (error)
- 		return error;
+ 	/* Create user access node */
+ 	if (rc >= 0)
+ 		uv_setup_proc_files(1);
 -- 
 2.30.2
 
