@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2E9937C5C4
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1EF37C5C7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233791AbhELPnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56688 "EHLO mail.kernel.org"
+        id S233930AbhELPnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:43:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230387AbhELPiF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230407AbhELPiF (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:38:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF6FF61C6B;
-        Wed, 12 May 2021 15:19:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30B0761C64;
+        Wed, 12 May 2021 15:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832800;
-        bh=wHGr8/2MKJ9QkujvqJp8NVpSdB7CSZyNxCnj1lOrdvw=;
+        s=korg; t=1620832802;
+        bh=fU/4kerB8Rqj+WMxsvLlAsgQQomxfRsmta0+ohO1Heg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P7WVge+2FtGO9JfyPJr3MsGgGPXiobaG46gt0f7eRdp8zTq9PD2OAb6ZvJ6UReCc/
-         g2zYz0/LclQhFzIVvvc1nf78Chehu4WvA5yN734lcAy+kFjM4XhqnWG8apPX63cqzH
-         y/cz/lga7UtHT/Tq6lclb7CU8ye5XBj9bMYXkytE=
+        b=axC9+yQsk2zwTLaFc3wkURrfLNy8AoYhoYpdB5LEwiYj09G1bRhu5tte2pb9Mp3HB
+         FVKcX7x9N7r0iaKT+PTNIXQ2oDVYYMx9kBHJJQcGwEJRngpg6GK0z4WQOaVsnST+AN
+         poEukpulR9J4+Qr3sTEejqwE1BpyuobLbphvAmLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Qinglang Miao <miaoqinglang@huawei.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 428/530] i2c: cadence: fix reference leak when pm_runtime_get_sync fails
-Date:   Wed, 12 May 2021 16:48:58 +0200
-Message-Id: <20210512144833.836367447@linuxfoundation.org>
+Subject: [PATCH 5.10 429/530] i2c: img-scb: fix reference leak when pm_runtime_get_sync fails
+Date:   Wed, 12 May 2021 16:48:59 +0200
+Message-Id: <20210512144833.868297954@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -42,46 +42,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 23ceb8462dc6f4b4decdb5536a7e5fc477cdf0b6 ]
+[ Upstream commit 223125e37af8a641ea4a09747a6a52172fc4b903 ]
 
 The PM reference count is not expected to be incremented on
-return in functions cdns_i2c_master_xfer and cdns_reg_slave.
+return in functions img_i2c_xfer and img_i2c_init.
 
-However, pm_runtime_get_sync will increment pm usage counter
-even failed. Forgetting to putting operation will result in a
-reference leak here.
+However, pm_runtime_get_sync will increment the PM reference
+count even failed. Forgetting to putting operation will result
+in a reference leak here.
 
 Replace it with pm_runtime_resume_and_get to keep usage
 counter balanced.
 
-Fixes: 7fa32329ca03 ("i2c: cadence: Move to sensible power management")
+Fixes: 93222bd9b966 ("i2c: img-scb: Add runtime PM")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-cadence.c | 4 ++--
+ drivers/i2c/busses/i2c-img-scb.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index e4b7f2a951ad..e8eae8725900 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -789,7 +789,7 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	bool change_role = false;
- #endif
+diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
+index 98a89301ed2a..8e987945ed45 100644
+--- a/drivers/i2c/busses/i2c-img-scb.c
++++ b/drivers/i2c/busses/i2c-img-scb.c
+@@ -1057,7 +1057,7 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			atomic = true;
+ 	}
  
--	ret = pm_runtime_get_sync(id->dev);
-+	ret = pm_runtime_resume_and_get(id->dev);
+-	ret = pm_runtime_get_sync(adap->dev.parent);
++	ret = pm_runtime_resume_and_get(adap->dev.parent);
  	if (ret < 0)
  		return ret;
  
-@@ -911,7 +911,7 @@ static int cdns_reg_slave(struct i2c_client *slave)
- 	if (slave->flags & I2C_CLIENT_TEN)
- 		return -EAFNOSUPPORT;
+@@ -1158,7 +1158,7 @@ static int img_i2c_init(struct img_i2c *i2c)
+ 	u32 rev;
+ 	int ret;
  
--	ret = pm_runtime_get_sync(id->dev);
-+	ret = pm_runtime_resume_and_get(id->dev);
+-	ret = pm_runtime_get_sync(i2c->adap.dev.parent);
++	ret = pm_runtime_resume_and_get(i2c->adap.dev.parent);
  	if (ret < 0)
  		return ret;
  
