@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC6D37C28D
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:10:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203F737C295
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232558AbhELPLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:11:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
+        id S231429AbhELPLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:11:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233549AbhELPJt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:09:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E845C61584;
-        Wed, 12 May 2021 15:02:29 +0000 (UTC)
+        id S233568AbhELPJu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:09:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 562E761411;
+        Wed, 12 May 2021 15:02:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831750;
-        bh=KIAU7xtsBCIoIi2K7KKsSBcqI5hWumsaNV0Dx2kWhyw=;
+        s=korg; t=1620831752;
+        bh=4CYvVss8zaZXtXhc/op9Y+b77940Rb1juzjUZavHUWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avXYk0K+1z4rBK/eVIi/DfvOCZtun36GeZLW6euBRX4zdGwlTqFiG/dlbdvBEL/o4
-         H0z5lUuo/g3PxAsZk5easWFITS7y9Ryrg/xcoEMhbIGx9VOLE1nY64UZ1cyjfWeG0/
-         vEYDvewCO+DuhIdnnCRlVLdVWwUGBn2GWDLBTL1k=
+        b=qUPsAxSu/iWLzxF3DQ7fSz4iztZK1yOjmgTyAxSP2F9tQR0A6lJ7WOyIbL0Bg3vBz
+         8tjcB1dv6SZCdlSQDGx0zCdNhf6VNAEb41iM25BDwmgBMAnyXt+cb44RbBkwC7AbNu
+         ZBW2zB56/AecFDVDosLG8gncJ9Ber7ACsPFYWwDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Devesh Sharma <devesh.sharma@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 233/244] RDMA/bnxt_re: Fix a double free in bnxt_qplib_alloc_res
-Date:   Wed, 12 May 2021 16:50:04 +0200
-Message-Id: <20210512144750.461510398@linuxfoundation.org>
+Subject: [PATCH 5.4 234/244] net: bridge: mcast: fix broken length + header check for MRDv6 Adv.
+Date:   Wed, 12 May 2021 16:50:05 +0200
+Message-Id: <20210512144750.492904490@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -42,43 +41,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-[ Upstream commit 34b39efa5ae82fc0ad0acc27653c12a56328dbbe ]
+[ Upstream commit 99014088156cd78867d19514a0bc771c4b86b93b ]
 
-In bnxt_qplib_alloc_res, it calls bnxt_qplib_alloc_dpi_tbl().  Inside
-bnxt_qplib_alloc_dpi_tbl, dpit->dbr_bar_reg_iomem is freed via
-pci_iounmap() in unmap_io error branch. After the callee returns err code,
-bnxt_qplib_alloc_res calls
-bnxt_qplib_free_res()->bnxt_qplib_free_dpi_tbl() in the fail branch. Then
-dpit->dbr_bar_reg_iomem is freed in the second time by pci_iounmap().
+The IPv6 Multicast Router Advertisements parsing has the following two
+issues:
 
-My patch set dpit->dbr_bar_reg_iomem to NULL after it is freed by
-pci_iounmap() in the first time, to avoid the double free.
+For one thing, ICMPv6 MRD Advertisements are smaller than ICMPv6 MLD
+messages (ICMPv6 MRD Adv.: 8 bytes vs. ICMPv6 MLDv1/2: >= 24 bytes,
+assuming MLDv2 Reports with at least one multicast address entry).
+When ipv6_mc_check_mld_msg() tries to parse an Multicast Router
+Advertisement its MLD length check will fail - and it will wrongly
+return -EINVAL, even if we have a valid MRD Advertisement. With the
+returned -EINVAL the bridge code will assume a broken packet and will
+wrongly discard it, potentially leading to multicast packet loss towards
+multicast routers.
 
-Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
-Link: https://lore.kernel.org/r/20210426140614.6722-1-lyl2019@mail.ustc.edu.cn
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Acked-by: Devesh Sharma <devesh.sharma@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The second issue is the MRD header parsing in
+br_ip6_multicast_mrd_rcv(): It wrongly checks for an ICMPv6 header
+immediately after the IPv6 header (IPv6 next header type). However
+according to RFC4286, section 2 all MRD messages contain a Router Alert
+option (just like MLD). So instead there is an IPv6 Hop-by-Hop option
+for the Router Alert between the IPv6 and ICMPv6 header, again leading
+to the bridge wrongly discarding Multicast Router Advertisements.
+
+To fix these two issues, introduce a new return value -ENODATA to
+ipv6_mc_check_mld() to indicate a valid ICMPv6 packet with a hop-by-hop
+option which is not an MLD but potentially an MRD packet. This also
+simplifies further parsing in the bridge code, as ipv6_mc_check_mld()
+already fully checks the ICMPv6 header and hop-by-hop option.
+
+These issues were found and fixed with the help of the mrdisc tool
+(https://github.com/troglobit/mrdisc).
+
+Fixes: 4b3087c7e37f ("bridge: Snoop Multicast Router Advertisements")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/qplib_res.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/addrconf.h    |  1 -
+ net/bridge/br_multicast.c | 33 ++++++++-------------------------
+ net/ipv6/mcast_snoop.c    | 12 +++++++-----
+ 3 files changed, 15 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/qplib_res.c b/drivers/infiniband/hw/bnxt_re/qplib_res.c
-index bdbde8e22420..4041b35ea3da 100644
---- a/drivers/infiniband/hw/bnxt_re/qplib_res.c
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_res.c
-@@ -736,6 +736,7 @@ static int bnxt_qplib_alloc_dpi_tbl(struct bnxt_qplib_res     *res,
+diff --git a/include/net/addrconf.h b/include/net/addrconf.h
+index ab8b3eb53d4b..8d90fb9184e8 100644
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -229,7 +229,6 @@ void ipv6_mc_unmap(struct inet6_dev *idev);
+ void ipv6_mc_remap(struct inet6_dev *idev);
+ void ipv6_mc_init_dev(struct inet6_dev *idev);
+ void ipv6_mc_destroy_dev(struct inet6_dev *idev);
+-int ipv6_mc_check_icmpv6(struct sk_buff *skb);
+ int ipv6_mc_check_mld(struct sk_buff *skb);
+ void addrconf_dad_failure(struct sk_buff *skb, struct inet6_ifaddr *ifp);
  
- unmap_io:
- 	pci_iounmap(res->pdev, dpit->dbr_bar_reg_iomem);
-+	dpit->dbr_bar_reg_iomem = NULL;
- 	return -ENOMEM;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 066cd3c59cfd..6276030f5854 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1647,25 +1647,14 @@ static int br_multicast_ipv4_rcv(struct net_bridge *br,
  }
  
+ #if IS_ENABLED(CONFIG_IPV6)
+-static int br_ip6_multicast_mrd_rcv(struct net_bridge *br,
+-				    struct net_bridge_port *port,
+-				    struct sk_buff *skb)
++static void br_ip6_multicast_mrd_rcv(struct net_bridge *br,
++				     struct net_bridge_port *port,
++				     struct sk_buff *skb)
+ {
+-	int ret;
+-
+-	if (ipv6_hdr(skb)->nexthdr != IPPROTO_ICMPV6)
+-		return -ENOMSG;
+-
+-	ret = ipv6_mc_check_icmpv6(skb);
+-	if (ret < 0)
+-		return ret;
+-
+ 	if (icmp6_hdr(skb)->icmp6_type != ICMPV6_MRDISC_ADV)
+-		return -ENOMSG;
++		return;
+ 
+ 	br_multicast_mark_router(br, port);
+-
+-	return 0;
+ }
+ 
+ static int br_multicast_ipv6_rcv(struct net_bridge *br,
+@@ -1679,18 +1668,12 @@ static int br_multicast_ipv6_rcv(struct net_bridge *br,
+ 
+ 	err = ipv6_mc_check_mld(skb);
+ 
+-	if (err == -ENOMSG) {
++	if (err == -ENOMSG || err == -ENODATA) {
+ 		if (!ipv6_addr_is_ll_all_nodes(&ipv6_hdr(skb)->daddr))
+ 			BR_INPUT_SKB_CB(skb)->mrouters_only = 1;
+-
+-		if (ipv6_addr_is_all_snoopers(&ipv6_hdr(skb)->daddr)) {
+-			err = br_ip6_multicast_mrd_rcv(br, port, skb);
+-
+-			if (err < 0 && err != -ENOMSG) {
+-				br_multicast_err_count(br, port, skb->protocol);
+-				return err;
+-			}
+-		}
++		if (err == -ENODATA &&
++		    ipv6_addr_is_all_snoopers(&ipv6_hdr(skb)->daddr))
++			br_ip6_multicast_mrd_rcv(br, port, skb);
+ 
+ 		return 0;
+ 	} else if (err < 0) {
+diff --git a/net/ipv6/mcast_snoop.c b/net/ipv6/mcast_snoop.c
+index d3d6b6a66e5f..04d5fcdfa6e0 100644
+--- a/net/ipv6/mcast_snoop.c
++++ b/net/ipv6/mcast_snoop.c
+@@ -109,7 +109,7 @@ static int ipv6_mc_check_mld_msg(struct sk_buff *skb)
+ 	struct mld_msg *mld;
+ 
+ 	if (!ipv6_mc_may_pull(skb, len))
+-		return -EINVAL;
++		return -ENODATA;
+ 
+ 	mld = (struct mld_msg *)skb_transport_header(skb);
+ 
+@@ -122,7 +122,7 @@ static int ipv6_mc_check_mld_msg(struct sk_buff *skb)
+ 	case ICMPV6_MGM_QUERY:
+ 		return ipv6_mc_check_mld_query(skb);
+ 	default:
+-		return -ENOMSG;
++		return -ENODATA;
+ 	}
+ }
+ 
+@@ -131,7 +131,7 @@ static inline __sum16 ipv6_mc_validate_checksum(struct sk_buff *skb)
+ 	return skb_checksum_validate(skb, IPPROTO_ICMPV6, ip6_compute_pseudo);
+ }
+ 
+-int ipv6_mc_check_icmpv6(struct sk_buff *skb)
++static int ipv6_mc_check_icmpv6(struct sk_buff *skb)
+ {
+ 	unsigned int len = skb_transport_offset(skb) + sizeof(struct icmp6hdr);
+ 	unsigned int transport_len = ipv6_transport_len(skb);
+@@ -150,7 +150,6 @@ int ipv6_mc_check_icmpv6(struct sk_buff *skb)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL(ipv6_mc_check_icmpv6);
+ 
+ /**
+  * ipv6_mc_check_mld - checks whether this is a sane MLD packet
+@@ -161,7 +160,10 @@ EXPORT_SYMBOL(ipv6_mc_check_icmpv6);
+  *
+  * -EINVAL: A broken packet was detected, i.e. it violates some internet
+  *  standard
+- * -ENOMSG: IP header validation succeeded but it is not an MLD packet.
++ * -ENOMSG: IP header validation succeeded but it is not an ICMPv6 packet
++ *  with a hop-by-hop option.
++ * -ENODATA: IP+ICMPv6 header with hop-by-hop option validation succeeded
++ *  but it is not an MLD packet.
+  * -ENOMEM: A memory allocation failure happened.
+  *
+  * Caller needs to set the skb network header and free any returned skb if it
 -- 
 2.30.2
 
