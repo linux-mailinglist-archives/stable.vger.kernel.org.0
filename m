@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F04F437C9F0
+	by mail.lfdr.de (Postfix) with ESMTP id 23FF737C9EE
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:52:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235494AbhELQX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:23:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59032 "EHLO mail.kernel.org"
+        id S235457AbhELQX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:23:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240587AbhELQSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:18:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63F7F61C8D;
-        Wed, 12 May 2021 15:44:33 +0000 (UTC)
+        id S240588AbhELQSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:18:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37D1161454;
+        Wed, 12 May 2021 15:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834273;
-        bh=+/G4V3zxFOQe76IpBKQZopAoY7jHuzqhljRFqe+oyTI=;
+        s=korg; t=1620834276;
+        bh=rttTnCwfjfmsnLPiV/CV+L0rzLaFEhlGgmiokshtVH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2AOV/J7+f4WZLIplFaUSaxPCYV0Ez7fblS3wkT3qQ7enTyh1gqtPxd/ghPk66NLj
-         mlMCd+rkjgy8ecadkpGSb5BPDE4fFRbr71GDWi4M3vc7QN6Ycc/JKtMLfYADoJyUU9
-         eJLiIcrylsAF8QxjaCqOLB94wv4kBZn16q7kgAjc=
+        b=CnuwtWkxeJ4amdn24dPJWPmURj0AqPEA38uIeoVpn6Aa4seqeM2xbtQOHdSr4fnyT
+         60wcO0voqwlx8Y3clxbDawXTLeZB9dtCPw1gJI9PekTXeEl8rlNuNPbgLO9BubalKD
+         jvfDSr1BIHFy9Ad6LFnx93i0rB74N0b5L+ji7hpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 477/601] mt76: mt7915: cleanup mcu tx queue in mt7915_dma_reset()
-Date:   Wed, 12 May 2021 16:49:14 +0200
-Message-Id: <20210512144843.553610745@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 478/601] KVM: PPC: Book3S HV P9: Restore host CTRL SPR after guest exit
+Date:   Wed, 12 May 2021 16:49:15 +0200
+Message-Id: <20210512144843.585572573@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -39,69 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 1ebea45ef027ee31cd50ed92903071391e792edb ]
+[ Upstream commit 5088eb4092df12d701af8e0e92860b7186365279 ]
 
-Cleanup mcu queues in mt7915_mac_reset_work().
+The host CTRL (runlatch) value is not restored after guest exit. The
+host CTRL should always be 1 except in CPU idle code, so this can result
+in the host running with runlatch clear, and potentially switching to
+a different vCPU which then runs with runlatch clear as well.
 
-Fixes: e637763b606b ("mt76: move mcu queues to mt76_dev q_mcu array")
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+This has little effect on P9 machines, CTRL is only responsible for some
+PMU counter logic in the host and so other than corner cases of software
+relying on that, or explicitly reading the runlatch value (Linux does
+not appear to be affected but it's possible non-Linux guests could be),
+there should be no execution correctness problem, though it could be
+used as a covert channel between guests.
+
+There may be microcontrollers, firmware or monitoring tools that sample
+the runlatch value out-of-band, however since the register is writable
+by guests, these values would (should) not be relied upon for correct
+operation of the host, so suboptimal performance or incorrect reporting
+should be the worst problem.
+
+Fixes: 95a6432ce9038 ("KVM: PPC: Book3S HV: Streamlined guest entry/exit path on P9 for radix guests")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210412014845.1517916-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index dc2b8c72e7f0..2dedca6f24e4 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -1453,9 +1453,8 @@ mt7915_update_beacons(struct mt7915_dev *dev)
- }
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 6f612d240392..138556cb559d 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3709,7 +3709,10 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
+ 	vcpu->arch.dec_expires = dec + tb;
+ 	vcpu->cpu = -1;
+ 	vcpu->arch.thread_cpu = -1;
++	/* Save guest CTRL register, set runlatch to 1 */
+ 	vcpu->arch.ctrl = mfspr(SPRN_CTRLF);
++	if (!(vcpu->arch.ctrl & 1))
++		mtspr(SPRN_CTRLT, vcpu->arch.ctrl | 1);
  
- static void
--mt7915_dma_reset(struct mt7915_phy *phy)
-+mt7915_dma_reset(struct mt7915_dev *dev)
- {
--	struct mt7915_dev *dev = phy->dev;
- 	struct mt76_phy *mphy_ext = dev->mt76.phy2;
- 	int i;
- 
-@@ -1463,18 +1462,20 @@ mt7915_dma_reset(struct mt7915_phy *phy)
- 		   MT_WFDMA0_GLO_CFG_TX_DMA_EN | MT_WFDMA0_GLO_CFG_RX_DMA_EN);
- 	mt76_clear(dev, MT_WFDMA1_GLO_CFG,
- 		   MT_WFDMA1_GLO_CFG_TX_DMA_EN | MT_WFDMA1_GLO_CFG_RX_DMA_EN);
-+
- 	usleep_range(1000, 2000);
- 
--	mt76_queue_tx_cleanup(dev, dev->mt76.q_mcu[MT_MCUQ_WA], true);
- 	for (i = 0; i < __MT_TXQ_MAX; i++) {
--		mt76_queue_tx_cleanup(dev, phy->mt76->q_tx[i], true);
-+		mt76_queue_tx_cleanup(dev, dev->mphy.q_tx[i], true);
- 		if (mphy_ext)
- 			mt76_queue_tx_cleanup(dev, mphy_ext->q_tx[i], true);
- 	}
- 
--	mt76_for_each_q_rx(&dev->mt76, i) {
-+	for (i = 0; i < __MT_MCUQ_MAX; i++)
-+		mt76_queue_tx_cleanup(dev, dev->mt76.q_mcu[i], true);
-+
-+	mt76_for_each_q_rx(&dev->mt76, i)
- 		mt76_queue_rx_reset(dev, i);
--	}
- 
- 	/* re-init prefetch settings after reset */
- 	mt7915_dma_prefetch(dev);
-@@ -1550,7 +1551,7 @@ void mt7915_mac_reset_work(struct work_struct *work)
- 	idr_init(&dev->token);
- 
- 	if (mt7915_wait_reset_state(dev, MT_MCU_CMD_RESET_DONE)) {
--		mt7915_dma_reset(&dev->phy);
-+		mt7915_dma_reset(dev);
- 
- 		mt76_wr(dev, MT_MCU_INT_EVENT, MT_MCU_INT_EVENT_DMA_INIT);
- 		mt7915_wait_reset_state(dev, MT_MCU_CMD_RECOVERY_DONE);
+ 	vcpu->arch.iamr = mfspr(SPRN_IAMR);
+ 	vcpu->arch.pspb = mfspr(SPRN_PSPB);
 -- 
 2.30.2
 
