@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2871337C7C3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F6E37C7C6
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236181AbhELQCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:02:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36416 "EHLO mail.kernel.org"
+        id S233526AbhELQCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238177AbhELP53 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:57:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01A9061C26;
-        Wed, 12 May 2021 15:30:37 +0000 (UTC)
+        id S238192AbhELP5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:57:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69B2A6193E;
+        Wed, 12 May 2021 15:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833438;
-        bh=tA9rM1j96RR6Wg2KTIrUJspWlz2TsQbVgxyUFm+J77g=;
+        s=korg; t=1620833440;
+        bh=4CyxnMvVLxRt5bRTu4GPSWoOUFR5aL5t4joZXO2w+PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLPvgqRC4Qxuf8TH3HOrcfTpqr6syV80qgFsA1k2aB2SBaiFADPD17FgBftssJMKp
-         gtVSGsprTQ+44uE7wPRfOLCAAGi3p9k0Z5dchmDQ7qiBSK9s0E+L+Hatw2Rgz4HGZU
-         QEZHS+6Kbb19z72E7Qt8Zt7IPy32BbY9jVv3hGSo=
+        b=jy1w1TwhXVAukQ5QDzlVn9f1hTX7UAobh63b2+W3/wMlkEsnkg0/d5vUm923bcMM3
+         ge6L3R69pb3PTNH0GQZJ/M+U1fWbnGHh+jFI3ibI7ojfay0q1e8daqijf3LCRPF+i3
+         Y1M9I0SWIv7QPAEk/GYcmdl6FaEvouM+A6A4zmSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 151/601] serial: stm32: fix wake-up flag handling
-Date:   Wed, 12 May 2021 16:43:48 +0200
-Message-Id: <20210512144832.790071233@linuxfoundation.org>
+Subject: [PATCH 5.11 152/601] serial: stm32: fix a deadlock in set_termios
+Date:   Wed, 12 May 2021 16:43:49 +0200
+Message-Id: <20210512144832.819483452@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,112 +41,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit 12761869f0efa524348e2ae31827fd52eebf3f0d ]
+[ Upstream commit 436c97936001776f16153771ee887f125443e974 ]
 
-This patch fixes several issue with wake-up handling:
-- the WUF irq is handled several times at wake-up
-- the USART is disabled / enabled at suspend to set wake-up flag.
-It can cause glitches during RX.
+CTS/RTS GPIOs support that has been added recently to STM32 UART driver has
+introduced scheduled code in a set_termios part protected by a spin lock.
+This generates a potential deadlock scenario:
 
-This patch fix those issues:
-- clear wake-up flag and disable wake-up irq in WUF irq handling
-- enable wake-up from low power on start bit detection at port
-configuration
-- Unmask the wake-up flag irq at suspend and mask it at resume
+Chain exists of:
+&irq_desc_lock_class --> console_owner --> &port_lock_key
 
-In addition, pm_wakeup_event handling is moved from receice_chars to WUF
-irq handling.
+Possible unsafe locking scenario:
 
-Fixes: 270e5a74fe4c ("serial: stm32: add wakeup mechanism")
+     CPU0                    CPU1
+     ----                    ----
+lock(&port_lock_key);
+                           lock(console_owner);
+                           lock(&port_lock_key);
+lock(&irq_desc_lock_class);
+
+*** DEADLOCK ***
+4 locks held by stty/766:
+
+Move the scheduled code after the spinlock.
+
+Fixes: 6cf61b9bd7cc ("tty: serial: Add modem control gpio support for STM32 UART")
 Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-7-erwan.leray@foss.st.com
+Link: https://lore.kernel.org/r/20210304162308.8984-8-erwan.leray@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 32 +++++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 13 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 5ae3841a4a08..85e9a4d4e91d 100644
+index 85e9a4d4e91d..44522ddc7e6d 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -217,9 +217,6 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
- 	u32 sr;
- 	char flag;
+@@ -827,12 +827,6 @@ static void stm32_usart_set_termios(struct uart_port *port,
+ 		cr3 |= USART_CR3_CTSE | USART_CR3_RTSE;
+ 	}
  
--	if (irqd_is_wakeup_set(irq_get_irq_data(port->irq)))
--		pm_wakeup_event(tport->tty->dev, 0);
+-	/* Handle modem control interrupts */
+-	if (UART_ENABLE_MS(port, termios->c_cflag))
+-		stm32_usart_enable_ms(port);
+-	else
+-		stm32_usart_disable_ms(port);
 -
- 	if (threaded)
- 		spin_lock_irqsave(&port->lock, flags);
- 	else
-@@ -462,6 +459,7 @@ static void stm32_usart_transmit_chars(struct uart_port *port)
- static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
- {
- 	struct uart_port *port = ptr;
-+	struct tty_port *tport = &port->state->port;
- 	struct stm32_port *stm32_port = to_stm32_port(port);
- 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
- 	u32 sr;
-@@ -472,9 +470,14 @@ static irqreturn_t stm32_usart_interrupt(int irq, void *ptr)
- 		writel_relaxed(USART_ICR_RTOCF,
- 			       port->membase + ofs->icr);
+ 	usartdiv = DIV_ROUND_CLOSEST(port->uartclk, baud);
  
--	if ((sr & USART_SR_WUF) && ofs->icr != UNDEF_REG)
-+	if ((sr & USART_SR_WUF) && ofs->icr != UNDEF_REG) {
-+		/* Clear wake up flag and disable wake up interrupt */
- 		writel_relaxed(USART_ICR_WUCF,
- 			       port->membase + ofs->icr);
-+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_WUFIE);
-+		if (irqd_is_wakeup_set(irq_get_irq_data(port->irq)))
-+			pm_wakeup_event(tport->tty->dev, 0);
-+	}
+ 	/*
+@@ -914,6 +908,12 @@ static void stm32_usart_set_termios(struct uart_port *port,
  
- 	if ((sr & USART_SR_RXNE) && !(stm32_port->rx_ch))
- 		stm32_usart_receive_chars(port, false);
-@@ -899,6 +902,12 @@ static void stm32_usart_set_termios(struct uart_port *port,
- 		cr1 &= ~(USART_CR1_DEDT_MASK | USART_CR1_DEAT_MASK);
- 	}
- 
-+	/* Configure wake up from low power on start bit detection */
-+	if (stm32_port->wakeirq > 0) {
-+		cr3 &= ~USART_CR3_WUS_MASK;
-+		cr3 |= USART_CR3_WUS_START_BIT;
-+	}
+ 	stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
+ 	spin_unlock_irqrestore(&port->lock, flags);
 +
- 	writel_relaxed(cr3, port->membase + ofs->cr3);
- 	writel_relaxed(cr2, port->membase + ofs->cr2);
- 	writel_relaxed(cr1, port->membase + ofs->cr1);
-@@ -1466,23 +1475,20 @@ static void __maybe_unused stm32_usart_serial_en_wakeup(struct uart_port *port,
- {
- 	struct stm32_port *stm32_port = to_stm32_port(port);
- 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
--	const struct stm32_usart_config *cfg = &stm32_port->info->cfg;
--	u32 val;
- 
- 	if (stm32_port->wakeirq <= 0)
- 		return;
- 
-+	/*
-+	 * Enable low-power wake-up and wake-up irq if argument is set to
-+	 * "enable", disable low-power wake-up and wake-up irq otherwise
-+	 */
- 	if (enable) {
--		stm32_usart_clr_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
- 		stm32_usart_set_bits(port, ofs->cr1, USART_CR1_UESM);
--		val = readl_relaxed(port->membase + ofs->cr3);
--		val &= ~USART_CR3_WUS_MASK;
--		/* Enable Wake up interrupt from low power on start bit */
--		val |= USART_CR3_WUS_START_BIT | USART_CR3_WUFIE;
--		writel_relaxed(val, port->membase + ofs->cr3);
--		stm32_usart_set_bits(port, ofs->cr1, BIT(cfg->uart_enable_bit));
-+		stm32_usart_set_bits(port, ofs->cr3, USART_CR3_WUFIE);
- 	} else {
- 		stm32_usart_clr_bits(port, ofs->cr1, USART_CR1_UESM);
-+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_WUFIE);
- 	}
++	/* Handle modem control interrupts */
++	if (UART_ENABLE_MS(port, termios->c_cflag))
++		stm32_usart_enable_ms(port);
++	else
++		stm32_usart_disable_ms(port);
  }
  
+ static const char *stm32_usart_type(struct uart_port *port)
 -- 
 2.30.2
 
