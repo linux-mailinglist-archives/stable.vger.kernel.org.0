@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5385C37CC00
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F35C37CC65
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241393AbhELQjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:39:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51024 "EHLO mail.kernel.org"
+        id S238214AbhELQor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:44:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241965AbhELQbV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:31:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6865D61C2A;
-        Wed, 12 May 2021 15:58:02 +0000 (UTC)
+        id S242029AbhELQbi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:31:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF5C361A36;
+        Wed, 12 May 2021 15:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835082;
-        bh=29vxBOA37F/Wn2IniIE8nHzEItpJmw1oVRRo2OsptGc=;
+        s=korg; t=1620835085;
+        bh=Os5tOKqe2SUe42EtNQWjyiSOfJ5/YIBz8/jUfIGQy8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVuF5siqLVGm5rVSO47g2uvpIJDCfR/IQgdeyPbEckOfstPrwY67Qnozl4/JSjoBs
-         OGDVIZFp535MtSFjLa3CsnduSlwjBSW+ygM3udaeqFiVs+Utk+rLt1fljyJwjF+efD
-         YLKmHQIvg3kMEJRX7f9uEVF0LG6UtmrjmOD8dgv0=
+        b=J4p5afGhGbD3hKV9VDYhIjw8e225kDPR4Sak604KyJ92ZjL5xb/gWBwasPIORKK56
+         u1yBCTMo682eWNi/gKoWuqnN8H0WdazsULhuo/kq/G3QOQM1XP1I1bZmAt27IQ6JbL
+         CzQJGz8mg5Rf9sz5yfA0wF3JfhSgP/iKVcUjtsho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Antonio Borneo <antonio.borneo@foss.st.com>,
-        Alain Volmat <alain.volmat@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 202/677] spi: stm32: drop devres version of spi_register_master
-Date:   Wed, 12 May 2021 16:44:08 +0200
-Message-Id: <20210512144843.960706379@linuxfoundation.org>
+Subject: [PATCH 5.12 203/677] arm64: dts: broadcom: bcm4908: set Asus GT-AC5300 port 7 PHY mode
+Date:   Wed, 12 May 2021 16:44:09 +0200
+Message-Id: <20210512144843.992707936@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,68 +41,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@foss.st.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 8d559a64f00b59af9cc02b803ff52f6e6880a651 ]
+[ Upstream commit 5ccb9f9cf05bbd729430c6d6d30d40c96a15c56a ]
 
-A call to spi_unregister_master() triggers calling remove()
-for all the spi devices binded to the spi master.
+Port 7 is connected to the external BCM53134S switch using RGMII.
 
-Some spi device driver requires to "talk" with the spi device
-during the remove(), e.g.:
-- a LCD panel like drivers/gpu/drm/panel/panel-lg-lg4573.c
-  will turn off the backlighting sending a command over spi.
-This implies that the spi master must be fully functional when
-spi_unregister_master() is called, either if it is called
-explicitly in the master's remove() code or implicitly by the
-devres framework.
-
-Devres calls devres_release_all() to release all the resources
-"after" the remove() of the spi master driver (check code of
-__device_release_driver() in drivers/base/dd.c).
-If the spi master driver has an empty remove() then there would
-be no issue; the devres_release_all() will release everything
-in reverse order w.r.t. probe().
-But if code in spi master driver remove() disables the spi or
-makes it not functional (like in this spi-stm32), then devres
-cannot be used safely for unregistering the spi master and the
-binded spi devices.
-
-Replace devm_spi_register_master() with spi_register_master()
-and add spi_unregister_master() as first action in remove().
-
-Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
-
-Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Link: https://lore.kernel.org/r/1615545286-5395-1-git-send-email-alain.volmat@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 527a3ac9bdf8 ("arm64: dts: broadcom: bcm4908: describe internal switch")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/broadcom/bcm4908/bcm4908-asus-gt-ac5300.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 25c076461011..97cf3a2d4180 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -1929,7 +1929,7 @@ static int stm32_spi_probe(struct platform_device *pdev)
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
+diff --git a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908-asus-gt-ac5300.dts b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908-asus-gt-ac5300.dts
+index 6e4ad66ff536..8d5d368dbe90 100644
+--- a/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908-asus-gt-ac5300.dts
++++ b/arch/arm64/boot/dts/broadcom/bcm4908/bcm4908-asus-gt-ac5300.dts
+@@ -65,6 +65,7 @@
+ 	port@7 {
+ 		label = "sw";
+ 		reg = <7>;
++		phy-mode = "rgmii";
  
--	ret = devm_spi_register_master(&pdev->dev, master);
-+	ret = spi_register_master(master);
- 	if (ret) {
- 		dev_err(&pdev->dev, "spi master registration failed: %d\n",
- 			ret);
-@@ -1960,6 +1960,7 @@ static int stm32_spi_remove(struct platform_device *pdev)
- 	struct spi_master *master = platform_get_drvdata(pdev);
- 	struct stm32_spi *spi = spi_master_get_devdata(master);
- 
-+	spi_unregister_master(master);
- 	spi->cfg->disable(spi);
- 
- 	if (master->dma_tx)
+ 		fixed-link {
+ 			speed = <1000>;
 -- 
 2.30.2
 
