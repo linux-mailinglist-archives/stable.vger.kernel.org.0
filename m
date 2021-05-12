@@ -2,46 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C701537C5D5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63AB937C5D7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:42:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233796AbhELPni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:43:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
+        id S233985AbhELPnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:43:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232942AbhELPjD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:39:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE8A36199B;
-        Wed, 12 May 2021 15:20:33 +0000 (UTC)
+        id S234024AbhELPjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:39:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6E761C72;
+        Wed, 12 May 2021 15:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832834;
-        bh=hm7zlPd3i6DhNWvRiqLjzlRdTb94Y6hFcTU5uPnT8Ww=;
+        s=korg; t=1620832837;
+        bh=8vmq9Puda2Dmx8qN1xYgteUcNEpTEsxOm+8xqqF05IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWKv8UEExSsQeX7N1+Azr0oq635Hhz3pRVdBmIXrcLKWDKeguQEArZLJdUA2m74li
-         TFsHsOkk/LES14+2sgPMxUED8Niudo1KwWWP7M8TG3lfsWmcgtplDag7KdDV7frMAV
-         n9nBBIfGpDwJBH75U3RgilHya1qb3WyXf96EImvQ=
+        b=0mARaEOf9fAi/5W1gGV7R5YkvOZqiXT9kaVbPewYTzwZE/vYj05k7HqEgmlgvqZyd
+         FEGGKQNPR6CMzSHW1gTOHGZ5bjjycuHugmTNLoMxJvYQbEnHIJCh7XePERMKuSTA5+
+         ne0UsPY9QFheOmR+ZdPP1mMHGGvq7HdumPDeGM0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Richter <rrichter@amd.com>,
-        Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
-        Kim Phillips <kim.phillips@amd.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vijay Thakkar <vijaythakkar@me.com>,
-        linux-perf-users@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH 5.10 408/530] perf vendor events amd: Fix broken L2 Cache Hits from L2 HWPF metric
-Date:   Wed, 12 May 2021 16:48:38 +0200
-Message-Id: <20210512144833.172352448@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 409/530] xfs: fix return of uninitialized value in variable error
+Date:   Wed, 12 May 2021 16:48:39 +0200
+Message-Id: <20210512144833.206660175@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -53,161 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 86c2bc3da769124e3e856b6e9457be3667c30919 ]
+[ Upstream commit 3b6dd9a9aeeada19d0c820ff68e979243a888bb6 ]
 
-Commit 08ed77e414ab2342 ("perf vendor events amd: Add recommended events")
-added the hits event "L2 Cache Hits from L2 HWPF" with the same metric
-expression as the accesses event "L2 Cache Accesses from L2 HWPF":
+A previous commit removed a call to xfs_attr3_leaf_read that
+assigned an error return code to variable error. We now have
+a few early error return paths to label 'out' that return
+error if error is set; however error now is uninitialized
+so potentially garbage is being returned.  Fix this by setting
+error to zero to restore the original behaviour where error
+was zero at the label 'restart'.
 
-$ perf list --details
-...
-  l2_cache_accesses_from_l2_hwpf
-     [L2 Cache Accesses from L2 HWPF]
-     [l2_pf_hit_l2 + l2_pf_miss_l2_hit_l3 + l2_pf_miss_l2_l3]
-  l2_cache_hits_from_l2_hwpf
-     [L2 Cache Hits from L2 HWPF]
-     [l2_pf_hit_l2 + l2_pf_miss_l2_hit_l3 + l2_pf_miss_l2_l3]
-...
-
-This was wrong and led to counting hits the same as accesses. Section
-2.1.15.2 "Performance Measurement" of "PPR for AMD Family 17h Model 31h
-B0 - 55803 Rev 0.54 - Sep 12, 2019", documents the hits event with
-EventCode 0x70 which is the same as l2_pf_hit_l2.
-
-Fix this, and massage the description for l2_pf_hit_l2 as the hits event
-is now the duplicate of l2_pf_hit_l2. AMD recommends using the recommended
-event over other events if the duplicate exists and maintain both for
-consistency. Hence, l2_cache_hits_from_l2_hwpf should override
-l2_pf_hit_l2.
-
-Before:
-
- # perf stat -M l2_cache_accesses_from_l2_hwpf,l2_cache_hits_from_l2_hwpf sleep 1
-
- Performance counter stats for 'sleep 1':
-
-             1,436      l2_pf_miss_l2_l3          # 11114.00 l2_cache_accesses_from_l2_hwpf
-                                                  # 11114.00 l2_cache_hits_from_l2_hwpf
-             4,482      l2_pf_hit_l2
-             5,196      l2_pf_miss_l2_hit_l3
-
-       1.001765339 seconds time elapsed
-
-After:
-
- # perf stat -M l2_cache_accesses_from_l2_hwpf sleep 1
-
- Performance counter stats for 'sleep 1':
-
-             1,477      l2_pf_miss_l2_l3          # 10442.00 l2_cache_accesses_from_l2_hwpf
-             3,978      l2_pf_hit_l2
-             4,987      l2_pf_miss_l2_hit_l3
-
-       1.001491186 seconds time elapsed
-
- # perf stat -e l2_cache_hits_from_l2_hwpf sleep 1
-
- Performance counter stats for 'sleep 1':
-
-             3,983      l2_cache_hits_from_l2_hwpf
-
-       1.001329970 seconds time elapsed
-
-Note the difference in performance counter values for the accesses
-versus the hits after the fix, and the hits event now counting the same
-as l2_pf_hit_l2.
-
-Fixes: 08ed77e414ab ("perf vendor events amd: Add recommended events")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206537
-Reviewed-by: Robert Richter <rrichter@amd.com>
-Signed-off-by: Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@kernel.org> # On a 3900X
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kim Phillips <kim.phillips@amd.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin Liška <mliska@suse.cz>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Vijay Thakkar <vijaythakkar@me.com>
-Cc: linux-perf-users@vger.kernel.org
-Link: https://lore.kernel.org/r/20210406215944.113332-2-Smita.KoralahalliChannabasappa@amd.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: 07120f1abdff ("xfs: Add xfs_has_attr and subroutines")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/arch/x86/amdzen1/cache.json       | 2 +-
- tools/perf/pmu-events/arch/x86/amdzen1/recommended.json | 6 +++---
- tools/perf/pmu-events/arch/x86/amdzen2/cache.json       | 2 +-
- tools/perf/pmu-events/arch/x86/amdzen2/recommended.json | 6 +++---
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ fs/xfs/libxfs/xfs_attr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/pmu-events/arch/x86/amdzen1/cache.json b/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
-index 4ea7ec4f496e..008f1683e540 100644
---- a/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
-+++ b/tools/perf/pmu-events/arch/x86/amdzen1/cache.json
-@@ -275,7 +275,7 @@
-   {
-     "EventName": "l2_pf_hit_l2",
-     "EventCode": "0x70",
--    "BriefDescription": "L2 prefetch hit in L2.",
-+    "BriefDescription": "L2 prefetch hit in L2. Use l2_cache_hits_from_l2_hwpf instead.",
-     "UMask": "0xff"
-   },
-   {
-diff --git a/tools/perf/pmu-events/arch/x86/amdzen1/recommended.json b/tools/perf/pmu-events/arch/x86/amdzen1/recommended.json
-index 2cfe2d2f3bfd..3c954543d1ae 100644
---- a/tools/perf/pmu-events/arch/x86/amdzen1/recommended.json
-+++ b/tools/perf/pmu-events/arch/x86/amdzen1/recommended.json
-@@ -79,10 +79,10 @@
-     "UMask": "0x70"
-   },
-   {
--    "MetricName": "l2_cache_hits_from_l2_hwpf",
-+    "EventName": "l2_cache_hits_from_l2_hwpf",
-+    "EventCode": "0x70",
-     "BriefDescription": "L2 Cache Hits from L2 HWPF",
--    "MetricExpr": "l2_pf_hit_l2 + l2_pf_miss_l2_hit_l3 + l2_pf_miss_l2_l3",
--    "MetricGroup": "l2_cache"
-+    "UMask": "0xff"
-   },
-   {
-     "EventName": "l3_accesses",
-diff --git a/tools/perf/pmu-events/arch/x86/amdzen2/cache.json b/tools/perf/pmu-events/arch/x86/amdzen2/cache.json
-index f61b982f83ca..8ba84a48188d 100644
---- a/tools/perf/pmu-events/arch/x86/amdzen2/cache.json
-+++ b/tools/perf/pmu-events/arch/x86/amdzen2/cache.json
-@@ -205,7 +205,7 @@
-   {
-     "EventName": "l2_pf_hit_l2",
-     "EventCode": "0x70",
--    "BriefDescription": "L2 prefetch hit in L2.",
-+    "BriefDescription": "L2 prefetch hit in L2. Use l2_cache_hits_from_l2_hwpf instead.",
-     "UMask": "0xff"
-   },
-   {
-diff --git a/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json b/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json
-index 2ef91e25e661..1c624cee9ef4 100644
---- a/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json
-+++ b/tools/perf/pmu-events/arch/x86/amdzen2/recommended.json
-@@ -79,10 +79,10 @@
-     "UMask": "0x70"
-   },
-   {
--    "MetricName": "l2_cache_hits_from_l2_hwpf",
-+    "EventName": "l2_cache_hits_from_l2_hwpf",
-+    "EventCode": "0x70",
-     "BriefDescription": "L2 Cache Hits from L2 HWPF",
--    "MetricExpr": "l2_pf_hit_l2 + l2_pf_miss_l2_hit_l3 + l2_pf_miss_l2_l3",
--    "MetricGroup": "l2_cache"
-+    "UMask": "0xff"
-   },
-   {
-     "EventName": "l3_accesses",
+diff --git a/fs/xfs/libxfs/xfs_attr.c b/fs/xfs/libxfs/xfs_attr.c
+index fd8e6418a0d3..96ac7e562b87 100644
+--- a/fs/xfs/libxfs/xfs_attr.c
++++ b/fs/xfs/libxfs/xfs_attr.c
+@@ -928,6 +928,7 @@ restart:
+ 	 * Search to see if name already exists, and get back a pointer
+ 	 * to where it should go.
+ 	 */
++	error = 0;
+ 	retval = xfs_attr_node_hasname(args, &state);
+ 	if (retval != -ENOATTR && retval != -EEXIST)
+ 		goto out;
 -- 
 2.30.2
 
