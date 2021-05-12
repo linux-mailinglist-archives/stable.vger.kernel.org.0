@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F36137CAC3
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B45B37CABD
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234454AbhELQcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:32:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44832 "EHLO mail.kernel.org"
+        id S232637AbhELQcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:32:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241114AbhELQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241102AbhELQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:26:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B867E619C3;
-        Wed, 12 May 2021 15:49:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 284BD61DAE;
+        Wed, 12 May 2021 15:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834571;
-        bh=x6IIQ3xVA6PrYrrXSvlR0k9iFErrr00WFalA7SC+nP0=;
+        s=korg; t=1620834573;
+        bh=GuczCKQ7meK2vrOHgmAK9l6uFDKrUfOMAk9OucCkgyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zt+ihVBYSVEfPDaXKgQdbl5eml7xHWiCssWriv37nh6rQ/b3TXju6hhoSYP4Q3ueB
-         y1sqnxa0zQktv69TfS/wSQuhRSflgtYyMIh1DTxYCc7e6+jyWPJRpd+1W6nLcEnDyt
-         Rs4f0/QAUN4aP97EJ5Y13zk1nw5gbwudzaUvkYjw=
+        b=uPHgjvvoTWNHyJvjfOJOJlXigJrobhL5JGMXVrGzwuAslVNu1V+sKooXgP9l3il0P
+         cMu3zZHGzQweLBjK9cotah6SP2oNzagodDaodZ8zVIDiG06vO74t4VRVFT9ukBe8QZ
+         CuTQ1E1/rkV9StrPYkpz+3Gou7C7/dv818Z4D2hA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 562/601] net: enetc: fix link error again
-Date:   Wed, 12 May 2021 16:50:39 +0200
-Message-Id: <20210512144846.357924633@linuxfoundation.org>
+Subject: [PATCH 5.11 563/601] bnxt_en: fix ternary sign extension bug in bnxt_show_temp()
+Date:   Wed, 12 May 2021 16:50:40 +0200
+Message-Id: <20210512144846.388182235@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,45 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 74c97ea3b61e4ce149444f904ee8d4fc7073505b ]
+[ Upstream commit 27537929f30d3136a71ef29db56127a33c92dad7 ]
 
-A link time bug that I had fixed before has come back now that
-another sub-module was added to the enetc driver:
+The problem is that bnxt_show_temp() returns long but "rc" is an int
+and "len" is a u32.  With ternary operations the type promotion is quite
+tricky.  The negative "rc" is first promoted to u32 and then to long so
+it ends up being a high positive value instead of a a negative as we
+intended.
 
-ERROR: modpost: "enetc_ierb_register_pf" [drivers/net/ethernet/freescale/enetc/fsl-enetc.ko] undefined!
+Fix this by removing the ternary.
 
-The problem is that the enetc Makefile is not actually used for
-the ierb module if that is the only built-in driver in there
-and everything else is a loadable module.
-
-Fix it by always entering the directory this time, regardless
-of which symbols are configured. This should reliably fix the
-problem and prevent it from coming back another time.
-
-Fixes: 112463ddbe82 ("net: dsa: felix: fix link error")
-Fixes: e7d48e5fbf30 ("net: enetc: add a mini driver for the Integrated Endpoint Register Block")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: d69753fa1ecb ("bnxt_en: return proper error codes in bnxt_show_temp")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/Makefile | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/Makefile b/drivers/net/ethernet/freescale/Makefile
-index 67c436400352..de7b31842233 100644
---- a/drivers/net/ethernet/freescale/Makefile
-+++ b/drivers/net/ethernet/freescale/Makefile
-@@ -24,6 +24,4 @@ obj-$(CONFIG_FSL_DPAA_ETH) += dpaa/
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 80819d8fddb4..11839f086f29 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -9546,7 +9546,9 @@ static ssize_t bnxt_show_temp(struct device *dev,
+ 	if (!rc)
+ 		len = sprintf(buf, "%u\n", resp->temp * 1000); /* display millidegree */
+ 	mutex_unlock(&bp->hwrm_cmd_lock);
+-	return rc ?: len;
++	if (rc)
++		return rc;
++	return len;
+ }
+ static SENSOR_DEVICE_ATTR(temp1_input, 0444, bnxt_show_temp, NULL, 0);
  
- obj-$(CONFIG_FSL_DPAA2_ETH) += dpaa2/
- 
--obj-$(CONFIG_FSL_ENETC) += enetc/
--obj-$(CONFIG_FSL_ENETC_MDIO) += enetc/
--obj-$(CONFIG_FSL_ENETC_VF) += enetc/
-+obj-y += enetc/
 -- 
 2.30.2
 
