@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 812BC37B8A9
+	by mail.lfdr.de (Postfix) with ESMTP id 58EBF37B8A8
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbhELIyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:54:40 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:57269 "EHLO
+        id S230316AbhELIyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:54:43 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:53049 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230145AbhELIyj (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 12 May 2021 04:54:39 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.west.internal (Postfix) with ESMTP id C0E7013AC;
-        Wed, 12 May 2021 04:53:31 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Wed, 12 May 2021 04:53:32 -0400
+        by vger.kernel.org with ESMTP id S230145AbhELIym (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 12 May 2021 04:54:42 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 3C63E1314;
+        Wed, 12 May 2021 04:53:34 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 12 May 2021 04:53:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=FQ17hz
-        Wv+kSyuMg24Q6MuhcruY5hHV47OJvVuZLIss8=; b=e07vxR37pz5Z1rxnPfYCF4
-        /S51vt+6+DUyEKU3q6aUbTaOr2RIP8q+tBJltQeN5Z34YD6nHPSqpEKK4lgeoUhD
-        mo7H+rXs3PpgnSd/c/tJuOWmtsZBbfttLrICxSPS/fWGyKHsV9j/ocPQ04ojHN/i
-        wYHK9nEOWmo7JhFEk5z8wk1Z11Suqg5SGMDnNwbUqY8Sw1QdqG7lz8PlApuN1ccH
-        xT3h30yxBuEatkODzZDTQIXmaNnS0PzUGXXm+1JOkaiZxUw9s4xPfdSzPNnaOnPJ
-        RdhWFE54P+eBQ1M8XZ8ruw3UXRdJ/NRLWQYAIw0s7hpJupyIqPJ1VLbuJCaEosNA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LP5ldc
+        0Z8mIv448UdZEm41geu3LPxpZvGyIbfQR1b6I=; b=mMrbYfkSLGCT8ChZgBdNti
+        hUFaqzYSjlumsFR4SY+UlxWiNoDzGL3y7vjyVJfns3UMhs2xzrzKKjkUFzOLPYhI
+        akyw6Ct4rS67NDxU8lxVsMqYsOY5EHwzk8AjQmZ4w4SEeXCmBWQntB/qTLVk8PTB
+        PVWQ5p77daXzPr8F68DPBdpIZn/HbalsLPENTQIExI4iBzHFgXjWkTscwtsetJ1e
+        TMpHVwkwYPPMvLPVhZP8DX9f8y3mER3zx3rUubF9qZtzfQRjyoM+TlGaldt5qkuw
+        mjEh7bufzC25eSd4yuCJlcLPbzczw3mnKa1BQNyCx7n/2RkG4w77h/oU/CcA1s0Q
         ==
-X-ME-Sender: <xms:i5ebYKfQ-r18ELy0EJISXG5vVGfpKKCUGKRQGeBbWmOTjUwTZ1qRtA>
-    <xme:i5ebYEP9Kq_tKqiryhiLnitBSa-SY8vd10oyig_Fu4NALedc78oHT1EeHiobWlXEu
-    rflrwcjAz_RFA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgtdeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:jZebYESrjEGbqduP5dncvwMTqdjV_oOWA91FVvHHXuxojyJBqgooiA>
+    <xme:jZebYBwgam2O3CQWktUJYvniQAYF8x8HwUIeQAnm4u7ED992MS0AmxTcfVntIcbFO
+    DDvTvF-PtxWrg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:i5ebYLhf_L8wXG3eQt4kvePkNssCQP8Tz-apR4FLKPzPUY-FCjDX2w>
-    <xmx:i5ebYH99944n9JwUKnMdwyl8bK77089wndBXXTLd404Ix94ciXFnjQ>
-    <xmx:i5ebYGtNeEnsjTflzkBqSuC73w7U5-czKyl8Sqqp78yDT9gONqLo-A>
-    <xmx:i5ebYLUZi0TsDu5K4XT8FcATMTUWjU2EijcSWcPJpTWXOsZ_DkolCuK_9cE>
+X-ME-Proxy: <xmx:jZebYB0sOciqC7UokWme_Ll98QeEavP5okIysl41K-nqYelu0QNPVg>
+    <xmx:jZebYIBCmbMyptz6zVXoXjePuFs1JkhhE1sSGXiuGGeA2PQc_X1Mow>
+    <xmx:jZebYNgURLS7TXNuB8xZ7UU_M7l_qukwohVbAhJxipxciBAd8ULnVg>
+    <xmx:jZebYNYd5o5QZg9ialCa2nJR11MKHbYPeBOoBirjtbPVUkrwdfaAi81ZsIk>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:53:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: hid-sensor-rotation: Fix quaternion data not correct" failed to apply to 4.19-stable tree
+        Wed, 12 May 2021 04:53:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: hid-sensor-rotation: Fix quaternion data not correct" failed to apply to 4.14-stable tree
 To:     xiang.ye@intel.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 12 May 2021 10:53:18 +0200
-Message-ID: <162080959879222@kroah.com>
+Message-ID: <162080959810014@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
