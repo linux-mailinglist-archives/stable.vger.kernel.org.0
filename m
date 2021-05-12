@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 108A337CDA5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7316C37CDA3
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245730AbhELQ5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35690 "EHLO mail.kernel.org"
+        id S244916AbhELQ5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:57:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244025AbhELQm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244029AbhELQm1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FB2361D02;
-        Wed, 12 May 2021 16:09:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BB6761D06;
+        Wed, 12 May 2021 16:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835778;
-        bh=GYuR3/NuWPL3AI5Lr3ijpk9euaDYNzvVZ/SPgZ7ahxo=;
+        s=korg; t=1620835781;
+        bh=ygIK7z5uOqgkpJnxwlvSZ3xDHP48hYugPkoEYMnymNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hwann0XbYCh/wQl47jRjPh1xgaP+UPB5I1d0XtZ9tefqWQ96ROsDDZM0lFVZNwxum
-         yJZ+WD/Qv7Wa8C1841C2DOvfFiXmdC7FyCw8iVmk9Qbva3Ev6es9+FSwGRiO7yTyXT
-         /6cFFkg9v6Y9GyW8j8/xrnCNQGi4GNjJZpa8kv1k=
+        b=EpifwE/qR2nfP4WUyNC6wrwle78hrHBWIT4vc4ITlmgtufla4Y6Bba8Sx340d/rST
+         3AVly66U4OauAvZirCqy86YybHLXsJDsaZB9vC5Ixq0NXWc2GjGQN2c16JanvrHspu
+         d+BowR0VGEzNMZJcY9654eifuv2aOzDSjCAWLKXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?M=C3=A5ns=20Rullg=C3=A5rd?= <mans@mansr.com>,
-        Andre Edich <andre.edich@microchip.com>,
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 480/677] net: phy: lan87xx: fix access to wrong register of LAN87xx
-Date:   Wed, 12 May 2021 16:48:46 +0200
-Message-Id: <20210512144853.308026270@linuxfoundation.org>
+Subject: [PATCH 5.12 481/677] udp: skip L4 aggregation for UDP tunnel packets
+Date:   Wed, 12 May 2021 16:48:47 +0200
+Message-Id: <20210512144853.342204678@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -42,54 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Edich <andre.edich@microchip.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit fdb5cc6ab3b6a1c0122d3644a63ef9dc7a610d35 ]
+[ Upstream commit 18f25dc399901426dff61e676ba603ff52c666f7 ]
 
-The function lan87xx_config_aneg_ext was introduced to configure
-LAN95xxA but as well writes to undocumented register of LAN87xx.
-This fix prevents that access.
+If NETIF_F_GRO_FRAGLIST or NETIF_F_GRO_UDP_FWD are enabled, and there
+are UDP tunnels available in the system, udp_gro_receive() could end-up
+doing L4 aggregation (either SKB_GSO_UDP_L4 or SKB_GSO_FRAGLIST) at
+the outer UDP tunnel level for packets effectively carrying and UDP
+tunnel header.
 
-The function lan87xx_config_aneg_ext gets more suitable for the new
-behavior name.
+That could cause inner protocol corruption. If e.g. the relevant
+packets carry a vxlan header, different vxlan ids will be ignored/
+aggregated to the same GSO packet. Inner headers will be ignored, too,
+so that e.g. TCP over vxlan push packets will be held in the GRO
+engine till the next flush, etc.
 
-Reported-by: Måns Rullgård <mans@mansr.com>
-Fixes: 05b35e7eb9a1 ("smsc95xx: add phylib support")
-Signed-off-by: Andre Edich <andre.edich@microchip.com>
+Just skip the SKB_GSO_UDP_L4 and SKB_GSO_FRAGLIST code path if the
+current packet could land in a UDP tunnel, and let udp_gro_receive()
+do GRO via udp_sk(sk)->gro_receive.
+
+The check implemented in this patch is broader than what is strictly
+needed, as the existing UDP tunnel could be e.g. configured on top of
+a different device: we could end-up skipping GRO at-all for some packets.
+
+Anyhow, that is a very thin corner case and covering it will add quite
+a bit of complexity.
+
+v1 -> v2:
+ - hopefully clarify the commit message
+
+Fixes: 9fd1ff5d2ac7 ("udp: Support UDP fraglist GRO/GSO.")
+Fixes: 36707061d6ba ("udp: allow forwarding of plain (non-fraglisted) UDP GRO packets")
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/smsc.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/ipv4/udp_offload.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
-index ddb78fb4d6dc..d8cac02a79b9 100644
---- a/drivers/net/phy/smsc.c
-+++ b/drivers/net/phy/smsc.c
-@@ -185,10 +185,13 @@ static int lan87xx_config_aneg(struct phy_device *phydev)
- 	return genphy_config_aneg(phydev);
- }
+diff --git a/net/ipv4/udp_offload.c b/net/ipv4/udp_offload.c
+index c5b4b586570f..25134a3548e9 100644
+--- a/net/ipv4/udp_offload.c
++++ b/net/ipv4/udp_offload.c
+@@ -515,21 +515,24 @@ struct sk_buff *udp_gro_receive(struct list_head *head, struct sk_buff *skb,
+ 	unsigned int off = skb_gro_offset(skb);
+ 	int flush = 1;
  
--static int lan87xx_config_aneg_ext(struct phy_device *phydev)
-+static int lan95xx_config_aneg_ext(struct phy_device *phydev)
- {
- 	int rc;
++	/* we can do L4 aggregation only if the packet can't land in a tunnel
++	 * otherwise we could corrupt the inner stream
++	 */
+ 	NAPI_GRO_CB(skb)->is_flist = 0;
+-	if (skb->dev->features & NETIF_F_GRO_FRAGLIST)
+-		NAPI_GRO_CB(skb)->is_flist = sk ? !udp_sk(sk)->gro_enabled: 1;
++	if (!sk || !udp_sk(sk)->gro_receive) {
++		if (skb->dev->features & NETIF_F_GRO_FRAGLIST)
++			NAPI_GRO_CB(skb)->is_flist = sk ? !udp_sk(sk)->gro_enabled : 1;
  
-+	if (phydev->phy_id != 0x0007c0f0) /* not (LAN9500A or LAN9505A) */
-+		return lan87xx_config_aneg(phydev);
-+
- 	/* Extend Manual AutoMDIX timer */
- 	rc = phy_read(phydev, PHY_EDPD_CONFIG);
- 	if (rc < 0)
-@@ -441,7 +444,7 @@ static struct phy_driver smsc_phy_driver[] = {
- 	.read_status	= lan87xx_read_status,
- 	.config_init	= smsc_phy_config_init,
- 	.soft_reset	= smsc_phy_reset,
--	.config_aneg	= lan87xx_config_aneg_ext,
-+	.config_aneg	= lan95xx_config_aneg_ext,
+-	if ((!sk && (skb->dev->features & NETIF_F_GRO_UDP_FWD)) ||
+-	    (sk && udp_sk(sk)->gro_enabled) || NAPI_GRO_CB(skb)->is_flist) {
+-		pp = call_gro_receive(udp_gro_receive_segment, head, skb);
++		if ((!sk && (skb->dev->features & NETIF_F_GRO_UDP_FWD)) ||
++		    (sk && udp_sk(sk)->gro_enabled) || NAPI_GRO_CB(skb)->is_flist)
++			pp = call_gro_receive(udp_gro_receive_segment, head, skb);
+ 		return pp;
+ 	}
  
- 	/* IRQ related */
- 	.config_intr	= smsc_phy_config_intr,
+-	if (!sk || NAPI_GRO_CB(skb)->encap_mark ||
++	if (NAPI_GRO_CB(skb)->encap_mark ||
+ 	    (uh->check && skb->ip_summed != CHECKSUM_PARTIAL &&
+ 	     NAPI_GRO_CB(skb)->csum_cnt == 0 &&
+-	     !NAPI_GRO_CB(skb)->csum_valid) ||
+-	    !udp_sk(sk)->gro_receive)
++	     !NAPI_GRO_CB(skb)->csum_valid))
+ 		goto out;
+ 
+ 	/* mark that this skb passed once through the tunnel gro layer */
 -- 
 2.30.2
 
