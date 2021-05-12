@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 544F737C0DC
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE50437C0F8
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 16:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231757AbhELOyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 10:54:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43384 "EHLO mail.kernel.org"
+        id S231286AbhELOzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 10:55:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231588AbhELOyZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 10:54:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BBE4613C7;
-        Wed, 12 May 2021 14:53:16 +0000 (UTC)
+        id S231682AbhELOyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 10:54:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7794D6141C;
+        Wed, 12 May 2021 14:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831196;
-        bh=vR4uCZFVrYols5TeDN297eVtLmebC0YzuyiQeuQ5jSk=;
+        s=korg; t=1620831224;
+        bh=4FFcu2nntNaf1AldPU7bSuduAyTATfcKM3o04Z7RT7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzBw1P1+61fcRVtRGNbo4g2EJeuwxAV+Xg2G3V5QNOypSK59ikt5Z3r/8tXvx7Ya0
-         9xiEauIjIU7XcgyUqfx1mlYonRiwSYjkkNlPt00BSN/iAsQVcwtAxJhlMTH0t3Uy1C
-         7oDOPFFl4GCOMpmThhwSuWKmYubRwTKa4ShLOOHQ=
+        b=zy9NQB7prplyuyZkhJYJ9CsHByxIYu7+fUPvMb7esvqQpU1dPGp51ISYDyXUhqFZ1
+         +72jwxr3iMWqEBnNQnZpiq2ETbu5WU7PuasiORlcofAt9STFLi1MHsjId/bUwxcKdF
+         go5p4M/auUH/nwdkJO6FL7GWx0SZYhH21UtjnNJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 006/244] tty: moxa: fix TIOCSSERIAL jiffies conversions
-Date:   Wed, 12 May 2021 16:46:17 +0200
-Message-Id: <20210512144743.248596735@linuxfoundation.org>
+Subject: [PATCH 5.4 007/244] tty: amiserial: fix TIOCSSERIAL permission check
+Date:   Wed, 12 May 2021 16:46:18 +0200
+Message-Id: <20210512144743.281530444@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -40,42 +40,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 6e70b73ca5240c0059a1fbf8ccd4276d6cf71956 upstream.
+commit 1d31a831cc04f5f942de3e7d91edaa52310d3c99 upstream.
 
-The port close_delay parameter set by TIOCSSERIAL is specified in
-jiffies, while the value returned by TIOCGSERIAL is specified in
-centiseconds.
+Changing the port closing_wait parameter is a privileged operation.
 
-Add the missing conversions so that TIOCGSERIAL works as expected also
-when HZ is not 100.
+Add the missing check to TIOCSSERIAL so that -EPERM is returned in case
+an unprivileged user tries to change the closing-wait setting.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-11-johan@kernel.org
+Link: https://lore.kernel.org/r/20210407102334.32361-9-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/moxa.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/amiserial.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/moxa.c
-+++ b/drivers/tty/moxa.c
-@@ -2040,7 +2040,7 @@ static int moxa_get_serial_info(struct t
- 	ss->line = info->port.tty->index,
- 	ss->flags = info->port.flags,
- 	ss->baud_base = 921600,
--	ss->close_delay = info->port.close_delay;
-+	ss->close_delay = jiffies_to_msecs(info->port.close_delay) / 10;
- 	mutex_unlock(&info->port.mutex);
- 	return 0;
- }
-@@ -2069,7 +2069,7 @@ static int moxa_set_serial_info(struct t
- 			return -EPERM;
- 		}
- 	}
--	info->port.close_delay = ss->close_delay * HZ / 100;
-+	info->port.close_delay = msecs_to_jiffies(ss->close_delay * 10);
- 
- 	MoxaSetFifo(info, ss->type == PORT_16550A);
- 
+--- a/drivers/tty/amiserial.c
++++ b/drivers/tty/amiserial.c
+@@ -1032,6 +1032,7 @@ static int set_serial_info(struct tty_st
+ 	if (!serial_isroot()) {
+ 		if ((ss->baud_base != state->baud_base) ||
+ 		    (ss->close_delay != port->close_delay) ||
++		    (ss->closing_wait != port->closing_wait) ||
+ 		    (ss->xmit_fifo_size != state->xmit_fifo_size) ||
+ 		    ((ss->flags & ~ASYNC_USR_MASK) !=
+ 		     (port->flags & ~ASYNC_USR_MASK))) {
 
 
