@@ -2,116 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC29837B807
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 000AA37B829
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230293AbhELIcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:32:33 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:54121 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230114AbhELIcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:32:33 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id 4F3B630D;
-        Wed, 12 May 2021 04:31:25 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 04:31:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=3ZorIo
-        8iMf8XJmPLu7pAOn8ptsVEaKMlbDxOdAGS6fM=; b=to5+CrN1jt1fDjc1YC4Lgi
-        lEcvfOTFuTdAd7+Aj30OOru0C1F8VxN6VrZZS3oCzqKF9my19HhEcD4h5xU0XJAJ
-        8wEwB+AFu0VgOPGsbGsWA7Rh7A/HCx7WKz9chQMyUhpjZAVl+5lJI3CrL6NqxiEc
-        KNiE2fR/T0DkeppUmiAypLgTUuAmCPLFx0U7i76eP1yTk6M6l/0PGWqO68jYigGh
-        rBvkQ/mjQqPw4TPZFVgDHnYO6GWqYBRw/KU5jdzVuUsviSB5EtcTbVWtKaQvnWQC
-        3/vEXzyNei7GFAUSLExkAn79Q3qVOIIzwqAInqX6fneQUomAOOPj5abEZN4f+Pjw
-        ==
-X-ME-Sender: <xms:XJKbYJEN8qRbQavTDFSLAwKYpBWooISRxihV9F2qxiuCzDDLUA6OQw>
-    <xme:XJKbYOUo4jpThuCAvQwPRqrG9VP59Gh_4GD0FqGE_oUOQ9ACIoZxLeWOmpRmJ-psE
-    N86XmyljS-Bfg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgtdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:XJKbYLJ_hYNSw2taMy7JE3wOchRYbOR8E1y2FPQ6YMZv8fw7uyrV4g>
-    <xmx:XJKbYPG2jEndJ2pLbfYFqciwu9QPaUcaA7lwzPtnYLLJZOye9wsDaQ>
-    <xmx:XJKbYPUutp27UoaAiURgOigZISHlkIqix9d9DYapIKDQdkHoHBuN1g>
-    <xmx:XJKbYAchjAmURXQhB5JDwrj2zm9xK5ivMLC-Iu5MvnIBZdiFV9nR1Uzdiqs>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:31:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tty: mxser: fix TIOCSSERIAL permission check" failed to apply to 5.11-stable tree
-To:     johan@kernel.org, gregkh@linuxfoundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:31:13 +0200
-Message-ID: <162080827311131@kroah.com>
+        id S230236AbhELIis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:38:48 -0400
+Received: from 8bytes.org ([81.169.241.247]:38784 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230096AbhELIiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 04:38:46 -0400
+Received: by theia.8bytes.org (Postfix, from userid 1000)
+        id E8C872A5; Wed, 12 May 2021 10:37:37 +0200 (CEST)
+Date:   Wed, 12 May 2021 10:37:34 +0200
+From:   'Joerg Roedel' <joro@8bytes.org>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     "x86@kernel.org" <x86@kernel.org>,
+        Hyunwook Baek <baekhw@google.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        "linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "virtualization@lists.linux-foundation.org" 
+        <virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH 3/6] x86/sev-es: Use __put_user()/__get_user
+Message-ID: <YJuTzhSp2XAJIYlv@8bytes.org>
+References: <20210512075445.18935-1-joro@8bytes.org>
+ <20210512075445.18935-4-joro@8bytes.org>
+ <0496626f018d4d27a8034a4822170222@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0496626f018d4d27a8034a4822170222@AcuMS.aculab.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, May 12, 2021 at 08:04:33AM +0000, David Laight wrote:
+> That can't be right at all.
+> __put/get_user() are only valid on user addresses and will try to
+> fault in a missing page - so can sleep.
 
-The patch below does not apply to the 5.11-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Yes, in general these functions can sleep, but not in this context. They
+are called in atomic context and the page-fault handler will notice that
+and goes down the __bad_area_nosemaphore() path and only do the fixup.
 
-thanks,
+I also thought about adding page_fault_disable()/page_fault_enable()
+calls, but being in atomic context is enough according to the
+faulthandler_disabled() implementation.
 
-greg k-h
+This is exactly what is needed here. All I want to know is whether a
+fault happened or not, the page-fault handler must not try to fix the
+fault in any way. If a fault happens it is later fixed up in
+vc_forward_exception().
 
------------------- original commit in Linus's tree ------------------
+> At best this is abused the calls.
 
-From b91cfb2573aeb5ab426fc3c35bcfe9e0d2a7ecbc Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Wed, 7 Apr 2021 12:23:32 +0200
-Subject: [PATCH] tty: mxser: fix TIOCSSERIAL permission check
+Yes, but that is only due to the naming of these functions. In this case
+they do exactly what is needed.
 
-Changing the port type and closing_wait parameter are privileged
-operations so make sure to return -EPERM if a regular user tries to
-change them.
+Regards,
 
-Note that the closing_wait parameter would not actually have been
-changed but the return value did not indicate that.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-15-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
-index 914b23071961..2d8e76263a25 100644
---- a/drivers/tty/mxser.c
-+++ b/drivers/tty/mxser.c
-@@ -1270,6 +1270,7 @@ static int mxser_set_serial_info(struct tty_struct *tty,
- 	if (!capable(CAP_SYS_ADMIN)) {
- 		if ((ss->baud_base != info->baud_base) ||
- 				(close_delay != info->port.close_delay) ||
-+				(closing_wait != info->port.closing_wait) ||
- 				((ss->flags & ~ASYNC_USR_MASK) != (info->port.flags & ~ASYNC_USR_MASK))) {
- 			mutex_unlock(&port->mutex);
- 			return -EPERM;
-@@ -1296,11 +1297,11 @@ static int mxser_set_serial_info(struct tty_struct *tty,
- 			baud = ss->baud_base / ss->custom_divisor;
- 			tty_encode_baud_rate(tty, baud, baud);
- 		}
--	}
- 
--	info->type = ss->type;
-+		info->type = ss->type;
- 
--	process_txrx_fifo(info);
-+		process_txrx_fifo(info);
-+	}
- 
- 	if (tty_port_initialized(port)) {
- 		if (flags != (port->flags & ASYNC_SPD_MASK)) {
-
+	Joerg
