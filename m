@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DAC537CA5F
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F97537CA5C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237196AbhELQ3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:29:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60246 "EHLO mail.kernel.org"
+        id S236636AbhELQ3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:29:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236175AbhELQVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:21:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C1946127A;
-        Wed, 12 May 2021 15:46:35 +0000 (UTC)
+        id S236341AbhELQVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:21:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0E4561155;
+        Wed, 12 May 2021 15:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834395;
-        bh=ofRdwmNGjMVERvYMDSuH+wYu29kfFs1ywL22evLozE4=;
+        s=korg; t=1620834398;
+        bh=enQoi6Li1Y7vY7ysnuR+wvZMpy5gbxe2fzE+iaF6Qhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=io4EaklKFVqpMcIhc+v6betVFKdG74lQq/kyAKWy6r5YuGpS9Treybp7XWcrk7bm/
-         KbJBDy+bT+c1jc6Du1E1BRoJsELuk0ZWsbz8+V46mnfE9oQaE3y6nGf6S51ucA04+Z
-         wL1hou7CPgsLwq1uIbPdOYE/vPXLnYIB6mJCqx+A=
+        b=Bbc1l4zVghaucs8enroF1zt8xr7MpiNQ5l1X/jSjUmiUktdCqgC2DjTCJD/XqfE5O
+         +G6NpmgdqT9C50rOAX0R7gF5Z/bbmT2WG8BuGxafCOsEZdVIVaYrxkDgT1LYQjO4VB
+         31xN2muvX8TjimwDrh5D6O6odeFqZt2JW/DpLPLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 527/601] mwl8k: Fix a double Free in mwl8k_probe_hw
-Date:   Wed, 12 May 2021 16:50:04 +0200
-Message-Id: <20210512144845.207315292@linuxfoundation.org>
+Subject: [PATCH 5.11 528/601] netfilter: nft_payload: fix C-VLAN offload support
+Date:   Wed, 12 May 2021 16:50:05 +0200
+Message-Id: <20210512144845.240458818@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,41 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit a8e083ee8e2a6c94c29733835adae8bf5b832748 ]
+[ Upstream commit 14c20643ef9457679cc6934d77adc24296505214 ]
 
-In mwl8k_probe_hw, hw->priv->txq is freed at the first time by
-dma_free_coherent() in the call chain:
-if(!priv->ap_fw)->mwl8k_init_txqs(hw)->mwl8k_txq_init(hw, i).
+- add another struct flow_dissector_key_vlan for C-VLAN
+- update layer 3 dependency to allow to match on IPv4/IPv6
 
-Then in err_free_queues of mwl8k_probe_hw, hw->priv->txq is freed
-at the second time by mwl8k_txq_deinit(hw, i)->dma_free_coherent().
-
-My patch set txq->txd to NULL after the first free to avoid the
-double free.
-
-Fixes: a66098daacee2 ("mwl8k: Marvell TOPDOG wireless driver")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210402182627.4256-1-lyl2019@mail.ustc.edu.cn
+Fixes: 89d8fd44abfb ("netfilter: nft_payload: add C-VLAN offload support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwl8k.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/netfilter/nf_tables_offload.h | 1 +
+ net/netfilter/nft_payload.c               | 5 +++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwl8k.c b/drivers/net/wireless/marvell/mwl8k.c
-index abf3b0233ccc..e98e7680eb53 100644
---- a/drivers/net/wireless/marvell/mwl8k.c
-+++ b/drivers/net/wireless/marvell/mwl8k.c
-@@ -1474,6 +1474,7 @@ static int mwl8k_txq_init(struct ieee80211_hw *hw, int index)
- 	if (txq->skb == NULL) {
- 		dma_free_coherent(&priv->pdev->dev, size, txq->txd,
- 				  txq->txd_dma);
-+		txq->txd = NULL;
- 		return -ENOMEM;
- 	}
+diff --git a/include/net/netfilter/nf_tables_offload.h b/include/net/netfilter/nf_tables_offload.h
+index 1d34fe154fe0..b4d080061399 100644
+--- a/include/net/netfilter/nf_tables_offload.h
++++ b/include/net/netfilter/nf_tables_offload.h
+@@ -45,6 +45,7 @@ struct nft_flow_key {
+ 	struct flow_dissector_key_ports			tp;
+ 	struct flow_dissector_key_ip			ip;
+ 	struct flow_dissector_key_vlan			vlan;
++	struct flow_dissector_key_vlan			cvlan;
+ 	struct flow_dissector_key_eth_addrs		eth_addrs;
+ 	struct flow_dissector_key_meta			meta;
+ } __aligned(BITS_PER_LONG / 8); /* Ensure that we can do comparisons as longs. */
+diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
+index 47d4e0e21651..e43863a1761f 100644
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -241,7 +241,7 @@ static int nft_payload_offload_ll(struct nft_offload_ctx *ctx,
+ 		if (!nft_payload_offload_mask(reg, priv->len, sizeof(__be16)))
+ 			return -EOPNOTSUPP;
  
+-		NFT_OFFLOAD_MATCH(FLOW_DISSECTOR_KEY_CVLAN, vlan,
++		NFT_OFFLOAD_MATCH(FLOW_DISSECTOR_KEY_CVLAN, cvlan,
+ 				  vlan_tci, sizeof(__be16), reg);
+ 		break;
+ 	case offsetof(struct vlan_ethhdr, h_vlan_encapsulated_proto) +
+@@ -249,8 +249,9 @@ static int nft_payload_offload_ll(struct nft_offload_ctx *ctx,
+ 		if (!nft_payload_offload_mask(reg, priv->len, sizeof(__be16)))
+ 			return -EOPNOTSUPP;
+ 
+-		NFT_OFFLOAD_MATCH(FLOW_DISSECTOR_KEY_CVLAN, vlan,
++		NFT_OFFLOAD_MATCH(FLOW_DISSECTOR_KEY_CVLAN, cvlan,
+ 				  vlan_tpid, sizeof(__be16), reg);
++		nft_offload_set_dependency(ctx, NFT_OFFLOAD_DEP_NETWORK);
+ 		break;
+ 	default:
+ 		return -EOPNOTSUPP;
 -- 
 2.30.2
 
