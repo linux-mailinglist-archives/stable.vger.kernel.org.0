@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C19037C54C
+	by mail.lfdr.de (Postfix) with ESMTP id 84D8137C54D
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234266AbhELPjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:39:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
+        id S234276AbhELPjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:39:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234033AbhELPcC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:32:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98077613C2;
-        Wed, 12 May 2021 15:16:35 +0000 (UTC)
+        id S234025AbhELPcB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:32:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06466611BF;
+        Wed, 12 May 2021 15:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832596;
-        bh=RphhkZ9oDAtRcHyMR1uVaSpG53na3F5YABD2HPjtDiY=;
+        s=korg; t=1620832598;
+        bh=vFX9eZvi+lb0MeCVc1y8kW+YWK9lE5PF9Yxev8r9MK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBQwpIcsT5EPUEjTzPQwgFcl7RZARllGRispvWs7N1Hi9H05EO+Qq16kCSWQF/0hJ
-         TX/biLrRpRTD5ZvP6ckMdU5NqiOGzEZqrwWFgSGaJ5OpYSkocj9t0wfW2ngVqdnKiw
-         BqKk7ZmSBafv+x0yL7GxbtcqOFHdhvE8nGp9mtd4=
+        b=J6JJkjQlKUdmDrm7I5EzL3aN3oe0rcKSB43sRr3i4jB0TNWYdwSzS3+M/uwEdPaLp
+         EOkq/9S84ft7QUlJIhH2Sp+mYE6Ta97UbsjyRD896/PGZ1cOeeA9SJQQ5plB4a1GNo
+         xqsu/HwptGHiJoSOZoWfKEV9LdfJJeEqvu44JCzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 345/530] sched/debug: Fix cgroup_path[] serialization
-Date:   Wed, 12 May 2021 16:47:35 +0200
-Message-Id: <20210512144831.131278222@linuxfoundation.org>
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 346/530] drivers/block/null_blk/main: Fix a double free in null_init.
+Date:   Wed, 12 May 2021 16:47:36 +0200
+Message-Id: <20210512144831.161671623@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,156 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit ad789f84c9a145f8a18744c0387cec22ec51651e ]
+[ Upstream commit 72ce11ddfa4e9e1879103581a60b7e34547eaa0a ]
 
-The handling of sysrq key can be activated by echoing the key to
-/proc/sysrq-trigger or via the magic key sequence typed into a terminal
-that is connected to the system in some way (serial, USB or other mean).
-In the former case, the handling is done in a user context. In the
-latter case, it is likely to be in an interrupt context.
+In null_init, null_add_dev(dev) is called.
+In null_add_dev, it calls null_free_zoned_dev(dev) to free dev->zones
+via kvfree(dev->zones) in out_cleanup_zone branch and returns err.
+Then null_init accept the err code and then calls null_free_dev(dev).
 
-Currently in print_cpu() of kernel/sched/debug.c, sched_debug_lock is
-taken with interrupt disabled for the whole duration of the calls to
-print_*_stats() and print_rq() which could last for the quite some time
-if the information dump happens on the serial console.
+But in null_free_dev(dev), dev->zones is freed again by
+null_free_zoned_dev().
 
-If the system has many cpus and the sched_debug_lock is somehow busy
-(e.g. parallel sysrq-t), the system may hit a hard lockup panic
-depending on the actually serial console implementation of the
-system.
+My patch set dev->zones to NULL in null_free_zoned_dev() after
+kvfree(dev->zones) is called, to avoid the double free.
 
-The purpose of sched_debug_lock is to serialize the use of the global
-cgroup_path[] buffer in print_cpu(). The rests of the printk calls don't
-need serialization from sched_debug_lock.
-
-Calling printk() with interrupt disabled can still be problematic if
-multiple instances are running. Allocating a stack buffer of PATH_MAX
-bytes is not feasible because of the limited size of the kernel stack.
-
-The solution implemented in this patch is to allow only one caller at a
-time to use the full size group_path[], while other simultaneous callers
-will have to use shorter stack buffers with the possibility of path
-name truncation. A "..." suffix will be printed if truncation may have
-happened.  The cgroup path name is provided for informational purpose
-only, so occasional path name truncation should not be a big problem.
-
-Fixes: efe25c2c7b3a ("sched: Reinstate group names in /proc/sched_debug")
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210415195426.6677-1-longman@redhat.com
+Fixes: 2984c8684f962 ("nullb: factor disk parameters")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210426143229.7374-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/debug.c | 42 +++++++++++++++++++++++++++++-------------
- 1 file changed, 29 insertions(+), 13 deletions(-)
+ drivers/block/null_blk_zoned.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
-index 2357921580f9..6264584b51c2 100644
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -8,8 +8,6 @@
-  */
- #include "sched.h"
- 
--static DEFINE_SPINLOCK(sched_debug_lock);
--
- /*
-  * This allows printing both to /proc/sched_debug and
-  * to the console
-@@ -470,16 +468,37 @@ static void print_cfs_group_stats(struct seq_file *m, int cpu, struct task_group
- #endif
- 
- #ifdef CONFIG_CGROUP_SCHED
-+static DEFINE_SPINLOCK(sched_debug_lock);
- static char group_path[PATH_MAX];
- 
--static char *task_group_path(struct task_group *tg)
-+static void task_group_path(struct task_group *tg, char *path, int plen)
+diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
+index 172f720b8d63..f5df82c26c16 100644
+--- a/drivers/block/null_blk_zoned.c
++++ b/drivers/block/null_blk_zoned.c
+@@ -149,6 +149,7 @@ void null_free_zoned_dev(struct nullb_device *dev)
  {
--	if (autogroup_path(tg, group_path, PATH_MAX))
--		return group_path;
-+	if (autogroup_path(tg, path, plen))
-+		return;
- 
--	cgroup_path(tg->css.cgroup, group_path, PATH_MAX);
-+	cgroup_path(tg->css.cgroup, path, plen);
-+}
- 
--	return group_path;
-+/*
-+ * Only 1 SEQ_printf_task_group_path() caller can use the full length
-+ * group_path[] for cgroup path. Other simultaneous callers will have
-+ * to use a shorter stack buffer. A "..." suffix is appended at the end
-+ * of the stack buffer so that it will show up in case the output length
-+ * matches the given buffer size to indicate possible path name truncation.
-+ */
-+#define SEQ_printf_task_group_path(m, tg, fmt...)			\
-+{									\
-+	if (spin_trylock(&sched_debug_lock)) {				\
-+		task_group_path(tg, group_path, sizeof(group_path));	\
-+		SEQ_printf(m, fmt, group_path);				\
-+		spin_unlock(&sched_debug_lock);				\
-+	} else {							\
-+		char buf[128];						\
-+		char *bufend = buf + sizeof(buf) - 3;			\
-+		task_group_path(tg, buf, bufend - buf);			\
-+		strcpy(bufend - 1, "...");				\
-+		SEQ_printf(m, fmt, buf);				\
-+	}								\
- }
- #endif
- 
-@@ -506,7 +525,7 @@ print_task(struct seq_file *m, struct rq *rq, struct task_struct *p)
- 	SEQ_printf(m, " %d %d", task_node(p), task_numa_group_id(p));
- #endif
- #ifdef CONFIG_CGROUP_SCHED
--	SEQ_printf(m, " %s", task_group_path(task_group(p)));
-+	SEQ_printf_task_group_path(m, task_group(p), " %s")
- #endif
- 
- 	SEQ_printf(m, "\n");
-@@ -543,7 +562,7 @@ void print_cfs_rq(struct seq_file *m, int cpu, struct cfs_rq *cfs_rq)
- 
- #ifdef CONFIG_FAIR_GROUP_SCHED
- 	SEQ_printf(m, "\n");
--	SEQ_printf(m, "cfs_rq[%d]:%s\n", cpu, task_group_path(cfs_rq->tg));
-+	SEQ_printf_task_group_path(m, cfs_rq->tg, "cfs_rq[%d]:%s\n", cpu);
- #else
- 	SEQ_printf(m, "\n");
- 	SEQ_printf(m, "cfs_rq[%d]:\n", cpu);
-@@ -614,7 +633,7 @@ void print_rt_rq(struct seq_file *m, int cpu, struct rt_rq *rt_rq)
- {
- #ifdef CONFIG_RT_GROUP_SCHED
- 	SEQ_printf(m, "\n");
--	SEQ_printf(m, "rt_rq[%d]:%s\n", cpu, task_group_path(rt_rq->tg));
-+	SEQ_printf_task_group_path(m, rt_rq->tg, "rt_rq[%d]:%s\n", cpu);
- #else
- 	SEQ_printf(m, "\n");
- 	SEQ_printf(m, "rt_rq[%d]:\n", cpu);
-@@ -666,7 +685,6 @@ void print_dl_rq(struct seq_file *m, int cpu, struct dl_rq *dl_rq)
- static void print_cpu(struct seq_file *m, int cpu)
- {
- 	struct rq *rq = cpu_rq(cpu);
--	unsigned long flags;
- 
- #ifdef CONFIG_X86
- 	{
-@@ -717,13 +735,11 @@ do {									\
- 	}
- #undef P
- 
--	spin_lock_irqsave(&sched_debug_lock, flags);
- 	print_cfs_stats(m, cpu);
- 	print_rt_stats(m, cpu);
- 	print_dl_stats(m, cpu);
- 
- 	print_rq(m, rq, cpu);
--	spin_unlock_irqrestore(&sched_debug_lock, flags);
- 	SEQ_printf(m, "\n");
+ 	bitmap_free(dev->zone_locks);
+ 	kvfree(dev->zones);
++	dev->zones = NULL;
  }
  
+ static inline void null_lock_zone(struct nullb_device *dev, unsigned int zno)
 -- 
 2.30.2
 
