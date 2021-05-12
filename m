@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 152DE37C9C6
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71AD637C99E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235117AbhELQVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:21:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
+        id S238492AbhELQUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:20:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240114AbhELQRM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:17:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14D0061C7B;
-        Wed, 12 May 2021 15:43:16 +0000 (UTC)
+        id S234764AbhELQOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:14:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0019560FD9;
+        Wed, 12 May 2021 15:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834197;
-        bh=xjMwpvcBZvInsNdn/XWyuh49K5MOurvBboYp2mjD3qQ=;
+        s=korg; t=1620834112;
+        bh=CmJInMbAdaPMSu03qFZ5OvlBgnf9OZ14F83ONkHe1cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvIT4TaVlPj/Oc4uZRNhNfIYiZs4kyJAEZrMkoPPdwob9HfzNeXquf9ZelmSduz3m
-         eeNA9r1zYpFOo/Og6ieu12PcuZOr5Yo9mT/I3pMUnTQxGOBRR4DGnaJt9Y7CUS9kCQ
-         D+H2wPWnYGkUFydnC95bfVqmuTDeD9G1XMIGDLwM=
+        b=jvFzMGH4hqOETwZdV4/mBGkbqzJjsU51csJFXVMgXHCbMCdGLYlL4jEVoMKFJRFvV
+         KbCTDTUym7VhimVn1baAwgOBCZcl7fc2X0ZviKh2jhutWDQ4GNcwc3IUr09qLkK0Pt
+         ZJ5fQe1taeFOSeRYc3atfI1PNFAkzvBsR8xm241Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hanna Hawa <hhhawa@amazon.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 412/601] inet: use bigger hash table for IP ID generation
-Date:   Wed, 12 May 2021 16:48:09 +0200
-Message-Id: <20210512144841.405213946@linuxfoundation.org>
+Subject: [PATCH 5.11 413/601] pinctrl: pinctrl-single: remove unused parameter
+Date:   Wed, 12 May 2021 16:48:10 +0200
+Message-Id: <20210512144841.437529590@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,113 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Hanna Hawa <hhhawa@amazon.com>
 
-[ Upstream commit aa6dd211e4b1dde9d5dc25d699d35f789ae7eeba ]
+[ Upstream commit 8fa2ea202b13b6da81e26c399ff1d87488398453 ]
 
-In commit 73f156a6e8c1 ("inetpeer: get rid of ip_id_count")
-I used a very small hash table that could be abused
-by patient attackers to reveal sensitive information.
+Remove unused parameter 'pin_pos' from pcs_add_pin().
 
-Switch to a dynamic sizing, depending on RAM size.
-
-Typical big hosts will now use 128x more storage (2 MB)
-to get a similar increase in security and reduction
-of hash collisions.
-
-As a bonus, use of alloc_large_system_hash() spreads
-allocated memory among all NUMA nodes.
-
-Fixes: 73f156a6e8c1 ("inetpeer: get rid of ip_id_count")
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hanna Hawa <hhhawa@amazon.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Reviewed-by: Drew Fustini <drew@beagleboard.org>
+Link: https://lore.kernel.org/r/20210319152133.28705-3-hhhawa@amazon.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 42 ++++++++++++++++++++++++++++--------------
- 1 file changed, 28 insertions(+), 14 deletions(-)
+ drivers/pinctrl/pinctrl-single.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 983b4db1868f..9028205f59f2 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -66,6 +66,7 @@
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/mm.h>
-+#include <linux/memblock.h>
- #include <linux/string.h>
- #include <linux/socket.h>
- #include <linux/sockios.h>
-@@ -476,8 +477,10 @@ static void ipv4_confirm_neigh(const struct dst_entry *dst, const void *daddr)
- 	__ipv4_confirm_neigh(dev, *(__force u32 *)pkey);
- }
- 
--#define IP_IDENTS_SZ 2048u
--
-+/* Hash tables of size 2048..262144 depending on RAM size.
-+ * Each bucket uses 8 bytes.
-+ */
-+static u32 ip_idents_mask __read_mostly;
- static atomic_t *ip_idents __read_mostly;
- static u32 *ip_tstamps __read_mostly;
- 
-@@ -487,12 +490,16 @@ static u32 *ip_tstamps __read_mostly;
+diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
+index f3cd7e296712..539543898c89 100644
+--- a/drivers/pinctrl/pinctrl-single.c
++++ b/drivers/pinctrl/pinctrl-single.c
+@@ -656,10 +656,8 @@ static const struct pinconf_ops pcs_pinconf_ops = {
+  * pcs_add_pin() - add a pin to the static per controller pin array
+  * @pcs: pcs driver instance
+  * @offset: register offset from base
+- * @pin_pos: unused
   */
- u32 ip_idents_reserve(u32 hash, int segs)
+-static int pcs_add_pin(struct pcs_device *pcs, unsigned offset,
+-		unsigned pin_pos)
++static int pcs_add_pin(struct pcs_device *pcs, unsigned int offset)
  {
--	u32 *p_tstamp = ip_tstamps + hash % IP_IDENTS_SZ;
--	atomic_t *p_id = ip_idents + hash % IP_IDENTS_SZ;
--	u32 old = READ_ONCE(*p_tstamp);
--	u32 now = (u32)jiffies;
-+	u32 bucket, old, now = (u32)jiffies;
-+	atomic_t *p_id;
-+	u32 *p_tstamp;
- 	u32 delta = 0;
+ 	struct pcs_soc_data *pcs_soc = &pcs->socdata;
+ 	struct pinctrl_pin_desc *pin;
+@@ -729,16 +727,14 @@ static int pcs_allocate_pin_table(struct pcs_device *pcs)
+ 		unsigned offset;
+ 		int res;
+ 		int byte_num;
+-		int pin_pos = 0;
  
-+	bucket = hash & ip_idents_mask;
-+	p_tstamp = ip_tstamps + bucket;
-+	p_id = ip_idents + bucket;
-+	old = READ_ONCE(*p_tstamp);
-+
- 	if (old != now && cmpxchg(p_tstamp, old, now) == old)
- 		delta = prandom_u32_max(now - old);
- 
-@@ -3547,18 +3554,25 @@ struct ip_rt_acct __percpu *ip_rt_acct __read_mostly;
- 
- int __init ip_rt_init(void)
- {
-+	void *idents_hash;
- 	int cpu;
- 
--	ip_idents = kmalloc_array(IP_IDENTS_SZ, sizeof(*ip_idents),
--				  GFP_KERNEL);
--	if (!ip_idents)
--		panic("IP: failed to allocate ip_idents\n");
-+	/* For modern hosts, this will use 2 MB of memory */
-+	idents_hash = alloc_large_system_hash("IP idents",
-+					      sizeof(*ip_idents) + sizeof(*ip_tstamps),
-+					      0,
-+					      16, /* one bucket per 64 KB */
-+					      HASH_ZERO,
-+					      NULL,
-+					      &ip_idents_mask,
-+					      2048,
-+					      256*1024);
-+
-+	ip_idents = idents_hash;
- 
--	prandom_bytes(ip_idents, IP_IDENTS_SZ * sizeof(*ip_idents));
-+	prandom_bytes(ip_idents, (ip_idents_mask + 1) * sizeof(*ip_idents));
- 
--	ip_tstamps = kcalloc(IP_IDENTS_SZ, sizeof(*ip_tstamps), GFP_KERNEL);
--	if (!ip_tstamps)
--		panic("IP: failed to allocate ip_tstamps\n");
-+	ip_tstamps = idents_hash + (ip_idents_mask + 1) * sizeof(*ip_idents);
- 
- 	for_each_possible_cpu(cpu) {
- 		struct uncached_list *ul = &per_cpu(rt_uncached_list, cpu);
+ 		if (pcs->bits_per_mux) {
+ 			byte_num = (pcs->bits_per_pin * i) / BITS_PER_BYTE;
+ 			offset = (byte_num / mux_bytes) * mux_bytes;
+-			pin_pos = i % num_pins_in_register;
+ 		} else {
+ 			offset = i * mux_bytes;
+ 		}
+-		res = pcs_add_pin(pcs, offset, pin_pos);
++		res = pcs_add_pin(pcs, offset);
+ 		if (res < 0) {
+ 			dev_err(pcs->dev, "error adding pins: %i\n", res);
+ 			return res;
 -- 
 2.30.2
 
