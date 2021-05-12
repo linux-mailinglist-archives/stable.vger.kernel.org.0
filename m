@@ -2,180 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B3D37EEB2
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 01:03:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C03F037EEB1
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 01:03:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348193AbhELWFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 18:05:02 -0400
-Received: from mga02.intel.com ([134.134.136.20]:28800 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1391511AbhELV33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 17:29:29 -0400
-IronPort-SDR: hEMffeUNG3QkkeFEsDLWnaCGLkifT1y5KeanAyeCjTXZgJQmrnVi1J0S7m+UHwbpxFMVekoQ5H
- cmzokUPLjVbQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,9982"; a="186940833"
-X-IronPort-AV: E=Sophos;i="5.82,295,1613462400"; 
-   d="scan'208";a="186940833"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2021 14:28:12 -0700
-IronPort-SDR: 8WInMZUAH1C6inPULXn5vAHCAWuPAMQwutq4eZVrAB8peB9Rbr0kBmuZhhbPh8zcFz/SPY1UE2
- 2ZL30eqWDdyw==
-X-IronPort-AV: E=Sophos;i="5.82,295,1613462400"; 
-   d="scan'208";a="625622065"
-Received: from ideak-desk.fi.intel.com ([10.237.68.141])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2021 14:28:11 -0700
-From:   Imre Deak <imre.deak@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Reenable LTTPR non-transparent LT mode for DPCD_REV<1.4
-Date:   Thu, 13 May 2021 00:28:09 +0300
-Message-Id: <20210512212809.1234701-1-imre.deak@intel.com>
-X-Mailer: git-send-email 2.27.0
+        id S1348207AbhELWFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 18:05:05 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:55002 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391745AbhELVbd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 17:31:33 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 466111C0B80; Wed, 12 May 2021 23:30:14 +0200 (CEST)
+Date:   Wed, 12 May 2021 23:30:13 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/530] 5.10.37-rc1 review
+Message-ID: <20210512213013.GB30312@duo.ucw.cz>
+References: <20210512144819.664462530@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="98e8jtXdkpgskNou"
+Content-Disposition: inline
+In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver currently disables the LTTPR non-transparent link training
-mode for sinks with a DPCD_REV<1.4, based on the following description
-of the LTTPR DPCD register range in DP standard 2.0 (at the 0xF0000
-register description):
 
-""
-LTTPR-related registers at DPCD Addresses F0000h through F02FFh are valid
-only for DPCD r1.4 (or higher).
-"""
+--98e8jtXdkpgskNou
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The transparent link training mode should still work fine, however the
-implementation for this in some retimer FWs seems to be broken, see the
-References: link below.
+Hi!
 
-After discussions with DP standard authors the above "DPCD r1.4" does
-not refer to the DPCD revision (stored in the DPCD_REV reg at 0x00000),
-rather to the "LTTPR field data structure revision" stored in the
-0xF0000 reg. An update request has been filed at vesa.org (see
-wg/Link/documentComment/3746) for the upcoming v2.1 specification to
-clarify the above description along the following lines:
+> This is the start of the stable review cycle for the 5.10.37 release.
+> There are 530 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+                                                                           =
+                    =20
+CIP testing did not find any problems here:                                =
+                    =20
+                                                                           =
+                    =20
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.4.y               =20
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.19.y              =20
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+5.10.y              =20
+                                                                           =
+                    =20
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>                              =
+                    =20
+                                                                           =
+                    =20
+Best regards,                                                              =
+                    =20
+                                                                Pavel      =
+                    =20
 
-"""
-LTTPR-related registers at DPCD Addresses F0000h through F02FFh are
-valid only for LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV 1.4 (or
-higher)
-"""
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-Based on my tests Windows uses the non-transparent link training mode
-for DPCD_REV==1.2 sinks as well (so presumably for all DPCD_REVs), and
-forcing it to use transparent mode on ICL/TGL platforms leads to the
-same LT failure as reported at the References: link.
+--98e8jtXdkpgskNou
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Based on the above let's assume that the transparent link training mode
-is not well tested/supported and align the code to the correct
-interpretation of what the r1.4 version refers to.
+-----BEGIN PGP SIGNATURE-----
 
-References: https://gitlab.freedesktop.org/drm/intel/-/issues/3415
-Fixes: 264613b406eb ("drm/i915: Disable LTTPR support when the DPCD rev < 1.4")
-Cc: <stable@vger.kernel.org> # v5.11+
-Signed-off-by: Imre Deak <imre.deak@intel.com>
----
- .../drm/i915/display/intel_dp_link_training.c | 71 +++++++++----------
- 1 file changed, 33 insertions(+), 38 deletions(-)
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYJxI5QAKCRAw5/Bqldv6
+8plKAKC0qKvkGUqvrGfcKg1FIqe7dcLergCeKlYNmX16uhWgwldCgpMpwhiT1Bw=
+=i/v7
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-index 6bf6f1ec13ed8..08bceae40aa8d 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-@@ -128,50 +128,14 @@ intel_dp_set_lttpr_transparent_mode(struct intel_dp *intel_dp, bool enable)
- 	return drm_dp_dpcd_write(&intel_dp->aux, DP_PHY_REPEATER_MODE, &val, 1) == 1;
- }
- 
--/**
-- * intel_dp_init_lttpr_and_dprx_caps - detect LTTPR and DPRX caps, init the LTTPR link training mode
-- * @intel_dp: Intel DP struct
-- *
-- * Read the LTTPR common and DPRX capabilities and switch to non-transparent
-- * link training mode if any is detected and read the PHY capabilities for all
-- * detected LTTPRs. In case of an LTTPR detection error or if the number of
-- * LTTPRs is more than is supported (8), fall back to the no-LTTPR,
-- * transparent mode link training mode.
-- *
-- * Returns:
-- *   >0  if LTTPRs were detected and the non-transparent LT mode was set. The
-- *       DPRX capabilities are read out.
-- *    0  if no LTTPRs or more than 8 LTTPRs were detected or in case of a
-- *       detection failure and the transparent LT mode was set. The DPRX
-- *       capabilities are read out.
-- *   <0  Reading out the DPRX capabilities failed.
-- */
--int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
-+static int intel_dp_init_lttpr(struct intel_dp *intel_dp)
- {
- 	int lttpr_count;
--	bool ret;
- 	int i;
- 
--	ret = intel_dp_read_lttpr_common_caps(intel_dp);
--
--	/* The DPTX shall read the DPRX caps after LTTPR detection. */
--	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd)) {
--		intel_dp_reset_lttpr_common_caps(intel_dp);
--		return -EIO;
--	}
--
--	if (!ret)
-+	if (!intel_dp_read_lttpr_common_caps(intel_dp))
- 		return 0;
- 
--	/*
--	 * The 0xF0000-0xF02FF range is only valid if the DPCD revision is
--	 * at least 1.4.
--	 */
--	if (intel_dp->dpcd[DP_DPCD_REV] < 0x14) {
--		intel_dp_reset_lttpr_common_caps(intel_dp);
--		return 0;
--	}
--
- 	lttpr_count = drm_dp_lttpr_count(intel_dp->lttpr_common_caps);
- 	/*
- 	 * Prevent setting LTTPR transparent mode explicitly if no LTTPRs are
-@@ -211,6 +175,37 @@ int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
- 
- 	return lttpr_count;
- }
-+
-+/**
-+ * intel_dp_init_lttpr_and_dprx_caps - detect LTTPR and DPRX caps, init the LTTPR link training mode
-+ * @intel_dp: Intel DP struct
-+ *
-+ * Read the LTTPR common and DPRX capabilities and switch to non-transparent
-+ * link training mode if any is detected and read the PHY capabilities for all
-+ * detected LTTPRs. In case of an LTTPR detection error or if the number of
-+ * LTTPRs is more than is supported (8), fall back to the no-LTTPR,
-+ * transparent mode link training mode.
-+ *
-+ * Returns:
-+ *   >0  if LTTPRs were detected and the non-transparent LT mode was set. The
-+ *       DPRX capabilities are read out.
-+ *    0  if no LTTPRs or more than 8 LTTPRs were detected or in case of a
-+ *       detection failure and the transparent LT mode was set. The DPRX
-+ *       capabilities are read out.
-+ *   <0  Reading out the DPRX capabilities failed.
-+ */
-+int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
-+{
-+	int lttpr_count = intel_dp_init_lttpr(intel_dp);
-+
-+	/* The DPTX shall read the DPRX caps after LTTPR detection. */
-+	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd)) {
-+		intel_dp_reset_lttpr_common_caps(intel_dp);
-+		return -EIO;
-+	}
-+
-+	return lttpr_count;
-+}
- EXPORT_SYMBOL(intel_dp_init_lttpr_and_dprx_caps);
- 
- static u8 dp_voltage_max(u8 preemph)
--- 
-2.27.0
-
+--98e8jtXdkpgskNou--
