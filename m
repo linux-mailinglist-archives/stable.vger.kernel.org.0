@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D75F37CAD0
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0968037CACE
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234681AbhELQcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42394 "EHLO mail.kernel.org"
+        id S236367AbhELQcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:32:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241169AbhELQ0r (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241174AbhELQ0r (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:26:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1853161584;
-        Wed, 12 May 2021 15:50:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7924561DC2;
+        Wed, 12 May 2021 15:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834607;
-        bh=HNJPaELbLnOS5cTv1TsR5yEZMZPFzLhL8boP4JEJco8=;
+        s=korg; t=1620834610;
+        bh=5tYHIfdHnlifvBDc+mt6bef7AcAUNLaqZMqTWjy9W+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=csSPn3apgOExpgzo153L1yqveQuCy6YaZZrwfdS88HROrFO0b8LBUoqGTT8v1jc7N
-         n0qeE1//JkLxGyFnywrFTow/O5tF0NYV7KFRn/Uz2TDJOsSNmCdYHhm5J33Fv45KZ5
-         8Keyt5X9Qr+jbv160JW2ubS3vwQ2eotNNFc90P5U=
+        b=F/9cUISL58a0Fjuj96wixIEafnGBOCNHu2MYbyUKXYz0FYsiEsG/p0PX4/OEHz9to
+         BKfDDynrIKcg5YHFWRj81Cv7WJ6OZDdXfbKUrkxtWAsHx9BahA5r3h8+tue33mtZvC
+         1eW7TjMNHQGoSBNH+CAyYWUuCmgE2be6zHL9HzDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.12 012/677] staging: greybus: uart: fix TIOCSSERIAL jiffies conversions
-Date:   Wed, 12 May 2021 16:40:58 +0200
-Message-Id: <20210512144837.636350299@linuxfoundation.org>
+Subject: [PATCH 5.12 013/677] USB: serial: ti_usb_3410_5052: fix TIOCSSERIAL permission check
+Date:   Wed, 12 May 2021 16:40:59 +0200
+Message-Id: <20210512144837.668873281@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,52 +40,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit b71e571adaa58be4fd289abebc8997e05b4c6b40 upstream.
+commit d370c90dcd64e427a79a093a070117a1571d4cd8 upstream.
 
-The port close_delay and closing_wait parameters set by TIOCSSERIAL are
-specified in jiffies and not milliseconds.
+Changing the port closing-wait parameter is a privileged operation so
+make sure to return -EPERM if a regular user tries to change it.
 
-Add the missing conversions so that TIOCSSERIAL works as expected also
-when HZ is not 1000.
-
-Fixes: e68453ed28c5 ("greybus: uart-gb: now builds, more framework added")
-Cc: stable@vger.kernel.org	# 4.9
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-6-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/greybus/uart.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/usb/serial/ti_usb_3410_5052.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/greybus/uart.c
-+++ b/drivers/staging/greybus/uart.c
-@@ -614,10 +614,12 @@ static int get_serial_info(struct tty_st
- 	ss->line = gb_tty->minor;
- 	ss->xmit_fifo_size = 16;
- 	ss->baud_base = 9600;
--	ss->close_delay = gb_tty->port.close_delay / 10;
-+	ss->close_delay = jiffies_to_msecs(gb_tty->port.close_delay) / 10;
- 	ss->closing_wait =
- 		gb_tty->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
--		ASYNC_CLOSING_WAIT_NONE : gb_tty->port.closing_wait / 10;
-+		ASYNC_CLOSING_WAIT_NONE :
-+		jiffies_to_msecs(gb_tty->port.closing_wait) / 10;
+--- a/drivers/usb/serial/ti_usb_3410_5052.c
++++ b/drivers/usb/serial/ti_usb_3410_5052.c
+@@ -1418,14 +1418,19 @@ static int ti_set_serial_info(struct tty
+ 	struct serial_struct *ss)
+ {
+ 	struct usb_serial_port *port = tty->driver_data;
+-	struct ti_port *tport = usb_get_serial_port_data(port);
++	struct tty_port *tport = &port->port;
+ 	unsigned cwait;
+ 
+ 	cwait = ss->closing_wait;
+ 	if (cwait != ASYNC_CLOSING_WAIT_NONE)
+ 		cwait = msecs_to_jiffies(10 * ss->closing_wait);
+ 
+-	tport->tp_port->port.closing_wait = cwait;
++	if (!capable(CAP_SYS_ADMIN)) {
++		if (cwait != tport->closing_wait)
++			return -EPERM;
++	}
 +
++	tport->closing_wait = cwait;
+ 
  	return 0;
  }
- 
-@@ -629,9 +631,10 @@ static int set_serial_info(struct tty_st
- 	unsigned int close_delay;
- 	int retval = 0;
- 
--	close_delay = ss->close_delay * 10;
-+	close_delay = msecs_to_jiffies(ss->close_delay * 10);
- 	closing_wait = ss->closing_wait == ASYNC_CLOSING_WAIT_NONE ?
--			ASYNC_CLOSING_WAIT_NONE : ss->closing_wait * 10;
-+			ASYNC_CLOSING_WAIT_NONE :
-+			msecs_to_jiffies(ss->closing_wait * 10);
- 
- 	mutex_lock(&gb_tty->port.mutex);
- 	if (!capable(CAP_SYS_ADMIN)) {
 
 
