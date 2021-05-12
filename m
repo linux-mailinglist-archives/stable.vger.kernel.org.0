@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D497A37CEA2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AD6E37CE9B
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345074AbhELRGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42824 "EHLO mail.kernel.org"
+        id S1345042AbhELRF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:05:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235092AbhELQqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:46:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E58CA61E79;
-        Wed, 12 May 2021 16:15:05 +0000 (UTC)
+        id S234759AbhELQqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:46:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ABE361C79;
+        Wed, 12 May 2021 16:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836106;
-        bh=QHVS36Hx5QQArgAt4AN/5gs/dR2JKtoTsFGR679Wkz4=;
+        s=korg; t=1620836108;
+        bh=28Xy0yGesv1npO/6p7GtuwHjGranM2ozuAzC5ZMcBGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MnBH2LowNpludk0oEbToWAbHPgpFh0LGTQ785pgVdy/hj7RYUPzLrNpG3W3M7l3g1
-         47omtM0+W/VBx5vOiklijYTnH2u3DLxY+FcaPbM8fg7gd/WryNFRyHeZSp5LkWHWqO
-         DuvitA3RcV8d9N00LXi2YojSQfa61V+O9varke3M=
+        b=abSs/uSF9gZ1oJU1mApmprkrUVjsZCPCTnTHqFy7Y/kgHyqOrR/L3TG5OvtCa/TuN
+         mGQBQOYxOcIXMytpYic1rkFiNEfB60IMf16u79aOOxfYwMa6vkeVPT6+6loEfDPUac
+         spo1oEkF4qjlXq49XyUEq1YfK7mqZpBQWKalboFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 613/677] mt76: mt7921: run mt7921_mcu_fw_log_2_host holding mt76 mutex
-Date:   Wed, 12 May 2021 16:50:59 +0200
-Message-Id: <20210512144857.739993206@linuxfoundation.org>
+        stable@vger.kernel.org, Leonardo Bras <leobras.c@gmail.com>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 614/677] powerpc/pseries/iommu: Fix window size for direct mapping with pmem
+Date:   Wed, 12 May 2021 16:51:00 +0200
+Message-Id: <20210512144857.773392341@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,39 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Leonardo Bras <leobras.c@gmail.com>
 
-[ Upstream commit 987c8fb4de437344f19a23d074c06faf67520a11 ]
+[ Upstream commit a9d2f9bb225fd2a764aef57738ab6c7f38d782ae ]
 
-Wake the chip before configuring the mcu log level
+As of today, if the DDW is big enough to fit (1 << MAX_PHYSMEM_BITS)
+it's possible to use direct DMA mapping even with pmem region.
 
-Fixes: 1d8efc741df8 ("mt76: mt7921: introduce Runtime PM support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+But, if that happens, the window size (len) is set to (MAX_PHYSMEM_BITS
+- page_shift) instead of MAX_PHYSMEM_BITS, causing a pagesize times
+smaller DDW to be created, being insufficient for correct usage.
+
+Fix this so the correct window size is used in this case.
+
+Fixes: bf6e2d562bbc4 ("powerpc/dma: Fallback to dma_ops when persistent memory present")
+Signed-off-by: Leonardo Bras <leobras.c@gmail.com>
+Reviewed-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210420045404.438735-1-leobras.c@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-index 6aa11ca6fc81..87a7ea12f3b3 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-@@ -9,10 +9,13 @@ mt7921_fw_debug_set(void *data, u64 val)
- {
- 	struct mt7921_dev *dev = data;
- 
--	dev->fw_debug = (u8)val;
-+	mt7921_mutex_acquire(dev);
- 
-+	dev->fw_debug = (u8)val;
- 	mt7921_mcu_fw_log_2_host(dev, dev->fw_debug);
- 
-+	mt7921_mutex_release(dev);
-+
- 	return 0;
- }
- 
+diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
+index 9fc5217f0c8e..836cbbe0ecc5 100644
+--- a/arch/powerpc/platforms/pseries/iommu.c
++++ b/arch/powerpc/platforms/pseries/iommu.c
+@@ -1229,7 +1229,7 @@ static u64 enable_ddw(struct pci_dev *dev, struct device_node *pdn)
+ 	if (pmem_present) {
+ 		if (query.largest_available_block >=
+ 		    (1ULL << (MAX_PHYSMEM_BITS - page_shift)))
+-			len = MAX_PHYSMEM_BITS - page_shift;
++			len = MAX_PHYSMEM_BITS;
+ 		else
+ 			dev_info(&dev->dev, "Skipping ibm,pmemory");
+ 	}
 -- 
 2.30.2
 
