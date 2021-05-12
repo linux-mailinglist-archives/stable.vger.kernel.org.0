@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C19A37CCA8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCE937CCA7
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:06:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244396AbhELQpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244393AbhELQpu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 12 May 2021 12:45:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239205AbhELQiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:38:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71D2F61CD5;
-        Wed, 12 May 2021 16:02:55 +0000 (UTC)
+        id S238514AbhELQiy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:38:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4571461CDE;
+        Wed, 12 May 2021 16:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835376;
-        bh=/cILVpnXhud2pgotuVEKYzHiTOX4TGRPJ0dPdBNSYp4=;
+        s=korg; t=1620835378;
+        bh=0fffkwr4cO92K2iLKFHJ+bEeyP4BjOuoKw7aXMuGddo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5W6gIFt+0HC95B5j6dK4cD/wdVnunKThjHcoHjYIlf+CLEuf0xZ5McvFBdWgYAqx
-         b1pU0rvBZL+HJTKVewB51AkXJBviUU1rcvEeIuNQfD2GojBNtOZWQZ7xgzFo+35sxZ
-         f3nkuIxM2zK0e2Fh4MLUi4DV+G2rVRaWDkO2PJeY=
+        b=E7xsDGOh6boUkI9sLjF0XA+46eTHIetnM07d8fD1Bq+xBSsaz8cK/SD2WySZ4SBfA
+         KkDcB9jvR+xRXPcZIQ9q6k6ZPyt9QzFO92yUh6qgP+S5RqJ7T2okkiLV/BTlehfd7D
+         k5du79+8RbqNT5HXAzuqEmXYZyG7+Ai9mKDoIDwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 319/677] ARM: dts: aspeed: Rainier: Fix humidity sensor bus address
-Date:   Wed, 12 May 2021 16:46:05 +0200
-Message-Id: <20210512144847.823507755@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 320/677] Drivers: hv: vmbus: Use after free in __vmbus_open()
+Date:   Wed, 12 May 2021 16:46:06 +0200
+Message-Id: <20210512144847.860102293@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,37 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 1d5d46a1adafafce2b0c9105eab563709c84e3db ]
+[ Upstream commit 3e9bf43f7f7a46f21ec071cb47be92d0874c48da ]
 
-The si7021 was incorrectly placed at 0x20 on i2c bus 7. It is at 0x40.
+The "open_info" variable is added to the &vmbus_connection.chn_msg_list,
+but the error handling frees "open_info" without removing it from the
+list.  This will result in a use after free.  First remove it from the
+list, and then free it.
 
-Fixes: 9c44db7096e0 ("ARM: dts: aspeed: rainier: Add i2c devices")
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 6f3d791f3006 ("Drivers: hv: vmbus: Fix rescind handling issues")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andrea Parri <parri.andrea@gmail.com>
+Link: https://lore.kernel.org/r/YHV3XLCot6xBS44r@mwanda
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hv/channel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
-index 6c9804d2f3b4..6df1ce545061 100644
---- a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
-@@ -713,9 +713,9 @@
- 	multi-master;
- 	status = "okay";
+diff --git a/drivers/hv/channel.c b/drivers/hv/channel.c
+index 0bd202de7960..945e41f5e3a8 100644
+--- a/drivers/hv/channel.c
++++ b/drivers/hv/channel.c
+@@ -653,7 +653,7 @@ static int __vmbus_open(struct vmbus_channel *newchannel,
  
--	si7021-a20@20 {
-+	si7021-a20@40 {
- 		compatible = "silabs,si7020";
--		reg = <0x20>;
-+		reg = <0x40>;
- 	};
+ 	if (newchannel->rescind) {
+ 		err = -ENODEV;
+-		goto error_free_info;
++		goto error_clean_msglist;
+ 	}
  
- 	tmp275@48 {
+ 	err = vmbus_post_msg(open_msg,
 -- 
 2.30.2
 
