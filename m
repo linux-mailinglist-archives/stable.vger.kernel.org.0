@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 560C237C5A7
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A605737C56E
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234870AbhELPmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:42:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56692 "EHLO mail.kernel.org"
+        id S235616AbhELPkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:40:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236333AbhELPhl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:37:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81B1561C5D;
-        Wed, 12 May 2021 15:19:13 +0000 (UTC)
+        id S235083AbhELPfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:35:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83DF561C3D;
+        Wed, 12 May 2021 15:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832754;
-        bh=0MsT3YcXAKu6F1DF6dOCh48jpuiSu7HG6nCqd9EEyEA=;
+        s=korg; t=1620832671;
+        bh=Glof5O4sA2+vKJ1MWao+oo/rpjKVQSRsL/EHOjHIhQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oz0BwfKfKikkcIMdWoGg72ulhSPt4Af0uCE4cWA7H3z0uaxZ9EPzQgS7mPDk1pDxD
-         ZDw5Ib2nZvvdagE0S4guc4aetK0It/bCuA5JUYd6s5HRo+wMkF7nkbQnu8DgrokXiX
-         JukM0lvod+7blwEEqwbSWtHpxIEto1Ab+7owUTwI=
+        b=QqM2lZkrobjXkrKQd5O+k6ZO95lU5ZBRgumvJUbGtEoRkKFzgV6qlyeqRljg+5yGx
+         oo3t441oXXhyso7B1AQs5pvfXXcbr8objQ+U6BjmhwwNq7Je2gI554/IQTDGi+nhus
+         Cg+I0gAiRLRlvfXcqK8E/OiqfV4SjO9HUP3P4IHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Chen Huang <chenhuang5@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 375/530] powerpc: Fix HAVE_HARDLOCKUP_DETECTOR_ARCH build configuration
-Date:   Wed, 12 May 2021 16:48:05 +0200
-Message-Id: <20210512144832.103269860@linuxfoundation.org>
+Subject: [PATCH 5.10 376/530] MIPS/bpf: Enable bpf_probe_read{, str}() on MIPS again
+Date:   Wed, 12 May 2021 16:48:06 +0200
+Message-Id: <20210512144832.135720733@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,49 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Huang <chenhuang5@huawei.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 4fe529449d85e78972fa327999961ecc83a0b6db ]
+[ Upstream commit 66633abd0642f1e89d26e15f36fb13d3a1c535ff ]
 
-When compiling the powerpc with the SMP disabled, it shows the issue:
+After commit 0ebeea8ca8a4 ("bpf: Restrict bpf_probe_read{, str}() only to
+archs where they work"), bpf_probe_read{, str}() functions were no longer
+available on MIPS, so there exist some errors when running bpf program:
 
-arch/powerpc/kernel/watchdog.c: In function ‘watchdog_smp_panic’:
-arch/powerpc/kernel/watchdog.c:177:4: error: implicit declaration of function ‘smp_send_nmi_ipi’; did you mean ‘smp_send_stop’? [-Werror=implicit-function-declaration]
-  177 |    smp_send_nmi_ipi(c, wd_lockup_ipi, 1000000);
-      |    ^~~~~~~~~~~~~~~~
-      |    smp_send_stop
-cc1: all warnings being treated as errors
-make[2]: *** [scripts/Makefile.build:273: arch/powerpc/kernel/watchdog.o] Error 1
-make[1]: *** [scripts/Makefile.build:534: arch/powerpc/kernel] Error 2
-make: *** [Makefile:1980: arch/powerpc] Error 2
-make: *** Waiting for unfinished jobs....
+root@linux:/home/loongson/bcc# python examples/tracing/task_switch.py
+bpf: Failed to load program: Invalid argument
+[...]
+11: (85) call bpf_probe_read#4
+unknown func bpf_probe_read#4
+[...]
+Exception: Failed to load BPF program count_sched: Invalid argument
 
-We found that powerpc used ipi to implement hardlockup watchdog, so the
-HAVE_HARDLOCKUP_DETECTOR_ARCH should depend on the SMP.
+ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE should be restricted to archs
+with non-overlapping address ranges, but they can overlap in EVA mode
+on MIPS, so select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE if !EVA in
+arch/mips/Kconfig, otherwise the bpf old helper bpf_probe_read() will
+not be available.
 
-Fixes: 2104180a5369 ("powerpc/64s: implement arch-specific hardlockup watchdog")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Chen Huang <chenhuang5@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210327094900.938555-1-chenhuang5@huawei.com
+This is similar with the commit d195b1d1d119 ("powerpc/bpf: Enable
+bpf_probe_read{, str}() on powerpc again").
+
+Fixes: 0ebeea8ca8a4 ("bpf: Restrict bpf_probe_read{, str}() only to archs where they work")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 31ed8083571f..5afa0ebd78ca 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -222,7 +222,7 @@ config PPC
- 	select HAVE_LIVEPATCH			if HAVE_DYNAMIC_FTRACE_WITH_REGS
- 	select HAVE_MOD_ARCH_SPECIFIC
- 	select HAVE_NMI				if PERF_EVENTS || (PPC64 && PPC_BOOK3S)
--	select HAVE_HARDLOCKUP_DETECTOR_ARCH	if (PPC64 && PPC_BOOK3S)
-+	select HAVE_HARDLOCKUP_DETECTOR_ARCH	if PPC64 && PPC_BOOK3S && SMP
- 	select HAVE_OPROFILE
- 	select HAVE_OPTPROBES			if PPC64
- 	select HAVE_PERF_EVENTS
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 2000bb2b0220..1917ccd39256 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -6,6 +6,7 @@ config MIPS
+ 	select ARCH_BINFMT_ELF_STATE if MIPS_FP_SUPPORT
+ 	select ARCH_HAS_FORTIFY_SOURCE
+ 	select ARCH_HAS_KCOV
++	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE if !EVA
+ 	select ARCH_HAS_PTE_SPECIAL if !(32BIT && CPU_HAS_RIXI)
+ 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAS_UBSAN_SANITIZE_ALL
 -- 
 2.30.2
 
