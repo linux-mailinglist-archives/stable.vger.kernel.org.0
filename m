@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5CB37CDD2
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8707737CDD8
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:16:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237856AbhELQ6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35726 "EHLO mail.kernel.org"
+        id S239936AbhELQ64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:58:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244274AbhELQmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244281AbhELQmv (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0040061D3B;
-        Wed, 12 May 2021 16:12:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70F4661D3D;
+        Wed, 12 May 2021 16:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835930;
-        bh=97lRBl8qYFbRlz7al5/xxCOv+4YFLZQEHDMuErLVL+4=;
+        s=korg; t=1620835933;
+        bh=FPCu4wS85Mh0AFZqXVdiT5Jacnrk35+PiSkNOqhXPho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lg0MFgB923MCrfXYnawx3xIC9yTdlL17TfhFEdlwiFoQrRK8k66A6OqUtnQIYVQyO
-         297FthVzZiTRJUP/3FcNL7E07LdPnHcpDr/G2sYJI2MH1oClh2BHEIDi/2hxWzOW+Z
-         6hLr+hyjIJq0TKuQEGXXr3ZdZ23eD+mAYk2VjCZQ=
+        b=qdM5K5BLk8RfyzwVAu+fOqKPe+iv5utHInEEjtILw34Fd1BqgJVm+LVXqWD6gWpHe
+         6yD3fNQGeHisFQK4gRC3gpLA28pGVnUHXCQG+Tsy/pa0aVYk3kBK094xfZtGfcZdgx
+         Ga+PF2TRMB/YU3+qpbm46PE69y7AcNWMw8kET2l4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        stable@vger.kernel.org, Soul Huang <Soul.Huang@mediatek.com>,
+        YN Chen <YN.Chen@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 542/677] mt76: mt7921: fix inappropriate WoW setup with the missing ARP informaiton
-Date:   Wed, 12 May 2021 16:49:48 +0200
-Message-Id: <20210512144855.372084810@linuxfoundation.org>
+Subject: [PATCH 5.12 543/677] mt76: mt7921: fix the dwell time control
+Date:   Wed, 12 May 2021 16:49:49 +0200
+Message-Id: <20210512144855.403912209@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,99 +43,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 9c9d83213424679b087267600d53a35acfa0201f ]
+[ Upstream commit 9db419f0cb39a63fb2f645a846cae17b81cd5c96 ]
 
-Fix the Wake-on-WoWLAN failure should rely on ARP Information is being
-updated in time to the firmware.
+dwell time for the scan is not configurable according to the current
+firmware submitted into linux-firmware.git, so leave the dwell time 0 to
+indicate the dwell time always determined by the firmware.
 
-Fixes: ffa1bf97425b ("mt76: mt7921: introduce PM support")
+Fixes: 399090ef9605 ("mt76: mt76_connac: move hw_scan and sched_scan routine in mt76_connac_mcu module")
+Suggested-by: Soul Huang <Soul.Huang@mediatek.com>
+Co-developed-by: YN Chen <YN.Chen@mediatek.com>
+Signed-off-by: YN Chen <YN.Chen@mediatek.com>
 Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7921/main.c  |  3 ++
- .../net/wireless/mediatek/mt76/mt7921/mcu.c   | 44 +++++++++++++++++++
- .../wireless/mediatek/mt76/mt7921/mt7921.h    |  3 ++
- 3 files changed, 50 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-index 166c9c0eb5fd..cd9fd0e24e3e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-@@ -587,6 +587,9 @@ static void mt7921_bss_info_changed(struct ieee80211_hw *hw,
- 	if (changed & BSS_CHANGED_PS)
- 		mt7921_mcu_uni_bss_ps(dev, vif);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index 8e9e42b77692..76a61e8b7fb9 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -1309,7 +1309,7 @@ int mt76_connac_mcu_hw_scan(struct mt76_phy *phy, struct ieee80211_vif *vif,
+ {
+ 	struct mt76_vif *mvif = (struct mt76_vif *)vif->drv_priv;
+ 	struct cfg80211_scan_request *sreq = &scan_req->req;
+-	int n_ssids = 0, err, i, duration = MT76_CONNAC_SCAN_CHANNEL_TIME;
++	int n_ssids = 0, err, i, duration;
+ 	int ext_channels_num = max_t(int, sreq->n_channels - 32, 0);
+ 	struct ieee80211_channel **scan_list = sreq->channels;
+ 	struct mt76_dev *mdev = phy->dev;
+@@ -1346,6 +1346,7 @@ int mt76_connac_mcu_hw_scan(struct mt76_phy *phy, struct ieee80211_vif *vif,
+ 	req->ssid_type_ext = n_ssids ? BIT(0) : 0;
+ 	req->ssids_num = n_ssids;
  
-+	if (changed & BSS_CHANGED_ARP_FILTER)
-+		mt7921_mcu_update_arp_filter(hw, vif, info);
-+
- 	mt7921_mutex_release(dev);
- }
- 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-index b5cc72e7e81c..62afbad77596 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-@@ -1304,3 +1304,47 @@ mt7921_pm_interface_iter(void *priv, u8 *mac, struct ieee80211_vif *vif)
- 		mt76_clear(dev, MT_WF_RFCR(0), MT_WF_RFCR_DROP_OTHER_BEACON);
- 	}
- }
-+
-+int mt7921_mcu_update_arp_filter(struct ieee80211_hw *hw,
-+				 struct ieee80211_vif *vif,
-+				 struct ieee80211_bss_conf *info)
-+{
-+	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
-+	struct mt7921_dev *dev = mt7921_hw_dev(hw);
-+	struct sk_buff *skb;
-+	int i, len = min_t(int, info->arp_addr_cnt,
-+			   IEEE80211_BSS_ARP_ADDR_LIST_LEN);
-+	struct {
-+		struct {
-+			u8 bss_idx;
-+			u8 pad[3];
-+		} __packed hdr;
-+		struct mt76_connac_arpns_tlv arp;
-+	} req_hdr = {
-+		.hdr = {
-+			.bss_idx = mvif->mt76.idx,
-+		},
-+		.arp = {
-+			.tag = cpu_to_le16(UNI_OFFLOAD_OFFLOAD_ARP),
-+			.len = cpu_to_le16(sizeof(struct mt76_connac_arpns_tlv)),
-+			.ips_num = len,
-+			.mode = 2,  /* update */
-+			.option = 1,
-+		},
-+	};
-+
-+	skb = mt76_mcu_msg_alloc(&dev->mt76, NULL,
-+				 sizeof(req_hdr) + len * sizeof(__be32));
-+	if (!skb)
-+		return -ENOMEM;
-+
-+	skb_put_data(skb, &req_hdr, sizeof(req_hdr));
-+	for (i = 0; i < len; i++) {
-+		u8 *addr = (u8 *)skb_put(skb, sizeof(__be32));
-+
-+		memcpy(addr, &info->arp_addr_list[i], sizeof(__be32));
-+	}
-+
-+	return mt76_mcu_skb_send_msg(&dev->mt76, skb, MCU_UNI_CMD_OFFLOAD,
-+				     true);
-+}
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-index 2979d06ee0ad..25a1a6acb6ba 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h
-@@ -339,4 +339,7 @@ int mt7921_mac_set_beacon_filter(struct mt7921_phy *phy,
- 				 bool enable);
- void mt7921_pm_interface_iter(void *priv, u8 *mac, struct ieee80211_vif *vif);
- void mt7921_coredump_work(struct work_struct *work);
-+int mt7921_mcu_update_arp_filter(struct ieee80211_hw *hw,
-+				 struct ieee80211_vif *vif,
-+				 struct ieee80211_bss_conf *info);
- #endif
++	duration = is_mt7921(phy->dev) ? 0 : MT76_CONNAC_SCAN_CHANNEL_TIME;
+ 	/* increase channel time for passive scan */
+ 	if (!sreq->n_ssids)
+ 		duration *= 2;
 -- 
 2.30.2
 
