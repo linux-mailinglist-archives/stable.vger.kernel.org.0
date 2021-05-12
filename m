@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13D8D37CD4C
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 384BA37CD57
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238424AbhELQyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:54:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35790 "EHLO mail.kernel.org"
+        id S238571AbhELQyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:54:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243765AbhELQmC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:42:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14F0761434;
-        Wed, 12 May 2021 16:06:53 +0000 (UTC)
+        id S243783AbhELQmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:42:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B4E561492;
+        Wed, 12 May 2021 16:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835614;
-        bh=wem3YfuaWefC9ignoFfbVMy/yemeUqLbn8D8n9HZZFI=;
+        s=korg; t=1620835617;
+        bh=2hmU/K97aWCxtPtWnmzimhMDLMZndpsROIC7w6g7Y9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vlXs0MUilaAJdUch7PgBT6y+a93zlGtpRIDGnpI8pDafMOWwRZ7V67m7M4US8jo0
-         lIN9bh+pAUqkxl1ikFtoeubc6fBdjMii+2cQ2YO2niEGal8xSW/pf2pYg2E0bVaQ3t
-         dt3BSip2lygvTW5S2rdR5Yf1sPhV86BIXgURoHOU=
+        b=uwYHIVM3GFECA+ink/8QCTIDnbcXbIyr34jiuoeapLEw1yjZrzasGyq/P/wahZ9s2
+         MWTl2/wRW3ypUVT/AGZEoFaS1qr4p3d4kUO2sU4+8/3sJPqDxXOa3LPLCFy2Qmvj3f
+         vvH2FjQ2s4jThI5o7YLGbxVFz243n7SJ+XK+KAZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 380/677] ata: libahci_platform: fix IRQ check
-Date:   Wed, 12 May 2021 16:47:06 +0200
-Message-Id: <20210512144849.961656192@linuxfoundation.org>
+        stable@vger.kernel.org, Kenta Tada <Kenta.Tada@sony.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 381/677] seccomp: Fix CONFIG tests for Seccomp_filters
+Date:   Wed, 12 May 2021 16:47:07 +0200
+Message-Id: <20210512144849.995701021@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -39,42 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Kenta.Tada@sony.com <Kenta.Tada@sony.com>
 
-[ Upstream commit b30d0040f06159de97ad9c0b1536f47250719d7d ]
+[ Upstream commit 64bdc0244054f7d4bb621c8b4455e292f4e421bc ]
 
-Iff platform_get_irq() returns 0, ahci_platform_init_host() would return 0
-early (as if the call was successful). Override IRQ0 with -EINVAL instead
-as the 'libata' regards 0 as "no IRQ" (thus polling) anyway...
+Strictly speaking, seccomp filters are only used
+when CONFIG_SECCOMP_FILTER.
+This patch fixes the condition to enable "Seccomp_filters"
+in /proc/$pid/status.
 
-Fixes: c034640a32f8 ("ata: libahci: properly propagate return value of platform_get_irq()")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/4448c8cc-331f-2915-0e17-38ea34e251c8@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Kenta Tada <Kenta.Tada@sony.com>
+Fixes: c818c03b661c ("seccomp: Report number of loaded filters in /proc/$pid/status")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/OSBPR01MB26772D245E2CF4F26B76A989F5669@OSBPR01MB2677.jpnprd01.prod.outlook.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci_platform.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/proc/array.c  | 2 ++
+ init/init_task.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index de638dafce21..b2f552088291 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -582,11 +582,13 @@ int ahci_platform_init_host(struct platform_device *pdev,
- 	int i, irq, n_ports, rc;
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0) {
-+	if (irq < 0) {
- 		if (irq != -EPROBE_DEFER)
- 			dev_err(dev, "no irq\n");
- 		return irq;
- 	}
-+	if (!irq)
-+		return -EINVAL;
- 
- 	hpriv->irq = irq;
- 
+diff --git a/fs/proc/array.c b/fs/proc/array.c
+index bb87e4d89cd8..7ec59171f197 100644
+--- a/fs/proc/array.c
++++ b/fs/proc/array.c
+@@ -342,8 +342,10 @@ static inline void task_seccomp(struct seq_file *m, struct task_struct *p)
+ 	seq_put_decimal_ull(m, "NoNewPrivs:\t", task_no_new_privs(p));
+ #ifdef CONFIG_SECCOMP
+ 	seq_put_decimal_ull(m, "\nSeccomp:\t", p->seccomp.mode);
++#ifdef CONFIG_SECCOMP_FILTER
+ 	seq_put_decimal_ull(m, "\nSeccomp_filters:\t",
+ 			    atomic_read(&p->seccomp.filter_count));
++#endif
+ #endif
+ 	seq_puts(m, "\nSpeculation_Store_Bypass:\t");
+ 	switch (arch_prctl_spec_ctrl_get(p, PR_SPEC_STORE_BYPASS)) {
+diff --git a/init/init_task.c b/init/init_task.c
+index 3711cdaafed2..8b08c2e19cbb 100644
+--- a/init/init_task.c
++++ b/init/init_task.c
+@@ -210,7 +210,7 @@ struct task_struct init_task
+ #ifdef CONFIG_SECURITY
+ 	.security	= NULL,
+ #endif
+-#ifdef CONFIG_SECCOMP
++#ifdef CONFIG_SECCOMP_FILTER
+ 	.seccomp	= { .filter_count = ATOMIC_INIT(0) },
+ #endif
+ };
 -- 
 2.30.2
 
