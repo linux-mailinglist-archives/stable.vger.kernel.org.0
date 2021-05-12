@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65DE437CC4E
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EAC037CC56
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234159AbhELQoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:44:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
+        id S238009AbhELQoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:44:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243161AbhELQgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:36:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93AAC61E17;
-        Wed, 12 May 2021 16:01:14 +0000 (UTC)
+        id S243249AbhELQhA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:37:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F4A66199B;
+        Wed, 12 May 2021 16:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835275;
-        bh=eS4i9oBkUN52Ge4jNwi9bMum1Voqp2NnkseaCe2dWaI=;
+        s=korg; t=1620835301;
+        bh=v/5avM/zkkjTymZO97AS3cb5U1nhM78dH2MoXtESTGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sy6TMQICzQgzYYYB52/LEy45XzIjYihk3hMN5zyrwWGCKieNw47TG3fB6wq/N2U/h
-         B3+1NC9cDEqPP1X6RBTDrFbrCY5tSywC7wbnSstc88QRJRV5aUV3Ul+UsxTtJeqYlT
-         EiGun8GU47loDo+IhzPDDKYLCTm77npl6qe39kOA=
+        b=eiyG/SA2KljHnjp3bEkNfUd9IOMtcpZoFnlxBJslcF8XlLSyT77MvPSlXUXifFxqG
+         D+M9EyetldY5EdkQv1T1IplC3RckQ9SDYpPcAG/8xuhreNoJ3rtiT9PdhiKeF60LU4
+         CUcuenv4pknjZxqL9N7TqdMa1+W9rGw0NZnlSGVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Alexandru Ardelean <aardelean@deviqon.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 261/677] iio: adc: Kconfig: make AD9467 depend on ADI_AXI_ADC symbol
-Date:   Wed, 12 May 2021 16:45:07 +0200
-Message-Id: <20210512144845.910093169@linuxfoundation.org>
+Subject: [PATCH 5.12 262/677] mtd: rawnand: gpmi: Fix a double free in gpmi_nand_init
+Date:   Wed, 12 May 2021 16:45:08 +0200
+Message-Id: <20210512144845.940932145@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,49 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <aardelean@deviqon.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 194eafc9c1d49b53b59de9821fb63d423344cae3 ]
+[ Upstream commit 076de75de1e53160e9b099f75872c1f9adf41a0b ]
 
-Because a dependency on HAS_IOMEM and OF was added for the ADI AXI ADC
-driver, this makes the AD9467 driver have some build/dependency issues
-when OF is disabled (typically on ACPI archs like x86).
+If the callee gpmi_alloc_dma_buffer() failed to alloc memory for
+this->raw_buffer, gpmi_free_dma_buffer() will be called to free
+this->auxiliary_virt. But this->auxiliary_virt is still a non-NULL
+and valid ptr.
 
-This is because the selection of the AD9467 enforces the ADI_AXI_ADC symbol
-which is blocked by the OF (and potentially HAS_IOMEM) being disabled.
+Then gpmi_alloc_dma_buffer() returns err and gpmi_free_dma_buffer()
+is called again to free this->auxiliary_virt in err_out. This causes
+a double free.
 
-To fix this, we make the AD9467 driver depend on the ADI_AXI_ADC symbol.
-The AD9467 driver cannot operate on it's own. It requires the ADI AXI ADC
-driver to stream data (or some similar IIO interface).
+As gpmi_free_dma_buffer() has already called in gpmi_alloc_dma_buffer's
+error path, so it should return err directly instead of releasing the dma
+buffer again.
 
-So, the fix here is to make the AD9467 symbol depend on the ADI_AXI_ADC
-symbol. At some point this could become it's own subgroup of high-speed
-ADCs.
-
-Fixes: be24c65e9fa24 ("iio: adc: adi-axi-adc: add proper Kconfig dependencies")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20210324182746.9337-1-aardelean@deviqon.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 4d02423e9afe6 ("mtd: nand: gpmi: Fix gpmi_nand_init() error path")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210403060905.5251-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/Kconfig | 2 +-
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index e0667c4b3c08..dda0f1e37ec1 100644
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -249,7 +249,7 @@ config AD799X
- config AD9467
- 	tristate "Analog Devices AD9467 High Speed ADC driver"
- 	depends on SPI
--	select ADI_AXI_ADC
-+	depends on ADI_AXI_ADC
- 	help
- 	  Say yes here to build support for Analog Devices:
- 	  * AD9467 16-Bit, 200 MSPS/250 MSPS Analog-to-Digital Converter
+diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+index 3fa8c22d3f36..4d08e4ab5c1b 100644
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -2449,7 +2449,7 @@ static int gpmi_nand_init(struct gpmi_nand_data *this)
+ 	this->bch_geometry.auxiliary_size = 128;
+ 	ret = gpmi_alloc_dma_buffer(this);
+ 	if (ret)
+-		goto err_out;
++		return ret;
+ 
+ 	nand_controller_init(&this->base);
+ 	this->base.ops = &gpmi_nand_controller_ops;
 -- 
 2.30.2
 
