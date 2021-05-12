@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B57237C1EF
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E208A37C1EE
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:05:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbhELPF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
+        id S232310AbhELPFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:05:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233086AbhELPEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233094AbhELPEe (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:04:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E1F16192C;
-        Wed, 12 May 2021 14:59:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0F9C61438;
+        Wed, 12 May 2021 14:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620831549;
-        bh=EOf4FNoWAeDqS8BXpHUKB7L5o9/23/PovRboEeSi8go=;
+        s=korg; t=1620831552;
+        bh=yOs6+n/pwDzKey6fXcv5xl//oANFSztWXd2RNAaR3uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0u60sDoZ7x2PdwqbqjHSg2yqXyyKfgO3xSvHw+8RVvKSzjjQWt4zAZC24TcXNi7KO
-         5QY9A+kkl6/8aEB5D60UvuGB1OzcXBXkxHcr9Yn1WzufKzpKFBImY2M4ni1XD/mPhS
-         lujkhD3xWWta9s5Ol7t5fYZxMSoJgLUn2a1xajR0=
+        b=jr9YIINO/X83q5HiswUj6oRkC6oAndaCB1OfPvez2cE9mwAEjEkpuvmd13LEf0+qw
+         1DIqSG023VjN7fToycdTirM+ZEkcgiyhKoDAEwoNgxgB9ZYacTVYmsED/pa+5tT/sD
+         enT34wfZhBeXUHEX466dsdS3d5Sd43wxDEdo4O78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 165/244] nvme-pci: dont simple map sgl when sgls are disabled
-Date:   Wed, 12 May 2021 16:48:56 +0200
-Message-Id: <20210512144748.289616592@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 166/244] HSI: core: fix resource leaks in hsi_add_client_from_dt()
+Date:   Wed, 12 May 2021 16:48:57 +0200
+Message-Id: <20210512144748.321392159@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 References: <20210512144743.039977287@linuxfoundation.org>
@@ -39,37 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e51183be1fa96dc6d3cd11b3c25a0f595807315e ]
+[ Upstream commit 5c08b0f75575648032f309a6f58294453423ed93 ]
 
-According to the module parameter description for sgl_threshold,
-a value of 0 means that SGLs are disabled.
+If some of the allocations fail between the dev_set_name() and the
+device_register() then the name will not be freed.  Fix this by
+moving dev_set_name() directly in front of the call to device_register().
 
-If SGLs are disabled, we should respect that, even for the case
-where the request is made up of a single physical segment.
-
-Fixes: 297910571f08 ("nvme-pci: optimize mapping single segment requests using SGLs")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: a2aa24734d9d ("HSI: Add common DT binding for HSI client devices")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hsi/hsi_core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 3bee3724e9fa..2cb2ead7615b 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -838,7 +838,7 @@ static blk_status_t nvme_map_data(struct nvme_dev *dev, struct request *req,
- 				return nvme_setup_prp_simple(dev, req,
- 							     &cmnd->rw, &bv);
+diff --git a/drivers/hsi/hsi_core.c b/drivers/hsi/hsi_core.c
+index 47f0208aa7c3..a5f92e2889cb 100644
+--- a/drivers/hsi/hsi_core.c
++++ b/drivers/hsi/hsi_core.c
+@@ -210,8 +210,6 @@ static void hsi_add_client_from_dt(struct hsi_port *port,
+ 	if (err)
+ 		goto err;
  
--			if (iod->nvmeq->qid &&
-+			if (iod->nvmeq->qid && sgl_threshold &&
- 			    dev->ctrl.sgls & ((1 << 0) | (1 << 1)))
- 				return nvme_setup_sgl_simple(dev, req,
- 							     &cmnd->rw, &bv);
+-	dev_set_name(&cl->device, "%s", name);
+-
+ 	err = hsi_of_property_parse_mode(client, "hsi-mode", &mode);
+ 	if (err) {
+ 		err = hsi_of_property_parse_mode(client, "hsi-rx-mode",
+@@ -293,6 +291,7 @@ static void hsi_add_client_from_dt(struct hsi_port *port,
+ 	cl->device.release = hsi_client_release;
+ 	cl->device.of_node = client;
+ 
++	dev_set_name(&cl->device, "%s", name);
+ 	if (device_register(&cl->device) < 0) {
+ 		pr_err("hsi: failed to register client: %s\n", name);
+ 		put_device(&cl->device);
 -- 
 2.30.2
 
