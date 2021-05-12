@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D64937BB38
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:47:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EB8537BB37
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:47:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230291AbhELKsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:48:09 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:54601 "EHLO
+        id S230280AbhELKsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:48:06 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:46497 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230185AbhELKsI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:48:08 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 96A4D12A4;
-        Wed, 12 May 2021 06:47:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 12 May 2021 06:47:00 -0400
+        by vger.kernel.org with ESMTP id S230185AbhELKsG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:48:06 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 3552312DF;
+        Wed, 12 May 2021 06:46:58 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 12 May 2021 06:46:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=t5OLNc
-        GPM8uy9FaZVa9TeUw+lUXNG8ybRN9f2qqkEPY=; b=nzB5Hulx7PZzYbPn6FOY7x
-        9Y/fUboT4qQBje7iq2JCm0EBBcSpXfTZw0EBlBX8n+jmuRMzqEgrdl7HUx4xZhQE
-        mzDKgnQBvM8p9HZ4P9rxLBHA/wo5InG5dT9gU85KktdbbwuL/HmNtALO8Cw8+9gq
-        04ekO2ZK3HOCZ3Cn/jpP/dV5AheURgvin/+CM3EB0y6ITZ8MFp+cAa1paEVNUitD
-        PM0svRKsJsrxBrVOHGxmyJXPNBJT/2JG3R1YMM50kmI9q/IwDNxsMXXmWvEdalbo
-        0jWmdP8cQ9iHgEVABgS25juPGaHXA1WCB+9FaAznRrLbH1MFc6ZyVtQcpn7dbiAw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=0kw3dC
+        WtV3mR/8CtqBllLzmFHzlP8nLjyKWbMlTawGY=; b=av61qLXQtpKJ/KcFCral+3
+        LSPZjVJZS1sjW2qL/KaJTXXPdpCWAxO8gVbeKlUqWIYXn0Hn0qFilJSP6Ye0SqE0
+        /7H/VBJthm0B0GMW6wLlivFUzQ9pBr49Ld1Bnv8Kmdl9A52bN5WuZHjH939aB6zw
+        t4y+tCdadcsNbG2cZMOKXemisRzBItMcH0XxoO3VPg2H9Bi38/wYA42Y+6aT+73+
+        razPcsvox7aXX9JrBQ9UZmMcN5QBvRzmF4RcS7eNqk8ROb666RuWGwNIovg1Vlc0
+        a5R5Uaqyy1nArERPcdzJyQnbG+yGoETabM04mrMl8IU8/CwMUG60fjG/OtcVYfJQ
         ==
-X-ME-Sender: <xms:JLKbYEDn8EHJY3iPz300crr8NvX8Y-SFLn3L-OZFzmuhOCUgLhuWpg>
-    <xme:JLKbYGgSTHqX1XJeWWrYP6E_O0r7U-M8hyejRX39OVXm-IlL9exeL3WtKb-2ijXmb
-    tT5X67veYQ4lw>
+X-ME-Sender: <xms:IbKbYENXxqeYcls_BOdBYsvj68Woh0hUk-sl2h69H24dE6kiDBtZ6Q>
+    <xme:IbKbYK91k3VVkSK4q2HOvXgcfn5adbtlRZvyfKDoXZ21QfgBNFkHNCXBhp-gOqobP
+    3SadAh_0r6R2w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepkeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepleenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:JLKbYHmeLYoqEC1cq-U0wIJ4BEemWPrsnGB8g7bQSkEH6FhhQza2wg>
-    <xmx:JLKbYKybPByHN_2ICMonHU5atj9LFUG2RKHmJD4oVFTjHi5XGSq1ng>
-    <xmx:JLKbYJSUfmCVX_qT5IRx7xkcuMVmB8kZx8rMAJmX0I5xvVpaZJtIQg>
-    <xmx:JLKbYK6xGFzYo3eBUkm4noUGqHzw_sjPcloINTdA7osTdsvEakhUl7AZats>
+X-ME-Proxy: <xmx:IbKbYLStOMIrUeqUdrpmFKMmz8zNC7wVE2WubM_9-Bdqytuz4rAabA>
+    <xmx:IbKbYMsZBR2HSnXwUkV0GjZAXvX5zk61UL0VEQHitB-RnQfTTjJiHQ>
+    <xmx:IbKbYMchwP2vx33GtHvEhNAGn3XOf35Wa-vbWYPiT090aXfFO2mQfg>
+    <xmx:IbKbYElNgkxyxYEPMa5i6v3fed3j3uDcLZRADSBMeQOI1RZNQjxbueznnZ0>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 06:46:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: Destroy I/O bus devices on unregister failure _after_" failed to apply to 4.19-stable tree
+        Wed, 12 May 2021 06:46:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: Destroy I/O bus devices on unregister failure _after_" failed to apply to 5.4-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 12 May 2021 12:46:44 +0200
-Message-ID: <162081640427168@kroah.com>
+Message-ID: <1620816404179206@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
