@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA0737C3D9
+	by mail.lfdr.de (Postfix) with ESMTP id DF04037C3DB
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233099AbhELPWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:22:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60802 "EHLO mail.kernel.org"
+        id S233369AbhELPWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:22:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234717AbhELPUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234715AbhELPUc (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 11:20:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77A8F6101B;
-        Wed, 12 May 2021 15:08:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE10D6199E;
+        Wed, 12 May 2021 15:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832114;
-        bh=Da0r6qMPor97lCV6jlG1+wkZqprTVL8V5I9KHqlC+1k=;
+        s=korg; t=1620832116;
+        bh=aavuMoAmsTtU9NsiQA63lzinfEBT2PLkjb9/vgJa9jA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYi7VVMMYCyvYKizPI9bAGoPARbeo1ErKl6XRb8GTPVnZelU/eHh42/Jv/r7D0VYD
-         gFdMcyWFEwXjzknruozhgQnzCVR93Oivgs/m06+8MKuXrbMiEIJRd3XuAjnIsom6yF
-         ETtMXDeEBsUk43Whp+2lASm1WFjfyQarUxkihWmA=
+        b=kBxlCw6k26eULBAIfUKJV/098xaIgk1tbYfkE3/z6YXhqxfoJFnBdEBr5pRj/YIMb
+         XHLPsjPfuOoaFFoP1dbbpgxr0b8vnB4t5gZpGXT2kxQgr/yPtdFX3kYynPpxxh3Lg5
+         RPoKVJ7SqzgxmkApwtJ+jB1ptUVN3aO0olUveYHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
-        Michal Simek <michal.simek@xilinx.com>,
+        stable@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>,
+        Moritz Fischer <mdf@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 113/530] firmware: xilinx: Remove zynqmp_pm_get_eemi_ops() in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE)
-Date:   Wed, 12 May 2021 16:43:43 +0200
-Message-Id: <20210512144823.510739886@linuxfoundation.org>
+Subject: [PATCH 5.10 114/530] fpga: fpga-mgr: xilinx-spi: fix error messages on -EPROBE_DEFER
+Date:   Wed, 12 May 2021 16:43:44 +0200
+Message-Id: <20210512144823.544030771@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -40,85 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+From: Luca Ceresoli <luca@lucaceresoli.net>
 
-[ Upstream commit 79bfe480a0a0b259ab9fddcd2fe52c03542b1196 ]
+[ Upstream commit 484a58607a808c3721917f5ca5fba7eff809e4df ]
 
-zynqmp_pm_get_eemi_ops() was removed in commit 4db8180ffe7c: "Firmware: xilinx:
-Remove eemi ops for fpga related APIs", but not in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE).
-Any driver who want to communicate with PMC using EEMI APIs use the functions provided
-for each function
-This removed zynqmp_pm_get_eemi_ops() in IS_REACHABLE(CONFIG_ZYNQMP_FIRMWARE), and also
-modify the documentation for this driver.
+The current code produces an error message on devm_gpiod_get() errors even
+when the error is -EPROBE_DEFER, which should be silent.
 
-Fixes: 4db8180ffe7c ("firmware: xilinx: Remove eemi ops for fpga related APIs")
-Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Link: https://lore.kernel.org/r/20210215155849.2425846-1-iwamatsu@nigauri.org
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+This has been observed producing a significant amount of messages like:
+
+    xlnx-slave-spi spi1.1: Failed to get PROGRAM_B gpio: -517
+
+Fix and simplify code by using the dev_err_probe() helper function.
+
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+Fixes: dd2784c01d93 ("fpga manager: xilinx-spi: check INIT_B pin during write_init")
+Fixes: 061c97d13f1a ("fpga manager: Add Xilinx slave serial SPI driver")
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/xilinx/eemi.rst | 31 ++----------------------
- include/linux/firmware/xlnx-zynqmp.h     |  5 ----
- 2 files changed, 2 insertions(+), 34 deletions(-)
+ drivers/fpga/xilinx-spi.c | 24 +++++++++---------------
+ 1 file changed, 9 insertions(+), 15 deletions(-)
 
-diff --git a/Documentation/driver-api/xilinx/eemi.rst b/Documentation/driver-api/xilinx/eemi.rst
-index 9dcbc6f18d75..c1bc47b9000d 100644
---- a/Documentation/driver-api/xilinx/eemi.rst
-+++ b/Documentation/driver-api/xilinx/eemi.rst
-@@ -16,35 +16,8 @@ components running across different processing clusters on a chip or
- device to communicate with a power management controller (PMC) on a
- device to issue or respond to power management requests.
+diff --git a/drivers/fpga/xilinx-spi.c b/drivers/fpga/xilinx-spi.c
+index 824abbbd631e..d3e6f41e78bf 100644
+--- a/drivers/fpga/xilinx-spi.c
++++ b/drivers/fpga/xilinx-spi.c
+@@ -233,25 +233,19 @@ static int xilinx_spi_probe(struct spi_device *spi)
  
--EEMI ops is a structure containing all eemi APIs supported by Zynq MPSoC.
--The zynqmp-firmware driver maintain all EEMI APIs in zynqmp_eemi_ops
--structure. Any driver who want to communicate with PMC using EEMI APIs
--can call zynqmp_pm_get_eemi_ops().
--
--Example of EEMI ops::
--
--	/* zynqmp-firmware driver maintain all EEMI APIs */
--	struct zynqmp_eemi_ops {
--		int (*get_api_version)(u32 *version);
--		int (*query_data)(struct zynqmp_pm_query_data qdata, u32 *out);
--	};
--
--	static const struct zynqmp_eemi_ops eemi_ops = {
--		.get_api_version = zynqmp_pm_get_api_version,
--		.query_data = zynqmp_pm_query_data,
--	};
--
--Example of EEMI ops usage::
--
--	static const struct zynqmp_eemi_ops *eemi_ops;
--	u32 ret_payload[PAYLOAD_ARG_CNT];
--	int ret;
--
--	eemi_ops = zynqmp_pm_get_eemi_ops();
--	if (IS_ERR(eemi_ops))
--		return PTR_ERR(eemi_ops);
--
--	ret = eemi_ops->query_data(qdata, ret_payload);
-+Any driver who wants to communicate with PMC using EEMI APIs use the
-+functions provided for each function.
+ 	/* PROGRAM_B is active low */
+ 	conf->prog_b = devm_gpiod_get(&spi->dev, "prog_b", GPIOD_OUT_LOW);
+-	if (IS_ERR(conf->prog_b)) {
+-		dev_err(&spi->dev, "Failed to get PROGRAM_B gpio: %ld\n",
+-			PTR_ERR(conf->prog_b));
+-		return PTR_ERR(conf->prog_b);
+-	}
++	if (IS_ERR(conf->prog_b))
++		return dev_err_probe(&spi->dev, PTR_ERR(conf->prog_b),
++				     "Failed to get PROGRAM_B gpio\n");
  
- IOCTL
- ------
-diff --git a/include/linux/firmware/xlnx-zynqmp.h b/include/linux/firmware/xlnx-zynqmp.h
-index 7fb3274a4a9e..4930ece07fd8 100644
---- a/include/linux/firmware/xlnx-zynqmp.h
-+++ b/include/linux/firmware/xlnx-zynqmp.h
-@@ -354,11 +354,6 @@ int zynqmp_pm_read_pggs(u32 index, u32 *value);
- int zynqmp_pm_system_shutdown(const u32 type, const u32 subtype);
- int zynqmp_pm_set_boot_health_status(u32 value);
- #else
--static inline struct zynqmp_eemi_ops *zynqmp_pm_get_eemi_ops(void)
--{
--	return ERR_PTR(-ENODEV);
--}
--
- static inline int zynqmp_pm_get_api_version(u32 *version)
- {
- 	return -ENODEV;
+ 	conf->init_b = devm_gpiod_get_optional(&spi->dev, "init-b", GPIOD_IN);
+-	if (IS_ERR(conf->init_b)) {
+-		dev_err(&spi->dev, "Failed to get INIT_B gpio: %ld\n",
+-			PTR_ERR(conf->init_b));
+-		return PTR_ERR(conf->init_b);
+-	}
++	if (IS_ERR(conf->init_b))
++		return dev_err_probe(&spi->dev, PTR_ERR(conf->init_b),
++				     "Failed to get INIT_B gpio\n");
+ 
+ 	conf->done = devm_gpiod_get(&spi->dev, "done", GPIOD_IN);
+-	if (IS_ERR(conf->done)) {
+-		dev_err(&spi->dev, "Failed to get DONE gpio: %ld\n",
+-			PTR_ERR(conf->done));
+-		return PTR_ERR(conf->done);
+-	}
++	if (IS_ERR(conf->done))
++		return dev_err_probe(&spi->dev, PTR_ERR(conf->done),
++				     "Failed to get DONE gpio\n");
+ 
+ 	mgr = devm_fpga_mgr_create(&spi->dev,
+ 				   "Xilinx Slave Serial FPGA Manager",
 -- 
 2.30.2
 
