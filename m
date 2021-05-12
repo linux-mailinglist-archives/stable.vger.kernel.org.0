@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BFA337CD79
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3EE37CD78
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231316AbhELQzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:55:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35912 "EHLO mail.kernel.org"
+        id S240171AbhELQz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243958AbhELQmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243960AbhELQmS (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:42:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA10A61C57;
-        Wed, 12 May 2021 16:08:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DCE261C64;
+        Wed, 12 May 2021 16:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835719;
-        bh=fpUeZaNPtLa/TPXo/qlfOOUhwhAyUASlHJymyrm1WW8=;
+        s=korg; t=1620835721;
+        bh=VB28mPWdH4KirLLdSUaNiRYYApU6S+b4HnMC6npyQmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfq1552SVze7m+IzCsQkkkc7OUdoMKjbI6n4CIa1jyAophmUCgvbvpK16qPbRrmMO
-         f17JxY/jayDOdGYHoGz075ZVUcpl4PW4P5Jr4k9eP9rpihM01vbEXRYr8Ya7aN7ug6
-         W0DfKXnmGRpnqEkKjLIRT74F3k859RtoN6na+2e4=
+        b=aWYFTUjM45+pMp+qgXB3xajOyNoTDeDeRYxb8LZg7dQjR7F1EGFkqzcleTQEnFZPd
+         yIDG59RF0cjh9NNriJ4zyHO5e2lo493vgFMSFAhsqY80Lda4sd1UW5q121kTgbD9Kk
+         izmqdvoXa7gHI6zY9o5iTUPW3iCKMTtkC1qeCX5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 458/677] selftests/bpf: Re-generate vmlinux.h and BPF skeletons if bpftool changed
-Date:   Wed, 12 May 2021 16:48:24 +0200
-Message-Id: <20210512144852.578517411@linuxfoundation.org>
+        KP Singh <kpsingh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 459/677] libbpf: Add explicit padding to btf_dump_emit_type_decl_opts
+Date:   Wed, 12 May 2021 16:48:25 +0200
+Message-Id: <20210512144852.611695438@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,46 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: KP Singh <kpsingh@kernel.org>
 
-[ Upstream commit cab62c37be057379a2a17b1b2eacd9dcba1e14dc ]
+[ Upstream commit ea24b19562fe5f72c78319dbb347b701818956d9 ]
 
-Trigger vmlinux.h and BPF skeletons re-generation if detected that bpftool was
-re-compiled. Otherwise full `make clean` is required to get updated skeletons,
-if bpftool is modified.
+Similar to
+https://lore.kernel.org/bpf/20210313210920.1959628-2-andrii@kernel.org/
 
-Fixes: acbd06206bbb ("selftests/bpf: Add vmlinux.h selftest exercising tracing of syscalls")
+When DECLARE_LIBBPF_OPTS is used with inline field initialization, e.g:
+
+  DECLARE_LIBBPF_OPTS(btf_dump_emit_type_decl_opts, opts,
+    .field_name = var_ident,
+    .indent_level = 2,
+    .strip_mods = strip_mods,
+  );
+
+and compiled in debug mode, the compiler generates code which
+leaves the padding uninitialized and triggers errors within libbpf APIs
+which require strict zero initialization of OPTS structs.
+
+Adding anonymous padding field fixes the issue.
+
+Fixes: 9f81654eebe8 ("libbpf: Expose BTF-to-C type declaration emitting API")
+Suggested-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: KP Singh <kpsingh@kernel.org>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210318194036.3521577-11-andrii@kernel.org
+Link: https://lore.kernel.org/bpf/20210319192117.2310658-1-kpsingh@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/lib/bpf/btf.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 044bfdcf5b74..76a325862119 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -221,7 +221,7 @@ $(HOST_BPFOBJ): $(wildcard $(BPFDIR)/*.[ch] $(BPFDIR)/Makefile)                \
- 		    DESTDIR=$(HOST_SCRATCH_DIR)/ prefix= all install_headers
- endif
+diff --git a/tools/lib/bpf/btf.h b/tools/lib/bpf/btf.h
+index 1237bcd1dd17..5b8a6ea44b38 100644
+--- a/tools/lib/bpf/btf.h
++++ b/tools/lib/bpf/btf.h
+@@ -173,6 +173,7 @@ struct btf_dump_emit_type_decl_opts {
+ 	int indent_level;
+ 	/* strip all the const/volatile/restrict mods */
+ 	bool strip_mods;
++	size_t :0;
+ };
+ #define btf_dump_emit_type_decl_opts__last_field strip_mods
  
--$(INCLUDE_DIR)/vmlinux.h: $(VMLINUX_BTF) | $(BPFTOOL) $(INCLUDE_DIR)
-+$(INCLUDE_DIR)/vmlinux.h: $(VMLINUX_BTF) $(BPFTOOL) | $(INCLUDE_DIR)
- ifeq ($(VMLINUX_H),)
- 	$(call msg,GEN,,$@)
- 	$(Q)$(BPFTOOL) btf dump file $(VMLINUX_BTF) format c > $@
-@@ -346,7 +346,8 @@ $(TRUNNER_BPF_OBJS): $(TRUNNER_OUTPUT)/%.o:				\
- 
- $(TRUNNER_BPF_SKELS): $(TRUNNER_OUTPUT)/%.skel.h:			\
- 		      $(TRUNNER_OUTPUT)/%.o				\
--		      | $(BPFTOOL) $(TRUNNER_OUTPUT)
-+		      $(BPFTOOL)					\
-+		      | $(TRUNNER_OUTPUT)
- 	$$(call msg,GEN-SKEL,$(TRUNNER_BINARY),$$@)
- 	$(Q)$$(BPFTOOL) gen skeleton $$< > $$@
- endif
 -- 
 2.30.2
 
