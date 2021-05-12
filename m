@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EACA37CE9F
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8653637CEA1
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345069AbhELRGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 13:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46734 "EHLO mail.kernel.org"
+        id S1345079AbhELRGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 13:06:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236639AbhELQsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:48:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2860861104;
-        Wed, 12 May 2021 16:15:44 +0000 (UTC)
+        id S236837AbhELQsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:48:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BF4F61E81;
+        Wed, 12 May 2021 16:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620836145;
-        bh=VVQO8Lsnp9F7Mww5HW4wF/Bar8h1pw6p8Z7JYgjnu+0=;
+        s=korg; t=1620836148;
+        bh=Ye/owjlNIoK0mUKgznSfE5i1P9eBj+sn/vOQXCOxK0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Os3CuPYBfH6hhR7vEi8cJBgyi6oxV1TXsJXQ4wZaV1Vark3l23Ewe7Dd1WEWyJVXF
-         Lr3BULBR2MyvSqnbVG4YQPNIp7dNERPY6Byc3kqFo+uMsz0KRq6au2b+yq5fqZne5j
-         l0VxyGIYBeV96FHbQJEuRFOOJ1mLK0tqbXeYDC8w=
+        b=Eo/QpnGEvcBN2N8PXLsBLwYCy2ga387w71hahUa2TczvIh9sJMdeY2Jt+wLSKYkv4
+         uK8VrfcNay3D01lPoZIh/fpflbuqh4NTkXwjACBBqQhN85ARQYCvmm0UPzVYDhHM4M
+         Ud11R8DPK63nRoSM0TwIaQICtopP7cbAYZbWo2B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Arnd Bergmann <arnd@arndb.de>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 628/677] ath10k: Fix ath10k_wmi_tlv_op_pull_peer_stats_info() unlock without lock
-Date:   Wed, 12 May 2021 16:51:14 +0200
-Message-Id: <20210512144858.235179026@linuxfoundation.org>
+Subject: [PATCH 5.12 629/677] wlcore: Fix buffer overrun by snprintf due to incorrect buffer size
+Date:   Wed, 12 May 2021 16:51:15 +0200
+Message-Id: <20210512144858.267040414@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,40 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit eaaf52e4b866f265eb791897d622961293fd48c1 ]
+[ Upstream commit a9a4c080deb33f44e08afe35f4ca4bb9ece89f4e ]
 
-ath10k_wmi_tlv_op_pull_peer_stats_info() could try to unlock RCU lock
-winthout locking it first when peer reason doesn't match the valid
-cases for this function.
+The size of the buffer than can be written to is currently incorrect, it is
+always the size of the entire buffer even though the snprintf is writing
+as position pos into the buffer. Fix this by setting the buffer size to be
+the number of bytes left in the buffer, namely sizeof(buf) - pos.
 
-Add a default case to return without unlocking.
-
-Fixes: 09078368d516 ("ath10k: hold RCU lock when calling ieee80211_find_sta_by_ifaddr()")
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Addresses-Coverity: ("Out-of-bounds access")
+Fixes: 7b0e2c4f6be3 ("wlcore: fix overlapping snprintf arguments in debugfs")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210406230228.31301-1-skhan@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210419141405.180582-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/wmi-tlv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/ti/wlcore/debugfs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-index d97b33f789e4..7efbe03fbca8 100644
---- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-+++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-@@ -592,6 +592,9 @@ static void ath10k_wmi_event_tdls_peer(struct ath10k *ar, struct sk_buff *skb)
- 					GFP_ATOMIC
- 					);
- 		break;
-+	default:
-+		kfree(tb);
-+		return;
- 	}
- 
- exit:
+diff --git a/drivers/net/wireless/ti/wlcore/debugfs.h b/drivers/net/wireless/ti/wlcore/debugfs.h
+index 715edfa5f89f..a9e13e6d65c5 100644
+--- a/drivers/net/wireless/ti/wlcore/debugfs.h
++++ b/drivers/net/wireless/ti/wlcore/debugfs.h
+@@ -84,7 +84,7 @@ static ssize_t sub## _ ##name## _read(struct file *file,		\
+ 	wl1271_debugfs_update_stats(wl);				\
+ 									\
+ 	for (i = 0; i < len && pos < sizeof(buf); i++)			\
+-		pos += snprintf(buf + pos, sizeof(buf),			\
++		pos += snprintf(buf + pos, sizeof(buf) - pos,		\
+ 			 "[%d] = %d\n", i, stats->sub.name[i]);		\
+ 									\
+ 	return wl1271_format_buffer(userbuf, count, ppos, "%s", buf);	\
 -- 
 2.30.2
 
