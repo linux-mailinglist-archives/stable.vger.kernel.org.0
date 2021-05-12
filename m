@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C9B537D2CB
+	by mail.lfdr.de (Postfix) with ESMTP id 651B637D2CC
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237748AbhELSNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:13:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53456 "EHLO mail.kernel.org"
+        id S238130AbhELSNg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:13:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353019AbhELSGl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353024AbhELSGl (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 14:06:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3E6F6145B;
-        Wed, 12 May 2021 18:04:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E88E61438;
+        Wed, 12 May 2021 18:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842663;
-        bh=pzL1qU+2Rr0Nm+QO054FvBXcIonwTHJVm2YLEYIoKR0=;
+        s=k20201202; t=1620842665;
+        bh=ouPUubX0podFZljV6MH3eWHq7jZEaHhpp8WTmiD8ZY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ElVIb0mH+oibxiH6KOAwtOVA3a0JXDRLI0NrmZKQdq0fZUfpeln1QRTEuSEX9ve5s
-         UE12b4/YS+YXpk8g8AaFypvRZF50tjErTZy6O2/Xv8ZQ+FugkOkXtjxg04jwPsc7PY
-         XQ7yUh+UWi9KcfvBA3WH21tP92yd6WCaV0zcbcxHzAjt6w03rH9ISrj3G8jrsvHJyt
-         UZUkPAJv6A6B2BRYDG4coU9W6R8Lj5FoQq3C0QiM6utH9AHqurUvGK1NL09C4Ohrs2
-         GQMnNSnUdH5DtPy6qgojKNOE20z5P2iDq82rnHmXSXMMP5AEcRdPMvgjllKhoYCRJI
-         rsuhAV3HG1jIQ==
+        b=XlFdRT1ISDg3DXzqy5asA+0lzbbzAeR7s356P4ysuOC7ORL8wzBQr/DO6xKGiGeg9
+         2zP+2ZZTue/h2iyrFus+PSahzJUCzrWkN9k4FGXVhBgg8yIhJvo73RyA2QZzzY1Tr6
+         2yn/PNVSK/uP5OqxFAt8B394Q5o8WoA8eLcG61HnqiZcKGL01YHlCSA4Bfg1oDrO3x
+         QOYlXY5OYrYuChZPu+IU0MmvqzvNQLu+BNgttRqPA36+TVx8I5aGX/XOdZueHb1ag9
+         yyXPVfCJ8bUxHFxsjo/m56kHoXxQJk5bXxShAd/NIBd1I3itys/Cy8UKQYWVosHeDv
+         2yzrGoN0AEaXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/23] Input: silead - add workaround for x86 BIOS-es which bring the chip up in a stuck state
-Date:   Wed, 12 May 2021 14:03:52 -0400
-Message-Id: <20210512180408.665338-8-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Ritesh Raj Sarraf <rrs@debian.org>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 09/23] um: Mark all kernel symbols as local
+Date:   Wed, 12 May 2021 14:03:53 -0400
+Message-Id: <20210512180408.665338-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180408.665338-1-sashal@kernel.org>
 References: <20210512180408.665338-1-sashal@kernel.org>
@@ -43,125 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit e479187748a8f151a85116a7091c599b121fdea5 ]
+[ Upstream commit d5027ca63e0e778b641cf23e3f5c6d6212cf412b ]
 
-Some buggy BIOS-es bring up the touchscreen-controller in a stuck
-state where it blocks the I2C bus. Specifically this happens on
-the Jumper EZpad 7 tablet model.
+Ritesh reported a bug [1] against UML, noting that it crashed on
+startup. The backtrace shows the following (heavily redacted):
 
-After much poking at this problem I have found that the following steps
-are necessary to unstuck the chip / bus:
+(gdb) bt
+...
+ #26 0x0000000060015b5d in sem_init () at ipc/sem.c:268
+ #27 0x00007f89906d92f7 in ?? () from /lib/x86_64-linux-gnu/libcom_err.so.2
+ #28 0x00007f8990ab8fb2 in call_init (...) at dl-init.c:72
+...
+ #40 0x00007f89909bf3a6 in nss_load_library (...) at nsswitch.c:359
+...
+ #44 0x00007f8990895e35 in _nss_compat_getgrnam_r (...) at nss_compat/compat-grp.c:486
+ #45 0x00007f8990968b85 in __getgrnam_r [...]
+ #46 0x00007f89909d6b77 in grantpt [...]
+ #47 0x00007f8990a9394e in __GI_openpty [...]
+ #48 0x00000000604a1f65 in openpty_cb (...) at arch/um/os-Linux/sigio.c:407
+ #49 0x00000000604a58d0 in start_idle_thread (...) at arch/um/os-Linux/skas/process.c:598
+ #50 0x0000000060004a3d in start_uml () at arch/um/kernel/skas/process.c:45
+ #51 0x00000000600047b2 in linux_main (...) at arch/um/kernel/um_arch.c:334
+ #52 0x000000006000574f in main (...) at arch/um/os-Linux/main.c:144
 
-1. Turn off the Silead chip.
-2. Try to do an I2C transfer with the chip, this will fail in response to
-   which the I2C-bus-driver will call: i2c_recover_bus() which will unstuck
-   the I2C-bus. Note the unstuck-ing of the I2C bus only works if we first
-   drop the chip of the bus by turning it off.
-3. Turn the chip back on.
+indicating that the UML function openpty_cb() calls openpty(),
+which internally calls __getgrnam_r(), which causes the nsswitch
+machinery to get started.
 
-On the x86/ACPI systems were this problem is seen, step 1. and 3. require
-making ACPI calls and dealing with ACPI Power Resources. This commit adds
-a workaround which runtime-suspends the chip to turn it off, leaving it up
-to the ACPI subsystem to deal with all the ACPI specific details.
+This loads, through lots of indirection that I snipped, the
+libcom_err.so.2 library, which (in an unknown function, "??")
+calls sem_init().
 
-There is no good way to detect this bug, so the workaround gets activated
-by a new "silead,stuck-controller-bug" boolean device-property. Since this
-is only used on x86/ACPI, this will be set by model specific device-props
-set by drivers/platform/x86/touchscreen_dmi.c. Therefor this new
-device-property is not documented in the DT-bindings.
+Now, of course it wants to get libpthread's sem_init(), since
+it's linked against libpthread. However, the dynamic linker
+looks up that symbol against the binary first, and gets the
+kernel's sem_init().
 
-Dmesg will contain the following messages on systems where the workaround
-is activated:
+Hajime Tazaki noted that "objcopy -L" can localize a symbol,
+so the dynamic linker wouldn't do the lookup this way. I tried,
+but for some reason that didn't seem to work.
 
-[   54.309029] silead_ts i2c-MSSL1680:00: [Firmware Bug]: Stuck I2C bus: please ignore the next 'controller timed out' error
-[   55.373593] i2c_designware 808622C1:04: controller timed out
-[   55.582186] silead_ts i2c-MSSL1680:00: Silead chip ID: 0x80360000
+Doing the same thing in the linker script instead does seem to
+work, though I cannot entirely explain - it *also* works if I
+just add "VERSION { { global: *; }; }" instead, indicating that
+something else is happening that I don't really understand. It
+may be that explicitly doing that marks them with some kind of
+empty version, and that's different from the default.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210405202745.16777-1-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Explicitly marking them with a version breaks kallsyms, so that
+doesn't seem to be possible.
+
+Marking all the symbols as local seems correct, and does seem
+to address the issue, so do that. Also do it for static link,
+nsswitch libraries could still be loaded there.
+
+[1] https://bugs.debian.org/983379
+
+Reported-by: Ritesh Raj Sarraf <rrs@debian.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Tested-By: Ritesh Raj Sarraf <rrs@debian.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/silead.c | 44 +++++++++++++++++++++++++++---
- 1 file changed, 40 insertions(+), 4 deletions(-)
+ arch/um/kernel/dyn.lds.S | 6 ++++++
+ arch/um/kernel/uml.lds.S | 6 ++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index ad8b6a2bfd36..c8776146f1d1 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -20,6 +20,7 @@
- #include <linux/input/mt.h>
- #include <linux/input/touchscreen.h>
- #include <linux/pm.h>
-+#include <linux/pm_runtime.h>
- #include <linux/irq.h>
- #include <linux/regulator/consumer.h>
+diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
+index f5001481010c..a82ec0113321 100644
+--- a/arch/um/kernel/dyn.lds.S
++++ b/arch/um/kernel/dyn.lds.S
+@@ -6,6 +6,12 @@ OUTPUT_ARCH(ELF_ARCH)
+ ENTRY(_start)
+ jiffies = jiffies_64;
  
-@@ -335,10 +336,8 @@ static int silead_ts_get_id(struct i2c_client *client)
- 
- 	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_ID,
- 					      sizeof(chip_id), (u8 *)&chip_id);
--	if (error < 0) {
--		dev_err(&client->dev, "Chip ID read error %d\n", error);
-+	if (error < 0)
- 		return error;
--	}
- 
- 	data->chip_id = le32_to_cpu(chip_id);
- 	dev_info(&client->dev, "Silead chip ID: 0x%8X", data->chip_id);
-@@ -351,12 +350,49 @@ static int silead_ts_setup(struct i2c_client *client)
- 	int error;
- 	u32 status;
- 
-+	/*
-+	 * Some buggy BIOS-es bring up the chip in a stuck state where it
-+	 * blocks the I2C bus. The following steps are necessary to
-+	 * unstuck the chip / bus:
-+	 * 1. Turn off the Silead chip.
-+	 * 2. Try to do an I2C transfer with the chip, this will fail in
-+	 *    response to which the I2C-bus-driver will call:
-+	 *    i2c_recover_bus() which will unstuck the I2C-bus. Note the
-+	 *    unstuck-ing of the I2C bus only works if we first drop the
-+	 *    chip off the bus by turning it off.
-+	 * 3. Turn the chip back on.
-+	 *
-+	 * On the x86/ACPI systems were this problem is seen, step 1. and
-+	 * 3. require making ACPI calls and dealing with ACPI Power
-+	 * Resources. The workaround below runtime-suspends the chip to
-+	 * turn it off, leaving it up to the ACPI subsystem to deal with
-+	 * this.
-+	 */
++VERSION {
++  {
++    local: *;
++  };
++}
 +
-+	if (device_property_read_bool(&client->dev,
-+				      "silead,stuck-controller-bug")) {
-+		pm_runtime_set_active(&client->dev);
-+		pm_runtime_enable(&client->dev);
-+		pm_runtime_allow(&client->dev);
-+
-+		pm_runtime_suspend(&client->dev);
-+
-+		dev_warn(&client->dev, FW_BUG "Stuck I2C bus: please ignore the next 'controller timed out' error\n");
-+		silead_ts_get_id(client);
-+
-+		/* The forbid will also resume the device */
-+		pm_runtime_forbid(&client->dev);
-+		pm_runtime_disable(&client->dev);
-+	}
-+
- 	silead_ts_set_power(client, SILEAD_POWER_OFF);
- 	silead_ts_set_power(client, SILEAD_POWER_ON);
+ SECTIONS
+ {
+   PROVIDE (__executable_start = START);
+diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
+index 9f21443be2c9..85b404d068f4 100644
+--- a/arch/um/kernel/uml.lds.S
++++ b/arch/um/kernel/uml.lds.S
+@@ -7,6 +7,12 @@ OUTPUT_ARCH(ELF_ARCH)
+ ENTRY(_start)
+ jiffies = jiffies_64;
  
- 	error = silead_ts_get_id(client);
--	if (error)
-+	if (error) {
-+		dev_err(&client->dev, "Chip ID read error %d\n", error);
- 		return error;
-+	}
- 
- 	error = silead_ts_init(client);
- 	if (error)
++VERSION {
++  {
++    local: *;
++  };
++}
++
+ SECTIONS
+ {
+   /* This must contain the right address - not quite the default ELF one.*/
 -- 
 2.30.2
 
