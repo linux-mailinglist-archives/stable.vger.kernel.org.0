@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC90A37C999
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DE037C99A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236452AbhELQUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:20:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41990 "EHLO mail.kernel.org"
+        id S236500AbhELQUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:20:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235382AbhELQNN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:13:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E4F461183;
-        Wed, 12 May 2021 15:41:33 +0000 (UTC)
+        id S237810AbhELQN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:13:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1998561289;
+        Wed, 12 May 2021 15:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834094;
-        bh=kO8yA48hgkT1m02kdDNcbKCu3jksJOCsmIXPoQt2D7Q=;
+        s=korg; t=1620834096;
+        bh=Pm0127+5tLcpQGDu5CRbT375tfQAZnIceadxP5CHC+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qD3rsGQuCjEIkBw7iyVn1Wj6zpHkL6kbEd/lNWbk2Xpmb9AADkel9xuKG4NpjfvJ0
-         XBiuojAeeMVNERtu6M+DjDjys+e6h5Sr7HtNl1qasQY+39MQzFJkkqTcbA3Z5GbyNy
-         /yEpJ/NzAgM2XX1DW1BnGwm1GZGb+VsXrURp7NGg=
+        b=OnprMFZnXK/6NFpn1WX+M0IuVnDhGkA4M5LoS97OG3CJ1N46gMWjF7+3b8I306dxL
+         5PwINC43NWUFpmaZ1OMYsMEC3A+GDRXZdpbvN6LTz/57FARFgfAc95KLR1xbXasBsu
+         58j7FJIbKoob7Eoy9KUw8UdSXQ62mMVAgzFOH38g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        stable@vger.kernel.org, Brian King <brking@linux.vnet.ibm.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 371/601] scsi: sni_53c710: Add IRQ check
-Date:   Wed, 12 May 2021 16:47:28 +0200
-Message-Id: <20210512144840.013800321@linuxfoundation.org>
+Subject: [PATCH 5.11 372/601] scsi: ibmvfc: Fix invalid state machine BUG_ON()
+Date:   Wed, 12 May 2021 16:47:29 +0200
+Message-Id: <20210512144840.045661020@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,47 +41,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Brian King <brking@linux.vnet.ibm.com>
 
-[ Upstream commit 1160d61bc51e87e509cfaf9da50a0060f67b6de4 ]
+[ Upstream commit 15cfef8623a449d40d16541687afd58e78033be3 ]
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to request_irq() (which takes
-*unsigned* IRQ #s), causing it to fail with -EINVAL (overridden by -ENODEV
-further below).  Stop calling request_irq() with the invalid IRQ #s.
+This fixes an issue hitting the BUG_ON() in ibmvfc_do_work(). When going
+through a host action of IBMVFC_HOST_ACTION_RESET, we change the action to
+IBMVFC_HOST_ACTION_TGT_DEL, then drop the host lock, and reset the CRQ,
+which changes the host state to IBMVFC_NO_CRQ. If, prior to setting the
+host state to IBMVFC_NO_CRQ, ibmvfc_init_host() is called, it can then end
+up changing the host action to IBMVFC_HOST_ACTION_INIT.  If we then change
+the host state to IBMVFC_NO_CRQ, we will then hit the BUG_ON().
 
-Link: https://lore.kernel.org/r/8f4b8fa5-8251-b977-70a1-9099bcb4bb17@omprussia.ru
-Fixes: c27d85f3f3c5 ("[SCSI] SNI RM 53c710 driver")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Make a couple of changes to avoid this. Leave the host action to be
+IBMVFC_HOST_ACTION_RESET or IBMVFC_HOST_ACTION_REENABLE until after we drop
+the host lock and reset or reenable the CRQ. Also harden the host state
+machine to ensure we cannot leave the reset / reenable state until we've
+finished processing the reset or reenable.
+
+Link: https://lore.kernel.org/r/20210413001009.902400-1-tyreld@linux.ibm.com
+Fixes: 73ee5d867287 ("[SCSI] ibmvfc: Fix soft lockup on resume")
+Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+[tyreld: added fixes tag]
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+[mkp: fix comment checkpatch warnings]
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sni_53c710.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 57 ++++++++++++++++++++++------------
+ 1 file changed, 38 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/scsi/sni_53c710.c b/drivers/scsi/sni_53c710.c
-index 9e2e196bc202..97c6f81b1d2a 100644
---- a/drivers/scsi/sni_53c710.c
-+++ b/drivers/scsi/sni_53c710.c
-@@ -58,6 +58,7 @@ static int snirm710_probe(struct platform_device *dev)
- 	struct NCR_700_Host_Parameters *hostdata;
- 	struct Scsi_Host *host;
- 	struct  resource *res;
-+	int rc;
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index 65f168c41d23..8ac9eb962bff 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -560,8 +560,17 @@ static void ibmvfc_set_host_action(struct ibmvfc_host *vhost,
+ 		if (vhost->action == IBMVFC_HOST_ACTION_ALLOC_TGTS)
+ 			vhost->action = action;
+ 		break;
++	case IBMVFC_HOST_ACTION_REENABLE:
++	case IBMVFC_HOST_ACTION_RESET:
++		vhost->action = action;
++		break;
+ 	case IBMVFC_HOST_ACTION_INIT:
+ 	case IBMVFC_HOST_ACTION_TGT_DEL:
++	case IBMVFC_HOST_ACTION_LOGO:
++	case IBMVFC_HOST_ACTION_QUERY_TGTS:
++	case IBMVFC_HOST_ACTION_TGT_DEL_FAILED:
++	case IBMVFC_HOST_ACTION_NONE:
++	default:
+ 		switch (vhost->action) {
+ 		case IBMVFC_HOST_ACTION_RESET:
+ 		case IBMVFC_HOST_ACTION_REENABLE:
+@@ -571,15 +580,6 @@ static void ibmvfc_set_host_action(struct ibmvfc_host *vhost,
+ 			break;
+ 		}
+ 		break;
+-	case IBMVFC_HOST_ACTION_LOGO:
+-	case IBMVFC_HOST_ACTION_QUERY_TGTS:
+-	case IBMVFC_HOST_ACTION_TGT_DEL_FAILED:
+-	case IBMVFC_HOST_ACTION_NONE:
+-	case IBMVFC_HOST_ACTION_RESET:
+-	case IBMVFC_HOST_ACTION_REENABLE:
+-	default:
+-		vhost->action = action;
+-		break;
+ 	}
+ }
  
- 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
- 	if (!res)
-@@ -83,7 +84,9 @@ static int snirm710_probe(struct platform_device *dev)
- 		goto out_kfree;
- 	host->this_id = 7;
- 	host->base = base;
--	host->irq = platform_get_irq(dev, 0);
-+	host->irq = rc = platform_get_irq(dev, 0);
-+	if (rc < 0)
-+		goto out_put_host;
- 	if(request_irq(host->irq, NCR_700_intr, IRQF_SHARED, "snirm710", host)) {
- 		printk(KERN_ERR "snirm710: request_irq failed!\n");
- 		goto out_put_host;
+@@ -4723,26 +4723,45 @@ static void ibmvfc_do_work(struct ibmvfc_host *vhost)
+ 	case IBMVFC_HOST_ACTION_INIT_WAIT:
+ 		break;
+ 	case IBMVFC_HOST_ACTION_RESET:
+-		vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
+ 		spin_unlock_irqrestore(vhost->host->host_lock, flags);
+ 		rc = ibmvfc_reset_crq(vhost);
++
+ 		spin_lock_irqsave(vhost->host->host_lock, flags);
+-		if (rc == H_CLOSED)
++		if (!rc || rc == H_CLOSED)
+ 			vio_enable_interrupts(to_vio_dev(vhost->dev));
+-		if (rc || (rc = ibmvfc_send_crq_init(vhost)) ||
+-		    (rc = vio_enable_interrupts(to_vio_dev(vhost->dev)))) {
+-			ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
+-			dev_err(vhost->dev, "Error after reset (rc=%d)\n", rc);
++		if (vhost->action == IBMVFC_HOST_ACTION_RESET) {
++			/*
++			 * The only action we could have changed to would have
++			 * been reenable, in which case, we skip the rest of
++			 * this path and wait until we've done the re-enable
++			 * before sending the crq init.
++			 */
++			vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
++
++			if (rc || (rc = ibmvfc_send_crq_init(vhost)) ||
++			    (rc = vio_enable_interrupts(to_vio_dev(vhost->dev)))) {
++				ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
++				dev_err(vhost->dev, "Error after reset (rc=%d)\n", rc);
++			}
+ 		}
+ 		break;
+ 	case IBMVFC_HOST_ACTION_REENABLE:
+-		vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
+ 		spin_unlock_irqrestore(vhost->host->host_lock, flags);
+ 		rc = ibmvfc_reenable_crq_queue(vhost);
++
+ 		spin_lock_irqsave(vhost->host->host_lock, flags);
+-		if (rc || (rc = ibmvfc_send_crq_init(vhost))) {
+-			ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
+-			dev_err(vhost->dev, "Error after enable (rc=%d)\n", rc);
++		if (vhost->action == IBMVFC_HOST_ACTION_REENABLE) {
++			/*
++			 * The only action we could have changed to would have
++			 * been reset, in which case, we skip the rest of this
++			 * path and wait until we've done the reset before
++			 * sending the crq init.
++			 */
++			vhost->action = IBMVFC_HOST_ACTION_TGT_DEL;
++			if (rc || (rc = ibmvfc_send_crq_init(vhost))) {
++				ibmvfc_link_down(vhost, IBMVFC_LINK_DEAD);
++				dev_err(vhost->dev, "Error after enable (rc=%d)\n", rc);
++			}
+ 		}
+ 		break;
+ 	case IBMVFC_HOST_ACTION_LOGO:
 -- 
 2.30.2
 
