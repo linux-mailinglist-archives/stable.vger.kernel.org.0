@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AADD337B998
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8329E37B99B
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 11:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230109AbhELJuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 05:50:08 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:59545 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230104AbhELJuI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:50:08 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id 844E91420;
-        Wed, 12 May 2021 05:49:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 12 May 2021 05:49:00 -0400
+        id S230102AbhELJuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 05:50:51 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:51663 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230019AbhELJuu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 05:50:50 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3DF661940EB1;
+        Wed, 12 May 2021 05:49:42 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 12 May 2021 05:49:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fnj/MY
-        lomGt6U8Wq+57A9qPupl39fV1HqnQwsSgWxes=; b=AFMPfXzhY1igsns6QUBxrv
-        62kHRnc2kuaVUm92qD4bIwawjSkGrLKieuLubhdc1Prdv00N4H1qxUCLRAFCYVo2
-        0+6mDhZ9cMdbr0SFriJuw6DpqxNjQB6WSw3Wy1WSwBv4fTUb+PANYdZ5nZKQWxcq
-        ccQWlXbWKlzvgjL4MTNzw4UdfFXoJrZ5EmH3QXR5jIjZ8+Ua2TjM3hahYyXELysF
-        jjmPng8jck76XQjGgxsH08u9gagMxdiZXG10BNg0jVCs5yklo/TM0OL77OlmpGH8
-        h7gplVDgXoMjE5/FJUnW06SohtMadoeEF+mCXaWtnJ23Lbf3TrUBoEDSXDOpaE8g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PReRNv
+        1UG+ctg6NCIc70iMSr5U1WY+Jd/c4d8Bv3Coc=; b=kG9sSbnpW8s5Yii/OOmPXy
+        Vxjp8tssX/6N6Vb+aGy2EOK+BWgWrl7peJ1D1HT7JWPPG2euRYJJmJKG9IQJaW7X
+        WkKIuyH4edCZMa4YNLvXEx9fC3cy7q9BQiTqD7He0OiuMw+qtCEsQgvMsY5V2pGP
+        afAEs2AMJm/mrXbqCo45voZwHj4Nfx0R6IlH3zz64FeHkurrq9M8RbUEUOMqJ4xz
+        ftHiGrOPcl41e6Fko2wwipunGDteKLEBCdsPd8+Cr/tQrSB8qEgjNIRsCx1qHOgI
+        m9bqRMXL+sYyzmBdwHAgnniko3iuB2A2UInlNkUB8o8agmvEHkoCl7QT40/zcHiQ
         ==
-X-ME-Sender: <xms:jKSbYNJBdU1zJH1HLq_-Crrfi9eWpK7XlSVAY8VrqyXM6yGBYWp07w>
-    <xme:jKSbYJLOnWWeoDdoDaUa6Isy_sXiLXTfEX4gsEaQvDnHhIG7dw7oIXjoGuXLq298y
-    dIhFlm9dL9G-A>
+X-ME-Sender: <xms:tqSbYHcVwHOQ-zdlVnO0_vNWu1I7TI3aKXsEiB_cYQ6P5_oxQvpptA>
+    <xme:tqSbYNMpvB947E3OOKZ3iFaiaOpGpKuy2DUjGGAGpGheEu1PbLXVI4FCaHqC8Vdrh
+    nlOA2__xAtH9g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgudejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepvdffgeejjeeitdeiffejieejfffghedviedujeehfe
-    egvefhhfevvdefueehkeelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:jKSbYFt4wA0y2tOmiYZ4AnvCkW9K3crus1Km3MotsZ2zdWv8jhG0eQ>
-    <xmx:jKSbYOZs3OnbIiSKUWin5EP9Oi2B9UZvcf1FevI39quqRdoSpktBwQ>
-    <xmx:jKSbYEbG_LBeN3TDFVjhH9T1ZLoAT9HiOgSbw086rJwTGEAgAWqnyg>
-    <xmx:jKSbYPzuob_sUMo2k3zEBVBYriAu5ZVyu5anqKO2-Ep7QSSuk4YtJC3Ydkc>
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:tqSbYAi5lRDyFHXizM5-1qKYaGyvWHBeG7vJEgxF5PF_cWwfssp7ow>
+    <xmx:tqSbYI9kQFynprFyhpW24SwA6x-XDIZ-CgKIv2Kk_pMm5lBo2bDwYg>
+    <xmx:tqSbYDsP2xPZvFet5pUS1vA4gpKjVsdtTGjvnuXcXv6asqQCEnALaA>
+    <xmx:tqSbYM6oBDOWHN--DN5GPwjW1a70vvUYAEpBdpwzE0IKNy9VfDcY4A>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 05:48:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Disable LTTPR support when the DPCD rev < 1.4" failed to apply to 5.11-stable tree
-To:     imre.deak@intel.com, stable@vger.kernel.org,
-        ville.syrjala@linux.intel.com
+        Wed, 12 May 2021 05:49:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/amd/display: Fix system hang after multiple hotplugs (v3)" failed to apply to 5.12-stable tree
+To:     qingqing.zhuo@amd.com, alexander.deucher@amd.com, bindu.r@amd.com,
+        daniel.wheeler@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 11:48:50 +0200
-Message-ID: <1620812930127211@kroah.com>
+Date:   Wed, 12 May 2021 11:49:40 +0200
+Message-ID: <162081298013848@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,161 +71,200 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 264613b406eb0d74cd9ca582c717c5e2c5a975ea Mon Sep 17 00:00:00 2001
-From: Imre Deak <imre.deak@intel.com>
-Date: Wed, 17 Mar 2021 21:01:49 +0200
-Subject: [PATCH] drm/i915: Disable LTTPR support when the DPCD rev < 1.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From d7faf6f5347baec5cc774f3d46557f8782d87ee9 Mon Sep 17 00:00:00 2001
+From: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Date: Tue, 9 Feb 2021 16:36:41 -0500
+Subject: [PATCH] drm/amd/display: Fix system hang after multiple hotplugs (v3)
 
-By the specification the 0xF0000-0xF02FF range is only valid when the
-DPCD revision is 1.4 or higher. Disable LTTPR support if this isn't so.
+[Why]
+mutex_lock() was introduced in dm_disable_vblank(), which could
+be called in an IRQ context. Waiting in IRQ would cause issues
+like kernel lockup, etc.
 
-Trying to detect LTTPRs returned corrupted values for the above DPCD
-range at least on a Skylake host with an LG 43UD79-B monitor with a DPCD
-revision 1.2 connected.
+[How]
+Handle code that requires mutex lock on a different thread.
 
-v2: Add the actual version check.
-v3: Fix s/DRPX/DPRX/ typo.
+v2: squash in compilation fix without CONFIG_DRM_AMD_DC_DCN (Alex)
+v3: squash in warning fix (Wei)
 
-Fixes: 7b2a4ab8b0ef ("drm/i915: Switch to LTTPR transparent mode link training")
-Cc: <stable@vger.kernel.org> # v5.11
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210317190149.4032966-1-imre.deak@intel.com
+Signed-off-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index d46cd205241c..2c98335c260c 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -3709,9 +3709,7 @@ intel_dp_get_dpcd(struct intel_dp *intel_dp)
- {
- 	int ret;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index a7713c2a3f31..9de5b28af8be 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -938,7 +938,49 @@ static void mmhub_read_system_context(struct amdgpu_device *adev, struct dc_phy_
  
--	intel_dp_lttpr_init(intel_dp);
--
--	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd))
-+	if (intel_dp_init_lttpr_and_dprx_caps(intel_dp) < 0)
- 		return false;
- 
- 	/*
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-index c0e25c75c105..f14ac2694183 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
-@@ -35,6 +35,11 @@ intel_dp_dump_link_status(struct drm_device *drm,
- 		    link_status[3], link_status[4], link_status[5]);
  }
- 
-+static void intel_dp_reset_lttpr_common_caps(struct intel_dp *intel_dp)
+ #endif
++#if defined(CONFIG_DRM_AMD_DC_DCN)
++static void event_mall_stutter(struct work_struct *work)
 +{
-+	memset(&intel_dp->lttpr_common_caps, 0, sizeof(intel_dp->lttpr_common_caps));
++
++	struct vblank_workqueue *vblank_work = container_of(work, struct vblank_workqueue, mall_work);
++	struct amdgpu_display_manager *dm = vblank_work->dm;
++
++	mutex_lock(&dm->dc_lock);
++
++	if (vblank_work->enable)
++		dm->active_vblank_irq_count++;
++	else
++		dm->active_vblank_irq_count--;
++
++
++	dc_allow_idle_optimizations(
++		dm->dc, dm->active_vblank_irq_count == 0 ? true : false);
++
++	DRM_DEBUG_DRIVER("Allow idle optimizations (MALL): %d\n", dm->active_vblank_irq_count == 0);
++
++
++	mutex_unlock(&dm->dc_lock);
 +}
 +
- static void intel_dp_reset_lttpr_count(struct intel_dp *intel_dp)
- {
- 	intel_dp->lttpr_common_caps[DP_PHY_REPEATER_CNT -
-@@ -96,8 +101,7 @@ static bool intel_dp_read_lttpr_common_caps(struct intel_dp *intel_dp)
- 
- 	if (drm_dp_read_lttpr_common_caps(&intel_dp->aux,
- 					  intel_dp->lttpr_common_caps) < 0) {
--		memset(intel_dp->lttpr_common_caps, 0,
--		       sizeof(intel_dp->lttpr_common_caps));
-+		intel_dp_reset_lttpr_common_caps(intel_dp);
- 		return false;
- 	}
- 
-@@ -119,30 +123,49 @@ intel_dp_set_lttpr_transparent_mode(struct intel_dp *intel_dp, bool enable)
- }
- 
- /**
-- * intel_dp_lttpr_init - detect LTTPRs and init the LTTPR link training mode
-+ * intel_dp_init_lttpr_and_dprx_caps - detect LTTPR and DPRX caps, init the LTTPR link training mode
-  * @intel_dp: Intel DP struct
-  *
-- * Read the LTTPR common capabilities, switch to non-transparent link training
-- * mode if any is detected and read the PHY capabilities for all detected
-- * LTTPRs. In case of an LTTPR detection error or if the number of
-+ * Read the LTTPR common and DPRX capabilities and switch to non-transparent
-+ * link training mode if any is detected and read the PHY capabilities for all
-+ * detected LTTPRs. In case of an LTTPR detection error or if the number of
-  * LTTPRs is more than is supported (8), fall back to the no-LTTPR,
-  * transparent mode link training mode.
-  *
-  * Returns:
-- *   >0  if LTTPRs were detected and the non-transparent LT mode was set
-+ *   >0  if LTTPRs were detected and the non-transparent LT mode was set. The
-+ *       DPRX capabilities are read out.
-  *    0  if no LTTPRs or more than 8 LTTPRs were detected or in case of a
-- *       detection failure and the transparent LT mode was set
-+ *       detection failure and the transparent LT mode was set. The DPRX
-+ *       capabilities are read out.
-+ *   <0  Reading out the DPRX capabilities failed.
-  */
--int intel_dp_lttpr_init(struct intel_dp *intel_dp)
-+int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
- {
- 	int lttpr_count;
- 	bool ret;
- 	int i;
- 
- 	ret = intel_dp_read_lttpr_common_caps(intel_dp);
++static struct vblank_workqueue *vblank_create_workqueue(struct amdgpu_device *adev, struct dc *dc)
++{
 +
-+	/* The DPTX shall read the DPRX caps after LTTPR detection. */
-+	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd)) {
-+		intel_dp_reset_lttpr_common_caps(intel_dp);
-+		return -EIO;
++	int max_caps = dc->caps.max_links;
++	struct vblank_workqueue *vblank_work;
++	int i = 0;
++
++	vblank_work = kcalloc(max_caps, sizeof(*vblank_work), GFP_KERNEL);
++	if (ZERO_OR_NULL_PTR(vblank_work)) {
++		kfree(vblank_work);
++		return NULL;
 +	}
+ 
++	for (i = 0; i < max_caps; i++)
++		INIT_WORK(&vblank_work[i].mall_work, event_mall_stutter);
 +
- 	if (!ret)
++	return vblank_work;
++}
++#endif
+ static int amdgpu_dm_init(struct amdgpu_device *adev)
+ {
+ 	struct dc_init_data init_data;
+@@ -958,6 +1000,9 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
+ 
+ 	mutex_init(&adev->dm.dc_lock);
+ 	mutex_init(&adev->dm.audio_lock);
++#if defined(CONFIG_DRM_AMD_DC_DCN)
++	spin_lock_init(&adev->dm.vblank_lock);
++#endif
+ 
+ 	if(amdgpu_dm_irq_init(adev)) {
+ 		DRM_ERROR("amdgpu: failed to initialize DM IRQ support.\n");
+@@ -1072,6 +1117,17 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
+ 
+ 	amdgpu_dm_init_color_mod();
+ 
++#if defined(CONFIG_DRM_AMD_DC_DCN)
++	if (adev->dm.dc->caps.max_links > 0) {
++		adev->dm.vblank_workqueue = vblank_create_workqueue(adev, adev->dm.dc);
++
++		if (!adev->dm.vblank_workqueue)
++			DRM_ERROR("amdgpu: failed to initialize vblank_workqueue.\n");
++		else
++			DRM_DEBUG_DRIVER("amdgpu: vblank_workqueue init done %p.\n", adev->dm.vblank_workqueue);
++	}
++#endif
++
+ #ifdef CONFIG_DRM_AMD_DC_HDCP
+ 	if (adev->dm.dc->caps.max_links > 0 && adev->asic_type >= CHIP_RAVEN) {
+ 		adev->dm.hdcp_workqueue = hdcp_create_workqueue(adev, &init_params.cp_psp, adev->dm.dc);
+@@ -5376,7 +5432,10 @@ static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
+ 	struct amdgpu_crtc *acrtc = to_amdgpu_crtc(crtc);
+ 	struct amdgpu_device *adev = drm_to_adev(crtc->dev);
+ 	struct dm_crtc_state *acrtc_state = to_dm_crtc_state(crtc->state);
++#if defined(CONFIG_DRM_AMD_DC_DCN)
+ 	struct amdgpu_display_manager *dm = &adev->dm;
++	unsigned long flags;
++#endif
+ 	int rc = 0;
+ 
+ 	if (enable) {
+@@ -5399,22 +5458,15 @@ static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
+ 	if (amdgpu_in_reset(adev))
  		return 0;
  
-+	/*
-+	 * The 0xF0000-0xF02FF range is only valid if the DPCD revision is
-+	 * at least 1.4.
-+	 */
-+	if (intel_dp->dpcd[DP_DPCD_REV] < 0x14) {
-+		intel_dp_reset_lttpr_common_caps(intel_dp);
-+		return 0;
-+	}
-+
- 	lttpr_count = drm_dp_lttpr_count(intel_dp->lttpr_common_caps);
- 	/*
- 	 * Prevent setting LTTPR transparent mode explicitly if no LTTPRs are
-@@ -182,7 +205,7 @@ int intel_dp_lttpr_init(struct intel_dp *intel_dp)
+-	mutex_lock(&dm->dc_lock);
+-
+-	if (enable)
+-		dm->active_vblank_irq_count++;
+-	else
+-		dm->active_vblank_irq_count--;
+-
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
+-	dc_allow_idle_optimizations(
+-		adev->dm.dc, dm->active_vblank_irq_count == 0 ? true : false);
+-
+-	DRM_DEBUG_DRIVER("Allow idle optimizations (MALL): %d\n", dm->active_vblank_irq_count == 0);
++	spin_lock_irqsave(&dm->vblank_lock, flags);
++	dm->vblank_workqueue->dm = dm;
++	dm->vblank_workqueue->otg_inst = acrtc->otg_inst;
++	dm->vblank_workqueue->enable = enable;
++	spin_unlock_irqrestore(&dm->vblank_lock, flags);
++	schedule_work(&dm->vblank_workqueue->mall_work);
+ #endif
  
- 	return lttpr_count;
+-	mutex_unlock(&dm->dc_lock);
+-
+ 	return 0;
  }
--EXPORT_SYMBOL(intel_dp_lttpr_init);
-+EXPORT_SYMBOL(intel_dp_init_lttpr_and_dprx_caps);
  
- static u8 dp_voltage_max(u8 preemph)
- {
-@@ -817,7 +840,10 @@ void intel_dp_start_link_train(struct intel_dp *intel_dp,
- 	 * TODO: Reiniting LTTPRs here won't be needed once proper connector
- 	 * HW state readout is added.
- 	 */
--	int lttpr_count = intel_dp_lttpr_init(intel_dp);
-+	int lttpr_count = intel_dp_init_lttpr_and_dprx_caps(intel_dp);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
+index 0bb974ca89ed..bbf68cb6cfec 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
+@@ -92,6 +92,20 @@ struct dm_compressor_info {
+ 	uint64_t gpu_addr;
+ };
+ 
++/**
++ * struct vblank_workqueue - Works to be executed in a separate thread during vblank
++ * @mall_work: work for mall stutter
++ * @dm: amdgpu display manager device
++ * @otg_inst: otg instance of which vblank is being set
++ * @enable: true if enable vblank
++ */
++struct vblank_workqueue {
++	struct work_struct mall_work;
++	struct amdgpu_display_manager *dm;
++	int otg_inst;
++	bool enable;
++};
 +
-+	if (lttpr_count < 0)
-+		return;
+ /**
+  * struct amdgpu_dm_backlight_caps - Information about backlight
+  *
+@@ -243,6 +257,15 @@ struct amdgpu_display_manager {
+ 	 */
+ 	struct mutex audio_lock;
  
- 	if (!intel_dp_link_train_all_phys(intel_dp, crtc_state, lttpr_count))
- 		intel_dp_schedule_fallback_link_training(intel_dp, crtc_state);
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.h b/drivers/gpu/drm/i915/display/intel_dp_link_training.h
-index 6a1f76bd8c75..9cb7c28027f0 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_link_training.h
-+++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.h
-@@ -11,7 +11,7 @@
- struct intel_crtc_state;
- struct intel_dp;
++	/**
++	 * @vblank_work_lock:
++	 *
++	 * Guards access to deferred vblank work state.
++	 */
++#if defined(CONFIG_DRM_AMD_DC_DCN)
++	spinlock_t vblank_lock;
++#endif
++
+ 	/**
+ 	 * @audio_component:
+ 	 *
+@@ -321,6 +344,10 @@ struct amdgpu_display_manager {
+ 	struct hdcp_workqueue *hdcp_workqueue;
+ #endif
  
--int intel_dp_lttpr_init(struct intel_dp *intel_dp);
-+int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp);
++#if defined(CONFIG_DRM_AMD_DC_DCN)
++	struct vblank_workqueue *vblank_workqueue;
++#endif
++
+ 	struct drm_atomic_state *cached_state;
+ 	struct dc_state *cached_dc_state;
  
- void intel_dp_get_adjust_train(struct intel_dp *intel_dp,
- 			       const struct intel_crtc_state *crtc_state,
 
