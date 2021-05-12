@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73A6637C7BA
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D439B37C80C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236842AbhELQCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:02:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38260 "EHLO mail.kernel.org"
+        id S238146AbhELQEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:04:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238117AbhELP5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:57:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1BD161944;
-        Wed, 12 May 2021 15:30:16 +0000 (UTC)
+        id S235247AbhELP7W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:59:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C902661979;
+        Wed, 12 May 2021 15:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833417;
-        bh=sZcAhAEkTTt44ceJvK2GZ5qhmKc9YHW7TJDygexDdDs=;
+        s=korg; t=1620833528;
+        bh=FlV0apPUCGhhOmavjoa/Fx7dfZy8Fp8RRC8TfT9sIh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sw9npwiQxs49/zxa6XqP/kYpx8gLm8XUlQxSNVpP0zbYnFTAU/9R2+y3CrpzQUbfZ
-         jUW5Mx1+g/g4YYravcvKbUtADbA/OrJ/LkdW6boYFC5MBt2KN7OegXkg1vaDF63jM/
-         3jLxWeYNgK6JB4+Af7i+pUnTEHPa3CmZnZD1YNvw=
+        b=mUPkDf/T51asJ/PP4LaF/gixprSaPZHPX/cpuzzttXAMQNPV9Y5zVwG6Gw0j6IH+o
+         zEHMkpziTy9QOG4CN5dM+w7G782LqGz/QxNTopqYl1fqtjUvcG+csUZx3jClVwmMzl
+         r455t6L9qZZ18jpgOTnRHI019YaamWLhfIF9LHmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 140/601] arm64: dts: renesas: Add mmc aliases into board dts files
-Date:   Wed, 12 May 2021 16:43:37 +0200
-Message-Id: <20210512144832.437130359@linuxfoundation.org>
+Subject: [PATCH 5.11 141/601] bus: ti-sysc: Fix initializing module_pa for modules without sysc register
+Date:   Wed, 12 May 2021 16:43:38 +0200
+Message-Id: <20210512144832.469272873@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -41,133 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit d765a4f302cc046ca23453ba990d21120ceadbbd ]
+[ Upstream commit 7bad5af826aba00487fed9a3300d3f43f0cba11b ]
 
-After the commit 7320915c8861 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS
-for drivers that existed in v4.14"), the order of /dev/mmcblkN
-was not fixed in some SoCs which have multiple sdhi controllers.
-So, we were hard to use an sdhi device as rootfs by using
-the kernel parameter like "root=/dev/mmcblkNpM".
+We have interconnect target modules with no known registers using only
+clocks and resets, but we still want to detect them based on the module
+IO range. So let's call sysc_parse_and_check_child_range() earlier so we
+have module_pa properly initialized.
 
-According to the discussion on a mainling list [1], we can add
-mmc aliases to fix the issue. So, add such aliases into Renesas
-arm64 board dts files. Notes that mmc0 is an eMMC channel if
-available.
-
-[1]
-https://lore.kernel.org/linux-arm-kernel/CAPDyKFptyEQNJu8cqzMt2WRFZcwEdjDiytMBp96nkoZyprTgmA@mail.gmail.com/
-
-Fixes: 7320915c8861 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for drivers that existed in v4.14")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1614596786-22326-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 2928135c93f8 ("bus: ti-sysc: Support modules without control registers")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/hihope-common.dtsi            | 3 +++
- arch/arm64/boot/dts/renesas/r8a774a1-beacon-rzg2m-kit.dts | 3 +++
- arch/arm64/boot/dts/renesas/r8a774c0-cat874.dts           | 2 ++
- arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts            | 3 +++
- arch/arm64/boot/dts/renesas/salvator-common.dtsi          | 3 +++
- arch/arm64/boot/dts/renesas/ulcb-kf.dtsi                  | 1 +
- arch/arm64/boot/dts/renesas/ulcb.dtsi                     | 2 ++
- 7 files changed, 17 insertions(+)
+ drivers/bus/ti-sysc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/hihope-common.dtsi b/arch/arm64/boot/dts/renesas/hihope-common.dtsi
-index 2eda9f66ae81..e8bf6f0c4c40 100644
---- a/arch/arm64/boot/dts/renesas/hihope-common.dtsi
-+++ b/arch/arm64/boot/dts/renesas/hihope-common.dtsi
-@@ -12,6 +12,9 @@
- 	aliases {
- 		serial0 = &scif2;
- 		serial1 = &hscif0;
-+		mmc0 = &sdhi3;
-+		mmc1 = &sdhi0;
-+		mmc2 = &sdhi2;
- 	};
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 9e535336689f..68145e326eb9 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -901,9 +901,6 @@ static int sysc_map_and_check_registers(struct sysc *ddata)
+ 	struct device_node *np = ddata->dev->of_node;
+ 	int error;
  
- 	chosen {
-diff --git a/arch/arm64/boot/dts/renesas/r8a774a1-beacon-rzg2m-kit.dts b/arch/arm64/boot/dts/renesas/r8a774a1-beacon-rzg2m-kit.dts
-index 2c5b057c30c6..ad26f5bf0648 100644
---- a/arch/arm64/boot/dts/renesas/r8a774a1-beacon-rzg2m-kit.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a774a1-beacon-rzg2m-kit.dts
-@@ -21,6 +21,9 @@
- 		serial4 = &hscif2;
- 		serial5 = &scif5;
- 		ethernet0 = &avb;
-+		mmc0 = &sdhi3;
-+		mmc1 = &sdhi0;
-+		mmc2 = &sdhi2;
- 	};
+-	if (!of_get_property(np, "reg", NULL))
+-		return 0;
+-
+ 	error = sysc_parse_and_check_child_range(ddata);
+ 	if (error)
+ 		return error;
+@@ -914,6 +911,9 @@ static int sysc_map_and_check_registers(struct sysc *ddata)
  
- 	chosen {
-diff --git a/arch/arm64/boot/dts/renesas/r8a774c0-cat874.dts b/arch/arm64/boot/dts/renesas/r8a774c0-cat874.dts
-index ea87cb5a459c..33257c6440b2 100644
---- a/arch/arm64/boot/dts/renesas/r8a774c0-cat874.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a774c0-cat874.dts
-@@ -17,6 +17,8 @@
- 	aliases {
- 		serial0 = &scif2;
- 		serial1 = &hscif2;
-+		mmc0 = &sdhi0;
-+		mmc1 = &sdhi3;
- 	};
+ 	sysc_check_children(ddata);
  
- 	chosen {
-diff --git a/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts b/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts
-index e0ccca2222d2..b9e3b6762ff4 100644
---- a/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts
-@@ -16,6 +16,9 @@
- 	aliases {
- 		serial0 = &scif2;
- 		ethernet0 = &avb;
-+		mmc0 = &sdhi3;
-+		mmc1 = &sdhi0;
-+		mmc2 = &sdhi1;
- 	};
- 
- 	chosen {
-diff --git a/arch/arm64/boot/dts/renesas/salvator-common.dtsi b/arch/arm64/boot/dts/renesas/salvator-common.dtsi
-index 6c643ed74fc5..ee82fcb7192d 100644
---- a/arch/arm64/boot/dts/renesas/salvator-common.dtsi
-+++ b/arch/arm64/boot/dts/renesas/salvator-common.dtsi
-@@ -36,6 +36,9 @@
- 		serial0 = &scif2;
- 		serial1 = &hscif1;
- 		ethernet0 = &avb;
-+		mmc0 = &sdhi2;
-+		mmc1 = &sdhi0;
-+		mmc2 = &sdhi3;
- 	};
- 
- 	chosen {
-diff --git a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-index e9ed2597f1c2..61bd4df09df0 100644
---- a/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-+++ b/arch/arm64/boot/dts/renesas/ulcb-kf.dtsi
-@@ -16,6 +16,7 @@
- 	aliases {
- 		serial1 = &hscif0;
- 		serial2 = &scif1;
-+		mmc2 = &sdhi3;
- 	};
- 
- 	clksndsel: clksndsel {
-diff --git a/arch/arm64/boot/dts/renesas/ulcb.dtsi b/arch/arm64/boot/dts/renesas/ulcb.dtsi
-index 8f8d7371d8e2..e69e136d767a 100644
---- a/arch/arm64/boot/dts/renesas/ulcb.dtsi
-+++ b/arch/arm64/boot/dts/renesas/ulcb.dtsi
-@@ -23,6 +23,8 @@
- 	aliases {
- 		serial0 = &scif2;
- 		ethernet0 = &avb;
-+		mmc0 = &sdhi2;
-+		mmc1 = &sdhi0;
- 	};
- 
- 	chosen {
++	if (!of_get_property(np, "reg", NULL))
++		return 0;
++
+ 	error = sysc_parse_registers(ddata);
+ 	if (error)
+ 		return error;
 -- 
 2.30.2
 
