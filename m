@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A199637D251
+	by mail.lfdr.de (Postfix) with ESMTP id 58EA637D250
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241566AbhELSIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:08:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50552 "EHLO mail.kernel.org"
+        id S241553AbhELSIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352174AbhELSCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:02:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24C0461104;
-        Wed, 12 May 2021 18:01:33 +0000 (UTC)
+        id S1352177AbhELSCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:02:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C21DB610A0;
+        Wed, 12 May 2021 18:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842494;
-        bh=m2noJKqKeW0U5wmwK56a/Dvf7G3056Cma/3oi2F6q9M=;
+        s=k20201202; t=1620842495;
+        bh=XjNwv2Xw4I05Tn+u7g5M5/v9oyFzRCtsszzdvESb0/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmlEYtWjD4JYuwCjXbjV56uxfdvJjxyHrYcNIB3xb4T7g2IHTz0WgEyMVWUq6CWZ0
-         Z0GmcU5BcRFw0Mh7LxMX8n/iXgkDWLBGDR6CG1JxRzK2c2sb698VOo6VTGZtNGvEE8
-         9FLQlwss9EGfEUkX9Pp8Dv9FJUE2H+f5yqh4ITlET4OBsDGcnvGLh3SH9wSV2t84M4
-         qW7BWoHEmG8dNqDEswSN3lccuf7NU7nxyvJriPlVKmLd4O+pxMIH2gQGX1EkCwOyAT
-         UamYnjblCxKQkO8chjAqh1TjF++u46OeOOHBJaqCsmBB4VoDdaYhsS02X4SovjTGGb
-         F/XONOrW7M16w==
+        b=MkTVOvonF5PytTBfwWRhutWVPgumCx95WiYPBXjwGthmBPV4TdWlzlZUw7zI5f1Zi
+         M0RC7muyuwnugXoKTl8HCUT3c1ZJCrAVRyEajXAJf30ba1uk2QVa9Sq9mGX+aWreX2
+         Hs9RYNayHNq+Sjhz3yrArmst+ngOKUU2L/9PGS/7fBlr6pFBpL7pzp5xWEj5UJO8Hy
+         +tD5kAGdSjDf72c6/WIVbld3+0drLyQfaULYD7uBYDHHKhm9KGOIYXdKq0s/+wN2D0
+         hjYmeXYiROTeuQ05cBVbmpX7eEqNs3NtsL24vacBAYUJD53ADF7VcXf+GCZ5LEdE8k
+         eCpIUF2f4bhjA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-riscv@lists.infradead.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.12 20/37] scripts/recordmcount.pl: Fix RISC-V regex for clang
-Date:   Wed, 12 May 2021 14:00:47 -0400
-Message-Id: <20210512180104.664121-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 21/37] riscv: Workaround mcount name prior to clang-13
+Date:   Wed, 12 May 2021 14:00:48 -0400
+Message-Id: <20210512180104.664121-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210512180104.664121-1-sashal@kernel.org>
 References: <20210512180104.664121-1-sashal@kernel.org>
@@ -46,36 +46,116 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 2f095504f4b9cf75856d6a9cf90299cf75aa46c5 ]
+[ Upstream commit 7ce04771503074a7de7f539cc43f5e1b385cb99b ]
 
-Clang can generate R_RISCV_CALL_PLT relocations to _mcount:
+Prior to clang 13.0.0, the RISC-V name for the mcount symbol was
+"mcount", which differs from the GCC version of "_mcount", which results
+in the following errors:
 
-$ llvm-objdump -dr build/riscv/init/main.o | rg mcount
-                000000000000000e:  R_RISCV_CALL_PLT     _mcount
-                000000000000004e:  R_RISCV_CALL_PLT     _mcount
+riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_level':
+main.c:(.text+0xe): undefined reference to `mcount'
+riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_start':
+main.c:(.text+0x4e): undefined reference to `mcount'
+riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_finish':
+main.c:(.text+0x92): undefined reference to `mcount'
+riscv64-linux-gnu-ld: init/main.o: in function `.LBB32_28':
+main.c:(.text+0x30c): undefined reference to `mcount'
+riscv64-linux-gnu-ld: init/main.o: in function `free_initmem':
+main.c:(.text+0x54c): undefined reference to `mcount'
 
-After this, the __start_mcount_loc section is properly generated and
-function tracing still works.
+This has been corrected in https://reviews.llvm.org/D98881 but the
+minimum supported clang version is 10.0.1. To avoid build errors and to
+gain a working function tracer, adjust the name of the mcount symbol for
+older versions of clang in mount.S and recordmcount.pl.
 
 Link: https://github.com/ClangBuiltLinux/linux/issues/1331
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/recordmcount.pl | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/include/asm/ftrace.h | 14 ++++++++++++--
+ arch/riscv/kernel/mcount.S      | 10 +++++-----
+ scripts/recordmcount.pl         |  2 +-
+ 3 files changed, 18 insertions(+), 8 deletions(-)
 
+diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
+index 845002cc2e57..04dad3380041 100644
+--- a/arch/riscv/include/asm/ftrace.h
++++ b/arch/riscv/include/asm/ftrace.h
+@@ -13,9 +13,19 @@
+ #endif
+ #define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
+ 
++/*
++ * Clang prior to 13 had "mcount" instead of "_mcount":
++ * https://reviews.llvm.org/D98881
++ */
++#if defined(CONFIG_CC_IS_GCC) || CONFIG_CLANG_VERSION >= 130000
++#define MCOUNT_NAME _mcount
++#else
++#define MCOUNT_NAME mcount
++#endif
++
+ #define ARCH_SUPPORTS_FTRACE_OPS 1
+ #ifndef __ASSEMBLY__
+-void _mcount(void);
++void MCOUNT_NAME(void);
+ static inline unsigned long ftrace_call_adjust(unsigned long addr)
+ {
+ 	return addr;
+@@ -36,7 +46,7 @@ struct dyn_arch_ftrace {
+  * both auipc and jalr at the same time.
+  */
+ 
+-#define MCOUNT_ADDR		((unsigned long)_mcount)
++#define MCOUNT_ADDR		((unsigned long)MCOUNT_NAME)
+ #define JALR_SIGN_MASK		(0x00000800)
+ #define JALR_OFFSET_MASK	(0x00000fff)
+ #define AUIPC_OFFSET_MASK	(0xfffff000)
+diff --git a/arch/riscv/kernel/mcount.S b/arch/riscv/kernel/mcount.S
+index 8a5593ff9ff3..6d462681c9c0 100644
+--- a/arch/riscv/kernel/mcount.S
++++ b/arch/riscv/kernel/mcount.S
+@@ -47,8 +47,8 @@
+ 
+ ENTRY(ftrace_stub)
+ #ifdef CONFIG_DYNAMIC_FTRACE
+-       .global _mcount
+-       .set    _mcount, ftrace_stub
++       .global MCOUNT_NAME
++       .set    MCOUNT_NAME, ftrace_stub
+ #endif
+ 	ret
+ ENDPROC(ftrace_stub)
+@@ -78,7 +78,7 @@ ENDPROC(return_to_handler)
+ #endif
+ 
+ #ifndef CONFIG_DYNAMIC_FTRACE
+-ENTRY(_mcount)
++ENTRY(MCOUNT_NAME)
+ 	la	t4, ftrace_stub
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+ 	la	t0, ftrace_graph_return
+@@ -124,6 +124,6 @@ do_trace:
+ 	jalr	t5
+ 	RESTORE_ABI_STATE
+ 	ret
+-ENDPROC(_mcount)
++ENDPROC(MCOUNT_NAME)
+ #endif
+-EXPORT_SYMBOL(_mcount)
++EXPORT_SYMBOL(MCOUNT_NAME)
 diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
-index 867860ea57da..a36df04cfa09 100755
+index a36df04cfa09..7b83a1aaec98 100755
 --- a/scripts/recordmcount.pl
 +++ b/scripts/recordmcount.pl
 @@ -392,7 +392,7 @@ if ($arch eq "x86_64") {
      $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s_mcount\$";
  } elsif ($arch eq "riscv") {
      $function_regex = "^([0-9a-fA-F]+)\\s+<([^.0-9][0-9a-zA-Z_\\.]+)>:";
--    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL\\s_mcount\$";
-+    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_mcount\$";
+-    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_mcount\$";
++    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_?mcount\$";
      $type = ".quad";
      $alignment = 2;
  } elsif ($arch eq "nds32") {
