@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 567AA37CC38
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD8737CC6D
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:05:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237075AbhELQn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:43:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57040 "EHLO mail.kernel.org"
+        id S238825AbhELQpC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:45:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242901AbhELQgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:36:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A2CF61E10;
-        Wed, 12 May 2021 16:00:10 +0000 (UTC)
+        id S243032AbhELQgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:36:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 089B761E29;
+        Wed, 12 May 2021 16:00:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835211;
-        bh=ToGWAJoKrX6GrEGvdI8sRmt4yW3Bej92l4CJnTLyK88=;
+        s=korg; t=1620835231;
+        bh=MVFaAo/NS3ForVKeb4f440SGh3vpacOwrE40HKLW2eM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFb2O+0cKg/5TloE5a4FeSrmGS5DAzw2CaRHb3JOxovbN/5i/dk46ykaar5XYL88v
-         LEvjeCS2zYpKXsk6G3QvHigZzgP7LqsfodsLeNfxrOLxjLVN4MLh2XEILBzgf+qR2A
-         mpfzloNBhLJM8ngJE6ZlqADJuyHhlwXN6E7fUOrA=
+        b=val1Bt09yTVHE1B8ozCviBY4TKp8QnfL8ko4n5CTSNieCAaJ3iv+/FJF4FJkDPbMR
+         MNmP8bVFCYbgk8OMfmwEjTKb5ZW2XvsK6oBlsRLMpxWJpH7Z1h0sKrLBSe1AI35TiG
+         Hq0hYophDGLKTh2GnFqWPKWalKNi8EE/XO0mlD0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 225/677] fotg210-udc: Mask GRP2 interrupts we dont handle
-Date:   Wed, 12 May 2021 16:44:31 +0200
-Message-Id: <20210512144844.714120294@linuxfoundation.org>
+Subject: [PATCH 5.12 226/677] fotg210-udc: Dont DMA more than the buffer can take
+Date:   Wed, 12 May 2021 16:44:32 +0200
+Message-Id: <20210512144844.746831994@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -41,38 +41,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fabian Vogt <fabian@ritter-vogt.de>
 
-[ Upstream commit 9aee3a23d6455200702f3a57e731fa11e8408667 ]
+[ Upstream commit 3e7c2510bdfe89a9ec223dd7acd6bfc8bb1cbeb6 ]
 
-Currently it leaves unhandled interrupts unmasked, but those are never
-acked. In the case of a "device idle" interrupt, this leads to an
-effectively frozen system until plugging it in.
+Before this, it wrote as much as available into the buffer, even if it
+didn't fit.
 
 Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
 Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
-Link: https://lore.kernel.org/r/20210324141115.9384-5-fabian@ritter-vogt.de
+Link: https://lore.kernel.org/r/20210324141115.9384-7-fabian@ritter-vogt.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/gadget/udc/fotg210-udc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index a3ad93bfd256..bbcc92376307 100644
+index bbcc92376307..9925d7ac9138 100644
 --- a/drivers/usb/gadget/udc/fotg210-udc.c
 +++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -1026,6 +1026,12 @@ static void fotg210_init(struct fotg210_udc *fotg210)
- 	value &= ~DMCR_GLINT_EN;
- 	iowrite32(value, fotg210->reg + FOTG210_DMCR);
- 
-+	/* enable only grp2 irqs we handle */
-+	iowrite32(~(DISGR2_DMA_ERROR | DISGR2_RX0BYTE_INT | DISGR2_TX0BYTE_INT
-+		    | DISGR2_ISO_SEQ_ABORT_INT | DISGR2_ISO_SEQ_ERR_INT
-+		    | DISGR2_RESM_INT | DISGR2_SUSP_INT | DISGR2_USBRST_INT),
-+		  fotg210->reg + FOTG210_DMISGR2);
-+
- 	/* disable all fifo interrupt */
- 	iowrite32(~(u32)0, fotg210->reg + FOTG210_DMISGR1);
- 
+@@ -338,8 +338,9 @@ static void fotg210_start_dma(struct fotg210_ep *ep,
+ 		} else {
+ 			buffer = req->req.buf + req->req.actual;
+ 			length = ioread32(ep->fotg210->reg +
+-					FOTG210_FIBCR(ep->epnum - 1));
+-			length &= FIBCR_BCFX;
++					FOTG210_FIBCR(ep->epnum - 1)) & FIBCR_BCFX;
++			if (length > req->req.length - req->req.actual)
++				length = req->req.length - req->req.actual;
+ 		}
+ 	} else {
+ 		buffer = req->req.buf + req->req.actual;
 -- 
 2.30.2
 
