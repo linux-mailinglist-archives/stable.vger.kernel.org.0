@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F101A37CC2B
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 451F037CC2C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:03:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233617AbhELQnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:43:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54570 "EHLO mail.kernel.org"
+        id S234922AbhELQnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242749AbhELQfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:35:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45A9061E03;
-        Wed, 12 May 2021 15:59:45 +0000 (UTC)
+        id S242804AbhELQfy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:35:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEEF561E05;
+        Wed, 12 May 2021 15:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835185;
-        bh=HqFDUzOklbgDX99UW3CBa/QeqsjsalZmuMTAG8kXo3Y=;
+        s=korg; t=1620835188;
+        bh=DUMigSTj1M6W1K0bufSsPZBsq6EZK4CmLHWkkL3TJx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpsaE7rw1oBHV0KSfRU08vXru3IyoHNFrsqQhwL3VrOxz3I2bbslsgX09MRDt5llz
-         /LSWCUqpKirbsFcM/soTrjyPPbCjbZGSIzaUl0OUYKu32w4PB5H8WjVwzWYj463/2T
-         j5enC674UGy24DLKbf0t3/A4FvfDwOL0dF0fB6S8=
+        b=pbR2xLKvWxyx4vft5IiNuSQN7znWzg+VLB5JDJS6VM9tQL3JZVl7kN4//um+xcPHe
+         RVCngVESJNVYhBV3ZQH9BWltwSP9lOQTXb91AOEEUCrt1VsoIh4PCervkHQLVMaFPm
+         fzNHEgnzqoj/qY1uSY8m4CLqof+FBKUabYqKWPso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Wei Yongjun <weiyongjun1@huawei.com>,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 242/677] phy: ralink: phy-mt7621-pci: fix return value check in mt7621_pci_phy_probe()
-Date:   Wed, 12 May 2021 16:44:48 +0200
-Message-Id: <20210512144845.277433692@linuxfoundation.org>
+Subject: [PATCH 5.12 243/677] phy: ingenic: Fix a typo in ingenic_usb_phy_probe()
+Date:   Wed, 12 May 2021 16:44:49 +0200
+Message-Id: <20210512144845.310122923@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,38 +43,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit b976c987511e34a2e9b23545de912a121a9eded5 ]
+[ Upstream commit 446c200ee3e8f6faf189ef6f25a0f5bb294afae4 ]
 
-Fix the return value check which testing the wrong variable
-in mt7621_pci_phy_probe().
+Fix the return value check typo which testing the wrong variable
+in ingenic_usb_phy_probe().
 
-Fixes: d87da32372a0 ("phy: ralink: Add PHY driver for MT7621 PCIe PHY")
+Fixes: 31de313dfdcf ("PHY: Ingenic: Add USB PHY driver using generic PHY framework.")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Link: https://lore.kernel.org/r/20210305034931.3237558-1-weiyongjun1@huawei.com
+Acked-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20210305034933.3240914-1-weiyongjun1@huawei.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/ralink/phy-mt7621-pci.c | 4 ++--
+ drivers/phy/ingenic/phy-ingenic-usb.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/ralink/phy-mt7621-pci.c b/drivers/phy/ralink/phy-mt7621-pci.c
-index 84ee2b5c2228..753cb5bab930 100644
---- a/drivers/phy/ralink/phy-mt7621-pci.c
-+++ b/drivers/phy/ralink/phy-mt7621-pci.c
-@@ -319,9 +319,9 @@ static int mt7621_pci_phy_probe(struct platform_device *pdev)
- 		return PTR_ERR(phy->regmap);
- 
- 	phy->phy = devm_phy_create(dev, dev->of_node, &mt7621_pci_phy_ops);
--	if (IS_ERR(phy)) {
-+	if (IS_ERR(phy->phy)) {
- 		dev_err(dev, "failed to create phy\n");
--		return PTR_ERR(phy);
-+		return PTR_ERR(phy->phy);
+diff --git a/drivers/phy/ingenic/phy-ingenic-usb.c b/drivers/phy/ingenic/phy-ingenic-usb.c
+index ea127b177f46..28c28d816484 100644
+--- a/drivers/phy/ingenic/phy-ingenic-usb.c
++++ b/drivers/phy/ingenic/phy-ingenic-usb.c
+@@ -352,8 +352,8 @@ static int ingenic_usb_phy_probe(struct platform_device *pdev)
  	}
  
- 	phy_set_drvdata(phy->phy, phy);
+ 	priv->phy = devm_phy_create(dev, NULL, &ingenic_usb_phy_ops);
+-	if (IS_ERR(priv))
+-		return PTR_ERR(priv);
++	if (IS_ERR(priv->phy))
++		return PTR_ERR(priv->phy);
+ 
+ 	phy_set_drvdata(priv->phy, priv);
+ 
 -- 
 2.30.2
 
