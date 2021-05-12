@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA6C37CBEB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 911BF37CBEC
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239289AbhELQiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
+        id S237727AbhELQi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236654AbhELQ3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:29:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB50561370;
-        Wed, 12 May 2021 15:56:49 +0000 (UTC)
+        id S237140AbhELQ31 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:29:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51249613B9;
+        Wed, 12 May 2021 15:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620835010;
-        bh=diehOH9/TbX+BnOjnjp/l4Mth43I6I5l2S9B8DTzM5E=;
+        s=korg; t=1620835012;
+        bh=NPkTpse0RYdZzzpM7sb+L7hPGLeBZWwZG4GBL2+pFPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vbcRReyPcMpsqLcd0BzzOLRm43/KDmzj8ZSY444Cd4mP7uIH5Rlnl6xEvanmWyJ8U
-         AAS6FrylKD1+1KHmcEH0sixxabhaPpD8RCONTSo6IPKxBdLj3tkmrENMpqPlnW0Vxb
-         fMwNQvpBhrZ6nGXSRzklJ/pRCFT4nUHyFoq4KBmU=
+        b=WZPIuBAULydU4u336Asw8FrgDsJd2GbLVDLvdCuUlhtzDJh2rLVCjOfygfbsFmxEh
+         IZJ1vU63TFeqED0/Xeb0/50iIgx7E3mdij1iBLT4gcq5CSng5+a7h+zHZKwRsTm8LH
+         81aSXkxzlE6OnvRSXXTurpR+/SAJ4SpsQtucN7cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Badhri Jagan Sridharan <badhri@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 172/677] usb: typec: tcpm: Wait for vbus discharge to VSAFE0V before toggling
-Date:   Wed, 12 May 2021 16:43:38 +0200
-Message-Id: <20210512144842.953369943@linuxfoundation.org>
+Subject: [PATCH 5.12 173/677] usb: typec: tcpci: Check ROLE_CONTROL while interpreting CC_STATUS
+Date:   Wed, 12 May 2021 16:43:39 +0200
+Message-Id: <20210512144842.985572958@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -43,218 +43,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Badhri Jagan Sridharan <badhri@google.com>
 
-[ Upstream commit 3287f58bcba6c6fa6167624b443a668782fac26d ]
+[ Upstream commit 19c234a14eafca78e0bc14ffb8be3891096ce147 ]
 
-When vbus auto discharge is enabled, TCPM can sometimes be faster than
-the TCPC i.e. TCPM can go ahead and move the port to unattached state
-(involves disabling vbus auto discharge) before TCPC could effectively
-discharge vbus to VSAFE0V. This leaves vbus with residual charge and
-increases the decay time which prevents tsafe0v from being met.
-This change makes TCPM waits for a maximum of tSafe0V(max) for vbus
-to discharge to VSAFE0V before transitioning to unattached state
-and re-enable toggling. If vbus discharges to vsafe0v sooner, then,
-transition to unattached state
-happens right away.
+While interpreting CC_STATUS, ROLE_CONTROL has to be read to make
+sure that CC1/CC2 is not forced presenting Rp/Rd.
 
-Also, while in SNK_READY, when auto discharge is enabled, drive
-disconnect based on vbus turning off instead of Rp disappearing on
-CC pins. Rp disappearing on CC pins is almost instanteous compared
-to vbus decay.
+>From the TCPCI spec:
 
-Sink detach:
-[  541.703058] CC1: 3 -> 0, CC2: 0 -> 0 [state SNK_READY, polarity 0, disconnected]
-[  541.703331] Setting voltage/current limit 5000 mV 0 mA
-[  541.727235] VBUS on
-[  541.749650] VBUS off
-[  541.749653] pending state change SNK_READY -> SNK_UNATTACHED @ 650 ms [rev3 NONE_AMS]
-[  541.749944] VBUS VSAFE0V
-[  541.749945] state change SNK_READY -> SNK_UNATTACHED [rev3 NONE_AMS]
-[  541.750806] Disable vbus discharge ret:0
-[  541.907345] Start toggling
-[  541.922799] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0, disconnected]
+4.4.5.2 ROLE_CONTROL (Normative):
+The TCPM shall write B6 (DRP) = 0b and B3..0 (CC1/CC2) if it wishes
+to control the Rp/Rd directly instead of having the TCPC perform
+DRP toggling autonomously. When controlling Rp/Rd directly, the
+TCPM writes to B3..0 (CC1/CC2) each time it wishes to change the
+CC1/CC2 values. This control is used for TCPM-TCPC implementing
+Source or Sink only as well as when a connection has been detected
+via DRP toggling but the TCPM wishes to attempt Try.Src or Try.Snk.
 
-Source detach:
-[ 2555.310414] state change SRC_SEND_CAPABILITIES -> SRC_READY [rev3 POWER_NEGOTIATION]
-[ 2555.310675] AMS POWER_NEGOTIATION finished
-[ 2555.310679] cc:=3
-[ 2593.645886] CC1: 0 -> 0, CC2: 2 -> 0 [state SRC_READY, polarity 1, disconnected]
-[ 2593.645919] pending state change SRC_READY -> SNK_UNATTACHED @ 650 ms [rev3 NONE_AMS]
-[ 2593.648419] VBUS off
-[ 2593.648960] VBUS VSAFE0V
-[ 2593.648965] state change SRC_READY -> SNK_UNATTACHED [rev3 NONE_AMS]
-[ 2593.649962] Disable vbus discharge ret:0
-[ 2593.890322] Start toggling
-[ 2593.925663] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0,
+Table 4-22. CC_STATUS Register Definition:
+If (ROLE_CONTROL.CC1 = Rd) or ConnectResult=1)
+00b: SNK.Open (Below maximum vRa)
+01b: SNK.Default (Above minimum vRd-Connect)
+10b: SNK.Power1.5 (Above minimum vRd-Connect) Detects Rp-1.5A
+11b: SNK.Power3.0 (Above minimum vRd-Connect) Detects Rp-3.0A
 
-Fixes: f321a02caebd ("usb: typec: tcpm: Implement enabling Auto Discharge disconnect support")
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+If (ROLE_CONTROL.CC2=Rd) or (ConnectResult=1)
+00b: SNK.Open (Below maximum vRa)
+01b: SNK.Default (Above minimum vRd-Connect)
+10b: SNK.Power1.5 (Above minimum vRd-Connect) Detects Rp 1.5A
+11b: SNK.Power3.0 (Above minimum vRd-Connect) Detects Rp 3.0A
+
+Fixes: 74e656d6b0551 ("staging: typec: Type-C Port Controller Interface driver (tcpci)")
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Link: https://lore.kernel.org/r/20210225101104.1680697-1-badhri@google.com
+Link: https://lore.kernel.org/r/20210304070931.1947316-1-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c | 75 ++++++++++++++++++++++++++++++-----
- 1 file changed, 65 insertions(+), 10 deletions(-)
+ drivers/usb/typec/tcpm/tcpci.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index de214da4363e..b1040f00c2ba 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -456,6 +456,9 @@ struct tcpm_port {
- 	enum tcpm_ams next_ams;
- 	bool in_ams;
+diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
+index a27deb0b5f03..027afd7dfdce 100644
+--- a/drivers/usb/typec/tcpm/tcpci.c
++++ b/drivers/usb/typec/tcpm/tcpci.c
+@@ -24,6 +24,15 @@
+ #define	AUTO_DISCHARGE_PD_HEADROOM_MV		850
+ #define	AUTO_DISCHARGE_PPS_HEADROOM_MV		1250
  
-+	/* Auto vbus discharge status */
-+	bool auto_vbus_discharge_enabled;
++#define tcpc_presenting_cc1_rd(reg) \
++	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
++	 (((reg) & (TCPC_ROLE_CTRL_CC1_MASK << TCPC_ROLE_CTRL_CC1_SHIFT)) == \
++	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_CC1_SHIFT)))
++#define tcpc_presenting_cc2_rd(reg) \
++	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
++	 (((reg) & (TCPC_ROLE_CTRL_CC2_MASK << TCPC_ROLE_CTRL_CC2_SHIFT)) == \
++	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_CC2_SHIFT)))
 +
- #ifdef CONFIG_DEBUG_FS
- 	struct dentry *dentry;
- 	struct mutex logbuffer_lock;	/* log buffer access lock */
-@@ -525,6 +528,9 @@ static const char * const pd_rev[] = {
- 	(tcpm_port_is_sink(port) && \
- 	((port)->cc1 == TYPEC_CC_RP_3_0 || (port)->cc2 == TYPEC_CC_RP_3_0))
+ struct tcpci {
+ 	struct device *dev;
  
-+#define tcpm_wait_for_discharge(port) \
-+	(((port)->auto_vbus_discharge_enabled && !(port)->vbus_vsafe0v) ? PD_T_SAFE_0V : 0)
-+
- static enum tcpm_state tcpm_default_state(struct tcpm_port *port)
+@@ -178,19 +187,25 @@ static int tcpci_get_cc(struct tcpc_dev *tcpc,
+ 			enum typec_cc_status *cc1, enum typec_cc_status *cc2)
  {
- 	if (port->port_type == TYPEC_PORT_DRP) {
-@@ -3439,6 +3445,8 @@ static int tcpm_src_attach(struct tcpm_port *port)
- 	if (port->tcpc->enable_auto_vbus_discharge) {
- 		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, true);
- 		tcpm_log_force(port, "enable vbus discharge ret:%d", ret);
-+		if (!ret)
-+			port->auto_vbus_discharge_enabled = true;
- 	}
+ 	struct tcpci *tcpci = tcpc_to_tcpci(tcpc);
+-	unsigned int reg;
++	unsigned int reg, role_control;
+ 	int ret;
  
- 	ret = tcpm_set_roles(port, true, TYPEC_SOURCE, tcpm_data_role_for_source(port));
-@@ -3521,6 +3529,8 @@ static void tcpm_reset_port(struct tcpm_port *port)
- 	if (port->tcpc->enable_auto_vbus_discharge) {
- 		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, false);
- 		tcpm_log_force(port, "Disable vbus discharge ret:%d", ret);
-+		if (!ret)
-+			port->auto_vbus_discharge_enabled = false;
- 	}
- 	port->in_ams = false;
- 	port->ams = NONE_AMS;
-@@ -3593,6 +3603,8 @@ static int tcpm_snk_attach(struct tcpm_port *port)
- 		tcpm_set_auto_vbus_discharge_threshold(port, TYPEC_PWR_MODE_USB, false, VSAFE5V);
- 		ret = port->tcpc->enable_auto_vbus_discharge(port->tcpc, true);
- 		tcpm_log_force(port, "enable vbus discharge ret:%d", ret);
-+		if (!ret)
-+			port->auto_vbus_discharge_enabled = true;
- 	}
++	ret = regmap_read(tcpci->regmap, TCPC_ROLE_CTRL, &role_control);
++	if (ret < 0)
++		return ret;
++
+ 	ret = regmap_read(tcpci->regmap, TCPC_CC_STATUS, &reg);
+ 	if (ret < 0)
+ 		return ret;
  
- 	ret = tcpm_set_roles(port, true, TYPEC_SINK, tcpm_data_role_for_sink(port));
-@@ -4695,9 +4707,9 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
- 		if (tcpm_port_is_disconnected(port) ||
- 		    !tcpm_port_is_source(port)) {
- 			if (port->port_type == TYPEC_PORT_SRC)
--				tcpm_set_state(port, SRC_UNATTACHED, 0);
-+				tcpm_set_state(port, SRC_UNATTACHED, tcpm_wait_for_discharge(port));
- 			else
--				tcpm_set_state(port, SNK_UNATTACHED, 0);
-+				tcpm_set_state(port, SNK_UNATTACHED, tcpm_wait_for_discharge(port));
- 		}
- 		break;
- 	case SNK_UNATTACHED:
-@@ -4728,7 +4740,23 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
- 			tcpm_set_state(port, SNK_DEBOUNCED, 0);
- 		break;
- 	case SNK_READY:
--		if (tcpm_port_is_disconnected(port))
-+		/*
-+		 * EXIT condition is based primarily on vbus disconnect and CC is secondary.
-+		 * "A port that has entered into USB PD communications with the Source and
-+		 * has seen the CC voltage exceed vRd-USB may monitor the CC pin to detect
-+		 * cable disconnect in addition to monitoring VBUS.
-+		 *
-+		 * A port that is monitoring the CC voltage for disconnect (but is not in
-+		 * the process of a USB PD PR_Swap or USB PD FR_Swap) shall transition to
-+		 * Unattached.SNK within tSinkDisconnect after the CC voltage remains below
-+		 * vRd-USB for tPDDebounce."
-+		 *
-+		 * When set_auto_vbus_discharge_threshold is enabled, CC pins go
-+		 * away before vbus decays to disconnect threshold. Allow
-+		 * disconnect to be driven by vbus disconnect when auto vbus
-+		 * discharge is enabled.
-+		 */
-+		if (!port->auto_vbus_discharge_enabled && tcpm_port_is_disconnected(port))
- 			tcpm_set_state(port, unattached_state(port), 0);
- 		else if (!port->pd_capable &&
- 			 (cc1 != old_cc1 || cc2 != old_cc2))
-@@ -4827,9 +4855,13 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
- 		 * Ignore CC changes here.
- 		 */
- 		break;
--
- 	default:
--		if (tcpm_port_is_disconnected(port))
-+		/*
-+		 * While acting as sink and auto vbus discharge is enabled, Allow disconnect
-+		 * to be driven by vbus disconnect.
-+		 */
-+		if (tcpm_port_is_disconnected(port) && !(port->pwr_role == TYPEC_SINK &&
-+							 port->auto_vbus_discharge_enabled))
- 			tcpm_set_state(port, unattached_state(port), 0);
- 		break;
- 	}
-@@ -4993,8 +5025,16 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
- 	case SRC_TRANSITION_SUPPLY:
- 	case SRC_READY:
- 	case SRC_WAIT_NEW_CAPABILITIES:
--		/* Force to unattached state to re-initiate connection */
--		tcpm_set_state(port, SRC_UNATTACHED, 0);
-+		/*
-+		 * Force to unattached state to re-initiate connection.
-+		 * DRP port should move to Unattached.SNK instead of Unattached.SRC if
-+		 * sink removed. Although sink removal here is due to source's vbus collapse,
-+		 * treat it the same way for consistency.
-+		 */
-+		if (port->port_type == TYPEC_PORT_SRC)
-+			tcpm_set_state(port, SRC_UNATTACHED, tcpm_wait_for_discharge(port));
-+		else
-+			tcpm_set_state(port, SNK_UNATTACHED, tcpm_wait_for_discharge(port));
- 		break;
+ 	*cc1 = tcpci_to_typec_cc((reg >> TCPC_CC_STATUS_CC1_SHIFT) &
+ 				 TCPC_CC_STATUS_CC1_MASK,
+-				 reg & TCPC_CC_STATUS_TERM);
++				 reg & TCPC_CC_STATUS_TERM ||
++				 tcpc_presenting_cc1_rd(role_control));
+ 	*cc2 = tcpci_to_typec_cc((reg >> TCPC_CC_STATUS_CC2_SHIFT) &
+ 				 TCPC_CC_STATUS_CC2_MASK,
+-				 reg & TCPC_CC_STATUS_TERM);
++				 reg & TCPC_CC_STATUS_TERM ||
++				 tcpc_presenting_cc2_rd(role_control));
  
- 	case PORT_RESET:
-@@ -5013,9 +5053,8 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
- 		break;
- 
- 	default:
--		if (port->pwr_role == TYPEC_SINK &&
--		    port->attached)
--			tcpm_set_state(port, SNK_UNATTACHED, 0);
-+		if (port->pwr_role == TYPEC_SINK && port->attached)
-+			tcpm_set_state(port, SNK_UNATTACHED, tcpm_wait_for_discharge(port));
- 		break;
- 	}
- }
-@@ -5037,7 +5076,23 @@ static void _tcpm_pd_vbus_vsafe0v(struct tcpm_port *port)
- 			tcpm_set_state(port, tcpm_try_snk(port) ? SNK_TRY : SRC_ATTACHED,
- 				       PD_T_CC_DEBOUNCE);
- 		break;
-+	case SRC_STARTUP:
-+	case SRC_SEND_CAPABILITIES:
-+	case SRC_SEND_CAPABILITIES_TIMEOUT:
-+	case SRC_NEGOTIATE_CAPABILITIES:
-+	case SRC_TRANSITION_SUPPLY:
-+	case SRC_READY:
-+	case SRC_WAIT_NEW_CAPABILITIES:
-+		if (port->auto_vbus_discharge_enabled) {
-+			if (port->port_type == TYPEC_PORT_SRC)
-+				tcpm_set_state(port, SRC_UNATTACHED, 0);
-+			else
-+				tcpm_set_state(port, SNK_UNATTACHED, 0);
-+		}
-+		break;
- 	default:
-+		if (port->pwr_role == TYPEC_SINK && port->auto_vbus_discharge_enabled)
-+			tcpm_set_state(port, SNK_UNATTACHED, 0);
- 		break;
- 	}
+ 	return 0;
  }
 -- 
 2.30.2
