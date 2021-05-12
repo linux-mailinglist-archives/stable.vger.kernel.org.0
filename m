@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2491437CBE8
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9151E37CBD0
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 19:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239229AbhELQiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47298 "EHLO mail.kernel.org"
+        id S234420AbhELQiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:38:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236253AbhELQ22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236255AbhELQ22 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 12 May 2021 12:28:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D489261263;
-        Wed, 12 May 2021 15:56:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B994561288;
+        Wed, 12 May 2021 15:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834995;
-        bh=xlLUq19/W7mJfH+7izPsFzsIiqBv7Nf50kslBfS5AGw=;
+        s=korg; t=1620834998;
+        bh=PzUYWI56G6/K4dFyKLi2bpIntv096eTA9x9mskYXUT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdTWrb9nKxx/W0oWtgpHSKC+uBH6nStZvuDvFqnfxb3i4fPSJi/fftKL/iEKg5eDr
-         05paoiIE7auD1+Vbwy8dwNGSVjXNhxY1kZnp0dvmB5oV8JZx06huhkLzg4xODA8mtI
-         OicuWXa/O0Ek2W/xVHUIuUrFuMJsyz+vdKvBduFg=
+        b=SERFvT4uMzAg02fDP0EwPAZ2WOm3KeDe5bAH/g3IVNdU2YaqYNdAAJw3xabpk7Qbz
+         Cj+5eDuyKQZCmxyS51Du7S2qqbflKbrESjz0YEm6duPEwpfN1QQaU3lavEx610t808
+         weVljZ5N+RlsLgmiMJrjB+iqLRo0+RN4C01kycAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
+        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 166/677] serial: liteuart: fix return value check in liteuart_probe()
-Date:   Wed, 12 May 2021 16:43:32 +0200
-Message-Id: <20210512144842.762763232@linuxfoundation.org>
+Subject: [PATCH 5.12 167/677] serial: stm32: fix tx dma completion, release channel
+Date:   Wed, 12 May 2021 16:43:33 +0200
+Message-Id: <20210512144842.795044055@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -40,39 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit cebeddd6d0d9f839b9df2930b6a768b54913a763 ]
+[ Upstream commit fb4f2e04ac13e7c400e6b86afbbd314a5a2a7e8d ]
 
-In case of error, the function devm_platform_get_and_ioremap_resource()
-returns ERR_PTR() and never returns NULL. The NULL test in the return
-value check should be replaced with IS_ERR().
+This patch add a proper release of dma channels when completing dma tx.
 
-Fixes: 1da81e5562fa ("drivers/tty/serial: add LiteUART driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20210305034929.3234352-1-weiyongjun1@huawei.com
+Fixes: 3489187204eb ("serial: stm32: adding dma support")
+Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
+Link: https://lore.kernel.org/r/20210304162308.8984-9-erwan.leray@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/liteuart.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/liteuart.c b/drivers/tty/serial/liteuart.c
-index 64842f3539e1..0b06770642cb 100644
---- a/drivers/tty/serial/liteuart.c
-+++ b/drivers/tty/serial/liteuart.c
-@@ -270,8 +270,8 @@ static int liteuart_probe(struct platform_device *pdev)
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index a381ee52168a..74046ae3a412 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -292,6 +292,7 @@ static void stm32_usart_tx_dma_complete(void *arg)
+ 	struct stm32_port *stm32port = to_stm32_port(port);
+ 	const struct stm32_usart_offsets *ofs = &stm32port->info->ofs;
  
- 	/* get membase */
- 	port->membase = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
--	if (!port->membase)
--		return -ENXIO;
-+	if (IS_ERR(port->membase))
-+		return PTR_ERR(port->membase);
++	dmaengine_terminate_async(stm32port->tx_ch);
+ 	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
+ 	stm32port->tx_dma_busy = false;
  
- 	/* values not from device tree */
- 	port->dev = &pdev->dev;
 -- 
 2.30.2
 
