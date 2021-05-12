@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E9D37C666
+	by mail.lfdr.de (Postfix) with ESMTP id D663C37C667
 	for <lists+stable@lfdr.de>; Wed, 12 May 2021 17:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbhELPvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 11:51:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
+        id S232065AbhELPvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 11:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236340AbhELPpa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 11:45:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 690A761448;
-        Wed, 12 May 2021 15:23:16 +0000 (UTC)
+        id S236618AbhELPpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 11:45:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54EC86195B;
+        Wed, 12 May 2021 15:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620832996;
-        bh=noY43Ms3frC2zVlwj4jTXqQLcktGyY7QRDoL/59cmdA=;
+        s=korg; t=1620833001;
+        bh=33ODD0I24enfDgzrAF6996/yVOfNCM+RxRup5ieFN4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xME/fh0zGU6nXKp6YU9pu1pa4lI2oiLTmK6bbXZ40UZ4dMTt+E7z7eCcM1dzEhRot
-         X/q+SCn/ciLOMuWlgcIL6awNwKj+JlhltSjY2dBGy+yydAka/WgOFuaQtQuc6WVq/u
-         KLOGnpjSviIgH89XQudf6cf3nH88/Nxns/vdBQzM=
+        b=J2Em7w2D0PYQEUbPQA5lQ0T8A71XfpkRc4J+83AJxGLzbli9f4KaLHgN9izC7SwWN
+         Ec+wLhwQhmDXNoCjiHpaHoun0faTzTIwhOq5SafRL7V0wgKDuz1Cts+ofWwkkTPYat
+         DL0MqbzZAnwRNYYtpSkIpDL+Tb32FA6SEOTDxM80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Bernard Metzler <bmt@zurich.ihm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 507/530] bpf: Fix propagation of 32 bit unsigned bounds from 64 bit bounds
-Date:   Wed, 12 May 2021 16:50:17 +0200
-Message-Id: <20210512144836.425813399@linuxfoundation.org>
+Subject: [PATCH 5.10 508/530] RDMA/siw: Fix a use after free in siw_alloc_mr
+Date:   Wed, 12 May 2021 16:50:18 +0200
+Message-Id: <20210512144836.458620389@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
 References: <20210512144819.664462530@linuxfoundation.org>
@@ -41,103 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 10bf4e83167cc68595b85fd73bb91e8f2c086e36 ]
+[ Upstream commit 3093ee182f01689b89e9f8797b321603e5de4f63 ]
 
-Similarly as b02709587ea3 ("bpf: Fix propagation of 32-bit signed bounds
-from 64-bit bounds."), we also need to fix the propagation of 32 bit
-unsigned bounds from 64 bit counterparts. That is, really only set the
-u32_{min,max}_value when /both/ {umin,umax}_value safely fit in 32 bit
-space. For example, the register with a umin_value == 1 does /not/ imply
-that u32_min_value is also equal to 1, since umax_value could be much
-larger than 32 bit subregister can hold, and thus u32_min_value is in
-the interval [0,1] instead.
+Our code analyzer reported a UAF.
 
-Before fix, invalid tracking result of R2_w=inv1:
+In siw_alloc_mr(), it calls siw_mr_add_mem(mr,..). In the implementation of
+siw_mr_add_mem(), mem is assigned to mr->mem and then mem is freed via
+kfree(mem) if xa_alloc_cyclic() failed. Here, mr->mem still point to a
+freed object. After, the execution continue up to the err_out branch of
+siw_alloc_mr, and the freed mr->mem is used in siw_mr_drop_mem(mr).
 
-  [...]
-  5: R0_w=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0) R10=fp0
-  5: (35) if r2 >= 0x1 goto pc+1
-  [...] // goto path
-  7: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2=inv(id=0,umin_value=1) R10=fp0
-  7: (b6) if w2 <= 0x1 goto pc+1
-  [...] // goto path
-  9: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2=inv(id=0,smin_value=-9223372036854775807,smax_value=9223372032559808513,umin_value=1,umax_value=18446744069414584321,var_off=(0x1; 0xffffffff00000000),s32_min_value=1,s32_max_value=1,u32_max_value=1) R10=fp0
-  9: (bc) w2 = w2
-  10: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv1 R10=fp0
-  [...]
+My patch moves "mr->mem = mem" behind the if (xa_alloc_cyclic(..)<0) {}
+section, to avoid the uaf.
 
-After fix, correct tracking result of R2_w=inv(id=0,umax_value=1,var_off=(0x0; 0x1)):
-
-  [...]
-  5: R0_w=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0) R10=fp0
-  5: (35) if r2 >= 0x1 goto pc+1
-  [...] // goto path
-  7: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2=inv(id=0,umin_value=1) R10=fp0
-  7: (b6) if w2 <= 0x1 goto pc+1
-  [...] // goto path
-  9: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2=inv(id=0,smax_value=9223372032559808513,umax_value=18446744069414584321,var_off=(0x0; 0xffffffff00000001),s32_min_value=0,s32_max_value=1,u32_max_value=1) R10=fp0
-  9: (bc) w2 = w2
-  10: R0=inv1337 R1=ctx(id=0,off=0,imm=0) R2_w=inv(id=0,umax_value=1,var_off=(0x0; 0x1)) R10=fp0
-  [...]
-
-Thus, same issue as in b02709587ea3 holds for unsigned subregister tracking.
-Also, align __reg64_bound_u32() similarly to __reg64_bound_s32() as done in
-b02709587ea3 to make them uniform again.
-
-Fixes: 3f50f132d840 ("bpf: Verifier, do explicit ALU32 bounds tracking")
-Reported-by: Manfred Paul (@_manfp)
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 2251334dcac9 ("rdma/siw: application buffer management")
+Link: https://lore.kernel.org/r/20210426011647.3561-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Reviewed-by: Bernard Metzler <bmt@zurich.ihm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c                               | 8 +++-----
- tools/testing/selftests/bpf/verifier/array_access.c | 2 +-
- 2 files changed, 4 insertions(+), 6 deletions(-)
+ drivers/infiniband/sw/siw/siw_mem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index b6656d181c9e..dbde00ce60f0 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1303,9 +1303,7 @@ static bool __reg64_bound_s32(s64 a)
+diff --git a/drivers/infiniband/sw/siw/siw_mem.c b/drivers/infiniband/sw/siw/siw_mem.c
+index 34a910cf0edb..61c17db70d65 100644
+--- a/drivers/infiniband/sw/siw/siw_mem.c
++++ b/drivers/infiniband/sw/siw/siw_mem.c
+@@ -106,8 +106,6 @@ int siw_mr_add_mem(struct siw_mr *mr, struct ib_pd *pd, void *mem_obj,
+ 	mem->perms = rights & IWARP_ACCESS_MASK;
+ 	kref_init(&mem->ref);
  
- static bool __reg64_bound_u32(u64 a)
- {
--	if (a > U32_MIN && a < U32_MAX)
--		return true;
--	return false;
-+	return a > U32_MIN && a < U32_MAX;
- }
+-	mr->mem = mem;
+-
+ 	get_random_bytes(&next, 4);
+ 	next &= 0x00ffffff;
  
- static void __reg_combine_64_into_32(struct bpf_reg_state *reg)
-@@ -1316,10 +1314,10 @@ static void __reg_combine_64_into_32(struct bpf_reg_state *reg)
- 		reg->s32_min_value = (s32)reg->smin_value;
- 		reg->s32_max_value = (s32)reg->smax_value;
+@@ -116,6 +114,8 @@ int siw_mr_add_mem(struct siw_mr *mr, struct ib_pd *pd, void *mem_obj,
+ 		kfree(mem);
+ 		return -ENOMEM;
  	}
--	if (__reg64_bound_u32(reg->umin_value))
-+	if (__reg64_bound_u32(reg->umin_value) && __reg64_bound_u32(reg->umax_value)) {
- 		reg->u32_min_value = (u32)reg->umin_value;
--	if (__reg64_bound_u32(reg->umax_value))
- 		reg->u32_max_value = (u32)reg->umax_value;
-+	}
- 
- 	/* Intersecting with the old var_off might have improved our bounds
- 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
-diff --git a/tools/testing/selftests/bpf/verifier/array_access.c b/tools/testing/selftests/bpf/verifier/array_access.c
-index 1b138cd2b187..1b1c798e9248 100644
---- a/tools/testing/selftests/bpf/verifier/array_access.c
-+++ b/tools/testing/selftests/bpf/verifier/array_access.c
-@@ -186,7 +186,7 @@
- 	},
- 	.fixup_map_hash_48b = { 3 },
- 	.errstr_unpriv = "R0 leaks addr",
--	.errstr = "invalid access to map value, value_size=48 off=44 size=8",
-+	.errstr = "R0 unbounded memory access",
- 	.result_unpriv = REJECT,
- 	.result = REJECT,
- 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
++
++	mr->mem = mem;
+ 	/* Set the STag index part */
+ 	mem->stag = id << 8;
+ 	mr->base_mr.lkey = mr->base_mr.rkey = mem->stag;
 -- 
 2.30.2
 
