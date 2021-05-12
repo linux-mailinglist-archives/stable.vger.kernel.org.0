@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BFBE37CB45
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A05AC37CB1C
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242544AbhELQfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:35:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
+        id S242375AbhELQei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:34:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241620AbhELQ1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:27:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E71D861DF4;
-        Wed, 12 May 2021 15:54:24 +0000 (UTC)
+        id S241466AbhELQ1W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:27:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4133161002;
+        Wed, 12 May 2021 15:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620834865;
-        bh=LQXZaWxdFrbx4iUlhxsh9hQfXSBcjHWTSy6hmOmnKfs=;
+        s=korg; t=1620834775;
+        bh=Buy7k+M/gA++wzlfKD/1RmYxVi9HdBXiOnZMsLyUvGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PP5w8rKLy2Brp9uv2c82NJWKpr0y+s5NKdOGOa4sjtkrZQ8Xc25Tc7aENNwsvxVfY
-         luZrNxejX7ISqapLrVnNeOSdiRU1i9BlsOvRA4V+NP/OC+4jgEzmj5N4524IC1QZMW
-         KOyxn2FOvyBz4/XCGbpiJ/Bq55VVV/9QUBD9aNBg=
+        b=jjcsnUi9j1JGO3v0dPNs8Tn6nWRd3mWBz6Gj1iSSv3Y9OaNFPda20Vx+YIDFXJzh/
+         jmM/iruEX1YCIBFnfKyku9ikhy/j+BxqG3OGJigErLdRl1txfVE95acGC+GAEjU7Y0
+         ZeOAG4cbtxUj2M8YqJ/+CE9tKH4jYbGXoJ7coIRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: [PATCH 5.12 079/677] drm: bridge/panel: Cleanup connector on bridge detach
-Date:   Wed, 12 May 2021 16:42:05 +0200
-Message-Id: <20210512144839.854270445@linuxfoundation.org>
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        nicholas.kazlauskas@amd.com, amd-gfx@lists.freedesktop.org,
+        alexander.deucher@amd.com, Roman.Li@amd.com, hersenxs.wu@amd.com,
+        danny.wang@amd.com,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.12 080/677] drm/amd/display: Reject non-zero src_y and src_x for video planes
+Date:   Wed, 12 May 2021 16:42:06 +0200
+Message-Id: <20210512144839.888525021@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
 References: <20210512144837.204217980@linuxfoundation.org>
@@ -44,59 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Harry Wentland <harry.wentland@amd.com>
 
-commit 4d906839d321c2efbf3fed4bc31ffd9ff55b75c0 upstream.
+commit d89f6048bdcb6a56abb396c584747d5eeae650db upstream.
 
-If we don't call drm_connector_cleanup() manually in
-panel_bridge_detach(), the connector will be cleaned up with the other
-DRM objects in the call to drm_mode_config_cleanup(). However, since our
-drm_connector is devm-allocated, by the time drm_mode_config_cleanup()
-will be called, our connector will be long gone. Therefore, the
-connector must be cleaned up when the bridge is detached to avoid
-use-after-free conditions.
+[Why]
+This hasn't been well tested and leads to complete system hangs on DCN1
+based systems, possibly others.
 
-v2: Cleanup connector only if it was created
+The system hang can be reproduced by gesturing the video on the YouTube
+Android app on ChromeOS into full screen.
 
-v3: Add FIXME
+[How]
+Reject atomic commits with non-zero drm_plane_state.src_x or src_y values.
 
-v4: (Use connector->dev) directly in if() block
+v2:
+ - Add code comment describing the reason we're rejecting non-zero
+   src_x and src_y
+ - Drop gerrit Change-Id
+ - Add stable CC
+ - Based on amd-staging-drm-next
 
-Fixes: 13dfc0540a57 ("drm/bridge: Refactor out the panel wrapper from the lvds-encoder bridge.")
-Cc: <stable@vger.kernel.org> # 4.12+
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Jonas Karlman <jonas@kwiboo.se>
-Cc: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210327115742.18986-2-paul@crapouillou.net
+v3: removed trailing whitespace
+
+Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Cc: stable@vger.kernel.org
+Cc: nicholas.kazlauskas@amd.com
+Cc: amd-gfx@lists.freedesktop.org
+Cc: alexander.deucher@amd.com
+Cc: Roman.Li@amd.com
+Cc: hersenxs.wu@amd.com
+Cc: danny.wang@amd.com
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/panel.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/drivers/gpu/drm/bridge/panel.c
-+++ b/drivers/gpu/drm/bridge/panel.c
-@@ -87,6 +87,18 @@ static int panel_bridge_attach(struct dr
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -3850,6 +3850,23 @@ static int fill_dc_scaling_info(const st
+ 	scaling_info->src_rect.x = state->src_x >> 16;
+ 	scaling_info->src_rect.y = state->src_y >> 16;
  
- static void panel_bridge_detach(struct drm_bridge *bridge)
- {
-+	struct panel_bridge *panel_bridge = drm_bridge_to_panel_bridge(bridge);
-+	struct drm_connector *connector = &panel_bridge->connector;
-+
 +	/*
-+	 * Cleanup the connector if we know it was initialized.
++	 * For reasons we don't (yet) fully understand a non-zero
++	 * src_y coordinate into an NV12 buffer can cause a
++	 * system hang. To avoid hangs (and maybe be overly cautious)
++	 * let's reject both non-zero src_x and src_y.
 +	 *
-+	 * FIXME: This wouldn't be needed if the panel_bridge structure was
-+	 * allocated with drmm_kzalloc(). This might be tricky since the
-+	 * drm_device pointer can only be retrieved when the bridge is attached.
++	 * We currently know of only one use-case to reproduce a
++	 * scenario with non-zero src_x and src_y for NV12, which
++	 * is to gesture the YouTube Android app into full screen
++	 * on ChromeOS.
 +	 */
-+	if (connector->dev)
-+		drm_connector_cleanup(connector);
- }
- 
- static void panel_bridge_pre_enable(struct drm_bridge *bridge)
++	if (state->fb &&
++	    state->fb->format->format == DRM_FORMAT_NV12 &&
++	    (scaling_info->src_rect.x != 0 ||
++	     scaling_info->src_rect.y != 0))
++		return -EINVAL;
++
+ 	scaling_info->src_rect.width = state->src_w >> 16;
+ 	if (scaling_info->src_rect.width == 0)
+ 		return -EINVAL;
 
 
