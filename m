@@ -2,76 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D081237BA37
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 337A637BA3A
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 12:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230097AbhELKVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 06:21:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48684 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230096AbhELKVR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:21:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1620814809;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=MBnluZvKQpwlggRx1/S7XuyJ8ifNdWufv+GinDV40gU=;
-        b=hjp4wotoW39GYGE9Ki5epMICgKCS1weX4aq34MkhCbs8TSztCSsjNYRrB15m2hCTHn9coz
-        D0ISV6dlrg9B4Lw8IBydjFTv0Ochvk6UE94FUslmzI2Yc/hrTpy24Tta7+/xpVxqghp4WG
-        cy5DNWzvmkBo/OvjJ16+87YDmRIQYlE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-487-o-JN_fayM4yWTqEMs9YS8Q-1; Wed, 12 May 2021 06:20:06 -0400
-X-MC-Unique: o-JN_fayM4yWTqEMs9YS8Q-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 099A8FC8C;
-        Wed, 12 May 2021 10:20:05 +0000 (UTC)
-Received: from sirius.home.kraxel.org (ovpn-114-0.ams2.redhat.com [10.36.114.0])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C39F86249C;
-        Wed, 12 May 2021 10:20:04 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
-        id 0CFC118003AF; Wed, 12 May 2021 12:20:03 +0200 (CEST)
-Date:   Wed, 12 May 2021 12:20:02 +0200
-From:   Gerd Hoffmann <kraxel@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [[PATCH for 5.10]] drm/qxl: use ttm bo priorities
-Message-ID: <20210512102002.ebyzz2bbi4k6oyrv@sirius.home.kraxel.org>
-References: <20210510123140.2200366-1-kraxel@redhat.com>
- <YJuivdX2Vk4Kv9l3@kroah.com>
+        id S230102AbhELKWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 06:22:45 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:37025 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230096AbhELKWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 06:22:41 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id EFDE511E7;
+        Wed, 12 May 2021 06:21:31 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Wed, 12 May 2021 06:21:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RzhgCC
+        Vy+bxKEa553gyyz9PbwwNg3D79Uvg76YoAmic=; b=gQnHvJozdEovxx6UeOjQw3
+        BGt3qqG69jRA4Bddp2KKqTFqz81LikjC9MbtrQ6gH0DTrXY9LDHBgQV9RC3hzYJQ
+        MQlnuLnkiVHFhBQrIVph3lAcn/tVHM9N7qbBwOydBU6QT3Rczb0lVP5Ebc0EBx1U
+        dL4sWj75aLcTN6TE+diaL9F8U784c1URQoHNYbYVFxOAuct6LmpG+oRDBBZh0fW0
+        kT8aAERrXrcvkLX7K6S5mHGeqgXEhwZgE3bp6nZf/Ycx3T1LEVQMaoNB1qweXz1R
+        Kmk7hbwx2TYznrovvByqXlbCs2y0tjNqNCo0PoJLhX46Jsk82VgCBJhvRVjRsdoA
+        ==
+X-ME-Sender: <xms:KKybYAhKc85Vlg26jwzfH3PGzXQZ_SF31-6XEI7u1d5_-Jlv4HKLiw>
+    <xme:KKybYJDR7_JcBVL9pnTcx-WdYs_c8Fng5uTNR_OEE2TztYbP8_Mi1rSP0iu67vJRe
+    VB43fD5D1lwlA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvddgvdegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:KKybYIHyg-5XRaP1r04VlnRsihLtC9lMwQYo9R7nsuxxq-LVk65z1w>
+    <xmx:KKybYBST3ct5Cc2LrOc5jI8GRVe3LGXU0MNLIqt_RrBZqyREDeVqUw>
+    <xmx:KKybYNxbLwr2oQlZp7J7PvB8WIYQGx3mRTNcziviaGyjZh6v2z-dPw>
+    <xmx:KKybYLZ-kgY8SiaQRk9a9ui1-oMPa-0vORj_23ZeQH1FTZAfXN_aW6gxxNg>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Wed, 12 May 2021 06:21:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: s390: split kvm_s390_logical_to_effective" failed to apply to 4.9-stable tree
+To:     imbrenda@linux.ibm.com, borntraeger@de.ibm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 12 May 2021 12:21:26 +0200
+Message-ID: <1620814886253179@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YJuivdX2Vk4Kv9l3@kroah.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 12, 2021 at 11:41:17AM +0200, Greg KH wrote:
-> On Mon, May 10, 2021 at 02:31:40PM +0200, Gerd Hoffmann wrote:
-> > Allow to set priorities for buffer objects.  Use priority 1 for surface
-> > and cursor command releases.  Use priority 0 for drawing command
-> > releases.  That way the short-living drawing commands are first in line
-> > when it comes to eviction, making it *much* less likely that
-> > ttm_bo_mem_force_space() picks something which can't be evicted and
-> > throws an error after waiting a while without success.
-> > 
-> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> > Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-> > Link: http://patchwork.freedesktop.org/patch/msgid/20210217123213.2199186-4-kraxel@redhat.com
-> > (cherry-picked from 4fff19ae427548d8c37260c975a4b20d3c040ec6)
-> > ---
-> 
-> What about 5.11 and 5.12?  We can't just backport to a single stable
-> tree and miss newer ones.
 
-It's a clean cherry-pick for those (seems you've found the other mail
-saying so meanwhile ...).
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-take care,
-  Gerd
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From f85f1baaa18932a041fd2b1c2ca6cfd9898c7d2b Mon Sep 17 00:00:00 2001
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Date: Tue, 2 Mar 2021 13:36:44 +0100
+Subject: [PATCH] KVM: s390: split kvm_s390_logical_to_effective
+
+Split kvm_s390_logical_to_effective to a generic function called
+_kvm_s390_logical_to_effective. The new function takes a PSW and an address
+and returns the address with the appropriate bits masked off. The old
+function now calls the new function with the appropriate PSW from the vCPU.
+
+This is needed to avoid code duplication for vSIE.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org # for VSIE: correctly handle MVPG when in VSIE
+Link: https://lore.kernel.org/r/20210302174443.514363-2-imbrenda@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index f4c51756c462..2d8631a1f23e 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -36,6 +36,29 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+ 	return gra;
+ }
+ 
++/**
++ * _kvm_s390_logical_to_effective - convert guest logical to effective address
++ * @psw: psw of the guest
++ * @ga: guest logical address
++ *
++ * Convert a guest logical address to an effective address by applying the
++ * rules of the addressing mode defined by bits 31 and 32 of the given PSW
++ * (extendended/basic addressing mode).
++ *
++ * Depending on the addressing mode, the upper 40 bits (24 bit addressing
++ * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
++ * mode) of @ga will be zeroed and the remaining bits will be returned.
++ */
++static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
++							   unsigned long ga)
++{
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
++		return ga;
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
++		return ga & ((1UL << 31) - 1);
++	return ga & ((1UL << 24) - 1);
++}
++
+ /**
+  * kvm_s390_logical_to_effective - convert guest logical to effective address
+  * @vcpu: guest virtual cpu
+@@ -52,13 +75,7 @@ static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+ 							  unsigned long ga)
+ {
+-	psw_t *psw = &vcpu->arch.sie_block->gpsw;
+-
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+-		return ga;
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+-		return ga & ((1UL << 31) - 1);
+-	return ga & ((1UL << 24) - 1);
++	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
+ }
+ 
+ /*
 
