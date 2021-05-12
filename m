@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E9337C896
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E220837C89F
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234387AbhELQLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33626 "EHLO mail.kernel.org"
+        id S235588AbhELQLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:11:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238639AbhELQFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:05:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A13CC6199F;
-        Wed, 12 May 2021 15:34:45 +0000 (UTC)
+        id S238629AbhELQFj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:05:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BA3A61987;
+        Wed, 12 May 2021 15:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833686;
-        bh=iskjLq3stQY6pW14znA3uT5yirChRDox2RZ7J4dGAQU=;
+        s=korg; t=1620833688;
+        bh=hqvy69HtMm1rNbYf/Vz4kiHG2W7xUeNDEF+DV6STzGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcQU7CLBxnNmL01y4BmlcOjr+8XvWgm7ytpFS62S1srAJE+OYSWID3FkIjM5s+P4H
-         OMwGxD8BSOeliOUouDSZopXagN0A4ddrbluyxYtoOViuzRomkZ25N7hPG0WBFE7YmY
-         jggyBuCTszcEy8dN+rfNATXTE7ev4ldfy/Kv8JgU=
+        b=ifR78WAk9Q9Nxj4DPGGQ7DNwZGrbw0LEGXZ+rd3rEeyE8+Ylo0Sw4eXWoXRFBVkhW
+         rlyk48k+hf46qrqNX0cCxKmCx/YwUenPc2hsKJsFKBnRwEQBwb1jH057LAJRCvWxNZ
+         WzHq9h3Y6fKJIrn2hgbAJqeWfcHxfmEPpnQVC358=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 247/601] clocksource/drivers/timer-ti-dm: Fix posted mode status check order
-Date:   Wed, 12 May 2021 16:45:24 +0200
-Message-Id: <20210512144835.964630068@linuxfoundation.org>
+Subject: [PATCH 5.11 248/601] clocksource/drivers/timer-ti-dm: Add missing set_state_oneshot_stopped
+Date:   Wed, 12 May 2021 16:45:25 +0200
+Message-Id: <20210512144835.996379137@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -42,81 +42,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 212709926c5493a566ca4086ad4f4b0d4e66b553 ]
+[ Upstream commit ac4daf737674b4d29e19b7c300caff3bcf7160d8 ]
 
-When the timer is configured in posted mode, we need to check the write-
-posted status register (TWPS) before writing to the register.
+To avoid spurious timer interrupts when KTIME_MAX is used, we need to
+configure set_state_oneshot_stopped(). Although implementing this is
+optional, it still affects things like power management for the extra
+timer interrupt.
 
-We now check TWPS after the write starting with commit 52762fbd1c47
-("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource
-support").
-
-For example, in the TRM for am571x the following is documented in chapter
-"22.2.4.13.1.1 Write Posting Synchronization Mode":
-
-"For each register, a status bit is provided in the timer write-posted
- status (TWPS) register. In this mode, it is mandatory that software check
- this status bit before any write access. If a write is attempted to a
- register with a previous access pending, the previous access is discarded
- without notice."
-
-The regression happened when I updated the code to use standard read/write
-accessors for the driver instead of using __omap_dm_timer_load_start().
-We have__omap_dm_timer_load_start() check the TWPS status correctly using
-__omap_dm_timer_write().
+For more information, please see commit 8fff52fd5093 ("clockevents:
+Introduce CLOCK_EVT_STATE_ONESHOT_STOPPED state") and commit cf8c5009ee37
+("clockevents/drivers/arm_arch_timer: Implement
+->set_state_oneshot_stopped()").
 
 Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210304072135.52712-2-tony@atomide.com
+Link: https://lore.kernel.org/r/20210304072135.52712-4-tony@atomide.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-ti-dm-systimer.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/clocksource/timer-ti-dm-systimer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
-index 33b3e8aa2cc5..422376680c8a 100644
+index 422376680c8a..3fae9ebb58b8 100644
 --- a/drivers/clocksource/timer-ti-dm-systimer.c
 +++ b/drivers/clocksource/timer-ti-dm-systimer.c
-@@ -449,13 +449,13 @@ static int dmtimer_set_next_event(unsigned long cycles,
- 	struct dmtimer_systimer *t = &clkevt->t;
- 	void __iomem *pend = t->base + t->pend;
+@@ -554,6 +554,7 @@ static int __init dmtimer_clockevent_init(struct device_node *np)
+ 	dev->set_state_shutdown = dmtimer_clockevent_shutdown;
+ 	dev->set_state_periodic = dmtimer_set_periodic;
+ 	dev->set_state_oneshot = dmtimer_clockevent_shutdown;
++	dev->set_state_oneshot_stopped = dmtimer_clockevent_shutdown;
+ 	dev->tick_resume = dmtimer_clockevent_shutdown;
+ 	dev->cpumask = cpu_possible_mask;
  
--	writel_relaxed(0xffffffff - cycles, t->base + t->counter);
- 	while (readl_relaxed(pend) & WP_TCRR)
- 		cpu_relax();
-+	writel_relaxed(0xffffffff - cycles, t->base + t->counter);
- 
--	writel_relaxed(OMAP_TIMER_CTRL_ST, t->base + t->ctrl);
- 	while (readl_relaxed(pend) & WP_TCLR)
- 		cpu_relax();
-+	writel_relaxed(OMAP_TIMER_CTRL_ST, t->base + t->ctrl);
- 
- 	return 0;
- }
-@@ -490,18 +490,18 @@ static int dmtimer_set_periodic(struct clock_event_device *evt)
- 	dmtimer_clockevent_shutdown(evt);
- 
- 	/* Looks like we need to first set the load value separately */
--	writel_relaxed(clkevt->period, t->base + t->load);
- 	while (readl_relaxed(pend) & WP_TLDR)
- 		cpu_relax();
-+	writel_relaxed(clkevt->period, t->base + t->load);
- 
--	writel_relaxed(clkevt->period, t->base + t->counter);
- 	while (readl_relaxed(pend) & WP_TCRR)
- 		cpu_relax();
-+	writel_relaxed(clkevt->period, t->base + t->counter);
- 
--	writel_relaxed(OMAP_TIMER_CTRL_AR | OMAP_TIMER_CTRL_ST,
--		       t->base + t->ctrl);
- 	while (readl_relaxed(pend) & WP_TCLR)
- 		cpu_relax();
-+	writel_relaxed(OMAP_TIMER_CTRL_AR | OMAP_TIMER_CTRL_ST,
-+		       t->base + t->ctrl);
- 
- 	return 0;
- }
 -- 
 2.30.2
 
