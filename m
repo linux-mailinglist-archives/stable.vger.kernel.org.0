@@ -2,272 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 308FD37EEB6
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 01:03:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19B3D37EEB2
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 01:03:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235075AbhELWFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 18:05:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44446 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1392626AbhELViF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 17:38:05 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5687EC061362
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 14:25:52 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id 33so929850pgo.5
-        for <stable@vger.kernel.org>; Wed, 12 May 2021 14:25:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BzZ4NZCa66l7p4UWK9pyLER9W8GfVKB2PDvutGpFxEQ=;
-        b=cB9RRrvol85XxehuxwsqF453N8KNyr6GItz9Fgc3qR8fieL9vOct2eVXM4vwNqg/0W
-         p5CGPZOzxvIDnfScXK/NfiXZ1Z+H9dgJZFC5UzAdPH5vjmThLGAi2sCv6u5WyDGJJ54B
-         vzvmwVtXWXIqS7oN9ZGFFog4Xvns8928T5kDv2by8NBPtIqAVLy2MR90grKegVHV8yqr
-         Oq+/rhCwOYHRhKWSZvf1c0yLIlPUbMJhYa1zXnId23p32u/9m/npdsCoZuz7DepdJvyS
-         SKxXrb3SV3hG+SkMIyONSjIykqx2erDrJIfabLAuIfU/uK5eVXRco4Xc0mgWajIo7PvB
-         2I/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BzZ4NZCa66l7p4UWK9pyLER9W8GfVKB2PDvutGpFxEQ=;
-        b=YNwOha8I5PCimXANw7A3cR0A9Gor+RC6ppJivOGHKMM7St9zdp0M8dhbK6rDXzJoPK
-         KvmeVB3CbF5f8YN9vqt4FxZyH41yW2PDk1atCNpZJx2V0Farc6YvtebN7jpG0QvzMF5k
-         S5Okr8zBDqQIO0aD+j9AOSkrpzqBYBFaVibvji6LnSgEQa1E0uYhgsCY4bTdvFKsTNvk
-         FE2Y2EWDIx549ULgwhpEGmRBFQ9WiCSVWL/p3ZD97aP5WIJs0aIrgybNIESSJPbeb9kk
-         HVXCtcyzrdicORHYy6i9dPiHQqtI2TtTZM1j794qiEEtushNMYpZVzLgfICLfun2oaNA
-         k6Ig==
-X-Gm-Message-State: AOAM533GIZFY8YBKPPpPMmUTFQTiY3UqnH3KU4Sp/907gFtIzDDjT0pN
-        l6MZrrug43mmIusC6Mj8XHgRBGg/Tw9yaxz7
-X-Google-Smtp-Source: ABdhPJzX8BGvFQZNiuzme7nlQGH4a5MdCO6TqUzx+y81nOgi+xxndjlFCWfcLsgQDxoMR5n2pfRhmw==
-X-Received: by 2002:aa7:99cb:0:b029:2b7:af1e:3b1 with SMTP id v11-20020aa799cb0000b02902b7af1e03b1mr21497627pfi.76.1620854751689;
-        Wed, 12 May 2021 14:25:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b6sm637913pfb.27.2021.05.12.14.25.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 May 2021 14:25:32 -0700 (PDT)
-Message-ID: <609c47cc.1c69fb81.a4dfd.3005@mx.google.com>
-Date:   Wed, 12 May 2021 14:25:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1348193AbhELWFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 18:05:02 -0400
+Received: from mga02.intel.com ([134.134.136.20]:28800 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1391511AbhELV33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 17:29:29 -0400
+IronPort-SDR: hEMffeUNG3QkkeFEsDLWnaCGLkifT1y5KeanAyeCjTXZgJQmrnVi1J0S7m+UHwbpxFMVekoQ5H
+ cmzokUPLjVbQ==
+X-IronPort-AV: E=McAfee;i="6200,9189,9982"; a="186940833"
+X-IronPort-AV: E=Sophos;i="5.82,295,1613462400"; 
+   d="scan'208";a="186940833"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2021 14:28:12 -0700
+IronPort-SDR: 8WInMZUAH1C6inPULXn5vAHCAWuPAMQwutq4eZVrAB8peB9Rbr0kBmuZhhbPh8zcFz/SPY1UE2
+ 2ZL30eqWDdyw==
+X-IronPort-AV: E=Sophos;i="5.82,295,1613462400"; 
+   d="scan'208";a="625622065"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2021 14:28:11 -0700
+From:   Imre Deak <imre.deak@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Reenable LTTPR non-transparent LT mode for DPCD_REV<1.4
+Date:   Thu, 13 May 2021 00:28:09 +0300
+Message-Id: <20210512212809.1234701-1-imre.deak@intel.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.232-233-ga5deea7da15d3
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 124 runs,
- 5 regressions (v4.14.232-233-ga5deea7da15d3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 124 runs, 5 regressions (v4.14.232-233-ga5de=
-ea7da15d3)
+The driver currently disables the LTTPR non-transparent link training
+mode for sinks with a DPCD_REV<1.4, based on the following description
+of the LTTPR DPCD register range in DP standard 2.0 (at the 0xF0000
+register description):
 
-Regressions Summary
--------------------
+""
+LTTPR-related registers at DPCD Addresses F0000h through F02FFh are valid
+only for DPCD r1.4 (or higher).
+"""
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+The transparent link training mode should still work fine, however the
+implementation for this in some retimer FWs seems to be broken, see the
+References: link below.
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+After discussions with DP standard authors the above "DPCD r1.4" does
+not refer to the DPCD revision (stored in the DPCD_REV reg at 0x00000),
+rather to the "LTTPR field data structure revision" stored in the
+0xF0000 reg. An update request has been filed at vesa.org (see
+wg/Link/documentComment/3746) for the upcoming v2.1 specification to
+clarify the above description along the following lines:
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
+"""
+LTTPR-related registers at DPCD Addresses F0000h through F02FFh are
+valid only for LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV 1.4 (or
+higher)
+"""
 
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
+Based on my tests Windows uses the non-transparent link training mode
+for DPCD_REV==1.2 sinks as well (so presumably for all DPCD_REVs), and
+forcing it to use transparent mode on ICL/TGL platforms leads to the
+same LT failure as reported at the References: link.
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
+Based on the above let's assume that the transparent link training mode
+is not well tested/supported and align the code to the correct
+interpretation of what the r1.4 version refers to.
 
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/3415
+Fixes: 264613b406eb ("drm/i915: Disable LTTPR support when the DPCD rev < 1.4")
+Cc: <stable@vger.kernel.org> # v5.11+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+---
+ .../drm/i915/display/intel_dp_link_training.c | 71 +++++++++----------
+ 1 file changed, 33 insertions(+), 38 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.232-233-ga5deea7da15d3/plan/baseline/
+diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+index 6bf6f1ec13ed8..08bceae40aa8d 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+@@ -128,50 +128,14 @@ intel_dp_set_lttpr_transparent_mode(struct intel_dp *intel_dp, bool enable)
+ 	return drm_dp_dpcd_write(&intel_dp->aux, DP_PHY_REPEATER_MODE, &val, 1) == 1;
+ }
+ 
+-/**
+- * intel_dp_init_lttpr_and_dprx_caps - detect LTTPR and DPRX caps, init the LTTPR link training mode
+- * @intel_dp: Intel DP struct
+- *
+- * Read the LTTPR common and DPRX capabilities and switch to non-transparent
+- * link training mode if any is detected and read the PHY capabilities for all
+- * detected LTTPRs. In case of an LTTPR detection error or if the number of
+- * LTTPRs is more than is supported (8), fall back to the no-LTTPR,
+- * transparent mode link training mode.
+- *
+- * Returns:
+- *   >0  if LTTPRs were detected and the non-transparent LT mode was set. The
+- *       DPRX capabilities are read out.
+- *    0  if no LTTPRs or more than 8 LTTPRs were detected or in case of a
+- *       detection failure and the transparent LT mode was set. The DPRX
+- *       capabilities are read out.
+- *   <0  Reading out the DPRX capabilities failed.
+- */
+-int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
++static int intel_dp_init_lttpr(struct intel_dp *intel_dp)
+ {
+ 	int lttpr_count;
+-	bool ret;
+ 	int i;
+ 
+-	ret = intel_dp_read_lttpr_common_caps(intel_dp);
+-
+-	/* The DPTX shall read the DPRX caps after LTTPR detection. */
+-	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd)) {
+-		intel_dp_reset_lttpr_common_caps(intel_dp);
+-		return -EIO;
+-	}
+-
+-	if (!ret)
++	if (!intel_dp_read_lttpr_common_caps(intel_dp))
+ 		return 0;
+ 
+-	/*
+-	 * The 0xF0000-0xF02FF range is only valid if the DPCD revision is
+-	 * at least 1.4.
+-	 */
+-	if (intel_dp->dpcd[DP_DPCD_REV] < 0x14) {
+-		intel_dp_reset_lttpr_common_caps(intel_dp);
+-		return 0;
+-	}
+-
+ 	lttpr_count = drm_dp_lttpr_count(intel_dp->lttpr_common_caps);
+ 	/*
+ 	 * Prevent setting LTTPR transparent mode explicitly if no LTTPRs are
+@@ -211,6 +175,37 @@ int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
+ 
+ 	return lttpr_count;
+ }
++
++/**
++ * intel_dp_init_lttpr_and_dprx_caps - detect LTTPR and DPRX caps, init the LTTPR link training mode
++ * @intel_dp: Intel DP struct
++ *
++ * Read the LTTPR common and DPRX capabilities and switch to non-transparent
++ * link training mode if any is detected and read the PHY capabilities for all
++ * detected LTTPRs. In case of an LTTPR detection error or if the number of
++ * LTTPRs is more than is supported (8), fall back to the no-LTTPR,
++ * transparent mode link training mode.
++ *
++ * Returns:
++ *   >0  if LTTPRs were detected and the non-transparent LT mode was set. The
++ *       DPRX capabilities are read out.
++ *    0  if no LTTPRs or more than 8 LTTPRs were detected or in case of a
++ *       detection failure and the transparent LT mode was set. The DPRX
++ *       capabilities are read out.
++ *   <0  Reading out the DPRX capabilities failed.
++ */
++int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
++{
++	int lttpr_count = intel_dp_init_lttpr(intel_dp);
++
++	/* The DPTX shall read the DPRX caps after LTTPR detection. */
++	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd)) {
++		intel_dp_reset_lttpr_common_caps(intel_dp);
++		return -EIO;
++	}
++
++	return lttpr_count;
++}
+ EXPORT_SYMBOL(intel_dp_init_lttpr_and_dprx_caps);
+ 
+ static u8 dp_voltage_max(u8 preemph)
+-- 
+2.27.0
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.232-233-ga5deea7da15d3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a5deea7da15d3522195c4a77bbe89a62adcbbe31 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609c15b938f54a3f0b1992a0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q=
-200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q=
-200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609c15b938f54a3f0b199=
-2a1
-        failing since 72 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
-t fail: v4.14.222-120-gdc8887cba23e) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609c1356992b08380e199277
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609c1356992b08380e199=
-278
-        failing since 179 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609c1351b2de52b520199277
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609c1351b2de52b520199=
-278
-        failing since 179 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609c136787eb4eb776199281
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609c136787eb4eb776199=
-282
-        failing since 179 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/609c1304aae9355135199283
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--233-ga5deea7da15d3/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/609c1304aae9355135199=
-284
-        failing since 179 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =20
