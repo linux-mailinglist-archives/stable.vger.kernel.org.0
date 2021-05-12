@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FB137C936
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:46:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B0F37C966
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 18:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239111AbhELQPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 12:15:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
+        id S231494AbhELQS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 12:18:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234757AbhELQIV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 12:08:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 496D661C61;
-        Wed, 12 May 2021 15:39:17 +0000 (UTC)
+        id S234605AbhELQIU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 12:08:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BC3961C5B;
+        Wed, 12 May 2021 15:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620833957;
-        bh=oT/c86x2GPg4hnidLAuTv1VcQFdiNN9vKCpcXwEgfzk=;
+        s=korg; t=1620833960;
+        bh=TH9HxxzcUuVWYmDueDD75n9GZ1q7nkDozQBjGxUNubM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZSC+QeI5yqBhoLbJcGRokwnojNQYuLdFude7ED9atjoz+A8JpxRXj2nXQzFe8R45
-         gVVyEuheR2gA2Okykz8s89aV+4chgiDw/3giGCU8i9trTgcPh7w/H2/3tZ7fSxWtB3
-         eQBdtrjz9YybJ0nLUgONBAxQTqKjZvVyzWbREqzg=
+        b=E011Xr/ZGtA09obD6mPI1kxq7STLeacX0IVXTMnwZVBsv6D7N+FmlOxYLFDa0rN5J
+         9RU9UIDY7WhTFOLQMS+G8IU37PNoVjspMlmmPitIMAewOfuYawUamUDjve3TMCLf7T
+         t8MdznwEfI8Ytw1tR4ncTlLa4oguel73widusnIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 354/601] drm/msm: Fix debugfs deadlock
-Date:   Wed, 12 May 2021 16:47:11 +0200
-Message-Id: <20210512144839.448119193@linuxfoundation.org>
+Subject: [PATCH 5.11 355/601] vfio/mdev: Do not allow a mdev_type to have a NULL parent pointer
+Date:   Wed, 12 May 2021 16:47:12 +0200
+Message-Id: <20210512144839.480601635@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 References: <20210512144827.811958675@linuxfoundation.org>
@@ -40,166 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 6ed0897cd800c38b92a33d335d9086c7b092eb15 ]
+[ Upstream commit b5a1f8921d5040bb788492bf33a66758021e4be5 ]
 
-In normal cases the gem obj lock is acquired first before mm_lock.  The
-exception is iterating the various object lists.  In the shrinker path,
-deadlock is avoided by using msm_gem_trylock() and skipping over objects
-that cannot be locked.  But for debugfs the straightforward thing is to
-split things out into a separate list of all objects protected by it's
-own lock.
+There is a small race where the parent is NULL even though the kobj has
+already been made visible in sysfs.
 
-Fixes: d984457b31c4 ("drm/msm: Add priv->mm_lock to protect active/inactive lists")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20210401012722.527712-4-robdclark@gmail.com
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+For instance the attribute_group is made visible in sysfs_create_files()
+and the mdev_type_attr_show() does:
+
+    ret = attr->show(kobj, type->parent->dev, buf);
+
+Which will crash on NULL parent. Move the parent setup to before the type
+pointer leaves the stack frame.
+
+Fixes: 7b96953bc640 ("vfio: Mediated device Core driver")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Message-Id: <2-v2-d36939638fc6+d54-vfio2_jgg@nvidia.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_debugfs.c | 14 +++-----------
- drivers/gpu/drm/msm/msm_drv.c     |  3 +++
- drivers/gpu/drm/msm/msm_drv.h     |  9 ++++++++-
- drivers/gpu/drm/msm/msm_gem.c     | 14 +++++++++++++-
- drivers/gpu/drm/msm/msm_gem.h     | 12 ++++++++++--
- 5 files changed, 37 insertions(+), 15 deletions(-)
+ drivers/vfio/mdev/mdev_sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
-index 85ad0babc326..d611cc8e54a4 100644
---- a/drivers/gpu/drm/msm/msm_debugfs.c
-+++ b/drivers/gpu/drm/msm/msm_debugfs.c
-@@ -111,23 +111,15 @@ static const struct file_operations msm_gpu_fops = {
- static int msm_gem_show(struct drm_device *dev, struct seq_file *m)
- {
- 	struct msm_drm_private *priv = dev->dev_private;
--	struct msm_gpu *gpu = priv->gpu;
- 	int ret;
+diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/vfio/mdev/mdev_sysfs.c
+index 917fd84c1c6f..367ff5412a38 100644
+--- a/drivers/vfio/mdev/mdev_sysfs.c
++++ b/drivers/vfio/mdev/mdev_sysfs.c
+@@ -105,6 +105,7 @@ static struct mdev_type *add_mdev_supported_type(struct mdev_parent *parent,
+ 		return ERR_PTR(-ENOMEM);
  
--	ret = mutex_lock_interruptible(&priv->mm_lock);
-+	ret = mutex_lock_interruptible(&priv->obj_lock);
- 	if (ret)
- 		return ret;
+ 	type->kobj.kset = parent->mdev_types_kset;
++	type->parent = parent;
  
--	if (gpu) {
--		seq_printf(m, "Active Objects (%s):\n", gpu->name);
--		msm_gem_describe_objects(&gpu->active_list, m);
--	}
--
--	seq_printf(m, "Inactive Objects:\n");
--	msm_gem_describe_objects(&priv->inactive_dontneed, m);
--	msm_gem_describe_objects(&priv->inactive_willneed, m);
-+	msm_gem_describe_objects(&priv->objects, m);
+ 	ret = kobject_init_and_add(&type->kobj, &mdev_type_ktype, NULL,
+ 				   "%s-%s", dev_driver_string(parent->dev),
+@@ -132,7 +133,6 @@ static struct mdev_type *add_mdev_supported_type(struct mdev_parent *parent,
+ 	}
  
--	mutex_unlock(&priv->mm_lock);
-+	mutex_unlock(&priv->obj_lock);
+ 	type->group = group;
+-	type->parent = parent;
+ 	return type;
  
- 	return 0;
- }
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 196907689c82..18ea1c66de71 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -446,6 +446,9 @@ static int msm_drm_init(struct device *dev, const struct drm_driver *drv)
- 
- 	priv->wq = alloc_ordered_workqueue("msm", 0);
- 
-+	INIT_LIST_HEAD(&priv->objects);
-+	mutex_init(&priv->obj_lock);
-+
- 	INIT_LIST_HEAD(&priv->inactive_willneed);
- 	INIT_LIST_HEAD(&priv->inactive_dontneed);
- 	mutex_init(&priv->mm_lock);
-diff --git a/drivers/gpu/drm/msm/msm_drv.h b/drivers/gpu/drm/msm/msm_drv.h
-index 591c47a654e8..6b58e49754cb 100644
---- a/drivers/gpu/drm/msm/msm_drv.h
-+++ b/drivers/gpu/drm/msm/msm_drv.h
-@@ -174,7 +174,14 @@ struct msm_drm_private {
- 	struct msm_rd_state *hangrd;   /* debugfs to dump hanging submits */
- 	struct msm_perf_state *perf;
- 
--	/*
-+	/**
-+	 * List of all GEM objects (mainly for debugfs, protected by obj_lock
-+	 * (acquire before per GEM object lock)
-+	 */
-+	struct list_head objects;
-+	struct mutex obj_lock;
-+
-+	/**
- 	 * Lists of inactive GEM objects.  Every bo is either in one of the
- 	 * inactive lists (depending on whether or not it is shrinkable) or
- 	 * gpu->active_list (for the gpu it is active on[1])
-diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
-index 9d10739c4eb2..27eea26119ef 100644
---- a/drivers/gpu/drm/msm/msm_gem.c
-+++ b/drivers/gpu/drm/msm/msm_gem.c
-@@ -951,7 +951,7 @@ void msm_gem_describe_objects(struct list_head *list, struct seq_file *m)
- 	size_t size = 0;
- 
- 	seq_puts(m, "   flags       id ref  offset   kaddr            size     madv      name\n");
--	list_for_each_entry(msm_obj, list, mm_list) {
-+	list_for_each_entry(msm_obj, list, node) {
- 		struct drm_gem_object *obj = &msm_obj->base;
- 		seq_puts(m, "   ");
- 		msm_gem_describe(obj, m);
-@@ -970,6 +970,10 @@ void msm_gem_free_object(struct drm_gem_object *obj)
- 	struct drm_device *dev = obj->dev;
- 	struct msm_drm_private *priv = dev->dev_private;
- 
-+	mutex_lock(&priv->obj_lock);
-+	list_del(&msm_obj->node);
-+	mutex_unlock(&priv->obj_lock);
-+
- 	mutex_lock(&priv->mm_lock);
- 	list_del(&msm_obj->mm_list);
- 	mutex_unlock(&priv->mm_lock);
-@@ -1158,6 +1162,10 @@ static struct drm_gem_object *_msm_gem_new(struct drm_device *dev,
- 	list_add_tail(&msm_obj->mm_list, &priv->inactive_willneed);
- 	mutex_unlock(&priv->mm_lock);
- 
-+	mutex_lock(&priv->obj_lock);
-+	list_add_tail(&msm_obj->node, &priv->objects);
-+	mutex_unlock(&priv->obj_lock);
-+
- 	return obj;
- 
- fail:
-@@ -1228,6 +1236,10 @@ struct drm_gem_object *msm_gem_import(struct drm_device *dev,
- 	list_add_tail(&msm_obj->mm_list, &priv->inactive_willneed);
- 	mutex_unlock(&priv->mm_lock);
- 
-+	mutex_lock(&priv->obj_lock);
-+	list_add_tail(&msm_obj->node, &priv->objects);
-+	mutex_unlock(&priv->obj_lock);
-+
- 	return obj;
- 
- fail:
-diff --git a/drivers/gpu/drm/msm/msm_gem.h b/drivers/gpu/drm/msm/msm_gem.h
-index b3a0a880cbab..99d4c0e9465e 100644
---- a/drivers/gpu/drm/msm/msm_gem.h
-+++ b/drivers/gpu/drm/msm/msm_gem.h
-@@ -55,8 +55,16 @@ struct msm_gem_object {
- 	 */
- 	uint8_t vmap_count;
- 
--	/* And object is either:
--	 *  inactive - on priv->inactive_list
-+	/**
-+	 * Node in list of all objects (mainly for debugfs, protected by
-+	 * priv->obj_lock
-+	 */
-+	struct list_head node;
-+
-+	/**
-+	 * An object is either:
-+	 *  inactive - on priv->inactive_dontneed or priv->inactive_willneed
-+	 *     (depending on purgability status)
- 	 *  active   - on one one of the gpu's active_list..  well, at
- 	 *     least for now we don't have (I don't think) hw sync between
- 	 *     2d and 3d one devices which have both, meaning we need to
+ attrs_failed:
 -- 
 2.30.2
 
