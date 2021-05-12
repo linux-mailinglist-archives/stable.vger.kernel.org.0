@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87B0B37B7E5
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8818F37B7E6
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 10:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230126AbhELI2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 04:28:22 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:36269 "EHLO
+        id S230181AbhELI3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 04:29:06 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:41863 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230037AbhELI2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:28:22 -0400
+        by vger.kernel.org with ESMTP id S230037AbhELI3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 04:29:05 -0400
 Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id D617A13DD;
-        Wed, 12 May 2021 04:27:13 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Wed, 12 May 2021 04:27:14 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 72F1C1521;
+        Wed, 12 May 2021 04:27:57 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Wed, 12 May 2021 04:27:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LG/7BC
-        SiDU48mUO8aLBYbP0irsQl9lNQ0LS0ZCCvxFI=; b=gBGo7VcTscWE+YLwnDmNRV
-        k2OriY2o9OWdcrHuI+F0DzUBj4iPWTVL/DnH+ej/fTTeB/iDUmVaOwsOwk1Pt6Jg
-        SpnEIQVvyvrWTUHrUEDaaj7DgpIbEH6dzH5McoPuSexj7fRhVCvmjihN917B4buA
-        8DATLGqHKGS5H+pRqn/RTsMcZn6cd1+FSICIw3w6z59SKmNOqxlwugOkuOabQh6K
-        Lx0LElJCBar/S5LRJcotJWe8hFlLfMWk7KXLoQ3e4+FOF7eTo+3H3DYXSV04svUP
-        4EjdL8NE2s+B0PIxpGXT2DCLiGybiQSqRC4MvLkSfVKtOkrAGIn6XQAPuS3jkJbg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=5abzpa
+        TgrAGorOMKjrQ+SZPH8VWY8p7pLAFbf02T4W0=; b=JraKlq6JvByy1dX+W+cyV6
+        OYxnKvHaUFDI25XczPQ17hpPHNhLaOZopAg0FK9S1W+igZsttII0ScUcNPUXylOp
+        emkoEkcMniesdo0igK3C0b9hn2rf4CiUQDS1orikWcU3T1/fIDMglxFcMM5UQAB4
+        CYsVc5Oc6/SUzKzevfvjD3kTntyTGFMle+0wSNkvr3dSTg4Ljk99erNzK2/g39h4
+        fVj56QOCWgSB47GuB4o/ftk8Dfy+jpNOEaAubEVYtBTSf8sL6wPZ7wNVcsDDcuTI
+        H0WNGNJoP27/ZTvUBA/4uNADSStZsWl0RgLfCI989RPsqNHVxn3RELUtYG/Jcv8Q
         ==
-X-ME-Sender: <xms:YZGbYOuldza9nMz5KAXn9x6dH7c4kbDuSSkzTxi401qdwU49gSZdOA>
-    <xme:YZGbYDfjnLaJqul8dWiL3VJoQ-O2xgkt_G4a1_62M3ReGdKqItT-ZEy5hfLArdOZU
-    c82X9Zs5c3whQ>
+X-ME-Sender: <xms:jJGbYBh99p-xqacyy5cXt6UkfeZwi3v-533QvwO_AdOnrdTs1g7XyQ>
+    <xme:jJGbYGDvbPpdsFtl3PwXJlpUbvRaAJdECuR6Sjo9YarZz89Rs6LeIV7aSJw3G7Gnn
+    aPe_0T-_zTqYg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehvdcutefuodetggdotefrodftvfcurf
     hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
     ihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttdflne
     cuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeen
     ucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekgeefle
     egieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilh
     hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:YZGbYJyABNXXnK5JS64xTEB8lwQln377hoYuzbr5q43pB9dZ_PpZeQ>
-    <xmx:YZGbYJNWKttTEtr0ZxDjXmMksSvTqtcfPkN3VLSWV5Wk4v15dAlygA>
-    <xmx:YZGbYO-yluAlVk3DaBUt9Uld3lIagbg9EhZaOz3OtrABz_DOvT4JrQ>
-    <xmx:YZGbYAKP5ZbEwzt_KKVoefjaJOLo3wvyp48-jXMWne7hWe-eEEta_MjLix8>
+X-ME-Proxy: <xmx:jJGbYBGEUmMe-xQUm0zEij04NfQBsPDh7nJCafJ6H4ki7ZkTLUWTBQ>
+    <xmx:jJGbYGTtWC9LmrSF948gPsAcELEjCHuEbN2E6eNyPApsh6rQmC-uSw>
+    <xmx:jJGbYOyvmNr8khrr8rwTJ6JEfrB8yB6PLzoPpiqqsBgvuB_oIVa-dw>
+    <xmx:jZGbYC9dvMRucmwM-THN4d6x4bjvFCtaDUKEphnpd8EUdoUlFxjzZyTYkNA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 12 May 2021 04:27:13 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Revert "USB: cdc-acm: fix rounding error in TIOCSSERIAL"" failed to apply to 4.4-stable tree
-To:     johan@kernel.org, anthony.mallet@laas.fr,
-        gregkh@linuxfoundation.org, oneukum@suse.com
+        Wed, 12 May 2021 04:27:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] serial: stm32: fix threaded interrupt handling" failed to apply to 5.12-stable tree
+To:     johan@kernel.org, alexandre.torgue@st.com, gerald.baeza@st.com,
+        gregkh@linuxfoundation.org, valentin.caron@foss.st.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 12 May 2021 10:26:59 +0200
-Message-ID: <1620808019105157@kroah.com>
+Date:   Wed, 12 May 2021 10:27:54 +0200
+Message-ID: <1620808074112205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,68 +71,96 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 729f7955cb987c5b7d7e54c87c5ad71c789934f7 Mon Sep 17 00:00:00 2001
+From e359b4411c2836cf87c8776682d1b594635570de Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
-Date: Thu, 8 Apr 2021 15:16:00 +0200
-Subject: [PATCH] Revert "USB: cdc-acm: fix rounding error in TIOCSSERIAL"
+Date: Fri, 16 Apr 2021 16:05:56 +0200
+Subject: [PATCH] serial: stm32: fix threaded interrupt handling
 
-This reverts commit b401f8c4f492cbf74f3f59c9141e5be3071071bb.
+When DMA is enabled the receive handler runs in a threaded handler, but
+the primary handler up until very recently neither disabled interrupts
+in the device or used IRQF_ONESHOT. This would lead to a deadlock if an
+interrupt comes in while the threaded receive handler is running under
+the port lock.
 
-The offending commit claimed that trying to set the values reported back
-by TIOCGSERIAL as a regular user could result in an -EPERM error when HZ
-is 250, but that was never the case.
+Commit ad7676812437 ("serial: stm32: fix a deadlock condition with
+wakeup event") claimed to fix an unrelated deadlock, but unfortunately
+also disabled interrupts in the threaded handler. While this prevents
+the deadlock mentioned in the previous paragraph it also defeats the
+purpose of using a threaded handler in the first place.
 
-With HZ=250, the default 0.5 second value of close_delay is converted to
-125 jiffies when set and is converted back to 50 centiseconds by
-TIOCGSERIAL as expected (not 12 cs as was claimed, even if that was the
-case before an earlier fix).
+Fix this by making the interrupt one-shot and not disabling interrupts
+in the threaded handler.
 
-Comparing the internal current and new jiffies values is just fine to
-determine if the value is about to change so drop the bogus workaround
-(which was also backported to stable).
+Note that (receive) DMA must not be used for a console port as the
+threaded handler could be interrupted while holding the port lock,
+something which could lead to a deadlock in case an interrupt handler
+ends up calling printk.
 
-For completeness: With different default values for these parameters or
-with a HZ value not divisible by two, the lack of rounding when setting
-the default values in tty_port_init() could result in an -EPERM being
-returned, but this is hardly something we need to worry about.
-
-Cc: Anthony Mallet <anthony.mallet@laas.fr>
-Cc: stable@vger.kernel.org
-Acked-by: Oliver Neukum <oneukum@suse.com>
+Fixes: ad7676812437 ("serial: stm32: fix a deadlock condition with wakeup event")
+Fixes: 3489187204eb ("serial: stm32: adding dma support")
+Cc: stable@vger.kernel.org      # 4.9
+Cc: Alexandre TORGUE <alexandre.torgue@st.com>
+Cc: Gerald Baeza <gerald.baeza@st.com>
+Reviewed-by: Valentin Caron<valentin.caron@foss.st.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210408131602.27956-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20210416140557.25177-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 3fda1ec961d7..96e221803fa6 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -942,7 +942,6 @@ static int set_serial_info(struct tty_struct *tty, struct serial_struct *ss)
- {
- 	struct acm *acm = tty->driver_data;
- 	unsigned int closing_wait, close_delay;
--	unsigned int old_closing_wait, old_close_delay;
- 	int retval = 0;
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 4d277804c63e..3524ed2c0c73 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -214,14 +214,11 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+ 	struct tty_port *tport = &port->state->port;
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+-	unsigned long c, flags;
++	unsigned long c;
+ 	u32 sr;
+ 	char flag;
  
- 	close_delay = msecs_to_jiffies(ss->close_delay * 10);
-@@ -950,17 +949,11 @@ static int set_serial_info(struct tty_struct *tty, struct serial_struct *ss)
- 			ASYNC_CLOSING_WAIT_NONE :
- 			msecs_to_jiffies(ss->closing_wait * 10);
+-	if (threaded)
+-		spin_lock_irqsave(&port->lock, flags);
+-	else
+-		spin_lock(&port->lock);
++	spin_lock(&port->lock);
  
--	/* we must redo the rounding here, so that the values match */
--	old_close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
--	old_closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
--				ASYNC_CLOSING_WAIT_NONE :
--				jiffies_to_msecs(acm->port.closing_wait) / 10;
--
- 	mutex_lock(&acm->port.mutex);
+ 	while (stm32_usart_pending_rx(port, &sr, &stm32_port->last_res,
+ 				      threaded)) {
+@@ -278,10 +275,7 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+ 		uart_insert_char(port, sr, USART_SR_ORE, c, flag);
+ 	}
  
- 	if (!capable(CAP_SYS_ADMIN)) {
--		if ((ss->close_delay != old_close_delay) ||
--		    (ss->closing_wait != old_closing_wait))
-+		if ((close_delay != acm->port.close_delay) ||
-+		    (closing_wait != acm->port.closing_wait))
- 			retval = -EPERM;
- 		else
- 			retval = -EOPNOTSUPP;
+-	if (threaded)
+-		spin_unlock_irqrestore(&port->lock, flags);
+-	else
+-		spin_unlock(&port->lock);
++	spin_unlock(&port->lock);
+ 
+ 	tty_flip_buffer_push(tport);
+ }
+@@ -667,7 +661,8 @@ static int stm32_usart_startup(struct uart_port *port)
+ 
+ 	ret = request_threaded_irq(port->irq, stm32_usart_interrupt,
+ 				   stm32_usart_threaded_interrupt,
+-				   IRQF_NO_SUSPEND, name, port);
++				   IRQF_ONESHOT | IRQF_NO_SUSPEND,
++				   name, port);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1156,6 +1151,13 @@ static int stm32_usart_of_dma_rx_probe(struct stm32_port *stm32port,
+ 	struct dma_async_tx_descriptor *desc = NULL;
+ 	int ret;
+ 
++	/*
++	 * Using DMA and threaded handler for the console could lead to
++	 * deadlocks.
++	 */
++	if (uart_console(port))
++		return -ENODEV;
++
+ 	/* Request DMA RX channel */
+ 	stm32port->rx_ch = dma_request_slave_channel(dev, "rx");
+ 	if (!stm32port->rx_ch) {
 
