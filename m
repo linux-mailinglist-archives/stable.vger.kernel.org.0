@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 455AF37D2EB
-	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7164C37D2EE
+	for <lists+stable@lfdr.de>; Wed, 12 May 2021 20:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243931AbhELSPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 14:15:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54566 "EHLO mail.kernel.org"
+        id S1349738AbhELSPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 14:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349609AbhELSKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 May 2021 14:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29E6161938;
-        Wed, 12 May 2021 18:05:20 +0000 (UTC)
+        id S1349802AbhELSKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 May 2021 14:10:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E38116193B;
+        Wed, 12 May 2021 18:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620842721;
-        bh=LmqfkwMYhKqF6Tm30FO7R7fI8lbJNQQOUGeggJ/jTfA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nGy4jfjl1iHmW4sJYZFsX5j+ZhB3JN+3c7KeAFNhe1cHTljhcL7sZNMHsTbB5+RIr
-         0FcWWrJkM8DNtffysCIFetT3CXLwZica1BwfA6XmTDbgc8CRuD0Dk4PDfN0CkRB3OA
-         K5+rjt3VUy7zgUcbFeNuzkbzN9+nyP0/lmRa6LcWXRraaE1njRAu7mj8mv2aKFZXq+
-         gp6j8Uvb991pDihJWCpwUWyfoStpGgRjLG7/uzYAv9x8hzFs2WEaN2QDZ2D0RquJQk
-         8Xeb/IPyWe2M4TRbXsjvxNwyOi1p/DjyWJ5OVNsiOWIWemHbYRqK+deHrnrFI5Abdy
-         FNaxUl4R9guNA==
+        s=k20201202; t=1620842724;
+        bh=NsivgPJl7gpcN/P+zXALxPP4BLJaDOob+9BgqvP3SyY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hSOdI2x/ZRYWLYrTnAO8UkrmF7SgwGTxkO9979iNx3Ho5PLiY50hgs8xzaV1H6qLK
+         QjzS7o9ftPs/Z/ekU7rJpHMU/retnUvbCwCa5g1V/gnqNcFmtZS1jyhhgZxupDNFZg
+         HfUncYLcqF0RsX0tSNnUecbGebDz+PshydDKK/wAoC2ypP5vYcyOgmXDRCbnnCXl8R
+         2ZsUzBQPmk73PxFupyjQKBqFodCbsmnvcEBpYcfdH6Vcw0EFE8KcRvO3y2a/NJ9t1k
+         qHWn/sOsLask2Bat7a5tJzoN2F++KfpKqZW7siTWnGngghed7UGWTLBTZGNHzXIvMb
+         tkoTnrUR56isw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yannick Vignon <yannick.vignon@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
+Cc:     Ard Biesheuvel <ardb@kernel.org>, Nicolas Pitre <nico@fluxnic.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 18/18] net: stmmac: Do not enable RX FIFO overflow interrupts
-Date:   Wed, 12 May 2021 14:04:49 -0400
-Message-Id: <20210512180450.665586-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 01/12] ARM: 9058/1: cache-v7: refactor v7_invalidate_l1 to avoid clobbering r5/r6
+Date:   Wed, 12 May 2021 14:05:11 -0400
+Message-Id: <20210512180522.665788-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210512180450.665586-1-sashal@kernel.org>
-References: <20210512180450.665586-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,92 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yannick Vignon <yannick.vignon@nxp.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 8a7cb245cf28cb3e541e0d6c8624b95d079e155b ]
+[ Upstream commit f9e7a99fb6b86aa6a00e53b34ee6973840e005aa ]
 
-The RX FIFO overflows when the system is not able to process all received
-packets and they start accumulating (first in the DMA queue in memory,
-then in the FIFO). An interrupt is then raised for each overflowing packet
-and handled in stmmac_interrupt(). This is counter-productive, since it
-brings the system (or more likely, one CPU core) to its knees to process
-the FIFO overflow interrupts.
+The cache invalidation code in v7_invalidate_l1 can be tweaked to
+re-read the associativity from CCSIDR, and keep the way identifier
+component in a single register that is assigned in the outer loop. This
+way, we need 2 registers less.
 
-stmmac_interrupt() handles overflow interrupts by writing the rx tail ptr
-into the corresponding hardware register (according to the MAC spec, this
-has the effect of restarting the MAC DMA). However, without freeing any rx
-descriptors, the DMA stops right away, and another overflow interrupt is
-raised as the FIFO overflows again. Since the DMA is already restarted at
-the end of stmmac_rx_refill() after freeing descriptors, disabling FIFO
-overflow interrupts and the corresponding handling code has no side effect,
-and eliminates the interrupt storm when the RX FIFO overflows.
+Given that the number of sets is typically much larger than the
+associativity, rearrange the code so that the outer loop has the fewer
+number of iterations, ensuring that the re-read of CCSIDR only occurs a
+handful of times in practice.
 
-Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
-Link: https://lore.kernel.org/r/20210506143312.20784-1-yannick.vignon@oss.nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix the whitespace while at it, and update the comment to indicate that
+this code is no longer a clone of anything else.
+
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c  |  7 +------
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 14 ++------------
- 2 files changed, 3 insertions(+), 18 deletions(-)
+ arch/arm/mm/cache-v7.S | 51 +++++++++++++++++++++---------------------
+ 1 file changed, 25 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-index 8c3780d1105f..232efe17ac2c 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-@@ -214,7 +214,7 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
- 				       u32 channel, int fifosz, u8 qmode)
- {
- 	unsigned int rqs = fifosz / 256 - 1;
--	u32 mtl_rx_op, mtl_rx_int;
-+	u32 mtl_rx_op;
+diff --git a/arch/arm/mm/cache-v7.S b/arch/arm/mm/cache-v7.S
+index 50a70edbc863..08986397e5c7 100644
+--- a/arch/arm/mm/cache-v7.S
++++ b/arch/arm/mm/cache-v7.S
+@@ -27,41 +27,40 @@
+  * processor.  We fix this by performing an invalidate, rather than a
+  * clean + invalidate, before jumping into the kernel.
+  *
+- * This function is cloned from arch/arm/mach-tegra/headsmp.S, and needs
+- * to be called for both secondary cores startup and primary core resume
+- * procedures.
++ * This function needs to be called for both secondary cores startup and
++ * primary core resume procedures.
+  */
+ ENTRY(v7_invalidate_l1)
+        mov     r0, #0
+        mcr     p15, 2, r0, c0, c0, 0
+        mrc     p15, 1, r0, c0, c0, 0
  
- 	mtl_rx_op = readl(ioaddr + MTL_CHAN_RX_OP_MODE(channel));
+-       movw    r1, #0x7fff
+-       and     r2, r1, r0, lsr #13
++	movw	r3, #0x3ff
++	and	r3, r3, r0, lsr #3	@ 'Associativity' in CCSIDR[12:3]
++	clz	r1, r3			@ WayShift
++	mov	r2, #1
++	mov	r3, r3, lsl r1		@ NumWays-1 shifted into bits [31:...]
++	movs	r1, r2, lsl r1		@ #1 shifted left by same amount
++	moveq	r1, #1			@ r1 needs value > 0 even if only 1 way
  
-@@ -285,11 +285,6 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
- 	}
+-       movw    r1, #0x3ff
++	and	r2, r0, #0x7
++	add	r2, r2, #4		@ SetShift
  
- 	writel(mtl_rx_op, ioaddr + MTL_CHAN_RX_OP_MODE(channel));
+-       and     r3, r1, r0, lsr #3      @ NumWays - 1
+-       add     r2, r2, #1              @ NumSets
++1:	movw	r4, #0x7fff
++	and	r0, r4, r0, lsr #13	@ 'NumSets' in CCSIDR[27:13]
+ 
+-       and     r0, r0, #0x7
+-       add     r0, r0, #4      @ SetShift
 -
--	/* Enable MTL RX overflow */
--	mtl_rx_int = readl(ioaddr + MTL_CHAN_INT_CTRL(channel));
--	writel(mtl_rx_int | MTL_RX_OVERFLOW_INT_EN,
--	       ioaddr + MTL_CHAN_INT_CTRL(channel));
- }
+-       clz     r1, r3          @ WayShift
+-       add     r4, r3, #1      @ NumWays
+-1:     sub     r2, r2, #1      @ NumSets--
+-       mov     r3, r4          @ Temp = NumWays
+-2:     subs    r3, r3, #1      @ Temp--
+-       mov     r5, r3, lsl r1
+-       mov     r6, r2, lsl r0
+-       orr     r5, r5, r6      @ Reg = (Temp<<WayShift)|(NumSets<<SetShift)
+-       mcr     p15, 0, r5, c7, c6, 2
+-       bgt     2b
+-       cmp     r2, #0
+-       bgt     1b
+-       dsb     st
+-       isb
+-       ret     lr
++2:	mov	r4, r0, lsl r2		@ NumSet << SetShift
++	orr	r4, r4, r3		@ Reg = (Temp<<WayShift)|(NumSets<<SetShift)
++	mcr	p15, 0, r4, c7, c6, 2
++	subs	r0, r0, #1		@ Set--
++	bpl	2b
++	subs	r3, r3, r1		@ Way--
++	bcc	3f
++	mrc	p15, 1, r0, c0, c0, 0	@ re-read cache geometry from CCSIDR
++	b	1b
++3:	dsb	st
++	isb
++	ret	lr
+ ENDPROC(v7_invalidate_l1)
  
- static void dwmac4_dma_tx_chan_op_mode(void __iomem *ioaddr, int mode,
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index a1443d7197e8..af59761ddfa0 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3706,7 +3706,6 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
- 	/* To handle GMAC own interrupts */
- 	if ((priv->plat->has_gmac) || xmac) {
- 		int status = stmmac_host_irq_status(priv, priv->hw, &priv->xstats);
--		int mtl_status;
- 
- 		if (unlikely(status)) {
- 			/* For LPI we need to save the tx status */
-@@ -3717,17 +3716,8 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
- 		}
- 
- 		for (queue = 0; queue < queues_count; queue++) {
--			struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
--
--			mtl_status = stmmac_host_mtl_irq_status(priv, priv->hw,
--								queue);
--			if (mtl_status != -EINVAL)
--				status |= mtl_status;
--
--			if (status & CORE_IRQ_MTL_RX_OVERFLOW)
--				stmmac_set_rx_tail_ptr(priv, priv->ioaddr,
--						       rx_q->rx_tail_addr,
--						       queue);
-+			status = stmmac_host_mtl_irq_status(priv, priv->hw,
-+							    queue);
- 		}
- 
- 		/* PCS link status */
+ /*
 -- 
 2.30.2
 
