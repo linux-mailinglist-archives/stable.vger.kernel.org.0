@@ -2,90 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E368B37F558
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:08:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA3B37F55E
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231251AbhEMKJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 06:09:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41336 "EHLO
+        id S231267AbhEMKNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 06:13:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232852AbhEMKJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:09:42 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CABE9C061574;
-        Thu, 13 May 2021 03:08:30 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id m37so20882246pgb.8;
-        Thu, 13 May 2021 03:08:30 -0700 (PDT)
+        with ESMTP id S230393AbhEMKNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:13:06 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A45C061574;
+        Thu, 13 May 2021 03:11:55 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id b11-20020a7bc24b0000b0290148da0694ffso1096909wmj.2;
+        Thu, 13 May 2021 03:11:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=xQb5CvUR9D6dHtw0MyFND36i9V97kRHy15ZIJvGGGUk=;
-        b=QiXkD0QBws/AQG/BfSn05N3ZLJHJJkvz8UarLR+8mKyybHu7E//gMl0STXd8W7cbOl
-         BOjHWWG84iiqJt/o22sPAYsIuMC8RwOv8eTuQ7rHWM/LLV1OiNpmh8/g+PyE/QLF8PwK
-         VzNu4NJPDotT37FzPD71WNzWjuv7cYxGWWdOcvJlpZr1jxsRPee+9QagTjmFPAy7246K
-         sJmwdQu70Wjp31kopZOjlSDrSgOJJIgSj0NuHRAwVudKHI4zzBKukAtnAklPX9AlR887
-         AuQq3oKvd9/BtSPjuzsxknahQHzHuwQlJtq4Lnr6FgpKna152RVNZxDTphvLMQ/umN2N
-         rbjg==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=La321s4CZU0bPmAeqpbhR07/5MbTy0zEdX1bFYFt688=;
+        b=FXl490aa2FwvDKZV/tDAkD3/iELc/MtK7XHteo9p3C9q3RSdEOS1rh+LWMO5RMWq9g
+         8VGNNA7zfDxEkywwfSsXGyX6bLAYcwE+kwHSFqLkCqODOgvYBbsTL2+6GGIM1aZG/yn0
+         qLpiCBtg0oSQ3ampNK35mdOWKSx2S94lRoVGjWmwY9mF5qf7SImVaPjPWbNr2GIXSsJ4
+         TfENxE292YaUqq9IWkKrlakC3e8voEsR84in4nPmPc2siszJga+h8YlK336my0JKPx5p
+         0acjVLGkKbzcLP2yD4Qfj3U3InfCbCWqt7lyvSNoQvAVspctIv79nmxEh81LT151z6/Y
+         t/TA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=xQb5CvUR9D6dHtw0MyFND36i9V97kRHy15ZIJvGGGUk=;
-        b=X+1lxVlXs4RV4rUP9JPKGGUqhDCMCMDMTzV7+EBN+W44/R7DAoGCov+yPRB/uTkDlE
-         ehCW+Q4EkXpm5RLZwIncxBAhr0NfUCkevwjD79iNFqDm3XncwrvQa62oKJqcckAyyknT
-         Jifu9FH6zk9XsaeWL7bIxIN1JkDjnos2wiX4t2nNwjUq82oqs2CvY4tQKjzG5AUk3FFV
-         lQxlKLMw3v2huYXnMgWmJKicnvBaMTUXS2lUkbyWsnr/k8NH+64lnHGxWylcTHA/6Aws
-         e65qT9RnSATDQbxFlo64Eiv8r9d0m4y3cOpNpZIYzyOxALp8kwGd8DHP1fCXMi585vf8
-         siEg==
-X-Gm-Message-State: AOAM530w7ltY65f1wnBPLm49FTdIgnPC4trVXSwcBCWPF96WvAQHo/nE
-        aRLVPGYEHPYT/0PAS2UczTxWUYyuHUKakn84BTg=
-X-Google-Smtp-Source: ABdhPJwpkiH7b3/dq3zw7Xwf1+TYbstSmXyDpFMjckVzTQORhe7uzYP5cylNWO4Igs0aT6fUBMz1TA==
-X-Received: by 2002:a63:5c5e:: with SMTP id n30mr6770320pgm.87.1620900509829;
-        Thu, 13 May 2021 03:08:29 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
-        by smtp.gmail.com with ESMTPSA id z7sm1756531pfb.93.2021.05.13.03.08.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 May 2021 03:08:29 -0700 (PDT)
-Message-ID: <609cfa9d.1c69fb81.148b5.67df@mx.google.com>
-Date:   Thu, 13 May 2021 03:08:29 -0700 (PDT)
-X-Google-Original-Date: Thu, 13 May 2021 10:08:23 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-Subject: RE: [PATCH 5.12 000/677] 5.12.4-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
+        bh=La321s4CZU0bPmAeqpbhR07/5MbTy0zEdX1bFYFt688=;
+        b=rWA9YrZ0I+4fyYoqOLW3bmPh/9FZ/e2Wlu6UJOcaDUWobOTqItOM8MnAjacbMKAvvU
+         Pi6UGVcSlnso7CotprOQ3Mt25ZvP6OraxFVqYGAAUMSqn+kXYiAIBM3NLUuBd5BGmdJn
+         /Bvtkq6rIl0N6ELuyDUFPODD9rdS7WUeO8GKu3OIvmBPYojWmxTJ2obC1B7e5PzRrEgD
+         YOSR6FuWdWUkHCwO6iztwaBwoTxp7uAKRZJgEImQIhdE/TZqWWILLBAHp9Iu2PAlNnW9
+         FIB/frBaF4nM2ScOLvwErfcO+i/u11OwX9YLpFNAepG2v9T5jHmpDR56c2uenQyGxnZS
+         jYqw==
+X-Gm-Message-State: AOAM53004FsUsDqkHqQF6qV4xImWL00eW7mmvwszhmyqxw78lUc3hgBG
+        M9uRJkXy3xKyGHdr9X4Kcj+sy0bWwh4=
+X-Google-Smtp-Source: ABdhPJyAVt9wUEBJ+hKtnp2rP5Mba9w1wMUrlHFR7B1w0feeMo8Wgb9UCHVAoyyVcotuN35yR7K/ow==
+X-Received: by 2002:a1c:7419:: with SMTP id p25mr3047896wmc.79.1620900713557;
+        Thu, 13 May 2021 03:11:53 -0700 (PDT)
+Received: from [192.168.2.202] (pd9e5a254.dip0.t-ipconnect.de. [217.229.162.84])
+        by smtp.gmail.com with ESMTPSA id c14sm2341108wrt.77.2021.05.13.03.11.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 May 2021 03:11:53 -0700 (PDT)
+Subject: Re: [PATCH] x86/i8259: Work around buggy legacy PIC
+To:     David Laight <David.Laight@ACULAB.COM>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc:     "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20210512210459.1983026-1-luzmaximilian@gmail.com>
+ <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
+From:   Maximilian Luz <luzmaximilian@gmail.com>
+Message-ID: <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com>
+Date:   Thu, 13 May 2021 12:11:51 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
+MIME-Version: 1.0
+In-Reply-To: <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 12 May 2021 16:40:46 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.12.4 release.
-> There are 677 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 5/13/21 10:10 AM, David Laight wrote:
+> From: Maximilian Luz
+>> Sent: 12 May 2021 22:05
+>>
+>> The legacy PIC on the AMD variant of the Microsoft Surface Laptop 4 has
+>> some problems on boot. For some reason it consistently does not respond
+>> on the first try, requiring a couple more tries before it finally
+>> responds.
 > 
-> Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.4-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> That seems very strange, something else must be going on that causes the grief.
+> The 8259 will be built into to the one of the cpu support chips.
+> I can't imagine that requires anything special.
 
-5.12.4-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Right, it's definitely strange. Both Sachi (I imagine) and I don't know
+much about these devices, so we're open for suggestions.
 
+For reference: [1] and following comments are the discussion where we
+(mostly Sachi) discovered the issue, tracking this from
+platform_get_irq() returning -EINVAL to the PIC not probing. It also has
+a dmesg log [2] attached, but as far as we can tell
+
+     [    0.105820] Using NULL legacy PIC
+
+is the only relevant line to that in there.
+
+And lastly, if that's any help at all: The PIC device is described in
+ACPI in [3]. The Surface Laptop 3 also has an AMD CPU (although a prior
+generation) and has the PIC described in the exact same way (can also be
+found in that repository), but doesn't exhibit that behavior (and
+doesn't show the "Using NULL legacy PIC" line). I expect there's not
+much you can change to that definition so that's probably irrelevant
+here.
+
+Again, I don't really know anything about these devices, so my guess
+would be bad hardware revision or bad firmware revision. All I know is
+that retrying seems to "fix" it.
+
+> It's not as though you have a real 8259 - which even a 286 can
+> break the inter-cycle recovery on (with the circuit from the
+> application note).
+
+Right, I imagine that's some emulation for legacy reasons?
+
+Regards,
+Max
+
+[1]: https://github.com/linux-surface/linux-surface/issues/425#issuecomment-831921098
+[2]: https://github.com/linux-surface/linux-surface/files/6421166/dmesg-2021-05-04_22-11.txt
+[3]: https://github.com/linux-surface/acpidumps/blob/69d5ecc1954ea5e90829b8e33541308e7451e951/surface_laptop_4_amd/dsdt.dsl#L1201-L1221
