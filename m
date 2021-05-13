@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D504437FABD
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:31:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6BE537FABF
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234859AbhEMPcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 11:32:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41264 "EHLO mail.kernel.org"
+        id S234909AbhEMPcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 11:32:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229583AbhEMPce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 11:32:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F16456143F;
-        Thu, 13 May 2021 15:31:23 +0000 (UTC)
+        id S234905AbhEMPcv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 11:32:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A995F61168;
+        Thu, 13 May 2021 15:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620919884;
-        bh=QYsZB1y5jYdSiOrJlmPeqGrWNpyyiCrk4+r898vhNKw=;
+        s=korg; t=1620919900;
+        bh=wRU196ab42cFQZZihHDpY9w4MfpoyMg24+1Z3uwx1cM=;
         h=Subject:To:From:Date:From;
-        b=viCKRIADDwhYAV5x5V5MEexKicYIqt9IgB093+QwE3HQ/QVHyL6QhwJjVvPbK4bHS
-         /OQzTBEW8gwTzWBIdKweuFpPxLLJVRQpXFTNisLz/GCawskWum6wAUFnVtjCdkNmmv
-         frFBcZIpeqHGIN/crPXa9aKTRhxNWJcnrWQa5R6U=
-Subject: patch "Revert "rtlwifi: fix a potential NULL pointer dereference"" added to char-misc-linus
-To:     gregkh@linuxfoundation.org, hello@bryanbrattlof.com, kjlu@umn.edu,
-        kvalo@codeaurora.org, stable@vger.kernel.org
+        b=e6rQvj3DP9cnFEg1eTo41FYD2yyHy6K0pV0sdW4oqh6BwHaFr3KwpmK7r+xi+va4I
+         dcX7KcmtCAIwJVrOOhiRsSF6K+nrN6BZH8FsucrRTcCQURRPdbZ2OmC56rr2jAQUOP
+         y1RXeCowUR92MPYjI4KBaaYagZx5kqe2xDjrdWzQ=
+Subject: patch "Revert "net: stmicro: fix a missing check of clk_prepare"" added to char-misc-linus
+To:     gregkh@linuxfoundation.org, davem@davemloft.net, kjlu@umn.edu,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 May 2021 17:31:05 +0200
-Message-ID: <1620919865230204@kroah.com>
+Date:   Thu, 13 May 2021 17:31:10 +0200
+Message-ID: <1620919870200232@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Revert "rtlwifi: fix a potential NULL pointer dereference"
+    Revert "net: stmicro: fix a missing check of clk_prepare"
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,12 +51,12 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 68c5634c4a7278672a3bed00eb5646884257c413 Mon Sep 17 00:00:00 2001
+From bee1b0511844c8c79fccf1f2b13472393b6b91f7 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 3 May 2021 13:56:39 +0200
-Subject: Revert "rtlwifi: fix a potential NULL pointer dereference"
+Date: Mon, 3 May 2021 13:56:47 +0200
+Subject: Revert "net: stmicro: fix a missing check of clk_prepare"
 
-This reverts commit 765976285a8c8db3f0eb7f033829a899d0c2786e.
+This reverts commit f86a3b83833e7cfe558ca4d70b64ebc48903efec.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -66,40 +66,35 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-This commit is not correct, it should not have used unlikely() and is
-not propagating the error properly to the calling function, so it should
-be reverted at this point in time.  Also, if the check failed, the
-work queue was still assumed to be allocated, so further accesses would
-have continued to fail, meaning this patch does nothing to solve the
-root issues at all.
+The original commit causes a memory leak when it is trying to claim it
+is properly handling errors.  Revert this change and fix it up properly
+in a follow-on commit.
 
 Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Bryan Brattlof <hello@bryanbrattlof.com>
-Fixes: 765976285a8c ("rtlwifi: fix a potential NULL pointer dereference")
+Cc: David S. Miller <davem@davemloft.net>
+Fixes: f86a3b83833e ("net: stmicro: fix a missing check of clk_prepare")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-13-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-21-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/base.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/base.c b/drivers/net/wireless/realtek/rtlwifi/base.c
-index 2a7ee90a3f54..4136d7c63254 100644
---- a/drivers/net/wireless/realtek/rtlwifi/base.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/base.c
-@@ -452,11 +452,6 @@ static void _rtl_init_deferred_work(struct ieee80211_hw *hw)
- 	/* <2> work queue */
- 	rtlpriv->works.hw = hw;
- 	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
--	if (unlikely(!rtlpriv->works.rtl_wq)) {
--		pr_err("Failed to allocate work queue\n");
--		return;
--	}
--
- 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
- 			  rtl_watchdog_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
+index 527077c98ebc..fc68e90acbea 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
+@@ -50,9 +50,7 @@ static int sun7i_gmac_init(struct platform_device *pdev, void *priv)
+ 		gmac->clk_enabled = 1;
+ 	} else {
+ 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
+-		ret = clk_prepare(gmac->tx_clk);
+-		if (ret)
+-			return ret;
++		clk_prepare(gmac->tx_clk);
+ 	}
+ 
+ 	return 0;
 -- 
 2.31.1
 
