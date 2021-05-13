@@ -2,159 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00D6037F29B
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 07:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B3537F368
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 09:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230225AbhEMFeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 01:34:00 -0400
-Received: from mail-co1nam11on2072.outbound.protection.outlook.com ([40.107.220.72]:7223
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229935AbhEMFeA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 01:34:00 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Vx7Irvor5luMXM3LRW3j5csZ1RInkHLHQ2xwG5HZ0JmyftnOhgodo6Jljc+wo2DyWo80BZBcRtY5g9qiJRx1pk4HRoAv6VGe1Y8Tg16zy21WsYE7RkCZ53csZ4Y2k+sYQ3wNH7ImULSf2Fdyh+Fj/u+kkmWzIW99Izh3vYB9NX83XhXUXXEEqE9j9LZ4sAoZbTsaNeKBRwsToWLzp6H3X8bemprBwLu2UAz4qCid2xKoWVaDTS3pILVlj5Sjv32Bf2zMoe/e6VduZTfq9Lcv4U/2o1en+kAsVGcgsuxecgLRFmCMNse+SwocNETu4+XmFjI+aYnNkQ5nH9CtOF9+rQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ljhw8KX4Ym9l8Culm/0ZYEAjWJX3mwrKYdmBFozBQts=;
- b=dpbu6OFMaAo4g2AByDqTrhxZIKMTUBUrY9bpWwr/HGJoaYjNmaTzEDY17as9Q62nSmQknhM/yG2UbQ7e9+rzxULzRr5eeUDFy3IWHJDh8jevOl4IJAnoVR+4BB6bYWY/4sMkBEcLPLX4y+YgeE1lcgt6S4Ru1OOop3ik7W6VUve5jdKW4NeQWeULIoKZ+eB3maPzc4+Hs0ahqw8K4hN5T1W3m0DeIA8a5PqOtpuInVFQEGoBdKK9qRtWWXtPA97GN8xZoskgXEBpUTXgg6Zez9xMdZ38BLncw6TJTLgwRwVMc4/VbIquwAH1/9zxPprHyYxAy6qe6hMAbtQnpdl7ow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ljhw8KX4Ym9l8Culm/0ZYEAjWJX3mwrKYdmBFozBQts=;
- b=24YW1w4jCpCUK0h9p474etewmvqrrB3KEmXxsGVS4Ib9mtAu2x1hV644LMW8n3r0muVig9r+RtFBc0FOWNuAzlst++hp0PU6qo6FYyboZIcQtlhKsflf4brVJUfzfPZgv70iWexe+kekHzOvlCdLS2d+9XZd3eR+SCV4Mk1fPOE=
-Authentication-Results: lists.freedesktop.org; dkim=none (message not signed)
- header.d=none;lists.freedesktop.org; dmarc=none action=none
- header.from=amd.com;
-Received: from DM6PR12MB3962.namprd12.prod.outlook.com (2603:10b6:5:1ce::21)
- by DM6PR12MB4748.namprd12.prod.outlook.com (2603:10b6:5:33::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.25; Thu, 13 May
- 2021 05:32:49 +0000
-Received: from DM6PR12MB3962.namprd12.prod.outlook.com
- ([fe80::142:82e3:7e9d:55a0]) by DM6PR12MB3962.namprd12.prod.outlook.com
- ([fe80::142:82e3:7e9d:55a0%6]) with mapi id 15.20.4129.026; Thu, 13 May 2021
- 05:32:49 +0000
-From:   Luben Tuikov <luben.tuikov@amd.com>
-To:     amd-gfx@lists.freedesktop.org
-Cc:     Luben Tuikov <luben.tuikov@amd.com>,
-        Alexander Deucher <Alexander.Deucher@amd.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] drm/amdgpu: Don't query CE and UE errors
-Date:   Thu, 13 May 2021 01:32:32 -0400
-Message-Id: <20210513053233.116683-1-luben.tuikov@amd.com>
-X-Mailer: git-send-email 2.31.1.527.g2d677e5b15
-In-Reply-To: <MN2PR12MB448837F2FFA7B74AD3345C10F7529@MN2PR12MB4488.namprd12.prod.outlook.com>
-References: <MN2PR12MB448837F2FFA7B74AD3345C10F7529@MN2PR12MB4488.namprd12.prod.outlook.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [108.162.138.69]
-X-ClientProxiedBy: YTOPR0101CA0023.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b00:15::36) To DM6PR12MB3962.namprd12.prod.outlook.com
- (2603:10b6:5:1ce::21)
+        id S231494AbhEMHKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 03:10:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57984 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230316AbhEMHKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 03:10:00 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEABC061574;
+        Thu, 13 May 2021 00:08:49 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id m124so20444318pgm.13;
+        Thu, 13 May 2021 00:08:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hJ3oi7BPr8I9au64jvD9eucKXrMf5nsxv7LhNFTYzRw=;
+        b=o/5pStFlSTEpqU4QxBwJY7EQPGmGNTqtlPfuxTf2XSFhJZWYjbFoYXxKz1uZuaw+4g
+         8EViSwrQ7W0+vU6NFDeFsme4eYzbTqV973LevU6RHLvVlV0DGQHHtXcr8uMDyAQG4810
+         oB3N/mkWwQuAf8oB5nW7xqwlPiY4zmDqFcfRhL/Mrj8L8Qgu07Sp4fde3zKNtvoxv9oi
+         SSAku0kQUT6Cj1w0I2zL8ArjDsd9zGPvIovHb+RrrPqwb44TXl3ActaaY2A50ZHmjGZT
+         u91JKQnK1c9LFsh0U/Sxe69GhAuLIIHXHO6ZTgocZ/cSPIPPqWxZKm7X9HsWYJVqxT/L
+         HSqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hJ3oi7BPr8I9au64jvD9eucKXrMf5nsxv7LhNFTYzRw=;
+        b=QDW0hv5J4GfdOmgDZB0SpKOvAIFndx+MUS3qqKDzRR02MJr9u85aBmS+Ymd7jFewPa
+         wACI2sb9CQnSncH7IasqhZFu7p0ZK08nqmE3y8r0dGM0xE9fGKUCzGGJK4CvXT3Ww98w
+         PazpbJic61SCsG7vkNlRg3980AGW01JyqKsYYPjMZg+CxRodjJltp0VQtGy146kFUjAz
+         mBXcestw29flx4EyaRZ+CmqyJSIbMmqPOay8U8AD87BiRaO0r1zWokJj/UhpWa7VPm72
+         lI1jxTVNbsp9NRNXYM7vWlOnv8Eo8SHnuGCkdZ6dGds3Gw+srnakam3cHlwjvh8wwZkq
+         CjHA==
+X-Gm-Message-State: AOAM532cJSIDTx2gNiSHnavJgTivYcxdVDUAg5hA9otiICB9jGQ3d0AW
+        YI1BXcLP9/Vxj08O1deMPcA9XHhi8A8eyIkViEE=
+X-Google-Smtp-Source: ABdhPJxbjjdNWoaWhrFZ17IYKr8uzwbg3haQSlAmm9anUhYKzzov7tvNp7bPzxzoc7B6WS7DCg59XBGoB2eeHlBmdmE=
+X-Received: by 2002:aa7:8e85:0:b029:28f:2620:957e with SMTP id
+ a5-20020aa78e850000b029028f2620957emr39936678pfr.40.1620889729317; Thu, 13
+ May 2021 00:08:49 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (108.162.138.69) by YTOPR0101CA0023.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b00:15::36) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.31 via Frontend Transport; Thu, 13 May 2021 05:32:48 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1bc996a3-ea73-4de3-c8a2-08d915d08bb0
-X-MS-TrafficTypeDiagnostic: DM6PR12MB4748:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM6PR12MB4748A04D96E49CA9E0C04FC899519@DM6PR12MB4748.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: di11ViX1GeHi7ccStS8kmMo/EQ0lYrHSDMGv5aIHfQNda4rzaHKGH4f3IuYKYnSF1+5dru1ULWz9Hc0aH8dvWR9Fpw+fQKuh9T65reGq+/iik57Vf3PG9Lmoq9jHKskbpgXEtM7D1vn8wz3YxBI5Ec5+2HeBbuG7hq1LAg3HIalIu4PA2oRee999Pg1OXgIW/jpGmJx9vfnAlubfJrmmxPZqu0NL7kO/eHqVbU+OVND2h7egHPCyXLX6erqxqOi9Ft7OSYbEa2+svstvK8ZraOA35Vr8NhE5zODJTKRcsAAFnzwz7hBPm4+VScIgpU9HgXl4csR8rVP6uk1g8++NWN6A0p3L7Tb6Ey7MT1Vmm1jKL8UQzkfEGJ3bu0CrZokPxKltBjyQFNC2D2z6Z0WdDAJXK3CWCv/f/vCUtd5zYHtPO1IWIJ/5eUGKih/Q5axDEs0I6gvPhX0uSbDvj5gMt1k5KShx5clSwqtGfOmSjMkW8rltcGYZaCbU7KpWMwbgqbbaEmCGRz5Y28cnxifNvDTJxjx0bHTwSiUVcmPeFyqcl9mdrB3my2kHFEX2WJXWpWPySDsbKvuKNMj0Z9PczkQEcuFGWnlUps6NdbxK9B2THjbeFqd9Yp5f38FeY0fwAq1gnaeFtzEoLs7dNGvE1SyiHc9OsygiCYTVZlKSrU1ikp/iHzn1Sf67IH71M8N9
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3962.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(366004)(39860400002)(136003)(396003)(346002)(2906002)(44832011)(8676002)(54906003)(5660300002)(316002)(36756003)(16526019)(956004)(86362001)(38100700002)(2616005)(4326008)(38350700002)(8936002)(186003)(6666004)(66476007)(6512007)(83380400001)(6486002)(6916009)(478600001)(1076003)(52116002)(66556008)(66946007)(55236004)(26005)(6506007)(69590400013);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?ZvI5xlm2VSpF1lRv5y4H0W3QyZxt0c27B51BJYXfi5YNsI51c8br6N2RBG8z?=
- =?us-ascii?Q?uFuxBZgbs6uk1C0eCklyJjwkOGOAU/l+apcfZFktY673zKgKUEnOWbtdUCt7?=
- =?us-ascii?Q?4Xix7IV+8b5vo0KaWtkkDMWa2ZvCRp1Kz2bc18XIIow/h77iaNIDYvCNIaY4?=
- =?us-ascii?Q?k7S/AYpfctHoO3VBYkYAOfcDfts73Oe8ExYKZSldh0uvftP3HihB/AexjVkr?=
- =?us-ascii?Q?X0xh4tbK3+Wi1r7PljO1J63KpKwPwtC1huzf+hnXTMrms+DzhEJopBFNiTEh?=
- =?us-ascii?Q?SU0HniKTcCUMHS3mjeY32UA9nCnarSP9L5e74G7gMQyawXimvOxzNQ6jx8t2?=
- =?us-ascii?Q?QBZACkBNVpmX7KLKu3Y/lKneq+yoP7TntIKjHdxzI/VrJawZsF+Kz5mziFna?=
- =?us-ascii?Q?4xxCymSog8iNaNfDAKX+qVZJ3mfMxO2jut3Nk6sbAHruOTgA+vItzRejmxWe?=
- =?us-ascii?Q?qegtDnj8T9xZyXJ1YggjA4QXv02jOdgTjXZggFpDEswrJFQbWiAPdyb8haGw?=
- =?us-ascii?Q?hH8nXOyqRtvq/ClPiGkDLJNXW0OMROZW1VIjxiKlZ6g5Z1PS3AR1e1Gjqmpw?=
- =?us-ascii?Q?Sf1LiWW/JHl1P74WtJdXekzS8WJvLSB/uypYCsA7/kRS0Iut42MMRVv23han?=
- =?us-ascii?Q?Ig8oT2EvwQaMoz6QTgbG8HlkYYBJqU6kXxn/n5qXJUxH5HF0GGzNDsYnpK4S?=
- =?us-ascii?Q?smF0yo1IibuQN+0eZrOLhrXNXuHFKXKevSUgHLHHmoF24f/Ckq+2TL3wAdW8?=
- =?us-ascii?Q?EnVQFjdqmw/jfGwNO8IxVlochqh0VGT3eWMEDcgR5QvCsg8EOf3WMjkoLn2F?=
- =?us-ascii?Q?xJWs6dBtZKFIk+e5WpZy95be4h89hQ0Tiv1ISFIh3xu1sTtvUwFuHJhoIVl6?=
- =?us-ascii?Q?zlnJug2bA+6BfWx/9VZI/bLJqetjRgLEwtU/j2qn1ggG86LCuOHhnqN5q2dG?=
- =?us-ascii?Q?SgSHntPOY9L2XcJRv2dO8f0aR4KymC4t00TAztKZWwSaVvnlOVIhOoaXGS2S?=
- =?us-ascii?Q?6EOD4aBmcQnuul3rxFkq8SXuJc9Fh/Vq4ODPx3tkFT4LGM53696UejEHpynt?=
- =?us-ascii?Q?FSK8fYwJINObtvhF3ON/jHSHv7rBHdCK93sZNagOInZGq2ftzfqQBgzP5Mww?=
- =?us-ascii?Q?t3EwXF0Al2FGMo7yWOcFKMUfU7FX2ja1EtVEG24OdXzrBMO8z8h97ljkaoDK?=
- =?us-ascii?Q?9+05zsKKkWyu96/JVIRcmxLRJiJyCVpJsuIkxvW7vusDuuNf2OeFyEb3eujf?=
- =?us-ascii?Q?6ZKZvUVK2XvWuKeHo7KRU1eEM3FffzCA3lxYxJQQ9ZRe3Ml2szrqoWpibi7T?=
- =?us-ascii?Q?AsWlhqV0DLOaOJF0QfTw/FGa?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1bc996a3-ea73-4de3-c8a2-08d915d08bb0
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3962.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 May 2021 05:32:49.3104
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: S1gADoYLN0dc+TUqKSVGjWPuEOBjrm+lbPYpXsTEHj7MM88pi9nInr9y0SSJPGtL
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4748
+References: <20210512210413.1982933-1-luzmaximilian@gmail.com>
+In-Reply-To: <20210512210413.1982933-1-luzmaximilian@gmail.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Thu, 13 May 2021 10:08:33 +0300
+Message-ID: <CAHp75VczB-+Qs9-7Ye3qXZBag8_Ho4E3oTywGu2eNY67s3K00w@mail.gmail.com>
+Subject: Re: [PATCH] serial: 8250_dw: Add device HID for new AMD UART controller
+To:     Maximilian Luz <luzmaximilian@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-serial@vger.kernel.org, stable@vger.kernel.org,
+        Sachi King <nakato@nakato.io>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On QUERY2 IOCTL don't query counts of correctable
-and uncorrectable errors, since when RAS is
-enabled and supported on Vega20 server boards,
-this takes insurmountably long time, in O(n^3),
-which slows the system down to the point of it
-being unusable when we have GUI up.
+On Thu, May 13, 2021 at 1:20 AM Maximilian Luz <luzmaximilian@gmail.com> wrote:
+>
+> Add device HID AMDI0022 to the AMD UART controller driver match table
+> and create a platform device for it. This controller can be found on
+> Microsoft Surface Laptop 4 devices and seems similar enough that we can
+> just copy the existing AMDI0020 entries.
 
-Fixes: ae363a212b14 ("drm/amdgpu: Add a new flag to AMDGPU_CTX_OP_QUERY_STATE2")
-Cc: Alexander Deucher <Alexander.Deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c | 16 ----------------
- 1 file changed, 16 deletions(-)
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com> # for 8250_dw part
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-index 01fe60fedcbe..e1557020c49d 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-@@ -337,7 +337,6 @@ static int amdgpu_ctx_query2(struct amdgpu_device *adev,
- {
- 	struct amdgpu_ctx *ctx;
- 	struct amdgpu_ctx_mgr *mgr;
--	unsigned long ras_counter;
- 
- 	if (!fpriv)
- 		return -EINVAL;
-@@ -362,21 +361,6 @@ static int amdgpu_ctx_query2(struct amdgpu_device *adev,
- 	if (atomic_read(&ctx->guilty))
- 		out->state.flags |= AMDGPU_CTX_QUERY2_FLAGS_GUILTY;
- 
--	/*query ue count*/
--	ras_counter = amdgpu_ras_query_error_count(adev, false);
--	/*ras counter is monotonic increasing*/
--	if (ras_counter != ctx->ras_counter_ue) {
--		out->state.flags |= AMDGPU_CTX_QUERY2_FLAGS_RAS_UE;
--		ctx->ras_counter_ue = ras_counter;
--	}
--
--	/*query ce count*/
--	ras_counter = amdgpu_ras_query_error_count(adev, true);
--	if (ras_counter != ctx->ras_counter_ce) {
--		out->state.flags |= AMDGPU_CTX_QUERY2_FLAGS_RAS_CE;
--		ctx->ras_counter_ce = ras_counter;
--	}
--
- 	mutex_unlock(&mgr->lock);
- 	return 0;
- }
+> Cc: <stable@vger.kernel.org> # 5.10+
+> Tested-by: Sachi King <nakato@nakato.io>
+> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+> ---
+>  drivers/acpi/acpi_apd.c           | 1 +
+>  drivers/tty/serial/8250/8250_dw.c | 1 +
+>  2 files changed, 2 insertions(+)
+>
+> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+> index 0ec5b3f69112..6e02448d15d9 100644
+> --- a/drivers/acpi/acpi_apd.c
+> +++ b/drivers/acpi/acpi_apd.c
+> @@ -226,6 +226,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+>         { "AMDI0010", APD_ADDR(wt_i2c_desc) },
+>         { "AMD0020", APD_ADDR(cz_uart_desc) },
+>         { "AMDI0020", APD_ADDR(cz_uart_desc) },
+> +       { "AMDI0022", APD_ADDR(cz_uart_desc) },
+>         { "AMD0030", },
+>         { "AMD0040", APD_ADDR(fch_misc_desc)},
+>         { "HYGO0010", APD_ADDR(wt_i2c_desc) },
+> diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
+> index 9e204f9b799a..a3a0154da567 100644
+> --- a/drivers/tty/serial/8250/8250_dw.c
+> +++ b/drivers/tty/serial/8250/8250_dw.c
+> @@ -714,6 +714,7 @@ static const struct acpi_device_id dw8250_acpi_match[] = {
+>         { "APMC0D08", 0},
+>         { "AMD0020", 0 },
+>         { "AMDI0020", 0 },
+> +       { "AMDI0022", 0 },
+>         { "BRCM2032", 0 },
+>         { "HISI0031", 0 },
+>         { },
+> --
+> 2.31.1
+>
+
+
 -- 
-2.31.1.527.g2d677e5b15
-
+With Best Regards,
+Andy Shevchenko
