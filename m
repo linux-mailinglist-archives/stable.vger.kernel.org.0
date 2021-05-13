@@ -2,81 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0BBF37F456
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 10:46:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6857837F489
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 10:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbhEMIry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 04:47:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51382 "EHLO
+        id S232234AbhEMI6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 04:58:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231273AbhEMIrx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 04:47:53 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122BCC061574;
-        Thu, 13 May 2021 01:46:44 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id v12so26128060wrq.6;
-        Thu, 13 May 2021 01:46:43 -0700 (PDT)
+        with ESMTP id S232260AbhEMI6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 04:58:45 -0400
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20960C061761;
+        Thu, 13 May 2021 01:57:34 -0700 (PDT)
+Received: by mail-qk1-x732.google.com with SMTP id a2so24823807qkh.11;
+        Thu, 13 May 2021 01:57:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=3FkFy0c36SNhKbaRVomCfeyMIyqDh+C+ksOUdL6isdA=;
-        b=uRUOfMIm3YAmzG3b1DJ5EDwxYrODW/oQgURnEgtwvSGcwCWF0aSBykyEwzwkCX9Ix9
-         P7fJ8odof5aeOyHqJepJbxtGZNP/K78bi9H8NqkB0Op4H0DGkNW+RjUV219vlcws+8J0
-         G/chDThxhqOn74KGUcG42vA59EA53zGHo5g+5+wiHinkiykZjdkcbylRfBeWQ/aUCdsT
-         8Cg5V6zd0+27uKqs0BmAO5vlCuN+KKz9FATqDkgnXc+FrfaNt6J6YmqnL3e8gzX6bOqU
-         V1l8+ngMKcaZhq+ngqyCzpYGMiynHmrC4gg1Brdulbef3btiErFUxlnQxy8Grpk03hkB
-         OXAw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=COkVIizRsyiwRJig2+uSHaIiIYnZtFVnYWEkEuvuuX0=;
+        b=riiBPo7+PW8Fn1TXWc8RTILLF2dlxaQLDN4d/vsjnomSI+X5Yp5gzTAmNQB+Wo7QBC
+         tO02MAwzNoFYrUD+pZHiR9ol68WtoeNU1j2MCvVOFkTzOTkJkEgrzN4VSY8BfQ4lHeqD
+         f3tAgOIHV2EmbIqvYJSDkPxXyVWbo7Nq9dsdtWo1D2nN8IWg6ntc4YNZPkKM7Ot3VYc6
+         u1p0T7m5n4UnD8sWZW5VAXt763bvENlvr9chfMg/o/WLaOwiuwDEGLIPwfckF0B2Zg6m
+         uv/Hu02CgSywAisq/gvfCv4Ol0Fszsu6xNWYQJAdbDU+CGURz1i8TJsDky2aHzXMqznU
+         gtzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=3FkFy0c36SNhKbaRVomCfeyMIyqDh+C+ksOUdL6isdA=;
-        b=c2XSNlVdi9ecZc0qyFJGQC/f9WuWvb7CO0jL3agwCZlQtLUqU0jWpG8QFyvc9cZ6xY
-         e3WfUYmyidoT+u9ITnZAEjbdPHzOD9iq05bRVMIo7J65PuwaQ2lJ4vqwi9KRogxobjPV
-         QoXzFUN7rKegUkdAS9E5+e8AvitYmp4ByhyzIYu0F3LAHdeGzdF/oeE6GfSwazgZXILa
-         PEzl0Yp03H35siBb1tIAGguul71kLKzO5E0mXAvP/1OMN2txVz155jeCVqCbPVgTeDtI
-         5gTeI5u4q2SmUZVBpkR7OmpvNivNpFvZdXcd1zbe3QAnXivohUBaOrKnXhbBZi+rGPYU
-         o5rQ==
-X-Gm-Message-State: AOAM533PbYFmZ1qfuk3knZwDbTavTC/FKB4qJWFo2lq6nGrNSnnqb3XH
-        eK0L8Fu7B09M+jjKhqPO7vFl2PYrhJ/SdQ==
-X-Google-Smtp-Source: ABdhPJxQE1dmnFYIo3vYWj4A0ou3NIx+kYJbEzBcLu36qWgpMLDaj/vSsVuHkqMvaRnY4IGUs6eTTw==
-X-Received: by 2002:a05:6000:50d:: with SMTP id a13mr49363978wrf.130.1620895602843;
-        Thu, 13 May 2021 01:46:42 -0700 (PDT)
-Received: from debian (host-2-98-62-17.as13285.net. [2.98.62.17])
-        by smtp.gmail.com with ESMTPSA id z5sm2187769wrn.69.2021.05.13.01.46.41
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=COkVIizRsyiwRJig2+uSHaIiIYnZtFVnYWEkEuvuuX0=;
+        b=JlLjKOMtHbhWW8mw44jF/AG+RXHe0riEbwM5p4I/tlEMD7m4CWr1Y9xheTKrMnsBCq
+         5LKGgj8b60UFM2nC4M/kttFsF+5rDOxxgUnxfvsEunrkl5OncNXRvdRLnbj3KqoK4V2g
+         b3Kd5p3F/5AWToXvN5MyCbtidIBV5YTTL+IJzopq5piatoh405Cuq+rJKdkyiaZdyM1B
+         dbC/G3GG7+5vBd84VjDXfngUelPSDNOnueUtLu5MCqVclzaqHowRxXZgsB9dJWXSx+Tg
+         Am2N2cC+99Y5Qg7Sszr9KhAM4Ig4f4qhTIDnuXGTa2y1DwanuCnyZvR8S6KjGaIJ+ixC
+         UlEw==
+X-Gm-Message-State: AOAM533vH9xS2QpzxYtzXTk/tjTlQoA7WRe4vBNZewiFZcbffMZaYiew
+        KpFQZc6+bfC0naO9VTa0SjivIFEgkzkedA==
+X-Google-Smtp-Source: ABdhPJyhqDvgCwt4aqMja/DZDNxs7D67ZTDnJWb50BUwqWI1+/Ki6S+1ZnWndbPtRLnYrFhvrHRD3w==
+X-Received: by 2002:a05:620a:1f2:: with SMTP id x18mr36674398qkn.279.1620896253899;
+        Thu, 13 May 2021 01:57:33 -0700 (PDT)
+Received: from jrr-vaio.internal.cc-sw.com (cpe-74-136-172-82.kya.res.rr.com. [74.136.172.82])
+        by smtp.gmail.com with ESMTPSA id a195sm1966648qkg.101.2021.05.13.01.57.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 May 2021 01:46:42 -0700 (PDT)
-Date:   Thu, 13 May 2021 09:46:40 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Huacai Chen <chenhuacai@kernel.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH 5.10 052/530] MIPS: Reinstate platform `__div64_32 handler
-Message-ID: <YJzncHQfODFWvZt2@debian>
-References: <20210512144819.664462530@linuxfoundation.org>
- <20210512144821.451207008@linuxfoundation.org>
+        Thu, 13 May 2021 01:57:33 -0700 (PDT)
+From:   Jonathon Reinhart <jonathon.reinhart@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Jonathon Reinhart <jonathon.reinhart@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Westphal <fw@strlen.de>, netdev@vger.kernel.org
+Subject: [PATCH] netfilter: conntrack: Make global sysctls readonly in non-init netns
+Date:   Thu, 13 May 2021 04:57:20 -0400
+Message-Id: <20210513085720.32367-1-jonathon.reinhart@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210512144821.451207008@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+commit 2671fa4dc0109d3fb581bc3078fdf17b5d9080f6 upstream.
 
-On Wed, May 12, 2021 at 04:42:42PM +0200, Greg Kroah-Hartman wrote:
-> From: Maciej W. Rozycki <macro@orcam.me.uk>
-> 
-> commit c49f71f60754acbff37505e1d16ca796bf8a8140 upstream.
+These sysctls point to global variables:
+- NF_SYSCTL_CT_MAX (&nf_conntrack_max)
+- NF_SYSCTL_CT_EXPECT_MAX (&nf_ct_expect_max)
+- NF_SYSCTL_CT_BUCKETS (&nf_conntrack_htable_size_user)
 
-This is breaking the mips build of malta_qemu_32r6_defconfig. Reverting
-the patch fixes the build.
+Because their data pointers are not updated to point to per-netns
+structures, they must be marked read-only in a non-init_net ns.
+Otherwise, changes in any net namespace are reflected in (leaked into)
+all other net namespaces. This problem has existed since the
+introduction of net namespaces.
 
+This patch is necessarily different from the upstream patch due to the
+refactoring which took place since 5.4 in commit d0febd81ae77
+("netfilter: conntrack: re-visit sysctls in unprivileged namespaces").
 
---
-Regards
-Sudip
+Signed-off-by: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+---
+
+Upstream commit 2671fa4dc010 was already applied to the 5.10, 5.11, and
+5.12 trees.
+
+This was tested on 5.4.118, so please apply to 5.4.y.
+---
+ net/netfilter/nf_conntrack_standalone.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index 1a6982540126..46e3c9f5f4ce 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -1071,8 +1071,11 @@ static int nf_conntrack_standalone_init_sysctl(struct net *net)
+ #endif
+ 	}
+ 
+-	if (!net_eq(&init_net, net))
++	if (!net_eq(&init_net, net)) {
++		table[NF_SYSCTL_CT_MAX].mode = 0444;
++		table[NF_SYSCTL_CT_EXPECT_MAX].mode = 0444;
+ 		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
++	}
+ 
+ 	net->ct.sysctl_header = register_net_sysctl(net, "net/netfilter", table);
+ 	if (!net->ct.sysctl_header)
+-- 
+2.20.1
+
