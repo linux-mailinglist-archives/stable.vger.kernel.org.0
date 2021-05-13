@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84DF837FB88
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 18:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956E437FB8C
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 18:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230431AbhEMQeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 12:34:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35308 "EHLO mail.kernel.org"
+        id S235150AbhEMQea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 12:34:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229687AbhEMQeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 12:34:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8180861106;
-        Thu, 13 May 2021 16:33:01 +0000 (UTC)
+        id S232881AbhEMQeX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 12:34:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF2F461106;
+        Thu, 13 May 2021 16:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620923582;
-        bh=+o1GVC59Wx2AtymsegYWPizYkKB1GQcwXYRkGhYOm7s=;
+        s=korg; t=1620923593;
+        bh=vBQjaaHSANyzm9JFoFE/baKXArk+csZbiGrMEDy8Pzk=;
         h=Subject:To:From:Date:From;
-        b=Bm00nzMzD57f+Pawdq2Ytn0qttunMTzc1PbvLKihjnf5GGDVtzaor76XLWtim9Pdh
-         tOUCUPm/7L+8A6K65SEDrMz1A6BGbiHBFH0xjRGfP9KzmMXx95S14rVquijCDpV2Bb
-         OvlTG1J/QUy/BErOLUjCM/cBB50jG+FCaTp540xI=
-Subject: patch "Revert "rapidio: fix a NULL pointer dereference when" added to char-misc-linus
-To:     gregkh@linuxfoundation.org, akpm@linux-foundation.org,
-        alex.bou9@gmail.com, kjlu@umn.edu, mporter@kernel.crashing.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
+        b=JuotRvk3g1i5sYh6SxMMb6gqtUUu8Hy/z3Ifmfd70ZYakdvsx/xEZY2kI3eblQL/1
+         Vou/CCeeQcVCKC4v1UoA6cG/Sqm3bPYHe2EeUxAxj4Fx1RthuAJej3FBruavFf1Y3c
+         lmV87anWATuk6+ySA8xnzPthdA5Zz8YYOUvO02AY=
+Subject: patch "Revert "ecryptfs: replace BUG_ON with error handling code"" added to char-misc-linus
+To:     gregkh@linuxfoundation.org, code@tyhicks.com, pakki001@umn.edu,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 May 2021 18:32:54 +0200
-Message-ID: <1620923574245120@kroah.com>
+Date:   Thu, 13 May 2021 18:32:57 +0200
+Message-ID: <1620923577785@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Revert "rapidio: fix a NULL pointer dereference when
+    Revert "ecryptfs: replace BUG_ON with error handling code"
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -52,13 +51,12 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5e68b86c7b7c059c0f0ec4bf8adabe63f84a61eb Mon Sep 17 00:00:00 2001
+From e1436df2f2550bc89d832ffd456373fdf5d5b5d7 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 3 May 2021 13:57:11 +0200
-Subject: Revert "rapidio: fix a NULL pointer dereference when
- create_workqueue() fails"
+Date: Mon, 3 May 2021 13:57:15 +0200
+Subject: Revert "ecryptfs: replace BUG_ON with error handling code"
 
-This reverts commit 23015b22e47c5409620b1726a677d69e5cd032ba.
+This reverts commit 2c2a7552dd6465e8fde6bc9cccf8d66ed1c1eb72.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -68,41 +66,40 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-The original commit has a memory leak on the error path here, it does
-not clean up everything properly.
+The original commit log for this change was incorrect, no "error
+handling code" was added, things will blow up just as badly as before if
+any of these cases ever were true.  As this BUG_ON() never fired, and
+most of these checks are "obviously" never going to be true, let's just
+revert to the original code for now until this gets unwound to be done
+correctly in the future.
 
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Fixes: 23015b22e47c ("rapidio: fix a NULL pointer dereference when create_workqueue() fails")
+Cc: Aditya Pakki <pakki001@umn.edu>
+Fixes: 2c2a7552dd64 ("ecryptfs: replace BUG_ON with error handling code")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-45-gregkh@linuxfoundation.org
+Acked-by: Tyler Hicks <code@tyhicks.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-49-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rapidio/rio_cm.c | 8 --------
- 1 file changed, 8 deletions(-)
+ fs/ecryptfs/crypto.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rapidio/rio_cm.c b/drivers/rapidio/rio_cm.c
-index 50ec53d67a4c..e6c16f04f2b4 100644
---- a/drivers/rapidio/rio_cm.c
-+++ b/drivers/rapidio/rio_cm.c
-@@ -2138,14 +2138,6 @@ static int riocm_add_mport(struct device *dev,
- 	mutex_init(&cm->rx_lock);
- 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
- 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
--	if (!cm->rx_wq) {
--		riocm_error("failed to allocate IBMBOX_%d on %s",
--			    cmbox, mport->name);
--		rio_release_outb_mbox(mport, cmbox);
--		kfree(cm);
--		return -ENOMEM;
--	}
--
- 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
+diff --git a/fs/ecryptfs/crypto.c b/fs/ecryptfs/crypto.c
+index 345f8061e3b4..b1aa993784f7 100644
+--- a/fs/ecryptfs/crypto.c
++++ b/fs/ecryptfs/crypto.c
+@@ -296,10 +296,8 @@ static int crypt_scatterlist(struct ecryptfs_crypt_stat *crypt_stat,
+ 	struct extent_crypt_result ecr;
+ 	int rc = 0;
  
- 	cm->tx_slot = 0;
+-	if (!crypt_stat || !crypt_stat->tfm
+-	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED))
+-		return -EINVAL;
+-
++	BUG_ON(!crypt_stat || !crypt_stat->tfm
++	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED));
+ 	if (unlikely(ecryptfs_verbosity > 0)) {
+ 		ecryptfs_printk(KERN_DEBUG, "Key size [%zd]; key:\n",
+ 				crypt_stat->key_size);
 -- 
 2.31.1
 
