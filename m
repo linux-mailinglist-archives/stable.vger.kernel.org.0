@@ -2,122 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DA3B37F55E
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 306E237F563
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231267AbhEMKNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 06:13:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42080 "EHLO
+        id S232327AbhEMKNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 06:13:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230393AbhEMKNG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:13:06 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A45C061574;
-        Thu, 13 May 2021 03:11:55 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id b11-20020a7bc24b0000b0290148da0694ffso1096909wmj.2;
-        Thu, 13 May 2021 03:11:55 -0700 (PDT)
+        with ESMTP id S230393AbhEMKNa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:13:30 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53448C061574;
+        Thu, 13 May 2021 03:12:18 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id s6so30314003edu.10;
+        Thu, 13 May 2021 03:12:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=La321s4CZU0bPmAeqpbhR07/5MbTy0zEdX1bFYFt688=;
-        b=FXl490aa2FwvDKZV/tDAkD3/iELc/MtK7XHteo9p3C9q3RSdEOS1rh+LWMO5RMWq9g
-         8VGNNA7zfDxEkywwfSsXGyX6bLAYcwE+kwHSFqLkCqODOgvYBbsTL2+6GGIM1aZG/yn0
-         qLpiCBtg0oSQ3ampNK35mdOWKSx2S94lRoVGjWmwY9mF5qf7SImVaPjPWbNr2GIXSsJ4
-         TfENxE292YaUqq9IWkKrlakC3e8voEsR84in4nPmPc2siszJga+h8YlK336my0JKPx5p
-         0acjVLGkKbzcLP2yD4Qfj3U3InfCbCWqt7lyvSNoQvAVspctIv79nmxEh81LT151z6/Y
-         t/TA==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=I6ZLVBTAXOh/ae34wFzFrFt/D+FTd0oWmNhF9pEVyBk=;
+        b=j5yVSk5zkPeWsZ1/ztLxyn94YNHAKofP+ErJa/hW1KXdS9JH3S6j542sw1PwZ01V/x
+         EQ7VR9ZmrVrYnQGXMCS5hhy4rlB9UsBkllk5avzHT7ZJHjF2LTmIMqZ4/7BNlUVQCwbO
+         vpjtgcDv6nwzA7QLKOh74Ft4XYMTPyYjKNVrTTBLuZrk9qc8l/C94iGXGwz3kl7lwNbp
+         CkMWC1dXeBi8gP5vqLK6b/0t/jvNweR2L5DNNoWc2APO+q7i2ZpPNocetjTxxdb+Q7xr
+         r4ffaU2Mx2oGykbZzi6D8DHIUJQXKq2X2zZhoP3rf0+gmRk+U/XUJARWaGauPOOC+mRi
+         acuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=La321s4CZU0bPmAeqpbhR07/5MbTy0zEdX1bFYFt688=;
-        b=rWA9YrZ0I+4fyYoqOLW3bmPh/9FZ/e2Wlu6UJOcaDUWobOTqItOM8MnAjacbMKAvvU
-         Pi6UGVcSlnso7CotprOQ3Mt25ZvP6OraxFVqYGAAUMSqn+kXYiAIBM3NLUuBd5BGmdJn
-         /Bvtkq6rIl0N6ELuyDUFPODD9rdS7WUeO8GKu3OIvmBPYojWmxTJ2obC1B7e5PzRrEgD
-         YOSR6FuWdWUkHCwO6iztwaBwoTxp7uAKRZJgEImQIhdE/TZqWWILLBAHp9Iu2PAlNnW9
-         FIB/frBaF4nM2ScOLvwErfcO+i/u11OwX9YLpFNAepG2v9T5jHmpDR56c2uenQyGxnZS
-         jYqw==
-X-Gm-Message-State: AOAM53004FsUsDqkHqQF6qV4xImWL00eW7mmvwszhmyqxw78lUc3hgBG
-        M9uRJkXy3xKyGHdr9X4Kcj+sy0bWwh4=
-X-Google-Smtp-Source: ABdhPJyAVt9wUEBJ+hKtnp2rP5Mba9w1wMUrlHFR7B1w0feeMo8Wgb9UCHVAoyyVcotuN35yR7K/ow==
-X-Received: by 2002:a1c:7419:: with SMTP id p25mr3047896wmc.79.1620900713557;
-        Thu, 13 May 2021 03:11:53 -0700 (PDT)
-Received: from [192.168.2.202] (pd9e5a254.dip0.t-ipconnect.de. [217.229.162.84])
-        by smtp.gmail.com with ESMTPSA id c14sm2341108wrt.77.2021.05.13.03.11.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 May 2021 03:11:53 -0700 (PDT)
-Subject: Re: [PATCH] x86/i8259: Work around buggy legacy PIC
-To:     David Laight <David.Laight@ACULAB.COM>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
-Cc:     "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
-        "x86@kernel.org" <x86@kernel.org>,
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=I6ZLVBTAXOh/ae34wFzFrFt/D+FTd0oWmNhF9pEVyBk=;
+        b=mK9AmeHKVbe6zmvOpmF3kCmW4613hPWWkvPbaj/Raby3Y4id821xphn9v+6WFeFFnM
+         tkvEKOEQUPAaZdxdPiq87dIAdZ6mv3qCJdNxrMH9MucD3MpPOS5P/ifMeKUl/j3+WEAw
+         KuOYvu1V1WhKEq8cj9qbftfnPhm98raqZ9DUh5S4O6LLWlDdCuIqi9fjIDpZd1POSPRi
+         wNlaD/vMG3Kf5+8Y3WiSHeUYC9RCZ0gepOGxETLqmn0CQSdX4GgglYRduzhNI60r62qT
+         C8oD+X3ZY9XFc3sUaOQjAUZUe1jrrFmmO8gqqV0ynWC82AsjpcZ/rqThbfDQSJjQEv7t
+         V0RQ==
+X-Gm-Message-State: AOAM532ExOIw3oHrTiz/5spnnUQgZYwgI4aAzNxsCvpWg+WJK8WGx19m
+        h13YJaFZgi8f2un5rfOKBKA=
+X-Google-Smtp-Source: ABdhPJxrB7e0M30nEf143fGK2yXdb+LTPCecNIiCvJ4WDBrP8UTCFTT8FKnD1hZ+RnPWrQlRqWVH5w==
+X-Received: by 2002:a05:6402:310a:: with SMTP id dc10mr49265825edb.38.1620900737070;
+        Thu, 13 May 2021 03:12:17 -0700 (PDT)
+Received: from gmail.com (0526E777.dsl.pool.telekom.hu. [5.38.231.119])
+        by smtp.gmail.com with ESMTPSA id 9sm1559478ejv.73.2021.05.13.03.12.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 May 2021 03:12:16 -0700 (PDT)
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date:   Thu, 13 May 2021 12:12:14 +0200
+From:   Ingo Molnar <mingo@kernel.org>
+To:     Huang Rui <ray.huang@amd.com>
+Cc:     Alexander Monakov <amonakov@ispras.ru>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        Jason Bagavatsingham <jason.bagavatsingham@gmail.com>,
+        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+        "Fontenot, Nathan" <Nathan.Fontenot@amd.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        "x86@kernel.org" <x86@kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20210512210459.1983026-1-luzmaximilian@gmail.com>
- <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
-From:   Maximilian Luz <luzmaximilian@gmail.com>
-Message-ID: <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com>
-Date:   Thu, 13 May 2021 12:11:51 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+Subject: Re: [PATCH v4] x86, sched: Fix the AMD CPPC maximum perf on some
+ specific generations
+Message-ID: <YJz7fp17T1cyed4j@gmail.com>
+References: <20210425073451.2557394-1-ray.huang@amd.com>
+ <alpine.LNX.2.20.13.2105130130590.10864@monopod.intra.ispras.ru>
+ <YJxdttrorwdlpX33@gmail.com>
+ <20210513042420.GA1621127@hr-amd>
 MIME-Version: 1.0
-In-Reply-To: <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210513042420.GA1621127@hr-amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/13/21 10:10 AM, David Laight wrote:
-> From: Maximilian Luz
->> Sent: 12 May 2021 22:05
->>
->> The legacy PIC on the AMD variant of the Microsoft Surface Laptop 4 has
->> some problems on boot. For some reason it consistently does not respond
->> on the first try, requiring a couple more tries before it finally
->> responds.
+
+* Huang Rui <ray.huang@amd.com> wrote:
+
+> On Thu, May 13, 2021 at 06:59:02AM +0800, Ingo Molnar wrote:
+> > 
+> > * Alexander Monakov <amonakov@ispras.ru> wrote:
+> > 
+> > > On Sun, 25 Apr 2021, Huang Rui wrote:
+> > > 
+> > > > Some AMD Ryzen generations has different calculation method on maximum
+> > > > perf. 255 is not for all asics, some specific generations should use 166
+> > > > as the maximum perf. Otherwise, it will report incorrect frequency value
+> > > > like below:
+> > > 
+> > > The commit message says '255', but the code:
+> > > 
+> > > > --- a/arch/x86/kernel/cpu/amd.c
+> > > > +++ b/arch/x86/kernel/cpu/amd.c
+> > > > @@ -1170,3 +1170,19 @@ void set_dr_addr_mask(unsigned long mask, int dr)
+> > > >  		break;
+> > > >  	}
+> > > >  }
+> > > > +
+> > > > +u32 amd_get_highest_perf(void)
+> > > > +{
+> > > > +	struct cpuinfo_x86 *c = &boot_cpu_data;
+> > > > +
+> > > > +	if (c->x86 == 0x17 && ((c->x86_model >= 0x30 && c->x86_model < 0x40) ||
+> > > > +			       (c->x86_model >= 0x70 && c->x86_model < 0x80)))
+> > > > +	    return 166;
+> > > > +
+> > > > +	if (c->x86 == 0x19 && ((c->x86_model >= 0x20 && c->x86_model < 0x30) ||
+> > > > +			       (c->x86_model >= 0x40 && c->x86_model < 0x70)))
+> > > > +	    return 166;
+> > > > +
+> > > > +	return 225;
+> > > > +}
+> > > 
+> > > says 225? This is probably a typo? In any case they are out of sync.
+> > > 
+> > > Alexander
+> > 
+> > Ugh - that's indeed a good question ...
+> > 
 > 
-> That seems very strange, something else must be going on that causes the grief.
-> The 8259 will be built into to the one of the cpu support chips.
-> I can't imagine that requires anything special.
+> Ah sorry! It's my typo. It should be 255 (confirmed in the ucode).
+> 
+> Alexander, thanks a lot to catch this!
+> 
+> Ingo, would you mind to update it from 225 -> 255 while you apply this
+> patch or let me know if you want me to send v5?
 
-Right, it's definitely strange. Both Sachi (I imagine) and I don't know
-much about these devices, so we're open for suggestions.
+No need to send v5, done!
 
-For reference: [1] and following comments are the discussion where we
-(mostly Sachi) discovered the issue, tracking this from
-platform_get_irq() returning -EINVAL to the PIC not probing. It also has
-a dmesg log [2] attached, but as far as we can tell
+I have a system that appears to be affected by this bug:
 
-     [    0.105820] Using NULL legacy PIC
+  kepler:~> lscpu | grep -i mhz
+  CPU MHz:                         4000.000
+  CPU max MHz:                     7140.6250
+  CPU min MHz:                     2200.0000
 
-is the only relevant line to that in there.
+So I should be able to confirm after a reboot.
 
-And lastly, if that's any help at all: The PIC device is described in
-ACPI in [3]. The Surface Laptop 3 also has an AMD CPU (although a prior
-generation) and has the PIC described in the exact same way (can also be
-found in that repository), but doesn't exhibit that behavior (and
-doesn't show the "Using NULL legacy PIC" line). I expect there's not
-much you can change to that definition so that's probably irrelevant
-here.
+Thanks,
 
-Again, I don't really know anything about these devices, so my guess
-would be bad hardware revision or bad firmware revision. All I know is
-that retrying seems to "fix" it.
-
-> It's not as though you have a real 8259 - which even a 286 can
-> break the inter-cycle recovery on (with the circuit from the
-> application note).
-
-Right, I imagine that's some emulation for legacy reasons?
-
-Regards,
-Max
-
-[1]: https://github.com/linux-surface/linux-surface/issues/425#issuecomment-831921098
-[2]: https://github.com/linux-surface/linux-surface/files/6421166/dmesg-2021-05-04_22-11.txt
-[3]: https://github.com/linux-surface/acpidumps/blob/69d5ecc1954ea5e90829b8e33541308e7451e951/surface_laptop_4_amd/dsdt.dsl#L1201-L1221
+	Ingo
