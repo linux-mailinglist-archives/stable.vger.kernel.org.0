@@ -2,123 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C33537F405
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 10:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5710737F40C
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 10:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231735AbhEMIaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 04:30:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
+        id S231941AbhEMIbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 04:31:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231305AbhEMIaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 04:30:00 -0400
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07EB1C061574;
-        Thu, 13 May 2021 01:28:49 -0700 (PDT)
-Received: by mail-qk1-x72b.google.com with SMTP id x8so24806073qkl.2;
-        Thu, 13 May 2021 01:28:49 -0700 (PDT)
+        with ESMTP id S231925AbhEMIbm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 04:31:42 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F567C061574
+        for <stable@vger.kernel.org>; Thu, 13 May 2021 01:30:28 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id a25so5953421edr.12
+        for <stable@vger.kernel.org>; Thu, 13 May 2021 01:30:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=YZuHIqE1Xt0+x34JLFf8F3EO5A3fSgWJriKswBQRHNU=;
-        b=s2u9kp9VqS0VaNIN/T8JeWGd0C7NRwfSRznS7S3J7CXLS+XikyE6DgF0bSscWqVtF4
-         2fhb+NWXyfI2ywyJaQL1pLJfIDK/jpY9kYCdkXCK5teCkTBsoLxp1L/OYcWSYe6H4pVA
-         Pv7gqKzleU5zBmzoadDSi1D1Zs3mfSH5ugpefiN8uce7UXz6WLh/WPAltF/AqXdD2opz
-         dEb7YidI+KBnQvmt9nsHUm6f/35QGPghjDItLpwxaaVdGEui5jfUP90KI5pDa2Kew8sj
-         NNDZKJOXT+VgiWanZAPKDzsnZ47VRw5L5NA9HgtMa25wEkS/ZsVcubVL39Egm1+MP/1a
-         X+2g==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3zRdMo99sBcPVkYh7kqt4rJWFtQ+AE7arsx+IsmBxYQ=;
+        b=zzy81YRwLvqZzgj+GAVRg7gO7gSxcD6vZz0p9y37lkWqy9qXdwmV2pXxf7Ci2oOSyT
+         iaeFMFenS29V5u125YVd/ikqaYxnj1qrm33lc52I/iNXygB1dEjBHYt+GpkG6Q6nlkZg
+         RLfJbcZxdcSumd/o/QfTbr8K9Z3ymxC2J8vquVgceZPODfj7x5bT8p9FNYn1gc6jsD5d
+         pGxcbIwNCJVLAbAbQCjamkI9AfOAW33pCLGyYQTFbtl3k4Ei/sWyz+X8wB6fJ/JpGu7Y
+         X4onwMc884oaT2zssEUMFi3zNS6v/oDCIVlRnAqqj8ABXL2KCA753oou9NUMsN8J3Ahw
+         vOfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=YZuHIqE1Xt0+x34JLFf8F3EO5A3fSgWJriKswBQRHNU=;
-        b=NtSlBoY1WgOam1kV0Td3bNoZ2IxkPoIeHRkPc5BECchdK1upV1gmzbzTm5Da7mfVAn
-         pjRd7L+cIiC22NC+SMp7sCbyVZhKgRFqF1yqGnQ3COBtfSZqjEsilvjCxhDPltprg1nR
-         bjpC8YfLuIUddRqEP3Y2kkkrJ/01dBqQk3ULLMfX+uelk7OBIdEh1WJ/H8yMayZ2Z91R
-         XWuJWWKCjJ6wsq1UOe403sXdJydBgJuKMoT8x2cbFyx5aI+w0rqXz3mUE0SalbOQcgld
-         pW2uLz8Zzxhu54To3u2JVsIWCS/4Cu6yhp9AKpPjj+F+wzOEY1gwBq394bdijSruVvED
-         cPhQ==
-X-Gm-Message-State: AOAM532dn+zm3SgG+q8KfUCYEjkzdjTLaVcxNkQFeOPPuhk8FZoTUPCL
-        nrVbt/s5XHJ0xXG8fEktG3tx9Ix5HDT0lA==
-X-Google-Smtp-Source: ABdhPJwBnqnTPyylBOAT+AP4wUwUX+DXyg+HYtYfmfbJ0SHpU1RuthJs2B+skd73CAUTeBZvwMFzSw==
-X-Received: by 2002:a37:916:: with SMTP id 22mr15867553qkj.241.1620894528973;
-        Thu, 13 May 2021 01:28:48 -0700 (PDT)
-Received: from jrr-vaio.internal.cc-sw.com (cpe-74-136-172-82.kya.res.rr.com. [74.136.172.82])
-        by smtp.gmail.com with ESMTPSA id m205sm1874679qke.2.2021.05.13.01.28.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 May 2021 01:28:48 -0700 (PDT)
-From:   Jonathon Reinhart <jonathon.reinhart@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Jonathon Reinhart <jonathon.reinhart@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Florian Westphal <fw@strlen.de>, netdev@vger.kernel.org
-Subject: [PATCH] netfilter: conntrack: Make global sysctls readonly in non-init netns
-Date:   Thu, 13 May 2021 04:28:35 -0400
-Message-Id: <20210513082835.18854-1-jonathon.reinhart@gmail.com>
-X-Mailer: git-send-email 2.20.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3zRdMo99sBcPVkYh7kqt4rJWFtQ+AE7arsx+IsmBxYQ=;
+        b=MO8NQPKUsCK3jBG5Q0fzGznwUsn2ZpNIza7ZN0Kdzw5Qhx+6bLtvDzIZNVqr/ro9E1
+         zzW3AEPH3/Wh722R6Cn03u1WH4OH+rJBMAUbevfOYSfjD6zHS5+N9nlnw0izCs2x0b0U
+         VVeu0vFV3asSiTRjarEuZ7uIzT2pXn2dZZYIMFaB4G5jQgy8sFBoahQiIRqtUuvJa4xZ
+         ogPi73/K1rcaND0Rkzqg5DYZF2orPh3BmWNwVbXCGIbjjP4AyVpmu2jPXVUFwl6V4WoV
+         Sl9SXiLOwVeuo2TRBgod4GY6pE7N9ukKIi0/l9KQKiJm8FtWGeWRGi8t83pfFdPv14sM
+         fX7w==
+X-Gm-Message-State: AOAM532ZyQWjYCAT+5e+kD/XVzgsBnrYbq0ya2Dbw9/cVa7wVwUXtpQn
+        hAuqYGRQJhpd0Zk4NMhez5h7OZCNGq0gc3c6LoZZqycJ1LGQGA==
+X-Google-Smtp-Source: ABdhPJwGeFX8pHSgnM7O78q4lR707KbYHSCGE+AlKfh5wKAsFR1Tk5ifzZsnGo+0qfgu0fGg5RRVaLsYQZ4/zIeI5Yk=
+X-Received: by 2002:aa7:c6ca:: with SMTP id b10mr33639738eds.221.1620894626895;
+ Thu, 13 May 2021 01:30:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210512144837.204217980@linuxfoundation.org> <CA+G9fYufHvM+C=39gtk5CF-r4sYYpRkQFGsmKrkdQcXj_XKFag@mail.gmail.com>
+ <YJwW2bNXGZw5kmpo@kroah.com> <CA+G9fYvbe9L=3uJk2+5fR_e2-fnw=UXSDRnHh+u3nMFeOjOwjg@mail.gmail.com>
+ <YJwjuJrYiyS/eeR8@kroah.com> <8615959b-9054-5c9f-0afa-f15672274d12@kernel.org>
+In-Reply-To: <8615959b-9054-5c9f-0afa-f15672274d12@kernel.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 13 May 2021 14:00:15 +0530
+Message-ID: <CA+G9fYuR0OwYG1fmbro2N4FOk-nw61BJHQmd-B7Jbg+mDhsSAg@mail.gmail.com>
+Subject: Re: [PATCH 5.12 000/677] 5.12.4-rc1 review
+To:     Nathan Chancellor <nathan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Huacai Chen <chenhuacai@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 2671fa4dc0109d3fb581bc3078fdf17b5d9080f6 upstream.
+> I think you just need to grab commits c1d337d45ec0 ("MIPS: Avoid DIVU in
+> `__div64_32' is result would be zero") and 25ab14cbe9d1 ("MIPS: Avoid
+> handcoded DIVU in `__div64_32' altogether") to fix this up.
 
-These sysctls point to global variables:
-- [0] "nf_conntrack_max"        (&nf_conntrack_max)
-- [2] "nf_conntrack_buckets"    (&nf_conntrack_htable_size_user)
-- [5] "nf_conntrack_expect_max" (&nf_ct_expect_max)
+I have cherry-picked these two patches on stable-rc 5.4, 5.10, 5.11 and 5.12
+and the MIPS clang builds PASS.
 
-Because their data pointers are not updated to point to per-netns
-structures, they must be marked read-only in a non-init_net ns.
-Otherwise, changes in any net namespace are reflected in (leaked into)
-all other net namespaces. This problem has existed since the
-introduction of net namespaces.
-
-This patch is necessarily different from the upstream patch due to the
-heavy refactoring which took place since 4.19:
-
-d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in unprivileged namespaces")
-b884fa461776 ("netfilter: conntrack: unify sysctl handling")
-4a65798a9408 ("netfilter: conntrack: add mnemonics for sysctl table")
-
-Signed-off-by: Jonathon Reinhart <jonathon.reinhart@gmail.com>
----
-
-Upstream commit 2671fa4dc010 was already applied to the 5.10, 5.11, and
-5.12 trees.
-
-This was tested on 4.19.190, so please apply to 4.19.y.
-
-It should also apply to:
-- 4.14.y
-- 4.9.y
-
-Note that 5.4.y would require a slightly different patch that looks more
-like 2671fa4dc010.
-
----
- net/netfilter/nf_conntrack_standalone.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
-index 2e3ae494f369..da0c9fa381d2 100644
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -594,8 +594,11 @@ static int nf_conntrack_standalone_init_sysctl(struct net *net)
- 	if (net->user_ns != &init_user_ns)
- 		table[0].procname = NULL;
- 
--	if (!net_eq(&init_net, net))
-+	if (!net_eq(&init_net, net)) {
-+		table[0].mode = 0444;
- 		table[2].mode = 0444;
-+		table[5].mode = 0444;
-+	}
- 
- 	net->ct.sysctl_header = register_net_sysctl(net, "net/netfilter", table);
- 	if (!net->ct.sysctl_header)
--- 
-2.20.1
-
+- Naresh
