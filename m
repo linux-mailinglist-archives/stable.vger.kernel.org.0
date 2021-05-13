@@ -2,149 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A573737FF45
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 22:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21E9E37FF5A
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 22:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232343AbhEMUgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 16:36:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40498 "EHLO
+        id S230257AbhEMUio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 16:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233059AbhEMUgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 16:36:08 -0400
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B007CC06174A;
-        Thu, 13 May 2021 13:34:58 -0700 (PDT)
-Received: by mail-yb1-xb32.google.com with SMTP id i204so4186655yba.4;
-        Thu, 13 May 2021 13:34:58 -0700 (PDT)
+        with ESMTP id S231431AbhEMUin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 16:38:43 -0400
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38FD4C061574
+        for <stable@vger.kernel.org>; Thu, 13 May 2021 13:37:32 -0700 (PDT)
+Received: by mail-qk1-x735.google.com with SMTP id i67so26828105qkc.4
+        for <stable@vger.kernel.org>; Thu, 13 May 2021 13:37:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gpOgFcz1Lz2Hvu1NQwtymjYfxRaZrwlVhsmIga9T8F0=;
-        b=QonC5tSf39l7vkW2j6eGc/Vi5FwiLT1WsMbvD+jm5UD0Ihefbn5k5ZXgPmn43IbXMG
-         RFc6H1BvYd0qiqGLX8EJWUFxorHJKqSCpHHWCMfcfpPRsMvlf7Bfd3Q01sErrDWJIOk/
-         Nr5Q3HLV0q8PvsmDOpiX4BevbH/V7UwDhQ1HriS140gizu1Q4V/C4rMJXyZiBnAIpABT
-         WiWj+iqIaWmSU6mDOFGaixhoiAMMHO76G5v99qpp8/zOvd648gC4BWPw6kzmottddj3C
-         AXaXHMBhJ1Y47ruje6TTxotFGylAWyHza0WsP6EKguEs8ekIVMCwo/e0CEmyQ7rkJIew
-         ZRCQ==
+        h=sender:to:from:subject:message-id:date:user-agent:mime-version
+         :content-transfer-encoding:content-language;
+        bh=+gs3WryVIcnk/9Ztb3PMr4k2Lcgv/Gr10erEfgpAOQA=;
+        b=onKSRT4pz6pxm1BZwrg4mSLqxnGPv3ck8BL5eo6YAUWqIPnuu0TeXlOLVDf/8H8qkc
+         nw6aF94eTCIKNTtpJUNOyoNpLZ3LeUOC9zk2XR//ZhSWAOpE5QdvfXWQNhVEc4piddaP
+         8GRetxdZUOCE2R1L25vbH0lrpk+xKUcmlbQ3wiv33mZVOv5D0I5BSs7ltMjwUJZa5l5E
+         02QKA24gaNrHMGyc4+BWfXQ/P/cwdZhFiiBimcnUAS5HVMTG6oexm6LkFLGluHz7esjA
+         J/tSXVQmcLmU19QjLrju5yxwy2Bb13PwWCUP4ILGiyOog1nm/pPM2/ybbDonl6F9oQEr
+         oYwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gpOgFcz1Lz2Hvu1NQwtymjYfxRaZrwlVhsmIga9T8F0=;
-        b=l5RxZ+w8/4+SRYDYJqg5oPBUECxNey3G3lWA8RhK9QQuM5mvS+St+Gf5cnud6ZGpcH
-         4ehkjBQwjPZ8cAulDS/ClXU0gZ8X4QxSXIy3ooHhnUsOxXkPVdExVAu3/F8h5hXMDicG
-         5M3W3tEXwqv/7QcTemMCNDxBuUHGVwiokpYlmlPiLYX/8+nltW4jumOxX64zaQCZgrln
-         nMextFjp0ZbbGFkoNEq1+IcFr2KHAziAklirPUVCJGEZKlcRKs+edZCnusEt8Xbs3zuZ
-         ARAhJCS7rB3GZg2QgNtxiYNpyAMhfCfnLDTZG9tHc+o0vIPuxLulDuyaGZiAD0PqJWL6
-         nvKQ==
-X-Gm-Message-State: AOAM533MY1oIjiLKV4ntrOCZOY8znto6Pyxsc6ueW3kzH3f5aVvmhfvP
-        X9+s158sQj2/Dd/cDm696C4emDFxNwdRxJ10BuM6x24Brmk=
-X-Google-Smtp-Source: ABdhPJzMRIKta7npUnYKHV3iMqxb5v3Zm8FVV8LMgvGmlECG43l62ufBogqhgM7KeZAyLuiXPY5m31aT/FUbeNAdE2U=
-X-Received: by 2002:a25:ad8b:: with SMTP id z11mr30932382ybi.91.1620938097977;
- Thu, 13 May 2021 13:34:57 -0700 (PDT)
+        h=x-gm-message-state:sender:to:from:subject:message-id:date
+         :user-agent:mime-version:content-transfer-encoding:content-language;
+        bh=+gs3WryVIcnk/9Ztb3PMr4k2Lcgv/Gr10erEfgpAOQA=;
+        b=Xn71dHcKei4fcv4BTBrZUite1OVCp9lm9j5nzFzb3sLqrDtODSD8OX51AH1R4zbpsR
+         r9XbTaVYQEOquG1R0hOi4VLvl6LBKn0Emo12ePxRT6me9vC+H/giIiKm3FGHZVHfwbga
+         FxTXBA7ze5CM/2jAODke3XQRD5yCIok6PjlBKF73M3xkOmTiccCcksXn793q9mApcNOI
+         Dvq8LPNS8EUEdiar2NqExQ9aj+yGe7lFlNzV0b5gS4N4flFwlaQNp9p+Jf59LeTvdVz4
+         sI3jmqvkgUJwoVz0ec8iVItpo1/c4DDP520zsoBDNWty6eDRzZaPSQS9uu2j/fOp6NKe
+         GeYQ==
+X-Gm-Message-State: AOAM530CvDD24hDN05ZJmgky6h7hcZpAMu8Fu7+lW2lN2bxbI2cLnIvE
+        D3Z3O2W7uLKxQUVvlmtRJ0WDg+5+GxU=
+X-Google-Smtp-Source: ABdhPJxVy8BHDQYgqf7LtHdiRW6WkNvcsQKSTDW9IHjNhzNwyDSywXA/biZ8Wlrf0cdSnEh21USIAA==
+X-Received: by 2002:a05:620a:2456:: with SMTP id h22mr39366519qkn.292.1620938251521;
+        Thu, 13 May 2021 13:37:31 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id t139sm3327728qka.85.2021.05.13.13.37.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 May 2021 13:37:31 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+To:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Build failures in v4.19.y.queue
+Message-ID: <d2f28d84-424d-6f8e-973f-88f5975eafdd@roeck-us.net>
+Date:   Thu, 13 May 2021 13:37:29 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-References: <20210513122220.313465-1-szymon.janc@codecoup.pl>
-In-Reply-To: <20210513122220.313465-1-szymon.janc@codecoup.pl>
-From:   Luiz Augusto von Dentz <luiz.dentz@gmail.com>
-Date:   Thu, 13 May 2021 13:34:47 -0700
-Message-ID: <CABBYNZLCBW3O21re8hnZ2PyGRWoWZA7vCFYA2yscsDM0Y7oR0w@mail.gmail.com>
-Subject: Re: [PATCH v2] Bluetooth: Remove spurious error message
-To:     Szymon Janc <szymon.janc@codecoup.pl>
-Cc:     "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Szymon,
+Build results:
+     total: 155 pass: 153 fail: 2
+Failed builds:
+     arm:allmodconfig
+     arm:axm55xx_defconfig
+Qemu test results:
+     total: 424 pass: 423 fail: 1
+Failed tests:
+mipsel:mips32r6-generic:malta_32r6_defconfig:nocd:smp:net,pcnet:ide:rootfs
 
-On Thu, May 13, 2021 at 1:23 PM Szymon Janc <szymon.janc@codecoup.pl> wrote:
->
-> Even with rate limited reporting this is very spammy and since
-> it is remote device that is providing bogus data there is no
-> need to report this as error.
->
-> Since real_len variable was used only to allow conditional error
-> message it is now also removed.
->
-> [72454.143336] bt_err_ratelimited: 10 callbacks suppressed
-> [72454.143337] Bluetooth: hci0: advertising data len corrected
-> [72454.296314] Bluetooth: hci0: advertising data len corrected
-> [72454.892329] Bluetooth: hci0: advertising data len corrected
-> [72455.051319] Bluetooth: hci0: advertising data len corrected
-> [72455.357326] Bluetooth: hci0: advertising data len corrected
-> [72455.663295] Bluetooth: hci0: advertising data len corrected
-> [72455.787278] Bluetooth: hci0: advertising data len corrected
-> [72455.942278] Bluetooth: hci0: advertising data len corrected
-> [72456.094276] Bluetooth: hci0: advertising data len corrected
-> [72456.249137] Bluetooth: hci0: advertising data len corrected
-> [72459.416333] bt_err_ratelimited: 13 callbacks suppressed
-> [72459.416334] Bluetooth: hci0: advertising data len corrected
-> [72459.721334] Bluetooth: hci0: advertising data len corrected
-> [72460.011317] Bluetooth: hci0: advertising data len corrected
-> [72460.327171] Bluetooth: hci0: advertising data len corrected
-> [72460.638294] Bluetooth: hci0: advertising data len corrected
-> [72460.946350] Bluetooth: hci0: advertising data len corrected
-> [72461.225320] Bluetooth: hci0: advertising data len corrected
-> [72461.690322] Bluetooth: hci0: advertising data len corrected
-> [72462.118318] Bluetooth: hci0: advertising data len corrected
-> [72462.427319] Bluetooth: hci0: advertising data len corrected
-> [72464.546319] bt_err_ratelimited: 7 callbacks suppressed
-> [72464.546319] Bluetooth: hci0: advertising data len corrected
-> [72464.857318] Bluetooth: hci0: advertising data len corrected
-> [72465.163332] Bluetooth: hci0: advertising data len corrected
-> [72465.278331] Bluetooth: hci0: advertising data len corrected
-> [72465.432323] Bluetooth: hci0: advertising data len corrected
-> [72465.891334] Bluetooth: hci0: advertising data len corrected
-> [72466.045334] Bluetooth: hci0: advertising data len corrected
-> [72466.197321] Bluetooth: hci0: advertising data len corrected
-> [72466.340318] Bluetooth: hci0: advertising data len corrected
-> [72466.498335] Bluetooth: hci0: advertising data len corrected
-> [72469.803299] bt_err_ratelimited: 10 callbacks suppressed
->
-> Signed-off-by: Szymon Janc <szymon.janc@codecoup.pl>
-Reviewed-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-> Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=203753
-> Cc: stable@vger.kernel.org
-> ---
->  net/bluetooth/hci_event.c | 10 ++--------
->  1 file changed, 2 insertions(+), 8 deletions(-)
->
-> diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-> index 5e99968939ce..26846d338fa7 100644
-> --- a/net/bluetooth/hci_event.c
-> +++ b/net/bluetooth/hci_event.c
-> @@ -5441,7 +5441,7 @@ static void process_adv_report(struct hci_dev *hdev, u8 type, bdaddr_t *bdaddr,
->         struct hci_conn *conn;
->         bool match;
->         u32 flags;
-> -       u8 *ptr, real_len;
-> +       u8 *ptr;
->
->         switch (type) {
->         case LE_ADV_IND:
-> @@ -5472,14 +5472,8 @@ static void process_adv_report(struct hci_dev *hdev, u8 type, bdaddr_t *bdaddr,
->                         break;
->         }
->
-> -       real_len = ptr - data;
-> -
->         /* Adjust for actual length */
-> -       if (len != real_len) {
-> -               bt_dev_err_ratelimited(hdev, "advertising data len corrected %u -> %u",
-> -                                      len, real_len);
-> -               len = real_len;
-> -       }
-> +       len = ptr - data;
->
->         /* If the direct address is present, then this report is from
->          * a LE Direct Advertising Report event. In that case it is
-> --
-> 2.31.1
->
+Failures are similar to the build failures in v5.4.y, plus:
 
+drivers/crypto/omap-aes.c: In function 'omap_aes_hw_init':
+drivers/crypto/omap-aes.c:110:8: error: implicit declaration of function 'pm_runtime_resume_and_get'
 
--- 
-Luiz Augusto von Dentz
+Guenter
+
