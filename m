@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A85037FAB8
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:31:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3679137FAB9
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:31:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234793AbhEMPcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 11:32:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
+        id S234808AbhEMPcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 11:32:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234830AbhEMPcP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 11:32:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3153613C3;
-        Thu, 13 May 2021 15:31:03 +0000 (UTC)
+        id S229583AbhEMPcS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 11:32:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 691C6613BF;
+        Thu, 13 May 2021 15:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620919864;
-        bh=oC2c0nRK8e03RZMi0uDJqwAw3UzA6G4RiUg2z06UGeg=;
+        s=korg; t=1620919868;
+        bh=3s6a0jBW/IkracNjIscThVREK/A68bs3ujT0I7ce0co=;
         h=Subject:To:From:Date:From;
-        b=M8BIgQh6J2n+PcznlOLKbiB6GzO3U+VEqCjaY121Vs0gwvORjloJ+M2G2F9x5V3Zk
-         e5xg2wrpmi1QKwXUap/eGGxjlyEjW4/3maaRMK/CzqYzN9SX7PhWyrqIiudPknlUXn
-         HTqrMRnQ/F84IZuqfZCAc4+Enmd/gXbIZ5d/nmsE=
-Subject: patch "Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"" added to char-misc-linus
-To:     gregkh@linuxfoundation.org, kjlu@umn.edu, linux@roeck-us.net,
+        b=rX5M07C/5Zd0H8v+RPhdA8egkUXSI0CliY0B7RRsWINN0m0zEEdZTxk93Y40jqvHq
+         DyFokPbh//vSPjvu2HUz9PZYJ8eEh/YYwyh6wL+kFg6QM+ccH9H1jmhY3Dl89YHwPO
+         2/WuQLKS7RW5qMAfWGUZBavQFgTscLRbwU7G5yq8=
+Subject: patch "Revert "serial: mvebu-uart: Fix to avoid a potential NULL pointer" added to char-misc-linus
+To:     gregkh@linuxfoundation.org, jirislaby@kernel.org, pakki001@umn.edu,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 May 2021 17:31:00 +0200
-Message-ID: <1620919860171187@kroah.com>
+Date:   Thu, 13 May 2021 17:31:01 +0200
+Message-ID: <1620919861212241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
+    Revert "serial: mvebu-uart: Fix to avoid a potential NULL pointer
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,62 +51,46 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 99ae3417672a6d4a3bf68d4fc43d7c6ca074d477 Mon Sep 17 00:00:00 2001
+From 754f39158441f4c0d7a8255209dd9a939f08ce80 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 3 May 2021 13:56:31 +0200
-Subject: Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
+Date: Mon, 3 May 2021 13:56:32 +0200
+Subject: Revert "serial: mvebu-uart: Fix to avoid a potential NULL pointer
+ dereference"
 
-This reverts commit 9aa3aa15f4c2f74f47afd6c5db4b420fadf3f315.
+This reverts commit 32f47179833b63de72427131169809065db6745e.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
 correct or not.
 
-Upon review, it was determined that this commit is not needed at all so
-just revert it.  Also, the call to lm80_init_client() was not properly
-handled, so if error handling is needed in the lm80_probe() function,
-then it should be done properly, not half-baked like the commit being
-reverted here did.
+Upon review, this commit was found to be not be needed at all as the
+change was useless because this function can only be called when
+of_match_device matched on something.  So it should be reverted.
 
-Cc: Kangjie Lu <kjlu@umn.edu>
-Fixes: 9aa3aa15f4c2 ("hwmon: (lm80) fix a missing check of bus read in lm80 probe")
+Cc: Aditya Pakki <pakki001@umn.edu>
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210503115736.2104747-5-gregkh@linuxfoundation.org
+Fixes: 32f47179833b ("serial: mvebu-uart: Fix to avoid a potential NULL pointer dereference")
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-6-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm80.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/tty/serial/mvebu-uart.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/hwmon/lm80.c b/drivers/hwmon/lm80.c
-index ac4adb44b224..97ab491d2922 100644
---- a/drivers/hwmon/lm80.c
-+++ b/drivers/hwmon/lm80.c
-@@ -596,7 +596,6 @@ static int lm80_probe(struct i2c_client *client)
- 	struct device *dev = &client->dev;
- 	struct device *hwmon_dev;
- 	struct lm80_data *data;
--	int rv;
+diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
+index e0c00a1b0763..51b0ecabf2ec 100644
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -818,9 +818,6 @@ static int mvebu_uart_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
  
- 	data = devm_kzalloc(dev, sizeof(struct lm80_data), GFP_KERNEL);
- 	if (!data)
-@@ -609,14 +608,8 @@ static int lm80_probe(struct i2c_client *client)
- 	lm80_init_client(client);
- 
- 	/* A few vars need to be filled upon startup */
--	rv = lm80_read_value(client, LM80_REG_FAN_MIN(1));
--	if (rv < 0)
--		return rv;
--	data->fan[f_min][0] = rv;
--	rv = lm80_read_value(client, LM80_REG_FAN_MIN(2));
--	if (rv < 0)
--		return rv;
--	data->fan[f_min][1] = rv;
-+	data->fan[f_min][0] = lm80_read_value(client, LM80_REG_FAN_MIN(1));
-+	data->fan[f_min][1] = lm80_read_value(client, LM80_REG_FAN_MIN(2));
- 
- 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, client->name,
- 							   data, lm80_groups);
+-	if (!match)
+-		return -ENODEV;
+-
+ 	/* Assume that all UART ports have a DT alias or none has */
+ 	id = of_alias_get_id(pdev->dev.of_node, "serial");
+ 	if (!pdev->dev.of_node || id < 0)
 -- 
 2.31.1
 
