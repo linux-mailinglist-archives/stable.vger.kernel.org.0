@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B56FF37FA4B
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAD637FA4C
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232156AbhEMPKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 11:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36974 "EHLO mail.kernel.org"
+        id S234101AbhEMPK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 11:10:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234101AbhEMPKV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 11:10:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DE33613DF;
-        Thu, 13 May 2021 15:09:11 +0000 (UTC)
+        id S230401AbhEMPKY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 11:10:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7421610F7;
+        Thu, 13 May 2021 15:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620918552;
-        bh=pMpyBje3X0pIjcF6RmOs1vlQRFxCUirhK6MSR80pCFU=;
+        s=korg; t=1620918554;
+        bh=7B8V0SrxzBip6YndCeDQE14QGGKuxMKhwlHkL2YpryE=;
         h=Subject:To:From:Date:From;
-        b=hE6o5Q0N+UDQ//TxP7S4lQqgUDZsX8R9gcJxaQnUPd0/EnFSjHFgYrj2RSuxYPCoT
-         4+6BrORSYr4EU4rjvBeHY377x8AQX8bjuzLsIo9xxKJS6hcHEzCoJhZp1T9TXq1VPH
-         Yk8MqLx3U9QC2coAO2yxnZf0/XY0PwDKUl4SAIKo=
-Subject: patch "serial: sh-sci: Fix off-by-one error in FIFO threshold register" added to tty-linus
-To:     geert+renesas@glider.be, gregkh@linuxfoundation.org,
-        linh.phung.jy@renesas.com, stable@vger.kernel.org,
-        uli+renesas@fpond.eu, wsa+renesas@sang-engineering.com
+        b=sxE6MhqFVsZJafWwXTIsRVfXMwlcZJcEr5TsDJVTk6UfR+QV2E1Gtub+1u7FVWJJ1
+         aKINqYsjrBV+4EYOSS+VJI/ShNLPqiM6hMknF8xI7CXTDeRobl5X/DAeEMabGJ15tH
+         AFViX2HrsC0R3RGN2APnGS9bk38HOvnuODffDMU4=
+Subject: patch "serial: 8250_dw: Add device HID for new AMD UART controller" added to tty-linus
+To:     luzmaximilian@gmail.com, andy.shevchenko@gmail.com,
+        gregkh@linuxfoundation.org, nakato@nakato.io,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 May 2021 17:09:00 +0200
-Message-ID: <1620918540155205@kroah.com>
+Date:   Thu, 13 May 2021 17:09:01 +0200
+Message-ID: <1620918541213100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: sh-sci: Fix off-by-one error in FIFO threshold register
+    serial: 8250_dw: Add device HID for new AMD UART controller
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -52,54 +52,51 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 2ea2e019c190ee3973ef7bcaf829d8762e56e635 Mon Sep 17 00:00:00 2001
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Date: Mon, 10 May 2021 14:07:55 +0200
-Subject: serial: sh-sci: Fix off-by-one error in FIFO threshold register
- setting
+From 3c35d2a960c0077a4cb09bf4989f45d289332ea0 Mon Sep 17 00:00:00 2001
+From: Maximilian Luz <luzmaximilian@gmail.com>
+Date: Wed, 12 May 2021 23:04:13 +0200
+Subject: serial: 8250_dw: Add device HID for new AMD UART controller
 
-The Receive FIFO Data Count Trigger field (RTRG[6:0]) in the Receive
-FIFO Data Count Trigger Register (HSRTRGR) of HSCIF can only hold values
-ranging from 0-127.  As the FIFO size is equal to 128 on HSCIF, the user
-can write an out-of-range value, touching reserved bits.
+Add device HID AMDI0022 to the AMD UART controller driver match table
+and create a platform device for it. This controller can be found on
+Microsoft Surface Laptop 4 devices and seems similar enough that we can
+just copy the existing AMDI0020 entries.
 
-Fix this by limiting the trigger value to the FIFO size minus one.
-Reverse the order of the checks, to avoid rx_trig becoming zero if the
-FIFO size is one.
-
-Note that this change has no impact on other SCIF variants, as their
-maximum supported trigger value is lower than the FIFO size anyway, and
-the code below takes care of enforcing these limits.
-
-Fixes: a380ed461f66d1b8 ("serial: sh-sci: implement FIFO threshold register setting")
-Reported-by: Linh Phung <linh.phung.jy@renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/5eff320aef92ffb33d00e57979fd3603bbb4a70f.1620648218.git.geert+renesas@glider.be
+Cc: <stable@vger.kernel.org> # 5.10+
+Tested-by: Sachi King <nakato@nakato.io>
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com> # for 8250_dw part
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Link: https://lore.kernel.org/r/20210512210413.1982933-1-luzmaximilian@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/sh-sci.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/acpi_apd.c           | 1 +
+ drivers/tty/serial/8250/8250_dw.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index ef37fdf37612..4baf1316ea72 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -1023,10 +1023,10 @@ static int scif_set_rtrg(struct uart_port *port, int rx_trig)
- {
- 	unsigned int bits;
- 
-+	if (rx_trig >= port->fifosize)
-+		rx_trig = port->fifosize - 1;
- 	if (rx_trig < 1)
- 		rx_trig = 1;
--	if (rx_trig >= port->fifosize)
--		rx_trig = port->fifosize;
- 
- 	/* HSCIF can be set to an arbitrary level. */
- 	if (sci_getreg(port, HSRTRGR)->size) {
+diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+index 0ec5b3f69112..6e02448d15d9 100644
+--- a/drivers/acpi/acpi_apd.c
++++ b/drivers/acpi/acpi_apd.c
+@@ -226,6 +226,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+ 	{ "AMDI0010", APD_ADDR(wt_i2c_desc) },
+ 	{ "AMD0020", APD_ADDR(cz_uart_desc) },
+ 	{ "AMDI0020", APD_ADDR(cz_uart_desc) },
++	{ "AMDI0022", APD_ADDR(cz_uart_desc) },
+ 	{ "AMD0030", },
+ 	{ "AMD0040", APD_ADDR(fch_misc_desc)},
+ 	{ "HYGO0010", APD_ADDR(wt_i2c_desc) },
+diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
+index 9e204f9b799a..a3a0154da567 100644
+--- a/drivers/tty/serial/8250/8250_dw.c
++++ b/drivers/tty/serial/8250/8250_dw.c
+@@ -714,6 +714,7 @@ static const struct acpi_device_id dw8250_acpi_match[] = {
+ 	{ "APMC0D08", 0},
+ 	{ "AMD0020", 0 },
+ 	{ "AMDI0020", 0 },
++	{ "AMDI0022", 0 },
+ 	{ "BRCM2032", 0 },
+ 	{ "HISI0031", 0 },
+ 	{ },
 -- 
 2.31.1
 
