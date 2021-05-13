@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F3CE37FD18
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 20:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6594937FD20
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 20:16:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231378AbhEMSOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 14:14:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36864 "EHLO
+        id S229610AbhEMSRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 14:17:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231630AbhEMSOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 14:14:07 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B05CC061574
-        for <stable@vger.kernel.org>; Thu, 13 May 2021 11:12:55 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id m9so27761341wrx.3
-        for <stable@vger.kernel.org>; Thu, 13 May 2021 11:12:55 -0700 (PDT)
+        with ESMTP id S229544AbhEMSRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 14:17:23 -0400
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EDFCC061574
+        for <stable@vger.kernel.org>; Thu, 13 May 2021 11:16:12 -0700 (PDT)
+Received: by mail-wm1-x335.google.com with SMTP id 8so654660wmc.5
+        for <stable@vger.kernel.org>; Thu, 13 May 2021 11:16:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linuxtx.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=XuA6sUlFZXXpiuHNA+05tj6J5nZ4D+eMz9vUvR1ZNfU=;
-        b=b7+Ytv3bCixoOHYmhYLrbXOWJcMNTbsngfpuFAJE551igzQxbjqGPhoJMQZSsA47p9
-         suqT8b+iGo6or/CcuRS+N1S1IrS4DI7O8OaeK/fvNClcIz7SaAzk3061YhZSBTA8u0+r
-         0cauoGaZeKhRhMdn5R5Ux14FHa1OZ1PTqEjkg=
+        bh=5E9BIA5GPAk+9qy+6fCvvYM/XcjYDBMVgcstjh5C8eo=;
+        b=euIicu8OP0C4v4xJbHjbNOSQThYsrUsG+bLfj6mrHgLs44V6m/PeyQ98eQYvICoP2h
+         irj2L2REn3cFR25U/DxPDHrYnQ2V/zZc4cZqizV021yTxCNoytQXidWabiCwFF1Y1AAg
+         nB4iSPs9hYR2GiFvzfqdBrvRGCj/rUjEMXAHI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=XuA6sUlFZXXpiuHNA+05tj6J5nZ4D+eMz9vUvR1ZNfU=;
-        b=baR2CQjdjD+jdELZAL7Vbu7ggZKptW5oB6aANPRaNkJG7rdINCg7SG3pZV8G1zHXFE
-         TJQAvPOwiJkSMnE4dVCS6fUO2CmDoSzEaeRXu7LRi6w97LfCc3bGp+oh8O2Z76bgJm76
-         83tNeZJ7JK4IyK8ehijfHkQIvJQCH3kl0DPrzu8n/9ktTtxKFUOz/+KWmsuhuklJAEyf
-         W+L064g2HCu8uCjB7R3Xj6LGKMcaA7PRumVegoT1tix1Vmx8M1BuyYBpvJKNakw32Ss3
-         oeQ9F2B8dhNUArHNDYC12NRUfwjQccAH9JyIwvcI/BkbnrH7JwQMtP2nYqJGlb1Wc8x/
-         6eDQ==
-X-Gm-Message-State: AOAM530MTHWXvkULjnRHFWShex4r6SnH0rg0gQ151Xj2JTl89fv+8DIP
-        4G0vFjevoJwedFTgAoiu4DNneJTK1RFoPLZksSAgdA==
-X-Google-Smtp-Source: ABdhPJyYRSKEmrUYlUo9JVbQIZzt5osyTHtjV3yeaLGKmhj7GgdK1Z0AoMUtt+0aDWH9xDVuWKZESwblGEbvMsj+waw=
-X-Received: by 2002:a05:6000:1012:: with SMTP id a18mr53796075wrx.68.1620929574137;
- Thu, 13 May 2021 11:12:54 -0700 (PDT)
+        bh=5E9BIA5GPAk+9qy+6fCvvYM/XcjYDBMVgcstjh5C8eo=;
+        b=PsL4nlB6+d7niOWC2YyjhXlL7rB4eBbkc/4duZ/dmnxYHzFB+HLLPpQp2udPEdGYJ/
+         J7iYS0YAhs1kTitI9i9Lz2HGhOWG6STOsrtTDzm3vG1pU5iVDTIL8mbMlUAEwYGqItmy
+         7t506NvCoNL7Vbt6uNNLaSLglqTf6kOF0bXG6H7J/v6nBG6ToOqv2QJhH2zKXWvvumP3
+         4DfZfe/rMaj/IFtJMF3qKfG6YN7Yvb49EhzWD4LrbL1ZHiV0zsYBXDH3vPORKSoc0qOE
+         4mGjO3uJI8zKPiWLyugICrxKy0ft6mbjvDuBCoff9EpvIAMph7GcB6IY4ws5rX98sou4
+         q2WQ==
+X-Gm-Message-State: AOAM532D6f+g+difP+KqkB/QcDKgDOPr+wByuApUyRwO3Dz/8a51ZsZ0
+        mkXmWENmga8pigR3CT7TghXPOauZM2foBPf5T6ZXRw==
+X-Google-Smtp-Source: ABdhPJyaj8hDkjQInwFSHvO2unCTVLSXBb4jub7FsGkgQ+Gu84qf6RYXzKl1ZyxtFKI08O4JC5JpZmmPdrchch4dhoQ=
+X-Received: by 2002:a1c:9856:: with SMTP id a83mr408849wme.121.1620929771024;
+ Thu, 13 May 2021 11:16:11 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210512144837.204217980@linuxfoundation.org>
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
+References: <20210512144827.811958675@linuxfoundation.org>
+In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
 From:   Justin Forbes <jmforbes@linuxtx.org>
-Date:   Thu, 13 May 2021 13:12:43 -0500
-Message-ID: <CAFxkdAp8L=Okq79GVfmYs=MjEF4buQh9qv_gXUZ9cVK9wi-Ybw@mail.gmail.com>
-Subject: Re: [PATCH 5.12 000/677] 5.12.4-rc1 review
+Date:   Thu, 13 May 2021 13:16:00 -0500
+Message-ID: <CAFxkdAosbVD_0GM_xvMxZmRPyWVZ+N14Xmwt=JphV+Mqg8phNw@mail.gmail.com>
+Subject: Re: [PATCH 5.11 000/601] 5.11.21-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     LKML <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -60,11 +60,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 12, 2021 at 11:41 AM Greg Kroah-Hartman
+On Wed, May 12, 2021 at 10:56 AM Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.12.4 release.
-> There are 677 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.11.21 release.
+> There are 601 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -72,9 +72,9 @@ On Wed, May 12, 2021 at 11:41 AM Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.4-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.21-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
 > and the diffstat can be found below.
 >
 > thanks,
