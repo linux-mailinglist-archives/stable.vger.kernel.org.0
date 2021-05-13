@@ -2,101 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27B0D37F10F
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 04:00:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A786237F121
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 04:08:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229997AbhEMCBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 May 2021 22:01:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46856 "EHLO
+        id S229813AbhEMCJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 May 2021 22:09:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbhEMCBJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 22:01:09 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80928C06174A;
-        Wed, 12 May 2021 19:00:00 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id h16so7502056pfk.0;
-        Wed, 12 May 2021 19:00:00 -0700 (PDT)
+        with ESMTP id S229630AbhEMCJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 May 2021 22:09:30 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906AFC061574
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 19:08:21 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id s22so19847435pgk.6
+        for <stable@vger.kernel.org>; Wed, 12 May 2021 19:08:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=W9hpVFpi8lwf9SqKI5HARO8wMQK/aDl0gDMEpsYbJt8=;
-        b=nN9R6JjpxFHuWERf3D2ZBdy/KquinnB5sABS71UZnjOhUadfs+C9oixNxUmCWxcepR
-         HlOXjpDyzxOdhMflcz5nRPEKHPnglF8qSB3suRtdiRmjmfrpFJXeEMxYw0tOFKc1YVFJ
-         FvFG5vIyrV6HOr/Zkd9nOriLaqTFpEqTNtiqMtOmSiEEhzB2vaAFkgQPb4AeJqhUcYXQ
-         G3NtBu1LOLUhS7oyrWM2Px9Vmvgj1I3c9sBnKBIqanBNqpphVRm/Amhs2uuiVjVflkxc
-         2Q8LAl/nMTkpooNQbfuZfcbsabf+5V+OIQMs+QuaG46LR6LA4BgO4cX54ImlqchwEY3Y
-         fzDQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=oV5gWFWpScaRyIXQmwsfQEWENJUGET+P3HPNoUqj/Ss=;
+        b=wjGIhyD+/QfRScmAtw5QIgFuSA18ZCH6h4N8O7EdA6QCMdf6GPolMVXhGPIOzITMcc
+         AqfJbqWjZiiFLCX7BdcnK82ef1mGjhoANuDKTGOpyW4DJ7hmR8g22MyIKyttvhAUBLz+
+         t0JTbQUNwfCrQ5Y69kNAq4Eq4FdeEgxtKWrWY26m/Ehc9VAVhkTGLn9O58SUQVhjtTe4
+         o6iAyzwnxVWijnPKzbRqsuoPV0Y9z4VXBAZ0d1Vc111Or7wQizcv8GfGRbB/JewPzwuS
+         qRbbhZopp1a8V/pcm2wrP2u2Z+3qCUpr6xocERNyNq3yFUaFXAUQPeTH2K9TBDRkq9q9
+         RBhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=W9hpVFpi8lwf9SqKI5HARO8wMQK/aDl0gDMEpsYbJt8=;
-        b=E49DOX3/BqqsuQJ5iLS1VH8/C/TdF1+C7PFlHWFiSUEpAmt4LUJ0W5xScuN954zmM4
-         BxZ9/HTevEFulgVeiuAoWjuGaE5j31bFnvHsKbR89r8loUojg1rrSMcDXLelXQTDOVQV
-         qQ04aoP9jvIn5dnjeigmDl99fzDqI3Jpw3CEHW0RAmfTek++pvyVxCR792YecxlbbJAk
-         Iyr+MqHZj1pnRSIP8Y+FfYjjUPg3q8Skf7VCzCJDyDB+Gk8G0MXFqLfBs9whCeHoRtbF
-         X3k58bQ9U5PoQvJpTg1ygg5tehbBPzbjFtuDiyKqg2dG96eAcFUAdhkWXBgDyaaxYLEK
-         r4Bw==
-X-Gm-Message-State: AOAM533zv6RZTug9k2i/9vyntAr0OpNioVIaLu4XSbGMfeFxHLvhbe7k
-        c8HdV5RrT2AEc6zlpK7+Z3iRftrvAmc=
-X-Google-Smtp-Source: ABdhPJyVB12fxqbj8tMsEQ5JE8fYb2V5ReeY929IikgIjcLJadMH2Oj6HHbLF/rwR3cmrEw0l1XQyw==
-X-Received: by 2002:a62:754b:0:b029:28e:e78:d752 with SMTP id q72-20020a62754b0000b029028e0e78d752mr37880892pfc.76.1620871199895;
-        Wed, 12 May 2021 18:59:59 -0700 (PDT)
-Received: from localhost.localdomain ([103.7.29.6])
-        by smtp.googlemail.com with ESMTPSA id w123sm812742pfw.151.2021.05.12.18.59.57
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 12 May 2021 18:59:59 -0700 (PDT)
-From:   Wanpeng Li <kernellwp@gmail.com>
-X-Google-Original-From: Wanpeng Li <wanpengli@tencent.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org
-Subject: [PATCH v2 3/4] KVM: X86: Fix vCPU preempted state from guest's point of view
-Date:   Thu, 13 May 2021 09:59:48 +0800
-Message-Id: <1620871189-4763-2-git-send-email-wanpengli@tencent.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1620871189-4763-1-git-send-email-wanpengli@tencent.com>
-References: <1620871189-4763-1-git-send-email-wanpengli@tencent.com>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=oV5gWFWpScaRyIXQmwsfQEWENJUGET+P3HPNoUqj/Ss=;
+        b=l7BYWCjmy6q33iC+TjgfpwsrsqjANThFSCeVAoiizvV4YKevACc2WgwMIFTO6MAmlF
+         VmJC8H/Xh0n6DQmriKQbFJnyIQhvm9F609mhGNYC/RtXbeBjmsXop+WlpgNfDsX/z/O5
+         vmImMG+gV6vmF5AgEBojM4aS7GEBc/nIEJHvZ0YMgJGjswUO4A1W18tI/YFv6kTM8jKU
+         63yKjl4g5nD6lwixZx9sNWWhduRukdlLP0GWJuWUjQbgpTx/0E7JD1q/gPn/f/xRjvgb
+         t4cNNH4BrkRUbpq+dz31Bo/aVUdd1XPwegl2KOvviAsZmk3tRUHpawLdnfH62wmwf5L9
+         VzbA==
+X-Gm-Message-State: AOAM533eI+/R5r/8psw83I7clX5RVdfOr8Okdv/ePkF/i7fdjY7reLdP
+        yXo2vOdLFDLgQ5sqq2LklkhEztCe34cZjEc7
+X-Google-Smtp-Source: ABdhPJyzh60TWfSH+WZdScyDPOUrqCjJgek2AufOFTeK5U81v2rptIDdX+CZYSBKt7c4dlcnCkUqJg==
+X-Received: by 2002:a62:7c4d:0:b029:289:d38:d1be with SMTP id x74-20020a627c4d0000b02902890d38d1bemr38317140pfc.23.1620871700889;
+        Wed, 12 May 2021 19:08:20 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n20sm831493pjq.45.2021.05.12.19.08.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 May 2021 19:08:20 -0700 (PDT)
+Message-ID: <609c8a14.1c69fb81.3339a.3ff6@mx.google.com>
+Date:   Wed, 12 May 2021 19:08:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.35-831-g77806d1ee43e1
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 156 runs,
+ 1 regressions (v5.10.35-831-g77806d1ee43e1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+stable-rc/linux-5.10.y baseline: 156 runs, 1 regressions (v5.10.35-831-g778=
+06d1ee43e1)
 
-Commit 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's 
-CPUID) avoids to access pv tlb shootdown host side logic when this pv feature 
-is not exposed to guest, however, kvm_steal_time.preempted not only leveraged 
-by pv tlb shootdown logic but also mitigate the lock holder preemption issue. 
-From guest's point of view, vCPU is always preempted since we lose the reset 
-of kvm_steal_time.preempted before vmentry if pv tlb shootdown feature is not 
-exposed. This patch fixes it by clearing kvm_steal_time.preempted before 
-vmentry.
+Regressions Summary
+-------------------
 
-Fixes: 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's CPUID)
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
----
- arch/x86/kvm/x86.c | 2 ++
- 1 file changed, 2 insertions(+)
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-8    | imx_v6_v7_defconfi=
+g | 1          =
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index dfb7c32..bed7b53 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3105,6 +3105,8 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
- 				       st->preempted & KVM_VCPU_FLUSH_TLB);
- 		if (xchg(&st->preempted, 0) & KVM_VCPU_FLUSH_TLB)
- 			kvm_vcpu_flush_tlb_guest(vcpu);
-+	} else {
-+		st->preempted = 0;
- 	}
- 
- 	vcpu->arch.st.preempted = 0;
--- 
-2.7.4
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.35-831-g77806d1ee43e1/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.35-831-g77806d1ee43e1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      77806d1ee43e1bea3aa5095445eb7a69f02ec8d3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-8    | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609c5714901f4a0f03199280
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.3=
+5-831-g77806d1ee43e1/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline=
+-imx6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.3=
+5-831-g77806d1ee43e1/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline=
+-imx6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609c5714901f4a0f03199=
+281
+        new failure (last pass: v5.10.35-300-g4edc8f7e8676) =
+
+ =20
