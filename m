@@ -2,181 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E17837F5C9
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4D437F5D2
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:46:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbhEMKoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 06:44:46 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:57672 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231282AbhEMKon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:44:43 -0400
-Date:   Thu, 13 May 2021 10:43:29 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1620902610;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2bei8HvHXreDZV/dPca+C6OA12b/jqyOqS4Fl7f66PM=;
-        b=psPXThA64w+8U9NQ2fsa9bcSpbkitGi89+KwH6LzCRend51flYDVMzqph52H5mwh5Dw6p1
-        n+obnWP7KhzVHlmDihQEpUnuRN1njP8MglSlL3Oi9INtJ74SIH0WZDhc5pHI/24tCz9C4E
-        xE+7Jb17jPEmZMQ6eETju2rTS2ezkQiNUqyYu+i3RYME3QhlaXcnyysjfDdH/OCGX5mjJl
-        wzDlOShcDExw8zdaLUYdokuzU4IIQHubIsJP1tfzxwv+CAOzRxls2+P+lDwe+F5r9O2+jv
-        xq5pgaKXHjZ8CGBfUbkllUxPr5Xpkuc7Jt/r0Kyi9cLaZ7R3aJDsRt5DNr1+gw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1620902610;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2bei8HvHXreDZV/dPca+C6OA12b/jqyOqS4Fl7f66PM=;
-        b=oqc4+WBsmyc3BsMAN1rmtEWyNzvB2BvIpZolt3/gbjhjkVx5NVG7cGADfVT36CXfD7cn1k
-        4S3/948l69mfJZDA==
-From:   "tip-bot2 for Huang Rui" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: sched/urgent] x86, sched: Fix the AMD CPPC maximum performance
- value on certain AMD Ryzen generations
-Cc:     Jason Bagavatsingham <jason.bagavatsingham@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Huang Rui <ray.huang@amd.com>, Ingo Molnar <mingo@kernel.org>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20210425073451.2557394-1-ray.huang@amd.com>
+        id S231815AbhEMKrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 06:47:39 -0400
+Received: from mail-mw2nam12on2070.outbound.protection.outlook.com ([40.107.244.70]:24961
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231282AbhEMKre (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 06:47:34 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BVw+Hew3KC/Fwphb2Emp8vR62+BGe1Al3Wsodfz+KQyPxaLCWYXddaBjT/uVz+BXt8l1UFVda1nx+mBDpWrOiCAq/CEUrfIYFgqC/J+Au867b6gZdRwVNtaR6QWPizreCm5Xmj78Se4/b1Wls3SR7mOcVwTlB5HC/kYmIMB3wW6eMmeyvU9UdGA0jr3LTGI2xD2jfDkMLyKg+YvxBEDKvWOtQ9vDyZLMsvNTbRIXwDmWDx01qQATMAl8fBKemK8u5XXQiwvuvaOfdb78tIe+pNTyzPC+0zshD6sdRXYONE3/O9ort03NRanvQqrjZkwmdiKxqA6+vmVQP+4W9PAEMQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3K9t0uFAcoPNZT/yViVJNQEKykoyJNvUFjcshItU/z0=;
+ b=Gw8mPe5zU6B1jWx0F1aXNQOS6nI8qcuqUXlTT9YStuTzfCvutVaPYboiBlfkqz7zC2dizGtoWcgAbPsUqBu3+fajIUiU6aktQt4bPDXqFP+pv7YT1FyLqIjRh4j+7wo15FFCCpgFBLkrSKsB2FjqDiqYsayiHZ9kw7NkZLJ8ggyRetbHPaYPGS9o4SHG0ef9/taVTX1D6HfGudVKOv6i52PmoreGlrXcXzDhOIvCkAxkuAtjBEKTbH5XDldOA3sP0F2TcKDkzvK+yxX2JEdUfT1z61nM3Wy/t9ho3sC9+hTDRYXyfu0Qz1upBvjHkc05Dxy0kayfD0vbv3JHAcufmw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3K9t0uFAcoPNZT/yViVJNQEKykoyJNvUFjcshItU/z0=;
+ b=1dW43NqUoFUUVWr/CFIK9YTsskUPji4deKbsIBes0QAv/d5zz2SWjvYeT25mxUam08Qn6aEAd3/GaTn/0r/PzhcO1x09p5+8/+6wegRn4FwIDOEbIyN2HsNW/gPrVoVNfxqFI+ojYI7FJqeM+NGo3ekotBcu3o/zXF1n8tDxuh8=
+Authentication-Results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=amd.com;
+Received: from MWHPR12MB1248.namprd12.prod.outlook.com (2603:10b6:300:12::21)
+ by MW3PR12MB4506.namprd12.prod.outlook.com (2603:10b6:303:53::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25; Thu, 13 May
+ 2021 10:46:22 +0000
+Received: from MWHPR12MB1248.namprd12.prod.outlook.com
+ ([fe80::f07c:dc0f:e7e8:416c]) by MWHPR12MB1248.namprd12.prod.outlook.com
+ ([fe80::f07c:dc0f:e7e8:416c%4]) with mapi id 15.20.4129.026; Thu, 13 May 2021
+ 10:46:22 +0000
+Date:   Thu, 13 May 2021 18:45:55 +0800
+From:   Huang Rui <ray.huang@amd.com>
+To:     Ingo Molnar <mingo@kernel.org>
+Cc:     Alexander Monakov <amonakov@ispras.ru>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        Jason Bagavatsingham <jason.bagavatsingham@gmail.com>,
+        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+        "Fontenot, Nathan" <Nathan.Fontenot@amd.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v4] x86, sched: Fix the AMD CPPC maximum perf on some
+ specific generations
+Message-ID: <20210513104555.GC1621127@hr-amd>
 References: <20210425073451.2557394-1-ray.huang@amd.com>
+ <alpine.LNX.2.20.13.2105130130590.10864@monopod.intra.ispras.ru>
+ <YJxdttrorwdlpX33@gmail.com>
+ <20210513042420.GA1621127@hr-amd>
+ <YJz7fp17T1cyed4j@gmail.com>
+ <YJ0BzPs0WPJ42qG1@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YJ0BzPs0WPJ42qG1@gmail.com>
+X-Originating-IP: [165.204.134.251]
+X-ClientProxiedBy: HKAPR03CA0011.apcprd03.prod.outlook.com
+ (2603:1096:203:c8::16) To MWHPR12MB1248.namprd12.prod.outlook.com
+ (2603:10b6:300:12::21)
 MIME-Version: 1.0
-Message-ID: <162090260985.29796.14619213138729710355.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from hr-amd (165.204.134.251) by HKAPR03CA0011.apcprd03.prod.outlook.com (2603:1096:203:c8::16) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.11 via Frontend Transport; Thu, 13 May 2021 10:46:18 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: ba3e9820-14a9-4729-5656-08d915fc5910
+X-MS-TrafficTypeDiagnostic: MW3PR12MB4506:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <MW3PR12MB45063FB1D22F2E5ECBDFCCE8EC519@MW3PR12MB4506.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3513;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YaUJiltf6JrkaRG9rvlNRZkYT7JBSpc1G2i2fHNopYvOF9or/QgCPxhK6TAC0MipvwaP/rkw1h161K2dc5vF03nTlN3ocpZ5jYHz5jFOVGIPxwAJUwDu+PhiaaZ3amrkJNHibqW1N2f+K173nZFcYQrwzdP3FQ4SowPQfddN2QJNdCRCay+B5LewnISPgI7lMPX3MCCYhn37QLQ/vA3imfdx8jRh6+TSq+oW7+EcqAcWUv5LRMkdQY4tqHjomBuoAE1MKK6vyX82VTQLdf5Y2YK+NmtqCVQPJur9MNryF0prfWsdfpLVgCZQV2/3fAesoTgU+hYvpUhi0c9jJxFHHg4zQr2OqmrZRxp8vI4ehhESEXDrPjXbWaKhOnF2KF6H+heg9uW/vLyscc2p17Erhw/06xVltAeCozn9rFDBAlXo0wHywlzmGY6MZ2U1qrgP6j9jfyOkthi0dJo6RYEGaQryBbRW8cc0VAjXlz882X/hCfxVdEKB73x8U8a6LjJa1HVIlOmQ87Ro7p4SWQZfGTRKrwHnrKYd2RsBqiW/fNGRvQv3MP1aEYaxygXOdbFqyHrclLoiCGB5rQmf2pTRi3isKkp3Fg9dA4FAedBWkGj7AZNbIlr1h/RzmF8cHkyrlb7LEX4ExlAbHA6fa1DcKK2bRDyJAV5BkC8hmVwP/bg=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR12MB1248.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(376002)(136003)(346002)(366004)(396003)(39860400002)(4326008)(66556008)(4744005)(956004)(8936002)(7416002)(38100700002)(1076003)(6916009)(5660300002)(33656002)(2906002)(26005)(33716001)(54906003)(52116002)(55016002)(9686003)(38350700002)(478600001)(8676002)(83380400001)(6496006)(86362001)(6666004)(16526019)(316002)(66946007)(186003)(66476007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?uZDyLgmFaER01cG504GOfTnF1Aw1h1iKpFpTrtPmp2Ew67iBdgwmaCF0mjmT?=
+ =?us-ascii?Q?m+3hwWxcmmfze75IXd8BG036z9KDAXFdgwkSI3UoaH2cnVv/kVRkJtketm4j?=
+ =?us-ascii?Q?Lw8b7sa5b32LZmOt/j+86eFiIZTFvPU8cTUmjtrmBu6yhqTUdP4jnz2F/LiR?=
+ =?us-ascii?Q?LjodPES6NpvqcZIdB6b93Fsf5B5eM8zzb41FJYLGOVoFmQfmryQ63vLkEehT?=
+ =?us-ascii?Q?7JfxkiBRVfjfxYfHHwOHkohcG5vmH4yQwP6c6JrzsFSbXT72Ift0WZJ/09md?=
+ =?us-ascii?Q?j/yaaOUtSOFGaFZxVXpcFfZ9auTRyQht0EqPaSzxWR3E+67dQqWIA9L9ZIgN?=
+ =?us-ascii?Q?fbVUKhi1R/W38qDvEHXE+J1xpDIlxCbkyrBlj2ZXfLc8hhBPDfoRWTL9QQXk?=
+ =?us-ascii?Q?NQq4r98AgCzw2KUn+siPii9gFXzLgms/nhPCssjo9sEufr8Mz0fujyZr5Pi5?=
+ =?us-ascii?Q?z9ZJhwefUPHhKy5jZLPrQwgAz+qlTD8mF0vEwwZO1SKY71CAmqdjAo6o/I9X?=
+ =?us-ascii?Q?Izau1ZDnxo4USsRVNr5StAmHIuotfwqBU1LyOiWJQ1fl5SuDKehUkAiDPB5U?=
+ =?us-ascii?Q?vm4HgRoOopWDMS7iM/kEV4IN72plAqCHbCsbAWWYcdD7TsKpfYPlob/+d14v?=
+ =?us-ascii?Q?eqD4QK3COe3HbG849RJW7rIOd5O1emYTlWLSZowtbSYGmHQ/ElPKOo+aqK+m?=
+ =?us-ascii?Q?TEqZE9gw5nL+UuF9Vhxj5MznkjLBT6e0xFdX9sTvS8dcTvvYLvfdHJe5+B3N?=
+ =?us-ascii?Q?z251RIOJcuSHG0vImuOvhnU5rhBqgUQeA8c6ntc9fcX9nNl7WgR8UDJtYwp3?=
+ =?us-ascii?Q?WZkXb71BJxPVO9RTtypIchjcZyiqD1dzSjC4MMvaJvLdHIQDgywQuuakPpV6?=
+ =?us-ascii?Q?M+WGc13brEZGQyuB9NGKrATChlqx2X0xaMV7ApAzBAnE0DIEF/6NoRnRPlPK?=
+ =?us-ascii?Q?q5xec8wlJo9enCEJv8R7erKm5QTIXjOr0tiKEz9V/ZGAdM6GruLL5b6mE0/k?=
+ =?us-ascii?Q?yovu/czIzfknyB5qmvGjV4Wu2FCoHMG9QVU9FvEGsD76U7aj9SsZFDmhM3C2?=
+ =?us-ascii?Q?uU0HLL98q5NMfc+ZV8m0L2sIVDdRrpmjcP9H3zjM7VE7i7U+EV5QJMGddvOl?=
+ =?us-ascii?Q?NJPxwNqCZgH5imNA90N0tGtk19laZ6IsmtgLNNFOGL03KdT/b4s/NchOVmPj?=
+ =?us-ascii?Q?O3HKe5lwNnPDlHEQd+9+27eKjddr6wTxt6zNuUBXo37HMqwvMJMb5eBbv3ad?=
+ =?us-ascii?Q?+9jyc6Dv/gbV039AbK7PSPX7ve/vSDDPD7uqHaptiD6l+DEvlTPqhFoVrEJk?=
+ =?us-ascii?Q?llKsTnD468TmSZwmUxsUihAT?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ba3e9820-14a9-4729-5656-08d915fc5910
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR12MB1248.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 May 2021 10:46:22.1609
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: cbRR80es0vyPkOm6pEaV2lzK+OlpdbakQXT4I1ZSCe1zx1ErwlYA+zbwT/rIz1e5A4KA2h+4TYPG3Qfy3rXwAQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4506
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the sched/urgent branch of tip:
+On Thu, May 13, 2021 at 06:39:08PM +0800, Ingo Molnar wrote:
+> 
+> * Ingo Molnar <mingo@kernel.org> wrote:
+> 
+> > No need to send v5, done!
+> > 
+> > I have a system that appears to be affected by this bug:
+> > 
+> >   kepler:~> lscpu | grep -i mhz
+> >   CPU MHz:                         4000.000
+> >   CPU max MHz:                     7140.6250
+> >   CPU min MHz:                     2200.0000
+> > 
+> > So I should be able to confirm after a reboot.
+> 
+> 'CPU max Mhz' seems to be saner now:
+> 
+>   kepler:~> lscpu | grep -i mhz
+> 
+>   CPU MHz:                         2200.000
+>   CPU max MHz:                     4917.9678
+>   CPU min MHz:                     2200.0000
+> 
 
-Commit-ID:     3743d55b289c203d8f77b7cd47c24926b9d186ae
-Gitweb:        https://git.kernel.org/tip/3743d55b289c203d8f77b7cd47c24926b9d=
-186ae
-Author:        Huang Rui <ray.huang@amd.com>
-AuthorDate:    Sun, 25 Apr 2021 15:34:51 +08:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Thu, 13 May 2021 12:10:24 +02:00
+Yes, happy to know this :-)
 
-x86, sched: Fix the AMD CPPC maximum performance value on certain AMD Ryzen g=
-enerations
-
-Some AMD Ryzen generations has different calculation method on maximum
-performance. 255 is not for all ASICs, some specific generations should use 1=
-66
-as the maximum performance. Otherwise, it will report incorrect frequency val=
-ue
-like below:
-
-  ~ =E2=86=92 lscpu | grep MHz
-  CPU MHz:                         3400.000
-  CPU max MHz:                     7228.3198
-  CPU min MHz:                     2200.0000
-
-[ mingo: Tidied up whitespace use. ]
-[ Alexander Monakov <amonakov@ispras.ru>: fix 225 -> 255 typo. ]
-
-Fixes: 41ea667227ba ("x86, sched: Calculate frequency invariance for AMD syst=
-ems")
-Fixes: 3c55e94c0ade ("cpufreq: ACPI: Extend frequency tables to cover boost f=
-requencies")
-Reported-by: Jason Bagavatsingham <jason.bagavatsingham@gmail.com>
-Fixed-by: Alexander Monakov <amonakov@ispras.ru>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Jason Bagavatsingham <jason.bagavatsingham@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210425073451.2557394-1-ray.huang@amd.com
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D211791
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
----
- arch/x86/include/asm/processor.h |  2 ++
- arch/x86/kernel/cpu/amd.c        | 16 ++++++++++++++++
- arch/x86/kernel/smpboot.c        |  2 +-
- drivers/cpufreq/acpi-cpufreq.c   |  6 +++++-
- 4 files changed, 24 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processo=
-r.h
-index 154321d..556b2b1 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -787,8 +787,10 @@ DECLARE_PER_CPU(u64, msr_misc_features_shadow);
-=20
- #ifdef CONFIG_CPU_SUP_AMD
- extern u32 amd_get_nodes_per_socket(void);
-+extern u32 amd_get_highest_perf(void);
- #else
- static inline u32 amd_get_nodes_per_socket(void)	{ return 0; }
-+static inline u32 amd_get_highest_perf(void)		{ return 0; }
- #endif
-=20
- static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leave=
-s)
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 2d11384..6d7b3b3 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -1165,3 +1165,19 @@ void set_dr_addr_mask(unsigned long mask, int dr)
- 		break;
- 	}
- }
-+
-+u32 amd_get_highest_perf(void)
-+{
-+	struct cpuinfo_x86 *c =3D &boot_cpu_data;
-+
-+	if (c->x86 =3D=3D 0x17 && ((c->x86_model >=3D 0x30 && c->x86_model < 0x40) =
-||
-+			       (c->x86_model >=3D 0x70 && c->x86_model < 0x80)))
-+		return 166;
-+
-+	if (c->x86 =3D=3D 0x19 && ((c->x86_model >=3D 0x20 && c->x86_model < 0x30) =
-||
-+			       (c->x86_model >=3D 0x40 && c->x86_model < 0x70)))
-+		return 166;
-+
-+	return 255;
-+}
-+EXPORT_SYMBOL_GPL(amd_get_highest_perf);
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 0ad5214..7770245 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -2043,7 +2043,7 @@ static bool amd_set_max_freq_ratio(void)
- 		return false;
- 	}
-=20
--	highest_perf =3D perf_caps.highest_perf;
-+	highest_perf =3D amd_get_highest_perf();
- 	nominal_perf =3D perf_caps.nominal_perf;
-=20
- 	if (!highest_perf || !nominal_perf) {
-diff --git a/drivers/cpufreq/acpi-cpufreq.c b/drivers/cpufreq/acpi-cpufreq.c
-index d1bbc16..7e74504 100644
---- a/drivers/cpufreq/acpi-cpufreq.c
-+++ b/drivers/cpufreq/acpi-cpufreq.c
-@@ -646,7 +646,11 @@ static u64 get_max_boost_ratio(unsigned int cpu)
- 		return 0;
- 	}
-=20
--	highest_perf =3D perf_caps.highest_perf;
-+	if (boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_AMD)
-+		highest_perf =3D amd_get_highest_perf();
-+	else
-+		highest_perf =3D perf_caps.highest_perf;
-+
- 	nominal_perf =3D perf_caps.nominal_perf;
-=20
- 	if (!highest_perf || !nominal_perf) {
+Thanks,
+Ray
