@@ -2,126 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA72937FF86
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 22:57:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C01137FF26
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 22:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233200AbhEMU7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 16:59:01 -0400
-Received: from mout.kundenserver.de ([212.227.126.131]:43021 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233203AbhEMU7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 16:59:00 -0400
-Received: from leknes.fjasle.eu ([92.116.101.148]) by mrelayeu.kundenserver.de
- (mreue010 [212.227.15.167]) with ESMTPSA (Nemesis) id
- 1MhlXE-1l3Xjr23yC-00drD7 for <stable@vger.kernel.org>; Thu, 13 May 2021
- 22:57:43 +0200
-Received: by leknes.fjasle.eu (Postfix, from userid 1000)
-        id 2DAB33C490; Thu, 13 May 2021 22:57:42 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fjasle.eu; s=mail;
-        t=1620939462; bh=Szo7XxmURTYInxWc6QAMjRPHfMokZhu95kUhCXnXGXo=;
-        h=Resent-From:Resent-Date:Resent-To:Date:From:To:Cc:Subject:
-         References:In-Reply-To:From;
-        b=iCLfCBja6WTjcR9VnHuExlPTybXWkxPDzveC00KK/zUu+uujA0i1Yv46y19C1eCBV
-         JnEIri7mYxx65pmHAlkl3DU9XrxWS1MtzlZK3cD/vr6HY5U82pmUA2ITL3Bx0xwYDG
-         Eujsmoyw3H/o+2f63F/Zh9QR4ecXekuaWy7WzNR0=
-X-Spam-Checker-Version: SpamAssassin 3.4.5-pre1 (2020-06-20) on leknes
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,RDNS_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=no autolearn_force=no
-        version=3.4.5-pre1
-X-Original-To: nicolas@fjasle.eu
-Received: from lillesand.fjasle.eu (unknown [IPv6:fd00::ba:f4ff:fe3b:a745])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256
-         client-signature RSA-PSS (2048 bits) client-digest SHA256)
-        (Client CN "lillesand.fjasle.eu", Issuer "Fake LE Intermediate X1" (not verified))
-        by leknes.fjasle.eu (Postfix) with ESMTPS id C49843C056;
-        Thu, 13 May 2021 22:03:24 +0200 (CEST)
-Authentication-Results: leknes.fjasle.eu; dkim=none; dkim-atps=neutral
-Received: by lillesand.fjasle.eu (Postfix, from userid 1000)
-        id 57CC9101535; Thu, 13 May 2021 22:03:24 +0200 (CEST)
-Date:   Thu, 13 May 2021 22:03:24 +0200
-From:   Nicolas Schier <nicolas@fjasle.eu>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, Finn Behrens <me@kloenk.de>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: Re: [PATCH v2 1/2] tweewide: Fix most Shebang lines
-Message-ID: <YJ2GDOt48sjlMFtD@lillesand.fjasle.eu>
-References: <20210511185817.2695437-1-nicolas@fjasle.eu>
- <20210511185817.2695437-2-nicolas@fjasle.eu>
- <YJvC2W9QTpc9JBp1@kroah.com>
+        id S232802AbhEMUcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 16:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39672 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230427AbhEMUcu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 16:32:50 -0400
+Received: from mail-qv1-xf35.google.com (mail-qv1-xf35.google.com [IPv6:2607:f8b0:4864:20::f35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 302E5C061574;
+        Thu, 13 May 2021 13:31:40 -0700 (PDT)
+Received: by mail-qv1-xf35.google.com with SMTP id ez19so73204qvb.3;
+        Thu, 13 May 2021 13:31:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=50IoG46QAtEbh2O0EvnETKmp1fWPHFQZP7int7pwImM=;
+        b=aO+1JfACYIpmkLQAxh6bARHzkp68v9AkD/Y9kIy9cAgjrvSNShtdn9eZjdNHzFMt8C
+         e5Vl1l59nU1vdzHABEe8gqVVliChl2jO7B97003SYFOv4zndyafw8xQHomrmPsCWs7jp
+         PMK8C57PfJ1KO0aiaF7AZsvfc1S6effT0wgTBBbBBBb5hWHcRaHVVlPBYQL1Z9bIv+SO
+         s7t/Kx3BjDgrY7c2eeN6uiZOmpCjZT1VAmPR4L7kNoXbUAQkkQEK5IDwLErIKQ7+LPgg
+         UuFYN0XswMkE9SJNIRejHRIEkKg8qSoyGFyrxR8pbLdwwK/Q8+lI844bPMT0ng5POwaA
+         W+HA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=50IoG46QAtEbh2O0EvnETKmp1fWPHFQZP7int7pwImM=;
+        b=gWbYEIyXCa/ILjEvrBWrPHcjW5Q0+Qpw+V1AUxvPMDZzFklGZJi1z0kstK51ea6jvw
+         NCuE9HKxc+zwIchRL5ecHzo8Q64obQQgS8QXm0vOjlSLlT0QSs4O7Ob6ItnwjZlpWCcn
+         KRrxONn4TfzirheHd95ARDy+s7KMMziwuSUTrmIZZtXrVEV+j+UrPt4dMlUwyqIIox+z
+         c7Gi1rts2s/U9UTDHjTMhQDmFKFyknaCzm8lykIxOIrrGqVxXUe4v/+Bcyq/wDMCyO1l
+         V4TeZxx8VSG24RwNWHZ2pOyjEIaup9fcYtFF26SYVJAaRfJz/YtxmhHIo1RSjk9rjXF/
+         N/AQ==
+X-Gm-Message-State: AOAM532C3RCx9Jkl15ZM/zDL8LuZGCcdy5yGncOmdymrxYmeHipT5OMO
+        NkL2YxvEKww/4zNZrLrKSS0=
+X-Google-Smtp-Source: ABdhPJx6NGidKMxMCGUBMFutO59ICuE8sJMs42E2tKeqLll3BtZE9AtsdH13/+rPCxRe1DO3yLRbhw==
+X-Received: by 2002:a0c:9e4e:: with SMTP id z14mr35244033qve.31.1620937899446;
+        Thu, 13 May 2021 13:31:39 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z30sm3205809qtm.11.2021.05.13.13.31.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 May 2021 13:31:38 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Thu, 13 May 2021 13:31:37 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 000/244] 5.4.119-rc1 review
+Message-ID: <20210513203137.GA911952@roeck-us.net>
+References: <20210512144743.039977287@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YJvC2W9QTpc9JBp1@kroah.com>
-X-Operating-System: Debian GNU/Linux 11.0
-Jabber-ID: nicolas@fjasle.eu
-X-Provags-ID: V03:K1:Ux/eGMFtBttLhzt+7YDcDWvw/MCnYCbpeZvEA2NTxp341VRig7c
- gzwd8l9mbTLYBRxQeUdOCfDutkABj/qMDvmUJXL3P6ptNUYpzBQ/3ZIa8GKlgknf8Zyl2Wy
- Dn2g591iN0kT8TU8bs0IfjHmIC6X0+XHF8VeTdwJhHyyt46Cz4Fhzi0n3ZQwrfo6wj1h+6g
- 5TQaZJvNMY3et7riWHs7g==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:tZESmEaVSN4=:2k27hZNw/SNISsColo8irS
- zRmQKjL6PwRws7poP4IZn/mRMHa7b4LGNfLqTLvljO4ZCdUvlz3mD4R+pXh0X6q4XzOOgP5nQ
- JstAip1D7I5f3Rj54YdHH/fXifuyMUuYaWF6v6uLzUercf1Z/wKbLyQWta6wDtSuRgfXhTgRs
- y3Rg66/SDKAm6W0Ti2fDZfQCOPahFlK55CP6AuT5Ky/MJjb4r1QVSHtqmLlYVP8Ih5ab0PY3+
- oX2f5UGDtgWGRB6SAUzXuxPincsVfD/0dr0yQ1QTDb4WaQDmU8smS6o8AgZCob1xcuplmpszI
- w7jxU/BDs1OWzeIX3QENiMzHw4D59u/YFL2Wgy/Xwys0TimAXVsxoyG8Qr3vYt4ktccAIldUb
- BpsBKKYtZ17pKuM2Hq5+varDY7EMKod5+tPaWME5Hcal2zkAhY6YHQ9NA/thGFgxccOem/lsk
- HLjiSi50ZLKZ3xAqVxXpgiH8RP4/YcEZ1KxmuYL9+y6E3qBIbks+4YBMVRXa8WrnDyDQLBLbW
- YTXokbRO/dfXnUytSgX4+M=
+In-Reply-To: <20210512144743.039977287@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 12, 2021 at 01:58PM +0000, Greg KH wrote:
-> On Tue, May 11, 2021 at 08:58:16PM +0200, Nicolas Schier wrote:
-> > From: Finn Behrens <me@kloenk.de>
-> > 
-> > commit c25ce589dca10d64dde139ae093abc258a32869c upstream.
-> > 
-> > Change every shebang which does not need an argument to use /usr/bin/env.
-> > This is needed as not every distro has everything under /usr/bin,
-> > sometimes not even bash.
-> > 
-> > Signed-off-by: Finn Behrens <me@kloenk.de>
-> > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> > [nicolas@fjasle.eu: ported to v4.9, updated contexts, adapt for old
-> >  scripts]
+On Wed, May 12, 2021 at 04:46:11PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.119 release.
+> There are 244 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> What about 4.14, 4.19, 5.4, and 5.10?  We can't add patches only to one
-> stable tree and not all of the newer ones as well.
-
-Hi Greg,
-
-yes, that makes sense obviously, I did not have that in mind.  If there 
-is a chance for acceptance, I will gladly provide the patches for the 
-newer stable tree as well.
-
-> And what problem is this solving?  What distro has problems with this
-> for this old kernel tree?
+> Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
+> Anything received after that time might be too late.
 > 
-> thanks,
-> 
-> greg k-h
 
-my concrete problem is that I work with several 4.9 kernel trees and 
-that our build system uses diffconfig (for consistency checking) which 
-does not run anymore on a current Debian testing (/usr/bin/python is 
-not more available).  As the corresponding upstream "fix" commit 
-51839e29cb59544 (cp. patch 2/2) technically bases on commit
-c25ce589dca10d64dde, I thought backporting both should be the cleaner 
-way.
+Build results:
+	total: 157 pass: 156 fail: 1
+Failed builds:
+	arm:axm55xx_defconfig
+Qemu test results:
+	total: 428 pass: 427 fail: 1
+Failed tests:
+	mipsel:mips32r6-generic:malta_32r6_defconfig:nocd:smp:net,pcnet:ide:rootfs
 
-I would not mind to drop this patch, but I would like to see commit 
-51839e29cb59544 in the stable trees.  Does it make sense to prepare 
-backports of it for all current stable trees?
+Failures are as already reported.
 
-Thanks and kind regards,
-Nicolas
-
--- 
-epost: nicolas@fjasle.eu               irc://oftc.net/nsc
-↳ gpg: 18ed 52db e34f 860e e9fb  c82b 7d97 0932 55a0 ce7f
-     -- frykten for herren er opphav til kunnskap --
+Guenter
