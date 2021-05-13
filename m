@@ -2,115 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07B3537F368
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 09:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 678EA37F398
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 09:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231494AbhEMHKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 03:10:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57984 "EHLO
+        id S231130AbhEMHiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 03:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230316AbhEMHKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 03:10:00 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEABC061574;
-        Thu, 13 May 2021 00:08:49 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id m124so20444318pgm.13;
-        Thu, 13 May 2021 00:08:49 -0700 (PDT)
+        with ESMTP id S230443AbhEMHiZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 03:38:25 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04EF4C061574;
+        Thu, 13 May 2021 00:37:15 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id b21so13953862plz.0;
+        Thu, 13 May 2021 00:37:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=hJ3oi7BPr8I9au64jvD9eucKXrMf5nsxv7LhNFTYzRw=;
-        b=o/5pStFlSTEpqU4QxBwJY7EQPGmGNTqtlPfuxTf2XSFhJZWYjbFoYXxKz1uZuaw+4g
-         8EViSwrQ7W0+vU6NFDeFsme4eYzbTqV973LevU6RHLvVlV0DGQHHtXcr8uMDyAQG4810
-         oB3N/mkWwQuAf8oB5nW7xqwlPiY4zmDqFcfRhL/Mrj8L8Qgu07Sp4fde3zKNtvoxv9oi
-         SSAku0kQUT6Cj1w0I2zL8ArjDsd9zGPvIovHb+RrrPqwb44TXl3ActaaY2A50ZHmjGZT
-         u91JKQnK1c9LFsh0U/Sxe69GhAuLIIHXHO6ZTgocZ/cSPIPPqWxZKm7X9HsWYJVqxT/L
-         HSqg==
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=6yTFbxHIwd6peJbwP7HMxe6U7ibZ/XoARK8j3+NqR0w=;
+        b=NulSibhiF7JvAs92E6W3p0PUHmmJGYATFmdnegbjySKKm66VCmmHY5hzo5W/Uyut8o
+         jkBttrgQ5nHb/SAU6qIvj8d9xoiEI7HeSw1aENXYtTPoIaSq3arkKG8JvFYD2a5eX6R1
+         GxQvZCAveJkwMnbbE3M+F+LUxVzODmvLsbKDwf9nBBBTYHylEAZtG+WVSvpV3+/Zx7rH
+         0YpPysDGS0NV0SAIDN1jjTzdEbYYUKH7pCrnsPk8sH70tTm9piSKs8YpD/Q4bUNCAJz1
+         kK0DBXAbDhcoGw1hqN6jjaz1pFg693XYxPhMgIlXyFMpDsbW+IR3SZb7S90Yyp/28WzH
+         WytA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=hJ3oi7BPr8I9au64jvD9eucKXrMf5nsxv7LhNFTYzRw=;
-        b=QDW0hv5J4GfdOmgDZB0SpKOvAIFndx+MUS3qqKDzRR02MJr9u85aBmS+Ymd7jFewPa
-         wACI2sb9CQnSncH7IasqhZFu7p0ZK08nqmE3y8r0dGM0xE9fGKUCzGGJK4CvXT3Ww98w
-         PazpbJic61SCsG7vkNlRg3980AGW01JyqKsYYPjMZg+CxRodjJltp0VQtGy146kFUjAz
-         mBXcestw29flx4EyaRZ+CmqyJSIbMmqPOay8U8AD87BiRaO0r1zWokJj/UhpWa7VPm72
-         lI1jxTVNbsp9NRNXYM7vWlOnv8Eo8SHnuGCkdZ6dGds3Gw+srnakam3cHlwjvh8wwZkq
-         CjHA==
-X-Gm-Message-State: AOAM532cJSIDTx2gNiSHnavJgTivYcxdVDUAg5hA9otiICB9jGQ3d0AW
-        YI1BXcLP9/Vxj08O1deMPcA9XHhi8A8eyIkViEE=
-X-Google-Smtp-Source: ABdhPJxbjjdNWoaWhrFZ17IYKr8uzwbg3haQSlAmm9anUhYKzzov7tvNp7bPzxzoc7B6WS7DCg59XBGoB2eeHlBmdmE=
-X-Received: by 2002:aa7:8e85:0:b029:28f:2620:957e with SMTP id
- a5-20020aa78e850000b029028f2620957emr39936678pfr.40.1620889729317; Thu, 13
- May 2021 00:08:49 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210512210413.1982933-1-luzmaximilian@gmail.com>
-In-Reply-To: <20210512210413.1982933-1-luzmaximilian@gmail.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Thu, 13 May 2021 10:08:33 +0300
-Message-ID: <CAHp75VczB-+Qs9-7Ye3qXZBag8_Ho4E3oTywGu2eNY67s3K00w@mail.gmail.com>
-Subject: Re: [PATCH] serial: 8250_dw: Add device HID for new AMD UART controller
-To:     Maximilian Luz <luzmaximilian@gmail.com>
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=6yTFbxHIwd6peJbwP7HMxe6U7ibZ/XoARK8j3+NqR0w=;
+        b=Jy+kq39VXwUmiVtpi2Cq6ePIDKhDZNKER4+obKv/FX/eP4HWxrKQSDqLQvKFG9svHo
+         gAqzwlNT1waJAGWlrI2ZIDlGJmxBSRSV2IXauyc4UykquSTMXDIon43GA9EUYWHXnBkK
+         u6ZNzV9xXy7PFCr7QES1hLaqNcFFLI//nKvQX4CoVjenpCh4XkEMRIMytUh+siuZzyz0
+         Kr0hU4qAKL398CsGsAy5uKdFoIYSdWtAcWsgD6y1QnjuvFWl6MjX01J7gF33hnneRE4Q
+         oUE34RqrExN1i2rDMUGfhtANiPIWbyzJYPq/vVyGxhKoZCmErXvRIwkFLKH//TIhlfXY
+         D03g==
+X-Gm-Message-State: AOAM531zVX1hC5e/tMHDw/BUHxHMLj1gcm8YZ4ZDoRDeg6KrdSOwxPYU
+        9D2MSleCgojUAi/IHf480rjsAKS16joYq64ciQg=
+X-Google-Smtp-Source: ABdhPJzb2c5ZAzTtPUDmgx+Ms6jID9WyetnRzh6Ch4XMR1DWdVU4aj9RqIYK5BpPzMagLyaToj+Xfg==
+X-Received: by 2002:a17:902:d386:b029:ee:bf5f:c037 with SMTP id e6-20020a170902d386b02900eebf5fc037mr38844993pld.31.1620891434150;
+        Thu, 13 May 2021 00:37:14 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
+        by smtp.gmail.com with ESMTPSA id q184sm1433476pfc.208.2021.05.13.00.37.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 May 2021 00:37:13 -0700 (PDT)
+Message-ID: <609cd729.1c69fb81.e9822.5bbf@mx.google.com>
+Date:   Thu, 13 May 2021 00:37:13 -0700 (PDT)
+X-Google-Original-Date: Thu, 13 May 2021 07:37:07 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210512144819.664462530@linuxfoundation.org>
+Subject: RE: [PATCH 5.10 000/530] 5.10.37-rc1 review
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-serial@vger.kernel.org, stable@vger.kernel.org,
-        Sachi King <nakato@nakato.io>
-Content-Type: text/plain; charset="UTF-8"
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 13, 2021 at 1:20 AM Maximilian Luz <luzmaximilian@gmail.com> wrote:
->
-> Add device HID AMDI0022 to the AMD UART controller driver match table
-> and create a platform device for it. This controller can be found on
-> Microsoft Surface Laptop 4 devices and seems similar enough that we can
-> just copy the existing AMDI0020 entries.
+On Wed, 12 May 2021 16:41:50 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.10.37 release.
+> There are 530 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.37-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com> # for 8250_dw part
+5.10.37-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
-> Cc: <stable@vger.kernel.org> # 5.10+
-> Tested-by: Sachi King <nakato@nakato.io>
-> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-> ---
->  drivers/acpi/acpi_apd.c           | 1 +
->  drivers/tty/serial/8250/8250_dw.c | 1 +
->  2 files changed, 2 insertions(+)
->
-> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> index 0ec5b3f69112..6e02448d15d9 100644
-> --- a/drivers/acpi/acpi_apd.c
-> +++ b/drivers/acpi/acpi_apd.c
-> @@ -226,6 +226,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
->         { "AMDI0010", APD_ADDR(wt_i2c_desc) },
->         { "AMD0020", APD_ADDR(cz_uart_desc) },
->         { "AMDI0020", APD_ADDR(cz_uart_desc) },
-> +       { "AMDI0022", APD_ADDR(cz_uart_desc) },
->         { "AMD0030", },
->         { "AMD0040", APD_ADDR(fch_misc_desc)},
->         { "HYGO0010", APD_ADDR(wt_i2c_desc) },
-> diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-> index 9e204f9b799a..a3a0154da567 100644
-> --- a/drivers/tty/serial/8250/8250_dw.c
-> +++ b/drivers/tty/serial/8250/8250_dw.c
-> @@ -714,6 +714,7 @@ static const struct acpi_device_id dw8250_acpi_match[] = {
->         { "APMC0D08", 0},
->         { "AMD0020", 0 },
->         { "AMDI0020", 0 },
-> +       { "AMDI0022", 0 },
->         { "BRCM2032", 0 },
->         { "HISI0031", 0 },
->         { },
-> --
-> 2.31.1
->
-
-
--- 
-With Best Regards,
-Andy Shevchenko
