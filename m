@@ -2,117 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D131737F665
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 13:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3775437F6A4
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 13:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233045AbhEMLIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 07:08:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54396 "EHLO
+        id S232856AbhEMLY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 07:24:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233087AbhEMLIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 07:08:32 -0400
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1753C06174A
-        for <stable@vger.kernel.org>; Thu, 13 May 2021 04:07:21 -0700 (PDT)
-Received: by mail-wm1-x333.google.com with SMTP id j3-20020a05600c4843b02901484662c4ebso1188564wmo.0
-        for <stable@vger.kernel.org>; Thu, 13 May 2021 04:07:21 -0700 (PDT)
+        with ESMTP id S232808AbhEMLYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 07:24:55 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA922C061574
+        for <stable@vger.kernel.org>; Thu, 13 May 2021 04:23:45 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id gx5so39335301ejb.11
+        for <stable@vger.kernel.org>; Thu, 13 May 2021 04:23:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=L1Rs0oxlRge0qzOeFq0tx+oSL+//C6msY0LMqH5lEJs=;
-        b=UfmbqwKWPIdaOVfwjyMXYHlRMeuPfQe2tS1dxgzp9lcC2DKlB6n5x7sLOxwLQuQn7d
-         V69lN0hMUMBgvquWzFmb51GU0aWKFtSn/+59BMg6Krr1aA+XsSNtSIVmf43riZWUNU3C
-         OSZ6mwdBXsfsNjTyfNrPGpclohv341toj3iK6cRR9VILpW61HrMd1h9Sh84X0DALpnL5
-         ENei0SdPbb7t8pkgBfw/PKuqs9qLRFn3eiRf9r61KKMQlg4D7HYyRVLLfloygAWKiId9
-         HBlUhD08Su2HY49L+9lKhUfs5ypG0sHxOZeR283CD6+ON+tozDYW6QJks2QbIJv2RqTA
-         xZtw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=uk3Nuoqi9WrrlO8LNdfRu9oeJEhzgooAvqOd7EA2bC0=;
+        b=FOqK6+boQCGhL7F7JNoJsU/9mIn/Y1xKY2MqKgw4q9fraenfRraM/G6k6jrjiUe9RK
+         hLG2N8fFV8t5Z4xoSTlicXV/YV2BeeA1F3O/rLSZoD8/Lb3cL++5o10WE1Oz8RXf2g1j
+         WYKmryrZRvEIf4WF2T4IwKxQrUQWtFrhL4aJCaci5puuVwW8CDQptlFiQF/OZgbdRhm5
+         BmoS5AP98UWyP/qcW5+CTGJibOt6EzoW++ijBclTm3R5VL5zsDG78d1F1a+8kNWYQlS0
+         eWrgyais1Lfc3lYifNHi4I11W1qpB/UUX67YxZDkX4cTAcENzt2Xm9S5PFMMDuxYFjtd
+         r+zg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=L1Rs0oxlRge0qzOeFq0tx+oSL+//C6msY0LMqH5lEJs=;
-        b=oCub1l7sRBOhk6EAwQZxDeESm6JCEcPy4EHshU5KXbnsGXhAvd5poygsNGpkhwjAXB
-         Ha5+vVFLH3MDw8HZwBhtzW1u3utyMwiKXcD5ZHcGaOm7YxQwuPxxPtYAYdnMt6Uyeief
-         wNk8rq9amjOFa3DRQs8jws16I+BjptRSgRMPvN64cPw6pw82Fx5IwQcMF9d6UjSg/Q1Z
-         8WwGTS2ge9fH5uy6fdgvKdxFjq3EDn9Z2YfMmasUIslcPE6E5JL4ml4Ln08s8eGlpvwu
-         8Cfec+oaqYbAUTZHtSay2q4US7SuieU9f0PGxx5MVM795LRxjKklwOczPLyNtc8NQMkT
-         IRNw==
-X-Gm-Message-State: AOAM530zmTx6eimny/WhB4AFhXWAHD7Kbl9ZfVI43uBbfJ7d5RuFM7DR
-        6ldLSkYdLVtFMX3Xf5+L09Mz7g==
-X-Google-Smtp-Source: ABdhPJwoPSyjUjRVlrMarrwmNlorL54H3jsq17PlEllH9h0xlrlFpUHhQj+r8LKAhGeAf+q13tMx3g==
-X-Received: by 2002:a1c:a507:: with SMTP id o7mr3293234wme.130.1620904040559;
-        Thu, 13 May 2021 04:07:20 -0700 (PDT)
-Received: from maple.lan (cpc141216-aztw34-2-0-cust174.18-1.cable.virginm.net. [80.7.220.175])
-        by smtp.gmail.com with ESMTPSA id e38sm7979662wmp.21.2021.05.13.04.07.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 May 2021 04:07:19 -0700 (PDT)
-Date:   Thu, 13 May 2021 12:07:17 +0100
-From:   Daniel Thompson <daniel.thompson@linaro.org>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Arnd Bergmann <arnd@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mike Rapoport <rppt@kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Subject: Re: [PATCH] ARM: fix gcc-10 thumb2-kernel regression
-Message-ID: <20210513110717.s2gr4l5upqzjkb5a@maple.lan>
-References: <20210512081211.200025-1-arnd@kernel.org>
- <CAMj1kXECGjpxx5ouWuvnKUigzMGu=GcE8_ab2rrxt98yU1jUnw@mail.gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=uk3Nuoqi9WrrlO8LNdfRu9oeJEhzgooAvqOd7EA2bC0=;
+        b=SD7jpTj81EMG+D3EvYr+gib0/rCsFSaTnav/p/jlqzRAo/eYW55qeIVHJ2ZwqZZTNm
+         Nj/gUr8o062T3Pz3M2CHJtNyFKjF48gBnmmxbirLiz8iEme35+Vyio2CWdAwaXMJvKaS
+         XbD4Jw0Y1tB7ZUuj0QzTrrmo3LM+4g8HTHsA2xl/vt2Xqsx0urZgSlWT+JHSSUTc2HY5
+         FTvWXUO600OWfghn7QCpYP8cqPEowNa5pUR83ZqwgOzzMBpDLpxjSFtHkppzANDkswjW
+         GKzZHuR7uKyY3IEeHEcr6SAhgF1xouNw7iHJ3pm+IMLLzJ/aPkD1MU3m4YQo/GvjlkG8
+         jsew==
+X-Gm-Message-State: AOAM533/mr2/OXqyqwVqvTCrqA7JZ+Qnvcfen4AH35MeiN6Hgil2cZPw
+        Xh0KfeJi05LY+wczI1i/xJ0EQrXams0xJVHGE1RZrg==
+X-Google-Smtp-Source: ABdhPJwBanYJkhng8FkxMKDscdU9yWBNt8sAdYEoJgKHghtwkyMRGaR6oLeFVKCWg0NAvYnalMGjSxoqqJO21/lsDtI=
+X-Received: by 2002:a17:906:c211:: with SMTP id d17mr8002065ejz.247.1620905024349;
+ Thu, 13 May 2021 04:23:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMj1kXECGjpxx5ouWuvnKUigzMGu=GcE8_ab2rrxt98yU1jUnw@mail.gmail.com>
+References: <20210512144827.811958675@linuxfoundation.org>
+In-Reply-To: <20210512144827.811958675@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 13 May 2021 16:53:32 +0530
+Message-ID: <CA+G9fYtrG5TERBDNHewFP7fJnxbpbaqxBvm=psvLxvVFup8suw@mail.gmail.com>
+Subject: Re: [PATCH 5.11 000/601] 5.11.21-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 12, 2021 at 02:38:36PM +0200, Ard Biesheuvel wrote:
-> On Wed, 12 May 2021 at 10:13, Arnd Bergmann <arnd@kernel.org> wrote:
-> >
-> > From: Arnd Bergmann <arnd@arndb.de>
-> >
-> > When building the kernel wtih gcc-10 or higher using the
-> > CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y flag, the compiler picks a slightly
-> > different set of registers for the inline assembly in cpu_init() that
-> > subsequently results in a corrupt kernel stack as well as remaining in
-> > FIQ mode. If a banked register is used for the last argument, the wrong
-> > version of that register gets loaded into CPSR_c.  When building in Arm
-> > mode, the arguments are passed as immediate values and the bug cannot
-> > happen.
-> >
-> > This got introduced when Daniel reworked the FIQ handling and was
-> > technically always broken, but happened to work with both clang and gcc
-> > before gcc-10 as long as they picked one of the lower registers.
-> > This is probably an indication that still very few people build the
-> > kernel in Thumb2 mode.
-> >
-> > Marek pointed out the problem on IRC, Arnd narrowed it down to this
-> > inline assembly and Russell pinpointed the exact bug.
-> >
-> > Change the constraints to force the final mode switch to use a non-banked
-> > register for the argument to ensure that the correct constant gets loaded.
-> > Another alternative would be to always use registers for the constant
-> > arguments to avoid the #ifdef that has now become more complex.
-> >
-> > Cc: <stable@vger.kernel.org> # v3.18+
-> > Cc: Daniel Thompson <daniel.thompson@linaro.org>
-> > Reported-by: Marek Vasut <marek.vasut@gmail.com>
-> > Fixes: c0e7f7ee717e ("ARM: 8150/3: fiq: Replace default FIQ handler")
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> 
-> Nice bug!
-
-Indeed. Many thanks for those involved with the find and fix!
+On Wed, 12 May 2021 at 20:57, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.11.21 release.
+> There are 601 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.11.21-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.11.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
 
-Daniel.
+Results from Linaro=E2=80=99s test farm.
+
+Apart from mips clang build failures no other new test failures noticed.
+
+## Build
+* kernel: 5.11.21-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.11.y
+* git commit: 1ec08480ab8706a140351f1c2e58d1624a1e0942
+* git describe: v5.11.19-944-g1ec08480ab87
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.11.y/build/v5.11=
+.19-944-g1ec08480ab87
+
+## Regressions (compared to v5.11.19-342-g601189766731)
+
+* mips, build
+  - clang-10-allnoconfig
+  - clang-10-defconfig
+  - clang-10-tinyconfig
+  - clang-11-allnoconfig
+  - clang-11-defconfig
+  - clang-11-tinyconfig
+  - clang-12-allnoconfig
+  - clang-12-defconfig
+  - clang-12-tinyconfig
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## No fixes (compared to v5.11.19-342-g601189766731)
+
+## Test result summary
+ total: 72537, pass: 61040, fail: 1006, skip: 10228, xfail: 263,
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* i386: 25 total, 25 passed, 0 failed
+* mips: 45 total, 36 passed, 9 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-lib
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* timesync-off
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
