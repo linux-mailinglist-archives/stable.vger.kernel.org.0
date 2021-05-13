@@ -2,130 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9630537FC63
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 19:19:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D886F37FC7A
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 19:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231204AbhEMRUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 13:20:21 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:48517 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231232AbhEMRTs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 13:19:48 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1620926317; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=iM3ko5L1PPEvD7mpUvwhSW4LYEMmmMA1RfYovsAbYmk=;
- b=Tl+KboUUaf20pV4lPjo1CP/2HUeoChgvgVun8YXBsxY3+MAESreoO9ykNPkGsy3hfquESOuw
- ovC5EPWBj2XrWgDUKhrwerHqbZ6FUL1viMyza97PjoQ2SlT/94hF0URKAQy6ziF5FLGM85Qs
- JL+kKyXz1Fp6Yor1h1hF/6TPhRs=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n01.prod.us-east-1.postgun.com with SMTP id
- 609d5f62ff1bb9beecb323b3 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 13 May 2021 17:18:26
- GMT
-Sender: jjohnson=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id EF3C1C433F1; Thu, 13 May 2021 17:18:24 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: jjohnson)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 83412C4338A;
-        Thu, 13 May 2021 17:18:22 +0000 (UTC)
+        id S230213AbhEMR0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 13:26:23 -0400
+Received: from mail-bn8nam12on2056.outbound.protection.outlook.com ([40.107.237.56]:2816
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229877AbhEMR0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 13:26:22 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QPOY/9JmkieURiQUDF3Fmy79M3KVntmvLcnQZEhaM0LyNotO5KfdqE4nLsE7g4wCnDbwq0wMYlebeSu+yg5PiDWwCzizZ5pckVmcv9H0loNrwzo/FsQytAvAsZ8/g8k6Le2q+lNxO1nKwUbjDwPHgv32rWH8F0G+0UhSmO1rTgCM1G8LBOrbJC/6aKo4oMJBUSsy2p+rZLR4AxeD9+0LUGz0YoZNAMtpRksxvgwF1qCzZCFdcoYC5gywl8vGyzcJpz1QNvmsPWdlRb/GnBKiaq9DkiV0tRNxUz5Y6BsqX4hqau2eUKa7Sb1tpdbnoeYOjGxgnNzPvCEcZ+tU2RD+bg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9dsDbQR4wDIlwT7Hxrkn30Y88BIvCX+SUzfIJ5k/wpc=;
+ b=IOV5nao6dYLsyjnPrzzV35Abt2eIgGWRurWuRdShH+gBFIvaAXd7G8l0fe8XfFjZ6SSjpF5KNK+nj13WscZSTvAQocLi2sbRDWQ1DuJOOTBx/ZhWHaMC0cafvRzshfK1gbUVm0aMV7ls7jWhSZ4fqINNTOe6tm/xIPoFcBfdTT8gIXCrJiwz3VZSRxv/NtZn2woMrTKJRex7HCv+0NZMtX+raYdnmdJOTWID06j4pgzRghtBTmWC7/EUJzmJ8YEVstfZyhhzpFdJbivjkboMvG9fXRJYRGUqxQN9Wud1wfeWjjcjalTNGFJLOEVvfA/Dge/SjZDjQAKSjOIx+u/2NA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9dsDbQR4wDIlwT7Hxrkn30Y88BIvCX+SUzfIJ5k/wpc=;
+ b=HX8zlrY9xQ4SdfS9u967rCKypgqbfE9xloI6aNqDLln1TIv3czzxazkxZxkYpeYE/GC5RA2ufNxp/3DkCTjm5JKXQITEWlIwsj0frXKE9PZRzYjIh+j8xvtn5NiW0zcNzz+I45JMXAJ4Jz6EHO1vr0IxXHC6Hr1w9vycZu29ebhhC8pHwGcMdCrNzM8O/hx6jP/7wNbGuEWIx2JJxZWHOhZp6z9CgR51v7YeI9R7uH9f8Gr4BTchMrNMTeNZKZMtHHP+ygx01xhcD+tZwQVcvm4i3x4Y/IQ8C6CmpbXeB87YGmVKp7RqpFIjrsx5dnoGkxwoeLWNknnQCHY4LNa7RA==
+Authentication-Results: linux.ibm.com; dkim=none (message not signed)
+ header.d=none;linux.ibm.com; dmarc=none action=none header.from=nvidia.com;
+Received: from DM6PR12MB3834.namprd12.prod.outlook.com (2603:10b6:5:14a::12)
+ by DM5PR12MB1882.namprd12.prod.outlook.com (2603:10b6:3:112::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.28; Thu, 13 May
+ 2021 17:25:11 +0000
+Received: from DM6PR12MB3834.namprd12.prod.outlook.com
+ ([fe80::ddb4:2cbb:4589:f039]) by DM6PR12MB3834.namprd12.prod.outlook.com
+ ([fe80::ddb4:2cbb:4589:f039%4]) with mapi id 15.20.4129.026; Thu, 13 May 2021
+ 17:25:11 +0000
+Date:   Thu, 13 May 2021 14:25:09 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
+Message-ID: <20210513172509.GJ1002214@nvidia.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+ <20210512124120.GV1002214@nvidia.com>
+ <759f8840-671a-446c-875b-798dceb10d0f@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <759f8840-671a-446c-875b-798dceb10d0f@linux.ibm.com>
+X-Originating-IP: [47.55.113.94]
+X-ClientProxiedBy: BL0PR02CA0094.namprd02.prod.outlook.com
+ (2603:10b6:208:51::35) To DM6PR12MB3834.namprd12.prod.outlook.com
+ (2603:10b6:5:14a::12)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Thu, 13 May 2021 10:18:22 -0700
-From:   Jeff Johnson <jjohnson@codeaurora.org>
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     Johannes Berg <johannes@sipsolutions.net>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Wen Gong <wgong@codeaurora.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 14/18] ath10k: drop MPDU which has discard flag set by
- firmware for SDIO
-In-Reply-To: <CA+ASDXPwAWEEvWBdiLpMrm-PTcSH7QQHwx_T5nxN+faQt=Wi_g@mail.gmail.com>
-References: <20210511180259.159598-1-johannes@sipsolutions.net>
- <20210511200110.11968c725b5c.Idd166365ebea2771c0c0a38c78b5060750f90e17@changeid>
- <CA+ASDXPwAWEEvWBdiLpMrm-PTcSH7QQHwx_T5nxN+faQt=Wi_g@mail.gmail.com>
-Message-ID: <e417165a0f952b030a195dde4979058f@codeaurora.org>
-X-Sender: jjohnson@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from mlx.ziepe.ca (47.55.113.94) by BL0PR02CA0094.namprd02.prod.outlook.com (2603:10b6:208:51::35) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend Transport; Thu, 13 May 2021 17:25:10 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1lhF5B-0077jY-4m; Thu, 13 May 2021 14:25:09 -0300
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c39a81f5-0550-4d0f-cca3-08d916340f87
+X-MS-TrafficTypeDiagnostic: DM5PR12MB1882:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM5PR12MB1882DC03414AD56AC0A85622C2519@DM5PR12MB1882.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YYI09951kwkJuxM1khmm97hGz+ZqiibcJwlXIzn/2tg1t5jYMBpARFeWdQvWSvoRc1NJw00cj9wbPi98HTCBJ1hut6bhNuGMjEpuOGihbIdsJzbCnnH1XKVScOSE8aDBOTe7QsqtAE1zuL+uBJRAJG5EkyIRWQ9IQXEsHQxPDzCoYfEokvgCsQxMXg1Vq1qd8HV3brTeIrgtdtQf9gDpjP39qQpm1D9knDYRUt2zN6XVItjH3Dw4/7C9I+AfQLSMdbsrKWCuzI+5dEphMYWhsMFz1+1JUL6B+/VBCW9hh0TTxAAjVzVyvqEUTOf4wxrikUAr4RAWjIFBK3ViR0s/Vs4nI+e2qw1PgcMq6lYoT5T+ZSwfOjfrWOPlX4HneMldE8PE71UlCpsIHhyH0Vrpb3sNLvR/wUUrkUmKBAcPCFwJH1J79LvswP8Jh/Vws8DMuf3t87q5NOgH33FlPfoRP6vY1bRhQdSuCteSGmJdK3fddojRSgJxa/t709QQPz8wbbH7LeDm93RHOdZyoS0VjKizkVxsw2e9hawblIg1qpLguh1/rENA5LReoZQbv7h1dSI2rHPb4atSCDk9zKbdQdufwDOuwyODYxQgI6VBPis=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB3834.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(136003)(396003)(346002)(39850400004)(376002)(53546011)(66946007)(1076003)(26005)(5660300002)(316002)(9786002)(36756003)(2906002)(9746002)(186003)(6916009)(478600001)(86362001)(83380400001)(8936002)(2616005)(38100700002)(66476007)(66556008)(4326008)(426003)(7416002)(33656002)(8676002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?pWokFDLxIzqQCbfci1cjF0LKmbJGBpJZSlqPTueYO4JeCke9OuChj9jhKTpZ?=
+ =?us-ascii?Q?QvUv8TqTbDSY3HXGjRlGuIruE1OAQDwqfB5lqZcnbOVmP+miOotDyInWTuu6?=
+ =?us-ascii?Q?LLfsdoOph9YkK2xFYEjVf92YkPN1B9iaO0e6eMFTrYdkN1AM+OAQ1x62t2qZ?=
+ =?us-ascii?Q?WC50guQA4yO6xoXqoBfx6RIIQywV19ZfD6iL6500ESBFc57TlmpKakizQh6L?=
+ =?us-ascii?Q?sN5Z5baikkZA97s/q/rnrxc3ncZEXOvPcZc3i6VnWrkaIRKFvKagYbZmySBI?=
+ =?us-ascii?Q?O5HH3OakDW0Xlqkj1cE2/HXYmPweF5PC2/WsFcGWgLIGn7pW8BexLtHq53jE?=
+ =?us-ascii?Q?i8rKEKCBAowlH147qaY+vRcVB7SqjrEqabNodH15STh89UItkbDJW2Ei6lc6?=
+ =?us-ascii?Q?mxtLFNAr5+TXWHqcXeHzWW8l8SGvF0lGnQUFxP/kArbjqwFc/4WjeWrgGg9g?=
+ =?us-ascii?Q?5nSMuMQLMZQXchfBNkDcABNb8t+aMsAh74VqnoTVZ6cqobMuyRtg60XLCniC?=
+ =?us-ascii?Q?IjplPdvrT5xnYRSdMsbwiINfKVPpGpcS9TL4EA6ETZYpaM9o14eXNi+mJ2B3?=
+ =?us-ascii?Q?JM+cU1g+ugSqV7poVqwrB/hH4b4DkTHaHkm8N+DnCpjOHwPJt4QXb4OOZ6PW?=
+ =?us-ascii?Q?SVVF423+AWN0X4OuI/m5QYqL5+Q7jwxWIpyVfBLzQzawVjs4Ui+caFT/nPXD?=
+ =?us-ascii?Q?HcCzqlrrK2MSZsj3DOeQqatbQEpAjYMiJGDgGT6WBTfYgXJCXgocQoTkreWG?=
+ =?us-ascii?Q?6QZMXYKkUYXE06KWVA/Fy/D7PjaCxOqTORd3HLcR+K2oWVgkeGTJYftF8yg+?=
+ =?us-ascii?Q?JMfKxw2cDJpt6Xlu/0PdylcQQH3tcmLO5notLuEZxP7t/F54UnsZIIAKHZPu?=
+ =?us-ascii?Q?Dpo4e8jHol0n/zeQ/5/zBA/bbyZvQfUdsubRBgsXDSdiFRwvJK0C7F3WOOk9?=
+ =?us-ascii?Q?IbnwrDayuqRdBXrfhvnEqQ+5Rp8xRD1lf2LxjhfI7C9tQtNmqYcyyfxO/2yl?=
+ =?us-ascii?Q?SqF4pQ3NTfR1hLt5GzQ6h3K5PXCVAj9nrYYm5/WvMme16PoAVeKkndADTMqu?=
+ =?us-ascii?Q?6cT8kQlm86iTOboYR5WP8f3xfBAfFvtoEIrSxC5NWJG5J+Niy/Mci3P2qNn9?=
+ =?us-ascii?Q?dMBov2jsz0bKdeSbi0ogKHHNAivqzRe5855kr1YXBd4xNKgTKLG1a9CNu2ke?=
+ =?us-ascii?Q?2Z6jPbdqcDSRlJQ3+JtTKWt3j8njYKiJUITtE/9kf52Q9mijN40GhwQjs64v?=
+ =?us-ascii?Q?rme0Hwhan6+J5ktgkhgcGRKVx4negoyfOxD5SM2APpevFaFrSEQ4wrd7b23B?=
+ =?us-ascii?Q?3KfkwvLQwsKj43xyVvSJFk70?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c39a81f5-0550-4d0f-cca3-08d916340f87
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB3834.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 May 2021 17:25:10.8601
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: pl+yeHjJ4u42+s5xPyWwvK+nqMTcS4UCZxn+55dc5mjLxwRS6YMBTbIFGuyUHt0x
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1882
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-05-12 11:35, Brian Norris wrote:
-> On Tue, May 11, 2021 at 11:03 AM Johannes Berg
-> <johannes@sipsolutions.net> wrote:
->> --- a/drivers/net/wireless/ath/ath10k/htt_rx.c
->> +++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
->> @@ -2312,6 +2312,11 @@ static bool ath10k_htt_rx_proc_rx_ind_hl(struct
->> ath10k_htt *htt,
->>         fw_desc = &rx->fw_desc;
->>         rx_desc_len = fw_desc->len;
->> 
->> +       if (fw_desc->u.bits.discard) {
->> +               ath10k_dbg(ar, ATH10K_DBG_HTT, "htt discard mpdu\n");
->> +               goto err;
->> +       }
->> +
->>         /* I have not yet seen any case where num_mpdu_ranges > 1.
->>          * qcacld does not seem handle that case either, so we 
->> introduce
->> the
->>          * same limitiation here as well.
->> diff --git a/drivers/net/wireless/ath/ath10k/rx_desc.h
->> b/drivers/net/wireless/ath/ath10k/rx_desc.h
->> index f2b6bf8f0d60..705b6295e466 100644
->> --- a/drivers/net/wireless/ath/ath10k/rx_desc.h
->> +++ b/drivers/net/wireless/ath/ath10k/rx_desc.h
->> @@ -1282,7 +1282,19 @@ struct fw_rx_desc_base {
->>  #define FW_RX_DESC_UDP              (1 << 6)
->> 
->>  struct fw_rx_desc_hl {
->> -       u8 info0;
->> +       union {
->> +               struct {
->> +               u8 discard:1,
->> +                  forward:1,
->> +                  any_err:1,
->> +                  dup_err:1,
->> +                  reserved:1,
->> +                  inspect:1,
->> +                  extension:2;
->> +               } bits;
->> +               u8 info0;
->> +       } u;
+On Thu, May 13, 2021 at 10:18:44AM -0400, Tony Krowiak wrote:
 > 
-> Am I misled here, or are you introducing endianness issues here? From 
-> C99:
 > 
-> "The order of allocation of bit-fields within a unit (high-order to
-> low-order or low-order to high-order) is implementation-defined."
+> On 5/12/21 8:41 AM, Jason Gunthorpe wrote:
+> > On Mon, May 10, 2021 at 05:48:37PM -0400, Tony Krowiak wrote:
+> > > The mdev remove callback for the vfio_ap device driver bails out with
+> > > -EBUSY if the mdev is in use by a KVM guest. The intended purpose was
+> > > to prevent the mdev from being removed while in use; however, returning a
+> > > non-zero rc does not prevent removal. This could result in a memory leak
+> > > of the resources allocated when the mdev was created. In addition, the
+> > > KVM guest will still have access to the AP devices assigned to the mdev
+> > > even though the mdev no longer exists.
+> > > 
+> > > To prevent this scenario, cleanup will be done - including unplugging the
+> > > AP adapters, domains and control domains - regardless of whether the mdev
+> > > is in use by a KVM guest or not.
+> > > 
+> > > Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
+> > >   drivers/s390/crypto/vfio_ap_ops.c | 13 ++-----------
+> > >   1 file changed, 2 insertions(+), 11 deletions(-)
+> > Can you please ensure this goes to a -rc branch or through Alex's
+> > tree?
 > 
-> Now, we're pretty well attuned to two implementations (big and little
-> endian), and this should work for the most common one (little endian),
-> but it's not wise to assume everyone is little endian.
-> 
-> Brian
+> I'm sorry, I don't know what a -rc branch is nor how to push this
+> to Alex's tree, but I'd be happy to do so if you tell me now:)
 
-This issue was identified in internal review, but due to the embargo 
-expiring
-we sent it out as-is since that is what had been tested. The author will 
-have
-a follow-up change to replace this.
+If Christian takes it for 5.13-rc then that is OK
 
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora 
-Forum,
-a Linux Foundation Collaborative Project
+Otherwise please ask AlexW to take it
+
+Thanks,
+Jason
