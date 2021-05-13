@@ -2,55 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A123B37F4CF
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 11:27:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F3537F502
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 11:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231251AbhEMJ2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 05:28:48 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:2585 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230480AbhEMJ2o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 05:28:44 -0400
-Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4FgmTD09DvzsRFd;
-        Thu, 13 May 2021 17:24:48 +0800 (CST)
-Received: from [10.174.178.208] (10.174.178.208) by
- DGGEMS408-HUB.china.huawei.com (10.3.19.208) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 13 May 2021 17:27:27 +0800
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Subject: [linux-stable-rc CI] Test report for 4.14.233-rc1/x86
-Message-ID: <8271104d-0569-014a-63fe-02881cd45ca2@huawei.com>
-Date:   Thu, 13 May 2021 17:27:27 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S232102AbhEMJs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 05:48:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49770 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230338AbhEMJs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 05:48:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D3C6613D6;
+        Thu, 13 May 2021 09:47:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1620899238;
+        bh=looiwLoQHvd8WUv42tfSdRfqQq+O2ue3rQjtB+aKGM4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=d25DAWPl0Wadx7snGmbHJGUKfkeZQ42tLvhVwSwh5faGy3rGsUOlYKWMPZtJLdach
+         oa+KPoEg/n7ixHmS3mxY6C3Ly9wDWJ58u77TGnxgcuCDYFoG+kheMCFPKIr6MyS4Yk
+         QSlMMczzVl3VNYB/PWYyqXkOa66oZVUDez1s8SP0=
+Date:   Thu, 13 May 2021 11:47:15 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 050/530] md: md_open returns -EBUSY when entering
+ racing area
+Message-ID: <YJz1o17zGaqfCH0X@kroah.com>
+References: <20210512144819.664462530@linuxfoundation.org>
+ <20210512144821.386618889@linuxfoundation.org>
+ <20210513075940.GA22156@amd>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210513075940.GA22156@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tested on x86 for 4.14.232-rc1,
+On Thu, May 13, 2021 at 09:59:41AM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > commit 6a4db2a60306eb65bfb14ccc9fde035b74a4b4e7 upstream.
+> > 
+> > commit d3374825ce57 ("md: make devices disappear when they are no longer
+> > needed.") introduced protection between mddev creating & removing. The
+> > md_open shouldn't create mddev when all_mddevs list doesn't contain
+> > mddev. With currently code logic, there will be very easy to trigger
+> > soft lockup in non-preempt env.
+> > 
+> > This patch changes md_open returning from -ERESTARTSYS to -EBUSY, which
+> > will break the infinitely retry when md_open enter racing area.
+> > 
+> > This patch is partly fix soft lockup issue, full fix needs mddev_find
+> > is split into two functions: mddev_find & mddev_find_or_alloc. And
+> > md_open should call new mddev_find (it only does searching job).
+> > 
+> > For more detail, please refer with Christoph's "split mddev_find" patch
+> > in later commits.
+> 
+> Something went wrong here; changelog is truncated, in particular it
+> does not contain required sign-offs.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.14.y
-Version: 4.14.233-rc1
-Commit: db409d166f5c0d520b50b72ad028624690915768
-Compiler: gcc version 7.3.0 (GCC)
+That's really odd, let me figure out what went wrong there, might be a
+quilt thing...
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8423
-passed: 8423
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+greg k-hj
