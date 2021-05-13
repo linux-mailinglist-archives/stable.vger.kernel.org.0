@@ -2,32 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D1337FAB7
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A85037FAB8
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234816AbhEMPcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 11:32:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
+        id S234793AbhEMPcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 11:32:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229583AbhEMPcL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 11:32:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D252613BF;
-        Thu, 13 May 2021 15:31:01 +0000 (UTC)
+        id S234830AbhEMPcP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 11:32:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3153613C3;
+        Thu, 13 May 2021 15:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620919862;
-        bh=8ZFQvXar/GDmDnRIMrm5GaxSZm+CptKZfsUq0u+uWUU=;
+        s=korg; t=1620919864;
+        bh=oC2c0nRK8e03RZMi0uDJqwAw3UzA6G4RiUg2z06UGeg=;
         h=Subject:To:From:Date:From;
-        b=HZ/qi7yWhxrepLiRlnFXwicT3scDSVuz6iktD830p9xHwxW6+iGF9s9o0NgF3VdPm
-         mG8H9yNxEpuBx5P7H/dsBtJK3mbS7fbxm1gpgD8bpp0jRogRXAbRNIUR+nMiEE7T33
-         H/k2pzebf3FDHe/IMaCEVDGnB/gy8Yay+31KdpoE=
-Subject: patch "Revert "media: rcar_drif: fix a memory disclosure"" added to char-misc-linus
-To:     gregkh@linuxfoundation.org, fabrizio.castro.jz@renesas.com,
-        geert+renesas@glider.be, hverkuil-cisco@xs4all.nl, kjlu@umn.edu,
-        mchehab+huawei@kernel.org, mchehab@kernel.org,
+        b=M8BIgQh6J2n+PcznlOLKbiB6GzO3U+VEqCjaY121Vs0gwvORjloJ+M2G2F9x5V3Zk
+         e5xg2wrpmi1QKwXUap/eGGxjlyEjW4/3maaRMK/CzqYzN9SX7PhWyrqIiudPknlUXn
+         HTqrMRnQ/F84IZuqfZCAc4+Enmd/gXbIZ5d/nmsE=
+Subject: patch "Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"" added to char-misc-linus
+To:     gregkh@linuxfoundation.org, kjlu@umn.edu, linux@roeck-us.net,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 13 May 2021 17:31:00 +0200
-Message-ID: <162091986037139@kroah.com>
+Message-ID: <1620919860171187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Revert "media: rcar_drif: fix a memory disclosure"
+    Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -53,47 +51,62 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 3e465fc3846734e9489273d889f19cc17b4cf4bd Mon Sep 17 00:00:00 2001
+From 99ae3417672a6d4a3bf68d4fc43d7c6ca074d477 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 3 May 2021 13:56:30 +0200
-Subject: Revert "media: rcar_drif: fix a memory disclosure"
+Date: Mon, 3 May 2021 13:56:31 +0200
+Subject: Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
 
-This reverts commit d39083234c60519724c6ed59509a2129fd2aed41.
+This reverts commit 9aa3aa15f4c2f74f47afd6c5db4b420fadf3f315.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
 correct or not.
 
-Upon review, it was determined that this commit is not needed at all as
-the media core already prevents memory disclosure on this codepath, so
-just drop the extra memset happening here.
+Upon review, it was determined that this commit is not needed at all so
+just revert it.  Also, the call to lm80_init_client() was not properly
+handled, so if error handling is needed in the lm80_probe() function,
+then it should be done properly, not half-baked like the commit being
+reverted here did.
 
 Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Fixes: d39083234c60 ("media: rcar_drif: fix a memory disclosure")
+Fixes: 9aa3aa15f4c2 ("hwmon: (lm80) fix a missing check of bus read in lm80 probe")
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Reviewed-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-4-gregkh@linuxfoundation.org
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-5-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/rcar_drif.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/hwmon/lm80.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/media/platform/rcar_drif.c b/drivers/media/platform/rcar_drif.c
-index 83bd9a412a56..1e3b68a8743a 100644
---- a/drivers/media/platform/rcar_drif.c
-+++ b/drivers/media/platform/rcar_drif.c
-@@ -915,7 +915,6 @@ static int rcar_drif_g_fmt_sdr_cap(struct file *file, void *priv,
- {
- 	struct rcar_drif_sdr *sdr = video_drvdata(file);
+diff --git a/drivers/hwmon/lm80.c b/drivers/hwmon/lm80.c
+index ac4adb44b224..97ab491d2922 100644
+--- a/drivers/hwmon/lm80.c
++++ b/drivers/hwmon/lm80.c
+@@ -596,7 +596,6 @@ static int lm80_probe(struct i2c_client *client)
+ 	struct device *dev = &client->dev;
+ 	struct device *hwmon_dev;
+ 	struct lm80_data *data;
+-	int rv;
  
--	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
- 	f->fmt.sdr.pixelformat = sdr->fmt->pixelformat;
- 	f->fmt.sdr.buffersize = sdr->fmt->buffersize;
+ 	data = devm_kzalloc(dev, sizeof(struct lm80_data), GFP_KERNEL);
+ 	if (!data)
+@@ -609,14 +608,8 @@ static int lm80_probe(struct i2c_client *client)
+ 	lm80_init_client(client);
  
+ 	/* A few vars need to be filled upon startup */
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(1));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][0] = rv;
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][1] = rv;
++	data->fan[f_min][0] = lm80_read_value(client, LM80_REG_FAN_MIN(1));
++	data->fan[f_min][1] = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+ 
+ 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, client->name,
+ 							   data, lm80_groups);
 -- 
 2.31.1
 
