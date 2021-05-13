@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF70537F828
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 14:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 153E437F825
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 14:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233194AbhEMMtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 08:49:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45552 "EHLO mail.kernel.org"
+        id S230253AbhEMMtR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 08:49:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233916AbhEMMtU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 08:49:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D064E61154;
-        Thu, 13 May 2021 12:48:10 +0000 (UTC)
+        id S233217AbhEMMtQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 08:49:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E5E761396;
+        Thu, 13 May 2021 12:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620910091;
-        bh=uogLCFACGA5TeCjmBo2dMvezPd7zwW1lPvbfzEGhf68=;
+        s=korg; t=1620910086;
+        bh=fdGZbK/15H/3IkmUufI7TYgPE4080pou8Qs922dGokE=;
         h=Subject:To:From:Date:From;
-        b=GMjkPXvpw0iQnHOHUjDb38u6B2o1eda8Kgy83sqiquIFG3srCb+LLaQ6R1tjYF2SM
-         +qB4/4LVfocDO35lwGwbAhAks2AijR/x+T4kvdqUltk8X6DWI6Gf4Dx1EaIeuUgRwa
-         jO1mdjMSbOOWLt7r8M8UEAh2SDvYzSF3yJ+imkXc=
-Subject: patch "xhci: Do not use GFP_KERNEL in (potentially) atomic context" added to usb-linus
-To:     christophe.jaillet@wanadoo.fr, gregkh@linuxfoundation.org,
+        b=pWc+a+P1lbaFaDXRxFD8M/f3Oy+EdMvnqYzHLZ4YIhgtjJTVONl8Szydx+hQSyAgs
+         El6NgF0lPJ0XjcEjjPBndAgWr3A1wBRdtSqpej3LnS2O7CmG85UKlT7Gm6ujUVGE2I
+         7VvChMoC7LXoF/YgArhNQ9joZpZSwCLsyjzeFB3k=
+Subject: patch "usb: xhci: Increase timeout for HC halt" added to usb-linus
+To:     luzmaximilian@gmail.com, gregkh@linuxfoundation.org,
         mathias.nyman@linux.intel.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 13 May 2021 14:47:55 +0200
-Message-ID: <16209100758595@kroah.com>
+Message-ID: <1620910075197231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    xhci: Do not use GFP_KERNEL in (potentially) atomic context
+    usb: xhci: Increase timeout for HC halt
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,62 +51,42 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From dda32c00c9a0fa103b5d54ef72c477b7aa993679 Mon Sep 17 00:00:00 2001
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Date: Wed, 12 May 2021 11:08:14 +0300
-Subject: xhci: Do not use GFP_KERNEL in (potentially) atomic context
+From ca09b1bea63ab83f4cca3a2ae8bc4f597ec28851 Mon Sep 17 00:00:00 2001
+From: Maximilian Luz <luzmaximilian@gmail.com>
+Date: Wed, 12 May 2021 11:08:15 +0300
+Subject: usb: xhci: Increase timeout for HC halt
 
-'xhci_urb_enqueue()' is passed a 'mem_flags' argument, because "URBs may be
-submitted in interrupt context" (see comment related to 'usb_submit_urb()'
-in 'drivers/usb/core/urb.c')
+On some devices (specifically the SC8180x based Surface Pro X with
+QCOM04A6) HC halt / xhci_halt() times out during boot. Manually binding
+the xhci-hcd driver at some point later does not exhibit this behavior.
+To work around this, double XHCI_MAX_HALT_USEC, which also resolves this
+issue.
 
-So this flag should be used in all the calling chain.
-Up to now, 'xhci_check_maxpacket()' which is only called from
-'xhci_urb_enqueue()', uses GFP_KERNEL.
-
-Be safe and pass the mem_flags to this function as well.
-
-Fixes: ddba5cd0aeff ("xhci: Use command structures when queuing commands on the command ring")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210512080816.866037-4-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20210512080816.866037-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-ext-caps.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index ca9385d22f68..27283654ca08 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1514,7 +1514,7 @@ static int xhci_configure_endpoint(struct xhci_hcd *xhci,
-  * we need to issue an evaluate context command and wait on it.
+diff --git a/drivers/usb/host/xhci-ext-caps.h b/drivers/usb/host/xhci-ext-caps.h
+index fa59b242cd51..e8af0a125f84 100644
+--- a/drivers/usb/host/xhci-ext-caps.h
++++ b/drivers/usb/host/xhci-ext-caps.h
+@@ -7,8 +7,9 @@
+  * Author: Sarah Sharp
+  * Some code borrowed from the Linux EHCI driver.
   */
- static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
--		unsigned int ep_index, struct urb *urb)
-+		unsigned int ep_index, struct urb *urb, gfp_t mem_flags)
- {
- 	struct xhci_container_ctx *out_ctx;
- 	struct xhci_input_control_ctx *ctrl_ctx;
-@@ -1545,7 +1545,7 @@ static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
- 		 * changes max packet sizes.
- 		 */
+-/* Up to 16 ms to halt an HC */
+-#define XHCI_MAX_HALT_USEC	(16*1000)
++
++/* HC should halt within 16 ms, but use 32 ms as some hosts take longer */
++#define XHCI_MAX_HALT_USEC	(32 * 1000)
+ /* HC not running - set to 1 when run/stop bit is cleared. */
+ #define XHCI_STS_HALT		(1<<0)
  
--		command = xhci_alloc_command(xhci, true, GFP_KERNEL);
-+		command = xhci_alloc_command(xhci, true, mem_flags);
- 		if (!command)
- 			return -ENOMEM;
- 
-@@ -1639,7 +1639,7 @@ static int xhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flag
- 		 */
- 		if (urb->dev->speed == USB_SPEED_FULL) {
- 			ret = xhci_check_maxpacket(xhci, slot_id,
--					ep_index, urb);
-+					ep_index, urb, mem_flags);
- 			if (ret < 0) {
- 				xhci_urb_free_priv(urb_priv);
- 				urb->hcpriv = NULL;
 -- 
 2.31.1
 
