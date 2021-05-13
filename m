@@ -2,94 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C94B237F5B9
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E012737F5C0
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:39:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231497AbhEMKho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 06:37:44 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:48209 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231477AbhEMKhl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:37:41 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-224-rC7ecZ6kMiy0NzftmwzKAQ-1; Thu, 13 May 2021 11:36:29 +0100
-X-MC-Unique: rC7ecZ6kMiy0NzftmwzKAQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.2; Thu, 13 May 2021 11:36:27 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.015; Thu, 13 May 2021 11:36:27 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Maximilian Luz' <luzmaximilian@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
-CC:     "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
-        "x86@kernel.org" <x86@kernel.org>,
+        id S231307AbhEMKkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 06:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231236AbhEMKkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:40:23 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07480C061574;
+        Thu, 13 May 2021 03:39:12 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id gx5so39184041ejb.11;
+        Thu, 13 May 2021 03:39:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=UtUNJRyrclRlq2GZYbMBzdxMc4UcBRTvZYokrHl2QGk=;
+        b=PZXgd9dJdsiP4g4TY8MjbZtvQLpaGLv9KmNndTy/1i8A2axVajesSq0AV49uvarHW9
+         jyFeJZQMXYxNzoCXUW7aDSQe0mdPApgOvShf83cYZ62Z1SzRUw1m7cjQVuVYfSqJYjZe
+         Kfkvoniy0iNgr3C1bI7FHZTJEOy2LScoeS30fUjF3t9n40ldwnQzJs2J/qDWCk1/gb+D
+         hGAhiFZblUfN+4sv06aEND8NAOZSkj9hmVVWt98y+drh3p42YKDFlCs9uhss+OZNOGxe
+         ST0FHEtsMCb1CgU3WSwrmMVrB3aH25h2pjo0IFYVw4xCI9yecej0tcJgy/FmKjdhd1IT
+         /lLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=UtUNJRyrclRlq2GZYbMBzdxMc4UcBRTvZYokrHl2QGk=;
+        b=MxI/DlctmQ81Hh/TWDIaJu10cJPnXBkGza4WsIKKBxbCzMOVAVJRGup/lfxVP68FKh
+         gd6eyTd+PJoyOd8xjgEuH6yTC0FSM9jtkdb7nvhevhTJDyFQxStIdqAsgn8MCd5O7mAf
+         s+n+uhwIerP4OaDbKoXfuB8lF1DWsgvB8Kr8ysXFu/cLx6xqD1uMPSfNHXwDEt2oYuR7
+         asEhmyrPLlieVHSFHRMSNbPA8mPzH4qdj8yJYLoSTRr2dEiARR0KJodn0fL5lsW4fbzR
+         LAt+u52mMmgTKU8mLexYDPCRje6TtWUiMolNvz2B+k/JXAMKQdhDuS9DNysZZfWZVTot
+         jFLg==
+X-Gm-Message-State: AOAM53009yCH9y6N9IfBEpkZrcLrlj4vkNoX7OIdTYy7SNTEMDG5e33H
+        juXM9ttgtOymUb71RAq73Sw=
+X-Google-Smtp-Source: ABdhPJwIl28mdtghWAjSftlijbsM9F1wEfkGpaU4F/Bep3N1rDKnkOHtqR7UxnyQIRHnszycqNUCMw==
+X-Received: by 2002:a17:906:1e0b:: with SMTP id g11mr42469971ejj.291.1620902350840;
+        Thu, 13 May 2021 03:39:10 -0700 (PDT)
+Received: from gmail.com (0526E777.dsl.pool.telekom.hu. [5.38.231.119])
+        by smtp.gmail.com with ESMTPSA id k20sm30488eja.10.2021.05.13.03.39.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 May 2021 03:39:10 -0700 (PDT)
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date:   Thu, 13 May 2021 12:39:08 +0200
+From:   Ingo Molnar <mingo@kernel.org>
+To:     Huang Rui <ray.huang@amd.com>
+Cc:     Alexander Monakov <amonakov@ispras.ru>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        Jason Bagavatsingham <jason.bagavatsingham@gmail.com>,
+        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+        "Fontenot, Nathan" <Nathan.Fontenot@amd.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        "x86@kernel.org" <x86@kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] x86/i8259: Work around buggy legacy PIC
-Thread-Topic: [PATCH] x86/i8259: Work around buggy legacy PIC
-Thread-Index: AQHXR3+B5Hf0DG1T80+Lb/Y+9zG7TarhDftggAATCoCAABWukA==
-Date:   Thu, 13 May 2021 10:36:27 +0000
-Message-ID: <e43d9a823c9e44bab0cdbf32a000c373@AcuMS.aculab.com>
-References: <20210512210459.1983026-1-luzmaximilian@gmail.com>
- <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
- <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com>
-In-Reply-To: <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+Subject: Re: [PATCH v4] x86, sched: Fix the AMD CPPC maximum perf on some
+ specific generations
+Message-ID: <YJ0BzPs0WPJ42qG1@gmail.com>
+References: <20210425073451.2557394-1-ray.huang@amd.com>
+ <alpine.LNX.2.20.13.2105130130590.10864@monopod.intra.ispras.ru>
+ <YJxdttrorwdlpX33@gmail.com>
+ <20210513042420.GA1621127@hr-amd>
+ <YJz7fp17T1cyed4j@gmail.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YJz7fp17T1cyed4j@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTWF4aW1pbGlhbiBMdXog
-PGx1em1heGltaWxpYW5AZ21haWwuY29tPg0KPiBTZW50OiAxMyBNYXkgMjAyMSAxMToxMg0KPiBU
-bzogRGF2aWQgTGFpZ2h0IDxEYXZpZC5MYWlnaHRAQUNVTEFCLkNPTT47IFRob21hcyBHbGVpeG5l
-ciA8dGdseEBsaW51dHJvbml4LmRlPjsgSW5nbyBNb2xuYXINCj4gPG1pbmdvQHJlZGhhdC5jb20+
-OyBCb3Jpc2xhdiBQZXRrb3YgPGJwQGFsaWVuOC5kZT4NCj4gQ2M6IEguIFBldGVyIEFudmluIDxo
-cGFAenl0b3IuY29tPjsgU2FjaGkgS2luZyA8bmFrYXRvQG5ha2F0by5pbz47IHg4NkBrZXJuZWwu
-b3JnOyBsaW51eC0NCj4ga2VybmVsQHZnZXIua2VybmVsLm9yZzsgc3RhYmxlQHZnZXIua2VybmVs
-Lm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIXSB4ODYvaTgyNTk6IFdvcmsgYXJvdW5kIGJ1Z2d5
-IGxlZ2FjeSBQSUMNCj4gDQo+IE9uIDUvMTMvMjEgMTA6MTAgQU0sIERhdmlkIExhaWdodCB3cm90
-ZToNCj4gPiBGcm9tOiBNYXhpbWlsaWFuIEx1eg0KPiA+PiBTZW50OiAxMiBNYXkgMjAyMSAyMjow
-NQ0KPiA+Pg0KPiA+PiBUaGUgbGVnYWN5IFBJQyBvbiB0aGUgQU1EIHZhcmlhbnQgb2YgdGhlIE1p
-Y3Jvc29mdCBTdXJmYWNlIExhcHRvcCA0IGhhcw0KPiA+PiBzb21lIHByb2JsZW1zIG9uIGJvb3Qu
-IEZvciBzb21lIHJlYXNvbiBpdCBjb25zaXN0ZW50bHkgZG9lcyBub3QgcmVzcG9uZA0KPiA+PiBv
-biB0aGUgZmlyc3QgdHJ5LCByZXF1aXJpbmcgYSBjb3VwbGUgbW9yZSB0cmllcyBiZWZvcmUgaXQg
-ZmluYWxseQ0KPiA+PiByZXNwb25kcy4NCj4gPg0KPiA+IFRoYXQgc2VlbXMgdmVyeSBzdHJhbmdl
-LCBzb21ldGhpbmcgZWxzZSBtdXN0IGJlIGdvaW5nIG9uIHRoYXQgY2F1c2VzIHRoZSBncmllZi4N
-Cj4gPiBUaGUgODI1OSB3aWxsIGJlIGJ1aWx0IGludG8gdG8gdGhlIG9uZSBvZiB0aGUgY3B1IHN1
-cHBvcnQgY2hpcHMuDQo+ID4gSSBjYW4ndCBpbWFnaW5lIHRoYXQgcmVxdWlyZXMgYW55dGhpbmcg
-c3BlY2lhbC4NCj4gDQo+IFJpZ2h0LCBpdCdzIGRlZmluaXRlbHkgc3RyYW5nZS4gQm90aCBTYWNo
-aSAoSSBpbWFnaW5lKSBhbmQgSSBkb24ndCBrbm93DQo+IG11Y2ggYWJvdXQgdGhlc2UgZGV2aWNl
-cywgc28gd2UncmUgb3BlbiBmb3Igc3VnZ2VzdGlvbnMuDQoNCkkgZm91bmQgYSBjb3B5IG9mIHRo
-ZSBkYXRhc2hlZXQgKEkgZG9uJ3Qgc2VlbSB0byBoYXZlIHRoZSBibGFjayBib29rKToNCg0KaHR0
-cHM6Ly9wZG9zLmNzYWlsLm1pdC5lZHUvNi44MjgvMjAxMC9yZWFkaW5ncy9oYXJkd2FyZS84MjU5
-QS5wZGYNCg0KVGhlIFBDIGhhcmR3YXJlIGhhcyB0d28gODI1OSBpbiBjYXNjYWRlIG1vZGUuDQoo
-Q2FzY2FkZWQgdXNpbmcgYW4gaW50ZXJydXB0IHRoYXQgd2Fzbid0IHJlYWxseSB1c2luZyBpbiB0
-aGUgb3JpZ2luYWwNCjgwODggUEMgd2hpY2ggb25seSBoYWQgb25lIDgyNTkuKQ0KDQpJIHdvbmRl
-ciBpZiB0aGUgYmlvcyBoYXMgYWN0dWFsbHkgaW5pdGlhbGlzZWQgaXMgcHJvcGVybHkuDQpTb21l
-IGluaXRpYWxpc2F0aW9uIHdyaXRlcyBoYXZlIHRvIGJlIGRvbmUgdG8gc2V0IGV2ZXJ5dGhpbmcg
-dXAuDQoNCkl0IGlzIGFsc28gd29ydGggbm90aW5nIHRoYXQgdGhlIHByb2JlIGNvZGUgaXMgc3Bl
-Y3RhY3VsYXJseSBjcmFwLg0KSXQgd3JpdGVzIDB4ZmYgYW5kIHRoZW4gY2hlY2tzIHRoYXQgMHhm
-ZiBpcyByZWFkIGJhY2suDQpBbG1vc3QgYW55dGhpbmcgKGluY2x1ZGluZyBhIGZhaWxlZCBQQ0ll
-IHJlYWQgdG8gdGhlIElTQSBicmlkZ2UpDQp3aWxsIHJldHVybiAweGZmIGFuZCBtYWtlIHRoZSB0
-ZXN0IHBhc3MuDQoNCkl0J3MgYWJvdXQgMzUgeWVhcnMgc2luY2UgSSBsYXN0IHdyb3RlIHRoZSBj
-b2RlIHRvIGluaXRpYWxpc2UgYW4gODI1OS4NClRoZSBtZW1vcnkgY2VsbHMgYXJlIGZvZ2d5Lg0K
-DQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQs
-IE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86
-IDEzOTczODYgKFdhbGVzKQ0K
 
+* Ingo Molnar <mingo@kernel.org> wrote:
+
+> No need to send v5, done!
+> 
+> I have a system that appears to be affected by this bug:
+> 
+>   kepler:~> lscpu | grep -i mhz
+>   CPU MHz:                         4000.000
+>   CPU max MHz:                     7140.6250
+>   CPU min MHz:                     2200.0000
+> 
+> So I should be able to confirm after a reboot.
+
+'CPU max Mhz' seems to be saner now:
+
+  kepler:~> lscpu | grep -i mhz
+
+  CPU MHz:                         2200.000
+  CPU max MHz:                     4917.9678
+  CPU min MHz:                     2200.0000
+
+Thanks,
+
+	Ingo
