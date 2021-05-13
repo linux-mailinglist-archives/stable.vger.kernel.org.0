@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D877537FACB
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564F837FACE
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 17:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234906AbhEMPfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 11:35:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41910 "EHLO mail.kernel.org"
+        id S234908AbhEMPfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 11:35:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234916AbhEMPfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 May 2021 11:35:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82F61613C5;
-        Thu, 13 May 2021 15:34:21 +0000 (UTC)
+        id S234914AbhEMPfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 May 2021 11:35:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 926DF611AC;
+        Thu, 13 May 2021 15:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620920062;
-        bh=XPSnURxrytnJ78CN8RFRiBgauSBTIe1f7owo2PxFnkY=;
+        s=korg; t=1620920067;
+        bh=7ntc07Td8oeLuUQI1aJ7+FXGmYn+y4zRKCJPsecoUIY=;
         h=Subject:To:From:Date:From;
-        b=O8/TXD6c4v5uoDkxFrW8WsSfLhjoavyOvXFfFiv9Zy//I2315zfek4Qz7CfXvOf6a
-         UNszXE8f92ZTZhpBuIZBpRkRm5OCfYQv8ERNlaiei1A5Ay5mdlpBfJirGWKCjw4dAd
-         pYKR0smr30kZrduaCVH7Lq78rXpJ0fCcTaO8f3Gw=
-Subject: patch "qlcnic: Add null check after calling netdev_alloc_skb" added to char-misc-linus
-To:     tseewald@gmail.com, davem@davemloft.net,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=xG3rLvHSa0iBJKVvlyFddP6i9VE16SnABOKNcMB5hzddcJkeCKh7J8iaqmtTw49ER
+         QySG/s0mNOEKzKkhgER8JND4w4jkAVKt/cetmQpZz0zgozeXkpcCIf1GVfrr0JRgR8
+         YAt2gKXyvD5POUB62Ek8eDe4ybw0DQY8MLud1n+Y=
+Subject: patch "Revert "gdrom: fix a memory leak bug"" added to char-misc-linus
+To:     gregkh@linuxfoundation.org, axboe@kernel.dk, peda@axentia.se,
+        stable@vger.kernel.org, wang6495@umn.edu
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 May 2021 17:34:13 +0200
-Message-ID: <1620920053604@kroah.com>
+Date:   Thu, 13 May 2021 17:34:14 +0200
+Message-ID: <162092005416865@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    qlcnic: Add null check after calling netdev_alloc_skb
+    Revert "gdrom: fix a memory leak bug"
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,48 +51,50 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 84460f01cba382553199bc1361f69a872d5abed4 Mon Sep 17 00:00:00 2001
-From: Tom Seewald <tseewald@gmail.com>
-Date: Mon, 3 May 2021 13:56:52 +0200
-Subject: qlcnic: Add null check after calling netdev_alloc_skb
+From 257343d3ed557f11d580d0b7c515dc154f64a42b Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Mon, 3 May 2021 13:56:53 +0200
+Subject: Revert "gdrom: fix a memory leak bug"
 
-The function qlcnic_dl_lb_test() currently calls netdev_alloc_skb()
-without checking afterwards that the allocation succeeded. Fix this by
-checking if the skb is NULL and returning an error in such a case.
-Breaking out of the loop if the skb is NULL is not correct as no error
-would be reported to the caller and no message would be printed for the
-user.
+This reverts commit 093c48213ee37c3c3ff1cf5ac1aa2a9d8bc66017.
 
-Cc: David S. Miller <davem@davemloft.net>
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+Because of this, all submissions from this group must be reverted from
+the kernel tree and will need to be re-reviewed again to determine if
+they actually are a valid fix.  Until that work is complete, remove this
+change to ensure that no problems are being introduced into the
+codebase.
+
+Cc: Wenwen Wang <wang6495@umn.edu>
+Cc: Peter Rosin <peda@axentia.se>
+Cc: Jens Axboe <axboe@kernel.dk>
+Fixes: 093c48213ee3 ("gdrom: fix a memory leak bug")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-26-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-27-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/cdrom/gdrom.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-index 985cf8cb2ec0..d8f0863b3934 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-@@ -1047,6 +1047,8 @@ int qlcnic_do_lb_test(struct qlcnic_adapter *adapter, u8 mode)
+diff --git a/drivers/cdrom/gdrom.c b/drivers/cdrom/gdrom.c
+index 742b4a0932e3..7f681320c7d3 100644
+--- a/drivers/cdrom/gdrom.c
++++ b/drivers/cdrom/gdrom.c
+@@ -862,7 +862,6 @@ static void __exit exit_gdrom(void)
+ 	platform_device_unregister(pd);
+ 	platform_driver_unregister(&gdrom_driver);
+ 	kfree(gd.toc);
+-	kfree(gd.cd_info);
+ }
  
- 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
- 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
-+		if (!skb)
-+			goto error;
- 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
- 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
- 		adapter->ahw->diag_cnt = 0;
-@@ -1070,6 +1072,7 @@ int qlcnic_do_lb_test(struct qlcnic_adapter *adapter, u8 mode)
- 			cnt++;
- 	}
- 	if (cnt != i) {
-+error:
- 		dev_err(&adapter->pdev->dev,
- 			"LB Test: failed, TX[%d], RX[%d]\n", i, cnt);
- 		if (mode != QLCNIC_ILB_MODE)
+ module_init(init_gdrom);
 -- 
 2.31.1
 
