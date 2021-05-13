@@ -2,233 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0A837F59E
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C94B237F5B9
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230369AbhEMKbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 06:31:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46212 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230280AbhEMKby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:31:54 -0400
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E9EC06174A
-        for <stable@vger.kernel.org>; Thu, 13 May 2021 03:30:43 -0700 (PDT)
-Received: by mail-ed1-x533.google.com with SMTP id b17so30434733ede.0
-        for <stable@vger.kernel.org>; Thu, 13 May 2021 03:30:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=AZSFjayYfi3ClQbRrqUjiLyPsSqwDK/MRImoKRKimnY=;
-        b=bqBx5+gvELlqgsNFy4D6g3tnMdncEj/ft7MkLfruviz5jKCyFRcbtSjJHYeIgxWJBC
-         5tNqQ/7SEP0PnXq9FuzgKNS/VcOX9UUVxczjU7phF1BlRo+TMFEXbZR32J4DUUHNmSCE
-         TUluw0syqM7tI7AUn9M9HOGDaaQMraR1KV5ERtJyIvLB7jhHhk0MGZLHEM/nWmwdyoqr
-         mclZko8K5K9dFzAgUdShAwbVLZfvAhT+SOwkc5z/fd7H32S307bUkE8/IKGsUpzPP1Pg
-         BKUogk8tco8p1nXiPNzPwswxsIDqfMY1D4OVuqJpuVJvhlWsWWturEP1LQ1myPiGIk7B
-         UbPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=AZSFjayYfi3ClQbRrqUjiLyPsSqwDK/MRImoKRKimnY=;
-        b=YvJaH/abpVNU2SqL+9qt4W4ckCoCj+4MtWCoNBtckFojX8DqHEmzKdC0awNkUvCFKp
-         cew6qUhVI/RZR8coKfFp0g0LvGmKcRK9uDzxVor7mgMPDCUJ7mMNmVmO12GCKUmPEcjZ
-         jOZQWmp2nq3WIB6haI+IfNOWuosN3Le+Kg1OJ71aQFNKKnQSmLy+oNHUThEO6eTUn67l
-         AXfqvx1rWwRFVAYOQ7Pp3GyJMCyWdksvYUl1UwYDSIWBKPbeGOdNDQ9p64u58XwdSmg+
-         D0001nTSoAAbrFVcWXFgzasVlgyEeGrBkzHAj1kmsndrZ8EwmbNFIk2/A4mNRXJ4o37a
-         x3aw==
-X-Gm-Message-State: AOAM5300e4Fmt7Lh8Lwlv5r4DrkSJQw1V2/zP+zzLB3FF1AcmXQnwYWw
-        I4uGeeShtK0uaHB+YhXsSRzRkoJxTAP+tjPwWfKtJg==
-X-Google-Smtp-Source: ABdhPJzMNNexVDFiwDrPQslaep4nKniXCswXLoEUzhufUQcz3eOYtrNYrK2Kov8DvoPPp5GhfNRD5Y+9wTC6DJamk+Y=
-X-Received: by 2002:a05:6402:12d3:: with SMTP id k19mr48869463edx.52.1620901842082;
- Thu, 13 May 2021 03:30:42 -0700 (PDT)
+        id S231497AbhEMKho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 06:37:44 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:48209 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231477AbhEMKhl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:37:41 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-224-rC7ecZ6kMiy0NzftmwzKAQ-1; Thu, 13 May 2021 11:36:29 +0100
+X-MC-Unique: rC7ecZ6kMiy0NzftmwzKAQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.2; Thu, 13 May 2021 11:36:27 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.015; Thu, 13 May 2021 11:36:27 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Maximilian Luz' <luzmaximilian@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+CC:     "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] x86/i8259: Work around buggy legacy PIC
+Thread-Topic: [PATCH] x86/i8259: Work around buggy legacy PIC
+Thread-Index: AQHXR3+B5Hf0DG1T80+Lb/Y+9zG7TarhDftggAATCoCAABWukA==
+Date:   Thu, 13 May 2021 10:36:27 +0000
+Message-ID: <e43d9a823c9e44bab0cdbf32a000c373@AcuMS.aculab.com>
+References: <20210512210459.1983026-1-luzmaximilian@gmail.com>
+ <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
+ <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com>
+In-Reply-To: <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-References: <20210512144837.204217980@linuxfoundation.org>
-In-Reply-To: <20210512144837.204217980@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 13 May 2021 16:00:30 +0530
-Message-ID: <CA+G9fYsvg2jHk7f5QZcirKumDLcuwtErq=FsEa6dm-vBUeHf-A@mail.gmail.com>
-Subject: Re: [PATCH 5.12 000/677] 5.12.4-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 12 May 2021 at 21:27, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.12.4 release.
-> There are 677 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.12.4-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.12.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTWF4aW1pbGlhbiBMdXog
+PGx1em1heGltaWxpYW5AZ21haWwuY29tPg0KPiBTZW50OiAxMyBNYXkgMjAyMSAxMToxMg0KPiBU
+bzogRGF2aWQgTGFpZ2h0IDxEYXZpZC5MYWlnaHRAQUNVTEFCLkNPTT47IFRob21hcyBHbGVpeG5l
+ciA8dGdseEBsaW51dHJvbml4LmRlPjsgSW5nbyBNb2xuYXINCj4gPG1pbmdvQHJlZGhhdC5jb20+
+OyBCb3Jpc2xhdiBQZXRrb3YgPGJwQGFsaWVuOC5kZT4NCj4gQ2M6IEguIFBldGVyIEFudmluIDxo
+cGFAenl0b3IuY29tPjsgU2FjaGkgS2luZyA8bmFrYXRvQG5ha2F0by5pbz47IHg4NkBrZXJuZWwu
+b3JnOyBsaW51eC0NCj4ga2VybmVsQHZnZXIua2VybmVsLm9yZzsgc3RhYmxlQHZnZXIua2VybmVs
+Lm9yZw0KPiBTdWJqZWN0OiBSZTogW1BBVENIXSB4ODYvaTgyNTk6IFdvcmsgYXJvdW5kIGJ1Z2d5
+IGxlZ2FjeSBQSUMNCj4gDQo+IE9uIDUvMTMvMjEgMTA6MTAgQU0sIERhdmlkIExhaWdodCB3cm90
+ZToNCj4gPiBGcm9tOiBNYXhpbWlsaWFuIEx1eg0KPiA+PiBTZW50OiAxMiBNYXkgMjAyMSAyMjow
+NQ0KPiA+Pg0KPiA+PiBUaGUgbGVnYWN5IFBJQyBvbiB0aGUgQU1EIHZhcmlhbnQgb2YgdGhlIE1p
+Y3Jvc29mdCBTdXJmYWNlIExhcHRvcCA0IGhhcw0KPiA+PiBzb21lIHByb2JsZW1zIG9uIGJvb3Qu
+IEZvciBzb21lIHJlYXNvbiBpdCBjb25zaXN0ZW50bHkgZG9lcyBub3QgcmVzcG9uZA0KPiA+PiBv
+biB0aGUgZmlyc3QgdHJ5LCByZXF1aXJpbmcgYSBjb3VwbGUgbW9yZSB0cmllcyBiZWZvcmUgaXQg
+ZmluYWxseQ0KPiA+PiByZXNwb25kcy4NCj4gPg0KPiA+IFRoYXQgc2VlbXMgdmVyeSBzdHJhbmdl
+LCBzb21ldGhpbmcgZWxzZSBtdXN0IGJlIGdvaW5nIG9uIHRoYXQgY2F1c2VzIHRoZSBncmllZi4N
+Cj4gPiBUaGUgODI1OSB3aWxsIGJlIGJ1aWx0IGludG8gdG8gdGhlIG9uZSBvZiB0aGUgY3B1IHN1
+cHBvcnQgY2hpcHMuDQo+ID4gSSBjYW4ndCBpbWFnaW5lIHRoYXQgcmVxdWlyZXMgYW55dGhpbmcg
+c3BlY2lhbC4NCj4gDQo+IFJpZ2h0LCBpdCdzIGRlZmluaXRlbHkgc3RyYW5nZS4gQm90aCBTYWNo
+aSAoSSBpbWFnaW5lKSBhbmQgSSBkb24ndCBrbm93DQo+IG11Y2ggYWJvdXQgdGhlc2UgZGV2aWNl
+cywgc28gd2UncmUgb3BlbiBmb3Igc3VnZ2VzdGlvbnMuDQoNCkkgZm91bmQgYSBjb3B5IG9mIHRo
+ZSBkYXRhc2hlZXQgKEkgZG9uJ3Qgc2VlbSB0byBoYXZlIHRoZSBibGFjayBib29rKToNCg0KaHR0
+cHM6Ly9wZG9zLmNzYWlsLm1pdC5lZHUvNi44MjgvMjAxMC9yZWFkaW5ncy9oYXJkd2FyZS84MjU5
+QS5wZGYNCg0KVGhlIFBDIGhhcmR3YXJlIGhhcyB0d28gODI1OSBpbiBjYXNjYWRlIG1vZGUuDQoo
+Q2FzY2FkZWQgdXNpbmcgYW4gaW50ZXJydXB0IHRoYXQgd2Fzbid0IHJlYWxseSB1c2luZyBpbiB0
+aGUgb3JpZ2luYWwNCjgwODggUEMgd2hpY2ggb25seSBoYWQgb25lIDgyNTkuKQ0KDQpJIHdvbmRl
+ciBpZiB0aGUgYmlvcyBoYXMgYWN0dWFsbHkgaW5pdGlhbGlzZWQgaXMgcHJvcGVybHkuDQpTb21l
+IGluaXRpYWxpc2F0aW9uIHdyaXRlcyBoYXZlIHRvIGJlIGRvbmUgdG8gc2V0IGV2ZXJ5dGhpbmcg
+dXAuDQoNCkl0IGlzIGFsc28gd29ydGggbm90aW5nIHRoYXQgdGhlIHByb2JlIGNvZGUgaXMgc3Bl
+Y3RhY3VsYXJseSBjcmFwLg0KSXQgd3JpdGVzIDB4ZmYgYW5kIHRoZW4gY2hlY2tzIHRoYXQgMHhm
+ZiBpcyByZWFkIGJhY2suDQpBbG1vc3QgYW55dGhpbmcgKGluY2x1ZGluZyBhIGZhaWxlZCBQQ0ll
+IHJlYWQgdG8gdGhlIElTQSBicmlkZ2UpDQp3aWxsIHJldHVybiAweGZmIGFuZCBtYWtlIHRoZSB0
+ZXN0IHBhc3MuDQoNCkl0J3MgYWJvdXQgMzUgeWVhcnMgc2luY2UgSSBsYXN0IHdyb3RlIHRoZSBj
+b2RlIHRvIGluaXRpYWxpc2UgYW4gODI1OS4NClRoZSBtZW1vcnkgY2VsbHMgYXJlIGZvZ2d5Lg0K
+DQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQs
+IE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86
+IDEzOTczODYgKFdhbGVzKQ0K
 
-Results from Linaro=E2=80=99s test farm.
-
-Apart from mips clang build failures no other new test failures noticed.
-
-## Build
-* kernel: 5.12.4-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.12.y
-* git commit: 6c1612b7930018e618fc920494f1982130d24d5b
-* git describe: v5.12.2-1062-g6c1612b79300
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
-.2-1062-g6c1612b79300
-
-## Regressions (compared to v5.12.2-384-gb0def16b48b3)
-
-* mips, build
-  - clang-10-allnoconfig
-  - clang-10-defconfig
-  - clang-10-tinyconfig
-  - clang-11-allnoconfig
-  - clang-11-defconfig
-  - clang-11-tinyconfig
-  - clang-12-allnoconfig
-  - clang-12-defconfig
-  - clang-12-tinyconfig
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-
-## No fixes (compared to v5.12.2-384-gb0def16b48b3)
-
-
-## Test result summary
- total: 73854, pass: 62161, fail: 1288, skip: 10405, xfail: 0,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* i386: 25 total, 25 passed, 0 failed
-* mips: 45 total, 36 passed, 9 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
