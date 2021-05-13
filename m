@@ -2,76 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EB737F3E6
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 10:11:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C33537F405
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 10:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230318AbhEMIMM convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 13 May 2021 04:12:12 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:36763 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231485AbhEMIML (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 04:12:11 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-38-wSN3IdVMP8OQ2JQTBB0LqA-1; Thu, 13 May 2021 09:10:56 +0100
-X-MC-Unique: wSN3IdVMP8OQ2JQTBB0LqA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.2; Thu, 13 May 2021 09:10:55 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.015; Thu, 13 May 2021 09:10:55 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Maximilian Luz' <luzmaximilian@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
-CC:     "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] x86/i8259: Work around buggy legacy PIC
-Thread-Topic: [PATCH] x86/i8259: Work around buggy legacy PIC
-Thread-Index: AQHXR3+B5Hf0DG1T80+Lb/Y+9zG7TarhDftg
-Date:   Thu, 13 May 2021 08:10:54 +0000
-Message-ID: <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
-References: <20210512210459.1983026-1-luzmaximilian@gmail.com>
-In-Reply-To: <20210512210459.1983026-1-luzmaximilian@gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S231735AbhEMIaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 04:30:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231305AbhEMIaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 04:30:00 -0400
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07EB1C061574;
+        Thu, 13 May 2021 01:28:49 -0700 (PDT)
+Received: by mail-qk1-x72b.google.com with SMTP id x8so24806073qkl.2;
+        Thu, 13 May 2021 01:28:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=YZuHIqE1Xt0+x34JLFf8F3EO5A3fSgWJriKswBQRHNU=;
+        b=s2u9kp9VqS0VaNIN/T8JeWGd0C7NRwfSRznS7S3J7CXLS+XikyE6DgF0bSscWqVtF4
+         2fhb+NWXyfI2ywyJaQL1pLJfIDK/jpY9kYCdkXCK5teCkTBsoLxp1L/OYcWSYe6H4pVA
+         Pv7gqKzleU5zBmzoadDSi1D1Zs3mfSH5ugpefiN8uce7UXz6WLh/WPAltF/AqXdD2opz
+         dEb7YidI+KBnQvmt9nsHUm6f/35QGPghjDItLpwxaaVdGEui5jfUP90KI5pDa2Kew8sj
+         NNDZKJOXT+VgiWanZAPKDzsnZ47VRw5L5NA9HgtMa25wEkS/ZsVcubVL39Egm1+MP/1a
+         X+2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=YZuHIqE1Xt0+x34JLFf8F3EO5A3fSgWJriKswBQRHNU=;
+        b=NtSlBoY1WgOam1kV0Td3bNoZ2IxkPoIeHRkPc5BECchdK1upV1gmzbzTm5Da7mfVAn
+         pjRd7L+cIiC22NC+SMp7sCbyVZhKgRFqF1yqGnQ3COBtfSZqjEsilvjCxhDPltprg1nR
+         bjpC8YfLuIUddRqEP3Y2kkkrJ/01dBqQk3ULLMfX+uelk7OBIdEh1WJ/H8yMayZ2Z91R
+         XWuJWWKCjJ6wsq1UOe403sXdJydBgJuKMoT8x2cbFyx5aI+w0rqXz3mUE0SalbOQcgld
+         pW2uLz8Zzxhu54To3u2JVsIWCS/4Cu6yhp9AKpPjj+F+wzOEY1gwBq394bdijSruVvED
+         cPhQ==
+X-Gm-Message-State: AOAM532dn+zm3SgG+q8KfUCYEjkzdjTLaVcxNkQFeOPPuhk8FZoTUPCL
+        nrVbt/s5XHJ0xXG8fEktG3tx9Ix5HDT0lA==
+X-Google-Smtp-Source: ABdhPJwBnqnTPyylBOAT+AP4wUwUX+DXyg+HYtYfmfbJ0SHpU1RuthJs2B+skd73CAUTeBZvwMFzSw==
+X-Received: by 2002:a37:916:: with SMTP id 22mr15867553qkj.241.1620894528973;
+        Thu, 13 May 2021 01:28:48 -0700 (PDT)
+Received: from jrr-vaio.internal.cc-sw.com (cpe-74-136-172-82.kya.res.rr.com. [74.136.172.82])
+        by smtp.gmail.com with ESMTPSA id m205sm1874679qke.2.2021.05.13.01.28.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 May 2021 01:28:48 -0700 (PDT)
+From:   Jonathon Reinhart <jonathon.reinhart@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Jonathon Reinhart <jonathon.reinhart@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Westphal <fw@strlen.de>, netdev@vger.kernel.org
+Subject: [PATCH] netfilter: conntrack: Make global sysctls readonly in non-init netns
+Date:   Thu, 13 May 2021 04:28:35 -0400
+Message-Id: <20210513082835.18854-1-jonathon.reinhart@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz
-> Sent: 12 May 2021 22:05
-> 
-> The legacy PIC on the AMD variant of the Microsoft Surface Laptop 4 has
-> some problems on boot. For some reason it consistently does not respond
-> on the first try, requiring a couple more tries before it finally
-> responds.
+commit 2671fa4dc0109d3fb581bc3078fdf17b5d9080f6 upstream.
 
-That seems very strange, something else must be going on that causes the grief.
-The 8259 will be built into to the one of the cpu support chips.
-I can't imagine that requires anything special.
+These sysctls point to global variables:
+- [0] "nf_conntrack_max"        (&nf_conntrack_max)
+- [2] "nf_conntrack_buckets"    (&nf_conntrack_htable_size_user)
+- [5] "nf_conntrack_expect_max" (&nf_ct_expect_max)
 
-It's not as though you have a real 8259 - which even a 286 can
-break the inter-cycle recovery on (with the circuit from the
-application note).
+Because their data pointers are not updated to point to per-netns
+structures, they must be marked read-only in a non-init_net ns.
+Otherwise, changes in any net namespace are reflected in (leaked into)
+all other net namespaces. This problem has existed since the
+introduction of net namespaces.
 
-	David
+This patch is necessarily different from the upstream patch due to the
+heavy refactoring which took place since 4.19:
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in unprivileged namespaces")
+b884fa461776 ("netfilter: conntrack: unify sysctl handling")
+4a65798a9408 ("netfilter: conntrack: add mnemonics for sysctl table")
+
+Signed-off-by: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+---
+
+Upstream commit 2671fa4dc010 was already applied to the 5.10, 5.11, and
+5.12 trees.
+
+This was tested on 4.19.190, so please apply to 4.19.y.
+
+It should also apply to:
+- 4.14.y
+- 4.9.y
+
+Note that 5.4.y would require a slightly different patch that looks more
+like 2671fa4dc010.
+
+---
+ net/netfilter/nf_conntrack_standalone.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index 2e3ae494f369..da0c9fa381d2 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -594,8 +594,11 @@ static int nf_conntrack_standalone_init_sysctl(struct net *net)
+ 	if (net->user_ns != &init_user_ns)
+ 		table[0].procname = NULL;
+ 
+-	if (!net_eq(&init_net, net))
++	if (!net_eq(&init_net, net)) {
++		table[0].mode = 0444;
+ 		table[2].mode = 0444;
++		table[5].mode = 0444;
++	}
+ 
+ 	net->ct.sysctl_header = register_net_sysctl(net, "net/netfilter", table);
+ 	if (!net->ct.sysctl_header)
+-- 
+2.20.1
 
