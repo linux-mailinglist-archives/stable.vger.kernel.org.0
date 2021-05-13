@@ -2,104 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E012737F5C0
-	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E17837F5C9
+	for <lists+stable@lfdr.de>; Thu, 13 May 2021 12:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231307AbhEMKkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 May 2021 06:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48070 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231236AbhEMKkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:40:23 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07480C061574;
-        Thu, 13 May 2021 03:39:12 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id gx5so39184041ejb.11;
-        Thu, 13 May 2021 03:39:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=UtUNJRyrclRlq2GZYbMBzdxMc4UcBRTvZYokrHl2QGk=;
-        b=PZXgd9dJdsiP4g4TY8MjbZtvQLpaGLv9KmNndTy/1i8A2axVajesSq0AV49uvarHW9
-         jyFeJZQMXYxNzoCXUW7aDSQe0mdPApgOvShf83cYZ62Z1SzRUw1m7cjQVuVYfSqJYjZe
-         Kfkvoniy0iNgr3C1bI7FHZTJEOy2LScoeS30fUjF3t9n40ldwnQzJs2J/qDWCk1/gb+D
-         hGAhiFZblUfN+4sv06aEND8NAOZSkj9hmVVWt98y+drh3p42YKDFlCs9uhss+OZNOGxe
-         ST0FHEtsMCb1CgU3WSwrmMVrB3aH25h2pjo0IFYVw4xCI9yecej0tcJgy/FmKjdhd1IT
-         /lLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=UtUNJRyrclRlq2GZYbMBzdxMc4UcBRTvZYokrHl2QGk=;
-        b=MxI/DlctmQ81Hh/TWDIaJu10cJPnXBkGza4WsIKKBxbCzMOVAVJRGup/lfxVP68FKh
-         gd6eyTd+PJoyOd8xjgEuH6yTC0FSM9jtkdb7nvhevhTJDyFQxStIdqAsgn8MCd5O7mAf
-         s+n+uhwIerP4OaDbKoXfuB8lF1DWsgvB8Kr8ysXFu/cLx6xqD1uMPSfNHXwDEt2oYuR7
-         asEhmyrPLlieVHSFHRMSNbPA8mPzH4qdj8yJYLoSTRr2dEiARR0KJodn0fL5lsW4fbzR
-         LAt+u52mMmgTKU8mLexYDPCRje6TtWUiMolNvz2B+k/JXAMKQdhDuS9DNysZZfWZVTot
-         jFLg==
-X-Gm-Message-State: AOAM53009yCH9y6N9IfBEpkZrcLrlj4vkNoX7OIdTYy7SNTEMDG5e33H
-        juXM9ttgtOymUb71RAq73Sw=
-X-Google-Smtp-Source: ABdhPJwIl28mdtghWAjSftlijbsM9F1wEfkGpaU4F/Bep3N1rDKnkOHtqR7UxnyQIRHnszycqNUCMw==
-X-Received: by 2002:a17:906:1e0b:: with SMTP id g11mr42469971ejj.291.1620902350840;
-        Thu, 13 May 2021 03:39:10 -0700 (PDT)
-Received: from gmail.com (0526E777.dsl.pool.telekom.hu. [5.38.231.119])
-        by smtp.gmail.com with ESMTPSA id k20sm30488eja.10.2021.05.13.03.39.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 May 2021 03:39:10 -0700 (PDT)
-Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
-Date:   Thu, 13 May 2021 12:39:08 +0200
-From:   Ingo Molnar <mingo@kernel.org>
-To:     Huang Rui <ray.huang@amd.com>
-Cc:     Alexander Monakov <amonakov@ispras.ru>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
-        Jason Bagavatsingham <jason.bagavatsingham@gmail.com>,
-        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-        "Fontenot, Nathan" <Nathan.Fontenot@amd.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v4] x86, sched: Fix the AMD CPPC maximum perf on some
- specific generations
-Message-ID: <YJ0BzPs0WPJ42qG1@gmail.com>
+        id S231640AbhEMKoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 May 2021 06:44:46 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:57672 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231282AbhEMKon (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 May 2021 06:44:43 -0400
+Date:   Thu, 13 May 2021 10:43:29 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1620902610;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2bei8HvHXreDZV/dPca+C6OA12b/jqyOqS4Fl7f66PM=;
+        b=psPXThA64w+8U9NQ2fsa9bcSpbkitGi89+KwH6LzCRend51flYDVMzqph52H5mwh5Dw6p1
+        n+obnWP7KhzVHlmDihQEpUnuRN1njP8MglSlL3Oi9INtJ74SIH0WZDhc5pHI/24tCz9C4E
+        xE+7Jb17jPEmZMQ6eETju2rTS2ezkQiNUqyYu+i3RYME3QhlaXcnyysjfDdH/OCGX5mjJl
+        wzDlOShcDExw8zdaLUYdokuzU4IIQHubIsJP1tfzxwv+CAOzRxls2+P+lDwe+F5r9O2+jv
+        xq5pgaKXHjZ8CGBfUbkllUxPr5Xpkuc7Jt/r0Kyi9cLaZ7R3aJDsRt5DNr1+gw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1620902610;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2bei8HvHXreDZV/dPca+C6OA12b/jqyOqS4Fl7f66PM=;
+        b=oqc4+WBsmyc3BsMAN1rmtEWyNzvB2BvIpZolt3/gbjhjkVx5NVG7cGADfVT36CXfD7cn1k
+        4S3/948l69mfJZDA==
+From:   "tip-bot2 for Huang Rui" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: sched/urgent] x86, sched: Fix the AMD CPPC maximum performance
+ value on certain AMD Ryzen generations
+Cc:     Jason Bagavatsingham <jason.bagavatsingham@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Huang Rui <ray.huang@amd.com>, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20210425073451.2557394-1-ray.huang@amd.com>
 References: <20210425073451.2557394-1-ray.huang@amd.com>
- <alpine.LNX.2.20.13.2105130130590.10864@monopod.intra.ispras.ru>
- <YJxdttrorwdlpX33@gmail.com>
- <20210513042420.GA1621127@hr-amd>
- <YJz7fp17T1cyed4j@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YJz7fp17T1cyed4j@gmail.com>
+Message-ID: <162090260985.29796.14619213138729710355.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the sched/urgent branch of tip:
 
-* Ingo Molnar <mingo@kernel.org> wrote:
+Commit-ID:     3743d55b289c203d8f77b7cd47c24926b9d186ae
+Gitweb:        https://git.kernel.org/tip/3743d55b289c203d8f77b7cd47c24926b9d=
+186ae
+Author:        Huang Rui <ray.huang@amd.com>
+AuthorDate:    Sun, 25 Apr 2021 15:34:51 +08:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Thu, 13 May 2021 12:10:24 +02:00
 
-> No need to send v5, done!
-> 
-> I have a system that appears to be affected by this bug:
-> 
->   kepler:~> lscpu | grep -i mhz
->   CPU MHz:                         4000.000
->   CPU max MHz:                     7140.6250
->   CPU min MHz:                     2200.0000
-> 
-> So I should be able to confirm after a reboot.
+x86, sched: Fix the AMD CPPC maximum performance value on certain AMD Ryzen g=
+enerations
 
-'CPU max Mhz' seems to be saner now:
+Some AMD Ryzen generations has different calculation method on maximum
+performance. 255 is not for all ASICs, some specific generations should use 1=
+66
+as the maximum performance. Otherwise, it will report incorrect frequency val=
+ue
+like below:
 
-  kepler:~> lscpu | grep -i mhz
-
-  CPU MHz:                         2200.000
-  CPU max MHz:                     4917.9678
+  ~ =E2=86=92 lscpu | grep MHz
+  CPU MHz:                         3400.000
+  CPU max MHz:                     7228.3198
   CPU min MHz:                     2200.0000
 
-Thanks,
+[ mingo: Tidied up whitespace use. ]
+[ Alexander Monakov <amonakov@ispras.ru>: fix 225 -> 255 typo. ]
 
-	Ingo
+Fixes: 41ea667227ba ("x86, sched: Calculate frequency invariance for AMD syst=
+ems")
+Fixes: 3c55e94c0ade ("cpufreq: ACPI: Extend frequency tables to cover boost f=
+requencies")
+Reported-by: Jason Bagavatsingham <jason.bagavatsingham@gmail.com>
+Fixed-by: Alexander Monakov <amonakov@ispras.ru>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Jason Bagavatsingham <jason.bagavatsingham@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210425073451.2557394-1-ray.huang@amd.com
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D211791
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+---
+ arch/x86/include/asm/processor.h |  2 ++
+ arch/x86/kernel/cpu/amd.c        | 16 ++++++++++++++++
+ arch/x86/kernel/smpboot.c        |  2 +-
+ drivers/cpufreq/acpi-cpufreq.c   |  6 +++++-
+ 4 files changed, 24 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processo=
+r.h
+index 154321d..556b2b1 100644
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -787,8 +787,10 @@ DECLARE_PER_CPU(u64, msr_misc_features_shadow);
+=20
+ #ifdef CONFIG_CPU_SUP_AMD
+ extern u32 amd_get_nodes_per_socket(void);
++extern u32 amd_get_highest_perf(void);
+ #else
+ static inline u32 amd_get_nodes_per_socket(void)	{ return 0; }
++static inline u32 amd_get_highest_perf(void)		{ return 0; }
+ #endif
+=20
+ static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leave=
+s)
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index 2d11384..6d7b3b3 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -1165,3 +1165,19 @@ void set_dr_addr_mask(unsigned long mask, int dr)
+ 		break;
+ 	}
+ }
++
++u32 amd_get_highest_perf(void)
++{
++	struct cpuinfo_x86 *c =3D &boot_cpu_data;
++
++	if (c->x86 =3D=3D 0x17 && ((c->x86_model >=3D 0x30 && c->x86_model < 0x40) =
+||
++			       (c->x86_model >=3D 0x70 && c->x86_model < 0x80)))
++		return 166;
++
++	if (c->x86 =3D=3D 0x19 && ((c->x86_model >=3D 0x20 && c->x86_model < 0x30) =
+||
++			       (c->x86_model >=3D 0x40 && c->x86_model < 0x70)))
++		return 166;
++
++	return 255;
++}
++EXPORT_SYMBOL_GPL(amd_get_highest_perf);
+diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+index 0ad5214..7770245 100644
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -2043,7 +2043,7 @@ static bool amd_set_max_freq_ratio(void)
+ 		return false;
+ 	}
+=20
+-	highest_perf =3D perf_caps.highest_perf;
++	highest_perf =3D amd_get_highest_perf();
+ 	nominal_perf =3D perf_caps.nominal_perf;
+=20
+ 	if (!highest_perf || !nominal_perf) {
+diff --git a/drivers/cpufreq/acpi-cpufreq.c b/drivers/cpufreq/acpi-cpufreq.c
+index d1bbc16..7e74504 100644
+--- a/drivers/cpufreq/acpi-cpufreq.c
++++ b/drivers/cpufreq/acpi-cpufreq.c
+@@ -646,7 +646,11 @@ static u64 get_max_boost_ratio(unsigned int cpu)
+ 		return 0;
+ 	}
+=20
+-	highest_perf =3D perf_caps.highest_perf;
++	if (boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_AMD)
++		highest_perf =3D amd_get_highest_perf();
++	else
++		highest_perf =3D perf_caps.highest_perf;
++
+ 	nominal_perf =3D perf_caps.nominal_perf;
+=20
+ 	if (!highest_perf || !nominal_perf) {
