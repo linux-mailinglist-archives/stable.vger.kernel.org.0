@@ -2,77 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A701380CB1
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 17:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60AE3380CE8
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 17:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232608AbhENPSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 11:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35086 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232430AbhENPSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 May 2021 11:18:18 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08265C061574
-        for <stable@vger.kernel.org>; Fri, 14 May 2021 08:17:03 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id u76so2035853pfc.11
-        for <stable@vger.kernel.org>; Fri, 14 May 2021 08:17:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=ycq6Ehsyb2+/PxNqeVp4mE/2roKbJBWoSHSyqUPVp8w=;
-        b=Xy/lROh5Y4qFRRo2KJl3qSzBh0YBs8as72lOCT8ZiCpfVwPg1lwhDMEa/GkvKR2Qkd
-         MqTLwv2N/LcuUZI9J39xbz9htVezoEu1xR2/zx+1zsk46qYRuikX47Id0p/w6InBB6EC
-         6aAAHvsmshBErDDWLM0KNxXO5qXp9mJwMSnDVOB4KypbfFUHVdfEk+YwjTpdwXYicyXh
-         qrf2BJS99xX5cehJ1EUXaHbe7IU+CgISoQRtPQhXAPxqNnnYvXEUDgtwOj9YpC3j51sN
-         AURk/tQ1gUAojd1XQEleTR/1bgKRQt7D8eMFcHrmb9k92rUS06nsuwCNz0VWyS3zN+xx
-         2okw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=ycq6Ehsyb2+/PxNqeVp4mE/2roKbJBWoSHSyqUPVp8w=;
-        b=ncDHjXs+4JnhxgEr1Q/jjkZEb4+szV/mCNOdmgo/hEBmqL6vXqqHEqDq6s6mrk/EaA
-         TLzsJt8Krq8ur0whRNIFr/uaDwvMiU7xiwlfsvkAKEItBS0Q6UDlVAp1n/S3Fu4DZQT1
-         KqqKDpoZRNdj6MXEWBRy1/vVCQKFW1x+CvnTyDhdKfwxI149Z03U7hwYE0WQRTD13HCf
-         b4JxbXwQiMTK9LxCW4M7OuG2flBzzid2wR+c6DezHaOCtJG4k4A4cJ0imteNQmr6LaQz
-         gSr1gCPYiggMQ7OZ+Q5cyTVvQABuX/f9roF3K3kjZ2her2Fasl3l7Xw6de88e1Cpk2Es
-         iSug==
-X-Gm-Message-State: AOAM532QZaWwVxQHV1Yyncr040iD3sMGak1SdfNXFhvUj1QX06ViLL/2
-        8xVMWQwWv3t3QlkDxcRkMXUd850usH4AaEbkkG4=
-X-Google-Smtp-Source: ABdhPJwef5MIWqHSUmT786wCCr8eC6++M8lvS8xlGOEDke84CLACubmxfPLfpABLEyGFlipDfqAum8Bpptvs3d/iYcQ=
-X-Received: by 2002:a62:7cc8:0:b029:2ab:aab7:1140 with SMTP id
- x191-20020a627cc80000b02902abaab71140mr16464279pfc.45.1621005422596; Fri, 14
- May 2021 08:17:02 -0700 (PDT)
+        id S234693AbhENP3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 11:29:24 -0400
+Received: from frasgout.his.huawei.com ([185.176.79.56]:3069 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233759AbhENP3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 May 2021 11:29:24 -0400
+Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.201])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4FhXM34smDz6cw6h;
+        Fri, 14 May 2021 23:22:07 +0800 (CST)
+Received: from roberto-ThinkStation-P620.huawei.com (10.204.62.217) by
+ fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Fri, 14 May 2021 17:28:09 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <mjg59@srcf.ucam.org>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v7 01/12] evm: Execute evm_inode_init_security() only when an HMAC key is loaded
+Date:   Fri, 14 May 2021 17:27:42 +0200
+Message-ID: <20210514152753.982958-2-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210514152753.982958-1-roberto.sassu@huawei.com>
+References: <20210514152753.982958-1-roberto.sassu@huawei.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6a10:6746:0:0:0:0 with HTTP; Fri, 14 May 2021 08:17:02
- -0700 (PDT)
-Reply-To: richardamegashie@outlook.com
-From:   richard amegashie <intermonitoringfunds@gmail.com>
-Date:   Fri, 14 May 2021 17:17:02 +0200
-Message-ID: <CA+a_h1ZGvaw3YBawV1w9x8PThcQbPD_-zxJhy+OBoZiZsz2-Bg@mail.gmail.com>
-Subject: REPLY
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.204.62.217]
+X-ClientProxiedBy: lhreml753-chm.china.huawei.com (10.201.108.203) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Good-day to you ,
-My name is Mr. Richard Amegashie. I got your email contact from my
-trade search, in my search for a reliable and competent company or
-individual to form partnership in the area of investment. I need your
-assistance to manage an investment fund worth $45.5 million in a
-profitable business in your region with a good Annual Return on
-Investment (AROI). I know that this email might come to you as a
-surprise because we neither know each other nor have ever met each
-other, but please accept it with an open and positive mind
+evm_inode_init_security() requires an HMAC key to calculate the HMAC on
+initial xattrs provided by LSMs. However, it checks generically whether a
+key has been loaded, including also public keys, which is not correct as
+public keys are not suitable to calculate the HMAC.
 
-We want to partner with you to receive and place an investment fund
-into viable business ventures in your country that can guarantee a
-good return on investment which will be under your control and
-management. Details of the investment and funding will be furnished to
-you when I receive your response which will also facilitate a face to
-face meeting with my team of financial consultants.
-I await your response
-Richard Amegashie
+Originally, support for signature verification was introduced to verify a
+possibly immutable initial ram disk, when no new files are created, and to
+switch to HMAC for the root filesystem. By that time, an HMAC key should
+have been loaded and usable to calculate HMACs for new files.
+
+More recently support for requiring an HMAC key was removed from the
+kernel, so that signature verification can be used alone. Since this is a
+legitimate use case, evm_inode_init_security() should not return an error
+when no HMAC key has been loaded.
+
+This patch fixes this problem by replacing the evm_key_loaded() check with
+a check of the EVM_INIT_HMAC flag in evm_initialized.
+
+Cc: stable@vger.kernel.org # 4.5.x
+Fixes: 26ddabfe96b ("evm: enable EVM when X509 certificate is loaded")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+---
+ security/integrity/evm/evm_main.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index 0de367aaa2d3..7ac5204c8d1f 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -521,7 +521,7 @@ void evm_inode_post_setattr(struct dentry *dentry, int ia_valid)
+ }
+ 
+ /*
+- * evm_inode_init_security - initializes security.evm
++ * evm_inode_init_security - initializes security.evm HMAC value
+  */
+ int evm_inode_init_security(struct inode *inode,
+ 				 const struct xattr *lsm_xattr,
+@@ -530,7 +530,8 @@ int evm_inode_init_security(struct inode *inode,
+ 	struct evm_xattr *xattr_data;
+ 	int rc;
+ 
+-	if (!evm_key_loaded() || !evm_protected_xattr(lsm_xattr->name))
++	if (!(evm_initialized & EVM_INIT_HMAC) ||
++	    !evm_protected_xattr(lsm_xattr->name))
+ 		return 0;
+ 
+ 	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
+-- 
+2.25.1
+
