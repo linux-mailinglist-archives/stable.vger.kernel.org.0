@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A101380C26
+	by mail.lfdr.de (Postfix) with ESMTP id B764D380C2A
 	for <lists+stable@lfdr.de>; Fri, 14 May 2021 16:45:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234545AbhENOqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 10:46:51 -0400
-Received: from uho.ysoft.cz ([81.19.3.130]:33180 "EHLO uho.ysoft.cz"
+        id S234553AbhENOqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 10:46:52 -0400
+Received: from uho.ysoft.cz ([81.19.3.130]:49105 "EHLO uho.ysoft.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232802AbhENOqv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232759AbhENOqv (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 May 2021 10:46:51 -0400
 Received: from vokac-latitude.ysoft.local (unknown [10.0.28.99])
-        by uho.ysoft.cz (Postfix) with ESMTP id BA8F8A2BEA;
-        Fri, 14 May 2021 16:45:37 +0200 (CEST)
+        by uho.ysoft.cz (Postfix) with ESMTP id 0FF8AA2C5C;
+        Fri, 14 May 2021 16:45:38 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
-        s=20160406-ysoft-com; t=1621003537;
-        bh=PoSH2N3Ldv+ChzNMytR7iI7bQZ2FK3UT4uRQllupPAA=;
+        s=20160406-ysoft-com; t=1621003538;
+        bh=6WPvib1+u/MMJIgAB5EE+Z8wqS5Q6D/ao0Rp9ErE8YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/F8wUDUFoabtRaKyCwfxGFDK0mMwMJ/9zCIhLBj3oDhSyXSxIhOkT7dzvXHAsSOp
-         Yeraxck8Xjn7a+wpxfLDsGYVLvWM48i4/QAw5Rv6NjX84Pvw1rttuw4IQbYu6ZAEj2
-         B7+8+0zGk7seq7ZcXsakbllhvtLXe1L35DHezMH0=
+        b=eSy1gTqN3ciGBYEgRG6f1yTI2yMrEx8pCZBaWsgMuzE7ZeBIWS7bYLboNd2vBD2Pt
+         L1tZdFrFZ7me83LZA2b+6Z8JOaZlrl7YKuLaQE1ODuIwISBLwgOUQetz/yBCRD9WmQ
+         +c/nwRhJucJ8c4gxomv31ieBI4ga5pkOHZ2W0j9Q=
 From:   =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
 To:     Pavel Machek <pavel@ucw.cz>,
         Jacek Anaszewski <jacek.anaszewski@gmail.com>,
@@ -33,9 +33,9 @@ Cc:     Fabio Estevam <festevam@gmail.com>, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
         =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
         stable@vger.kernel.org
-Subject: [RFC 1/2] dt-bindings: leds: Add color as a required property for lp55xx controller
-Date:   Fri, 14 May 2021 16:44:36 +0200
-Message-Id: <1621003477-11250-2-git-send-email-michal.vokac@ysoft.com>
+Subject: [RFC 2/2] ARM: dts: imx6dl-yapp4: Fix lp5562 driver probe
+Date:   Fri, 14 May 2021 16:44:37 +0200
+Message-Id: <1621003477-11250-3-git-send-email-michal.vokac@ysoft.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1621003477-11250-1-git-send-email-michal.vokac@ysoft.com>
 References: <1621003477-11250-1-git-send-email-michal.vokac@ysoft.com>
@@ -46,106 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since addition of the multicolor LED framework in commit 92a81562e695
-("leds: lp55xx: Add multicolor framework support to lp55xx") the color
-property becomes required even if the multicolor framework is not enabled
-and used.
+Since the LED multicolor framework support was added in commit
+92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+LEDs on this platform stopped working.
 
-Fix the binding documentation to reflect the real state.
+Author of the framework attempted to accommodate this DT to the
+framework in commit b86d3d21cd4c ("ARM: dts: imx6dl-yapp4: Add reg property
+to the lp5562 channel node") but that is not sufficient. A color property
+is now required even if the multicolor framework is not used, otherwise
+the driver probe fails:
 
-Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+  lp5562: probe of 1-0030 failed with error -22
+
+Add the color property to fix this and remove the actually unused white
+channel.
+
+Fixes: b86d3d21cd4c ("ARM: dts: imx6dl-yapp4: Add reg property to the lp5562 channel node")
 Cc: <stable@vger.kernel.org>
 Cc: Pavel Machek <pavel@ucw.cz>
 Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Cc: linux-leds@vger.kernel.org
 Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
 ---
- Documentation/devicetree/bindings/leds/leds-lp55xx.yaml | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm/boot/dts/imx6dl-yapp4-common.dtsi | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/leds/leds-lp55xx.yaml b/Documentation/devicetree/bindings/leds/leds-lp55xx.yaml
-index f552cd143d5b..e6bdd1cb615a 100644
---- a/Documentation/devicetree/bindings/leds/leds-lp55xx.yaml
-+++ b/Documentation/devicetree/bindings/leds/leds-lp55xx.yaml
-@@ -101,6 +101,7 @@ patternProperties:
-         description: name of channel
+diff --git a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
+index 7d2c72562c73..3107bf7fbce5 100644
+--- a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
++++ b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
+@@ -5,6 +5,7 @@
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/input/input.h>
++#include <dt-bindings/leds/common.h>
+ #include <dt-bindings/pwm/pwm.h>
  
- required:
-+  - color
-   - compatible
-   - reg
+ / {
+@@ -271,6 +272,7 @@
+ 			led-cur = /bits/ 8 <0x20>;
+ 			max-cur = /bits/ 8 <0x60>;
+ 			reg = <0>;
++			color = <LED_COLOR_ID_RED>;
+ 		};
  
-@@ -127,6 +128,7 @@ examples:
-                chan-name = "d1";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_RED>;
-            };
+ 		chan@1 {
+@@ -278,6 +280,7 @@
+ 			led-cur = /bits/ 8 <0x20>;
+ 			max-cur = /bits/ 8 <0x60>;
+ 			reg = <1>;
++			color = <LED_COLOR_ID_GREEN>;
+ 		};
  
-            led@1 {
-@@ -134,6 +136,7 @@ examples:
-                chan-name = "d2";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_BLUE>;
-            };
- 
-            led@2 {
-@@ -141,6 +144,7 @@ examples:
-                chan-name = "d3";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_GREEN>;
-            };
- 
-            led@3 {
-@@ -148,6 +152,7 @@ examples:
-                chan-name = "d4";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_RED>;
-            };
- 
-            led@4 {
-@@ -155,6 +160,7 @@ examples:
-                chan-name = "d5";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_BLUE>;
-            };
- 
-            led@5 {
-@@ -162,6 +168,7 @@ examples:
-                chan-name = "d6";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_GREEN>;
-            };
- 
-            led@6 {
-@@ -169,6 +176,7 @@ examples:
-                chan-name = "d7";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_RED>;
-            };
- 
-            led@7 {
-@@ -176,6 +184,7 @@ examples:
-                chan-name = "d8";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_BLUE>;
-            };
- 
-            led@8 {
-@@ -183,6 +192,7 @@ examples:
-                chan-name = "d9";
-                led-cur = /bits/ 8 <0x14>;
-                max-cur = /bits/ 8 <0x20>;
-+               color = <LED_COLOR_ID_GREEN>;
-            };
-         };
+ 		chan@2 {
+@@ -285,13 +288,7 @@
+ 			led-cur = /bits/ 8 <0x20>;
+ 			max-cur = /bits/ 8 <0x60>;
+ 			reg = <2>;
+-		};
+-
+-		chan@3 {
+-			chan-name = "W";
+-			led-cur = /bits/ 8 <0x0>;
+-			max-cur = /bits/ 8 <0x0>;
+-			reg = <3>;
++			color = <LED_COLOR_ID_BLUE>;
+ 		};
+ 	};
  
 -- 
 2.7.4
