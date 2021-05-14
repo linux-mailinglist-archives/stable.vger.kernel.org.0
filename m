@@ -2,82 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 223F73809E5
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 14:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 281B8380A0E
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 15:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233749AbhENMxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 08:53:46 -0400
-Received: from foss.arm.com ([217.140.110.172]:49180 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233718AbhENMxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 May 2021 08:53:44 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8CDFD1476;
-        Fri, 14 May 2021 05:52:23 -0700 (PDT)
-Received: from e123648.arm.com (unknown [10.57.31.97])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id DF6C33F73B;
-        Fri, 14 May 2021 05:52:21 -0700 (PDT)
-From:   Lukasz Luba <lukasz.luba@arm.com>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, daniel.lezcano@linaro.org,
-        rui.zhang@intel.com, lukasz.luba@arm.com
-Subject: [STABLE][PATCH 5.4] thermal/core/fair share: Lock the thermal zone while looping over instances
-Date:   Fri, 14 May 2021 13:52:14 +0100
-Message-Id: <20210514125214.19419-1-lukasz.luba@arm.com>
-X-Mailer: git-send-email 2.17.1
+        id S230310AbhENNDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 09:03:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32876 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229459AbhENNDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 May 2021 09:03:02 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8277C061574;
+        Fri, 14 May 2021 06:01:50 -0700 (PDT)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1620997309;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6WK8Uhovat2rNpVT4rMlmAU7lk0bJSnslVIjRn8b7u4=;
+        b=IcmpKQXJaMnRT46k0vQ3txAs2wcCeq3uORnWnm8KCb8hmh+8ed7TYEQ3xm0ANbrmY3+3NZ
+        wWM1kfI+jFzKEAzQEjT7yzeejmIFgQ2BTuAFr8Ch71Td8kpqypN9hl7wqvwf/EiuMNTSkh
+        bYxwTYaBMSWV5kGfWznx7gxS1+d8PrJFipF0Gem9UcOyNJIc/IK0DGi9nNwg18oI9Deyst
+        MWoGJwu4yS/rJ9ZwoFY8dc1nG/aIn09jzKLocCr0wwvWGvRRZC9/BRcdDH9eSCYmoLS5YP
+        db+M8l/SaoWBhwO1EUke/eJd7Mw0K9oDnG1O7LQQVwb1gnSGROS2+GGgtNPcHQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1620997309;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6WK8Uhovat2rNpVT4rMlmAU7lk0bJSnslVIjRn8b7u4=;
+        b=YR6RH5dGO0YiPGI2tnLHb/sARh6P5vXUc1t0rrYQwhd+/fJhbrYrO0OmF+5xochIST9/7Y
+        kA0SAZWUtHp+gFDQ==
+To:     David Laight <David.Laight@ACULAB.COM>,
+        'Maximilian Luz' <luzmaximilian@gmail.com>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc:     "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
+        "x86\@kernel.org" <x86@kernel.org>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] x86/i8259: Work around buggy legacy PIC
+In-Reply-To: <e43d9a823c9e44bab0cdbf32a000c373@AcuMS.aculab.com>
+References: <20210512210459.1983026-1-luzmaximilian@gmail.com> <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com> <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com> <e43d9a823c9e44bab0cdbf32a000c373@AcuMS.aculab.com>
+Date:   Fri, 14 May 2021 15:01:48 +0200
+Message-ID: <87tun54gg3.ffs@nanos.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit fef05776eb02238dcad8d5514e666a42572c3f32 upstream.
+David,
 
-The tz->lock must be hold during the looping over the instances in that
-thermal zone. This lock was missing in the governor code since the
-beginning, so it's hard to point into a particular commit.
+On Thu, May 13 2021 at 10:36, David Laight wrote:
 
-CC: stable@vger.kernel.org # 5.4
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
----
-Hi all,
+>> -----Original Message-----
+>> From: Maximilian Luz <luzmaximilian@gmail.com>
+>> Sent: 13 May 2021 11:12
+>> To: David Laight <David.Laight@ACULAB.COM>; Thomas Gleixner <tglx@linutronix.de>; Ingo Molnar
+>> <mingo@redhat.com>; Borislav Petkov <bp@alien8.de>
+>> Cc: H. Peter Anvin <hpa@zytor.com>; Sachi King <nakato@nakato.io>; x86@kernel.org; linux-
+>> kernel@vger.kernel.org; stable@vger.kernel.org
+>> Subject: Re: [PATCH] x86/i8259: Work around buggy legacy PIC
 
-I've backported my patch which was sent to LKML:
-https://lore.kernel.org/linux-pm/20210422153624.6074-2-lukasz.luba@arm.com/
+can you please fix your mail client and spare us the useless header
+duplication in the reply?
 
-The upstream patch failed while applying:
-https://lore.kernel.org/stable/16206371506718@kroah.com/
+> It is also worth noting that the probe code is spectacularly crap.
+> It writes 0xff and then checks that 0xff is read back.
+> Almost anything (including a failed PCIe read to the ISA bridge)
+> will return 0xff and make the test pass.
 
-This patch should apply to stable v5.4.y, on top of stable tree branch:
-linux-5.4.y which head was at:
-commit 16022114de98 Linux 5.4.118
+        unsigned char probe_val = ~(1 << PIC_CASCADE_IR);
 
-Regards,
-Lukasz Luba
+	outb(probe_val, PIC_MASTER_IMR);
+	new_val = inb(PIC_MASTER_IMR);
 
- drivers/thermal/fair_share.c | 4 ++++
- 1 file changed, 4 insertions(+)
+How is that writing 0xFF?
 
-diff --git a/drivers/thermal/fair_share.c b/drivers/thermal/fair_share.c
-index afd99f668c65..031df45ed67b 100644
---- a/drivers/thermal/fair_share.c
-+++ b/drivers/thermal/fair_share.c
-@@ -82,6 +82,8 @@ static int fair_share_throttle(struct thermal_zone_device *tz, int trip)
- 	int total_instance = 0;
- 	int cur_trip_level = get_trip_level(tz);
- 
-+	mutex_lock(&tz->lock);
-+
- 	list_for_each_entry(instance, &tz->thermal_instances, tz_node) {
- 		if (instance->trip != trip)
- 			continue;
-@@ -110,6 +112,8 @@ static int fair_share_throttle(struct thermal_zone_device *tz, int trip)
- 		mutex_unlock(&instance->cdev->lock);
- 		thermal_cdev_update(cdev);
- 	}
-+
-+	mutex_unlock(&tz->lock);
- 	return 0;
- }
- 
--- 
-2.17.1
+Thanks,
 
+        tglx
