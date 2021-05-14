@@ -2,157 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A83380EE6
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 19:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B485380EEE
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 19:29:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbhENR1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 13:27:42 -0400
-Received: from mx2.suse.de ([195.135.220.15]:50030 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230230AbhENR1m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 May 2021 13:27:42 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id ADD97B05D;
-        Fri, 14 May 2021 17:26:29 +0000 (UTC)
-Subject: Re: [PATCH] drm/ingenic: Fix pixclock rate for 24-bit serial panels
-To:     Paul Cercueil <paul@crapouillou.net>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Cc:     linux-mips@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, od@zcrc.me,
-        dri-devel@lists.freedesktop.org, Sam Ravnborg <sam@ravnborg.org>
-References: <20210323144008.166248-1-paul@crapouillou.net>
- <6DP1TQ.W6B9JRRW1OY5@crapouillou.net>
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <a42b2e5d-49e7-a15b-5f5f-9eb858e8fdf6@suse.de>
-Date:   Fri, 14 May 2021 19:26:28 +0200
+        id S231719AbhENRaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 13:30:12 -0400
+Received: from terminus.zytor.com ([198.137.202.136]:55143 "EHLO
+        mail.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229516AbhENRaM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 May 2021 13:30:12 -0400
+Received: from tazenda.hos.anvin.org ([IPv6:2601:646:8602:8be0:7285:c2ff:fefb:fd4])
+        (authenticated bits=0)
+        by mail.zytor.com (8.16.1/8.15.2) with ESMTPSA id 14EHSaXc3149327
+        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+        Fri, 14 May 2021 10:28:36 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 14EHSaXc3149327
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+        s=2021042801; t=1621013318;
+        bh=jSzPdXXc18oxGyRbNuujyb/chXDixgHnSADRJ1xFGAw=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ZgJnsaf9WvSYOIHTsfdIIHP1/Yhs8t/6zK6uHxzk//1cTlkiwLo8CUGJkRx+roSNj
+         KspkzNOpGlHIKX4POtuFDtmRY/EsUe6IGSI8D25gizCAtst3Z6bmTW/1QcAyeiozB1
+         /1WEI7OaP7Q/8/lFI163/CzIm+Lgwx1fpUO4dbRQycuSdZOO19PHjpMLVLG/sTpm09
+         62DgYkR8TbVugGuO7gwMfSSqJmZoaXP++4iMAUAnrsPVbt2apA6PnVqUpB9uw2Sy8A
+         xPVnO8J4VKsw//i9+VRclX+OlLAjDk8IhDtLRXug/ZwviZ5d8SBZvocEUJ5FPGe7GQ
+         4gOnSv3hPZoGQ==
+Subject: Re: [PATCH] x86/i8259: Work around buggy legacy PIC
+To:     David Laight <David.Laight@ACULAB.COM>,
+        "'Thomas Gleixner'" <tglx@linutronix.de>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc:     Sachi King <nakato@nakato.io>, "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20210512210459.1983026-1-luzmaximilian@gmail.com>
+ <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
+ <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com>
+ <87r1i94eg6.ffs@nanos.tec.linutronix.de>
+ <f0f52e319c06462ea0b5fbba827df9e0@AcuMS.aculab.com>
+From:   "H. Peter Anvin" <hpa@zytor.com>
+Message-ID: <b29b5c28-c36d-9c03-fc1a-055d8a089bcd@zytor.com>
+Date:   Fri, 14 May 2021 10:28:30 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <6DP1TQ.W6B9JRRW1OY5@crapouillou.net>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="G7VCp2Z0I1tFZjwjRdIoitLmgxDDw7plp"
+In-Reply-To: <f0f52e319c06462ea0b5fbba827df9e0@AcuMS.aculab.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---G7VCp2Z0I1tFZjwjRdIoitLmgxDDw7plp
-Content-Type: multipart/mixed; boundary="OhnXwSyToQ4awsPKWuJhB0YdMEH22aaoz";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Paul Cercueil <paul@crapouillou.net>, David Airlie <airlied@linux.ie>,
- Daniel Vetter <daniel@ffwll.ch>
-Cc: linux-mips@vger.kernel.org, stable@vger.kernel.org,
- linux-kernel@vger.kernel.org, od@zcrc.me, dri-devel@lists.freedesktop.org,
- Sam Ravnborg <sam@ravnborg.org>
-Message-ID: <a42b2e5d-49e7-a15b-5f5f-9eb858e8fdf6@suse.de>
-Subject: Re: [PATCH] drm/ingenic: Fix pixclock rate for 24-bit serial panels
-References: <20210323144008.166248-1-paul@crapouillou.net>
- <6DP1TQ.W6B9JRRW1OY5@crapouillou.net>
-In-Reply-To: <6DP1TQ.W6B9JRRW1OY5@crapouillou.net>
+On 5/14/21 9:12 AM, David Laight wrote:
+> 
+> A more interesting probe would be:
+> - Write some value to register 1 - the mask.
+> - Write 9 to register zero (selects interrupt in service register).
+> - Read register 0 - should be zero since we aren't in as ISR.
+> - Read register 1 - should get the mask back.
+> You can also write 8 to register 0, reads then return the pending interrupts.
+> Their might be pending interrupts - so that value can't be checked.
+> 
+> But if reads start returning the last written value you might only
+> have capacitors on the data bus.
 
---OhnXwSyToQ4awsPKWuJhB0YdMEH22aaoz
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+What data bus? These things haven't been on a physical parallel bus for 
+ages.
 
+> The required initialisation registers are pretty fixed for the PC hardware.
+> But finding the values requires a bit of work.
+> 
+> 	David
 
+And you always risk activating new bugs.
 
-Am 13.05.21 um 14:29 schrieb Paul Cercueil:
-> Hi,
->=20
-> Almost two months later,
->=20
->=20
-> Le mar., mars 23 2021 at 14:40:08 +0000, Paul Cercueil=20
-> <paul@crapouillou.net> a =C3=A9crit :
->> When using a 24-bit panel on a 8-bit serial bus, the pixel clock
->> requested by the panel has to be multiplied by 3, since the subpixels
->> are shifted sequentially.
->>
->> The code (in ingenic_drm_encoder_atomic_check) already computed
->> crtc_state->adjusted_mode->crtc_clock accordingly, but clk_set_rate()
->> used crtc_state->adjusted_mode->clock instead.
->>
->> Fixes: 28ab7d35b6e0 ("drm/ingenic: Properly compute timings when using=20
+Since this appears to be a specific platform advertising the wrong 
+answer in firmware, this is better handled as a quirk.
 
->> a 3x8-bit panel")
->> Cc: stable@vger.kernel.org # v5.10
->> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->=20
-> Can I get an ACK for my patch?
+	-hpa
 
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-
->=20
-> Thanks!
-> -Paul
->=20
->> ---
->> =C2=A0drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 2 +-
->> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c=20
->> b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
->> index d60e1eefc9d1..cba68bf52ec5 100644
->> --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
->> +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
->> @@ -342,7 +342,7 @@ static void ingenic_drm_crtc_atomic_flush(struct=20
->> drm_crtc *crtc,
->> =C2=A0=C2=A0=C2=A0=C2=A0 if (priv->update_clk_rate) {
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mutex_lock(&priv->clk=
-_mutex);
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 clk_set_rate(priv->pi=
-x_clk,
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0 crtc_state->adjusted_mode.clock * 1000);
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0 crtc_state->adjusted_mode.crtc_clock * 1000);=
-
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 priv->update_clk_rate=20
-=3D false;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mutex_unlock(&priv->c=
-lk_mutex);
->> =C2=A0=C2=A0=C2=A0=C2=A0 }
->> --=20
->> 2.30.2
->>
->=20
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---OhnXwSyToQ4awsPKWuJhB0YdMEH22aaoz--
-
---G7VCp2Z0I1tFZjwjRdIoitLmgxDDw7plp
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmCessQFAwAAAAAACgkQlh/E3EQov+Di
-Gw/+PpBVTvAcF4ltDId9QyywkeJ/xdvRf41hqgazerZAWctCXWwOVIIAYn5lHcazl/dL4olLKNsO
-F3eD7Si7RWmXe4+b2NqaweIesaDafGK4vdcS4mHS4JVHMkd1DhCxdwpy3uBbW5ZNXOv5TJldB3Jt
-Ikm2sm6psm3h5D2li+j6ew6qcVxK+3Cp8uVvHp6RH4cEcOIwbWZp/B4H1P5tMDzq7lpvjGYUQH3H
-MEwy8RYfX+igmRI9rdVXV/hEfBNOq1gLBmZQgGQR1EnRgL/rRTJ2AFci1NddETnMwuiOdpY6A0DS
-XK+Iy+XtUozzkJ8TO2rjwo/NyQYB3tvpnJJ6kkxHpWaowztqqIjrOL5snrw+jhqu7+EwJikbrPm3
-AXBEgwFz2/+Dk28We1onnRn6MIEC+0iy08yE+E67iCb0JXw+CiLadtqSVtzw9qNebMFn8vEjz2if
-6vv6bCWk2ae4LKh5LENpWI07WvzOWnzuDn0jUFa6P1yyx2AMgKd9tot0/p6MxX3oD/LY/b9aIXSG
-LzGFncU3gh/e2h+vUwzkb1coE2cgF+j5HIj0ot0qNJIAyoqUCN3GYBvcKr3nSUZwAv9J3aRmCtmY
-uPetTQRJH4psx/+oI09jkt4/Wn/kxlLUoB7a/JJvyMWEC+9FkKhQntLEdJasGd6tVP1OySrrCQGv
-+zo=
-=JL3k
------END PGP SIGNATURE-----
-
---G7VCp2Z0I1tFZjwjRdIoitLmgxDDw7plp--
