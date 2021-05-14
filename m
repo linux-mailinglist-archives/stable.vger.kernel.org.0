@@ -2,103 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AD938077E
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 12:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8D8380789
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 12:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231936AbhENKjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 06:39:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46100 "EHLO mail.kernel.org"
+        id S231854AbhENKmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 06:42:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231916AbhENKjs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 May 2021 06:39:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DF4561406;
-        Fri, 14 May 2021 10:38:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1620988717;
-        bh=z1krxmcEFCW/qOogrqVklsNypv42p3Xkx7h0791apzA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XIjkYd4kkRjYCwUCsXagITVyePv+uHdyiuUrI4Qnz6TBE2Lc7DGVhiK5xSoifB8fa
-         sNz4IU8LqV43iRZ2dNfzdVIbvMu1yYKtQ1S0vyqFVkDwqffR7pA0M24md5H0sbriGI
-         Ce3T9NMKNnC12M1tFIkc29lmTmRjoZc8fXI+NNvvdwv5QPjM+oQdiUW+tvKBiIuJpP
-         i+66bblZH1S6spfJWYNeLvSK1p/0aM6WDPJxhVn0n2utg/EV9SKG2kMe1WfkdTF5O1
-         Ym+lIXKSRpaehMgGT37WLgFOvva9S3b6jqHmxxONLhr1H85n3RLr2PFdDE7Zwi7VcL
-         +vpHZsC4ML4QA==
-Date:   Fri, 14 May 2021 11:38:33 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org,
-        Steven Price <steven.price@arm.com>
-Subject: Re: [PATCH] arm64: Fix race condition on PG_dcache_clean in
- __sync_icache_dcache()
-Message-ID: <20210514103833.GB3795@willie-the-truck>
-References: <20210514095001.13236-1-catalin.marinas@arm.com>
+        id S230509AbhENKl7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 May 2021 06:41:59 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 520F261458;
+        Fri, 14 May 2021 10:40:48 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lhVFO-001N6Q-MS; Fri, 14 May 2021 11:40:46 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Zenghui Yu <yuzenghui@huawei.com>, Fuad Tabba <tabba@google.com>,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: [PATCH v2 1/2] KVM: arm64: Move __adjust_pc out of line
+Date:   Fri, 14 May 2021 11:40:41 +0100
+Message-Id: <20210514104042.1929168-2-maz@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210514104042.1929168-1-maz@kernel.org>
+References: <20210514104042.1929168-1-maz@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210514095001.13236-1-catalin.marinas@arm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, yuzenghui@huawei.com, tabba@google.com, james.morse@arm.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 14, 2021 at 10:50:01AM +0100, Catalin Marinas wrote:
-> To ensure that instructions are observable in a new mapping, the arm64
-> set_pte_at() implementation cleans the D-cache and invalidates the
-> I-cache to the PoU. As an optimisation, this is only done on executable
-> mappings and the PG_dcache_clean page flag is set to avoid future cache
-> maintenance on the same page.
-> 
-> When two different processes map the same page (e.g. private executable
-> file or shared mapping) there's a potential race on checking and setting
-> PG_dcache_clean via set_pte_at() -> __sync_icache_dcache(). While on the
-> fault paths the page is locked (PG_locked), mprotect() does not take the
-> page lock. The result is that one process may see the PG_dcache_clean
-> flag set but the I/D cache maintenance not yet performed.
-> 
-> Avoid test_and_set_bit(PG_dcache_clean) in favour of separate test_bit()
-> and set_bit(). In the rare event of a race, the cache maintenance is
-> done twice.
-> 
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: <stable@vger.kernel.org>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Steven Price <steven.price@arm.com>
-> ---
-> 
-> Found while debating with Steven a similar race on PG_mte_tagged. For
-> the latter we'll have to take a lock but hopefully in practice it will
-> only happen when restoring from swap. Separate thread anyway.
-> 
-> There's at least arch/arm with a similar race. Powerpc seems to do it
-> properly with separate test/set. Other architectures have a bigger
-> problem as they do a similar check in update_mmu_cache(), called after
-> the pte was already exposed to user.
-> 
-> I looked at fixing this in the mprotect() code but taking the page lock
-> will slow it down, so not sure how popular this would be for such a rare
-> race.
-> 
->  arch/arm64/mm/flush.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm64/mm/flush.c b/arch/arm64/mm/flush.c
-> index ac485163a4a7..6d44c028d1c9 100644
-> --- a/arch/arm64/mm/flush.c
-> +++ b/arch/arm64/mm/flush.c
-> @@ -55,8 +55,10 @@ void __sync_icache_dcache(pte_t pte)
->  {
->  	struct page *page = pte_page(pte);
->  
-> -	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
-> +	if (!test_bit(PG_dcache_clean, &page->flags)) {
->  		sync_icache_aliases(page_address(page), page_size(page));
-> +		set_bit(PG_dcache_clean, &page->flags);
-> +	}
+In order to make it easy to call __adjust_pc() from the EL1 code
+(in the case of nVHE), rename it to __kvm_adjust_pc() and move
+it out of line.
 
-Acked-by: Will Deacon <will@kernel.org>
+No expected functional change.
 
-I wondered about the ISB for a bit (we don't broadcast it), but should
-be fine as the racing CPU needs to return to userspace.
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # 5.11
+---
+ arch/arm64/include/asm/kvm_asm.h           |  2 ++
+ arch/arm64/kvm/hyp/exception.c             | 18 +++++++++++++++++-
+ arch/arm64/kvm/hyp/include/hyp/adjust_pc.h | 18 ------------------
+ arch/arm64/kvm/hyp/nvhe/switch.c           |  3 +--
+ arch/arm64/kvm/hyp/vhe/switch.c            |  3 +--
+ 5 files changed, 21 insertions(+), 23 deletions(-)
 
-Will
+diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
+index cf8df032b9c3..d5b11037401d 100644
+--- a/arch/arm64/include/asm/kvm_asm.h
++++ b/arch/arm64/include/asm/kvm_asm.h
+@@ -201,6 +201,8 @@ extern void __kvm_timer_set_cntvoff(u64 cntvoff);
+ 
+ extern int __kvm_vcpu_run(struct kvm_vcpu *vcpu);
+ 
++extern void __kvm_adjust_pc(struct kvm_vcpu *vcpu);
++
+ extern u64 __vgic_v3_get_gic_config(void);
+ extern u64 __vgic_v3_read_vmcr(void);
+ extern void __vgic_v3_write_vmcr(u32 vmcr);
+diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
+index 73629094f903..0812a496725f 100644
+--- a/arch/arm64/kvm/hyp/exception.c
++++ b/arch/arm64/kvm/hyp/exception.c
+@@ -296,7 +296,7 @@ static void enter_exception32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
+ 	*vcpu_pc(vcpu) = vect_offset;
+ }
+ 
+-void kvm_inject_exception(struct kvm_vcpu *vcpu)
++static void kvm_inject_exception(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu_el1_is_32bit(vcpu)) {
+ 		switch (vcpu->arch.flags & KVM_ARM64_EXCEPT_MASK) {
+@@ -329,3 +329,19 @@ void kvm_inject_exception(struct kvm_vcpu *vcpu)
+ 		}
+ 	}
+ }
++
++/*
++ * Adjust the guest PC on entry, depending on flags provided by EL1
++ * for the purpose of emulation (MMIO, sysreg) or exception injection.
++ */
++void __kvm_adjust_pc(struct kvm_vcpu *vcpu)
++{
++	if (vcpu->arch.flags & KVM_ARM64_PENDING_EXCEPTION) {
++		kvm_inject_exception(vcpu);
++		vcpu->arch.flags &= ~(KVM_ARM64_PENDING_EXCEPTION |
++				      KVM_ARM64_EXCEPT_MASK);
++	} else 	if (vcpu->arch.flags & KVM_ARM64_INCREMENT_PC) {
++		kvm_skip_instr(vcpu);
++		vcpu->arch.flags &= ~KVM_ARM64_INCREMENT_PC;
++	}
++}
+diff --git a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
+index 61716359035d..4fdfeabefeb4 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
++++ b/arch/arm64/kvm/hyp/include/hyp/adjust_pc.h
+@@ -13,8 +13,6 @@
+ #include <asm/kvm_emulate.h>
+ #include <asm/kvm_host.h>
+ 
+-void kvm_inject_exception(struct kvm_vcpu *vcpu);
+-
+ static inline void kvm_skip_instr(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu_mode_is_32bit(vcpu)) {
+@@ -43,22 +41,6 @@ static inline void __kvm_skip_instr(struct kvm_vcpu *vcpu)
+ 	write_sysreg_el2(*vcpu_pc(vcpu), SYS_ELR);
+ }
+ 
+-/*
+- * Adjust the guest PC on entry, depending on flags provided by EL1
+- * for the purpose of emulation (MMIO, sysreg) or exception injection.
+- */
+-static inline void __adjust_pc(struct kvm_vcpu *vcpu)
+-{
+-	if (vcpu->arch.flags & KVM_ARM64_PENDING_EXCEPTION) {
+-		kvm_inject_exception(vcpu);
+-		vcpu->arch.flags &= ~(KVM_ARM64_PENDING_EXCEPTION |
+-				      KVM_ARM64_EXCEPT_MASK);
+-	} else 	if (vcpu->arch.flags & KVM_ARM64_INCREMENT_PC) {
+-		kvm_skip_instr(vcpu);
+-		vcpu->arch.flags &= ~KVM_ARM64_INCREMENT_PC;
+-	}
+-}
+-
+ /*
+  * Skip an instruction while host sysregs are live.
+  * Assumes host is always 64-bit.
+diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
+index e9f6ea704d07..f7af9688c1f7 100644
+--- a/arch/arm64/kvm/hyp/nvhe/switch.c
++++ b/arch/arm64/kvm/hyp/nvhe/switch.c
+@@ -4,7 +4,6 @@
+  * Author: Marc Zyngier <marc.zyngier@arm.com>
+  */
+ 
+-#include <hyp/adjust_pc.h>
+ #include <hyp/switch.h>
+ #include <hyp/sysreg-sr.h>
+ 
+@@ -201,7 +200,7 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
+ 	 */
+ 	__debug_save_host_buffers_nvhe(vcpu);
+ 
+-	__adjust_pc(vcpu);
++	__kvm_adjust_pc(vcpu);
+ 
+ 	/*
+ 	 * We must restore the 32-bit state before the sysregs, thanks
+diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/switch.c
+index 7b8f7db5c1ed..b3229924d243 100644
+--- a/arch/arm64/kvm/hyp/vhe/switch.c
++++ b/arch/arm64/kvm/hyp/vhe/switch.c
+@@ -4,7 +4,6 @@
+  * Author: Marc Zyngier <marc.zyngier@arm.com>
+  */
+ 
+-#include <hyp/adjust_pc.h>
+ #include <hyp/switch.h>
+ 
+ #include <linux/arm-smccc.h>
+@@ -132,7 +131,7 @@ static int __kvm_vcpu_run_vhe(struct kvm_vcpu *vcpu)
+ 	__load_guest_stage2(vcpu->arch.hw_mmu);
+ 	__activate_traps(vcpu);
+ 
+-	__adjust_pc(vcpu);
++	__kvm_adjust_pc(vcpu);
+ 
+ 	sysreg_restore_guest_state_vhe(guest_ctxt);
+ 	__debug_switch_to_guest(vcpu);
+-- 
+2.29.2
+
