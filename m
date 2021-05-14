@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF9D38086C
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 13:26:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3CAE38086D
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 13:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229516AbhENL11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 07:27:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56830 "EHLO mail.kernel.org"
+        id S230130AbhENL1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 07:27:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229445AbhENL10 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 May 2021 07:27:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E3E7613DE;
-        Fri, 14 May 2021 11:26:13 +0000 (UTC)
+        id S229445AbhENL1g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 May 2021 07:27:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6C8D61457;
+        Fri, 14 May 2021 11:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620991574;
-        bh=7QtyVIDfoawf4qBOgX5SGptvpTEoU6JQvinvzeubx+w=;
+        s=korg; t=1620991583;
+        bh=sEJ2ZnGgka6AMHfswnCfQN5+yKHh6h8UbPzcqIBLCbM=;
         h=Subject:To:From:Date:From;
-        b=lzB1k4yfQp8qtlPjYMWklCAGvK3TPwM0Nvpj6VOZzpNm3OnxqAfW3BsigWpS3l8kv
-         H1sIbMkPb8evGiJfdCmanZ81tOKl4Jfk76gVCKuVKvxQM2d/6I+R+6Z0Gp+gE2ZA15
-         XkQCi+LmhbJIKQjI0IUSx3IK+5vW1f+FiKd774Ys=
-Subject: patch "uio/uio_pci_generic: fix return value changed in refactoring" added to char-misc-linus
-To:     martin.agren@gmail.com, gregkh@linuxfoundation.org, mst@redhat.com,
+        b=jdB8sW0e0gKmbLe73Sf8T9xjYIGnsD1oILH5oSgWc/dlikewGjffy5rAodtJ8jOAt
+         n9I7gCpo/BD9HU68jcFcZ6jaJ11pjwkOm4GLu2X6Zq0dq2TpAzQqdRFMOgL9dsAXkF
+         11e19TYzYEqsfalZQpVpbixcxcUA5qWPblooR41Q=
+Subject: patch "uio_hv_generic: Fix a memory leak in error handling paths" added to char-misc-linus
+To:     christophe.jaillet@wanadoo.fr, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 14 May 2021 13:26:12 +0200
-Message-ID: <1620991572249187@kroah.com>
+Message-ID: <1620991572133169@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    uio/uio_pci_generic: fix return value changed in refactoring
+    uio_hv_generic: Fix a memory leak in error handling paths
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -51,44 +51,54 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 156ed0215ef365604f2382d5164c36d3a1cfd98f Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Martin=20=C3=85gren?= <martin.agren@gmail.com>
-Date: Thu, 22 Apr 2021 21:22:40 +0200
-Subject: uio/uio_pci_generic: fix return value changed in refactoring
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 3ee098f96b8b6c1a98f7f97915f8873164e6af9d Mon Sep 17 00:00:00 2001
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Date: Sun, 9 May 2021 09:13:03 +0200
+Subject: uio_hv_generic: Fix a memory leak in error handling paths
 
-Commit ef84928cff58 ("uio/uio_pci_generic: use device-managed function
-equivalents") was able to simplify various error paths thanks to no
-longer having to clean up on the way out. Some error paths were dropped,
-others were simplified. In one of those simplifications, the return
-value was accidentally changed from -ENODEV to -ENOMEM. Restore the old
-return value.
+If 'vmbus_establish_gpadl()' fails, the (recv|send)_gpadl will not be
+updated and 'hv_uio_cleanup()' in the error handling path will not be
+able to free the corresponding buffer.
 
-Fixes: ef84928cff58 ("uio/uio_pci_generic: use device-managed function equivalents")
+In such a case, we need to free the buffer explicitly.
+
+Fixes: cdfa835c6e5e ("uio_hv_generic: defer opening vmbus until first use")
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Martin Ågren <martin.agren@gmail.com>
-Link: https://lore.kernel.org/r/20210422192240.1136373-1-martin.agren@gmail.com
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/4fdaff557deef6f0475d02ba7922ddbaa1ab08a6.1620544055.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/uio/uio_pci_generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/uio/uio_hv_generic.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/uio/uio_pci_generic.c b/drivers/uio/uio_pci_generic.c
-index c7d681fef198..3bb0b0075467 100644
---- a/drivers/uio/uio_pci_generic.c
-+++ b/drivers/uio/uio_pci_generic.c
-@@ -82,7 +82,7 @@ static int probe(struct pci_dev *pdev,
- 	}
+diff --git a/drivers/uio/uio_hv_generic.c b/drivers/uio/uio_hv_generic.c
+index 0330ba99730e..eebc399f2cc7 100644
+--- a/drivers/uio/uio_hv_generic.c
++++ b/drivers/uio/uio_hv_generic.c
+@@ -296,8 +296,10 @@ hv_uio_probe(struct hv_device *dev,
  
- 	if (pdev->irq && !pci_intx_mask_supported(pdev))
--		return -ENOMEM;
-+		return -ENODEV;
+ 	ret = vmbus_establish_gpadl(channel, pdata->recv_buf,
+ 				    RECV_BUFFER_SIZE, &pdata->recv_gpadl);
+-	if (ret)
++	if (ret) {
++		vfree(pdata->recv_buf);
+ 		goto fail_close;
++	}
  
- 	gdev = devm_kzalloc(&pdev->dev, sizeof(struct uio_pci_generic_dev), GFP_KERNEL);
- 	if (!gdev)
+ 	/* put Global Physical Address Label in name */
+ 	snprintf(pdata->recv_name, sizeof(pdata->recv_name),
+@@ -316,8 +318,10 @@ hv_uio_probe(struct hv_device *dev,
+ 
+ 	ret = vmbus_establish_gpadl(channel, pdata->send_buf,
+ 				    SEND_BUFFER_SIZE, &pdata->send_gpadl);
+-	if (ret)
++	if (ret) {
++		vfree(pdata->send_buf);
+ 		goto fail_close;
++	}
+ 
+ 	snprintf(pdata->send_name, sizeof(pdata->send_name),
+ 		 "send:%u", pdata->send_gpadl);
 -- 
 2.31.1
 
