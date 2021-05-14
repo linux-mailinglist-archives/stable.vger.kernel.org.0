@@ -2,126 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4711E38031B
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 06:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 287FC380427
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 09:26:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232249AbhENExp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 00:53:45 -0400
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:51986 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231967AbhENExp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 May 2021 00:53:45 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R681e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=tianjia.zhang@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0UYoDsTm_1620967950;
-Received: from B-455UMD6M-2027.local(mailfrom:tianjia.zhang@linux.alibaba.com fp:SMTPD_---0UYoDsTm_1620967950)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 14 May 2021 12:52:31 +0800
-Subject: Re: [PATCH 1/7] crypto: fix a memory leak in sm2
-To:     Hongbo Li <herbert.tencent@gmail.com>, keyrings@vger.kernel.org,
-        linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au,
-        dhowells@redhat.com, jarkko@kernel.org, herberthbli@tencent.com,
-        stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-References: <1620828254-25545-1-git-send-email-herbert.tencent@gmail.com>
- <1620828254-25545-2-git-send-email-herbert.tencent@gmail.com>
-From:   Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Message-ID: <246ad441-76c9-0934-d132-42d263d63195@linux.alibaba.com>
-Date:   Fri, 14 May 2021 12:52:29 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.0
+        id S233059AbhENH2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 03:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56170 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230326AbhENH2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 May 2021 03:28:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB045610A7;
+        Fri, 14 May 2021 07:26:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1620977211;
+        bh=9jpMY2J8KOmOqqhBNxJH1weZb9RhnwZTWAA6rqCLgiE=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=o0KY2kAd/TvmUGvwrzvBgY/i0Xy/nV8Iw03RwMa0RyeU2nJsME/QnW6d7uMLUyAlQ
+         n7R7go0A4jzNzUXDx9pUbGJ2QDFZ1WfHVu6CpVKAw6Cdt4fIUdvWNtig6r2GcFZST3
+         sIpD7UWEtr4dfbMBcYpOTnRFdAI6htmciOPwhedBpe8qRLcHA2GepK5YonZEdVKpdy
+         +DO+moNEjQsTjbx56WzeKHDGEbOUC59xUH29cyw+n0k1pYLyLC56ObmP3sNrpRezPR
+         F76NdMFHiL9UYwNEkR9AGwrlc1QqtyT+SSNfi6ogga81UVaLjoBsMeQTnOwleEAxz0
+         a5F+R/t2TffuA==
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>
+Subject: Re: [PATCH] usb: dwc3: gadget: Properly track pending and queued SG
+In-Reply-To: <ba24591dbcaad8f244a3e88bd449bb7205a5aec3.1620874069.git.Thinh.Nguyen@synopsys.com>
+References: <ba24591dbcaad8f244a3e88bd449bb7205a5aec3.1620874069.git.Thinh.Nguyen@synopsys.com>
+Date:   Fri, 14 May 2021 10:26:42 +0300
+Message-ID: <87eee97p3h.fsf@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <1620828254-25545-2-git-send-email-herbert.tencent@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Hongbo,
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On 5/12/21 10:04 PM, Hongbo Li wrote:
-> From: Hongbo Li <herberthbli@tencent.com>
-> 
-> SM2 module alloc ec->Q in sm2_set_pub_key(), when doing alg test in
-> test_akcipher_one(), it will set public key for every test vector,
-> and don't free ec->Q. This will cause a memory leak.
-> 
-> This patch alloc ec->Q in sm2_ec_ctx_init().
-> 
-> Signed-off-by: Hongbo Li <herberthbli@tencent.com>
-> ---
->   crypto/sm2.c | 24 ++++++++++--------------
->   1 file changed, 10 insertions(+), 14 deletions(-)
-> 
-> diff --git a/crypto/sm2.c b/crypto/sm2.c
-> index b21addc..db8a4a2 100644
-> --- a/crypto/sm2.c
-> +++ b/crypto/sm2.c
-> @@ -79,10 +79,17 @@ static int sm2_ec_ctx_init(struct mpi_ec_ctx *ec)
->   		goto free;
->   
->   	rc = -ENOMEM;
-> +
-> +	ec->Q = mpi_point_new(0);
-> +	if (!ec->Q)
-> +		goto free;
-> +
->   	/* mpi_ec_setup_elliptic_curve */
->   	ec->G = mpi_point_new(0);
-> -	if (!ec->G)
-> +	if (!ec->G) {
-> +		mpi_point_release(ec->Q);
->   		goto free;
-> +	}
->   
->   	mpi_set(ec->G->x, x);
->   	mpi_set(ec->G->y, y);
-> @@ -91,6 +98,7 @@ static int sm2_ec_ctx_init(struct mpi_ec_ctx *ec)
->   	rc = -EINVAL;
->   	ec->n = mpi_scanval(ecp->n);
->   	if (!ec->n) {
-> +		mpi_point_release(ec->Q);
->   		mpi_point_release(ec->G);
->   		goto free;
->   	}
-> @@ -386,27 +394,15 @@ static int sm2_set_pub_key(struct crypto_akcipher *tfm,
->   	MPI a;
->   	int rc;
->   
-> -	ec->Q = mpi_point_new(0);
-> -	if (!ec->Q)
-> -		return -ENOMEM;
-> -
->   	/* include the uncompressed flag '0x04' */
-> -	rc = -ENOMEM;
->   	a = mpi_read_raw_data(key, keylen);
->   	if (!a)
-> -		goto error;
-> +		return -ENOMEM;
->   
->   	mpi_normalize(a);
->   	rc = sm2_ecc_os2ec(ec->Q, a);
->   	mpi_free(a);
-> -	if (rc)
-> -		goto error;
-> -
-> -	return 0;
->   
-> -error:
-> -	mpi_point_release(ec->Q);
-> -	ec->Q = NULL;
->   	return rc;
->   }
->   
-> 
+Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
 
-Thanks a lot for fixing this issue.
+> The driver incorrectly uses req->num_pending_sgs to track both the
+> number of pending and queued SG entries. It only prepares the next
+> request if the previous is done, and it doesn't update num_pending_sgs
+> until there is TRB completion interrupt. This may starve the controller
+> of more TRBs until the num_pending_sgs is decremented.
+>
+> Fix this by decrementing the num_pending_sgs after they are queued and
+> properly track both num_mapped_sgs and num_queued_sgs.
+>
+> Cc: <stable@vger.kernel.org>
+> Tested-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> Reported-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+> Fixes: c96e6725db9d ("usb: dwc3: gadget: Correct the logic for queuing sg=
+s")
+> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-Reviewed-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
 
-Also added:
+=2D-=20
+balbi
 
-Cc: stable@vger.kernel.org # v5.10+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Best regards,
-Tianjia
+-----BEGIN PGP SIGNATURE-----
+
+iQFFBAEBCAAvFiEE9DumQ60WEZ09LIErzlfNM9wDzUgFAmCeJjIRHGJhbGJpQGtl
+cm5lbC5vcmcACgkQzlfNM9wDzUjfYggAhR1Qjovd+cWCh12AO8upsvOKrCAqr/wH
+14/noRG9JSq6tS85ATt8N94DqKoZbnr3Voqi+FU7Jeth6X8A9r7lAdOYnbnAs3dR
+ZqzGQl8JlBsWV2NLaAArOpr4OIpDhZpnQa3IJJP7rDxfKcFg0WOwS8Cc3up/Xrqn
+KQFSpdx9ioKVOc3g2qmVW5PqiMlL86xGs7oyPqjDUidrLvC94+omx0iDvYDwHImI
+BM61wWVaJVXmYmRPOSuyjKl0kfRKSkTXniN5Q5QVrlA459yecbXLMInlDKuyN8hk
+VmL8k1aBwvRh/BOLpxxPmY1UNrgZlVWhilQPXk1tI7P0CgvO1D2P4g==
+=NdgP
+-----END PGP SIGNATURE-----
+--=-=-=--
