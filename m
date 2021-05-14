@@ -2,164 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A85E7380D6F
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 17:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5B0B380DCE
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 18:12:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234948AbhENPj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 11:39:58 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:45749 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234660AbhENPjx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 May 2021 11:39:53 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id DBAF919406D6;
-        Fri, 14 May 2021 11:38:41 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 14 May 2021 11:38:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+tFgBG
-        Z9hWtNdiopCwcpmrkgLBa/EOtqgRDkYIpQHPY=; b=r54FiEFPGrM6rUzxadGDmW
-        dXjRheU45zcxZUmyNIeMkN4pD7XkxkqPh7hhTrypW/DbdH74Lr7Gl9F9TGwCwTzi
-        IGoYRn9Pvbm59/zlPU57AzG624XN6Enu6r23A2QYsndobWkKmFu6tRmYcSJPCuMP
-        3wBPE13Pi/fSWrtDcbkNWW0eFN8SHAoOhJNotOwAQaz0yKAAbTD+mPVJnJ4jA99Z
-        Bm1v7ICG7yGYirsSL7t7NjcWNHqnrVmb4JEyoory3TmWnyz/TeBb645LuDgPCiep
-        jLh59LkBbPxFGMOhmWJUYGNvO8uW2aBL3etcIYkngm+skTjGFY+hMZ3/xUUwbzBA
-        ==
-X-ME-Sender: <xms:gZmeYHkCXrRmeaaNLIN6gsWLE3JfDfcXccpi0P1dBiYduYwgLCF79w>
-    <xme:gZmeYK3fwb85qMedy7lBms9RjkG69z0eaVbmMpyMDpOgRS-R5nMYoPh6ehQiwKMjz
-    pG9Zn8XHe4OdQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehjedgvdekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:gZmeYNoCXgX8DtwT-3IQcLw7uwnBPmA3M7tiDCkQJBZZ3ra5hSmDvA>
-    <xmx:gZmeYPl-crE4HtVyfci5kLUo7IOIg46fyLIZi4eQOZO9-UDOAni_Nw>
-    <xmx:gZmeYF2Ko6PgVFVeTdmbw--vPz3WFUYvxftB4aOKjPwzfvCqE2TNQQ>
-    <xmx:gZmeYG8Q8xgnoNktZfEjJ3jlNG7HmrY37g-nGyFE9dv9U9Oz9SdLdw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Fri, 14 May 2021 11:38:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86: Defer vtime accounting 'til after IRQ handling" failed to apply to 5.11-stable tree
-To:     wanpengli@tencent.com, seanjc@google.com, tglx@linutronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 14 May 2021 17:38:39 +0200
-Message-ID: <162100671958217@kroah.com>
+        id S232508AbhENQNT convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 14 May 2021 12:13:19 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:55942 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232438AbhENQNS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 May 2021 12:13:18 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-42-RnSQRdgJN7GtQvKTp4FKEQ-1; Fri, 14 May 2021 17:12:04 +0100
+X-MC-Unique: RnSQRdgJN7GtQvKTp4FKEQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.2; Fri, 14 May 2021 17:12:01 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.015; Fri, 14 May 2021 17:12:01 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Thomas Gleixner' <tglx@linutronix.de>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+CC:     "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] x86/i8259: Work around buggy legacy PIC
+Thread-Topic: [PATCH] x86/i8259: Work around buggy legacy PIC
+Thread-Index: AQHXR3+B5Hf0DG1T80+Lb/Y+9zG7TarhDftggAHxr5WAACbXIA==
+Date:   Fri, 14 May 2021 16:12:01 +0000
+Message-ID: <f0f52e319c06462ea0b5fbba827df9e0@AcuMS.aculab.com>
+References: <20210512210459.1983026-1-luzmaximilian@gmail.com>
+ <9b70d8113c084848b8d9293c4428d71b@AcuMS.aculab.com>
+ <e7dbd4d1-f23f-42f0-e912-032ba32f9ec8@gmail.com>
+ <87r1i94eg6.ffs@nanos.tec.linutronix.de>
+In-Reply-To: <87r1i94eg6.ffs@nanos.tec.linutronix.de>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Thomas Gleixner
+> Sent: 14 May 2021 14:45
+> 
+> Max,
+> 
+> On Thu, May 13 2021 at 12:11, Maximilian Luz wrote:
+> > And lastly, if that's any help at all: The PIC device is described in
+> > ACPI in [3]. The Surface Laptop 3 also has an AMD CPU (although a prior
+> > generation) and has the PIC described in the exact same way (can also be
+> > found in that repository), but doesn't exhibit that behavior (and
+> > doesn't show the "Using NULL legacy PIC" line). I expect there's not
+> > much you can change to that definition so that's probably irrelevant
+> > here.
+> >
+> > Again, I don't really know anything about these devices, so my guess
+> > would be bad hardware revision or bad firmware revision. All I know is
+> > that retrying seems to "fix" it.
+> 
+> That might be a a power optimization thing.
+> 
+> Except for older systems the PIC is not really required for IOAPiC to
+> work. But there is some historical code which makes assumptions. We can
+> change that, but that needs some careful thoughts.
 
-The patch below does not apply to the 5.11-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+A more interesting probe would be:
+- Write some value to register 1 - the mask.
+- Write 9 to register zero (selects interrupt in service register).
+- Read register 0 - should be zero since we aren't in as ISR.
+- Read register 1 - should get the mask back.
+You can also write 8 to register 0, reads then return the pending interrupts.
+Their might be pending interrupts - so that value can't be checked.
 
-thanks,
+But if reads start returning the last written value you might only
+have capacitors on the data bus.
 
-greg k-h
+The required initialisation registers are pretty fixed for the PC hardware.
+But finding the values requires a bit of work.
 
------------------- original commit in Linus's tree ------------------
+	David
 
-From 160457140187c5fb127b844e5a85f87f00a01b14 Mon Sep 17 00:00:00 2001
-From: Wanpeng Li <wanpengli@tencent.com>
-Date: Tue, 4 May 2021 17:27:30 -0700
-Subject: [PATCH] KVM: x86: Defer vtime accounting 'til after IRQ handling
-
-Defer the call to account guest time until after servicing any IRQ(s)
-that happened in the guest or immediately after VM-Exit.  Tick-based
-accounting of vCPU time relies on PF_VCPU being set when the tick IRQ
-handler runs, and IRQs are blocked throughout the main sequence of
-vcpu_enter_guest(), including the call into vendor code to actually
-enter and exit the guest.
-
-This fixes a bug where reported guest time remains '0', even when
-running an infinite loop in the guest:
-
-  https://bugzilla.kernel.org/show_bug.cgi?id=209831
-
-Fixes: 87fa7f3e98a131 ("x86/kvm: Move context tracking where it belongs")
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Co-developed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210505002735.1684165-4-seanjc@google.com
-
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 9790c73f2a32..c400def6220b 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -3753,15 +3753,15 @@ static noinstr void svm_vcpu_enter_exit(struct kvm_vcpu *vcpu)
- 	 * have them in state 'on' as recorded before entering guest mode.
- 	 * Same as enter_from_user_mode().
- 	 *
--	 * guest_exit_irqoff() restores host context and reinstates RCU if
--	 * enabled and required.
-+	 * context_tracking_guest_exit() restores host context and reinstates
-+	 * RCU if enabled and required.
- 	 *
- 	 * This needs to be done before the below as native_read_msr()
- 	 * contains a tracepoint and x86_spec_ctrl_restore_host() calls
- 	 * into world and some more.
- 	 */
- 	lockdep_hardirqs_off(CALLER_ADDR0);
--	guest_exit_irqoff();
-+	context_tracking_guest_exit();
- 
- 	instrumentation_begin();
- 	trace_hardirqs_off_finish();
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index b21d751407b5..e108fb47855b 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6703,15 +6703,15 @@ static noinstr void vmx_vcpu_enter_exit(struct kvm_vcpu *vcpu,
- 	 * have them in state 'on' as recorded before entering guest mode.
- 	 * Same as enter_from_user_mode().
- 	 *
--	 * guest_exit_irqoff() restores host context and reinstates RCU if
--	 * enabled and required.
-+	 * context_tracking_guest_exit() restores host context and reinstates
-+	 * RCU if enabled and required.
- 	 *
- 	 * This needs to be done before the below as native_read_msr()
- 	 * contains a tracepoint and x86_spec_ctrl_restore_host() calls
- 	 * into world and some more.
- 	 */
- 	lockdep_hardirqs_off(CALLER_ADDR0);
--	guest_exit_irqoff();
-+	context_tracking_guest_exit();
- 
- 	instrumentation_begin();
- 	trace_hardirqs_off_finish();
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index cebdaa1e3cf5..6eda2834fc05 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9315,6 +9315,15 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
- 	local_irq_disable();
- 	kvm_after_interrupt(vcpu);
- 
-+	/*
-+	 * Wait until after servicing IRQs to account guest time so that any
-+	 * ticks that occurred while running the guest are properly accounted
-+	 * to the guest.  Waiting until IRQs are enabled degrades the accuracy
-+	 * of accounting via context tracking, but the loss of accuracy is
-+	 * acceptable for all known use cases.
-+	 */
-+	vtime_account_guest_exit();
-+
- 	if (lapic_in_kernel(vcpu)) {
- 		s64 delta = vcpu->arch.apic->lapic_timer.advance_expire_delta;
- 		if (delta != S64_MIN) {
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
