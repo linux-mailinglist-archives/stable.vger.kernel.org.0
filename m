@@ -2,92 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C1E4380651
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 11:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF1C238067C
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 11:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233919AbhENJfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 05:35:52 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:45722 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230440AbhENJfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 May 2021 05:35:52 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 35E321C0B81; Fri, 14 May 2021 11:34:40 +0200 (CEST)
-Date:   Fri, 14 May 2021 11:34:39 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 424/530] cxgb4: Fix unintentional sign extension
- issues
-Message-ID: <20210514093439.GA12797@amd>
-References: <20210512144819.664462530@linuxfoundation.org>
- <20210512144833.706658184@linuxfoundation.org>
+        id S230444AbhENJvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 05:51:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55906 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229445AbhENJvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 May 2021 05:51:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A429D613B6;
+        Fri, 14 May 2021 09:50:03 +0000 (UTC)
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH] arm64: Fix race condition on PG_dcache_clean in __sync_icache_dcache()
+Date:   Fri, 14 May 2021 10:50:01 +0100
+Message-Id: <20210514095001.13236-1-catalin.marinas@arm.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-In-Reply-To: <20210512144833.706658184@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+To ensure that instructions are observable in a new mapping, the arm64
+set_pte_at() implementation cleans the D-cache and invalidates the
+I-cache to the PoU. As an optimisation, this is only done on executable
+mappings and the PG_dcache_clean page flag is set to avoid future cache
+maintenance on the same page.
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+When two different processes map the same page (e.g. private executable
+file or shared mapping) there's a potential race on checking and setting
+PG_dcache_clean via set_pte_at() -> __sync_icache_dcache(). While on the
+fault paths the page is locked (PG_locked), mprotect() does not take the
+page lock. The result is that one process may see the PG_dcache_clean
+flag set but the I/D cache maintenance not yet performed.
 
-Hi!
+Avoid test_and_set_bit(PG_dcache_clean) in favour of separate test_bit()
+and set_bit(). In the rare event of a race, the cache maintenance is
+done twice.
 
-> From: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: <stable@vger.kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Steven Price <steven.price@arm.com>
+---
 
-> The shifting of the u8 integers f->fs.nat_lip[] by 24 bits to
-> the left will be promoted to a 32 bit signed int and then
-> sign-extended to a u64. In the event that the top bit of the u8
-> is set then all then all the upper 32 bits of the u64 end up as
-> also being set because of the sign-extension. Fix this by
-> casting the u8 values to a u64 before the 24 bit left shift.
+Found while debating with Steven a similar race on PG_mte_tagged. For
+the latter we'll have to take a lock but hopefully in practice it will
+only happen when restoring from swap. Separate thread anyway.
 
-Should we really use -stable series for beta-testing patches going to
--rc1? Because that's what Sasha is effectively doing.
+There's at least arch/arm with a similar race. Powerpc seems to do it
+properly with separate test/set. Other architectures have a bigger
+problem as they do a similar check in update_mmu_cache(), called after
+the pte was already exposed to user.
 
-> Addresses-Coverity: ("Unintended sign extension")
-> Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+I looked at fixing this in the mprotect() code but taking the page lock
+will slow it down, so not sure how popular this would be for such a rare
+race.
 
->  			set_tcb_field(adap, f, tid, TCB_RX_FRAG3_LEN_RAW_W,
->  				      WORD_MASK, f->fs.nat_lip[3] |
->  				      f->fs.nat_lip[2] << 8 |
->  				      f->fs.nat_lip[1] << 16 |
-> -				      f->fs.nat_lip[0] << 24, 1);
-> +				      (u64)f->fs.nat_lip[0] << 25, 1);
->  		}
->  	}
+ arch/arm64/mm/flush.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-
-This one is wrong.
-
-Best regards,
-									Pavel
---=20
-http://www.livejournal.com/~pavelmachek
-
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmCeRC8ACgkQMOfwapXb+vLxUwCghjQthRJh+KTYoRApzGRY5U+0
-6HkAnRcrRBcACVCxgEGLgIilqrrOxuwe
-=vJ6O
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--
+diff --git a/arch/arm64/mm/flush.c b/arch/arm64/mm/flush.c
+index ac485163a4a7..6d44c028d1c9 100644
+--- a/arch/arm64/mm/flush.c
++++ b/arch/arm64/mm/flush.c
+@@ -55,8 +55,10 @@ void __sync_icache_dcache(pte_t pte)
+ {
+ 	struct page *page = pte_page(pte);
+ 
+-	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
++	if (!test_bit(PG_dcache_clean, &page->flags)) {
+ 		sync_icache_aliases(page_address(page), page_size(page));
++		set_bit(PG_dcache_clean, &page->flags);
++	}
+ }
+ EXPORT_SYMBOL_GPL(__sync_icache_dcache);
+ 
