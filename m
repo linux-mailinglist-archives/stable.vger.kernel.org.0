@@ -2,99 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 953D93808E9
-	for <lists+stable@lfdr.de>; Fri, 14 May 2021 13:51:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 890C13808F8
+	for <lists+stable@lfdr.de>; Fri, 14 May 2021 13:53:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229445AbhENLw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 07:52:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33482 "EHLO mail.kernel.org"
+        id S232805AbhENLzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 07:55:04 -0400
+Received: from foss.arm.com ([217.140.110.172]:48318 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232300AbhENLw0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 May 2021 07:52:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E6CB6145D;
-        Fri, 14 May 2021 11:51:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1620993075;
-        bh=kz1BDm7z8fIltgHA6x06ZGgr+rpZvBQqHlyrbI53hK0=;
-        h=Subject:To:From:Date:From;
-        b=svpZaqcEetQVa4TRLlwE1XUn+ZkhU4B5F7L/oEwbrFcIvGibhqxD41+H7rkOjSZqD
-         joAi1Lx61YXBhKdHuwyt9DtGDyf48PhH5CydIC8zIFd3PFf1YPhF45m+d6VEoQwl4z
-         +aHe3inowG6NDZ1GZsVx6NBImgYmxWsE8YFXyAFs=
-Subject: patch "misc: eeprom: at24: check suspend status before disable regulator" added to char-misc-linus
-To:     hsinyi@chromium.org, bgolaszewski@baylibre.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 14 May 2021 13:51:13 +0200
-Message-ID: <162099307320761@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S232617AbhENLzE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 May 2021 07:55:04 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9E9251476;
+        Fri, 14 May 2021 04:53:52 -0700 (PDT)
+Received: from e123648.arm.com (unknown [10.57.31.97])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id F15723F73B;
+        Fri, 14 May 2021 04:53:50 -0700 (PDT)
+From:   Lukasz Luba <lukasz.luba@arm.com>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, daniel.lezcano@linaro.org,
+        rui.zhang@intel.com, lukasz.luba@arm.com
+Subject: [STABLE][PATCH 4.9] thermal/core/fair share: Lock the thermal zone while looping over instances
+Date:   Fri, 14 May 2021 12:53:27 +0100
+Message-Id: <20210514115327.26910-1-lukasz.luba@arm.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit fef05776eb02238dcad8d5514e666a42572c3f32 upstream.
 
-This is a note to let you know that I've just added the patch titled
+The tz->lock must be hold during the looping over the instances in that
+thermal zone. This lock was missing in the governor code since the
+beginning, so it's hard to point into a particular commit.
 
-    misc: eeprom: at24: check suspend status before disable regulator
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 2962484dfef8dbb7f9059822bc26ce8a04d0e47c Mon Sep 17 00:00:00 2001
-From: Hsin-Yi Wang <hsinyi@chromium.org>
-Date: Tue, 20 Apr 2021 21:30:50 +0800
-Subject: misc: eeprom: at24: check suspend status before disable regulator
-
-cd5676db0574 ("misc: eeprom: at24: support pm_runtime control") disables
-regulator in runtime suspend. If runtime suspend is called before
-regulator disable, it will results in regulator unbalanced disabling.
-
-Fixes: cd5676db0574 ("misc: eeprom: at24: support pm_runtime control")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Link: https://lore.kernel.org/r/20210420133050.377209-1-hsinyi@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: stable@vger.kernel.org # 4.9
+Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
 ---
- drivers/misc/eeprom/at24.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Hi all,
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 926408b41270..7a6f01ace78a 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -763,7 +763,8 @@ static int at24_probe(struct i2c_client *client)
- 	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
- 	if (IS_ERR(at24->nvmem)) {
- 		pm_runtime_disable(dev);
--		regulator_disable(at24->vcc_reg);
-+		if (!pm_runtime_status_suspended(dev))
-+			regulator_disable(at24->vcc_reg);
- 		return PTR_ERR(at24->nvmem);
- 	}
+I've backported my patch which was sent to LKML:
+https://lore.kernel.org/linux-pm/20210422153624.6074-2-lukasz.luba@arm.com/
+
+The upstream patch failed while applying:
+https://lore.kernel.org/stable/1620637149191139@kroah.com/
+
+This patch should apply to stable v4.9.y, on top of stable tree branch:
+linux-4.9.y which head was at:
+commit 7eafd3bfea5a ("Linux 4.9.268")
+
+Regards,
+Lukasz Luba
+
+
+ drivers/thermal/fair_share.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/thermal/fair_share.c b/drivers/thermal/fair_share.c
+index 68bd1b569118..da01b128c9a2 100644
+--- a/drivers/thermal/fair_share.c
++++ b/drivers/thermal/fair_share.c
+@@ -93,6 +93,8 @@ static int fair_share_throttle(struct thermal_zone_device *tz, int trip)
+ 	int total_instance = 0;
+ 	int cur_trip_level = get_trip_level(tz);
  
-@@ -774,7 +775,8 @@ static int at24_probe(struct i2c_client *client)
- 	err = at24_read(at24, 0, &test_byte, 1);
- 	if (err) {
- 		pm_runtime_disable(dev);
--		regulator_disable(at24->vcc_reg);
-+		if (!pm_runtime_status_suspended(dev))
-+			regulator_disable(at24->vcc_reg);
- 		return -ENODEV;
++	mutex_lock(&tz->lock);
++
+ 	list_for_each_entry(instance, &tz->thermal_instances, tz_node) {
+ 		if (instance->trip != trip)
+ 			continue;
+@@ -121,6 +123,8 @@ static int fair_share_throttle(struct thermal_zone_device *tz, int trip)
+ 		mutex_unlock(&instance->cdev->lock);
+ 		thermal_cdev_update(cdev);
  	}
++
++	mutex_unlock(&tz->lock);
+ 	return 0;
+ }
  
 -- 
-2.31.1
-
+2.17.1
 
