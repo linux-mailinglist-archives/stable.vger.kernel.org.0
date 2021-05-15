@@ -2,73 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1AF38148F
-	for <lists+stable@lfdr.de>; Sat, 15 May 2021 02:27:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 872A1381490
+	for <lists+stable@lfdr.de>; Sat, 15 May 2021 02:27:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234494AbhEOA2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 20:28:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43356 "EHLO mail.kernel.org"
+        id S234513AbhEOA23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 20:28:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230022AbhEOA2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 May 2021 20:28:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E39761446;
-        Sat, 15 May 2021 00:27:07 +0000 (UTC)
+        id S230022AbhEOA22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 May 2021 20:28:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2B6C61440;
+        Sat, 15 May 2021 00:27:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1621038427;
-        bh=DhcuA4EivNVuq4ZDGwN7CQQyCFo4+IQDgT/eQDfSkv0=;
+        s=korg; t=1621038436;
+        bh=q9VfCXkCafejL6EKzUf8WpxrHYOGYl3QKNbY6MS0ZwE=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=JMINWsinS52HeYjlwDq8yMhjBF0cbxD7jFVNFNpG1Iz1N/FHJEjV7BaDYX9fEGONs
-         EK7J9ybW6td7va0FIYtO2zFxH0k2cyznoovlTObu24/0qxUFzbt67e61oS7C5U6qEc
-         7kCtsmsoXC2OJK2fos1neoFa4HfjwXtKw8XtkwZw=
-Date:   Fri, 14 May 2021 17:27:07 -0700
+        b=IZoHGCudut9IE1aBxKhz8YzLZukXQiHZUJbLvARVBgPG2jb5/W/ge6KpzQlRpFybw
+         oC53iud82uz/59+6qcF6gk3k1HQjXdzbc69WYoq9XE7XwHdJG5cm2YcwvxJAnyJV3v
+         FOmiX8taKo0WbVrAquX9sL65ta+OwJfyL2xKmKPE=
+Date:   Fri, 14 May 2021 17:27:16 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, hughd@google.com,
-        joel@joelfernandes.org, linux-mm@kvack.org,
-        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
-        peterx@redhat.com, stable@vger.kernel.org,
+To:     akpm@linux-foundation.org, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, phillip@squashfs.org.uk,
+        stable@vger.kernel.org,
+        syzbot+7b98870d4fec9447b951@syzkaller.appspotmail.com,
+        syzbot+e8f781243ce16ac2f962@syzkaller.appspotmail.com,
         torvalds@linux-foundation.org
-Subject:  [patch 02/13] mm/hugetlb: fix cow where page writtable in
- child
-Message-ID: <20210515002707.LZb1SqAkO%akpm@linux-foundation.org>
+Subject:  [patch 05/13] squashfs: fix divide error in
+ calculate_skip()
+Message-ID: <20210515002716.xFCvUKslt%akpm@linux-foundation.org>
 In-Reply-To: <20210514172634.9018621171d5334ceee97e95@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/hugetlb: fix cow where page writtable in child
+From: Phillip Lougher <phillip@squashfs.org.uk>
+Subject: squashfs: fix divide error in calculate_skip()
 
-When rework early cow of pinned hugetlb pages, we moved huge_ptep_get()
-upper but overlooked a side effect that the huge_ptep_get() will fetch the
-pte after wr-protection.  After moving it upwards, we need explicit
-wr-protect of child pte or we will keep the write bit set in the child
-process, which could cause data corrution where the child can write to the
-original page directly.
+Sysbot has reported a "divide error" which has been identified as being
+caused by a corrupted file_size value within the file inode.  This value
+has been corrupted to a much larger value than expected.
 
-This issue can also be exposed by "memfd_test hugetlbfs" kselftest.
+Calculate_skip() is passed i_size_read(inode) >> msblk->block_log.  Due to
+the file_size value corruption this overflows the int argument/variable in
+that function, leading to the divide error.
 
-Link: https://lkml.kernel.org/r/20210503234356.9097-3-peterx@redhat.com
-Fixes: 4eae4efa2c299 ("hugetlb: do early cow when page pinned on src mm")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
+This patch changes the function to use u64.  This will accommodate any
+unexpectedly large values due to corruption.
+
+The value returned from calculate_skip() is clamped to be never more than
+SQUASHFS_CACHED_BLKS - 1, or 7.  So file_size corruption does not lead to
+an unexpectedly large return result here.
+
+Link: https://lkml.kernel.org/r/20210507152618.9447-1-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: <syzbot+e8f781243ce16ac2f962@syzkaller.appspotmail.com>
+Reported-by: <syzbot+7b98870d4fec9447b951@syzkaller.appspotmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/hugetlb.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/squashfs/file.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/mm/hugetlb.c~mm-hugetlb-fix-cow-where-page-writtable-in-child
-+++ a/mm/hugetlb.c
-@@ -4056,6 +4056,7 @@ again:
- 				 * See Documentation/vm/mmu_notifier.rst
- 				 */
- 				huge_ptep_set_wrprotect(src, addr, src_pte);
-+				entry = huge_pte_wrprotect(entry);
- 			}
+--- a/fs/squashfs/file.c~squashfs-fix-divide-error-in-calculate_skip
++++ a/fs/squashfs/file.c
+@@ -211,11 +211,11 @@ failure:
+  * If the skip factor is limited in this way then the file will use multiple
+  * slots.
+  */
+-static inline int calculate_skip(int blocks)
++static inline int calculate_skip(u64 blocks)
+ {
+-	int skip = blocks / ((SQUASHFS_META_ENTRIES + 1)
++	u64 skip = blocks / ((SQUASHFS_META_ENTRIES + 1)
+ 		 * SQUASHFS_META_INDEXES);
+-	return min(SQUASHFS_CACHED_BLKS - 1, skip + 1);
++	return min((u64) SQUASHFS_CACHED_BLKS - 1, skip + 1);
+ }
  
- 			page_dup_rmap(ptepage, true);
+ 
 _
