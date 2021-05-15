@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C5C3818C2
-	for <lists+stable@lfdr.de>; Sat, 15 May 2021 14:36:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5C93818C4
+	for <lists+stable@lfdr.de>; Sat, 15 May 2021 14:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232046AbhEOMhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 May 2021 08:37:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53846 "EHLO mail.kernel.org"
+        id S230185AbhEOMjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 May 2021 08:39:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229940AbhEOMhc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 May 2021 08:37:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB047613D1;
-        Sat, 15 May 2021 12:36:18 +0000 (UTC)
+        id S229939AbhEOMjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 May 2021 08:39:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A5F261350;
+        Sat, 15 May 2021 12:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621082179;
-        bh=DYhUjELw4sGNKDQ8TJzoDafQWoTomHZMWoTCJryhNas=;
+        s=k20201202; t=1621082272;
+        bh=WWmIcDr+upD+zMR4OAwOdU85NgJDtBBZrripByMit1Q=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XrPtnvzbT9TIcBBiKe+N99ruEVwlb3YXLRXKe7gQuPdZUuTwHpl+vKmg0U6Gz+ldF
-         1HKwoWO0Rudldovzix932wD4+m4JDnq2c7YRkugItmT8WKwtdaU9rE3mIoGOZwwGZg
-         CZ1xGk57yLx3NBiaSVRgRZ31WmhUZLQY0HmNbZWbd3fZqu5k8lsoH3ZHIDuDOOTtoV
-         rcndJ6o36T8SlIGFCzclBcwK10KQ1JAxq/SWe7N8B900QBTewoyyBVj16MmlwFXWIi
-         ++MPD2PULtQKHrf9GCSKakm6qpZq4nUw6KXTtEEfqFcX80Jt8qWfxIHWcC2+vkknlb
-         3S9v2LdlcXlLw==
-Date:   Sat, 15 May 2021 08:36:17 -0400
+        b=nySE0fBfryfKF+rshyLcMs7t/1v7b4R0V0KLXItzs4dRbgZ/otlNr2ilyptzWULHH
+         VlJpTY1LxhSLRwxyuMpvG89ABDLRltUqFsLy9jvG4Pm/jsXjhuMvvMMzxG4nwoak4m
+         M6wc5GcW4q9VBLTwW02Lxlts/xhpRWHcHh8BZFU2Q7EmIoW5PbXxbGkXCKRjCdPFV2
+         9owMf+B94QI78NXNoI4yMbBgv+Uv5VO5df/hxEEbMTlpo/QJyVD4U6WkIfKIqZIU4u
+         r7eSRgxH9KMvzXGODm2LVNKHHAtxWIga2KVNM2xRisCPc83ektRhMD9Sfma+z2H3dQ
+         kyvoplcTlnoxg==
+Date:   Sat, 15 May 2021 08:37:51 -0400
 From:   Sasha Levin <sashal@kernel.org>
 To:     Marc Zyngier <maz@kernel.org>
 Cc:     stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>,
         Mark Rutland <mark.rutland@arm.com>
 Subject: Re: Patch "arm64: entry: factor irq triage logic into macros" has
  been added to the 5.12-stable tree
-Message-ID: <YJ/AQUOJCJMXVsle@sashalap>
+Message-ID: <YJ/An4/uSrxeaqFp@sashalap>
 References: <20210515021826.35E98613F2@mail.kernel.org>
  <87a6ow5lg2.wl-maz@kernel.org>
 MIME-Version: 1.0
@@ -103,7 +103,9 @@ On Sat, May 15, 2021 at 11:40:45AM +0100, Marc Zyngier wrote:
 >Unless there is a another pressing reason for adding this patch, I
 >suggest it is dropped from 5.10, 5.11 and 5.12 stable branches.
 
-I'll drop it, thanks!
+Actually, looks like I took it to make 4d6a38da8e79 ("arm64: entry:
+always set GIC_PRIO_PSR_I_SET during entry") apply easier, does it make
+sense to keep it in this scenario?
 
 -- 
 Thanks,
