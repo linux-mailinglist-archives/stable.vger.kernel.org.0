@@ -2,119 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E85B381494
-	for <lists+stable@lfdr.de>; Sat, 15 May 2021 02:27:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 792A63814AD
+	for <lists+stable@lfdr.de>; Sat, 15 May 2021 02:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234524AbhEOA2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 20:28:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44072 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230022AbhEOA2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 May 2021 20:28:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0705B61440;
-        Sat, 15 May 2021 00:27:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1621038454;
-        bh=5TKQccw0MfrPcBro+UF6pP1bAi79nl8XEtlMz/Eb7KU=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=Wwg+CCI4p7eGLnxLqkFKQUdnEXuHkZwRP2dl1wKHREtypRr95DIexmQbg7hPrjZUV
-         SpYdNMFhJ99nsJdfYVoa78q8dTFFZGAchrbLNCwAwZMlVLg+4lm6yV43OKQqtiQNhd
-         Xz0zdjaa2dcAfo7/BwyRlgw9YtOEy9SyP71wqHjQ=
-Date:   Fri, 14 May 2021 17:27:33 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, anatoly.trosinenko@gmail.com,
-        anton@tuxera.com, jouni.roivas@tuxera.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, slava@dubeyko.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 11/13] hfsplus: prevent corruption in shrinking
- truncate
-Message-ID: <20210515002733.KxUyvD09_%akpm@linux-foundation.org>
-In-Reply-To: <20210514172634.9018621171d5334ceee97e95@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S234551AbhEOAiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 20:38:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46760 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234550AbhEOAiO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 May 2021 20:38:14 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9D5DC06174A
+        for <stable@vger.kernel.org>; Fri, 14 May 2021 17:37:01 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id t30so512252pgl.8
+        for <stable@vger.kernel.org>; Fri, 14 May 2021 17:37:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=CkicS9B1dwslFTMegJKuzp5hndRKuXz3yMMm5wo2mqc=;
+        b=kyuLgJXZnXq2X8jilak+4anSMYz2rdaGK5+tZ8+XiVk/LOG4bmF/v9RQpfFUJvZc2S
+         wxsV9JSvb95C9JKRM8Ihk06o/3F/4G1rymJW5mtNbo3EdV42vqMgMuEyTxivk/VFB5WJ
+         Z+d7JOHfoa35q4DRkSIW0bVM9xcc/cIpf2sGkscqmqh0Y++FsS4/bQs8xi/ux7aXRsse
+         shWWFpwMA5C2OIG7O59FMuPNYlc4GSpukSNIG7h9++iV50ZfkJvM+vc7TYJ/LN/Cfse5
+         JwC03tH9A2blSsNwVz4DJrlFmcvv9Ky21WYBhhop9SPZ4m2MTvnyZuxag0yMoYA1Nsqr
+         OMPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=CkicS9B1dwslFTMegJKuzp5hndRKuXz3yMMm5wo2mqc=;
+        b=re/9F0gq0LG22vJwiztIT4B4BzfHcAQDwemgwQoDQrg4VG1ZDFiqhF8pU74gBujFW7
+         FMcBq6Dt61Iibz/LGg1Ozjr6bqLd65ilIUrPWm5aq+uGMgEACxTW4ooVNVvYGmZlo9Jp
+         efnbGmeQw4KztU5c2oja706JpHRke7A/nUWRz8rgCi43baXYX4UDGqqJnyCCz1znE8MA
+         IVlDjPFhE4moK1yj7yZEiCfiHW/Ou+w8+uoB/KX34hdIpngb1YmrSwlvLbf3QyDwgdeI
+         wbOV8Eo1NuohPLERGdfRRzBHacrvR8OoxxRccB5w9+wMkux6oQeYxbr0QHXrDr19CJq2
+         6tRA==
+X-Gm-Message-State: AOAM533GD240dS0cL0akukpGlNFZW1GlsLkVk+k5agSg+0SLn4oSopkn
+        DCTTYKVsEQBiiXOuvf3PW41FNvwlzy+F+yB87V8=
+X-Google-Smtp-Source: ABdhPJz3t79Q9mdj4gcnpzlzwBlL0b4CSN2ctUO7W98X3YLtoYxyaOKKJMsi5jL0gVkUTNwTKU1Jz6E6ag7xpuQngF4=
+X-Received: by 2002:aa7:842a:0:b029:28d:f82e:a4ba with SMTP id
+ q10-20020aa7842a0000b029028df82ea4bamr48911807pfn.33.1621039021100; Fri, 14
+ May 2021 17:37:01 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a05:6a10:d5a8:0:0:0:0 with HTTP; Fri, 14 May 2021 17:37:00
+ -0700 (PDT)
+Reply-To: mrs.donna_horton@yahoo.com
+From:   Mrs Donna Horton <mrs.zainnabamanimohammed@gmail.com>
+Date:   Fri, 14 May 2021 17:37:00 -0700
+Message-ID: <CA+mPrwL5CcvRaxxgF4cLPARnG7WV4xZKsk_nhP8peuOZgcS=aQ@mail.gmail.com>
+Subject: YOUR ATM VISAS CARD
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Roivas <jouni.roivas@tuxera.com>
-Subject: hfsplus: prevent corruption in shrinking truncate
+-- 
+Your registration code [E3O6M6Y].
 
-I believe there are some issues introduced by commit 31651c607151
-("hfsplus: avoid deadlock on file truncation")
+I Just received a call from Mr. PatricK Addaco the Director Of DHL Company
+Benin that ( $6.5 Million ) ATM Visa CARD compensation which sent to
+you was returned back to his office due to wrong address provided,They
+need the reconfirmation of the below information:
 
-HFS+ has extent records which always contains 8 extents.  In case the
-first extent record in catalog file gets full, new ones are allocated from
-extents overflow file.
+1.Your Full Name_____
+2.Your Home AND Address______
+3.Your Phone and Cell Number____
+5.Your Age/Sex______
+6.Your Country_____
+7.Your Occupation_____
 
-In case shrinking truncate happens to middle of an extent record which
-locates in extents overflow file, the logic in hfsplus_file_truncate() was
-changed so that call to hfs_brec_remove() is not guarded any more.
+Best Regards,
 
-Right action would be just freeing the extents that exceed the new size
-inside extent record by calling hfsplus_free_extents(), and then check if
-the whole extent record should be removed.  However since the guard
-(blk_cnt > start) is now after the call to hfs_brec_remove(), this has
-unfortunate effect that the last matching extent record is removed
-unconditionally.
+DHL Delivery Office
+Please contact E-mail:dhldeliverry@post.com
 
-To reproduce this issue, create a file which has at least 10 extents, and
-then perform shrinking truncate into middle of the last extent record, so
-that the number of remaining extents is not under or divisible by 8.  This
-causes the last extent record (8 extents) to be removed totally instead of
-truncating into middle of it.  Thus this causes corruption, and lost data.
-
-Fix for this is simply checking if the new truncated end is below the
-start of this extent record, making it safe to remove the full extent
-record.  However call to hfs_brec_remove() can't be moved to it's previous
-place since we're dropping ->tree_lock and it can cause a race condition
-and the cached info being invalidated possibly corrupting the node data.
-
-Another issue is related to this one.  When entering into the block
-(blk_cnt > start) we are not holding the ->tree_lock.  We break out from
-the loop not holding the lock, but hfs_find_exit() does unlock it.  Not
-sure if it's possible for someone else to take the lock under our feet,
-but it can cause hard to debug errors and premature unlocking.  Even if
-there's no real risk of it, the locking should still always be kept in
-balance.  Thus taking the lock now just before the check.
-
-Link: https://lkml.kernel.org/r/20210429165139.3082828-1-jouni.roivas@tuxera.com
-Fixes: 31651c607151f ("hfsplus: avoid deadlock on file truncation")
-Signed-off-by: Jouni Roivas <jouni.roivas@tuxera.com>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/hfsplus/extents.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
---- a/fs/hfsplus/extents.c~hfsplus-prevent-corruption-in-shrinking-truncate
-+++ a/fs/hfsplus/extents.c
-@@ -598,13 +598,15 @@ void hfsplus_file_truncate(struct inode
- 		res = __hfsplus_ext_cache_extent(&fd, inode, alloc_cnt);
- 		if (res)
- 			break;
--		hfs_brec_remove(&fd);
- 
--		mutex_unlock(&fd.tree->tree_lock);
- 		start = hip->cached_start;
-+		if (blk_cnt <= start)
-+			hfs_brec_remove(&fd);
-+		mutex_unlock(&fd.tree->tree_lock);
- 		hfsplus_free_extents(sb, hip->cached_extents,
- 				     alloc_cnt - start, alloc_cnt - blk_cnt);
- 		hfsplus_dump_extent(hip->cached_extents);
-+		mutex_lock(&fd.tree->tree_lock);
- 		if (blk_cnt > start) {
- 			hip->extent_state |= HFSPLUS_EXT_DIRTY;
- 			break;
-@@ -612,7 +614,6 @@ void hfsplus_file_truncate(struct inode
- 		alloc_cnt = start;
- 		hip->cached_start = hip->cached_blocks = 0;
- 		hip->extent_state &= ~(HFSPLUS_EXT_DIRTY | HFSPLUS_EXT_NEW);
--		mutex_lock(&fd.tree->tree_lock);
- 	}
- 	hfs_find_exit(&fd);
- 
-_
+Mrs Donna Horton
+(ATM) Processing Manager
