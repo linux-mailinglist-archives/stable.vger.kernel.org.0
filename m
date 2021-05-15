@@ -2,141 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B28381672
-	for <lists+stable@lfdr.de>; Sat, 15 May 2021 09:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34D2B3816A8
+	for <lists+stable@lfdr.de>; Sat, 15 May 2021 09:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232508AbhEOHMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 May 2021 03:12:32 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:33617 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232364AbhEOHMb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 May 2021 03:12:31 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id D3EA55C00BE;
-        Sat, 15 May 2021 03:11:18 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sat, 15 May 2021 03:11:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=5r4qNJ6Slnn2w
-        YcWFM1v2Bcgl5wWb46dH9GLsqSOK5g=; b=mZUrFzC0CFIcTq4801vGgFTf1LJ2E
-        c0rCfOXRaOONWhG9mqeyeuhf41nDzA5f6/NqduH92tmuZw9QSujg3CCJcAhpjhbk
-        JCR/iTd29PNJyrUMIVcPget27LD4qGrkN9/94PLfHdBctW8f1rDydJgZtKO/4YDC
-        S5JHKODFpkj1wznxz9AgiU5e5R5tSVb3OzlCltbRdUkpQ9rr4P56TyVasxxOBhTH
-        BBoJ05AO5MOT5TnNOAX4FXf8IsI3r1i1XJRdsqfSxhf8ha6tMxWWKCa6drTWahOG
-        D+wRCVslzTLYfnoU4wUhNjTzO85U5d0i4cnNei2zKF2iS0S7Y0HLFkjxQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; bh=5r4qNJ6Slnn2wYcWFM1v2Bcgl5wWb46dH9GLsqSOK5g=; b=g0pJR6V0
-        CHni31HLcbo4Bf1ZmMuQcoWIznT19CIO35yjDyWpPgtvWuTeYUnkAvT1fU8XmThm
-        g/GAIcuRj7LUVQTyewmUUxDi2COqDW0VJkj1oszm0QO2uxU+dzWCVXO7nFApynsZ
-        J3GUHL8jKqepcPC8MwedGsSnUJ65Iv6OdrK+ubfirsCm0/tDzJBrsdFN+TIViIuD
-        yP/oDI9Q+YZLE0GjEGvy9gq53MgUskBy2E32KthHLH9VvlWHegFnqxo0/IEnhAcH
-        iQP/nuLuMbqrkP7K/2PiNYm6NzBLT+ljN0nUSrmVrfPwnFLB2E2Ie48WKHRQNfLZ
-        w+35eFE+fpfGGQ==
-X-ME-Sender: <xms:FnSfYIVZZ80sl_dLmTj1Gwk9Ry3A4-kLrT-RyEMdrtJgDdiwSBX26g>
-    <xme:FnSfYMm3AHSHpDcY4GQ3uhMaLLoSgr5bq0dqzbsVEjyOpNUDbc963f-seum-zsCcr
-    u-7YKNISV1ZH-G7AaQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdehledguddtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekre
-    dtredttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgr
-    shhhihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepveefffefke
-    etgfevgeefleehfffhueejtdejveethfekveektdejjedvtdejhfejnecukfhppedugedr
-    fedrieehrddujeehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
-    hfrhhomhepohdqthgrkhgrshhhihesshgrkhgrmhhotggthhhirdhjph
-X-ME-Proxy: <xmx:FnSfYMYuGbzNO9x04feFAMXSUs4pK_BFpbDFdRbgf420DH544fCxYw>
-    <xmx:FnSfYHU6Ks7R9ANz9OsgUDzyhtHqtp9AxHwBAU9Pxn5qCdY9I77x-g>
-    <xmx:FnSfYCnGn07Vp_flzU8VJflYQNSEzvqqknsslp1SxwsmFKTxi_QxBw>
-    <xmx:FnSfYGs_AAeA9n8umL3axbXJGyKvFtnEE-b6lXA0faRklox-rD6tcg>
-Received: from workstation.flets-east.jp (ae065175.dynamic.ppp.asahi-net.or.jp [14.3.65.175])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 15 May 2021 03:11:17 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     tiwai@suse.de
-Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2 01/10] Revert "ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro"
-Date:   Sat, 15 May 2021 16:11:03 +0900
-Message-Id: <20210515071112.101535-2-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210515071112.101535-1-o-takashi@sakamocchi.jp>
-References: <20210515071112.101535-1-o-takashi@sakamocchi.jp>
+        id S233689AbhEOHzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 May 2021 03:55:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233650AbhEOHzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 May 2021 03:55:18 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42396C06174A
+        for <stable@vger.kernel.org>; Sat, 15 May 2021 00:54:05 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id k15so949868pgb.10
+        for <stable@vger.kernel.org>; Sat, 15 May 2021 00:54:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Et7JTAyYXoU1+Du00FhaE2zMyV2u6lCkO9LcK318ziM=;
+        b=dOJyWP55r9qR2APj40v92WhgBjipREfA/1+Xt6c+NoYOSQETADeq5P+yWs9n6uA/at
+         fCJuyFDJIo+fBM+nrcjOzS4nnLrxAYA7Ys1h/YXRE30YW+X4GYoVUm/wo0JwanXUOc+7
+         9TuC5NM0NITS/0L28J0b/sEjwcGivXF/lxNygzNJKhofjHzgVcQGcogAvg4ygko8bq1K
+         INjUWq8/KgrlUBMZD8u4evOTAGi2UHY6ijUePSLYVOZZh7MAcNU+hOLANL6001u4ZFP7
+         Rp6SDUDPtArh4O+Z9OLHEP7wLIvHKnGxBstELP3FBN1ot7PkG3ETIWxtgzRJ0/xN9x5T
+         wVIQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Et7JTAyYXoU1+Du00FhaE2zMyV2u6lCkO9LcK318ziM=;
+        b=tVO4oEkMeFZFla5I90G/eme0DTOtHHQ38HRXtR2WKdNd1n5+2u6hYTAeyZp44VsUgH
+         6LFBcWU5jEnHEuFvPKA9vLGwJB27TX9QCze7FB7pgI+REZ6MVIi+fx6McREysVcpQFzq
+         +1Fy7BboDmEOyIfkFy3fZ2Ca2HwHYhdkFVnfER1wmgjXIIzE4k7HaE7I+HeaU83UZMT+
+         oskzx+cgaeHbUMyWvjSDD/MxRPnTS3RW2Gwg3fqRdZPlj5eytjont1syeVHsfrLTElA5
+         pzPS7QFmPTUmocEJXRw2cUyf72I0D53DJnJtH+HkskeMb37yk4rWzS7MFXSks5dUvUyK
+         OwgA==
+X-Gm-Message-State: AOAM53224tN2Bvoae68c4hQoOXD/xbGrJKozcZ3Fjgh+9xHTaXCikMX9
+        egP20D04TZVT8tmUMYnuFWbJ7VZVfYvIpYSF
+X-Google-Smtp-Source: ABdhPJxJ5F2aqCRIjafgXnpcYdaWj8+9IIq0vmWjbwf6TZNSKir8kngSKkswNyrqEp1bxpQ6dTo7oA==
+X-Received: by 2002:aa7:8503:0:b029:27d:497f:1da6 with SMTP id v3-20020aa785030000b029027d497f1da6mr50694618pfn.28.1621065244425;
+        Sat, 15 May 2021 00:54:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p9sm10546377pjb.32.2021.05.15.00.54.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 15 May 2021 00:54:04 -0700 (PDT)
+Message-ID: <609f7e1c.1c69fb81.9f8be.306c@mx.google.com>
+Date:   Sat, 15 May 2021 00:54:04 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.232-275-g634dd92321ca
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 101 runs,
+ 5 regressions (v4.14.232-275-g634dd92321ca)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 0edabdfe89581669609eaac5f6a8d0ae6fe95e7f.
+stable-rc/queue/4.14 baseline: 101 runs, 5 regressions (v4.14.232-275-g634d=
+d92321ca)
 
-I've explained that optional FireWire card for d.2 is also built-in to
-d.2 Pro, however it's wrong. The optional card uses DM1000 ASIC and has
-'Mackie DJ Mixer' in its model name of configuration ROM. On the other
-hand, built-in FireWire card for d.2 Pro and d.4 Pro uses OXFW971 ASIC
-and has 'd.Pro' in its model name according to manuals and user
-experiences. The former card is not the card for d.2 Pro. They are similar
-in appearance but different internally.
+Regressions Summary
+-------------------
 
-Fixes: 0edabdfe8958 ("ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
----
- sound/firewire/Kconfig       | 4 ++--
- sound/firewire/bebob/bebob.c | 2 +-
- sound/firewire/oxfw/oxfw.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
 
-diff --git a/sound/firewire/Kconfig b/sound/firewire/Kconfig
-index 9897bd26a438..def1f3d5ecf5 100644
---- a/sound/firewire/Kconfig
-+++ b/sound/firewire/Kconfig
-@@ -38,7 +38,7 @@ config SND_OXFW
- 	   * Mackie(Loud) Onyx 1640i (former model)
- 	   * Mackie(Loud) Onyx Satellite
- 	   * Mackie(Loud) Tapco Link.Firewire
--	   * Mackie(Loud) d.4 pro
-+	   * Mackie(Loud) d.2 pro/d.4 pro (built-in FireWire card with OXFW971 ASIC)
- 	   * Mackie(Loud) U.420/U.420d
- 	   * TASCAM FireOne
- 	   * Stanton Controllers & Systems 1 Deck/Mixer
-@@ -84,7 +84,7 @@ config SND_BEBOB
- 	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
- 	  * BridgeCo RDAudio1/Audio5
- 	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
--	  * Mackie d.2 (FireWire Option) and d.2 Pro
-+	  * Mackie d.2 (optional FireWire card with DM1000 ASIC)
- 	  * Stanton FinalScratch 2 (ScratchAmp)
- 	  * Tascam IF-FW/DM
- 	  * Behringer XENIX UFX 1204/1604
-diff --git a/sound/firewire/bebob/bebob.c b/sound/firewire/bebob/bebob.c
-index daeecfa8b9aa..90e98a6d1546 100644
---- a/sound/firewire/bebob/bebob.c
-+++ b/sound/firewire/bebob/bebob.c
-@@ -387,7 +387,7 @@ static const struct ieee1394_device_id bebob_id_table[] = {
- 	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
- 	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
--	// Mackie, d.2 (Firewire option card) and d.2 Pro (the card is built-in).
-+	// Mackie, d.2 (optional Firewire card with DM1000).
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE1, 0x00010067, &spec_normal),
- 	/* Stanton, ScratchAmp */
- 	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
-diff --git a/sound/firewire/oxfw/oxfw.c b/sound/firewire/oxfw/oxfw.c
-index 9eea25c46dc7..5490637d278a 100644
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -355,7 +355,7 @@ static const struct ieee1394_device_id oxfw_id_table[] = {
- 	 *  Onyx-i series (former models):	0x081216
- 	 *  Mackie Onyx Satellite:		0x00200f
- 	 *  Tapco LINK.firewire 4x6:		0x000460
--	 *  d.4 pro:				Unknown
-+	 *  d.2 pro/d.4 pro (built-in card):	Unknown
- 	 *  U.420:				Unknown
- 	 *  U.420d:				Unknown
- 	 */
--- 
-2.27.0
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
 
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.232-275-g634dd92321ca/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.232-275-g634dd92321ca
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      634dd92321caa3b72e2f1639902b5afb484200e6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609f4fc5aa603ee2c9b3afb6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609f4fc5aa603ee2c9b3a=
+fb7
+        failing since 74 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
+t fail: v4.14.222-120-gdc8887cba23e) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609f494502cb3f3c17b3afa8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609f494502cb3f3c17b3a=
+fa9
+        failing since 182 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609f4934968e8a66c1b3af9d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609f4934968e8a66c1b3a=
+f9e
+        failing since 182 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609f493a7aea271f15b3afa3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609f493a7aea271f15b3a=
+fa4
+        failing since 182 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609f48f452f092051bb3afc8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
+-275-g634dd92321ca/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609f48f452f092051bb3a=
+fc9
+        failing since 182 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
+t fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
