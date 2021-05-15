@@ -2,130 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD76F381719
-	for <lists+stable@lfdr.de>; Sat, 15 May 2021 11:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8479A381723
+	for <lists+stable@lfdr.de>; Sat, 15 May 2021 11:24:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234534AbhEOJNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 May 2021 05:13:49 -0400
-Received: from bosmailout07.eigbox.net ([66.96.189.7]:48143 "EHLO
-        bosmailout07.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231558AbhEOJNr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 May 2021 05:13:47 -0400
-X-Greylist: delayed 1807 seconds by postgrey-1.27 at vger.kernel.org; Sat, 15 May 2021 05:13:47 EDT
-Received: from bosmailscan04.eigbox.net ([10.20.15.4])
-        by bosmailout07.eigbox.net with esmtp (Exim)
-        id 1lhpsP-0003gz-Lf
-        for stable@vger.kernel.org; Sat, 15 May 2021 04:42:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=0ceans76ui.com; s=dkim; h=Sender:Content-Transfer-Encoding:Content-Type:
-        Message-ID:Reply-To:Subject:To:From:Date:MIME-Version:Cc:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=3wirBH3naU/fo+Jg2knB/fbaSnQSm3L39jPT/gF5zOg=; b=dTA8DbHVnOwTyXUNL/nffF+CR8
-        pA8Wa4KCli4/lBEWfhKSLiOIsnCQ94pCQSID1OTYRvm8zbP1k4YfObWQBYNEF+LOXd/bE5g/doO5u
-        VFSlSOtiw5hXyplRrnmZWE7XqJv+aKjVDqUmjSqPBEEBjuhCJsBnQBQesi1E4aLlp/qt2vfT+fIiF
-        cUdAB7D2PXUT1Ra1TKtbpKzVGQkOjNgtWeXESA6aNQ2Q/1YD0sSqg6+Rdd/O1dgN/wCOJ6w8xT+1p
-        XdV5eSIBlTzXwLLfgZRzNI09deS5rItI2/U6idwy8zKPazTtAnT2jSiDbeCxktukMUqsNTenXH2vC
-        6rBKJiGA==;
-Received: from [10.115.3.33] (helo=bosimpout13)
-        by bosmailscan04.eigbox.net with esmtp (Exim)
-        id 1lhpsM-0000M9-8e; Sat, 15 May 2021 04:42:22 -0400
-Received: from boswebmail10.eigbox.net ([10.20.16.10])
-        by bosimpout13 with 
-        id 4wiG250010D1c4S01wiKex; Sat, 15 May 2021 04:42:22 -0400
-X-EN-SP-DIR: OUT
-X-EN-SP-SQ: 1
-Received: from [127.0.0.1] (helo=homestead)
-        by boswebmail10.eigbox.net with esmtp (Exim)
-        id 1lhprI-0003P4-MY; Sat, 15 May 2021 04:41:16 -0400
-Received: from adsl-ull-201-94.41-151.wind.it ([151.41.94.201])
- by emailmg.homestead.com
- with HTTP (HTTP/1.1 POST); Sat, 15 May 2021 04:41:16 -0400
+        id S234590AbhEOJZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 May 2021 05:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48028 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234585AbhEOJZe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 May 2021 05:25:34 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57218C06174A
+        for <stable@vger.kernel.org>; Sat, 15 May 2021 02:24:20 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id q6so1055110pjj.2
+        for <stable@vger.kernel.org>; Sat, 15 May 2021 02:24:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=AVmKDWhxY/rdvhQs5U714ZHE9rmH3NN0m6xCVMZusRQ=;
+        b=ITyiYDaNfR8ZKH7LonuOJRVFFQRgyjozoRfmzLr6bw4lb9gE5n8rOk1nzB1DANKMPu
+         Y7aRxWoEHjEcOfju/Ox5ZnoiaowtL1zqYqehaBXmRNt9+zFr3zzBRXz3SMtGtKMjQEA5
+         oBoHrr5vpFdMuePOYO39n8UfG8hzd9LLgMd0kgI3u9zC5CIxXYZ4rt0m4nvPvxNQy0IY
+         I7Lbe7VsQCbHM78/Dga1iKCI4uT03cJWj5f+86MFsHCZfi3v9m3M8ntURxcZ2JLBepFd
+         lKAfpiM2b4cKF3QtmuDr4O3Hl6dWeNLZn1QHq/egOP+kmvNNQKtJWfBeMr2BaLmCCZoc
+         VYPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=AVmKDWhxY/rdvhQs5U714ZHE9rmH3NN0m6xCVMZusRQ=;
+        b=RuANJaFA/NxXjVGc91mlRsrxbHyyiHs/qXIYCi0MiNCe2wsn1cS5azitz/P7N+35mj
+         5TE6EJvWEmNCi9EHJ33RfTG+IilCWIKRk464IppoH536qu5b9mV9+G9EZWjtoO9idqv4
+         WumgGMs5ybnN1OXfIUCOJt48PpZqSqXMKp9S08HjK+GDQR2gX9BCC5cXhxM3IDF7xGw/
+         T8+5Z0cBTv7GAvrwQAr+jX68urXLNPOZ/+U3xYkRzd/44VHXgAyZjJir4/IQKEfGZDS4
+         e1uXNiriRgQpIuhyWdMNeBiRPn6QF9N3fd0AofpkEGzws7tRmp7hQIZdIcbBjr4/DsFp
+         PIHA==
+X-Gm-Message-State: AOAM533rhi6oPUcIvq+mdsIlMM9KC7gT/3ilUSdX2r2IlLNI7Sgx+BTl
+        FKrVwZR8yk7g8zSK2FKzJvJNJ3CdjK19zQZF
+X-Google-Smtp-Source: ABdhPJxOFgRmu4eQVmHp5PsyxlfcMIEfYrmsVk3De+hnhXuHYWwmt1TbJlFHwlvBpTZOB9erwMUCPQ==
+X-Received: by 2002:a17:90a:c42:: with SMTP id u2mr56495896pje.76.1621070659346;
+        Sat, 15 May 2021 02:24:19 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m84sm970079pfd.41.2021.05.15.02.24.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 15 May 2021 02:24:18 -0700 (PDT)
+Message-ID: <609f9342.1c69fb81.31894.33b1@mx.google.com>
+Date:   Sat, 15 May 2021 02:24:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Date:   Sat, 15 May 2021 10:41:16 +0200
-From:   "Mrs. Hajjar Mazari Saliba" <saliba@0ceans76ui.com>
-To:     undisclosed-recipients:;
-Subject: ! HUMANITARIAN PROGRAM !
-Reply-To: Mrs.hajjar.saliba@muslim.com
-Mail-Reply-To: Mrs.hajjar.saliba@muslim.com
-Message-ID: <3755486d08449ecdc21b886b5de54133@0ceans76ui.com>
-X-Sender: saliba@0ceans76ui.com
-User-Agent: Roundcube Webmail/1.3.14
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
-X-EN-AuthUser: saliba@0ceans76ui.com
-Sender:  "Mrs. Hajjar Mazari Saliba" <saliba@0ceans76ui.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.11.21-228-g8fe740123b47
+X-Kernelci-Branch: queue/5.11
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.11 baseline: 131 runs,
+ 3 regressions (v5.11.21-228-g8fe740123b47)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.11 baseline: 131 runs, 3 regressions (v5.11.21-228-g8fe74=
+0123b47)
+
+Regressions Summary
+-------------------
+
+platform            | arch  | lab             | compiler | defconfig       =
+    | regressions
+--------------------+-------+-----------------+----------+-----------------=
+----+------------
+imx6ul-pico-hobbit  | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defcon=
+fig | 1          =
+
+imx8mp-evk          | arm64 | lab-nxp         | gcc-8    | defconfig       =
+    | 1          =
+
+r8a77950-salvator-x | arm64 | lab-baylibre    | gcc-8    | defconfig       =
+    | 1          =
 
 
-السلام عليكم
-بارك الله فيك وأنت تقرأ هذه الرسالة بشكل
-جيد أرسلت لك رسالة بريد إلكتروني في وقت
-سابق من سريري في المستشفى. ربما لم يتم
-تسليم رسالتي. يرجى منك وعائلتك البقاء
-آمنة لتجنب ظهور وباء فيروس كورونا. أنا
-السيدة حجار مزار صليبا 81 سنة من الكويت
-كذلك ليس لدي أطفال وزوجي الراحل كان رجل
-أعمال ثري ناجح جدا عندما توفي في حادث
-سيارة في عام 2016 وورثت ثروته.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.11/ker=
+nel/v5.11.21-228-g8fe740123b47/plan/baseline/
 
-قررت المساهمة بمبلغ 6.2 مليون دولار مودعة
-لدى بنك في أفريقيا لوضع برنامج لمساعدة
-الأقل حظا من حولك في بلدك وسوف يكافأ مع 30٪
-لجهودكم والتعاون. يرجى توجيه هذه الرسالة
-إلى المحامي المسؤول لتقديم طلب فوري
-لتحويل الأموال نيابة عنك.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.11
+  Describe: v5.11.21-228-g8fe740123b47
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8fe740123b47470837ba5bab0b7169a1e14475fb =
 
-يرجى عدم الاتصال بالمحامي إذا كنت تنوي
-استخدام هذه الأموال للاستخدام الشخصي،
-باستثناء تحسين الأشخاص الأقل حظا من
-حولك، كما صليت في هذه المسألة أن تكون
-شخصا موثوقا وجديرا بالثقة. من فضلك لا
-تنسى أن تبقي لي في صلاتك شكرا لكم وبارك
-الله.
 
-تفاصيل المحامي. الاسم: المحامي سابينو
-نيلسون البريد الإلكتروني:
-attorneysabinonelson@groupmail.com هاتف: +226 611 904 73
-مع خالص تحياتي! السيدة حجار مزار صليبا
 
-...............ENGLISH................
+Test Regressions
+---------------- =
 
-As Salaam Alaikum
 
-God bless you as you read this message well I sent you an email earlier
-from my hospital bed. Maybe my message was not delivered. Please you and
-your family should stay safe to avoid the onset of the Corona virus
-pandemic. I am Mrs. Hajjar Mazari Saliba 81 years old from Kuwait well I
-have no children and my late husband was a very successful wealthy
-businessman when he died in a car accident in 2016 and I inherited his
-wealth .
 
-I decided to contribute the sum $ 6.2 million deposited with a bank in
-africa to set up a program to help the less privileged around you in 
-your
-Country and you'll be rewarded with 30% for your efforts and 
-collaboration.
-please do forward this letter to the attorney in charge to file 
-immediate
-application for the transfer of the funds on your behalf.
+platform            | arch  | lab             | compiler | defconfig       =
+    | regressions
+--------------------+-------+-----------------+----------+-----------------=
+----+------------
+imx6ul-pico-hobbit  | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defcon=
+fig | 1          =
 
-Please do not contact the lawyer if you intend to use these funds for
-personal use, except for the improvement of the less privileged people
-around you, as I have prayed in this matter that you are reliable and
-trustworthy person. Please don't forget to keep me in your prayer thank 
-you
-and God bless.
 
-The Attorney’s Details.
-Name: Attorney Sabino H. Nelson
-E-Mail: attorneysabinonelson@groupmail.com
-Tel: +226 611 904 73
+  Details:     https://kernelci.org/test/plan/id/609f5fae3ab0cbb1ccb3afa4
 
-Best Regards!
-Mrs. Hajjar Mazari Saliba
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.21-=
+228-g8fe740123b47/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
+x6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.21-=
+228-g8fe740123b47/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
+x6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609f5fae3ab0cbb1ccb3a=
+fa5
+        new failure (last pass: v5.11.21-11-g31d2d8ce497c) =
+
+ =
+
+
+
+platform            | arch  | lab             | compiler | defconfig       =
+    | regressions
+--------------------+-------+-----------------+----------+-----------------=
+----+------------
+imx8mp-evk          | arm64 | lab-nxp         | gcc-8    | defconfig       =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609f60d6ed128ec320b3afb2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.21-=
+228-g8fe740123b47/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.21-=
+228-g8fe740123b47/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609f60d6ed128ec320b3a=
+fb3
+        failing since 0 day (last pass: v5.11.19-941-g171a1cf2230e4, first =
+fail: v5.11.21-11-g31d2d8ce497c) =
+
+ =
+
+
+
+platform            | arch  | lab             | compiler | defconfig       =
+    | regressions
+--------------------+-------+-----------------+----------+-----------------=
+----+------------
+r8a77950-salvator-x | arm64 | lab-baylibre    | gcc-8    | defconfig       =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/609f605caf144154c8b3afb7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.21-=
+228-g8fe740123b47/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-salv=
+ator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.11/v5.11.21-=
+228-g8fe740123b47/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-salv=
+ator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/609f605caf144154c8b3a=
+fb8
+        new failure (last pass: v5.11.21-11-g31d2d8ce497c) =
+
+ =20
