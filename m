@@ -2,94 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C1E3381491
-	for <lists+stable@lfdr.de>; Sat, 15 May 2021 02:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C007381492
+	for <lists+stable@lfdr.de>; Sat, 15 May 2021 02:27:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234517AbhEOA2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 May 2021 20:28:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
+        id S234502AbhEOA2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 May 2021 20:28:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230022AbhEOA2b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 May 2021 20:28:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BAEC61176;
-        Sat, 15 May 2021 00:27:19 +0000 (UTC)
+        id S230022AbhEOA2i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 May 2021 20:28:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EC0361440;
+        Sat, 15 May 2021 00:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1621038439;
-        bh=KsHlOjWWpiWbhUWj38CsS3aihRqJiw43myh9AH5dSng=;
+        s=korg; t=1621038445;
+        bh=SgpnbkSZHTi4AWM+dQwq9Re1kiGetDCBWeaMldKCkCE=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=t3f/TrCCXtal0pbeCTx/WmCrpSeCvvAIlJ/5ZFjnQ2enlcBkDGHY8Uk8Bdy/L1BCo
-         NFVxEpjU3kDwmS//F12UAe/HwkXeAK9oC5D2J2sG/MsW6d9W6O/SXf1dqwj+QXeFmE
-         RlOeO5JXkDJZnXYfaY1FzVXiQx5yBE+HpzdWLfz8=
-Date:   Fri, 14 May 2021 17:27:19 -0700
+        b=eJ6c/FM/b94SZUvBfznpgNhbI63k1+kxTq2SVrBtMlVwJ8u2lG4n2JqZlGzs2fIgQ
+         UfU/+gojbSka0Re0Za1qDDEGgPW94yxG6KCJrnO0Yc15YuBAqLHbgxWbCNTLhYl+Oz
+         NL1/pI/tVeU/MJC/212EzmtqxvZK2YxE0+P45Y34=
+Date:   Fri, 14 May 2021 17:27:24 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, axelrasmussen@google.com,
-        hughd@google.com, linux-mm@kvack.org, mm-commits@vger.kernel.org,
-        peterx@redhat.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 06/13] userfaultfd: release page in error path to
- avoid BUG_ON
-Message-ID: <20210515002719.QX9ZRXcYB%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, brouer@redhat.com,
+        ilias.apalodimas@linaro.org, linux-mm@kvack.org,
+        mcroce@linux.microsoft.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        vbabka@suse.cz, willy@infradead.org
+Subject:  [patch 08/13] mm: fix struct page layout on 32-bit
+ systems
+Message-ID: <20210515002724.4C8uJfcjY%akpm@linux-foundation.org>
 In-Reply-To: <20210514172634.9018621171d5334ceee97e95@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Rasmussen <axelrasmussen@google.com>
-Subject: userfaultfd: release page in error path to avoid BUG_ON
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: mm: fix struct page layout on 32-bit systems
 
-Consider the following sequence of events:
+32-bit architectures which expect 8-byte alignment for 8-byte integers and
+need 64-bit DMA addresses (arm, mips, ppc) had their struct page
+inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
+the alignment of the union to 8 bytes, which inserted a 4 byte gap between
+'flags' and the union.
 
-1. Userspace issues a UFFD ioctl, which ends up calling into
-   shmem_mfill_atomic_pte(). We successfully account the blocks, we
-   shmem_alloc_page(), but then the copy_from_user() fails. We return
-   -ENOENT. We don't release the page we allocated.
-2. Our caller detects this error code, tries the copy_from_user() after
-   dropping the mmap_lock, and retries, calling back into
-   shmem_mfill_atomic_pte().
-3. Meanwhile, let's say another process filled up the tmpfs being used.
-4. So shmem_mfill_atomic_pte() fails to account blocks this time, and
-   immediately returns - without releasing the page.
+Fix this by storing the dma_addr_t in one or two adjacent unsigned longs.
+This restores the alignment to that of an unsigned long.  We always
+store the low bits in the first word to prevent the PageTail bit from
+being inadvertently set on a big endian platform.  If that happened,
+get_user_pages_fast() racing against a page which was freed and
+reallocated to the page_pool could dereference a bogus compound_head(),
+which would be hard to trace back to this cause.
 
-This triggers a BUG_ON in our caller, which asserts that the page
-should always be consumed, unless -ENOENT is returned.
-
-To fix this, detect if we have such a "dangling" page when accounting
-fails, and if so, release it before returning.
-
-Link: https://lkml.kernel.org/r/20210428230858.348400-1-axelrasmussen@google.com
-Fixes: cb658a453b93 ("userfaultfd: shmem: avoid leaking blocks and used blocks in UFFDIO_COPY")
-Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
-Reported-by: Hugh Dickins <hughd@google.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
+Link: https://lkml.kernel.org/r/20210510153211.1504886-1-willy@infradead.org
+Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Tested-by: Matteo Croce <mcroce@linux.microsoft.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/shmem.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ include/linux/mm_types.h |    4 ++--
+ include/net/page_pool.h  |   12 +++++++++++-
+ net/core/page_pool.c     |   12 +++++++-----
+ 3 files changed, 20 insertions(+), 8 deletions(-)
 
---- a/mm/shmem.c~userfaultfd-release-page-in-error-path-to-avoid-bug_on
-+++ a/mm/shmem.c
-@@ -2361,8 +2361,18 @@ static int shmem_mfill_atomic_pte(struct
- 	pgoff_t offset, max_off;
+--- a/include/linux/mm_types.h~mm-fix-struct-page-layout-on-32-bit-systems
++++ a/include/linux/mm_types.h
+@@ -97,10 +97,10 @@ struct page {
+ 		};
+ 		struct {	/* page_pool used by netstack */
+ 			/**
+-			 * @dma_addr: might require a 64-bit value even on
++			 * @dma_addr: might require a 64-bit value on
+ 			 * 32-bit architectures.
+ 			 */
+-			dma_addr_t dma_addr;
++			unsigned long dma_addr[2];
+ 		};
+ 		struct {	/* slab, slob and slub */
+ 			union {
+--- a/include/net/page_pool.h~mm-fix-struct-page-layout-on-32-bit-systems
++++ a/include/net/page_pool.h
+@@ -198,7 +198,17 @@ static inline void page_pool_recycle_dir
  
- 	ret = -ENOMEM;
--	if (!shmem_inode_acct_block(inode, 1))
-+	if (!shmem_inode_acct_block(inode, 1)) {
-+		/*
-+		 * We may have got a page, returned -ENOENT triggering a retry,
-+		 * and now we find ourselves with -ENOMEM. Release the page, to
-+		 * avoid a BUG_ON in our caller.
-+		 */
-+		if (unlikely(*pagep)) {
-+			put_page(*pagep);
-+			*pagep = NULL;
-+		}
- 		goto out;
-+	}
+ static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
+ {
+-	return page->dma_addr;
++	dma_addr_t ret = page->dma_addr[0];
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
++	return ret;
++}
++
++static inline void page_pool_set_dma_addr(struct page *page, dma_addr_t addr)
++{
++	page->dma_addr[0] = addr;
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		page->dma_addr[1] = upper_32_bits(addr);
+ }
  
- 	if (!*pagep) {
- 		page = shmem_alloc_page(gfp, info, pgoff);
+ static inline bool is_page_pool_compiled_in(void)
+--- a/net/core/page_pool.c~mm-fix-struct-page-layout-on-32-bit-systems
++++ a/net/core/page_pool.c
+@@ -174,8 +174,10 @@ static void page_pool_dma_sync_for_devic
+ 					  struct page *page,
+ 					  unsigned int dma_sync_size)
+ {
++	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
++
+ 	dma_sync_size = min(dma_sync_size, pool->p.max_len);
+-	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
++	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
+ 					 pool->p.offset, dma_sync_size,
+ 					 pool->p.dma_dir);
+ }
+@@ -195,7 +197,7 @@ static bool page_pool_dma_map(struct pag
+ 	if (dma_mapping_error(pool->p.dev, dma))
+ 		return false;
+ 
+-	page->dma_addr = dma;
++	page_pool_set_dma_addr(page, dma);
+ 
+ 	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
+ 		page_pool_dma_sync_for_device(pool, page, pool->p.max_len);
+@@ -331,13 +333,13 @@ void page_pool_release_page(struct page_
+ 		 */
+ 		goto skip_dma_unmap;
+ 
+-	dma = page->dma_addr;
++	dma = page_pool_get_dma_addr(page);
+ 
+-	/* When page is unmapped, it cannot be returned our pool */
++	/* When page is unmapped, it cannot be returned to our pool */
+ 	dma_unmap_page_attrs(pool->p.dev, dma,
+ 			     PAGE_SIZE << pool->p.order, pool->p.dma_dir,
+ 			     DMA_ATTR_SKIP_CPU_SYNC);
+-	page->dma_addr = 0;
++	page_pool_set_dma_addr(page, 0);
+ skip_dma_unmap:
+ 	/* This may be the last page returned, releasing the pool, so
+ 	 * it is not safe to reference pool afterwards.
 _
