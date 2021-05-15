@@ -2,66 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A4738176E
-	for <lists+stable@lfdr.de>; Sat, 15 May 2021 12:01:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A74193817B3
+	for <lists+stable@lfdr.de>; Sat, 15 May 2021 12:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229524AbhEOKCY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 May 2021 06:02:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56058 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232260AbhEOKCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 May 2021 06:02:23 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1C6FC061573
-        for <stable@vger.kernel.org>; Sat, 15 May 2021 03:01:08 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id k10so2112062ejj.8
-        for <stable@vger.kernel.org>; Sat, 15 May 2021 03:01:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=PLAxeT0PQJsG+2HzqT/fvhnb4zD5zi4iRgHCq89ua7k=;
-        b=Htxvi+5gGchaaFxCQLvjzRoI0oX3jPCe/vdB4/NkAiFAIAbd8T2/zhwaZ0Pi1wvs27
-         hRzaBIogO1m0bvQew5mIHlum93+0yJojRgy/xN9jpLGnLVGQ0+xLnxXYdgNkRguvzBzX
-         HYv9laXM3omGXOT38Az4My7UmLHrL/BeFEH5YPmz71/VdsnowMRJOPMTsPmjHZ21OF/o
-         yRw4UE8T/f81D0ILvcnvcp63ecuDq5Ndb6CKH3J290FmLFIZKwIkQ4iS7y2UmD5qk1Dg
-         eOXAriYHziLagYB09GUj/NtIbhvx9ieHpTOueKXO+JRhHE/CGrfP8aYBo/llhjtx128N
-         1CEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=PLAxeT0PQJsG+2HzqT/fvhnb4zD5zi4iRgHCq89ua7k=;
-        b=litfrYbRqstF9/0PqMc3G5nr5kNOEkHu1XTzFa0adQBmGWXPjCBGspKcHFeQcM+eT9
-         UQfAwSC3oBuHXo0WCyjfbW/TkOKpPJ7W0WTG4ijx/sC3RBAouEsy0UwljW73fU1zHRTB
-         va3Tbp2KZ1Zpn41R6ljCwuxNzWPbpq+dza23bToC3LxZ8/PHRIioC/LV+qqeiRZSlDNj
-         11UZ/eV8ZEpqRBpG2yAHl95uyxbBBForbVwrnAYsQMTrI0ER0425IcEm7catZX/zT2IH
-         sGdhTSQBCsQzk5TtlwxYPy/bxVJNjSJ0Bkeyo9TAautkk6cyt8qgmZtOTO3VPpKFBa8h
-         hBtA==
-X-Gm-Message-State: AOAM533vWuwsa+z7VbsmdrUcb4lZJmcG0zX92R0D6Tc/zjkPQjTkvb92
-        ilbEbtLJEcb96IBItIpH8G2C4gCZfcCGif4LsrA=
-X-Google-Smtp-Source: ABdhPJz+Mc7UAbG9APRFAMPq3WPbLV+39s1qmdoSIMtJUSdJr6x9YWhhnBxMqz5aqE25fRO+9xl5VD6FYJ5fGkkvV+M=
-X-Received: by 2002:a17:906:b794:: with SMTP id dt20mr18951421ejb.59.1621072867239;
- Sat, 15 May 2021 03:01:07 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a17:906:69cb:0:0:0:0 with HTTP; Sat, 15 May 2021 03:01:06
- -0700 (PDT)
-Reply-To: miltonleo137@gmail.com
-From:   Milton Leo <moonh6345@gmail.com>
-Date:   Sat, 15 May 2021 03:01:06 -0700
-Message-ID: <CAE9mvuh1DuArK9fKd8sceHytaF=YoWFaS7+4OT3ctY1MSHBkCQ@mail.gmail.com>
-Subject: Good day my good friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S232139AbhEOKmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 May 2021 06:42:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38448 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231583AbhEOKmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 May 2021 06:42:04 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CCBE61152;
+        Sat, 15 May 2021 10:40:51 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lhriz-001XN0-Kj; Sat, 15 May 2021 11:40:49 +0100
+Date:   Sat, 15 May 2021 11:40:45 +0100
+Message-ID: <87a6ow5lg2.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: Re: Patch "arm64: entry: factor irq triage logic into macros" has been added to the 5.12-stable tree
+In-Reply-To: <20210515021826.35E98613F2@mail.kernel.org>
+References: <20210515021826.35E98613F2@mail.kernel.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: sashal@kernel.org, stable-commits@vger.kernel.org, stable@vger.kernel.org, mark.rutland@arm.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Do you have a moment to correspond with me via email?
+Hi Sasha,
 
-I have an obligation that I would like you and i to complete ASAP. if
-you dont mind.
-Hoping to hear from you.
+On Sat, 15 May 2021 03:18:25 +0100,
+Sasha Levin <sashal@kernel.org> wrote:
+> 
+> This is a note to let you know that I've just added the patch titled
+> 
+>     arm64: entry: factor irq triage logic into macros
+> 
+> to the 5.12-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      arm64-entry-factor-irq-triage-logic-into-macros.patch
+> and it can be found in the queue-5.12 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+>
+> 
+> 
+> commit ec301e4d131aad1648e28305c8d02ae8265a50d7
+> Author: Marc Zyngier <maz@kernel.org>
+> Date:   Mon Mar 15 11:56:27 2021 +0000
+> 
+>     arm64: entry: factor irq triage logic into macros
+>     
+>     [ Upstream commit 9eb563cdabe1d583c262042d5d44cc256f644543 ]
+>     
+>     In subsequent patches we'll allow an FIQ handler to be registered, and
+>     FIQ exceptions will need to be triaged very similarly to IRQ exceptions.
+>     So that we can reuse the existing logic, this patch factors the IRQ
+>     triage logic out into macros that can be reused for FIQ.
+>     
+>     The macros are named to follow the elX_foo_handler scheme used by the C
+>     exception handlers. For consistency with other top-level exception
+>     handlers, the kernel_entry/kernel_exit logic is not moved into the
+>     macros. As FIQ will use a different C handler, this handler name is
+>     provided as an argument to the macros.
+>     
+>     There should be no functional change as a result of this patch.
+>     
+>     Signed-off-by: Marc Zyngier <maz@kernel.org>
+>     [Mark: rework macros, commit message, rebase before DAIF rework]
+>     Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+>     Tested-by: Hector Martin <marcan@marcan.st>
+>     Cc: James Morse <james.morse@arm.com>
+>     Cc: Thomas Gleixner <tglx@linutronix.de>
+>     Cc: Will Deacon <will@kernel.org>
+>     Acked-by: Will Deacon <will@kernel.org>
+>     Link: https://lore.kernel.org/r/20210315115629.57191-5-mark.rutland@arm.com
+>     Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Regards,
+I don't think there is any reason for backporting this patch at this
+stage. It isn't a fix, and we don't plan to support the feature it
+subsequently enables in anything older than 5.13.
 
-Mr milton leo
+Unless there is a another pressing reason for adding this patch, I
+suggest it is dropped from 5.10, 5.11 and 5.12 stable branches.
+
+Thanks,
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
