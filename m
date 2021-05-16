@@ -2,108 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91670381D91
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D58381D92
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233549AbhEPJNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 05:13:36 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:54385 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231771AbhEPJNg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:13:36 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 8BD93FB0;
-        Sun, 16 May 2021 05:12:21 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 16 May 2021 05:12:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=syc9uo
-        jvGL4zcgQpEv2827TM+nsL4zXyYc5P0e0g5Zg=; b=kkzxi1jIdtTmZ9rHmer2/S
-        h/cFIHuNWnFUaxCQEZGOZUzTPwGC3parKV1+hct7UQ38qQFccaQ00dCVXp3AJTv0
-        S2IsNqWaCSLGcYs4sAmLsq0owBJjvIZkCS0OP6vuxysagY7wXALBXj9EpaEV2d2U
-        0LC1VP/vD0ofyhbO/yaAaJSwu5moBzHLzSORbHpkyLxlhlzIPbOovElxHKIdNe1/
-        pu0kH9RPHkKT2XKWw65Jw1aG83lNIOEqAEQrBGAJn0C94DY4mRYzVpag/jHPISid
-        Y+BFPRfYsDn9Wt11HIHONMRi+Y+rQkBKnNhcrFDEAEXq4MecJc9jmubm8PAYG3/g
-        ==
-X-ME-Sender: <xms:9eGgYMlMOId8ioPA0hCX2C7Rr1nuHOqRaqbKPcY9lCXnES3ftC7BJQ>
-    <xme:9eGgYL1jN4dNYLmgXmWrw8Uh-zi3ob6fsFZ0vK907rzsMsmKrza-5-pCeD0coY2Dz
-    RzTSZikRyXN-A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedgudduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:9eGgYKqdzSVXUlk__rERRiv4NRjMUzeJrdaaH7hVBmDpkmfDsXL4tQ>
-    <xmx:9eGgYIlJzt1vH6pXAGpjhuBFPFAIhPFhXg2Kj81Qec5VehCp4BagAA>
-    <xmx:9eGgYK0pdpui5Y10ikS8nu-AW2tL2hoS4S0F5jCXDXNPkd3uBrnT5g>
-    <xmx:9eGgYP8FTRyP9yjP0lWSH4IQhuAUU-4z4u-KRpsWAyQaka7eE5PThAF5Z3k>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 16 May 2021 05:12:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: fix ltout double free on completion race" failed to apply to 5.12-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 May 2021 11:12:08 +0200
-Message-ID: <1621156328149242@kroah.com>
+        id S232455AbhEPJOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 05:14:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51488 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231771AbhEPJOz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 16 May 2021 05:14:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52962610C9;
+        Sun, 16 May 2021 09:13:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1621156419;
+        bh=ZiK1VNc7cOF0Y+lq8wf1aQ3+dq/I0B4THIbs52k21Vs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tUgEBZNnJxc+QskhSGtN7qQlxQ/yI7rbVEVemh1wVkw0u0Jw71AfMHpTf+hWs/u5D
+         EuvPFHuNJOYX5JlP8WwEiu8Gpspyqeae2Bz93NiyhNI+yKfs7ZXLqy/p+AiMoajUDB
+         ASYKkSIQu0ya5haOaJ9SrzfC4W+MKDdggUteO4/c=
+Date:   Sun, 16 May 2021 11:13:37 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     stable@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH 5.12] MIPS: Reinstate platform `__div64_32' handler
+Message-ID: <YKDiQUcuqIDwRvyg@kroah.com>
+References: <alpine.DEB.2.21.2105160318070.3032@angie.orcam.me.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.21.2105160318070.3032@angie.orcam.me.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, May 16, 2021 at 03:58:19AM +0200, Maciej W. Rozycki wrote:
+> Our current MIPS platform `__div64_32' handler is inactive, because it 
+> is incorrectly only enabled for 64-bit configurations, for which generic 
+> `do_div' code does not call it anyway.
+> 
+> The handler is not suitable for being called from there though as it 
+> only calculates 32 bits of the quotient under the assumption the 64-bit 
+> divident has been suitably reduced.  Code for such reduction used to be 
+> there, however it has been incorrectly removed with commit c21004cd5b4c 
+> ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."), which should 
+> have only updated an obsoleted constraint for an inline asm involving 
+> $hi and $lo register outputs, while possibly wiring the original MIPS 
+> variant of the `do_div' macro as `__div64_32' handler for the generic 
+> `do_div' implementation
+> 
+> Correct the handler as follows then:
+> 
+> - Revert most of the commit referred, however retaining the current 
+>   formatting, except for the final two instructions of the inline asm 
+>   sequence, which the original commit missed.  Omit the original 64-bit 
+>   parts though.
+> 
+> - Rename the original `do_div' macro to `__div64_32'.  Remove the inline 
+>   asm with a DIVU instruction and use plain C code for the intended DIVMOD 
+>   calculation instead.  GCC is smart enough to know that both the quotient 
+>   and the remainder are calculated with single DIVU, so with ISAs up to R5 
+>   the same instruction is actually produced with overall similar code.
+> 
+>   For R6 compiled code will work, but separate DIVU and MODU instructions 
+>   will be produced, which are also interlocked, so scalar implementations 
+>   will likely not perform as well as older ISAs with their asynchronous MD 
+>   unit.  Likely still faster than the generic algorithm though.
+> 
+> - Rename the `__base' local variable in `__div64_32' to `__radix' to 
+>   avoid a conflict with a local variable in `do_div'.
+> 
+> - Actually enable this code for 32-bit rather than 64-bit configurations
+>   by qualifying it with BITS_PER_LONG being 32 instead of 64.  Include 
+>   <asm/bitsperlong.h> for this macro rather than <linux/types.h> as we 
+>   don't need anything else.
+> 
+> - Finally include <asm-generic/div64.h> last rather than first.
+> 
+> This has passed correctness verification with test_div64 and reduced the 
+> module's average execution time down to 1.0668s and 0.2629s from 2.1529s 
+> and 0.5647s respectively for an R3400 CPU @40MHz and a 5Kc CPU @160MHz.  
+> For a reference 64-bit `do_div' code where we have the DDIVU instruction 
+> available to do the whole calculation right away averages at 0.0660s for 
+> the latter CPU.
+> 
+> Reported-by: Huacai Chen <chenhuacai@kernel.org>
+> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+> Fixes: c21004cd5b4c ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
+> Cc: stable@vger.kernel.org # v2.6.30+
+> ---
+> Hi,
+> 
+>  This is a backported version of commit c49f71f60754 with a fix for MIPSr6 
+> compilation, that is commit 25ab14cbe9d1 included and the commit message 
+> amended accordingly.  I have folded intermediate commit c1d337d45ec0 into 
+> this change as well, as trivially obvious and mechanically in the way 
+> between the two former changes, though strictly speaking an enhancement 
+> rather than a fix.  This way the state between master and stable branches 
+> is consistent.
+> 
+>  Rationale: the three changes could be applied separately as with master, 
+> however we'd have an unnecessary intermediate MIPSr6 build regression, 
+> which caused the drop of the original fix.
+> 
+>  This is for 5.12-stable and before.  Let me know if you'd prefer me to 
+> resolve this differently, or otherwise please apply.
+> 
+>  NB verified with a couple of representative defconfigs and booted on hw 
+> where available (with the test_div64 test module backported and enabled).
 
-The patch below does not apply to the 5.12-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I would prefer to take the same exact commits that are in Linus's tree,
+that makes it easier to track over time and ensure that we have this
+correct.
+
+So what commit ids should I apply in what order?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 447c19f3b5074409c794b350b10306e1da1ef4ba Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Fri, 14 May 2021 12:02:50 +0100
-Subject: [PATCH] io_uring: fix ltout double free on completion race
-
-Always remove linked timeout on io_link_timeout_fn() from the master
-request link list, otherwise we may get use-after-free when first
-io_link_timeout_fn() puts linked timeout in the fail path, and then
-will be found and put on master's free.
-
-Cc: stable@vger.kernel.org # 5.10+
-Fixes: 90cd7e424969d ("io_uring: track link timeout's master explicitly")
-Reported-and-tested-by: syzbot+5a864149dd970b546223@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/69c46bf6ce37fec4fdcd98f0882e18eb07ce693a.1620990121.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9ac5e278a91e..599102cc6dfc 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6354,10 +6354,11 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
- 	 * We don't expect the list to be empty, that will only happen if we
- 	 * race with the completion of the linked work.
- 	 */
--	if (prev && req_ref_inc_not_zero(prev))
-+	if (prev) {
- 		io_remove_next_linked(prev);
--	else
--		prev = NULL;
-+		if (!req_ref_inc_not_zero(prev))
-+			prev = NULL;
-+	}
- 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
- 
- 	if (prev) {
-
