@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67093381D93
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:14:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501FD381D94
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:14:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233673AbhEPJPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 05:15:49 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:48889 "EHLO
+        id S233728AbhEPJP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 05:15:57 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:49239 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231771AbhEPJPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:15:49 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id C7F16FCA;
-        Sun, 16 May 2021 05:14:34 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sun, 16 May 2021 05:14:34 -0400
+        by vger.kernel.org with ESMTP id S231771AbhEPJP5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:15:57 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id C76671018;
+        Sun, 16 May 2021 05:14:42 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Sun, 16 May 2021 05:14:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=otnYl9
-        KRsrWAdYBqaMmqrG9emILWIfnYyyIHtYzoNic=; b=T91qEJiaETnAeuE5zCZmd7
-        u7181SyLlrQxI0nH+pXTlZtoIK7wZ6OWqDB9C7imv1N3tYLw9TO/YiGd0hUQZuSO
-        QiYKO2c0ijQXvqnuiht/y0bcc+hpKraCdu9+tJtLG6T9afoNSMAu4hh3mW0sGw5K
-        GV25/ZpDnqRkfKca1hr8WAHs2hhLWBUNIexLrcIZlbKne/Yh+ekQdqNTgUC00gRH
-        z6vDq3UXD1dcdpln38WwiwB8xP4f/2f+m6L08i45ps5O3BZjS9PSFKtlhadRb5t0
-        OvYat8GX57epk6MkgvMjYlltKenueWdsLZbeixTyeSlZL3TrwEZoORyRrlvJhdsw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gLS3pL
+        qvBlsfyX3ytKt18D1Sn+TVDqM7PE15y3uPGh4=; b=m18bw1J6Y6seKhgn+XMyHr
+        nCtXCIhLdS21cJF0zpQyHiip6ml4o9aTChIbH9otAokd4I7GJ6ynVCZIVzeZ792X
+        b3lJv32/vr2szXXmYkyWDhL0XKA4LvwXJ8xLJCPSGRm4NVGVckKisl236Mj1zKgo
+        l/OCt0Uja5K/YStEzjaRXs4W3NnJ5uJcXd43JEtt9s9zq089eByFcn4GTpJWuu/H
+        ewDM9hVLzUgVUgaoxIWDHdUFFLWS0RGEksa600meDMtsYjdrulWkY5PjvMu4TEBJ
+        gBtXelbNNjr6O+JHMM+LkiLC6dklkqGG926/OKpmOYTfoAXFuNwy3uHz+91uedyw
         ==
-X-ME-Sender: <xms:eeKgYLEyGW8IlaeKzPHiMnUq6uTBLHhSdqP3_JCxsFk6vCobKsdcOQ>
-    <xme:eeKgYIW3Z3Lal_fY4dFWwdipwNyCx8NNv_ShfOmk5u4dlFR4WOJdhrTd868PGfq0f
-    RhNoQlZ7ULHEA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedguddvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:guKgYIS6PsiSZiY69_XtGQWCxQiwCEXe35WBC3OwxLEnjQ5yVmJNvw>
+    <xme:guKgYFwe7k_HB-UfyQ3q8gjQISjEnsvoUSdT_8ooqB_oEO0l96D8CpRgkl0sgjU3j
+    dFzmJCCoghUpw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedgudduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedguddvucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:eeKgYNL5BmERQ9-LgodjvtxYQK2ooENfs3VTfkvevzNEsG03iWpGZA>
-    <xmx:eeKgYJF25kI_H6bXCwtCq5w3Gy7GQP75905lvXmu_LWZNf-blc6grg>
-    <xmx:eeKgYBWGltLxd2vb3YuHfbcw3yQC4Zrz9NeuJEPouR6Eh3CGDSHWJw>
-    <xmx:euKgYAB2V7spDf1tK9wnUKGMF7C_CbHla0UkRptb3RrfSajQ2gIIMpPCddQ>
+X-ME-Proxy: <xmx:guKgYF3t2bPG0TvlW4y8L7wmVnik0K8lVoPrX24_9sb2Nqddc31V2A>
+    <xmx:guKgYMAKqxvFswfpIKADfVhJvtfyPDYveWFbJ1FC1xpfmgKg7pRhYw>
+    <xmx:guKgYBjYvxi75zTWL_Bz97blPJsRxY_BDC65EOlSa-2jAH4R-CjZGA>
+    <xmx:guKgYLdAnSniUCTZXvFRNTdtT2KQKDwBy8lta5UjxA_TSLzmyhzMpHOND1w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 16 May 2021 05:14:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/64s: Fix crashes when toggling stf barrier" failed to apply to 4.4-stable tree
+        Sun, 16 May 2021 05:14:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] powerpc/64s: Fix crashes when toggling stf barrier" failed to apply to 4.9-stable tree
 To:     mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 May 2021 11:14:31 +0200
-Message-ID: <1621156471101242@kroah.com>
+Date:   Sun, 16 May 2021 11:14:32 +0200
+Message-ID: <162115647217185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
