@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 561E5381D8F
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:12:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F07381D90
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231258AbhEPJNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 05:13:31 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:39873 "EHLO
+        id S232746AbhEPJNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 05:13:34 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:35397 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231771AbhEPJNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:13:30 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 00DACFB0;
-        Sun, 16 May 2021 05:12:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 16 May 2021 05:12:16 -0400
+        by vger.kernel.org with ESMTP id S231771AbhEPJNd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:13:33 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 21CC8FCA;
+        Sun, 16 May 2021 05:12:19 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sun, 16 May 2021 05:12:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lcFljG
-        2ODGQBpoLbPGfpgS5Ge/ghBLax9UDLnq035s8=; b=hm9OcC3IAEAh4kjGUTFxZr
-        8HzqFAAWWw6Gyc2GNHcnVfe7B3Qu9Lc6f2Caa7BESYFQ6qRpR1gYVM0/MWM+MGkw
-        MYeNAVet0mCj6dLrWp1ZQNBKG29MI09qP1tjOMMraIbPkNXt5Sms8YHhLysEP5tt
-        ypx5y7gYbWZrQDkfoogFd97j5dEI3ntMpeJmJM0ZOS4vD6VQnqsvIq/0g0uZbHjS
-        zMuDxn1cBLy41s367EuBmvZD4ZmsL58Xs9/c9oQqKEq8g+dENZB2dkyrqiepRwZd
-        s5+/B6PDAoktSNa7fLS1ipFlGGTkFhNoySF4QkDO4vQuWNyuem0m+kDajd0IQ0Ug
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8WOTQp
+        ikh1tCs/Kjm5yULD1Cy4vYUNJZ7kEvpy4kT4U=; b=GcjpH3Mc3SAVnOgRzjn/2O
+        /UPu5/tfGGu9X7N6WS7tkmhI8sU/TQsFmGSbqgaZyjh+hqX0NDP0WBWAqjLTzruZ
+        R01bGi1AwxZRRwo0sU36m0/1C1lc71Xfu3zLXoe3zWbUOsOJzj6ggW9kc8mPhaqL
+        X4n4sSoSX5jNhzcrm5x5mfkO9my3y8uCRXPbd8cshBDa/HOxFBboum4EoT02Coat
+        OnW5flZkEU4we+2XcdDt48ngpp89lmWHabkrQUgIW8b+HWPB5Lt0iq5ASmXETFCj
+        nlVOI6NNcy4RCNDqvsNn9fKR9P+/4ofaZ+liG9MDgK9wpM/z5zbFhN+6SSggQGyQ
         ==
-X-ME-Sender: <xms:7-GgYIbs9g_pe3pgF-mFHycYU5jdgftLVuxI5B09Fc0YrAZpLkY79w>
-    <xme:7-GgYDY1ISwIMMq4txNfCChqn0GU5BhWjBfBt1a4dSH4YO-ksq5zMnGiGz6hJ5bJw
-    qrngSNT2UIPdw>
+X-ME-Sender: <xms:8uGgYJlNkglI4j-tL8qnqucOd1gxYm3CoNQk1csnXzViO1ggy86XFA>
+    <xme:8uGgYE2cBATmWVJX5j5FDCzP0A0F361qpXCitV0Lp8kkHslzDXo7UrJUfZFTC7yuA
+    DH6T45B1DN1mw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedgudduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:7-GgYC-EGnn6_ly-P65iPiISVtREzl-mZDcZLc-p8onUFVOYxMSnlw>
-    <xmx:7-GgYCruQ0V_aXCz1oRrojvJplZwLuiXfeecPnC7hOnwLqtfKmtZHw>
-    <xmx:7-GgYDro4bwuL1wihIYhKacbCLM9GZh1C54zCfbDbeX0gENEGo8Y0A>
-    <xmx:7-GgYCRYnIijj2vCcZKD7r_tE_LYZ5J75Me17RGdR3G8YH0DuslyVeYqMy0>
+X-ME-Proxy: <xmx:8uGgYPoSwK7ETF5I_vziMezScPg4zGBMpiLIsehmcw3LYJHPQlK0Gg>
+    <xmx:8uGgYJkcMIjhFx-TAAt1DR7qmujwbaNoT_QHgp9SffeIFjcwa459jA>
+    <xmx:8uGgYH1nfX0hBqfuYjcOoJw8ESMHdoi3wSfylhjrlqL23ZtEkXDELQ>
+    <xmx:8uGgYE_V-v7LO6c9C91CDHgcFjzlNyM_7gRL3Cn-k8Pl7yAl1XqiwKKX5Ic>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 16 May 2021 05:12:15 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: fix ltout double free on completion race" failed to apply to 5.10-stable tree
+        Sun, 16 May 2021 05:12:18 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: fix ltout double free on completion race" failed to apply to 5.11-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 16 May 2021 11:12:07 +0200
-Message-ID: <1621156327144194@kroah.com>
+Message-ID: <162115632745235@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
