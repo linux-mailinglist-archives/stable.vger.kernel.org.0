@@ -2,88 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8C13820A5
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 21:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D2A53820FD
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 22:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231226AbhEPT3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 15:29:04 -0400
-Received: from sender4-of-o53.zoho.com ([136.143.188.53]:21339 "EHLO
-        sender4-of-o53.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230507AbhEPT3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 15:29:04 -0400
-ARC-Seal: i=1; a=rsa-sha256; t=1621193252; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=GpTODC/DLEfsPiaz5f0uHe14TK/B7PCR6E2MSep8ov0URKYeSoEyibrf+uLFV4b9tqtfLmX7iA7r1M7Vy0aSvH6+2CMmi++xAk4rUr9HLKv3FKsa5X8O1ggjlF2f9P7H9nfB2JWtIhvRv6pvxuV9x9Oa8maV2T9axI6xCi6kkHw=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1621193252; h=Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
-        bh=kcMsIBb4mr1nm3LmQ5wyFHGYyNEsGyNz7p4rtiGeyZw=; 
-        b=ebmZ0BvljHKpi8/DOujECR5AqX0ciAlFM9R6cmX/xRDHAj6xXR2NzNoQ2pu35XolsRZ5n9UPJhUXv7H3DTZfqoAumH5MmtYzaa0S8eVYfrN82HFYWV6j13EigW/HOWjU7LtCFooji08pSwiMhO8hPlURpCQIwiOo/7XYGwxw8SY=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=anirudhrb.com;
-        spf=pass  smtp.mailfrom=mail@anirudhrb.com;
-        dmarc=pass header.from=<mail@anirudhrb.com> header.from=<mail@anirudhrb.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1621193252;
-        s=zoho; d=anirudhrb.com; i=mail@anirudhrb.com;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Transfer-Encoding;
-        bh=kcMsIBb4mr1nm3LmQ5wyFHGYyNEsGyNz7p4rtiGeyZw=;
-        b=yKN+eYUKedxDvM/J8PgnoWdA/PYpQ/ssg6uNKVFtcUdxu+VXHAUmoJdfB3NBMyqz
-        mHDG/qCeHPOlI2IKSwASWbtWhWj7QOrSwjxUfhx/r80gP3eQWaxm8WJtqIlNis6xvqo
-        /birjyRZtdje8eIcI1A0jppl2fvCvnj1ZNEm0p8g=
-Received: from localhost.localdomain (106.51.110.61 [106.51.110.61]) by mx.zohomail.com
-        with SMTPS id 1621193251338853.0225315553987; Sun, 16 May 2021 12:27:31 -0700 (PDT)
-From:   Anirudh Rayabharam <mail@anirudhrb.com>
-To:     Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
-        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel-mentees@lists.linuxfoundation.org,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        stable <stable@vger.kernel.org>,
-        linux-nvidia@lists.surfsouth.com, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] video: hgafb: correctly handle card detect failure during probe
-Date:   Mon, 17 May 2021 00:57:14 +0530
-Message-Id: <20210516192714.25823-1-mail@anirudhrb.com>
-X-Mailer: git-send-email 2.26.2
+        id S231355AbhEPUfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 16:35:40 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:58196 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231145AbhEPUfk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 16:35:40 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id C8A701C0B76; Sun, 16 May 2021 22:34:23 +0200 (CEST)
+Date:   Sun, 16 May 2021 22:34:23 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Quanyang Wang <quanyang.wang@windriver.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 264/530] spi: spi-zynqmp-gqspi: fix use-after-free
+ in zynqmp_qspi_exec_op
+Message-ID: <20210516203423.GA11471@duo.ucw.cz>
+References: <20210512144819.664462530@linuxfoundation.org>
+ <20210512144828.501430855@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Disposition: inline
+In-Reply-To: <20210512144828.501430855@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The return value of hga_card_detect() is not properly handled causing
-the probe to succeed even though hga_card_detect() failed. Since probe
-succeeds, hgafb_open() can be called which will end up operating on an
-unmapped hga_vram. This results in an out-of-bounds access as reported
-by kernel test robot [1].
 
-To fix this, correctly detect failure of hga_card_detect() by checking
-for a non-zero error code.
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[1]: https://lore.kernel.org/lkml/20210516150019.GB25903@xsang-OptiPlex-9020/
+Hi!
 
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Fixes: dc13cac4862c ("video: hgafb: fix potential NULL pointer dereference")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
----
- drivers/video/fbdev/hgafb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> When handling op->addr, it is using the buffer "tmpbuf" which has been
+> freed. This will trigger a use-after-free KASAN warning. Let's use
+> temporary variables to store op->addr.val and op->cmd.opcode to fix
+> this issue.
 
-diff --git a/drivers/video/fbdev/hgafb.c b/drivers/video/fbdev/hgafb.c
-index cc8e62ae93f6..bd3d07aa4f0e 100644
---- a/drivers/video/fbdev/hgafb.c
-+++ b/drivers/video/fbdev/hgafb.c
-@@ -558,7 +558,7 @@ static int hgafb_probe(struct platform_device *pdev)
- 	int ret;
- 
- 	ret = hga_card_detect();
--	if (!ret)
-+	if (ret)
- 		return ret;
- 
- 	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
--- 
-2.26.2
+I believe this is "cure worse than a disassease".
 
+> +++ b/drivers/spi/spi-zynqmp-gqspi.c
+> @@ -926,8 +926,9 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
+>  	struct zynqmp_qspi *xqspi =3D spi_controller_get_devdata
+>  				    (mem->spi->master);
+>  	int err =3D 0, i;
+> -	u8 *tmpbuf;
+>  	u32 genfifoentry =3D 0;
+> +	u16 opcode =3D op->cmd.opcode;
+> +	u64 opaddr;
+> =20
+>  	dev_dbg(xqspi->dev, "cmd:%#x mode:%d.%d.%d.%d\n",
+>  		op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
+> @@ -940,14 +941,8 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
+>  	genfifoentry |=3D xqspi->genfifobus;
+> =20
+>  	if (op->cmd.opcode) {
+> -		tmpbuf =3D kzalloc(op->cmd.nbytes, GFP_KERNEL | GFP_DMA);
+> -		if (!tmpbuf) {
+> -			mutex_unlock(&xqspi->op_lock);
+> -			return -ENOMEM;
+> -		}
+> -		tmpbuf[0] =3D op->cmd.opcode;
+>  		reinit_completion(&xqspi->data_completion);
+> -		xqspi->txbuf =3D tmpbuf;
+> +		xqspi->txbuf =3D &opcode;
+>  		xqspi->rxbuf =3D NULL;
+>  		xqspi->bytes_to_transfer =3D op->cmd.nbytes;
+>  		xqspi->bytes_to_receive =3D 0;
+
+So this replaces "op->cmd.nbytes" bytes big DMA buffer with 2 bytes on
+stack.
+
+First, if op->cmd.nbytes is > 2, DMA will overrun that buffer. That
+can't be healthy.
+
+Second, you really should not run DMA from on-stack buffers.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYKGBzwAKCRAw5/Bqldv6
+8oRmAJ0QR2fc6gdv0wUf2oW8V3UMti2jEACeMUf6pCWcXdxiO3mwhajM0k6zdV8=
+=yrfb
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--
