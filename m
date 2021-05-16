@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78682381D8E
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3FD381D8D
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:12:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231977AbhEPJNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 05:13:30 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:50799 "EHLO
+        id S231455AbhEPJNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 05:13:25 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:45715 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231258AbhEPJN2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:13:28 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 7A3DEFB0;
-        Sun, 16 May 2021 05:12:13 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 16 May 2021 05:12:13 -0400
+        by vger.kernel.org with ESMTP id S231258AbhEPJNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:13:25 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id D3D15FD9;
+        Sun, 16 May 2021 05:12:10 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Sun, 16 May 2021 05:12:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ogtwO8
-        4csEYiCRV+tjmpLMpqYjb+VjuqbNEaETaUxrg=; b=CJLwxRvMQ+AgRnfzo2/Qbo
-        cwGZSZnMd3ThciP/+Arfgbc4GA9V5p+cpReZLxh0KHljpdNAWAUtU0Iu/CIIe3I/
-        AFCLfXErXkIXMlYlxKqHGlH+9KjDoEv4mBCkZ23A22mCYJjl+9YN3hUe1IPetYHb
-        qcHbbttUFflivuQREtExFYWIQ+FC6aJL+e4chIPw4PbDZXXVzFRuB69+kxmV3fhE
-        sj6xustWq1hQKLbIfdpnafZKmKaMyZXfqVok7M14I9qhc7pcwdJhGr8qJtJpVzeI
-        cy2Fn4iK5xiTuG9NJ6vaA42PMSWAIEElR9MRwAm4wZEXV6t0GrNDJfcZCGL9ipcw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yxIrQ7
+        MFFPygdUkMA0ykUPL4Vnd/FGKmmk/P/Pq7BGs=; b=WEe7iBO0ztSWKDDe+ckhOp
+        RQXSEBML6qnQgmHPvPRW/EC59bnfuBi/zR1hAvp1rhtGS7pm6451kLn/sl1TsaO0
+        IbQlPp1j+yqHsslaQArmHEWNhcYbh1DJTO39R94JwsyZx05/n5giZRZ7CWa7k9BI
+        YpBA5rS+uFM/gk36YlcIkeoaVPLpunKVI6ozJ5kC2IkW6LLB68QQbvyjBKwrjK9j
+        qyE5qaCITepX0a433igLfgYlLi/vIRyqmC/YFro8JFGzFWnf696RFWkQ9KxxMxR9
+        KqhvWEeh3H39i7Ag8pyFPq9n5ctY5BPAyFmr0nrqzPCU7IR7Ix4i2sFLa1MveoSg
         ==
-X-ME-Sender: <xms:7OGgYPYATP7lLFzMFYSZfsYYmukh2Fib7m8wAJ8JReTLtUEb0e8Wrg>
-    <xme:7OGgYOaI9w2pUElU5qDtJbzput01rc7exQ9O5Y1xk3zvF00-c08tIawhhOGShzpfY
-    vbZjIXxchvAqA>
+X-ME-Sender: <xms:6uGgYFJIYxKsvo_Src-sP3zI582gIgG8aZZAnD9Fal-9BaHS4HI7rw>
+    <xme:6uGgYBKTzRZJH2rIsofhb_fx0nNVahre2GNwCJfRIzmeGttMESkMb8ZtlhY-izzcU
+    9ddZqt70IsWpA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedgudduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedgudduucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:7OGgYB9GzPZ1YZOaZCyIdKaAzRHYP3YMqcdboP9ZqwtMM3cx75HGUw>
-    <xmx:7OGgYFohcWcpu60JWX8kmGmis0m9q21KGnMz3d-P6chJETzYinmMlw>
-    <xmx:7OGgYKrTXbZ4N0bMv5WD5x6jR5H_wIS8i3jr7qiwPIxQxiZp4Pvaqg>
-    <xmx:7eGgYBRoqjt8wB4iQOMzShEr_MAFnNHb8-0ZVjDM-eBgSAJfwhNMay3kozg>
+X-ME-Proxy: <xmx:6uGgYNsioo8qkOB5FrIuNC1kj7kHUUmo4jksA6cIAMwCKKeGleddIQ>
+    <xmx:6uGgYGYFIST0wwfeAm5CzKgXa8WHeDAKAOG6WU1GR6n6znTFKS3xLw>
+    <xmx:6uGgYMa0NLfB_pg1GfUGHRlvMgjdAfrJmVks7yn6NYmfAKMHmTViGg>
+    <xmx:6uGgYFCggG5BOZVm30USpnAnXa8B8dHpD5WrtJJS3-Zsg9k0G5eQQBF4jB0>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 16 May 2021 05:12:12 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: fix link timeout refs" failed to apply to 5.11-stable tree
+        Sun, 16 May 2021 05:12:09 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: fix link timeout refs" failed to apply to 5.12-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 16 May 2021 11:12:00 +0200
-Message-ID: <16211563205623@kroah.com>
+Message-ID: <1621156320214143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
