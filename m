@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 501FD381D94
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E64381D9B
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:17:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233728AbhEPJP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 05:15:57 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:49239 "EHLO
+        id S234423AbhEPJSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 05:18:43 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:39869 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231771AbhEPJP5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:15:57 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id C76671018;
-        Sun, 16 May 2021 05:14:42 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Sun, 16 May 2021 05:14:42 -0400
+        by vger.kernel.org with ESMTP id S231287AbhEPJSn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:18:43 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id D6B721092;
+        Sun, 16 May 2021 05:17:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 16 May 2021 05:17:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gLS3pL
-        qvBlsfyX3ytKt18D1Sn+TVDqM7PE15y3uPGh4=; b=m18bw1J6Y6seKhgn+XMyHr
-        nCtXCIhLdS21cJF0zpQyHiip6ml4o9aTChIbH9otAokd4I7GJ6ynVCZIVzeZ792X
-        b3lJv32/vr2szXXmYkyWDhL0XKA4LvwXJ8xLJCPSGRm4NVGVckKisl236Mj1zKgo
-        l/OCt0Uja5K/YStEzjaRXs4W3NnJ5uJcXd43JEtt9s9zq089eByFcn4GTpJWuu/H
-        ewDM9hVLzUgVUgaoxIWDHdUFFLWS0RGEksa600meDMtsYjdrulWkY5PjvMu4TEBJ
-        gBtXelbNNjr6O+JHMM+LkiLC6dklkqGG926/OKpmOYTfoAXFuNwy3uHz+91uedyw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+UAzNG
+        wwjKAi4D5/YzLlD2QTlxSW0ZXF70PtNu/ByUg=; b=voq4GaTK+QhOhQMHlWZe1B
+        71rEIrg0PTic6jNTI54S6wsEnuLz1PKB8HssGF2sPYhoV/miKnjbIpUKyNnWORO6
+        kgAeSDys2raTLDL7HAZAznirgQG5QzefX3ivOX7qMDj7VadJIxBfnsGo9NZ2CwSR
+        qG5tyS1SOcfFt+pMN1UVBrXFbLRkUWvJ9c+H9BeEOXQ8WnU0zn6ENPahBYzGk3pp
+        ECQ4hVvQJ3Z5lM32HY3ZQsapTOYws53dfYmE3bpDx5HSIAHW+9VE262pwpvBvCuM
+        gZKf1xWLOhlMfyyBPT4ZonzYAWT1+NB/gVell57fxB6Fl/Pc5LVyu1ZXczIM8sww
         ==
-X-ME-Sender: <xms:guKgYIS6PsiSZiY69_XtGQWCxQiwCEXe35WBC3OwxLEnjQ5yVmJNvw>
-    <xme:guKgYFwe7k_HB-UfyQ3q8gjQISjEnsvoUSdT_8ooqB_oEO0l96D8CpRgkl0sgjU3j
-    dFzmJCCoghUpw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedgudduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:JuOgYPX3nLq_EiC0WDOgJZJDsuc5tZghlzSHIv7d3s6fbV53DNWeuA>
+    <xme:JuOgYHnNbc9ahZfdk1vK-AcKug4_zD0vRP0O1FDO5ywROqjFtcth5jSJpVAf8J6oT
+    LM7nAphH9XdXA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,19 +38,22 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedgudduucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:guKgYF3t2bPG0TvlW4y8L7wmVnik0K8lVoPrX24_9sb2Nqddc31V2A>
-    <xmx:guKgYMAKqxvFswfpIKADfVhJvtfyPDYveWFbJ1FC1xpfmgKg7pRhYw>
-    <xmx:guKgYBjYvxi75zTWL_Bz97blPJsRxY_BDC65EOlSa-2jAH4R-CjZGA>
-    <xmx:guKgYLdAnSniUCTZXvFRNTdtT2KQKDwBy8lta5UjxA_TSLzmyhzMpHOND1w>
+X-ME-Proxy: <xmx:JuOgYLaKR0kdUa2j_ePI7pvq-ixszwj0sBkwfr-SzmrJlInO0FN3xA>
+    <xmx:JuOgYKX_wHLERlaEPI5KljeKDAgi2Nc8AGySmpWQGPojTcqhyvuuuw>
+    <xmx:JuOgYJnbOkBny7UhT6JsCFPNirjjAOe7vLb0O4BIqD7uKhb7oqLZjQ>
+    <xmx:J-OgYHZEPIIQt4Qc-WEkQXS8FoEJpdoCnAGybdhspLmZlwT3ZmsShNfoVoI>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 16 May 2021 05:14:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/64s: Fix crashes when toggling stf barrier" failed to apply to 4.9-stable tree
-To:     mpe@ellerman.id.au
+        Sun, 16 May 2021 05:17:26 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm: fix struct page layout on 32-bit systems" failed to apply to 5.4-stable tree
+To:     willy@infradead.org, akpm@linux-foundation.org, brouer@redhat.com,
+        ilias.apalodimas@linaro.org, mcroce@linux.microsoft.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        vbabka@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 May 2021 11:14:32 +0200
-Message-ID: <162115647217185@kroah.com>
+Date:   Sun, 16 May 2021 11:17:24 +0200
+Message-ID: <162115664420362@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,76 +73,116 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8ec7791bae1327b1c279c5cd6e929c3b12daaf0a Mon Sep 17 00:00:00 2001
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Thu, 6 May 2021 14:49:58 +1000
-Subject: [PATCH] powerpc/64s: Fix crashes when toggling stf barrier
+From 9ddb3c14afba8bc5950ed297f02d4ae05ff35cd1 Mon Sep 17 00:00:00 2001
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Date: Fri, 14 May 2021 17:27:24 -0700
+Subject: [PATCH] mm: fix struct page layout on 32-bit systems
 
-The STF (store-to-load forwarding) barrier mitigation can be
-enabled/disabled at runtime via a debugfs file (stf_barrier), which
-causes the kernel to patch itself to enable/disable the relevant
-mitigations.
+32-bit architectures which expect 8-byte alignment for 8-byte integers and
+need 64-bit DMA addresses (arm, mips, ppc) had their struct page
+inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
+the alignment of the union to 8 bytes, which inserted a 4 byte gap between
+'flags' and the union.
 
-However depending on which mitigation we're using, it may not be safe to
-do that patching while other CPUs are active. For example the following
-crash:
+Fix this by storing the dma_addr_t in one or two adjacent unsigned longs.
+This restores the alignment to that of an unsigned long.  We always
+store the low bits in the first word to prevent the PageTail bit from
+being inadvertently set on a big endian platform.  If that happened,
+get_user_pages_fast() racing against a page which was freed and
+reallocated to the page_pool could dereference a bogus compound_head(),
+which would be hard to trace back to this cause.
 
-  User access of kernel address (c00000003fff5af0) - exploit attempt? (uid: 0)
-  segfault (11) at c00000003fff5af0 nip 7fff8ad12198 lr 7fff8ad121f8 code 1
-  code: 40820128 e93c00d0 e9290058 7c292840 40810058 38600000 4bfd9a81 e8410018
-  code: 2c030006 41810154 3860ffb6 e9210098 <e94d8ff0> 7d295279 39400000 40820a3c
+Link: https://lkml.kernel.org/r/20210510153211.1504886-1-willy@infradead.org
+Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Tested-by: Matteo Croce <mcroce@linux.microsoft.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-Shows that we returned to userspace without restoring the user r13
-value, due to executing the partially patched STF exit code.
-
-Fix it by doing the patching under stop machine. The CPUs that aren't
-doing the patching will be spinning in the core of the stop machine
-logic. That is currently sufficient for our purposes, because none of
-the patching we do is to that code or anywhere in the vicinity.
-
-Fixes: a048a07d7f45 ("powerpc/64s: Add support for a store forwarding barrier at kernel entry/exit")
-Cc: stable@vger.kernel.org # v4.17+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210506044959.1298123-1-mpe@ellerman.id.au
-
-diff --git a/arch/powerpc/lib/feature-fixups.c b/arch/powerpc/lib/feature-fixups.c
-index 1fd31b4b0e13..10083add8b33 100644
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -14,6 +14,7 @@
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/sched/mm.h>
-+#include <linux/stop_machine.h>
- #include <asm/cputable.h>
- #include <asm/code-patching.h>
- #include <asm/page.h>
-@@ -227,11 +228,25 @@ static void do_stf_exit_barrier_fixups(enum stf_barrier_type types)
- 		                                           : "unknown");
- }
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 6613b26a8894..5aacc1c10a45 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -97,10 +97,10 @@ struct page {
+ 		};
+ 		struct {	/* page_pool used by netstack */
+ 			/**
+-			 * @dma_addr: might require a 64-bit value even on
++			 * @dma_addr: might require a 64-bit value on
+ 			 * 32-bit architectures.
+ 			 */
+-			dma_addr_t dma_addr;
++			unsigned long dma_addr[2];
+ 		};
+ 		struct {	/* slab, slob and slub */
+ 			union {
+diff --git a/include/net/page_pool.h b/include/net/page_pool.h
+index 6d517a37c18b..b4b6de909c93 100644
+--- a/include/net/page_pool.h
++++ b/include/net/page_pool.h
+@@ -198,7 +198,17 @@ static inline void page_pool_recycle_direct(struct page_pool *pool,
  
-+static int __do_stf_barrier_fixups(void *data)
-+{
-+	enum stf_barrier_type *types = data;
-+
-+	do_stf_entry_barrier_fixups(*types);
-+	do_stf_exit_barrier_fixups(*types);
-+
-+	return 0;
-+}
- 
- void do_stf_barrier_fixups(enum stf_barrier_type types)
+ static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
  {
--	do_stf_entry_barrier_fixups(types);
--	do_stf_exit_barrier_fixups(types);
-+	/*
-+	 * The call to the fallback entry flush, and the fallback/sync-ori exit
-+	 * flush can not be safely patched in/out while other CPUs are executing
-+	 * them. So call __do_stf_barrier_fixups() on one CPU while all other CPUs
-+	 * spin in the stop machine core with interrupts hard disabled.
-+	 */
-+	stop_machine(__do_stf_barrier_fixups, &types, NULL);
+-	return page->dma_addr;
++	dma_addr_t ret = page->dma_addr[0];
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
++	return ret;
++}
++
++static inline void page_pool_set_dma_addr(struct page *page, dma_addr_t addr)
++{
++	page->dma_addr[0] = addr;
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		page->dma_addr[1] = upper_32_bits(addr);
  }
  
- void do_uaccess_flush_fixups(enum l1d_flush_type types)
+ static inline bool is_page_pool_compiled_in(void)
+diff --git a/net/core/page_pool.c b/net/core/page_pool.c
+index 9ec1aa9640ad..3c4c4c7a0402 100644
+--- a/net/core/page_pool.c
++++ b/net/core/page_pool.c
+@@ -174,8 +174,10 @@ static void page_pool_dma_sync_for_device(struct page_pool *pool,
+ 					  struct page *page,
+ 					  unsigned int dma_sync_size)
+ {
++	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
++
+ 	dma_sync_size = min(dma_sync_size, pool->p.max_len);
+-	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
++	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
+ 					 pool->p.offset, dma_sync_size,
+ 					 pool->p.dma_dir);
+ }
+@@ -195,7 +197,7 @@ static bool page_pool_dma_map(struct page_pool *pool, struct page *page)
+ 	if (dma_mapping_error(pool->p.dev, dma))
+ 		return false;
+ 
+-	page->dma_addr = dma;
++	page_pool_set_dma_addr(page, dma);
+ 
+ 	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
+ 		page_pool_dma_sync_for_device(pool, page, pool->p.max_len);
+@@ -331,13 +333,13 @@ void page_pool_release_page(struct page_pool *pool, struct page *page)
+ 		 */
+ 		goto skip_dma_unmap;
+ 
+-	dma = page->dma_addr;
++	dma = page_pool_get_dma_addr(page);
+ 
+-	/* When page is unmapped, it cannot be returned our pool */
++	/* When page is unmapped, it cannot be returned to our pool */
+ 	dma_unmap_page_attrs(pool->p.dev, dma,
+ 			     PAGE_SIZE << pool->p.order, pool->p.dma_dir,
+ 			     DMA_ATTR_SKIP_CPU_SYNC);
+-	page->dma_addr = 0;
++	page_pool_set_dma_addr(page, 0);
+ skip_dma_unmap:
+ 	/* This may be the last page returned, releasing the pool, so
+ 	 * it is not safe to reference pool afterwards.
 
