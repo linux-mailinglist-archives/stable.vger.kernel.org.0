@@ -2,101 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7FC1381FD2
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 18:30:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F480382015
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 18:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231258AbhEPQbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 12:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58208 "EHLO
+        id S230465AbhEPQyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 12:54:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229955AbhEPQbP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 12:31:15 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FDBEC061573
-        for <stable@vger.kernel.org>; Sun, 16 May 2021 09:30:00 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id i22so5225268lfl.10
-        for <stable@vger.kernel.org>; Sun, 16 May 2021 09:30:00 -0700 (PDT)
+        with ESMTP id S229807AbhEPQyh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 12:54:37 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABACC061573
+        for <stable@vger.kernel.org>; Sun, 16 May 2021 09:53:22 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id p6so1878055plr.11
+        for <stable@vger.kernel.org>; Sun, 16 May 2021 09:53:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/R9Qr6+/6sFoQl5yNw/F4q+YIrslCfIrvlQKzEQ7uV4=;
-        b=N2UVhTNGZMyzWf6qLU5oMZhVxFwGPlAr3ekqRRh0qA4cjX3welqaug5f9jww8+3muV
-         aJvtJUPR4ofRYghH/Om9C2/p3O0tML8hV2kB4drt8IUPuxCK5XJLGBzSH+pfY0EWzhXP
-         6d4+uYwXD63VUbcCgoSExEC3f6ElqddJ3cV9A=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=um/AbS8o+8lnd9glu3bo4sFgE/KwREwFyZ8wcPenoec=;
+        b=p98yZl+gJxFgymgtcFJ7IixVshX23nfRaNJL2fI+5sxOIHA5BUVTxoCqtNlNRkYCqj
+         3IsvECWxd5uq4hDWLSG9GwzyrVV8Db4pZBiSJGTafbPdGw0tWBvvNN3hirvvBXeP+AEY
+         DCxzpKCDUzpSSGFy+r2mxUXWkCFbn1Kimp0Iy3SBQK+b+38AagoS8A99olDH9t62lrPq
+         Y2kB0tvqGJKmdNC4ZhWs48fp3kTjfcX8YhmQ7tZydFPyh2/yuw5yyA5FkUa4qW/K8+c+
+         qFYiW1L2ezhrbRAS3rMr2MieWxPks1bTcbwB0HyoBQN33jgLzOre6D1jw81SMVQcUbGt
+         Zvig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/R9Qr6+/6sFoQl5yNw/F4q+YIrslCfIrvlQKzEQ7uV4=;
-        b=ruKMpe+3DKH+T2EN93bSFGwdE0Ufemc5/u1rm0d155LvFf2VbafGBQVGGf5PTq+xu8
-         gD2ks5UiyR5KJbUn+g5ffvZ3PLhXk5rrR24J+byL5Pz/o93oOrznh7pCjzSzzJ3QmEx9
-         HwVdo4UkQaswKd0xnQ7gDEci8EXtWA4RdyDnsUqufAN7KgtixNllw2oYyWh+gYu99s/F
-         C6dhsqUIbGdXLkwM/a9SikxybORMhCqy4elOXU59NxOt7QyJgtz5MaDX6lvNsb+V3h77
-         NMa8CNP9Ehgl+pWdMyx/wwsN/PWv4OB7s7Hp0DyAWzl8oqoLM0NGt7NPeb05zuRB915B
-         aNZA==
-X-Gm-Message-State: AOAM533M4Ab1qYvuYh5+kSNfr4GnpYVX6aKSTTK0051xzZvN0/9zgbjs
-        iEPz5joLLnVKrLytdtUynHGOgKFs2E9kOrK1hTU=
-X-Google-Smtp-Source: ABdhPJwETwV6d3dSyCyNzPw0i0J51WFCzVBffQUUisrr9fmVGFpG/ENbEF/gEZpJIzo0uQPxK8Bwgw==
-X-Received: by 2002:a05:6512:3081:: with SMTP id z1mr10548239lfd.199.1621182598600;
-        Sun, 16 May 2021 09:29:58 -0700 (PDT)
-Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com. [209.85.208.177])
-        by smtp.gmail.com with ESMTPSA id h19sm1695810lfc.56.2021.05.16.09.29.57
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 16 May 2021 09:29:58 -0700 (PDT)
-Received: by mail-lj1-f177.google.com with SMTP id 131so4343801ljj.3
-        for <stable@vger.kernel.org>; Sun, 16 May 2021 09:29:57 -0700 (PDT)
-X-Received: by 2002:a05:651c:333:: with SMTP id b19mr44407079ljp.61.1621182597625;
- Sun, 16 May 2021 09:29:57 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=um/AbS8o+8lnd9glu3bo4sFgE/KwREwFyZ8wcPenoec=;
+        b=AXW3pq/Cpko+7pslRYFXrXjtzgiI3uNHupEOO6oeWfpGNrTGi0nPQqrz/dQTUt52N7
+         6YOB2kXAN/iKbU/OoSy5TTWqRSjWaVRV3Qr/Tq+ag6Rs0FH4+u28VzzINYj5cRV8rj0Z
+         vz05bcAkqOX7STx7ACvOMhFLItYD/AhSbmbGfddQUxa5RKn4nahbpvSrixUjWc6ZgchG
+         0JsMTdC3ghtJRtIVRKtTwPlDnrVMJeBe6jUz9xbJYg4/BPBvrC/gBqUGdTNNa1tAVsAF
+         F8gi7qxzI6ZnSedEl30wqG7Vf4dhyndw0BgbqPB5vSTNqfMo2U35EtBCHb1KrDblpoIt
+         KCTA==
+X-Gm-Message-State: AOAM5319UsbmVCyGnHMPknY4rIOPVLeoHs+tV7AiithX5lmfsGM9Mj28
+        d8xy6jDVumk3R1qvwETJiFNmw+ui75DsfB32
+X-Google-Smtp-Source: ABdhPJxpLLoNHWhBCWss3yTfvOGBCtLWLWJ6aZN9YOsfv9M9qpo8R6z0Qz0blEYdRYjMT8p7nzbhOw==
+X-Received: by 2002:a17:90a:4298:: with SMTP id p24mr22124830pjg.144.1621184001778;
+        Sun, 16 May 2021 09:53:21 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g6sm8038631pfr.213.2021.05.16.09.53.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 16 May 2021 09:53:21 -0700 (PDT)
+Message-ID: <60a14e01.1c69fb81.ff5a5.b502@mx.google.com>
+Date:   Sun, 16 May 2021 09:53:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210516121844.2860628-1-willy@infradead.org>
-In-Reply-To: <20210516121844.2860628-1-willy@infradead.org>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sun, 16 May 2021 09:29:41 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgTG0Bb30NzXX=3F=n-rHjVrQAHVzFFCxRKWTTu1QxABQ@mail.gmail.com>
-Message-ID: <CAHk-=wgTG0Bb30NzXX=3F=n-rHjVrQAHVzFFCxRKWTTu1QxABQ@mail.gmail.com>
-Subject: Re: [PATCH] mm: fix struct page layout on 32-bit systems
-To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc:     stable <stable@vger.kernel.org>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Matteo Croce <mcroce@linux.microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.12.4-273-gd5d304081053
+X-Kernelci-Branch: queue/5.12
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.12 baseline: 134 runs,
+ 1 regressions (v5.12.4-273-gd5d304081053)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 16, 2021 at 5:19 AM Matthew Wilcox (Oracle)
-<willy@infradead.org> wrote:
->
-> 32-bit architectures which expect 8-byte alignment for 8-byte integers and
-> need 64-bit DMA addresses (arm, mips, ppc) had their struct page
-> inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
-> the alignment of the union to 8 bytes, which inserted a 4 byte gap between
-> 'flags' and the union.
+stable-rc/queue/5.12 baseline: 134 runs, 1 regressions (v5.12.4-273-gd5d304=
+081053)
 
-So I already have this in my tree, but this stable submission made me go "Hmm".
+Regressions Summary
+-------------------
 
-Why do we actually want a full 64-bit DMA address on 32-bit architectures here?
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-It strikes me that the address is page-aligned, and I suspect we could
-just use a 32-bit "DMA page frame number" instead in 'struct page'?
 
-So instead of that odd
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
+nel/v5.12.4-273-gd5d304081053/plan/baseline/
 
-+       if (sizeof(dma_addr_t) > sizeof(unsigned long))
-+               ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.12
+  Describe: v5.12.4-273-gd5d304081053
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d5d304081053df34a6788ac140493ad160809077 =
 
-maybe we could just do effectively
 
-        ret + (dma_addr_t)page->dma_frame_nr << PAGE_SHIFT;
 
-and simplify this all. We could do it on 64-bit too, just to not have
-any opdd special cases (even if we'd have the full 64 bits available).
+Test Regressions
+---------------- =
 
-Hmm?
 
-                Linus
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60a11a8df11cce3794b3af97
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.4-2=
+73-gd5d304081053/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.4-2=
+73-gd5d304081053/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60a11a8df11cce3794b3a=
+f98
+        new failure (last pass: v5.12.4-247-g1c297c9df9fb) =
+
+ =20
