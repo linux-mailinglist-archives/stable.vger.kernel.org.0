@@ -2,106 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CADBE38208B
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 21:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 638D9382090
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 21:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231901AbhEPTFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 15:05:06 -0400
-Received: from sender4-of-o53.zoho.com ([136.143.188.53]:21310 "EHLO
-        sender4-of-o53.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231589AbhEPTFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 15:05:06 -0400
-ARC-Seal: i=1; a=rsa-sha256; t=1621191817; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=ia14Lb0T+uAulHG1TPwDesKVhwZdhRTbtZ1b0y/wFBx2A3U72f0n9So09gjvWPRry4CBotf+k7p8fIRTC7a0tWVdkm0/uK7PF8HepVbohc9fhW9e8fk6AWEULZ28bQ6IDqyPWZZiWNk/ngwana0QVKRP2ZArADtqQMtm94t1jU0=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1621191817; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=knJeWAuAqA5UlEpt83ngR+767zMb5UM/sYg1v7UcpCw=; 
-        b=ZuSmqIlCcQVrp9Q6yJBOVJLK8wKdeCqCG3NouE1jX4+S6G3kD076e9taZD3qJPRQA7Is7+un+G4lI/B/13geEiLuqhAn4ZhwHYjY0R2qoVy1McLUC5js/vS4HFjsA2rqR/wB0N2AuOX4lv+Ir1kbBa3zS3WuX5wuCiXxXiNZ+n8=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=anirudhrb.com;
-        spf=pass  smtp.mailfrom=mail@anirudhrb.com;
-        dmarc=pass header.from=<mail@anirudhrb.com> header.from=<mail@anirudhrb.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1621191817;
-        s=zoho; d=anirudhrb.com; i=mail@anirudhrb.com;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To;
-        bh=knJeWAuAqA5UlEpt83ngR+767zMb5UM/sYg1v7UcpCw=;
-        b=M6eXNQwysaohb7TkG4TH35wkAaQarDniox+pI1CAHWO5Y4qkxIEN4vpGlIYiOtgX
-        pxjhgNXfsfi9vedl4McoQnxei3ZqmFssc8VN8UO/pVlf0GkVyr7JC69TGNO9+b4qm/9
-        wks111COXEGC1nBpHkybyphkYG3Iqi5f+OqVD3Y0=
-Received: from anirudhrb.com (106.51.110.61 [106.51.110.61]) by mx.zohomail.com
-        with SMTPS id 1621191814374210.47511037786865; Sun, 16 May 2021 12:03:34 -0700 (PDT)
-Date:   Mon, 17 May 2021 00:33:26 +0530
-From:   Anirudh Rayabharam <mail@anirudhrb.com>
-To:     kernel test robot <oliver.sang@intel.com>
-Cc:     Igor Matheus Andrade Torrente <igormtorrente@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        stable <stable@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, lkp@lists.01.org,
-        lkp@intel.com
-Subject: Re: [video]  dc13cac486: BUG:KASAN:stack-out-of-bounds_in_hgafb_open
-Message-ID: <YKFsfoaofqs1MQDw@anirudhrb.com>
-References: <20210516150019.GB25903@xsang-OptiPlex-9020>
+        id S232031AbhEPTKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 15:10:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36626 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229661AbhEPTKj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 15:10:39 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9620DC061573
+        for <stable@vger.kernel.org>; Sun, 16 May 2021 12:09:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=8WzF9uTDOuvCSZt3gwOf4HGtceH3l2+ge5emBoE+kpw=; b=golC+u2UhHgpqn7vSuSRMoIsDi
+        szdUTaVwfcUVTjARtIBWIYubvGLKRyYVidP5p5r1jxEY5ItwMibWY8KbWsnZByoyhfkyq0OwxkT5o
+        uUABxaHsBlpCA7HdvkPS7greSJrK1xQ0k9X63bzPnpJqqt+c23iRVA5KTkspznONgmW1EjyaL7eIS
+        tY7gI4jBi8I4NxrXw2/pteqFPVYA8hRWnuCFhyPKaAi5lq31jEU72EPlnxygmTeQBH/MmYc9jZATq
+        LSRVp1kdhGmd7utDES/OR+pkOUEchKzobwrKzoDZr4NHtpfjs5VxrFQDIJSJPffy3KPrV6tiPewJz
+        ap2d9hDQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1liM8e-00CEnc-6D; Sun, 16 May 2021 19:09:20 +0000
+Date:   Sun, 16 May 2021 20:09:20 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     stable <stable@vger.kernel.org>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Matteo Croce <mcroce@linux.microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] mm: fix struct page layout on 32-bit systems
+Message-ID: <YKFt4Njj5au/JEhT@casper.infradead.org>
+References: <20210516121844.2860628-1-willy@infradead.org>
+ <CAHk-=wgTG0Bb30NzXX=3F=n-rHjVrQAHVzFFCxRKWTTu1QxABQ@mail.gmail.com>
+ <YKFi1hIBGLIQOHgc@casper.infradead.org>
+ <CAHk-=wihKAt+Wz6=nccQAXxi_VWFJpx4JwWTJSwT0UvUs1RtZw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210516150019.GB25903@xsang-OptiPlex-9020>
-X-ZohoMailClient: External
+In-Reply-To: <CAHk-=wihKAt+Wz6=nccQAXxi_VWFJpx4JwWTJSwT0UvUs1RtZw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 16, 2021 at 11:00:19PM +0800, kernel test robot wrote:
+On Sun, May 16, 2021 at 11:27:10AM -0700, Linus Torvalds wrote:
+> On Sun, May 16, 2021 at 11:22 AM Matthew Wilcox <willy@infradead.org> wrote:
+> >
+> > Nobody's been willing to guarantee that all 32-bit architectures keep the
+> > top 20 bits clear for their DMA addresses.  I've certainly seen hardware
+> > (maybe PA-RISC?  MIPS?) which uses the top few bits of the DMA address to
+> > indicate things like "coherent" or "bypasses IOMMU".  Rather than trying
+> > to find out, I thought this was the safer option.
 > 
+> Fair enough. I just find it somewhat odd.
 > 
-> Greeting,
+> But I still find this a bit ugly. Maybe we could just have made that
+> one sub-structure "__aligned(4)", and avoided this all, and let the
+> compiler generate the split load (or, more likely, just let the
+> compiler generate a regular load from an unaligned location).
 > 
-> FYI, we noticed the following commit (built with gcc-9):
+> IOW, just
 > 
-> commit: dc13cac4862cc68ec74348a80b6942532b7735fa ("video: hgafb: fix potential NULL pointer dereference")
-> https://git.kernel.org/cgit/linux/kernel/git/gregkh/char-misc.git char-misc-linus
+>                 struct {        /* page_pool used by netstack */
+>                         /**
+>                          * @dma_addr: might require a 64-bit value even on
+>                          * 32-bit architectures.
+>                          */
+>                         dma_addr_t dma_addr;
+>                 } __aligned((4));
 > 
-> 
-> in testcase: trinity
-> version: trinity-static-x86_64-x86_64-f93256fb_2019-08-28
-> with following parameters:
-> 
-> 	number: 99999
-> 	group: group-02
-> 
-> test-description: Trinity is a linux system call fuzz tester.
-> test-url: http://codemonkey.org.uk/projects/trinity/
-> 
-> 
-> on test machine: qemu-system-x86_64 -enable-kvm -cpu SandyBridge -smp 2 -m 16G
-> 
-> caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
-> 
-> 
-> +---------------------------------------------+------------+------------+
-> |                                             | 58c0cc2d90 | dc13cac486 |
-> +---------------------------------------------+------------+------------+
-> | boot_successes                              | 42         | 14         |
-> | boot_failures                               | 0          | 34         |
-> | BUG:KASAN:stack-out-of-bounds_in_hgafb_open | 0          | 34         |
-> +---------------------------------------------+------------+------------+
-> 
-> 
-> If you fix the issue, kindly add following tag
-> Reported-by: kernel test robot <oliver.sang@intel.com>
-> 
-> 
-> [  419.568887] BUG: KASAN: stack-out-of-bounds in hgafb_open (kbuild/src/consumer/drivers/video/fbdev/hgafb.c:375) 
+> without the magic shifting games?
 
-Looks like the return value of hga_card_detect() is not properly
-handled causing the probe function to succeed even though
-hga_card_detect() has failed. Since probe has succeeded, hgafb_open()
-can be called which will end up operating on an unmapped hga_vram.
+That was the other problem fixed by this patch -- on big-endian 32-bit
+platforms with 64-bit dma_addr_t (mips, ppc), a DMA address with bit 32 set
+inadvertently sets the PageTail bit.  So we need to store the low bits
+in the first word, even on big-endian platforms.
 
-Patch on the way.
-
-Thanks!
-
-	- Anirudh.
+There's an upcoming patch to move dma_addr out of the union with
+compound_head, but that requires changing page_is_pfmemalloc() to
+use an indicator other than page->index == -1.  Once we do that,
+we can have fun with __aligned().  Since we knew it would have to
+be backported, this felt like the least risky patch to start with.
