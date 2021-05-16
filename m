@@ -2,58 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACDB1381D9E
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE09381D9F
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:17:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234451AbhEPJS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 05:18:58 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:37241 "EHLO
+        id S234454AbhEPJTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 05:19:03 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:52021 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231287AbhEPJS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:18:57 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 942D4FCB;
-        Sun, 16 May 2021 05:17:42 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 16 May 2021 05:17:43 -0400
+        by vger.kernel.org with ESMTP id S231287AbhEPJTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:19:03 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id D10C210A5;
+        Sun, 16 May 2021 05:17:48 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sun, 16 May 2021 05:17:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=L1W2A7
-        B8CG9ZLQR4l+sOtwwR17kL3sbgX2ViyJFe/w4=; b=WivQWYp11JOcwZhNM5nr3x
-        h4Mw8D54M7kkI4hWvFS01BauuJyGpqskg9NAnobdlE2dHrLzq5xEZeUIPvB+4jes
-        RZSo2pPdXqcFMu7AzaOXS2M2DBIhlms9RlZJ7FpU/mdM6zzqoz6Vc+KYPA1pHsFW
-        1eGV5hgORWyo29xn5rDHNrKrBxhVL4Py8aXE3SeZNxQx9ne4pTQvyo6T/TuTA6FT
-        sb88LVzBVNa2k6CvZfTVypKNBTw//ggI1rje5orjNdHG0rjsBjE8d8mcF4TECKMH
-        yw7nnpI/iWqOZJMhmgl2S3M7jC3CDyYWvOaJDdVJokDPifpDMgskjL4KylunNkuQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=amypqn
+        rgSg4sd+fTU9E4eKH5rDU4caw55OQEgnrIAlQ=; b=rpWkTj0ZLayhjeb1Z16gtp
+        tBU8Uk1BLsEEA9EQc6ZHmebGDvt+QIAg+Q4RwR+jxFdxqSDrZ5Wi/owilwROT2lz
+        PWm35VdCzCTCmHuLh3ydqiArUs8XQaZhvDIfv5b/NGWvgp5HrRh5x1xdOF39JoIv
+        IA9i2DFacjR08w6U8N41j4Je1S0Nv75F3UXU4fQWriG37Y3Y0e/FeHUFsFtjeb5J
+        85VVq9UsYgdt3JbT7rqMvmnaaE3Yqfeppbxqt8vCf7A9+LOE4JyT03wrzKuaS9uY
+        7tYQP3gF7/hyhV3j3oKkTcxvuP8VvYNPfZsEMbSCzRxi65Q1OtU6+G6pm40dDWBA
         ==
-X-ME-Sender: <xms:NuOgYL50oJg3GRj947rfD1VgOXrc702LP73GLD0Y3Hmge8hOyrHjsA>
-    <xme:NuOgYA6FUtAXcaJ9af4cs0SeUKxHDInA0O2I9UKgxzLpcnqNECO-wPYbQUCqcjpyv
-    Rwr8MFEjCRREw>
+X-ME-Sender: <xms:POOgYHyiI9ghrr_wsmuCRUqSV45QWkt9HuYWJoqmmejIVYG0fDnLTQ>
+    <xme:POOgYPSybaUeR5IObMqLfoWMdrQI8ooV5qHGs5x3P9tDC0IHc09Y5dSAfFHjiJpDl
+    Oqd_PV3SWVaMw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:NuOgYCeT9ZrKCNQ8GW9JihWVfVpXLInBgEMkcNKQUX_I8HYhq_IvFw>
-    <xmx:NuOgYMIdnFthB9TQOxsygDzfobkVkQqMhc_Ubvm37xGht5wd-6vofg>
-    <xmx:NuOgYPK7UCt1bF9gFatzsNofL37sK4CZsjoy0O7QEF2euL7GsZ0mtQ>
-    <xmx:NuOgYH-FLNMnbTtr-9P22ZwkCzLF5B-ko3O-sdskUpnJGqOzGqYf8rYjlYo>
+X-ME-Proxy: <xmx:POOgYBXCzIZHdHhW1wlmKXnFA-PkUv5n6FU_YBUqU84iC_rhbkJ2iw>
+    <xmx:POOgYBjtzMG3K7CE4BZVzPbguSNoFGvwfhI3AoZkGhSO0iKAvxMpMw>
+    <xmx:POOgYJBHqD-iVibU4Q_5SxKeliIaBkl-ThVbS0tLJuaGvXYiTVELEQ>
+    <xmx:POOgYG6De4oyDvTcVwMxUj4YiAzMeJTLWI3-onqWGLxBs5DccCu91rD6eEc>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 16 May 2021 05:17:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm: fix struct page layout on 32-bit systems" failed to apply to 5.12-stable tree
-To:     willy@infradead.org, akpm@linux-foundation.org, brouer@redhat.com,
-        ilias.apalodimas@linaro.org, mcroce@linux.microsoft.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
+        Sun, 16 May 2021 05:17:47 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] blk-iocost: fix weight updates of inner active iocgs" failed to apply to 5.4-stable tree
+To:     tj@kernel.org, axboe@kernel.dk, dschatzberg@fb.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 May 2021 11:17:27 +0200
-Message-ID: <1621156647112119@kroah.com>
+Date:   Sun, 16 May 2021 11:17:46 +0200
+Message-ID: <16211566667029@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.12-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,116 +70,88 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9ddb3c14afba8bc5950ed297f02d4ae05ff35cd1 Mon Sep 17 00:00:00 2001
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Date: Fri, 14 May 2021 17:27:24 -0700
-Subject: [PATCH] mm: fix struct page layout on 32-bit systems
+From e9f4eee9a0023ba22db9560d4cc6ee63f933dae8 Mon Sep 17 00:00:00 2001
+From: Tejun Heo <tj@kernel.org>
+Date: Tue, 11 May 2021 21:38:36 -0400
+Subject: [PATCH] blk-iocost: fix weight updates of inner active iocgs
 
-32-bit architectures which expect 8-byte alignment for 8-byte integers and
-need 64-bit DMA addresses (arm, mips, ppc) had their struct page
-inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
-the alignment of the union to 8 bytes, which inserted a 4 byte gap between
-'flags' and the union.
+When the weight of an active iocg is updated, weight_updated() is called
+which in turn calls __propagate_weights() to update the active and inuse
+weights so that the effective hierarchical weights are update accordingly.
 
-Fix this by storing the dma_addr_t in one or two adjacent unsigned longs.
-This restores the alignment to that of an unsigned long.  We always
-store the low bits in the first word to prevent the PageTail bit from
-being inadvertently set on a big endian platform.  If that happened,
-get_user_pages_fast() racing against a page which was freed and
-reallocated to the page_pool could dereference a bogus compound_head(),
-which would be hard to trace back to this cause.
+The current implementation is incorrect for inner active nodes. For an
+active leaf iocg, inuse can be any value between 1 and active and the
+difference represents how much the iocg is donating. When weight is updated,
+as long as inuse is clamped between 1 and the new weight, we're alright and
+this is what __propagate_weights() currently implements.
 
-Link: https://lkml.kernel.org/r/20210510153211.1504886-1-willy@infradead.org
-Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Tested-by: Matteo Croce <mcroce@linux.microsoft.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+However, that's not how an active inner node's inuse is set. An inner node's
+inuse is solely determined by the ratio between the sums of inuse's and
+active's of its children - ie. they're results of propagating the leaves'
+active and inuse weights upwards. __propagate_weights() incorrectly applies
+the same clamping as for a leaf when an active inner node's weight is
+updated. Consider a hierarchy which looks like the following with saturating
+workloads in AA and BB.
 
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 6613b26a8894..5aacc1c10a45 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -97,10 +97,10 @@ struct page {
- 		};
- 		struct {	/* page_pool used by netstack */
- 			/**
--			 * @dma_addr: might require a 64-bit value even on
-+			 * @dma_addr: might require a 64-bit value on
- 			 * 32-bit architectures.
- 			 */
--			dma_addr_t dma_addr;
-+			unsigned long dma_addr[2];
- 		};
- 		struct {	/* slab, slob and slub */
- 			union {
-diff --git a/include/net/page_pool.h b/include/net/page_pool.h
-index 6d517a37c18b..b4b6de909c93 100644
---- a/include/net/page_pool.h
-+++ b/include/net/page_pool.h
-@@ -198,7 +198,17 @@ static inline void page_pool_recycle_direct(struct page_pool *pool,
+     R
+   /   \
+  A     B
+  |     |
+ AA     BB
+
+1. For both A and B, active=100, inuse=100, hwa=0.5, hwi=0.5.
+
+2. echo 200 > A/io.weight
+
+3. __propagate_weights() update A's active to 200 and leave inuse at 100 as
+   it's already between 1 and the new active, making A:active=200,
+   A:inuse=100. As R's active_sum is updated along with A's active,
+   A:hwa=2/3, B:hwa=1/3. However, because the inuses didn't change, the
+   hwi's remain unchanged at 0.5.
+
+4. The weight of A is now twice that of B but AA and BB still have the same
+   hwi of 0.5 and thus are doing the same amount of IOs.
+
+Fix it by making __propgate_weights() always calculate the inuse of an
+active inner iocg based on the ratio of child_inuse_sum to child_active_sum.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Dan Schatzberg <dschatzberg@fb.com>
+Fixes: 7caa47151ab2 ("blkcg: implement blk-iocost")
+Cc: stable@vger.kernel.org # v5.4+
+Link: https://lore.kernel.org/r/YJsxnLZV1MnBcqjj@slm.duckdns.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index e0c4baa01857..c2d6bc88d3f1 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -1069,7 +1069,17 @@ static void __propagate_weights(struct ioc_gq *iocg, u32 active, u32 inuse,
  
- static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
- {
--	return page->dma_addr;
-+	dma_addr_t ret = page->dma_addr[0];
-+	if (sizeof(dma_addr_t) > sizeof(unsigned long))
-+		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
-+	return ret;
-+}
-+
-+static inline void page_pool_set_dma_addr(struct page *page, dma_addr_t addr)
-+{
-+	page->dma_addr[0] = addr;
-+	if (sizeof(dma_addr_t) > sizeof(unsigned long))
-+		page->dma_addr[1] = upper_32_bits(addr);
- }
+ 	lockdep_assert_held(&ioc->lock);
  
- static inline bool is_page_pool_compiled_in(void)
-diff --git a/net/core/page_pool.c b/net/core/page_pool.c
-index 9ec1aa9640ad..3c4c4c7a0402 100644
---- a/net/core/page_pool.c
-+++ b/net/core/page_pool.c
-@@ -174,8 +174,10 @@ static void page_pool_dma_sync_for_device(struct page_pool *pool,
- 					  struct page *page,
- 					  unsigned int dma_sync_size)
- {
-+	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
-+
- 	dma_sync_size = min(dma_sync_size, pool->p.max_len);
--	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
-+	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
- 					 pool->p.offset, dma_sync_size,
- 					 pool->p.dma_dir);
- }
-@@ -195,7 +197,7 @@ static bool page_pool_dma_map(struct page_pool *pool, struct page *page)
- 	if (dma_mapping_error(pool->p.dev, dma))
- 		return false;
+-	inuse = clamp_t(u32, inuse, 1, active);
++	/*
++	 * For an active leaf node, its inuse shouldn't be zero or exceed
++	 * @active. An active internal node's inuse is solely determined by the
++	 * inuse to active ratio of its children regardless of @inuse.
++	 */
++	if (list_empty(&iocg->active_list) && iocg->child_active_sum) {
++		inuse = DIV64_U64_ROUND_UP(active * iocg->child_inuse_sum,
++					   iocg->child_active_sum);
++	} else {
++		inuse = clamp_t(u32, inuse, 1, active);
++	}
  
--	page->dma_addr = dma;
-+	page_pool_set_dma_addr(page, dma);
+ 	iocg->last_inuse = iocg->inuse;
+ 	if (save)
+@@ -1086,7 +1096,7 @@ static void __propagate_weights(struct ioc_gq *iocg, u32 active, u32 inuse,
+ 		/* update the level sums */
+ 		parent->child_active_sum += (s32)(active - child->active);
+ 		parent->child_inuse_sum += (s32)(inuse - child->inuse);
+-		/* apply the udpates */
++		/* apply the updates */
+ 		child->active = active;
+ 		child->inuse = inuse;
  
- 	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
- 		page_pool_dma_sync_for_device(pool, page, pool->p.max_len);
-@@ -331,13 +333,13 @@ void page_pool_release_page(struct page_pool *pool, struct page *page)
- 		 */
- 		goto skip_dma_unmap;
- 
--	dma = page->dma_addr;
-+	dma = page_pool_get_dma_addr(page);
- 
--	/* When page is unmapped, it cannot be returned our pool */
-+	/* When page is unmapped, it cannot be returned to our pool */
- 	dma_unmap_page_attrs(pool->p.dev, dma,
- 			     PAGE_SIZE << pool->p.order, pool->p.dma_dir,
- 			     DMA_ATTR_SKIP_CPU_SYNC);
--	page->dma_addr = 0;
-+	page_pool_set_dma_addr(page, 0);
- skip_dma_unmap:
- 	/* This may be the last page returned, releasing the pool, so
- 	 * it is not safe to reference pool afterwards.
 
