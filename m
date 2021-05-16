@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87950381D9D
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:17:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACDB1381D9E
+	for <lists+stable@lfdr.de>; Sun, 16 May 2021 11:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233286AbhEPJSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 05:18:55 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:44293 "EHLO
+        id S234451AbhEPJS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 05:18:58 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:37241 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231287AbhEPJSy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:18:54 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id AB045102D;
-        Sun, 16 May 2021 05:17:39 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 16 May 2021 05:17:40 -0400
+        by vger.kernel.org with ESMTP id S231287AbhEPJS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 05:18:57 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 942D4FCB;
+        Sun, 16 May 2021 05:17:42 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Sun, 16 May 2021 05:17:43 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2Ovc7m
-        vu3/ImmH5V9k4huWcrvGxSojULK56J7xYhZZ8=; b=Caq1oJ91vvyzel6bJjsDRF
-        sOOK91S/l0uov88hRTtkYf9vZqh8kb7AeiP6KflkX7IWNCHYUssOQzGNjRY70Ggu
-        fZLRHhZM9HdFycguka0JDbfUoLgh1Hph2AMB57RlP0IYHtWR1LBZpZjSloHaoyZV
-        zjfgyl7xXVMRsva9I4BVDqMiTabBccMw7pnLzKoy/0bpDaN+YgbJIFJVNFgw+SAu
-        +PL366+RuoUWXn0Rd9wlx5yEz6DS7wkgzwNjB62zc/HJa2kXvAAnFeWIBBxD04y4
-        i38qNRyFMaBN4GS8cnkjBY7b6eda1SnAngyktGNoZF/CZ8fxgfRZL+uEB2TD3jWQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=L1W2A7
+        B8CG9ZLQR4l+sOtwwR17kL3sbgX2ViyJFe/w4=; b=WivQWYp11JOcwZhNM5nr3x
+        h4Mw8D54M7kkI4hWvFS01BauuJyGpqskg9NAnobdlE2dHrLzq5xEZeUIPvB+4jes
+        RZSo2pPdXqcFMu7AzaOXS2M2DBIhlms9RlZJ7FpU/mdM6zzqoz6Vc+KYPA1pHsFW
+        1eGV5hgORWyo29xn5rDHNrKrBxhVL4Py8aXE3SeZNxQx9ne4pTQvyo6T/TuTA6FT
+        sb88LVzBVNa2k6CvZfTVypKNBTw//ggI1rje5orjNdHG0rjsBjE8d8mcF4TECKMH
+        yw7nnpI/iWqOZJMhmgl2S3M7jC3CDyYWvOaJDdVJokDPifpDMgskjL4KylunNkuQ
         ==
-X-ME-Sender: <xms:M-OgYIpoz1TmU1CPo882Q9UFImSmDDSn93gvY6xL9C_u9DGFMYeDUw>
-    <xme:M-OgYOqaace3NlIP4Mby5xUAl5lZ9YC1h63zLd6IIxPtnqUyFd08zfxYVKsQi4TUo
-    Hba3EfC5wssUA>
+X-ME-Sender: <xms:NuOgYL50oJg3GRj947rfD1VgOXrc702LP73GLD0Y3Hmge8hOyrHjsA>
+    <xme:NuOgYA6FUtAXcaJ9af4cs0SeUKxHDInA0O2I9UKgxzLpcnqNECO-wPYbQUCqcjpyv
+    Rwr8MFEjCRREw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeifedguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:M-OgYNOJPXyIK1KWbCs7xv1Z7U8GrJxIWcfWQtZwK96u_OqOuWHHQA>
-    <xmx:M-OgYP6sbn3YCXtXWynKl_gMHVUhn7pCvRILsAfHX2DwJ-DfAy5RDg>
-    <xmx:M-OgYH6g99EExxA_wqTaZf1UY3u7QsbecmuNh7_YliwgflTMoNvcJA>
-    <xmx:M-OgYEsEcPGjS2HMRu2DK1wkTiLUvKxatcqpzcB9qztraWdNrxLNnv8zPn0>
+X-ME-Proxy: <xmx:NuOgYCeT9ZrKCNQ8GW9JihWVfVpXLInBgEMkcNKQUX_I8HYhq_IvFw>
+    <xmx:NuOgYMIdnFthB9TQOxsygDzfobkVkQqMhc_Ubvm37xGht5wd-6vofg>
+    <xmx:NuOgYPK7UCt1bF9gFatzsNofL37sK4CZsjoy0O7QEF2euL7GsZ0mtQ>
+    <xmx:NuOgYH-FLNMnbTtr-9P22ZwkCzLF5B-ko3O-sdskUpnJGqOzGqYf8rYjlYo>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 16 May 2021 05:17:38 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm: fix struct page layout on 32-bit systems" failed to apply to 5.11-stable tree
+        Sun, 16 May 2021 05:17:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm: fix struct page layout on 32-bit systems" failed to apply to 5.12-stable tree
 To:     willy@infradead.org, akpm@linux-foundation.org, brouer@redhat.com,
         ilias.apalodimas@linaro.org, mcroce@linux.microsoft.com,
         stable@vger.kernel.org, torvalds@linux-foundation.org,
         vbabka@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 16 May 2021 11:17:26 +0200
-Message-ID: <16211566469854@kroah.com>
+Date:   Sun, 16 May 2021 11:17:27 +0200
+Message-ID: <1621156647112119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
