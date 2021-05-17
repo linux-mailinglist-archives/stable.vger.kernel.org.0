@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 093A5382EA1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:08:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A142D382ECA
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:10:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238098AbhEQOJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:09:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59850 "EHLO mail.kernel.org"
+        id S238561AbhEQOLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238092AbhEQOHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:07:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C7F36128A;
-        Mon, 17 May 2021 14:06:20 +0000 (UTC)
+        id S238066AbhEQOJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:09:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E8B06112F;
+        Mon, 17 May 2021 14:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260380;
-        bh=fxnDPLlPWYLf9/KzTkxHvikDC9lWN6ga0dBvtKr5d2I=;
+        s=korg; t=1621260400;
+        bh=3LQEmK+9k9N4NRabF1WjLdp98igBJaP0SbG2CHkZw1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TC1vf2PmN42LfisnshLnk0xXMgnHch0WCBmG3zgMuxv327LuewFUKynBFogTx7oja
-         NJGNkZv8BLM1SRsVA5yV5IuB2C4Py3lD/tWUsUL0Cu10gJnlULYrj7lyAdW80I7B6S
-         SkdwOy9Omz5AFgESm06HUhTZb++dPnpe2OzOJd6Q=
+        b=t1qAzS/TChNoT7JX66P9c9eWWh9MsOpRQN28fxKU5Z0jJpqrlJ9K95QMd2ds2goPA
+         yaNXo7ea4xJqAN6TqwjZMK68DzYiYOoxbmiXDXae0Bh55eWF3TWMcnpS/RW2szQKD9
+         6dnoZQscTYYPVMx77y+n6tXd2JgzdIpbKqCTYGPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 028/363] i2c: bail out early when RDWR parameters are wrong
-Date:   Mon, 17 May 2021 15:58:14 +0200
-Message-Id: <20210517140303.540757683@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Tong Zhang <ztong0001@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 029/363] ALSA: hdsp: dont disable if not enabled
+Date:   Mon, 17 May 2021 15:58:15 +0200
+Message-Id: <20210517140303.578048496@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,43 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 71581562ee36032d2d574a9b23ad4af6d6a64cf7 ]
+[ Upstream commit 507cdb9adba006a7798c358456426e1aea3d9c4f ]
 
-The buggy parameters currently get caught later, but emit a noisy WARN.
-Userspace should not be able to trigger this, so add similar checks much
-earlier. Also avoids some unneeded code paths, of course. Apply kernel
-coding stlye to a comment while here.
+hdsp wants to disable a not enabled pci device, which makes kernel
+throw a warning. Make sure the device is enabled before calling disable.
 
-Reported-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
-Tested-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+[    1.758292] snd_hdsp 0000:00:03.0: disabling already-disabled device
+[    1.758327] WARNING: CPU: 0 PID: 180 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
+[    1.766985] Call Trace:
+[    1.767121]  snd_hdsp_card_free+0x94/0xf0 [snd_hdsp]
+[    1.767388]  release_card_device+0x4b/0x80 [snd]
+[    1.767639]  device_release+0x3b/0xa0
+[    1.767838]  kobject_put+0x94/0x1b0
+[    1.768027]  put_device+0x13/0x20
+[    1.768207]  snd_card_free+0x61/0x90 [snd]
+[    1.768430]  snd_hdsp_probe+0x524/0x5e0 [snd_hdsp]
+
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210321153840.378226-2-ztong0001@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ sound/pci/rme9652/hdsp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 6ceb11cc4be1..6ef38a8ee95c 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -440,8 +440,13 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 				   sizeof(rdwr_arg)))
- 			return -EFAULT;
+diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+index 4cf879c42dc4..720297cbdf87 100644
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -5390,7 +5390,8 @@ static int snd_hdsp_free(struct hdsp *hdsp)
+ 	if (hdsp->port)
+ 		pci_release_regions(hdsp->pci);
  
--		/* Put an arbitrary limit on the number of messages that can
--		 * be sent at once */
-+		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0)
-+			return -EINVAL;
-+
-+		/*
-+		 * Put an arbitrary limit on the number of messages that can
-+		 * be sent at once
-+		 */
- 		if (rdwr_arg.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
- 			return -EINVAL;
+-	pci_disable_device(hdsp->pci);
++	if (pci_is_enabled(hdsp->pci))
++		pci_disable_device(hdsp->pci);
+ 	return 0;
+ }
  
 -- 
 2.30.2
