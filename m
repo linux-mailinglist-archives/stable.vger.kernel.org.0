@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE50D382F47
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C353382ED4
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238725AbhEQOPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:15:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46534 "EHLO mail.kernel.org"
+        id S238597AbhEQOLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:11:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238467AbhEQOM4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:12:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 995F261361;
-        Mon, 17 May 2021 14:08:18 +0000 (UTC)
+        id S238221AbhEQOJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:09:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AF9B61353;
+        Mon, 17 May 2021 14:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260499;
-        bh=qV9+df8TPeAHAIA3wa/PLMlE/O/clMfwETcUrlBGups=;
+        s=korg; t=1621260416;
+        bh=4vldGFku7LwfIJmSZA2/UFDmjoW0JxY2jQPXpMy7jIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Olch9LSkQenef/f/w2+uDo/C0cNBD5g2WYRF2XQMDrR5A74kR3ZhOPHwZRBQrBlNM
-         pJQwfwKFACaq600Ckq0vtnRQRCn0GUbzbOanMdAcpzz6IqOR5Iq8F7ZK6VVkerntWT
-         jAa8oYcsFWZLl9eR2ZeHWW2YWaKBi5rykCG0styA=
+        b=iamqZNho8QeFpMZlHhSts60rD8XQF+a4arXG0HIZLSbKealZxoJAjBp+cTcBO3bfy
+         Qu9TS2ZbzPN7ztucLnA0HIlspIrkHi6xnmJVPR2hDcOl1D3L3MpRLYM2lDXI4dc8GO
+         Z83ZgEmAL3bJeuCYHJeTzgDtMJfn324aZJ+bnkRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 063/363] mt76: mt7615: fix key set/delete issues
-Date:   Mon, 17 May 2021 15:58:49 +0200
-Message-Id: <20210517140304.736184179@linuxfoundation.org>
+        stable@vger.kernel.org, Georgi Vlaev <georgi.vlaev@konsulko.com>,
+        Stijn Segers <foss@volatilesystems.org>,
+        Sander Vanheule <sander@svanheule.net>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 064/363] mt76: mt7615: support loading EEPROM for MT7613BE
+Date:   Mon, 17 May 2021 15:58:50 +0200
+Message-Id: <20210517140304.771172903@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -39,255 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Sander Vanheule <sander@svanheule.net>
 
-[ Upstream commit 730d6d0da8d8f5905faafe645a5b3c08ac3f5a8f ]
+[ Upstream commit 858ebf446bee7d5077bd99488aae617908c3f4fe ]
 
-There were multiple issues in the current key set/remove code:
-- deleting a key with the previous key index deletes the current key
-- BIP key would only be uploaded correctly initially and corrupted on rekey
+EEPROM blobs for MT7613BE radios start with (little endian) 0x7663,
+which is also the PCI device ID for this device. The EEPROM is required
+for the radio to work at useful power levels, otherwise only the lowest
+power level is available.
 
-Rework the code to better keep track of multiple keys and check for the
-key index before deleting the current key
-
+Suggested-by: Georgi Vlaev <georgi.vlaev@konsulko.com>
+Tested-by: Stijn Segers <foss@volatilesystems.org>
+Signed-off-by: Sander Vanheule <sander@svanheule.net>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76.h     |  1 +
- .../net/wireless/mediatek/mt76/mt7615/mac.c   | 97 ++++++++++---------
- .../net/wireless/mediatek/mt76/mt7615/main.c  | 18 ++--
- 3 files changed, 65 insertions(+), 51 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
-index 8bf45497cfca..36a430f09f64 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76.h
-@@ -222,6 +222,7 @@ struct mt76_wcid {
- 
- 	u16 idx;
- 	u8 hw_key_idx;
-+	u8 hw_key_idx2;
- 
- 	u8 sta:1;
- 	u8 ext_phy:1;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index d73841480544..8dccb589b756 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -1037,7 +1037,7 @@ EXPORT_SYMBOL_GPL(mt7615_mac_set_rates);
- static int
- mt7615_mac_wtbl_update_key(struct mt7615_dev *dev, struct mt76_wcid *wcid,
- 			   struct ieee80211_key_conf *key,
--			   enum mt7615_cipher_type cipher,
-+			   enum mt7615_cipher_type cipher, u16 cipher_mask,
- 			   enum set_key_cmd cmd)
- {
- 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx) + 30 * 4;
-@@ -1054,22 +1054,22 @@ mt7615_mac_wtbl_update_key(struct mt7615_dev *dev, struct mt76_wcid *wcid,
- 			memcpy(data + 16, key->key + 24, 8);
- 			memcpy(data + 24, key->key + 16, 8);
- 		} else {
--			if (cipher != MT_CIPHER_BIP_CMAC_128 && wcid->cipher)
--				memmove(data + 16, data, 16);
--			if (cipher != MT_CIPHER_BIP_CMAC_128 || !wcid->cipher)
-+			if (cipher_mask == BIT(cipher))
- 				memcpy(data, key->key, key->keylen);
--			else if (cipher == MT_CIPHER_BIP_CMAC_128)
-+			else if (cipher != MT_CIPHER_BIP_CMAC_128)
-+				memcpy(data, key->key, 16);
-+			if (cipher == MT_CIPHER_BIP_CMAC_128)
- 				memcpy(data + 16, key->key, 16);
- 		}
- 	} else {
--		if (wcid->cipher & ~BIT(cipher)) {
--			if (cipher != MT_CIPHER_BIP_CMAC_128)
--				memmove(data, data + 16, 16);
-+		if (cipher == MT_CIPHER_BIP_CMAC_128)
- 			memset(data + 16, 0, 16);
--		} else {
-+		else if (cipher_mask)
-+			memset(data, 0, 16);
-+		if (!cipher_mask)
- 			memset(data, 0, sizeof(data));
--		}
- 	}
-+
- 	mt76_wr_copy(dev, addr, data, sizeof(data));
- 
- 	return 0;
-@@ -1077,7 +1077,7 @@ mt7615_mac_wtbl_update_key(struct mt7615_dev *dev, struct mt76_wcid *wcid,
- 
- static int
- mt7615_mac_wtbl_update_pk(struct mt7615_dev *dev, struct mt76_wcid *wcid,
--			  enum mt7615_cipher_type cipher,
-+			  enum mt7615_cipher_type cipher, u16 cipher_mask,
- 			  int keyidx, enum set_key_cmd cmd)
- {
- 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx), w0, w1;
-@@ -1087,20 +1087,23 @@ mt7615_mac_wtbl_update_pk(struct mt7615_dev *dev, struct mt76_wcid *wcid,
- 
- 	w0 = mt76_rr(dev, addr);
- 	w1 = mt76_rr(dev, addr + 4);
--	if (cmd == SET_KEY) {
--		w0 |= MT_WTBL_W0_RX_KEY_VALID |
--		      FIELD_PREP(MT_WTBL_W0_RX_IK_VALID,
--				 cipher == MT_CIPHER_BIP_CMAC_128);
--		if (cipher != MT_CIPHER_BIP_CMAC_128 ||
--		    !wcid->cipher)
--			w0 |= FIELD_PREP(MT_WTBL_W0_KEY_IDX, keyidx);
--	}  else {
--		if (!(wcid->cipher & ~BIT(cipher)))
--			w0 &= ~(MT_WTBL_W0_RX_KEY_VALID |
--				MT_WTBL_W0_KEY_IDX);
--		if (cipher == MT_CIPHER_BIP_CMAC_128)
--			w0 &= ~MT_WTBL_W0_RX_IK_VALID;
-+
-+	if (cipher_mask)
-+		w0 |= MT_WTBL_W0_RX_KEY_VALID;
-+	else
-+		w0 &= ~(MT_WTBL_W0_RX_KEY_VALID | MT_WTBL_W0_KEY_IDX);
-+	if (cipher_mask & BIT(MT_CIPHER_BIP_CMAC_128))
-+		w0 |= MT_WTBL_W0_RX_IK_VALID;
-+	else
-+		w0 &= ~MT_WTBL_W0_RX_IK_VALID;
-+
-+	if (cmd == SET_KEY &&
-+	    (cipher != MT_CIPHER_BIP_CMAC_128 ||
-+	     cipher_mask == BIT(cipher))) {
-+		w0 &= ~MT_WTBL_W0_KEY_IDX;
-+		w0 |= FIELD_PREP(MT_WTBL_W0_KEY_IDX, keyidx);
- 	}
-+
- 	mt76_wr(dev, MT_WTBL_RICR0, w0);
- 	mt76_wr(dev, MT_WTBL_RICR1, w1);
- 
-@@ -1113,24 +1116,25 @@ mt7615_mac_wtbl_update_pk(struct mt7615_dev *dev, struct mt76_wcid *wcid,
- 
- static void
- mt7615_mac_wtbl_update_cipher(struct mt7615_dev *dev, struct mt76_wcid *wcid,
--			      enum mt7615_cipher_type cipher,
-+			      enum mt7615_cipher_type cipher, u16 cipher_mask,
- 			      enum set_key_cmd cmd)
- {
- 	u32 addr = mt7615_mac_wtbl_addr(dev, wcid->idx);
- 
--	if (cmd == SET_KEY) {
--		if (cipher != MT_CIPHER_BIP_CMAC_128 || !wcid->cipher)
--			mt76_rmw(dev, addr + 2 * 4, MT_WTBL_W2_KEY_TYPE,
--				 FIELD_PREP(MT_WTBL_W2_KEY_TYPE, cipher));
--	} else {
--		if (cipher != MT_CIPHER_BIP_CMAC_128 &&
--		    wcid->cipher & BIT(MT_CIPHER_BIP_CMAC_128))
--			mt76_rmw(dev, addr + 2 * 4, MT_WTBL_W2_KEY_TYPE,
--				 FIELD_PREP(MT_WTBL_W2_KEY_TYPE,
--					    MT_CIPHER_BIP_CMAC_128));
--		else if (!(wcid->cipher & ~BIT(cipher)))
--			mt76_clear(dev, addr + 2 * 4, MT_WTBL_W2_KEY_TYPE);
-+	if (!cipher_mask) {
-+		mt76_clear(dev, addr + 2 * 4, MT_WTBL_W2_KEY_TYPE);
-+		return;
- 	}
-+
-+	if (cmd != SET_KEY)
-+		return;
-+
-+	if (cipher == MT_CIPHER_BIP_CMAC_128 &&
-+	    cipher_mask & ~BIT(MT_CIPHER_BIP_CMAC_128))
-+		return;
-+
-+	mt76_rmw(dev, addr + 2 * 4, MT_WTBL_W2_KEY_TYPE,
-+		 FIELD_PREP(MT_WTBL_W2_KEY_TYPE, cipher));
- }
- 
- int __mt7615_mac_wtbl_set_key(struct mt7615_dev *dev,
-@@ -1139,25 +1143,30 @@ int __mt7615_mac_wtbl_set_key(struct mt7615_dev *dev,
- 			      enum set_key_cmd cmd)
- {
- 	enum mt7615_cipher_type cipher;
-+	u16 cipher_mask = wcid->cipher;
- 	int err;
- 
- 	cipher = mt7615_mac_get_cipher(key->cipher);
- 	if (cipher == MT_CIPHER_NONE)
- 		return -EOPNOTSUPP;
- 
--	mt7615_mac_wtbl_update_cipher(dev, wcid, cipher, cmd);
--	err = mt7615_mac_wtbl_update_key(dev, wcid, key, cipher, cmd);
-+	if (cmd == SET_KEY)
-+		cipher_mask |= BIT(cipher);
-+	else
-+		cipher_mask &= ~BIT(cipher);
-+
-+	mt7615_mac_wtbl_update_cipher(dev, wcid, cipher, cipher_mask, cmd);
-+	err = mt7615_mac_wtbl_update_key(dev, wcid, key, cipher, cipher_mask,
-+					 cmd);
- 	if (err < 0)
- 		return err;
- 
--	err = mt7615_mac_wtbl_update_pk(dev, wcid, cipher, key->keyidx, cmd);
-+	err = mt7615_mac_wtbl_update_pk(dev, wcid, cipher, cipher_mask,
-+					key->keyidx, cmd);
- 	if (err < 0)
- 		return err;
- 
--	if (cmd == SET_KEY)
--		wcid->cipher |= BIT(cipher);
--	else
--		wcid->cipher &= ~BIT(cipher);
-+	wcid->cipher = cipher_mask;
- 
- 	return 0;
- }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-index 6107e827b383..d334491667a4 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-@@ -334,7 +334,8 @@ static int mt7615_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 	struct mt7615_sta *msta = sta ? (struct mt7615_sta *)sta->drv_priv :
- 				  &mvif->sta;
- 	struct mt76_wcid *wcid = &msta->wcid;
--	int idx = key->keyidx, err;
-+	int idx = key->keyidx, err = 0;
-+	u8 *wcid_keyidx = &wcid->hw_key_idx;
- 
- 	/* The hardware does not support per-STA RX GTK, fallback
- 	 * to software mode for these.
-@@ -349,6 +350,7 @@ static int mt7615_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 	/* fall back to sw encryption for unsupported ciphers */
- 	switch (key->cipher) {
- 	case WLAN_CIPHER_SUITE_AES_CMAC:
-+		wcid_keyidx = &wcid->hw_key_idx2;
- 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_MMIE;
- 		break;
- 	case WLAN_CIPHER_SUITE_TKIP:
-@@ -366,12 +368,13 @@ static int mt7615_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 
- 	mt7615_mutex_acquire(dev);
- 
--	if (cmd == SET_KEY) {
--		key->hw_key_idx = wcid->idx;
--		wcid->hw_key_idx = idx;
--	} else if (idx == wcid->hw_key_idx) {
--		wcid->hw_key_idx = -1;
--	}
-+	if (cmd == SET_KEY)
-+		*wcid_keyidx = idx;
-+	else if (idx == *wcid_keyidx)
-+		*wcid_keyidx = -1;
-+	else
-+		goto out;
-+
- 	mt76_wcid_key_setup(&dev->mt76, wcid,
- 			    cmd == SET_KEY ? key : NULL);
- 
-@@ -380,6 +383,7 @@ static int mt7615_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 	else
- 		err = __mt7615_mac_wtbl_set_key(dev, wcid, key, cmd);
- 
-+out:
- 	mt7615_mutex_release(dev);
- 
- 	return err;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c b/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
+index 2eab23898c77..6dbaaf95ee38 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
+@@ -86,6 +86,7 @@ static int mt7615_check_eeprom(struct mt76_dev *dev)
+ 	switch (val) {
+ 	case 0x7615:
+ 	case 0x7622:
++	case 0x7663:
+ 		return 0;
+ 	default:
+ 		return -EINVAL;
 -- 
 2.30.2
 
