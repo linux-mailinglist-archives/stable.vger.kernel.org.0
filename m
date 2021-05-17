@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8D22383363
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0B54383104
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240618AbhEQO5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:57:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51038 "EHLO mail.kernel.org"
+        id S240125AbhEQOdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:33:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241772AbhEQOx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:53:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A8AE619A3;
-        Mon, 17 May 2021 14:24:18 +0000 (UTC)
+        id S240167AbhEQObm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:31:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A880D61166;
+        Mon, 17 May 2021 14:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261458;
-        bh=fxnDPLlPWYLf9/KzTkxHvikDC9lWN6ga0dBvtKr5d2I=;
+        s=korg; t=1621260933;
+        bh=1Tj8L1ZaYES/mLH5ILY14A6ccbafPhdoBV0lV+yee9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mn8mkZMHuj59bkLXOiQ+vfjRcmuir6Yui/QO15RbPntNlsEfUplb7G51owUHg1faN
-         iNVMHvRW/Rz586uUti9y3qUuS2Ci1L4kV7ufMrgtdY4YgKGTBJgvqZpURuKUhkjczR
-         aCffUlfitXt/6IYl87bfk0plPimFUyjMOgzWD/+o=
+        b=tiRrV4jhpUmppVkc8gQKw04eSP6clLHSXgP0iBc3J0X75m2xKH8v3ndbwo+Zus5W+
+         MmtWRdXcBM0RZluZwW25xO6x7RvbIrN6WXeTOqtlrOkFfWsJcakc7Hjg3JvXGrivmE
+         NV1HtWCCFVtztprhY/7Oko8OMNR45kVFvmjJsVnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 022/289] i2c: bail out early when RDWR parameters are wrong
-Date:   Mon, 17 May 2021 15:59:07 +0200
-Message-Id: <20210517140305.924508510@linuxfoundation.org>
+        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
+        syzbot+abfc0f5e668d4099af73@syzkaller.appspotmail.com,
+        Alain Michaud <alainm@chromium.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 037/329] Bluetooth: check for zapped sk before connecting
+Date:   Mon, 17 May 2021 15:59:08 +0200
+Message-Id: <20210517140303.302166585@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Archie Pusaka <apusaka@chromium.org>
 
-[ Upstream commit 71581562ee36032d2d574a9b23ad4af6d6a64cf7 ]
+[ Upstream commit 3af70b39fa2d415dc86c370e5b24ddb9fdacbd6f ]
 
-The buggy parameters currently get caught later, but emit a noisy WARN.
-Userspace should not be able to trigger this, so add similar checks much
-earlier. Also avoids some unneeded code paths, of course. Apply kernel
-coding stlye to a comment while here.
+There is a possibility of receiving a zapped sock on
+l2cap_sock_connect(). This could lead to interesting crashes, one
+such case is tearing down an already tore l2cap_sock as is happened
+with this call trace:
 
-Reported-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
-Tested-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+__dump_stack lib/dump_stack.c:15 [inline]
+dump_stack+0xc4/0x118 lib/dump_stack.c:56
+register_lock_class kernel/locking/lockdep.c:792 [inline]
+register_lock_class+0x239/0x6f6 kernel/locking/lockdep.c:742
+__lock_acquire+0x209/0x1e27 kernel/locking/lockdep.c:3105
+lock_acquire+0x29c/0x2fb kernel/locking/lockdep.c:3599
+__raw_spin_lock_bh include/linux/spinlock_api_smp.h:137 [inline]
+_raw_spin_lock_bh+0x38/0x47 kernel/locking/spinlock.c:175
+spin_lock_bh include/linux/spinlock.h:307 [inline]
+lock_sock_nested+0x44/0xfa net/core/sock.c:2518
+l2cap_sock_teardown_cb+0x88/0x2fb net/bluetooth/l2cap_sock.c:1345
+l2cap_chan_del+0xa3/0x383 net/bluetooth/l2cap_core.c:598
+l2cap_chan_close+0x537/0x5dd net/bluetooth/l2cap_core.c:756
+l2cap_chan_timeout+0x104/0x17e net/bluetooth/l2cap_core.c:429
+process_one_work+0x7e3/0xcb0 kernel/workqueue.c:2064
+worker_thread+0x5a5/0x773 kernel/workqueue.c:2196
+kthread+0x291/0x2a6 kernel/kthread.c:211
+ret_from_fork+0x4e/0x80 arch/x86/entry/entry_64.S:604
+
+Signed-off-by: Archie Pusaka <apusaka@chromium.org>
+Reported-by: syzbot+abfc0f5e668d4099af73@syzkaller.appspotmail.com
+Reviewed-by: Alain Michaud <alainm@chromium.org>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/bluetooth/l2cap_sock.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 6ceb11cc4be1..6ef38a8ee95c 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -440,8 +440,13 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 				   sizeof(rdwr_arg)))
- 			return -EFAULT;
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index f1b1edd0b697..c99d65ef13b1 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -179,9 +179,17 @@ static int l2cap_sock_connect(struct socket *sock, struct sockaddr *addr,
+ 	struct l2cap_chan *chan = l2cap_pi(sk)->chan;
+ 	struct sockaddr_l2 la;
+ 	int len, err = 0;
++	bool zapped;
  
--		/* Put an arbitrary limit on the number of messages that can
--		 * be sent at once */
-+		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0)
-+			return -EINVAL;
+ 	BT_DBG("sk %p", sk);
+ 
++	lock_sock(sk);
++	zapped = sock_flag(sk, SOCK_ZAPPED);
++	release_sock(sk);
 +
-+		/*
-+		 * Put an arbitrary limit on the number of messages that can
-+		 * be sent at once
-+		 */
- 		if (rdwr_arg.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
- 			return -EINVAL;
- 
++	if (zapped)
++		return -EINVAL;
++
+ 	if (!addr || alen < offsetofend(struct sockaddr, sa_family) ||
+ 	    addr->sa_family != AF_BLUETOOTH)
+ 		return -EINVAL;
 -- 
 2.30.2
 
