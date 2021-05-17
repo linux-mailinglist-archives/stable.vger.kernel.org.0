@@ -2,77 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF4CA382ABE
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 13:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DE25382B1F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 13:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236646AbhEQLTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 07:19:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54074 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236528AbhEQLTY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 07:19:24 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BACCC061573;
-        Mon, 17 May 2021 04:18:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=jazNxV8D/7woDhWY9AkuzXWH5FjzFOrSgXVg3JXgTV8=; b=LlIkC4k+DL/6oGATReVm9MaK7X
-        9KxaYfSaHi6rAsbF8Tk2uGAlVwWRyS+bOvAYKjkIUl9zK2/Lf+w1MWjCdNe34uQthJKbZGmfVSqR1
-        rtClLQjdUCPlbERjYMEJq3sUah2HT+3ETF9eK6cn6zuPFRvIfpjGASwhtmN/hsHJwCiR4HR1KhXYn
-        vXqsC6uBn9gDLeGPXpagCE26yOPzSlrapc1AwVy5avg3yOUaS5JvzkV6MQ/SOXy6P4Qfh2XZJihUU
-        0TMhSLH64gTvBgWDu0GMJ/mZT2NE7QFMHET7MyK1QXJ9LzkDUq9G3gS4C0ZWIg9dpmilGu19X64nm
-        O6HuvzRw==;
-Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1libFc-00CqY5-CF; Mon, 17 May 2021 11:17:52 +0000
-Date:   Mon, 17 May 2021 12:17:32 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, linux-xfs@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        Jan Stancek <jstancek@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>
-Subject: Re: [PATCH 5.4] iomap: fix sub-page uptodate handling
-Message-ID: <YKJQzJESWb+FZE+N@casper.infradead.org>
-References: <20210516150328.2881778-1-willy@infradead.org>
- <YKIeYkw1YjkT4hth@kroah.com>
+        id S236712AbhEQLfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 07:35:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37908 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236741AbhEQLfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 07:35:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1107F6105A;
+        Mon, 17 May 2021 11:33:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1621251235;
+        bh=dxv4TFOe0IkIIY9wi4OssIURCUrkfjiImnuowIFKN9w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nDz1jWUmB8eNiQHe9CBySuQ5a2VWKP3qpiQ0TPjuXihj5DpD7U/0O0MSNS9cs+AkZ
+         EGc/O2WL+5XdKVTDTP4YlhGT8C0wvxWmCsIZmLopqC3PFuVsMsYnBG8o5PiS4aahUA
+         QGvRvmYThle92T+w3pkjYG69W9jqpt0eT/Z1Y2GY=
+Date:   Mon, 17 May 2021 13:33:53 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/530] 5.10.37-rc1 review
+Message-ID: <YKJUofvhQJl2k1c7@kroah.com>
+References: <20210512144819.664462530@linuxfoundation.org>
+ <20210512205308.GA30312@duo.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YKIeYkw1YjkT4hth@kroah.com>
+In-Reply-To: <20210512205308.GA30312@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 17, 2021 at 09:42:26AM +0200, Greg KH wrote:
-> On Sun, May 16, 2021 at 04:03:28PM +0100, Matthew Wilcox (Oracle) wrote:
-> > From: Christoph Hellwig <hch@lst.de>
-> > 
-> > commit 1cea335d1db1ce6ab71b3d2f94a807112b738a0f upstream
-> > 
-> > bio completions can race when a page spans more than one file system
-> > block.  Add a spinlock to synchronize marking the page uptodate.
-> > 
-> > Fixes: 9dc55f1389f9 ("iomap: add support for sub-pagesize buffered I/O without buffer heads")
-> > Reported-by: Jan Stancek <jstancek@redhat.com>
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > Reviewed-by: Dave Chinner <dchinner@redhat.com>
-> > Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-> > Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-> > ---
-> >  fs/iomap/buffered-io.c | 34 ++++++++++++++++++++++++----------
-> >  include/linux/iomap.h  |  1 +
-> >  2 files changed, 25 insertions(+), 10 deletions(-)
+On Wed, May 12, 2021 at 10:53:08PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> No s-o-b from you as you did the backport?  :(
+> > This is the start of the stable review cycle for the 5.10.37 release.
+> > There are 530 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 14 May 2021 14:47:09 +0000.
+> > Anything received after that time might be too late.
+> 
+> While trying to review the patches... I discovered 5.10.36 is not
+> tagged in origin/queue:
+> 
+> commit 72bb632d15f2eabf22b085d79590125a6e2e1aa3
+> Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Date:   Tue May 11 14:47:41 2021 +0200
+> 
+>     Linux 5.10.36
+>     
+> ...
+> commit f53a3a4808625f876aebc5a0bfb354480bbf0c21 (tag: v5.10.35)
+> 
+> Best regards,
+> 								Pavel
 
-My mistake.  I don't do stable backports of other people's patches very
-often.
-
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-
-> Anyway, what about a 4.19.y version?
-
-I'll look into it and see what I can do.
+Are you sure?  I see it here locally...
