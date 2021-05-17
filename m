@@ -2,40 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF11F38314A
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0393138314B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239824AbhEQOgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:36:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43786 "EHLO mail.kernel.org"
+        id S239866AbhEQOgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:36:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240304AbhEQOdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240308AbhEQOdw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 10:33:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57B7661923;
-        Mon, 17 May 2021 14:16:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 851786191F;
+        Mon, 17 May 2021 14:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260987;
-        bh=PHv2KvDy2IsXL+3VSPa4nrcKmdcnjm1hesbTOs07WOI=;
+        s=korg; t=1621260990;
+        bh=YJbURjksO0jdbLJvRyfqdFJ0W2nk8ljx8q+OLPu88rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iq24qAp3+fK62qZd3FlxNfjwUnk/jaeJBVEAT/dbbvHpVLlS+QL8ESwoqkaUv/kIl
-         foYRswgCsQ1XlWTnIUNgyqLf5+RO01ajPELPnxycfbWgJK7+d7c1xxxbb+XuZLoNNJ
-         JlyoFgd6UPPMWBYFxbDpC+jA2HEBMH4OKXaMqXsQ=
+        b=toGe3JIOIYbTCHyhj9PH1yDXJ4aLByCcE54Q/Ih5kbM3jYzH1OxM5hY20W89ULmsM
+         RDcfc7v82znjTFS9qI+aajI4DKK65rE3H/WZxr445pMDNzmYOjaWIrsGOQPs44mkvG
+         /yX3ZLVmvrv8iz9GJajtEmdM8RCbLiH41Au9V4FM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Justin M. Forbes" <jforbes@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 284/363] perf tools: Fix dynamic libbpf link
-Date:   Mon, 17 May 2021 16:02:30 +0200
-Message-Id: <20210517140312.207744252@linuxfoundation.org>
+Subject: [PATCH 5.12 285/363] usb: dwc3: gadget: Free gadget structure only after freeing endpoints
+Date:   Mon, 17 May 2021 16:02:31 +0200
+Message-Id: <20210517140312.241588347@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -47,72 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Jack Pham <jackp@codeaurora.org>
 
-[ Upstream commit ad1237c30d975535a669746496cbed136aa5a045 ]
+[ Upstream commit bb9c74a5bd1462499fe5ccb1e3c5ac40dcfa9139 ]
 
-Justin reported broken build with LIBBPF_DYNAMIC=1.
+As part of commit e81a7018d93a ("usb: dwc3: allocate gadget structure
+dynamically") the dwc3_gadget_release() was added which will free
+the dwc->gadget structure upon the device's removal when
+usb_del_gadget_udc() is called in dwc3_gadget_exit().
 
-When linking libbpf dynamically we need to use perf's
-hashmap object, because it's not exported in libbpf.so
-(only in libbpf.a).
+However, simply freeing the gadget results a dangling pointer
+situation: the endpoints created in dwc3_gadget_init_endpoints()
+have their dep->endpoint.ep_list members chained off the list_head
+anchored at dwc->gadget->ep_list.  Thus when dwc->gadget is freed,
+the first dwc3_ep in the list now has a dangling prev pointer and
+likewise for the next pointer of the dwc3_ep at the tail of the list.
+The dwc3_gadget_free_endpoints() that follows will result in a
+use-after-free when it calls list_del().
 
-Following build is now passing:
+This was caught by enabling KASAN and performing a driver unbind.
+The recent commit 568262bf5492 ("usb: dwc3: core: Add shutdown
+callback for dwc3") also exposes this as a panic during shutdown.
 
-  $ make LIBBPF_DYNAMIC=1
-    BUILD:   Doing 'make -j8' parallel build
-    ...
-  $ ldd perf | grep libbpf
-        libbpf.so.0 => /lib64/libbpf.so.0 (0x00007fa7630db000)
+There are a few possibilities to fix this.  One could be to perform
+a list_del() of the gadget->ep_list itself which removes it from
+the rest of the dwc3_ep chain.
 
-Fixes: eee19501926d ("perf tools: Grab a copy of libbpf's hashmap")
-Reported-by: Justin M. Forbes <jforbes@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210508205020.617984-1-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Another approach is what this patch does, by splitting up the
+usb_del_gadget_udc() call into its separate "del" and "put"
+components.  This allows dwc3_gadget_free_endpoints() to be
+called before the gadget is finally freed with usb_put_gadget().
+
+Fixes: e81a7018d93a ("usb: dwc3: allocate gadget structure dynamically")
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210501093558.7375-1-jackp@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Makefile.config | 1 +
- tools/perf/util/Build      | 7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/usb/dwc3/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index d8e59d31399a..c955cd683e22 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -530,6 +530,7 @@ ifndef NO_LIBELF
-       ifdef LIBBPF_DYNAMIC
-         ifeq ($(feature-libbpf), 1)
-           EXTLIBS += -lbpf
-+          $(call detected,CONFIG_LIBBPF_DYNAMIC)
-         else
-           dummy := $(error Error: No libbpf devel library found, please install libbpf-devel);
-         endif
-diff --git a/tools/perf/util/Build b/tools/perf/util/Build
-index e3e12f9d4733..5a296ac69415 100644
---- a/tools/perf/util/Build
-+++ b/tools/perf/util/Build
-@@ -141,7 +141,14 @@ perf-$(CONFIG_LIBELF) += symbol-elf.o
- perf-$(CONFIG_LIBELF) += probe-file.o
- perf-$(CONFIG_LIBELF) += probe-event.o
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index f85eda6bc988..5fd27160c336 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -4024,8 +4024,9 @@ int dwc3_gadget_init(struct dwc3 *dwc)
  
-+ifdef CONFIG_LIBBPF_DYNAMIC
-+  hashmap := 1
-+endif
- ifndef CONFIG_LIBBPF
-+  hashmap := 1
-+endif
-+
-+ifdef hashmap
- perf-y += hashmap.o
- endif
- 
+ void dwc3_gadget_exit(struct dwc3 *dwc)
+ {
+-	usb_del_gadget_udc(dwc->gadget);
++	usb_del_gadget(dwc->gadget);
+ 	dwc3_gadget_free_endpoints(dwc);
++	usb_put_gadget(dwc->gadget);
+ 	dma_free_coherent(dwc->sysdev, DWC3_BOUNCE_SIZE, dwc->bounce,
+ 			  dwc->bounce_addr);
+ 	kfree(dwc->setup_buf);
 -- 
 2.30.2
 
