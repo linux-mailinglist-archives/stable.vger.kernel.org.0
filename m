@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF7B3834D9
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3839E3834E3
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241809AbhEQPMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:12:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37272 "EHLO mail.kernel.org"
+        id S243215AbhEQPNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:13:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242993AbhEQPKf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:10:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46921616E9;
-        Mon, 17 May 2021 14:30:46 +0000 (UTC)
+        id S241488AbhEQPLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:11:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2C3D616ED;
+        Mon, 17 May 2021 14:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261846;
-        bh=gYSpMSpcemkS+AZtk7k2jROkybl1/SgYrbZvQokyg7w=;
+        s=korg; t=1621261853;
+        bh=VWFWm5cUN1jSxsItT/U9HhoMnGvxh07KV69SrLyK5ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTcFtb5nzLTV0f2yRUUJU2zf7aWWZm3e4bp7+Ej/tl87tAKRt3T1we62RstZmWh4z
-         XlC2SXiGddJS0sSzaGXS2JBWwgGvjq5kyZl01UBlnaj2KlxQ0M73+MCv6DFvGcpJYb
-         fOtxCgdK7BQFEDfMf9sskWofsb8dBu9mowZ4QVAE=
+        b=Uq8yhQX+CmWgKgJz6DErVQbdEuSXu3FdRlaTrzE8zsYoOrmCoNUkd8Xuq4p36HWfJ
+         cE44i0eE5PAXyUkgRDrCyVfQiDBExS5cEO2KtIDCW6Sky2IQjFrL/53pg3xlbf7HI0
+         rzBZTsTS8w3idZZFsZrBwE2a/3dPhlxqCEpZ8BeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinzhou Su <Jinzhou.Su@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/289] drm/amdgpu: Add mem sync flag for IB allocated by SA
-Date:   Mon, 17 May 2021 16:00:00 +0200
-Message-Id: <20210517140307.712892198@linuxfoundation.org>
+Subject: [PATCH 5.10 076/289] mt76: mt7615: fix entering driver-own state on mt7663
+Date:   Mon, 17 May 2021 16:00:01 +0200
+Message-Id: <20210517140307.753984717@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -41,35 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinzhou Su <Jinzhou.Su@amd.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 5c88e3b86a88f14efa0a3ddd28641c6ff49fb9c4 ]
+[ Upstream commit 5c7d374444afdeb9dd534a37c4f6c13af032da0c ]
 
-The buffer of SA bo will be used by many cases. So it's better
-to invalidate the cache of indirect buffer allocated by SA before
-commit the IB.
+Fixes hardware wakeup issues
 
-Signed-off-by: Jinzhou Su <Jinzhou.Su@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7615/mcu.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
-index 2f53fa0ae9a6..28f20f0b722f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
-@@ -75,6 +75,8 @@ int amdgpu_ib_get(struct amdgpu_device *adev, struct amdgpu_vm *vm,
- 		}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+index c31036f57aef..62a971660da7 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+@@ -341,12 +341,20 @@ static int mt7615_mcu_drv_pmctrl(struct mt7615_dev *dev)
+ 	u32 addr;
+ 	int err;
  
- 		ib->ptr = amdgpu_sa_bo_cpu_addr(ib->sa_bo);
-+		/* flush the cache before commit the IB */
-+		ib->flags = AMDGPU_IB_FLAG_EMIT_MEM_SYNC;
+-	addr = is_mt7663(mdev) ? MT_PCIE_DOORBELL_PUSH : MT_CFG_LPCR_HOST;
++	if (is_mt7663(mdev)) {
++		/* Clear firmware own via N9 eint */
++		mt76_wr(dev, MT_PCIE_DOORBELL_PUSH, MT_CFG_LPCR_HOST_DRV_OWN);
++		mt76_poll(dev, MT_CONN_ON_MISC, MT_CFG_LPCR_HOST_FW_OWN, 0, 3000);
++
++		addr = MT_CONN_HIF_ON_LPCTL;
++	} else {
++		addr = MT_CFG_LPCR_HOST;
++	}
++
+ 	mt76_wr(dev, addr, MT_CFG_LPCR_HOST_DRV_OWN);
  
- 		if (!vm)
- 			ib->gpu_addr = amdgpu_sa_bo_gpu_addr(ib->sa_bo);
+ 	mt7622_trigger_hif_int(dev, true);
+ 
+-	addr = is_mt7663(mdev) ? MT_CONN_HIF_ON_LPCTL : MT_CFG_LPCR_HOST;
+ 	err = !mt76_poll_msec(dev, addr, MT_CFG_LPCR_HOST_FW_OWN, 0, 3000);
+ 
+ 	mt7622_trigger_hif_int(dev, false);
 -- 
 2.30.2
 
